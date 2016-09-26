@@ -9,7 +9,7 @@ use app\models\City;
 use app\models\Country;
 use app\models\Currency;
 use app\models\DidGroup;
-use app\exceptions\web\BadRequestHttpException;
+use app\models\TariffNumber;
 use app\models\filter\FreeNumberFilter;
 
 final class OpenController extends Controller
@@ -56,7 +56,7 @@ final class OpenController extends Controller
                 ->setRegions([$region]);
 
         $response = [];
-        foreach ($numbers->each()->result(null) as $row) {
+        foreach ($numbers->result(null) as $row) {
             $response[] = $numbers->formattedNumber($row, $currency);
         }
         return $response;
@@ -74,13 +74,14 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name="minCost",type="number",description="минимальная стоимость",in="query"),
      *   @SWG\Parameter(name="maxCost",type="number",description="максимальная стоимость",in="query"),
      *   @SWG\Parameter(name="beautyLvl",type="integer",description="уровень красоты",in="query"),
-     *   @SWG\Parameter(name="like",type="string",description="Номер телефона. Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)",in="query"),
+     *   @SWG\Parameter(name="like",type="string",description="Маска номера телефона. Допустимы [A-Z0-9*]",in="query"),
      *   @SWG\Parameter(name="offset",type="integer",description="смещение результатов поиска",in="query"),
      *   @SWG\Parameter(name="limit",type="integer",description="кол-во записей (default: 12, 'null' для получения всех)",in="query"),
      *   @SWG\Parameter(name="currency",type="string",description="код валюты (ISO)",in="query"),
      *   @SWG\Parameter(name="countryCode",type="integer",description="Код страны",in="query"),
      *   @SWG\Parameter(name="cities[0]",type="integer",description="ID города",in="query"),
      *   @SWG\Parameter(name="cities[1]",type="integer",description="ID города",in="query"),
+     *   @SWG\Parameter(name="similar",type="string",description="Значение для подсчета схожести",in="query"),
      *   @SWG\Response(
      *     response=200,
      *     description="Выбрать список свободных номеров",
@@ -108,7 +109,8 @@ final class OpenController extends Controller
         $limit = FreeNumberFilter::FREE_NUMBERS_LIMIT,
         $currency = Currency::RUB,
         $countryCode = 0,
-        array $cities = []
+        array $cities = [],
+        $similar = null
     ) {
         $numbers =
             (new FreeNumberFilter)
@@ -118,7 +120,8 @@ final class OpenController extends Controller
                 ->setMinCost($minCost)
                 ->setMaxCost($maxCost)
                 ->setBeautyLvl($beautyLvl)
-                ->setNumberMask($like);
+                ->setNumberMask($like)
+                ->setSimilar($similar);
         if ((int)$offset) {
             $numbers->setOffset((int)$offset);
         }
@@ -128,7 +131,7 @@ final class OpenController extends Controller
 
         $response = [];
 
-        foreach ($numbers->orderByPrice()->each()->result($limit) as $row) {
+        foreach ($numbers->orderByPrice()->result($limit) as $row) {
             $response[] = $numbers->formattedNumber($row, $currency);
         }
 
@@ -136,121 +139,40 @@ final class OpenController extends Controller
     }
 
     /**
-     * @SWG\Definition(
-     *   definition="number",
-     *   type="object",
-     *   @SWG\Property(
-     *     property="number",
-     *     type="string",
-     *     description="Номер"
-     *   ),
-     *   @SWG\Property(
-     *     property="beauty_level",
-     *     type="integer",
-     *     description="Уровень красоты"
-     *   ),
-     *   @SWG\Property(
-     *     property="price",
-     *     type="integer",
-     *     description="Цена"
-     *   ),
-     *   @SWG\Property(
-     *     property="currency",
-     *     type="string",
-     *     description="Код валюты (ISO)"
-     *   ),
-     *   @SWG\Property(
-     *     property="originPrice",
-     *     type="integer",
-     *     description="Цена указанная для Did group"
-     *   ),
-     *   @SWG\Property(
-     *     property="originCurrency",
-     *     type="string",
-     *     description="Код валюты (ISO) указанный для Did group"
-     *   ),
-     *   @SWG\Property(
-     *     property="region",
-     *     type="integer",
-     *     description="ID региона"
-     *   ),
-     *   @SWG\Property(
-     *     property="city_id",
-     *     type="integer",
-     *     description="ID города"
-     *   ),
-     *   @SWG\Property(
-     *     property="site_publish",
-     *     type="boolean",
-     *     description="Публиковать на сайте или нет"
-     *   ),
-     *   @SWG\Property(
-     *     property="did_group_id",
-     *     type="integer",
-     *     description="ID DID группы"
-     *   ),
-     *   @SWG\Property(
-     *     property="number_type",
-     *     type="integer",
-     *     description="Тип номера (внутренний, внешний etc) см. models\NumberType"
-     *   ),
+     * @SWG\Definition(definition="number", type="object",
+     *   @SWG\Property(property="number", type="string", description="Номер"),
+     *   @SWG\Property(property="beauty_level", type="integer", description="Уровень красоты"),
+     *   @SWG\Property(property="price", type="integer", description="Цена"),
+     *   @SWG\Property(property="currency", type="string", description="Код валюты (ISO)"),
+     *   @SWG\Property(property="originPrice", type="integer", description="Цена указанная для Did group"),
+     *   @SWG\Property(property="originCurrency", type="string", description="Код валюты (ISO) указанный для Did group"),
+     *   @SWG\Property(property="region", type="integer", description="ID региона"),
+     *   @SWG\Property(property="city_id", type="integer", description="ID города"),
+     *   @SWG\Property(property="site_publish", type="boolean", description="Публиковать на сайте или нет"),
+     *   @SWG\Property(property="did_group_id", type="integer", description="ID DID группы"),
+     *   @SWG\Property(property="number_type", type="integer", description="Тип номера (внутренний, внешний etc) см. models\NumberType"),
      * ),
-     * @SWG\Definition(
-     *   definition="numbers",
-     *   type="object",
-     *   @SWG\Property(
-     *     property="beauty_level",
-     *     type="string",
-     *     description="Наименование уровня красоты"
-     *   ),
-     *   @SWG\Property(
-     *     property="numbers",
-     *     type="array",
-     *     description="Массив свободных номеров в стране/городе/уровне красоты",
+     * @SWG\Definition(definition="numbers", type="object",
+     *   @SWG\Property(property="beauty_level", type="string", description="Наименование уровня красоты"),
+     *   @SWG\Property(property="numbers", type="array", description="Массив свободных номеров в стране/городе/уровне красоты",
      *     @SWG\Items(
      *       ref="#/definitions/number"
      *     )
      *   ),
      * ),
-     * @SWG\Definition(
-     *   definition="city",
-     *   type="object",
-     *   @SWG\Property(
-     *     property="city_id",
-     *     type="integer",
-     *     description="Идентификатор города"
-     *   ),
-     *   @SWG\Property(
-     *     property="city_name",
-     *     type="string",
-     *     description="Наименование города"
-     *   ),
-     *   @SWG\Property(
-     *     property="numbers",
-     *     type="array",
-     *     description="Массив свободных номеров",
+     * @SWG\Definition(definition="city", type="object",
+     *   @SWG\Property(property="city_id", type="integer", description="Идентификатор города"),
+     *   @SWG\Property(property="city_name", type="string", description="Наименование города"),
+     *   @SWG\Property(property="numbers", type="array", description="Массив свободных номеров",
      *     @SWG\Items(
      *       ref="#/definitions/numbers"
      *     )
      *   )
      * ),
-     * @SWG\Definition(
-     *   definition="country",
-     *   type="object",
-     *   @SWG\Property(
-     *     property="country_id",
-     *     type="integer",
-     *     description="Идентификатор страны"
-     *   ),
-     *   @SWG\Property(
-     *     property="country_name",
-     *     type="string",
-     *     description="Наименование страны"
-     *   ),
-     *   @SWG\Property(
-     *     property="cities",
-     *     type="array",
-     *     description="Массив городов входящих в состав страны",
+     * @SWG\Definition(definition="country", type="object",
+     *   @SWG\Property(property="country_id", type="integer", description="Идентификатор страны"),
+     *   @SWG\Property(property="country_name", type="string", description="Наименование страны"),
+     *   @SWG\Property(property="cities", type="array", description="Массив городов входящих в состав страны",
      *     @SWG\Items(
      *       ref="#/definitions/city"
      *     )
@@ -380,6 +302,106 @@ final class OpenController extends Controller
         }
 
         return $result;
+    }
+
+    /*
+     * @SWG\Definition(definition="did_group", type="object",
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор группы"),
+     *   @SWG\Property(property="name", type="string", description="Наименование группы"),
+     *   @SWG\Property(property="city_id", type="integer", description="Идентификатор города"),
+     *   @SWG\Property(property="beauty_level", type="integer", description="Степень красоты"),
+     *   @SWG\Property(property="number_type_id", type="integer", description="Тип номеров")
+     * ),
+     * @SWG\Get(
+     *   tags={"Список DID групп"},
+     *   path="/open/did-groups",
+     *   summary="Получение DID групп",
+     *   operationId="Получение DID групп",
+     *   @SWG\Parameter(name="id[0]",type="integer",description="идентификатор(ы) DID групп",in="query",),
+     *   @SWG\Parameter(name="id[1]",type="integer",description="идентификатор(ы) DID групп",in="query"),
+     *   @SWG\Parameter(name="id[2]",type="integer",description="идентификатор(ы) DID групп",in="query"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Список DID групп",
+     *     @SWG\Definition(
+     *       ref="#/definitions/did_group"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
+     * @param int[] $id
+     * @return DidGroup[]
+     */
+    public function actionDidGroups(array $id = [])
+    {
+        $result = DidGroup::find();
+
+        if (count($id)) {
+            $result->where(['IN', 'id', $id]);
+        }
+
+        return $result->all();
+    }
+
+    /*
+     * @SWG\Definition(definition="number_tariff", type="object",
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор тарифного плана"),
+     *   @SWG\Property(property="country_id", type="integer", description="Идентификатор страны"),
+     *   @SWG\Property(property="currency_id", type="integer", description="Идентификатор валюты"),
+     *   @SWG\Property(property="city_id", type="integer", description="Идентификатор города"),
+     *   @SWG\Property(property="name", type="string", description="Наименование тарифного плана"),
+     *   @SWG\Property(property="status", type="string", description="Тип тарифного плана"),
+     *   @SWG\Property(property="activation_fee", type="float", description="Стоимость подключения тарифного плана"),
+     *   @SWG\Property(property="period", type="string", description="Период действия тарифного плана"),
+     *   @SWG\Property(property="did_group_id", type="integer", description="Идентификатор DID группы"),
+     *   @SWG\Property(property="old_beauty_level", type="integer", description="Не используется"),
+     *   @SWG\Property(property="old_beauty_prefix", type="integer", description="Не используется")
+     * ),
+     * @SWG\Get(
+     *   tags={"Список DID групп"},
+     *   path="/open/numbers-tariffs",
+     *   summary="Получение тарифных планов",
+     *   operationId="Получение тарифных планов",
+     *   @SWG\Parameter(name="didGroupIds[0]",type="integer",description="идентификатор(ы) DID групп",in="query"),
+     *   @SWG\Parameter(name="didGroupIds[1]",type="integer",description="идентификатор(ы) DID групп",in="query"),
+     *   @SWG\Parameter(name="didGroupIds[2]",type="integer",description="идентификатор(ы) DID групп",in="query"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Список тарифных планов",
+     *     @SWG\Definition(
+     *       ref="#/definitions/number_tariff"
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
+     * @param int[] $didGroupIds
+     * @return TariffNumber[]
+     */
+    public function actionNumbersTariffs(array $didGroupIds = [])
+    {
+        $result = TariffNumber::find();
+
+        if (count($didGroupIds)) {
+            $result->where(['IN', 'did_group_id', $didGroupIds])->all();
+        }
+
+        return $result->all();
     }
 
 }

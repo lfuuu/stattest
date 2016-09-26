@@ -121,14 +121,14 @@ class VoipController extends BaseController
             ($mask = strtr($mask, ['.' => '_', '*' => '%'])) &&
             preg_match('/^[\d_%]+$/', $mask)
         ) {
-            $numbers->setNumberMask($mask);
+            $numbers->setNumberLike($mask);
         }
 
         $orderByField && $orderByType && $numbers->orderBy([$orderByField => (int)$orderByType]);
         $limit = (int)$limit;
 
         return $this->renderPartial('getFreeNumbers', [
-            'numbers' => $numbers->each()->result($limit ?: 100),
+            'numbers' => $numbers->result($limit ?: 100),
             'rowClass' => $rowClass,
         ]);
     }

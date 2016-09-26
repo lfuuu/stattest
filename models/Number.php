@@ -76,6 +76,8 @@ class Number extends ActiveRecord
 
     protected $callsCount = null;
 
+    public $levenshtein = -1;
+
     /**
      * @return string
      */
