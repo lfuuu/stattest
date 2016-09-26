@@ -24,6 +24,7 @@ use yii\helpers\Url;
  * @property string site_publish
  * @property int city_id
  * @property int did_group_id
+ * @property string number_tech
  * @property int ndc
  * @property string number_subscriber
  * @property int number_type
@@ -101,13 +102,14 @@ class Number extends ActiveRecord
             'beauty_level' => 'Степень красивости',
             'status' => 'Статус',
             'number_type' => 'Тип номера',
+            'number_tech' => 'Технический номер',
         ];
     }
 
     public function rules()
     {
         return [
-            [['status'], 'string'],
+            [['status', 'number_tech'], 'string'],
             [['beauty_level', 'did_group_id'], 'integer'],
             [['status', 'beauty_level', 'did_group_id'], 'required', 'on' => 'save'],
         ];
