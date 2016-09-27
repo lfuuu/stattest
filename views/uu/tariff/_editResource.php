@@ -69,7 +69,14 @@ $tariffResources = $formModel->tariffResources;
                 </div>
 
                 <div class="col-sm-2">
-                    <?= $form->field($tariffResource, "[{$i}]price_per_unit")->textInput()->label(false) ?>
+                    <?php
+                    $params = [];
+                    if ($tariffResource->resource_id == Resource::ID_VOIP_CALLS) {
+                        $tariffResource->price_per_unit = 1; // стоимость звонков 1-в-1 из низкоуровневого биллинга
+                        $params['readonly'] = 'readonly';
+                    }
+                    ?>
+                    <?= $form->field($tariffResource, "[{$i}]price_per_unit")->textInput($params)->label(false) ?>
                 </div>
 
                 <div class="col-sm-2">
