@@ -304,7 +304,7 @@ final class OpenController extends Controller
         return $result;
     }
 
-    /*
+    /**
      * @SWG\Definition(definition="did_group", type="object",
      *   @SWG\Property(property="id", type="integer", description="Идентификатор группы"),
      *   @SWG\Property(property="name", type="string", description="Наименование группы"),
@@ -351,7 +351,7 @@ final class OpenController extends Controller
         return $result->all();
     }
 
-    /*
+    /**
      * @SWG\Definition(definition="number_tariff", type="object",
      *   @SWG\Property(property="id", type="integer", description="Идентификатор тарифного плана"),
      *   @SWG\Property(property="country_id", type="integer", description="Идентификатор страны"),
