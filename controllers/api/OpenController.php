@@ -304,7 +304,7 @@ final class OpenController extends Controller
         return $result;
     }
 
-    /*
+    /**
      * @SWG\Definition(definition="did_group", type="object",
      *   @SWG\Property(property="id", type="integer", description="Идентификатор группы"),
      *   @SWG\Property(property="name", type="string", description="Наименование группы"),
