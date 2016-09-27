@@ -74,7 +74,8 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name="minCost",type="number",description="минимальная стоимость",in="query"),
      *   @SWG\Parameter(name="maxCost",type="number",description="максимальная стоимость",in="query"),
      *   @SWG\Parameter(name="beautyLvl",type="integer",description="уровень красоты",in="query"),
-     *   @SWG\Parameter(name="like",type="string",description="Маска номера телефона. Допустимы [A-Z0-9*]",in="query"),
+     *   @SWG\Parameter(name="like",type="string",description="Маска номера телефона. mySQL like syntax",in="query"),
+     *   @SWG\Parameter(name="mask",type="string",description="Маска номера телефона. Допустимы [A-Z0-9*]",in="query"),
      *   @SWG\Parameter(name="offset",type="integer",description="смещение результатов поиска",in="query"),
      *   @SWG\Parameter(name="limit",type="integer",description="кол-во записей (default: 12, 'null' для получения всех)",in="query"),
      *   @SWG\Parameter(name="currency",type="string",description="код валюты (ISO)",in="query"),
@@ -105,6 +106,7 @@ final class OpenController extends Controller
         $maxCost = null,
         array $beautyLvl = [],
         $like = null,
+        $mask = null,
         $offset = 0,
         $limit = FreeNumberFilter::FREE_NUMBERS_LIMIT,
         $currency = Currency::RUB,
@@ -120,7 +122,8 @@ final class OpenController extends Controller
                 ->setMinCost($minCost)
                 ->setMaxCost($maxCost)
                 ->setBeautyLvl($beautyLvl)
-                ->setNumberMask($like)
+                ->setNumberLike($like)
+                ->setNumberMask($mask)
                 ->setSimilar($similar);
         if ((int)$offset) {
             $numbers->setOffset((int)$offset);
