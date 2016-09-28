@@ -344,8 +344,8 @@ class AccountTariff extends ActiveRecord
         /** @var AccountTariffLog $accountTariffLogPrev */
         $accountTariffLogPrev = null;
 
-        $accountTariffLogs = $this->accountTariffLogs;
-        $clientDate = reset($accountTariffLogs)
+        $accountTariffLogsTmp = $this->accountTariffLogs;
+        $clientDate = reset($accountTariffLogsTmp)
             ->getClientDateTime()
             ->format(DateTimeZoneHelper::DATE_FORMAT);
 

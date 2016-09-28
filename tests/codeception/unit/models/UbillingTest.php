@@ -48,10 +48,10 @@ class UbillingTest extends TestCase
         ob_start();
 
         $setCurrentTariffTarificator = new SetCurrentTariffTarificator;
-        $setCurrentTariffTarificator->tarificate();
+        $setCurrentTariffTarificator->tarificate(null, false);
 
         $autoCloseAccountTariffTarificator = new AutoCloseAccountTariffTarificator;
-        $autoCloseAccountTariffTarificator->tarificate();
+        $autoCloseAccountTariffTarificator->tarificate(null, false);
 
         ob_end_clean();
     }
@@ -79,7 +79,7 @@ class UbillingTest extends TestCase
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
-        $accountTariff = AccountTariff::find()->where(['id' => 1])->one();
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 1])->one();
         $this->assertNotEmpty($accountTariff);
 
         $accountLogHugeFromToTariffs = $accountTariff->getAccountLogHugeFromToTariffs();
@@ -118,7 +118,7 @@ class UbillingTest extends TestCase
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
-        $accountTariff = AccountTariff::find()->where(['id' => 2])->one();
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 2])->one();
         $this->assertNotEmpty($accountTariff);
 
         $accountLogHugeFromToTariffs = $accountTariff->getAccountLogHugeFromToTariffs();
@@ -170,7 +170,7 @@ class UbillingTest extends TestCase
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
-        $accountTariff = AccountTariff::find()->where(['id' => 1])->one();
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 1])->one();
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
@@ -229,7 +229,7 @@ class UbillingTest extends TestCase
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
-        $accountTariff = AccountTariff::find()->where(['id' => 2])->one();
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 2])->one();
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
@@ -315,7 +315,7 @@ class UbillingTest extends TestCase
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
-        $accountTariff = AccountTariff::find()->where(['id' => 3])->one();
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 3])->one();
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
@@ -343,7 +343,7 @@ class UbillingTest extends TestCase
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
-        $accountTariff = AccountTariff::find()->where(['id' => 4])->one();
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 4])->one();
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();

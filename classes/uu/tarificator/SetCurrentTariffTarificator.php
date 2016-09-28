@@ -16,8 +16,10 @@ class SetCurrentTariffTarificator implements TarificatorI
 {
     /**
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @param bool $isWithTransaction
+     * @throws \Exception
      */
-    public function tarificate($accountTariffId = null)
+    public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
         $db = Yii::$app->db;
         $accountTariffTableName = AccountTariff::tableName();
@@ -44,15 +46,14 @@ class SetCurrentTariffTarificator implements TarificatorI
             FROM
                 {$accountTariffTableName} account_tariff
             WHERE
-                account_tariff.id > :delta
-            HAVING 
+                account_tariff.id >= :delta
 SQL;
         if ($accountTariffId) {
             // только конкретную услугу, даже если не надо менять тариф
-            $sql .= " account_tariff.id = {$accountTariffId} ";
+            $sql .= " AND account_tariff.id = {$accountTariffId} ";
         } else {
             // все услуги, где надо менять тариф
-            $sql .= ' IFNULL(account_tariff.tariff_period_id, 0) != IFNULL(new_tariff_period_id, 0)';
+            $sql .= ' HAVING IFNULL(account_tariff.tariff_period_id, 0) != IFNULL(new_tariff_period_id, 0)';
         }
 
         $query = $db->createCommand(
@@ -69,10 +70,10 @@ SQL;
 
             $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
 
-            $transaction = Yii::$app->db->beginTransaction();
+            $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
             try {
 
-                if ($accountTariff->tariff_period_id != $row['new_tariff_period_id'] && $row['new_tariff_period_id']) {
+                if ($accountTariff->tariff_period_id && $accountTariff->tariff_period_id != $row['new_tariff_period_id'] && $row['new_tariff_period_id']) {
                     // Проверить баланс при смене тарифа (но не при закрытии услуги)
                     $this->checkBalance($accountTariff);
                 }
@@ -103,24 +104,24 @@ SQL;
                     $accountTariff->save();
                 }
 
-                $transaction->commit();
+                $isWithTransaction && $transaction->commit();
 
             } catch (\LogicException $e) {
-                $transaction->rollBack();
+                $isWithTransaction && $transaction->rollBack();
                 echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
 
                 // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
-                $transaction = Yii::$app->db->beginTransaction();
+                $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
                 $accountTariffLog = reset($accountTariff->accountTariffLogs);
                 $accountTariffLog->actual_from_utc = (new \DateTimeImmutable($accountTariffLog->actual_from_utc))
                     ->modify('+1 day')
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 $accountTariffLog->save();
-                $transaction->commit();
+                $isWithTransaction && $transaction->commit();
 
             } catch (\Exception $e) {
-                $transaction->rollBack();
+                $isWithTransaction && $transaction->rollBack();
                 echo PHP_EOL . $e->getMessage() . PHP_EOL;
                 Yii::error($e->getMessage());
                 if ($accountTariffId) {
