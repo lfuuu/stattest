@@ -1,5 +1,6 @@
 <?php
 use app\classes\Encrypt;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\BillDocument;
 use app\models\Country;
@@ -9,8 +10,10 @@ use app\models\DidGroup;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsSources;
 use app\models\LkClientSettings;
+use app\models\LogTarif;
 use app\models\Number;
 use app\models\TariffNumber;
+use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
 use app\models\City;
 use app\models\Region;
@@ -19,6 +22,8 @@ use app\models\Payment as PaymentModel;
 use app\models\LkNoticeSetting;
 use app\models\important_events\ImportantEventsNames;
 use app\models\Language as LanguageModel;
+use app\models\usages\UsageInterface;
+use app\models\UsageVirtpbx;
 
 class ApiLk
 {
@@ -1022,67 +1027,65 @@ class ApiLk
     }
 
     /**
-     * @param $client_id - ID клиента в Стат
-     * @param $region_id - ID региона
-     * @param $tarif_id - ID тарифа
+     * @param $clientId - ID клиента в Стат
+     * @param $regionId - ID региона
+     * @param $tariffId - ID тарифа
      * @return array
      * @throws Exception
      */
-    public static function orderVpbxTarif($client_id, $region_id, $tarif_id)
+    public static function orderVpbxTarif($clientId, $regionId, $tariffId)
     {
-        global $db;
+        $clientId = (int)$clientId;
+        $regionId = (int)$regionId;
+        $tariffId = (int)$tariffId;
 
-        $client_id = (int)$client_id;
-        $region_id = (int)$region_id;
-        $tarif_id = (int)$tarif_id;
-    
-        $account = ClientAccount::findOne(["id" => $client_id]);
-        if (!$region_id)
-        {
-            if ($account)
-            {
-                $region_id = $account->region;
+        $account = ClientAccount::findOne(["id" => $clientId]);
+        if (!$regionId) {
+            if ($account) {
+                $regionId = $account->region;
             }
         }
 
-        $region = $db->GetRow("select name from regions where id='".$region_id."'");
-        $tarif = $db->GetRow("select id, description as name from tarifs_virtpbx where id='".$tarif_id."'");
-    
-        if (!$account || !$region || !$tarif)
+        $region = Region::findOne(['id' => $regionId]);
+        $tariff = TariffVirtpbx::findOne(['id' => $tariffId]);
+
+        if (!$account || !$region || !$tariff) {
             throw new Exception("data_error");
+        }
 
         $message = "Заказ услуги Виртуальная АТС из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
+        $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $clientId)\n";
         $message .= 'Регион: ' . $region->name . "\n";
-        $message .= 'Тарифный план: ' . $tarif["name"];
+        $message .= 'Тарифный план: ' . $tariff->description;
 
-        $vpbxId = $db->QueryInsert("usage_virtpbx", array(
-                            "client"        => $account->client,
-                            "actual_from"   => date('Y-m-d'),
-                            "actual_to"     => "4000-01-01",
-                            "amount"        => 1,
-                            "status"        => "connecting",
-                            "region"        => $region_id
-                            )
-                        );
+        $vats = new UsageVirtpbx();
+        $vats->client = $account->client;
+        $vats->actual_from = (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
+        $vats->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
+        $vats->amount = 1;
+        $vats->status = UsageInterface::STATUS_CONNECTING;
+        $vats->region = $regionId;
 
-        if (!$vpbxId) return array('status'=>'error','message'=>'service_connecting_error');
+        if (!$vats->save()) {
+            return [
+                'status' => 'error',
+                'message' => 'service_connecting_error'
+            ];
+        }
 
-        $db->QueryInsert("log_tarif", array(
-                            "service"         => 'usage_virtpbx',
-                            "id_service"      => $vpbxId,
-                            "id_tarif"        => $tarif_id,
-                            "id_user"         => self::_getUserLK(),
-                            "ts"              => array('NOW()'),
-                            "date_activation" => date('Y-m-d')
-                            )
-                        );
+        $logTariff = new LogTarif();
+        $logTariff->service = UsageVirtpbx::tableName();
+        $logTariff->id_service = $vats->id;
+        $logTariff->id_tarif = $tariffId;
+        $logTariff->ts = (new DateTime('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $logTariff->date_activation = (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
+        $logTariff->id_user = self::_getUserLK();
+        $logTariff->save();
 
         if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0) {
-            return array('status' => 'ok', 'message' => 'order_ok');
-        }
-        else {
-            return array('status' => 'error', 'message' => 'order_error');
+            return ['status' => 'ok', 'message' => 'order_ok'];
+        } else {
+            return ['status' => 'error', 'message' => 'order_error'];
         }
     }
 

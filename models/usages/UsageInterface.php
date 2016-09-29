@@ -28,6 +28,9 @@ interface UsageInterface
     const MIDDLE_DATE = '3000-01-01'; // "полпути в никуда" или "посередине ничего"
     const MIN_DATE = '1970-01-01';
 
+    const STATUS_CONNECTING = 'connecting';
+    const STATUS_WORKING = 'working';
+
     /**
      * @return Biller
      */
