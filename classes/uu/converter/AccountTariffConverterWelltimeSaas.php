@@ -53,8 +53,9 @@ class AccountTariffConverterWelltimeSaas extends AccountTariffConverterA
           (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_welltime.activation_dt, usage_welltime.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
-      null, usage_welltime.activation_dt
+  SELECT COALESCE(usage_welltime.activation_dt,usage_welltime.actual_from), 
+    usage_welltime.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+    null, COALESCE(usage_welltime.activation_dt,usage_welltime.actual_from)
 
   FROM usage_welltime,
     clients,
@@ -69,7 +70,7 @@ class AccountTariffConverterWelltimeSaas extends AccountTariffConverterA
           insert_user_id, insert_time)
 
   SELECT usage_welltime.expire_dt, usage_welltime.id + {$deltaAccountTariff}, null,
-      null, usage_welltime.activation_dt
+      null, COALESCE(usage_welltime.activation_dt,usage_welltime.actual_from)
 
   FROM usage_welltime,
     clients,

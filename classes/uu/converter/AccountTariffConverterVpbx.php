@@ -55,7 +55,8 @@ class AccountTariffConverterVpbx extends AccountTariffConverterA
           (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT GREATEST(log_tarif.date_activation, usage_virtpbx.activation_dt), log_tarif.id_service + {$deltaVpbxAccountTariff}, {$tariffPeriodTableName}.id,
+  SELECT GREATEST(log_tarif.date_activation, COALESCE(usage_virtpbx.activation_dt, usage_virtpbx.actual_from)), 
+    log_tarif.id_service + {$deltaVpbxAccountTariff}, {$tariffPeriodTableName}.id,
     user_users.id, log_tarif.ts
   FROM
     (

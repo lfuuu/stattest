@@ -2,7 +2,6 @@
 
 namespace app\classes\behaviors\uu;
 
-use app\classes\DateTimeWithUserTimezone;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\ServiceType;
 use app\helpers\DateTimeZoneHelper;
@@ -42,6 +41,15 @@ class SyncAccountTariffLight extends Behavior
         $accountTariff = $accountLogPeriod->accountTariff;
         if ($accountTariff->service_type_id != ServiceType::ID_VOIP_PACKAGE) {
             // только для пакетов
+            return;
+        }
+
+        if (!$accountTariff->tariff_period_id) {
+            // пакет закрыт
+            \app\classes\Event::go(self::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT, [
+                    'id' => $accountLogPeriod->id,
+                ]
+            );
             return;
         }
 

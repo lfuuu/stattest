@@ -77,8 +77,8 @@ class AccountTariffConverterExtra extends AccountTariffConverterA
           (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_extra.activation_dt, usage_extra.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
-      null, usage_extra.activation_dt
+  SELECT COALESCE(usage_extra.activation_dt, usage_extra.actual_from), usage_extra.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+      null, COALESCE(usage_extra.activation_dt, usage_extra.actual_from)
 
   FROM usage_extra,
     clients,
@@ -93,7 +93,7 @@ class AccountTariffConverterExtra extends AccountTariffConverterA
           insert_user_id, insert_time)
 
   SELECT usage_extra.expire_dt, usage_extra.id + {$deltaAccountTariff}, null,
-      null, usage_extra.activation_dt
+      null, COALESCE(usage_extra.activation_dt, usage_extra.actual_from)
 
   FROM usage_extra,
     clients,

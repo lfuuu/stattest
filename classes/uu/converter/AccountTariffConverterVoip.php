@@ -55,8 +55,9 @@ class AccountTariffConverterVoip extends AccountTariffConverterA
           (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT GREATEST(log_tarif.date_activation, usage_voip.activation_dt), usage_voip.id + {$deltaVoipAccountTariff}, {$tariffPeriodTableName}.id,
-      user_users.id, log_tarif.ts
+  SELECT GREATEST(log_tarif.date_activation, COALESCE(usage_voip.activation_dt, usage_voip.actual_from)), 
+    usage_voip.id + {$deltaVoipAccountTariff}, {$tariffPeriodTableName}.id,
+    user_users.id, log_tarif.ts
 
   FROM
     (

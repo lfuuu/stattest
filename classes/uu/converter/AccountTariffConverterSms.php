@@ -53,8 +53,8 @@ class AccountTariffConverterSms extends AccountTariffConverterA
           (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_sms.activation_dt, usage_sms.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
-      null, usage_sms.activation_dt
+  SELECT COALESCE(usage_sms.activation_dt, usage_sms.actual_from), usage_sms.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+      null, COALESCE(usage_sms.activation_dt, usage_sms.actual_from)
 
   FROM usage_sms,
     clients,
@@ -69,7 +69,7 @@ class AccountTariffConverterSms extends AccountTariffConverterA
           insert_user_id, insert_time)
 
   SELECT usage_sms.expire_dt, usage_sms.id + {$deltaAccountTariff}, null,
-      null, usage_sms.activation_dt
+      null, COALESCE(usage_sms.activation_dt, usage_sms.actual_from)
 
   FROM usage_sms,
     clients,
