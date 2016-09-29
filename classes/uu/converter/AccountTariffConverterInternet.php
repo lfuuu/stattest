@@ -70,7 +70,7 @@ class AccountTariffConverterInternet extends AccountTariffConverterA
           (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT GREATEST(log_tarif.date_activation, COALESCE(usage_ip_ports.activation_dt, usage_ip_ports.acual_from)), usage_ip_ports.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+  SELECT GREATEST(log_tarif.date_activation, COALESCE(usage_ip_ports.activation_dt, usage_ip_ports.actual_from)), usage_ip_ports.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
       user_users.id, log_tarif.ts
 
   FROM
