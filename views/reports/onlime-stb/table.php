@@ -61,7 +61,7 @@ use app\helpers\DateTimeZoneHelper;
                     <td><?= $item['date_delivered']; ?></td>
                     <td>
                         <?php
-                        $last_stages = array_slice($item['stages'], count($items['stages'])-2, 2);
+                        $last_stages = array_slice($item['stages'], count($item['stages'])-2, 2);
                         foreach ($last_stages as $stage) : ?>
                             <span style="font-size: 8pt;"><?= DateTimeZoneHelper::getDateTime($stage['date_finish_desired']); ?></span>
                             <b><?= $stage['state_name']; ?></b> <?= $stage['user_main']; ?>: <span style="background-color: #cfffcf;"> <?= $stage['comment']; ?> </span><br />

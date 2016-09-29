@@ -334,7 +334,7 @@
 
 <input type=checkbox value=1 name="invoice-1" id=cb5><label for=cb5{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Счёт-фактура (1 абонентка)</label><br>
 <input type=checkbox value=1 name="invoice-2" id=cb6><label for=cb6{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Счёт-фактура (2 превышение)</label><br>
-<input type=checkbox value=1 name="invoice-3" id=cb7><label for=cb7{if !$bill_invoices[3] || $deinv3} style='color:#C0C0C0'{/if}>Счёт-фактура (3 оборудование)</label><br>
+<input type=checkbox value=1 name="invoice-3" id=cb7><label for=cb7{if !$bill_invoices[3]} style='color:#C0C0C0'{/if}>Счёт-фактура (3 оборудование)</label><br>
 <input type=checkbox value=1 name="invoice-4" id=cbc><label for=cbc{if $bill_invoices[5] eq 0} style='color:#C0C0C0'{elseif $bill_invoices[5] eq -1} style='background-color:#ffc0c0;font-style: italic;'{/if}>Счёт-фактура (4 аванс)</label><br>
 
 <input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1 абонентка)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-1&to_print=true&is_word=true">MS Word</a><br />

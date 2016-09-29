@@ -150,7 +150,7 @@
                             {/if}
                             {$item.comment|escape|find_urls}
                             {if $item.uspd}<br />{$item.uspd}{/if}
-                            {if $item.stages_comment}
+                            {if isset($item.stages_comment) && $item.stages_comment}
                                 <br /><span style="font-size: 7pt;">{$item.stages_comment}</span>
                             {/if}
                             {if count($item.doers)>0}
@@ -296,12 +296,6 @@
                                 <td>Статус заказа в 1С: </td>
                                 <td>
                                     <b>{$bill.state_1c}</b>
-                                    {if $tt_1c_states}
-                                        &nbsp;&nbsp;&nbsp;&nbsp;
-                                        {foreach from=$tt_1c_states item='s'}
-                                            <input type="button" value="{$s}" onclick="statlib.modules.tt.mktt.setState1c(event,this)" />
-                                        {/foreach}
-                                    {/if}
                                 </td>
                                 </tr>{/if}
                             <tr id=tuspd style='display:none'>
