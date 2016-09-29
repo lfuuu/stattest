@@ -2,6 +2,7 @@
 namespace app\modules\nnp\commands;
 
 use app\classes\Connection;
+use app\models\billing\Server;
 use app\models\Country;
 use app\modules\nnp\models\NumberRange;
 use UnexpectedValueException;
@@ -13,6 +14,9 @@ use yii\console\Controller;
  */
 class ImportController extends Controller
 {
+    // Защита от сбоя обновления. Если после обновления осталось менее 70% исходного - не обновлять
+    const DELTA_MIN = 0.7;
+
     /**
      * Ссылки на файлы для скачивания
      * [url => is_mob]
@@ -45,6 +49,7 @@ class ImportController extends Controller
 
         /** @var Connection $dbPgNnp */
         $dbPgNnp = Yii::$app->dbPgNnp;
+
         $transaction = $dbPgNnp->beginTransaction();
         try {
 
@@ -78,7 +83,7 @@ class ImportController extends Controller
      * @param string $url
      * @param bool $isMob
      */
-    protected function rusByUrl($dbPgNnp, $url, $isMob)
+    protected function rusByUrl(Connection $dbPgNnp, $url, $isMob)
     {
         $handle = fopen($url, "r");
         if (!$handle) {
@@ -108,8 +113,8 @@ class ImportController extends Controller
                 $isMob, // is_mob
                 trim($bufferArray[4]), // operator_source
                 trim($bufferArray[5]), // region_source
-                Country::PREFIX_RUSSIA . $bufferArray[0] . $bufferArray[1], // full_number_from
-                Country::PREFIX_RUSSIA . $bufferArray[0] . $bufferArray[2], // full_number_to
+                Country::PREFIX_RUSSIA . trim($bufferArray[0]) . trim($bufferArray[1]), // full_number_from
+                Country::PREFIX_RUSSIA . trim($bufferArray[0]) . trim($bufferArray[2]), // full_number_to
             ];
 
             if (count($insertValues) % 1000 === 0) {
@@ -148,7 +153,7 @@ class ImportController extends Controller
      * @param Connection $dbPgNnp
      * @throws \yii\db\Exception
      */
-    protected function preImport($dbPgNnp)
+    protected function preImport(Connection $dbPgNnp)
     {
         $sql = <<<SQL
 CREATE TEMPORARY TABLE number_range_tmp
@@ -174,18 +179,23 @@ SQL;
      * @param string $countryPrefix
      * @throws \yii\db\Exception
      */
-    protected function postImport($dbPgNnp, $countryPrefix)
+    protected function postImport(Connection $dbPgNnp, $countryPrefix)
     {
+        echo PHP_EOL;
+
         $tableName = NumberRange::tableName();
 
+        // выключать триггеры, иначе все повиснет
+        $this->disableTrigger($dbPgNnp);
+
         // всё выключить
-        // @todo надо выключать триггеры автоматически или вручную, иначе все повиснет. Подробности у Дениса
         $sql = <<<SQL
     UPDATE {$tableName}
     SET is_active = false
-    WHERE country_prefix = :country_prefix
+    WHERE is_active AND country_prefix = :country_prefix
 SQL;
-        $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
+        $affectedRowsBefore = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
+        printf("They were: %d\n", $affectedRowsBefore);
 
         // обновить и включить
         $sql = <<<SQL
@@ -204,8 +214,8 @@ SQL;
         number_range.full_number_from = number_range_tmp.full_number_from
         AND number_range.number_to = number_range_tmp.number_to
 SQL;
-        $affectedRows = $dbPgNnp->createCommand($sql)->execute();
-        printf("Updated: %d\n", $affectedRows);
+        $affectedRowsUpdated = $dbPgNnp->createCommand($sql)->execute();
+        printf("Updated: %d\n", $affectedRowsUpdated);
 
         // удалить из временной таблицы уже обработанное
         $sql = <<<SQL
@@ -247,12 +257,57 @@ SQL;
     FROM
         number_range_tmp
 SQL;
-        $affectedRows = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
-        printf("Added: %d\n", $affectedRows);
+        $affectedRowsAdded = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
+        printf("Added: %d\n", $affectedRowsAdded);
+
+        $affectedRowsTotal = $affectedRowsUpdated + $affectedRowsAdded;
+        $affectedRowsDelta = $affectedRowsBefore ? $affectedRowsTotal / $affectedRowsBefore : 1;
+        printf("Total: %d, %.2f\n", $affectedRowsTotal, $affectedRowsDelta * 100);
 
         $sql = <<<SQL
 DROP TABLE number_range_tmp
 SQL;
         $dbPgNnp->createCommand($sql)->execute();
+
+        // включать триггеры обратно
+        $this->enableTrigger($dbPgNnp);
+
+        if ($affectedRowsDelta < self::DELTA_MIN) {
+            throw new \LogicException('После обновления осталось менее ' . $affectedRowsDelta . ' исходных данных. Нужно вручную разобраться в причинах');
+        }
+    }
+
+    /**
+     * выключать триггеры, иначе все повиснет
+     * @param Connection $dbPgNnp
+     */
+    protected function disableTrigger(Connection $dbPgNnp)
+    {
+        $tableName = NumberRange::tableName();
+
+        $sql = "ALTER TABLE {$tableName} DISABLE TRIGGER ALL";
+        $dbPgNnp->createCommand($sql)->execute();
+    }
+
+    /**
+     * включать триггеры обратно
+     * @param Connection $dbPgNnp
+     */
+    protected function enableTrigger(Connection $dbPgNnp)
+    {
+        $tableName = NumberRange::tableName();
+
+        $sql = "ALTER TABLE {$tableName} ENABLE TRIGGER ALL";
+        $dbPgNnp->createCommand($sql)->execute();
+
+        // синхронизировать данные по региональным серверам
+        $sql = "select from event.notify(:table_name, 0, :p_server_id)";
+        $activeQuery = Server::find();
+        foreach ($activeQuery->each() as $server) {
+            $dbPgNnp->createCommand($sql, [
+                ':table_name' => 'nnp_number_range',
+                ':p_server_id' => $server->id,
+            ])->execute();
+        }
     }
 }
