@@ -67,8 +67,8 @@ class AccountTariffConverterCallChat extends AccountTariffConverterA
           (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_call_chat.activation_dt, usage_call_chat.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
-      null, usage_call_chat.activation_dt
+  SELECT COALESCE(usage_call_chat.activation_dt, usage_call_chat.actual_from), usage_call_chat.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+      null, COALESCE(usage_call_chat.activation_dt, usage_call_chat.actual_from)
 
   FROM
     (
