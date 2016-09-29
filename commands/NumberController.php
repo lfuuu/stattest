@@ -1,6 +1,7 @@
 <?php
 namespace app\commands;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\CounterInteropTrunk;
 use app\models\Number;
 use app\models\Region;
@@ -39,19 +40,19 @@ class NumberController extends Controller
                 [
                     "=",
                     "actual_from",
-                    $today->format("Y-m-d")
+                    $today->format(DateTimeZoneHelper::DATE_FORMAT)
                 ],
                 [
                     "=",
                     "actual_to",
-                    $yesterday->format("Y-m-d")
+                    $yesterday->format(DateTimeZoneHelper::DATE_FORMAT)
                 ]
             ])->all();
 
         foreach ($usages as $usage) {
 
             Number::dao()->actualizeStatusByE164($usage->E164);
-            echo $today->format("Y-m-d") . ": " . $usage->E164 . "\n";
+            echo $today->format(DateTimeZoneHelper::DATE_FORMAT) . ": " . $usage->E164 . "\n";
         }
     }
 

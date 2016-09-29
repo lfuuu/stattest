@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\UsageCallChat;
 use Yii;
 use DateTime;
@@ -109,7 +110,7 @@ class ClientAccountBiller
             UsageIpPorts::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -117,7 +118,7 @@ class ClientAccountBiller
             UsageVoip::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -125,14 +126,14 @@ class ClientAccountBiller
             UsageVoipPackage::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
         $this->processUsages(
             UsageTrunk::find()
                 ->andWhere(['client_account_id' => $this->clientAccount->id])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -140,7 +141,7 @@ class ClientAccountBiller
             UsageVirtpbx::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -148,7 +149,7 @@ class ClientAccountBiller
             UsageExtra::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -156,7 +157,7 @@ class ClientAccountBiller
             UsageWelltime::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -164,7 +165,7 @@ class ClientAccountBiller
             UsageEmails::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -172,7 +173,7 @@ class ClientAccountBiller
             UsageSms::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -180,7 +181,7 @@ class ClientAccountBiller
             UsageCallChat::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
-                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format('Y-m-d')])
+                ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
@@ -209,7 +210,7 @@ class ClientAccountBiller
                     ->andWhere([
                         'client_account_id' => $this->clientAccount->id,
                         'source' => Transaction::SOURCE_STAT,
-                        'billing_period' => $this->billerPeriodFrom->format('Y-m-d'),
+                        'billing_period' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT),
                         'transaction_type' => $transactionTypes,
                     ])
                     ->orderBy('id');

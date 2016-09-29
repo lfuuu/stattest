@@ -2,6 +2,7 @@
 
 namespace app\helpers\usages;
 
+use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use app\models\LogTarif;
 
@@ -27,7 +28,7 @@ trait LogTariffTrait
                 ->orderBy('date_activation desc, id desc');
 
         if ($date !== null) {
-            $result->andWhere('date_activation <= :date', [':date' => (new DateTime($date))->format('Y-m-d')]);
+            $result->andWhere('date_activation <= :date', [':date' => (new DateTime($date))->format(DateTimeZoneHelper::DATE_FORMAT)]);
         }
 
         return $result->one();

@@ -2,6 +2,7 @@
 
 namespace app\dao\reports;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use yii\db\Expression;
@@ -168,11 +169,11 @@ class ReportExtendsOperatorsDao extends Singleton
     {
         $this->dateFrom = new DateTime($dateFrom);
         $this->dateFrom = $this->dateFrom->setTime(0, 0, 0);
-        $this->dateFrom = $this->dateFrom->format('Y-m-d H:i:s');
+        $this->dateFrom = $this->dateFrom->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $this->dateTo = new DateTime($dateTo);
         $this->dateTo = $this->dateTo->setTime(23, 59, 59);
-        $this->dateTo = $this->dateTo->format('Y-m-d H:i:s');
+        $this->dateTo = $this->dateTo->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 
     private function prepareProducts(Query $query)

@@ -2,21 +2,22 @@
 
 namespace app\forms\transfer;
 
-use app\models\UsageCallChat;
-use yii\base\ModelEvent;
 use app\classes\Assert;
 use app\classes\Form;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\UsageCallChat;
 use app\models\UsageEmails;
-use app\models\usages\UsageInterface;
 use app\models\UsageExtra;
-use app\models\UsageSms;
-use app\models\UsageWelltime;
 use app\models\UsageIpPorts;
+use app\models\usages\UsageInterface;
+use app\models\UsageSms;
+use app\models\UsageTechCpe;
+use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
-use app\models\UsageTrunk;
-use app\models\UsageTechCpe;
+use app\models\UsageWelltime;
+use yii\base\ModelEvent;
 
 class ServiceTransferForm extends Form
 {
@@ -89,7 +90,7 @@ class ServiceTransferForm extends Form
             [
                 'actual_custom',
                 'date',
-                'format' => 'php:Y-m-d',
+                'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT,
                 'when' => function ($model) {
                     return $model->actual_from == 'custom';
                 },
@@ -207,10 +208,10 @@ class ServiceTransferForm extends Form
         }
 
         //print_r($result);
-        return array(
+        return [
             'total' => $total,
             'items' => $result
-        );
+        ];
     }
 
     /**

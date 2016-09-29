@@ -48,7 +48,7 @@ class UsageTrunkCloseForm extends Form
             return false;
         }
 
-        $usage->actual_to = $actualTo->format('Y-m-d');
+        $usage->actual_to = $actualTo->format(DateTimeZoneHelper::DATE_FORMAT);
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

@@ -6,6 +6,7 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use Yii;
 
@@ -91,15 +92,19 @@ SQL;
                 // поскольку запуск по крону, то он и так все сразу пересчитает
                 $sql = <<<SQL
                     INSERT INTO {$accountTariffLogTableName}
-                        (account_tariff_id, tariff_period_id, actual_from, insert_time)
+                        (account_tariff_id, tariff_period_id, actual_from_utc, insert_time)
                     VALUES
-                        (:account_tariff_id, :tariff_period_id, :actual_from, :insert_time)
+                        (:account_tariff_id, :tariff_period_id, :actual_from_utc, :insert_time)
 SQL;
                 $db->createCommand($sql, [
                     ':account_tariff_id' => $accountTariff->id,
                     ':tariff_period_id' => null,
-                    ':actual_from' => $dateFrom->format('Y-m-d'),
-                    ':insert_time' => $dateFrom->modify('-1 day')->format('Y-m-d 20:59:58'), // 58 секунд специально, чтобы не путать со старым скриптом, в котором 59
+                    ':actual_from_utc' => $dateFrom
+                        ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                    ':insert_time' => $dateFrom
+                        ->modify('-1 day')
+                        ->format(DateTimeZoneHelper::DATE_FORMAT . ' 20:59:58'), // 58 секунд специально, чтобы не путать со старым скриптом, в котором 59
                 ])
                     ->execute();
 

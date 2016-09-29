@@ -2,6 +2,7 @@
 namespace app\classes\bill;
 
 use app\classes\Utils;
+use app\helpers\DateTimeZoneHelper;
 use app\models\LogTarif;
 use app\models\TariffVirtpbx;
 use app\models\Virtpbx;
@@ -120,8 +121,8 @@ class VirtpbxBiller extends Biller
                 ->select('use_space,numbers,ext_did_count')
                 ->andWhere(['client_id' => $this->clientAccount->id])
                 ->andWhere(['usage_id' => $this->usage->id])
-                ->andWhere('date >= :from', [':from' => $from->format('Y-m-d')])
-                ->andWhere('date <= :to', [':to' => $to->format('Y-m-d')])
+                ->andWhere('date >= :from', [':from' => $from->format(DateTimeZoneHelper::DATE_FORMAT)])
+                ->andWhere('date <= :to', [':to' => $to->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->asArray()
                 ->all();
 

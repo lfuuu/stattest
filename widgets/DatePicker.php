@@ -2,6 +2,7 @@
 
 namespace app\widgets;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use yii\helpers\Html;
@@ -88,7 +89,7 @@ class DatePicker extends \kartik\date\DatePicker
 
     private function todayButton(array $options)
     {
-        list($year, $month, $day) = explode('-', (new DateTime('now'))->format('Y-m-d'));
+        list($year, $month, $day) = explode('-', (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT));
         return array_merge([
             'icon' => 'check',
             'title' => 'Установить дату в сегодня',

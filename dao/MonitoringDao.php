@@ -8,7 +8,6 @@ use yii\db\Expression;
 
 /**
  * @method static MonitoringDao me($args = null)
- * @property
  */
 class MonitoringDao extends Singleton
 {

@@ -7,7 +7,6 @@
  * @var bool $isReadOnly
  */
 
-use app\classes\DateTimeWithUserTimezone;
 use app\classes\uu\model\AccountTariffLog;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -29,13 +28,6 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
     'columns' => [
 
         [
-            'attribute' => 'actual_from',
-            'value' => function (AccountTariffLog $accountTariffLog) {
-                return Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'php:d M Y');
-            }
-        ],
-
-        [
             'attribute' => 'tariff_period_id',
             'format' => 'html',
             'value' => function (AccountTariffLog $accountTariffLog) {
@@ -50,7 +42,7 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
                     ' ' .
 
                     (
-                    strtotime($accountTariffLog->actual_from) >= time() ?
+                    strtotime($accountTariffLog->actual_from_utc) >= time() ?
                         Html::a(
                             Html::tag('i', '', [
                                 'class' => 'glyphicon glyphicon-erase',
@@ -68,20 +60,29 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
         ],
 
         [
-            'attribute' => 'insert_user_id',
+            'attribute' => 'actual_from_utc',
+            'format' => 'html',
             'value' => function (AccountTariffLog $accountTariffLog) {
-                return $accountTariffLog->insertUser ?
-                    $accountTariffLog->insertUser->name :
-                    Yii::t('common', '(not set)');
+                return Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'php:d M Y') .
+                Html::tag('div', $accountTariffLog->actual_from_utc . ' UTC', ['class' => 'small_grey']);
             }
         ],
 
         [
-            'attribute' => 'insert_time',
+            'attribute' => 'insert_user_id',
+            'format' => 'html',
             'value' => function (AccountTariffLog $accountTariffLog) {
-                return ($accountTariffLog->insert_time && $accountTariffLog->insert_time[0] != '0') ?
-                    (new DateTimeWithUserTimezone($accountTariffLog->insert_time))->getDateTime() :
-                    Yii::t('common', '(not set)');
+                return
+                    (
+                    $accountTariffLog->insertUser ?
+                        $accountTariffLog->insertUser->name :
+                        Yii::t('common', '(not set)')
+                    ) .
+                    (
+                    ($accountTariffLog->insert_time && $accountTariffLog->insert_time[0] != '0') ?
+                        Html::tag('div', $accountTariffLog->insert_time . ' UTC', ['class' => 'small_grey']) :
+                        ''
+                    );
             }
         ],
     ],

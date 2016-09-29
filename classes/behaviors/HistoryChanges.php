@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\behaviors;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
@@ -40,7 +41,7 @@ class HistoryChanges extends Behavior
             'model' => substr(get_class($this->owner), 11), // remove 'app\models\'
             'model_id' => $this->owner->primaryKey,
             'user_id' => Yii::$app->user->getId(),
-            'created_at' => date('Y-m-d H:i:s'),
+            'created_at' => date(DateTimeZoneHelper::DATETIME_FORMAT),
             'action' => $action,
             'data_json' => json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             'prev_data_json' => json_encode($prevData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),

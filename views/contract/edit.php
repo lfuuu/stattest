@@ -3,6 +3,7 @@
 /** @var $this \app\classes\BaseView */
 
 use app\assets\AppAsset;
+use app\helpers\DateTimeZoneHelper;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use yii\helpers\Url;
@@ -60,7 +61,7 @@ if (!$model->id) {
                         <?= DatePicker::widget(
                             [
                                 'name' => 'kartik-date-3',
-                                'value' => Yii::$app->request->get('date') ? Yii::$app->request->get('date') : date('Y-m-d', time()),
+                                'value' => Yii::$app->request->get('date') ? Yii::$app->request->get('date') : date(DateTimeZoneHelper::DATE_FORMAT),
                                 'removeButton' => false,
                                 'options' => ['class' => 'form-control input-sm'],
                                 'pluginOptions' => [
@@ -191,7 +192,7 @@ if (!$model->id) {
                         <?= DatePicker::widget(
                             [
                                 'name' => 'ClientDocument[contract_date]',
-                                'value' => date('Y-m-d'),
+                                'value' => date(DateTimeZoneHelper::DATE_FORMAT),
                                 'removeButton' => false,
                                 'options' => ['class' => 'form-control input-sm'],
                                 'pluginOptions' => [
@@ -290,7 +291,7 @@ if (!$model->id) {
                     <?= DatePicker::widget(
                         [
                             'name' => 'ClientDocument[contract_date]',
-                            'value' => date('Y-m-d'),
+                            'value' => date(DateTimeZoneHelper::DATE_FORMAT),
                             'removeButton' => false,
                             'options' => ['class' => 'form-control input-sm'],
                             'pluginOptions' => [

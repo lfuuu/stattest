@@ -1,5 +1,6 @@
 <?php
 
+use app\helpers\DateTimeZoneHelper;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 use kartik\daterange\DateRangePicker;
@@ -44,9 +45,9 @@ echo Breadcrumbs::widget([
                                     'value' =>
                                         $filterModel->date
                                             ?:
-                                            (new DateTime('first day of previous month'))->format('Y-m-d') .
+                                            (new DateTime('first day of previous month'))->format(DateTimeZoneHelper::DATE_FORMAT) .
                                             ' - ' .
-                                            (new DateTime('last day of previous month'))->format('Y-m-d'),
+                                            (new DateTime('last day of previous month'))->format(DateTimeZoneHelper::DATE_FORMAT),
                                     'pluginOptions' => [
                                         'locale' => [
                                             'format' => 'YYYY-MM-DD',

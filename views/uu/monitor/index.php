@@ -21,6 +21,7 @@ use app\classes\uu\model\Resource;
 use app\classes\uu\monitor\AccountLogPeriodMonitor;
 use app\classes\uu\monitor\AccountLogResourceMonitor;
 use app\classes\uu\monitor\AccountLogSetupMonitor;
+use app\helpers\DateTimeZoneHelper;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -94,8 +95,8 @@ if ($monthDateTime) {
                 // обязательно ли считать транзакции за этот день
                 $dateStr = $monthDateTime
                     ->setDate($monthDateTime->format('Y'), $monthDateTime->format('n'), $day)
-                    ->format('Y-m-d');
-                if ($dateStr >= date('Y-m-d')) {
+                    ->format(DateTimeZoneHelper::DATE_FORMAT);
+                if ($dateStr >= date(DateTimeZoneHelper::DATE_FORMAT)) {
 
                     // дата в будущем, считать не обязательно
                     $isNeedCalculate = false;

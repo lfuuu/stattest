@@ -2,6 +2,7 @@
 
 namespace app\controllers\api;
 
+use app\helpers\DateTimeZoneHelper;
 use yii;
 use app\models\document\DocumentTemplate;
 use app\models\LkWizardState;
@@ -137,7 +138,7 @@ class WizardMcnController extends WizardBaseController
             $clientDocument->contract_id = $this->account->contract->id;
             $clientDocument->type = 'contract';
             $clientDocument->contract_no = $this->accountId;
-            $clientDocument->contract_date = date("Y-m-d");
+            $clientDocument->contract_date = date(DateTimeZoneHelper::DATE_FORMAT);
             $clientDocument->comment = 'ЛК - wizard';
             $clientDocument->user_id = User::CLIENT_USER_ID;
             $clientDocument->template_id = DocumentTemplate::DEFAULT_WIZARD_MCN;
@@ -158,7 +159,7 @@ class WizardMcnController extends WizardBaseController
                 $clientDocument->contract_id = $this->account->contract->id;
                 $clientDocument->type = ClientDocument::DOCUMENT_AGREEMENT_TYPE;
                 $clientDocument->contract_no = 1;
-                $clientDocument->contract_date = date("Y-m-d");
+                $clientDocument->contract_date = date(DateTimeZoneHelper::DATE_FORMAT);
                 $clientDocument->comment = 'ЛК - wizard';
                 $clientDocument->user_id = User::CLIENT_USER_ID;
                 $clientDocument->template_id = DocumentTemplate::ZAKAZ_USLUG;
@@ -168,7 +169,7 @@ class WizardMcnController extends WizardBaseController
                 $clientDocument->contract_id = $this->account->contract->id;
                 $clientDocument->type = ClientDocument::DOCUMENT_AGREEMENT_TYPE;
                 $clientDocument->contract_no = 1;
-                $clientDocument->contract_date = date('Y-m-d');
+                $clientDocument->contract_date = date(DateTimeZoneHelper::DATE_FORMAT);
                 $clientDocument->comment = 'ЛК - wizard';
                 $clientDocument->user_id = User::CLIENT_USER_ID;
                 $clientDocument->template_id = DocumentTemplate::DC_telefonia;

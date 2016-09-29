@@ -1,6 +1,7 @@
 <?php
 namespace app\commands;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
 use app\models\HistoryVersion;
 use Yii;
@@ -11,7 +12,7 @@ class VersionController extends Controller
 
     public function actionExportCurrentVersions()
     {
-        $date = date('Y-m-d');
+        $date = date(DateTimeZoneHelper::DATE_FORMAT);
         Yii::info('Проверка наличия версий на ' . $date);
         /** @var HistoryVersion[] $versions */
         $versions = HistoryVersion::find()->where(['date' => $date])->all();

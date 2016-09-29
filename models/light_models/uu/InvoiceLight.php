@@ -2,6 +2,7 @@
 
 namespace app\models\light_models\uu;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use yii\base\Component;
@@ -38,7 +39,7 @@ class InvoiceLight extends Component
         $this->date =
             (new DateTime)
                 ->modify('first day of previous month')
-                ->format('Y-m-d');
+                ->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
     /**

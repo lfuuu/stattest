@@ -46,7 +46,7 @@ echo GridView::widget([
             'filter' => \kartik\daterange\DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
                 'presetDropdown' => true,
-                'value' => $filterModel->date ?: (new DateTime)->format('Y-m-d') . ' - ' . (new DateTime)->format('Y-m-d'),
+                'value' => $filterModel->date ?: (new DateTime)->format(DateTimeZoneHelper::DATE_FORMAT) . ' - ' . (new DateTime)->format(DateTimeZoneHelper::DATE_FORMAT),
                 'pluginOptions' => [
                     'locale' => [
                         'format' => 'YYYY-MM-DD',

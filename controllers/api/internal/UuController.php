@@ -21,6 +21,7 @@ use app\classes\uu\model\TariffVoipGroup;
 use app\classes\uu\model\TariffVoipTarificate;
 use app\exceptions\api\internal\ExceptionValidationForm;
 use app\exceptions\web\NotImplementedHttpException;
+use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -1047,7 +1048,7 @@ class UuController extends ApiInternalController
         }
         /** @var AccountTariffLog $modelPrev */
         $modelPrev = array_shift($models);
-        $isCancelable = $modelLast->actual_from > date('Y-m-d');
+        $isCancelable = $modelLast->actual_from > date(DateTimeZoneHelper::DATE_FORMAT);
 
 
         if ($modelLast->tariff_period_id) {

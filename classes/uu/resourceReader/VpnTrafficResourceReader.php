@@ -3,6 +3,7 @@
 namespace app\classes\uu\resourceReader;
 
 use app\classes\uu\model\AccountTariff;
+use app\helpers\DateTimeZoneHelper;
 use app\models\UsageTechCpe;
 use DateTimeImmutable;
 use yii\base\Object;
@@ -37,7 +38,7 @@ class VpnTrafficResourceReader extends Object implements ResourceReaderInterface
                 DATE(mod_traf_1d.datetime)
 SQL;
         $db = UsageTechCpe::getDb();
-        $dataReader = $db->createCommand($sql, [':date' => $minLogDatetime->format('Y-m-d')])
+        $dataReader = $db->createCommand($sql, [':date' => $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)])
             ->query();
         foreach ($dataReader as $row) {
             $accountTariffId = $row['usage_id'];
@@ -59,7 +60,7 @@ SQL;
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
         $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
-        $date = $dateTime->format('Y-m-d');
+        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         return
             isset($this->usageToDateToValue[$accountTariffId][$date]) ?
                 $this->usageToDateToValue[$accountTariffId][$date] :

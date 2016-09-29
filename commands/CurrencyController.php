@@ -7,6 +7,7 @@
 
 namespace app\commands;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use DateTime;
@@ -27,7 +28,7 @@ class CurrencyController extends Controller
         // уже установленные курсы
         $currencyRates = [];
         $currencyRateQuery = CurrencyRate::find()
-            ->where(['>', 'date', $dateTimeFrom->format('Y-m-d')]);
+            ->where(['>', 'date', $dateTimeFrom->format(DateTimeZoneHelper::DATE_FORMAT)]);
         /** @var CurrencyRate $currencyRate */
         foreach ($currencyRateQuery->each() as $currencyRate) {
             $currencyRates[$currencyRate->date][$currencyRate->currency] = true;
@@ -44,7 +45,7 @@ class CurrencyController extends Controller
         // по всем нескачанным дням
         while ($dateTimeFrom->modify('+1 day') <= $dateTimeTomorrow) {
 
-            $date = $dateTimeFrom->format('Y-m-d');
+            $date = $dateTimeFrom->format(DateTimeZoneHelper::DATE_FORMAT);
             Yii::info('CurrencyImport: ' . $date);
 
             $currenciesCopy = $currencies;
@@ -94,7 +95,7 @@ class CurrencyController extends Controller
             }
             $dateTimeXml = new DateTime($date);
             Yii::info('CurrencyImport: ' . print_r($currencies, true));
-            if ($isStrictDate && $dateTimeXml->format('Y-m-d') !== $dateTime->format('Y-m-d')) {
+            if ($isStrictDate && $dateTimeXml->format(DateTimeZoneHelper::DATE_FORMAT) !== $dateTime->format(DateTimeZoneHelper::DATE_FORMAT)) {
                 Yii::info('CurrencyImport: strict');
                 return false;
             }
@@ -112,13 +113,13 @@ class CurrencyController extends Controller
                 $currencyValueFloat /= (string)$valute->Nominal;
                 Yii::info('CurrencyImport: ' . $currencyCode . ' ' . $currencyValue . ' ' . $currencyValueFloat);
                 if ($currencyValueFloat <= 0) {
-                    Yii::error('CurrencyImport: wrong rate ' . $dateTime->format('Y-m-d') . ' ' . $currencyCode . ' ' . $currencyValue . ' ' . $currencyValueFloat);
+                    Yii::error('CurrencyImport: wrong rate ' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . ' ' . $currencyCode . ' ' . $currencyValue . ' ' . $currencyValueFloat);
                     continue;
                 }
 
                 try {
                     $currencyRate = new CurrencyRate();
-                    $currencyRate->date = $dateTime->format('Y-m-d');
+                    $currencyRate->date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
                     $currencyRate->currency = $currencyCode;
                     $currencyRate->rate = $currencyValueFloat;
                     $currencyRate->save();

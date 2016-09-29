@@ -1,6 +1,7 @@
 <?php
 namespace app\commands;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\BusinessProcessStatus;
 use app\models\Emails;
 use app\models\UsageVoip;
@@ -61,13 +62,13 @@ class UsageController extends Controller
 
         $now = new DateTime("now");
 
-        echo "\nstart " . $now->format("Y-m-d H:i:s") . "\n";
+        echo "\nstart " . $now->format(DateTimeZoneHelper::DATETIME_FORMAT) . "\n";
 
         $cleanOrderOfServiceDate = (new DateTime("now"))->modify("-3 day");
         $offDate = (new DateTime("now"))->modify("-10 day");
 
-        echo $now->format("Y-m-d") . ": off:   " . $offDate->format("Y-m-d") . "\n";
-        echo $now->format("Y-m-d") . ": clean: " . $cleanOrderOfServiceDate->format("Y-m-d") . "\n";
+        echo $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": off:   " . $offDate->format(DateTimeZoneHelper::DATE_FORMAT) . "\n";
+        echo $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": clean: " . $cleanOrderOfServiceDate->format(DateTimeZoneHelper::DATE_FORMAT) . "\n";
 
         $infoOff = $this->cleanUsages($offDate, self::ACTION_SET_OFF);
         $infoClean = $this->cleanUsages($cleanOrderOfServiceDate, self::ACTION_CLEAN_TRASH);
@@ -97,7 +98,7 @@ class UsageController extends Controller
         $yesterday = clone $now;
         $yesterday->modify('-1 day');
 
-        $usages = UsageVoip::find()->actual()->andWhere(["actual_from" => $date->format("Y-m-d")])->all();
+        $usages = UsageVoip::find()->actual()->andWhere(["actual_from" => $date->format(DateTimeZoneHelper::DATE_FORMAT)])->all();
 
         $info = [];
 
@@ -110,20 +111,20 @@ class UsageController extends Controller
                     continue;
                 }
 
-                $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": clean trash";
+                $info[] = $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": clean trash";
 
                 $model = new UsageVoipEditForm();
                 $model->initModel($account, $usage);
-                $model->disconnecting_date = $yesterday->format("Y-m-d");
+                $model->disconnecting_date = $yesterday->format(DateTimeZoneHelper::DATE_FORMAT);
                 $model->edit();
             } elseif ($action == self::ACTION_SET_OFF) {
                 if (!$tarif || $tarif->isTest()) {// тестовый тариф, или без тарифа вообще
-                    if ($usage->actual_to != $now->format("Y-m-d")) {// не выключенные сегодня
-                        $info[] = $now->format("Y-m-d") . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set off";
+                    if ($usage->actual_to != $now->format(DateTimeZoneHelper::DATE_FORMAT)) {// не выключенные сегодня
+                        $info[] = $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set off";
 
                         $model = new UsageVoipEditForm();
                         $model->initModel($account, $usage);
-                        $model->disconnecting_date = $now->format("Y-m-d");
+                        $model->disconnecting_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
                         $model->edit();
                     }
                 }
@@ -140,7 +141,7 @@ class UsageController extends Controller
     public function actionCheckVoipDayDisable()
     {
         $now = new DateTime('now');
-        echo PHP_EOL . 'start ' . $now->format('Y-m-d H:i:s');
+        echo PHP_EOL . 'start ' . $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $ress = Yii::$app->dbPg->createCommand('
             SELECT cc.client_id

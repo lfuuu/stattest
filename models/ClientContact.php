@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 
 /**
@@ -63,7 +64,7 @@ class ClientContact extends ActiveRecord
             ['comment', 'string'],
             ['is_active', 'default', 'value' => 1],
             ['is_official', 'default', 'value' => 0],
-            ['ts', 'default', 'value' => date('Y-m-d H:i:s')],
+            ['ts', 'default', 'value' => date(DateTimeZoneHelper::DATETIME_FORMAT)],
             ['user_id', 'default', 'value' => \Yii::$app->user->id],
             [['client_id', 'user_id', 'is_active', 'is_official'], 'integer', 'integerOnly' => true]
         ];

@@ -293,8 +293,8 @@ class ClientCreateExternalForm extends Form
             'trouble_type' => 'connect',
             'trouble_subtype' => 'connect',
             'client' => "id" . $this->account_id,
-            'date_start' => date('Y-m-d H:i:s'),
-            'date_finish_desired' => date('Y-m-d H:i:s'),
+            'date_start' => date(DateTimeZoneHelper::DATETIME_FORMAT),
+            'date_finish_desired' => date(DateTimeZoneHelper::DATETIME_FORMAT),
             'problem' => "Входящие клиент с сайта" . ($this->site_name ? ' ' . $this->site_name : '') . ": " . $this->company,
             'user_author' => "system",
             'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : '')
@@ -317,7 +317,7 @@ class ClientCreateExternalForm extends Form
 
         if (!$vats) {
             if ($client && $tarif) {
-                $actual_from = date('Y-m-d');
+                $actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
                 $actual_to = UsageInterface::MAX_POSSIBLE_DATE;
 
                 $vats = new UsageVirtpbx;
@@ -334,7 +334,7 @@ class ClientCreateExternalForm extends Form
                 $logTarif->id_service = $vats->id;
                 $logTarif->id_tarif = $tarif->id;
                 $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))->format(DateTimeZoneHelper::DATETIME_FORMAT);
-                $logTarif->date_activation = date('Y-m-d');
+                $logTarif->date_activation = date(DateTimeZoneHelper::DATE_FORMAT);
                 $logTarif->id_user = User::LK_USER_ID;
                 $logTarif->save();
 

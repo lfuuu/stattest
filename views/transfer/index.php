@@ -1,6 +1,7 @@
 <?php
 
 use app\forms\transfer\ServiceTransferForm;
+use app\helpers\DateTimeZoneHelper;
 use kartik\widgets\DatePicker;
 
 /** @var $model ServiceTransferForm */
@@ -183,7 +184,7 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
 
                         foreach ($model->getActualDateVariants() as $date):
                             $date = new DateTime($date);
-                            $dateValue = $date->format('Y-m-d');
+                            $dateValue = $date->format(DateTimeZoneHelper::DATE_FORMAT);
                             ?>
                             <div class="radio">
                                 <label>
@@ -207,7 +208,7 @@ $possibleServices = $model->getPossibleServices($client, $only_usages);
                         <?php
                         echo DatePicker::widget([
                             'type' => DatePicker::TYPE_INPUT,
-                            'value' => (new DateTime($model->actual_custom ?: $firstRowValue))->format('Y-m-d'),
+                            'value' => (new DateTime($model->actual_custom ?: $firstRowValue))->format(DateTimeZoneHelper::DATE_FORMAT),
                             'name' => 'transfer[actual_custom]',
                             'language' => 'ru',
                             'options' => [

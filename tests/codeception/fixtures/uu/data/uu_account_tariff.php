@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
 use app\models\ClientAccount;
 use tests\codeception\unit\models\_ClientAccount;
@@ -11,24 +12,24 @@ $account->save();
 return [
     // Tariff with autoprolongation
     [
-        'id' => 1,
+        'id' => AccountTariff::DELTA + 1,
         'client_account_id' => $account->id,
         'service_type_id' => ServiceType::ID_VPBX,
     ],
     [
-        'id' => 2,
+        'id' => AccountTariff::DELTA + 2,
         'client_account_id' => $account->id,
         'service_type_id' => ServiceType::ID_VPBX,
     ],
 
     // Tariff without autoprolongation
     [
-        'id' => 3,
+        'id' => AccountTariff::DELTA + 3,
         'client_account_id' => $account->id,
         'service_type_id' => ServiceType::ID_VPBX,
     ],
     [
-        'id' => 4,
+        'id' => AccountTariff::DELTA + 4,
         'client_account_id' => $account->id,
         'service_type_id' => ServiceType::ID_VPBX,
     ],

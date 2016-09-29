@@ -94,9 +94,9 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         if ($dateRangeFrom) {
             $dateRangeFromStr =
                 (new DateTimeWithUserTimezone($dateRangeFrom,
-                    new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
+                    new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))
                     ->modify('first day of this month')
-                    ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
+                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
             $link->andWhere(['>=', 'activation_dt', $dateRangeFromStr]);
@@ -104,9 +104,9 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         if ($dateRangeTo) {
             $dateRangeToStr =
                 (new DateTimeWithUserTimezone($dateRangeTo,
-                    new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_MOSCOW)))
+                    new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))
                     ->modify('-1 second')
-                    ->setTimezone(new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT))
+                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                     ->modify('last day of this month')
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 

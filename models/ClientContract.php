@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\dao\ClientContractDao;
+use app\helpers\DateTimeZoneHelper;
 use app\helpers\SetFieldTypeHelper;
 use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
@@ -186,7 +187,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getOrganization($date = '')
     {
-        $date = $this->historyVersionRequestedDate ? $this->historyVersionRequestedDate : ($date ?: date('Y-m-d'));
+        $date = $this->historyVersionRequestedDate ? $this->historyVersionRequestedDate : ($date ?: date(DateTimeZoneHelper::DATE_FORMAT));
         $organization = Organization::find()->byId($this->organization_id)->actual($date)->one();
         return $organization;
     }

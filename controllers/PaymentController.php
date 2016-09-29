@@ -3,6 +3,7 @@ namespace app\controllers;
 
 use app\classes\Assert;
 use app\forms\buh\PaymentAddForm;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\Bill;
 use app\models\Payment;
@@ -45,8 +46,8 @@ class PaymentController extends BaseController
         $model->client_id = $client->id;
         $model->currency = $client->currency;
         $model->original_currency = $client->currency;
-        $model->payment_date = date('Y-m-d');
-        $model->oper_date = date('Y-m-d');
+        $model->payment_date = date(DateTimeZoneHelper::DATE_FORMAT);
+        $model->oper_date = date(DateTimeZoneHelper::DATE_FORMAT);
         $model->payment_rate = 1;
 
         if ((int)$billId && ($bill = Bill::findOne($billId)) instanceof Bill) {

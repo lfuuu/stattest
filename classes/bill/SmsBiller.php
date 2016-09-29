@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 
 class SmsBiller extends Biller
@@ -62,8 +63,8 @@ class SmsBiller extends Biller
                 ',
                 [
                     ':clientAccountId' => $this->clientAccount->id,
-                    ':dateFromPrev' => $this->billerActualFrom->format('Y-m-d'),
-                    ':dateFromTo' => $this->billerActualTo->format('Y-m-d')
+                    ':dateFromPrev' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                    ':dateFromTo' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT)
                 ]
             )->queryScalar();
     }

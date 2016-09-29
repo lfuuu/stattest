@@ -1,5 +1,6 @@
 <?php
 
+use app\helpers\DateTimeZoneHelper;
 use yii\widgets\Breadcrumbs;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
@@ -28,9 +29,9 @@ foreach ($packages as $package) {
         'packageTitle' =>
             $package->tariff->name .
             ' / ' .
-            (new DateTime($package->actual_from))->format('Y-m-d') .
+            (new DateTime($package->actual_from))->format(DateTimeZoneHelper::DATE_FORMAT) .
             ' : ' .
-            (new DateTime($package->actual_to))->format('Y-m-d'),
+            (new DateTime($package->actual_to))->format(DateTimeZoneHelper::DATE_FORMAT),
     ];
 }
 ?>
@@ -45,9 +46,9 @@ foreach ($packages as $package) {
                     $dateRangeValue =
                         $filter->range
                             ?:
-                                (new DateTime('first day of this month'))->format('Y-m-d') .
+                                (new DateTime('first day of this month'))->format(DateTimeZoneHelper::DATE_FORMAT) .
                                 ' : ' .
-                                (new DateTime('last day of this month'))->format('Y-m-d');
+                                (new DateTime('last day of this month'))->format(DateTimeZoneHelper::DATE_FORMAT);
 
                     echo DateRangePicker::widget([
                         'name' => 'filter[range]',

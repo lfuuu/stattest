@@ -1,13 +1,14 @@
 <?php
 
 use app\classes\uu\model\ServiceType;
+use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPerson;
 use app\classes\uu\model\TariffStatus;
 use app\models\Country;
 
 return [
     [
-        'id' => 1,
+        'id' => Tariff::DELTA + 1,
         'name' => 'Tariff with autoprolongation',
         'service_type_id' => ServiceType::ID_VPBX,
         'tariff_status_id' => TariffStatus::ID_PUBLIC,
@@ -19,7 +20,7 @@ return [
         'is_include_vat' => 1,
     ],
     [
-        'id' => 2,
+        'id' => Tariff::DELTA + 2,
         'name' => 'Tariff without autoprolongation 0',
         'service_type_id' => ServiceType::ID_VPBX,
         'tariff_status_id' => TariffStatus::ID_PUBLIC,
@@ -32,7 +33,7 @@ return [
         'is_include_vat' => 1,
     ],
     [
-        'id' => 3,
+        'id' => Tariff::DELTA + 3,
         'name' => 'Tariff without autoprolongation 1',
         'service_type_id' => ServiceType::ID_VPBX,
         'tariff_status_id' => TariffStatus::ID_PUBLIC,

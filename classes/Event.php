@@ -65,7 +65,7 @@ class Event
         self::ATS3__UNBLOCKED => 'Номер разблокирован',
         self::CALL_CHAT__ADD => 'Услуга звонок-чат добавлена',
         self::CALL_CHAT__DEL => 'Услуга звонок-чат удалена',
-        self::CALL_CHAT__UPDATE => 'Услуга звонок-чат измененна',
+        self::CALL_CHAT__UPDATE => 'Услуга звонок-чат изменена',
         self::CHECK__CALL_CHAT => 'Проверить услугу звонок-чат',
         self::CHECK__USAGES => 'Проверить "старые" услуги',
         self::CHECK__VIRTPBX3 => 'Проверить услуги ВАТС',

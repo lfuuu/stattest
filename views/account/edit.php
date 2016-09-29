@@ -3,6 +3,7 @@
 /** @var $this \app\classes\BaseView */
 
 use app\assets\AppAsset;
+use app\helpers\DateTimeZoneHelper;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use yii\helpers\Json;
@@ -43,7 +44,7 @@ $language = Language::getLanguageByCountryId($model->getModel()->contragent->cou
                         <?= DatePicker::widget(
                             [
                                 'name' => 'kartik-date-3',
-                                'value' => Yii::$app->request->get('date') ? Yii::$app->request->get('date') : date('Y-m-d', time()),
+                                'value' => Yii::$app->request->get('date') ? Yii::$app->request->get('date') : date(DateTimeZoneHelper::DATE_FORMAT),
                                 'removeButton' => false,
                                 'pluginOptions' => [
                                     'autoclose' => true,
@@ -231,7 +232,7 @@ $language = Language::getLanguageByCountryId($model->getModel()->contragent->cou
                     <?= DatePicker::widget(
                         [
                             'name' => 'ClientDocument[contract_date]',
-                            'value' => date('Y-m-d'),
+                            'value' => date(DateTimeZoneHelper::DATE_FORMAT),
                             'removeButton' => false,
                             'pluginOptions' => [
                                 'autoclose' => true,

@@ -1,5 +1,6 @@
 <?php
 
+use app\helpers\DateTimeZoneHelper;
 use yii\helpers\ArrayHelper;
 use app\models\usages\UsageInterface;
 use app\models\UsageWelltime;
@@ -215,8 +216,8 @@ class m160327_101649_vats_to_welltime extends \app\classes\Migration
         }
 
         $lastDayOfThisMonthDateTime = new DateTime('last day of this month');
-        $lastDayOfThisMonth = $lastDayOfThisMonthDateTime->format('Y-m-d');
-        $firstDayOfNextMonth = $lastDayOfThisMonthDateTime->modify('+1 day')->format('Y-m-d');
+        $lastDayOfThisMonth = $lastDayOfThisMonthDateTime->format(DateTimeZoneHelper::DATE_FORMAT);
+        $firstDayOfNextMonth = $lastDayOfThisMonthDateTime->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
 
         unset($lastDayOfThisMonthDateTime);
 

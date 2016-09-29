@@ -49,8 +49,8 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage = new UsageTrunk();
         $usage->client_account_id = $this->clientAccount->id;
         $usage->connection_point_id = $this->connection_point_id;
-        $usage->actual_from = $actualFrom->format('Y-m-d');
-        $usage->actual_to = $actualTo->format('Y-m-d');
+        $usage->actual_from = $actualFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+        $usage->actual_to = $actualTo->format(DateTimeZoneHelper::DATE_FORMAT);
         $usage->trunk_id = $this->trunk_id;
         $usage->orig_enabled = $this->orig_enabled;
         $usage->term_enabled = $this->term_enabled;
@@ -118,7 +118,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
             $this->setAttributes($usage->getAttributes(), false);
             $this->trunk_id = $usage->trunk_id;
         } else {
-            $this->actual_from = $this->today->format('Y-m-d');
+            $this->actual_from = $this->today->format(DateTimeZoneHelper::DATE_FORMAT);
         }
     }
 

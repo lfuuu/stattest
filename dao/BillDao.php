@@ -275,11 +275,11 @@ class BillDao extends Singleton
 
                     $line->item = $accountEntry->typeName;
                     if ($accountEntry->type_id > 0) { //resource
-                        $line->date_from = $firstDayPrevMonthBillDate->format('Y-m-d');
-                        $line->date_to = $lastDayPrevMonthBillDate->format('Y-m-d');
+                        $line->date_from = $firstDayPrevMonthBillDate->format(DateTimeZoneHelper::DATE_FORMAT);
+                        $line->date_to = $lastDayPrevMonthBillDate->format(DateTimeZoneHelper::DATE_FORMAT);
                     } else {
-                        $line->date_from = $firstDayBillDate->format('Y-m-d');
-                        $line->date_to = $lastDayBillDate->format('Y-m-d');
+                        $line->date_from = $firstDayBillDate->format(DateTimeZoneHelper::DATE_FORMAT);
+                        $line->date_to = $lastDayBillDate->format(DateTimeZoneHelper::DATE_FORMAT);
                     }
                     $line->type = BillLine::LINE_TYPE_SERVICE;
                     $line->amount = 1;

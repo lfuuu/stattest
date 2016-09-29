@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
@@ -26,7 +27,7 @@ class LogBillDao extends Singleton
             Assert::isUnreachable();
         }
 
-        $log->ts = (new \DateTime())->format('Y-m-d H:i:s');
+        $log->ts = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $log->user_id = Yii::$app->has('user') && Yii::$app->user->getId() ? Yii::$app->user->getId() : User::SYSTEM_USER_ID;
         $log->comment = $message;
         $log->save();

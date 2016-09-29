@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\Assert;
 use app\classes\model\HistoryActiveRecord;
+use app\helpers\DateTimeZoneHelper;
 use yii\base\Model;
 use yii\db\ActiveRecord;
 
@@ -94,7 +95,7 @@ class HistoryVersion extends ActiveRecord
         }
 
         if (null === $date) {
-            $date = date('Y-m-d');
+            $date = date(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         if (null === $currentModel) {

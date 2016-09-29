@@ -1,0 +1,25 @@
+<?php
+return [
+    'id' => 'ID',
+    'name' => 'Name',
+    'parent_id' => 'Parent',
+
+    'Type #1' => 'VPBX',
+    'Type #2' => 'Voip',
+    'Type #3' => 'Voip packages',
+    'Type #4' => 'Internet',
+    'Type #5' => 'Collocation',
+    'Type #6' => 'VPN',
+    'Type #7' => 'IT Park',
+    'Type #8' => 'Domain registration',
+    'Type #9' => 'Virtual mail server',
+    'Type #10' => 'Old VPBX',
+    'Type #11' => 'Site',
+    'Type #12' => 'Provider',
+    'Type #13' => 'Wellsystem',
+    'Type #14' => 'Welltime (product)',
+    'Type #15' => 'Extra service',
+    'Type #16' => 'SMS Gate',
+    'Type #17' => 'SMS',
+    'Type #18' => 'Welltime (SAAS)',
+];

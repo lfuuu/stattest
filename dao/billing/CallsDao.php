@@ -1,6 +1,7 @@
 <?php
 namespace app\dao\billing;
 
+use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use yii\db\Expression;
 use yii\db\Query;
@@ -45,8 +46,8 @@ class CallsDao extends Singleton
                             " . $callsTable . "
                         where
                             number_service_id = '" . $usage->id . "'
-                            and " . $timeField . " >= '" . $from->format('Y-m-d H:i:s') . "'
-                            and " . $timeField . " <= '" . $to->format('Y-m-d H:i:s') . "'
+                            and " . $timeField . " >= '" . $from->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
+                            and " . $timeField . " <= '" . $to->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
                             and abs(cost) > 0.00001
                         group by rdest
                         having abs(cast( - sum(cost) as NUMERIC(10,2))) > 0
@@ -132,8 +133,8 @@ class CallsDao extends Singleton
         $query->andWhere([
             'between',
             'connect_time',
-            $firstDayOfDate->format('Y-m-d H:i:s'),
-            $lastDayOfDate->format('Y-m-d H:i:s')
+            $firstDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $lastDayOfDate->format(DateTimeZoneHelper::DATETIME_FORMAT)
         ]);
 
         $query->limit($limit > self::CALLS_MAX_LIMIT ? self::CALLS_MAX_LIMIT : $limit);

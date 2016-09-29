@@ -25,11 +25,9 @@ class UbillerController extends Controller
      */
     public function actionIndex()
     {
-        // проверить баланс при смене тарифа. Если денег не хватает - отложить на день
-        // обязательно это вызывать до транзакций (чтобы они правильно посчитали)
-        $this->actionChangeTariff();
-
         // Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
+        // Проверить баланс при смене тарифа. Если денег не хватает - отложить на день
+        // обязательно это вызывать до транзакций (чтобы они правильно посчитали)
         $this->actionSetCurrentTariff();
 
         // Автоматически закрыть услугу по истечению тестового периода
@@ -151,16 +149,9 @@ class UbillerController extends Controller
 
 
     /**
-     * Проверить баланс при смене тарифа. 1 секунда
-     * Если не хватает денег при смене тарифа - откладывать смену по +1 день, пока деньги не появятся, тогда списать.
-     */
-    public function actionChangeTariff()
-    {
-        $this->_tarificate('ChangeTariffTarificator', 'Проверить баланс при смене тарифа');
-    }
-
-    /**
      * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog. 10 секунд
+     * Проверить баланс при смене тарифа. Если денег не хватает - отложить на день.
+     * Обязательно это вызывать до транзакций (чтобы они правильно посчитали)
      */
     public function actionSetCurrentTariff()
     {

@@ -64,11 +64,11 @@ class AccountTariffConverterCallChat extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 from
         $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_call_chat.actual_from, usage_call_chat.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
-      null, usage_call_chat.actual_from
+  SELECT usage_call_chat.activation_dt, usage_call_chat.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+      null, usage_call_chat.activation_dt
 
   FROM
     (
@@ -84,10 +84,10 @@ class AccountTariffConverterCallChat extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 to
         $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_call_chat.actual_to, usage_call_chat.id + {$deltaAccountTariff}, null,
+  SELECT usage_call_chat.expire_dt, usage_call_chat.id + {$deltaAccountTariff}, null,
       null, usage_call_chat.expire_dt
 
   FROM usage_call_chat, clients

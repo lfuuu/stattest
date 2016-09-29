@@ -7,6 +7,7 @@ use app\forms\usage\UsageVoipAddPackageForm;
 use app\forms\usage\UsageVoipDeleteHistoryForm;
 use app\forms\usage\UsageVoipEditForm;
 use app\forms\usage\UsageVoipEditPackageForm;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\LogTarif;
 use app\models\UsageTrunk;
@@ -164,7 +165,7 @@ class VoipController extends BaseController
 
         $now = new \DateTime('now', $package->clientAccount->timezone);
 
-        Assert::isTrue($package->actual_from > $now->format('Y-m-d'));
+        Assert::isTrue($package->actual_from > $now->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $usage_id = $package->usage_voip_id;
 
