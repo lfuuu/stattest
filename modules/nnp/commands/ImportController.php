@@ -14,6 +14,9 @@ use yii\console\Controller;
  */
 class ImportController extends Controller
 {
+    // Защита от стобя обновления. Если после обновления осталось менее 70% исходного - не обновлять
+    const DELTA_MIN = 0.7;
+
     /**
      * Ссылки на файлы для скачивания
      * [url => is_mob]
@@ -191,8 +194,8 @@ SQL;
     SET is_active = false
     WHERE is_active AND country_prefix = :country_prefix
 SQL;
-        $affectedRows = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
-        printf("They were: %d\n", $affectedRows);
+        $affectedRowsBefore = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
+        printf("They were: %d\n", $affectedRowsBefore);
 
         // обновить и включить
         $sql = <<<SQL
@@ -257,7 +260,9 @@ SQL;
         $affectedRowsAdded = $dbPgNnp->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
         printf("Added: %d\n", $affectedRowsAdded);
 
-        printf("Total: %d\n", $affectedRowsUpdated + $affectedRowsAdded);
+        $affectedRowsTotal = $affectedRowsUpdated + $affectedRowsAdded;
+        $affectedRowsDelta = $affectedRowsBefore ? $affectedRowsTotal / $affectedRowsBefore : 1;
+        printf("Total: %d, %.2f\n", $affectedRowsTotal, $affectedRowsDelta * 100);
 
         $sql = <<<SQL
 DROP TABLE number_range_tmp
@@ -267,6 +272,9 @@ SQL;
         // включать триггеры обратно
         $this->enableTrigger($dbPgNnp);
 
+        if ($affectedRowsDelta < self::DELTA_MIN) {
+            throw new \LogicException('После обновления осталось менее ' . $affectedRowsDelta . ' исходных данных. Нужно вручную разобраться в причинах');
+        }
     }
 
     /**
