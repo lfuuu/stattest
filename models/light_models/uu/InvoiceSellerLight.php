@@ -2,6 +2,8 @@
 
 namespace app\models\light_models\uu;
 
+use app\classes\Html;
+use app\helpers\MediaFileHelper;
 use Yii;
 use yii\base\Component;
 use app\models\Organization;
@@ -21,7 +23,8 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
         $contact_fax,
         $director,
         $accountant,
-        $bank;
+        $bank,
+        $logo_image = '';
 
     /**
      * @param string $language
@@ -49,6 +52,16 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
                 : $organization->settlementAccount
             )
         );
+
+        if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)) {
+            $this->logo_image = Html::img(
+                MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name),
+                [
+                    'width' => 115,
+                    'border' => 0,
+                ]
+            );
+        }
     }
 
 
@@ -86,6 +99,7 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
             'director' => InvoicePersonLight::attributeLabels(),
             'accountant' => InvoicePersonLight::attributeLabels(),
             'bank' => InvoiceBankLight::attributeLabels(),
+            'logo_image' => 'Логотип компании',
         ];
     }
 

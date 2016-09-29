@@ -2,10 +2,10 @@
 
 namespace app\models\light_models\uu;
 
-use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use yii\base\Component;
+use app\classes\Assert;
 use app\classes\Smarty;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountTariff;
@@ -13,6 +13,7 @@ use app\models\ClientAccount;
 use app\models\Language;
 use app\models\InvoiceSettings;
 use app\forms\templates\uu\InvoiceForm;
+use app\helpers\DateTimeZoneHelper;
 
 class InvoiceLight extends Component
 {
@@ -81,11 +82,14 @@ class InvoiceLight extends Component
         ]);
 
         // Данные организации продавца
+        $dateForOrganization = (new DateTime)->format(DateTimeZoneHelper::DATE_FORMAT);
+
+        $sellerOrganization = $this->clientAccount->contract->getOrganization($dateForOrganization);
+        Assert::isObject($sellerOrganization, 'Данные об организации за дату "' . $dateForOrganization . '" не найдены');
+
         $this->seller = new InvoiceSellerLight(
             $this->language,
-            $this->clientAccount->contract
-                ->getOrganization($this->date)
-                ->setLanguage($dataLanguage),
+            $sellerOrganization->setLanguage($dataLanguage),
             $invoiceSetting
         );
 

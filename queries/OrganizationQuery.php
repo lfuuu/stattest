@@ -5,6 +5,7 @@ use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use DateTimeZone;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 class OrganizationQuery extends ActiveQuery
 {
@@ -30,8 +31,7 @@ class OrganizationQuery extends ActiveQuery
                 ->select('organization.*')
                 ->leftJoin('organization o2',
                     'organization.`organization_id` = o2.`organization_id` and organization.`actual_from` = o2.`actual_from`')
-                ->andWhere('organization.`actual_from` <= CAST(:date AS date)', [':date' => $filter_date])
-                ->andWhere('o2.`actual_to` >= CAST(:date AS date)', [':date' => $filter_date])
+                ->andWhere(new Expression('CAST(:date AS date) BETWEEN organization.actual_from AND o2.actual_to', ['date' => $filter_date]))
                 ->orderBy('organization.`actual_from` DESC');
     }
 

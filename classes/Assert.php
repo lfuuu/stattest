@@ -312,7 +312,7 @@ final class Assert
     {
         if (!is_object($object)) {
             throw new Exception(
-                $message . ' not object given'
+                $message ?: 'Not object given'
             );
         }
     }

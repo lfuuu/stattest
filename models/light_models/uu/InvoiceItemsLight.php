@@ -38,7 +38,7 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
                 'title' => $item->getTypeName($bill->getLanguage()),
                 'price_without_vat' => $item->price_without_vat,
                 'price_with_vat' => $item->price_with_vat,
-                'vat_rate' => $item->vat_rate,//($item->vat_rate == 0 ? 'без НДС' : sprintf('%.2f', $item->vat_rate) . '%'),
+                'vat_rate' => $item->vat_rate,
                 'vat' => $item->vat,
             ];
         }
