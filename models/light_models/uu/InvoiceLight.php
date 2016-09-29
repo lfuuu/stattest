@@ -38,7 +38,7 @@ class InvoiceLight extends Component
         $this->clientAccount = $clientAccount;
         $this->date =
             (new DateTime)
-                ->modify('last day of previous month')
+                ->modify('first day of previous month')
                 ->format('Y-m-d');
     }
 
@@ -81,8 +81,10 @@ class InvoiceLight extends Component
         ]);
 
         // Данные организации продавца
-        $sellerOrganization = $this->clientAccount->contract->getOrganization($this->date);
-        Assert::isObject($sellerOrganization, 'Данные об организации за дату "' . $this->date . '" не найдены');
+        $dateForOrganization = (new DateTime)->format('Y-m-d');
+
+        $sellerOrganization = $this->clientAccount->contract->getOrganization($dateForOrganization);
+        Assert::isObject($sellerOrganization, 'Данные об организации за дату "' . $dateForOrganization . '" не найдены');
 
         $this->seller = new InvoiceSellerLight(
             $this->language,
