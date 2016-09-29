@@ -346,6 +346,7 @@ a.nohover:hover {
     min-height: 55px;
 }
 
+.small_grey,
 .account-tariff-log-actual-from {
     color: grey;
     font-size: smaller;

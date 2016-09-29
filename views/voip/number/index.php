@@ -16,6 +16,7 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
 use app\classes\grid\column\universal\NumberTypeColumn;
+use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\filter\voip\NumberFilter;
@@ -118,6 +119,10 @@ $columns = [
     [
         'attribute' => 'did_group_id',
         'class' => DidGroupColumn::className(),
+    ],
+    [
+        'attribute' => 'number_tech',
+        'class' => StringColumn::className(),
     ],
     [
         'class' => ActionColumn::className(),

@@ -12,6 +12,9 @@ class EventQueueFilter extends EventQueue
 {
     public $id = '';
 
+    public $insert_time_from = '';
+    public $insert_time_to = '';
+
     public $date_from = '';
     public $date_to = '';
 
@@ -31,6 +34,7 @@ class EventQueueFilter extends EventQueue
     {
         return [
             [['id'], 'integer'],
+            [['insert_time_from', 'insert_time_to'], 'string'],
             [['date_from', 'date_to'], 'string'],
             [['next_start_from', 'next_start_to'], 'string'],
             [['event', 'status'], 'string'],
@@ -49,19 +53,27 @@ class EventQueueFilter extends EventQueue
         $query = EventQueue::find();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'id' => SORT_DESC,
+                ]
+            ],
         ]);
 
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
-        
+
+        $this->insert_time_from !== '' && $query->andWhere(['>=', 'insert_time', $this->insert_time_from]);
+        $this->insert_time_to !== '' && $query->andWhere(['<=', 'insert_time', $this->insert_time_to]);
+
         $this->date_from !== '' && $query->andWhere(['>=', 'date', $this->date_from]);
         $this->date_to !== '' && $query->andWhere(['<=', 'date', $this->date_to]);
-        
+
         $this->next_start_from !== '' && $query->andWhere(['>=', 'next_start', $this->next_start_from]);
         $this->next_start_to !== '' && $query->andWhere(['<=', 'next_start', $this->next_start_to]);
-        
+
         $this->event !== '' && $query->andWhere(['event' => $this->event]);
         $this->status !== '' && $query->andWhere(['status' => $this->status]);
-        
+
         $this->iteration_from !== '' && $query->andWhere(['>=', 'iteration', $this->iteration_from]);
         $this->iteration_to !== '' && $query->andWhere(['<=', 'iteration', $this->iteration_to]);
 

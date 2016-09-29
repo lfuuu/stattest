@@ -3,6 +3,7 @@
 namespace app\classes\voip;
 
 use app\classes\Event;
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\models\billing\PricelistFile;
 use yii\base\Object;
@@ -26,14 +27,14 @@ abstract class BasePricelistLoader extends BaseLoader
     {
         $file = new PricelistFile();
         $file->pricelist_id = $pricelistId;
-        $file->date = (new \DateTime())->format('Y-m-d H:i:s');
+        $file->date = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $file->format = '';
         $file->filename = $uploadedFile['name'];
         $file->full = false;
         $file->active = false;
         $file->parsed = false;
         $file->rows = false;
-        $file->startdate = (new \DateTime())->modify('+1 day')->format('Y-m-d H:i:s');
+        $file->startdate = (new \DateTime())->modify('+1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         mkdir($file->getStorageDir());
 

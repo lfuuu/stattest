@@ -2,6 +2,7 @@
 namespace app\dao;
 
 use app\classes\Singleton;
+use app\helpers\DateTimeZoneHelper;
 use app\models\CurrencyRate;
 use yii\db\Exception;
 
@@ -28,7 +29,7 @@ class CurrencyRateDao extends Singleton
         $rate =
             CurrencyRate::find()
                 ->andWhere(['currency' => $toCurrencyId])
-                ->andWhere('date <= :date', [':date' => $datetime->format('Y-m-d')])
+                ->andWhere('date <= :date', [':date' => $datetime->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->orderBy('date desc')
                 ->one();
         return $rate === null ? null : $rate->rate;

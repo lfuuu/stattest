@@ -1,5 +1,6 @@
 <?php
 use app\classes\DateTimeWithUserTimezone;
+use app\helpers\DateTimeZoneHelper;
 use app\models\Currency;
 use app\classes\Wordifier;
 use app\classes\Utils;
@@ -242,7 +243,7 @@ function smarty_modifier_datetime_with_timezone($value, $showedTimezone, $format
         (
         new DateTimeWithUserTimezone(
             $value,
-            new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT)
+            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)
         )
         )
             ->setTimezone(new DateTimeZone($showedTimezone))

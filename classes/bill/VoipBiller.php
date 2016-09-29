@@ -3,6 +3,7 @@ namespace app\classes\bill;
 
 use app\classes\Assert;
 use app\classes\Utils;
+use app\helpers\DateTimeZoneHelper;
 use app\models\LogTarif;
 use app\models\TariffVoip;
 use app\dao\billing\CallsDao;
@@ -25,7 +26,7 @@ class VoipBiller extends Biller
         $this->logTariff =
             LogTarif::find()
                 ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
-                ->andWhere('date_activation <= :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
+                ->andWhere('date_activation <= :from', [':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->andWhere('id_tarif != 0')
                 ->orderBy('date_activation desc, id desc')
                 ->limit(1)
@@ -40,7 +41,7 @@ class VoipBiller extends Biller
             $this->logTariff =
                 LogTarif::find()
                     ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
-                    ->andWhere('date_activation > :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
+                    ->andWhere('date_activation > :from', [':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                     ->andWhere('id_tarif != 0')
                     ->leftJoin(['tv' => TariffVoip::tableName()], 'tv.id = id_tarif')
                     ->andWhere(['not', ['tv.status' => TariffVoip::STATUS_TEST]])
@@ -48,7 +49,7 @@ class VoipBiller extends Biller
                     ->one();
 
             // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета
-            if ($this->logTariff === null || $this->logTariff->date_activation >= $this->billerActualTo->format('Y-m-d')) {
+            if ($this->logTariff === null || $this->logTariff->date_activation >= $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT)) {
                 return false;
             }
 

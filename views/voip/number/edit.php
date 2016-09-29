@@ -65,6 +65,11 @@ if (!$number->isNewRecord) {
                 ]) ?>
         </div>
 
+        <?php // Тех. номер ?>
+        <div class="col-sm-3">
+            <?= $form->field($number, 'number_tech') ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>

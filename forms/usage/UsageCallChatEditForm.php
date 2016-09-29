@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\usage;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\UsageCallChat;
 use app\models\usages\UsageInterface;
 use Yii;
@@ -82,7 +83,7 @@ class UsageCallChatEditForm extends UsageCallChatForm
             $today = new DateTime('now', $this->clientAccount->timezone);
             $today->setTime(0, 0, 0);
 
-            $this->actual_from = $today->format('Y-m-d');
+            $this->actual_from = $today->format(DateTimeZoneHelper::DATE_FORMAT);
         }
     }
 }

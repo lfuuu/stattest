@@ -13,6 +13,7 @@ use app\classes\uu\forms\AccountTariffEditForm;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
 use InvalidArgumentException;
 use LogicException;
 use Yii;
@@ -235,7 +236,7 @@ class AccountTariffController extends BaseController
                 $accountTariffLog = new AccountTariffLog;
                 $accountTariffLog->account_tariff_id = $accountTariff->id;
                 $accountTariffLog->tariff_period_id = $tariffPeriodIdNew;
-                $accountTariffLog->actual_from = date('Y-m-d', $actualFromTimestamp);
+                $accountTariffLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT, $actualFromTimestamp);
                 if (!$accountTariffLog->save()) {
                     $errors = $accountTariffLog->getFirstErrors();
                     throw new LogicException(reset($errors));
@@ -261,7 +262,7 @@ class AccountTariffController extends BaseController
                         $accountTariffLogPackage = new AccountTariffLog;
                         $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
                         $accountTariffLogPackage->tariff_period_id = null;
-                        $accountTariffLogPackage->actual_from = date('Y-m-d', $actualFromTimestamp);
+                        $accountTariffLogPackage->actual_from = date(DateTimeZoneHelper::DATE_FORMAT, $actualFromTimestamp);
                         if (!$accountTariffLogPackage->save()) {
                             $errors = $accountTariffLogPackage->getFirstErrors();
                             throw new LogicException(reset($errors));

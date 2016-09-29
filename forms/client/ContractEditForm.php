@@ -2,6 +2,7 @@
 namespace app\forms\client;
 
 use app\classes\Event;
+use app\helpers\DateTimeZoneHelper;
 use app\helpers\SetFieldTypeHelper;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContractComment;
@@ -157,7 +158,7 @@ class ContractEditForm extends Form
 
     public function getOrganizationsList()
     {
-        $date = date('Y-m-d');
+        $date = date(DateTimeZoneHelper::DATE_FORMAT);
         if ($this->contract && $this->contract->getHistoryVersionStoredDate()) {
             $date = $this->contract->getHistoryVersionStoredDate();
         }
@@ -232,7 +233,7 @@ class ContractEditForm extends Form
             }
 
             foreach ($contract->getAccounts() as $account) {
-                Event::go('client_set_status', $account->id);
+                Event::go(Event::CLIENT_SET_STATUS, $account->id);
             }
 
             return true;

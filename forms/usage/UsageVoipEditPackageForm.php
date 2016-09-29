@@ -1,12 +1,13 @@
 <?php
 namespace app\forms\usage;
 
-use Yii;
-use DateTime;
-use app\classes\Form;
-use app\models\UsageVoipPackage;
-use app\models\usages\UsageInterface;
 use app\classes\Assert;
+use app\classes\Form;
+use app\helpers\DateTimeZoneHelper;
+use app\models\usages\UsageInterface;
+use app\models\UsageVoipPackage;
+use DateTime;
+use Yii;
 
 class UsageVoipEditPackageForm extends Form
 {
@@ -29,7 +30,7 @@ class UsageVoipEditPackageForm extends Form
         $rules[] = ['id', 'integer'];
         $rules[] = ['disconnecting_date', 'default', 'value' => UsageInterface::MAX_POSSIBLE_DATE];
         $rules[] = [['connecting_date', 'disconnecting_date'], 'string'];
-        $rules[] = [['connecting_date'], 'date', 'format' => 'Y-m-d'];
+        $rules[] = [['connecting_date'], 'date', 'format' => DateTimeZoneHelper::DATE_FORMAT];
         $rules[] = ['connecting_date', 'validateConnectingDate'];
         $rules[] = ['disconnecting_date', 'validateDisconnectingDate'];
         $rules[] = ['status', 'default', 'value' => 'connecting'];
@@ -44,8 +45,8 @@ class UsageVoipEditPackageForm extends Form
         $this->id = $package->id;
         $this->connecting_date = $package->actual_from;
         $this->disconnecting_date = $package->actual_to == UsageInterface::MAX_POSSIBLE_DATE ? '' : $package->actual_to;
-        $this->is_package_active = $package->actual_from <= $now->format('Y-m-d') && $package->actual_to >= $now->format('Y-m-d');
-        $this->is_package_in_future = $package->actual_from > $now->format('Y-m-d') && $package->actual_to > $now->format('Y-m-d');
+        $this->is_package_active = $package->actual_from <= $now->format(DateTimeZoneHelper::DATE_FORMAT) && $package->actual_to >= $now->format(DateTimeZoneHelper::DATE_FORMAT);
+        $this->is_package_in_future = $package->actual_from > $now->format(DateTimeZoneHelper::DATE_FORMAT) && $package->actual_to > $now->format(DateTimeZoneHelper::DATE_FORMAT);
         $this->tariff = $package->tariff->name;
         $this->status = $package->status;
 

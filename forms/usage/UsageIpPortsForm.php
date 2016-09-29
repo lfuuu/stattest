@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\usage;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use app\classes\Form;
@@ -41,7 +42,7 @@ class UsageIpPortsForm extends Form
             ],
             [['port_id', 'amount'], 'integer'],
             ['status', 'in', 'range' => ['connecting', 'working']],
-            [['date_last_writeoff', 'speed_update'], 'default', 'value' => (new DateTime())->format('Y-m-d H:i:s')],
+            [['date_last_writeoff', 'speed_update'], 'default', 'value' => (new DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT)],
             ['speed_mgts', 'default', 'value' => ''],
         ];
     }

@@ -4,13 +4,13 @@ namespace app\classes\uu\model;
 
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
+use app\helpers\DateTimeZoneHelper;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\Region;
 use app\models\usages\UsageInterface;
 use DateTime;
 use DateTimeImmutable;
-use RangeException;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -28,7 +28,6 @@ use yii\helpers\Url;
  * @property int $tariff_period_id   Если null, то закрыто. Кэш AccountTariffLog->TariffPeriod
  * @property string $comment
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
- * @property int $is_updated
  *
  * @property ClientAccount $clientAccount
  * @property ServiceType $serviceType
@@ -325,7 +324,7 @@ class AccountTariff extends ActiveRecord
     public function getAccountTariffLogs()
     {
         return $this->hasMany(AccountTariffLog::className(), ['account_tariff_id' => 'id'])
-            ->orderBy(['actual_from' => SORT_DESC, 'id' => SORT_DESC])
+            ->orderBy(['actual_from_utc' => SORT_DESC, 'id' => SORT_DESC])
             ->indexBy('id');
     }
 
@@ -344,16 +343,22 @@ class AccountTariff extends ActiveRecord
         $accountTariffLogs = [];
         /** @var AccountTariffLog $accountTariffLogPrev */
         $accountTariffLogPrev = null;
+
+        $accountTariffLogsTmp = $this->accountTariffLogs;
+        $clientDate = reset($accountTariffLogsTmp)
+            ->getClientDateTime()
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
+
         foreach ($this->accountTariffLogs as $accountTariffLog) {
             if ($accountTariffLogPrev &&
                 $accountTariffLogPrev->actual_from == $accountTariffLog->actual_from &&
-                $accountTariffLogPrev->actual_from > $accountTariffLogPrev->insert_time // строго раньше наступления даты @todo таймзона клиента
+                $accountTariffLogPrev->actual_from_utc > $accountTariffLogPrev->insert_time // строго раньше наступления даты
             ) {
                 // неактивный тариф, потому что переопределен другим до наступления этой даты
                 // если переопределен в тот же день, то списываем за оба
                 continue;
             }
-            if (!$isWithFuture && $accountTariffLog->actual_from > date('Y-m-d')) {
+            if (!$isWithFuture && $accountTariffLog->actual_from > $clientDate) {
                 // еще не наступил
                 continue;
             }
@@ -387,8 +392,8 @@ class AccountTariff extends ActiveRecord
                 $prevTariffPeriodChargePeriod = $prevAccountTariffLog->tariffPeriod->chargePeriod;
 
                 // старый тариф должен закончиться не раньше этой даты
-                $dateActualFromYmd = $dateActualFrom->format('Y-m-d');
-                $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format('Y-m-d');
+                $dateActualFromYmd = $dateActualFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+                $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($dateActualFromYmd < $insertTimeYmd) {
                     $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
 //                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
@@ -475,7 +480,7 @@ class AccountTariff extends ActiveRecord
                 /** @var DateTimeImmutable $dateFrom */
                 $dateFrom = $accountLogPeriod->dateTo->modify('+1 day');
 
-            } while ($dateFrom->format('Y-m-d') <= $dateToLimited->format('Y-m-d'));
+            } while ($dateFrom->format(DateTimeZoneHelper::DATE_FORMAT) <= $dateToLimited->format(DateTimeZoneHelper::DATE_FORMAT));
 
         }
 
@@ -562,7 +567,7 @@ class AccountTariff extends ActiveRecord
                 // такой период рассчитан
                 // проверим, все ли корректно
                 $accountLog = $accountLogs[$uniqueId];
-                $dateToTmp = $accountLogFromToTariff->dateTo->format('Y-m-d');
+                $dateToTmp = $accountLogFromToTariff->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($accountLog->date_to !== $dateToTmp) {
                     throw new \LogicException(sprintf('Error. Calculated accountLogPeriod date %s is not equal %s for accountTariffId %d', $accountLog->date_to, $dateToTmp, $this->id));
                 }
@@ -605,7 +610,7 @@ class AccountTariff extends ActiveRecord
 
         // вычитанием получим необработанные
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
-            $dateFromYmd = $accountLogFromToTariff->dateFrom->format('Y-m-d');
+            $dateFromYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
             if (isset($accountLogs[$dateFromYmd])) {
                 // такой период рассчитан
                 unset($accountLogs[$dateFromYmd]);
@@ -691,7 +696,7 @@ class AccountTariff extends ActiveRecord
         }
 
         $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
-        return $accountTariffLog->actual_from > $dateTimeNow->format('Y-m-d');
+        return $accountTariffLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
     /**
@@ -719,6 +724,8 @@ class AccountTariff extends ActiveRecord
      */
     public function getHash()
     {
+        $dateTimeUtc = DateTimeZoneHelper::getUtcDateTime()
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $hashes = [];
 
         // город
@@ -729,7 +736,7 @@ class AccountTariff extends ActiveRecord
             $hashes[] = $accountTariffLog->tariff_period_id ?: '';
             $hashes[] = $accountTariffLog->actual_from;
 
-            if (strtotime($accountTariffLog->actual_from) < time()) {
+            if ($accountTariffLog->actual_from_utc < $dateTimeUtc) {
                 // показываем только текущий. Старье не нужно
                 break;
             }
@@ -742,7 +749,7 @@ class AccountTariff extends ActiveRecord
                 $hashes[] = $accountTariffPackageLog->tariff_period_id ?: '';
                 $hashes[] = $accountTariffPackageLog->actual_from;
 
-                if (strtotime($accountTariffPackageLog->actual_from) < time()) {
+                if ($accountTariffPackageLog->actual_from_utc < $dateTimeUtc) {
                     // показываем только текущий. Старье не нужно
                     break;
                 }

@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use app\models\Bill;
@@ -75,8 +76,8 @@ class BillFactory
                     'source' => Transaction::SOURCE_STAT,
                     'deleted' => 0,
                 ])
-                ->andWhere(['>=', 'transaction_date', $this->billerPeriodFrom->format('Y-m-d H:i:s')])
-                ->andWhere(['<=', 'transaction_date', $this->billerPeriodTo->format('Y-m-d H:i:s')])
+                ->andWhere(['>=', 'transaction_date', $this->billerPeriodFrom->format(DateTimeZoneHelper::DATETIME_FORMAT)])
+                ->andWhere(['<=', 'transaction_date', $this->billerPeriodTo->format(DateTimeZoneHelper::DATETIME_FORMAT)])
                 ->andWhere('bill_id IS NULL')
                 ->all();
 
@@ -98,8 +99,8 @@ class BillFactory
                         Bill::tableName() . '.currency' => $this->clientAccount->currency,
                         Bill::tableName() . '.is_approved' => 1,
                     ])
-                    ->andWhere(['>=', Bill::tableName() . '.bill_date', $this->billerPeriodFrom->format('Y-m-d')])
-                    ->andWhere(['<=', Bill::tableName() . '.bill_date', $this->billerPeriodTo->format('Y-m-d')])
+                    ->andWhere(['>=', Bill::tableName() . '.bill_date', $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
+                    ->andWhere(['<=', Bill::tableName() . '.bill_date', $this->billerPeriodTo->format(DateTimeZoneHelper::DATE_FORMAT)])
                     ->andWhere(['LIKE', Bill::tableName() . '.bill_no', $this->billerPeriodFrom->format('Ym') . '-%'])
                     ->noContainsDeposit()
                     ->orderBy([
@@ -116,7 +117,7 @@ class BillFactory
                 $bill->is_lk_show = 0;
                 $bill->is_user_prepay = 0;
                 $bill->is_approved = 1;
-                $bill->bill_date = $this->billerPeriodFrom->format('Y-m-d');
+                $bill->bill_date = $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT);
                 $bill->sum_with_unapproved = $sum;
                 $bill->price_include_vat = $this->clientAccount->price_include_vat;
                 $bill->sum = $sum;

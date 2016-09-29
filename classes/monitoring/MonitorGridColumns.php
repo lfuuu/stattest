@@ -223,7 +223,7 @@ abstract class MonitorGridColumns
                 return
                     DateTimeZoneHelper::getDateTime($data->actual_from)
                     . ' -> ' .
-                    (new DateTimeWithUserTimezone($data->actual_to))->formatWithInfinity('Y-m-d');
+                    (new DateTimeWithUserTimezone($data->actual_to))->formatWithInfinity(DateTimeZoneHelper::DATE_FORMAT);
             },
         ];
     }

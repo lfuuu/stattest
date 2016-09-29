@@ -1,18 +1,13 @@
 <?php
 namespace app\classes;
 
+use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use DateTimeZone;
 use Yii;
 
 class DateTimeWithUserTimezone extends DateTime
 {
-    const TIMEZONE_UTC = 'UTC';
-    const TIMEZONE_MOSCOW = 'Europe/Moscow';
-    const TIMEZONE_DEFAULT = self::TIMEZONE_UTC;
-
-    const INFINITY = '∞';
-
     /**
      * @param string $time
      * @param DateTimeZone $timezone
@@ -33,7 +28,7 @@ class DateTimeWithUserTimezone extends DateTime
     {
         return (isset(Yii::$app->user->identity) && Yii::$app->user->identity->timezone_name) ?
             Yii::$app->user->identity->timezone_name :
-            self::TIMEZONE_MOSCOW;
+            DateTimeZoneHelper::TIMEZONE_MOSCOW;
     }
 
     /**
@@ -52,7 +47,7 @@ class DateTimeWithUserTimezone extends DateTime
     public function getDbDate()
     {
         $userTimeZone = $this->getTimezone();
-        $this->setTimezone(new DateTimeZone(self::TIMEZONE_DEFAULT)); // установить UTC
+        $this->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)); // установить UTC
         $dbDate = $this->format(self::ATOM);
         $this->setTimezone($userTimeZone); // установить (вернуть) юзерскую таймзону
         return $dbDate;
@@ -74,7 +69,7 @@ class DateTimeWithUserTimezone extends DateTime
      */
     public function formatWithInfinity($format)
     {
-        return $this->isInfinity() ? self::INFINITY : $this->format($format);
+        return $this->isInfinity() ? DateTimeZoneHelper::INFINITY : $this->format($format);
     }
 
     /**

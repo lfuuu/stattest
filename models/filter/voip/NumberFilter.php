@@ -36,10 +36,12 @@ class NumberFilter extends \app\models\Number
     public $calls_per_month_0_from = '';
     public $calls_per_month_0_to = '';
 
+    public $number_tech = '';
+
     public function rules()
     {
         return [
-            [['status'], 'string'],
+            [['status', 'number_tech'], 'string'],
             [['number_from', 'number_to', 'city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'number_type'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
@@ -77,6 +79,7 @@ class NumberFilter extends \app\models\Number
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
         $this->did_group_id !== '' && $query->andWhere([$numberTableName . '.did_group_id' => $this->did_group_id]);
         $this->number_type !== '' && $query->andWhere([$numberTableName . '.number_type' => $this->number_type]);
+        $this->number_tech !== '' && $query->andWhere([$numberTableName . '.number_tech' => $this->number_tech]);
 
         $this->calls_per_month_2_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_2', $this->calls_per_month_2_from]);
         $this->calls_per_month_2_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_2', $this->calls_per_month_2_to]);

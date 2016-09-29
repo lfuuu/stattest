@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\stats;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use yii\db\Expression;
@@ -130,8 +131,8 @@ class AgentReport
      */
     private function voipPartnerInfo($partnerId)
     {
-        $dateFrom = $this->dateFrom->format('Y-m-d');
-        $dateTo = $this->dateTo->format('Y-m-d');
+        $dateFrom = $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+        $dateTo = $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
 
         $query = new Query;
 
@@ -203,8 +204,8 @@ class AgentReport
      */
     private function vpbxPartnerInfo($partnerId)
     {
-        $dateFrom = $this->dateFrom->format('Y-m-d');
-        $dateTo = $this->dateTo->format('Y-m-d');
+        $dateFrom = $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+        $dateTo = $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
 
         $query = new Query;
 

@@ -28,7 +28,7 @@ class LkNoticeSettings extends Behavior
      */
     public function setToMailer(AfterSaveEvent $event)
     {
-        Event::go('lk_settings_to_mailer', [
+        Event::go(Event::LK_SETTINGS_TO_MAILER, [
             'client_account_id' => $event->sender->client_id,
         ]);
     }

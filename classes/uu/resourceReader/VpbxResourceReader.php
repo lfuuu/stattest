@@ -3,6 +3,7 @@
 namespace app\classes\uu\resourceReader;
 
 use app\classes\uu\model\AccountTariff;
+use app\helpers\DateTimeZoneHelper;
 use app\models\VirtpbxStat;
 use DateTimeImmutable;
 use yii\base\Object;
@@ -21,7 +22,7 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
 
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         $virtpbxStatQuery = VirtpbxStat::find()
-            ->where(['>=', 'date', $minLogDatetime->format('Y-m-d')]);
+            ->where(['>=', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
 
         /** @var VirtpbxStat $virtpbxStat */
         foreach ($virtpbxStatQuery->each() as $virtpbxStat) {
@@ -48,7 +49,7 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
     {
         $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
         $clientId = $accountTariff->client_account_id;
-        $date = $dateTime->format('Y-m-d');
+        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         return
             // по-новому (через услугу)
             isset($this->usageToDateToValue[$accountTariffId][$date]) ?

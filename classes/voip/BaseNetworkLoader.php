@@ -3,6 +3,7 @@
 namespace app\classes\voip;
 
 use app\classes\Event;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\NetworkConfig;
 use app\models\billing\NetworkFile;
 use Yii;
@@ -29,12 +30,12 @@ abstract class BaseNetworkLoader extends BaseLoader
 
             $file = new NetworkFile();
             $file->network_config_id = $networkConfig->id;
-            $file->created_at = (new \DateTime())->format('Y-m-d H:i:s');
+            $file->created_at = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $file->filename = '';
             $file->active = false;
             $file->parsed = false;
             $file->rows = false;
-            $file->startdate = (new \DateTime())->modify('+1 day')->format('Y-m-d H:i:s');
+            $file->startdate = (new \DateTime())->modify('+1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT);
             $file->save();
 
             Yii::$app->dbPg->createCommand("
@@ -66,12 +67,12 @@ abstract class BaseNetworkLoader extends BaseLoader
     {
         $file = new NetworkFile();
         $file->network_config_id = $networkConfigId;
-        $file->created_at = (new \DateTime())->format('Y-m-d H:i:s');
+        $file->created_at = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $file->filename = $uploadedFile['name'];
         $file->active = false;
         $file->parsed = false;
         $file->rows = false;
-        $file->startdate = (new \DateTime())->modify('+1 day')->format('Y-m-d H:i:s');
+        $file->startdate = (new \DateTime())->modify('+1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         mkdir($file->getStorageDir());
 

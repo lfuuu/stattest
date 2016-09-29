@@ -778,13 +778,25 @@ where c.client="'.$trouble['client_orig'].'"')
         return $strs;
     }
 
-    function addLogToStages(&$R, &$l){
-        foreach($R as &$r) {
+    /**
+     * Функция добавления в коментарии логи изменения позиций товара из 1С
+     *
+     * @param $R Список стадий заявки
+     * @param $l Текст лога из 1С
+     */
+    function addLogToStages(&$R, &$l)
+    {
+        foreach ($R as &$r) {
             if (isset($l[$r['stage_id']])) {
+                if (!isset($r['stages_comment'])) {
+                    $r['stages_comment'] = "";
+                }
                 $r['stages_comment'] .= $l[$r['stage_id']];
             }
         }
     }
+
+
     function tt_timetable($fixclient) {
         global $db,$design,$user;
         $this->curclient = $fixclient;

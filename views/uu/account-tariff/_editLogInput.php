@@ -9,6 +9,7 @@
 
 use app\classes\Html;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
 use kartik\select2\Select2;
 use kartik\widgets\DatePicker;
 use yii\widgets\ActiveForm;
@@ -40,15 +41,18 @@ $accountTariffLog = $formModel->accountTariffLog;
     </div>
 
     <div class="col-sm-3">
-        <?= $form->field($accountTariffLog, 'actual_from')->widget(DatePicker::className(), [
-            'removeButton' => false,
-            'pluginOptions' => [
-                'autoclose' => true,
-                'format' => 'yyyy-mm-dd',
-                'startDate' => date('Y-m-d'),
-                'todayHighlight' => true,
-            ]
-        ]) ?>
+        <?= $form->field($accountTariffLog, 'actual_from')
+            ->widget(DatePicker::className(), [
+                'removeButton' => false,
+                'pluginOptions' => [
+                    'autoclose' => true,
+                    'format' => 'yyyy-mm-dd',
+                    'startDate' => date(DateTimeZoneHelper::DATE_FORMAT),
+                    'todayHighlight' => true,
+                ]
+            ])
+            ->label($accountTariffLog->getAttributeLabel('actual_from_utc'))
+        ?>
     </div>
 
     <?php if (!$accountTariff->isNewRecord) : ?>

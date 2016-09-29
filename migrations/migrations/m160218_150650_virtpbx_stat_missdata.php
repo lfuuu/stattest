@@ -1,5 +1,7 @@
 <?php
 
+use app\helpers\DateTimeZoneHelper;
+
 class m160218_150650_virtpbx_stat_missdata extends \app\classes\Migration
 {
     public function up()
@@ -67,7 +69,7 @@ class m160218_150650_virtpbx_stat_missdata extends \app\classes\Migration
                 $insert[] = [
                     $record['client_id'],
                     $record['usage_id'],
-                    $date->modify('+1 day')->format('Y-m-d'),
+                    $date->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT),
                     ($useSpaceI < $record['end_use_space'] ? $useSpaceI : $record['end_use_space']),
                     ($useNumbersI < $record['end_numbers'] ? $useNumbersI : $record['end_numbers']),
                     $record['ext_did_count'],

@@ -3,6 +3,7 @@
 namespace app\classes\uu\resourceReader;
 
 use app\classes\uu\model\AccountTariff;
+use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 
 class InternetTrafficResourceReader extends CollocationTrafficResourceReader
@@ -18,7 +19,7 @@ class InternetTrafficResourceReader extends CollocationTrafficResourceReader
     {
         $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
         $this->createCache($accountTariffId);
-        $date = $dateTime->format('Y-m-d');
+        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
 
         return
             isset($this->dateToValue[$date]) ?

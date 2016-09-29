@@ -8,6 +8,7 @@ namespace app\classes\uu\forms;
 
 
 use app\classes\uu\model\TariffPeriod;
+use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 
 class AccountLogFromToTariff
@@ -31,6 +32,6 @@ class AccountLogFromToTariff
      */
     public function getUniqueId()
     {
-        return $this->dateFrom->format('Y-m-d') . '_' . ($this->tariffPeriod ? $this->tariffPeriod->id : '');
+        return $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT) . '_' . ($this->tariffPeriod ? $this->tariffPeriod->id : '');
     }
 }

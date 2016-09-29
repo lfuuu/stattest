@@ -2,6 +2,7 @@
 
 namespace app\controllers\external_operators;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use Yii;
 use DateTime;
@@ -114,8 +115,8 @@ class SiteController extends BaseController
             $firstDayThisMonth = clone $today;
             $lastDayThisMonth = clone $today;
 
-            $dateFrom = $firstDayThisMonth->modify('first day of this month')->format('Y-m-d');
-            $dateTo = $lastDayThisMonth->modify('last day of this month')->format('Y-m-d');
+            $dateFrom = $firstDayThisMonth->modify('first day of this month')->format(DateTimeZoneHelper::DATE_FORMAT);
+            $dateTo = $lastDayThisMonth->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         $operator = OperatorsFactory::me()->getOperator($this->operator);

@@ -7,6 +7,7 @@ namespace app\controllers\uu;
 
 use app\classes\Smarty;
 use app\forms\templates\uu\InvoiceForm;
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
@@ -55,7 +56,7 @@ class InvoiceController extends BaseController
         } else {
             $date = (new \DateTime)
                 ->modify('first day of previous month')
-                ->format('Y-m-d');
+                ->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         /** @var ClientAccount $clientAccount */

@@ -2,6 +2,7 @@
 
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 
 echo Html::formLabel('Перемещаемые услуги');
 
@@ -46,12 +47,12 @@ foreach ($result as $usageTitle => $records) {
                 <td><?= $description; ?></td>
                 <td><?= Html::a($usage->helper->transferedFrom->id, $usage->helper->transferedFrom->helper->editLink, ['target' => '_blank']); ?></td>
                 <td><?= Html::a($usage->helper->transferedFrom->clientAccount->contragent->name, ['/client/view', 'id' => $usage->helper->transferedFrom->clientAccount->id], ['target' => '_blank']); ?></td>
-                <td><?= (new DateTimeWithUserTimezone($usage->helper->transferedFrom->actual_from))->formatWithInfinity('Y-m-d'); ?></td>
-                <td style="border-right: 2px solid #A5A5A5;"><?= (new DateTimeWithUserTimezone($usage->helper->transferedFrom->actual_to))->formatWithInfinity('Y-m-d'); ?></td>
+                <td><?= (new DateTimeWithUserTimezone($usage->helper->transferedFrom->actual_from))->formatWithInfinity(DateTimeZoneHelper::DATE_FORMAT); ?></td>
+                <td style="border-right: 2px solid #A5A5A5;"><?= (new DateTimeWithUserTimezone($usage->helper->transferedFrom->actual_to))->formatWithInfinity(DateTimeZoneHelper::DATE_FORMAT); ?></td>
                 <td><?= Html::a($usage->id, $usage->helper->editLink, ['target' => '_blank']); ?></td>
                 <td><?= Html::a($usage->clientAccount->contragent->name, ['/client/view', 'id' => $usage->clientAccount->id], ['target' => '_blank']); ?></td>
-                <td><?= (new DateTimeWithUserTimezone($usage->actual_from))->formatWithInfinity('Y-m-d'); ?></td>
-                <td><?= (new DateTimeWithUserTimezone($usage->actual_to))->formatWithInfinity('Y-m-d'); ?></td>
+                <td><?= (new DateTimeWithUserTimezone($usage->actual_from))->formatWithInfinity(DateTimeZoneHelper::DATE_FORMAT); ?></td>
+                <td><?= (new DateTimeWithUserTimezone($usage->actual_to))->formatWithInfinity(DateTimeZoneHelper::DATE_FORMAT); ?></td>
             </tr>
         <?php endforeach; ?>
     </table>

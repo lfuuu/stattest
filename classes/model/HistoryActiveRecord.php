@@ -2,6 +2,7 @@
 
 namespace app\classes\model;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\db\ActiveRecord;
 use app\models\HistoryVersion;
@@ -74,7 +75,7 @@ class HistoryActiveRecord extends ActiveRecord
             ($this->historyVersionStoredDate ? [$this->historyVersionStoredDate => $this->historyVersionStoredDate] : [])
             +
             [
-                date('Y-m-d', time()) => 'Текущую дату',
+                date(DateTimeZoneHelper::DATE_FORMAT) => 'Текущую дату',
                 date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
                 date('Y-m-01') => 'С 1го ' . $months[date('m') - 1],
                 date('Y-m-01', strtotime('+ 1 month')) => 'С 1го ' . $months[date('m', strtotime('+ 1 month')) - 1],
@@ -93,7 +94,7 @@ class HistoryActiveRecord extends ActiveRecord
                         'model' => HistoryVersion::prepareClassName($this->className()),
                         'model_id' => $this->id
                     ])
-                    ->andWhere(['<=', 'date', date('Y-m-d')])
+                    ->andWhere(['<=', 'date', date(DateTimeZoneHelper::DATE_FORMAT)])
                     ->andWhere(['>', 'date', $date])
                     ->count() == 0
             ) {
@@ -107,7 +108,7 @@ class HistoryActiveRecord extends ActiveRecord
     private function createHistoryVersion()
     {
         if ($this->isNewRecord || !$this->getHistoryVersionStoredDate()) {
-            $date = date('Y-m-d');
+            $date = date(DateTimeZoneHelper::DATE_FORMAT);
         } else {
             $date = $this->getHistoryVersionStoredDate();
         }

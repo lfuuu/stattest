@@ -44,6 +44,10 @@ $filterColumns = [
         'indexBy' => 'prefix',
     ],
     [
+        'attribute' => 'ndc',
+        'class' => IntegerColumn::className(),
+    ],
+    [
         'label' => 'Кол-во номеров',
         'attribute' => 'numbers_count',
         'class' => IntegerRangeColumn::className(),
@@ -55,16 +59,12 @@ $filterColumns = [
 
 $columns = [
     [
-        'attribute' => 'ndc',
-        'class' => IntegerColumn::className(),
-    ],
-    [
         'label' => 'Диапазон номеров',
-        'attribute' => 'number_from',
+        'attribute' => 'full_number_from',
         'class' => IntegerColumn::className(),
         'format' => 'html',
         'value' => function (NumberRange $numberRange) {
-            return sprintf('%06d<br>%06d', $numberRange->number_from, $numberRange->number_to);
+            return sprintf('%s<br>%s', $numberRange->full_number_from, $numberRange->full_number_to);
         }
     ],
     [

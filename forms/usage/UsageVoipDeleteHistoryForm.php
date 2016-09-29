@@ -33,7 +33,7 @@ class UsageVoipDeleteHistoryForm extends Form
 
             $historyItem->delete();
 
-            Event::go('actualize_number', ['number' => $usage->E164]);
+            Event::go(Event::ACTUALIZE_NUMBER, ['number' => $usage->E164]);
 
             $transaction->commit();
         } catch (\Exception $e) {

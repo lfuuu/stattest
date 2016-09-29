@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\UsageEmails;
 use Yii;
 
@@ -15,8 +16,8 @@ class EmailBiller extends Biller
             $email =
                 UsageEmails::find()
                     ->andWhere(['client' => $this->clientAccount->client])
-                    ->andWhere('actual_from <= :from', [':from' => $this->billerActualFrom->format('Y-m-d')])
-                    ->andWhere('actual_to >= :to', [':to' => $this->billerActualTo->format('Y-m-d')])
+                    ->andWhere('actual_from <= :from', [':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
+                    ->andWhere('actual_to >= :to', [':to' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT)])
                     ->one();
 
             $virtualMailServer =
@@ -38,8 +39,8 @@ class EmailBiller extends Biller
                     and U.client= :client",
                     [
                         ':client' => $this->clientAccount->client,
-                        ':from' => $this->billerActualFrom->format('Y-m-d'),
-                        ':to' => $this->billerActualTo->format('Y-m-d'),
+                        ':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                        ':to' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT),
                     ]
                 )
                     ->queryScalar();

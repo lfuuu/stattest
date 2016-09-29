@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
 use app\models\ClientContractComment;
 use Yii;
@@ -50,7 +51,7 @@ class ClientAccountDao extends Singleton
         $billDate = new DateTime($billDate, $clientAccount->timezone);
         $billDate->setTimezone(new DateTimeZone('UTC'));
 
-        return $billDate->format('Y-m-d H:i:s');
+        return $billDate->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 
     public function getLastPayedBillMonth(ClientAccount $clientAccount)
@@ -672,7 +673,7 @@ class ClientAccountDao extends Singleton
                 limit 1
             ", [
                 ':client' => $clientAccount->client,
-                ':date' => $now->format('Y-m-d'),
+                ':date' => $now->format(DateTimeZoneHelper::DATE_FORMAT),
             ])
                 ->queryOne();
 

@@ -3,6 +3,7 @@
 namespace app\helpers;
 
 use app\models\usages\UsageInterface;
+use DateTimeImmutable;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -11,11 +12,13 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
 {
 
     const DATETIME_FORMAT = 'Y-m-d H:i:s';
+    const DATE_FORMAT = 'Y-m-d';
 
-    const TIMEZONE_DEFAULT = 'UTC';
+    const TIMEZONE_UTC = 'UTC';
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
+    const TIMEZONE_DEFAULT = self::TIMEZONE_UTC;
 
-    const INFINITY = '&#8734;';
+    const INFINITY = '∞'; // &#8734;
 
     /**
      * @param string $date
@@ -89,12 +92,12 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
         $date = (new DateTime($checkDate));
 
         return
-            $date->format('Y-m-d') == UsageInterface::MAX_POSSIBLE_DATE
+            $date->format(DateTimeZoneHelper::DATE_FORMAT) == UsageInterface::MAX_POSSIBLE_DATE
             ||
             round(($date->getTimestamp() - (new DateTime('now'))->getTimestamp()) / 365 / 24 / pow(60, 2)) > 20
                 ?
                 self::INFINITY :
-                self::getDateTime($showDate ?: $checkDate, 'Y-m-d');
+                self::getDateTime($showDate ?: $checkDate, DateTimeZoneHelper::DATE_FORMAT);
     }
 
     /**
@@ -123,4 +126,14 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
         }
     }
 
+    /**
+     * Вернуть DateTime в таймзоне UTC
+     * @param string $date в дефолтной (московской?) таймзоне
+     * @return DateTimeImmutable
+     */
+    public static function getUtcDateTime($date = 'now')
+    {
+        return (new DateTimeImmutable($date))
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+    }
 }

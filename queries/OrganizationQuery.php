@@ -1,6 +1,7 @@
 <?php
 namespace app\queries;
 
+use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use DateTimeZone;
 use yii\db\ActiveQuery;
@@ -17,13 +18,13 @@ class OrganizationQuery extends ActiveQuery
     {
         $date = $this->resolveDate($date);
         if (!is_null($date)) {
-            $date = date('Y-m-d', $date);
+            $date = date(DateTimeZoneHelper::DATE_FORMAT, $date);
         }
 
         $filter_date =
             (new DateTime($date))
                 ->setTimezone(new DateTimeZone('UTC'))
-                ->format('Y-m-d');
+                ->format(DateTimeZoneHelper::DATE_FORMAT);
 
         return
             $this

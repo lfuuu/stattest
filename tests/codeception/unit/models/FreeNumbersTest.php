@@ -113,23 +113,38 @@ class FreeNumbersTest extends TestCase
     public function testFreeNumbersByMask()
     {
         $numbers = new FreeNumberFilter;
-        $numbers->numberMask = '%9213%';
-        $this->assertEquals(19, count($numbers->result(null)));
+        $numbers->numberMask = 'XYZABYZ';
 
-        // Negative
-        try {
-            $numbers = new FreeNumberFilter;
-            $numbers->numberMask = '%92%';
-        } catch (BadRequestHttpException $e) {
-            $this->assertFalse(false);
-        }
+        $this->assertEquals(1, count($numbers->result(null)));
 
         $numbers = new FreeNumberFilter;
-        $numbers->numberMask = '%9213000%';
-        $this->assertEquals(8, count($numbers->result(null)));
+        $numbers->numberMask = 'XYY';
+
+        $this->assertEquals(2, count($numbers->result(null)));
 
         $numbers = new FreeNumberFilter;
-        $numbers->numberMask = '%92130003%';
+        $numbers->numberMask = '000';
+
+        $this->assertEquals(9, count($numbers->result(null)));
+
+        $numbers = new FreeNumberFilter;
+        $numbers->numberMask = '13000';
+
+        $this->assertEquals(9, count($numbers->result(null)));
+
+        $numbers = new FreeNumberFilter;
+        $numbers->numberMask = '*002';
+
+        $this->assertEquals(2, count($numbers->result(null)));
+
+        $numbers = new FreeNumberFilter;
+        $numbers->numberMask = '*XXA';
+
+        $this->assertEquals(11, count($numbers->result(null)));
+
+        $numbers = new FreeNumberFilter;
+        $numbers->numberMask = '*XY00XY';
+
         $this->assertEquals(1, count($numbers->result(null)));
     }
 
@@ -158,6 +173,19 @@ class FreeNumbersTest extends TestCase
         // Всё
         $numbers = new FreeNumberFilter;
         $this->assertEquals(22, count($numbers->result(null)));
+    }
+
+    public function testFreeNumbersSimilar()
+    {
+        $numbers = new FreeNumberFilter;
+        $result = $numbers->setSimilar(2130003)->result();
+
+        $firstNumber = array_shift($result);
+        $secondNumber = array_shift($result);
+        $thirdNumber = array_shift($result);
+
+        $this->assertGreaterThanOrEqual($firstNumber->levenshtein, $secondNumber->levenshtein);
+        $this->assertGreaterThanOrEqual($secondNumber->levenshtein, $thirdNumber->levenshtein);
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace app\controllers\api\internal;
 
+use app\models\Region;
 use Yii;
 use app\classes\ApiInternalController;
 use app\exceptions\web\NotImplementedHttpException;
@@ -121,6 +122,13 @@ class CountriesController extends ApiInternalController
      *     property="country_currency",
      *     type="string",
      *     description="Используемая валюта"
+     *   ),
+     *   @SWG\Property(
+     *     property="regions",
+     *     type="array",
+     *     @SWG\Items(
+     *       type="integer"
+     *     )
      *   )
      * ),
      * @SWG\Post(
@@ -222,11 +230,14 @@ class CountriesController extends ApiInternalController
      */
     private function countryInfo(Country $country)
     {
+        $regions = Region::find()->select('id')->where(['country_id' => $country->code])->createCommand()->queryColumn();
+
         return [
             'country_code' => $country->code,
             'country_title' => $country->name,
             'country_lang' => $country->lang,
             'country_currency' => $country->currency_id,
+            'regions' => $regions,
         ];
     }
 

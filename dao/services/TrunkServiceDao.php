@@ -2,6 +2,7 @@
 
 namespace app\dao\services;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\classes\Singleton;
 use app\models\UsageTrunk;
@@ -17,7 +18,7 @@ class TrunkServiceDao extends Singleton implements ServiceDao
         return
             UsageTrunk::find()
                 ->andWhere(['client_account_id' => $client->id])
-                ->andWhere('actual_from <= :date', [':date' => $now->format('Y-m-d')])
+                ->andWhere('actual_from <= :date', [':date' => $now->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->andWhere(['next_usage_id' => 0])
                 ->all();
     }

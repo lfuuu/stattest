@@ -86,7 +86,7 @@ class ActaulizerVoipNumbers
                 $line = UsageVoip::findOne(["id" => $n->line7800_id]);
 
                 if ($line) {
-                    Event::go("actualize_number", ["number" => $line->E164]);
+                    Event::go(Event::ACTUALIZE_NUMBER, ["number" => $line->E164]);
                     return true;
                 }
             }
@@ -129,7 +129,7 @@ class ActaulizerVoipNumbers
     private function diffToSync($diff)
     {
         foreach ($diff as $data) {
-            Event::go("ats3__sync", $data);
+            Event::go(Event::ATS3__SYNC, $data);
         }
     }
 
@@ -315,9 +315,9 @@ class ActaulizerVoipNumbers
         if (isset($changedFields["is_blocked"])) {
 
             if ($new["is_blocked"]) {
-                Event::go("ats3__blocked", $new);
+                Event::go(Event::ATS3__BLOCKED, $new);
             } else {
-                Event::go("ats3__unblocked", $new);
+                Event::go(Event::ATS3__UNBLOCKED, $new);
             }
 
             unset($changedFields["is_blocked"]);
@@ -330,7 +330,7 @@ class ActaulizerVoipNumbers
                 "number" => $number
             ];
 
-            Event::go("ats3__disabled_number", $s);
+            Event::go(Event::ATS3__DISABLED_NUMBER, $s);
 
             unset($changedFields["is_disabled"]);
         }

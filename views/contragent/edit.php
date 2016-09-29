@@ -3,6 +3,7 @@
 /** @var $this \app\classes\BaseView */
 
 use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use app\classes\Language;
@@ -37,7 +38,7 @@ $model->formLang = $language;
                             <?= DatePicker::widget(
                                 [
                                     'name' => 'kartik-date-3',
-                                    'value' => Yii::$app->request->get('date') ? Yii::$app->request->get('date') : date('Y-m-d', time()),
+                                    'value' => Yii::$app->request->get('date') ? Yii::$app->request->get('date') : date(DateTimeZoneHelper::DATE_FORMAT),
                                     'removeButton' => false,
                                     'pluginOptions' => [
                                         'autoclose' => true,

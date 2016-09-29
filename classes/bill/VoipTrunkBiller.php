@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\bill;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 
 class VoipTrunkBiller extends Biller
@@ -70,8 +71,8 @@ class VoipTrunkBiller extends Biller
                     GROUP BY trunk_service_id
                 ', [
                     ':trunk_service_id' => $this->usage->id,
-                    ':from' => $from->format('Y-m-d H:i:s'),
-                    ':to' => $to->format('Y-m-d H:i:s'),
+                    ':from' => $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                    ':to' => $to->format(DateTimeZoneHelper::DATETIME_FORMAT),
                 ])->queryOne();
     }
 

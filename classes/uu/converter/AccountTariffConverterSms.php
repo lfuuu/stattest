@@ -50,10 +50,10 @@ class AccountTariffConverterSms extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 from
         $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_sms.actual_from, usage_sms.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+  SELECT usage_sms.activation_dt, usage_sms.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
       null, usage_sms.activation_dt
 
   FROM usage_sms,
@@ -65,10 +65,10 @@ class AccountTariffConverterSms extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 to
         $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_sms.actual_to, usage_sms.id + {$deltaAccountTariff}, null,
+  SELECT usage_sms.expire_dt, usage_sms.id + {$deltaAccountTariff}, null,
       null, usage_sms.activation_dt
 
   FROM usage_sms,

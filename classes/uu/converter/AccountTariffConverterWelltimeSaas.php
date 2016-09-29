@@ -50,10 +50,10 @@ class AccountTariffConverterWelltimeSaas extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 from
         $count1 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_welltime.actual_from, usage_welltime.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
+  SELECT usage_welltime.activation_dt, usage_welltime.id + {$deltaAccountTariff}, {$tariffPeriodTableName}.id,
       null, usage_welltime.activation_dt
 
   FROM usage_welltime,
@@ -65,10 +65,10 @@ class AccountTariffConverterWelltimeSaas extends AccountTariffConverterA
 
         // лог тарифов 1-в-1 to
         $count2 = $this->execute("INSERT INTO {$accountTariffLogTableName}
-          (actual_from, account_tariff_id, tariff_period_id,
+          (actual_from_utc, account_tariff_id, tariff_period_id,
           insert_user_id, insert_time)
 
-  SELECT usage_welltime.actual_to, usage_welltime.id + {$deltaAccountTariff}, null,
+  SELECT usage_welltime.expire_dt, usage_welltime.id + {$deltaAccountTariff}, null,
       null, usage_welltime.activation_dt
 
   FROM usage_welltime,

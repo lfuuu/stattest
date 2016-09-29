@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\usage;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\classes\Form;
 use app\models\UsageIpRoutes;
@@ -43,7 +44,7 @@ class UsageIpRoutesForm extends Form
                 ],
                 'string'
             ],
-            [['actual_from', 'actual_to'], 'date', 'format' => 'Y-m-d'],
+            [['actual_from', 'actual_to'], 'date', 'format' => DateTimeZoneHelper::DATE_FORMAT],
             [['id', 'port_id', 'gpon_reserv',], 'integer'],
             [
                 'type',

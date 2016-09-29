@@ -8,6 +8,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\resourceReader\ResourceReaderInterface;
+use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 use Yii;
 
@@ -31,7 +32,7 @@ class AccountLogResourceTarificator implements TarificatorI
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить старые данные
-        AccountLogResource::deleteAll(['<', 'date', $minLogDatetime->format('Y-m-d')]);
+        AccountLogResource::deleteAll(['<', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffs = AccountTariff::find();
@@ -47,7 +48,7 @@ class AccountLogResourceTarificator implements TarificatorI
             $accountTariffLogs = $accountTariff->accountTariffLogs;
             $accountTariffLog = reset($accountTariffLogs);
             if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format('Y-m-d'))
+                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from_utc < $minLogDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT))
             ) {
                 // услуга отключена давно - в целях оптимизации считать нет смысла
                 continue;
@@ -108,7 +109,7 @@ class AccountLogResourceTarificator implements TarificatorI
                 $reader = $this->resourceIdToReader[$resourceId];
 
                 $accountLogResource = new AccountLogResource();
-                $accountLogResource->date = $date->format('Y-m-d');
+                $accountLogResource->date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
                 $accountLogResource->tariff_period_id = $tariffPeriod->id;
                 $accountLogResource->account_tariff_id = $accountTariff->id;
                 $accountLogResource->tariff_resource_id = $tariffResource->id;

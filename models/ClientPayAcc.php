@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 
 class ClientPayAcc extends ActiveRecord
@@ -18,7 +19,7 @@ class ClientPayAcc extends ActiveRecord
             [['pay_acc'], 'string'],
 
             ['who', 'default', 'value' => \Yii::$app->user->id],
-            ['date', 'default', 'value' => date('Y-m-d H-i-s')],
+            ['date', 'default', 'value' => date(DateTimeZoneHelper::DATETIME_FORMAT)],
         ];
     }
 

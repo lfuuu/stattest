@@ -8,6 +8,7 @@
 
 use app\classes\Event;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
+use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
@@ -32,6 +33,10 @@ $columns = [
     [
         'attribute' => 'id',
         'class' => IntegerColumn::className(),
+    ],
+    [
+        'attribute' => 'insert_time',
+        'class' => DateTimeRangeDoubleColumn::className(),
     ],
     [
         'attribute' => 'date',

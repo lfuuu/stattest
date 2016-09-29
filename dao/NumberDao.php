@@ -33,8 +33,8 @@ class NumberDao extends Singleton
         $utc = new DateTimeZone('UTC');
 
         $number->client_id = $clientAccount ? $clientAccount->id : null;
-        $number->reserve_from = (new DateTime('now', $utc))->format('Y-m-d H:i:s');
-        $number->reserve_till = $stopDate ? $stopDate->setTimezone($utc)->format('Y-m-d H:i:s') : null;
+        $number->reserve_from = (new DateTime('now', $utc))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $number->reserve_till = $stopDate ? $stopDate->setTimezone($utc)->format(DateTimeZoneHelper::DATETIME_FORMAT) : null;
         $number->status = Number::STATUS_NOTACTIVE_RESERVED;
         $number->save();
 
@@ -96,7 +96,7 @@ class NumberDao extends Singleton
         /** @var UsageVoip $usage */
         $usage = UsageVoip::find()
             ->andWhere(['E164' => $number->number])
-            ->andWhere(['<', 'actual_to', $now->format('Y-m-d')])
+            ->andWhere(['<', 'actual_to', $now->format(DateTimeZoneHelper::DATE_FORMAT)])
             ->orderBy('actual_to desc')
             ->limit(1)
             ->one();

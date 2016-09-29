@@ -6,6 +6,7 @@ use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use app\helpers\DateTimeZoneHelper;
 use RangeException;
 use Yii;
 
@@ -23,7 +24,7 @@ class AccountLogPeriodTarificator implements TarificatorI
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить старые данные
-        AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format('Y-m-d')]);
+        AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
 
         $accountTariffs = AccountTariff::find();
         $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
@@ -39,7 +40,7 @@ class AccountLogPeriodTarificator implements TarificatorI
             $accountTariffLogs = $accountTariff->accountTariffLogs;
             $accountTariffLog = reset($accountTariffLogs);
             if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from < $minLogDatetime->format('Y-m-d'))
+                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from_utc < $minLogDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT))
             ) {
                 // услуга отключена давно - в целях оптимизации считать нет смысла
                 continue;
@@ -97,8 +98,8 @@ class AccountLogPeriodTarificator implements TarificatorI
         $period = $tariffPeriod->period;
 
         $accountLogPeriod = new AccountLogPeriod();
-        $accountLogPeriod->date_from = $accountLogFromToTariff->dateFrom->format('Y-m-d');
-        $accountLogPeriod->date_to = $accountLogFromToTariff->dateTo->format('Y-m-d');
+        $accountLogPeriod->date_from = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+        $accountLogPeriod->date_to = $accountLogFromToTariff->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
         if ($accountLogFromToTariff->dateTo < $accountLogFromToTariff->dateFrom) {
             throw new RangeException(sprintf('Date_to %s can not be less than date_from %s. AccountTariffId = %d',
                 $accountLogPeriod->date_to, $accountLogPeriod->date_from, $accountTariff->id));

@@ -2,6 +2,7 @@
 
 namespace app\classes\transfer;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\classes\Assert;
 use app\models\ClientAccount;
@@ -170,7 +171,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
                     UsageTechCpe::find()
                         ->andWhere(['service' => 'usage_ip_ports'])
                         ->andWhere(['id_service' => $this->service->next_usage_id])
-                        ->andWhere('actual_from > :date', [':date' => (new \DateTime())->format('Y-m-d')])
+                        ->andWhere('actual_from > :date', [':date' => date(DateTimeZoneHelper::DATE_FORMAT)])
                         ->one();
                 Assert::isObject($movedDevice);
 

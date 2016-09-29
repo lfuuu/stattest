@@ -152,10 +152,10 @@ list(, $operator_name, $partner) = preg_split('#:\s*#', $billExtendsInfo->commen
                             $dateEndView = $stage['date_finish_desired'];
 
                             if (!preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $dateStartView)) {
-                                $dateStartView = DateTimeZoneHelper::getDateTime($dateStartView, 'Y-m-d');
+                                $dateStartView = DateTimeZoneHelper::getDateTime($dateStartView, DateTimeZoneHelper::DATE_FORMAT);
                             }
                             if (!preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $dateEndView)) {
-                                $dateEndView = DateTimeZoneHelper::getDateTime($dateEndView, 'Y-m-d');
+                                $dateEndView = DateTimeZoneHelper::getDateTime($dateEndView, DateTimeZoneHelper::DATE_FORMAT);
                             }
                             ?>
 
@@ -168,7 +168,7 @@ list(, $operator_name, $partner) = preg_split('#:\s*#', $billExtendsInfo->commen
                             <?php
                             $dateCloseView = $stage['date_edit'];
                             if (!preg_match('#[0-9]{4}\-[0-9]{2}\-[0-9]{2}#', $dateStartView)) {
-                                $dateStartView = DateTimeZoneHelper::getDateTime($dateStartView, 'Y-m-d');
+                                $dateStartView = DateTimeZoneHelper::getDateTime($dateStartView, DateTimeZoneHelper::DATE_FORMAT);
                             }
                             echo $dateCloseView;
                             ?>

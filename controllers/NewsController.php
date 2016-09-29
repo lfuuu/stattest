@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\News;
 use Yii;
 use app\classes\BaseController;
@@ -44,7 +45,7 @@ class NewsController extends BaseController
         $model->user_id = Yii::$app->user->id;
         $model->to_user_id = $data['to_user_id'];
         $model->priority = $data['priority'];
-        $model->date = date('Y-m-d H:i:s');
+        $model->date = date(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if ($model->save()) {
             $res = ['status' => 'ok'];

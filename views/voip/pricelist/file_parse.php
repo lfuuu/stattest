@@ -1,4 +1,5 @@
 <?php
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Pricelist;
 use app\models\billing\PricelistFile;
 use app\classes\voip\BasePricelistLoader;
@@ -97,7 +98,7 @@ foreach ($data as $row) {
                 &nbsp;&nbsp;&nbsp;&nbsp;
             </td>
             <td>
-                <label>Дата вступления в силу <input class="datepicker" name="effective_date" value="<?=(new \DateTime())->modify('+1 day')->format('Y-m-d')?>"></label>
+                <label>Дата вступления в силу <input class="datepicker" name="effective_date" value="<?=(new \DateTime())->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT)?>"></label>
                 &nbsp;&nbsp;&nbsp;&nbsp;
             </td>
             <td>

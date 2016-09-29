@@ -3,6 +3,7 @@ namespace app\controllers\report;
 
 use app\classes\report\LostCalls;
 use app\dao\VoipDestinationDao;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\GeoCountry;
 use app\models\billing\GeoRegion;
 use app\models\billing\Server;
@@ -120,7 +121,7 @@ class VoipController extends BaseController
     public function actionLostCalls($mode = LostCalls::CALL_MODE_OUTCOMING, $date = false, $region = 99)
     {
         if (!$date) {
-            $date = date('Y-m-d');
+            $date = date(DateTimeZoneHelper::DATE_FORMAT);
         }
         $count = LostCalls::getCount($date, $region, $mode);
         if (!$count) {
@@ -163,7 +164,7 @@ class VoipController extends BaseController
             $query->andWhere('rc.connect_time BETWEEN :start AND :end', [':start' => $startDate, ':end' => $endDate]);
         } else {
             $query->andWhere('rc.connect_time BETWEEN :start AND :end',
-                [':start' => date('Y-m-01'), ':end' => date('Y-m-d')]);
+                [':start' => date('Y-m-01'), ':end' => date(DateTimeZoneHelper::DATE_FORMAT)]);
         }
 
         if (!empty(\Yii::$app->request->get('mob_or_base'))) {

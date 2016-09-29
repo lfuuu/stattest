@@ -4,6 +4,7 @@ namespace app\classes\uu\resourceReader;
 
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\uu\model\AccountTariff;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsAggr;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -26,7 +27,7 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
     {
         $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
 
-        $dateStr = $dateTime->format('Y-m-d');
+        $dateStr = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         if ($this->accountTariffId === $accountTariffId) {
             // для этой услуги уже есть кэш
             if (isset($this->dateToValue[$dateStr])) {
@@ -40,7 +41,7 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
-        $utcDateTimeZone = new DateTimeZone(DateTimeWithUserTimezone::TIMEZONE_DEFAULT);
+        $utcDateTimeZone = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
         $hoursDelta = (int)(
                 $clientDateTimeZone->getOffset($dateTime) -
                 $utcDateTimeZone->getOffset($dateTime)

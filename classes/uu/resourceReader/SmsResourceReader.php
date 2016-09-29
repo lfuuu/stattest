@@ -3,6 +3,7 @@
 namespace app\classes\uu\resourceReader;
 
 use app\classes\uu\model\AccountTariff;
+use app\helpers\DateTimeZoneHelper;
 use app\models\SmsStat;
 use DateTimeImmutable;
 use yii\base\Object;
@@ -18,7 +19,7 @@ class SmsResourceReader extends Object implements ResourceReaderInterface
 
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         $smsStatQuery = SmsStat::find()
-            ->where(['>=', 'date_hour', $minLogDatetime->format('Y-m-d')]);
+            ->where(['>=', 'date_hour', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
 
         /** @var SmsStat $smsStat */
         foreach ($smsStatQuery->each() as $smsStat) {
@@ -40,7 +41,7 @@ class SmsResourceReader extends Object implements ResourceReaderInterface
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
         $clientId = $accountTariff->client_account_id;
-        $date = $dateTime->format('Y-m-d');
+        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         return
             isset($this->clientToDateToValue[$clientId][$date]) ?
                 $this->clientToDateToValue[$clientId][$date] :
