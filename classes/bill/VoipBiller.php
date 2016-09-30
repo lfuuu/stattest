@@ -48,8 +48,10 @@ class VoipBiller extends Biller
                     ->orderBy('date_activation desc, id desc')
                     ->one();
 
+            $activationTariffDt = (new \DateTime($this->logTariff->date_activation, $this->billerActualTo->getTimezone()));
+
             // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета
-            if ($this->logTariff === null || $this->logTariff->date_activation >= $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT)) {
+            if ($this->logTariff === null || $activationTariffDt >= $this->billerActualTo) {
                 return false;
             }
 

@@ -43,7 +43,6 @@ use yii\helpers\Url;
  * @property int prev_usage_id
  * @property int next_usage_id
  * @property string create_params
- *
  * @property TariffVoip tariff
  * @property Region $connectionPoint
  * @property ClientAccount $clientAccount
