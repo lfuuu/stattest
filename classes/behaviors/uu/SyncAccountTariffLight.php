@@ -44,15 +44,6 @@ class SyncAccountTariffLight extends Behavior
             return;
         }
 
-        if (!$accountTariff->tariff_period_id) {
-            // пакет закрыт
-            \app\classes\Event::go(self::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT, [
-                    'id' => $accountLogPeriod->id,
-                ]
-            );
-            return;
-        }
-
         $clientTimezone = $accountTariff->clientAccount->getTimezone();
         $utcTimezone = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
 
