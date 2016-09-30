@@ -9,12 +9,11 @@
 
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffVoipCity;
-use app\classes\uu\model\TariffVoipGroup;
 use app\models\City;
 use kartik\select2\Select2;
 
 $tariffVoipCities = $formModel->tariffVoipCities;
-$cityList = City::dao()->getList(false, $formModel->id ? $formModel->tariff->country_id : null);
+$cityList = City::dao()->getList(false, $formModel->id ? $formModel->tariff->country_id : $formModel->countryId);
 $tariff = $formModel->tariff;
 
 $tariffVoipCityTableName = TariffVoipCity::tableName();
@@ -36,3 +35,14 @@ $tariffTableName = Tariff::tableName();
     </div>
 
 </div>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    $('select[name="Tariff[country_id]"]').on('change', function() {
+        var location = self.location.href.replace(/&?countryId=[0-9]+/, '');
+        if (confirm('Страница будет перезагружена, для установки нового списка городов, уверены ?')) {
+            self.location.href = location + '&countryId=' + $(this).val();
+        }
+    });
+});
+</script>

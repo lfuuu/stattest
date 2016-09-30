@@ -61,13 +61,15 @@ class TariffController extends BaseController
      * Создать
      *
      * @param $serviceTypeId
+     * @param int $serviceTypeId
      * @return string
      */
-    public function actionNew($serviceTypeId)
+    public function actionNew($serviceTypeId, $countryId = null)
     {
         /** @var TariffAddForm $formModel */
         $formModel = new TariffAddForm([
-            'serviceTypeId' => $serviceTypeId
+            'serviceTypeId' => $serviceTypeId,
+            'countryId' => $countryId,
         ]);
 
         if ($formModel->isSaved) {
