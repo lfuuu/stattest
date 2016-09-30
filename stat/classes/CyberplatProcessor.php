@@ -435,8 +435,7 @@ class CyberplatFieldCheck
             throw new Answer_ERR_CLIENT_NOT_FOUND();
 
         $c = ClientAccount::findOne([is_numeric($data["number"]) ? 'id' : 'client' => ($data["number"])]);
-        if ($c && in_array($c->status, array("income", "negotiations", "work", "connecting", "testing", "debt", "closed")))
-        {
+        if ($c) {
             // Абонент найден
             return $c;
         }else

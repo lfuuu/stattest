@@ -198,8 +198,7 @@ class YandexProcessor
             }
         }
 
-        if ($c && in_array($c->status, array("income", "work", "connecting", "testing", "debt", "negotiations", "closed")))
-        {
+        if ($c) {
             return $c;
         } else {
             return null;
