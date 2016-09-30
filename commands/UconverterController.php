@@ -3,7 +3,9 @@ namespace app\commands;
 
 use app\classes\uu\converter\AccountTariffConverter;
 use app\classes\uu\converter\TariffConverter;
+use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
+use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
@@ -308,4 +310,25 @@ SQL;
         return Controller::EXIT_CODE_NORMAL;
     }
 
+    /**
+     * Синхронизировать пакеты в биллер
+     * @return int
+     */
+    public function actionSyncAccountTariffLight()
+    {
+        $activeQuery = AccountLogPeriod::find()
+            ->joinWith('accountTariff')
+            ->where(['service_type_id' => ServiceType::ID_VOIP_PACKAGE])
+            ->andWhere(['>=', 'account_tariff_id', AccountTariff::DELTA]);
+        /** @var AccountLogPeriod $accountLogPeriod */
+        foreach ($activeQuery->each() as $accountLogPeriod) {
+            echo '. ';
+
+            // эмулировать сохранение, чтобы сработали обработчики
+            $accountLogPeriod->trigger(AccountLogPeriod::EVENT_BEFORE_UPDATE);
+            $accountLogPeriod->trigger(AccountLogPeriod::EVENT_AFTER_UPDATE);
+        }
+
+        return Controller::EXIT_CODE_NORMAL;
+    }
 }
