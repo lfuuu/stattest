@@ -260,31 +260,15 @@ class AccountController extends ApiInternalController
      *   path="/internal/account/end-of-the-day-accounts/",
      *   summary="Получение списка лицевых счетов у которых заканчиваются сутки",
      *   operationId="Получение списка лицевых счетов у которых заканчиваются сутки",
-     *   @SWG\Response(
-     *     response=200,
-     *     description="Список таймзон, и включенных лицевых счетов",
-     *     @SWG\Schema(
-     *       type="object",
-     *       required={"timezones","account_ids"},
-     *       @SWG\Property(
-     *         property="timezones",
-     *         type="array",
-     *         @SWG\Items(
-     *           type="string"
-     *         )
-     *       ),
-     *       @SWG\Property(
-     *         property="account_ids",
-     *         type="array",
-     *         @SWG\Items(
-     *           type="integer"
-     *         )
+     *   @SWG\Response(response=200, description="Список таймзон, и включенных лицевых счетов",
+     *     @SWG\Schema(type="object", required={"timezones","account_ids"},
+     *       @SWG\Property(property="timezones",   type="array", @SWG\Items(type="string")),
+     *       @SWG\Property(property="account_ids", type="array", @SWG\Items( type="integer")
      *       )
      *     )
      *   )
      * )
      */
-
     public function actionEndOfTheDayAccounts()
     {
         $timeZones = [];
