@@ -38,7 +38,7 @@ class VoipBiller extends Biller
 
 
         if ($this->isPeriodical) {
-            // если основной тариф - тестовый, то мы ищем первый не тестовый тариф
+            // если основной тариф - тестовый, то мы ищем первый нетестовый тариф
             if ($this->logTariff->voipTariffMain->isTest()) {
                 $this->logTariff =
                     LogTarif::find()
@@ -54,7 +54,7 @@ class VoipBiller extends Biller
                 $activationTariffDt = (new \DateTime($this->logTariff->date_activation,
                     $this->billerActualTo->getTimezone()));
 
-                // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета
+                // тариф не найден ИЛИ дата активации тарифа не входит в текущий период выставления счета
                 if ($this->logTariff === null || $activationTariffDt >= $this->billerActualTo) {
                     return false;
                 }
