@@ -2,6 +2,7 @@
 
 namespace app\controllers\api\internal;
 
+use app\models\Region;
 use Yii;
 use app\classes\ApiInternalController;
 use app\models\ClientAccount;
@@ -251,5 +252,54 @@ class AccountController extends ApiInternalController
         $account = $this->getAccountFromParams();
 
         return $account->makeBalance(true);
+    }
+
+    /**
+     * @SWG\Get(
+     *   tags={"Работа с лицевыми счетами"},
+     *   path="/internal/account/end-of-the-day-accounts/",
+     *   summary="Получение списка лицевых счетов у которых заканчиваются сутки",
+     *   operationId="Получение списка лицевых счетов у которых заканчиваются сутки",
+     *   @SWG\Response(response=200, description="Список таймзон, и включенных лицевых счетов",
+     *     @SWG\Schema(type="object", required={"timezones","account_ids"},
+     *       @SWG\Property(property="timezones",   type="array", @SWG\Items(type="string")),
+     *       @SWG\Property(property="account_ids", type="array", @SWG\Items( type="integer")
+     *       )
+     *     )
+     *   )
+     * )
+     */
+    public function actionEndOfTheDayAccounts()
+    {
+        $timeZones = [];
+
+        foreach (Region::getTimezoneList() as $timeZone) {
+
+            try {
+                $clientDate = new \DateTime('now', new \DateTimeZone($timeZone));
+            } catch (\Exception $e) {
+                continue;
+            }
+
+            if ($clientDate->format('H') != '23') {
+                continue;
+            }
+
+            $timeZones[] = $timeZone;
+        }
+
+        return [
+            'timezones' => $timeZones,
+            'account_ids' => array_map(
+                function($a) {
+                    return (int)$a;
+                },
+                ClientAccount::find()
+                    ->where(['timezone_name' => $timeZones])
+                    ->active()
+                    ->select(['id'])
+                    ->column()
+            )
+        ];
     }
 }

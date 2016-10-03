@@ -258,8 +258,8 @@ class ClientController extends ApiInternalController
      * @SWG\Post(
      *   tags={"Работа с клиентами"},
      *   path="/internal/client/get-client-struct/",
-     *   summary="Получение цельной структуры клиента",
-     *   operationId="Получение цельной структуры клиента",
+     *   summary="Получение структуры клиента",
+     *   operationId="Получение структуры клиента",
      *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData"),
      *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData"),
      *   @SWG\Parameter(name="contragent_id", type="integer", description="идентификатор контрагента", in="formData"),
@@ -507,7 +507,7 @@ class ClientController extends ApiInternalController
      *   )
      * ),
      * @SWG\Post(
-     *   tags={"Работа с клиентами. Полная структура."},
+     *   tags={"Работа с клиентами"},
      *   path="/internal/client/get-full-client-struct/",
      *   summary="Получение полной структуры клиента",
      *   operationId="Получение полной структуры клиента",
