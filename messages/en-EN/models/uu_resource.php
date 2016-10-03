@@ -21,6 +21,12 @@ return [
     'Resource #12' => 'Foreign traffic',
     'Resource #13' => 'VPN traffic',
     'Resource #14' => 'SMS',
+    'Resource #15' => 'Processor',
+    'Resource #16' => 'HDD',
+    'Resource #17' => 'RAM',
+    'Resource #18' => 'One-time service',
+    'Resource #19' => 'Minimum price routing',
+    'Resource #20' => 'Geo routing',
 
     '{resource} (ID: {id})' => 'Resource overhead: {resource} (ID: {id})',
 ];
