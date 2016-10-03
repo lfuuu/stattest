@@ -186,7 +186,7 @@ SQL;
         $tableName = NumberRange::tableName();
 
         // выключить триггеры, иначе все повиснет
-        $this->actionDisableTrigger($dbPgNnp);
+        $this->actionDisableTrigger();
 
         // всё выключить
         $sql = <<<SQL
@@ -270,7 +270,7 @@ SQL;
         $dbPgNnp->createCommand($sql)->execute();
 
         // включить триггеры обратно
-        $this->actionEnableTrigger($dbPgNnp);
+        $this->actionEnableTrigger();
 
         if ($affectedRowsDelta < self::DELTA_MIN) {
             throw new \LogicException('После обновления осталось менее ' . $affectedRowsDelta . ' исходных данных. Нужно вручную разобраться в причинах');
@@ -279,10 +279,12 @@ SQL;
 
     /**
      * выключить триггеры, иначе все повиснет
-     * @param Connection $dbPgNnp
      */
-    public function actionDisableTrigger(Connection $dbPgNnp)
+    public function actionDisableTrigger()
     {
+        /** @var Connection $dbPgNnp */
+        $dbPgNnp = Yii::$app->dbPgNnp;
+
 //        $tableName = NumberRange::tableName();
 //        $sql = "ALTER TABLE {$tableName} DISABLE TRIGGER ALL"; // нет прав
 
@@ -292,10 +294,12 @@ SQL;
 
     /**
      * включить триггеры и синхронизировать данные по региональным серверам
-     * @param Connection $dbPgNnp
      */
-    public function actionEnableTrigger(Connection $dbPgNnp)
+    public function actionEnableTrigger()
     {
+        /** @var Connection $dbPgNnp */
+        $dbPgNnp = Yii::$app->dbPgNnp;
+
 //        $tableName = NumberRange::tableName();
 //        $sql = "ALTER TABLE {$tableName} ENABLE TRIGGER ALL"; // нет прав
 
