@@ -36,27 +36,34 @@ class VoipBiller extends Biller
             return false;
         }
 
-        // если основной тариф - тестовый, то мы ищем первый не тестовый тариф
-        if ($this->logTariff->voipTariffMain->isTest()) {
-            $this->logTariff =
-                LogTarif::find()
-                    ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
-                    ->andWhere('date_activation > :from', [':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
-                    ->andWhere('id_tarif != 0')
-                    ->leftJoin(['tv' => TariffVoip::tableName()], 'tv.id = id_tarif')
-                    ->andWhere(['not', ['tv.status' => TariffVoip::STATUS_TEST]])
-                    ->orderBy('date_activation desc, id desc')
-                    ->one();
 
-            $activationTariffDt = (new \DateTime($this->logTariff->date_activation, $this->billerActualTo->getTimezone()));
+        if ($this->isPeriodical) {
+            // если основной тариф - тестовый, то мы ищем первый нетестовый тариф
+            if ($this->logTariff->voipTariffMain->isTest()) {
+                $this->logTariff =
+                    LogTarif::find()
+                        ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
+                        ->andWhere('date_activation > :from',
+                            [':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
+                        ->andWhere('id_tarif != 0')
+                        ->leftJoin(['tv' => TariffVoip::tableName()], 'tv.id = id_tarif')
+                        ->andWhere(['not', ['tv.status' => TariffVoip::STATUS_TEST]])
+                        ->orderBy('date_activation desc, id desc')
+                        ->one();
 
-            // тариф не найден ИЛИ дата активаии тарифа не входит в текущий период выставления счета
-            if ($this->logTariff === null || $activationTariffDt >= $this->billerActualTo) {
-                return false;
+                $activationTariffDt = (new \DateTime($this->logTariff->date_activation,
+                    $this->billerActualTo->getTimezone()));
+
+                // тариф не найден ИЛИ дата активации тарифа не входит в текущий период выставления счета
+                if ($this->logTariff === null || $activationTariffDt >= $this->billerActualTo) {
+                    return false;
+                }
+
+                $this->billerPeriodFrom =
+                $this->billerActualFrom =
+                $this->usageActualFrom =
+                    new \DateTime($this->logTariff->date_activation, clone $this->usageActualFrom->getTimezone());
             }
-
-            $this->billerPeriodFrom = $this->usageActualFrom = $this->billerActualFrom =
-                new \DateTime($this->logTariff->date_activation, clone $this->usageActualFrom->getTimezone());
         }
 
         $this->tariff = TariffVoip::findOne($this->logTariff->id_tarif);

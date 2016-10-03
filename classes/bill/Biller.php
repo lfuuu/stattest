@@ -45,6 +45,11 @@ abstract class Biller
     /** @var DateTime */
     public $billerActualTo;
 
+    protected $isOnlyConnecting;
+    protected $isConnecting;
+    protected $isPeriodical;
+    protected $isResource;
+
     public function __construct(UsageInterface $usage, DateTime $date, ClientAccount $clientAccount)
     {
         $this->usage = $usage;
@@ -135,6 +140,11 @@ abstract class Biller
 
     public function process($onlyConnecting = false, $connecting = true, $periodical = true, $resource = true)
     {
+        $this->isOnlyConnecting = $onlyConnecting;
+        $this->isConnecting = $connecting;
+        $this->isPeriodical = $periodical;
+        $this->isResource = $resource;
+
         if ($this->beforeProcess() === false) {
             return $this;
         }
