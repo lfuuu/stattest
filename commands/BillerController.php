@@ -21,7 +21,8 @@ class BillerController extends Controller
 
         $partSize = 500;
         $date = new DateTime();
-        //$date->modify('+1 month');
+        $date->modify('first day of this month');
+
         try {
             $count = $partSize;
             $offset = 0;

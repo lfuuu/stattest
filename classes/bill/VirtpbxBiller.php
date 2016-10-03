@@ -175,16 +175,26 @@ class VirtpbxBiller extends Biller
                 ->asArray()
                 ->all();
 
+        //Составляем список смены тарифа в услуге
         $tariffChanges = [];
-        $lastTariffId = null;
         foreach ($logTariffList as $logTariff) {
             if (!isset($tariffChanges[$logTariff['date_activation']])) {
-                if ($logTariff['id_tarif'] != $lastTariffId) {
-                    $tariffChanges[$logTariff['date_activation']] = $logTariff['id_tarif'];
-                    $lastTariffId = $logTariff['id_tarif'];
-                }
+                $tariffChanges[$logTariff['date_activation']] = $logTariff['id_tarif'];
             }
         }
+
+        $lastTariffId = null;
+        $filteredTariffChanges = [];
+        foreach($tariffChanges as $activationDate => $tariffChange) {
+            if ($tariffChange['id_tarif'] != $lastTariffId) {
+                $filteredTariffChanges[$activationDate] = $tariffChange;
+                $lastTariffId = $tariffChange['id_tarif'];
+            }
+        }
+
+        $tariffChanges = $filteredTariffChanges;
+        unset($filteredTariffChanges);
+
 
         $range = [];
         $lastTariffId = null;
