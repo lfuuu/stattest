@@ -36,6 +36,7 @@ abstract class ServiceTransfer extends \yii\base\Component
      */
     public function __construct($service)
     {
+        parent::__construct();
         $this->service = $service;
     }
 
@@ -68,6 +69,10 @@ abstract class ServiceTransfer extends \yii\base\Component
      */
     public function process()
     {
+        if ((int)$this->service->next_usage_id) {
+            throw new InvalidValueException('Услуга уже перенесена');
+        }
+
         if ($this->service->actual_to < $this->getActualDate()) {
             throw new InvalidValueException('Услуга не может быть перенесена на указанную дату');
         }
