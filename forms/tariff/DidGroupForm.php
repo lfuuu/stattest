@@ -41,7 +41,7 @@ class DidGroupForm extends Form
 
     public function attributeLabels()
     {
-        return DidGroup::attributeLabels() + [
+        return (new DidGroup)->attributeLabels() + [
             'country_id' => 'Страна',
         ];
     }
@@ -94,7 +94,7 @@ class DidGroupForm extends Form
         }
 
         //for breadcrumbs
-        if (!$this->original_country_id && $this->didGroup->city_id) {
+        if (!$this->original_country_id && $this->didGroup && $this->didGroup->city_id) {
             if (!$city || $city->id != $this->didGroup->city_id) {
                 $city = City::findOne(['id' => $this->didGroup->city_id]);
             }
