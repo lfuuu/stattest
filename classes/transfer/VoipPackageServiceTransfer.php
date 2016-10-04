@@ -2,6 +2,7 @@
 
 namespace app\classes\transfer;
 
+use ActiveRecord\ModelException;
 use app\models\usages\UsageInterface;
 use Yii;
 use yii\base\InvalidValueException;
@@ -38,6 +39,10 @@ class VoipPackageServiceTransfer extends ServiceTransfer
             throw new InvalidValueException('Услуга уже перенесена');
         }
 
+        if (is_null($this->usageVoip)) {
+            throw new InvalidValueException('Отсутствует обязательная услуга телефонии');
+        }
+
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
             $targetService = new $this->service;
@@ -49,13 +54,15 @@ class VoipPackageServiceTransfer extends ServiceTransfer
             $targetService->usage_voip_id = $this->usageVoip->id;
             $targetService->client = $this->targetAccount->client;
 
-            $targetService->save();
+            if (!$targetService->save()) {
+                throw new ModelException('Cant\'t save target voip package model');
+            }
 
-            $this->service->expire_dt = $this->getExpireDatetime();
-            $this->service->actual_to = $this->getExpireDate();
             $this->service->next_usage_id = $targetService->id;
 
-            $this->service->save();
+            if (!$this->service->save()) {
+                throw new ModelException('Cant\'t update original voip package model');
+            }
 
             $dbTransaction->commit();
         } catch (\Exception $e) {

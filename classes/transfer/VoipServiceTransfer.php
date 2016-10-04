@@ -27,7 +27,7 @@ class VoipServiceTransfer extends ServiceTransfer
         LogTarifTransfer::process($this, $targetService->id);
 
         $this->process7800($targetService);
-        //$this->processPackages($targetService);
+        $this->processPackages($targetService);
 
         return $targetService;
     }
@@ -75,8 +75,8 @@ class VoipServiceTransfer extends ServiceTransfer
         $packages =
             UsageVoipPackage::find()
                 ->andWhere(['usage_voip_id' => $this->service->id])
-                ->andWhere('actual_from <= :dateFrom', [':dateFrom' => $this->getExpireDate()])
-                ->andWhere('actual_to >= :dateFrom', [':dateFrom' => $this->getExpireDate()])
+                ->andWhere(['<=', 'actual_from', $this->getExpireDate()])
+                ->andWhere(['>=', 'actual_to', $this->getExpireDate()])
                 ->all();
 
         if (!count($packages)) {
@@ -84,12 +84,11 @@ class VoipServiceTransfer extends ServiceTransfer
         }
 
         foreach ($packages as $package) {
-            $package
-                ->transferHelper
-                    ->setUsageVoip($targetService)
-                    ->setTargetAccount($targetService->clientAccount)
-                    ->setActivationDate($targetService->actual_from)
-                    ->process();
+            $package->transferHelper
+                ->setUsageVoip($targetService)
+                ->setTargetAccount($targetService->clientAccount)
+                ->setActivationDate($targetService->actual_from)
+                ->process();
         }
     }
 
@@ -126,10 +125,9 @@ class VoipServiceTransfer extends ServiceTransfer
         }
 
         foreach ($packages as $package) {
-            $package
-                ->transferHelper
-                    ->setTargetAccount($this->service->clientAccount)
-                    ->fallback();
+            $package->transferHelper
+                ->setTargetAccount($this->service->clientAccount)
+                ->fallback();
         }
     }
 

@@ -185,8 +185,8 @@ SQL;
 
         $tableName = NumberRange::tableName();
 
-        // выключать триггеры, иначе все повиснет
-        $this->disableTrigger($dbPgNnp);
+        // выключить триггеры, иначе все повиснет
+        $this->actionDisableTrigger();
 
         // всё выключить
         $sql = <<<SQL
@@ -269,8 +269,8 @@ DROP TABLE number_range_tmp
 SQL;
         $dbPgNnp->createCommand($sql)->execute();
 
-        // включать триггеры обратно
-        $this->enableTrigger($dbPgNnp);
+        // включить триггеры обратно
+        $this->actionEnableTrigger();
 
         if ($affectedRowsDelta < self::DELTA_MIN) {
             throw new \LogicException('После обновления осталось менее ' . $affectedRowsDelta . ' исходных данных. Нужно вручную разобраться в причинах');
@@ -278,26 +278,32 @@ SQL;
     }
 
     /**
-     * выключать триггеры, иначе все повиснет
-     * @param Connection $dbPgNnp
+     * выключить триггеры, иначе все повиснет
      */
-    protected function disableTrigger(Connection $dbPgNnp)
+    public function actionDisableTrigger()
     {
-        $tableName = NumberRange::tableName();
+        /** @var Connection $dbPgNnp */
+        $dbPgNnp = Yii::$app->dbPgNnp;
 
-        $sql = "ALTER TABLE {$tableName} DISABLE TRIGGER ALL";
+//        $tableName = NumberRange::tableName();
+//        $sql = "ALTER TABLE {$tableName} DISABLE TRIGGER ALL"; // нет прав
+
+        $sql = "SELECT nnp.disable_trigger('nnp.number_range','notify')";
         $dbPgNnp->createCommand($sql)->execute();
     }
 
     /**
-     * включать триггеры обратно
-     * @param Connection $dbPgNnp
+     * включить триггеры и синхронизировать данные по региональным серверам
      */
-    protected function enableTrigger(Connection $dbPgNnp)
+    public function actionEnableTrigger()
     {
-        $tableName = NumberRange::tableName();
+        /** @var Connection $dbPgNnp */
+        $dbPgNnp = Yii::$app->dbPgNnp;
 
-        $sql = "ALTER TABLE {$tableName} ENABLE TRIGGER ALL";
+//        $tableName = NumberRange::tableName();
+//        $sql = "ALTER TABLE {$tableName} ENABLE TRIGGER ALL"; // нет прав
+
+        $sql = "SELECT nnp.enable_trigger('nnp.number_range','notify')";
         $dbPgNnp->createCommand($sql)->execute();
 
         // синхронизировать данные по региональным серверам

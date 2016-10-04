@@ -176,20 +176,24 @@ foreach ($clients as $client) {
         continue;
     }
 
-    if ($client['new_day_limit'] > $client['voip_credit_limit_day']) {
-        echo 'Other - ' . $client['id'] . ': ' . $client['voip_credit_limit_day'] . ' - ' . $client['new_day_limit'] . PHP_EOL;
-        $clientAccount->voip_credit_limit_day = $client['new_day_limit'];
+    $updateData = [];
+
+    if ($client['new_day_limit'] > $clientAccount->voip_credit_limit_day) {
+        echo 'Other - ' . $client['id'] . ': ' . $clientAccount->voip_credit_limit_day . ' - ' . $client['new_day_limit'] . PHP_EOL;
+        $updateData['voip_credit_limit_day'] = $client['new_day_limit'];
     }
 
-    if ($client['new_day_limit_mn'] > $client['voip_limit_mn_day']) {
-        echo 'MN - ' . $client['id'] . ': ' . $client['voip_limit_mn_day'] . ' - ' . $client['new_day_limit_mn'] . PHP_EOL;
-        $clientAccount->voip_limit_mn_day = $client['new_day_limit_mn'];
+    if ($client['new_day_limit_mn'] > $clientAccount->voip_limit_mn_day) {
+        echo 'MN - ' . $client['id'] . ': ' . $clientAccount->voip_limit_mn_day . ' - ' . $client['new_day_limit_mn'] . PHP_EOL;
+        $updateData['voip_limit_mn_day'] = $client['new_day_limit_mn'];
     }
 
-    if (!$clientAccount->save()) {
-        Yii::error('Cant save client#' . $client['id']);
-    } else {
-        $updated++;
+    if ($updateData) {
+        if (!ClientAccount::updateAll($updateData, ['id' => $clientAccount->id])) {
+            Yii::error('Cant save client#' . $clientAccount->id);
+        } else {
+            $updated++;
+        }
     }
 }
 

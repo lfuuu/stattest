@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\model;
 
+use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 use LogicException;
 
@@ -102,7 +103,7 @@ class Period extends \yii\db\ActiveRecord
             // конец текущего месяца/квартала/полугода/года
             $dateTimeFromTmp = $this->getMinDateTo($dateTimeFromTmp);
 
-            if ($dateTimeFromTmp >= $dateTimeMin) {
+            if ($dateTimeFromTmp->format(DateTimeZoneHelper::DATE_FORMAT) >= $dateTimeMin->format(DateTimeZoneHelper::DATE_FORMAT)) {
                 return $dateTimeFromTmp;
             }
 

@@ -46,6 +46,18 @@ class DidGroup extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['name'], 'string'],
+            [['beauty_level', 'city_id', 'number_type_id'], 'integer'],
+            [['name', 'beauty_level', 'city_id', 'number_type_id'], 'required'],
+        ];
+    }
+
     public static function tableName()
     {
         return 'did_group';

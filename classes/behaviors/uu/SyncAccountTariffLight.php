@@ -3,6 +3,7 @@
 namespace app\classes\behaviors\uu;
 
 use app\classes\uu\model\AccountLogPeriod;
+use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\AccountTariffLight;
@@ -43,13 +44,8 @@ class SyncAccountTariffLight extends Behavior
             // только для пакетов
             return;
         }
-
-        if (!$accountTariff->tariff_period_id) {
-            // пакет закрыт
-            \app\classes\Event::go(self::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT, [
-                    'id' => $accountLogPeriod->id,
-                ]
-            );
+        if ($accountTariff->id < AccountTariff::DELTA) {
+            // только для новых
             return;
         }
 
@@ -60,7 +56,7 @@ class SyncAccountTariffLight extends Behavior
             ->setTimezone($utcTimezone)
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        if ($accountTariff->tariffPeriod->getIsOneTime()) {
+        if ($accountLogPeriod->tariffPeriod->getIsOneTime()) {
             // Одноразовый не продлевается, не имеет абонентки, имеет плату за подключение. В качестве бонуса нет лимита по времени
             $coefficient = 1;
             $deactivateFrom = null;
@@ -78,7 +74,7 @@ class SyncAccountTariffLight extends Behavior
         \app\classes\Event::go(self::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT, [
                 'id' => $accountLogPeriod->id,
                 'account_client_id' => $accountTariff->client_account_id,
-                'tariff_id' => $accountTariff->tariffPeriod->tariff_id,
+                'tariff_id' => $accountLogPeriod->tariffPeriod->tariff_id,
                 'activate_from' => $activateFrom,
                 'deactivate_from' => $deactivateFrom,
                 'coefficient' => $coefficient,
