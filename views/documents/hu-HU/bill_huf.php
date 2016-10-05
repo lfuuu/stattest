@@ -103,11 +103,11 @@ $bill_date = Yii::$app->formatter->asDatetime($document->bill->bill_date, 'php:Y
                     </tr>
                     <tr>
                         <td class="tr1 td0"><P class="p4 ft1">Bank</P></td>
-                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->bank_name; ?></p></td>
+                        <td class="tr1 td1"><p class="p5 ft1"><?= $organization->settlementAccount->bank_name; ?></p></td>
                     </tr>
                     <tr>
                         <td class="tr1 td0"><p class="p4 ft1">Számlaszám</p></td>
-                        <td class="tr1 td1"><P class="p5 ft4"><nobr><?= nl2br($organization->bank_account); ?></nobr></p></td>
+                        <td class="tr1 td1"><P class="p5 ft4"><nobr><?= nl2br($organization->settlementAccount->bank_account); ?></nobr></p></td>
                     </tr>
                     <tr>
                         <td class="tr1 td0"><p class="p4 ft1">Telefon</p></td>
