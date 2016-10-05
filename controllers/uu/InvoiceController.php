@@ -81,7 +81,6 @@ class InvoiceController extends BaseController
             case 'pdf': {
                 return $this->renderAsPDF('print', [
                     'invoiceContent' => $invoice->render(),
-                    'invoice' => $invoiceData,
                 ], [
                     'cssFile' => '@web/css/invoice/invoice.css',
                 ]);
@@ -89,19 +88,16 @@ class InvoiceController extends BaseController
             case 'mhtml': {
                 return $this->renderAsMHTML('print', [
                     'invoiceContent' => $invoice->render(),
-                    'invoice' => $invoiceData,
                 ]);
             }
             case 'print': {
                 $this->layout = 'empty';
                 return $this->render('print', [
                     'invoiceContent' => $invoice->render(),
-                    'invoice' => $invoiceData,
                 ]);
             }
             default: {
                 return $this->render('view', [
-                    'invoiceContent' => $invoice->render(),
                     'invoice' => $invoiceData,
                     'langCode' => $langCode,
                     'date' => $date,
