@@ -57,7 +57,7 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
             $this->logo_image = Html::img(
                 MediaFileHelper::getFile('ORGANIZATION_LOGO_DIR', $organization->logo_file_name),
                 [
-                    'width' => 115,
+                    'width' => 180,
                     'border' => 0,
                 ]
             );
