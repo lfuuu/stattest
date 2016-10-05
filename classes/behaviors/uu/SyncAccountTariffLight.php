@@ -5,6 +5,7 @@ namespace app\classes\behaviors\uu;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
+use app\classes\uu\model\TariffVoipTarificate;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\AccountTariffLight;
 use DateTimeZone;
@@ -71,6 +72,7 @@ class SyncAccountTariffLight extends Behavior
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
         }
 
+        $voipTarificateId = $accountLogPeriod->accountTariff->prevAccountTariff->tariffPeriod->tariff->voip_tarificate_id;
         \app\classes\Event::go(self::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT, [
                 'id' => $accountLogPeriod->id,
                 'account_client_id' => $accountTariff->client_account_id,
@@ -79,6 +81,9 @@ class SyncAccountTariffLight extends Behavior
                 'deactivate_from' => $deactivateFrom,
                 'coefficient' => $coefficient,
                 'account_tariff_id' => $accountTariff->id,
+                'tariffication_by_minutes' => in_array($voipTarificateId, [TariffVoipTarificate::ID_VOIP_BY_MINUTE, TariffVoipTarificate::ID_VOIP_BY_MINUTE_FREE]),
+                'tariffication_full_first_minute' => true,
+                'tariffication_free_first_seconds' => in_array($voipTarificateId, [TariffVoipTarificate::ID_VOIP_BY_SECOND_FREE, TariffVoipTarificate::ID_VOIP_BY_MINUTE_FREE]),
             ]
         );
 
@@ -107,7 +112,7 @@ class SyncAccountTariffLight extends Behavior
 
     /**
      * Добавить данные в AccountTariffLight
-     * @param array $params [id, account_client_id, tariff_id, activate_from, deactivate_from, coefficient, account_tariff_id]
+     * @param array $params [id, account_client_id, tariff_id, activate_from, deactivate_from, coefficient, account_tariff_id, tariffication_by_minutes, tariffication_full_first_minute, tariffication_free_first_seconds]
      * @throws \Exception
      * @internal param AccountLogPeriod $accountLogPeriod
      */
@@ -124,6 +129,9 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->deactivate_from = $params['deactivate_from'] ? new Expression(sprintf("TIMESTAMP '%s'", $params['deactivate_from'])) : null;
         $accountTariffLight->coefficient = str_replace(',', '.', $params['coefficient']);
         $accountTariffLight->account_tariff_id = $params['account_tariff_id'];
+        $accountTariffLight->tariffication_by_minutes = $params['tariffication_by_minutes'];
+        $accountTariffLight->tariffication_full_first_minute = $params['tariffication_full_first_minute'];
+        $accountTariffLight->tariffication_free_first_seconds = $params['tariffication_free_first_seconds'];
         if (!$accountTariffLight->save()) {
             throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
         }
