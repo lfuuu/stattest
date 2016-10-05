@@ -37,7 +37,7 @@ class AccountTariffLight extends ActiveRecord
             'tariff_id' => 'Тариф', // не путайте с tariff_period_id
             'activate_from' => 'С',
             'deactivate_from' => 'По',
-            'account_tariff_id' => 'Услуга',
+            'account_tariff_id' => 'Базовая услуга', // тариф (2), а не пакет (3)!
             'tariffication_by_minutes' => 'Поминутно?',
             'tariffication_full_first_minute' => 'Первая минута поминутно?',
             'tariffication_free_first_seconds' => 'Первые 5 сек. бесплатно?',
