@@ -5,7 +5,7 @@ namespace app\classes\grid\column\important_events;
 use Yii;
 use yii\helpers\Html;
 use app\classes\grid\column\DataColumn;
-use app\models\ClientAccount;
+use app\classes\important_events\ImportantEventsDetailsFactory;
 
 class ClientColumn extends DataColumn
 {
@@ -26,14 +26,11 @@ class ClientColumn extends DataColumn
                 ? Html::tag('br') . Html::tag('label', $model->comment, ['class' => 'label label-default'])
                 : '';
 
+        $clientAccountName = ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('client.name');
+
         return
-            $model->clientAccount !== null
-                ? Html::a(
-                    $model->clientAccount->contragent->name,
-                    ['client/view', 'id' => $model->clientAccount->id],
-                    ['target' => '_blank']) .
-                  $comment
-                : '';
+            Html::a($clientAccountName, ['client/view', 'id' => $model->client_id], ['target' => '_blank']) .
+            $comment;
     }
 
 }
