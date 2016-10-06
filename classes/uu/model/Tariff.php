@@ -29,7 +29,6 @@ use yii\helpers\Url;
  * @property integer $is_charge_after_period @todo
  * @property integer $is_include_vat
  * @property integer $is_default
- * @property boolean $isTest
  *
  * @property Currency $currency
  * @property TariffResource[] $tariffResources
@@ -52,6 +51,7 @@ use yii\helpers\Url;
  * @property TariffVoipTarificate $voipTarificate
  * @property TariffVoipGroup $voipGroup
  * @property TariffVoipCity[] $voipCities
+ * @property boolean $isTest
  */
 class Tariff extends \yii\db\ActiveRecord
 {
