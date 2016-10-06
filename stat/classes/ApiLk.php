@@ -1797,7 +1797,7 @@ class ApiLk
     {
         switch ($t) {
             case 'email':
-                if (!preg_match("/^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/", $d))
+                if (!preg_match("/^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,}\.)?[a-z]{2,}$/", $d))
                     return false;
             break;
             case 'phone':
