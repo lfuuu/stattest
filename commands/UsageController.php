@@ -4,6 +4,7 @@ namespace app\commands;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BusinessProcessStatus;
 use app\models\Emails;
+use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use Yii;
 use DateTime;
@@ -103,7 +104,7 @@ class UsageController extends Controller
         $info = [];
 
         foreach ($usages as $usage) {
-            $tarif = $usage->tariff;
+            $tariff = $usage->tariff;
             $account = $usage->clientAccount;
 
             if ($action == self::ACTION_CLEAN_TRASH) {
@@ -116,15 +117,17 @@ class UsageController extends Controller
                 $model = new UsageVoipEditForm();
                 $model->initModel($account, $usage);
                 $model->disconnecting_date = $yesterday->format(DateTimeZoneHelper::DATE_FORMAT);
+                $model->status = UsageInterface::STATUS_WORKING;
                 $model->edit();
             } elseif ($action == self::ACTION_SET_OFF) {
-                if (!$tarif || $tarif->isTest()) {// тестовый тариф, или без тарифа вообще
+                if (!$tariff || $tariff->isTest()) {// тестовый тариф, или без тарифа вообще
                     if ($usage->actual_to != $now->format(DateTimeZoneHelper::DATE_FORMAT)) {// не выключенные сегодня
                         $info[] = $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set off";
 
                         $model = new UsageVoipEditForm();
                         $model->initModel($account, $usage);
                         $model->disconnecting_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
+                        $model->status = UsageInterface::STATUS_WORKING;
                         $model->edit();
                     }
                 }
