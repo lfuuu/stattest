@@ -254,7 +254,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_charge_after_blocking", type = "integer", description = "Списывать после блокировки"),
      *   @SWG\Property(property = "is_charge_after_period", type = "integer", description = "Списывать в конце периода"),
      *   @SWG\Property(property = "is_include_vat", type = "integer", description = "Включая НДС"),
-     *   @SWG\Property(property = "is_default", type = "integer", description = "По умолчанию"),
+     *   @SWG\Property(property = "is_default", type = "integer", description = "По умолчанию. Если не указано, то 0"),
      *   @SWG\Property(property = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)"),
      *   @SWG\Property(property = "serviceType", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "country", type = "object", description = "Страна", ref = "#/definitions/idNameRecord"),
@@ -268,6 +268,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "voip_package_minute", type = "array", description = "Телефония. Пакет. Предоплаченные минуты", @SWG\Items(ref = "#/definitions/voipPackageMinuteRecord")),
      *   @SWG\Property(property = "voip_package_price", type = "array", description = "Телефония. Пакет. Цена по направлениям", @SWG\Items(ref = "#/definitions/voipPackagePriceRecord")),
      *   @SWG\Property(property = "voip_package_pricelist", type = "array", description = "Телефония. Пакет. Прайслист", @SWG\Items(ref = "#/definitions/voipPackagePricelistRecord")),
+     *   @SWG\Property(property = "default_packages", type = "array", description = "Дефолтные пакеты в тарифе", @SWG\Items(ref = "#/definitions/tariffRecord")),
      * ),
      *
      * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-tariffs", summary = "Список тарифов", operationId = "Список тарифов",
@@ -301,7 +302,7 @@ class UuController extends ApiInternalController
         $service_type_id = null,
         $country_id = null,
         $currency_id = null,
-        $is_default = null,
+        $is_default = 0,
         $is_uu = 1,
         $tariff_status_id = null,
         $tariff_person_id = null,
@@ -329,8 +330,8 @@ class UuController extends ApiInternalController
         $service_type_id && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$service_type_id]);
         $country_id && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$country_id]);
         $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
-        $is_default && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
-        $is_uu && $tariffQuery->andWhere(['>=', $tariffTableName . '.id', Tariff::DELTA]);
+        !is_null($is_default) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
+        !is_null($is_uu) && $tariffQuery->andWhere([$is_uu ? '>=' : '<=', $tariffTableName . '.id', Tariff::DELTA]);
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int)$tariff_person_id]);
         $voip_tarificate_id && $tariffQuery->andWhere([$tariffTableName . '.voip_tarificate_id' => (int)$voip_tarificate_id]);
@@ -345,7 +346,29 @@ class UuController extends ApiInternalController
         $result = [];
         foreach ($tariffQuery->each() as $tariff) {
             /** @var Tariff $tariff */
-            $result[] = $this->getTariffRecord($tariff);
+
+            if ($tariff->service_type_id == ServiceType::ID_VOIP) {
+                $defaultPackageRecords = $this->actionGetTariffs(
+                    $id_tmp = null,
+                    $parent_id_tmp = $tariff->id,
+                    $service_type_id_tmp = ServiceType::ID_VOIP_PACKAGE,
+                    $country_id_tmp = null,
+                    $currency_id_tmp = null,
+                    $is_default_tmp = 1,
+                    $is_uu_tmp = 1,
+                    $tariff_status_id_tmp = null,
+                    $tariff_person_id_tmp = null,
+                    $voip_tarificate_id_tmp = null,
+                    $voip_group_id_tmp = null,
+                    $voip_city_id_tmp = null
+                );
+            } else {
+                $defaultPackageRecords = null;
+            }
+
+            $tariffRecord = $this->getTariffRecord($tariff);
+            $tariffRecord['default_packages'] = $defaultPackageRecords;
+            $result[] = $tariffRecord;
         }
 
         return $result;
@@ -439,7 +462,7 @@ class UuController extends ApiInternalController
         $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
         $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
         $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
-        $is_uu && $accountTariffQuery->andWhere(['>=', $accountTariffTableName . '.id', AccountTariff::DELTA]);
+        !is_null($is_uu) && $accountTariffQuery->andWhere([$is_uu ? '>=' : '<=', $accountTariffTableName . '.id', AccountTariff::DELTA]);
         $region_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.region_id' => (int)$region_id]);
         $city_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.city_id' => (int)$city_id]);
         $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
