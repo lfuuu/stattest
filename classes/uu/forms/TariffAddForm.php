@@ -15,6 +15,7 @@ use app\models\Currency;
 class TariffAddForm extends TariffForm
 {
     public $serviceTypeId;
+    public $countryId;
 
     /**
      * конструктор
@@ -35,7 +36,7 @@ class TariffAddForm extends TariffForm
     {
         $tariff = new Tariff();
         $tariff->service_type_id = $this->serviceTypeId;
-        $tariff->country_id = Country::RUSSIA;
+        $tariff->country_id = $this->countryId ?: Country::RUSSIA;
         $tariff->currency_id = Currency::RUB;
         $tariff->tariff_status_id = TariffStatus::ID_PUBLIC;
         $tariff->count_of_validity_period = 0;
