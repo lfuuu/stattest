@@ -1,16 +1,17 @@
 <?php
 namespace app\forms\usage;
 
-use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use DateTimeZone;
 use app\classes\Assert;
 use app\classes\Form;
+use app\helpers\DateTimeZoneHelper;
 use app\models\LogTarif;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
 use app\models\usages\UsageInterface;
+use app\models\User;
 
 class UsageVoipAddPackageForm extends Form
 {
@@ -76,13 +77,12 @@ class UsageVoipAddPackageForm extends Form
         $usageVoipPackage->client = $this->usage->clientAccount->client;
         $usageVoipPackage->actual_to = $this->usage->actual_to;
 
-
         $today = new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
 
         $logTariff = new LogTarif;
         $logTariff->service = 'usage_voip_package';
         $logTariff->id_tarif = $this->tariff_id;
-        $logTariff->id_user = Yii::$app->user->getId();
+        $logTariff->id_user = Yii::$app->has('user') && Yii::$app->user->getId() ? Yii::$app->user->getId() : User::SYSTEM_USER_ID;
         $logTariff->ts = $today->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $logTariff->date_activation = $this->actual_from;
 

@@ -2,12 +2,11 @@
 
 namespace app\classes\transfer;
 
-use app\classes\Html;
+use Yii;
 use app\classes\Assert;
 use app\models\ClientAccount;
-use app\models\Usage;
 use app\models\UsageVoip;
-use app\models\UsageVirtpbx;
+use app\models\UsageVoipPackage;
 
 /**
  * Класс переноса услуг типа "Телефония номера"
@@ -28,6 +27,7 @@ class VoipServiceTransfer extends ServiceTransfer
         LogTarifTransfer::process($this, $targetService->id);
 
         $this->process7800($targetService);
+        $this->processPackages($targetService);
 
         return $targetService;
     }
@@ -42,6 +42,7 @@ class VoipServiceTransfer extends ServiceTransfer
         parent::fallback();
 
         $this->fallback7800();
+        $this->fallbackPackages();
     }
 
     /**
@@ -66,6 +67,32 @@ class VoipServiceTransfer extends ServiceTransfer
     }
 
     /**
+     * Перенос связанных с услугой пакетов
+     * @param object $targetService - базовая услуга
+     */
+    private function processPackages($targetService)
+    {
+        $packages =
+            UsageVoipPackage::find()
+                ->andWhere(['usage_voip_id' => $this->service->id])
+                ->andWhere(['<=', 'actual_from', $this->getExpireDate()])
+                ->andWhere(['>=', 'actual_to', $this->getExpireDate()])
+                ->all();
+
+        if (!count($packages)) {
+            return;
+        }
+
+        foreach ($packages as $package) {
+            $package->transferHelper
+                ->setUsageVoip($targetService)
+                ->setTargetAccount($targetService->clientAccount)
+                ->setActivationDate($targetService->actual_from)
+                ->process();
+        }
+    }
+
+    /**
      * Отмена переноса связанных с услугой линий без номера, если услуга 7800
      */
     private function fallback7800()
@@ -81,6 +108,27 @@ class VoipServiceTransfer extends ServiceTransfer
         LogTarifTransfer::fallback($this);
 
         parent::fallback();
+    }
+
+    /**
+     * Отмена переноса связанных с услугой пакетов
+     */
+    private function fallbackPackages()
+    {
+        $packages =
+            UsageVoipPackage::find()
+                ->andWhere(['usage_voip_id' => $this->service->id])
+                ->all();
+
+        if (!count($packages)) {
+            return;
+        }
+
+        foreach ($packages as $package) {
+            $package->transferHelper
+                ->setTargetAccount($this->service->clientAccount)
+                ->fallback();
+        }
     }
 
 }
