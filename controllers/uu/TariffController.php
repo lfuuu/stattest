@@ -7,8 +7,8 @@ namespace app\controllers\uu;
 
 use app\classes\BaseController;
 use app\classes\uu\filter\TariffFilter;
-use app\classes\uu\forms\TariffEditForm;
 use app\classes\uu\forms\TariffAddForm;
+use app\classes\uu\forms\TariffEditForm;
 use app\classes\uu\model\ServiceType;
 use Yii;
 use yii\filters\AccessControl;
@@ -16,6 +16,10 @@ use yii\filters\AccessControl;
 
 class TariffController extends BaseController
 {
+    const EDITABLE_NONE = 0;
+    const EDITABLE_LIGHT = 1;
+    const EDITABLE_FULL = 2;
+
     /**
      * Права доступа
      * @return []

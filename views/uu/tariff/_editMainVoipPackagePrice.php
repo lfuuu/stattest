@@ -5,8 +5,10 @@
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
+ * @var int $editableType
  */
 
+use app\controllers\uu\TariffController;
 use app\modules\nnp\forms\package\Form;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PackagePrice;
@@ -33,6 +35,12 @@ if (!$packagePrices) {
     <?php
 }
 $destinationList = Destination::getList(true);
+
+if ($editableType <= TariffController::EDITABLE_LIGHT) {
+    $options = ['disabled' => 'disabled'];
+} else {
+    $options = [];
+}
 ?>
 
 <div class="well package-price">
@@ -45,7 +53,7 @@ $destinationList = Destination::getList(true);
                     'name' => 'destination_id',
                     'title' => $attributeLabels['destination_id'],
                     'type' => Editable::INPUT_SELECT2,
-                    'options' => [
+                    'options' => $options + [
                         'data' => $destinationList,
                     ],
                     'headerOptions' => [
@@ -55,6 +63,7 @@ $destinationList = Destination::getList(true);
                 [
                     'name' => 'price',
                     'title' => $attributeLabels['price'],
+                    'options' => $options,
                     'headerOptions' => [
                         'class' => 'col-sm-3',
                     ],

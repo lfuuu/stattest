@@ -5,10 +5,12 @@
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
+ * @var int $editableType
  */
 
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffVoipCity;
+use app\controllers\uu\TariffController;
 use app\models\City;
 use kartik\select2\Select2;
 
@@ -18,6 +20,12 @@ $tariff = $formModel->tariff;
 
 $tariffVoipCityTableName = TariffVoipCity::tableName();
 $tariffTableName = Tariff::tableName();
+
+if ($editableType <= TariffController::EDITABLE_LIGHT) {
+    $options = ['disabled' => 'disabled'];
+} else {
+    $options = [];
+}
 ?>
 
 <div class="row">
@@ -28,7 +36,7 @@ $tariffTableName = Tariff::tableName();
             'name' => 'TariffVoipCity[]',
             'value' => array_keys($tariffVoipCities),
             'data' => $cityList,
-            'options' => [
+            'options' => $options + [
                 'multiple' => true,
             ],
         ]) ?>

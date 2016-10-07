@@ -5,16 +5,24 @@
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
+ * @var int $editableType
  */
 
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\uu\model\TariffPerson;
 use app\classes\uu\model\TariffStatus;
+use app\controllers\uu\TariffController;
 use app\models\Country;
 use app\models\Currency;
 use kartik\select2\Select2;
 
 $tariff = $formModel->tariff;
+
+if ($editableType <= TariffController::EDITABLE_LIGHT) {
+    $options = ['disabled' => 'disabled'];
+} else {
+    $options = [];
+}
 ?>
 
 <div class="well">
@@ -70,17 +78,19 @@ $tariff = $formModel->tariff;
         <div class="col-sm-2"><?= $form->field($tariff, 'country_id')
                 ->widget(Select2::className(), [
                     'data' => Country::getList($tariff->isNewRecord),
+                    'options' => $options,
                 ]) ?></div>
 
         <div class="col-sm-2"><?= $form->field($tariff, 'currency_id')
                 ->widget(Select2::className(), [
                     'data' => Currency::getList($tariff->isNewRecord),
+                    'options' => $options,
                 ]) ?></div>
 
-        <div class="col-sm-4"><?= $form->field($tariff, 'name')->textInput() ?></div>
+        <div class="col-sm-4"><?= $form->field($tariff, 'name')->textInput(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?></div>
         <div class="col-sm-4">
-            <?= $form->field($tariff, 'is_charge_after_blocking')->checkbox() ?>
-            <?= $form->field($tariff, 'is_include_vat')->checkbox() ?>
+            <?= $form->field($tariff, 'is_charge_after_blocking')->checkbox($options) ?>
+            <?= $form->field($tariff, 'is_include_vat')->checkbox($options) ?>
         </div>
     </div>
 
@@ -88,18 +98,20 @@ $tariff = $formModel->tariff;
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_status_id')
                 ->widget(Select2::className(), [
                     'data' => TariffStatus::getList(false, $tariff->service_type_id),
+                    'options' => $options,
                 ]) ?></div>
 
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_person_id')->widget(Select2::className(), [
                 'data' => TariffPerson::getList(false),
+                'options' => $options,
             ]) ?></div>
 
-        <div class="col-sm-4"><?= $form->field($tariff, 'count_of_validity_period')->textInput() ?></div>
+        <div class="col-sm-4"><?= $form->field($tariff, 'count_of_validity_period')->textInput($options) ?></div>
 
         <div class="col-sm-2">
-            <?php //$form->field($tariff, 'is_charge_after_period')->checkbox() ?>
-            <?= $form->field($tariff, 'is_autoprolongation')->checkbox() ?>
-            <?= $form->field($tariff, 'is_default')->checkbox() ?>
+            <?php //$form->field($tariff, 'is_charge_after_period')->checkbox($options) ?>
+            <?= $form->field($tariff, 'is_autoprolongation')->checkbox($options) ?>
+            <?= $form->field($tariff, 'is_default')->checkbox($options) ?>
         </div>
         <div class="col-sm-2"></div>
     </div>

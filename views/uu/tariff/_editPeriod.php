@@ -5,14 +5,23 @@
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
+ * @var int $editableType
  */
+
 use app\classes\uu\model\Period;
 use app\classes\uu\model\TariffPeriod;
+use app\controllers\uu\TariffController;
 use kartik\editable\Editable;
 use unclead\widgets\TabularInput;
 
 $tariffPeriods = $formModel->tariffPeriods;
 $tariffPeriodTableName = TariffPeriod::tableName();
+
+if ($editableType <= TariffController::EDITABLE_LIGHT) {
+    $options = ['disabled' => 'disabled'];
+} else {
+    $options = [];
+}
 ?>
 
 <div class="well chargePeriod">
@@ -26,7 +35,7 @@ $tariffPeriodTableName = TariffPeriod::tableName();
                     'name' => 'period_id',
                     'title' => Yii::t('models/' . $tariffPeriodTableName, 'period_id'),
                     'type' => Editable::INPUT_SELECT2,
-                    'options' => [
+                    'options' => $options + [
                         'data' => $periodList,
                     ],
                 ],
@@ -34,21 +43,24 @@ $tariffPeriodTableName = TariffPeriod::tableName();
                     'name' => 'charge_period_id',
                     'title' => Yii::t('models/' . $tariffPeriodTableName, 'charge_period_id'),
                     'type' => Editable::INPUT_SELECT2,
-                    'options' => [
+                    'options' => $options + [
                         'data' => $periodList,
                     ],
                 ],
                 [
                     'name' => 'price_setup',
                     'title' => Yii::t('models/' . $tariffPeriodTableName, 'price_setup'),
+                    'options' => $options,
                 ],
                 [
                     'name' => 'price_per_period',
                     'title' => Yii::t('models/' . $tariffPeriodTableName, 'price_per_period'),
+                    'options' => $options,
                 ],
                 [
                     'name' => 'price_min',
                     'title' => Yii::t('models/' . $tariffPeriodTableName, 'price_min'),
+                    'options' => $options,
                 ],
                 [
                     'name' => 'id', // чтобы идентифицировать модель

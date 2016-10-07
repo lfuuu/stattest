@@ -5,16 +5,24 @@
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
+ * @var int $editableType
  */
 
 use app\classes\Html;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\TariffResource;
+use app\controllers\uu\TariffController;
 
 $tariffResourceTableName = TariffResource::tableName();
 $resourceTableName = Resource::tableName();
 
 $tariffResources = $formModel->tariffResources;
+
+if ($editableType <= TariffController::EDITABLE_LIGHT) {
+    $options = ['disabled' => 'disabled'];
+} else {
+    $options = [];
+}
 ?>
 
 <?php if ($tariffResources) { ?>
@@ -61,9 +69,9 @@ $tariffResources = $formModel->tariffResources;
                     <?= Html::activeHiddenInput($tariffResource, "[{$i}]resource_id") ?>
                     <?php
                     if ($isNumber) {
-                        echo $form->field($tariffResource, "[{$i}]amount")->textInput()->label(false);
+                        echo $form->field($tariffResource, "[{$i}]amount")->textInput($options)->label(false);
                     } else {
-                        echo $form->field($tariffResource, "[{$i}]amount")->checkbox([], false)->label(false);
+                        echo $form->field($tariffResource, "[{$i}]amount")->checkbox($options, false)->label(false);
                     }
                     ?>
                 </div>
@@ -76,11 +84,11 @@ $tariffResources = $formModel->tariffResources;
                         $params['readonly'] = 'readonly';
                     }
                     ?>
-                    <?= $form->field($tariffResource, "[{$i}]price_per_unit")->textInput($params)->label(false) ?>
+                    <?= $form->field($tariffResource, "[{$i}]price_per_unit")->textInput($options + $params)->label(false) ?>
                 </div>
 
                 <div class="col-sm-2">
-                    <?= $form->field($tariffResource, "[{$i}]price_min")->textInput()->label(false) ?>
+                    <?= $form->field($tariffResource, "[{$i}]price_min")->textInput($options)->label(false) ?>
                 </div>
 
             </div>
