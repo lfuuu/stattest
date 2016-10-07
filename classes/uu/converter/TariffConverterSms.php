@@ -81,9 +81,19 @@ class TariffConverterSms extends TariffConverterA
     {
         $deltaTariff = Tariff::DELTA_SMS;
 
+        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+            (
+                `amount` float NOT NULL DEFAULT '0',
+                `price_per_unit` float NOT NULL DEFAULT '0',
+                `price_min` float NOT NULL DEFAULT '0',
+                `resource_id` int(11) NOT NULL,
+                `tariff_id` int(11) NOT NULL
+            )
+        ");
+
         // SMS
         $resourceId = Resource::ID_SMS;
-        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+        $this->execute("INSERT INTO tariff_resource_tmp
            SELECT
                 0 AS amount, 
                 per_sms_price AS price_per_unit, 

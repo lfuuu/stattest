@@ -79,6 +79,16 @@ class TariffConverterWelltimeSaas extends TariffConverterA
         $deltaTariff = Tariff::DELTA_WELLTIME_SAAS;
 
         $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+            (
+                `amount` float NOT NULL DEFAULT '0',
+                `price_per_unit` float NOT NULL DEFAULT '0',
+                `price_min` float NOT NULL DEFAULT '0',
+                `resource_id` int(11) NOT NULL,
+                `tariff_id` int(11) NOT NULL
+            )
+        ");
+
+        $this->execute("INSERT INTO tariff_resource_tmp
            SELECT
                 tariff_resource.amount, 
                 tariff_resource.price_per_unit, 
