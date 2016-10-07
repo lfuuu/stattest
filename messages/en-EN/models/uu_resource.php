@@ -7,11 +7,11 @@ return [
     'service_type_id' => 'Service type',
     'unit' => 'Unit',
 
-    'Resource #1' => 'HDD',
-    'Resource #2' => 'Callers',
-    'Resource #3' => 'Connection other number',
-    'Resource #4' => 'Record site calls',
-    'Resource #5' => 'Site calls',
+    'Resource #1' => 'Disk space',
+    'Resource #2' => 'Subscribers',
+    'Resource #3' => 'Other operator number\'s connection',
+    'Resource #4' => 'Call recording from website',
+    'Resource #5' => 'Calls from website',
     'Resource #6' => 'Fax',
     'Resource #7' => 'Lines',
     'Resource #8' => 'Calls',
@@ -28,5 +28,5 @@ return [
     'Resource #19' => 'Minimum price routing',
     'Resource #20' => 'Geo routing',
 
-    '{resource} (ID: {id})' => 'Resource overhead: {resource} (ID: {id})',
+    '{resource} (ID: {id})' => 'Resource consumption limit exceedance: {resource} (ID: {id})',
 ];
