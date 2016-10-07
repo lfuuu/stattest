@@ -6,6 +6,7 @@ use app\classes\uu\converter\TariffConverter;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
@@ -330,5 +331,62 @@ SQL;
         }
 
         return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * Дефрагментировать AccountTariffLog
+     * При конвертации логи тарифов удаляются и создаются заново. Так за несколько месяцев допустимые числа закончатся, конвертер перестанет работать.
+     * Надо раз в месяц запускать дефрагментацию до тех пор, пока конвертер не выключим
+     * @return int
+     */
+    public function actionFixAccountTariffLog()
+    {
+        $accountTariffLogTableName = AccountTariffLog::tableName();
+        $accountTariffDelta = AccountTariff::DELTA;
+
+        $sql = <<<SQL
+        CREATE TEMPORARY TABLE account_tariff_log_tmp (
+            account_tariff_id int(11) NOT NULL,
+            tariff_period_id int(11) DEFAULT NULL,
+            insert_time datetime DEFAULT NULL,
+            insert_user_id int(11) DEFAULT NULL,
+            actual_from_utc datetime DEFAULT NULL
+        )
+SQL;
+        Yii::$app->db->createCommand($sql)->execute();
+
+        $sql = <<<SQL
+        INSERT INTO account_tariff_log_tmp
+            (account_tariff_id, tariff_period_id, insert_time, insert_user_id, actual_from_utc)
+        SELECT
+            account_tariff_id, tariff_period_id, insert_time, insert_user_id, actual_from_utc
+        FROM
+            {$accountTariffLogTableName}
+        WHERE
+            account_tariff_id >= {$accountTariffDelta}
+SQL;
+        Yii::$app->db->createCommand($sql)->execute();
+
+        $sql = <<<SQL
+        TRUNCATE TABLE {$accountTariffLogTableName}
+SQL;
+        Yii::$app->db->createCommand($sql)->execute();
+
+        $sql = <<<SQL
+        INSERT INTO {$accountTariffLogTableName}
+            (account_tariff_id, tariff_period_id, insert_time, insert_user_id, actual_from_utc)
+        SELECT
+            account_tariff_id, tariff_period_id, insert_time, insert_user_id, actual_from_utc
+        FROM
+            account_tariff_log_tmp
+SQL;
+        Yii::$app->db->createCommand($sql)->execute();
+
+        $sql = <<<SQL
+        DROP TEMPORARY TABLE account_tariff_log_tmp
+SQL;
+        Yii::$app->db->createCommand($sql)->execute();
+
+        $this->actionAccountTariff();
     }
 }
