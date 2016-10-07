@@ -7,9 +7,9 @@ return [
 
     'type_id' => 'Type',
 
-    'setup' => 'Connection',
-    'period' => 'Subscription fee',
-    'minimum' => 'Minimal fee',
+    'setup' => 'Verbindung',
+    'period' => 'Abonnementsgebühr',
+    'minimum' => 'Minimalpreis',
 
     'price' => 'Tariff cost',
     'price_without_vat' => 'Cost without VAT',

@@ -1,0 +1,32 @@
+<?php
+return [
+    'id' => 'ID',
+    'name' => 'Name',
+    'min_value' => 'Minimum value',
+    'max_value' => 'Maximum value',
+    'service_type_id' => 'Service type',
+    'unit' => 'Unit',
+
+    'Resource #1' => 'Speicherplatz',
+    'Resource #2' => 'Abonnenten',
+    'Resource #3' => 'Verbindung von Nummern anderer Operatoren',
+    'Resource #4' => 'Anrufaufnahme über Website',
+    'Resource #5' => 'Anrufe über Website',
+    'Resource #6' => 'Fax',
+    'Resource #7' => 'Leitungen',
+    'Resource #8' => 'Anrufe',
+    'Resource #9' => 'Internet Verkehr',
+    'Resource #10' => 'Russia Verkehr',
+    'Resource #11' => 'Russia2 Verkehr',
+    'Resource #12' => 'Foreign Verkehr',
+    'Resource #13' => 'VPN Verkehr',
+    'Resource #14' => 'SMS',
+    'Resource #15' => 'Processor',
+    'Resource #16' => 'HDD',
+    'Resource #17' => 'RAM',
+    'Resource #18' => 'One-time service',
+    'Resource #19' => 'Minimum price routing',
+    'Resource #20' => 'Geo routing',
+
+    '{resource} (ID: {id})' => 'Limit der Ressourcennutzung überschritten: {resource} (ID: {id})',
+];

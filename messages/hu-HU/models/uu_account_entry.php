@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'setup' => 'hu-HU Подключение',
-    'period' => 'hu-HU Абонентская плата',
-    'minimum' => 'hu-HU Минимальная плата',
+    'setup' => 'Kapcsolat',
+    'period' => 'Előfizetési díj',
+    'minimum' => 'Minimális díj',
 
-    '{name} ({descr}). {serviceTypeName}' => 'hu-HU {name} ({descr}). {serviceTypeName}',
+    '{name} ({descr}). {serviceTypeName}' => '{name} ({descr}). {serviceTypeName}',
 ];
