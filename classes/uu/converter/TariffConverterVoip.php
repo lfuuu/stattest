@@ -102,9 +102,19 @@ class TariffConverterVoip extends TariffConverterA
     {
         $deltaVoipTariff = Tariff::DELTA_VOIP;
 
+        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+            (
+                `amount` float NOT NULL DEFAULT '0',
+                `price_per_unit` float NOT NULL DEFAULT '0',
+                `price_min` float NOT NULL DEFAULT '0',
+                `resource_id` int(11) NOT NULL,
+                `tariff_id` int(11) NOT NULL
+            )
+        ");
+
         // Телефония. Линия
         $resourceIdLine = Resource::ID_VOIP_LINE;
-        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+        $this->execute("INSERT INTO tariff_resource_tmp
             SELECT
                 1 AS amount,
                 month_line AS price_per_unit, 

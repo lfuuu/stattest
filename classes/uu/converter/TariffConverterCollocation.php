@@ -87,9 +87,19 @@ class TariffConverterCollocation extends TariffConverterA
     {
         $deltaCollocationTariff = Tariff::DELTA_COLLOCATION;
 
+        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+            (
+                `amount` float NOT NULL DEFAULT '0',
+                `price_per_unit` float NOT NULL DEFAULT '0',
+                `price_min` float NOT NULL DEFAULT '0',
+                `resource_id` int(11) NOT NULL,
+                `tariff_id` int(11) NOT NULL
+            )
+        ");
+
         // Collocation. Трафик Russia
         $resourceIdTrafficRussia = Resource::ID_COLLOCATION_TRAFFIC_RUSSIA;
-        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+        $this->execute("INSERT INTO tariff_resource_tmp
             SELECT
                 month_r AS amount,
                 pay_r AS price_per_unit,

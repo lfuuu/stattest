@@ -91,9 +91,19 @@ class TariffConverterInternet extends TariffConverterA
     {
         $deltaInternetTariff = Tariff::DELTA_INTERNET;
 
+        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+            (
+                `amount` float NOT NULL DEFAULT '0',
+                `price_per_unit` float NOT NULL DEFAULT '0',
+                `price_min` float NOT NULL DEFAULT '0',
+                `resource_id` int(11) NOT NULL,
+                `tariff_id` int(11) NOT NULL
+            )
+        ");
+
         // Интернет. Трафик
         $resourceIdTraffic = Resource::ID_INTERNET_TRAFFIC;
-        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
+        $this->execute("INSERT INTO tariff_resource_tmp
             SELECT
                 mb_month AS amount, 
                 pay_mb AS price_per_unit, 
