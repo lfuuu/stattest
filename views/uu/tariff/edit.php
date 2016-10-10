@@ -7,6 +7,7 @@
  */
 
 use app\classes\uu\model\ServiceType;
+use app\controllers\uu\TariffController;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -34,12 +35,6 @@ if (!$serviceType) {
     ],
 ]) ?>
 
-<?php
-if ($tariff->getNonUniversalId()) {
-    Yii::$app->session->setFlash('error', 'Этот тариф автоматически сконвертирован из старого. Все ваши изменения будут затерты конвертером из старого тарифа.');
-}
-?>
-
 <div class="resource-tariff-form">
     <?php
     $form = ActiveForm::begin();
@@ -47,17 +42,25 @@ if ($tariff->getNonUniversalId()) {
         'formModel' => $formModel,
         'form' => $form,
     ];
-    ?>
 
-    <?php // кнопка сохранения ?>
-    <?= $this->render('_editSubmit', $viewParams) ?>
+    if ($tariff->getNonUniversalId()) {
+        Yii::$app->session->setFlash('error', 'Этот тариф автоматически сконвертирован из старого. Если надо отредактировать его - редактируйте исходный тариф.');
+        $viewParams['editableType'] = TariffController::EDITABLE_NONE;
+    } elseif ($tariff->isHasAccountTariff()) {
+        Yii::$app->session->setFlash('error', 'На этом тарифе есть услуги. Редактировать можно только название тарифа.');
+        $viewParams['editableType'] = TariffController::EDITABLE_LIGHT;
+    } else {
+        $viewParams['editableType'] = TariffController::EDITABLE_FULL;
+    }
 
-    <?php
     // сообщение об ошибке
     if ($formModel->validateErrors) {
         Yii::$app->session->setFlash('error', $formModel->validateErrors);
     }
     ?>
+
+    <?php // кнопка сохранения ?>
+    <?= $this->render('_editSubmit', $viewParams) ?>
 
     <?php // свойства тарифа из основной таблицы ?>
     <?= $this->render('_editMain', $viewParams) ?>

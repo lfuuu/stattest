@@ -5,8 +5,10 @@
  * @var \yii\web\View $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
+ * @var int $editableType
  */
 
+use app\controllers\uu\TariffController;
 use app\models\billing\Pricelist;
 use app\modules\nnp\models\PackagePricelist;
 use kartik\editable\Editable;
@@ -32,6 +34,12 @@ if (!$packagePricelists) {
     <?php
 }
 $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type = 'client', $orig = true);
+
+if ($editableType <= TariffController::EDITABLE_LIGHT) {
+    $options = ['disabled' => 'disabled'];
+} else {
+    $options = [];
+}
 ?>
 
 <div class="well package-pricelist">
@@ -44,7 +52,7 @@ $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type =
                     'name' => 'pricelist_id',
                     'title' => $attributeLabels['pricelist_id'],
                     'type' => Editable::INPUT_SELECT2,
-                    'options' => [
+                    'options' => $options + [
                         'data' => $pricelistList,
                     ],
                 ],

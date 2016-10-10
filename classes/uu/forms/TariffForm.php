@@ -9,6 +9,7 @@ use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffVoipCity;
+use app\controllers\uu\TariffController;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
@@ -95,6 +96,21 @@ abstract class TariffForm extends Form
      */
     protected function loadFromInput()
     {
+        $post = Yii::$app->request->post();
+        if ($this->tariff->getNonUniversalId()) {
+            // Этот тариф автоматически сконвертирован из старого. Если надо отредактировать его - редактируйте исходный тариф.
+            $post = [];
+        } elseif ($this->tariff->isHasAccountTariff()) {
+            // На этом тарифе есть услуги. Редактировать можно только название тарифа.
+            if (isset($post['Tariff']['name'])) {
+                // checkbox передаются даже disabled, потому что они в паре с hidden. Надо все лишнее убрать
+                $post['Tariff'] = [
+                    'name' => $post['Tariff']['name'],
+                ];
+            }
+            unset($post['TariffPeriod'], $post['TariffResource']);
+        }
+
         switch ($this->tariff->service_type_id) {
 
             case ServiceType::ID_VPBX:
@@ -111,7 +127,6 @@ abstract class TariffForm extends Form
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-            $post = Yii::$app->request->post();
             if ($this->tariff->load($post)) {
 
                 if ($this->tariff->is_autoprolongation) {
@@ -128,11 +143,15 @@ abstract class TariffForm extends Form
 
                 $tariffPeriod = new TariffPeriod();
                 $tariffPeriod->tariff_id = $this->id;
-                $this->tariffPeriods = self::crudMultiple($this->tariffPeriods, $post, $tariffPeriod);
+                if (isset($post['TariffPeriod'])) {
+                    $this->tariffPeriods = self::crudMultiple($this->tariffPeriods, $post, $tariffPeriod);
+                }
 
                 $tariffResource = new TariffResource();
                 $tariffResource->tariff_id = $this->id;
-                $this->tariffResources = self::crudMultiple($this->tariffResources, $post, $tariffResource);
+                if (isset($post['TariffResource'])) {
+                    $this->tariffResources = self::crudMultiple($this->tariffResources, $post, $tariffResource);
+                }
 
                 switch ($this->tariff->service_type_id) {
 

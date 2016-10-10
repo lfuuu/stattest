@@ -93,15 +93,15 @@ $columns = [
         'attribute' => 'is_autoprolongation',
         'class' => YesNoColumn::className(),
     ],
-   [
+    [
         'attribute' => 'is_charge_after_blocking',
         'class' => YesNoColumn::className(),
     ],
-   [
+    [
         'attribute' => 'is_include_vat',
         'class' => YesNoColumn::className(),
     ],
-   [
+    [
         'attribute' => 'is_default',
         'class' => YesNoColumn::className(),
     ],
@@ -187,7 +187,9 @@ switch ($serviceType->id) {
                 $packagePricelists = $tariff->packagePricelists;
                 $echoArray = array_map(function (PackagePricelist $packagePricelist) {
                     $pricelist = $packagePricelist->pricelist;
-                    return Html::a($pricelist->name, $pricelist->getUrl());
+                    return $pricelist ?
+                        Html::a($pricelist->name, $pricelist->getUrl()) :
+                        '';
                 }, $packagePricelists);
                 return implode('<br/>', $echoArray);
             }

@@ -3,6 +3,7 @@
 namespace app\classes\uu\model;
 
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * Стоимость тарифа
@@ -18,6 +19,7 @@ use Yii;
  * @property Period $period
  * @property Period $chargePeriod
  * @property Tariff $tariff
+ * @property AccountTariff[] $accountTariffs
  */
 class TariffPeriod extends \yii\db\ActiveRecord
 {
@@ -80,7 +82,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getPeriod()
     {
@@ -88,7 +90,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getChargePeriod()
     {
@@ -96,11 +98,20 @@ class TariffPeriod extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getTariff()
     {
         return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountTariffs()
+    {
+        return $this->hasMany(AccountTariff::className(), ['tariff_period_id' => 'id'])
+            ->indexBy('id');
     }
 
     /**

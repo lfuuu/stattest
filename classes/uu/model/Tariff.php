@@ -344,6 +344,22 @@ class Tariff extends \yii\db\ActiveRecord
     }
 
     /**
+     * Есть ли услуги
+     * @return bool
+     */
+    public function isHasAccountTariff()
+    {
+        $tariffPeriods = $this->tariffPeriods;
+        foreach ($tariffPeriods as $tariffPeriod) {
+            if ($tariffPeriod->getAccountTariffs()->count()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Вернуть ID неуниверсальной услуги
      * @return int|null
      */
