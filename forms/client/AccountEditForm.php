@@ -73,7 +73,8 @@ class AccountEditForm extends Form
         $anti_fraud_disabled,
         $options,
         $site_name,
-        $account_version
+        $account_version,
+        $is_postpaid
     ;
 
     public function rules()
@@ -142,7 +143,8 @@ class AccountEditForm extends Form
                     'admin_contact_id',
                     'admin_is_active',
                     'anti_fraud_disabled',
-                    'account_version'
+                    'account_version',
+                    'is_postpaid'
                 ],
                 'integer'
             ],
@@ -239,6 +241,7 @@ class AccountEditForm extends Form
             $this->voip_limit_mn_day = ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY;
             $this->voip_is_mn_day_calc = ClientAccount::DEFAULT_VOIP_IS_MN_DAY_CALC;
             $this->anti_fraud_disabled = 0;
+            $this->is_postpaid = 0;
             $this->bill_rename1 = 'no';
         } else {
             $this->clientM = new ClientAccount();

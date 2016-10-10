@@ -1,14 +1,12 @@
 <?php
 
 use app\classes\Html;
-use app\models\ClientAccountOptions;
-use app\models\Region;
-use app\models\PriceType;
-use kartik\widgets\ActiveForm;
-use kartik\widgets\Select2;
-use kartik\builder\Form;
 use app\models\ClientAccount;
+use app\models\ClientAccountOptions;
 use app\models\Currency;
+use app\models\PriceType;
+use app\models\Region;
+use kartik\widgets\ActiveForm;
 
 /** @var ActiveForm $f */
 /** @var \app\forms\client\AccountEditForm $model */
@@ -36,7 +34,9 @@ use app\models\Currency;
         <div class="col-sm-3">
             <?= $f->field($model, 'price_type')->dropDownList(PriceType::getList()) ?>
         </div>
-        <div class="col-sm-3"></div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'is_postpaid')->checkbox()->label('') ?>
+        </div>
     </div>
 
     <div class="row">
@@ -71,7 +71,7 @@ use app\models\Currency;
                 $result[] = 'Пересчитанное значение: ' . array_shift($voipCreditLimitDayValue);
             }
 
-            echo $f->field($model, 'voip_is_day_calc', ['options' => ['style' => 'margin-top: 45px']])->checkbox();
+            echo $f->field($model, 'voip_is_day_calc')->checkbox()->label('');
             echo implode(Html::tag('br'), $result);
             ?>
         </div>
@@ -79,7 +79,7 @@ use app\models\Currency;
             <?= $f->field($model, 'voip_credit_limit') ?>
         </div>
         <div class="col-sm-3">
-            <?=$f->field($model, 'anti_fraud_disabled', ['options' => ['style' => 'margin-top: 45px']])->checkbox() ?>
+            <?= $f->field($model, 'anti_fraud_disabled')->checkbox()->label('') ?>
         </div>
     </div>
 
@@ -102,7 +102,7 @@ use app\models\Currency;
                 $result[] = 'Пересчитанное значение: ' . array_shift($voipCreditLimitDayMNValue);
             }
 
-            echo $f->field($model, 'voip_is_mn_day_calc', ['options' => ['style' => 'margin-top: 45px']])->checkbox();
+            echo $f->field($model, 'voip_is_mn_day_calc')->checkbox()->label('');
             echo implode(Html::tag('br'), $result);
             ?>
         </div>
@@ -122,16 +122,16 @@ use app\models\Currency;
         </div>
         <div class="col-sm-3">
             <?= $f
-                ->field($model, 'options[black_list]', ['options' => ['style' => 'margin-top: 30px']])
-                ->checkbox([
-                    'label' => 'Черный список',
-                ])
+                ->field($model, 'options[black_list]')
+                ->checkbox(['label' => 'Черный список'])
+                ->label('')
             ?>
         </div>
         <div class="col-sm-3">
             <?= $f
-                ->field($model, 'is_with_consignee', ['options' => ['style' => 'margin-top: 30px']])
+                ->field($model, 'is_with_consignee')
                 ->checkbox(['id' => 'with-consignee'])
+                ->label('')
             ?>
         </div>
     </div>
@@ -168,10 +168,10 @@ use app\models\Currency;
             <?= $f->field($model, 'form_type')->dropDownList(ClientAccount::$formTypes) ?>
         </div>
         <div class="col-sm-3">
-            <?= $f->field($model, 'stamp', ['options' => ['style' => 'margin-top: 30px']])->checkbox() ?>
+            <?= $f->field($model, 'stamp')->checkbox()->label('') ?>
         </div>
         <div class="col-sm-3">
-            <?= $f->field($model, 'is_upd_without_sign', ['options' => ['style' => 'margin-top: 30px']])->checkbox() ?>
+            <?= $f->field($model, 'is_upd_without_sign')->checkbox()->label('') ?>
         </div>
         <div class="col-sm-3"></div>
     </div>

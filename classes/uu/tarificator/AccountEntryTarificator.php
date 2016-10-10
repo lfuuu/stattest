@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\tarificator;
 
+use app\classes\Connection;
 use app\classes\Event;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountLogMin;
@@ -46,7 +47,8 @@ class AccountEntryTarificator implements TarificatorI
             AccountLogPeriod::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
-            $accountTariffId
+            $accountTariffId,
+            $sqlAndWhere = 'AND IF(client_account.is_postpaid > 0, account_log.date_to > NOW(), true)'
         );
 
         // проводки за ресурсы
@@ -93,8 +95,11 @@ class AccountEntryTarificator implements TarificatorI
      */
     private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId, $sqlAndWhere = '')
     {
+        /** @var Connection $db */
         $db = Yii::$app->db;
         $accountEntryTableName = AccountEntry::tableName();
+        $accountTariffTableName = AccountTariff::tableName();
+        $clientAccountTableName = ClientAccount::tableName();
         $sqlParams = [];
 
         if ($accountTariffId) {
@@ -113,9 +118,13 @@ class AccountEntryTarificator implements TarificatorI
                     {$typeId},
                     0
                 FROM
-                    {$accountLogTableName} account_log
+                    {$accountLogTableName} account_log,
+                    {$accountTariffTableName} account_tariff,
+                    {$clientAccountTableName} client_account
                 WHERE
                     account_log.account_entry_id IS NULL
+                    AND account_log.account_tariff_id = account_tariff.id
+                    AND account_tariff.client_account_id = client_account.id
                     {$sqlAndWhere}
             ON DUPLICATE KEY UPDATE price = 0
 SQL;
@@ -127,16 +136,20 @@ SQL;
         echo '. ';
         $updateSql = <<<SQL
             UPDATE
-               {$accountEntryTableName} account_entry,
-               {$accountLogTableName} account_log
+                {$accountEntryTableName} account_entry,
+                {$accountLogTableName} account_log,
+                {$accountTariffTableName} account_tariff,
+                {$clientAccountTableName} client_account
             SET
-               account_log.account_entry_id = account_entry.id
+                account_log.account_entry_id = account_entry.id
             WHERE
-               account_log.account_entry_id IS NULL
-               AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldName}`, "%Y-%m-01")
-               AND account_entry.type_id = {$typeId}
-               AND account_entry.account_tariff_id = account_log.account_tariff_id
-               {$sqlAndWhere}
+                account_log.account_entry_id IS NULL
+                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldName}`, "%Y-%m-01")
+                AND account_entry.type_id = {$typeId}
+                AND account_entry.account_tariff_id = account_log.account_tariff_id
+                AND account_log.account_tariff_id = account_tariff.id
+                AND account_tariff.client_account_id = client_account.id
+                {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql, $sqlParams)
             ->execute();
@@ -149,15 +162,18 @@ SQL;
             {$accountEntryTableName} account_entry,
             (
                 SELECT
-                   account_entry_id,
-                   SUM(price) AS price
+                    account_log.account_entry_id,
+                    SUM(account_log.price) AS price
                 FROM
-                   {$accountLogTableName} account_log
+                    {$accountLogTableName} account_log,
+                    {$accountTariffTableName} account_tariff,
+                    {$clientAccountTableName} client_account
                 WHERE
-                    true
+                    account_log.account_tariff_id = account_tariff.id
+                    AND account_tariff.client_account_id = client_account.id
                     {$sqlAndWhere}
                 GROUP BY
-                   account_entry_id
+                   account_log.account_entry_id
             ) t
          SET
             account_entry.price = t.price
@@ -177,6 +193,7 @@ SQL;
      */
     private function _tarificateVat($accountTariffId)
     {
+        /** @var Connection $db */
         $db = Yii::$app->db;
         $accountEntryTableName = AccountEntry::tableName();
 
