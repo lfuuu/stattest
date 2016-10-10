@@ -14,6 +14,7 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\nnp\column\OperatorColumn;
 use app\modules\nnp\column\PrefixColumn;
 use app\modules\nnp\column\RegionColumn;
@@ -93,10 +94,8 @@ $columns = [
         'isWithNullAndNotNull' => true,
     ],
     [
-        'attribute' => 'is_mob',
-        'class' => YesNoColumn::className(),
-        'yesLabel' => 'DEF',
-        'noLabel' => 'ABC',
+        'attribute' => 'ndc_type_id',
+        'class' => NdcTypeColumn::className(),
     ],
     [
         'attribute' => 'is_active',

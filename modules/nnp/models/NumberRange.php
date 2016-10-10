@@ -3,7 +3,6 @@ namespace app\modules\nnp\models;
 
 use app\classes\Connection;
 use app\models\City;
-use app\models\Country;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -22,13 +21,14 @@ use yii\helpers\Url;
  * @property string region_source
  * @property int region_id
  * @property int city_id // индекса и FK нет, потому что таблица городов в другой БД
- * @property bool is_mob true - DEF, false - ABC
  * @property bool is_active
+ * @property int ndc_type_id
  *
  * @property City city
  * @property Operator operator
  * @property Region region
  * @property NumberRangePrefix[] numberRangePrefixes
+ * @property NdcType ndcType
  */
 class NumberRange extends ActiveRecord
 {
@@ -54,8 +54,8 @@ class NumberRange extends ActiveRecord
             'region_source' => 'Исходный регион',
             'region_id' => 'Регион',
             'city_id' => 'Город',
-            'is_mob' => 'ABC / DEF',
             'is_active' => 'Вкл.',
+            'ndc_type_id' => 'Тип NDC',
 
             'insert_time' => 'Когда создал',
             'insert_user_id' => 'Кто создал',
@@ -122,6 +122,14 @@ class NumberRange extends ActiveRecord
     public function getOperator()
     {
         return $this->hasOne(Operator::className(), ['id' => 'operator_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getNdcType()
+    {
+        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
     }
 
     /**
