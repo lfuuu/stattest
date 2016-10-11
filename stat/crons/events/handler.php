@@ -2,6 +2,7 @@
 
 use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
+use app\classes\api\ApiVpbx;
 use app\classes\behaviors\uu\AccountTariffBiller;
 use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\classes\Event;
@@ -69,6 +70,7 @@ function do_events()
                     JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 
             $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
+            $isVpbxServer = ApiVpbx::getVpbxHost() && ApiVpbx::getApiUrl();
 
             switch ($event->event) {
                 case Event::USAGE_VOIP__INSERT:
@@ -257,6 +259,16 @@ function do_events()
                     $isFeedbackServer = (isset(\Yii::$app->params['FEEDBACK_SERVER']) && \Yii::$app->params['FEEDBACK_SERVER']);
                     $isFeedbackServer && ActaulizerCallChatUsage::me()->actualizeUsage($param['usage_id']);
                     break;
+
+                case Event::ACCOUNT_BLOCKED: {
+                    $isVpbxServer && ApiVpbx::lockAccount($param['account_id']);
+                    break;
+                }
+
+                case Event::ACCOUNT_UNBLOCKED: {
+                    $isVpbxServer && ApiVpbx::unlockAccount($param['account_id']);
+                    break;
+                }
             }
 
             $event->setOk();

@@ -5,6 +5,7 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ActualVirtpbx;
 use Yii;
 use app\classes\JSONQuery;
 use yii\base\Exception;
@@ -333,5 +334,43 @@ class ApiVpbx
         }
 
         return $data;
+    }
+
+    /**
+     * Блокирует клиентский аккаунт в ВАТС
+     * @param $accountId integer
+     * @return array
+     */
+    public static function lockAccount($accountId)
+    {
+        if (self::isHaveEnabledVPBX($accountId)) {
+            return self::exec('lock_account/', ['account_id' => $accountId], 'vpbx');
+        }
+
+        return null;
+    }
+
+    /**
+     * Разблокирует клиентский аккаунт в ВАТС
+     * @param $accountId integer
+     * @return array
+     */
+    public static function unlockAccount($accountId)
+    {
+        if (self::isHaveEnabledVPBX($accountId)) {
+            return self::exec('unlock_account/', ['account_id' => $accountId], 'vpbx');
+        }
+
+        return null;
+    }
+
+    /**
+     * Есть ли у ЛС включенные ВАТС
+     * @param $accountId integer
+     * @return bool
+     */
+    private static function isHaveEnabledVPBX($accountId)
+    {
+        return (bool)ActualVirtpbx::find()->where(['client_id' => $accountId])->count();
     }
 }
