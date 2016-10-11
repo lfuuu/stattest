@@ -50,6 +50,14 @@ echo GridView::widget([
             'label' => 'НДС',
             'width' => '10%',
         ],
+        [
+            'attribute' => 'contragent_type',
+            'label' => 'Тип клиента',
+            'value' => function($model) {
+                return \app\models\InvoiceSettings::$contragentTypes[$model->contragent_type];
+            },
+            'width' => '10%',
+        ],
         'actions' => [
             'class' => 'kartik\grid\ActionColumn',
             'template' => Html::tag('div', '{update} {delete}', ['class' => 'text-center']),
@@ -58,9 +66,10 @@ echo GridView::widget([
                     return $baseView->render('//layouts/_actionEdit', [
                             'url' => Url::toRoute([
                                 '/invoice-settings/edit/',
-                                'customer_country_code' => $model->customer_country_code,
-                                'doer_country_code' => $model->doer_country_code,
-                                'settlement_account_type_id' => $model->settlement_account_type_id,
+                                'customerCountryCode' => $model->customer_country_code,
+                                'doerCountryCode' => $model->doer_country_code,
+                                'settlementAccountTypeId' => $model->settlement_account_type_id,
+                                'contragentType' => $model->contragent_type,
                             ]),
                         ]
                     );
@@ -69,9 +78,10 @@ echo GridView::widget([
                     return $baseView->render('//layouts/_actionDrop', [
                             'url' => Url::toRoute([
                                 '/invoice-settings/delete/',
-                                'customer_country_code' => $model->customer_country_code,
-                                'doer_country_code' => $model->doer_country_code,
-                                'settlement_account_type_id' => $model->settlement_account_type_id,
+                                'customerCountryCode' => $model->customer_country_code,
+                                'doerCountryCode' => $model->doer_country_code,
+                                'settlementAccountTypeId' => $model->settlement_account_type_id,
+                                'contragentType' => $model->contragent_type,
                             ]),
                         ]
                     );

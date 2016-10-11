@@ -70,19 +70,26 @@ class InvoiceSettingsController extends BaseController
     }
 
     /**
-     * @param int $customer_country_code
-     * @param int $doer_country_code
-     * @param int $settlement_account_type_id
+     * @param int $customerCountryCode
+     * @param int $doerCountryCode
+     * @param int $settlementAccountTypeId
+     * @param string $contragentType
      * @return string
      * @throws \yii\base\Exception
      */
-    public function actionEdit($customer_country_code, $doer_country_code, $settlement_account_type_id)
+    public function actionEdit(
+        $customerCountryCode,
+        $doerCountryCode,
+        $settlementAccountTypeId,
+        $contragentType
+    )
     {
         /** @var InvoiceSettings $model */
         $model = InvoiceSettings::findOne([
-            'customer_country_code' => $customer_country_code,
-            'doer_country_code' => $doer_country_code,
-            'settlement_account_type_id' => $settlement_account_type_id,
+            'customer_country_code' => $customerCountryCode,
+            'doer_country_code' => $doerCountryCode,
+            'settlement_account_type_id' => $settlementAccountTypeId,
+            'contragent_type' => $contragentType,
         ]);
         Assert::isObject($model);
 
@@ -96,23 +103,25 @@ class InvoiceSettingsController extends BaseController
     }
 
     /**
-     * @param int $customer_country_code
-     * @param int $doer_country_code
-     * @param int $settlement_account_type_id
+     * @param int $customerCountryCode
+     * @param int $doerCountryCode
+     * @param int $settlementAccountTypeId
+     * @param string $contragentType
      * @throws \Exception
      */
-    public function actionDelete($customer_country_code, $doer_country_code, $settlement_account_type_id)
+    public function actionDelete(
+        $customerCountryCode,
+        $doerCountryCode,
+        $settlementAccountTypeId,
+        $contragentType
+    )
     {
-        /** @var InvoiceSettings $model */
-        $model = InvoiceSettings::findOne([
-            'customer_country_code' => $customer_country_code,
-            'doer_country_code' => $doer_country_code,
-            'settlement_account_type_id' => $settlement_account_type_id,
+        InvoiceSettings::deleteAll([
+            'customer_country_code' => $customerCountryCode,
+            'doer_country_code' => $doerCountryCode,
+            'settlement_account_type_id' => $settlementAccountTypeId,
+            'contragent_type' => $contragentType,
         ]);
-
-        if (!is_null($model)) {
-            $model->delete();
-        }
 
         $this->redirect('/invoice-settings');
     }
