@@ -84,6 +84,7 @@ class SyncAccountTariffLight extends Behavior
                 'tariffication_by_minutes' => in_array($voipTarificateId, [TariffVoipTarificate::ID_VOIP_BY_MINUTE, TariffVoipTarificate::ID_VOIP_BY_MINUTE_FREE]),
                 'tariffication_full_first_minute' => true,
                 'tariffication_free_first_seconds' => in_array($voipTarificateId, [TariffVoipTarificate::ID_VOIP_BY_SECOND_FREE, TariffVoipTarificate::ID_VOIP_BY_MINUTE_FREE]),
+                'price' => $accountLogPeriod->tariffPeriod->price_setup + $accountLogPeriod->tariffPeriod->price_per_period, // чтобы учесть и разовые услуги (price_setup), и обычные (price_per_period)
             ]
         );
 
@@ -112,7 +113,7 @@ class SyncAccountTariffLight extends Behavior
 
     /**
      * Добавить данные в AccountTariffLight
-     * @param array $params [id, account_client_id, tariff_id, activate_from, deactivate_from, coefficient, account_tariff_id, tariffication_by_minutes, tariffication_full_first_minute, tariffication_free_first_seconds]
+     * @param array $params [id, account_client_id, tariff_id, activate_from, deactivate_from, coefficient, account_tariff_id, tariffication_by_minutes, tariffication_full_first_minute, tariffication_free_first_seconds, price]
      * @throws \Exception
      * @internal param AccountLogPeriod $accountLogPeriod
      */
@@ -132,6 +133,7 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->tariffication_by_minutes = $params['tariffication_by_minutes'];
         $accountTariffLight->tariffication_full_first_minute = $params['tariffication_full_first_minute'];
         $accountTariffLight->tariffication_free_first_seconds = $params['tariffication_free_first_seconds'];
+        $accountTariffLight->price = $params['price'];
         if (!$accountTariffLight->save()) {
             throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
         }
