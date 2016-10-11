@@ -23,7 +23,7 @@ class NumberRangeFilter extends NumberRange
     public $operator_id = '';
     public $region_source = '';
     public $region_id = '';
-    public $is_mob = '';
+    public $ndc_type_id = '';
     public $is_active = '';
     public $numbers_count_from = '';
     public $numbers_count_to = '';
@@ -36,7 +36,7 @@ class NumberRangeFilter extends NumberRange
     {
         return [
             [['operator_source', 'region_source', 'full_number_from'], 'string'],
-            [['country_prefix', 'ndc', 'is_mob', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
+            [['country_prefix', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
         ];
     }
@@ -68,7 +68,6 @@ class NumberRangeFilter extends NumberRange
         $this->country_prefix && $query->andWhere([$numberRangeTableName . '.country_prefix' => $this->country_prefix]);
         $this->ndc && $query->andWhere([$numberRangeTableName . '.ndc' => $this->ndc]);
 
-        $this->is_mob !== '' && $query->andWhere([$numberRangeTableName . '.is_mob' => (bool)$this->is_mob]);
         $this->is_active !== '' && $query->andWhere([$numberRangeTableName . '.is_active' => (bool)$this->is_active]);
 
         switch ($this->operator_id) {
@@ -82,6 +81,20 @@ class NumberRangeFilter extends NumberRange
                 break;
             default:
                 $query->andWhere([$numberRangeTableName . '.operator_id' => $this->operator_id]);
+                break;
+        }
+
+        switch ($this->ndc_type_id) {
+            case '':
+                break;
+            case GetListTrait::$isNull:
+                $query->andWhere($numberRangeTableName . '.ndc_type_id IS NULL');
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere($numberRangeTableName . '.ndc_type_id IS NOT NULL');
+                break;
+            default:
+                $query->andWhere([$numberRangeTableName . '.ndc_type_id' => $this->ndc_type_id]);
                 break;
         }
 

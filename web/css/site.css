@@ -281,6 +281,7 @@ a.nohover:hover {
 .is-null-and-not-null-column,
 .did-group-column,
 .operator-column,
+.ndc-type-column,
 .account-entry-type-column,
 .service-type-column,
 .region-column,

@@ -4,6 +4,7 @@ namespace app\modules\nnp\commands;
 use app\classes\Connection;
 use app\models\billing\Server;
 use app\models\Country;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use UnexpectedValueException;
 use Yii;
@@ -19,14 +20,14 @@ class ImportController extends Controller
 
     /**
      * Ссылки на файлы для скачивания
-     * [url => is_mob]
+     * [url => ndc_type_id]
      * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
      */
     protected $rusUrls = [
-        'http://www.rossvyaz.ru/docs/articles/Kody_ABC-3kh.csv' => false,
-        'http://www.rossvyaz.ru/docs/articles/Kody_ABC-4kh.csv' => false,
-        'http://www.rossvyaz.ru/docs/articles/Kody_ABC-8kh.csv' => false,
-        'http://www.rossvyaz.ru/docs/articles/Kody_DEF-9kh.csv' => true,
+        'http://www.rossvyaz.ru/docs/articles/Kody_ABC-3kh.csv' => NdcType::ID_ABC,
+        'http://www.rossvyaz.ru/docs/articles/Kody_ABC-4kh.csv' => NdcType::ID_ABC,
+        'http://www.rossvyaz.ru/docs/articles/Kody_ABC-8kh.csv' => NdcType::ID_ABC,
+        'http://www.rossvyaz.ru/docs/articles/Kody_DEF-9kh.csv' => NdcType::ID_DEF,
     ];
 
     /**
@@ -57,8 +58,8 @@ class ImportController extends Controller
 
             $this->preImport($dbPgNnp);
 
-            foreach ($this->rusUrls as $rusUrl => $isMob) {
-                $this->rusByUrl($dbPgNnp, $rusUrl, $isMob);
+            foreach ($this->rusUrls as $rusUrl => $ndcTypeId) {
+                $this->rusByUrl($dbPgNnp, $rusUrl, $ndcTypeId);
             }
 
             $this->postImport($dbPgNnp, Country::PREFIX_RUSSIA);
@@ -81,9 +82,9 @@ class ImportController extends Controller
      * Импортировать RUS (из Россвязи) конкретный файл
      * @param Connection $dbPgNnp
      * @param string $url
-     * @param bool $isMob
+     * @param bool $ndcTypeId
      */
-    protected function rusByUrl(Connection $dbPgNnp, $url, $isMob)
+    protected function rusByUrl(Connection $dbPgNnp, $url, $ndcTypeId)
     {
         $handle = fopen($url, "r");
         if (!$handle) {
@@ -110,7 +111,7 @@ class ImportController extends Controller
                 (int)$bufferArray[0], // ndc
                 (int)$bufferArray[1], // number_from
                 (int)$bufferArray[2], // number_to
-                $isMob, // is_mob
+                $ndcTypeId, // ndc_type_id
                 trim($bufferArray[4]), // operator_source
                 trim($bufferArray[5]), // region_source
                 Country::PREFIX_RUSSIA . trim($bufferArray[0]) . trim($bufferArray[1]), // full_number_from
@@ -121,7 +122,7 @@ class ImportController extends Controller
                 echo '. ';
                 $dbPgNnp->createCommand()->batchInsert(
                     $tableName,
-                    ['ndc', 'number_from', 'number_to', 'is_mob', 'operator_source', 'region_source', 'full_number_from', 'full_number_to'],
+                    ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to'],
                     $insertValues
                 )->execute();
                 $insertValues = [];
@@ -137,7 +138,7 @@ class ImportController extends Controller
             echo '. ';
             $dbPgNnp->createCommand()->batchInsert(
                 $tableName,
-                ['ndc', 'number_from', 'number_to', 'is_mob', 'operator_source', 'region_source', 'full_number_from', 'full_number_to'],
+                ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to'],
                 $insertValues
             );
         }
@@ -161,7 +162,7 @@ CREATE TEMPORARY TABLE number_range_tmp
   ndc integer,
   number_from integer,
   number_to integer,
-  is_mob boolean NOT NULL,
+  ndc_type_id integer NOT NULL,
   operator_source character varying(255),
   region_source character varying(255),
   full_number_from bigint NOT NULL,
@@ -205,7 +206,7 @@ SQL;
         is_active = true,
         operator_source = number_range_tmp.operator_source,
         region_source = number_range_tmp.region_source,
-        is_mob = number_range_tmp.is_mob,
+        ndc_type_id = number_range_tmp.ndc_type_id,
         operator_id = CASE WHEN number_range.operator_source = number_range_tmp.operator_source THEN number_range.operator_id ELSE NULL END,
         region_id = CASE WHEN number_range.region_source = number_range_tmp.region_source THEN number_range.region_id ELSE NULL END
     FROM
@@ -238,7 +239,7 @@ SQL;
         ndc,
         number_from,
         number_to,
-        is_mob,
+        ndc_type_id,
         operator_source,
         region_source,
         full_number_from,
@@ -249,7 +250,7 @@ SQL;
         ndc,
         number_from,
         number_to,
-        is_mob,
+        ndc_type_id,
         operator_source,
         region_source,
         full_number_from,

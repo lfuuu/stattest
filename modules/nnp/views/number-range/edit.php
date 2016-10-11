@@ -54,16 +54,16 @@ if (!$numberRange->isNewRecord) {
             <div><?= $numberRange->full_number_to ?></div>
         </div>
 
-        <?php // ABC / DEF ?>
-        <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('is_mob') ?></label>
-            <div><?= $numberRange->is_mob ? 'DEF' : 'ABC' ?></div>
-        </div>
-
         <?php // Вкл. ?>
         <div class="col-sm-2">
             <label><?= $numberRange->getAttributeLabel('is_active') ?></label>
             <div><?= Yii::t('common', $numberRange->is_active ? 'Yes' : 'No') ?></div>
+        </div>
+
+        <?php // Тип NDC ?>
+        <div class="col-sm-4">
+            <label><?= $numberRange->getAttributeLabel('ndc_type_id') ?></label>
+            <div><?= $numberRange->ndc_type_id ? htmlspecialchars($numberRange->ndcType->name) : '' ?></div>
         </div>
 
     </div>
