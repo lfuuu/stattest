@@ -9,6 +9,7 @@ use yii\helpers\Url;
 /**
  * @property int id
  * @property string name
+ * @property int country_prefix
  */
 class Operator extends ActiveRecord
 {
@@ -24,6 +25,7 @@ class Operator extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название',
+            'country_prefix' => 'Префикс страны',
         ];
     }
 
@@ -43,6 +45,8 @@ class Operator extends ActiveRecord
     {
         return [
             [['name'], 'string'],
+            [['country_prefix'], 'integer'],
+            [['name', 'country_prefix'], 'required'],
         ];
     }
 
@@ -77,5 +81,24 @@ class Operator extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/nnp/operator/edit', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть список всех доступных моделей
+     * @param bool $isWithEmpty
+     * @param bool $isWithNullAndNotNull
+     * @param int $countryPrefix
+     * @return self[]
+     */
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryPrefix = null)
+    {
+        $activeQuery = self::find();
+        $countryPrefix && $activeQuery->andWhere(['country_prefix' => $countryPrefix]);
+        $list = $activeQuery
+            ->orderBy(self::getListOrderBy())
+            ->indexBy('id')
+            ->all();
+
+        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
     }
 }

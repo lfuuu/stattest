@@ -38,10 +38,16 @@ if (!$region->isNewRecord) {
 
     <div class="row">
 
+        <?php // Префикс страны ?>
+        <div class="col-sm-2">
+            <?= $form->field($operator, 'country_prefix')->input('numeric') ?>
+        </div>
+
         <?php // Название ?>
         <div class="col-sm-6">
             <?= $form->field($region, 'name')->textInput() ?>
         </div>
+
     </div>
 
     <?php // кнопки ?>

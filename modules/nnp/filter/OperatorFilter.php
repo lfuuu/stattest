@@ -11,11 +11,13 @@ use yii\data\ActiveDataProvider;
 class OperatorFilter extends Operator
 {
     public $name = '';
+    public $country_prefix = '';
 
     public function rules()
     {
         return [
             [['name'], 'string'],
+            [['country_prefix'], 'integer'],
         ];
     }
 
@@ -33,6 +35,7 @@ class OperatorFilter extends Operator
         ]);
 
         $this->name && $query->andWhere(['LIKE', $operatorTableName . '.name', $this->name]);
+        $this->country_prefix && $query->andWhere([$operatorTableName . '.country_prefix' => $this->country_prefix]);
 
         return $dataProvider;
     }

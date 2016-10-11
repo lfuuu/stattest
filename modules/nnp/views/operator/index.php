@@ -6,6 +6,7 @@
  * @var OperatorFilter $filterModel
  */
 
+use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\modules\nnp\filter\OperatorFilter;
@@ -27,6 +28,10 @@ use yii\widgets\Breadcrumbs;
 <?php
 $baseView = $this;
 $columns = [
+    [
+        'attribute' => 'country_prefix',
+        'class' => IntegerColumn::className(),
+    ],
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),

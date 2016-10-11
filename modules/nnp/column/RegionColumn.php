@@ -20,11 +20,12 @@ class RegionColumn extends DataColumn
 
     public $filterType = GridView::FILTER_SELECT2;
     public $isAddLink = true;
+    public $countryPrefix = null;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Region::getList($isWithEmpty = true, $isWithNullAndNotNull = true);
+        $this->filter = Region::getList($isWithEmpty = true, $isWithNullAndNotNull = true, $this->countryPrefix);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' region-column';
     }

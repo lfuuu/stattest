@@ -11,11 +11,13 @@ use yii\data\ActiveDataProvider;
 class RegionFilter extends Region
 {
     public $name = '';
+    public $country_prefix = '';
 
     public function rules()
     {
         return [
             [['name'], 'string'],
+            [['country_prefix'], 'integer'],
         ];
     }
 
@@ -33,6 +35,7 @@ class RegionFilter extends Region
         ]);
 
         $this->name && $query->andWhere(['LIKE', $regionTableName . '.name', $this->name]);
+        $this->country_prefix && $query->andWhere([$regionTableName . '.country_prefix' => $this->country_prefix]);
 
         return $dataProvider;
     }

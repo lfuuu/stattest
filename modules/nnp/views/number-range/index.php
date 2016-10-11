@@ -75,6 +75,7 @@ $columns = [
     [
         'attribute' => 'operator_id',
         'class' => OperatorColumn::className(),
+        'countryPrefix' => $filterModel->country_prefix,
     ],
     [
         'attribute' => 'region_source',
@@ -86,6 +87,7 @@ $columns = [
     [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
+        'countryPrefix' => $filterModel->country_prefix,
     ],
     [
         'attribute' => 'city_id',
