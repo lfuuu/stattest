@@ -25,7 +25,7 @@ class Region extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название',
-            'country_prefix' => 'Префикс страны',
+            'country_prefix' => 'Страна', // префикс
         ];
     }
 
