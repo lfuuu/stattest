@@ -3649,8 +3649,8 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
 
         $dateFrom = new DatePickerValues('date_from', 'first');
         $dateTo = new DatePickerValues('date_to', 'last');
-        $dateFrom->format = 'Y-m-d';
-        $dateTo->format = 'Y-m-d';
+        $dateFrom->format = 'Y-m-d 00:00:00';
+        $dateTo->format = 'Y-m-d 23:59:59';
         $date_from = $dateFrom->getDay();
         $date_to = $dateTo->getDay();
 
@@ -3767,7 +3767,6 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             $totalAmount = [];
             $totalBonus = [];
 
-            $date = date('Y-m-d');
             $organizations = Organization::find()->actual()->all();
             $organizations = \yii\helpers\ArrayHelper::map($organizations, 'organization_id', 'firma');
 
@@ -3796,8 +3795,8 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         }
 
         $R = User::dao()->getListByDepartments(['manager', 'marketing']);
-        if (isset($R[$manager])) {
-            $R[$manager]['selected'] = ' selected';
+        if (($managerInArray = array_search($manager, array_column($R, 'user'), $strict = true)) !== false) {
+            $R[$managerInArray]['selected'] = ' selected';
         }
         $design->assign('users_manager', $R);
         $design->assign('action', $_GET["action"]);

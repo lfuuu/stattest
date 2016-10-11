@@ -48,7 +48,7 @@ class UserDao extends Singleton
                 ->where(['enabled' => 'yes'])
                 ->orderBy('`user_users`.`name` ASC');
 
-        if (sizeof($departments)) {
+        if (count($departments)) {
             $query->andWhere(['`user_users`.`usergroup`' => $departments]);
         }
 
