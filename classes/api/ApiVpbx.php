@@ -343,7 +343,12 @@ class ApiVpbx
      */
     public static function lockAccount($accountId)
     {
-        if (self::isHaveEnabledVPBX($accountId)) {
+        $account = ClientAccount::findOne(['id' => $accountId]);
+
+        if (
+            $account &&
+            $account->is_blocked &&
+            self::isHaveEnabledVPBX($accountId)) {
             return self::exec('lock_account/', ['account_id' => $accountId], 'vpbx');
         }
 
@@ -357,7 +362,11 @@ class ApiVpbx
      */
     public static function unlockAccount($accountId)
     {
-        if (self::isHaveEnabledVPBX($accountId)) {
+        $account = ClientAccount::findOne(['id' => $accountId]);
+        if (
+            $account &&
+            !$account->is_blocked &&
+            self::isHaveEnabledVPBX($accountId)) {
             return self::exec('unlock_account/', ['account_id' => $accountId], 'vpbx');
         }
 
