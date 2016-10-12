@@ -183,7 +183,7 @@ class BillDao extends Singleton
     {
         $transaction = Yii::$app->getDb()->beginTransaction();
 
-        /** @var uuBill $uuBill $uuBill */
+        /** @var uuBill $uuBill */
         foreach (uuBill::find()
                      ->where([
                          'client_account_id' => $clientAccount->id,
@@ -233,8 +233,8 @@ class BillDao extends Singleton
             $firstDayBillDate->modify('first day of this month');
             $lastDayBillDate->modify('last day of this month');
 
-            $firstDayPrevMonthBillDate->modify('-1 month')->modify('first day of this month');
-            $lastDayPrevMonthBillDate->modify('-1 month')->modify('last day of this month');
+            $firstDayPrevMonthBillDate->modify('first day of previous month');
+            $lastDayPrevMonthBillDate->modify('last day of previous month');
 
             /** @var AccountEntry $accountEntry */
             $accountEntries = $uuBill
