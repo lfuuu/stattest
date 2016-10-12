@@ -316,7 +316,7 @@ class ApiVpbx
                 }
 
                 case Resource::ID_VPBX_DISK: {
-                    $data['space'] = $tariffResource->amount;
+                    $data['space'] = $tariffResource->amount * 1024;
                     break;
                 }
 
