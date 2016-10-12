@@ -6,6 +6,7 @@
 <input type=hidden name=action value=client>
 <input type=hidden name=id value={$mail_id}>
 <input type=hidden name=module value=mail>
+<input type="hidden" name="filter[organization][0]" value="{$mail_filter.organization.0}">
 <input type="hidden" name="filter[status][0]" value="{$mail_filter.status.0}">
 <input type="hidden" name="filter[region_for][0]" value="{$mail_filter.region_for.0}">
 <input type="hidden" name="filter[manager][0]" value="{$mail_filter.manager.0}">
