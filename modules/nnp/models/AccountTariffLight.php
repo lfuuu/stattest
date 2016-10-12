@@ -19,6 +19,7 @@ use yii\db\ActiveRecord;
  * @property bool tariffication_by_minutes
  * @property bool tariffication_full_first_minute
  * @property bool tariffication_free_first_seconds
+ * @property float price
  */
 class AccountTariffLight extends ActiveRecord
 {
@@ -37,10 +38,12 @@ class AccountTariffLight extends ActiveRecord
             'tariff_id' => 'Тариф', // не путайте с tariff_period_id
             'activate_from' => 'С',
             'deactivate_from' => 'По',
+            'coefficient' => 'Коэффициент', // если подключение не в начале месяца
             'account_tariff_id' => 'Базовая услуга', // тариф (2), а не пакет (3)!
             'tariffication_by_minutes' => 'Поминутно?',
             'tariffication_full_first_minute' => 'Первая минута поминутно?',
             'tariffication_free_first_seconds' => 'Первые 5 сек. бесплатно?',
+            'price' => 'Цена пакета', // полная (из TariffPeriod), без учета coefficient
         ];
     }
 
