@@ -22,17 +22,24 @@ $settlementAccount = $organization->getSettlementAccount($typeId);
     </div>
 </div>
 
-<div class="row">
-    <div class="col-sm-12">
-        <div class="col-sm-12">
-            <?= $form
-                ->field($settlementAccount, 'bank_account[' . $typeId . ']')
-                ->textInput(['value' => $settlementAccount->bank_account])
-                ->label('Расчетный счет')
-            ?>
+<?php if (isset(OrganizationSettlementAccount::$settlementAccountByCurrency[$typeId])): ?>
+    <?php
+    foreach(OrganizationSettlementAccount::$settlementAccountByCurrency[$typeId] as $currency):
+        $property = $settlementAccount->getProperty('bank_account_' . $currency);
+        ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <?= $this->render('bank_account', [
+                    'form' => $form,
+                    'typeId' => $typeId,
+                    'model' => $property,
+                    'currency' => $currency,
+                    'label' => 'Расчетный счет',
+                ])?>
+            </div>
         </div>
-    </div>
-</div>
+    <?php endforeach; ?>
+<?php endif; ?>
 
 <div class="row">
     <div class="col-sm-6">

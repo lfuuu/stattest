@@ -227,6 +227,7 @@ class Organization extends ActiveRecord
             return false;
         }
 
+        // Получение данных локализации
         $organizationI18NModel = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
             [
@@ -264,11 +265,12 @@ class Organization extends ActiveRecord
             }
         }
 
+        // Получение данных о платежных реквизитах
         $organizationSettlementAccountModel = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass(OrganizationSettlementAccount::class))->getShortName()),
             [
                 [
-                    ['bank_name', 'bank_account', 'bank_bik', 'bank_correspondent_account', 'bank_address', 'bank_swift'],
+                    ['bank_name', 'bank_bik', 'bank_correspondent_account', 'bank_address', 'bank_swift'],
                     ArrayValidator::className()
                 ],
             ]
@@ -305,6 +307,37 @@ class Organization extends ActiveRecord
             } catch (\Exception $e) {
                 $settlementAccountTransaction->rollBack();
                 throw $e;
+            }
+        }
+
+        // Получение данных о платежных реквизитах зависящих от валюты
+        $settlementAccountPropertiesData = Yii::$app->request->post((new ReflectionClass(OrganizationSettlementAccountProperties::class))->getShortName());
+
+        foreach ($settlementAccountPropertiesData as $propertyName => $values) {
+            foreach ($values as $settlementAccountTypeId => $value) {
+                $property = OrganizationSettlementAccountProperties::findOne([
+                    'organization_record_id' => $this->id,
+                    'settlement_account_type_id' => $settlementAccountTypeId,
+                    'property' => $propertyName,
+                ]);
+
+                if (is_null($property)) {
+                    $property = new OrganizationSettlementAccountProperties;
+                }
+
+                $settlementAccountPropertiesTransaction = OrganizationSettlementAccountProperties::getDb()->beginTransaction();
+                try {
+                    $property->organization_record_id = $this->id;
+                    $property->settlement_account_type_id = $settlementAccountTypeId;
+                    $property->property = $propertyName;
+                    $property->value = $value;
+                    $property->save();
+
+                    $settlementAccountPropertiesTransaction->commit();
+                } catch (\Exception $e) {
+                    $settlementAccountPropertiesTransaction->rollBack();
+                    throw $e;
+                }
             }
         }
 
