@@ -11,7 +11,8 @@ class PartnerDao extends Singleton
     public static function getClientsStructure(ClientAccount $account)
     {
         $data = [];
-        foreach (ClientContragent::findAll(['partner_contract_id' => $account->id]) as $c) {
+        /** @var ClientContragent $c */
+        foreach (ClientContragent::findAll(['partner_contract_id' => $account->contract_id]) as $c) {
             $superId = $c->super_id;
             if (!isset($data[$superId])) {
                 $data[$superId] = ['id' => $superId, 'contragents' => []];
