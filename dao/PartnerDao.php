@@ -12,16 +12,23 @@ class PartnerDao extends Singleton
     {
         $data = [];
         /** @var ClientContragent $c */
-        foreach (ClientContragent::findAll(['partner_contract_id' => $account->contract_id]) as $c) {
+        foreach (ClientContragent::find()
+                     ->where(['partner_contract_id' => $account->contract_id])
+                     ->each() as $c) {
             $superId = $c->super_id;
             if (!isset($data[$superId])) {
-                $data[$superId] = ['id' => $superId, 'contragents' => []];
+                $data[$superId] = [
+                    'id' => $superId,
+                    'contragents' => []
+                ];
             }
 
             $contracts = [];
             foreach ($c->contracts as $cc) {
                 $accounts = [];
-                foreach (ClientAccount::findAll(['contract_id' => $cc->id]) as $a) {
+                foreach (ClientAccount::find()
+                             ->where(['contract_id' => $cc->id])
+                             ->each() as $a) {
                     $accounts[] = $a->id;
                 }
 
@@ -33,7 +40,11 @@ class PartnerDao extends Singleton
                 ];
             }
 
-            $data[$superId]['contragents'][$c->id] = ['id' => $c->id, 'name' => $c->name, 'contracts' => $contracts];
+            $data[$superId]['contragents'][$c->id] = [
+                'id' => $c->id,
+                'name' => $c->name,
+                'contracts' => $contracts
+            ];
 
         }
         return $data;
