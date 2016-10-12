@@ -292,7 +292,7 @@ SQL;
      *
      * @return array
      */
-    public function getUpdatedAccountIds()
+    protected function getUpdatedAccountIds()
     {
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
@@ -324,7 +324,7 @@ SQL;
      *
      * @param int []
      */
-    public function makeUpdateEvents(array $ids)
+    protected function makeUpdateEvents(array $ids)
     {
         foreach ($ids as $id) {
             Event::go(Event::UU_TARIFICATE, ['account_id' => $id]);
@@ -334,7 +334,7 @@ SQL;
     /**
      * Снимаем флаг-признак с проводок, что они обновлены
      */
-    public function cleanUpdateFlag()
+    protected function cleanUpdateFlag()
     {
         $accountEntryTableName = AccountEntry::tableName();
 
