@@ -69,7 +69,7 @@ class QrCodeController extends BaseController
         if ($account) {
             $organization = $account->contract->organization;
             $qrData['Name'] = $organization->name;
-            $qrData['PersonalAcc'] = $organization->bank_account;
+            $qrData['PersonalAcc'] = $organization->settlementAccount->getBankAccount();
             $qrData['BankName'] = $organization->bank_name;
             $qrData['BIC'] = $organization->bank_bik;
             $qrData['CorrespAcc'] = $organization->bank_correspondent_account;

@@ -1,9 +1,9 @@
 {capture name=receipt}
     <div><strong>Получатель: </strong><span style="font-size:90%" class="underline">{$organization.name}</span>&nbsp;&nbsp;&nbsp;</div>
     <div><strong>КПП:</strong> <span class="underline">{$organization.tax_registration_reason}</span>&nbsp;&nbsp;&nbsp;&nbsp; <strong>ИНН:</strong> <span class="underline">{$organization.tax_registration_id}</span>&nbsp;&nbsp;&nbsp;&nbsp;</div>
-    <div><strong>ОКТМО:</strong>___________&nbsp;&nbsp;&nbsp;&nbsp;<strong>P/сч.:</strong> <span class="underline">{$organization.bank_account}</span>&nbsp;&nbsp;&nbsp;</div>
-    <div><strong>в:</strong> <span style="font-size:90%" class="underline">{$organization.bank_name}</span></div>
-    <div><strong>БИК:</strong> <span class="underline">{$organization.bank_bik}</span>&nbsp; <strong>К/сч.:</strong> <span class="underline">{$organization.bank_correspondent_account}</span></div>
+    <div><strong>ОКТМО:</strong>___________&nbsp;&nbsp;&nbsp;&nbsp;<strong>P/сч.:</strong> <span class="underline">{$organization_settlement_account.bank_account}</span>&nbsp;&nbsp;&nbsp;</div>
+    <div><strong>в:</strong> <span style="font-size:90%" class="underline">{$organization_settlement_account.bank_name}</span></div>
+    <div><strong>БИК:</strong> <span class="underline">{$organization_settlement_account.bank_bik}</span>&nbsp; <strong>К/сч.:</strong> <span class="underline">{$organization_settlement_account.bank_correspondent_account}</span></div>
     <div><strong>Код бюджетной классификации (КБК):</strong> ____________________     &nbsp;</div>
     <div><strong>Платеж:</strong> <span style="font-size:90%" class="underline">Предоплата по лицевому счету &#8470;{$client.id} за телекоммуникационные услуги</span></div>
     <div><strong>Плательщик:</strong> <span class="underline">{if $client.company}{$client.company_full}{else}_________________________________________________{/if}</span></div>

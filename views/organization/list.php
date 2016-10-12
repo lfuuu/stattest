@@ -40,10 +40,7 @@ echo Html::formLabel('Организации');
                     <b>ИНН:</b> <?= $record->tax_registration_id; ?><br />
                     <b>КПП:</b> <?= $record->tax_registration_reason; ?><br />
                     <b>Банк:</b> <?= $record->settlementAccount->bank_name; ?><br />
-                    <?php if (!empty($record->settlementAccount->bank_swift)): ?>
-                        <b>Swift:</b> <?= $record->settlementAccount->bank_swift; ?><br />
-                    <?php endif; ?>
-                    <b>р/с:</b> <span style="word-wrap: break-word;"><?= $record->settlementAccount->bank_account; ?></span>
+                    <b>р/с:</b> <span style="word-wrap: break-word;"><?= $record->settlementAccount->getBankAccount(); ?></span>
                     <div class="break"></div>
                     <b>Директор:</b> <?= $record->director->name_nominative; ?><br />
                     <b>Бухгалтер:</b> <?= $record->accountant->name_nominative; ?>

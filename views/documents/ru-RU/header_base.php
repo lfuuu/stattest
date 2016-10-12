@@ -23,7 +23,7 @@ $contacts = ClientContact::find()->andWhere([
     Адрес: <?= $organization->legal_address; ?><br />
     Телефон: <?= $organization->contact_phone; ?><br />
     Факс: <?= $organization->contact_fax; ?><br />
-    р/с: <?= $organization->settlementAccount->bank_account; ?> в <?= $organization->settlementAccount->bank_name; ?><br />
+    р/с: <?= $organization->settlementAccount->getBankAccount(); ?> в <?= $organization->settlementAccount->bank_name; ?><br />
     к/с: <?= $organization->settlementAccount->bank_correspondent_account; ?><br />
     БИК: <?= $organization->settlementAccount->bank_bik; ?>
 </p>

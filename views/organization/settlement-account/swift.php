@@ -46,8 +46,8 @@ $settlementAccount = $organization->getSettlementAccount($typeId);
 
     <div class="col-sm-6">
         <?php
-        if (isset(OrganizationSettlementAccount::$settlementAccountByCurrency[$typeId])) {
-            foreach (OrganizationSettlementAccount::$settlementAccountByCurrency[$typeId] as $currency) {
+        if (isset(OrganizationSettlementAccount::$currencyBySettlementAccountTypeId[$typeId])) {
+            foreach (OrganizationSettlementAccount::$currencyBySettlementAccountTypeId[$typeId] as $currency) {
                 $property = $settlementAccount->getProperty('bank_account_' . $currency);
                 echo $this->render('bank_account', [
                     'form' => $form,

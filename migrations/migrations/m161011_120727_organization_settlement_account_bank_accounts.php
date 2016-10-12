@@ -51,12 +51,12 @@ class m161011_120727_organization_settlement_account_bank_accounts extends \app\
         $insert = [];
 
         foreach ($properties as $row) {
-            if (!isset(OrganizationSettlementAccount::$settlementAccountByCurrency[$row->settlement_account_type_id])) {
+            if (!isset(OrganizationSettlementAccount::$currencyBySettlementAccountTypeId[$row->settlement_account_type_id])) {
                 continue;
             }
             $property =
                 'bank_account_' .
-                reset(OrganizationSettlementAccount::$settlementAccountByCurrency[$row->settlement_account_type_id]);
+                reset(OrganizationSettlementAccount::$currencyBySettlementAccountTypeId[$row->settlement_account_type_id]);
 
             $insert[] = [
                 $row->organization_record_id,
@@ -90,7 +90,7 @@ class m161011_120727_organization_settlement_account_bank_accounts extends \app\
         $properties = OrganizationSettlementAccountProperties::find()->each();
 
         foreach ($properties as $property) {
-            $propertyName = 'bank_account_' . reset(OrganizationSettlementAccount::$settlementAccountByCurrency[$property->settlement_account_type_id]);
+            $propertyName = 'bank_account_' . reset(OrganizationSettlementAccount::$currencyBySettlementAccountTypeId[$property->settlement_account_type_id]);
             if ($propertyName != $property->property) {
                 continue;
             }

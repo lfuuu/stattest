@@ -22,9 +22,9 @@ $settlementAccount = $organization->getSettlementAccount($typeId);
     </div>
 </div>
 
-<?php if (isset(OrganizationSettlementAccount::$settlementAccountByCurrency[$typeId])): ?>
+<?php if (isset(OrganizationSettlementAccount::$currencyBySettlementAccountTypeId[$typeId])): ?>
     <?php
-    foreach(OrganizationSettlementAccount::$settlementAccountByCurrency[$typeId] as $currency):
+    foreach(OrganizationSettlementAccount::$currencyBySettlementAccountTypeId[$typeId] as $currency):
         $property = $settlementAccount->getProperty('bank_account_' . $currency);
         ?>
         <div class="row">

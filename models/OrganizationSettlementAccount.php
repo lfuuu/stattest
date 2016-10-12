@@ -24,7 +24,7 @@ class OrganizationSettlementAccount extends ActiveRecord
         self::SETTLEMENT_ACCOUNT_TYPE_IBAN => 'IBAN реквизиты',
     ];
 
-    public static $settlementAccountByCurrency = [
+    public static $currencyBySettlementAccountTypeId = [
         self::SETTLEMENT_ACCOUNT_TYPE_RUSSIA => [
             Currency::RUB, Currency::USD, Currency::EUR,
         ],
@@ -45,7 +45,7 @@ class OrganizationSettlementAccount extends ActiveRecord
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public static function primaryKey()
     {
@@ -57,15 +57,18 @@ class OrganizationSettlementAccount extends ActiveRecord
      */
     public function getProperties()
     {
-        return $this->hasMany(OrganizationSettlementAccountProperties::className(), [
-            'organization_record_id' => 'organization_record_id',
-            'settlement_account_type_id' => 'settlement_account_type_id',
-        ])->select(['property', 'value'])->indexBy('property');
+        return
+            $this->hasMany(OrganizationSettlementAccountProperties::className(), [
+                'organization_record_id' => 'organization_record_id',
+                'settlement_account_type_id' => 'settlement_account_type_id',
+            ])
+                ->select(['property', 'value'])
+                ->indexBy('property');
     }
 
     /**
      * @param string $propertyName
-     * @return OrganizationSettlementAccountProperties|null
+     * @return OrganizationSettlementAccountProperties
      */
     public function getProperty($propertyName)
     {
@@ -76,6 +79,15 @@ class OrganizationSettlementAccount extends ActiveRecord
         ]);
 
         return $property ?: new OrganizationSettlementAccountProperties;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBankAccount()
+    {
+        $defaultCurrency = reset(self::$currencyBySettlementAccountTypeId[$this->settlement_account_type_id]);
+        return (string)$this->getProperty('bank_account_' . $defaultCurrency);
     }
 
 }
