@@ -14,7 +14,7 @@ class VirtPbx3Checker
     const LOAD_ACTUAL = 'actual';
     const LOAD_SAVED = 'saved';
 
-    public static function check($usageId = 0)
+    public static function check($usageId = 0, $isSync = true)
     {
         l::ll(__CLASS__, __FUNCTION__);
 
@@ -22,7 +22,11 @@ class VirtPbx3Checker
             self::load(self::LOAD_SAVED, $usageId),
             self::load(self::LOAD_ACTUAL, $usageId))
         ) {
-            VirtPbx3Diff::apply($diff);
+            if ($isSync) {
+                VirtPbx3Diff::apply($diff);
+            } else {
+                VirtPbx3Diff::makeEvent($diff);
+            }
         }
     }
 
@@ -96,7 +100,6 @@ class VirtPbx3Checker
         }
 
         foreach ($query->query() as $l) {
-
             if (!$usageId || $usageId == $l["usage_id"]) {
                 $d[$l["usage_id"]] = $l;
             }
@@ -122,11 +125,11 @@ class VirtPbx3Checker
         );
 
         foreach (array_diff(array_keys($saved), array_keys($actual)) as $l) {
-            $d["deleted"][$l] = $saved[$l];
+            $d["deleted"][$l] = ['action' => 'del'] + $saved[$l];
         }
 
         foreach (array_diff(array_keys($actual), array_keys($saved)) as $l) {
-            $d["added"][$l] = $actual[$l];
+            $d["added"][$l] = ['action' => 'add'] + $actual[$l];
         }
 
         if ($d["added"] && $d["deleted"]) {
@@ -146,7 +149,8 @@ class VirtPbx3Checker
                     ||
                     $saved[$usageId]["region_id"] != $l["region_id"]
                 ) {
-                    $d["changed_data"][$usageId] = $l + [
+                    $d["changed_data"][$usageId] =
+                        ['action' => 'change'] + $l + [
                             "prev_tarif_id" => $saved[$usageId]["tarif_id"],
                             "prev_region_id" => $saved[$usageId]["region_id"],
                         ];
@@ -166,10 +170,25 @@ class VirtPbx3Checker
 
 class VirtPbx3
 {
-    public static function check($usageId = 0)
+    /**
+     * Входная функция для синхронизации одной ВАТС
+     *
+     * @param int $usageId ID услуги
+     * @throws Exception
+     */
+    public static function sync($usageId = 0)
     {
         l::ll(__CLASS__, __FUNCTION__);
-        VirtPbx3Checker::check($usageId);
+        if (!$usageId) {
+            throw new Exception('usageId not set');
+        }
+        VirtPbx3Checker::check($usageId, true);
+    }
+
+    public static function                                                                                                                                                                      check($usageId = 0)
+    {
+        l::ll(__CLASS__, __FUNCTION__);
+        VirtPbx3Checker::check($usageId, false);
     }
 
     public static function getNumberTypes($clientId)
@@ -212,6 +231,19 @@ class VirtPbx3Diff
 
         if ($exception instanceof Exception) {
             throw $exception;
+        }
+    }
+
+    /**
+     * Функция генерирует события на синхронизацию отдельных ВАТСов с платформой
+     * @param $diff
+     */
+    public static function makeEvent(&$diff)
+    {
+        foreach($diff as $type => $data) {
+            foreach ($data as $value) {
+                Event::go(Event::SYNC__VIRTPBX3, $value);
+            }
         }
     }
 

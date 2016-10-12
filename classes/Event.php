@@ -23,6 +23,7 @@ class Event
     const CHECK__CALL_CHAT = 'check__call_chat';
     const CHECK__USAGES = 'check__usages';
     const CHECK__VIRTPBX3 = 'check__virtpbx3';
+    const SYNC__VIRTPBX3 = 'sync__virtpbx3';
     const CHECK__VOIP_NUMBERS = 'check__voip_numbers';
     const CHECK__VOIP_OLD_NUMBERS = 'check__voip_old_numbers';
     const CLIENT_SET_STATUS = 'client_set_status';
@@ -71,6 +72,7 @@ class Event
         self::CHECK__CALL_CHAT => 'Проверить услугу звонок-чат',
         self::CHECK__USAGES => 'Проверить "старые" услуги',
         self::CHECK__VIRTPBX3 => 'Проверить услуги ВАТС',
+        self::SYNC__VIRTPBX3 => 'Синхронизация услуги ВАТС',
         self::CHECK__VOIP_NUMBERS => 'Актуализировать все номера',
         self::CHECK__VOIP_OLD_NUMBERS => 'Синхронизировать все "старые" услуги номеров',
         self::CLIENT_SET_STATUS => 'Изменился бизнес процесс ЛС',
