@@ -79,6 +79,7 @@ class InvoiceLight extends Component
         $invoiceSetting = InvoiceSettings::findOne([
             'customer_country_code' => $this->clientAccount->contract->contragent->country_id,
             'doer_country_code' => $this->clientAccount->organization->country_id,
+            'contragent_type' => $this->clientAccount->contract->contragent->legal_type,
         ]);
 
         // Данные организации продавца

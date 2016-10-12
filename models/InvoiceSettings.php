@@ -3,8 +3,24 @@ namespace app\models;
 
 use yii\db\ActiveRecord;
 
+/**
+ * @property int $customer_country_code
+ * @property int $doer_country_code
+ * @property int $settlement_account_type_id
+ * @property int $vat_rate
+ * @property int $contragent_type
+ */
 class InvoiceSettings extends ActiveRecord
 {
+
+    const CONTRAGENT_TYPE_DEFAULT = '*';
+
+    public static $contragentTypes = [
+        self::CONTRAGENT_TYPE_DEFAULT => 'Для всех',
+        ClientContragent::LEGAL_TYPE => 'Для юр. лиц',
+        ClientContragent::PERSON_TYPE => 'Для физ. лиц',
+        ClientContragent::IP_TYPE => 'Для ИП',
+    ];
 
     /**
      * @return string
@@ -23,18 +39,19 @@ class InvoiceSettings extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function rules()
     {
         return [
             [['customer_country_code', 'doer_country_code', 'settlement_account_type_id', 'vat_rate'], 'integer'],
             [['customer_country_code', 'doer_country_code', 'settlement_account_type_id'], 'required'],
+            ['contragent_type', 'string'],
         ];
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function attributeLabels()
     {
@@ -43,6 +60,7 @@ class InvoiceSettings extends ActiveRecord
             'doer_country_code' => 'Страна исполнителя',
             'settlement_account_type_id' => 'Тип платежных реквизитов',
             'vat_rate' => 'Ставка налога',
+            'contragent_type' => 'Тип клиента',
         ];
     }
 

@@ -42,13 +42,19 @@ echo Breadcrumbs::widget([
         </div>
 
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'settlement_account_type_id')
                     ->dropDownList(OrganizationSettlementAccount::$typesList)
                 ?>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
+                <?= $form
+                    ->field($model, 'contragent_type')
+                    ->dropDownList(InvoiceSettings::$contragentTypes)
+                ?>
+            </div>
+            <div class="col-sm-4">
                 <?= $form->field($model, 'vat_rate') ?>
             </div>
         </div>
