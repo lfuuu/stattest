@@ -203,8 +203,10 @@ class AccountController extends BaseController
         if (!$model) {
             throw new Exception('ЛС не найден');
         }
+
         $model->is_blocked = !$model->is_blocked;
         $model->save();
+
         return $this->redirect(['client/view', 'id' => $id]);
     }
 

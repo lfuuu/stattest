@@ -51,6 +51,8 @@ class Event
     const UU_ACCOUNT_TARIFF_VPBX = 'uu_account_tariff_vpbx';
     const YANDEX_PAYMENT = 'yandex_payment';
     const UPDATE_BALANCE = 'update_balance';
+    const ACCOUNT_BLOCKED = 'account_blocked';
+    const ACCOUNT_UNBLOCKED = 'account_unblocked';
 
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
@@ -98,6 +100,8 @@ class Event
         SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'Добавление услуги в NNP',
         SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'Удаление услуги из NNP',
         AccountTariffBiller::EVENT_RECALC => 'Билинговать UU-клиента',
+        self::ACCOUNT_BLOCKED => 'ЛС разблокирован',
+        self::ACCOUNT_UNBLOCKED => 'ЛС заблокирован',
     ];
 
     /**

@@ -186,6 +186,7 @@ class ClientAccount extends HistoryActiveRecord
             'ActaulizeClientVoip' => \app\classes\behaviors\ActualizeClientVoip::className(),
             'ClientAccountComments' => \app\classes\behaviors\ClientAccountComments::className(),
             'ClientAccountEvent' => \app\classes\behaviors\important_events\ClientAccount::className(),
+            'ClientAccountSyncEvent' => \app\classes\behaviors\ClientAccountSyncEvent::className(),
         ];
     }
 
