@@ -10,11 +10,13 @@ use yii\data\ActiveDataProvider;
  */
 class NdcTypeFilter extends NdcType
 {
+    public $id = '';
     public $name = '';
 
     public function rules()
     {
         return [
+            [['id'], 'integer'],
             [['name'], 'string'],
         ];
     }
@@ -32,6 +34,7 @@ class NdcTypeFilter extends NdcType
             'query' => $query,
         ]);
 
+        $this->id && $query->andWhere([$ndcTypeTableName . '.id' => $this->id]);
         $this->name && $query->andWhere(['LIKE', $ndcTypeTableName . '.name', $this->name]);
 
         return $dataProvider;
