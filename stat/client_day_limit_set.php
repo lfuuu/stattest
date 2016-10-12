@@ -94,6 +94,8 @@ foreach ($usages as $usage) {
     $clients[$clientId]['sum_mn'] = $usagesCounters[$usageId]['amount_mn'];
 }
 
+$currencyRateStore = [];
+
 foreach ($clients as $clientId => $data) {
     $clients[$clientId]['new_day_limit'] = (int)($data['sum'] / $work_days * 3);
     $clients[$clientId]['new_day_limit_mn'] = (int)($data['sum_mn'] / $work_days * 3);
@@ -142,7 +144,10 @@ foreach ($clients as $clientId => $data) {
         Yii::error('Option "' . ClientAccountOptions::OPTION_VOIP_CREDIT_LIMIT_DAY_MN_VALUE . '" not saved for client #' . $clientId . ': ' . implode(',', (array)$option->getFirstErrors()));
     }
 
-    $currencyRate = CurrencyRate::find()->currency($data['currency']);
+    if (!isset($currencyRateStore[$data['currency']])) {
+        $currencyRateStore[$data['currency']] = CurrencyRate::find()->currency($data['currency']);
+    }
+    $currencyRate = $currencyRateStore[$data['currency']];
 
     // Курс валюты найден - пересчить, иначе взять по-умолчанию
     $defaultVoipCreditLimitDay =
@@ -158,7 +163,7 @@ foreach ($clients as $clientId => $data) {
     // Курс валюты найден - пересчить, иначе взять по-умолчанию
     $defaultVoipMNLimitDay =
         !is_null($currencyRate)
-            ? ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY / $currencyRate->rate
+            ? ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY / $currencyRate->rate
             : ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY;
 
     $clients[$clientId]['new_day_limit_mn'] =
@@ -197,8 +202,5 @@ foreach ($clients as $client) {
     }
 }
 
-//echo "<pre>";
 echo date('Y-m-d H:i:s', time()) . ' updated: ' . $updated . PHP_EOL;
-//print_r($clients);
-
 

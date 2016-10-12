@@ -84,7 +84,7 @@ class ClientAccount extends HistoryActiveRecord
     const STATUS_BLOCKED = 'blocked';
 
     const DEFAULT_REGION = Region::MOSCOW;
-    const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 1000;
+    const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 2000; //BIL-2081: http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=14221857
     const DEFAULT_VOIP_MN_LIMIT_DAY = 1000;
     const DEFAULT_VOIP_IS_DAY_CALC = 1;
     const DEFAULT_VOIP_IS_MN_DAY_CALC = 1;
