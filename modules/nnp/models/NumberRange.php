@@ -23,6 +23,10 @@ use yii\helpers\Url;
  * @property int city_id // индекса и FK нет, потому что таблица городов в другой БД
  * @property bool is_active
  * @property int ndc_type_id
+ * @property string data_stop date
+ * @property string data_resolution date
+ * @property string detail_resolution
+ * @property string status_number
  *
  * @property City city
  * @property Operator operator
@@ -56,6 +60,10 @@ class NumberRange extends ActiveRecord
             'city_id' => 'Город',
             'is_active' => 'Вкл.',
             'ndc_type_id' => 'Тип NDC',
+            'data_stop' => 'Дата выключения',
+            'data_resolution' => 'Дата принятия решения о выделении диапазона',
+            'detail_resolution' => 'Комментарий о выделении диапазона',
+            'status_number' => 'Статус номера',
 
             'insert_time' => 'Когда создал',
             'insert_user_id' => 'Кто создал',

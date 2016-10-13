@@ -42,16 +42,19 @@ if (!$numberRange->isNewRecord) {
 
     <div class="row">
 
-        <?php // Номер от ?>
+        <?php // Номер от и до ?>
         <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('full_number_from') ?></label>
-            <div><?= $numberRange->full_number_from ?></div>
+            <label>Диапазон номеров</label>
+            <div>
+                <?= $numberRange->full_number_from ?><br/>
+                <?= $numberRange->full_number_to ?>
+            </div>
         </div>
 
-        <?php // Номер до ?>
+        <?php // Тип NDC ?>
         <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('full_number_to') ?></label>
-            <div><?= $numberRange->full_number_to ?></div>
+            <label><?= $numberRange->getAttributeLabel('ndc_type_id') ?></label>
+            <div><?= $numberRange->ndc_type_id ? htmlspecialchars($numberRange->ndcType->name) : '' ?></div>
         </div>
 
         <?php // Вкл. ?>
@@ -60,10 +63,39 @@ if (!$numberRange->isNewRecord) {
             <div><?= Yii::t('common', $numberRange->is_active ? 'Yes' : 'No') ?></div>
         </div>
 
-        <?php // Тип NDC ?>
+        <?php // Дата добавления ?>
+        <div class="col-sm-2">
+            <label><?= $numberRange->getAttributeLabel('insert_time') ?></label>
+            <div><?= $numberRange->insert_time ? Yii::$app->formatter->asDate($numberRange->insert_time, 'medium') : '' ?></div>
+        </div>
+
+        <?php // Дата выключения ?>
+        <div class="col-sm-2">
+            <label><?= $numberRange->getAttributeLabel('data_stop') ?></label>
+            <div><?= $numberRange->data_stop ? Yii::$app->formatter->asDate($numberRange->data_stop, 'medium') : '' ?></div>
+        </div>
+
+    </div>
+    <br/>
+
+    <div class="row">
+
+        <?php // Статус номера ?>
         <div class="col-sm-4">
-            <label><?= $numberRange->getAttributeLabel('ndc_type_id') ?></label>
-            <div><?= $numberRange->ndc_type_id ? htmlspecialchars($numberRange->ndcType->name) : '' ?></div>
+            <label><?= $numberRange->getAttributeLabel('status_number') ?></label>
+            <div><?= $numberRange->status_number ?></div>
+        </div>
+
+        <?php // Дата принятия решения о выделении диапазона ?>
+        <div class="col-sm-2">
+            <label><?= $numberRange->getAttributeLabel('data_resolution') ?></label>
+            <div><?= $numberRange->data_stop ? Yii::$app->formatter->asDate($numberRange->data_resolution, 'medium') : '' ?></div>
+        </div>
+
+        <?php // Комментарий или номер решения о выделении диапазона ?>
+        <div class="col-sm-4">
+            <label><?= $numberRange->getAttributeLabel('detail_resolution') ?></label>
+            <div><?= $numberRange->detail_resolution ?></div>
         </div>
 
     </div>
