@@ -141,7 +141,8 @@ function do_events()
 
                 /* проверка необходимости включить или выключить услугу UsageVirtPbx */
                 case Event::CHECK__VIRTPBX3: {
-                    VirtPbx3::check();
+                    $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
+                    VirtPbx3::check($usageId);
                     echo "...VirtPbx3::check()";
                     break;
                 }
@@ -222,8 +223,15 @@ function do_events()
                 case Event::USAGE_VIRTPBX__UPDATE:
                 case Event::USAGE_VIRTPBX__DELETE:
                 case Event::UU_ACCOUNT_TARIFF_VPBX:
-                    $isCoreServer && VirtPbx3::check();
+                    $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
+                    $isCoreServer && VirtPbx3::check($usageId);
                     break;
+
+                case Event::SYNC__VIRTPBX3: {
+                    $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
+                    $isCoreServer && VirtPbx3::sync($usageId);
+                    break;
+                }
 
                 case Event::UU_ACCOUNT_TARIFF_VOIP:
                     $isCoreServer && \app\models\Number::dao()->actualizeStatusByE164($param['number']);
