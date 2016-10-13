@@ -13,7 +13,7 @@ class BeforeValueProperty extends UnknownProperty implements PropertyInterface
     const PROPERTY_BEFORE_VALUE = 'before';
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
@@ -23,7 +23,7 @@ class BeforeValueProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

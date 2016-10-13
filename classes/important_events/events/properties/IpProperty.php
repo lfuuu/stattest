@@ -28,7 +28,7 @@ class IpProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
@@ -38,7 +38,7 @@ class IpProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

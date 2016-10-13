@@ -7,9 +7,6 @@ use yii\base\Component;
 use app\classes\Html;
 use app\models\important_events\ImportantEvents;
 
-/**
- * @property string $date
- */
 class UnknownProperty extends Component implements PropertyInterface
 {
 
@@ -21,7 +18,6 @@ class UnknownProperty extends Component implements PropertyInterface
 
     /**
      * @param ImportantEvents $event
-     * @param string $property
      */
     public function __construct(ImportantEvents $event)
     {
@@ -31,7 +27,7 @@ class UnknownProperty extends Component implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
@@ -41,7 +37,7 @@ class UnknownProperty extends Component implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

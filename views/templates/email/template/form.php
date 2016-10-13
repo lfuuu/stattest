@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\important_events\ImportantEventsDetailsFactory;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use kartik\tabs\TabsX;
@@ -151,23 +152,61 @@ echo Breadcrumbs::widget([
 
     ActiveForm::end();
     ?>
+
     <br />
     <table class="table table-bordered ">
+        <colgroup>
+            <col width="20%" />
+            <col width="*" />
+        </colgroup>
         <thead>
-        <tr class="info">
-            <th>Переменная</th>
-            <th>Значение</th>
-        </tr>
+            <tr>
+                <th colspan="2" class="info">Глобальные свойства</th>
+            </tr>
+            <tr class="info">
+                <th>Переменная</th>
+                <th>Значение</th>
+            </tr>
         </thead>
         <tbody>
         <?php foreach (\app\helpers\RenderParams::getListOfVariables() as $variable => $descr): ?>
             <tr>
-                <td><?= $variable ?></td>
+                <td>{<?= $variable ?>}</td>
                 <td><?= $descr ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
     </table>
+
+    <?php if ($model->getEvent()->event->code): ?>
+        <br />
+        <table class="table table-bordered ">
+            <colgroup>
+                <col width="20%" />
+                <col width="*" />
+            </colgroup>
+            <thead>
+                <tr>
+                    <th colspan="2" class="info">Свойства события</th>
+                </tr>
+                <tr class="info">
+                    <th>Переменная</th>
+                    <th>Значение</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach (
+                ImportantEventsDetailsFactory::get($model->getEvent()->event->code)->getProperties() as
+                $variable => $descr
+            ): ?>
+                <tr>
+                    <td>{event.<?= $variable ?>}</td>
+                    <td><?= $descr ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php endif; ?>
 </div>
 
 <script type="text/javascript">

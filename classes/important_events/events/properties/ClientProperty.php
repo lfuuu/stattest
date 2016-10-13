@@ -31,7 +31,7 @@ class ClientProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
@@ -42,7 +42,7 @@ class ClientProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

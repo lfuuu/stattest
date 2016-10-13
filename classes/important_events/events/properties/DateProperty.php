@@ -9,9 +9,6 @@ use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\models\important_events\ImportantEvents;
 
-/**
- * @property string $formattedValue
- */
 class DateProperty extends UnknownProperty implements PropertyInterface
 {
 
@@ -31,25 +28,25 @@ class DateProperty extends UnknownProperty implements PropertyInterface
 
         $this->date = $event->date;
         $this->formattedDate =
-            Yii::$app->formatter->asDateTime(
+            Yii::$app->formatter->asDatetime(
                 (new DateTime($this->date))
-                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::getUserTimeZone()))
+                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
             );
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
         return [
             self::PROPERTY_DATE => 'Когда произошло',
-            self::PROPERTY_DATE_FORMATTED => 'Когда произошло',
+            self::PROPERTY_DATE_FORMATTED => 'Когда произошло форматированное (например: 19 сент. 2016 г., 2:43:16)',
         ];
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

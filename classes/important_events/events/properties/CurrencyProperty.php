@@ -13,7 +13,7 @@ class CurrencyProperty extends UnknownProperty implements PropertyInterface
     const PROPERTY_CURRENCY = 'currency';
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
@@ -23,7 +23,7 @@ class CurrencyProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

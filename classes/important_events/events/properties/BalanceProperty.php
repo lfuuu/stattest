@@ -26,7 +26,7 @@ class BalanceProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
@@ -36,7 +36,7 @@ class BalanceProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

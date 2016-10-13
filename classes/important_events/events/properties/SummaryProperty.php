@@ -13,7 +13,7 @@ class SummaryProperty extends UnknownProperty implements PropertyInterface
     const PROPERTY_SUMMARY_VALUE = 'value';
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
@@ -23,7 +23,7 @@ class SummaryProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

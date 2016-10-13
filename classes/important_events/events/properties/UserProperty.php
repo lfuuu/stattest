@@ -34,7 +34,7 @@ class UserProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function labels()
     {
@@ -45,7 +45,7 @@ class UserProperty extends UnknownProperty implements PropertyInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function methods()
     {

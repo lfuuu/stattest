@@ -4,9 +4,8 @@ namespace app\helpers;
 use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\classes\important_events\ImportantEventsDetailsFactory;
 use app\models\ClientAccount;
-use app\models\Region;
-use app\models\Country;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 
@@ -14,7 +13,7 @@ class RenderParams extends Singleton
 {
 
     /**
-     * @return []
+     * @return array
      */
     public static function getListOfVariables()
     {
@@ -46,13 +45,28 @@ class RenderParams extends Singleton
     {
         Assert::isNotEmpty($tpl);
 
-        foreach (Yii::$app->params['mail_map_names'] as $replaceFrom => $data) {
-            if (!isset($data['method'])) {
-                continue;
-            }
-            $replaceTo = $this->{$data['method']}($clientAccountId, $eventId);
-            $tpl = str_replace($replaceFrom, $replaceTo, $tpl);
+        $that = $this;
+        $mailVariables = Yii::$app->params['mail_map_names'];
+
+        if ((int)$eventId) {
+            /** @var ImportantEvents $event */
+            $event = ImportantEvents::findOne(['id' => $eventId]);
         }
+
+        $tpl = preg_replace_callback(
+            '#\{([a-zA-Z0-9_\.]+)\}#',
+            function($match) use ($that, $mailVariables, $clientAccountId, $event) {
+                $method = $match[1];
+                if (array_key_exists($method, $mailVariables) && method_exists($that, $mailVariables[$method]['method'])) {
+                    return $that->{$mailVariables[$method]['method']}($clientAccountId);
+                }
+                if (!is_null($event) && strpos($method, 'event.') === 0) {
+                    return $that->getEventProperty($event, str_replace('event.', '', $method));
+                }
+                return '';
+            },
+            $tpl
+        );
 
         return $tpl;
     }
@@ -88,18 +102,6 @@ class RenderParams extends Singleton
      * @param int $clientAccountId
      * @return string
      */
-    private function getLnk($clientAccountId)
-    {
-        $region_id = ClientAccount::findOne($clientAccountId)->region;
-        $country_id = Region::findOne($region_id)->country_id;
-        $lkPrefix = Yii::t('settings', 'lk_domain', [], Country::findOne(['code' => $country_id])->lang);
-        return $lkPrefix . 'core/auth/activate?token=<token>';
-    }
-
-    /**
-     * @param int $clientAccountId
-     * @return string
-     */
     private function getClientAccountCurrency($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
@@ -127,37 +129,14 @@ class RenderParams extends Singleton
     }
 
     /**
-     * @param int $clientAccountId
-     * @param int $eventId
-     * @return float
+     * @param ImportantEvents $event
+     * @param $eventProperty
+     * @return mixed
+     * @throws \yii\base\Exception
      */
-    private function getNewPaymentValue($clientAccountId, $eventId)
+    private function getEventProperty(ImportantEvents $event, $eventProperty)
     {
-        return (float)$this->eventProperty($clientAccountId, $eventId, 'sum');
-    }
-
-    /**
-     * @param int $clientAccountId
-     * @param int $eventId
-     * @param string|false $eventProperty
-     * @return string|array
-     */
-    private function eventProperty($clientAccountId, $eventId, $eventProperty = false)
-    {
-        /** @var ImportantEvents $event */
-        if (($event = ImportantEvents::findOne([
-                'client_id' => $clientAccountId,
-                'id' => $eventId
-            ])) === null
-        ) {
-            return false;
-        }
-
-        return
-            $eventProperty !== false && isset($event->properties[$eventProperty])
-                ? (string)$event->properties[$eventProperty]
-                : $event->properties;
-
+        return ImportantEventsDetailsFactory::get($event->event, $event)->getProperty($eventProperty);
     }
 
 }
