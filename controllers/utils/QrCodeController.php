@@ -4,6 +4,7 @@ namespace app\controllers\utils;
 use app\classes\Encrypt;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
+use app\models\Organization;
 use Yii;
 use yii\web\Response;
 use app\classes\BaseController;
@@ -69,10 +70,10 @@ class QrCodeController extends BaseController
         if ($account) {
             $organization = $account->contract->organization;
             $qrData['Name'] = $organization->name;
-            $qrData['PersonalAcc'] = $organization->settlementAccount->getBankAccount();
-            $qrData['BankName'] = $organization->bank_name;
-            $qrData['BIC'] = $organization->bank_bik;
-            $qrData['CorrespAcc'] = $organization->bank_correspondent_account;
+            $qrData['PersonalAcc'] = $organization->settlementAccount->bank_account;
+            $qrData['BankName'] = $organization->settlementAccount->bank_name;
+            $qrData['BIC'] = $organization->settlementAccount->bank_bik;
+            $qrData['CorrespAcc'] = $organization->settlementAccount->bank_correspondent_account;
             $qrData['PayeeINN'] = $organization->tax_registration_id;
             $qrData['KPP'] = $organization->tax_registration_reason;
 

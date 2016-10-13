@@ -6,7 +6,7 @@
     <b><?= $organization->name; ?></b><br />
     Adószám: <?= $organization->tax_registration_id; ?><br />
     Bankszámla:<br />
-    <?= nl2br($organization->settlementAccount->getBankAccount()); ?><br />
+    <?= nl2br($organization->settlementAccount->bank_account); ?><br />
     <?= $organization->settlementAccount->bank_name; ?> SWIFT <?= $organization->settlementAccount->bank_bik; ?><br />
     Telefon: <?= $organization->contact_phone; ?><br />
     Fax: <?= $organization->contact_fax; ?><br />

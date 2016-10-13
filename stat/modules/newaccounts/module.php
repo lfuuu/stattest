@@ -2158,7 +2158,7 @@ class m_newaccounts extends IModule
             $design->assign('client', $clientAccount);
             $design->assign('organization', $organization);
             $design->assign('organization_settlement_account', [
-                'bank_account' => $organization->settlementAccount->getBankAccount(),
+                'bank_account' => $organization->settlementAccount->bank_account,
                 'bank_name' => $organization->settlementAccount->bank_name,
                 'bank_correspondent_account' => $organization->settlementAccount->bank_correspondent_account,
                 'bank_bik' => $organization->settlementAccount->bank_bik,

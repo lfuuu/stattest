@@ -41,6 +41,7 @@ use app\dao\OrganizationDao;
  *
  * @property Person director
  * @property Person accountant
+ * @property OrganizationSettlementAccount settlementAccount
  * @property
  */
 class Organization extends ActiveRecord
@@ -167,7 +168,7 @@ class Organization extends ActiveRecord
 
     /**
      * @param string $langCode
-     * @return []
+     * @return array
      */
     public function getI18N($langCode = Language::LANGUAGE_DEFAULT)
     {
@@ -340,7 +341,7 @@ class Organization extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function getOldModeInfo()
     {
@@ -353,7 +354,7 @@ class Organization extends ActiveRecord
             'post_address' => $this->post_address,
             'inn' => $this->tax_registration_id,
             'kpp' => $this->tax_registration_reason,
-            'acc' => $this->settlementAccount->getBankAccount(),
+            'acc' => $this->settlementAccount->bank_account,
             'bank' => $this->settlementAccount->bank_name,
             'bank_name' => $this->settlementAccount->bank_name,
             'kor_acc' => $this->settlementAccount->bank_correspondent_account,
@@ -378,14 +379,14 @@ class Organization extends ActiveRecord
     public function getOldModeDetail()
     {
         return
-            $this->name . "<br /> Юридический адрес: " . $this->legal_address .
-            (isset($this->post_address) ? "<br /> Почтовый адрес: " . $this->post_address : "") .
-            "<br /> ИНН " . $this->tax_registration_id . ", КПП " . $this->tax_registration_reason .
-            "<br /> Банковские реквизиты:<br /> р/с:&nbsp;" . $this->settlementAccount->getBankAccount() . " в " . $this->settlementAccount->bank_name .
-            "<br /> к/с:&nbsp;" . $this->settlementAccount->bank_correspondent_account . "<br /> БИК:&nbsp;" . $this->settlementAccount->bank_bik .
-            "<br /> телефон: " . $this->contact_phone .
-            (isset($this->contact_fax) && $this->contact_fax ? "<br /> факс: " . $this->contact_fax : "") .
-            "<br /> е-mail: " . $this->contact_email;
+            $this->name . '<br /> Юридический адрес: ' . $this->legal_address .
+            (isset($this->post_address) ? '<br /> Почтовый адрес: ' . $this->post_address : '') .
+            '<br /> ИНН ' . $this->tax_registration_id . ', КПП ' . $this->tax_registration_reason .
+            '<br /> Банковские реквизиты:<br /> р/с:&nbsp;' . $this->settlementAccount->bank_account . ' в ' . $this->settlementAccount->bank_name .
+            '<br /> к/с:&nbsp;' . $this->settlementAccount->bank_correspondent_account . '<br /> БИК:&nbsp;' . $this->settlementAccount->bank_bik .
+            '<br /> телефон: ' . $this->contact_phone .
+            (isset($this->contact_fax) && $this->contact_fax ? '<br /> факс: ' . $this->contact_fax : '') .
+            '<br /> е-mail: ' . $this->contact_email;
 
     }
 

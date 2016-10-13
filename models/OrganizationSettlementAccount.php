@@ -10,6 +10,7 @@ use yii\db\ActiveRecord;
  * @property string $bank_address
  * @property string $bank_correspondent_account
  * @property string $bank_bik
+ * @property string $bank_account
  */
 class OrganizationSettlementAccount extends ActiveRecord
 {
@@ -82,9 +83,10 @@ class OrganizationSettlementAccount extends ActiveRecord
     }
 
     /**
+     * THIS IS BLACK MAGIC (replace unknown ActiveRecord property)
      * @return string
      */
-    public function getBankAccount()
+    public function getBank_account()
     {
         $defaultCurrency = reset(self::$currencyBySettlementAccountTypeId[$this->settlement_account_type_id]);
         return (string)$this->getProperty('bank_account_' . $defaultCurrency);
