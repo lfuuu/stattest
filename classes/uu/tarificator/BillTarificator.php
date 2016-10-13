@@ -5,6 +5,7 @@ namespace app\classes\uu\tarificator;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\Bill;
+use app\models\EventQueue;
 use Yii;
 
 /**
@@ -12,6 +13,9 @@ use Yii;
  */
 class BillTarificator implements TarificatorI
 {
+    /** @var EventQueue[] */
+    public static $eventQueues = [];
+
     /**
      * На основе новых проводок создать новые счета или добавить в существующие
      *
@@ -96,5 +100,14 @@ SQL;
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);
+
+
+        // о том, надо или не надо конвертировать УУ-счет в старую бухгалтерию, решает SetCurrentTariffTarificator
+        // но выполнять это действие надо не тогда, а лишь сейчас
+        foreach (self::$eventQueues as $eventQueue) {
+            $eventQueue->status = EventQueue::STATUS_PLAN;
+            $eventQueue->save();
+        }
+        self::$eventQueues = [];
     }
 }

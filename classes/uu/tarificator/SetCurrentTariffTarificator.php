@@ -7,6 +7,7 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use Yii;
 
 /**
@@ -77,6 +78,19 @@ SQL;
                     // Проверить баланс при смене тарифа (но не при закрытии услуги)
                     $this->checkBalance($accountTariff);
                 }
+
+                // услуга подключена или изменена - надо УУ-счет конвертировать в старую бухгалтерию
+                $eventQueue = Event::go(Event::UU_TARIFICATE, [
+                    'client_account_id' => $accountTariff->client_account_id,
+                    'account_tariff_id' => $accountTariff->id,
+                ]);
+                // но не прямо сейчас, а чуть позже, когда создадутся проводки и УУ-счет
+                // для этого добавляем отложенное событие в BillTarificator. Когда он построит УУ-счет - тогда и разрешит конвертировать УУ-счет с тарую бухгалтерию
+                // если вдруг что-то пойдет не так, тогда гарантированно выполним событие через заданное время с большим запасом
+                $eventQueue->status = EventQueue::STATUS_ERROR;
+                $eventQueue->next_start = date("Y-m-d H:i:s", strtotime($accountTariffId ? '+3 minutes' : '+3 hours'));
+                $eventQueue->save();
+                BillTarificator::$eventQueues[] = $eventQueue;
 
                 // доп. обработка в зависимости от типа услуги
                 switch ($accountTariff->service_type_id) {
