@@ -264,6 +264,7 @@ a.nohover:hover {
     min-width: 80px;
 }
 
+.account-version-column,
 .event-queue-status-column,
 .country-column,
 .tariff-status-column,
@@ -273,6 +274,8 @@ a.nohover:hover {
     min-width: 110px;
 }
 
+.nnp-region-column,
+.nnp-operator-column,
 .event-queue-event-column,
 .pricelist-column,
 .package-type-column,

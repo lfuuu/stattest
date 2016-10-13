@@ -37,6 +37,17 @@ use yii\db\ActiveRecord;
  * @property int operator_id integer,
  * @property bool geo_mob boolean,
  * @property bool our boolean,
+ * @property int account_version,
+ * @property int stats_nnp_package_minute_id,
+ * @property int nnp_operator_id,
+ * @property int nnp_region_id,
+ * @property int nnp_city_id,
+ * @property int nnp_country_prefix,
+ * @property int nnp_ndc,
+ * @property int trunk_group_id,
+ * @property int nnp_package_minute_id,
+ * @property int nnp_package_price_id,
+ * @property int nnp_package_pricelist_id,
  *
  * Связи с другими моделями умышленно не описываю, чтобы не джойнить таблицы. Ибо эта таблица и так огромная, а с джойном будет еще больше тормозить
  * Если надо из id получить название, то см. http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=9142400 (Грид / Column для немногих значений в связанной таблице)
@@ -94,6 +105,20 @@ class Calls extends ActiveRecord
             'package_credit' => 'Перерасход (?)',
             'destination_id' => 'Направление',
             'disconnect_cause' => 'Код завершения',
+
+            'trunk_settings_stats_id' => '',
+            'account_version' => 'Версия биллера', // см. ClientAccount::VERSION_BILLER_*
+            'stats_nnp_package_minute_id' => 'Потрачено минут пакета',
+            'nnp_operator_id' => 'ННП-оператор',
+            'nnp_region_id' => 'ННП-регион',
+            'nnp_city_id' => 'ННП-город',
+            'nnp_country_prefix' => 'ННП-страна',
+            'nnp_ndc' => 'ННП-NDC',
+            'trunk_group_id' => '',
+            'nnp_package_minute_id' => 'УУ-пакет минут',
+            'nnp_package_price_id' => 'УУ-пакет прайс',
+            'nnp_package_pricelist_id' => 'УУ-пакет прайслист',
+
             // auth.destination
             'pricelist_id' => 'Прайслист',
             'prefix' => 'Префикс',
