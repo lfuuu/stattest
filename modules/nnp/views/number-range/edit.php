@@ -71,8 +71,8 @@ if (!$numberRange->isNewRecord) {
 
         <?php // Дата выключения ?>
         <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('data_stop') ?></label>
-            <div><?= $numberRange->data_stop ? Yii::$app->formatter->asDate($numberRange->data_stop, 'medium') : '' ?></div>
+            <label><?= $numberRange->getAttributeLabel('date_stop') ?></label>
+            <div><?= $numberRange->date_stop ? Yii::$app->formatter->asDate($numberRange->date_stop, 'medium') : '' ?></div>
         </div>
 
     </div>
@@ -88,8 +88,8 @@ if (!$numberRange->isNewRecord) {
 
         <?php // Дата принятия решения о выделении диапазона ?>
         <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('data_resolution') ?></label>
-            <div><?= $numberRange->data_stop ? Yii::$app->formatter->asDate($numberRange->data_resolution, 'medium') : '' ?></div>
+            <label><?= $numberRange->getAttributeLabel('date_resolution') ?></label>
+            <div><?= $numberRange->date_stop ? Yii::$app->formatter->asDate($numberRange->date_resolution, 'medium') : '' ?></div>
         </div>
 
         <?php // Комментарий или номер решения о выделении диапазона ?>
