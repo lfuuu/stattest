@@ -141,7 +141,7 @@ class Event
             $eventQueue->insert_time = date(DateTimeZoneHelper::DATETIME_FORMAT);
         } else {
             $eventQueue->iteration = 0;
-            $eventQueue->status = 'plan';
+            $eventQueue->status = EventQueue::STATUS_PLAN;
         }
         $eventQueue->save();
 
