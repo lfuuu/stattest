@@ -25,7 +25,7 @@ class VirtPbx3Checker
             if ($isSync) {
                 VirtPbx3Diff::apply($diff);
             } else {
-                VirtPbx3Diff::makeEvent($diff);
+                VirtPbx3Diff::makeEvents($diff);
             }
         }
     }
@@ -185,7 +185,7 @@ class VirtPbx3
         VirtPbx3Checker::check($usageId, true);
     }
 
-    public static function                                                                                                                                                                      check($usageId = 0)
+    public static function check($usageId = 0)
     {
         l::ll(__CLASS__, __FUNCTION__);
         VirtPbx3Checker::check($usageId, false);
@@ -238,7 +238,7 @@ class VirtPbx3Diff
      * Функция генерирует события на синхронизацию отдельных ВАТСов с платформой
      * @param $diff
      */
-    public static function makeEvent(&$diff)
+    public static function makeEvents($diff)
     {
         foreach($diff as $type => $data) {
             foreach ($data as $value) {
