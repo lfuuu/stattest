@@ -30,11 +30,6 @@ use app\dao\OrganizationDao;
  * @property string registration_id             Регистрационный номер (ОГРН)
  * @property string tax_registration_id         Идентификационный номер налогоплательщика (ИНН)
  * @property string tax_registration_reason     Код причины постановки (КПП)
- * @property string bank_account                RU - Расчетный счет, Swift - Номер счета, IBAN - IBAN (виртуальное свойство)
- * @property string bank_name                   Название банка (виртуальное свойство)
- * @property string bank_correspondent_account  Кор. счет (виртуальное свойство)
- * @property string bank_bik                    RU - БИК, Swift - Swift, IBAN - BIC (виртуальное свойство)
- * @property string bank_address                Адрес банка (виртуальное свойство)
  * @property string contact_phone               Телефон
  * @property string contact_fax                 Факс
  * @property string contact_email               E-mail
@@ -46,6 +41,7 @@ use app\dao\OrganizationDao;
  *
  * @property Person director
  * @property Person accountant
+ * @property OrganizationSettlementAccount settlementAccount
  * @property
  */
 class Organization extends ActiveRecord
@@ -172,7 +168,7 @@ class Organization extends ActiveRecord
 
     /**
      * @param string $langCode
-     * @return []
+     * @return array
      */
     public function getI18N($langCode = Language::LANGUAGE_DEFAULT)
     {
@@ -227,6 +223,7 @@ class Organization extends ActiveRecord
             return false;
         }
 
+        // Получение данных локализации
         $organizationI18NModel = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
             [
@@ -264,11 +261,12 @@ class Organization extends ActiveRecord
             }
         }
 
+        // Получение данных о платежных реквизитах
         $organizationSettlementAccountModel = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass(OrganizationSettlementAccount::class))->getShortName()),
             [
                 [
-                    ['bank_name', 'bank_account', 'bank_bik', 'bank_correspondent_account', 'bank_address', 'bank_swift'],
+                    ['bank_name', 'bank_bik', 'bank_correspondent_account', 'bank_address', 'bank_swift'],
                     ArrayValidator::className()
                 ],
             ]
@@ -308,11 +306,42 @@ class Organization extends ActiveRecord
             }
         }
 
+        // Получение данных о платежных реквизитах зависящих от валюты
+        $settlementAccountPropertiesData = Yii::$app->request->post((new ReflectionClass(OrganizationSettlementAccountProperties::class))->getShortName());
+
+        foreach ($settlementAccountPropertiesData as $propertyName => $values) {
+            foreach ($values as $settlementAccountTypeId => $value) {
+                $property = OrganizationSettlementAccountProperties::findOne([
+                    'organization_record_id' => $this->id,
+                    'settlement_account_type_id' => $settlementAccountTypeId,
+                    'property' => $propertyName,
+                ]);
+
+                if (is_null($property)) {
+                    $property = new OrganizationSettlementAccountProperties;
+                }
+
+                $settlementAccountPropertiesTransaction = OrganizationSettlementAccountProperties::getDb()->beginTransaction();
+                try {
+                    $property->organization_record_id = $this->id;
+                    $property->settlement_account_type_id = $settlementAccountTypeId;
+                    $property->property = $propertyName;
+                    $property->value = $value;
+                    $property->save();
+
+                    $settlementAccountPropertiesTransaction->commit();
+                } catch (\Exception $e) {
+                    $settlementAccountPropertiesTransaction->rollBack();
+                    throw $e;
+                }
+            }
+        }
+
         return true;
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function getOldModeInfo()
     {
@@ -350,14 +379,14 @@ class Organization extends ActiveRecord
     public function getOldModeDetail()
     {
         return
-            $this->name . "<br /> Юридический адрес: " . $this->legal_address .
-            (isset($this->post_address) ? "<br /> Почтовый адрес: " . $this->post_address : "") .
-            "<br /> ИНН " . $this->tax_registration_id . ", КПП " . $this->tax_registration_reason .
-            "<br /> Банковские реквизиты:<br /> р/с:&nbsp;" . $this->settlementAccount->bank_account . " в " . $this->settlementAccount->bank_name .
-            "<br /> к/с:&nbsp;" . $this->settlementAccount->bank_correspondent_account . "<br /> БИК:&nbsp;" . $this->settlementAccount->bank_bik .
-            "<br /> телефон: " . $this->contact_phone .
-            (isset($this->contact_fax) && $this->contact_fax ? "<br /> факс: " . $this->contact_fax : "") .
-            "<br /> е-mail: " . $this->contact_email;
+            $this->name . '<br /> Юридический адрес: ' . $this->legal_address .
+            (isset($this->post_address) ? '<br /> Почтовый адрес: ' . $this->post_address : '') .
+            '<br /> ИНН ' . $this->tax_registration_id . ', КПП ' . $this->tax_registration_reason .
+            '<br /> Банковские реквизиты:<br /> р/с:&nbsp;' . $this->settlementAccount->bank_account . ' в ' . $this->settlementAccount->bank_name .
+            '<br /> к/с:&nbsp;' . $this->settlementAccount->bank_correspondent_account . '<br /> БИК:&nbsp;' . $this->settlementAccount->bank_bik .
+            '<br /> телефон: ' . $this->contact_phone .
+            (isset($this->contact_fax) && $this->contact_fax ? '<br /> факс: ' . $this->contact_fax : '') .
+            '<br /> е-mail: ' . $this->contact_email;
 
     }
 

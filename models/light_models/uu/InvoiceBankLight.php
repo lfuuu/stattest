@@ -18,14 +18,15 @@ class InvoiceBankLight extends Component implements InvoiceLightInterface
 
     /**
      * @param OrganizationSettlementAccount|null $settlementAccount
+     * @param string $clientAccountCurrency
      */
-    public function __construct($settlementAccount)
+    public function __construct($settlementAccount, $clientAccountCurrency)
     {
         parent::__construct();
 
         if (!is_null($settlementAccount)) {
             $this->title = $settlementAccount->bank_name . ' ' . $settlementAccount->bank_address;
-            $this->account = $settlementAccount->bank_account;
+            $this->account = (string)$settlementAccount->getProperty('bank_account_' . $clientAccountCurrency);
             $this->address = $settlementAccount->bank_address;
             $this->correspondent_account = $settlementAccount->bank_correspondent_account;
             $this->bik = $settlementAccount->bank_bik;

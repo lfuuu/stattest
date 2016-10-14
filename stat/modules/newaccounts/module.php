@@ -2157,6 +2157,12 @@ class m_newaccounts extends IModule
             $design->assign('sum', $summary);
             $design->assign('client', $clientAccount);
             $design->assign('organization', $organization);
+            $design->assign('organization_settlement_account', [
+                'bank_account' => $organization->settlementAccount->bank_account,
+                'bank_name' => $organization->settlementAccount->bank_name,
+                'bank_correspondent_account' => $organization->settlementAccount->bank_correspondent_account,
+                'bank_bik' => $organization->settlementAccount->bank_bik,
+            ]);
             $design->assign('qrdata', Encrypt::encodeArray(['accountId' => $clientId, 'sum' => $sum]));
 
             echo $design->fetch('newaccounts/print_receipt.tpl');

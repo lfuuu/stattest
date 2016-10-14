@@ -91,7 +91,8 @@ class InvoiceLight extends Component
         $this->seller = new InvoiceSellerLight(
             $this->language,
             $sellerOrganization->setLanguage($dataLanguage),
-            $invoiceSetting
+            $invoiceSetting,
+            $this->clientAccount
         );
 
         // Данные организации покупателя
