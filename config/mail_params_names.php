@@ -19,14 +19,14 @@ return [
             'Размер суточного лимита установленного пользователем ' .
             Html::tag('label', 'на момент генерации уведомления', ['class' => 'label label-info']),
     ],
-    'client.currency' => [
-        'method' => 'getClientAccountCurrency',
-        'descr' => 'Валюта лицевого счета',
-    ],
     'client.balance' => [
         'method' => 'getBalance',
         'descr' =>
             'Баланс лицевого счета ' .
             Html::tag('label', 'на момент генерации уведомления', ['class' => 'label label-info']),
+    ],
+    'client.currency' => [
+        'method' => 'getClientAccountCurrency',
+        'descr' => 'Валюта лицевого счета',
     ],
 ];

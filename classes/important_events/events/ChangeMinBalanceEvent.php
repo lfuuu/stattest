@@ -8,16 +8,16 @@ use app\classes\important_events\events\properties\ClientProperty;
 use app\classes\important_events\events\properties\CurrentValueProperty;
 use app\classes\important_events\events\properties\DateProperty;
 
-class ChangeMinDayLimitEvent extends UnknownEvent
+class ChangeMinBalanceEvent extends UnknownEvent
 {
 
     public static
         $properties = [
-        'date' => DateProperty::class,
-        'client' => ClientProperty::class,
-        'balance' => BalanceProperty::class,
-        'before' => BeforeValueProperty::class,
-        'value' => CurrentValueProperty::class,
-    ];
+            'date' => DateProperty::class,
+            'client' => ClientProperty::class,
+            'balance' => BalanceProperty::class,
+            'before' => BeforeValueProperty::class,
+            'value' => CurrentValueProperty::class,
+        ];
 
 }

@@ -7,9 +7,6 @@ use app\classes\Html;
 use app\classes\IpUtils;
 use app\models\important_events\ImportantEvents;
 
-/**
- * @property string $date
- */
 class IpProperty extends UnknownProperty implements PropertyInterface
 {
 
@@ -60,6 +57,10 @@ class IpProperty extends UnknownProperty implements PropertyInterface
      */
     public function getDescription()
     {
+        if (!$this->getValue()) {
+            return '';
+        }
+
         return Html::tag('b', self::labels()[self::PROPERTY_IP] . ': ') . $this->getValue();
     }
 

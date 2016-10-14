@@ -5,9 +5,6 @@ namespace app\classes\important_events\events\properties;
 use app\classes\Html;
 use app\models\important_events\ImportantEvents;
 
-/**
- * @property string $name
- */
 class BalanceProperty extends UnknownProperty implements PropertyInterface
 {
 

@@ -4,9 +4,6 @@ namespace app\classes\important_events\events\properties;
 
 use app\classes\Html;
 
-/**
- * @property string $name
- */
 class LimitProperty extends UnknownProperty implements PropertyInterface
 {
 

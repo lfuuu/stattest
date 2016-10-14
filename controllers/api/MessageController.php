@@ -126,7 +126,7 @@ class MessageController extends ApiController
      * )
      */
     /**
-     * @return array|null|\yii\db\ActiveRecord
+     * @return array|null
      * @throws FormValidationException
      * @throws \Exception
      * @throws \yii\base\InvalidConfigException

@@ -7,9 +7,6 @@ use app\classes\Html;
 use app\models\ClientAccount;
 use app\models\important_events\ImportantEvents;
 
-/**
- * @property string $name
- */
 class ClientProperty extends UnknownProperty implements PropertyInterface
 {
 
@@ -73,6 +70,10 @@ class ClientProperty extends UnknownProperty implements PropertyInterface
      */
     public function getDescription()
     {
+        if (!$this->getValue()) {
+            return '';
+        }
+
         return
             Html::tag('b', 'Клиент: ') .
             Html::a(

@@ -6,9 +6,6 @@ use app\classes\Html;
 use app\models\User;
 use app\models\important_events\ImportantEvents;
 
-/**
- * @property string $name
- */
 class UserProperty extends UnknownProperty implements PropertyInterface
 {
 
@@ -76,6 +73,10 @@ class UserProperty extends UnknownProperty implements PropertyInterface
      */
     public function getDescription()
     {
+        if (!$this->getValue()) {
+            return '';
+        }
+
         return Html::tag('b', 'Создал: ') . $this->getName();
     }
 
