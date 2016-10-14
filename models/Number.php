@@ -35,6 +35,7 @@ use yii\helpers\Url;
  * @property int calls_per_month_0 Кол-во звонков за текущий месяц
  * @property int calls_per_month_1 Кол-во звонков за -1 месяц
  * @property int calls_per_month_2 Кол-во звонков за -2 месяц
+ * @property int is_ported
  *
  * @property City $city
  * @property DidGroup $didGroup
