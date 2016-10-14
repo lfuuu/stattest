@@ -38,6 +38,9 @@ class CallsFilter extends Calls
     public $interconnect_cost_from = '';
     public $interconnect_cost_to = '';
 
+    public $stats_nnp_package_minute_id_from = '';
+    public $stats_nnp_package_minute_id_to = '';
+
     public $destination_id = '';
 
     public $geo_id = '';
@@ -59,6 +62,18 @@ class CallsFilter extends Calls
     public $mob = '';
 
     public $prefix = '';
+
+    public $account_version = '';
+
+    public $nnp_operator_id = '';
+
+    public $nnp_region_id = '';
+
+    public $nnp_city_id = '';
+
+    public $nnp_country_prefix = '';
+
+    public $nnp_ndc = '';
 
     // having
     public $calls_count_from = '';
@@ -101,6 +116,7 @@ class CallsFilter extends Calls
             [['interconnect_rate_from', 'interconnect_rate_to'], 'double'],
             [['cost_from', 'cost_to'], 'double'],
             [['interconnect_cost_from', 'interconnect_cost_to'], 'double'],
+            [['stats_nnp_package_minute_id_from', 'stats_nnp_package_minute_id_to'], 'integer'],
             [['destination_id'], 'integer'],
             [['geo_id'], 'integer'],
             [['geo_ids'], 'string'],
@@ -111,6 +127,12 @@ class CallsFilter extends Calls
             [['orig'], 'integer'],
             [['mob'], 'integer'],
             [['prefix'], 'integer'],
+            [['account_version'], 'integer'],
+            [['nnp_operator_id'], 'integer'],
+            [['nnp_region_id'], 'integer'],
+            [['nnp_city_id'], 'integer'],
+            [['nnp_country_prefix'], 'integer'],
+            [['nnp_ndc'], 'integer'],
 
             [['calls_count_from', 'calls_count_to'], 'integer'],
 
@@ -216,20 +238,16 @@ class CallsFilter extends Calls
         $this->cost_from !== '' && $query->andWhere(['>=', 'cost', $this->cost_from]);
         $this->cost_to !== '' && $query->andWhere(['<=', 'cost', $this->cost_to]);
 
-        $this->interconnect_cost_from !== '' && $query->andWhere([
-            '>=',
-            'interconnect_cost',
-            $this->interconnect_cost_from
-        ]);
-        $this->interconnect_cost_to !== '' && $query->andWhere([
-            '<=',
-            'interconnect_cost',
-            $this->interconnect_cost_to
-        ]);
+        $this->interconnect_cost_from !== '' && $query->andWhere(['>=', 'interconnect_cost', $this->interconnect_cost_from]);
+        $this->interconnect_cost_to !== '' && $query->andWhere(['<=', 'interconnect_cost', $this->interconnect_cost_to]);
+
+        $this->stats_nnp_package_minute_id_from !== '' && $query->andWhere(['>=', 'stats_nnp_package_minute_id', $this->stats_nnp_package_minute_id_from]);
+        $this->stats_nnp_package_minute_id_to !== '' && $query->andWhere(['<=', 'stats_nnp_package_minute_id', $this->stats_nnp_package_minute_id_to]);
 
         $this->destination_id !== '' && $query->andWhere(['destination_id' => $this->destination_id]);
 
         $this->geo_id && $query->andWhere(['geo_id' => $this->geo_id]);
+        
         $this->geoIds && $query->andWhere(['IN', 'geo_id', $this->geoIds]);
 
         $this->server_id !== '' && $query->andWhere(['server_id' => $this->server_id]);
@@ -244,6 +262,18 @@ class CallsFilter extends Calls
         $this->mob !== '' && $query->andWhere(($this->mob ? '' : 'NOT ') . 'mob');
 
         $this->prefix !== '' && $query->andWhere(['prefix' => $this->prefix]);
+
+        $this->account_version !== '' && $query->andWhere(['account_version' => $this->account_version]);
+
+        $this->nnp_operator_id !== '' && $query->andWhere(['nnp_operator_id' => $this->nnp_operator_id]);
+
+        $this->nnp_region_id !== '' && $query->andWhere(['nnp_region_id' => $this->nnp_region_id]);
+
+        $this->nnp_city_id !== '' && $query->andWhere(['nnp_city_id' => $this->nnp_city_id]);
+
+        $this->nnp_country_prefix !== '' && $query->andWhere(['nnp_country_prefix' => $this->nnp_country_prefix]);
+
+        $this->nnp_ndc !== '' && $query->andWhere(['nnp_ndc' => $this->nnp_ndc]);
 
         (int)$this->disconnect_cause && $query->andWhere(['disconnect_cause' => $this->disconnect_cause]);
 

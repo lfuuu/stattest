@@ -7,17 +7,22 @@
  */
 
 use app\classes\grid\column\billing\DestinationColumn;
+use app\classes\grid\column\billing\DisconnectCauseColumn;
 use app\classes\grid\column\billing\GeoColumn;
 use app\classes\grid\column\billing\MobColumn;
 use app\classes\grid\column\billing\OrigColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\TrunkColumn;
 use app\classes\grid\column\billing\TrunkSuperClientColumn;
-use app\classes\grid\column\billing\DisconnectCauseColumn;
+use app\classes\grid\column\universal\AccountVersionColumn;
+use app\classes\grid\column\universal\CityColumn;
+use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\NnpOperatorColumn;
+use app\classes\grid\column\universal\NnpRegionColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\UsageTrunkColumn;
 use app\classes\grid\GridView;
@@ -121,7 +126,7 @@ $columns = [
         'format' => ['decimal', 4],
         'value' => function (Calls $calls) {
             return $calls->rate + $calls->interconnect_rate;
-        }
+        },
     ],
     [
         'attribute' => 'cost',
@@ -138,7 +143,7 @@ $columns = [
         'format' => ['decimal', 4],
         'value' => function (Calls $calls) {
             return $calls->cost + $calls->interconnect_cost;
-        }
+        },
     ],
     [
         'attribute' => 'destination_id',
@@ -167,7 +172,43 @@ $columns = [
     [
         'attribute' => 'disconnect_cause',
         'class' => DisconnectCauseColumn::className(),
-    ]
+    ],
+    [
+        'attribute' => 'nnp_country_prefix',
+        'class' => CountryColumn::className(),
+        'indexBy' => 'prefix',
+    ],
+    [
+        'attribute' => 'nnp_ndc',
+        'class' => IntegerColumn::className(),
+    ],
+    [
+        'attribute' => 'account_version',
+        'class' => AccountVersionColumn::className(),
+    ],
+    [
+        'attribute' => 'nnp_operator_id',
+        'class' => NnpOperatorColumn::className(),
+    ],
+    [
+        'attribute' => 'nnp_region_id',
+        'class' => NnpRegionColumn::className(),
+    ],
+    [
+        'attribute' => 'nnp_city_id',
+        'class' => CityColumn::className(),
+    ],
+    [
+        'attribute' => 'stats_nnp_package_minute_id',
+        'format' => 'html',
+        'class' => IntegerRangeColumn::className(),
+        'value' => function (Calls $calls) {
+            return $calls->stats_nnp_package_minute_id . '<br/>' .
+            ($calls->nnp_package_minute_id ? 'минуты' : '') .
+            ($calls->nnp_package_price_id ? 'прайс' : '') .
+            ($calls->nnp_package_pricelist_id ? 'прайслист' : '');
+        },
+    ],
 ];
 ?>
 
@@ -227,6 +268,30 @@ $summaryColumns = [
     ],
     [
         'content' => sprintf('%.2f', $summary->cost_with_interconnect_sum),
+    ],
+    [
+        'content' => '',
+    ],
+    [
+        'content' => '',
+    ],
+    [
+        'content' => '',
+    ],
+    [
+        'content' => '',
+    ],
+    [
+        'content' => '',
+    ],
+    [
+        'content' => '',
+    ],
+    [
+        'content' => '',
+    ],
+    [
+        'content' => '',
     ],
     [
         'content' => '',
