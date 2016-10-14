@@ -112,6 +112,7 @@ class Event
      * @param string $event Название события
      * @param string|array $param Данные для обработки события
      * @param bool $isForceAdd Принудительное добавления события. (Если событие уже есть в очереди, то оно не добавляется)
+     * @return EventQueue
      */
     public static function go($event, $param = "", $isForceAdd = false)
     {
@@ -121,27 +122,29 @@ class Event
 
         $code = md5($event . "|||" . $param);
 
-        $row = null;
+        $eventQueue = null;
         if (!$isForceAdd) {
-            /** @var EventQueue $row */
-            $row = EventQueue::find()
+            /** @var EventQueue $eventQueue */
+            $eventQueue = EventQueue::find()
                 ->andWhere(['code' => $code])
                 ->andWhere("status not in ('ok', 'stop')")
                 ->limit(1)
                 ->one();
         }
 
-        if (!$row) {
-            $row = new EventQueue();
-            $row->event = $event;
-            $row->param = $param;
-            $row->code = $code;
-            $row->log_error = '';
-            $row->insert_time = date(DateTimeZoneHelper::DATETIME_FORMAT);
+        if (!$eventQueue) {
+            $eventQueue = new EventQueue();
+            $eventQueue->event = $event;
+            $eventQueue->param = $param;
+            $eventQueue->code = $code;
+            $eventQueue->log_error = '';
+            $eventQueue->insert_time = date(DateTimeZoneHelper::DATETIME_FORMAT);
         } else {
-            $row->iteration = 0;
-            $row->status = 'plan';
+            $eventQueue->iteration = 0;
+            $eventQueue->status = EventQueue::STATUS_PLAN;
         }
-        $row->save();
+        $eventQueue->save();
+
+        return $eventQueue;
     }
 }

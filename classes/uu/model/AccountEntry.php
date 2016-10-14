@@ -22,7 +22,6 @@ use yii\helpers\Url;
  * @property float $vat
  * @property float $price_with_vat
  * @property string $update_time
- * @property int $is_updated
  *
  * @property AccountTariff $accountTariff
  * @property \app\classes\uu\model\TariffResource $tariffResource

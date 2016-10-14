@@ -74,13 +74,6 @@ class AccountEntryTarificator implements TarificatorI
         echo PHP_EOL . 'Расчёт НДС';
         $this->_tarificateVat($accountTariffId);
 
-        // очищаем флаг
-        $this->cleanUpdateFlag();
-
-        // получаем accountId изменившихся проводок
-        // и генерируем события об этом
-        $this->makeUpdateEvents($this->getUpdatedAccountIds());
-
         echo PHP_EOL;
     }
 
@@ -255,8 +248,7 @@ SQL;
                 (account_entry.type_id < 0 AND tariff.is_include_vat) OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id = {$resourceIdVoipCalls}),
                 account_entry.price * 100 / (100 + account_entry.vat_rate),
                 account_entry.price
-               ),
-            account_entry.is_updated = 1
+               )
         WHERE
             account_entry.vat_rate IS NOT NULL
             AND account_entry.account_tariff_id = account_tariff.id
@@ -276,8 +268,7 @@ SQL;
             {$accountEntryTableName} account_entry
         SET
             vat = price_without_vat * vat_rate / 100,
-            price_with_vat = price_without_vat * (100 + vat_rate) / 100,
-            is_updated = 1
+            price_with_vat = price_without_vat * (100 + vat_rate) / 100
         WHERE
             price_without_vat IS NOT NULL
             {$sqlAndWhere}
@@ -285,70 +276,5 @@ SQL;
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);
-    }
-
-    /**
-     * Возвращает массив id ЛС, в которых были измененны проводки
-     *
-     * @return array
-     */
-    protected function getUpdatedAccountIds()
-    {
-        $accountEntryTableName = AccountEntry::tableName();
-        $accountTariffTableName = AccountTariff::tableName();
-
-        $sql = <<<SQL
-        SELECT 
-            GROUP_CONCAT(DISTINCT account_tariff.client_account_id) AS ids
-        FROM 
-            {$accountEntryTableName} account_entry,
-            {$accountTariffTableName} account_tariff
-        WHERE 
-          account_entry.is_updated = 1
-          AND account_entry.account_tariff_id = account_tariff.id
-SQL;
-
-        $ids = Yii::$app->db
-            ->createCommand($sql)
-            ->queryOne();
-
-        if ($ids && $ids['ids']) {
-            return explode(',', $ids['ids']);
-        }
-
-        return [];
-    }
-
-    /**
-     * Создает событие на обновление счетов, сделаных из проводок.
-     *
-     * @param int []
-     */
-    protected function makeUpdateEvents(array $ids)
-    {
-        foreach ($ids as $id) {
-            Event::go(Event::UU_TARIFICATE, ['account_id' => $id]);
-        }
-    }
-
-    /**
-     * Снимаем флаг-признак с проводок, что они обновлены
-     */
-    protected function cleanUpdateFlag()
-    {
-        $accountEntryTableName = AccountEntry::tableName();
-
-        $sql = <<<SQL
-        UPDATE
-            {$accountEntryTableName}
-        SET 
-            is_updated = 0
-        WHERE
-            is_updated = 1
-SQL;
-
-        Yii::$app->db
-            ->createCommand($sql)
-            ->execute();
     }
 }
