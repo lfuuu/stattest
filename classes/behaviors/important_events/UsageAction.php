@@ -55,7 +55,6 @@ class UsageAction extends Behavior
                     'usage' => $event->sender->tableName(),
                     'usage_id' => $event->sender->id,
                     'user_id' => Yii::$app->user->id,
-                    'changed' => implode(', ', array_keys($changed)),
                 ]);
         }
     }

@@ -95,16 +95,17 @@ class InvoiceLight extends Component
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
 
-        $items = AccountEntry::find()
-            ->joinWith('accountTariff')
-            ->where([$accountTariffTableName . '.client_account_id' => $this->clientAccount->id])
-            ->orderBy([
-                'account_tariff_id' => SORT_ASC,
-                'type_id' => SORT_ASC,
-            ])
-            ->andWhere(['>', $accountEntryTableName . '.vat', 0])
-            ->andWhere([$accountEntryTableName . '.date' => $this->date])
-            ->all();
+        $items =
+            AccountEntry::find()
+                ->joinWith('accountTariff')
+                ->where([$accountTariffTableName . '.client_account_id' => $this->clientAccount->id])
+                ->andWhere(['>', $accountEntryTableName . '.vat', 0])
+                ->andWhere([$accountEntryTableName . '.date' => $this->date])
+                ->orderBy([
+                    'account_tariff_id' => SORT_ASC,
+                    'type_id' => SORT_ASC,
+                ])
+                ->all();
 
         if (count($items)) {
             // Первая проводка

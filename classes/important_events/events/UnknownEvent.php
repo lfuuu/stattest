@@ -73,7 +73,7 @@ class UnknownEvent extends Component
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function getProperties()
     {
@@ -92,7 +92,8 @@ class UnknownEvent extends Component
     }
 
     /**
-     * @return bool|string
+     * @return string
+     * @throws Exception
      */
     public function getDescription()
     {
@@ -100,23 +101,23 @@ class UnknownEvent extends Component
             throw new Exception('Не указана модель данных');
         }
 
-        $result = [];
+        $descriptions = [];
 
         foreach (static::$properties as $key => $property) {
             if (class_exists($property)) {
                 /** @var PropertyInterface $property */
-                $result[] = (new $property($this->eventModel))->description;
+                $descriptions[] = (new $property($this->eventModel))->description;
             } else if (isset($this->eventModel->{$key})) {
                 /** @var string $property */
-                $result[] = Html::tag('b', $property . ': ') . $this->eventModel->{$key};
+                $descriptions[] = Html::tag('b', $property . ': ') . $this->eventModel->{$key};
             }
         }
 
-        return implode('<br />', $result);
+        return implode('<br />', $descriptions);
     }
 
     /**
-     * @return []
+     * @return array
      */
     private function getFullProperties()
     {

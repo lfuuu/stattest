@@ -22,7 +22,7 @@ class ImportantEventsSources extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function rules()
     {
@@ -34,7 +34,7 @@ class ImportantEventsSources extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function attributeLabels()
     {

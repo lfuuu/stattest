@@ -10,8 +10,6 @@ use app\models\important_events\ImportantEvents;
 class ClientAccountChangesProperty extends UnknownProperty implements PropertyInterface
 {
 
-    const PROPERTY_ACCOUNT_CHANGES = 'client.changes';
-
     private $clientAccountId = 0;
 
     /**
@@ -29,9 +27,7 @@ class ClientAccountChangesProperty extends UnknownProperty implements PropertyIn
      */
     public static function labels()
     {
-        return [
-            self::PROPERTY_ACCOUNT_CHANGES => '',
-        ];
+        return [];
     }
 
     /**
@@ -39,23 +35,13 @@ class ClientAccountChangesProperty extends UnknownProperty implements PropertyIn
      */
     public function methods()
     {
-        return [
-            self::PROPERTY_ACCOUNT_CHANGES => $this->getName(),
-        ];
+        return [];
     }
 
     /**
      * @return string
      */
     public function getValue()
-    {
-        return '';
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
     {
         return '';
     }
