@@ -22,9 +22,9 @@ class UserProperty extends UnknownProperty implements PropertyInterface
     {
         parent::__construct($event);
 
-        $user_id = $this->setPropertyName('user_id')->getPropertyValue();
+        $userId = $this->setPropertyName('user_id')->getPropertyValue();
 
-        $userAccount = User::findOne(['id' => (int)$user_id]);
+        $userAccount = User::findOne(['id' => (int)$userId]);
         if (!is_null($userAccount)) {
             $this->userAccount = $userAccount;
         }
