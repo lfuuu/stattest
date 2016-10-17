@@ -64,7 +64,7 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
      */
     public function relalcVat(&$item)
     {
-        $applyVatRate = false;
+        $isApplyVatRate = false;
         $vatRate = $item->vat;
 
         if (!is_null($this->invoiceSetting)) {
@@ -73,37 +73,37 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
             // Применение схемы начисления НДС
             switch ($this->invoiceSetting->vat_apply_scheme) {
 
-                // Схема #1 применение НДС из настроек as is если есть отличия
+                // Схема #1 применение НДС из настроек as is
                 case InvoiceSettings::VAT_SCHEME_FIRST:
                     if ($this->invoiceSetting->vat_rate != $item->vat_rate) {
                         $vatRate = $this->invoiceSetting->vat_rate;
-                        $applyVatRate = true;
+                        $isApplyVatRate = true;
                     }
                     break;
 
                 // Схема #3 + 0 НДС (Международная)
                 case InvoiceSettings::VAT_SCHEME_THIRD:
 
-                // Схема #2 упрощенная система налогооблажения
+                // Схема #2 упрощенная система налогообложения
                 case InvoiceSettings::VAT_SCHEME_SECOND:
                     $vatRate = 0;
-                    $applyVatRate = true;
+                    $isApplyVatRate = true;
                     break;
 
                 // Схема #4 + 0 НДС + EU Vat ID
                 case InvoiceSettings::VAT_SCHEME_FOURTH:
                     if (!empty($this->clientContragentEuroINN)) {
                         $vatRate = 0;
-                        $applyVatRate = true;
+                        $isApplyVatRate = true;
                     } else if($this->invoiceSetting->vat_rate != $item->vat_rate && is_numeric($this->invoiceSetting->vat_rate)) {
                         $vatRate = $this->invoiceSetting->vat_rate;
-                        $applyVatRate = true;
+                        $isApplyVatRate = true;
                     }
                     break;
             }
         }
 
-        if ($applyVatRate === true) {
+        if ($isApplyVatRate) {
             $item->vat_rate = $vatRate;
             $item->price_with_vat = $item->price_without_vat * (100 + $item->vat_rate) / 100;
             $item->vat = $item->price_without_vat * $item->vat_rate / 100;
