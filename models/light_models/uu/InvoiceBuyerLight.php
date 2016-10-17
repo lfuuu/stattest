@@ -51,7 +51,7 @@ class InvoiceBuyerLight extends Component implements InvoiceLightInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function attributeLabels()
     {

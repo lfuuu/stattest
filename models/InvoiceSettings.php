@@ -13,13 +13,16 @@ use yii\db\ActiveRecord;
 class InvoiceSettings extends ActiveRecord
 {
 
-    const CONTRAGENT_TYPE_DEFAULT = '*';
+    const VAT_SCHEME_FIRST = 1;
+    const VAT_SCHEME_SECOND = 2;
+    const VAT_SCHEME_THIRD = 3;
+    const VAT_SCHEME_FOURTH = 4;
 
-    public static $contragentTypes = [
-        self::CONTRAGENT_TYPE_DEFAULT => 'Для всех',
-        ClientContragent::LEGAL_TYPE => 'Для юр. лиц',
-        ClientContragent::PERSON_TYPE => 'Для физ. лиц',
-        ClientContragent::IP_TYPE => 'Для ИП',
+    public static $vatApplySchemes = [
+        self::VAT_SCHEME_FIRST => 'НДС',
+        self::VAT_SCHEME_SECOND => 'Упрощенная схема налогооблажения',
+        self::VAT_SCHEME_THIRD => '+ 0 НДС (МН)',
+        self::VAT_SCHEME_FOURTH => '+ 0 НДС + EU Vat ID',
     ];
 
     /**
@@ -35,7 +38,7 @@ class InvoiceSettings extends ActiveRecord
      */
     public static function primaryKey()
     {
-        return ['customer_country_code', 'doer_country_code', 'settlement_account_type_id'];
+        return ['doer_organization_id', 'customer_country_code', 'settlement_account_type_id', 'vat_apply_scheme',];
     }
 
     /**
@@ -44,9 +47,11 @@ class InvoiceSettings extends ActiveRecord
     public function rules()
     {
         return [
-            [['customer_country_code', 'doer_country_code', 'settlement_account_type_id', 'vat_rate'], 'integer'],
-            [['customer_country_code', 'doer_country_code', 'settlement_account_type_id'], 'required'],
-            ['contragent_type', 'string'],
+            [
+                ['doer_organization_id', 'customer_country_code', 'settlement_account_type_id', 'vat_rate', 'vat_apply_scheme',],
+                'integer'
+            ],
+            [['doer_organization_id', 'customer_country_code', 'settlement_account_type_id'], 'required'],
         ];
     }
 
@@ -56,11 +61,11 @@ class InvoiceSettings extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'customer_country_code' => 'Страна заказчика',
-            'doer_country_code' => 'Страна исполнителя',
-            'settlement_account_type_id' => 'Тип платежных реквизитов',
+            'doer_organization_id' => 'Компания оказывающая услуги',
+            'customer_country_code' => 'Страна получающая услугу',
+            'vat_apply_scheme' => 'Схема применения налоговой ставки',
             'vat_rate' => 'Ставка налога',
-            'contragent_type' => 'Тип клиента',
+            'settlement_account_type_id' => 'Тип платежных реквизитов',
         ];
     }
 

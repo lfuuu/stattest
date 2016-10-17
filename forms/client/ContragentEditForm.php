@@ -31,6 +31,7 @@ class ContragentEditForm extends Form
         $name_full,
         $address_jur,
         $inn,
+        $inn_euro,
         $kpp,
         $position,
         $fio,
@@ -69,6 +70,7 @@ class ContragentEditForm extends Form
                     'name_full',
                     'address_jur',
                     'inn',
+                    'inn_euro',
                     'kpp',
                     'position',
                     'fio',
@@ -87,6 +89,7 @@ class ContragentEditForm extends Form
                     'name_full',
                     'address_jur',
                     'inn',
+                    'inn_euro',
                     'kpp',
                     'position',
                     'fio',
@@ -105,6 +108,7 @@ class ContragentEditForm extends Form
                     'name_full',
                     'address_jur',
                     'inn',
+                    'inn_euro',
                     'kpp',
                     'position',
                     'fio',
@@ -297,6 +301,7 @@ class ContragentEditForm extends Form
         $contragent->name_full = $this->name_full;
         $contragent->address_jur = $this->address_jur;
         $contragent->inn = $this->inn;
+        $contragent->inn_euro = $this->inn_euro;
         $contragent->kpp = $this->kpp;
         $contragent->position = $this->position;
         $contragent->fio = $this->fio;

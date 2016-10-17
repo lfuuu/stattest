@@ -1,5 +1,6 @@
 <?php
 
+use app\dao\OrganizationDao;
 use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use app\classes\Html;
@@ -29,13 +30,13 @@ echo Breadcrumbs::widget([
         <div class="row">
             <div class="col-sm-6">
                 <?= $form
-                    ->field($model, 'customer_country_code')
-                    ->dropDownList(Country::getList())
+                    ->field($model, 'doer_organization_id')
+                    ->dropDownList(OrganizationDao::me()->getList())
                 ?>
             </div>
             <div class="col-sm-6">
                 <?= $form
-                    ->field($model, 'doer_country_code')
+                    ->field($model, 'customer_country_code')
                     ->dropDownList(Country::getList())
                 ?>
             </div>
@@ -50,8 +51,8 @@ echo Breadcrumbs::widget([
             </div>
             <div class="col-sm-4">
                 <?= $form
-                    ->field($model, 'contragent_type')
-                    ->dropDownList(InvoiceSettings::$contragentTypes)
+                    ->field($model, 'vat_apply_scheme')
+                    ->dropDownList(InvoiceSettings::$vatApplySchemes)
                 ?>
             </div>
             <div class="col-sm-4">

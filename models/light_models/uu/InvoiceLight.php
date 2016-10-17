@@ -74,19 +74,18 @@ class InvoiceLight extends Component
                 ? Language::LANGUAGE_ENGLISH
                 : $this->language;
 
-        /** @var InvoiceSettings $invoiceSetting */
-        // Настройки счета-фактуры
-        $invoiceSetting = InvoiceSettings::findOne([
-            'customer_country_code' => $this->clientAccount->contract->contragent->country_id,
-            'doer_country_code' => $this->clientAccount->organization->country_id,
-            'contragent_type' => $this->clientAccount->contract->contragent->legal_type,
-        ]);
-
         // Данные организации продавца
         $dateForOrganization = (new DateTime)->format(DateTimeZoneHelper::DATE_FORMAT);
 
         $sellerOrganization = $this->clientAccount->contract->getOrganization($dateForOrganization);
         Assert::isObject($sellerOrganization, 'Данные об организации за дату "' . $dateForOrganization . '" не найдены');
+
+        /** @var InvoiceSettings $invoiceSetting */
+        // Настройки счета-фактуры
+        $invoiceSetting = InvoiceSettings::findOne([
+            'doer_organization_id' => $sellerOrganization->organization_id,
+            'customer_country_code' => $this->clientAccount->contract->contragent->country_id,
+        ]);
 
         $this->seller = new InvoiceSellerLight(
             $this->language,
@@ -119,12 +118,12 @@ class InvoiceLight extends Component
             // Данные о счете
             $this->bill = new InvoiceBillLight($firstAccountEntry->bill_id, $firstAccountEntry->date, $dataLanguage);
             // Данные проводках
-            $this->items = (new InvoiceItemsLight($this->bill, $items, $invoiceSetting))->getAll();
+            $this->items = (new InvoiceItemsLight($this->clientAccount, $this->bill, $items, $invoiceSetting))->getAll();
         }
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function getProperties()
     {
@@ -158,7 +157,7 @@ class InvoiceLight extends Component
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function getHelp()
     {

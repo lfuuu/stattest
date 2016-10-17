@@ -5,6 +5,7 @@ use yii\helpers\Url;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\grid\column\universal\CountryColumn;
+use app\classes\grid\column\universal\OrganizationColumn;
 use app\models\OrganizationSettlementAccount;
 use yii\widgets\Breadcrumbs;
 
@@ -25,12 +26,12 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'attribute' => 'customer_country_code',
-            'class' => CountryColumn::class,
+            'attribute' => 'doer_organization_id',
+            'class' => OrganizationColumn::class,
             'width' => '30%',
         ],
         [
-            'attribute' => 'doer_country_code',
+            'attribute' => 'customer_country_code',
             'class' => CountryColumn::class,
             'width' => '30%',
         ],
@@ -51,10 +52,10 @@ echo GridView::widget([
             'width' => '10%',
         ],
         [
-            'attribute' => 'contragent_type',
+            'attribute' => 'vat_apply_scheme',
             'label' => 'Тип клиента',
             'value' => function($model) {
-                return \app\models\InvoiceSettings::$contragentTypes[$model->contragent_type];
+                return \app\models\InvoiceSettings::$vatApplySchemes[$model->vat_apply_scheme];
             },
             'width' => '10%',
         ],
@@ -66,10 +67,10 @@ echo GridView::widget([
                     return $baseView->render('//layouts/_actionEdit', [
                             'url' => Url::toRoute([
                                 '/invoice-settings/edit/',
+                                'doerOrganizationId' => $model->doer_organization_id,
                                 'customerCountryCode' => $model->customer_country_code,
-                                'doerCountryCode' => $model->doer_country_code,
                                 'settlementAccountTypeId' => $model->settlement_account_type_id,
-                                'contragentType' => $model->contragent_type,
+                                'vatApplyScheme' => $model->vat_apply_scheme,
                             ]),
                         ]
                     );
@@ -78,10 +79,10 @@ echo GridView::widget([
                     return $baseView->render('//layouts/_actionDrop', [
                             'url' => Url::toRoute([
                                 '/invoice-settings/delete/',
+                                'doerOrganizationId' => $model->doer_organization_id,
                                 'customerCountryCode' => $model->customer_country_code,
-                                'doerCountryCode' => $model->doer_country_code,
                                 'settlementAccountTypeId' => $model->settlement_account_type_id,
-                                'contragentType' => $model->contragent_type,
+                                'vatApplyScheme' => $model->vat_apply_scheme,
                             ]),
                         ]
                     );
