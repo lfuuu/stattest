@@ -37,10 +37,12 @@ class AccountEntryFilter extends AccountEntry
 
     public $type_id = '';
 
+    public $is_default = '';
+
     public function rules()
     {
         return [
-            [['id', 'client_account_id', 'account_tariff_id', 'service_type_id', 'type_id'], 'integer'],
+            [['id', 'client_account_id', 'account_tariff_id', 'service_type_id', 'type_id', 'is_default'], 'integer'],
             [['price_from', 'price_to'], 'double'],
             [['price_without_vat_from', 'price_without_vat_to'], 'double'],
             [['price_with_vat_from', 'price_with_vat_to'], 'double'],
@@ -69,7 +71,7 @@ class AccountEntryFilter extends AccountEntry
 
         $this->id !== '' && $query->andWhere([$accountEntryTableName . '.id' => $this->id]);
 
-        $this->date !== '' && $query->andWhere([$accountEntryTableName . '.date' => $this->date . '-01']);
+        $this->date !== '' && $query->andWhere('DATE_FORMAT(' . $accountEntryTableName . '.date, "%Y-%m") = :date', [':date' => $this->date]);
 
         $this->price_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.price', $this->price_to]);
@@ -109,6 +111,7 @@ class AccountEntryFilter extends AccountEntry
         $this->account_tariff_id !== '' && $query->andWhere([$accountEntryTableName . '.account_tariff_id' => $this->account_tariff_id]);
         $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
+        $this->is_default !== '' && $query->andWhere([$accountEntryTableName . '.is_default' => $this->is_default]);
 
         if ($this->type_id !== '') {
             if ($this->type_id < 0) {

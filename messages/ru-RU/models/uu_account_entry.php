@@ -18,6 +18,7 @@ return [
     'price_with_vat' => 'Стоимость с НДС, у.е.',
 
     'update_time' => 'Время расчёта',
+    'is_default' => 'Ежемесячная',
 
     '{name} ({descr}). {serviceTypeName}' => '{name} ({descr}). {serviceTypeName}',
 ];

@@ -19,10 +19,12 @@ class BillFilter extends Bill
 
     public $client_account_id = '';
 
+    public $is_default = '';
+
     public function rules()
     {
         return [
-            [['id', 'client_account_id'], 'integer'],
+            [['id', 'client_account_id', 'is_default'], 'integer'],
             [['price_from', 'price_to'], 'double'],
             [['date'], 'string', 'max' => 255],
         ];
@@ -43,10 +45,11 @@ class BillFilter extends Bill
 
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
 
-        $this->date !== '' && $query->andWhere(['date' => $this->date . '-01']);
+        $this->date !== '' && $query->andWhere('DATE_FORMAT(date, "%Y-%m") = :date', [':date' => $this->date]);
 
         $this->price_from !== '' && $query->andWhere(['>=', 'price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', 'price', $this->price_to]);
+        $this->is_default !== '' && $query->andWhere(['is_default' => $this->is_default]);
 
         $this->client_account_id !== '' && $query->andWhere(['client_account_id' => $this->client_account_id]);
 

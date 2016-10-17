@@ -12,8 +12,20 @@ use yii\helpers\Url;
  * Бухгалтерская проводка
  * Объединяет предварительное списание (транзакции) для одной услуги и типу (подключение, абонентка, каждый ресурс) по календарным месяцам
  *
+ * @link http://bugtracker.welltime.ru/jira/browse/BIL-1909
+ * Счет на postpaid никогда не создается
+ * При подключении новой услуги prepaid сразу же создается счет на эту услугу. Если в течение календарных суток подключается вторая услуга, то она добавляется в первый счет.
+ *      Если в новые календарные сутки - создается новый счет. В этот счет идет подключение подключение и абонентка. Ресурсы и минималка никогда сюда не попадают.
+ * 1го числа каждого месяца создается новый счет за все prepaid абонентки, не вошедшие в отдельные счета (то есть абонентки автопродлеваемых услуг), все ресурсы и минималки.
+ *      Подключение в этот счет не должно попасть.
+ * Из любого счета всегда исключаются строки с нулевой стоимостью. Если в счете нет ни одной строки - он автоматически удаляется.
+ *
+ * Иными словами можно сказать:
+ * проводки за подключение группируются посуточно и на их основе создаются счета. В эти же счета добавляются проводки за абонентку от этих же услуг за эту же дату
+ * все остальные проводки (is_default) группируются помесячно и на их основе создаются счета.
+ *
  * @property int $id
- * @property string $date важен только месяц. День всегда 1.
+ * @property string $date У обычной проводки (is_default) важен только месяц, день всегда 1. У проводки на доплату (когда создается новая услуга) - день фактический.
  * @property int $account_tariff_id
  * @property int $type_id Если положительное, то TariffResource, иначе подключение или абонентка. Поэтому нет FK
  * @property float $price
@@ -22,9 +34,10 @@ use yii\helpers\Url;
  * @property float $vat
  * @property float $price_with_vat
  * @property string $update_time
+ * @property int $is_default
  *
  * @property AccountTariff $accountTariff
- * @property \app\classes\uu\model\TariffResource $tariffResource
+ * @property TariffResource $tariffResource
  * @property AccountLogSetup[] $accountLogSetups
  * @property AccountLogPeriod[] $accountLogPeriods
  * @property AccountLogResource[] $accountLogResources
@@ -59,7 +72,7 @@ class AccountEntry extends ActiveRecord
     public function rules()
     {
         return [
-            [['account_tariff_id', 'type_id'], 'integer'],
+            [['account_tariff_id', 'type_id', 'is_default'], 'integer'],
             [['price'], 'double'],
             [['date'], 'string', 'max' => 255],
         ];
@@ -129,21 +142,21 @@ class AccountEntry extends ActiveRecord
             case self::TYPE_ID_PERIOD:
             case self::TYPE_ID_MIN:
 
-            $serviceTypeName = '';
-            if (
-                ($accountTariff = $this->accountTariff)
-                && ($serviceType = $accountTariff->serviceType)
-            ) {
-                $serviceTypeName = Yii::t('models/' . $serviceType::tableName(), 'Type #' . $serviceType->id, [], $langCode) . '. ';
-            }
+                $serviceTypeName = '';
+                if (
+                    ($accountTariff = $this->accountTariff)
+                    && ($serviceType = $accountTariff->serviceType)
+                ) {
+                    $serviceTypeName = Yii::t('models/' . $serviceType::tableName(), 'Type #' . $serviceType->id, [], $langCode) . '. ';
+                }
 
-            $dictionary = 'models/' . $tableName;
+                $dictionary = 'models/' . $tableName;
 
-            return Yii::t($dictionary, '{name} ({descr}). {serviceTypeName}', [
-                'name' => Yii::t($dictionary, $this->code, [], $langCode),
-                'serviceTypeName' => $serviceTypeName,
-                'descr' => ($this->accountTariff->service_type_id == ServiceType::ID_VOIP ? $this->accountTariff->voip_number : $this->account_tariff_id),
-            ], $langCode);
+                return Yii::t($dictionary, '{name} ({descr}). {serviceTypeName}', [
+                    'name' => Yii::t($dictionary, $this->code, [], $langCode),
+                    'serviceTypeName' => $serviceTypeName,
+                    'descr' => ($this->accountTariff->service_type_id == ServiceType::ID_VOIP ? $this->accountTariff->voip_number : $this->account_tariff_id),
+                ], $langCode);
 
             default: //resources
                 if (

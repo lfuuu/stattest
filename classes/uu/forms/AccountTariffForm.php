@@ -63,6 +63,7 @@ abstract class AccountTariffForm extends Form
 
         $this->accountTariffLog = new AccountTariffLog();
         $this->accountTariffLog->account_tariff_id = $this->accountTariff->id;
+        $this->accountTariffLog->populateRelation('accountTariff', $this->accountTariff);
         $this->accountTariffLog->actual_from = $this->accountTariffLog
             ->getClientDateTime()
             ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
@@ -122,6 +123,7 @@ abstract class AccountTariffForm extends Form
                     Yii::info('AccountTariffForm. Before voip $accountTariffLog->save', 'uu');
                     $accountTariffLog = clone $this->accountTariffLog;
                     $accountTariffLog->account_tariff_id = $accountTariff->id;
+                    $accountTariffLog->populateRelation('accountTariff', $accountTariff);
                     $accountTariffLog->id = 0;
                     if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
                         $this->validateErrors += $accountTariffLog->getFirstErrors();
@@ -138,6 +140,7 @@ abstract class AccountTariffForm extends Form
                         $accountTariffPackage->region_id = $accountTariff->region_id;
                         $accountTariffPackage->city_id = $accountTariff->city_id;
                         $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
+                        $accountTariffPackage->populateRelation('prevAccountTariff', $accountTariff);
                         if (!$accountTariffPackage->validate() || !$accountTariffPackage->save()) {
                             $this->validateErrors += $accountTariffPackage->getFirstErrors();
                             throw new InvalidArgumentException('');
@@ -147,6 +150,7 @@ abstract class AccountTariffForm extends Form
                         Yii::info('AccountTariffForm. Before voip $accountTariffLogPackage->save', 'uu');
                         $accountTariffLogPackage = new AccountTariffLog;
                         $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
+                        $accountTariffLogPackage->populateRelation('accountTariff', $accountTariffPackage);
                         $accountTariffLogPackage->tariff_period_id = $voipPackageTariffPeriodId;
                         $accountTariffLogPackage->actual_from = $accountTariffLog->actual_from;
                         if (!$accountTariffLogPackage->validate() || !$accountTariffLogPackage->save()) {
@@ -160,6 +164,7 @@ abstract class AccountTariffForm extends Form
                 $this->isSaved = true;
 
                 $this->accountTariffLog->account_tariff_id = 0; // вернуть обратно. 0 - потому что $isNewRecord
+                $this->accountTariffLog->populateRelation('accountTariff', null);
                 $post = []; // чтобы дальше логика универсальных услуг не отрабатывала
             }
 
@@ -182,6 +187,7 @@ abstract class AccountTariffForm extends Form
 
                 // лог тарифов
                 $this->accountTariffLog->account_tariff_id = $this->accountTariff->id;
+                $this->accountTariffLog->populateRelation('accountTariff', $this->accountTariff);
                 if (isset($post['closeTariff'])) {
                     // закрыть тариф
                     $this->accountTariffLog->tariff_period_id = null;
@@ -213,6 +219,7 @@ abstract class AccountTariffForm extends Form
                         // записать в лог тарифа
                         $accountTariffLogPackage = new AccountTariffLog;
                         $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
+                        $accountTariffLogPackage->populateRelation('accountTariff', $accountTariffPackage);
                         $accountTariffLogPackage->tariff_period_id = null;
                         $accountTariffLogPackage->actual_from = $this->accountTariffLog->actual_from;
                         if (!$accountTariffLogPackage->save()) {
@@ -259,6 +266,7 @@ abstract class AccountTariffForm extends Form
                 // сразу же закрыть
                 $accountTariffLogClosed = new AccountTariffLog;
                 $accountTariffLogClosed->account_tariff_id = $this->accountTariff->id;
+                $accountTariffLogClosed->populateRelation('accountTariff', $this->accountTariff);
                 $accountTariffLogClosed->tariff_period_id = null;
                 $accountTariffLogClosed->actual_from = $clientDateTime->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
                 if (!$accountTariffLogClosed->save()) {
@@ -271,6 +279,7 @@ abstract class AccountTariffForm extends Form
                 $accountLogResource->tariff_period_id = $this->accountTariffLog->tariff_period_id;
                 $accountLogResource->tariff_resource_id = reset($tariffResources)->id;
                 $accountLogResource->account_tariff_id = $this->accountTariff->id;
+                $accountLogResource->populateRelation('accountTariff', $this->accountTariff);
                 $accountLogResource->amount_use = $resourceOneTimeCost;
                 $accountLogResource->amount_free = 0;
                 $accountLogResource->amount_overhead = $resourceOneTimeCost;

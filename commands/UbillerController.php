@@ -147,7 +147,6 @@ class UbillerController extends Controller
         $this->_tarificate('BillTarificator', 'Счета');
     }
 
-
     /**
      * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog. 10 секунд
      * Проверить баланс при смене тарифа. Если денег не хватает - отложить на день.

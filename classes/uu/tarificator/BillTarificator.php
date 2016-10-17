@@ -38,11 +38,12 @@ class BillTarificator implements TarificatorI
         echo '. ';
         $insertSQL = <<<SQL
             INSERT INTO {$billTableName}
-            (date, client_account_id, price)
+            (date, client_account_id, price, is_default)
                 SELECT DISTINCT
                     account_entry.date,
                     account_tariff.client_account_id,
-                    0
+                    0,
+                    account_entry.is_default
                 FROM
                     {$accountEntryTableName} account_entry,
                     {$accountTariffTableName} account_tariff
@@ -68,6 +69,7 @@ SQL;
                account_entry.account_tariff_id = account_tariff.id
                AND account_entry.bill_id IS NULL
                AND account_entry.date = bill.date
+               AND account_entry.is_default = bill.is_default
                AND account_tariff.client_account_id = bill.client_account_id
                {$sqlAndWhere}
 SQL;
