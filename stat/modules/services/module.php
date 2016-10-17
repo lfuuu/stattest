@@ -8,6 +8,7 @@ use app\dao\services\ExtraServiceDao;
 use app\models\Organization;
 use app\classes\Event;
 use app\classes\Assert;
+use app\models\TechPort;
 use app\models\UsageVoip;
 use app\models\TariffVoip;
 use app\models\Number;
@@ -281,7 +282,7 @@ class m_services extends IModule{
             }
         }*/
         $design->assign_by_ref('ports',$nPorts);
-        $design->assign('port_types',array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota', 'GPON'));
+        $design->assign('port_types', TechPort::$portTypes);
         $design->AddMain('services/internet_report.tpl');
     }
 
