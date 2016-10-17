@@ -13,8 +13,8 @@ class m161014_141802_invoice_settings_change extends \app\classes\Migration
         $this->createTable($tableName, [
             'doer_organization_id' => $this->integer(11),
             'customer_country_code' => $this->integer(4)->defaultValue(null),
-            'vat_apply_scheme' => $this->integer(1)->defaultValue(1),
-            'settlement_account_type_id' => $this->integer(1),
+            'vat_apply_scheme' => $this->integer()->defaultValue(1),
+            'settlement_account_type_id' => $this->integer(),
             'vat_rate' => $this->integer(6),
         ], 'ENGINE=InnoDB CHARSET=utf8');
 

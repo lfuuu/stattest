@@ -8,7 +8,7 @@ class m161011_111123_invoice_settings_contragent_type extends \app\classes\Migra
     {
         $tableName = InvoiceSettings::tableName();
 
-        $this->addColumn($tableName, 'contragent_type', $this->string(20)->defaultValue(InvoiceSettings::CONTRAGENT_TYPE_DEFAULT));
+        $this->addColumn($tableName, 'contragent_type', $this->string(20)->defaultValue('*'));
 
         $this->dropForeignKey('fk-' . $tableName . '-customer_country_code', $tableName);
         $this->dropForeignKey('fk-' . $tableName . '-doer_country_code', $tableName);
