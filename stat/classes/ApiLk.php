@@ -2392,9 +2392,6 @@ class ApiLk
         if(!$account)
             throw new Exception("account_not_found");
 
-        if($account->currency != "RUB" && $account->currency != "HUF")
-            throw new Exception("data_error");
-
         $lang = Language::normalizeLang($lang);
 
         $paypal = new \PayPal();

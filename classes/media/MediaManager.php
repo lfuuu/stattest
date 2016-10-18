@@ -27,6 +27,7 @@ abstract class MediaManager
         'xls' => 'application/vnd.ms-excel',
         'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'ppt' => 'application/vnd.ms-powerpoint',
+        '7z' => 'application/x-7z-compressed',
     ];
 
     public $downloadable = [
@@ -40,6 +41,7 @@ abstract class MediaManager
         'ppt',
         'txt',
         'html',
+        '7z',
     ];
 
     /**
