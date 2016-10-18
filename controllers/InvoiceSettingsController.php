@@ -13,7 +13,7 @@ class InvoiceSettingsController extends BaseController
 {
 
     /**
-     * @return []
+     * @return array
      */
     public function behaviors()
     {
@@ -70,26 +70,26 @@ class InvoiceSettingsController extends BaseController
     }
 
     /**
+     * @param int $doerOrganizationId
      * @param int $customerCountryCode
-     * @param int $doerCountryCode
      * @param int $settlementAccountTypeId
-     * @param string $contragentType
+     * @param int $vatApplyScheme
      * @return string
      * @throws \yii\base\Exception
      */
     public function actionEdit(
+        $doerOrganizationId,
         $customerCountryCode,
-        $doerCountryCode,
         $settlementAccountTypeId,
-        $contragentType
+        $vatApplyScheme
     )
     {
         /** @var InvoiceSettings $model */
         $model = InvoiceSettings::findOne([
+            'doer_organization_id' => $doerOrganizationId,
             'customer_country_code' => $customerCountryCode,
-            'doer_country_code' => $doerCountryCode,
             'settlement_account_type_id' => $settlementAccountTypeId,
-            'contragent_type' => $contragentType,
+            'vat_apply_scheme' => $vatApplyScheme,
         ]);
         Assert::isObject($model);
 
@@ -103,24 +103,23 @@ class InvoiceSettingsController extends BaseController
     }
 
     /**
+     * @param int $doerOrganizationId
      * @param int $customerCountryCode
-     * @param int $doerCountryCode
      * @param int $settlementAccountTypeId
-     * @param string $contragentType
-     * @throws \Exception
+     * @param int $vatApplyScheme
      */
     public function actionDelete(
+        $doerOrganizationId,
         $customerCountryCode,
-        $doerCountryCode,
         $settlementAccountTypeId,
-        $contragentType
+        $vatApplyScheme
     )
     {
         InvoiceSettings::deleteAll([
+            'doer_organization_id' => $doerOrganizationId,
             'customer_country_code' => $customerCountryCode,
-            'doer_country_code' => $doerCountryCode,
             'settlement_account_type_id' => $settlementAccountTypeId,
-            'contragent_type' => $contragentType,
+            'vat_apply_scheme' => $vatApplyScheme,
         ]);
 
         $this->redirect('/invoice-settings');

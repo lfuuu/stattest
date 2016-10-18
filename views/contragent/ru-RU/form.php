@@ -65,6 +65,7 @@ use app\models\Business;
         'attributes' => [
             'inn' => [],
             'kpp' => [],
+            'inn_euro' => [],
             'okvd' => [],
             'ogrn' => [],
             'opf_id' => [
