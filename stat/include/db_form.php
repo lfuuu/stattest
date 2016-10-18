@@ -3,6 +3,7 @@ use app\classes\StatModule;
 use app\models\ClientAccount;
 use app\classes\Assert;
 use app\classes\Event;
+use app\models\TechPort;
 
 class DbForm {
     protected $table;
@@ -397,29 +398,39 @@ class HelpDbForm {
 }
 
 class DbFormUsageIpPorts extends DbForm{
-    public function __construct() {
+    public function __construct()
+    {
         DbForm::__construct('usage_ip_ports');
-        $this->fields['client']=array('type'=>'label');
-        $this->fields['actual_from']=array('default'=>date('d-m-Y'));
-        $this->fields['actual_to']=array('default'=>'01-01-4000');
-        $this->fields['activation_dt']=array('type'=>'hidden');
-        $this->fields['expire_dt']=array('type'=>'hidden');
-        $this->fields['address']=array();
+        $this->fields['client'] = ['type' => 'label'];
+        $this->fields['actual_from'] = ['default' => date('d-m-Y')];
+        $this->fields['actual_to'] = ['default' => '01-01-4000'];
+        $this->fields['activation_dt'] = ['type' => 'hidden'];
+        $this->fields['expire_dt'] = ['type' => 'hidden'];
+        $this->fields['address'] = [];
 
-        $this->fields['port_type']=array('db_ignore'=>1,'enum'=>array('dedicated','pppoe','hub','adsl','wimax','cdma','adsl_cards','adsl_connect','adsl_karta','adsl_rabota','adsl_terminal','adsl_tranzit1','yota','GPON'),'default'=>'adsl','add'=>' onchange=form_ip_ports_hide()');
+        $this->fields['port_type'] = [
+            'db_ignore' => 1,
+            'enum' => TechPort::$portTypes,
+            'default' => 'adsl',
+            'add' => ' onchange=form_ip_ports_hide()'
+        ];
 
-        $this->fields['node']=array('db_ignore'=>1,'add'=>' onchange="form_ip_ports_get_ports()" ');
-        $this->fields['phone']=array('db_ignore'=>1);
-        $this->fields['port']=array('db_ignore'=>1,'enum'=>array());
+        $this->fields['node'] = ['db_ignore' => 1, 'add' => ' onchange="form_ip_ports_get_ports()" '];
+        $this->fields['phone'] = ['db_ignore' => 1];
+        $this->fields['port'] = ['db_ignore' => 1, 'enum' => []];
 
-        $this->fields['port_id']=array('type'=>'hidden');
-        $this->fields['amount']=array('default'=>'1');
-        $this->fields['status']=array('enum'=>array('connecting','working'),'default'=>'connecting');
+        $this->fields['port_id'] = ['type' => 'hidden'];
+        $this->fields['amount'] = ['default' => '1'];
+        $this->fields['status'] = ['enum' => ['connecting', 'working'], 'default' => 'connecting'];
 
-        $this->includesPreL = array('dbform_internet_tarif.tpl');
-        $this->includesPreR = array('dbform_block.tpl');
-        $this->includesPre=array('dbform_tt.tpl');
-        $this->includesPost =array('dbform_internet_tarif_history.tpl','dbform_block_history.tpl','dbform_cpe_history.tpl');
+        $this->includesPreL = ['dbform_internet_tarif.tpl'];
+        $this->includesPreR = ['dbform_block.tpl'];
+        $this->includesPre = ['dbform_tt.tpl'];
+        $this->includesPost = [
+            'dbform_internet_tarif_history.tpl',
+            'dbform_block_history.tpl',
+            'dbform_cpe_history.tpl'
+        ];
     }
     public function Display($form_params = array(),$h2='',$h3='') {
         global $db,$design,$user;
@@ -489,7 +500,17 @@ class DbFormUsageIpPorts extends DbForm{
         if (isset($this->dbform['t_tarif_type']) && isset($this->dbform['t_tarif_status']) && isset($this->dbform['t_id_tarif'.$this->dbform['t_tarif_type'].$this->dbform['t_tarif_status']])) {
             $this->dbform['t_id_tarif']=$this->dbform['t_id_tarif'.$this->dbform['t_tarif_type'].$this->dbform['t_tarif_status']];
         }
-        if ($this->dbform['port_type']=='adsl' || $this->dbform['port_type']=='adsl_cards' || $this->dbform['port_type']=='adsl_connect' || $this->dbform['port_type']=='adsl_karta' || $this->dbform['port_type']=='adsl_rabota' || $this->dbform['port_type']=='adsl_terminal' || $this->dbform['port_type']=='adsl_tranzit1'|| $this->dbform['port_type']=='yota'|| $this->dbform['port_type']=='GPON') {
+        if ($this->dbform['port_type'] == 'adsl'
+            || $this->dbform['port_type'] == 'adsl_cards'
+            || $this->dbform['port_type'] == 'adsl_connect'
+            || $this->dbform['port_type'] == 'adsl_karta'
+            || $this->dbform['port_type'] == 'adsl_rabota'
+            || $this->dbform['port_type'] == 'adsl_terminal'
+            || $this->dbform['port_type'] == 'adsl_tranzit1'
+            || $this->dbform['port_type'] == 'yota'
+            || $this->dbform['port_type'] == 'GPON'
+            || $this->dbform['port_type'] == 'megafon_4G'
+        ) {
             $v=$this->dbform['phone'];
             $v=preg_replace('/[^\d]+/','',$v);
             $v1=preg_replace('/^495/','',$v);
