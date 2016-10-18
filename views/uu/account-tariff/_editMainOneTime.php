@@ -19,7 +19,7 @@ $accountTariff = $formModel->accountTariff;
     <?php // стоимость ?>
     <div class="col-sm-8">
         <div class="form-group field-tariff-resource-one-time required">
-            <label for="tariff-resource-one-time" class="control-label">Стоимость, у.е.</label> (списывается со счета; если надо добавить на счет - указывайте отрицательное значение)
+            <label for="tariff-resource-one-time" class="control-label">Стоимость, ¤</label> (списывается со счета; если надо добавить на счет - указывайте отрицательное значение)
 
             <div>
                 <?php

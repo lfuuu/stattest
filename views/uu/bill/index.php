@@ -67,7 +67,7 @@ use yii\widgets\Breadcrumbs;
             'class' => IntegerRangeColumn::className(),
         ],
         [
-            'label' => 'Проводки, у.е.',
+            'label' => 'Проводки, ¤',
             'format' => 'raw',
             'contentOptions' => [
                 'class' => 'text-nowrap',

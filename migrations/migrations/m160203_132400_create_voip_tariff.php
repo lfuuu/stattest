@@ -184,7 +184,7 @@ class m160203_132400_create_voip_tariff extends \app\classes\Migration
         $this->insert($tableName, [
             'id' => Resource::ID_VOIP_CALLS,
             'name' => 'Звонки',
-            'unit' => 'у.е.',
+            'unit' => '¤',
             'min_value' => 0,
             'max_value' => null,
             'service_type_id' => ServiceType::ID_VOIP,

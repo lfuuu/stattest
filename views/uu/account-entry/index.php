@@ -117,7 +117,7 @@ $accountTariffTableName = AccountTariff::tableName();
             'class' => FloatRangeColumn::className(),
         ],
         [
-            'label' => 'Транзакции, у.е.',
+            'label' => 'Транзакции, ¤',
             'format' => 'raw',
             'contentOptions' => [
                 'class' => 'text-nowrap',
