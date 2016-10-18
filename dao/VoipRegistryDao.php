@@ -99,11 +99,16 @@ class VoipRegistryDao extends Singleton
             return true;
         }
 
-        $this->didGroups = DidGroup::find()
+        $didGroups = DidGroup::find()
             ->where([
                 'city_id' => $registry->city_id
-            ] + ($registry->isSourcePotability() ? ['beauty_level' => DidGroup::BEAUTY_LEVEL_STANDART] : [])
-            )
+            ]);
+
+        if ($registry->isSourcePotability()) {
+            $didGroups->andWhere(['beauty_level' => DidGroup::BEAUTY_LEVEL_STANDART]);
+        }
+
+        $this->didGroups = $didGroups
             ->indexBy('beauty_level')
             ->all();
 
