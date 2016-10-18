@@ -35,7 +35,9 @@ use yii\helpers\Url;
  * @property float $price_with_vat
  * @property string $update_time
  * @property int $is_default
+ * @property int $bill_id
  *
+ * @property Bill $bill
  * @property AccountTariff $accountTariff
  * @property TariffResource $tariffResource
  * @property AccountLogSetup[] $accountLogSetups
@@ -84,6 +86,14 @@ class AccountEntry extends ActiveRecord
     public function getAccountTariff()
     {
         return $this->hasOne(AccountTariff::className(), ['id' => 'account_tariff_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBill()
+    {
+        return $this->hasOne(Bill::className(), ['id' => 'bill_id']);
     }
 
     /**

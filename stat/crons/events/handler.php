@@ -188,14 +188,6 @@ function do_events()
                     break;
                 }
 
-                case Event::UU_TARIFICATE: {
-                    $clientAccount = \app\models\ClientAccount::findOne(['id' => $param['client_account_id']]);
-                    if ($clientAccount) {
-                        \app\models\Bill::dao()->transferUniversalBillsToBills($clientAccount);
-                    }
-                    break;
-                }
-
                 case SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT:
                     // Добавить данные в AccountTariffLight
                     SyncAccountTariffLight::addToAccountTariffLight($param);

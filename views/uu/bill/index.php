@@ -43,6 +43,10 @@ use yii\widgets\Breadcrumbs;
             'class' => YesNoColumn::className(),
         ],
         [
+            'attribute' => 'is_converted',
+            'class' => YesNoColumn::className(),
+        ],
+        [
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (Bill $bill) {

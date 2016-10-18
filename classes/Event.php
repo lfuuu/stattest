@@ -47,7 +47,6 @@ class Event
     const USAGE_VOIP__DELETE = 'usage_voip__delete';
     const USAGE_VOIP__INSERT = 'usage_voip__insert';
     const USAGE_VOIP__UPDATE = 'usage_voip__update';
-    const UU_TARIFICATE = 'uu_tarificate';
     const UU_ACCOUNT_TARIFF_VOIP = 'uu_account_tariff_voip';
     const UU_ACCOUNT_TARIFF_VPBX = 'uu_account_tariff_vpbx';
     const YANDEX_PAYMENT = 'yandex_payment';
@@ -95,7 +94,6 @@ class Event
         self::USAGE_VOIP__INSERT => 'Услуга телефонии добавлена',
         self::USAGE_VOIP__UPDATE => 'Услуга телефонии изменена',
         self::USAGE_VOIP__DELETE => 'Услуга телефонии удалена',
-        self::UU_TARIFICATE => 'UU-тарификатор по клиенту',
         self::UU_ACCOUNT_TARIFF_VOIP => 'UU-услуга телефонии',
         self::UU_ACCOUNT_TARIFF_VPBX => 'UU-услуга ВАТС',
         self::UPDATE_BALANCE => 'Обновление баланса',

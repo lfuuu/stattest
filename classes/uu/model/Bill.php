@@ -29,6 +29,7 @@ use yii\helpers\Url;
  * @property float $price
  * @property string $update_time
  * @property int $is_default
+ * @property int is_converted
  *
  * @property ClientAccount $clientAccount
  * @property AccountEntry[] $accountEntries
@@ -46,7 +47,7 @@ class Bill extends ActiveRecord
     public function rules()
     {
         return [
-            [['client_account_id', 'is_default'], 'integer'],
+            [['client_account_id', 'is_default', 'is_converted'], 'integer'],
             [['price'], 'double'],
             [['date'], 'string', 'max' => 255],
         ];
@@ -65,7 +66,8 @@ class Bill extends ActiveRecord
      */
     public function getAccountEntries()
     {
-        return $this->hasMany(AccountEntry::className(), ['bill_id' => 'id']);
+        return $this->hasMany(AccountEntry::className(), ['bill_id' => 'id'])
+            ->indexBy('id');
     }
 
     /**

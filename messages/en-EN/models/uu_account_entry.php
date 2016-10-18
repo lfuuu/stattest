@@ -19,6 +19,7 @@ return [
 
     'update_time' => 'Update time',
     'is_default' => 'Monthly',
+    'bill_id' => 'Bill',
 
     '{name} ({descr}). {serviceTypeName}' => '{name} ({descr}). {serviceTypeName}',
 ];

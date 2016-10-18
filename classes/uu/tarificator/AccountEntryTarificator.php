@@ -62,7 +62,7 @@ class AccountEntryTarificator implements TarificatorI
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
             $accountTariffId,
-            $sqlAndWhere = 'AND IF(client_account.is_postpaid > 0, account_log.date_to > NOW(), true)',
+            $sqlAndWhere = '',
             $isDefault = 0
         );
         $this->_tarificate(

@@ -19,6 +19,7 @@ return [
 
     'update_time' => 'Время расчёта',
     'is_default' => 'Ежемесячная',
+    'bill_id' => 'Счёт',
 
     '{name} ({descr}). {serviceTypeName}' => '{name} ({descr}). {serviceTypeName}',
 ];
