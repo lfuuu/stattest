@@ -1,15 +1,15 @@
 <?php
 
-use app\classes\grid\GridView;
 use yii\data\ActiveDataProvider;
 use app\classes\Html;
-use app\models\important_events\ImportantEvents;
-use app\helpers\DateTimeZoneHelper;
+use app\classes\grid\GridView;
+use app\classes\important_events\ImportantEventsDetailsFactory;
 use app\classes\grid\column\important_events\ClientColumn;
 use app\classes\grid\column\important_events\EventNameColumn;
 use app\classes\grid\column\important_events\SourceColumn;
 use app\classes\grid\column\important_events\IpColumn;
 use app\classes\grid\column\universal\TagsColumn;
+use app\models\important_events\ImportantEvents;
 
 /** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
@@ -36,6 +36,7 @@ echo GridView::widget([
             'headerOptions' => ['class' => 'kartik-sheet-style'],
         ],
         [
+            'attribute' => 'client_id',
             'class' => ClientColumn::class,
             'width' => '25%',
         ],
@@ -59,11 +60,7 @@ echo GridView::widget([
                 ],
             ]),
             'value' => function ($model, $key, $index, $column) {
-                return
-                    Yii::$app->formatter->asDateTime(
-                        (new DateTime($model->date))
-                            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::getUserTimeZone()))
-                    );
+                return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('date.formatted');
             },
         ],
         [
@@ -75,7 +72,11 @@ echo GridView::widget([
             'width' => '10%',
         ],
         [
-            'class' => IpColumn::class,
+            'attribute' => 'ip',
+            'format' => 'raw',
+            'value' => function($model, $key, $index, $column) {
+                return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('ip');
+            },
             'width' => '10%',
         ],
         [

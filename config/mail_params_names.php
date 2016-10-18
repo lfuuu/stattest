@@ -1,32 +1,32 @@
 <?php
 
+use app\classes\Html;
+
 return [
-    '{client_id}' => [
+    'client.id' => [
         'method' => 'getClientAccountId',
-        'descr' => 'ID лицевого счета',
+        'descr' => 'ID клиента',
     ],
-    '{balance}' => [
-        'method' => 'getBalance',
-        'descr' => 'Баланса лицевого счета',
-    ],
-    '{lk_link}' => [
-        'method' => 'getLnk',
-        'descr' => 'Ссылка активации контакта в личном кабинете',
-    ],
-    '{day_limit}' => [
+    'client.dayLimit' => [
         'method' => 'getClientAccountDayLimit',
-        'descr' => 'Размер суточного лимита лицевого счета',
+        'descr' =>
+            'Размер суточного лимита лицевого счета ' .
+            Html::tag('label', 'на момент генерации уведомления', ['class' => 'label label-info']),
     ],
-    '{min_day_limit}' => [
+    'client.minDayLimit' => [
         'method' => 'getClientAccountMinDayLimit',
-        'descr' => 'Размер суточного лимита установленного пользователем',
+        'descr' =>
+            'Размер суточного лимита установленного пользователем ' .
+            Html::tag('label', 'на момент генерации уведомления', ['class' => 'label label-info']),
     ],
-    '{currency}' => [
+    'client.balance' => [
+        'method' => 'getBalance',
+        'descr' =>
+            'Баланс лицевого счета ' .
+            Html::tag('label', 'на момент генерации уведомления', ['class' => 'label label-info']),
+    ],
+    'client.currency' => [
         'method' => 'getClientAccountCurrency',
         'descr' => 'Валюта лицевого счета',
-    ],
-    '{pay_sum}' => [
-        'method' => 'getNewPaymentValue',
-        'descr' => 'Сумма платежа',
     ],
 ];

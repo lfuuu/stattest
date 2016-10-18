@@ -1,13 +1,12 @@
 <?php
 
-use app\classes\grid\column\important_events\details\DetailColumnFactory;
 use app\classes\Html;
-use app\widgets\TagsSelect2\TagsSelect2;
+use app\classes\important_events\ImportantEventsDetailsFactory;
 
 /** @var \app\models\important_events\ImportantEvents $model */
 ?>
 
-<?= implode('<br />', (array)DetailColumnFactory::getColumn($model)) ?>
+<?= ImportantEventsDetailsFactory::get($model->event, $model)->getDescription(); ?>
 <br /><br />
 
 <div class="row col-sm-12">

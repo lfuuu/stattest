@@ -3,7 +3,6 @@
 namespace app\controllers\api;
 
 use Yii;
-use yii\db\Query;
 use yii\web\BadRequestHttpException;
 use app\exceptions\FormValidationException;
 use app\classes\validators\AccountIdValidator;
@@ -20,6 +19,7 @@ use app\models\Language;
 
 class MessageController extends ApiController
 {
+
     /**
      * @SWG\Definition(
      *   definition="message",
@@ -57,6 +57,11 @@ class MessageController extends ApiController
      *   )
      * )
      */
+    /**
+     * @return array
+     * @throws FormValidationException
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionList()
     {
         $form = DynamicModel::validateData(
@@ -71,7 +76,7 @@ class MessageController extends ApiController
             $listMessages = [];
             $fromQuery = Message::find()
                 ->where(['account_id' => $form->client_account_id])
-                ->orderBy(['created_at' => $form->order == 'desc' ? SORT_DESC : SORT_ASC])
+                ->orderBy(['created_at' => $form->order === 'desc' ? SORT_DESC : SORT_ASC])
                 ->limit(100)
                 ->all();
             if ($fromQuery) {
@@ -120,6 +125,12 @@ class MessageController extends ApiController
      *   )
      * )
      */
+    /**
+     * @return array|null
+     * @throws FormValidationException
+     * @throws \Exception
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionDetails()
     {
         $form = DynamicModel::validateData(
@@ -138,11 +149,11 @@ class MessageController extends ApiController
             if ($message) {
                 $messageText = $message->text->text;
                 $message = $message->toArray();
-                $message["text"] = $messageText;
+                $message['text'] = $messageText;
 
                 return $message;
             } else {
-                throw new \Exception("Message not found");
+                throw new \Exception('Message not found');
             }
         } else {
             throw new FormValidationException($form);
@@ -173,6 +184,12 @@ class MessageController extends ApiController
      *   )
      * )
      */
+    /**
+     * @return array
+     * @throws FormValidationException
+     * @throws \Exception
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionRead()
     {
         $form = DynamicModel::validateData(
@@ -184,13 +201,14 @@ class MessageController extends ApiController
         );
 
         if (!$form->hasErrors()) {
-            $msg = Message::findOne(['id' => $form->id, 'account_id' => $form->client_account_id]);
-            if ($msg) {
-                if ($msg->is_read == 0) {
-                    $msg->is_read = 1;
-                    $msg->save();
+            /** @var Message $message */
+            $message = Message::findOne(['id' => $form->id, 'account_id' => $form->client_account_id]);
+            if (!is_null($message)) {
+                if ($message->is_read == 0) {
+                    $message->is_read = 1;
+                    $message->save();
                 }
-                return $msg->toArray();
+                return $message->toArray();
             } else {
                 throw new \Exception('Message not found');
             }
@@ -227,6 +245,8 @@ class MessageController extends ApiController
      * @param int $clientAccountId
      * @param string $type
      * @param int|null $eventId
+     * @return array|bool
+     * @throws BadRequestHttpException
      */
     public function actionGetTemplate(
         $eventCode,
@@ -266,12 +286,14 @@ class MessageController extends ApiController
                 case Template::TYPE_EMAIL: {
                     $content = $templateContent->mediaManager->getFile($templateContent, true);
                     if (!empty($content)) {
+                        $render = RenderParams::me();
                         return [
                             'locale' => $templateContent->lang_code,
-                            'subject' => $templateContent->title,
-                            'content' => RenderParams::me()->apply($content['content'], $clientAccountId, $eventId),
+                            'subject' => $render->apply($templateContent->title, $clientAccountId, $eventId),
+                            'content' => $render->apply($content['content'], $clientAccountId, $eventId),
                         ];
                     }
+                    break;
                 }
                 case Template::TYPE_EMAIL_INNER:
                 case Template::TYPE_SMS: {
@@ -282,6 +304,7 @@ class MessageController extends ApiController
                                 $eventId),
                         ];
                     }
+                    break;
                 }
             }
         }
