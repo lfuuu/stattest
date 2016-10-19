@@ -55,11 +55,6 @@ if (!$country->isNewRecord) {
                 <?= $form->field($country, 'code')->textInput(['type' => 'number']) ?>
             </div>
 
-            <?php // название ?>
-            <div class="col-sm-8">
-                <?= $form->field($country, 'name')->textInput() ?>
-            </div>
-
         </div>
 
     <?php endif ?>
@@ -67,17 +62,22 @@ if (!$country->isNewRecord) {
     <div class="row">
 
         <?php // сокращение ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($country, 'alpha_3')->textInput() ?>
         </div>
 
+        <?php // название ?>
+        <div class="col-sm-3">
+            <?= $form->field($country, 'name')->textInput() ?>
+        </div>
+
         <?php // префикс ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($country, 'prefix')->textInput(['type' => 'number']) ?>
         </div>
 
         <?php // URL сайта ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($country, 'site')->textInput() ?>
         </div>
 
@@ -86,19 +86,19 @@ if (!$country->isNewRecord) {
     <div class="row">
 
         <?php // язык ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($country, 'lang')->dropDownList(\app\models\Language::getList()) ?>
         </div>
 
         <?php // валюта ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($country, 'currency_id')->widget(Select2::className(), [
                 'data' => Currency::getList($country->isNewRecord),
             ]) ?>
         </div>
 
         <?php // вкл ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($country, 'in_use')->widget(Select2::className(), [
                 'data' => YesNoTraits::getYesNoList(false),
             ]) ?>

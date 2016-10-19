@@ -89,7 +89,7 @@ if (!$numberRange->isNewRecord) {
         <?php // Дата принятия решения о выделении диапазона ?>
         <div class="col-sm-2">
             <label><?= $numberRange->getAttributeLabel('date_resolution') ?></label>
-            <div><?= $numberRange->date_stop ? Yii::$app->formatter->asDate($numberRange->date_resolution, 'medium') : '' ?></div>
+            <div><?= $numberRange->date_resolution ? Yii::$app->formatter->asDate($numberRange->date_resolution, 'medium') : '' ?></div>
         </div>
 
         <?php // Комментарий или номер решения о выделении диапазона ?>

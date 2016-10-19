@@ -20,8 +20,15 @@ class Country extends ActiveRecord
     const HUNGARY = 348;
     const GERMANY = 276;
     const SLOVAKIA = 703;
+    const AUSTRIA = 40;
+    const CZECH = 203;
 
     const PREFIX_RUSSIA = 7;
+    const PREFIX_HUNGARY = 36;
+    const PREFIX_GERMANY = 49;
+    const PREFIX_SLOVAKIA = 421;
+    const PREFIX_AUSTRIA = 43;
+    const PREFIX_CZECH = 420;
 
     /**
      * Вернуть имена полей
