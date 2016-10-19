@@ -11,7 +11,6 @@ use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\Number;
 use app\models\NumberLog;
-use app\models\TariffVoip;
 use app\models\UsageVoip;
 use DateTime;
 use DateTimeZone;
@@ -28,7 +27,7 @@ class NumberDao extends Singleton
 
     public function startReserve(\app\models\Number $number, ClientAccount $clientAccount = null, DateTime $stopDate = null)
     {
-        Assert::isEqual($number->status, Number::STATUS_INSTOCK);
+        Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_NOTSALE]);
 
         $utc = new DateTimeZone('UTC');
 
@@ -84,6 +83,11 @@ class NumberDao extends Singleton
     public function stopActive(\app\models\Number $number)
     {
         if (!in_array($number->status, Number::$statusGroup[Number::STATUS_GROUP_ACTIVE])) {
+            return;
+        }
+
+        if ($number->is_ported) {
+            Number::dao()->toRelease($number);
             return;
         }
 

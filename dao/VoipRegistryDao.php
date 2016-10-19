@@ -1,8 +1,10 @@
 <?php
 namespace app\dao;
 
+use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
 use app\models\DidGroup;
 use app\models\Number;
 use app\models\NumberLog;
@@ -97,7 +99,18 @@ class VoipRegistryDao extends Singleton
             return true;
         }
 
-        $this->didGroups = DidGroup::find()->where(['city_id' => $registry->city_id])->indexBy('beauty_level')->all();
+        $didGroups = DidGroup::find()
+            ->where([
+                'city_id' => $registry->city_id
+            ]);
+
+        if ($registry->isSourcePotability()) {
+            $didGroups->andWhere(['beauty_level' => DidGroup::BEAUTY_LEVEL_STANDART]);
+        }
+
+        $this->didGroups = $didGroups
+            ->indexBy('beauty_level')
+            ->all();
 
         if (!$this->didGroups) {
             throw new InvalidConfigException('Не найдены DID-группы для города id:' . $registry->city_id);
@@ -115,7 +128,12 @@ class VoipRegistryDao extends Singleton
     }
 
     private function addNumber(Registry $registry, $addNumber) {
-        $beautyLevel = NumberBeautyDao::getNumberBeautyLvl($addNumber);
+
+        if ($registry->isSourcePotability()) {
+            $beautyLevel = DidGroup::BEAUTY_LEVEL_STANDART;
+        } else {
+            $beautyLevel = NumberBeautyDao::getNumberBeautyLvl($addNumber);
+        }
 
         if (!isset($this->didGroups[$beautyLevel])) {
             throw new InvalidConfigException('Для номера ' .$addNumber . ' с красотой: "' . DidGroup::$beautyLevelNames[$beautyLevel] . '" не найдена DID-группа');
@@ -139,10 +157,17 @@ class VoipRegistryDao extends Singleton
         $number->operator_account_id = $registry->account_id;
         $number->country_code = $registry->city->country->code;
         $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $number->is_ported = (int)$registry->isSourcePotability();
+
 
         $number->save();
 
         Number::dao()->log($number, NumberLog::ACTION_CREATE, "Y");
+
+        if ($registry->isSourcePotability()) {
+            Number::dao()->startReserve($number, ClientAccount::findOne(['id' => $registry->account_id]));
+        }
+
         $transaction->commit();
     }
 

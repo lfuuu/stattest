@@ -3,6 +3,7 @@ namespace app\models\voip;
 
 use app\classes\behaviors\CreatedAt;
 use app\classes\behaviors\HistoryChanges;
+use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\model\HistoryActiveRecord;
 use app\dao\VoipRegistryDao;
 use app\models\City;
@@ -20,7 +21,7 @@ use yii\db\ActiveRecord;
  * @property string number_to
  * @property integer account_id
  * @property string created_at
- * @property string status
+ * @property string comment
  * @property City city
  *
  * @package app\models\voip
@@ -117,5 +118,15 @@ class Registry extends HistoryActiveRecord
     public function toSale()
     {
         return self::dao()->toSale($this);
+    }
+
+    /**
+     * Это реестр портированных номеров?
+     *
+     * @return bool
+     */
+    public function isSourcePotability()
+    {
+        return $this->source == VoipRegistrySourceEnum::PORTABILITY;
     }
 }
