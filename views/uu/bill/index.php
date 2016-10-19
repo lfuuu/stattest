@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\MonthColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\BillFilter;
@@ -38,10 +39,19 @@ use yii\widgets\Breadcrumbs;
             'class' => IntegerColumn::className(),
         ],
         [
+            'attribute' => 'is_default',
+            'class' => YesNoColumn::className(),
+        ],
+        [
+            'attribute' => 'is_converted',
+            'class' => YesNoColumn::className(),
+        ],
+        [
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (Bill $bill) {
-                return datefmt_format_object(new DateTime($bill->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
+                $format = $bill->is_default ? 'LLL Y' : 'd LLL Y';
+                return datefmt_format_object(new DateTime($bill->date), $format, Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
             }
         ],
         [
@@ -57,7 +67,7 @@ use yii\widgets\Breadcrumbs;
             'class' => IntegerRangeColumn::className(),
         ],
         [
-            'label' => 'Проводки, у.е.',
+            'label' => 'Проводки, ¤',
             'format' => 'raw',
             'contentOptions' => [
                 'class' => 'text-nowrap',

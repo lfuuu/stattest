@@ -51,6 +51,9 @@ class UbillerController extends Controller
         // счета
         $this->actionBill();
 
+        // Конвертировать счета в старую бухгалтерию
+        $this->actionBillConverter();
+
         // пересчитать realtimeBalance
         $this->actionRealtimeBalance();
 
@@ -129,7 +132,8 @@ class UbillerController extends Controller
     /**
      * Создать проводки. hot 1 секунда / cold 5 сек
      * На основе новых транзакций создать новые проводки или добавить в существующие
-     * Проводка - группировка всех транзакций по календарному месяцу по каждой услуге
+     * Проводка не-is_default - группировка всех транзакций по календарному дню по подключению и абонентке. Только для внеплановых счетов на доплату
+     * Проводка is_default - группировка всех транзакций по календарному месяцу по каждой услуге
      */
     public function actionEntry()
     {
@@ -137,16 +141,23 @@ class UbillerController extends Controller
     }
 
     /**
-     * Создать счета-фактуры. hot 1 секунда / cold 5 сек
+     * Создать счета. hot 1 секунда / cold 5 сек
      * На основе новых проводок создать новые счета-фактуры или добавить в существующие
-     * Счет-фактура - группировка всех проводок по календарному месяцу. Сколько услуг у клиента - столько проводок будет в счете
-     * Счет-фактура у каждого клиента всегда только 1 за месяц
+     * Счет не-is_default - группировка всех проводок по календарному дню по подключению и абонентке. Только для внеплановых счетов на доплату
+     * Счет is_default - группировка всех проводок по календарному месяцу по каждой услуге
      */
     public function actionBill()
     {
         $this->_tarificate('BillTarificator', 'Счета');
     }
 
+    /**
+     * Конвертировать счета в старую бухгалтерию. hot 1 секунда / cold 10 мин
+     */
+    public function actionBillConverter()
+    {
+        $this->_tarificate('BillConverterTarificator', 'Конвертировать счета в старую бухгалтерию');
+    }
 
     /**
      * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog. 10 секунд
@@ -179,8 +190,7 @@ class UbillerController extends Controller
      */
     public function actionAutoCloseAccountTariff()
     {
-        $this->_tarificate('AutoCloseAccountTariffTarificator',
-            'Автоматически закрыть услугу по истечению тестового периода');
+        $this->_tarificate('AutoCloseAccountTariffTarificator', 'Автоматически закрыть услугу по истечению тестового периода');
     }
 
     /**
@@ -189,8 +199,7 @@ class UbillerController extends Controller
      */
     public function actionFreePeriodInFinanceBlock()
     {
-        $this->_tarificate('FreePeriodInFinanceBlockTarificator',
-            'Не списывать абонентку и минималку при финансовой блокировке');
+        $this->_tarificate('FreePeriodInFinanceBlockTarificator', 'Не списывать абонентку и минималку при финансовой блокировке');
     }
 
     /**
@@ -258,28 +267,6 @@ class UbillerController extends Controller
     {
         Bill::deleteAll();
         echo '. ' . PHP_EOL;
-    }
-
-    /**
-     * перенос проводок в неуниверсальные счета
-     * @param int|null $clientAccountId
-     */
-    public function actionTransferBills($clientAccountId = null)
-    {
-        $clientAccountsQuery = ClientAccount::find()->where(['is_active' => 1]);
-        if ($clientAccountId) {
-            $clientAccountsQuery->andWhere(['id' => $clientAccountId]);
-        }
-        $clientAccounts = $clientAccountsQuery->all();
-
-        foreach ($clientAccounts as $clientAccount) {
-            echo PHP_EOL . 'client: ' . $clientAccount->id;
-
-            stdBill::dao()->transferUniversalBillsToBills($clientAccount);
-        }
-
-        echo PHP_EOL . 'done.';
-        return Controller::EXIT_CODE_NORMAL;
     }
 
     /**

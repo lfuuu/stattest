@@ -7,6 +7,7 @@ use app\classes\uu\tarificator\AccountEntryTarificator;
 use app\classes\uu\tarificator\AccountLogMinTarificator;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
 use app\classes\uu\tarificator\AccountLogSetupTarificator;
+use app\classes\uu\tarificator\BillConverterTarificator;
 use app\classes\uu\tarificator\BillTarificator;
 use app\classes\uu\tarificator\RealtimeBalanceTarificator;
 use app\classes\uu\tarificator\SetCurrentTariffTarificator;
@@ -76,6 +77,9 @@ class AccountTariffBiller extends Behavior
 
         Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
         (new BillTarificator)->tarificate($accountTariffId);
+
+        Yii::info('AccountTariffBiller. Before BillConverterTarificator', 'uu');
+        (new BillConverterTarificator)->tarificate($accountClientId);
 
         Yii::info('AccountTariffBiller. Before RealtimeBalanceTarificator', 'uu');
         (new RealtimeBalanceTarificator)->tarificate($accountClientId);

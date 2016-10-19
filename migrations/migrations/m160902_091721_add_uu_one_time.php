@@ -32,7 +32,7 @@ class m160902_091721_add_uu_one_time extends \app\classes\Migration
             'min_value' => 0,
             'max_value' => null,
             'service_type_id' => ServiceType::ID_ONE_TIME,
-            'unit' => 'у.е.',
+            'unit' => '¤',
         ]);
 
         $this->addTariff('Разовая услуга', Country::RUSSIA, Currency::RUB);

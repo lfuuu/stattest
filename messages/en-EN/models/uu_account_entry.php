@@ -18,6 +18,8 @@ return [
     'price_with_vat' => 'Cost with VAT',
 
     'update_time' => 'Update time',
+    'is_default' => 'Monthly',
+    'bill_id' => 'Bill',
 
     '{name} ({descr}). {serviceTypeName}' => '{name} ({descr}). {serviceTypeName}',
 ];

@@ -13,6 +13,7 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\AccountEntryFilter;
@@ -47,10 +48,15 @@ $accountTariffTableName = AccountTariff::tableName();
             'class' => IntegerColumn::className(),
         ],
         [
+            'attribute' => 'is_default',
+            'class' => YesNoColumn::className(),
+        ],
+        [
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (AccountEntry $accountEntry) {
-                return datefmt_format_object(new DateTime($accountEntry->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
+                $format = $accountEntry->is_default ? 'LLL Y' : 'd LLL Y';
+                return datefmt_format_object(new DateTime($accountEntry->date), $format, Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
             },
         ],
         [
@@ -111,7 +117,7 @@ $accountTariffTableName = AccountTariff::tableName();
             'class' => FloatRangeColumn::className(),
         ],
         [
-            'label' => 'Транзакции, у.е.',
+            'label' => 'Транзакции, ¤',
             'format' => 'raw',
             'contentOptions' => [
                 'class' => 'text-nowrap',

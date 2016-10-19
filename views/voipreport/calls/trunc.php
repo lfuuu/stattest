@@ -122,7 +122,7 @@ $columns = [
         'format' => ['decimal', 4],
     ],
     [
-        'label' => 'Цена минуты с интерконнектом, у.е.',
+        'label' => 'Цена минуты с интерконнектом, ¤',
         'format' => ['decimal', 4],
         'value' => function (Calls $calls) {
             return $calls->rate + $calls->interconnect_rate;
@@ -139,7 +139,7 @@ $columns = [
         'format' => ['decimal', 4],
     ],
     [
-        'label' => 'Стоимость с интерконнектом, у.е.',
+        'label' => 'Стоимость с интерконнектом, ¤',
         'format' => ['decimal', 4],
         'value' => function (Calls $calls) {
             return $calls->cost + $calls->interconnect_cost;

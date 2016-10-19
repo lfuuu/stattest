@@ -141,8 +141,13 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        $currentDateTimeUtc = $this->accountTariff
-            ->clientAccount
+        $clientAccount = $this->accountTariff->clientAccount;
+        if (!$clientAccount) {
+            $this->addError($attribute, 'Аккаунт не указан.');
+            return;
+        }
+
+        $currentDateTimeUtc = $clientAccount
             ->getDatetimeWithTimezone()
             ->setTime(0, 0, 0)
             ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))

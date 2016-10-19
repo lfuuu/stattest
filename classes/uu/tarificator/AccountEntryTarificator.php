@@ -3,7 +3,6 @@
 namespace app\classes\uu\tarificator;
 
 use app\classes\Connection;
-use app\classes\Event;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
@@ -22,6 +21,18 @@ use yii\db\Expression;
 
 /**
  * Расчет для бухгалтерской проводки (AccountEntry)
+ *
+ * @link http://bugtracker.welltime.ru/jira/browse/BIL-1909
+ * Счет на postpaid никогда не создается
+ * При подключении новой услуги prepaid сразу же создается счет на эту услугу. Если в течение календарных суток подключается вторая услуга, то она добавляется в первый счет.
+ *      Если в новые календарные сутки - создается новый счет. В этот счет идет подключение подключение и абонентка. Ресурсы и минималка никогда сюда не попадают.
+ * 1го числа каждого месяца создается новый счет за все prepaid абонентки, не вошедшие в отдельные счета (то есть абонентки автопродлеваемых услуг), все ресурсы и минималки.
+ *      Подключение в этот счет не должно попасть.
+ * Из любого счета всегда исключаются строки с нулевой стоимостью. Если в счете нет ни одной строки - он автоматически удаляется.
+ *
+ * Иными словами можно сказать:
+ * проводки за подключение группируются посуточно и на их основе создаются счета. В эти же счета добавляются проводки за абонентку от этих же услуг за эту же дату
+ * все остальные проводки группируются помесячно и на их основе создаются счета.
  */
 class AccountEntryTarificator implements TarificatorI
 {
@@ -38,17 +49,29 @@ class AccountEntryTarificator implements TarificatorI
             AccountLogSetup::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_SETUP),
             'date',
-            $accountTariffId
+            $accountTariffId,
+            $sqlAndWhere = '',
+            $isDefault = 0
         );
 
         // проводки за абоненскую плату
+        // сначала с !$isDefault, потом с $isDefault
         echo PHP_EOL . 'Проводки за абоненскую плату';
         $this->_tarificate(
             AccountLogPeriod::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
             $accountTariffId,
-            $sqlAndWhere = 'AND IF(client_account.is_postpaid > 0, account_log.date_to > NOW(), true)'
+            $sqlAndWhere = '',
+            $isDefault = 0
+        );
+        $this->_tarificate(
+            AccountLogPeriod::tableName(),
+            new Expression((string)AccountEntry::TYPE_ID_PERIOD),
+            'date_from',
+            $accountTariffId,
+            $sqlAndWhere = 'AND IF(client_account.is_postpaid > 0, account_log.date_to > NOW(), true)',
+            $isDefault = 1
         );
 
         // проводки за ресурсы
@@ -57,7 +80,9 @@ class AccountEntryTarificator implements TarificatorI
             AccountLogResource::tableName(),
             'tariff_resource_id',
             'date',
-            $accountTariffId
+            $accountTariffId,
+            $sqlAndWhere = '',
+            $isDefault = 1
         );
 
         // проводки за минимальную плату
@@ -67,7 +92,8 @@ class AccountEntryTarificator implements TarificatorI
             new Expression((string)AccountEntry::TYPE_ID_MIN),
             'date_to',
             $accountTariffId,
-            $sqlAndWhere = 'AND account_log.date_to > NOW()'
+            $sqlAndWhere = 'AND account_log.date_to > NOW()',
+            $isDefault = 1
         );
 
         // Расчёт НДС
@@ -85,9 +111,13 @@ class AccountEntryTarificator implements TarificatorI
      * @param string $dateFieldName
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @param string $sqlAndWhere
+     * @param int $isDefault
+     * @param string $sqlAndWhere
      */
-    private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId, $sqlAndWhere = '')
+    private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId, $sqlAndWhere, $isDefault)
     {
+        $dateFormat = $isDefault ? '%Y-%m-01' : '%Y-%m-%d';
+
         /** @var Connection $db */
         $db = Yii::$app->db;
         $accountEntryTableName = AccountEntry::tableName();
@@ -101,15 +131,19 @@ class AccountEntryTarificator implements TarificatorI
         }
 
         // создать пустые проводки
+        // проводки за подключение датируются своей датой
+        //      за абонентку - если есть проводки за подключение, то своей датой. Иначе 01
+        //      за ресурсы и минималку - 01
         echo '. ';
         $insertSQL = <<<SQL
             INSERT INTO {$accountEntryTableName}
-            (date, account_tariff_id, type_id, price)
+            (date, account_tariff_id, type_id, price, is_default)
                 SELECT DISTINCT
-                    DATE_FORMAT(account_log.`{$dateFieldName}`, "%Y-%m-01"),
+                    DATE_FORMAT(account_log.`{$dateFieldName}`, "{$dateFormat}"),
                     account_log.account_tariff_id,
                     {$typeId},
-                    0
+                    0,
+                    {$isDefault}
                 FROM
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
@@ -125,6 +159,35 @@ SQL;
             ->execute();
         unset($insertSQL);
 
+        if (!$isDefault && $accountLogTableName == AccountLogPeriod::tableName()) {
+            // костыль для абонентки
+            // если есть соотвествующая проводка за подключение, то должна быть и за абонентку.
+            // а все остальные абонентки включать в базовую (isDefault) проводку
+            // поэтому создаем проводки для всех абоненток, а потом удаляем ненужные (для которых нет соотвествующих проводок за подключение). Это гораздо проще, чем сразу создавать только нужные
+            $accountEntryTypeIdSetup = AccountEntry::TYPE_ID_SETUP;
+            $accountEntryTypeIdPeriod = AccountEntry::TYPE_ID_PERIOD;
+            $deleteSQL = <<<SQL
+            DELETE
+                account_entry_period
+            FROM
+                {$accountEntryTableName} account_entry_period
+            LEFT JOIN
+                {$accountEntryTableName} account_entry_setup
+                ON account_entry_setup.type_id = {$accountEntryTypeIdSetup}
+                AND account_entry_setup.is_default = 0
+                AND account_entry_setup.date = account_entry_period.date
+                AND account_entry_setup.account_tariff_id = account_entry_period.account_tariff_id
+            WHERE
+                account_entry_period.type_id = {$accountEntryTypeIdPeriod}
+                AND account_entry_period.is_default = 0
+                AND account_entry_setup.id IS NULL
+SQL;
+            $db->createCommand($deleteSQL, $sqlParams)
+                ->execute();
+            unset($deleteSQL);
+
+        }
+
         // привязать транзакции к проводкам
         echo '. ';
         $updateSql = <<<SQL
@@ -137,7 +200,8 @@ SQL;
                 account_log.account_entry_id = account_entry.id
             WHERE
                 account_log.account_entry_id IS NULL
-                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldName}`, "%Y-%m-01")
+                AND account_entry.is_default = {$isDefault}
+                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldName}`, "{$dateFormat}")
                 AND account_entry.type_id = {$typeId}
                 AND account_entry.account_tariff_id = account_log.account_tariff_id
                 AND account_log.account_tariff_id = account_tariff.id
