@@ -1,13 +1,13 @@
 <?php
 
 use yii\data\ActiveDataProvider;
+use app\helpers\DateTimeZoneHelper;
 use app\classes\Html;
 use app\classes\grid\GridView;
 use app\classes\important_events\ImportantEventsDetailsFactory;
 use app\classes\grid\column\important_events\ClientColumn;
 use app\classes\grid\column\important_events\EventNameColumn;
 use app\classes\grid\column\important_events\SourceColumn;
-use app\classes\grid\column\important_events\IpColumn;
 use app\classes\grid\column\universal\TagsColumn;
 use app\models\important_events\ImportantEvents;
 
