@@ -55,7 +55,7 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
                 $description[] =
                     Html::tag(
                         'div',
-                        $usage->id . ': ' . reset($usage->helper->description),
+                        Html::tag('small', $usage->id) . ': ' . reset($usage->helper->description),
                         ['style' => 'margin-left: 10px;']
                     );
             }

@@ -44,7 +44,7 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
                 $description =
                     Html::tag(
                         'div',
-                        $number7800->id . ': ' . reset($number7800->helper->description),
+                        Html::tag('small', $number7800->id) . ': ' . reset($number7800->helper->description),
                         ['style' => 'margin-left: 10px;']
                     );
             }

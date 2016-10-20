@@ -51,7 +51,7 @@ echo Breadcrumbs::widget([
                                             Html::beginTag('div', ['class' => 'checkbox']) .
                                                 Html::beginTag('label') .
                                                     Html::checkbox($name, $checked, ['value' => $value]) .
-                                                    $value . ': ' . $fulltext .
+                                                    Html::a(Html::tag('small', $value) . ': ' . $fulltext, $label->editLink,['target' => '_blank']) .
                                                     (
                                                         !empty($description)
                                                             ? Html::tag('div', $description, ['class' => 'help-block'])
@@ -66,6 +66,14 @@ echo Breadcrumbs::widget([
                         ?>
                     </fieldset>
                 <?php endforeach; ?>
+
+                <?php if (!count($model->availableUsages)): ?>
+                    <div class="row" style="margin: 10px;">
+                        <div class="col-sm-12 label label-danger">
+                            Услуг для переноса не найдено
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
             <div class="col-sm-4">
                 <?= $form
@@ -125,6 +133,7 @@ echo Breadcrumbs::widget([
             'params' => [
                 'class' => 'btn btn-primary',
                 'id' => 'transfer-btn',
+                'disabled' => (!count($model->availableUsages) ? 'disabled' : ''),
             ]
         ]) ?>
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
