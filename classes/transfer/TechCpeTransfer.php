@@ -3,8 +3,11 @@
 namespace app\classes\transfer;
 
 use Yii;
+use yii\db\ActiveRecord;
 use app\classes\Assert;
 use yii\base\InvalidValueException;
+use app\models\ClientAccount;
+use app\models\UsageTechCpe;
 
 /**
  * Класс переноса устройств
@@ -14,8 +17,27 @@ class TechCpeTransfer extends ServiceTransfer
 {
 
     /**
-     * Перенос базовой сущности услуги
-     * @return object - созданная услуга
+     * Список услуг доступных для переноса
+     *
+     * @param ClientAccount $clientAccount
+     * @return UsageTechCpe[]
+     */
+    public function getPossibleToTransfer(ClientAccount $clientAccount)
+    {
+        return
+            UsageTechCpe::find()
+                ->client($clientAccount->client)
+                ->actual()
+                ->andWhere(['next_usage_id' => 0])
+                ->andWhere(['id_service' => 0])
+                ->all();
+    }
+
+    /**
+     * Процесс переноса услуги
+     *
+     * @return ActiveRecord
+     * @throws \Exception
      */
     public function process()
     {
@@ -25,6 +47,7 @@ class TechCpeTransfer extends ServiceTransfer
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
+            /** @var ActiveRecord $targetService */
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
             unset($targetService->id);
@@ -49,8 +72,10 @@ class TechCpeTransfer extends ServiceTransfer
     }
 
     /**
-     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
-     * @throws Exception
+     * Процесс отмены переноса услуги
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     public function fallback()
     {
@@ -60,6 +85,7 @@ class TechCpeTransfer extends ServiceTransfer
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
+            /** @var ActiveRecord $movedService */
             $movedService = new $this->service;
             $movedService = $movedService->findOne($this->service->next_usage_id);
             Assert::isObject($movedService);

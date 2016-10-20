@@ -2,27 +2,39 @@
 
 namespace app\classes\transfer;
 
-use app\helpers\DateTimeZoneHelper;
 use Yii;
+use app\helpers\DateTimeZoneHelper;
 use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\UsageIpRoutes;
 use app\models\UsageTechCpe;
+use app\models\UsageIpPorts;
+use yii\db\ActiveRecord;
 
-/**
- * Класс переноса услуг типа "IP Port"
- * @package app\classes\transfer
- */
 class IpPortsServiceTransfer extends ServiceTransfer
 {
-    /*
-    --  select * from usage_ip_ppp ?
-    */
 
     /**
-     * Перенос базовой сущности услуги
-     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
-     * @return object - созданная услуга
+     * Список услуг доступных для переноса
+     *
+     * @param ClientAccount $clientAccount
+     * @return UsageIpPorts[]
+     */
+    public function getPossibleToTransfer(ClientAccount $clientAccount)
+    {
+        return
+            UsageIpPorts::find()
+                ->client($clientAccount->client)
+                ->actual()
+                ->andWhere(['next_usage_id' => 0])
+                ->all();
+    }
+
+    /**
+     * Процесс переноса услуги
+     *
+     * @return ActiveRecord
+     * @throws \Exception
      */
     public function process()
     {
@@ -36,7 +48,10 @@ class IpPortsServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     * Процесс отмены переноса услуги
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     public function fallback()
     {
@@ -49,7 +64,10 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
     /**
      * Перенос связанных с услугой сетей
-     * @param object $targetService - базовая услуга
+     *
+     * @param ActiveRecord $targetService
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     private function processRoutes($targetService)
     {
@@ -63,6 +81,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
         foreach ($routes as $route) {
             $dbTransaction = Yii::$app->db->beginTransaction();
             try {
+                /** @var ActiveRecord $targetRoute */
                 $targetRoute = new $route;
                 $targetRoute->setAttributes($route->getAttributes(), false);
                 unset($targetRoute->id);
@@ -87,6 +106,9 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
     /**
      * Отмена переноса связанных с услугой сетей
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     private function fallbackRoutes()
     {
@@ -118,7 +140,10 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
     /**
      * Перенос связанных с услугой устройств
-     * @param object $targetService - базовая услуга
+     *
+     * @param ActiveRecord $targetService
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     private function processDevices($targetService)
     {
@@ -133,6 +158,7 @@ class IpPortsServiceTransfer extends ServiceTransfer
         foreach ($devices as $device) {
             $dbTransaction = Yii::$app->db->beginTransaction();
             try {
+                /** @var ActiveRecord $targetDevice */
                 $targetDevice = new $device;
                 $targetDevice->setAttributes($device->getAttributes(), false);
                 unset($targetDevice->id);
@@ -155,6 +181,9 @@ class IpPortsServiceTransfer extends ServiceTransfer
 
     /**
      * Отмена переноса связанных с услугой устройств
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     private function fallbackDevices()
     {

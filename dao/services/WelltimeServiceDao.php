@@ -4,12 +4,13 @@ namespace app\dao\services;
 
 use Yii;
 use app\classes\Singleton;
-use app\models\UsageWelltime;
-use app\models\ClientAccount;
 
-class WelltimeServiceDao extends Singleton implements ServiceDao
+class WelltimeServiceDao extends Singleton
 {
 
+    /**
+     * @return array
+     */
     public function getAll()
     {
         return
@@ -28,6 +29,10 @@ class WelltimeServiceDao extends Singleton implements ServiceDao
             ")->queryAll();
     }
 
+    /**
+     * @param string $client
+     * @return array
+     */
     public function getAllForClient($client)
     {
         return
@@ -42,18 +47,6 @@ class WelltimeServiceDao extends Singleton implements ServiceDao
                 WHERE
                     s.`client` = '" . $client . "'
             ")->queryAll();
-    }
-
-    public function getPossibleToTransfer(ClientAccount $client)
-    {
-        $now = new \DateTime();
-
-        return
-            UsageWelltime::find()
-                ->client($client->client)
-                ->actual()
-                ->andWhere(['next_usage_id' => 0])
-                ->all();
     }
 
 }

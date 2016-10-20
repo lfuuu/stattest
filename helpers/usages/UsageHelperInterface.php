@@ -2,6 +2,8 @@
 
 namespace app\helpers\usages;
 
+use app\models\ClientAccount;
+use app\models\usages\UsageInterface;
 use yii\db\ActiveRecord;
 
 /**
@@ -17,13 +19,15 @@ interface UsageHelperInterface
 
     /**
      * Получение названия услуги
+     *
      * @return string
      */
     public function getTitle();
 
     /**
      * Получение описания услуги (название / тариф etc)
-     * @return mixed
+     *
+     * @return array
      */
     public function getDescription();
 
@@ -43,7 +47,7 @@ interface UsageHelperInterface
     /**
      * Получение услуги с которой был осуществлен перенос
      *
-     * @return ActiveRecord
+     * @return UsageInterface
      */
     public function getTransferedFrom();
 

@@ -25,6 +25,9 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
 
     public $actual5d;
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -33,6 +36,9 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_ip_ports';
@@ -51,11 +57,19 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
         ]);
     }
 
+    /**
+     * @return IpPortsServiceDao
+     */
     public static function dao()
     {
         return IpPortsServiceDao::me();
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return IpPortBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new IpPortBiller($this, $date, $clientAccount);
@@ -75,26 +89,41 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
         return TariffInternet::findOne($logTariff->id_tarif);
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_IPPORT;
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @return Region
+     */
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
     }
 
+    /**
+     * @return TechPort
+     */
     public function getPort()
     {
         return $this->hasOne(TechPort::className(), ['id' => 'port_id']);
     }
 
+    /**
+     * @return \app\models\UsageTechCpe[]
+     */
     public function getCpeList()
     {
         return UsageTechCpe::find()->where([
@@ -103,6 +132,9 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
         ])->all();
     }
 
+    /**
+     * @return UsageIpRoutes[]
+     */
     public function getNetList()
     {
         return UsageIpRoutes::find()
@@ -114,7 +146,7 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
      * @param $usage
      * @return IpPortsServiceTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new IpPortsServiceTransfer($usage);
     }
@@ -127,6 +159,9 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
         return new UsageIpPortsHelper($this);
     }
 
+    /**
+     * @return array
+     */
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoLogTariff(self::className());

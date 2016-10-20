@@ -14,6 +14,9 @@ use app\helpers\usages\UsageTechCpeHelper;
 class UsageTechCpe extends ActiveRecord
 {
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -21,6 +24,9 @@ class UsageTechCpe extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_tech_cpe';
@@ -34,6 +40,9 @@ class UsageTechCpe extends ActiveRecord
         return new UsageTechCpeQuery(get_called_class());
     }
 
+    /**
+     * @return TechCpeModel
+     */
     public function getModel()
     {
         return $this->hasOne(TechCpeModel::className(), ['id' => 'id_model']);
@@ -48,7 +57,7 @@ class UsageTechCpe extends ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ClientAccount
      */
     public function getClientAccount()
     {
@@ -59,7 +68,7 @@ class UsageTechCpe extends ActiveRecord
      * @param $usage
      * @return TechCpeTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new TechCpeTransfer($usage);
     }

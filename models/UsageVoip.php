@@ -64,7 +64,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     ];
 
     /**
-     * @return []
+     * @return array
      */
     public function behaviors()
     {
@@ -135,7 +135,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ClientAccount
      */
     public function getClientAccount()
     {
@@ -143,7 +143,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return Region
      */
     public function getConnectionPoint()
     {
@@ -167,7 +167,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return Number
      */
     public function getVoipNumber()
     {
@@ -175,7 +175,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return Datacenter
      */
     public function getDatacenter()
     {
@@ -183,7 +183,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return Region
      */
     public function getRegionName()
     {
@@ -191,7 +191,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return self
      */
     public function getLine7800()
     {
@@ -199,7 +199,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \app\queries\UsageQuery
+     * @return UsageVoipPackage
      */
     public function getPackages()
     {
@@ -210,7 +210,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      * @param $usage
      * @return VoipServiceTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new VoipServiceTransfer($usage);
     }

@@ -8,18 +8,8 @@ use app\models\TariffVirtpbx;
 use app\models\ClientAccount;
 use app\models\UsageVirtpbx;
 
-class VirtpbxServiceDao extends Singleton implements ServiceDao
+class VirtpbxServiceDao extends Singleton
 {
-
-    public function getPossibleToTransfer(ClientAccount $client)
-    {
-        return
-            UsageVirtpbx::find()
-                ->client($client->client)
-                ->actual()
-                ->andWhere(['next_usage_id' => 0])
-                ->all();
-    }
 
     public function getTariffsList(ClientAccount $client)
     {

@@ -19,6 +19,9 @@ use app\models\usages\UsageInterface;
 class UsageExtra extends ActiveRecord implements UsageInterface
 {
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -27,41 +30,67 @@ class UsageExtra extends ActiveRecord implements UsageInterface
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_extra';
     }
 
+    /**
+     * @return UsageQuery
+     */
     public static function find()
     {
         return new UsageQuery(get_called_class());
     }
 
+    /**
+     * @return ExtraServiceDao
+     */
     public static function dao()
     {
         return ExtraServiceDao::me();
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return ExtraBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new ExtraBiller($this, $date, $clientAccount);
     }
 
+    /**
+     * @return TariffExtra
+     */
     public function getTariff()
     {
         return $this->hasOne(TariffExtra::className(), ['id' => 'tarif_id']);
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_EXTRA;
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @return Region
+     */
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
@@ -71,7 +100,7 @@ class UsageExtra extends ActiveRecord implements UsageInterface
      * @param $usage
      * @return ExtraServiceTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new ExtraServiceTransfer($usage);
     }
@@ -84,6 +113,9 @@ class UsageExtra extends ActiveRecord implements UsageInterface
         return new UsageExtraHelper($this);
     }
 
+    /**
+     * @return array
+     */
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoTariffTable(self::className(), TariffExtra::tableName());

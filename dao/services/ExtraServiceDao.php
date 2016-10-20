@@ -4,12 +4,14 @@ namespace app\dao\services;
 
 use Yii;
 use app\classes\Singleton;
-use app\models\ClientAccount;
-use app\models\UsageExtra;
 
-class ExtraServiceDao extends Singleton implements ServiceDao
+class ExtraServiceDao extends Singleton
 {
 
+    /**
+     * @param string $client
+     * @return array
+     */
     public function getAllForClient($client)
     {
         return
@@ -28,21 +30,6 @@ class ExtraServiceDao extends Singleton implements ServiceDao
                     where
                         s.`client` = '" . $client . "'
             ")->queryAll();
-    }
-
-    public function getPossibleToTransfer(ClientAccount $client)
-    {
-        $now = new \DateTime();
-
-        return
-            UsageExtra::find()
-                ->innerJoinWith('tariff', false)
-                ->client($client->client)
-                ->actual()
-                ->andWhere(['next_usage_id' => 0])
-                ->andWhere(['tarifs_extra.status' => ['public', 'special', 'archive']])
-                ->andWhere(['not in', 'tarifs_extra.code', ['welltime', 'wellsystem']])
-                ->all();
     }
 
 }

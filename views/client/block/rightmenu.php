@@ -13,7 +13,7 @@
             <a href="?module=tt&action=view_type&type_pk=1&show_add_form=true">Создать трабл</a>
         </li>
         <li style="background: url('/images/icons/edit.gif') no-repeat 0px 6px;">
-            <a href="/transfer/index/?client=<?= $account->id ?>" onclick="return showIframePopup(this)">Перенос услуг</a>
+            <a href="/transfer/index/?client=<?= $account->id ?>">Перенос услуг</a>
         </li>
         <li style="background: url('/images/icons/add.gif') no-repeat 0px 6px;">
             <a href="?module=newaccounts&action=make_1c_bill&tty=mounting_orders">Установка/Монтаж</a>

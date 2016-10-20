@@ -2,13 +2,13 @@
 
 namespace app\helpers\usages;
 
+use app\classes\uu\model\Tariff;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\classes\Html;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
-use app\models\UsageVirtpbx;
 
 class UsageVoipHelper extends Object implements UsageHelperInterface
 {
@@ -38,19 +38,15 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
         $description = '';
         $checkboxOptions = [];
 
-        $numbers = $this->usage->clientAccount->voipNumbers;
-        if (isset($numbers[$this->usage->E164]) && $numbers[$this->usage->E164]['type'] == 'vpbx') {
-            if (($usage = UsageVirtpbx::findOne($numbers[$this->usage->E164]['stat_product_id'])) instanceof Usage) {
-                $description = $usage->tariff->description . ' (' . $usage->id . ')';
-            }
-            $checkboxOptions['disabled'] = 'disabled';
-        }
-        if ($this->usage->type_id == 'line') {
+        if ($this->usage->type_id === Tariff::NUMBER_TYPE_LINE) {
             $number7800 = UsageVoip::findOne(['line7800_id' => $this->usage->id]);
             if ($number7800 instanceof UsageVoip) {
-                $description = 'Перенос только вместе с ID: ' . Html::a($number7800->id, 'javascript:void(0)',
-                        ['data-linked' => $number7800->id]);
-                $checkboxOptions['disabled'] = 'disabled';
+                $description =
+                    Html::tag(
+                        'div',
+                        $number7800->id . ': ' . reset($number7800->helper->description),
+                        ['style' => 'margin-left: 10px;']
+                    );
             }
         }
 

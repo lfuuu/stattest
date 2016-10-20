@@ -5,13 +5,22 @@ use yii\db\ActiveQuery;
 
 class UsageQuery extends ActiveQuery
 {
+
+    /**
+     * @return $this
+     */
     public function actual()
     {
-        return $this->andWhere("cast(now() as date) between actual_from and actual_to");
+        return $this->andWhere('CAST(NOW() AS date) BETWEEN actual_from AND actual_to');
     }
 
+    /**
+     * @param string $client
+     * @return $this
+     */
     public function client($client)
     {
-        return $this->andWhere("client = :client", [":client" => $client]);
+        return $this->andWhere(['client' => $client]);
     }
+
 }

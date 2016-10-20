@@ -1,295 +1,181 @@
 <?php
 
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
+use kartik\widgets\ActiveForm;
+use kartik\widgets\DatePicker;
+use app\classes\Html;
 use app\forms\transfer\ServiceTransferForm;
 use app\helpers\DateTimeZoneHelper;
-use kartik\widgets\DatePicker;
+use app\models\ClientAccount;
 
+/** @var ClientAccount $clientAccount */
 /** @var $model ServiceTransferForm */
 
-$possibleServices = $model->getPossibleServices($client, $only_usages);
+echo Html::formLabel('Перенос услуг');
+echo Breadcrumbs::widget([
+    'links' => [
+        'Лицевой счет',
+        ['label' => $clientAccount->contract->contragent->name, 'url' => $cancelUrl = Url::toRoute(['/client/view', 'id' => $clientAccount->id])],
+        'Перенос услуг'
+    ],
+]);
 ?>
 
-<form method="POST" action="/transfer/index/?client=<?php echo $client->id; ?>">
-    <table border="0" width="95%" align="center">
-        <col width="40%" />
-        <col width="40%" />
-        <col width="15%" />
+<div class="well">
+    <?php
+    $form = ActiveForm::begin([
+        'type' => ActiveForm::TYPE_VERTICAL,
+    ]);
+    echo Html::activeHiddenInput($model, 'source_account_id');
+    echo Html::activeHiddenInput($model, 'target_account_id_custom');
+    ?>
 
-        <thead>
-            <tr>
-                <th colspan="3">
-                    <h2>Лицевой счет № <?php echo $client->id; ?> <?php echo $client->firma; ?></h2>
-                    <hr size="1" />
-                </th>
-            </tr>
-            <tr>
-                <th>Перенести</th>
-                <th>на лицевой счет</th>
-                <th>дата переноса</th>
-            </tr>
-        </thead>
-    </table>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <label>Услуги</label> <a href="javascript:void(0)" id="transfer-select-all" class="label label-primary" style="margin-left: 20px;">Выбрать все</a>
 
-    <div style="overflow: auto; max-height: 500px;">
-        <table border="0" width="95%" align="center">
-            <col width="40%" />
-            <col width="40%" />
-            <col width="15%" />
+                <?php foreach ($model->availableUsages as $serviceKey => $serviceData): ?>
+                    <fieldset>
+                        <label class="label label-default"><?= $serviceData['title'] ?></label>
+                        <?= $form
+                            ->field($model, 'usages[' . $serviceKey . ']')
+                            ->checkboxList(
+                                $serviceData['usages'],
+                                [
+                                    'item' => function($index, $label, $name, $checked, $value) {
+                                        list($fulltext, $description) = (array)$label->description;
 
-            <thead>
-                <tr>
-                    <th valign="top">
-                        <?php if ($model->getFirstError('source_service_ids') || $model->getFirstError('services_got_errors')): ?>
-                            <div class="label label-danger">
-                                <?= $model->getFirstError('source_service_ids'); ?>
-                                <?= $model->getFirstError('services_got_errors'); ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if (sizeof($model->servicesSuccess)): ?>
-                            <br />
-                            <div class="label label-success">
-                                Успешно перенесено <?= sizeof($model->servicesSuccess); ?>
-                            </div>
-                        <?php endif; ?>
-                    </th>
-                    <th valign="top">
-                        <?php if ($model->getFirstError('target_account_id') || $model->getFirstError('target_account_custom')): ?>
-                            <div class="label label-danger">
-                                <?= $model->getFirstError('target_account_id'); ?>
-                                <?= $model->getFirstError('target_account_custom'); ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($model->getFirstError('target_account_not_found')): ?>
-                            <div class="label label-danger">
-                                <?= $model->getFirstError('target_account_not_found'); ?>
-                            </div>
-                        <?php endif; ?>
-                    </th>
-                    <th valign="top">
-                        <?php if ($model->getFirstError('actual_from') || $model->getFirstError('actual_custom')): ?>
-                            <div class="label label-danger">
-                                <?= $model->getFirstError('actual_from'); ?>
-                                <?= $model->getFirstError('actual_custom'); ?>
-                            </div>
-                        <?php endif; ?>
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr>
-                    <td valign="top">
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="services-choose" value="all" data-action="services-choose"<?= (!sizeof($model->servicesErrors) ? 'checked="checked"' : ''); ?> />
-                                Все (<?= $possibleServices['total'];?> шт.)
-                            </label>
-                        </div>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="services-choose" value="custom" data-action="services-choose"<?= (sizeof($model->servicesErrors) ? ' checked="checked"' : ''); ?> />
-                                Выбранные услуги / устройства
-                            </label>
-                        </div>
-
-                        <div id="services-list" style="width: 90%; height: auto; visibility: hidden; overflow: auto; margin-left: 20px;">
-                            <?php foreach ($possibleServices['items'] as $serviceType => $services): ?>
-                                <b><?= $services[0]->helper->title; ?></b>
-                                <div class="service-usages">
-
-                                    <?php
-                                    /** @var \app\models\Usage[] $services */
-                                    foreach ($services as $service):
-                                        list($fulltext, $description, $checkboxOptions) = (array) $service->helper->description;
-
-                                        if (mb_strlen($fulltext, 'UTF-8') > 30):
-                                            $text = mb_substr($fulltext, 0, 30, 'UTF-8') . '...';
-                                        else:
-                                            $text = $fulltext;
-                                        endif;
-                                        ?>
-
-                                        <div class="service-usage">
-                                            <?php if (array_key_exists($service->id, $model->servicesErrors)):?>
-                                                <img src="/images/icons/error.png" width="16" height="16" border="0" style="vertical-align: top; margin-top: 1px;" title='<?= implode($model->servicesErrors[$service->id], "\n"); ?>' />
-                                            <?php endif; ?>
-
-                                            <input
-                                                type="checkbox"
-                                                name="transfer[source_service_ids][<?php echo get_class($service); ?>][]" value="<?= $service->id; ?>"
-                                                checked="checked"
-                                                <?= implode(' ', $checkboxOptions); ?> />
-                                            &nbsp;<?= $service->id;?>: <abbr title="<?= $service->id . ': ' . $fulltext; ?>"><?= $text; ?></abbr><br />
-                                            <?php if (!empty($description)): ?>
-                                                <div class="usage-description" style="font-size: 10px; padding-left: 20px;">
-                                                    <?= $description; ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endforeach; ?>
-                                    <?= $services[0]->helper->help; ?>
-                                    <br />
-
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </td>
-                    <td valign="top">
-                        <?php
-                        $firstRow = (boolean) !(int) $model->target_account_id;
-
-                        if (!is_null($model->targetAccount)):
-                            $firstRow = false;
-                            ?>
-                            <div class="radio">
-                                <label>
-                                    <input type="radio" name="transfer[target_account_id]" value="<?= $model->targetAccount->id; ?>" data-action="account-choose" checked="checked" />
-                                    № <?= $model->targetAccount->id; ?> - <?= $model->targetAccount->contragent->name; ?>
-                                </label>
-                            </div>
-                        <?php
-                        endif;
-
-                        foreach ($model->getClientAccounts($client) as $account):
-                            if (!is_null($model->targetAccount) && $account->id == $model->targetAccount->id)
-                                continue;
-                            ?>
-                            <div class="radio">
-                                <label>
-                                    <input type="radio" name="transfer[target_account_id]" value="<?= $account->id; ?>" data-action="account-choose"<?= ($firstRow || $model->target_account_id == $account->id ? 'checked="checked"' : ''); ?> />
-                                    № <?= $account->id; ?> - <?= $account->contragent->name; ?>
-                                </label>
-                            </div>
-                            <?php
-                            $firstRow = false;
-                        endforeach;
+                                        return
+                                            Html::beginTag('div', ['class' => 'checkbox']) .
+                                                Html::beginTag('label') .
+                                                    Html::checkbox($name, $checked, ['value' => $value]) .
+                                                    $value . ': ' . $fulltext .
+                                                    (
+                                                        !empty($description)
+                                                            ? Html::tag('div', $description, ['class' => 'help-block'])
+                                                            : ''
+                                                    ) .
+                                                Html::endTag('label') .
+                                            Html::endTag('div');
+                                    },
+                                ]
+                            )
+                            ->label(false)
                         ?>
-
-                        <div class="radio" data-custom="1">
-                            <label>
-                                <input type="radio" name="transfer[target_account_id]" value="custom" data-action="account-choose" />
-                                Другой клиент
-                            </label>
-                        </div>
-
-                        <input type="text" name="target_account_search" class="form-control" style="margin-left: 20px; width: 70%; visibility: hidden;" />
-                        <input type="hidden" name="transfer[target_account_id_custom]" value="0" />
-                    </td>
-                    <td valign="top">
-                        <?php
-                        $firstRow = (boolean) !$model->actual_from;
-                        $firstRowValue = 'now';
-
-                        foreach ($model->getActualDateVariants() as $date):
-                            $date = new DateTime($date);
-                            $dateValue = $date->format(DateTimeZoneHelper::DATE_FORMAT);
-                            ?>
-                            <div class="radio">
-                                <label>
-                                    <input type="radio" name="transfer[actual_from]" value="<?= $dateValue; ?>" data-action="date-choose"<?= ($firstRow || $model->actual_from == $dateValue ? 'checked="checked"' : ''); ?> />
-                                    <?= $dateValue; ?>
-                                </label>
-                            </div>
-                            <?php
-                            if ($firstRow):
-                                $firstRowValue = $dateValue;
-                            endif;
-                            $firstRow = false;
-                        endforeach;
-                        ?>
-                        <div class="radio">
-                            <label>
-                                <input type="radio" name="transfer[actual_from]" value="custom" data-action="date-choose"<?= ($model->actual_from == 'custom' ? 'checked="checked"' : ''); ?> />
-                                Другая дата
-                            </label>
-                        </div>
-                        <?php
-                        echo DatePicker::widget([
+                    </fieldset>
+                <?php endforeach; ?>
+            </div>
+            <div class="col-sm-4">
+                <?= $form
+                    ->field($model, 'target_account_id')
+                    ->label('Лицевой счет')
+                    ->radioList(
+                        $model->availableAccounts + [
+                            'any' => Html::input('text', 'target_account_search', '', [
+                                'class' => 'form-control',
+                                'style' => 'padding: 0 0 0 1; height: auto; font-size: 12px;',
+                                'placeholder' => 'Другой клиент',
+                            ])
+                        ],
+                        [
+                            'item' => function($index, $label, $name, $checked, $value) {
+                                return
+                                    Html::beginTag('div', ['class' => 'radio']) .
+                                        Html::beginTag('label', ['class' => 'col-sm-12']) .
+                                            Html::radio($name, $checked, ['value' => $value]) . $label .
+                                        Html::endTag('label') .
+                                    Html::endTag('div');
+                            },
+                        ]
+                    )
+                ?>
+            </div>
+            <div class="col-sm-4">
+                <?= $form
+                    ->field($model, 'actual_from')
+                    ->label('Дата переноса')
+                    ->radioList($model->availableDates + [
+                        'other' => DatePicker::widget([
                             'type' => DatePicker::TYPE_INPUT,
-                            'value' => (new DateTime($model->actual_custom ?: $firstRowValue))->format(DateTimeZoneHelper::DATE_FORMAT),
-                            'name' => 'transfer[actual_custom]',
+                            'name' => $model->formName() . '[actual_custom]',
                             'language' => 'ru',
                             'options' => [
-                                'style' => 'margin-left: 20px; width: 100px; visibility: hidden;',
+                                'placeholder' => 'Другая дата',
+                                'style' => 'padding: 0 0 0 1; height: auto; font-size: 12px;',
                             ],
                             'pluginOptions' => [
                                 'autoclose' => true,
                                 'format' => 'yyyy-mm-dd',
-                                'orientation' => 'top right',
+                                'orientation' => 'bottom left',
                                 'startDate' => 'today',
                             ],
-                        ]);
-                        ?>
-
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                        ])
+                    ]);
+                ?>
+            </div>
+        </div>
     </div>
 
-    <div style="position: fixed; bottom: 0; right: 15px;">
-        <button type="button" id="dialog-close" style="width: 100px; margin-right: 15px;" class="btn btn-link">Отмена</button>
-        <button type="submit" style="width: 100px;" class="btn btn-primary"<?= (!$possibleServices['total'] ? 'disabled="disabled"' : '');?>>OK</button>
+    <div class="form-group text-right">
+        <?= $this->render('//layouts/_submitButton', [
+            'text' => 'Начать перенос',
+            'glyphicon' => 'glyphicon-transfer',
+            'params' => [
+                'class' => 'btn btn-primary',
+                'id' => 'transfer-btn',
+            ]
+        ]) ?>
+        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
     </div>
-</form>
+
+    <?php ActiveForm::end() ?>
+</div>
 
 <script type="text/javascript">
-/**
-* Для переноса услуг, создание и обработка popup
-*/
 jQuery(document).ready(function() {
-    var $actions = {
-            'services-choose': function(element) {
-                var extend_block = $('#services-list');
-                if (element.val() == 'custom') {
-                    extend_block.find('input[type="checkbox"]').removeAttr('checked').prop('checked', false);
-                    extend_block.css('visibility', 'visible');
-                }
-                else {
-                    extend_block.find('input[type="checkbox"]').attr('checked', 'checked').prop('checked', true);
-                    extend_block.css('visibility', 'hidden');
-                }
-            },
-            'date-choose': function(element) {
-                var extend_block = $('input[name*="actual_custom"]');
-                element.val() == 'custom' ? extend_block.css('visibility', 'visible') : extend_block.css('visibility', 'hidden');
-            },
-            'account-choose': function(element) {
-                var extend_block = $('input[name="target_account_search"]');
-                element.val() == 'custom' ? extend_block.css('visibility', 'visible') : extend_block.css('visibility', 'hidden');
-            }
-        };
+    var
+        $form = $('#<?= $form->id ?>');
+        formName = '<?= $model->formName() ?>';
 
-    $('#dialog-close').click(function() {
-        window.parent.$dialog.dialog('close');
+    $('a#transfer-select-all').on('click', function() {
+        var $usages = $form.find('input[type="checkbox"]');
+        $usages.prop('checked', !$usages.prop('checked'));
+        $(this).toggleClass('label-success');
+        return false;
     });
 
-    $(document).bind('keydown', function(e) {
-        if (e.keyCode === $.ui.keyCode.ESCAPE)
-            $('#dialog-close').trigger('click');
+    $('input[name="' + formName + '[actual_custom]"]').on('focus', function() {
+        $(this).prev('input').prop('checked', true);
     });
 
     $('input[name="target_account_search"]')
-        .bind('keydown', function(e) {
-            if (e.keyCode === $.ui.keyCode.TAB && $(this).autocomplete('instance').menu.active)
+        .on('keydown', function(e) {
+            if (e.keyCode === $.ui.keyCode.TAB && $(this).autocomplete('instance').menu.active) {
                 e.preventDefault();
-            if (e.keyCode === $.ui.keyCode.ENTER)
+            }
+            if (e.keyCode === $.ui.keyCode.ENTER) {
                 $(this).blur();
+            }
         })
-        .bind('blur', function() {
-            if ($(this).val().test(/^[0-9]+$/))
-                $('input[name="transfer[target_account_id_custom]"]').val($(this).val());
+        .on('focus', function() {
+            $(this).prev('input').prop('checked', true);
+        })
+        .on('blur', function() {
+            var value = $(this).val();
+            if (value.length && value.test(/^[0-9]+$/)) {
+                $('input[name="<?= $model->formName() ?>[target_account_id_custom]"]').val(value);
+            }
         })
         .autocomplete({
-            source: '/transfer/account-search?client_id=<?php echo $client->id;?>',
+            source: '/transfer/account-search?client_id=<?php echo $clientAccount->id ?>',
             minLength: 2,
             focus: function() {
                 return false;
             },
             select: function(event, ui) {
-                $('input[name="transfer[target_account_id_custom]"]').val(ui.item.value);
+                $('input[name="<?= $model->formName() ?>[target_account_id_custom]"]').val(ui.item.value);
                 $(this).val(ui.item.label);
                 return false;
             }
@@ -300,40 +186,6 @@ jQuery(document).ready(function() {
                 .append('<a title="' + item.full + '">' + item.label + '</a>')
                 .appendTo(ul);
         };
-
-    /** THIS IS DOG-NAIL **/
-    $('input[name*="UsageVirtpbx"]')
-        .on('change', function() {
-            var descr = $(this).parent('.service-usage').find('.usage-description'),
-                numbers = descr.text().replace(/[^0-9,]/g, '').split(',');
-            for (var i=0,s=numbers.length; i<s; i++) {
-                $('input[name*="UsageVoip"]')
-                    .next('abbr[title*="' + numbers[i] + '"]')
-                    .prev('input').prop('checked', $(this).is(':checked'));
-            }
-        });
-
-    $('input[name*="UsageVoip"]')
-        .on('change', function() {
-            var $linkedWith = $('a[data-linked="' + $(this).val() + '"]');
-            if ($linkedWith.length) {
-                $linkedWith.parents('div.service-usage').find('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
-            }
-        });
-    $('a[data-linked]')
-        .on('click', function() {
-            $('input[value="' + $(this).data('linked') + '"]').prop('checked', true).trigger('change');
-            return false;
-        });
-    /** THIS IS DOG-NAIL **/
-
-    $(document).on('change', 'input[data-action]', function() {
-        if ($(this).has(':checked') && $.isFunction($actions[$(this).data('action')]))
-            $actions[$(this).data('action')]($(this));
-    });
-
-    $('input[name="services-choose"]:checked').trigger('change');
-    $('input[name="transfer[actual_from]"]:checked').trigger('change');
 });
 </script>
 
@@ -348,10 +200,5 @@ jQuery(document).ready(function() {
 }
 .ui-menu-item {
     white-space: nowrap;
-}
-.form-control {
-    padding: 0;
-    height: auto;
-    font-size: 12px;
 }
 </style>

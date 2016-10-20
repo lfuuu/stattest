@@ -7,9 +7,13 @@ use app\classes\Singleton;
 use app\models\UsageEmails;
 use app\models\ClientAccount;
 
-class EmailsServiceDao extends Singleton implements ServiceDao
+class EmailsServiceDao extends Singleton
 {
 
+    /**
+     * @param string $client
+     * @return array
+     */
     public function getAllForClient($client)
     {
         return
@@ -31,13 +35,4 @@ class EmailsServiceDao extends Singleton implements ServiceDao
             ")->queryAll();
     }
 
-    public function getPossibleToTransfer(ClientAccount $client)
-    {
-        return
-            UsageEmails::find()
-                ->client($client->client)
-                ->actual()
-                ->andWhere(['next_usage_id' => 0])
-                ->all();
-    }
 }

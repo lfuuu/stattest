@@ -2,27 +2,32 @@
 
 namespace app\classes\transfer;
 
-use app\helpers\DateTimeZoneHelper;
 use Yii;
+use DateTime;
+use DateTimeZone;
+use yii\base\InvalidValueException;
+use yii\db\ActiveRecord;
+use yii\base\Component;
 use app\classes\Assert;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\usages\UsageInterface;
-use \DateTime;
-use \DateTimeZone;
-use yii\base\InvalidValueException;
 
-/**
- * Абстрактный класс переноса услуг
- * @package app\classes\transfer
- */
-abstract class ServiceTransfer extends \yii\base\Component
+abstract class ServiceTransfer extends Component
 {
-    protected $targetAccount;
-    protected $activationDate;
 
-    /** @var UsageInterface */
+    protected
+        /** @var ClientAccount $targetAccount */
+        $targetAccount,
+        /** @var DateTime $activationDate */
+        $activationDate;
+
+    /** @var ActiveRecord */
     public $service;
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -31,8 +36,7 @@ abstract class ServiceTransfer extends \yii\base\Component
     }
 
     /**
-     * Конструктор класса
-     * @param $service - экземпляр услуги
+     * @param ActiveRecord $service
      */
     public function __construct($service)
     {
@@ -42,7 +46,8 @@ abstract class ServiceTransfer extends \yii\base\Component
 
     /**
      * Устанавливает лицевой счет на который предполагается перенос
-     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
+     *
+     * @param ClientAccount $targetAccount
      * @return $this
      */
     public function setTargetAccount(ClientAccount $targetAccount)
@@ -53,7 +58,8 @@ abstract class ServiceTransfer extends \yii\base\Component
 
     /**
      * Устанавливает дату активации переносимых услуг
-     * @param $date - дата активации
+     *
+     * @param string $date
      * @return $this
      */
     public function setActivationDate($date)
@@ -63,12 +69,21 @@ abstract class ServiceTransfer extends \yii\base\Component
     }
 
     /**
-     * Перенос базовой сущности услуги
-     * @return object - созданная услуга
+     * Процесс переноса услуги
+     *
+     * @return ActiveRecord
      * @throws \Exception
      */
     public function process()
     {
+        if (!($this->targetAccount instanceof ClientAccount)) {
+            throw new InvalidValueException('Необходимо указать лицевой счет на который совершается перенос');
+        }
+
+        if (!$this->activationDate) {
+            throw new InvalidValueException('Необходимо указать дату переноса');
+        }
+
         if ((int)$this->service->next_usage_id) {
             throw new InvalidValueException('Услуга уже перенесена');
         }
@@ -79,8 +94,10 @@ abstract class ServiceTransfer extends \yii\base\Component
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
+            /** @var ActiveRecord $targetService */
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
+
             unset($targetService->id);
             $targetService->activation_dt = $this->getActivationDatetime();
             $targetService->actual_from = $this->getActualDate();
@@ -105,7 +122,10 @@ abstract class ServiceTransfer extends \yii\base\Component
     }
 
     /**
-     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     * Процесс отмены переноса услуги
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     public function fallback()
     {
@@ -115,11 +135,13 @@ abstract class ServiceTransfer extends \yii\base\Component
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
+            /** @var ActiveRecord $movedService */
             $movedService = new $this->service;
-            $movedService = $movedService->find()
-                ->andWhere(['id' => $this->service->next_usage_id])
-                ->andWhere('actual_from > :date', [':date' => date(DateTimeZoneHelper::DATE_FORMAT)])
-                ->one();
+            $movedService =
+                $movedService->find()
+                    ->andWhere(['id' => $this->service->next_usage_id])
+                    ->andWhere(['>', 'actual_from', date(DateTimeZoneHelper::DATE_FORMAT)])
+                    ->one();
             Assert::isObject($movedService);
 
             $this->service->next_usage_id = 0;
@@ -136,35 +158,59 @@ abstract class ServiceTransfer extends \yii\base\Component
         }
     }
 
+    /**
+     * @return string
+     */
     public function getActivationDatetime()
     {
+        /** @var DateTime $activationDatetime */
         $activationDatetime = clone $this->activationDate;
-        return $activationDatetime
-            ->setTimezone(new DateTimeZone('UTC'))
-            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        return
+            $activationDatetime
+                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 
+    /**
+     * @return string
+     */
     public function getActualDate()
     {
         return $this->activationDate->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
+    /**
+     * @return string
+     */
     public function getExpireDatetime()
     {
+        /** @var DateTime $expireDatetime */
         $expireDatetime = clone $this->activationDate;
-        return $expireDatetime
-            ->modify('-1 day')
-            ->setTime(23, 59, 59)
-            ->setTimezone(new DateTimeZone('UTC'))
-            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        return
+            $expireDatetime
+                ->modify('-1 day')
+                ->setTime(23, 59, 59)
+                ->setTimezone(new DateTimeZone('UTC'))
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 
+    /**
+     * @return string
+     */
     public function getExpireDate()
     {
+        /** @var DateTime $expireDate */
         $expireDate = clone $this->activationDate;
-        return $expireDate
-            ->modify('-1 day')
-            ->format(DateTimeZoneHelper::DATE_FORMAT);
+        return
+            $expireDate
+                ->modify('-1 day')
+                ->format(DateTimeZoneHelper::DATE_FORMAT);
     }
+
+    /**
+     * @param ClientAccount $client
+     * @return UsageInterface[]
+     */
+    abstract public function getPossibleToTransfer(ClientAccount $client);
 
 }

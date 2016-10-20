@@ -3,19 +3,38 @@
 namespace app\classes\transfer;
 
 use Yii;
-use app\classes\Assert;
+use Exception;
 use yii\base\InvalidValueException;
+use app\classes\Assert;
+use app\models\ClientAccount;
+use app\models\UsageEmails;
+use yii\db\ActiveRecord;
 
-/**
- * Класс переноса услуг типа "E-mail"
- * @package app\classes\transfer
- */
 class EmailServiceTransfer extends ServiceTransfer
 {
 
     /**
-     * Перенос базовой сущности услуги
-     * @return object - созданная услуга
+     * Список услуг доступных для переноса
+     *
+     * @param ClientAccount $clientAccount
+     * @return UsageEmails[]
+     */
+    public function getPossibleToTransfer(ClientAccount $clientAccount)
+    {
+        return
+            UsageEmails::find()
+                ->client($clientAccount->client)
+                ->actual()
+                ->andWhere(['next_usage_id' => 0])
+                ->all();
+    }
+
+    /**
+     * Процесс переноса услуги
+     *
+     * @return UsageEmails
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     public function process()
     {
@@ -25,8 +44,10 @@ class EmailServiceTransfer extends ServiceTransfer
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
+            /** @var ActiveRecord $targetService */
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
+
             unset($targetService->id);
             $targetService->actual_from = $this->getActualDate();
             $targetService->prev_usage_id = $this->service->id;
@@ -49,7 +70,8 @@ class EmailServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     * Процесс отмены переноса услуги
+     *
      * @throws Exception
      */
     public function fallback()
@@ -60,6 +82,7 @@ class EmailServiceTransfer extends ServiceTransfer
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
+            /** @var ActiveRecord $movedService */
             $movedService = new $this->service;
             $movedService = $movedService->findOne($this->service->next_usage_id);
             Assert::isObject($movedService);
