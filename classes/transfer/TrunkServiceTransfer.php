@@ -29,7 +29,7 @@ class TrunkServiceTransfer extends ServiceTransfer
         return
             UsageTrunk::find()
                 ->andWhere(['client_account_id' => $clientAccount->id])
-                ->andWhere('actual_from <= :date', [':date' => $now->format(DateTimeZoneHelper::DATE_FORMAT)])
+                ->andWhere(['<=', 'actual_from', $now->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->andWhere(['next_usage_id' => 0])
                 ->all();
     }

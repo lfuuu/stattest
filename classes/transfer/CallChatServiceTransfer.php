@@ -3,6 +3,7 @@
 namespace app\classes\transfer;
 
 use app\models\ClientAccount;
+use app\models\TariffCallChat;
 use app\models\UsageCallChat;
 
 class CallChatServiceTransfer extends ServiceTransfer
@@ -22,7 +23,13 @@ class CallChatServiceTransfer extends ServiceTransfer
                 ->client($clientAccount->client)
                 ->actual()
                 ->andWhere(['next_usage_id' => 0])
-                ->andWhere(['tarifs_call_chat.status' => ['public', 'special', 'archive']])
+                ->andWhere([
+                    'tarifs_call_chat.status' => [
+                        TariffCallChat::CALL_CHAT_TARIFF_STATUS_PUBLIC,
+                        TariffCallChat::CALL_CHAT_TARIFF_STATUS_SPECIAL,
+                        TariffCallChat::CALL_CHAT_TARIFF_STATUS_ARCHIVE,
+                    ]
+                ])
                 ->all();
     }
 
