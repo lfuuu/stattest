@@ -308,36 +308,6 @@ class AccountEditForm extends Form
             }
         }
 
-        if (is_array($this->options)) {
-            ClientAccountOptions::deleteAll([
-                'and',
-                'client_account_id = :clientAccountId',
-                ['in', 'option', array_keys($this->options)]
-            ],
-                [
-                    ':clientAccountId' => $client->id,
-                ]);
-
-            foreach ($this->options as $option => $value) {
-                if (is_array($value)) {
-                    foreach ($value as $record) {
-                        (new ClientAccountOptionsForm)
-                            ->setClientAccountId($client->id)
-                            ->setOption($option)
-                            ->setValue($record)
-                            ->save($deleteExisting = false);
-                    }
-                }
-                else {
-                    (new ClientAccountOptionsForm)
-                        ->setClientAccountId($client->id)
-                        ->setOption($option)
-                        ->setValue($value)
-                        ->save($deleteExisting = false);
-                }
-            }
-        }
-
         if ($client->save()) {
             if (!$client->client) {
                 $client->client = 'id' . $client->id;
@@ -359,7 +329,39 @@ class AccountEditForm extends Form
 
             }
             $this->setAttributes($client->getAttributes(), false);
+
+            if (is_array($this->options)) {
+                ClientAccountOptions::deleteAll([
+                    'and',
+                    'client_account_id = :clientAccountId',
+                    ['in', 'option', array_keys($this->options)]
+                ],
+                    [
+                        ':clientAccountId' => $client->id,
+                    ]);
+
+                foreach ($this->options as $option => $value) {
+                    if (is_array($value)) {
+                        foreach ($value as $record) {
+                            (new ClientAccountOptionsForm)
+                                ->setClientAccountId($client->id)
+                                ->setOption($option)
+                                ->setValue($record)
+                                ->save($deleteExisting = false);
+                        }
+                    }
+                    else {
+                        (new ClientAccountOptionsForm)
+                            ->setClientAccountId($client->id)
+                            ->setOption($option)
+                            ->setValue($value)
+                            ->save($deleteExisting = false);
+                    }
+                }
+            }
+
             return true;
+
         } else {
             $this->addErrors($client->getErrors());
         }
