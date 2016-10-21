@@ -49,7 +49,7 @@ $month2 = $month1->modify('-1 month');
 $columns = [
     [
         'attribute' => 'number',
-        'class' => IntegerRangeColumn::className(),
+        'class' => StringColumn::className(),
     ],
     [
         'label' => 'Звонков за ' . Yii::$app->formatter->asDate($month2, 'php:m'),
