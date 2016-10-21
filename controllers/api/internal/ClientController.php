@@ -513,7 +513,7 @@ class ClientController extends ApiInternalController
      *   operationId="Получение полной структуры клиента",
      *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData"),
      *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData"),
-     *   @SWG\Parameter(name="contraсt_id", type="integer", description="идентификатор договора", in="formData"),
+     *   @SWG\Parameter(name="contract_id", type="integer", description="идентификатор договора", in="formData"),
      *   @SWG\Parameter(name="contragent_id", type="integer", description="идентификатор контрагента", in="formData"),
      *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData"),
      *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData"),
