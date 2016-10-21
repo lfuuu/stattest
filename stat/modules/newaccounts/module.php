@@ -146,11 +146,6 @@ class m_newaccounts extends IModule
 
         $clientAccount = ClientAccount::findOne($fixclient_data['id']);
 
-        if ($clientAccount->account_version === ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            Yii::$app->response->redirect('/uu/balance/view');
-            Yii::$app->end(200);
-        }
-
         $design->assign("counters", $clientAccount->billingCounters);
         $design->assign("subscr_counter", $clientAccount->billingCounters);
 
