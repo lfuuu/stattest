@@ -16,8 +16,7 @@ class NumberFilter extends \app\models\Number
 {
     const ROWS_PER_PAGE = 100;
 
-    public $number_from = '';
-    public $number_to = '';
+    public $number = '';
     public $city_id = '';
     public $status = '';
     public $did_group_id = '';
@@ -41,8 +40,8 @@ class NumberFilter extends \app\models\Number
     public function rules()
     {
         return [
-            [['status', 'number_tech'], 'string'],
-            [['number_from', 'number_to', 'city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'number_type'], 'integer'], // , 'did_group_id'
+            [['number', 'status', 'number_tech'], 'string'],
+            [['city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'number_type'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
             [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
@@ -71,8 +70,7 @@ class NumberFilter extends \app\models\Number
 //        ($this->number = strtr($this->number, ['.' => '_', '*' => '%'])) &&
 //        $query->andWhere('number LIKE :number', [':number' => $this->number]);
 
-        $this->number_from !== '' && $query->andWhere(['>=', $numberTableName . '.number', $this->number_from]);
-        $this->number_to !== '' && $query->andWhere(['<=', $numberTableName . '.number', $this->number_to]);
+        $this->number !== '' && $query->andWhere(['LIKE', $numberTableName . '.number', $this->number]);
 
         $this->city_id !== '' && $query->andWhere([$numberTableName . '.city_id' => $this->city_id]);
         $this->status !== '' && $query->andWhere([$numberTableName . '.status' => $this->status]);
