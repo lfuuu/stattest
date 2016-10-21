@@ -111,6 +111,7 @@ class NumberDao extends Singleton
                 'voip_number' => $number->number,
                 'tariff_period_id' => null
             ])
+            ->andWhere('id > 100000')
             ->orderBy(['id' => SORT_DESC])
             ->one();
 
@@ -279,6 +280,7 @@ class NumberDao extends Singleton
             $uuUsage = AccountTariff::find()
                 ->where(['voip_number' => $number])
                 ->andWhere(['not', ['tariff_period_id' => null]])
+                ->andWhere('id > 100000')
                 ->one();
         }
 
