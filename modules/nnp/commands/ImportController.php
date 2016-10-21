@@ -23,6 +23,13 @@ class ImportController extends Controller
     const EXCEL2007 = 'Excel2007';
     const EXCEL5 = 'Excel5';
 
+    /** @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629 */
+    const FILE_ID_SLOVAKIA = '0B9ds-UaQbaC7X1BodzJVOTItNXc';
+    const FILE_ID_HUNGARY = '0B9ds-UaQbaC7OXNISlVZX3hhYVU';
+    const FILE_ID_GERMANY = '0B9ds-UaQbaC7MDRNLTl5WVN2Y0k';
+    const FILE_ID_AUSTRIA = '0B9ds-UaQbaC7UHo2M3VfM3I5d2M';
+    const FILE_ID_CZECH = '0B9ds-UaQbaC7VzNPMzljR2VTMms';
+
     /** @var Connection */
     protected $db = null;
 
@@ -91,7 +98,7 @@ class ImportController extends Controller
     protected function importSlovakiaCallback()
     {
         $this->importFromExcel(
-            'https://docs.google.com/uc?export=download&id=0B9ds-UaQbaC7X1BodzJVOTItNXc',
+            'https://docs.google.com/uc?export=download&id=' . self::FILE_ID_SLOVAKIA,
             function ($row) {
                 /**
                  * 0 - number_from
@@ -155,7 +162,7 @@ class ImportController extends Controller
      */
     protected function importHungaryCallback()
     {
-        $this->importCallback('0B9ds-UaQbaC7OXNISlVZX3hhYVU', Country::PREFIX_HUNGARY, self::EXCEL5, 'Y.m.d');
+        $this->importCallback(self::FILE_ID_HUNGARY, Country::PREFIX_HUNGARY, self::EXCEL5, 'Y.m.d');
     }
 
     /**
@@ -173,7 +180,7 @@ class ImportController extends Controller
      */
     protected function importGermanyCallback()
     {
-        $this->importCallback('0B9ds-UaQbaC7MDRNLTl5WVN2Y0k', Country::PREFIX_GERMANY, self::EXCEL2007, 'd-m-y');
+        $this->importCallback(self::FILE_ID_GERMANY, Country::PREFIX_GERMANY, self::EXCEL2007, 'd-m-y');
     }
 
     /**
@@ -191,7 +198,7 @@ class ImportController extends Controller
      */
     protected function importAustriaCallback()
     {
-        $this->importCallback('0B9ds-UaQbaC7UHo2M3VfM3I5d2M', Country::PREFIX_AUSTRIA, self::EXCEL2007, 'd.m.Y');
+        $this->importCallback(self::FILE_ID_AUSTRIA, Country::PREFIX_AUSTRIA, self::EXCEL2007, 'd.m.Y');
     }
 
     /**
@@ -209,7 +216,7 @@ class ImportController extends Controller
      */
     protected function importCzechCallback()
     {
-        $this->importCallback('0B9ds-UaQbaC7VzNPMzljR2VTMms', Country::PREFIX_CZECH, self::EXCEL5, 'd.m.Y');
+        $this->importCallback(self::FILE_ID_CZECH, Country::PREFIX_CZECH, self::EXCEL5, 'd.m.Y');
     }
 
     /**
