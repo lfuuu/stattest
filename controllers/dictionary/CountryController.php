@@ -7,7 +7,6 @@ namespace app\controllers\dictionary;
 
 use app\classes\BaseController;
 use app\classes\dictionary\forms\CountryFormEdit;
-use app\classes\dictionary\forms\CountryFormNew;
 use app\models\filter\CountryFilter;
 use Yii;
 
@@ -31,26 +30,6 @@ class CountryController extends BaseController
         return $this->render('index', [
             'filterModel' => $filterModel,
         ]);
-    }
-
-    /**
-     * Создать
-     *
-     * @return string
-     */
-    public function actionNew()
-    {
-        /** @var CountryFormNew $form */
-        $form = new CountryFormNew();
-
-        if ($form->isSaved) {
-            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
-            return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $form,
-            ]);
-        }
     }
 
     /**

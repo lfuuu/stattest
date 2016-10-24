@@ -110,9 +110,6 @@ if (!$country->isNewRecord) {
     <div class="form-group">
         <?= $this->render('//layouts/_submitButton' . ($country->isNewRecord ? 'Create' : 'Save')) ?>
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?php if (!$country->isNewRecord) : ?>
-            <?= $this->render('//layouts/_submitButtonDrop') ?>
-        <?php endif ?>
     </div>
 
     <?php ActiveForm::end(); ?>
