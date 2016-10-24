@@ -68,9 +68,6 @@ class UsageController extends Controller
         $cleanOrderOfServiceDate = (new DateTime("now"))->modify("-3 day");
         $offDate = (new DateTime("now"))->modify("-10 day");
 
-        $cleanOrderOfServiceDate->modify("-1 day");
-        $offDate->modify("-1 day");
-
         echo $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": off:   " . $offDate->format(DateTimeZoneHelper::DATE_FORMAT) . "\n";
         echo $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": clean: " . $cleanOrderOfServiceDate->format(DateTimeZoneHelper::DATE_FORMAT) . "\n";
 
@@ -175,10 +172,5 @@ class UsageController extends Controller
         }
 
         return Controller::EXIT_CODE_NORMAL;
-    }
-
-    public function actionT()
-    {
-        $this->actionVoipTestClean();
     }
 }
