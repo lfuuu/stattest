@@ -268,4 +268,37 @@ class NumberController extends Controller
 
         echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
     }
+
+    public function actionTestStatus()
+    {
+        $numbers = Number::find()->where([
+            'status' => [
+                Number::STATUS_INSTOCK,
+                Number::STATUS_ACTIVE_TESTED,
+                Number::STATUS_ACTIVE_COMMERCIAL,
+                Number::STATUS_NOTACTIVE_RESERVED,
+                Number::STATUS_NOTACTIVE_HOLD
+            ]
+        ]);
+
+        foreach ($numbers->each() as $number) {
+            ob_start();
+
+            $startStatus = $number->status;
+            $tr = Yii::$app->db->beginTransaction();
+
+            echo PHP_EOL . $number->number;
+            Number::dao()->actualizeStatus($number);
+
+            $number->refresh();
+
+            if ($number->status != $startStatus) {
+                echo " " . $startStatus . " => " . $number->status;
+                echo ob_get_clean();
+            }
+
+            ob_get_clean();
+            $tr->rollBack();
+        }
+    }
 }

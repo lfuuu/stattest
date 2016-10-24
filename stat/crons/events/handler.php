@@ -226,7 +226,7 @@ function do_events()
                 }
 
                 case Event::UU_ACCOUNT_TARIFF_VOIP:
-                    $isCoreServer && \app\models\Number::dao()->actualizeStatusByE164($param['number']);
+                    \app\models\Number::dao()->actualizeStatusByE164($param['number']);
                     $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
                     break;
 
