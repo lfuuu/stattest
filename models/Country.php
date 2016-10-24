@@ -13,6 +13,7 @@ use yii\helpers\Url;
  * @property string $lang
  * @property string $currency_id
  * @property integer $prefix
+ * @property integer $order
  */
 class Country extends ActiveRecord
 {

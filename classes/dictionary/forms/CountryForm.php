@@ -47,20 +47,20 @@ abstract class CountryForm extends Form
         try {
             $post = Yii::$app->request->post();
 
-            // название
-            if (isset($post['dropButton'])) {
+            $prevInUse = $this->country->in_use;
 
-                // удалить
-                $this->country->delete();
-                $this->id = null;
-                $this->isSaved = true;
-
-            } elseif ($this->country->load($post)) {
+            if ($this->country->load($post)) {
 
                 // создать/редактировать
                 if ($this->country->validate() && $this->country->save()) {
                     $this->id = $this->country->code;
                     $this->isSaved = true;
+
+                    $this->country->refresh();
+
+                    if (!$prevInUse && $this->country->in_use) { // страну "включили"
+                        $this->setModelOrder();
+                    }
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
                     $this->validateErrors += $this->country->getFirstErrors();
@@ -83,5 +83,15 @@ abstract class CountryForm extends Form
             $this->isSaved = false;
             $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error');
         }
+    }
+
+    /**
+     * Устанавливаем порядок сортировки. Последний внизу.
+     */
+    protected function setModelOrder()
+    {
+        $max = Country::find()->where(['in_use' => 1])->max('`order`');
+        $this->country->order = $max+1;
+        $this->country->save();
     }
 }

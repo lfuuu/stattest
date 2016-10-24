@@ -70,16 +70,10 @@ $columns = [
     ],
     [
         'class' => ActionColumn::className(),
-        'template' => '{update} {delete}',
+        'template' => '{update}',
         'buttons' => [
             'update' => function ($url, Country $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, Country $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
                         'url' => $model->getUrl(),
                     ]
                 );
@@ -92,6 +86,5 @@ $columns = [
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
-    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/dictionary/country/new/']),
     'columns' => $columns,
 ]);
