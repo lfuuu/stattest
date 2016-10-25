@@ -334,7 +334,7 @@ class NumberController extends Controller
 
         echo PHP_EOL . $startHour->format($dtFormat) . ":";
 
-        // включение/отклчение услуги
+        // включение/отключение услуги
         $numbers += UsageVoip::find()->where([
             'or',
             ['between', 'activation_dt', $startHour->format($dtFormat), $endHour->format($dtFormat)],
@@ -365,16 +365,18 @@ class NumberController extends Controller
 
             $number = Number::findOne(['number' => $numberStr]);
 
-            if ($number) {
-                $prevStatus = $number->status;
+            if (!$number) {
+                continue;
+            }
 
-                Number::dao()->actualizeStatus($number);
+            $prevStatus = $number->status;
 
-                $number->refresh();
+            Number::dao()->actualizeStatus($number);
 
-                if ($prevStatus != $number->status) {
-                    echo " " . $prevStatus . " => " . $number->status;
-                }
+            $number->refresh();
+
+            if ($prevStatus != $number->status) {
+                echo " " . $prevStatus . " => " . $number->status;
             }
         }
     }
