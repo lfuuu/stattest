@@ -3,6 +3,7 @@ namespace app\commands;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\CounterInteropTrunk;
+use app\models\LogTarif;
 use app\models\Number;
 use app\models\Region;
 use app\models\UsageVoip;
@@ -267,5 +268,116 @@ class NumberController extends Controller
         }
 
         echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
+    }
+
+    /**
+     * Актуализировать статус всех используемых номеров
+     *
+     * @param bool $isReal
+     */
+    public function actionActualStatusAll($isReal = false)
+    {
+        $numbers = Number::find()->where([
+            'status' => [
+                Number::STATUS_INSTOCK,
+                Number::STATUS_ACTIVE_TESTED,
+                Number::STATUS_ACTIVE_COMMERCIAL,
+                Number::STATUS_NOTACTIVE_RESERVED,
+                Number::STATUS_NOTACTIVE_HOLD
+            ]
+        ]);
+
+        $transaction = null;
+
+        foreach ($numbers->each() as $number) {
+            ob_start();
+
+            $startStatus = $number->status;
+
+            if (!$isReal) {
+                $transaction = Yii::$app->db->beginTransaction();
+            }
+
+            $strOut = PHP_EOL . $number->number;
+            Number::dao()->actualizeStatus($number);
+
+            $number->refresh();
+
+            if ($number->status != $startStatus) {
+                $strOut .= " " . $startStatus . " => " . $number->status;
+                echo $strOut;
+            }
+
+            if (!$isReal) {
+                $transaction->rollBack();
+            }
+        }
+    }
+
+    /**
+     * Актуализация статуса номера. Запускается каждый час.
+     */
+    public function actionActualHourly()
+    {
+        $now = new DateTime('now');
+        $now->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
+
+        $startHour = clone $now;
+        $startHour->setTime($now->format('H'), 0, 0);
+
+        $endHour = clone $startHour;
+        $endHour->setTime($now->format('H'), 59, 59);
+
+        $numbers = [];
+
+        $dtFormat = DateTimeZoneHelper::DATETIME_FORMAT;
+
+        echo PHP_EOL . $startHour->format($dtFormat) . ":";
+
+        // включение/отключение услуги
+        $numbers += UsageVoip::find()->where([
+            'or',
+            ['between', 'activation_dt', $startHour->format($dtFormat), $endHour->format($dtFormat)],
+            ['between', 'expire_dt', $startHour->format($dtFormat), $endHour->format($dtFormat)]
+        ])
+            ->select('E164')
+            ->column();
+
+        // применения тарифа
+        if ($now->format("H") == 0) {
+            $numbers += array_map(
+                function (\app\models\LogTarif $logTariff) {
+                    return $logTariff->usageVoip->E164;
+                },
+                LogTarif::find()
+                    ->where([
+                        'service' => UsageVoip::tableName(),
+                        'date_activation' => $now->format(DateTimeZoneHelper::DATE_FORMAT)
+                    ])
+                    ->with('usageVoip')
+                    ->all());
+        }
+
+        $numbers = array_unique($numbers);
+
+        foreach ($numbers as $numberStr) {
+            echo PHP_EOL . $numberStr;
+
+            $number = Number::findOne(['number' => $numberStr]);
+
+            if (!$number) {
+                continue;
+            }
+
+            $prevStatus = $number->status;
+
+            Number::dao()->actualizeStatus($number);
+
+            $number->refresh();
+
+            if ($prevStatus != $number->status) {
+                echo " " . $prevStatus . " => " . $number->status;
+            }
+        }
     }
 }
