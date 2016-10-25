@@ -6,16 +6,19 @@ use Yii;
 use app\classes\Singleton;
 use app\models\TariffVirtpbx;
 use app\models\ClientAccount;
-use app\models\UsageVirtpbx;
 
 class VirtpbxServiceDao extends Singleton
 {
 
-    public function getTariffsList(ClientAccount $client)
+    /**
+     * @param ClientAccount $clientAccount
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    public function getTariffsList(ClientAccount $clientAccount)
     {
         return
             TariffVirtpbx::find()
-                ->where(['currency' => $client->currency])
+                ->where(['currency' => $clientAccount->currency])
                 ->andWhere(['!=', 'status', 'archive'])
                 ->all();
     }

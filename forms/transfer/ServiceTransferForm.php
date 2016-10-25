@@ -166,7 +166,7 @@ class ServiceTransferForm extends Form
          * @var string $serviceKey
          * @var UsageInterface $serviceClass
          */
-        foreach ($this->getServicesGroups() as $serviceKey => $serviceClass) {
+        foreach (self::getServicesGroups() as $serviceKey => $serviceClass) {
             if (isset($this->usages[$serviceKey]) && is_array($this->usages[$serviceKey])) {
                 $count += count($this->usages[$serviceKey]);
             }
@@ -186,7 +186,7 @@ class ServiceTransferForm extends Form
          * @var string $serviceKey
          * @var ActiveRecord $serviceClass
          */
-        foreach ($this->getServicesGroups() as $serviceKey => $serviceClass) {
+        foreach (self::getServicesGroups() as $serviceKey => $serviceClass) {
             if (!isset($this->usages[$serviceKey]) || !is_array($this->usages[$serviceKey])) {
                 continue;
             }
@@ -223,7 +223,7 @@ class ServiceTransferForm extends Form
      * Список возможных услуг
      * @return array
      */
-    private function getServicesGroups()
+    public static function getServicesGroups()
     {
         return [
             Transaction::SERVICE_EMAIL => UsageEmails::className(),
@@ -250,7 +250,7 @@ class ServiceTransferForm extends Form
          * @var string $serviceKey
          * @var UsageInterface $serviceClass
          */
-        foreach ($this->getServicesGroups() as $serviceKey => $serviceClass) {
+        foreach (self::getServicesGroups() as $serviceKey => $serviceClass) {
             /** @var ServiceTransfer $helper */
             $helper = $serviceClass::getTransferHelper();
             $usages = $helper->getPossibleToTransfer($this->clientAccount);

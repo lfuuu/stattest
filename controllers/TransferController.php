@@ -26,7 +26,7 @@ class TransferController extends BaseController
         $model = new ServiceTransferForm($clientAccount);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->process()) {
-            $this->redirect(['/monitoring/transfered-usages', 'clientAccountId' => $clientAccount->id]);
+            $this->redirect('/monitoring/transfered-usages');
         }
 
         return $this->render('index', [

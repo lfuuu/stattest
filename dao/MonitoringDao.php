@@ -6,14 +6,11 @@ use app\classes\Singleton;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 
-/**
- * @method static MonitoringDao me($args = null)
- */
 class MonitoringDao extends Singleton
 {
 
     /**
-     * @param string $usage - className()
+     * @param string $usage
      * @return ActiveQuery
      */
     public static function transferedUsages($usage)

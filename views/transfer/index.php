@@ -127,14 +127,20 @@ echo Breadcrumbs::widget([
     </div>
 
     <div class="form-group text-right">
+        <?php
+        $submitBtnParams = [
+            'class' => 'btn btn-primary',
+            'id' => 'transfer-btn',
+        ];
+        if (!count($model->availableUsages)) {
+            $submitBtnParams['disabled'] = 'disabled';
+        }
+        ?>
+
         <?= $this->render('//layouts/_submitButton', [
             'text' => 'Начать перенос',
             'glyphicon' => 'glyphicon-transfer',
-            'params' => [
-                'class' => 'btn btn-primary',
-                'id' => 'transfer-btn',
-                'disabled' => (!count($model->availableUsages) ? 'disabled' : ''),
-            ]
+            'params' => $submitBtnParams,
         ]) ?>
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
     </div>

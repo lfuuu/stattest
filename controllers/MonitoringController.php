@@ -2,9 +2,12 @@
 
 namespace app\controllers;
 
-use app\models\EventQueue;
+use app\forms\transfer\ServiceTransferForm;
+use app\models\UsageTrunk;
 use Yii;
+use yii\db\Expression;
 use app\classes\BaseController;
+use app\classes\Assert;
 use app\classes\monitoring\MonitorFactory;
 use app\models\filter\EventQueueFilter;
 use app\models\UsageVoip;
@@ -16,11 +19,16 @@ use app\models\UsageIpPorts;
 use app\models\UsageExtra;
 use app\models\UsageEmails;
 use app\dao\MonitoringDao;
-use yii\db\Expression;
+use app\models\ClientAccount;
+use app\models\EventQueue;
 
 class MonitoringController extends BaseController
 {
 
+    /**
+     * @param string $monitor
+     * @return string
+     */
     public function actionIndex($monitor = 'usages_lost_tariffs')
     {
         return $this->render('default', [
@@ -29,21 +37,21 @@ class MonitoringController extends BaseController
         ]);
     }
 
+    /**
+     * @return string
+     * @throws \yii\base\Exception
+     */
     public function actionTransferedUsages()
     {
-        $usages = [
-            (new UsageVoip)->helper->title => MonitoringDao::transferedUsages(UsageVoip::className()),
-            (new UsageVirtpbx)->helper->title => MonitoringDao::transferedUsages(UsageVirtpbx::className()),
-            (new UsageWelltime)->helper->title => MonitoringDao::transferedUsages(UsageWelltime::className()),
-            (new UsageSms)->helper->title => MonitoringDao::transferedUsages(UsageSms::className()),
-            (new UsageTechCpe)->helper->title => MonitoringDao::transferedUsages(UsageTechCpe::className()),
-            (new UsageIpPorts)->helper->title => MonitoringDao::transferedUsages(UsageIpPorts::className()),
-            (new UsageExtra)->helper->title => MonitoringDao::transferedUsages(UsageExtra::className()),
-            (new UsageEmails)->helper->title => MonitoringDao::transferedUsages(UsageEmails::className()),
-        ];
+        $services = ServiceTransferForm::getServicesGroups();
+
+        $listing = [];
+        foreach ($services as $serviceKey => $serviceClass) {
+            $listing[(new $serviceClass)->helper->title] = MonitoringDao::transferedUsages($serviceClass);
+        }
 
         return $this->render('transfer', [
-            'result' => $usages,
+            'result' => $listing,
         ]);
     }
 
