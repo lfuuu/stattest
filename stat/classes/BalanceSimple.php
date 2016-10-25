@@ -1,6 +1,7 @@
 <?php
 
 use app\models\ClientAccount;
+use yii\base\InvalidParamException;
 
 class BalanceSimple
 {
@@ -71,6 +72,14 @@ class BalanceSimple
 
         $sqlLimit = $params["is_multy"] ? " limit 1000" : "";
 
+
+        $clientAccount = ClientAccount::findOne(['id' => $params['client_id']]);
+
+        if (!$clientAccount) {
+            throw new InvalidParamException('Client not found');
+        }
+
+
         $R1 = $db->AllRecords($q='
             select
                 *, newbills.comment as "comment", IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
@@ -88,7 +97,7 @@ class BalanceSimple
             where
                 client_id=' . $params['client_id']
             . ($params["is_multy"] /*&& !$params["is_view_canceled"]*/ ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
-            and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . '
+            and biller_version = ' . $clientAccount->account_version . '
             order by
                 bill_date desc,
                 bill_no desc

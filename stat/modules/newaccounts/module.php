@@ -370,7 +370,7 @@ class m_newaccounts extends IModule
                 left join tt_stages ts on  (ts.stage_id = t. cur_stage_id)
             where
                 client_id=' . $fixclient_data['id'] . '
-                and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . '
+                and biller_version = ' . $clientAccount->account_version . '
                 ' . ($isMulty && !$isViewCanceled ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
                 ) bills  ' .
             (($get_income_goods_on_bill_list) ? 'union
