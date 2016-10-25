@@ -30,6 +30,10 @@ use yii\db\ActiveRecord;
  */
 class UsageTrunk extends ActiveRecord implements UsageInterface
 {
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -38,57 +42,92 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_trunk';
     }
 
+    /**
+     * @return TrunkServiceDao
+     */
     public static function dao()
     {
         return TrunkServiceDao::me();
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return VoipTrunkBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new VoipTrunkBiller($this, $date, $clientAccount);
     }
 
+    /**
+     * @return null
+     */
     public function getTariff()
     {
         return null;
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_TRUNK;
     }
 
     /** Заглушка, чтобы не падало из-за различий в client и client_account_id */
+    /**
+     * @return string
+     */
     public function getClient()
     {
         return $this->clientAccount->client;
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['id' => 'client_account_id']);
     }
 
+    /**
+     * @return Region
+     */
     public function getConnectionPoint()
     {
         return $this->hasOne(Region::className(), ['id' => 'connection_point_id']);
     }
 
+    /**
+     * @return Trunk
+     */
     public function getTrunk()
     {
         return $this->hasOne(Trunk::className(), ['id' => 'trunk_id']);
     }
 
+    /**
+     * @return UsageTrunkSettings
+     */
     public function getSettings()
     {
         return $this->hasMany(UsageTrunkSettings::className(), ['usage_id' => 'id']);
     }
 
+    /**
+     * @return bool
+     */
     public function isActive()
     {
         $now = new DateTime('now');
@@ -103,7 +142,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
      * @param $usage
      * @return TrunkServiceTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new TrunkServiceTransfer($usage);
     }

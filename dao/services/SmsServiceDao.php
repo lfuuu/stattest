@@ -4,12 +4,13 @@ namespace app\dao\services;
 
 use Yii;
 use app\classes\Singleton;
-use app\models\UsageSms;
-use app\models\ClientAccount;
 
-class SmsServiceDao extends Singleton implements ServiceDao
+class SmsServiceDao extends Singleton
 {
 
+    /**
+     * @return array
+     */
     public function getAll()
     {
         return
@@ -29,6 +30,10 @@ class SmsServiceDao extends Singleton implements ServiceDao
             ")->queryAll();
     }
 
+    /**
+     * @param string $client
+     * @return array
+     */
     public function getAllForClient($client)
     {
         return
@@ -43,18 +48,6 @@ class SmsServiceDao extends Singleton implements ServiceDao
                         LEFT JOIN tarifs_sms t ON t.`id` = s.`tarif_id`
                 WHERE s.`client` = '" . $client . "'
             ")->queryAll();
-    }
-
-    public function getPossibleToTransfer(ClientAccount $client)
-    {
-        $now = new \DateTime();
-
-        return
-            UsageSms::find()
-                ->client($client->client)
-                ->actual()
-                ->andWhere(['next_usage_id' => 0])
-                ->all();
     }
 
 }

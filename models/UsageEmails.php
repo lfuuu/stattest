@@ -17,6 +17,9 @@ use app\models\usages\UsageInterface;
 class UsageEmails extends ActiveRecord implements UsageInterface
 {
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -24,36 +27,59 @@ class UsageEmails extends ActiveRecord implements UsageInterface
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'emails';
     }
 
+    /**
+     * @return UsageQuery
+     */
     public static function find()
     {
         return new UsageQuery(get_called_class());
     }
 
+    /**
+     * @return EmailsServiceDao
+     */
     public static function dao()
     {
         return EmailsServiceDao::me();
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return EmailBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new EmailBiller($this, $date, $clientAccount);
     }
 
+    /**
+     * @return null
+     */
     public function getTariff()
     {
         return null;
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_EMAIL;
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
@@ -63,7 +89,7 @@ class UsageEmails extends ActiveRecord implements UsageInterface
      * @param $usage
      * @return EmailServiceTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new EmailServiceTransfer($usage);
     }

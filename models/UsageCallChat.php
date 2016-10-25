@@ -20,6 +20,9 @@ use app\dao\services\CallChatServiceDao;
 class UsageCallChat extends ActiveRecord implements UsageInterface
 {
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -29,11 +32,17 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_call_chat';
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -47,52 +56,69 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
         ];
     }
 
+    /**
+     * @return CallChatServiceDao
+     */
     public static function dao()
     {
         return CallChatServiceDao::me();
     }
 
+    /**
+     * @return UsageQuery
+     */
     public static function find()
     {
         return new UsageQuery(get_called_class());
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return CallChatBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new CallChatBiller($this, $date, $clientAccount);
     }
 
+    /**
+     * @return TariffCallChat
+     */
     public function getTariff()
     {
         return $this->hasOne(TariffCallChat::className(), ['id' => 'tarif_id']);
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_CALL_CHAT;
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
-
     /**
      * @param $usage
      * @return CallChatServiceTransfer
      */
-
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
-        //TODO:: realize
+        /** @todo realize */
         return new CallChatServiceTransfer($usage);
     }
 
     /**
      * @return UsageCallChatHelper
      */
-
     public function getHelper()
     {
         return new UsageCallChatHelper($this);

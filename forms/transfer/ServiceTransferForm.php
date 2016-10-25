@@ -2,104 +2,133 @@
 
 namespace app\forms\transfer;
 
+use DateTime;
+use yii\base\ModelEvent;
+use yii\db\ActiveRecord;
+use yii\helpers\ArrayHelper;
 use app\classes\Assert;
 use app\classes\Form;
+use app\classes\transfer\ServiceTransfer;
+use app\classes\validators\ArrayValidator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
-use app\models\UsageCallChat;
+use app\models\Transaction;
+use app\models\usages\UsageInterface;
 use app\models\UsageEmails;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
-use app\models\usages\UsageInterface;
 use app\models\UsageSms;
 use app\models\UsageTechCpe;
 use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
-use yii\base\ModelEvent;
+use app\models\UsageCallChat;
 
+/**
+ * @property ClientAccount $clientAccount
+ * @property array $availableUsages
+ * @property array $availableAccounts
+ * @property array $availableDates
+ */
 class ServiceTransferForm extends Form
 {
 
-    public $target_account_id;
-    public $target_account_id_custom;
-    public $source_service_ids;
-    public $actual_from;
-    public $actual_custom;
+    public
+        $source_account_id,
+        $target_account_id,
+        $target_account_id_custom,
+        $actual_from = 0,
+        $actual_custom,
+        $usages = [];
 
-    public $datesVariants = [
+    public
+        $clientAccount,
+        $availableUsages = [],
+        $availableAccounts = [],
+        $availableDates = [];
+
+    private static
+        $datesVariants = [
         'first day of next month midnight',
         'first day of next month +1 month midnight',
-        'first day of next month +2 month midnight'
+        'first day of next month +2 month midnight',
     ];
 
-    public $servicesErrors = [];
-    public $servicesSuccess = [];
-
-    public $targetAccount = null;
+    /** @var ClientAccount|null $targetAccount */
+    private $targetAccount = null;
 
     /**
-     * Список возможных услуг
-     * @return array
+     * @param ClientAccount $clientAccount
      */
-    public function getServicesGroups()
+    public function __construct(ClientAccount $clientAccount)
     {
-        return [
-            UsageEmails::dao(),
-            UsageExtra::dao(),
-            UsageSms::dao(),
-            UsageWelltime::dao(),
-            UsageVirtpbx::dao(),
-            UsageVoip::dao(),
-            UsageTrunk::dao(),
-            UsageIpPorts::dao(),
-            UsageTechCpe::dao(),
-            UsageCallChat::dao(),
-        ];
+        parent::__construct();
+
+        $this->clientAccount = $clientAccount;
+        $this->source_account_id = $clientAccount->id;
+        $this->availableAccounts = $this->getClientAccountsBySuperClient($clientAccount);
+        $this->availableDates = $this->getActualDateVariants();
+        $this->availableUsages = $this->getAvailableServices();
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
-            [['target_account_id', 'source_service_ids'], 'required', 'message' => 'Необходимо заполнить'],
+            [['source_account_id'], 'integer'],
+            ['usages', ArrayValidator::className()],
+            [['target_account_id', 'actual_from',], 'required'],
             [
                 'target_account_id_custom',
                 'required',
                 'when' => function ($model) {
                     return !(int)$model->target_account_id;
                 },
-                'message' => 'Необходимо заполнить'
+                'message' => 'Необходимо заполнить "Лицевой счет"',
             ],
             [
                 'actual_from',
                 'required',
                 'when' => function ($model) {
-                    return $model->actual_from != 'custom';
+                    return $model->actual_from !== 'other';
                 },
-                'message' => 'Необходимо заполнить'
+                'message' => 'Необходимо заполнить "Дата переноса"',
             ],
             [
                 'actual_custom',
                 'required',
                 'when' => function ($model) {
-                    return $model->actual_from == 'custom';
+                    return $model->actual_from === 'other';
                 },
-                'message' => 'Необходимо заполнить'
+                'message' => 'Необходимо заполнить "Дата переноса"',
             ],
             [
                 'actual_custom',
                 'date',
                 'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT,
                 'when' => function ($model) {
-                    return $model->actual_from == 'custom';
+                    return $model->actual_from === 'other';
                 },
-                'message' => 'Неверный формат даты переноса'
+                'message' => 'Неверный формат даты переноса',
             ],
-            ['target_account_id', 'validateTargetAccountId']
+            ['target_account_id', 'validateTargetAccountId'],
+            ['usages', 'validateUsages'],
         ];
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'target_account_id' => 'Лицевой счет',
+        ];
+    }
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -107,12 +136,15 @@ class ServiceTransferForm extends Form
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
     public function validateTargetAccountId()
     {
         try {
             $this->targetAccount = ClientAccount::findOne(
                 (int)(
-                $this->target_account_id == 'custom'
+                $this->target_account_id === 'custom'
                     ? $this->target_account_id_custom
                     : $this->target_account_id
                 )
@@ -124,130 +156,156 @@ class ServiceTransferForm extends Form
     }
 
     /**
+     * @inheritdoc
+     */
+    public function validateUsages()
+    {
+        $count = 0;
+
+        /**
+         * @var string $serviceKey
+         * @var UsageInterface $serviceClass
+         */
+        foreach (self::getServicesGroups() as $serviceKey => $serviceClass) {
+            if (isset($this->usages[$serviceKey]) && is_array($this->usages[$serviceKey])) {
+                $count += count($this->usages[$serviceKey]);
+            }
+        }
+
+        if (!$count) {
+            $this->addError('usages_not_selected', 'Необходимо выбрать услуги для переноса');
+        }
+    }
+
+    /**
      * Процесс переноса услуг
      */
     public function process()
     {
-        $services = $this->getServicesByIDs((array)$this->source_service_ids);
-
-        foreach ($services as $service) {
-            $serviceTransfer =
-                $service::getTransferHelper($service)
-                    ->setTargetAccount($this->targetAccount)
-                    ->setActivationDate(
-                        $this->actual_from == 'custom'
-                            ? $this->actual_custom
-                            : $this->actual_from
-                    );
-
-            try {
-                try {
-                    $this->servicesSuccess[get_class($service)][] = $serviceTransfer->process()->id;
-                } catch (\yii\base\InvalidValueException $e) {
-                    $this->servicesErrors[$service->id][] = $e->getMessage();
-                }
-            } catch (\Exception $e) {
-                \Yii::error($e);
-            }
-
-            $serviceTransfer->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
-        }
-
-        if (count($this->servicesErrors)) {
-            $this->addError('services_got_errors', 'Некоторые услуги не могут быть перенесены');
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Получение всех лицевых счетов
-     * @param ClientAccount $client - клиент для которого получаем всех лицевых счетов
-     * @return \app\models\ClientAccount[]
-     */
-    public function getClientAccounts(ClientAccount $client)
-    {
-        return
-            ClientAccount::find()
-                ->andWhere(['super_id' => $client->super_id])
-                ->andWhere('id != :id', [':id' => $client->id])
-                ->orderBy('contract_id ASC, id ASC')
-                ->all();
-    }
-
-    /**
-     * Получение доступных для переноса услуг
-     * @param ClientAccount $client - клиент для которого получаем список услуг
-     * @param array $usages - список услуг которые возможны для переноса
-     * @return array
-     */
-    public function getPossibleServices(ClientAccount $client, $usages = [])
-    {
-        /** @var UsageInterface[] $services */
-        $services = [];
-        foreach ($this->getServicesGroups() as $serviceDao) {
-            $modelName = str_replace('Dao', '', (new \ReflectionClass($serviceDao))->getShortName());
-            if (count($usages) && !in_array($modelName, $usages)) {
+        /**
+         * @var string $serviceKey
+         * @var ActiveRecord $serviceClass
+         */
+        foreach (self::getServicesGroups() as $serviceKey => $serviceClass) {
+            if (!isset($this->usages[$serviceKey]) || !is_array($this->usages[$serviceKey])) {
                 continue;
             }
 
-            $services = array_merge(
-                $services,
-                $serviceDao->getPossibleToTransfer($client)
-            );
-        }
+            foreach ($this->usages[$serviceKey] as $usageId) {
+                /** @var ServiceTransfer $serviceTransfer */
+                $serviceTransfer =
+                    $serviceClass::getTransferHelper($serviceClass::findOne($usageId))
+                        ->setTargetAccount($this->targetAccount)
+                        ->setActivationDate(
+                            $this->actual_from === 'other'
+                                ? $this->actual_custom
+                                : $this->actual_from
+                        );
 
-        $total = 0;
-        $result = [];
-        if (count($services)) {
-            foreach ($services as $service) {
-                $result[get_class($service)][] = $service;
-                $total++;
+                try {
+                    try {
+                        $serviceTransfer->process();
+                    } catch (\yii\base\InvalidValueException $e) {
+                        $this->addError('not_transfer_usage_' . $usageId, $usageId . ': ' . $e->getMessage());
+                    }
+                } catch (\Exception $e) {
+                    \Yii::error($e);
+                }
+
+                $serviceTransfer->trigger(static::EVENT_AFTER_SAVE, new ModelEvent);
             }
         }
 
-        //print_r($result);
+        return $this->getErrors() ? false : true;
+    }
+
+    /**
+     * Список возможных услуг
+     * @return array
+     */
+    public static function getServicesGroups()
+    {
         return [
-            'total' => $total,
-            'items' => $result
+            Transaction::SERVICE_EMAIL => UsageEmails::className(),
+            Transaction::SERVICE_EXTRA => UsageExtra::className(),
+            Transaction::SERVICE_SMS => UsageSms::className(),
+            Transaction::SERVICE_WELLTIME => UsageWelltime::className(),
+            Transaction::SERVICE_VIRTPBX => UsageVirtpbx::className(),
+            Transaction::SERVICE_VOIP => UsageVoip::className(),
+            Transaction::SERVICE_TRUNK => UsageTrunk::className(),
+            Transaction::SERVICE_IPPORT => UsageIpPorts::className(),
+            Transaction::SERVICE_TECH_CPE => UsageTechCpe::className(),
+            Transaction::SERVICE_CALL_CHAT => UsageCallChat::className(),
         ];
     }
 
     /**
-     * Получение списка услуг по ID услуги и типу
-     * @param array $servicesList - Список услуг разделенных по группам
-     * @return UsageInterface[]
+     * @return array
      */
-    public function getServicesByIDs(array $servicesList)
+    private function getAvailableServices()
     {
         $result = [];
 
-        foreach ($servicesList as $serviceClass => $services) {
-            foreach ($services as $serviceId) {
-                $result[] = $this->getService($serviceClass, $serviceId);
+        /**
+         * @var string $serviceKey
+         * @var UsageInterface $serviceClass
+         */
+        foreach (self::getServicesGroups() as $serviceKey => $serviceClass) {
+            /** @var ServiceTransfer $helper */
+            $helper = $serviceClass::getTransferHelper();
+            $usages = $helper->getPossibleToTransfer($this->clientAccount);
+
+            if (count($usages)) {
+                $result[$serviceKey] = [
+                    'title' => reset($usages)->helper->title,
+                    'usages' => ArrayHelper::map($usages, 'id', 'helper'),
+                ];
             }
         }
 
         return $result;
     }
 
-    public function getService($className, $id)
+    /**
+     * Получение всех лицевых счетов супер-клиента
+     * @param ClientAccount $clientAccount
+     * @return ClientAccount[]
+     */
+    private function getClientAccountsBySuperClient(ClientAccount $clientAccount)
     {
-        $service = $className::findOne($id);
-        if (!$service) {
-            Assert::isUnreachable();
+        $accounts =
+            ClientAccount::find()
+                ->andWhere(['super_id' => $clientAccount->super_id])
+                ->andWhere(['!=', 'id', $clientAccount->id])
+                ->orderBy('contract_id ASC, id ASC')
+                ->each();
+
+        $result = [];
+        foreach ($accounts as $account) {
+            $result[$account->id] = '№' . $account->id . ' - ' . $account->contract->contragent->name;
         }
-        return $service;
+
+        $this->target_account_id = reset(array_keys($result));
+
+        return $result;
     }
 
     /**
      * Получение списка доступных для переноса дат
      * @return array
      */
-    public function getActualDateVariants()
+    private function getActualDateVariants()
     {
-        return $this->datesVariants;
+        $result = [];
+
+        foreach (self::$datesVariants as $variant) {
+            $date = (new DateTime($variant))->format(DateTimeZoneHelper::DATE_FORMAT);
+            $result[$date] = $date;
+        }
+
+        $this->actual_from = reset($result);
+
+        return $result;
     }
 
 }

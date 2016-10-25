@@ -4,12 +4,14 @@ namespace app\dao;
 
 use Yii;
 use app\classes\Singleton;
-use app\models\ClientAccount;
-use app\models\UsageTechCpe;
 
 class UsageTechCpeDao extends Singleton
 {
 
+    /**
+     * @param array $ips
+     * @return string
+     */
     public function getCpeIpStat(array $ips)
     {
         $query = '';
@@ -65,17 +67,6 @@ class UsageTechCpeDao extends Singleton
                 ? ''
                 : '<div class="ping2" style="background-color:' . $P2 . '">&nbsp;</div>'
             );
-    }
-
-    public function getPossibleToTransfer(ClientAccount $client)
-    {
-        return
-            UsageTechCpe::find()
-                ->client($client->client)
-                ->actual()
-                ->andWhere(['next_usage_id' => 0])
-                ->andWhere(['id_service' => 0])
-                ->all();
     }
 
 }

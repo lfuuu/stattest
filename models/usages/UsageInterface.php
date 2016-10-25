@@ -1,12 +1,13 @@
 <?php
 namespace app\models\usages;
 
-use app\models\LogTarif;
 use DateTime;
-use app\classes\transfer\ServiceTransfer;
 use app\helpers\usages\UsageHelperInterface;
 use app\classes\bill\Biller;
+use app\classes\transfer\ServiceTransfer;
 use app\models\ClientAccount;
+use app\models\LogTarif;
+use app\models\tariffs\TariffInterface;
 
 /**
  * @property int $id
@@ -32,19 +33,27 @@ interface UsageInterface
     const STATUS_WORKING = 'working';
 
     /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
      * @return Biller
      */
     public function getBiller(DateTime $date, ClientAccount $clientAccount);
 
+    /**
+     * @return TariffInterface|null
+     */
     public function getTariff();
 
+    /**
+     * @return string
+     */
     public function getServiceType();
 
     /**
-     * @param UsageInterface $usage
+     * @param null $usage
      * @return ServiceTransfer
      */
-    public static function getTransferHelper($usage);
+    public static function getTransferHelper($usage = null);
 
     /**
      * @return ClientAccount

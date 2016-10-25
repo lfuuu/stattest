@@ -2,6 +2,7 @@
 
 namespace app\helpers\usages;
 
+use app\models\UsageVoip;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -38,15 +39,29 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
         $checkboxOptions = [];
 
         $numbers = $this->usage->clientAccount->voipNumbers;
+        $enabledNumbers = [];
 
         foreach ($numbers as $number => $options) {
-            if ($options['type'] != 'vpbx' || $options['stat_product_id'] != $this->usage->id) {
+            if ($options['type'] !== 'vpbx' || $options['stat_product_id'] != $this->usage->id) {
                 continue;
             }
-            $description[] = $number;
+            $enabledNumbers[] = $number;
         }
 
-        return [$value, implode(', ', $description), $checkboxOptions];
+        $usages = UsageVoip::find()->where(['IN', 'E164', $enabledNumbers]);
+
+        if ($usages->count()) {
+            foreach ($usages->each() as $usage) {
+                $description[] =
+                    Html::tag(
+                        'div',
+                        Html::tag('small', $usage->id) . ': ' . reset($usage->helper->description),
+                        ['style' => 'margin-left: 10px;']
+                    );
+            }
+        }
+
+        return [$value, implode('', $description), $checkboxOptions];
     }
 
     /**

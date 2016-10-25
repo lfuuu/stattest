@@ -19,6 +19,9 @@ use app\models\usages\UsageInterface;
 class UsageSms extends ActiveRecord implements UsageInterface
 {
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -27,41 +30,67 @@ class UsageSms extends ActiveRecord implements UsageInterface
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_sms';
     }
 
+    /**
+     * @return UsageQuery
+     */
     public static function find()
     {
         return new UsageQuery(get_called_class());
     }
 
+    /**
+     * @return SmsServiceDao
+     */
     public static function dao()
     {
         return SmsServiceDao::me();
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return SmsBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new SmsBiller($this, $date, $clientAccount);
     }
 
+    /**
+     * @return TariffSms
+     */
     public function getTariff()
     {
         return $this->hasOne(TariffSms::className(), ['id' => 'tarif_id']);
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_SMS;
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @return Region
+     */
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
@@ -71,7 +100,7 @@ class UsageSms extends ActiveRecord implements UsageInterface
      * @param $usage
      * @return SmsServiceTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new SmsServiceTransfer($usage);
     }
@@ -84,6 +113,9 @@ class UsageSms extends ActiveRecord implements UsageInterface
         return new UsageSmsHelper($this);
     }
 
+    /**
+     * @return array
+     */
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoTariffTable(self::className(), TariffSms::tableName());

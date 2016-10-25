@@ -3,16 +3,19 @@
 namespace app\helpers\usages;
 
 use yii\base\Object;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use app\models\usages\UsageInterface;
 use app\models\UsageEmails;
+use app\models\ClientAccount;
 
 class UsageEmailHelper extends Object implements UsageHelperInterface
 {
 
     private $usage;
 
+    /**
+     * @param UsageInterface $usage
+     */
     public function __construct(UsageInterface $usage)
     {
         $this->usage = $usage;
@@ -52,11 +55,19 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
     }
 
     /**
-     * @return ActiveRecord
+     * @return UsageInterface
      */
     public function getTransferedFrom()
     {
         return UsageEmails::findOne($this->usage->prev_usage_id);
+    }
+
+    /**
+     * @param ClientAccount $clientAccount
+     */
+    public function getAvailableUsagesToTransfer(ClientAccount $clientAccount)
+    {
+
     }
 
 }

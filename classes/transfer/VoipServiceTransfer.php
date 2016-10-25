@@ -7,6 +7,9 @@ use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
+use app\classes\uu\model\Tariff;
+use app\models\usages\UsageInterface;
+use yii\db\ActiveRecord;
 
 /**
  * Класс переноса услуг типа "Телефония номера"
@@ -16,9 +19,48 @@ class VoipServiceTransfer extends ServiceTransfer
 {
 
     /**
-     * Перенос базовой сущности услуги
-     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
-     * @return object - созданная услуга
+     * Список услуг доступных для переноса
+     *
+     * @param ClientAccount $clientAccount
+     * @return UsageVoip[]
+     */
+    public function getPossibleToTransfer(ClientAccount $clientAccount)
+    {
+        $usages =
+            UsageVoip::find()
+                ->client($clientAccount->client)
+                ->actual()
+                ->andWhere(['next_usage_id' => 0])
+                ->orderBy(['id' => SORT_DESC]);
+
+        $voipNumbers = $clientAccount->voipNumbers;
+        $stopList = [];
+
+        foreach ($voipNumbers as $number => $options) {
+            if ($options['type'] !== 'vpbx' || !$options['stat_product_id']) {
+                continue;
+            }
+            $stopList[] = $number;
+        }
+
+        $result = [];
+        if ($usages->count()) {
+            foreach ($usages->each() as $usage) {
+                if ($usage->type_id === Tariff::NUMBER_TYPE_7800 || in_array($usage->E164, $stopList)) {
+                    continue;
+                }
+                $result[] = $usage;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Процесс переноса
+     *
+     * @return UsageInterface
+     * @throws \Exception
      */
     public function process()
     {
@@ -33,7 +75,10 @@ class VoipServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     * Процесс отмены переноса услуги
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     public function fallback()
     {
@@ -47,7 +92,10 @@ class VoipServiceTransfer extends ServiceTransfer
 
     /**
      * Перенос связанных с услугой линий без номер, если услуга 7800
-     * @param object $targetService - базовая услуга
+     *
+     * @param ActiveRecord $targetService
+     * @throws \Exception
+     * @throws \yii\base\Exception
      */
     private function process7800($targetService)
     {
@@ -68,7 +116,8 @@ class VoipServiceTransfer extends ServiceTransfer
 
     /**
      * Перенос связанных с услугой пакетов
-     * @param object $targetService - базовая услуга
+     *
+     * @param ActiveRecord $targetService
      */
     private function processPackages($targetService)
     {
@@ -93,7 +142,10 @@ class VoipServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Отмена переноса связанных с услугой линий без номера, если услуга 7800
+     * Процесс отмены связанных с услугой линий без номера, если услуга 7800
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     private function fallback7800()
     {
@@ -111,7 +163,7 @@ class VoipServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Отмена переноса связанных с услугой пакетов
+     * * Процесс отмены переноса связанных с услугой пакетов
      */
     private function fallbackPackages()
     {

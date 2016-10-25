@@ -27,6 +27,9 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
 
     use LogTariffTrait;
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -39,21 +42,35 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_virtpbx';
     }
 
+    /**
+     * @return UsageQuery
+     */
     public static function find()
     {
         return new UsageQuery(get_called_class());
     }
 
+    /**
+     * @return VirtpbxServiceDao
+     */
     public static function dao()
     {
         return VirtpbxServiceDao::me();
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return VirtpbxBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new VirtpbxBiller($this, $date, $clientAccount);
@@ -73,16 +90,25 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
         return TariffVirtpbx::findOne($logTariff->id_tarif);
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_VIRTPBX;
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @return Region
+     */
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
@@ -92,7 +118,7 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
      * @param $usage
      * @return VirtpbxServiceTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new VirtpbxServiceTransfer($usage);
     }
@@ -105,6 +131,9 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
         return new UsageVirtpbxHelper($this);
     }
 
+    /**
+     * @return array
+     */
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoLogTariff(self::className());

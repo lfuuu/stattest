@@ -20,6 +20,9 @@ use app\models\usages\UsageInterface;
 class UsageWelltime extends ActiveRecord implements UsageInterface
 {
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -28,41 +31,67 @@ class UsageWelltime extends ActiveRecord implements UsageInterface
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_welltime';
     }
 
+    /**
+     * @return UsageQuery
+     */
     public static function find()
     {
         return new UsageQuery(get_called_class());
     }
 
+    /**
+     * @return WelltimeServiceDao
+     */
     public static function dao()
     {
         return WelltimeServiceDao::me();
     }
 
+    /**
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return WelltimeBiller
+     */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
         return new WelltimeBiller($this, $date, $clientAccount);
     }
 
+    /**
+     * @return TariffExtra
+     */
     public function getTariff()
     {
         return $this->hasOne(TariffExtra::className(), ['id' => 'tarif_id']);
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_WELLTIME;
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @return Region
+     */
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
@@ -72,7 +101,7 @@ class UsageWelltime extends ActiveRecord implements UsageInterface
      * @param $usage
      * @return WelltimeServiceTransfer
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
         return new WelltimeServiceTransfer($usage);
     }
@@ -85,6 +114,9 @@ class UsageWelltime extends ActiveRecord implements UsageInterface
         return new UsageWelltimeHelper($this);
     }
 
+    /**
+     * @return array
+     */
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoTariffTable(self::className(), TariffExtra::tableName());

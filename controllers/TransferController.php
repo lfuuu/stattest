@@ -12,54 +12,26 @@ use yii\helpers\Json;
 class TransferController extends BaseController
 {
 
-    public function actionIndex($client, $only_usage = '')
+    /**
+     * @param int $client
+     * @return string
+     * @throws \yii\base\Exception
+     */
+    public function actionIndex($client)
     {
+        /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne($client);
         Assert::isObject($clientAccount);
 
-        $model = new ServiceTransferForm;
-        if ($model->load(Yii::$app->request->post(), 'transfer') && $model->validate() && $model->process()) {
+        $model = new ServiceTransferForm($clientAccount);
 
-            Yii::$app->session->set(
-                'transfer_results_' . $clientAccount->id . '_' . $model->targetAccount->id,
-                Json::encode($model->servicesSuccess)
-            );
-
-            $this->redirect([
-                'transfer/success',
-                'client_account_id' => $clientAccount->id,
-                'target_account_id' => $model->targetAccount->id
-            ]);
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->process()) {
+            $this->redirect('/monitoring/transfered-usages');
         }
 
-        $this->layout = 'minimal';
         return $this->render('index', [
             'model' => $model,
-            'client' => $clientAccount,
-            'only_usages' => $only_usage ? (array)$only_usage : [],
-        ]);
-    }
-
-    public function actionSuccess($client_account_id, $target_account_id)
-    {
-        $clientAccount = ClientAccount::findOne($client_account_id);
-        Assert::isObject($clientAccount);
-
-        $targetAccount = ClientAccount::findOne($target_account_id);
-        Assert::isObject($targetAccount);
-
-        $session = Yii::$app->session;
-        $session_key = 'transfer_results_' . $clientAccount->id . '_' . $targetAccount->id;
-
-        $movedServices = Json::decode($session->get($session_key));
-        unset($session[$session_key]);
-
-        $this->layout = 'minimal';
-        return $this->render('success', [
-            'model' => new ServiceTransferForm,
             'clientAccount' => $clientAccount,
-            'targetAccount' => $targetAccount,
-            'movedServices' => $movedServices
         ]);
     }
 

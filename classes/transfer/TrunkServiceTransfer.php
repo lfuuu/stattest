@@ -4,7 +4,10 @@ namespace app\classes\transfer;
 
 use Yii;
 use yii\base\InvalidValueException;
-use app\models\UsageTrunkSettings;
+use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
+use app\models\UsageTrunk;
+use yii\db\ActiveRecord;
 
 /**
  * Класс переноса услуги "Телефония транки"
@@ -14,8 +17,28 @@ class TrunkServiceTransfer extends ServiceTransfer
 {
 
     /**
-     * Перенос базовой сущности услуги
-     * @return object - созданная услуга
+     * Список услуг доступных для переноса
+     *
+     * @param ClientAccount $clientAccount
+     * @return UsageTrunk[]
+     */
+    public function getPossibleToTransfer(ClientAccount $clientAccount)
+    {
+        $now = new \DateTime();
+
+        return
+            UsageTrunk::find()
+                ->andWhere(['client_account_id' => $clientAccount->id])
+                ->andWhere(['<=', 'actual_from', $now->format(DateTimeZoneHelper::DATE_FORMAT)])
+                ->andWhere(['next_usage_id' => 0])
+                ->all();
+    }
+
+    /**
+     * Процесс переноса услуги
+     *
+     * @return ActiveRecord
+     * @throws \Exception
      */
     public function process()
     {
@@ -25,6 +48,7 @@ class TrunkServiceTransfer extends ServiceTransfer
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
+            /** @var ActiveRecord $targetService */
             $targetService = new $this->service;
             $targetService->setAttributes($this->service->getAttributes(), false);
             unset($targetService->id);
@@ -51,14 +75,17 @@ class TrunkServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Перенос связанных с услугой настроек
-     * @param object $targetService - базовая услуга
+     * Процесс переноса настроек услуги
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     private function processSettings($targetService)
     {
         foreach ($this->service->settings as $setting) {
             $dbTransaction = Yii::$app->db->beginTransaction();
             try {
+                /** @var ActiveRecord $targetSetting */
                 $targetSetting = new $setting;
                 $targetSetting->setAttributes($setting->getAttributes(), false);
                 unset($targetSetting->id);
@@ -75,7 +102,10 @@ class TrunkServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Процесс отмены переноса услуги, в простейшем варианте, только манипуляции с записями
+     * Процесс отмены переноса услуги
+     *
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     public function fallback()
     {
@@ -85,7 +115,7 @@ class TrunkServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Отмена переноса связанных с услугой настроек
+     * Процесс отмены переноса настроек услуги
      */
     private function fallbackSettings()
     {

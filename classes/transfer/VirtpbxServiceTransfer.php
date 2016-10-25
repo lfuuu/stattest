@@ -6,6 +6,8 @@ use Yii;
 use app\models\usages\UsageInterface;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
+use app\models\UsageVirtpbx;
+use yii\db\ActiveRecord;
 
 /**
  * Класс переноса услуг типа "Виртуальная АТС"
@@ -15,9 +17,26 @@ class VirtpbxServiceTransfer extends ServiceTransfer
 {
 
     /**
-     * Перенос базовой сущности услуги
-     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
-     * @return object - созданная услуга
+     * Список услуг доступных для переноса
+     *
+     * @param ClientAccount $clientAccount
+     * @return UsageVirtpbx[]
+     */
+    public function getPossibleToTransfer(ClientAccount $clientAccount)
+    {
+        return
+            UsageVirtpbx::find()
+                ->client($clientAccount->client)
+                ->actual()
+                ->andWhere(['next_usage_id' => 0])
+                ->all();
+    }
+
+    /**
+     * Процесс переноса
+     *
+     * @return UsageInterface
+     * @throws \Exception
      */
     public function process()
     {
@@ -30,13 +49,16 @@ class VirtpbxServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * Перенос связанных с услугой voip номеров
-     * @param object $targetService - базовая услуга
+     * Перенос связанных с ВАТС номеров
+     *
+     * @param ActiveRecord $targetService
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     private function processVoipNumbers($targetService)
     {
         foreach ($this->service->clientAccount->voipNumbers as $number => $options) {
-            if ($options['type'] != 'vpbx' || $options['stat_product_id'] != $this->service->id) {
+            if ($options['type'] !== 'vpbx' || $options['stat_product_id'] != $this->service->id) {
                 continue;
             }
 

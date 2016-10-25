@@ -43,6 +43,9 @@ use app\models\important_events\ImportantEventsProperties;
 class UsageVoipPackage extends ActiveRecord implements UsageInterface
 {
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -51,24 +54,33 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'usage_voip_package';
     }
 
+    /**
+     * @return UsageQuery
+     */
     public static function find()
     {
         return new UsageQuery(get_called_class());
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return TariffVoipPackage
      */
     public function getTariff()
     {
         return $this->hasOne(TariffVoipPackage::className(), ['id' => 'tariff_id']);
     }
 
+    /**
+     * @return UsageVoip
+     */
     public function getUsageVoip()
     {
         return $this->hasOne(UsageVoip::className(), ['id' => 'usage_voip_id']);
@@ -117,7 +129,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @param string $dataRangeFrom
+     * @param string $dateRangeFrom
      * @param string $dateRangeTo
      * @return array|\yii\db\ActiveRecord[]
      */
@@ -148,11 +160,11 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
 
     /**
      * @param UsageInterface $usage
-     * @return VoipPackageServiceTransfer
+     * @return bool
      */
-    public static function getTransferHelper($usage)
+    public static function getTransferHelper($usage = null)
     {
-        return new VoipPackageServiceTransfer($usage);
+        return false;
     }
 
     /**
@@ -163,6 +175,9 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         return new UsageVoipPackageHelper($this);
     }
 
+    /**
+     * @return string
+     */
     public function getServiceType()
     {
         return Transaction::SERVICE_VOIP_PACKAGE;
@@ -176,11 +191,17 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @return array
+     */
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoTariffTable(self::className(), TariffVoipPackage::tableName(), 'tariff_id');
     }
 
+    /**
+     * @return array|null|ActiveRecord
+     */
     public function getLastUpdateData()
     {
         return

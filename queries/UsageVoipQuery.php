@@ -2,7 +2,6 @@
 namespace app\queries;
 
 use app\models\UsageVoip;
-use app\models\ClientAccount;
 
 /**
  * @method UsageVoip[] all($db = null)
@@ -10,8 +9,14 @@ use app\models\ClientAccount;
  */
 class UsageVoipQuery extends UsageQuery
 {
+
+    /**
+     * @param string $number
+     * @return $this
+     */
     public function phone($number)
     {
-        return $this->andWhere(["E164" => $number]);
+        return $this->andWhere(['E164' => $number]);
     }
+
 }

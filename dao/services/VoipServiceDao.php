@@ -8,19 +8,8 @@ use app\models\TariffVoip;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 
-class VoipServiceDao extends Singleton implements ServiceDao
+class VoipServiceDao extends Singleton
 {
-
-    public function getPossibleToTransfer(ClientAccount $client)
-    {
-        return
-            UsageVoip::find()
-                ->client($client->client)
-                ->actual()
-                ->andWhere(['next_usage_id' => 0])
-                ->orderBy(['id' => SORT_DESC])
-                ->all();
-    }
 
     public function getTariffsList(ClientAccount $client, $region)
     {
