@@ -116,7 +116,6 @@ class ReportUsageDao extends Singleton
                 }
             }
         }
-
         switch ($detality) {
             case 'dest':
                 return self::voipStatisticByDestination($query, $clientAccount, $region);
@@ -220,12 +219,10 @@ class ReportUsageDao extends Singleton
         $query->limit($isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS);
         $query->orderBy('ts1 ASC');
 
-        $records = $query->asArray()->all();
-
         $rt = ['price' => 0, 'ts2' => 0, 'cnt' => 0, 'is_total' => true];
         $geo = [];
 
-        foreach ($records as $record) {
+        foreach ($query->asArray()->each() as $record) {
             $record['geo'] = '';
 
             if (isset($record['geo_id'])) {
@@ -335,7 +332,7 @@ class ReportUsageDao extends Singleton
             ],
         ];
 
-        foreach ($query->asArray()->all() as $record) {
+        foreach ($query->asArray()->each() as $record) {
             if ($record['dest'] <= 0 && $record['mob'] === false) {
                 $result['mos_loc']['len'] += $record['len'];
                 $result['mos_loc']['price'] += $record['price'];
