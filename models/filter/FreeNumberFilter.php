@@ -8,7 +8,6 @@ use app\models\light_models\NumberLight;
 use app\models\Number;
 use app\models\NumberType;
 use app\models\TariffNumber;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 
 /**
@@ -67,9 +66,8 @@ class FreeNumberFilter extends Number
     {
         $this->query->andWhere([parent::tableName() . '.number_type' => $numberType]);
 
-        switch ($numberType) {
-            case NumberType::ID_GEO_DID: {
-                $this->query->having(new Expression('
+        if ($numberType == NumberType::ID_GEO_DID) {
+            $this->query->having(new Expression('
                     IF(
                         `' . parent::tableName() . '`.`number` LIKE "7495%",
                         `' . parent::tableName() . '`.`number` LIKE "74951059%"
@@ -78,11 +76,6 @@ class FreeNumberFilter extends Number
                         true
                     )
                 '));
-                break;
-            }
-            case NumberType::ID_7800: {
-                $this->query->andWhere([parent::tableName() . '.ndc' => 800]);
-            }
         }
 
         return $this;
@@ -383,7 +376,7 @@ class FreeNumberFilter extends Number
 
         // Маска содержит только цифры
         if (preg_match('#^[0-9]+$#', $mask)) {
-            return array_filter($numbers, function($number) use ($mask, $fromEnd) {
+            return array_filter($numbers, function ($number) use ($mask, $fromEnd) {
                 $realNumber = substr($number->number, strlen($number->number) - 7);
                 return
                     !$fromEnd
@@ -398,7 +391,7 @@ class FreeNumberFilter extends Number
         $unique = [];
         $regexp = '';
 
-        for ($index=0; $index < $patternLength; $index++) {
+        for ($index = 0; $index < $patternLength; $index++) {
             $symbol = $pattern[$index];
 
             // Добавление цифр as is
@@ -410,13 +403,12 @@ class FreeNumberFilter extends Number
             if (!isset($unique[$symbol])) {
                 $regexp .= $index ? '((?![\\' . implode('\\', array_values($unique)) . '])\d)' : '(\d)';
                 $unique[$symbol] = count(array_keys($unique)) + 1;
-            }
-            else {
+            } else {
                 $regexp .= '\\' . $unique[$symbol];
             }
         }
 
-        return array_filter($numbers, function($number) use ($regexp, $patternLength, $fromEnd) {
+        return array_filter($numbers, function ($number) use ($regexp, $patternLength, $fromEnd) {
             $realNumber =
                 !$fromEnd
                     ? substr($number->number, strlen($number->number) - 7, $patternLength)
@@ -433,11 +425,11 @@ class FreeNumberFilter extends Number
      */
     private function applyLevenshtein($numbers, $similar)
     {
-        array_walk($numbers, function($row) use ($similar) {
+        array_walk($numbers, function ($row) use ($similar) {
             $row->levenshtein = levenshtein(substr($row->number, strlen($row->number) - 7), $similar);
         });
 
-        usort($numbers, function($a, $b) {
+        usort($numbers, function ($a, $b) {
             if ($a->levenshtein == $b->levenshtein) {
                 return 0;
             }
