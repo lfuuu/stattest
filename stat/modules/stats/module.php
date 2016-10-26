@@ -222,10 +222,34 @@ class m_stats extends IModule{
 
         $timezones = [ $account->timezone_name ];
 
-        $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
+        $usages = [];
+
+        if ($account->account_version == ClientAccount::VERSION_BILLER_USAGE) {
+            $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
                                        left join regions r on r.id=u.region
-                                       where u.client='".addslashes($account->client)."'
+                                       where u.client='" . addslashes($account->client) . "'
                                        order by u.region desc, u.id asc");
+        } elseif ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+
+            $usages = \app\classes\uu\model\AccountTariff::find()
+                ->select(['at.id', 'r.timezone_name'])
+                ->addSelect([
+                    'phone_num' => 'at.voip_number',
+                    'region' => 'at.region_id',
+                    'region_name' => 'r.name'
+                ])
+                ->where([
+                    'client_account_id' => $account->id,
+                    'service_type_id' => \app\classes\uu\model\ServiceType::ID_VOIP
+                ])
+                ->leftJoin(['r' => \app\models\Region::tableName()], 'r.id = at.region_id')
+                ->from(['at' => \app\classes\uu\model\AccountTariff::tableName()])
+                ->orderBy([
+                    'at.region_id' => SORT_DESC,
+                    'at.id' => SORT_ASC
+                ])->createCommand()->queryAll();
+        }
+
         if (!$usages) {
             trigger_error2("У клиента нет подключенных телефонных номеров!");
             return;
