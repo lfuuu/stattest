@@ -390,3 +390,17 @@ table.table_style tr.title{
 	float: right;
 	margin-right: 15px;
 }
+
+/** Статистика VoIP **/
+.package_taken_all {
+	font-weight: bold;
+}
+
+.package_taken_part {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.package_taken_none {
+	color: gray;
+}

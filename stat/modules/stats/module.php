@@ -1,5 +1,7 @@
 <?php
 
+use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\ServiceType;
 use app\models\ClientAccount;
 use app\models\Param;
 use app\models\StatVoipFreeCache;
@@ -231,23 +233,40 @@ class m_stats extends IModule{
                                        order by u.region desc, u.id asc");
         } elseif ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
 
-            $usages = \app\classes\uu\model\AccountTariff::find()
-                ->select(['at.id', 'r.timezone_name'])
-                ->addSelect([
-                    'phone_num' => 'at.voip_number',
-                    'region' => 'at.region_id',
-                    'region_name' => 'r.name'
-                ])
-                ->where([
-                    'client_account_id' => $account->id,
-                    'service_type_id' => \app\classes\uu\model\ServiceType::ID_VOIP
-                ])
-                ->leftJoin(['r' => \app\models\Region::tableName()], 'r.id = at.region_id')
-                ->from(['at' => \app\classes\uu\model\AccountTariff::tableName()])
+            $accountTariffs = AccountTariff::find()->where([
+                'client_account_id' => $account->id,
+                'service_type_id' => ServiceType::ID_VOIP
+            ])
+                ->with('city', 'region')
                 ->orderBy([
-                    'at.region_id' => SORT_DESC,
-                    'at.id' => SORT_ASC
-                ])->createCommand()->queryAll();
+                    AccountTariff::tableName() . '.id' => SORT_ASC
+                ]);
+
+            /** @var AccountTariff $accountTariff */
+            foreach ($accountTariffs->each() as $accountTariff) {
+                $region = $accountTariff->city->region;
+                $usages[] = [
+                    'id' => $accountTariff->id,
+                    'phone_num' => $accountTariff->voip_number,
+                    'region' => $region->id,
+                    'region_name' => $region->name,
+                    'timezone_name' => $region->timezone_name
+                ];
+            }
+
+            // ->orderBy([
+            //     'region'                     => SORT_DESC,
+            //     'account_tariff.voip_number' => SORT_ASC,
+            // ]);
+            usort($usages, function ($a, $b) {
+                if ($a['region'] == $b['region']) {
+                    if ($a['phone_num'] == $b['phone_num']) {
+                        return 0;
+                    }
+                    return $a['phone_num'] > $b['phone_num'] ? 1 : -1;
+                }
+                return $a['region'] < $b['region'] ? 1 : -1;
+            });
         }
 
         if (!$usages) {
@@ -325,6 +344,7 @@ class m_stats extends IModule{
         $design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
         $design->assign('timezone',$timezone=get_param_raw('timezone', $account->timezone_name));
         $design->assign('timezones', $timezones);
+
         if ($region === 'all') {
             $stats = array();
             foreach ($regions as $region=>$phones_sel) {

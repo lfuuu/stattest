@@ -13,6 +13,7 @@
           <TD class=header vAlign=bottom>Время разговора</TD>
           <TD class=header vAlign=bottom>Стоимость{if !$price_include_vat} (без НДС){/if}</TD>
           <TD class=header vAlign=bottom>Назначение</TD>
+          <TD class=header vAlign=bottom>Детализация</TD>
 {else}
           <TD class=header vAlign=bottom>Дата/время</TD>
           <TD class=header vAlign=bottom>Число звонков</TD>
@@ -42,7 +43,14 @@
     {else}
         <TD>{$item.price}</TD>
         <TD>{$item.geo}</TD>
-    {/if}    
+    {/if}
+    <td>
+        <small>
+            {if $item.package_minute}<span class="package_taken_{$item.package_minute.taken}">{$item.package_minute.name} / Минут: {$item.package_minute.minute} / {$item.package_minute.destination}</span> <br/>{/if}
+            {if $item.package_price}<span class="package_taken_{$item.package_price.taken}">{$item.package_price.name} / Цена: {$item.package_price.price} / {$item.package_price.destination}</span> <br/>{/if}
+            {if $item.package_pricelist}<span class="package_taken_{$item.package_pricelist.taken}">{$item.package_pricelist.name} / Прайс-лист: {$item.package_pricelist.pricelist}</span>{/if}
+        </small>
+    </td>
 {else}
     <TD>{$item.tsf1}</TD>
     <TD>{$item.cnt}</TD>
