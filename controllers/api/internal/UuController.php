@@ -3,6 +3,7 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
@@ -22,6 +23,7 @@ use app\classes\uu\model\TariffVoipTarificate;
 use app\exceptions\api\internal\ExceptionValidationForm;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -1265,4 +1267,36 @@ class UuController extends ApiInternalController
         }
     }
 
+    /**
+     * @SWG\Definition(definition = "vmCollocationRecord", type = "object",
+     *   @SWG\Property(property="vm_user_id", type="string", description="ID юзера в VM manager"),
+     *   @SWG\Property(property="vm_user_password", type="string", description="Пароль юзера в VM manager"),
+     * ),
+     *
+     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VM collocation аккаунта", operationId = "Информация о VM collocation аккаунта",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID аккаунта клиента", in = "query"),
+     *
+     *   @SWG\Response(response = 200, description = "Информация о VM collocation аккаунта",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/vmCollocationRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+    public function actionGetVmCollocationInfo($client_account_id)
+    {
+        $account = ClientAccount::findOne(['id' => $client_account_id]);
+        if (!$account) {
+            throw new InvalidArgumentException('Несуществующий client_account_id ' . $client_account_id);
+        }
+        $syncVmCollocation = (new SyncVmCollocation);
+        return [
+            'vm_user_id' => $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_ELID),
+            'vm_user_password' => $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_PASSWORD),
+        ];
+    }
 }

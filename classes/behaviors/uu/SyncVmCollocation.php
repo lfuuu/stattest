@@ -91,7 +91,7 @@ class SyncVmCollocation
      */
     public function enableAccount($clientAccountId)
     {
-        $this->enableOrDisableAccount($clientAccountId, $isEnable = true);
+        return $this->enableOrDisableAccount($clientAccountId, $isEnable = true);
     }
 
     /**
@@ -101,7 +101,7 @@ class SyncVmCollocation
      */
     public function disableAccount($clientAccountId)
     {
-        $this->enableOrDisableAccount($clientAccountId, $isEnable = false);
+        return $this->enableOrDisableAccount($clientAccountId, $isEnable = false);
     }
 
     /**
@@ -112,36 +112,31 @@ class SyncVmCollocation
      */
     protected function enableOrDisableAccount($clientAccountId, $isEnable)
     {
+        $apiVmCollocation = ApiVmCollocation::getInstance();
+        if (!$apiVmCollocation->isAvailable()) {
+            return null;
+        }
+
         $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
-        $vmClientId = $this->getVmClientId($clientAccount, $isCreate = false);
+        $vmClientId = (int)$this->getVmUserInfo($clientAccount);
         if (!$vmClientId) {
             return false;
         }
-        $apiVmCollocation = ApiVmCollocation::getInstance();
+
         return $apiVmCollocation->enableOrDisableUser($vmClientId, $isEnable);
     }
 
     /**
      * Вернуть ID клиента в VM
      * @param ClientAccount $clientAccount
-     * @param bool $isCreate создавать ли, если не найден ранее созданный
      * @return int
      */
-    protected function getVmClientId(ClientAccount $clientAccount, $isCreate = true)
+    protected function getVmClientId(ClientAccount $clientAccount)
     {
         // взять из кэша
-        $options = $clientAccount->getOption(self::CLIENT_ACCOUNT_OPTION_VM_ELID);
-        if (count($options)) {
-            $vmClientId = (int)$options[0];
-        } else {
-            $vmClientId = null;
-        }
+        $vmClientId = (int)$this->getVmUserInfo($clientAccount);
         if ($vmClientId) {
             return $vmClientId;
-        }
-
-        if (!$isCreate) {
-            return null;
         }
 
         $apiVmCollocation = ApiVmCollocation::getInstance();
@@ -174,4 +169,17 @@ class SyncVmCollocation
         return $vmClientId;
     }
 
+    /**
+     * @param ClientAccount $clientAccount
+     * @return string|null
+     */
+    public function getVmUserInfo(ClientAccount $clientAccount, $option = self::CLIENT_ACCOUNT_OPTION_VM_ELID)
+    {
+        $options = $clientAccount->getOption($option);
+        if (count($options)) {
+            return $options[0];
+        } else {
+            return null;
+        }
+    }
 }

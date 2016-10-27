@@ -91,6 +91,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="id", type="integer", description="Идентификатор ЛС"),
      *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнера"),
      *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
+     *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
      *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-client-struct-applications"))
      * ),
      * @SWG\Definition(definition="get-client-struct-contragent", type="object", required={"id","name","country","accounts"},
@@ -170,8 +171,8 @@ class ClientController extends ApiInternalController
                     foreach ($contract->accounts as $account) {
                         $resultAccounts[] = [
                             'id' => $account->id,
-                            'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
                             'is_partner' => $contract->isPartner(),
+                            'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
                             'version' => $account->account_version,
                             'applications' => $this->getPlatformaServices($account->client)
                         ];
