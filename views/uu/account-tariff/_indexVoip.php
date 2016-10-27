@@ -5,6 +5,7 @@
  *
  * @var \yii\web\View $this
  * @var AccountTariffFilter $filterModel
+ * @var bool $isShowAddButton
  */
 
 use app\classes\Html;
@@ -138,7 +139,8 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                             <?php
                             $i = 0;
-                            $isPackageEditable = $accountTariffPackage->tariff_period_id;
+                            // дефолтный пакет нельзя редактировать
+                            $isPackageEditable = $accountTariffPackage->tariff_period_id && !$accountTariffPackage->tariffPeriod->tariff->is_default;
                             $isPackageCancelable = $accountTariffPackage->isCancelable();
                             /** @var AccountTariffLog $accountTariffLog */
                             ?>

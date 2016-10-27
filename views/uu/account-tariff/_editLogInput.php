@@ -53,6 +53,7 @@ $accountTariffLog = $formModel->accountTariffLog;
             ])
             ->label($accountTariffLog->getAttributeLabel('actual_from_utc'))
         ?>
+        <div class="text-danger">Если сегодня, то отменить нельзя!</div>
     </div>
 
     <?php if (!$accountTariff->isNewRecord) : ?>

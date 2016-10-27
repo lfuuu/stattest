@@ -44,14 +44,14 @@
 
     AccountTariffEdit.prototype.currencyVal = null;
 
-    AccountTariffEdit.prototype.form = null;
-
     AccountTariffEdit.prototype.errorClassName = 'alert-danger';
 
     AccountTariffEdit.prototype.successClassName = 'alert-success';
 
     function AccountTariffEdit() {
       this.onFormSubmit = bind(this.onFormSubmit, this);
+      this.reloadPackageList = bind(this.reloadPackageList, this);
+      this.reloadTariffList = bind(this.reloadTariffList, this);
       this.onPackageTariffPeriodStatusChange = bind(this.onPackageTariffPeriodStatusChange, this);
       this.onTariffPeriodChange = bind(this.onTariffPeriodChange, this);
       this.showTariffDiv = bind(this.showTariffDiv, this);
@@ -83,7 +83,7 @@
           _this.voipServiceTypeIdVal = $('#voipServiceTypeId').val();
           _this.voipPackageServiceTypeIdVal = $('#voipPackageServiceTypeId').val();
           _this.currencyVal = $('#voipCurrency').val();
-          _this.form = $('#addAccountTariffVoipForm').on('submit', _this.onFormSubmit);
+          $('#addAccountTariffVoipForm').on('submit', _this.onFormSubmit);
           _this.initCountry(false);
           return _this.numberType.trigger('change');
         };
@@ -157,7 +157,8 @@
         this.city.parent().parent().addClass(this.errorClassName);
       }
       if (cityVal) {
-        this.onPackageTariffPeriodStatusChange();
+        this.reloadTariffList();
+        this.reloadPackageList();
       }
       if (cityVal && numberTypeVal === 'number') {
         return $.get('/uu/voip/get-did-groups', {
@@ -247,9 +248,13 @@
     };
 
     AccountTariffEdit.prototype.onPackageTariffPeriodStatusChange = function() {
+      return this.reloadTariffList();
+    };
+
+    AccountTariffEdit.prototype.reloadTariffList = function() {
       var cityVal;
       cityVal = this.city.val();
-      $.get('/uu/voip/get-tariff-periods', {
+      return $.get('/uu/voip/get-tariff-periods', {
         serviceTypeId: this.voipServiceTypeIdVal,
         currency: this.currencyVal,
         cityId: cityVal,
@@ -262,13 +267,18 @@
           return _this.tariffPeriod.trigger('change');
         };
       })(this));
+    };
+
+    AccountTariffEdit.prototype.reloadPackageList = function() {
+      var cityVal;
+      cityVal = this.city.val();
       return $.get('/uu/voip/get-tariff-periods', {
         serviceTypeId: this.voipPackageServiceTypeIdVal,
         currency: this.currencyVal,
         cityId: cityVal,
         isWithEmpty: 0,
         format: 'options',
-        status: this.packageTariffPeriodStatus.val()
+        status: ''
       }, (function(_this) {
         return function(html) {
           _this.packageTariffPeriod.html(html);
@@ -281,6 +291,8 @@
       if (!this.tariffPeriod.val()) {
         e.stopPropagation();
         return e.preventDefault();
+      } else {
+        return this.packageTariffPeriod.removeAttr('disabled');
       }
     };
 
