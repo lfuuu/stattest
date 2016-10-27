@@ -198,6 +198,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
                         'id' => 'accountTariffPackageTariffPeriod',
                         'name' => 'AccountTariffVoip[voip_package_tariff_period_ids][]',
                         'multiple' => true,
+                        'disabled' => 'disabled',
                     ],
                 ]) ?>
         </div>

@@ -66,7 +66,7 @@ abstract class AccountTariffForm extends Form
         $this->accountTariffLog->populateRelation('accountTariff', $this->accountTariff);
         $this->accountTariffLog->actual_from = $this->accountTariffLog
             ->getClientDateTime()
-            ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
+//            ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
             ->format(DateTimeZoneHelper::DATE_FORMAT);
 
         // Обработать submit (создать, редактировать, удалить)
@@ -346,10 +346,12 @@ abstract class AccountTariffForm extends Form
         &$defaultTariffPeriodId,
         $isWithEmpty = false,
         $serviceTypeId = null,
-        $cityId = null
+        $cityId = null,
+        $isWithNullAndNotNull = false,
+        $isFilterUuOnly = true
     ) {
         return TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId ?: $this->serviceTypeId,
-            $this->accountTariff->clientAccount->currency, $cityId, $isWithEmpty);
+            $this->accountTariff->clientAccount->currency, $cityId, $isWithEmpty, $isWithNullAndNotNull, $isFilterUuOnly);
     }
 
 }

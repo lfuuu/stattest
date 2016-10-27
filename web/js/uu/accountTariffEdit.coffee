@@ -25,8 +25,6 @@ class AccountTariffEdit
   voipPackageServiceTypeIdVal: null
   currencyVal: null
 
-  form: null
-
   errorClassName: 'alert-danger'
   successClassName: 'alert-success'
 
@@ -58,7 +56,7 @@ class AccountTariffEdit
       @voipPackageServiceTypeIdVal = $('#voipPackageServiceTypeId').val()
       @currencyVal = $('#voipCurrency').val()
 
-      @form = $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
+      $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
 
       @initCountry(false)
       @numberType.trigger('change')
@@ -126,7 +124,8 @@ class AccountTariffEdit
 
     if cityVal
 # заранее подготовить список тарифов и пакетов
-      @onPackageTariffPeriodStatusChange()
+      @reloadTariffList()
+      @reloadPackageList()
 
     if cityVal && numberTypeVal == 'number'
       $.get '/uu/voip/get-did-groups', {cityId: cityVal, isWithEmpty: true, format: 'options'}, (html) =>
@@ -201,14 +200,19 @@ class AccountTariffEdit
 
 # при изменении статуса пакета
   onPackageTariffPeriodStatusChange: =>
-    cityVal = @city.val()
+    @reloadTariffList()
 
+# перегрузить список тарифов
+  reloadTariffList: =>
+    cityVal = @city.val()
     $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 1, format: 'options', status: @packageTariffPeriodStatus.val()}, (html) =>
       @tariffPeriod.val('').html(html) # обновить значения
       @tariffPeriod.trigger('change')
 
-    # заранее подготовить список пакетов
-    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipPackageServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 0, format: 'options', status: @packageTariffPeriodStatus.val()}, (html) =>
+# перегрузить список пакетов
+  reloadPackageList: =>
+    cityVal = @city.val()
+    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipPackageServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 0, format: 'options', status: ''}, (html) =>
       @packageTariffPeriod.html(html) # обновить значения
       @packageTariffPeriod.trigger('change')
 
@@ -218,5 +222,7 @@ class AccountTariffEdit
     if not @tariffPeriod.val()
       e.stopPropagation()
       e.preventDefault()
+    else
+      @packageTariffPeriod.removeAttr('disabled')
 
 new AccountTariffEdit()
