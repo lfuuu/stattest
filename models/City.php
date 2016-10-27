@@ -14,6 +14,7 @@ use yii\helpers\Url;
  * @property int $in_use
  *
  * @property Country $country
+ * @property Region $region
  */
 class City extends ActiveRecord
 {

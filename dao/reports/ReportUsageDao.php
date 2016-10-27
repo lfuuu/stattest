@@ -2,6 +2,9 @@
 
 namespace app\dao\reports;
 
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -9,7 +12,6 @@ use yii\db\ActiveQuery;
 use yii\db\Expression;
 use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
-use app\classes\DateTimeWithUserTimezone;
 use app\models\ClientAccount;
 use app\models\billing\Calls;
 use app\models\billing\Geo;
@@ -211,6 +213,20 @@ class ReportUsageDao extends Singleton
             'cnt' => $groupBy ? 'SUM(' . ($paidOnly ? 'CASE ABS(cr.cost) > 0.0001 WHEN true THEN 1 ELSE 0 END' : new Expression('1')) . ')' : new Expression('1'),
         ]);
 
+        $isWithPackageDetail = false;
+        if (!$groupBy && $clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+
+            $isWithPackageDetail = true;
+
+            $query->addSelect([
+                'nnp_package_minute_id',
+                'nnp_package_price_id',
+                'nnp_package_pricelist_id',
+                'package_time',
+                'billed_time',
+            ]);
+        }
+
         if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
             Yii::$app->session->setFlash('error',
                 'Статистика отображается не полностью.' . '<br />' . PHP_EOL . ' Сделайте ее менее детальной или сузьте временной период');
@@ -249,6 +265,10 @@ class ReportUsageDao extends Singleton
 
             $record['tsf2'] = ($d ? $d . 'd ' : '') . gmdate('H:i:s', $record['ts2']);
             $record['price'] = number_format($record['price'], 2, '.', '');
+
+            if ($isWithPackageDetail) {
+                self::admixedPackageDetails($record);
+            }
 
             $result[] = $record;
             $rt['price'] += $record['price'];
@@ -413,6 +433,91 @@ class ReportUsageDao extends Singleton
         }
 
         return $row;
+    }
+
+    /**
+     * Добавляет к строке детализации звонка данные по использованным пакетам
+     * 
+     * @param array $record
+     */
+    private static function admixedPackageDetails(&$record)
+    {
+        //детализация универсальных пакетов.
+        $packageMinute = $record['nnp_package_minute_id'] ?
+            PackageMinute::findOne([
+                'id' => $record['nnp_package_minute_id']
+            ])
+            : null;
+
+        /** @var PackageMinute $packageMinute */
+        if ($packageMinute) {
+            $record['package_minute'] = [
+                'name' => $packageMinute->tariff->name,
+                'minute' => $packageMinute->minute,
+                'destination' => $packageMinute->destination->name,
+                'taken' => 'none',
+            ];
+        }
+
+        $packagePrice = $record['nnp_package_price_id'] ?
+            PackagePrice::findOne([
+                'id' => $record['nnp_package_price_id']
+            ])
+            : null;
+
+        /** @var PackagePrice $packagePrice */
+        if ($packagePrice) {
+            $record['package_price'] = [
+                'name' => $packagePrice->tariff->name,
+                'price' => $packagePrice->price,
+                'destination' => $packagePrice->destination->name,
+                'taken' => 'none',
+            ];
+        }
+
+        $packagePriceList = $record['nnp_package_pricelist_id'] ?
+            PackagePricelist::findOne([
+                'id' => $record['nnp_package_pricelist_id']
+            ])
+            : null;
+
+        if ($packagePriceList) {
+            $record['package_pricelist'] = [
+                'name' => $packagePriceList->tariff->name,
+                'pricelist' => $packagePriceList->pricelist->name,
+                'taken' => 'none',
+            ];
+        }
+
+        if ($record['billed_time']) {
+            $isAllFromPackage = false;
+            if ($record['package_time']) {
+                if ($record['billed_time'] == $record['package_time']) {
+                    $record['package_minute']['taken'] = 'all';
+                    $isAllFromPackage = true;
+                } elseif ($record['billed_time'] > $record['package_time']) {
+                    $record['package_minute']['taken'] = 'part';
+                }
+            }
+
+            if (!$isAllFromPackage) {
+                if ($record['package_price']) {
+                    $record['package_price']['taken'] = 'all';
+                } elseif ($record['package_pricelist']) {
+                    $record['package_pricelist']['taken'] = 'all';
+                }
+            }
+        }
+
+        unset(
+            $record['nnp_package_minute_id'],
+            $record['nnp_package_price_id'],
+            $record['nnp_package_pricelist_id'],
+            $record['package_time'],
+            $record['real_price'],
+            $record['real_cost'],
+            $record['billed_time']
+        );
     }
 
 }
