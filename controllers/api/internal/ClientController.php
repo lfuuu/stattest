@@ -12,6 +12,7 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientSuper;
+use app\models\Region;
 use Exception;
 use Yii;
 
@@ -784,6 +785,49 @@ class ClientController extends ApiInternalController
                 throw new Exception($form->errors[$fields[0]][0], 400);
             }
         }
+    }
+
+    /**
+     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/set-timezone", summary="Устанавливаем таймзону клиента", operationId="Устанавливаем таймзону клиента",
+     *   @SWG\Parameter(name="client_id", type="integer", description="ID (супер) клиента", in="formData"),
+     *   @SWG\Parameter(name="account_id", type="integer", description="ID лицевого счета", in="formData"),
+     *   @SWG\Parameter(name="timezone", type="string", enum={"Bad/Timezone", "Asia/Novosibirsk", "Asia/Vladivostok", "Asia/Yekaterinburg", "Europe/Budapest", "Europe/Moscow", "Europe/Samara", "Europe/Volgograd"}, description="Таймзона", in="formData", default="Europe/Moscow"),
+     *   @SWG\Response(response=200, description="данные о созданном клиенте",
+     *   ),
+     *   @SWG\Response(response="default", description="Ошибки",
+     *     @SWG\Schema(ref="#/definitions/error_result")
+     *   )
+     * )
+     */
+    public function actionSetTimezone()
+    {
+        $clientId = isset($this->requestData['client_id']) ? $this->requestData['client_id'] : null;
+        $accountId = isset($this->requestData['account_id']) ? $this->requestData['account_id'] : null;
+        $timezone = isset($this->requestData['timezone']) ? $this->requestData['timezone'] : null;
+
+        if (!$clientId) {
+            if ($accountId && $account = ClientAccount::findOne(['id' => $accountId])) {
+                $clientId = $account->super_id;
+            }
+        }
+
+        if (!$clientId) {
+            throw new BadRequestHttpException('Клиент не найден');
+        }
+
+        $client = ClientSuper::findOne(['id' => $clientId]);
+
+        if (!$client) {
+            throw new BadRequestHttpException('Клиент не найден');
+        }
+
+        if (!in_array($timezone, \DateTimeZone::listIdentifiers())) {
+            throw new BadRequestHttpException('Не найдена timezone');
+        }
+
+        ClientAccount::updateAll(['timezone_name' => $timezone], ['super_id' => $client->id]);
+
+        return true;
     }
 
 }
