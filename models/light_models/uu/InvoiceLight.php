@@ -119,7 +119,9 @@ class InvoiceLight extends Component
             // Данные о счете
             $this->bill = new InvoiceBillLight($firstAccountEntry->bill_id, $firstAccountEntry->date, $dataLanguage);
             // Данные проводках
-            $this->items = (new InvoiceItemsLight($this->clientAccount, $this->bill, $items, $invoiceSetting))->getAll();
+            $this->items =
+                (new InvoiceItemsLight($this->clientAccount, $this->bill, $items, $invoiceSetting, $dataLanguage))
+                    ->getAll();
         }
     }
 

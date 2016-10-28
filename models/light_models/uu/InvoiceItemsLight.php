@@ -7,6 +7,7 @@ use yii\base\Component;
 use app\classes\uu\model\AccountEntry;
 use app\models\ClientAccount;
 use app\models\InvoiceSettings;
+use yii\httpclient\Client;
 
 class InvoiceItemsLight extends Component implements InvoiceLightInterface
 {
@@ -14,8 +15,11 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
     public $items = [];
 
     private
+        $clientAccount = null,
         $invoiceSetting,
-        $clientContragentEuroINN = false;
+        $language,
+        $clientContragentEuroINN = false,
+        $isDetailed = true;
 
     /**
      * @param ClientAccount $clientAccount
@@ -23,13 +27,17 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
      * @param InvoiceBillLight $bill
      * @param $invoiceSetting
      */
-    public function __construct(ClientAccount $clientAccount, InvoiceBillLight $bill, $items, $invoiceSetting)
+    public function __construct(ClientAccount $clientAccount, InvoiceBillLight $bill, $items, $invoiceSetting, $language)
     {
         parent::__construct();
 
+        $this->clientAccount = $clientAccount;
         $this->invoiceSetting = $invoiceSetting;
+        $this->language = $language;
         // Взять EU Vat ID у контрагента
         $this->clientContragentEuroINN = $clientAccount->contragent->inn_euro;
+        // Установить тип закрывающего документа (Полный / Краткий)
+        $this->isDetailed = (bool)$clientAccount->type_of_bill;
 
         foreach ($items as $item) {
             // Пересчет НДС если необходимо
@@ -56,6 +64,29 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
      */
     public function getAll()
     {
+        if ($this->isDetailed === ClientAccount::TYPE_OF_BILL_SIMPLE) {
+            $billLine = [
+                'title' => Yii::t(
+                    'models/uu_bill',
+                    'short_type_of_bill',
+                    ['contract_number' => $this->clientAccount->contract->number],
+                    $this->language
+                ),
+                'price_without_vat' => 0,
+                'price_with_vat' => 0,
+                'vat_rate' => 0,
+                'vat' => 0,
+            ];
+            foreach ($this->items as $item) {
+                $billLine['price_without_vat'] += $item['price_without_vat'];
+                $billLine['price_with_vat'] += $item['price_with_vat'];
+                $billLine['vat_rate'] = $item['vat_rate'];
+                $billLine['vat'] += $item['vat'];
+            }
+
+            return [$billLine];
+        }
+
         return $this->items;
     }
 

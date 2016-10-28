@@ -173,7 +173,9 @@ use kartik\widgets\ActiveForm;
         <div class="col-sm-3">
             <?= $f->field($model, 'is_upd_without_sign')->checkbox()->label('') ?>
         </div>
-        <div class="col-sm-3"></div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'type_of_bill')->checkbox()->label('') ?>
+        </div>
     </div>
 
     <div class="row">
