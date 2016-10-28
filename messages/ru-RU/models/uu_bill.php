@@ -7,5 +7,4 @@ return [
     'update_time' => 'Время расчёта',
     'is_default' => 'Ежемесячная',
     'is_converted' => 'Сконвертирован',
-    'short_type_of_bill' => 'Услуги связи по договору №{contract_number}',
 ];

@@ -7,5 +7,4 @@ return [
     'update_time' => 'Update time',
     'is_default' => 'Monthly',
     'is_converted' => 'Converted',
-    'short_type_of_bill' => 'Communications services contract #{contract_number}',
 ];

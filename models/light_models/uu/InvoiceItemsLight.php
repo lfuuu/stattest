@@ -67,8 +67,8 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
         if ($this->isDetailed === ClientAccount::TYPE_OF_BILL_SIMPLE) {
             $billLine = [
                 'title' => Yii::t(
-                    'models/uu_bill',
-                    'short_type_of_bill',
+                    'biller',
+                    'Communications services contract #{contract_number}',
                     ['contract_number' => $this->clientAccount->contract->number],
                     $this->language
                 ),
