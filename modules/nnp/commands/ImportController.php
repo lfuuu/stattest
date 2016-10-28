@@ -10,6 +10,7 @@ use app\modules\nnp\models\NumberRange;
 use UnexpectedValueException;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\base\Module;
 use yii\console\Controller;
 
 /**
@@ -32,6 +33,17 @@ class ImportController extends Controller
 
     /** @var Connection */
     protected $db = null;
+
+    /**
+     * @param string $id the ID of this controller.
+     * @param Module $module the module that this controller belongs to.
+     * @param array $config name-value pairs that will be used to initialize the object properties.
+     */
+    public function __construct($id, $module, $config = [])
+    {
+        parent::__construct($id, $module, $config);
+        $this->db = Yii::$app->dbPgNnp;
+    }
 
     /**
      * Импортировать Россию из Россвязи. 2 минуты
@@ -452,8 +464,6 @@ class ImportController extends Controller
      */
     protected function import($callbackMethod, $countryPrefix)
     {
-        $this->db = Yii::$app->dbPgNnp;
-
         $transaction = $this->db->beginTransaction();
         try {
 
