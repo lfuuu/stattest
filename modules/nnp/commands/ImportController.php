@@ -25,10 +25,10 @@ class ImportController extends Controller
     const EXCEL5 = 'Excel5';
 
     /** @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629 */
-    const FILE_ID_SLOVAKIA = '0B9ds-UaQbaC7X1BodzJVOTItNXc';
-    const FILE_ID_HUNGARY = '0B9ds-UaQbaC7OXNISlVZX3hhYVU';
-    const FILE_ID_GERMANY = '0B9ds-UaQbaC7MDRNLTl5WVN2Y0k';
+    const FILE_ID_HUNGARY = '0B9ds-UaQbaC7UjJvc25jSXNyY3M';
+    const FILE_ID_SLOVAKIA = '0B9ds-UaQbaC7SHJHY0JnNHpRN00';
     const FILE_ID_AUSTRIA = '0B9ds-UaQbaC7UHo2M3VfM3I5d2M';
+    const FILE_ID_GERMANY = '0B9ds-UaQbaC7MDRNLTl5WVN2Y0k';
     const FILE_ID_CZECH = '0B9ds-UaQbaC7VzNPMzljR2VTMms';
 
     /** @var Connection */
@@ -46,7 +46,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Импортировать Россию из Россвязи. 2 минуты
+     * Импортировать Россию из Россвязи. 2 минуты. Сначала надо disable-trigger, потом enable-trigger
      * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
      */
     public function actionRus()
@@ -95,7 +95,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Импортировать Словакию из Excel. 3 сек
+     * Импортировать Словакию из Excel. 3 сек. Сначала надо disable-trigger, потом enable-trigger
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionSlovakia()
@@ -109,58 +109,11 @@ class ImportController extends Controller
      */
     protected function importSlovakiaCallback()
     {
-        $this->importFromExcel(
-            'https://docs.google.com/uc?export=download&id=' . self::FILE_ID_SLOVAKIA,
-            function ($row) {
-                /**
-                 * 0 - number_from
-                 * 1 - number_to
-                 * 2 - кол-во номеров
-                 * 3 - оператор
-                 * 4 - дата решения
-                 * 5 - номер решения
-                 */
-
-                $numberFrom = str_replace(' ', '', $row[0]); // number_from
-                if (!is_numeric($numberFrom)) {
-                    throw new InvalidParamException('Ошибочный number_from ' . $numberFrom);
-                }
-
-                $numberTo = str_replace(' ', '', $row[1]); // number_to
-                if (!is_numeric($numberTo)) {
-                    throw new InvalidParamException('Ошибочный number_to ' . $numberTo);
-                }
-
-                $dateResolution = $row[4];
-                if ($dateResolution) {
-                    $dateResolutionDateTime = \DateTimeImmutable::createFromFormat('m-d-y', $dateResolution);
-                    if ($dateResolutionDateTime) {
-                        $dateResolution = $dateResolutionDateTime->format(DateTimeZoneHelper::DATE_FORMAT);
-                    } else {
-                        echo 'Ошибочный date_resolution ' . $dateResolution . PHP_EOL;
-                    }
-                }
-                return
-                    [
-                        null, // ndc
-                        $numberFrom, // number_from
-                        $numberTo, // number_to
-                        null, // ndc_type_id
-                        $row[3], // operator_source
-                        null, // region_source
-                        Country::PREFIX_SLOVAKIA . $numberFrom, // full_number_from
-                        Country::PREFIX_SLOVAKIA . $numberTo, // full_number_to
-                        $dateResolution, // date_resolution
-                        $row[5], // detail_resolution
-                        null, // status_number
-                    ];
-            },
-            $excelFormat = self::EXCEL2007
-        );
+        $this->importCallback(self::FILE_ID_SLOVAKIA, Country::PREFIX_SLOVAKIA, self::EXCEL5, 'm-d-y');
     }
 
     /**
-     * Импортировать Венгрию из Excel. 5 сек
+     * Импортировать Венгрию из Excel. 5 сек. Сначала надо disable-trigger, потом enable-trigger
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionHungary()
@@ -178,7 +131,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Импортировать Германию из Excel. 10 минут и 3Гб оперативки
+     * Импортировать Германию из Excel. 10 минут и 3Гб оперативки. Сначала надо disable-trigger, потом enable-trigger
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionGermany()
@@ -196,7 +149,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Импортировать Австрию из Excel. 5 минут и 1.5Гб оперативки
+     * Импортировать Австрию из Excel. 5 минут и 1.5Гб оперативки. Сначала надо disable-trigger, потом enable-trigger
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionAustria()
@@ -214,7 +167,7 @@ class ImportController extends Controller
     }
 
     /**
-     * Импортировать Австрию из Excel
+     * Импортировать Австрию из Excel. Сначала надо disable-trigger, потом enable-trigger
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionCzech()
@@ -527,9 +480,6 @@ SQL;
 
         $tableName = NumberRange::tableName();
 
-        // выключить триггеры, иначе все повиснет
-        $this->actionDisableTrigger();
-
         // всё выключить
         $sql = <<<SQL
     UPDATE {$tableName}
@@ -624,13 +574,10 @@ SQL;
         if ($affectedRowsDelta < self::DELTA_MIN) {
             throw new \LogicException('После обновления осталось ' . $affectedRowsDelta . '% исходных данных. Нужно вручную разобраться в причинах');
         }
-
-        // включить триггеры обратно
-        $this->actionEnableTrigger();
     }
 
     /**
-     * выключить триггеры, иначе все повиснет
+     * выключить триггеры
      */
     public function actionDisableTrigger()
     {
