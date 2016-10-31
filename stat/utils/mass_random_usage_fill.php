@@ -50,9 +50,9 @@ $confs = [
     [
         "didGroupId" => 7,
         "region" => 98, //СПб
-        "count_numbers" => 30,
+        "count_numbers" => 60,
 
-        "id_tarif" => 564, //Партнёр 1000 и более (с ВАТС+)
+        "id_tarif" => 851, //Партнёр 500-1000 (147.50-413.00)
         "id_tarif_local_mob" => 95,
         "id_tarif_russia" => 96,
         "id_tarif_russia_mob" => 96,
