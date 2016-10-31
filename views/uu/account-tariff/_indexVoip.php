@@ -57,16 +57,17 @@ $rows = AccountTariff::getGroupedObjects($query);
             <div class="row">
 
                 <div class="col-sm-2 account-tariff-voip-numbers">
+                    
                     <?php /** @var AccountTariff $accountTariff */ ?>
                     <?php foreach ($row as $accountTariff) : ?>
-
                         <?php // номера ?>
                         <div>
                             <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'style' => 'display: none;']) ?>
                             <?= Html::a($accountTariff->voip_number ?: Yii::t('common', '(not set)'), $accountTariff->getUrl()) ?>
                         </div>
-
                     <?php endforeach; ?>
+
+                    <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate(end($accountTariffFirst->accountTariffLogs)->actual_from, 'medium') ?></span>
                 </div>
 
                 <div class="col-sm-10">
