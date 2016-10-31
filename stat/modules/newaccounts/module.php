@@ -250,6 +250,7 @@ class m_newaccounts extends IModule
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
+        $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());
         $design->assign(
             'saldo_history',
             $db->AllRecords('
@@ -598,6 +599,7 @@ class m_newaccounts extends IModule
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
+        $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());
         $design->assign(
             'saldo_history',
             $db->AllRecords('
