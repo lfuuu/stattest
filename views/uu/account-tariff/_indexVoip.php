@@ -57,7 +57,7 @@ $rows = AccountTariff::getGroupedObjects($query);
             <div class="row">
 
                 <div class="col-sm-2 account-tariff-voip-numbers">
-                    
+
                     <?php /** @var AccountTariff $accountTariff */ ?>
                     <?php foreach ($row as $accountTariff) : ?>
                         <?php // номера ?>
