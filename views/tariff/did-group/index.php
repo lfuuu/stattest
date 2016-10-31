@@ -9,12 +9,14 @@
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
+use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\NumberTypeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\DidGroup;
 use app\models\filter\DidGroupFilter;
+use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -28,26 +30,20 @@ use yii\widgets\Breadcrumbs;
 ]) ?>
 
 <?php
+$baseView = $this;
 $columns = [
     [
         'attribute' => 'id',
-        'format' => 'html',
-        'value' => function(DidGroup $model) {
-            return Html::a(' ' . $model->id . ' ', ['/tariff/did-group/edit', 'id' => $model->id]);
-        }
+        'class' => IntegerColumn::className(),
     ],
     [
-        'label' => 'Страна',
-        'attribute' => 'country_id',
+        'attribute' => 'country_code',
         'class' => CountryColumn::className(),
-        'value' => function (DidGroup $didGroup) {
-            return $didGroup->city->country_id;
-        }
     ],
     [
         'attribute' => 'city_id',
         'class' => CityColumn::className(),
-        'country_id' => $filterModel->country_id,
+        'country_id' => $filterModel->country_code,
     ],
     [
         'attribute' => 'name',
@@ -60,14 +56,35 @@ $columns = [
     [
         'attribute' => 'number_type_id',
         'class' => NumberTypeColumn::className()
-    ]
+    ],
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, DidGroup $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, DidGroup $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
 ];
 
-$linkAdd = ['url' => '/tariff/did-group/add'];
-if ($filterModel->city_id) {
-    $linkAdd['url']= [$linkAdd['url'], 'city_id' => $filterModel->city_id];
+$linkAdd = ['url' => ['/tariff/did-group/new']];
+if ($filterModel->country_code) {
+    $linkAdd['url'] += ['country_code' => $filterModel->country_code];
 }
-
+if ($filterModel->city_id) {
+    $linkAdd['url'] += ['city_id' => $filterModel->city_id];
+}
 
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),

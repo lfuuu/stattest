@@ -3,15 +3,18 @@ namespace app\models;
 
 use app\dao\DidGroupDao;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 /**
  * @property int $id
  * @property string $name
  * @property int $beauty_level
+ * @property int country_code
  * @property int city_id
  * @property int number_type_id
  *
  * @property City $city
+ * @property Country $country
  */
 class DidGroup extends ActiveRecord
 {
@@ -39,6 +42,7 @@ class DidGroup extends ActiveRecord
     {
         return [
             'id' => 'ID',
+            'country_code' => 'Страна',
             'city_id' => 'Город',
             'name' => 'Название',
             'beauty_level' => 'Красивость',
@@ -53,8 +57,8 @@ class DidGroup extends ActiveRecord
     {
         return [
             [['name'], 'string'],
-            [['beauty_level', 'city_id', 'number_type_id'], 'integer'],
-            [['name', 'beauty_level', 'city_id', 'number_type_id'], 'required'],
+            [['beauty_level', 'city_id', 'number_type_id', 'country_code'], 'integer'],
+            [['name', 'beauty_level', 'country_code', 'number_type_id'], 'required'],
         ];
     }
 
@@ -71,8 +75,43 @@ class DidGroup extends ActiveRecord
         return DidGroupDao::me();
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/tariff/did-group/edit', 'id' => $id]);
     }
 }

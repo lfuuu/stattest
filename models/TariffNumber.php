@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\dao\TariffNumberDao;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 /**
  * @property int $id
@@ -12,15 +13,13 @@ use yii\db\ActiveRecord;
  * @property string $name
  * @property string $status
  * @property float $activation_fee
+ *
  * @property string $period
  * @property int $did_group_id
- * @property int $old_beauty_level
- * @property int $old_prefix
+ *
  * @property Country $country
  * @property City $city
  * @property DidGroup $didGroup
- * @method static TariffNumber findOne($condition)
- * @property
  */
 class TariffNumber extends ActiveRecord
 {
@@ -36,6 +35,22 @@ class TariffNumber extends ActiveRecord
         return 'tarifs_number';
     }
 
+    /**
+     * Вернуть имена полей
+     * @return [] [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'country_id' => 'Страна',
+            'city_id' => 'Город',
+            'name' => 'Название',
+            'status' => 'Статус',
+            'activation_fee' => 'Цена подключения',
+            'currency_id' => 'Валюта',
+        ];
+    }
     /**
      * @return TariffNumberDao
      */
@@ -76,4 +91,27 @@ class TariffNumber extends ActiveRecord
         return $this->hasOne(DidGroup::className(), ['id' => 'did_group_id']);
     }
 
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/tariff/number/edit', 'id' => $id]);
+    }
 }

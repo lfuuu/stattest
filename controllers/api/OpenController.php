@@ -311,6 +311,7 @@ final class OpenController extends Controller
      * @SWG\Definition(definition="did_group", type="object",
      *   @SWG\Property(property="id", type="integer", description="Идентификатор группы"),
      *   @SWG\Property(property="name", type="string", description="Наименование группы"),
+     *   @SWG\Property(property="country_code", type="integer", description="Идентификатор страны"),
      *   @SWG\Property(property="city_id", type="integer", description="Идентификатор города"),
      *   @SWG\Property(property="beauty_level", type="integer", description="Степень красоты"),
      *   @SWG\Property(property="number_type_id", type="integer", description="Тип номеров")
@@ -358,15 +359,11 @@ final class OpenController extends Controller
      * @SWG\Definition(definition="number_tariff", type="object",
      *   @SWG\Property(property="id", type="integer", description="Идентификатор тарифного плана"),
      *   @SWG\Property(property="country_id", type="integer", description="Идентификатор страны"),
-     *   @SWG\Property(property="currency_id", type="integer", description="Идентификатор валюты"),
      *   @SWG\Property(property="city_id", type="integer", description="Идентификатор города"),
      *   @SWG\Property(property="name", type="string", description="Наименование тарифного плана"),
-     *   @SWG\Property(property="status", type="string", description="Тип тарифного плана"),
      *   @SWG\Property(property="activation_fee", type="float", description="Стоимость подключения тарифного плана"),
-     *   @SWG\Property(property="period", type="string", description="Период действия тарифного плана"),
+     *   @SWG\Property(property="currency_id", type="integer", description="Идентификатор валюты"),
      *   @SWG\Property(property="did_group_id", type="integer", description="Идентификатор DID группы"),
-     *   @SWG\Property(property="old_beauty_level", type="integer", description="Не используется"),
-     *   @SWG\Property(property="old_beauty_prefix", type="integer", description="Не используется")
      * ),
      * @SWG\Get(
      *   tags={"Список DID групп"},

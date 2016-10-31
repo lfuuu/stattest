@@ -4,7 +4,7 @@ namespace app\controllers\tariff;
 use app\classes\BaseController;
 use app\forms\tariff\TariffNumberAddForm;
 use app\forms\tariff\TariffNumberEditForm;
-use app\forms\tariff\TariffNumberListForm;
+use app\models\filter\TariffNumberFilter;
 use app\models\TariffNumber;
 use Yii;
 use yii\filters\AccessControl;
@@ -20,24 +20,33 @@ class NumberController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'roles' => ['@'],
+                        'roles' => ['tarifs.read'],
                     ],
                 ],
             ],
         ];
     }
 
+    /**
+     * Список
+     *
+     * @return string
+     */
     public function actionIndex()
     {
-        $model = new TariffNumberListForm();
-        $model->load(Yii::$app->request->getQueryParams());
+        $filterModel = new TariffNumberFilter();
+        $filterModel->load(Yii::$app->request->getQueryParams());
 
         return $this->render('index', [
-            'dataProvider' => $model->spawnDataProvider(),
-            'filterModel' => $model,
+            'filterModel' => $filterModel,
         ]);
     }
 
+    /**
+     * Создать
+     *
+     * @return string
+     */
     public function actionAdd()
     {
         $model = new TariffNumberAddForm;
@@ -56,6 +65,12 @@ class NumberController extends BaseController
         ]);
     }
 
+    /**
+     * Редактировать
+     *
+     * @param int $id
+     * @return string
+     */
     public function actionEdit($id)
     {
         $model = new TariffNumberEditForm;

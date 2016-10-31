@@ -2,7 +2,6 @@
 
 namespace app\models\filter;
 
-use app\models\City;
 use app\models\DidGroup;
 use yii\data\ActiveDataProvider;
 
@@ -11,7 +10,8 @@ use yii\data\ActiveDataProvider;
  */
 class DidGroupFilter extends DidGroup
 {
-    public $country_id = '';
+    public $id = '';
+    public $country_code = '';
     public $city_id = '';
     public $name = '';
     public $beauty_level = '';
@@ -20,7 +20,8 @@ class DidGroupFilter extends DidGroup
     public function rules()
     {
         return [
-            [['country_id'], 'integer'],
+            [['id'], 'integer'],
+            [['country_code'], 'integer'],
             [['city_id'], 'integer'],
             [['name'], 'string'],
             [['beauty_level'], 'integer'],
@@ -35,16 +36,15 @@ class DidGroupFilter extends DidGroup
      */
     public function search()
     {
-        $query = DidGroup::find()
-            ->joinWith('city');
+        $query = DidGroup::find();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
         $didGroupTableName = DidGroup::tableName();
-        $cityTableName = City::tableName();
 
-        $this->country_id !== '' && $query->andWhere([$cityTableName . '.country_id' => $this->country_id]);
+        $this->id !== '' && $query->andWhere([$didGroupTableName . '.id' => $this->id]);
+        $this->country_code !== '' && $query->andWhere([$didGroupTableName . '.country_code' => $this->country_code]);
         $this->city_id !== '' && $query->andWhere([$didGroupTableName . '.city_id' => $this->city_id]);
         $this->name !== '' && $query->andWhere(['LIKE', $didGroupTableName . '.name', $this->name]);
         $this->beauty_level !== '' && $query->andWhere([$didGroupTableName . '.beauty_level' => $this->beauty_level]);
