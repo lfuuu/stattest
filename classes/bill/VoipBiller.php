@@ -213,7 +213,10 @@ class VoipBiller extends Biller
             $tariff = $range['tariff'];
             $logTariff = $range['logTariff'];
 
-            $lines = $this->calc($is7800, $logTariff, $range['from'], $range['to']);
+            $rangeFromMutable = clone $range['from'];
+            $rangeToMutable = clone $range['to'];
+
+            $lines = $this->calc($is7800, $logTariff, $rangeFromMutable, $rangeToMutable);
 
             foreach ($lines as $dest => $r) {
 
@@ -298,7 +301,6 @@ class VoipBiller extends Biller
                         ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                         ->setTemplate($template)
                         ->setTemplateData($template_data)
-
                         ->setActualPeriod($range['from'], $range['to'])
                 );
             }
