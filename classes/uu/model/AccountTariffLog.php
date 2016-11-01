@@ -159,7 +159,7 @@ class AccountTariffLog extends ActiveRecord
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
         }
 
-        if ($this->actual_from == $currentDateTimeUtc && self::find()
+        if ($this->actual_from_utc == $currentDateTimeUtc && self::find()
                 ->where(['account_tariff_id' => $this->account_tariff_id])
                 ->andWhere(['=', 'actual_from_utc', $currentDateTimeUtc])
                 ->count()
@@ -263,46 +263,51 @@ class AccountTariffLog extends ActiveRecord
         $realtimeBalanceWithCredit = $realtimeBalance + $credit;
 
         $warnings = $clientAccount->getVoipWarnings();
+        $isCountLogs = $this->getCountLogs(); // смена тарифа или закрытие услуги
 
-        $isNewRecord = !$this->getCountLogs();
-        if (!$isNewRecord) {
-            // смена тарифа или закрытие услуги. А все последующие проверки только при создании услуги
+        if (!$tariffPeriod) {
+            if ($isCountLogs) {
+                // закрытие услуги
+                return;
+            } else {
+                // подключение новой услуги
+                $this->addError($attribute, 'Не указан тариф/период.');
+            }
+        }
 
-            $datimeNow = $clientAccount->getDatetimeWithTimezone();
-            if (
-                $tariffPeriod && $datimeNow->format(DateTimeZoneHelper::DATE_FORMAT) == $this->actual_from
-                && ($realtimeBalanceWithCredit < 0 || $clientAccount->is_blocked || isset($warnings[ClientAccount::WARNING_OVERRAN]) || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT]))
-            ) {
-                // сегодня смена тарифа при отрицательном балансе (или блокировке). Откладываем +1 день, пока деньги не появятся (или не разблокируется)
-                $this->actual_from = $datimeNow->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
+        if ($clientAccount->is_blocked) {
+            $error = 'Аккаунт заблокирован';
+            if ($isCountLogs) {
+                // смена тарифа или закрытие услуги
+                $this->shiftActualFrom($error);
+            } else {
+                // подключение новой услуги
+                $this->addError($attribute, $error);
             }
             return;
         }
 
-        // создание услуги
-
-        if (!$tariffPeriod) {
-            $this->addError($attribute, 'Не указан тариф/период.');
-            return;
-        }
-
-        if ($clientAccount->is_blocked) {
-            $this->addError($attribute, 'Аккаунт заблокирован');
-            return;
-        }
-
         if (isset($warnings[ClientAccount::WARNING_OVERRAN])) {
-            $this->addError($attribute, 'Аккаунт заблокирован из-за превышения лимитов');
+            $error = 'Аккаунт заблокирован из-за превышения лимитов';
+            if ($isCountLogs) {
+                // смена тарифа или закрытие услуги
+                $this->shiftActualFrom($error);
+            } else {
+                // подключение новой услуги
+                $this->addError($attribute, $error);
+            }
             return;
         }
 
         if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
-            $this->addError(
-                $attribute,
-                sprintf('Аккаунт находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s',
-                    $realtimeBalance, $clientAccount->currency,
-                    $credit, $clientAccount->currency)
-            );
+            $error = sprintf('Аккаунт находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
+            if ($isCountLogs) {
+                // смена тарифа или закрытие услуги
+                $this->shiftActualFrom($error);
+            } else {
+                // подключение новой услуги
+                $this->addError($attribute, $error);
+            }
             return;
         }
 
@@ -315,20 +320,32 @@ class AccountTariffLog extends ActiveRecord
         // AccountLogSetupTarificator и AccountLogPeriodTarificator сейчас нельзя вызвать, потому что записи в логе тарифов еще нет
         // AccountLogResourceTarificator пока нет
         $accountLogSetup = (new AccountLogSetupTarificator())->getAccountLogSetup($accountTariff, $accountLogFromToTariff);
+        if ($isCountLogs) {
+            // смена тарифа или закрытие услуги
+            // плата за номер не взимается
+            $accountLogSetup->price = max(0, $accountLogSetup->price - $accountLogSetup->price_number);
+            $accountLogSetup->price_number = 0;
+        }
         $accountLogPeriod = (new AccountLogPeriodTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToTariff);
         $priceMin = $tariffPeriod->price_min * $accountLogPeriod->coefficient;
         $tariffPrice = $accountLogSetup->price + $accountLogPeriod->price + $priceMin;
 
         if ($realtimeBalanceWithCredit < $tariffPrice) {
-            $this->addError($attribute,
-                sprintf('У аккаунта на счету %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
-                    $realtimeBalance, $clientAccount->currency,
-                    $credit, $clientAccount->currency,
-                    $tariffPrice, $clientAccount->currency,
-                    $accountLogSetup->price, $clientAccount->currency,
-                    $accountLogPeriod->price, $clientAccount->currency,
-                    $priceMin, $clientAccount->currency
-                ));
+            $error = sprintf('У аккаунта на счету %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
+                $realtimeBalance, $clientAccount->currency,
+                $credit, $clientAccount->currency,
+                $tariffPrice, $clientAccount->currency,
+                $accountLogSetup->price, $clientAccount->currency,
+                $accountLogPeriod->price, $clientAccount->currency,
+                $priceMin, $clientAccount->currency
+            );
+            if ($isCountLogs) {
+                // смена тарифа или закрытие услуги
+                $this->shiftActualFrom($error);
+            } else {
+                // подключение новой услуги
+                $this->addError($attribute, $error);
+            }
             return;
         }
 
@@ -337,6 +354,22 @@ class AccountTariffLog extends ActiveRecord
         // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
 
         Yii::info('AccountTariffLog. After validatorBalance', 'uu');
+    }
+
+    /**
+     * Сдвинуть actual_from на завтра
+     */
+    protected function shiftActualFrom($error)
+    {
+        $accountTariff = $this->accountTariff;
+        $clientAccount = $accountTariff->clientAccount;
+        $datimeNow = $clientAccount->getDatetimeWithTimezone();
+        if ($datimeNow->format(DateTimeZoneHelper::DATE_FORMAT) == $this->actual_from) {
+            // с сегодня откладываем на завтра
+            $this->actual_from = $datimeNow->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
+            Yii::$app->session->setFlash('error', $error . '. Дата включения сдвинута на завтра.');
+        }
+
     }
 
     /**
