@@ -181,6 +181,11 @@ class BillDao extends Singleton
      */
     public function transferUniversalBillsToBills(uuBill $uuBill)
     {
+        if (!$uuBill->price) {
+            // нулевые счета не нужны
+            return false;
+        }
+
         $clientAccount = $uuBill->clientAccount;
 
         $bill = Bill::find()
@@ -231,7 +236,7 @@ class BillDao extends Singleton
         /** @var AccountEntry[] $accountEntries */
         $accountEntries = $uuBill
             ->getAccountEntries()
-            ->andWhere(['>', 'price', 0])// игнорируем пустые строки
+//            ->andWhere(['>', 'price', 0]) // пустые строки нужны для расчета партнерского вознаграждения
             ->orderBy(['id' => SORT_ASC])
             ->all();
 

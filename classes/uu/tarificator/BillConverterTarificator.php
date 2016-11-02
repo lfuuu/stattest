@@ -32,9 +32,6 @@ class BillConverterTarificator implements TarificatorI
                     ->format(DateTimeZoneHelper::DATE_FORMAT),
             ])
             //
-            // только предоплата
-            ->andWhere([$clientAccountTableName . '.is_postpaid' => 0])
-            //
             // только УУ
             ->andWhere([$clientAccountTableName . '.account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]);;
 
