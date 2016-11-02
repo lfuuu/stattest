@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\ResourceColumn;
 use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
@@ -89,6 +90,18 @@ $columns = [
     [
         'attribute' => 'price',
         'class' => FloatRangeColumn::className(),
+    ],
+    [
+        'attribute' => 'account_entry_id',
+        'class' => IsNullAndNotNullColumn::className(),
+        'format' => 'html',
+        'value' => function (AccountLogResource $accountLogResource) {
+            $accountEntry = $accountLogResource->accountEntry;
+            if (!$accountEntry) {
+                return Yii::t('common', '(not set)');
+            }
+            return Html::a($accountEntry->date, $accountEntry->getUrl());
+        }
     ],
 ];
 

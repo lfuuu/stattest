@@ -10,6 +10,7 @@ use app\classes\grid\column\universal\AccountEntryTypeColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
@@ -169,6 +170,18 @@ $accountTariffTableName = AccountTariff::tableName();
                 return implode('<br />', $accountLogs);
 
             },
+        ],
+        [
+            'attribute' => 'bill_id',
+            'class' => IsNullAndNotNullColumn::className(),
+            'format' => 'html',
+            'value' => function (AccountEntry $accountEntry) {
+                $bill = $accountEntry->bill;
+                if (!$bill) {
+                    return Yii::t('common', '(not set)');
+                }
+                return Html::a($bill->date, $bill->getUrl());
+            }
         ],
     ],
 ]) ?>

@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
 use app\classes\grid\GridView;
@@ -84,6 +85,18 @@ $accountTariffTableName = AccountTariff::tableName();
         [
             'attribute' => 'price',
             'class' => IntegerRangeColumn::className(),
+        ],
+        [
+            'attribute' => 'account_entry_id',
+            'class' => IsNullAndNotNullColumn::className(),
+            'format' => 'html',
+            'value' => function (AccountLogSetup $accountLogSetup) {
+                $accountEntry = $accountLogSetup->accountEntry;
+                if (!$accountEntry) {
+                    return Yii::t('common', '(not set)');
+                }
+                return Html::a($accountEntry->date, $accountEntry->getUrl());
+            }
         ],
     ],
 ]) ?>
