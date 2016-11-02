@@ -14,6 +14,7 @@ use app\models\Language;
 use app\models\InvoiceSettings;
 use app\forms\templates\uu\InvoiceForm;
 use app\helpers\DateTimeZoneHelper;
+use yii\db\Expression;
 
 class InvoiceLight extends Component
 {
@@ -106,7 +107,7 @@ class InvoiceLight extends Component
                 ->joinWith('accountTariff')
                 ->where([$accountTariffTableName . '.client_account_id' => $this->clientAccount->id])
                 ->andWhere(['>', $accountEntryTableName . '.vat', 0])
-                ->andWhere([$accountEntryTableName . '.date' => $this->date])
+                ->andWhere(new Expression('DATE_FORMAT(' . $accountEntryTableName . '.date, "%Y-%m") = :date', ['date' => $this->date]))
                 ->orderBy([
                     'account_tariff_id' => SORT_ASC,
                     'type_id' => SORT_ASC,

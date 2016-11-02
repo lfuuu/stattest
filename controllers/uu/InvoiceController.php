@@ -52,11 +52,11 @@ class InvoiceController extends BaseController
         !$clientAccountId && $clientAccountId = $this->getCurrentClientAccountId();
 
         if ($month) {
-            $date = $month . '-01';
+            $date = $month;
         } else {
             $date = (new \DateTime)
                 ->modify('first day of previous month')
-                ->format(DateTimeZoneHelper::DATE_FORMAT);
+                ->format('Y-m');
         }
 
         /** @var ClientAccount $clientAccount */
