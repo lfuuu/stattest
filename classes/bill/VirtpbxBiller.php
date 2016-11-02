@@ -185,10 +185,10 @@ class VirtpbxBiller extends Biller
 
         $lastTariffId = null;
         $filteredTariffChanges = [];
-        foreach($tariffChanges as $activationDate => $tariffChange) {
-            if ($tariffChange['id_tarif'] != $lastTariffId) {
-                $filteredTariffChanges[$activationDate] = $tariffChange;
-                $lastTariffId = $tariffChange['id_tarif'];
+        foreach($tariffChanges as $activationDate => $tariffId) {
+            if ($tariffId != $lastTariffId) {
+                $filteredTariffChanges[$activationDate] = $tariffId;
+                $lastTariffId = $tariffId;
             }
         }
 
