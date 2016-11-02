@@ -276,7 +276,6 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "parent_id", type = "integer", description = "ID родителя. Нужен для поиска совместимых пакетов", in = "query"),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query", required = true),
      *   @SWG\Parameter(name = "is_default", type = "integer", description = "По умолчанию (0 / 1)", in = "query"),
-     *   @SWG\Parameter(name = "is_uu", type = "integer", description = "Универсальный (1, по-умолчанию) или сконвертированный из старых (0)", in = "query"),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query"),
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны", in = "query"),
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query"),
@@ -303,7 +302,6 @@ class UuController extends ApiInternalController
         $country_id = null,
         $currency_id = null,
         $is_default = 0,
-        $is_uu = 1,
         $tariff_status_id = null,
         $tariff_person_id = null,
         $voip_tarificate_id = null,
@@ -331,7 +329,6 @@ class UuController extends ApiInternalController
         $country_id && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$country_id]);
         $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
         !is_null($is_default) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
-        !is_null($is_uu) && $tariffQuery->andWhere([$is_uu ? '>=' : '<=', $tariffTableName . '.id', Tariff::DELTA]);
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int)$tariff_person_id]);
         $voip_tarificate_id && $tariffQuery->andWhere([$tariffTableName . '.voip_tarificate_id' => (int)$voip_tarificate_id]);
@@ -355,7 +352,6 @@ class UuController extends ApiInternalController
                     $country_id_tmp = null,
                     $currency_id_tmp = null,
                     $is_default_tmp = 1,
-                    $is_uu_tmp = 1,
                     $tariff_status_id_tmp = null,
                     $tariff_person_id_tmp = null,
                     $voip_tarificate_id_tmp = null,
@@ -429,7 +425,6 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "id", type = "integer", description = "ID", in = "query"),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID аккаунта клиента", in = "query"),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query"),
-     *   @SWG\Parameter(name = "is_uu", type = "integer", description = "Универсальный (1, по-умолчанию) или сконвертированный из старых (0)", in = "query"),
      *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона (кроме телефонии)", in = "query"),
      *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "query"),
      *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "query"),
@@ -451,7 +446,6 @@ class UuController extends ApiInternalController
         $id = null,
         $service_type_id = null,
         $client_account_id = null,
-        $is_uu = 1,
         $region_id = null,
         $city_id = null,
         $voip_number = null,
@@ -462,7 +456,6 @@ class UuController extends ApiInternalController
         $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
         $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
         $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
-        !is_null($is_uu) && $accountTariffQuery->andWhere([$is_uu ? '>=' : '<=', $accountTariffTableName . '.id', AccountTariff::DELTA]);
         $region_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.region_id' => (int)$region_id]);
         $city_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.city_id' => (int)$city_id]);
         $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
