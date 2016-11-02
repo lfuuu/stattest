@@ -29,8 +29,10 @@ class DateProperty extends UnknownProperty implements PropertyInterface
         $this->date = $event->date;
         $this->formattedDate =
             Yii::$app->formatter->asDatetime(
-                (new DateTime($this->date))
-                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
+                (new DateTime($this->date, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW))
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                'medium'
             );
     }
 
