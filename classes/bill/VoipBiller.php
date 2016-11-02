@@ -63,7 +63,7 @@ class VoipBiller extends Biller
         foreach($filteredTariffList as $activationDate => $logTariff) {
             $activationDateDt = new \DateTime($activationDate, $this->timezone);
 
-            if ($activationDateDt < $this->billerPeriodFrom) {
+            if ($activationDateDt <= $this->billerPeriodFrom) {
                 $prevActivationDate = clone $this->billerPeriodFrom;
                 $prevLogTariff = $logTariff;
                 continue;
