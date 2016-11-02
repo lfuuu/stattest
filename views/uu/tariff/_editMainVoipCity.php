@@ -20,12 +20,6 @@ $tariff = $formModel->tariff;
 
 $tariffVoipCityTableName = TariffVoipCity::tableName();
 $tariffTableName = Tariff::tableName();
-
-if ($editableType <= TariffController::EDITABLE_LIGHT) {
-    $options = ['disabled' => 'disabled'];
-} else {
-    $options = [];
-}
 ?>
 
 <div class="row">
@@ -36,7 +30,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
             'name' => 'TariffVoipCity[]',
             'value' => array_keys($tariffVoipCities),
             'data' => $cityList,
-            'options' => $options + [
+            'options' => [
                 'multiple' => true,
             ],
         ]) ?>

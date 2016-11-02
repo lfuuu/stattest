@@ -58,45 +58,6 @@ class BalanceController extends BaseController
             $clientAccount = ClientAccount::findOne($clientAccountId);
             $currency = $clientAccount->currencyModel;
 
-            // сводная информация AccountLogSetup
-            $accountLogSetupTableName = AccountLogSetup::tableName();
-            $accountLogSetupSummary = AccountLogSetup::find()
-                ->select([
-                    'total_count' => 'COUNT(*)',
-                    'total_price' => 'SUM(' . $accountLogSetupTableName . '.price)',
-                    'account_tariff_id' => $accountLogSetupTableName . '.account_tariff_id', // потому что джойнится по нему, а yii зачем то лезет в результирующий массив
-                ])
-                ->joinWith('accountTariff')
-                ->where([$accountTariffTableName . '.client_account_id' => $clientAccountId])
-                ->asArray()
-                ->one();
-
-            // сводная информация AccountLogPeriod
-            $accountLogPeriodTableName = AccountLogPeriod::tableName();
-            $accountLogPeriodSummary = AccountLogPeriod::find()
-                ->select([
-                    'total_count' => 'COUNT(*)',
-                    'total_price' => 'SUM(' . $accountLogPeriodTableName . '.price)',
-                    'account_tariff_id' => $accountLogPeriodTableName . '.account_tariff_id', // потому что джойнится по нему, а yii зачем то лезет в результирующий массив
-                ])
-                ->joinWith('accountTariff')
-                ->where([$accountTariffTableName . '.client_account_id' => $clientAccountId])
-                ->asArray()
-                ->one();
-
-            // сводная информация AccountLogResource
-            $accountLogResourceTableName = AccountLogResource::tableName();
-            $accountLogResourceSummary = AccountLogResource::find()
-                ->select([
-                    'total_count' => 'COUNT(*)',
-                    'total_price' => 'SUM(' . $accountLogResourceTableName . '.price)',
-                    'account_tariff_id' => $accountLogResourceTableName . '.account_tariff_id', // потому что джойнится по нему, а yii зачем то лезет в результирующий массив
-                ])
-                ->joinWith('accountTariff')
-                ->where([$accountTariffTableName . '.client_account_id' => $clientAccountId])
-                ->asArray()
-                ->one();
-
             // сводная информация AccountEntry
             $accountEntryTableName = AccountEntry::tableName();
             $accountEntrySummary = AccountEntry::find()
@@ -122,7 +83,7 @@ class BalanceController extends BaseController
                 ->one();
 
             // Все проводки клиента для грида
-            $accountEntryTableName = AccountEntry::tableName();
+//            $accountEntryTableName = AccountEntry::tableName();
             $accountEntries = AccountEntry::find()
                 ->joinWith('accountTariff')
                 ->where([$accountTariffTableName . '.client_account_id' => $clientAccountId])
@@ -142,6 +103,14 @@ class BalanceController extends BaseController
                     'id' => SORT_DESC,
                 ])
                 ->all();
+
+            $uuBillSummary = \app\classes\uu\model\Bill::find()
+                ->select([
+                    'total_price' => 'SUM(price)',
+                ])
+                ->where(['client_account_id' => $clientAccountId])
+                ->asArray()
+                ->one();
 
             // Все платежи клиента для грида
             $payments = Payment::find()
@@ -190,6 +159,7 @@ class BalanceController extends BaseController
             $accountLogPeriodSummary =
             $accountLogResourceSummary =
             $paymentSummary =
+            $uuBillSummary =
                 null;
         }
 
@@ -202,10 +172,8 @@ class BalanceController extends BaseController
             'billsUsage' => $billsUsage,
             'billsUniversal' => $billsUniversal,
             'accountEntrySummary' => $accountEntrySummary,
-            'accountLogSetupSummary' => $accountLogSetupSummary,
-            'accountLogPeriodSummary' => $accountLogPeriodSummary,
-            'accountLogResourceSummary' => $accountLogResourceSummary,
             'paymentSummary' => $paymentSummary,
+            'uuBillSummary' => $uuBillSummary,
         ]);
     }
 }

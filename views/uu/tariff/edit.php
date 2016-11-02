@@ -47,7 +47,7 @@ if (!$serviceType) {
         Yii::$app->session->setFlash('error', 'Этот тариф автоматически сконвертирован из старого. Если надо отредактировать его - редактируйте исходный тариф.');
         $viewParams['editableType'] = TariffController::EDITABLE_NONE;
     } elseif ($tariff->isHasAccountTariff()) {
-        Yii::$app->session->setFlash('error', 'На этом тарифе есть услуги. Редактировать можно только название тарифа.');
+        Yii::$app->session->setFlash('error', 'На этом тарифе есть услуги. Редактировать можно только некоторые свойства.');
         $viewParams['editableType'] = TariffController::EDITABLE_LIGHT;
     } else {
         $viewParams['editableType'] = TariffController::EDITABLE_FULL;

@@ -101,11 +101,12 @@ abstract class TariffForm extends Form
             // Этот тариф автоматически сконвертирован из старого. Если надо отредактировать его - редактируйте исходный тариф.
             $post = [];
         } elseif ($this->tariff->isHasAccountTariff()) {
-            // На этом тарифе есть услуги. Редактировать можно только название тарифа.
+            // На этом тарифе есть услуги. Редактировать можно только некоторые свойства.
             if (isset($post['Tariff']['name'])) {
                 // checkbox передаются даже disabled, потому что они в паре с hidden. Надо все лишнее убрать
                 $post['Tariff'] = [
                     'name' => $post['Tariff']['name'],
+                    'tariff_status_id' => $post['Tariff']['tariff_status_id'],
                 ];
             }
             unset($post['TariffPeriod'], $post['TariffResource']);
