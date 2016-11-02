@@ -68,7 +68,7 @@ class ClientCounter extends ActiveRecord
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
                 // новый (универсальный) биллинг
                 // пересчитывается в RealtimeBalanceTarificator
-                return $this->clientAccount->balance;
+                return $this->clientAccount->balance + $this->getDaySummary();
 
             default:
                 throw new \LogicException('Неизвестная версия биллинга у клиента ' . $this->client_id);

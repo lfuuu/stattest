@@ -10,6 +10,7 @@ use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\Transaction;
+use LogicException;
 use Yii;
 
 
@@ -181,16 +182,19 @@ class BillDao extends Singleton
      */
     public function transferUniversalBillsToBills(uuBill $uuBill)
     {
+        $bill = Bill::find()
+            ->where(['uu_bill_id' => $uuBill->id])
+            ->one();
+
         if (!$uuBill->price) {
             // нулевые счета не нужны
+            if (!$bill->delete()) {
+                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+            }
             return false;
         }
 
         $clientAccount = $uuBill->clientAccount;
-
-        $bill = Bill::find()
-            ->where(['uu_bill_id' => $uuBill->id])
-            ->one();
 
         $newBillNo = (new \DateTimeImmutable($uuBill->date))->format('ym') . $uuBill->id;
 
@@ -209,10 +213,14 @@ class BillDao extends Singleton
             $bill->bill_no = $newBillNo;
             $bill->biller_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
             $bill->uu_bill_id = $uuBill->id;
-            $bill->save();
+            if (!$bill->save()) {
+                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+            }
         } elseif ($bill->bill_no != $newBillNo) {
             $bill->bill_no = $newBillNo;
-            $bill->save();
+            if (!$bill->save()) {
+                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+            }
         }
 
         $toRecalculateBillSum = false;
@@ -297,7 +305,9 @@ class BillDao extends Singleton
             $line->service = 'uu_account_tariff';
             $line->id_service = $accountEntry->account_tariff_id;
             $line->item_id = $accountEntry->accountTariff->getNonUniversalId();
-            $line->save();
+            if (!$line->save()) {
+                throw new LogicException(implode(' ', $line->getFirstErrors()));
+            }
 
             $toRecalculateBillSum = true;
         }
@@ -307,6 +317,8 @@ class BillDao extends Singleton
         }
 
         $uuBill->is_converted = 1;
-        $uuBill->save();
+        if (!$uuBill->save()) {
+            throw new LogicException(implode(' ', $uuBill->getFirstErrors()));
+        }
     }
 }
