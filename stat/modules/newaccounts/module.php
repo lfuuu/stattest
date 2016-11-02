@@ -692,7 +692,7 @@ class m_newaccounts extends IModule
             exit();
 
             // stat bills
-        } elseif (preg_match("/\d{6}-\d{4}/", $_GET["bill"]) || preg_match('/^uu\d{6}$/', $_GET['bill'])) {
+        } elseif (preg_match("/\d{6}-\d{4}/", $_GET["bill"]) || preg_match('/^\d{10,}$/', $_GET['bill'])) {
             $a = 1;
             //nothing
         } else {

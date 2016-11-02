@@ -79,7 +79,8 @@ SQL;
         echo '. ';
         $updateSql = <<<SQL
             UPDATE
-                {$billTableName} bill,
+                {$billTableName} bill
+            LEFT JOIN
                 (
                     SELECT
                        bill_id,
@@ -92,12 +93,13 @@ SQL;
                     GROUP BY
                        bill_id
                 ) t
+            ON bill.id = t.bill_id
             SET
-                bill.price = t.price,
+                bill.price = COALESCE(t.price, 0),
                 bill.is_converted = 0
             WHERE
-                bill.id = t.bill_id
-                AND bill.price != t.price
+                t.price IS NULL
+                OR bill.price != t.price
 SQL;
         $db->createCommand($updateSql)
             ->execute();
