@@ -16,6 +16,7 @@ use app\models\ClientDocument;
 use app\models\UserGroups;
 use app\models\ClientContragent;
 use app\dao\ClientDocumentDao;
+use app\models\ClientContractReward;
 
 $this->registerJsFile('@web/js/behaviors/managers_by_contract_type.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/organization_by_legal_type.js', ['depends' => [AppAsset::className()]]);
@@ -234,7 +235,6 @@ if (!$model->id) {
         <?php endif; ?>
     </div>
 
-
     <div class="col-sm-12" id="agreement-block">
         <div class="row"
              style="padding:5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
@@ -323,6 +323,25 @@ if (!$model->id) {
         </div>
     </div>
 
+    <?php if ($model->business_id == \app\models\Business::PARTNER): ?>
+        <a name="rewards"></a>
+        <div class="col-sm-12">
+            <div class="row" style="padding:5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
+                <div class="col-sm-12">Параметры вознаграждения</div>
+            </div>
+
+            <?php
+            foreach (ClientContractReward::$usages as $usageType => $usageTitle) {
+                echo $this->render('rewards/' . $usageType , [
+                    'contract' => $model,
+                    'model' => new ClientContractReward,
+                    'usageType' => $usageType,
+                ]);
+            }
+            ?>
+        </div>
+    <?php endif; ?>
+
 
     <?php $files = $model->model->allFiles; ?>
 
@@ -405,117 +424,148 @@ if (!$model->id) {
             </div>
         </div>
     </div>
-
-
-    <script>
-        var dialog;
-
-        $(function () {
-            dialog = $("#dialog-form").dialog({
-                autoOpen: false,
-                height: 200,
-                width: 400,
-                modal: true,
-                buttons: {
-                    "Отправить": function () {
-                        $('#send-file-form').submit();
-                        dialog.dialog("close");
-                    },
-                    "Отмена": function () {
-                        dialog.dialog("close");
-                    }
-                }
-            });
-        });
-
-        $('.fileSend').on('click', function (e) {
-            e.preventDefault();
-            $.getJSON('/file/send-client-file', {id: $(this).data('id')}, function (data) {
-                $('#file_content').val(data['file_content']);
-                $('#file_name').val(data['file_name']);
-                $('#file_mime').val(data['file_mime']);
-                $('#msg_session').val(data['msg_session']);
-                dialog.dialog("open");
-            });
-        });
-
-        $('.deleteFile').on('click', function (e) {
-            e.preventDefault();
-            var fid = $(this).data('id');
-            var row = $(this).closest('.row');
-            if (confirm('Вы уверены, что хотите удалить файл?')) {
-                $.ajax({
-                    url: '/file/delete-client-file',
-                    data: {id: fid},
-                    success: function(data) {
-                        if (data['status'] == 'ok')
-                            row.remove();
-                    },
-                    error: function (request, textStatus, errorThrown) {
-                        if (request.status == 403) {
-                            alert('У Вас недостаточно прав для удаления документа');
-                        }
-                        else {
-                            alert('При удалении документа произошла ошибка "' + textStatus + '"')
-                        }
-                    }
-                });
-            }
-        });
-    </script>
-
-    <style>
-        .file_upload {
-            position: relative;
-            overflow: hidden;
-            text-align: center;
-            width: 100%;
-        }
-
-        .insblock td, .insblock th {
-            padding: 2px 5px;
-        }
-
-        .file_upload input[type=file] {
-            position: absolute;
-            top: 0;
-            right: 0;
-            opacity: 0;
-            filter: alpha(opacity=0);
-            cursor: pointer;
-        }
-    </style>
-
-    <script>
-        $(function () {
-            if($('#contracteditform-business_id').val() == 3)
-                $('#change-external').val('external');
-            else
-                $('#change-external').val('internal');
-
-            $('#contracteditform-business_id').on('change', function(){
-                if($('#contracteditform-business_id').val() == 3)
-                    $('#change-external').val('external');
-                else
-                    $('#change-external').val('internal');
-
-                $('#change-external').trigger('change');
-            });
-
-            $('#change-external').on('change', function () {
-                var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"], #agreement-block');
-
-                if($(this).val() == 'internal')
-                    fields.show();
-                else
-                    fields.hide();
-            }).trigger('change');
-        });
-    </script>
 </div>
+
+<style type="text/css">
+.file_upload {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    width: 100%;
+}
+
+.insblock td, .insblock th {
+    padding: 2px 5px;
+}
+
+.file_upload input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    cursor: pointer;
+}
+</style>
+
 
 <script type="text/javascript">
 var
     documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
-    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
+    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>,
+    dialog;
+
+jQuery(document).ready(function () {
+    dialog = $("#dialog-form").dialog({
+        autoOpen: false,
+        height: 200,
+        width: 400,
+        modal: true,
+        buttons: {
+            "Отправить": function () {
+                $('#send-file-form').submit();
+                dialog.dialog("close");
+            },
+            "Отмена": function () {
+                dialog.dialog("close");
+            }
+        }
+    });
+
+    $('.fileSend').on('click', function (e) {
+        e.preventDefault();
+        $.getJSON('/file/send-client-file', {id: $(this).data('id')}, function (data) {
+            $('#file_content').val(data['file_content']);
+            $('#file_name').val(data['file_name']);
+            $('#file_mime').val(data['file_mime']);
+            $('#msg_session').val(data['msg_session']);
+            dialog.dialog("open");
+        });
+    });
+
+    $('.deleteFile').on('click', function (e) {
+        e.preventDefault();
+        var fid = $(this).data('id');
+        var row = $(this).closest('.row');
+        if (confirm('Вы уверены, что хотите удалить файл?')) {
+            $.ajax({
+                url: '/file/delete-client-file',
+                data: {id: fid},
+                success: function(data) {
+                    if (data['status'] == 'ok')
+                        row.remove();
+                },
+                error: function (request, textStatus, errorThrown) {
+                    if (request.status == 403) {
+                        alert('У Вас недостаточно прав для удаления документа');
+                    }
+                    else {
+                        alert('При удалении документа произошла ошибка "' + textStatus + '"')
+                    }
+                }
+            });
+        }
+    });
+
+    var $businessIdField = $('#contracteditform-business_id'),
+        $changeExternal = $('#change-external');
+
+    if ($businessIdField.val() == 3) {
+        $changeExternal.val('external');
+    } else {
+        $changeExternal.val('internal');
+    }
+
+    $businessIdField.on('change', function() {
+        if ($businessIdField.val() == 3) {
+            $changeExternal.val('external');
+        } else {
+            $changeExternal.val('internal');
+        }
+
+        $changeExternal.trigger('change');
+    });
+
+    $changeExternal.on('change', function () {
+        var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"], #agreement-block');
+
+        if($(this).val() == 'internal') {
+            fields.show();
+        } else {
+            fields.hide();
+        }
+    }).trigger('change');
+
+    $('a.show-all').on('click', function() {
+        $(this).parents('table').find('tbody > tr.show-all').toggleClass('hidden');
+        $(this).toggleClass('label-success');
+        return false;
+    });
+
+    $('tr.editable').find('a').on('click', function() {
+        var $fields = $(this).parents('tr').find('td[data-field]')
+            $form = $(this).parents('form');
+
+        $fields.each(function() {
+            var $field = $form.find('[name*="' + $(this).data('field') + '"]'),
+                $value = $(this).data('value') ? $(this).data('value') : $(this).text();
+
+            $field.val($value).trigger('change');
+        });
+        $form.find('input:eq(2)').trigger('focus');
+
+        return false;
+    });
+
+    $('select[name*="period_type"]').on('change', function() {
+        var $nextInput = $(this).parents('td').next().find('input');
+        if ($(this).val() == 'month') {
+            $nextInput.show();
+        } else {
+            $nextInput.hide();
+        }
+    });
+
+});
+
 </script>
