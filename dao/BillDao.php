@@ -187,7 +187,7 @@ class BillDao extends Singleton
             ->where(['uu_bill_id' => $uuBill->id])
             ->one();
 
-        $newBillNo = 'uu' . $uuBill->id;
+        $newBillNo = (new \DateTimeImmutable($uuBill->date))->format('ym') . $uuBill->id;
 
         if (!$bill) {
             $bill = new Bill();
