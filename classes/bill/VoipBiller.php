@@ -170,6 +170,7 @@ class VoipBiller extends Biller
                         ->setPrice($tariff->month_number)
                         ->setTemplate($template)
                         ->setTemplateData($template_data)
+                        ->setActualPeriod($range['from'], $range['to'])
                 );
             }
 
@@ -198,6 +199,7 @@ class VoipBiller extends Biller
                         ->setPrice($tariff->month_line)
                         ->setTemplate($template)
                         ->setTemplateData($template_data)
+                        ->setActualPeriod($range['from'], $range['to'])
                 );
             }
         }
@@ -298,7 +300,6 @@ class VoipBiller extends Biller
                         ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                         ->setTemplate($template)
                         ->setTemplateData($template_data)
-
                         ->setActualPeriod($range['from'], $range['to'])
                 );
             }
