@@ -137,12 +137,14 @@ class VirtpbxStat extends ActiveRecord\Model
 		);
 		$stat_detailed = self::find('all', $options);
         $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
-		$nds = 1 + $tax_rate/100;
+        $ndsClient = 1 + $tax_rate/100;
 		foreach ($stat_detailed as $k => &$v)
 		{
 		    $date = new DateTime($v->date);
 
 			$tarif_info = TarifVirtpbx::getTarifByClient($client_id, $v->mdate);
+            $nds = $tarif_info->price_include_vat ? 1 : $ndsClient;
+
 			$mb = \app\classes\Utils::bytesToMb($v->use_space);
 			if ($mb > $tarif_info->space)
 			{
