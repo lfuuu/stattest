@@ -69,6 +69,8 @@ class Resource extends \yii\db\ActiveRecord
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
 
+    const DEFAULT_UNIT = '¤';
+
     /**
      * @inheritdoc
      */

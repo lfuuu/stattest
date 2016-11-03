@@ -182,6 +182,70 @@ class AccountEntry extends ActiveRecord
     }
 
     /**
+     * @return float
+     */
+    public function getAmount()
+    {
+        switch ($this->type_id) {
+            case self::TYPE_ID_SETUP:
+            case self::TYPE_ID_PERIOD:
+            case self::TYPE_ID_MIN:
+
+                return 1;
+
+            //@todo Звонки обсчитываются некорректно. В транзакциях указана стоимость, но не минуты
+            default:
+                if (
+                    ($tariffResource = $this->tariffResource) &&
+                    ($resource = $tariffResource->resource)
+                ) {
+                    $accountLogResources = array_filter($this->accountLogResources, function(AccountLogResource $accountLogResource) {
+                        return $accountLogResource->amount_overhead;
+                    });
+
+                    if (!count($accountLogResources)) {
+                        return 0;
+                    }
+
+                    return array_reduce($accountLogResources, function($summary, AccountLogResource $accountLogResource) {
+                        $summary = (float)$summary;
+                        return $summary + $accountLogResource->amount_overhead;
+                    }) / count($accountLogResources);
+                } else {
+                    Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
+                    return 0;
+                }
+        }
+    }
+
+    /**
+     * @param string $langCode
+     * @return string
+     */
+    public function getTypeUnitName($langCode = Language::LANGUAGE_DEFAULT)
+    {
+        switch ($this->type_id) {
+            case self::TYPE_ID_SETUP:
+            case self::TYPE_ID_PERIOD:
+            case self::TYPE_ID_MIN:
+
+                return Yii::t('models/' . Resource::tableName(), Resource::DEFAULT_UNIT, [], $langCode);
+
+            default:
+                if (
+                    ($tariffResource = $this->tariffResource) &&
+                    ($resource = $tariffResource->resource)
+                ) {
+                    return Yii::t('models/' . Resource::tableName(), $resource->unit, [], $langCode);
+                } else {
+                    Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
+                    return '';
+                }
+                break;
+        }
+    }
+
+    /**
      * @return string
      */
     public function getUrl()

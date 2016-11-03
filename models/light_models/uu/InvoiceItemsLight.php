@@ -7,7 +7,6 @@ use yii\base\Component;
 use app\classes\uu\model\AccountEntry;
 use app\models\ClientAccount;
 use app\models\InvoiceSettings;
-use yii\httpclient\Client;
 
 class InvoiceItemsLight extends Component implements InvoiceLightInterface
 {
@@ -36,6 +35,8 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
         $this->language = $language;
         // Взять EU Vat ID у контрагента
         $this->clientContragentEuroINN = $clientAccount->contragent->inn_euro;
+        // Язык счета
+        $billLanguage = $bill->getLanguage();
         // Установить тип закрывающего документа (Полный / Краткий)
         $this->isDetailed = (bool)$clientAccount->type_of_bill;
 
@@ -49,8 +50,13 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
                 ->setSummaryWithoutVat($item->price_without_vat)
                 ->setSummaryWithVat($item->price_with_vat);
 
+            $itemAmount = $item->getAmount();
+
             $this->items[] = [
-                'title' => $item->getTypeName($bill->getLanguage()),
+                'title' => $item->getTypeName($billLanguage),
+                'amount' => $itemAmount,
+                'unit' => $item->getTypeUnitName($billLanguage),
+                'price_per_unit' => ($itemAmount > 0 ? (float)$item->price_without_vat / $itemAmount : ''),
                 'price_without_vat' => $item->price_without_vat,
                 'price_with_vat' => $item->price_with_vat,
                 'vat_rate' => $item->vat_rate,
@@ -172,6 +178,9 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
     {
         return [
             'title' => 'Название услуги',
+            'amount' => 'Кол-во',
+            'unit' => 'Ед. измерения',
+            'price_per_unit' => 'Цена за ед. измерения',
             'price_without_vat' => 'Цена без НДС',
             'price_with_vat' => 'Цена с НДС',
             'vat' => 'НДС',
