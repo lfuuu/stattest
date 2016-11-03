@@ -1,5 +1,6 @@
 <?php
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 
 class VirtpbxStat extends ActiveRecord\Model
@@ -86,7 +87,19 @@ class VirtpbxStat extends ActiveRecord\Model
 	*/
 	public static function getVpbxStatDetails($client_id, $usage_id, $from, $to)
 	{
-		$options = array();
+	    $tzUTC = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
+        $tzMoscow = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW);
+
+        $fromDate = new DateTime(null, $tzUTC);
+        $fromDate->setTimestamp($from);
+        $fromDate->setTimezone($tzMoscow);
+
+        $toDate = new DateTime(null, $tzUTC);
+        $toDate->setTimestamp($to);
+        $toDate->setTimezone($tzMoscow);
+
+
+        $options = array();
 		$totals = array(
                     'sum' => 0, 
                     'for_space' => 0, 
@@ -100,7 +113,8 @@ class VirtpbxStat extends ActiveRecord\Model
                     'ext_did_monthly_payment' => 0,
                 );
 		$options['select'] = '
-					UNIX_TIMESTAMP(date) as mdate, 
+					UNIX_TIMESTAMP(date) as mdate,
+					date,
 					use_space, 
 					numbers,
 					ext_did_count,
@@ -116,34 +130,38 @@ class VirtpbxStat extends ActiveRecord\Model
 					0 as for_ext_did_count';
 		$options['conditions'] = array(
 						'date >= ? AND date <= ? AND client_id = ? AND usage_id = ?',
-						date('Y-m-d', $from),
-						date('Y-m-d', $to),
+						$fromDate->format(DateTimeZoneHelper::DATE_FORMAT),
+						$toDate->format(DateTimeZoneHelper::DATE_FORMAT),
 						$client_id,
 						$usage_id,
 		);
 		$stat_detailed = self::find('all', $options);
         $tax_rate = ClientAccount::findOne($client_id)->getTaxRate();
 		$nds = 1 + $tax_rate/100;
-		foreach ($stat_detailed as $k => &$v) 
+		foreach ($stat_detailed as $k => &$v)
 		{
+		    $date = new DateTime($v->date);
+
 			$tarif_info = TarifVirtpbx::getTarifByClient($client_id, $v->mdate);
 			$mb = \app\classes\Utils::bytesToMb($v->use_space);
 			if ($mb > $tarif_info->space)
 			{
 				$v->for_space = ceil(($mb - $tarif_info->space)/1024);
-				$v->sum_space = $nds * ($v->for_space*$tarif_info->overrun_per_gb)/date('t', $v->mdate);
+				$v->sum_space = $nds * ($v->for_space*$tarif_info->overrun_per_gb)/$date->format('t');
 				$totals['sum_space'] +=  $v->sum_space;
 			}
+
 			if ($v->numbers > $tarif_info->num_ports)
 			{
 				$v->for_number = $v->numbers - $tarif_info->num_ports;
-				$v->sum_number = $nds * ($v->for_number*$tarif_info->overrun_per_port)/date('t', $v->mdate);
+				$v->sum_number = $nds * ($v->for_number*$tarif_info->overrun_per_port)/$date->format('t');
 				$totals['sum_number'] +=  $v->sum_number;
 			}
+
 			if ($v->ext_did_count > $tarif_info->ext_did_count)
 			{
 				$v->for_ext_did_count = $v->ext_did_count - $tarif_info->ext_did_count;
-				$v->sum_ext_dids = $nds * ($v->for_ext_did_count * $tarif_info->ext_did_monthly_payment) / date('t', $v->mdate);
+				$v->sum_ext_dids = $nds * ($v->for_ext_did_count * $tarif_info->ext_did_monthly_payment) / $date->format('t');
 				$totals['sum_ext_dids'] += $v->sum_ext_dids;
 			}
 			$v->sum = $v->sum_space + $v->sum_number + $v->sum_ext_dids;
@@ -151,7 +169,7 @@ class VirtpbxStat extends ActiveRecord\Model
 			$totals['overrun_per_gb'] = $tarif_info->overrun_per_gb;
 			$totals['overrun_per_port'] = $tarif_info->overrun_per_port;
             $totals['ext_did_monthly_payment'] = $tarif_info->ext_did_monthly_payment;
-			if (isset($stat_detailed[$k-1])) 
+			if (isset($stat_detailed[$k-1]))
 			{
 				$v->diff = $v->use_space -$stat_detailed[$k-1]->use_space;
 				$v->diff_number = $v->numbers -$stat_detailed[$k-1]->numbers;
@@ -179,7 +197,7 @@ class VirtpbxStat extends ActiveRecord\Model
 					$v->diff_ext_dids = $v->ext_did_count;
 				}
 			}
-			
+
 		}
 		unset($v);
 		return 	array($stat_detailed, $totals);
