@@ -34,7 +34,7 @@ $rows = AccountTariff::getGroupedObjects($query);
 
     <?php $form = ActiveForm::begin(['action' => 'uu/account-tariff/save-voip']); ?>
 
-    <div class="panel panel-info">
+    <div class="panel panel-info account-tariff-voip">
         <div class="panel-heading">
             <?php
             /** @var AccountTariff $accountTariffFirst */
@@ -57,16 +57,17 @@ $rows = AccountTariff::getGroupedObjects($query);
             <div class="row">
 
                 <div class="col-sm-2 account-tariff-voip-numbers">
+
                     <?php /** @var AccountTariff $accountTariff */ ?>
                     <?php foreach ($row as $accountTariff) : ?>
-
                         <?php // номера ?>
                         <div>
                             <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'style' => 'display: none;']) ?>
                             <?= Html::a($accountTariff->voip_number ?: Yii::t('common', '(not set)'), $accountTariff->getUrl()) ?>
                         </div>
-
                     <?php endforeach; ?>
+
+                    <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate(end($accountTariffFirst->accountTariffLogs)->actual_from, 'medium') ?></span>
                 </div>
 
                 <div class="col-sm-10">
@@ -79,6 +80,7 @@ $rows = AccountTariff::getGroupedObjects($query);
                         $isEditable = $accountTariffFirst->tariff_period_id;
                         $isCancelable = $accountTariffFirst->isCancelable();
                         $isShowAddPackage = $isEditable || $isCancelable;
+                        $packages = [];
 
                         /** @var AccountTariffLog $accountTariffLog */
                         ?>
@@ -124,75 +126,87 @@ $rows = AccountTariff::getGroupedObjects($query);
                             </div>
 
                             <?php
-                            if (!$isCancelable) {
-                                // этот и последующие отменить нельзя
-                                break;
-                            }
+//                            if (!$isCancelable) {
+//                                // этот и последующие отменить нельзя
+//                                break;
+//                            }
                             ?>
                         <?php endforeach; ?>
 
-                    </div>
-
-                    <?php // пакеты ?>
-                    <?php foreach ($accountTariffFirst->nextAccountTariffs as $accountTariffPackage) : ?>
-                        <div class="well">
-
-                            <?php
-                            $i = 0;
-                            // дефолтный пакет нельзя редактировать
-                            $isPackageEditable = $accountTariffPackage->tariff_period_id && !$accountTariffPackage->tariffPeriod->tariff->is_default;
-                            $isPackageCancelable = $accountTariffPackage->isCancelable();
-                            /** @var AccountTariffLog $accountTariffLog */
-                            ?>
-                            <?php foreach ($accountTariffPackage->accountTariffLogs as $accountTariffLog) : ?>
-                                <div>
-                                    <?= $accountTariffLog->getTariffPeriodLink() ?>
-                                    <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'medium') ?></span>
-
-                                    <?php $i++ && $isPackageCancelable = $isPackageEditable = false ?>
-
-                                    <?= $isPackageCancelable ?
-                                        Html::a(
-                                            Html::tag('i', '', [
-                                                'class' => 'glyphicon glyphicon-erase',
-                                                'aria-hidden' => 'true',
-                                            ]) . ' ' .
-                                            Yii::t('common', 'Cancel'),
-                                            Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'accountTariffHash' => $accountTariffPackage->getHash()]),
-                                            [
-                                                'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
-                                                'title' => 'Отменить смену тарифа для пакета',
-                                            ]
-                                        ) : '' ?>
-
-                                    <?= (!$isPackageCancelable && $isPackageEditable) ?
-                                        Html::button(
-                                            Html::tag('i', '', [
-                                                'class' => 'glyphicon glyphicon-edit',
-                                                'aria-hidden' => 'true',
-                                            ]) . ' ' .
-                                            'Сменить',
-                                            [
-                                                'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
-                                                'title' => 'Сменить тариф или отключить услугу для пакета',
-                                                'data-id' => $accountTariffPackage->id,
-                                                'data-city_id' => $accountTariffPackage->city_id,
-                                            ]
-                                        ) : ''
-                                    ?>
-
-                                </div>
+                        <?php // пакеты ?>
+                        <?php foreach ($accountTariffFirst->nextAccountTariffs as $accountTariffPackage) : ?>
+                            <?php ob_start() ?>
+                            <div class="well">
 
                                 <?php
-                                if (!$isPackageCancelable) {
-                                    // этот и последующие отменить нельзя
-                                    break;
-                                }
+                                $i = 0;
+                                // дефолтный пакет нельзя редактировать
+                                $isPackageEditable = $accountTariffPackage->tariff_period_id;
+                                $isPackageDefault = $accountTariffPackage->tariff_period_id && $accountTariffPackage->tariffPeriod->tariff->is_default;
+                                $isPackageCancelable = $accountTariffPackage->isCancelable();
+                                /** @var AccountTariffLog $accountTariffLog */
                                 ?>
-                            <?php endforeach; ?>
+                                <?php foreach ($accountTariffPackage->accountTariffLogs as $accountTariffLog) : ?>
+                                    <div>
+                                        <?= $accountTariffLog->getTariffPeriodLink() ?>
+                                        <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'medium') ?></span>
 
-                        </div>
-                    <?php endforeach ?>
+                                        <?php $i++ && $isPackageCancelable = $isPackageEditable = false ?>
+
+                                        <?= $isPackageCancelable ?
+                                            Html::a(
+                                                Html::tag('i', '', [
+                                                    'class' => 'glyphicon glyphicon-erase',
+                                                    'aria-hidden' => 'true',
+                                                ]) . ' ' .
+                                                Yii::t('common', 'Cancel'),
+                                                Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'accountTariffHash' => $accountTariffPackage->getHash()]),
+                                                [
+                                                    'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
+                                                    'title' => 'Отменить смену тарифа для пакета',
+                                                ]
+                                            ) : '' ?>
+
+                                        <?= (!$isPackageCancelable && $isPackageEditable && !$isPackageDefault) ?
+                                            Html::button(
+                                                Html::tag('i', '', [
+                                                    'class' => 'glyphicon glyphicon-edit',
+                                                    'aria-hidden' => 'true',
+                                                ]) . ' ' .
+                                                'Сменить',
+                                                [
+                                                    'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
+                                                    'title' => 'Сменить тариф или отключить услугу для пакета',
+                                                    'data-id' => $accountTariffPackage->id,
+                                                    'data-city_id' => $accountTariffPackage->city_id,
+                                                ]
+                                            ) : ''
+                                        ?>
+
+                                    </div>
+
+                                    <?php
+//                                    if (!$isPackageCancelable) {
+//                                        // этот и последующие отменить нельзя
+//                                        break;
+//                                    }
+                                    ?>
+                                <?php endforeach; ?>
+
+                            </div>
+                            <?php
+                            if ($isPackageDefault) {
+                                ob_end_flush(); // вывести на экран
+                            } else {
+                                $packages[] = ob_get_clean(); // запомнить вывод
+                            }
+                            ?>
+                        <?php endforeach ?>
+
+                    </div>
+                    <br/>
+
+                    <?= implode('', $packages) ?>
 
                     <?= $isShowAddPackage ?
                         Html::button(

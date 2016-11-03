@@ -9,13 +9,14 @@
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\ServiceTypeColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
+use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\AccountLogPeriodFilter;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountTariff;
-use app\classes\grid\GridView;
 use yii\widgets\Breadcrumbs;
 
 $accountLogPeriodTableName = AccountLogPeriod::tableName();
@@ -87,6 +88,18 @@ $accountTariffTableName = AccountTariff::tableName();
         [
             'attribute' => 'price',
             'class' => IntegerRangeColumn::className(),
+        ],
+        [
+            'attribute' => 'account_entry_id',
+            'class' => IsNullAndNotNullColumn::className(),
+            'format' => 'html',
+            'value' => function (AccountLogPeriod $accountLogPeriod) {
+                $accountEntry = $accountLogPeriod->accountEntry;
+                if (!$accountEntry) {
+                    return Yii::t('common', '(not set)');
+                }
+                return Html::a($accountEntry->date, $accountEntry->getUrl());
+            }
         ],
     ],
 ]) ?>

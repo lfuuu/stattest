@@ -80,15 +80,6 @@ $columns = [
         'class' => TariffPersonColumn::className(),
     ],
     [
-        'label' => 'УУ',
-        'attribute' => 'is_uu',
-        'class' => YesNoColumn::className(),
-        'value' => function (Tariff $tariff) {
-            $isOld = $tariff->getNonUniversalId();
-            return Yii::t('common', $isOld ? 'No' : 'Yes');
-        }
-    ],
-    [
         'label' => 'Продл.',
         'attribute' => 'is_autoprolongation',
         'class' => YesNoColumn::className(),

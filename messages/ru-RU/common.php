@@ -20,7 +20,7 @@ return [
     'Switched off' => 'Отключено',
     'Switched on' => 'Включено',
     'Is empty' => 'Пустое',
-    'Is not empty' => 'Любое',
+    'Is not empty' => 'Указано',
     '(not set)' => '(не задано)',
     'Internal error' => 'Внутренняя ошибка',
     'Ascending' => 'По возрастанию',

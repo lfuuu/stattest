@@ -68,7 +68,7 @@ class ClientCounter extends ActiveRecord
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
                 // новый (универсальный) биллинг
                 // пересчитывается в RealtimeBalanceTarificator
-                return $this->clientAccount->balance;
+                return $this->clientAccount->balance + $this->getDaySummary();
 
             default:
                 throw new \LogicException('Неизвестная версия биллинга у клиента ' . $this->client_id);
@@ -118,10 +118,12 @@ class ClientCounter extends ActiveRecord
             /** @var BillingCounter $billingCounter */
             $billingCounter = BillingCounter::findOne(['client_id' => $clientAccountId]);
 
-            $localCounter->amount_sum = $billingCounter->amount_sum;
-            $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
-            $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
-            $localCounter->save();
+            if ($billingCounter) {
+                $localCounter->amount_sum = $billingCounter->amount_sum;
+                $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
+                $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
+                $localCounter->save();
+            }
         } catch (\Exception $e) {
             $localCounter->isLocal = true;
             Yii::error('Failed to load billing data. ' . self::className() . '.', __METHOD__);

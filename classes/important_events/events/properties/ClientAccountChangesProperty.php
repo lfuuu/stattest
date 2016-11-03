@@ -19,7 +19,7 @@ class ClientAccountChangesProperty extends UnknownProperty implements PropertyIn
     {
         parent::__construct($event);
 
-        $this->clientAccountId = $this->setPropertyName('client_id')->getPropertyValue();
+        $this->clientAccountId = $event->client_id;
     }
 
     /**

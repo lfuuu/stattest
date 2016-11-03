@@ -79,25 +79,27 @@ SQL;
         echo '. ';
         $updateSql = <<<SQL
             UPDATE
-            {$billTableName} bill,
-            (
-                SELECT
-                   bill_id,
-                   SUM(price) AS price
-                FROM
-                   {$accountEntryTableName} account_entry
-                WHERE
-                    true
-                    {$sqlAndWhere}
-                GROUP BY
-                   bill_id
-            ) t
-        SET
-            bill.price = t.price,
-            bill.is_converted = 0
-        WHERE
-            bill.id = t.bill_id
-            AND bill.price != t.price
+                {$billTableName} bill
+            LEFT JOIN
+                (
+                    SELECT
+                       bill_id,
+                       SUM(price) AS price
+                    FROM
+                       {$accountEntryTableName} account_entry
+                    WHERE
+                        true
+                        {$sqlAndWhere}
+                    GROUP BY
+                       bill_id
+                ) t
+            ON bill.id = t.bill_id
+            SET
+                bill.price = COALESCE(t.price, 0),
+                bill.is_converted = 0
+            WHERE
+                t.price IS NULL
+                OR bill.price != t.price
 SQL;
         $db->createCommand($updateSql)
             ->execute();

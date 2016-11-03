@@ -9,10 +9,8 @@
  * @var Payment[] $payments
  * @var Bill[] $bills
  * @var array $accountEntrySummary
- * @var array $accountLogSetupSummary
- * @var array $accountLogPeriodSummary
- * @var array $accountLogResourceSummary
  * @var array $paymentSummary
+ * @var array $uuBillSummary
  */
 
 use app\classes\Html;
@@ -37,43 +35,11 @@ use yii\helpers\Url;
     </tr>
     <tr>
         <td>Всего транзакций</td>
-        <td><?= $accountLogSetupSummary['total_count'] + $accountLogPeriodSummary['total_count'] + $accountLogResourceSummary['total_count'] ?> шт.</td>
-        <td>
-                    <span class="uu-balance-toggle-offset">
-                        <?= sprintf('%+.2f', -($transactionSum = $accountLogSetupSummary['total_price'] + $accountLogPeriodSummary['total_price'] + $accountLogResourceSummary['total_price'])) ?>
-                    </span>
-            <?= $currency->symbol ?>
-        </td>
-    </tr>
-    <tr class="uu-balance-offset" style="display: none;">
-        <td>... за подключение</td>
-        <td><?= $accountLogSetupSummary['total_count'] ?> шт.</td>
+        <td></td>
         <td>
             <?= Html::a(
-                sprintf('%+.2f', -$accountLogSetupSummary['total_price']),
-                Url::to(['uu/account-log/setup', 'AccountLogSetupFilter[client_account_id]' => $clientAccount->id])
-            ) ?>
-            <?= $currency->symbol ?>
-        </td>
-    </tr>
-    <tr class="uu-balance-offset" style="display: none;">
-        <td>... за абонентку</td>
-        <td><?= $accountLogPeriodSummary['total_count'] ?> шт.</td>
-        <td>
-            <?= Html::a(
-                sprintf('%+.2f', -$accountLogPeriodSummary['total_price']),
-                Url::to(['uu/account-log/period', 'AccountLogPeriodFilter[client_account_id]' => $clientAccount->id])
-            ) ?>
-            <?= $currency->symbol ?>
-        </td>
-    </tr>
-    <tr class="uu-balance-offset" style="display: none;">
-        <td>... за ресурсы</td>
-        <td><?= $accountLogResourceSummary['total_count'] ?> шт.</td>
-        <td>
-            <?= Html::a(
-                sprintf('%+.2f', -$accountLogResourceSummary['total_price']),
-                Url::to(['uu/account-log/resource', 'AccountLogResourceFilter[client_account_id]' => $clientAccount->id])
+                sprintf('%+.2f', -$uuBillSummary['total_price']),
+                Url::to(['uu/bill', 'AccountBillFilter[client_account_id]' => $clientAccount->id])
             ) ?>
             <?= $currency->symbol ?>
         </td>
@@ -82,22 +48,8 @@ use yii\helpers\Url;
         <td>Баланс</td>
         <td></td>
         <td>
-            <b><?= sprintf('%+.2f', $paymentSummary['total_price'] - $transactionSum) ?></b> <?= $currency->symbol ?>
+            <b><?= sprintf('%+.2f', $clientAccount->billingCounters->getRealtimeBalance()) ?></b> <?= $currency->symbol ?>
         </td>
     </tr>
     </tbody>
 </table>
-
-
-<?php // скрыть/показать  детальные транзакции ?>
-<script type='text/javascript'>
-    $(function () {
-        $('.uu-balance-toggle-offset').on('click', function () {
-            $('.uu-balance-offset').slideToggle(function () {
-                if (window.reflowTableHeader) {
-                    window.reflowTableHeader();
-                }
-            });
-        });
-    });
-</script>

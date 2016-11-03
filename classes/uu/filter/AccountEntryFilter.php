@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\filter;
 
+use app\classes\traits\GetListTrait;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\TariffResource;
@@ -34,6 +35,7 @@ class AccountEntryFilter extends AccountEntry
     public $account_tariff_id = '';
     public $service_type_id = '';
     public $client_account_id = '';
+    public $bill_id = '';
 
     public $type_id = '';
 
@@ -42,7 +44,7 @@ class AccountEntryFilter extends AccountEntry
     public function rules()
     {
         return [
-            [['id', 'client_account_id', 'account_tariff_id', 'service_type_id', 'type_id', 'is_default'], 'integer'],
+            [['id', 'client_account_id', 'account_tariff_id', 'service_type_id', 'type_id', 'is_default', 'bill_id'], 'integer'],
             [['price_from', 'price_to'], 'double'],
             [['price_without_vat_from', 'price_without_vat_to'], 'double'],
             [['price_with_vat_from', 'price_with_vat_to'], 'double'],
@@ -112,6 +114,17 @@ class AccountEntryFilter extends AccountEntry
         $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
         $this->is_default !== '' && $query->andWhere([$accountEntryTableName . '.is_default' => $this->is_default]);
+
+        switch ($this->bill_id) {
+            case GetListTrait::$isNull:
+                $query->andWhere([$accountEntryTableName . '.bill_id' => null]);
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere($accountEntryTableName . '.bill_id IS NOT NULL');
+                break;
+            default:
+                break;
+        }
 
         if ($this->type_id !== '') {
             if ($this->type_id < 0) {

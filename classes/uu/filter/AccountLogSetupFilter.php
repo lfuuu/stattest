@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\filter;
 
+use app\classes\traits\GetListTrait;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
 use yii\data\ActiveDataProvider;
@@ -27,13 +28,15 @@ class AccountLogSetupFilter extends AccountLogSetup
 
     public $client_account_id = '';
 
+    public $account_entry_id = '';
+
     public $service_type_id = '';
     public $tariff_period_id = '';
 
     public function rules()
     {
         return [
-            [['id', 'client_account_id', 'tariff_period_id', 'service_type_id'], 'integer'],
+            [['id', 'client_account_id', 'tariff_period_id', 'service_type_id', 'account_entry_id'], 'integer'],
             [['price_from', 'price_to'], 'double'],
             [['price_setup_from', 'price_setup_to'], 'double'],
             [['price_number_from', 'price_number_to'], 'double'],
@@ -74,6 +77,17 @@ class AccountLogSetupFilter extends AccountLogSetup
         $this->price_to !== '' && $query->andWhere(['<=', $accountLogSetupTableName . '.price', $this->price_to]);
 
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
+
+        switch ($this->account_entry_id) {
+            case GetListTrait::$isNull:
+                $query->andWhere([$accountLogSetupTableName . '.account_entry_id' => null]);
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere($accountLogSetupTableName . '.account_entry_id IS NOT NULL');
+                break;
+            default:
+                break;
+        }
 
         if (!$this->service_type_id) {
             $this->tariff_period_id = '';

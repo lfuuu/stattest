@@ -250,6 +250,7 @@ class m_newaccounts extends IModule
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
+        $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());
         $design->assign(
             'saldo_history',
             $db->AllRecords('
@@ -598,6 +599,7 @@ class m_newaccounts extends IModule
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
+        $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());
         $design->assign(
             'saldo_history',
             $db->AllRecords('
@@ -690,7 +692,7 @@ class m_newaccounts extends IModule
             exit();
 
             // stat bills
-        } elseif (preg_match("/\d{6}-\d{4}/", $_GET["bill"]) || preg_match('/^uu\d{6}$/', $_GET['bill'])) {
+        } elseif (preg_match("/\d{6}-\d{4}/", $_GET["bill"]) || preg_match('/^\d{10,}$/', $_GET['bill'])) {
             $a = 1;
             //nothing
         } else {

@@ -45,15 +45,6 @@ $columns = [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
     ],
-    [
-        'label' => 'Универсальный?',
-        'attribute' => 'is_uu',
-        'class' => YesNoColumn::className(),
-        'value' => function (AccountTariff $tariff) {
-            $isOld = $tariff->getNonUniversalId();
-            return Yii::t('common', $isOld ? 'No' : 'Yes');
-        }
-    ],
 ];
 
 // столбцы для конкретной услуги

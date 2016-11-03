@@ -20,8 +20,6 @@ class AccountTariffFilter extends AccountTariff
     public $service_type_id = '';
     public $tariff_period_id = '';
 
-    public $is_uu = '';
-
     /**
      * @param int $serviceTypeId
      */
@@ -29,18 +27,6 @@ class AccountTariffFilter extends AccountTariff
     {
         $this->service_type_id = $serviceTypeId;
         parent::__construct();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return array_merge(
-            parent::rules(),
-            [
-                [['is_uu'], 'integer'],
-            ]);
     }
 
     /**
@@ -84,10 +70,6 @@ class AccountTariffFilter extends AccountTariff
             $query->andWhere('voip_number LIKE :voip_number', [':voip_number' => $this->voip_number]);
         } else {
             $this->voip_number = '';
-        }
-
-        if ($this->is_uu !== '') {
-            $query->andWhere([$this->is_uu ? '>=' : '<=', $accountTariffTableName . '.id', AccountTariff::DELTA]);
         }
 
         $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
