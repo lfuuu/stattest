@@ -74,8 +74,8 @@ class AccountEditForm extends Form
         $options,
         $site_name,
         $account_version,
-        $is_postpaid
-    ;
+        $is_postpaid,
+        $type_of_bill;
 
     public function rules()
     {
@@ -144,7 +144,8 @@ class AccountEditForm extends Form
                     'admin_is_active',
                     'anti_fraud_disabled',
                     'account_version',
-                    'is_postpaid'
+                    'is_postpaid',
+                    'type_of_bill',
                 ],
                 'integer'
             ],
@@ -184,7 +185,8 @@ class AccountEditForm extends Form
                 'value' => [ClientAccountOptions::OPTION_MAIL_DELIVERY => ClientAccountOptions::OPTION_MAIL_DELIVERY_DEFAULT_VALUE]
             ],
             [['options',], ArrayValidator::className()],
-            ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE]
+            ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE],
+            ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED]
         ];
         return $rules;
     }

@@ -45,4 +45,6 @@ return [
     'USD' => '$',
 
     'incomming_payment' => 'Авансовый платеж за услуги связи',
+
+    'Communications services contract #{contract_number}' => 'Услуги связи по договору №{contract_number}',
 ];
