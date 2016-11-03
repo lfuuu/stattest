@@ -46,9 +46,9 @@
     {/if}
     <td>
         <small>
-            {if $item.package_minute}<span class="package_taken_{$item.package_minute.taken}">{$item.package_minute.name} / Минут: {$item.package_minute.minute} / {$item.package_minute.destination}</span> <br/>{/if}
-            {if $item.package_price}<span class="package_taken_{$item.package_price.taken}">{$item.package_price.name} / Цена: {$item.package_price.price} / {$item.package_price.destination}</span> <br/>{/if}
-            {if $item.package_pricelist}<span class="package_taken_{$item.package_pricelist.taken}">{$item.package_pricelist.name} / Прайс-лист: {$item.package_pricelist.pricelist}</span>{/if}
+            {if isset($item.package_minute)}<span class="package_taken_{$item.package_minute.taken}">{$item.package_minute.name} / Минут: {$item.package_minute.minute} / {$item.package_minute.destination}</span> <br/>{/if}
+            {if isset($item.package_price)}<span class="package_taken_{$item.package_price.taken}">{$item.package_price.name} / Цена: {$item.package_price.price} / {$item.package_price.destination}</span> <br/>{/if}
+            {if isset($item.package_pricelist)}<span class="package_taken_{$item.package_pricelist.taken}">{$item.package_pricelist.name} / Прайс-лист: {$item.package_pricelist.pricelist}</span>{/if}
         </small>
     </td>
 {else}
