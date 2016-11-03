@@ -188,7 +188,7 @@ class BillDao extends Singleton
 
         if (!$uuBill->price) {
             // нулевые счета не нужны
-            if (!$bill->delete()) {
+            if ($bill && !$bill->delete()) {
                 throw new LogicException(implode(' ', $bill->getFirstErrors()));
             }
             return false;
