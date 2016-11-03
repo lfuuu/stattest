@@ -41,6 +41,7 @@ use yii\helpers\Url;
  * @property string $timezone_name
  * @property int $account_version
  * @property int $is_postpaid
+ * @property bool $type_of_bill
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -92,6 +93,9 @@ class ClientAccount extends HistoryActiveRecord
 
     const VERSION_BILLER_USAGE = 4;
     const VERSION_BILLER_UNIVERSAL = 5;
+
+    const TYPE_OF_BILL_SIMPLE = false;
+    const TYPE_OF_BILL_DETAILED = true;
 
     const WARNING_UNAVAILABLE_BILLING = 'unavailable.billing'; // Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными
     const WARNING_UNAVAILABLE_LOCKS = 'unavailable.locks'; // Сервер статистики недоступен. Данные о блокировках недоступны
@@ -241,6 +245,7 @@ class ClientAccount extends HistoryActiveRecord
             'account_version' => 'Версия ЛС',
             'anti_fraud_disabled' => 'Отключен анти-фрод',
             'is_postpaid' => 'Постоплата',
+            'type_of_bill' => 'Закрывающий документ (Полный)',
         ];
     }
 
