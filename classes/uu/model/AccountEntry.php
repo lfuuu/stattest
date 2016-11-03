@@ -3,6 +3,7 @@
 namespace app\classes\uu\model;
 
 use app\models\Language;
+use app\models\usages\UsageInterface;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -37,14 +38,17 @@ use yii\helpers\Url;
  * @property int $is_default
  * @property int $bill_id
  *
+ * @property string $date_from Минимальная дата транзакций
+ * @property string $date_to Максимальная дата транзакций
  * @property Bill $bill
  * @property AccountTariff $accountTariff
  * @property TariffResource $tariffResource
  * @property AccountLogSetup[] $accountLogSetups
  * @property AccountLogPeriod[] $accountLogPeriods
  * @property AccountLogResource[] $accountLogResources
- * @property string typeName
- * @property string code
+ * @property AccountLogMin[] $accountLogMins
+ * @property string name
+ * @property string fullName
  */
 class AccountEntry extends ActiveRecord
 {
@@ -55,16 +59,16 @@ class AccountEntry extends ActiveRecord
     const TYPE_ID_PERIOD = -2;
     const TYPE_ID_MIN = -3;
 
-    const CODE_TYPE_ID_SETUP = 'setup';
-    const CODE_TYPE_ID_PERIOD = 'period';
-    const CODE_TYPE_ID_MINIMUM = 'minimum';
-    const CODE_TYPE_ID_RESOURCES = 'resource';
+    const NAME_RESOURCES = 'Resource';
 
-    private $codeNames = [
-        self::TYPE_ID_SETUP => self::CODE_TYPE_ID_SETUP,
-        self::TYPE_ID_PERIOD => self::CODE_TYPE_ID_PERIOD,
-        self::TYPE_ID_MIN => self::CODE_TYPE_ID_MINIMUM,
+    public static $names = [
+        self::TYPE_ID_SETUP => 'Connection',
+        self::TYPE_ID_PERIOD => 'Subscription fee',
+        self::TYPE_ID_MIN => 'Minimal fee',
     ];
+
+    protected $dateFrom = null;
+    protected $dateTo = null;
 
     public static function tableName()
     {
@@ -129,14 +133,48 @@ class AccountEntry extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccountLogMins()
+    {
+        return $this->hasMany(AccountLogMin::className(), ['account_entry_id' => 'id']);
+    }
+
+    /**
+     * Вернуть название на нужном языке
+     * Например, "Ресурс", "Подключение", "Подключение номера ..."
      * @return string
      */
-    public function getCode()
+    public function getName($langCode = Language::LANGUAGE_DEFAULT)
     {
-        if (!isset($this->codeNames[$this->type_id])) {
-            return self::CODE_TYPE_ID_RESOURCES;
+        $names = [];
+
+        // Например, "Номер ..."
+        $accountTariff = $this->accountTariff;
+        if ($accountTariff->service_type_id == ServiceType::ID_VOIP) {
+            // телефония
+            $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->voip_number], $langCode);
+        } elseif ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE) {
+            // пакет телефонии. Номер взять от телефонии
+            $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->prevAccountTariff->voip_number], $langCode);
         }
-        return $this->codeNames[$this->type_id];
+
+        if ($this->type_id > 0) {
+            // ресурс
+            // Например, "Звонки"
+            $tariffResource = $this->tariffResource;
+            $resource = $tariffResource->resource;
+            $names[] = $resource->getFullName($langCode, (bool)$tariffResource->amount);
+
+        } else {
+            // подключение/абонентка/минималка
+            // Например, "Подключение"
+            $name = self::$names[$this->type_id];
+            $names[] = Yii::t('uu', $name, [], $langCode);
+        }
+
+        return implode('. ', $names);
+
     }
 
     /**
@@ -144,40 +182,69 @@ class AccountEntry extends ActiveRecord
      * @param string $langCode
      * @return string
      */
-    public function getTypeName($langCode = Language::LANGUAGE_DEFAULT)
+    public function getFullName($langCode = Language::LANGUAGE_DEFAULT)
     {
-        $tableName = self::tableName();
+        $accountTariff = $this->accountTariff;
+
+        $names = [];
+
+        // Например, "ВАТС" или "SMS"
+        // Кроме "Телефония" и "Пакет телефонии". Чтобы было короче. А для них и так помятно, ибо указан номер
+        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE])) {
+            $serviceType = $accountTariff->serviceType;
+            $names[] = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
+        }
+
+        // Например, "Абонентская плата" или "Подключение" или "Номер 1234567890. Звонки"
+        $names[] = $this->name;
+
+        // Например, "Тариф «Максимальный»"
+        // Кроме звонков. Чтобы было короче. У них тарификация зависит от пакета, а не тарифа
+        if ($this->type_id < 0 || $this->tariffResource->resource_id != Resource::ID_VOIP_CALLS) {
+
+            // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
+            $tariffPeriod = $this->getTariffPeriod();
+            $name = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariffPeriod->tariff->name], $langCode);
+
+            // Например, "100". @todo "руб/мес" или "форинтов/год"
+            // Только для абонентки за неполный месяц
+//            if ($this->type_id == self::TYPE_ID_PERIOD && (new \DateTimeImmutable($this->date_from))->format('j') !== '1') {
+//                $name .= ' (' . $tariffPeriod->price_per_period . ')';
+//            }
+
+            $names[] = $name;
+
+        }
+
+        return implode('. ', $names);
+    }
+
+    public function getTariffPeriod()
+    {
         switch ($this->type_id) {
-            case self::TYPE_ID_SETUP:
-            case self::TYPE_ID_PERIOD:
-            case self::TYPE_ID_MIN:
+            case AccountEntry::TYPE_ID_SETUP:
+                $accountLogSetups = $this->accountLogSetups;
+                $accountLogSetup = reset($accountLogSetups);
+                return $accountLogSetup->tariffPeriod;
+                break;
 
-                $serviceTypeName = '';
-                if (
-                    ($accountTariff = $this->accountTariff)
-                    && ($serviceType = $accountTariff->serviceType)
-                ) {
-                    $serviceTypeName = Yii::t('models/' . $serviceType::tableName(), 'Type #' . $serviceType->id, [], $langCode) . '. ';
-                }
+            case AccountEntry::TYPE_ID_PERIOD:
+                $accountLogPeriods = $this->accountLogPeriods;
+                $accountLogPeriod = reset($accountLogPeriods);
+                return $accountLogPeriod->tariffPeriod;
+                break;
 
-                $dictionary = 'models/' . $tableName;
+            case AccountEntry::TYPE_ID_MIN:
+                $accountLogMins = $this->accountLogMins;
+                $accountLogMin = reset($accountLogMins);
+                return $accountLogMin->tariffPeriod;
+                break;
 
-                return Yii::t($dictionary, '{name} ({descr}). {serviceTypeName}', [
-                    'name' => Yii::t($dictionary, $this->code, [], $langCode),
-                    'serviceTypeName' => $serviceTypeName,
-                    'descr' => ($this->accountTariff->service_type_id == ServiceType::ID_VOIP ? $this->accountTariff->voip_number : $this->account_tariff_id),
-                ], $langCode);
-
-            default: //resources
-                if (
-                    ($tariffResource = $this->tariffResource) &&
-                    ($resource = $tariffResource->resource)
-                ) {
-                    return $resource->getFullName($langCode);
-                } else {
-                    Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
-                    return '';
-                }
+            default:
+                $accountLogResources = $this->accountLogResources;
+                $accountLogResource = reset($accountLogResources);
+                return $accountLogResource->tariffPeriod;
+                break;
         }
     }
 
@@ -251,5 +318,70 @@ class AccountEntry extends ActiveRecord
     public function getUrl()
     {
         return Url::to(['uu/account-entry', 'AccountEntryFilter[id]' => $this->id]);
+    }
+
+    /**
+     * Вернуть минимальную дату транзакции
+     * метод для "date_from"
+     */
+    public function getDate_from()
+    {
+        if (!$this->dateFrom) {
+            $this->setDateFromTo();
+        }
+        return $this->dateFrom;
+
+    }
+
+    /**
+     * Вернуть максимальную дату транзакции
+     * метод для "date_to"
+     */
+    public function getDate_to()
+    {
+        if (!$this->dateTo) {
+            $this->setDateFromTo();
+        }
+        return $this->dateTo;
+
+    }
+
+    /**
+     * Найти и установить минимальную и максимальную дату транзакции
+     */
+    protected function setDateFromTo()
+    {
+        $this->dateFrom = UsageInterface::MAX_POSSIBLE_DATE;
+        $this->dateTo = UsageInterface::MIN_DATE;
+
+        switch ($this->type_id) {
+            case AccountEntry::TYPE_ID_SETUP:
+                foreach ($this->accountLogSetups as $accountLogSetup) {
+                    $this->dateFrom = min($this->dateFrom, $accountLogSetup->date);
+                    $this->dateTo = max($this->dateTo, $accountLogSetup->date);
+                }
+                break;
+
+            case AccountEntry::TYPE_ID_PERIOD:
+                foreach ($this->accountLogPeriods as $accountLogPeriod) {
+                    $this->dateFrom = min($this->dateFrom, $accountLogPeriod->date_from);
+                    $this->dateTo = max($this->dateTo, $accountLogPeriod->date_to);
+                }
+                break;
+
+            case AccountEntry::TYPE_ID_MIN:
+                foreach ($this->accountLogMins as $accountLogMin) {
+                    $this->dateFrom = min($this->dateFrom, $accountLogMin->date_from);
+                    $this->dateTo = max($this->dateTo, $accountLogMin->date_to);
+                }
+                break;
+
+            default:
+                foreach ($this->accountLogResources as $accountLogResource) {
+                    $this->dateFrom = min($this->dateFrom, $accountLogResource->date);
+                    $this->dateTo = max($this->dateTo, $accountLogResource->date);
+                }
+                break;
+        }
     }
 }

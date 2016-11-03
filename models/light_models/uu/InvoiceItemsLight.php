@@ -53,7 +53,7 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
             $itemAmount = $item->getAmount();
 
             $this->items[] = [
-                'title' => $item->getTypeName($billLanguage),
+                'title' => $item->getFullName($billLanguage),
                 'amount' => $itemAmount,
                 'unit' => $item->getTypeUnitName($billLanguage),
                 'price_per_unit' => ($itemAmount > 0 ? (float)$item->price_without_vat / $itemAmount : ''),

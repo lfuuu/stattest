@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\classes\uu\tarificator\RealtimeBalanceTarificator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
 use app\models\ClientContractComment;
@@ -75,6 +76,11 @@ class ClientAccountDao extends Singleton
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
         Assert::isObject($clientAccount);
+
+        if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
+            return;
+        }
 
         $saldo = $this->getSaldo($clientAccount);
 

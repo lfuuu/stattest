@@ -228,10 +228,10 @@ foreach ($result as $monthKey => $month):
                             <?php
                             switch ($monthUuItems[$i]->type_id) {
                                 case AccountEntry::TYPE_ID_PERIOD:
-                                    echo '<i>' . $monthUuItems[$i]->getTypeName() . '</i>';
+                                    echo '<i>' . $monthUuItems[$i]->getFullName() . '</i>';
                                     break;
                                 default:
-                                    echo $monthUuItems[$i]->getTypeName();
+                                    echo $monthUuItems[$i]->getFullName();
                                     break;
                             }
                             ?>

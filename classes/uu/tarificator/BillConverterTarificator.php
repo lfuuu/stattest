@@ -4,7 +4,6 @@ namespace app\classes\uu\tarificator;
 
 use app\classes\uu\model\Bill;
 use app\helpers\DateTimeZoneHelper;
-use app\models\ClientAccount;
 
 /**
  * Конвертацию УУ-счетов в старую бухгалтерию
@@ -16,28 +15,21 @@ class BillConverterTarificator implements TarificatorI
      */
     public function tarificate($accountClientId = null)
     {
-        $billTableName = Bill::tableName();
-        $clientAccountTableName = ClientAccount::tableName();
-
         $activeQuery = Bill::find()
-            ->joinWith('clientAccount')
             //
             // которые требуют конвертации (не сконвертированы или изменились после конвертирования)
-            ->where([$billTableName . '.is_converted' => 0])
+            ->where(['is_converted' => 0])
             //
             // либо на доплату, либо за прошлый месяц
-            ->andWhere('(' . $billTableName . '.is_default = 0 OR ' . $billTableName . '.date = :date)', [
+            ->andWhere('(is_default = 0 OR date <= :date)', [
                 ':date' => (new \DateTimeImmutable())
-                    ->modify('first day of previous month')// @todo таймзона клиента
+                    ->modify('first day of this month')// @todo таймзона клиента
                     ->format(DateTimeZoneHelper::DATE_FORMAT),
-            ])
-            //
-            // только УУ
-            ->andWhere([$clientAccountTableName . '.account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]);;
+            ]);
 
         if ($accountClientId) {
             // только конкретный аккаунт
-            $activeQuery->andWhere([$billTableName . '.client_account_id' => $accountClientId]);
+            $activeQuery->andWhere(['client_account_id' => $accountClientId]);
         }
 
         /** @var Bill $bill */

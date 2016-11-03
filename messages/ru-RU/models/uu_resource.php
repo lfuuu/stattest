@@ -34,5 +34,5 @@ return [
     'Mb.' => 'Мб.',
     'Hz' => 'ГГц',
 
-    '{resource} (ID: {id})' => 'Превышение лимита потребления ресурса: {resource} (ID: {id})',
+    'Resource consumption limit exceedance' => 'Превышение лимита потребления ресурса',
 ];

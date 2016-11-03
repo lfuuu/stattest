@@ -92,7 +92,7 @@ class AccountEntryTarificator implements TarificatorI
             new Expression((string)AccountEntry::TYPE_ID_MIN),
             'date_to',
             $accountTariffId,
-            $sqlAndWhere = 'AND account_log.date_to <= NOW()',
+            $sqlAndWhere = 'AND account_log.date_to < DATE_FORMAT(NOW(), "%Y-%m-%d")',
             $isDefault = 1
         );
 

@@ -28,5 +28,5 @@ return [
     'Resource #19' => 'Minimum price routing',
     'Resource #20' => 'Geo routing',
 
-    '{resource} (ID: {id})' => 'Limit der Ressourcennutzung überschritten: {resource} (ID: {id})',
+    'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
 ];

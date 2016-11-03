@@ -19,6 +19,7 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\AccountEntryFilter;
 use app\classes\uu\model\AccountEntry;
+use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
@@ -94,7 +95,7 @@ $accountTariffTableName = AccountTariff::tableName();
             'attribute' => 'type_id',
             'class' => AccountEntryTypeColumn::className(),
             'value' => function (AccountEntry $accountEntry) {
-                return $accountEntry->getTypeName();
+                return $accountEntry->getName();
             },
         ],
         [
@@ -154,6 +155,19 @@ $accountTariffTableName = AccountTariff::tableName();
                         break;
 
                     case AccountEntry::TYPE_ID_MIN:
+                        $accountLogs = $accountEntry->accountLogMins;
+                        array_walk($accountLogs, function (&$accountLog) {
+                            /** @var AccountLogMin $accountLog */
+                            $accountLog =
+                                Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
+                                Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': ' .
+                                Html::a(
+                                    sprintf('%.2f', $accountLog->price),
+                                    $accountLog->getUrl()
+                                );
+                        });
+                        break;
+
                     default:
                         $accountLogs = $accountEntry->accountLogResources;
                         array_walk($accountLogs, function (&$accountLog) {
