@@ -63,6 +63,14 @@ class VoipBiller extends Biller
         foreach($filteredTariffList as $activationDate => $logTariff) {
             $activationDateDt = new \DateTime($activationDate, $this->timezone);
 
+            //отбрасываем тарифы, начинающиеся до начала услуги.
+            if ($activationDateDt <= $this->usageActualFrom) {
+                $prevActivationDate = clone $this->usageActualFrom;
+                $prevLogTariff = $logTariff;
+                continue;
+            }
+
+            //отбрасываем тарифы, начинающиеся до периода билингации
             if ($activationDateDt <= $this->billerPeriodFrom) {
                 $prevActivationDate = clone $this->billerPeriodFrom;
                 $prevLogTariff = $logTariff;
