@@ -251,7 +251,7 @@ class BillDao extends Singleton
 
             // была и осталась
             $accountEntry = $accountEntries[$accountEntryId];
-            if ((float)$line->sum != $accountEntry->price_with_vat || $line->item != $accountEntry->typeName) {
+            if ((float)$line->sum != $accountEntry->price_with_vat || $line->item != $accountEntry->fullName) {
                 // ... но изменилась. Обновить
                 $line->sum = $accountEntry->price_with_vat;
                 $line->item = $accountEntry->fullName;
