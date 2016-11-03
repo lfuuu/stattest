@@ -156,7 +156,7 @@ $organization = $clientAccount->contract->getOrganization($firstEntry->date);
                             ?>
                             <tr>
                                 <td>
-                                    <?= $accountEntry->getTypeName() ?>
+                                    <?= $accountEntry->getFullName() ?>
                                     <?/* ($accountEntry->accountTariff->service_type_id == ServiceType::ID_VOIP ? $accountEntry->accountTariff->voip_number : '')*/ ?>
                                     <?/* $accountEntry->accountTariff->getName()*/ ?>
                                 </td>

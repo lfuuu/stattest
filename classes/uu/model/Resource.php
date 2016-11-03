@@ -123,33 +123,52 @@ class Resource extends \yii\db\ActiveRecord
     public static function getReader($id)
     {
         $idToClassName = [
-            self::ID_VPBX_DISK => VpbxDiskResourceReader::className(), // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
-            self::ID_VPBX_ABONENT => VpbxAbonentResourceReader::className(), // Абоненты (шт, int). Берется из virtpbx_stat.numbers
-            self::ID_VPBX_EXT_DID => VpbxExtDidResourceReader::className(), // Подключение номера другого оператора (шт, int). Берется из virtpbx_stat.ext_did_count
-            self::ID_VPBX_RECORD => VpbxRecordResourceReader::className(), // Запись звонков (call recording) (bool). Берется из virtpbx_stat.call_recording_enabled
-            self::ID_VPBX_FAX => VpbxFaxResourceReader::className(), // Факс (bool). Берется из virtpbx_stat.faxes_enabled
+            self::ID_VPBX_DISK => VpbxDiskResourceReader::className(),
+            // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
+            self::ID_VPBX_ABONENT => VpbxAbonentResourceReader::className(),
+            // Абоненты (шт, int). Берется из virtpbx_stat.numbers
+            self::ID_VPBX_EXT_DID => VpbxExtDidResourceReader::className(),
+            // Подключение номера другого оператора (шт, int). Берется из virtpbx_stat.ext_did_count
+            self::ID_VPBX_RECORD => VpbxRecordResourceReader::className(),
+            // Запись звонков (call recording) (bool). Берется из virtpbx_stat.call_recording_enabled
+            self::ID_VPBX_FAX => VpbxFaxResourceReader::className(),
+            // Факс (bool). Берется из virtpbx_stat.faxes_enabled
 
-            self::ID_VOIP_LINE => VoipLinesResourceReader::className(), // Линии (шт, int). https://vpbx.mcn.ru/core/swagger/index.html , vpbx, /get_int_number_usage
-            self::ID_VOIP_CALLS => VoipCallsResourceReader::className(), // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
+            self::ID_VOIP_LINE => VoipLinesResourceReader::className(),
+            // Линии (шт, int). https://vpbx.mcn.ru/core/swagger/index.html , vpbx, /get_int_number_usage
+            self::ID_VOIP_CALLS => VoipCallsResourceReader::className(),
+            // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
 
-            self::ID_INTERNET_TRAFFIC => InternetTrafficResourceReader::className(), // Трафик (Мб., float). nispd.traf_flows_1d;
+            self::ID_INTERNET_TRAFFIC => InternetTrafficResourceReader::className(),
+            // Трафик (Мб., float). nispd.traf_flows_1d;
 
-            self::ID_COLLOCATION_TRAFFIC_RUSSIA => CollocationTrafficRussiaResourceReader::className(), // Трафик Russia (Мб., float). nispd.traf_flows_1d.in_r - входящий, nispd.traf_flows_1d.out_r - исходящий;
-            self::ID_COLLOCATION_TRAFFIC_RUSSIA2 => CollocationTrafficRussia2ResourceReader::className(), // Трафик Russia2 (Мб., float). nispd.traf_flows_1d.in_r2 - входящий, nispd.traf_flows_1d.out_r2 - исходящий;
-            self::ID_COLLOCATION_TRAFFIC_FOREIGN => CollocationTrafficForeignResourceReader::className(), // Трафик Foreign (Мб., float). nispd.traf_flows_1d.in_f - входящий, nispd.traf_flows_1d.out_f - исходящий;
+            self::ID_COLLOCATION_TRAFFIC_RUSSIA => CollocationTrafficRussiaResourceReader::className(),
+            // Трафик Russia (Мб., float). nispd.traf_flows_1d.in_r - входящий, nispd.traf_flows_1d.out_r - исходящий;
+            self::ID_COLLOCATION_TRAFFIC_RUSSIA2 => CollocationTrafficRussia2ResourceReader::className(),
+            // Трафик Russia2 (Мб., float). nispd.traf_flows_1d.in_r2 - входящий, nispd.traf_flows_1d.out_r2 - исходящий;
+            self::ID_COLLOCATION_TRAFFIC_FOREIGN => CollocationTrafficForeignResourceReader::className(),
+            // Трафик Foreign (Мб., float). nispd.traf_flows_1d.in_f - входящий, nispd.traf_flows_1d.out_f - исходящий;
 
-            self::ID_VPN_TRAFFIC => VpnTrafficResourceReader::className(), // Трафик (Мб., float). nispd.mod_traf_1d, но таблицы пустые, походу никто их не использует давно. Какой-то рудимент. Видимо из-за повального использования безлимитных тарифов;
+            self::ID_VPN_TRAFFIC => VpnTrafficResourceReader::className(),
+            // Трафик (Мб., float). nispd.mod_traf_1d, но таблицы пустые, походу никто их не использует давно. Какой-то рудимент. Видимо из-за повального использования безлимитных тарифов;
 
-            self::ID_SMS => SmsResourceReader::className(), // СМС (шт, int). nispd.sms_stat - количество СМСок по дням;
+            self::ID_SMS => SmsResourceReader::className(),
+            // СМС (шт, int). nispd.sms_stat - количество СМСок по дням;
 
-            self::ID_VM_COLLOCATION_PROCESSOR => DummyResourceReader::className(), // VM collocation. Процессор
-            self::ID_VM_COLLOCATION_HDD => DummyResourceReader::className(), // VM collocation. Постоянная память
-            self::ID_VM_COLLOCATION_RAM => DummyResourceReader::className(), // VM collocation. Оперативная память
+            self::ID_VM_COLLOCATION_PROCESSOR => DummyResourceReader::className(),
+            // VM collocation. Процессор
+            self::ID_VM_COLLOCATION_HDD => DummyResourceReader::className(),
+            // VM collocation. Постоянная память
+            self::ID_VM_COLLOCATION_RAM => DummyResourceReader::className(),
+            // VM collocation. Оперативная память
 
-            self::ID_ONE_TIME => DummyResourceReader::className(), // Разовая услуга
+            self::ID_ONE_TIME => DummyResourceReader::className(),
+            // Разовая услуга
 
-            self::ID_VPBX_MIN_ROUTE => DummyResourceReader::className(), // ВАТС. Маршрутизация по минимальной цене
-            self::ID_VPBX_GEO_ROUTE => DummyResourceReader::className(), // ВАТС. Маршрутизация по географии
+            self::ID_VPBX_MIN_ROUTE => DummyResourceReader::className(),
+            // ВАТС. Маршрутизация по минимальной цене
+            self::ID_VPBX_GEO_ROUTE => DummyResourceReader::className(),
+            // ВАТС. Маршрутизация по географии
         ];
         $className = $idToClassName[$id];
         return new $className();
@@ -198,14 +217,13 @@ class Resource extends \yii\db\ActiveRecord
      * @param string $langCode
      * @return string
      */
-    public function getFullName($langCode = Language::LANGUAGE_DEFAULT)
+    public function getFullName($langCode = Language::LANGUAGE_DEFAULT, $isTextFull = false)
     {
         $dictionary = 'models/' . self::tableName();
 
-        return Yii::t($dictionary, '{resource} (ID: {id})', [
-            'resource' => Yii::t($dictionary, 'Resource #' . $this->id, [], $langCode),
-            'id' => $this->id,
-        ], $langCode);
+        return
+            ($isTextFull ? Yii::t($dictionary, 'Resource consumption limit exceedance', [], $langCode) . ': ' : '') .
+            Yii::t($dictionary, 'Resource #' . $this->id, [], $langCode);
     }
 
     /**

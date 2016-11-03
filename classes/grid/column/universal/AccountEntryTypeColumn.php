@@ -20,9 +20,9 @@ class AccountEntryTypeColumn extends DataColumn
         parent::__construct($config);
         $this->filter = $list = [
             '' => '',
-            AccountEntry::TYPE_ID_SETUP => Yii::t('models/' . $tableName, 'setup'),
-            AccountEntry::TYPE_ID_PERIOD => Yii::t('models/' . $tableName, 'period'),
-            AccountEntry::TYPE_ID_MIN => Yii::t('models/' . $tableName, 'minimum'),
+            AccountEntry::TYPE_ID_SETUP => Yii::t('uu', AccountEntry::$names[AccountEntry::TYPE_ID_SETUP]),
+            AccountEntry::TYPE_ID_PERIOD => Yii::t('uu', AccountEntry::$names[AccountEntry::TYPE_ID_PERIOD]),
+            AccountEntry::TYPE_ID_MIN => Yii::t('uu', AccountEntry::$names[AccountEntry::TYPE_ID_MIN]),
             'Ресурсы' => Resource::getList(null, false),
         ];
 

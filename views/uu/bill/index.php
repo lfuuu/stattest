@@ -67,6 +67,8 @@ use yii\widgets\Breadcrumbs;
             'class' => IntegerRangeColumn::className(),
         ],
         [
+            'attribute' => 'is_show_all_entry',
+            'class' => YesNoColumn::className(),
             'label' => 'Проводки, ¤',
             'format' => 'raw',
             'contentOptions' => [
@@ -77,7 +79,16 @@ use yii\widgets\Breadcrumbs;
                 $accountEntries = $bill->accountEntries;
                 array_walk($accountEntries, function (&$accountEntry) {
                     /** @var AccountEntry $accountEntry */
-                    $accountEntry = $accountEntry->getTypeName() . ' ' .
+                    $accountEntry =
+
+                        // Например, "Номер 74956387777. Абонентская плата. Тариф «Москва Базовый»"
+                        $accountEntry->getFullName() . '. ' .
+
+                        // Например, "25 марта" или "1-31 окт."
+                        (($accountEntry->date_from != $accountEntry->date_to) ? Yii::$app->formatter->asDate($accountEntry->date_from, 'php:j') . '-' : '') .
+                        Yii::$app->formatter->asDate($accountEntry->date_to, 'php:j M') . ': ' .
+
+                        // Например, "249.00"
                         Html::a(
                             sprintf('%.2f', $accountEntry->price),
                             $accountEntry->getUrl()
