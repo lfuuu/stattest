@@ -25,7 +25,7 @@ use yii\helpers\ArrayHelper;
  * @property string event
  * @property int source_id
  * @property string comment
- * @property ImportantEventsProperties properties
+ * @property array properties
  * @package app\models\important_events
  */
 class ImportantEvents extends ActiveRecord
