@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\resourceReader;
 
+use app\classes\api\ApiVpbx;
 use app\classes\uu\model\AccountTariff;
 use DateTimeImmutable;
 use Yii;
@@ -15,6 +16,7 @@ class VoipLinesResourceReader extends Object implements ResourceReaderInterface
         parent::__construct();
 
         // чтобы подключить конфиг API VPBX
+        define("NO_WEB", 1);
         require_once Yii::$app->basePath . '/stat/conf.php';
     }
 
@@ -28,10 +30,15 @@ class VoipLinesResourceReader extends Object implements ResourceReaderInterface
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
+
+        if (!ApiVpbx::isAvailable()) {
+            return null;
+        }
+
         $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
 
         try {
-            $result = \app\classes\api\ApiVpbx::getResourceVoipLines($accountTariff->client_account_id, $accountTariffId, $dateTime);
+            $result = ApiVpbx::getResourceVoipLines($accountTariff->client_account_id, $accountTariffId, $dateTime);
             if (isset($result['int_number_amount'])) {
                 return (int)$result['int_number_amount'];
             }

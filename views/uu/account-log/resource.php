@@ -49,7 +49,7 @@ $columns = [
         'value' => function (AccountLogResource $accountLogResource) {
             $accountTariff = $accountLogResource->accountTariff;
             return Html::a(
-                Html::encode($accountLogResource->tariffPeriod->getName()), // $accountTariff->getName(false)
+                Html::encode($accountTariff->getName(false)),
                 $accountTariff->getUrl()
             );
         },

@@ -2,6 +2,7 @@
 
 namespace tests\codeception\unit\models;
 
+use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
@@ -11,6 +12,7 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\Bill;
 use app\classes\uu\tarificator\AutoCloseAccountTariffTarificator;
 use app\classes\uu\tarificator\SetCurrentTariffTarificator;
+use app\helpers\DateTimeZoneHelper;
 use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
@@ -83,30 +85,30 @@ class UbillingTest extends TestCase
         $this->assertNotEmpty($accountTariff);
 
         $accountLogHugeFromToTariffs = $accountTariff->getAccountLogHugeFromToTariffs();
-        $this->assertEquals(count($accountLogHugeFromToTariffs), 2);
+        $this->assertEquals(2, count($accountLogHugeFromToTariffs));
 
         // 1го сразу же подключил дневной тариф
         // по этому тарифу только 1ое и 2ое число прошлого месяца (диапазон 0)
 
         // диапазон 0
         $this->assertNotEmpty($accountLogHugeFromToTariffs[0]->dateFrom);
-        $this->assertEquals($accountLogHugeFromToTariffs[0]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogHugeFromToTariffs[0]->dateTo);
-        $this->assertEquals($accountLogHugeFromToTariffs[0]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogHugeFromToTariffs[0]->tariffPeriod->id, 1);
+        $this->assertEquals(1, $accountLogHugeFromToTariffs[0]->tariffPeriod->id);
 
         // 2го с 3го подключил месячный тариф
         // по этому тарифу с 3го до конца прошлого месяца и весь этот месяц (диапазон 1)
 
         // диапазон 1
         $this->assertNotEmpty($accountLogHugeFromToTariffs[1]->dateFrom);
-        $this->assertEquals($accountLogHugeFromToTariffs[1]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+2 days')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+2 days')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[1]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertEmpty($accountLogHugeFromToTariffs[1]->dateTo);
 
-        $this->assertEquals($accountLogHugeFromToTariffs[1]->tariffPeriod->id, 2);
+        $this->assertEquals(2, $accountLogHugeFromToTariffs[1]->tariffPeriod->id);
     }
 
     /**
@@ -122,42 +124,42 @@ class UbillingTest extends TestCase
         $this->assertNotEmpty($accountTariff);
 
         $accountLogHugeFromToTariffs = $accountTariff->getAccountLogHugeFromToTariffs();
-        $this->assertEquals(count($accountLogHugeFromToTariffs), 3);
+        $this->assertEquals(3, count($accountLogHugeFromToTariffs));
 
         // 1го сразу же подключил дневной тариф
         // по этому тарифу только 1ое и 2ое число прошлого месяца (диапазон 0)
 
         // диапазон 0
         $this->assertNotEmpty($accountLogHugeFromToTariffs[0]->dateFrom);
-        $this->assertEquals($accountLogHugeFromToTariffs[0]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogHugeFromToTariffs[0]->dateTo);
-        $this->assertEquals($accountLogHugeFromToTariffs[0]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogHugeFromToTariffs[0]->tariffPeriod->id, 1);
+        $this->assertEquals(1, $accountLogHugeFromToTariffs[0]->tariffPeriod->id);
 
         // 2го сразу же подключил месячный тариф
         // по этому тарифу со 2го до конца прошлого месяца (диапазон 1)
 
         // диапазон 1
         $this->assertNotEmpty($accountLogHugeFromToTariffs[1]->dateFrom);
-        $this->assertEquals($accountLogHugeFromToTariffs[1]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[1]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogHugeFromToTariffs[1]->dateTo);
-        $this->assertEquals($accountLogHugeFromToTariffs[1]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('last day of this month')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[1]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogHugeFromToTariffs[1]->tariffPeriod->id, 2);
+        $this->assertEquals(2, $accountLogHugeFromToTariffs[1]->tariffPeriod->id);
 
         // 4го сразу же подключил годовой тариф
         // по этому тарифу с 4го до конца этого года (диапазон 2)
 
         // диапазон 2
         $this->assertNotEmpty($accountLogHugeFromToTariffs[2]->dateFrom);
-        $this->assertEquals($accountLogHugeFromToTariffs[2]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+3 days')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+3 days')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[2]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertEmpty($accountLogHugeFromToTariffs[2]->dateTo);
 
-        $this->assertEquals($accountLogHugeFromToTariffs[2]->tariffPeriod->id, 3);
+        $this->assertEquals(3, $accountLogHugeFromToTariffs[2]->tariffPeriod->id);
     }
 
     /**
@@ -174,49 +176,49 @@ class UbillingTest extends TestCase
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
-        $this->assertEquals(count($accountLogFromToTariffs), 4);
+        $this->assertEquals(4, count($accountLogFromToTariffs));
 
         // 1го сразу же подключил дневной тариф
         // по этому тарифу только 1ое и 2ое число прошлого месяца (диапазоны 0 и 1)
 
         // диапазон 0
         $this->assertNotEmpty($accountLogFromToTariffs[0]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[0]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[0]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[0]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[0]->tariffPeriod->id, 1);
+        $this->assertEquals(1, $accountLogFromToTariffs[0]->tariffPeriod->id);
 
         // диапазон 1
         $this->assertNotEmpty($accountLogFromToTariffs[1]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[1]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[1]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[1]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[1]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 days')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 days')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[1]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[1]->tariffPeriod->id, 1);
+        $this->assertEquals(1, $accountLogFromToTariffs[1]->tariffPeriod->id);
 
         // 2го с 3го подключил месячный тариф
         // по этому тарифу с 3го до конца прошлого месяца (диапазон 2) и весь этот месяц (диапазон 3)
 
         // диапазон 2
         $this->assertNotEmpty($accountLogFromToTariffs[2]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[2]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+2 days')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+2 days')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[2]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[2]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[2]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('last day of this month')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[2]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[2]->tariffPeriod->id, 2);
+        $this->assertEquals(2, $accountLogFromToTariffs[2]->tariffPeriod->id);
 
         // диапазон 3
         $this->assertNotEmpty($accountLogFromToTariffs[3]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[3]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfCurMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfCurMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[3]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[3]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[3]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfCurMonth->modify('last day of this month')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfCurMonth->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[3]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[3]->tariffPeriod->id, 2);
+        $this->assertEquals(2, $accountLogFromToTariffs[3]->tariffPeriod->id);
     }
 
     /**
@@ -234,61 +236,61 @@ class UbillingTest extends TestCase
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
         $nMonthsUpToTheYearEnd = 12 - $dateTimeFirstDayOfCurMonth->format('n'); // сколько еще месяцев (кроме текущего) осталось до конца календарного года
-        $this->assertEquals(count($accountLogFromToTariffs), 5 + $nMonthsUpToTheYearEnd);
+        $this->assertEquals(5 + $nMonthsUpToTheYearEnd, count($accountLogFromToTariffs));
 
         // 1го сразу же подключил дневной тариф
         // по этому тарифу только 1ое и 2ое число прошлого месяца (диапазоны 0 и 1)
 
         // диапазон 0
         $this->assertNotEmpty($accountLogFromToTariffs[0]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[0]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[0]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[0]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[0]->tariffPeriod->id, 1);
+        $this->assertEquals(1, $accountLogFromToTariffs[0]->tariffPeriod->id);
 
         // диапазон 1
         $this->assertNotEmpty($accountLogFromToTariffs[1]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[1]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[1]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[1]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[1]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 days')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 days')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[1]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[1]->tariffPeriod->id, 1);
+        $this->assertEquals(1, $accountLogFromToTariffs[1]->tariffPeriod->id);
 
         // 2го сразу же подключил месячный тариф
         // по этому тарифу со 2го до конца прошлого месяца (диапазон 2)
 
         // диапазон 2
         $this->assertNotEmpty($accountLogFromToTariffs[2]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[2]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[2]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[2]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[2]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('last day of this month')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[2]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[2]->tariffPeriod->id, 2);
+        $this->assertEquals(2, $accountLogFromToTariffs[2]->tariffPeriod->id);
 
         // 4го сразу же подключил годовой тариф
         // по этому тарифу с 4го до конца этого года, то есть с 3 до конца прошлого месяца (диапазон 3), весь этот месяц (диапазон 4) и далее по месяцам до конца календарного года
 
         // диапазон 3
         $this->assertNotEmpty($accountLogFromToTariffs[3]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[3]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+3 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+3 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[3]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[3]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[3]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('last day of this month')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[3]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[3]->tariffPeriod->id, 3);
+        $this->assertEquals(3, $accountLogFromToTariffs[3]->tariffPeriod->id);
 
         // диапазон 4
         $this->assertNotEmpty($accountLogFromToTariffs[4]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[4]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfCurMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfCurMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[4]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[4]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[4]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfCurMonth->modify('last day of this month')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfCurMonth->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[4]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[4]->tariffPeriod->id, 3);
+        $this->assertEquals(3, $accountLogFromToTariffs[4]->tariffPeriod->id);
 
         for ($i = 1; $i <= $nMonthsUpToTheYearEnd; $i++) {
 
@@ -296,12 +298,12 @@ class UbillingTest extends TestCase
 
             // диапазон 4 + $i
             $this->assertNotEmpty($accountLogFromToTariffs[4 + $i]->dateFrom);
-            $this->assertEquals($accountLogFromToTariffs[4 + $i]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfCurMonth->format('Y-m-d'));
+            $this->assertEquals($dateTimeFirstDayOfCurMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[4 + $i]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
             $this->assertNotEmpty($accountLogFromToTariffs[4 + $i]->dateTo);
-            $this->assertEquals($accountLogFromToTariffs[4 + $i]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfCurMonth->modify('last day of this month')->format('Y-m-d'));
+            $this->assertEquals($dateTimeFirstDayOfCurMonth->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[4 + $i]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-            $this->assertEquals($accountLogFromToTariffs[4 + $i]->tariffPeriod->id, 3);
+            $this->assertEquals(3, $accountLogFromToTariffs[4 + $i]->tariffPeriod->id);
 
         }
     }
@@ -319,19 +321,19 @@ class UbillingTest extends TestCase
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
-        $this->assertEquals(count($accountLogFromToTariffs), 1);
+        $this->assertEquals(1, count($accountLogFromToTariffs));
 
         // 1го сразу же подключил дневной тариф
         // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
 
         // диапазон 0
         $this->assertNotEmpty($accountLogFromToTariffs[0]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[0]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[0]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[0]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[0]->tariffPeriod->id, 4);
+        $this->assertEquals(4, $accountLogFromToTariffs[0]->tariffPeriod->id);
     }
 
     /**
@@ -347,29 +349,80 @@ class UbillingTest extends TestCase
         $this->assertNotEmpty($accountTariff);
 
         $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
-        $this->assertEquals(count($accountLogFromToTariffs), 2);
+        $this->assertEquals(2, count($accountLogFromToTariffs));
 
         // 1го сразу же подключил дневной тариф
         // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
 
         // диапазон 0
         $this->assertNotEmpty($accountLogFromToTariffs[0]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[0]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[0]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[0]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[0]->tariffPeriod->id, 5);
+        $this->assertEquals(5, $accountLogFromToTariffs[0]->tariffPeriod->id);
 
         // диапазон 1
         $this->assertNotEmpty($accountLogFromToTariffs[1]->dateFrom);
-        $this->assertEquals($accountLogFromToTariffs[1]->dateFrom->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[1]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertNotEmpty($accountLogFromToTariffs[1]->dateTo);
-        $this->assertEquals($accountLogFromToTariffs[1]->dateTo->format('Y-m-d'), $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format('Y-m-d'));
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogFromToTariffs[1]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEquals($accountLogFromToTariffs[1]->tariffPeriod->id, 5);
+        $this->assertEquals(5, $accountLogFromToTariffs[1]->tariffPeriod->id);
     }
 
+    /**
+     * Проверить, что при пересечении диапазонов ресурсы не дублируются
+     * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
+     */
+    public function testAccountLogResource()
+    {
+        $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
+
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 5])->one();
+        $this->assertNotEmpty($accountTariff);
+
+        $accountLogHugeFromToTariffs = $accountTariff->getAccountLogHugeFromToTariffs();
+        $this->assertEquals(2, count($accountLogHugeFromToTariffs));
+
+        // 1го сразу же подключил дневной тариф
+        // по этому тарифу только 1ое число прошлого месяца
+
+        // диапазон 0
+        $this->assertNotEmpty($accountLogHugeFromToTariffs[0]->dateFrom);
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
+
+        $this->assertNotEmpty($accountLogHugeFromToTariffs[0]->dateTo);
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
+
+        $this->assertEquals(1, $accountLogHugeFromToTariffs[0]->tariffPeriod->id);
+
+        // 1го сразу же подключил месячный тариф
+        // по этому тарифу с 1го до конца прошлого месяца и весь этот месяц
+
+        // диапазон 1
+        $this->assertNotEmpty($accountLogHugeFromToTariffs[1]->dateFrom);
+        $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[1]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
+
+        $this->assertEmpty($accountLogHugeFromToTariffs[1]->dateTo);
+
+        $this->assertEquals(2, $accountLogHugeFromToTariffs[1]->tariffPeriod->id);
+
+        unset($accountLogHugeFromToTariffs);
+
+        // 1й день прошлого месяца в абонентке участвует дважды, а в ресурсах только один раз!
+        $untarificatedResourcePeriods = $accountTariff->getUntarificatedResourcePeriods([]);
+        $resourcesCount = array_reduce($untarificatedResourcePeriods, function ($i, AccountLogFromToTariff $accountLogFromToTariff) use ($dateTimeFirstDayOfPrevMonth) {
+            !$i && $i = 0;
+            if ($accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT) == $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT)) {
+                $i++;
+            }
+            return $i;
+        });
+        $this->assertEquals(1, $resourcesCount);
+    }
 
 }

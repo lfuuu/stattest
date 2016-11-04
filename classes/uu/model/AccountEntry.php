@@ -255,18 +255,28 @@ class AccountEntry extends ActiveRecord
     {
         switch ($this->type_id) {
             case self::TYPE_ID_SETUP:
-            case self::TYPE_ID_PERIOD:
-            case self::TYPE_ID_MIN:
-
                 return 1;
 
-            //@todo Звонки обсчитываются некорректно. В транзакциях указана стоимость, но не минуты
+            case self::TYPE_ID_PERIOD:
+                $accountLogPeriods = $this->accountLogPeriods;
+                return reset($accountLogPeriods)->coefficient;
+
+            case self::TYPE_ID_MIN:
+                $accountLogMins = $this->accountLogMins;
+                return reset($accountLogMins)->coefficient;
+
             default:
+                // ресурсы
                 if (
                     ($tariffResource = $this->tariffResource) &&
                     ($resource = $tariffResource->resource)
                 ) {
-                    $accountLogResources = array_filter($this->accountLogResources, function(AccountLogResource $accountLogResource) {
+                    if ($resource->id == Resource::ID_VOIP_CALLS) {
+                        // В звонках указана стоимость, но не минуты
+                        return 1;
+                    }
+
+                    $accountLogResources = array_filter($this->accountLogResources, function (AccountLogResource $accountLogResource) {
                         return $accountLogResource->amount_overhead;
                     });
 
@@ -274,7 +284,7 @@ class AccountEntry extends ActiveRecord
                         return 0;
                     }
 
-                    return array_reduce($accountLogResources, function($summary, AccountLogResource $accountLogResource) {
+                    return array_reduce($accountLogResources, function ($summary, AccountLogResource $accountLogResource) {
                         $summary = (float)$summary;
                         return $summary + $accountLogResource->amount_overhead;
                     }) / count($accountLogResources);
