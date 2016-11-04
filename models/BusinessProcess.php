@@ -51,4 +51,13 @@ class BusinessProcess extends ActiveRecord
         return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id'])->orderBy('sort');
     }
 
+    /**
+     * Приведение модели к строке
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
 }

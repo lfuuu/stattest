@@ -129,6 +129,7 @@ class Navigation
                 ->addItem('Города', ['/dictionary/city/'])
                 ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'])
                 ->addItem('Настройки платежных документов', ['/invoice-settings'])
+                ->addItem('Точка входа', ['/dictionary/entry-point'])
         );
 
         $this->addBlock(
