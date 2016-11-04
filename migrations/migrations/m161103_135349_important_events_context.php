@@ -41,9 +41,6 @@ class m161103_135349_important_events_context extends \app\classes\Migration
                 );
             }
         }
-
-        //$this->execute('DROP TABLE IF EXISTS ' . $importantEventsPropertiesTableName . ' CASCADE');
-        return false;
     }
 
     public function down()

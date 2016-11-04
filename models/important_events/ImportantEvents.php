@@ -35,7 +35,7 @@ class ImportantEvents extends ActiveRecord
 
     public
         $propertiesCollection = [],
-        $tags_filter = []; // Входящий параметр, аля Database field name
+        $tags_filter = []; // Входящий параметр, aka Database field name
 
     /**
      * @return array
@@ -114,15 +114,15 @@ class ImportantEvents extends ActiveRecord
 
         $event->source_id = $source->id;
 
-        if ((int)$event->client_id) {
-            $data['balance'] = $event->getBalance();
-        }
-
         foreach ($data as $key => $value) {
             if (array_key_exists($key, $event->attributes)) {
                 $event->{$key} = $value;
                 unset($data[$key]);
             }
+        }
+
+        if ((int)$event->client_id) {
+            $data['balance'] = $event->getBalance();
         }
 
         $event->context = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -286,8 +286,11 @@ class ImportantEvents extends ActiveRecord
      */
     private function getBalance()
     {
-        $clientAccount = ClientAccount::findOne($this->client_id);
-        return $clientAccount->billingCounters->realtimeBalance;
+        $clientAccount = ClientAccount::findOne(['id' => (int)$this->client_id]);
+        if (!is_null($clientAccount)) {
+            return $clientAccount->billingCounters->realtimeBalance;
+        }
+        return 0;
     }
 
 }
