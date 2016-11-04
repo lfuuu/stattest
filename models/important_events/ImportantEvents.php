@@ -35,9 +35,9 @@ class ImportantEvents extends ActiveRecord
 
     public
         $propertiesCollection = [],
-        $tags_filter = [];
+        $tags_filter = []; // Входящий параметр, аля Database field name
 
-    /*
+    /**
      * @return array
      */
     public function rules()
@@ -48,7 +48,7 @@ class ImportantEvents extends ActiveRecord
             ['source_id', 'integer', 'on' => 'create'],
             [['event', 'source_id', 'tags_filter'], ArrayValidator::className(), 'on' => 'default'],
             ['client_id', 'integer', 'integerOnly' => true],
-            ['comment', 'string'],
+            [['comment', 'context',],'string'],
         ];
     }
 
@@ -75,16 +75,6 @@ class ImportantEvents extends ActiveRecord
             'source_id' => 'Источник',
             'comment' => 'Комментарий',
             'tags_filter' => 'Метки',
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'ImportantEvents' => \app\classes\behaviors\important_events\ImportantEventsBehavior::className(),
         ];
     }
 
@@ -124,17 +114,18 @@ class ImportantEvents extends ActiveRecord
 
         $event->source_id = $source->id;
 
+        if ((int)$event->client_id) {
+            $data['balance'] = $event->getBalance();
+        }
+
         foreach ($data as $key => $value) {
-            if (!array_key_exists($key, $event->attributes)) {
-                $event->propertiesCollection[] = [0, $key, $value];
-            } else {
+            if (array_key_exists($key, $event->attributes)) {
                 $event->{$key} = $value;
+                unset($data[$key]);
             }
         }
 
-        if ((int)$event->client_id) {
-            $event->propertiesCollection[] = [0, 'balance', $event->getBalance()];
-        }
+        $event->context = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         if (!($event->validate() && $event->save())) {
             throw new FormValidationException($event);
@@ -156,7 +147,11 @@ class ImportantEvents extends ActiveRecord
      */
     public function getProperties()
     {
-        return $this->hasMany(ImportantEventsProperties::className(), ['event_id' => 'id'])->indexBy('property');
+        if (!empty($this->context) && !$this->propertiesCollection) {
+            $this->propertiesCollection = json_decode($this->context);
+        }
+
+        return $this->propertiesCollection;
     }
 
     /**
@@ -193,17 +188,7 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
-     * @param $clientId
-     * @return float
-     */
-    private function getBalance()
-    {
-        $clientAccount = ClientAccount::findOne($this->client_id);
-        return $clientAccount->billingCounters->realtimeBalance;
-    }
-
-    /**
-     * @return []
+     * @return array
      */
     public function getTagList()
     {
@@ -215,7 +200,7 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function getTags()
     {
@@ -294,6 +279,15 @@ class ImportantEvents extends ActiveRecord
         $query->orderBy(['date' => SORT_DESC]);
 
         return $dataProvider;
+    }
+
+    /**
+     * @return float
+     */
+    private function getBalance()
+    {
+        $clientAccount = ClientAccount::findOne($this->client_id);
+        return $clientAccount->billingCounters->realtimeBalance;
     }
 
 }
