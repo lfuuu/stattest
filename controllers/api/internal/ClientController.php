@@ -636,16 +636,14 @@ class ClientController extends ApiInternalController
         }
 
         if ($contragent_id) {
-            $contragents = ClientContragent::findAll(['id' => $contragent_id]);
-            if ($contragents) {
-                return array_unique(
-                    array_map(
-                        function(ClientContragent $contragent){
-                            return $contragent->super_id;
-                        },
-                        $contragents
-                    )
-                );
+            $contragentIds = array_keys(
+                ClientContragent::find()
+                    ->where(['id' => $contragent_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($contragentIds) {
+                return $contragentIds;
             }
         }
 
@@ -656,30 +654,26 @@ class ClientController extends ApiInternalController
         }
 
         if ($contract_id) {
-            $contracts = ClientContract::findAll(['id' => $contract_id]);
-            if ($contracts) {
-                return array_unique(
-                    array_map(
-                        function(ClientContract $contract) {
-                            return $contract->super_id;
-                        },
-                        $contracts
-                    )
-                );
+            $contractIds = array_keys(
+                ClientContract::find()
+                    ->where(['id' => $contract_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($contractIds) {
+                return $contractIds;
             }
         }
 
         if ($account_id) {
-            $accounts = ClientAccount::findAll(['id' => $account_id]);
-            if ($accounts) {
-                return array_unique(
-                    array_map(
-                        function(ClientAccount $account) {
-                            return $account->super_id;
-                        },
-                        $accounts
-                    )
-                );
+            $accountIds = array_keys(
+                ClientAccount::find()
+                    ->where(['id' => $account_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($accountIds) {
+                return $accountIds;
             }
         }
 
