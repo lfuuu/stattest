@@ -289,18 +289,28 @@ SQL;
         unset($updateSql);
 
 
-        // посчитать цену без НДС для юр.лиц
-        echo '. ';
+        // посчитать цену без НДС
         $accountTariffTableName = AccountTariff::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $tariffResourceTableName = TariffResource::tableName();
         $resourceIdVoipCalls = Resource::ID_VOIP_CALLS; // стоимость звонков от низкоуровневого биллера уже приходит с НДС
-        $updateSql = <<<SQL
+
+        // нужно знать is_include_vat из тарифа, а это можно получить только через транзакции
+        // @todo может быть несколько транзакций на одну проводку. Будет лишнее обновление, но на значения это не влияет
+        $accountLogs = [
+            AccountLogSetup::tableName() => 'account_entry.type_id = ' . AccountEntry::TYPE_ID_SETUP,
+            AccountLogPeriod::tableName() => 'account_entry.type_id = ' . AccountEntry::TYPE_ID_PERIOD,
+            AccountLogMin::tableName() => 'account_entry.type_id = ' . AccountEntry::TYPE_ID_MIN,
+            AccountLogResource::tableName() => 'account_entry.type_id > 0',
+        ];
+        foreach($accountLogs as $accountLogTableName => $sqlAndWhereTmp) {
+            echo '. ';
+            $updateSql = <<<SQL
         UPDATE
             (
             {$accountEntryTableName} account_entry,
-            {$accountTariffTableName} account_tariff,
+            {$accountLogTableName} account_log,
             {$tariffPeriodTableName} tariff_period,
             {$tariffTableName} tariff
             )
@@ -315,14 +325,15 @@ SQL;
                )
         WHERE
             account_entry.vat_rate IS NOT NULL
-            AND account_entry.account_tariff_id = account_tariff.id
-            AND account_tariff.tariff_period_id = tariff_period.id
+            AND account_entry.id = account_log.account_entry_id
+            AND account_log.tariff_period_id = tariff_period.id
             AND tariff_period.tariff_id = tariff.id
             {$sqlAndWhere}
 SQL;
-        $db->createCommand($updateSql)
-            ->execute();
-        unset($updateSql);
+            $db->createCommand($updateSql)
+                ->execute();
+            unset($updateSql);
+        }
 
 
         // посчитать НДС и цену с НДС для юр.лиц

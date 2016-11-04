@@ -71,4 +71,23 @@ return [
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
+
+    // ресурсы при пересекающихся сменах тарифов
+    [
+        // 1го сразу же подключил дневной тариф
+        // по этому тарифу только 1ое число прошлого месяца
+        'account_tariff_id' => AccountTariff::DELTA + 5,
+        'tariff_period_id' => 1, // по дням
+        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+    [
+        // 1го сразу же подключил месячный тариф
+        // по этому тарифу с 1го до конца прошлого месяца и весь этот месяц
+        'account_tariff_id' => AccountTariff::DELTA + 5,
+        'tariff_period_id' => 2, // по месяцам
+        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+    // но при этом ресурсы за прошлый месяц должны считаться только 1 раз!
 ];

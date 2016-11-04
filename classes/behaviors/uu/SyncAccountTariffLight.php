@@ -72,7 +72,8 @@ class SyncAccountTariffLight extends Behavior
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
         }
 
-        $voipTarificateId = $accountTariff->prevAccountTariff->tariffPeriod->tariff->voip_tarificate_id;
+        $tariffPeriod = $accountTariff->prevAccountTariff->tariffPeriod;
+        $voipTarificateId = $tariffPeriod ? $tariffPeriod->tariff->voip_tarificate_id : null;
         \app\classes\Event::go(self::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT, [
                 'id' => $accountLogPeriod->id,
                 'account_client_id' => $accountTariff->client_account_id,

@@ -231,7 +231,7 @@ class BillDao extends Singleton
         /** @var AccountEntry[] $accountEntries */
         $accountEntries = $uuBill
             ->getAccountEntries()
-            ->andWhere(['>', 'price', 0]) // пустые строки нужны для расчета партнерского вознаграждения
+            ->andWhere(['>', 'price', 0])// пустые строки нужны для расчета партнерского вознаграждения
             ->orderBy(['id' => SORT_ASC])
             ->all();
 
@@ -277,8 +277,12 @@ class BillDao extends Singleton
             $line->date_from = $accountEntry->date_from;
             $line->date_to = $accountEntry->date_to;
             $line->type = BillLine::LINE_TYPE_SERVICE;
-            $line->amount = 1;
+            $line->amount = $accountEntry->getAmount();
             $line->price = $accountEntry->price_with_vat;
+            if ($line->amount) {
+                $line->price /= $line->amount; // цена за "1 шт."
+                $line->price = round($line->price, 2);
+            }
             $line->tax_rate = $accountEntry->vat;
             $line->sum = $accountEntry->price_with_vat;
             $line->sum_without_tax = $accountEntry->price_without_vat;

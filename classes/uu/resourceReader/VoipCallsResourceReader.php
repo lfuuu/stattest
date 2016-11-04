@@ -52,8 +52,8 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
         $this->dateToValue = CallsAggr::find()
             ->select([
-                'sum_cost' => 'SUM(cost) * -1',
                 // в CallsAggr стоимость отрицательная, что означает "списание". А в AccountLogResource это должно быть положительным
+                'sum_cost' => 'SUM(cost) * -1',
                 'aggr_date' => sprintf("TO_CHAR(aggr_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta)
             ])
             ->where(['number_service_id' => $accountTariffId])

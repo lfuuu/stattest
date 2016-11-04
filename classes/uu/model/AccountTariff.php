@@ -168,10 +168,23 @@ class AccountTariff extends ActiveRecord
      */
     public function getName($isWithAccount = true)
     {
-        $tariffPeriodName = $this->tariff_period_id ? $this->tariffPeriod->getName() : Yii::t('common', 'Switched off');
-        return $isWithAccount ?
-            sprintf('%s %s', $this->clientAccount->client, $tariffPeriodName) :
-            $tariffPeriodName;
+        $names = [];
+
+        if ($isWithAccount) {
+            $names[] = $this->clientAccount->client;
+        }
+
+        if ($this->service_type_id == ServiceType::ID_VOIP && $this->voip_number) {
+            // телефония
+            $names[] = Yii::t('uu', 'Number {number}', ['number' => $this->voip_number]);
+        } elseif ($this->service_type_id == ServiceType::ID_VOIP_PACKAGE && $this->prevAccountTariff->voip_number) {
+            // пакет телефонии. Номер взять от телефонии
+            $names[] = Yii::t('uu', 'Number {number}', ['number' => $this->prevAccountTariff->voip_number]);
+        }
+
+        $names[] = $this->tariff_period_id ? $this->tariffPeriod->getName() : Yii::t('common', 'Switched off');
+
+        return implode('. ', $names);
     }
 
     /**
@@ -540,9 +553,9 @@ class AccountTariff extends ActiveRecord
             // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
             // Решили пока игнорировать
             printf(PHP_EOL . 'Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-            foreach ($accountLogs as $accountLog) {
-                $accountLog->delete();
-            }
+//            foreach ($accountLogs as $accountLog) {
+//                $accountLog->delete();
+//            }
         }
 
         return $untarificatedPeriods;
@@ -588,9 +601,9 @@ class AccountTariff extends ActiveRecord
             // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
             // Решили пока игнорировать
             printf(PHP_EOL . 'Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-            foreach ($accountLogs as $accountLog) {
-                $accountLog->delete();
-            }
+//            foreach ($accountLogs as $accountLog) {
+//                $accountLog->delete();
+//            }
         }
 
         return $untarificatedPeriods;
@@ -599,38 +612,57 @@ class AccountTariff extends ActiveRecord
     /**
      * Вернуть даты периодов, по которым не произведен расчет по ресурсам
      *
-     * @param AccountLogResource[] $accountLogs уже обработанные
-     * @return AccountLogFromToTariff[]
+     * @param AccountLogResource[][] $accountLogss уже обработанные. AccountLogResource[$dateYmd][$resourceId]
+     * @return AccountLogFromToTariff[][]
      */
-    public function getUntarificatedResourcePeriods($accountLogs)
+    public function getUntarificatedResourcePeriods($accountLogss)
     {
-        $untarificatedPeriods = [];
+        $untarificatedPeriodss = [];
         $chargePeriod = Period::findOne(['id' => Period::ID_DAY]);
         $accountLogFromToTariffs = $this->getAccountLogFromToTariffs($chargePeriod, false); // все
 
-        // вычитанием получим необработанные
+        // по всем периодам
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
-            $dateFromYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
-            if (isset($accountLogs[$dateFromYmd])) {
-                // такой период рассчитан
-                unset($accountLogs[$dateFromYmd]);
-            } else {
-                // этот период не рассчитан
-                $untarificatedPeriods[] = $accountLogFromToTariff;
+
+            $dateYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+            $tariffResources = $accountLogFromToTariff->tariffPeriod->tariff->tariffResources;
+
+            // по всем ресурсам тарифа
+            foreach ($tariffResources as $tariffResource) {
+
+                $resourceId = $tariffResource->resource_id;
+                if (array_key_exists($dateYmd, $accountLogss) && array_key_exists($resourceId, $accountLogss[$dateYmd])) {
+
+                    // такой ресурс-период рассчитан. unset нельзя, иначе потом ресурс добавится заново от другого пересекающегося периода
+                    $accountLogss[$dateYmd][$resourceId] = null;
+
+                } else {
+
+                    // этот ресурс-период не рассчитан
+                    // если в середине месяца сменили тариф, то за этот день будет две абонентки, но ресурс надо рассчитать только один раз (по последнему тарифу), поэтому используем хэш $dateYmd
+                    $untarificatedPeriodss[$dateYmd][$resourceId] = $accountLogFromToTariff;
+
+                }
+
             }
         }
 
-        if (count($accountLogs)) {
-            // остался неизвестный период, который уже рассчитан
-            // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
-            // Решили пока игнорировать
-            printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-            foreach ($accountLogs as $accountLog) {
-                $accountLog->delete();
+        if (count($accountLogss)) {
+            foreach ($accountLogss as $dateYmd => $accountLogs) {
+                foreach ($accountLogs as $resourceId => $accountLog) {
+                    if (!$accountLog) {
+                        continue;
+                    }
+                    // остался неизвестный период, который уже рассчитан
+                    // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
+                    // Решили пока игнорировать
+                    printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
+//                    $accountLog->delete();
+                }
             }
         }
 
-        return $untarificatedPeriods;
+        return $untarificatedPeriodss;
     }
 
     /**
