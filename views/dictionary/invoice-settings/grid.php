@@ -18,7 +18,7 @@ echo Html::formLabel('Настройки платежных документов
 echo Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => 'Настройки платежных документов', 'url' => '/invoice-settings'],
+        ['label' => 'Настройки платежных документов', 'url' => '/dictionary/invoice-settings'],
     ],
 ]);
 
@@ -66,7 +66,7 @@ echo GridView::widget([
                 'update' => function ($url, $model, $key) use ($baseView) {
                     return $baseView->render('//layouts/_actionEdit', [
                             'url' => Url::toRoute([
-                                '/invoice-settings/edit/',
+                                '/dictionary/invoice-settings/edit/',
                                 'doerOrganizationId' => $model->doer_organization_id,
                                 'customerCountryCode' => $model->customer_country_code,
                                 'settlementAccountTypeId' => $model->settlement_account_type_id,
@@ -78,7 +78,7 @@ echo GridView::widget([
                 'delete' => function($url, $model, $key) use ($baseView) {
                     return $baseView->render('//layouts/_actionDrop', [
                             'url' => Url::toRoute([
-                                '/invoice-settings/delete/',
+                                '/dictionary/invoice-settings/delete/',
                                 'doerOrganizationId' => $model->doer_organization_id,
                                 'customerCountryCode' => $model->customer_country_code,
                                 'settlementAccountTypeId' => $model->settlement_account_type_id,
@@ -91,7 +91,7 @@ echo GridView::widget([
             'hAlign' => 'left',
         ]
     ],
-    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/invoice-settings/add/']),
+    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/dictionary/invoice-settings/add/']),
     'isFilterButton' => false,
     'floatHeader' => false,
 ]);
