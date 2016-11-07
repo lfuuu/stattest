@@ -9,14 +9,26 @@ use app\models\Number;
 
 $userId = 10; // ava
 
-//$clientId = 36166; //Метротел
-$clientId = 41389; //Телемир
+$clientId = 36166; //Метротел
+//$clientId = 41389; //Телемир
 
 $address = '';
 
 
 
 $confs = [
+    [
+        "didGroupId" => 27, // стандарт
+        "region" => 94, // Новосибирск
+        "count_numbers" => 30,
+
+        "id_tarif" => 688, //Партнёр 1000 и более (118.00-413.00)
+        "id_tarif_local_mob" => 690, //Моб Партнёр местные мобильные 1,15
+        "id_tarif_russia" => 169, //МГ Междугородные звонки Базовый
+        "id_tarif_russia_mob" => 689, //МГ Партнёр мобильные РФ 1,15
+        "id_tarif_intern" => 170 //МН Международные звонки Базовый
+    ],
+
     /*
     [
         "didGroupId" => 17,
@@ -47,7 +59,7 @@ $confs = [
         "id_tarif_intern" => 69 //МН Международные звонки Базовый
     ],
 */
-    [
+   /* [
         "didGroupId" => 7,
         "region" => 98, //СПб
         "count_numbers" => 60,
@@ -57,7 +69,7 @@ $confs = [
         "id_tarif_russia" => 96,
         "id_tarif_russia_mob" => 96,
         "id_tarif_intern" => 97,
-    ],
+    ],*/
 /*
     [
         "didGroupId" => 32,
