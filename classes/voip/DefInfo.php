@@ -12,7 +12,7 @@ class DefInfo
     function __construct()
     {
         $this->country_zones =
-            Yii::$app->dbPg->createCommand("
+            Yii::$app->dbPgSlave->createCommand("
                 SELECT gz.prefix, g.country FROM geo.geo g
                 LEFT JOIN geo.geo_prefix gz on g.id=gz.geo_id
                 WHERE g.prefix is not null and g.country is not null and g.country=g.id
@@ -20,7 +20,7 @@ class DefInfo
             ")->queryAll();
 
         $this->region_zones =
-            Yii::$app->dbPg->createCommand("
+            Yii::$app->dbPgSlave->createCommand("
                 SELECT gz.prefix, g.region FROM geo.geo g
                 LEFT JOIN geo.geo_prefix gz on g.id=gz.geo_id
                 WHERE g.prefix is not null and g.region is not null  and g.region=g.id
@@ -28,7 +28,7 @@ class DefInfo
             ")->queryAll();
 
         $this->mob_zones =
-            Yii::$app->dbPg->createCommand("
+            Yii::$app->dbPgSlave->createCommand("
                 SELECT prefix FROM geo.mob_prefix ORDER BY prefix
             ")->queryAll();
     }
