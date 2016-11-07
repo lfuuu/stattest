@@ -19,7 +19,7 @@ echo Html::formLabel('Редактирование настроек платеж
 echo Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => 'Настройки платежных документов', 'url' => $cancelUrl = '/invoice-settings'],
+        ['label' => 'Настройки платежных документов', 'url' => $cancelUrl = '/dictionary/invoice-settings'],
         'Редактирование настроек платежных документов'
     ],
 ]);
@@ -31,13 +31,17 @@ echo Breadcrumbs::widget([
             <div class="col-sm-6">
                 <?= $form
                     ->field($model, 'doer_organization_id')
-                    ->dropDownList(OrganizationDao::me()->getList())
+                    ->dropDownList(OrganizationDao::me()->getList(), [
+                        'disabled' => !$model->isNewRecord,
+                    ])
                 ?>
             </div>
             <div class="col-sm-6">
                 <?= $form
                     ->field($model, 'customer_country_code')
-                    ->dropDownList(Country::getList())
+                    ->dropDownList(Country::getList(), [
+                        'disabled' => !$model->isNewRecord,
+                    ])
                 ?>
             </div>
         </div>
@@ -46,13 +50,17 @@ echo Breadcrumbs::widget([
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'settlement_account_type_id')
-                    ->dropDownList(OrganizationSettlementAccount::$typesList)
+                    ->dropDownList(OrganizationSettlementAccount::$typesList, [
+                        'disabled' => !$model->isNewRecord,
+                    ])
                 ?>
             </div>
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'vat_apply_scheme')
-                    ->dropDownList(InvoiceSettings::$vatApplySchemes)
+                    ->dropDownList(InvoiceSettings::$vatApplySchemes, [
+                        'disabled' => !$model->isNewRecord,
+                    ])
                 ?>
             </div>
             <div class="col-sm-4">

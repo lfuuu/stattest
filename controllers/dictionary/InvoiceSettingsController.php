@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers;
+namespace app\controllers\dictionary;
 
 use Yii;
 use app\classes\Assert;
@@ -60,8 +60,14 @@ class InvoiceSettingsController extends BaseController
     {
         /** @var InvoiceSettings $model */
         $model = new InvoiceSettings;
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect('/invoice-settings');
+        if ($model->load(Yii::$app->request->post())) {
+            if (InvoiceSettings::findOne($model->primaryKey)) {
+                Yii::$app->session->setFlash('error', 'Подобная настройка платежных документов уже существует');
+            } else {
+                if ($model->validate() && $model->save()) {
+                    $this->redirect('/dictionary/invoice-settings');
+                }
+            }
         }
 
         return $this->render('edit', [
@@ -94,7 +100,7 @@ class InvoiceSettingsController extends BaseController
         Assert::isObject($model);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
-            $this->redirect('/invoice-settings');
+            $this->redirect('/dictionary/invoice-settings');
         }
 
         return $this->render('edit', [
@@ -122,7 +128,7 @@ class InvoiceSettingsController extends BaseController
             'vat_apply_scheme' => $vatApplyScheme,
         ]);
 
-        $this->redirect('/invoice-settings');
+        $this->redirect('/dictionary/invoice-settings');
     }
 
 }

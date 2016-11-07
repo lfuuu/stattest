@@ -128,7 +128,7 @@ class Navigation
                 ->addItem('Страны', ['/dictionary/country/'])
                 ->addItem('Города', ['/dictionary/city/'])
                 ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'])
-                ->addItem('Настройки платежных документов', ['/invoice-settings'])
+                ->addItem('Настройки платежных документов', ['/dictionary/invoice-settings'])
         );
 
         $this->addBlock(
