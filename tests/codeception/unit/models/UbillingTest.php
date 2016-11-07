@@ -2,7 +2,6 @@
 
 namespace tests\codeception\unit\models;
 
-use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
@@ -17,6 +16,7 @@ use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
+use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use DateTimeImmutable;
 use yii\codeception\TestCase;
 
@@ -44,6 +44,7 @@ class UbillingTest extends TestCase
     {
         (new TariffFixture)->load();
         (new TariffPeriodFixture)->load();
+        (new TariffResourceFixture)->load();
         (new AccountTariffFixture)->load();
         (new AccountTariffLogFixture)->load();
 
@@ -68,6 +69,7 @@ class UbillingTest extends TestCase
         Bill::deleteAll();
         (new AccountTariffLogFixture)->unload();
         (new AccountTariffFixture)->unload();
+        (new TariffResourceFixture)->unload();
         (new TariffPeriodFixture)->unload();
         (new TariffFixture)->unload();
     }
@@ -413,16 +415,13 @@ class UbillingTest extends TestCase
 
         unset($accountLogHugeFromToTariffs);
 
-        // 1й день прошлого месяца в абонентке участвует дважды, а в ресурсах только один раз!
-        $untarificatedResourcePeriods = $accountTariff->getUntarificatedResourcePeriods([]);
-        $resourcesCount = array_reduce($untarificatedResourcePeriods, function ($i, AccountLogFromToTariff $accountLogFromToTariff) use ($dateTimeFirstDayOfPrevMonth) {
-            !$i && $i = 0;
-            if ($accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT) == $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT)) {
-                $i++;
-            }
-            return $i;
-        });
-        $this->assertEquals(1, $resourcesCount);
+        // 1й день прошлого месяца в абонентке участвует дважды, а в ресурсах только один раз (по каждому ресурсу, то есть всего 2 шт.)!
+        $untarificatedPeriodss = $accountTariff->getUntarificatedResourcePeriods([[]]);
+        $dateYmd = $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT);
+        if (!isset($untarificatedPeriodss[$dateYmd])) {
+            $untarificatedPeriodss[$dateYmd] = [];
+        }
+        $this->assertEquals(2, count($untarificatedPeriodss[$dateYmd]));
     }
 
 }
