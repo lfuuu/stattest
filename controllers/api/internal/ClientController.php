@@ -512,12 +512,16 @@ class ClientController extends ApiInternalController
      *   path="/internal/client/get-full-client-struct/",
      *   summary="Получение полной структуры клиента",
      *   operationId="Получение полной структуры клиента",
-     *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData"),
+     *   @SWG\Parameter(name="id[0]", type="integer", description="идентификатор супер-клиента", in="formData"),
+     *   @SWG\Parameter(name="id[1]", type="integer", description="идентификатор супер-клиента", in="formData"),
      *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData"),
-     *   @SWG\Parameter(name="contract_id", type="integer", description="идентификатор договора", in="formData"),
-     *   @SWG\Parameter(name="contragent_id", type="integer", description="идентификатор контрагента", in="formData"),
+     *   @SWG\Parameter(name="contract_id[0]", type="integer", description="идентификатор договора", in="formData"),
+     *   @SWG\Parameter(name="contract_id[1]", type="integer", description="идентификатор договора", in="formData"),
+     *   @SWG\Parameter(name="contragent_id[0]", type="integer", description="идентификатор контрагента", in="formData"),
+     *   @SWG\Parameter(name="contragent_id[1]", type="integer", description="идентификатор контрагента", in="formData"),
      *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData"),
-     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData"),
+     *   @SWG\Parameter(name="account_id[0]", type="integer", description="идентификатор ЛС", in="formData"),
+     *   @SWG\Parameter(name="account_id[1]", type="integer", description="идентификатор ЛС", in="formData"),
      *   @SWG\Response(
      *     response=200,
      *     description="данные о клиенте",
@@ -594,7 +598,7 @@ class ClientController extends ApiInternalController
             }
 
             if ($resultContragents) {
-                $fullResult[] = [
+                $fullResult[$super->id] = [
                     'id' => $super->id,
                     'timezone' => $timezone,
                     'name' => $super->name,
@@ -621,7 +625,7 @@ class ClientController extends ApiInternalController
         }
 
         if ($id) {
-            return [$id];
+            return is_array($id) ? $id : [$id];
         }
 
         if ($name) {
@@ -632,9 +636,14 @@ class ClientController extends ApiInternalController
         }
 
         if ($contragent_id) {
-            $contragent = ClientContragent::findOne(['id' => $contragent_id]);
-            if ($contragent) {
-                return [$contragent->super_id];
+            $contragentIds = array_keys(
+                ClientContragent::find()
+                    ->where(['id' => $contragent_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($contragentIds) {
+                return $contragentIds;
             }
         }
 
@@ -645,16 +654,26 @@ class ClientController extends ApiInternalController
         }
 
         if ($contract_id) {
-            $contract = ClientContract::findOne(['id' => $contract_id]);
-            if ($contract) {
-                return [$contract->super_id];
+            $contractIds = array_keys(
+                ClientContract::find()
+                    ->where(['id' => $contract_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($contractIds) {
+                return $contractIds;
             }
         }
 
         if ($account_id) {
-            $account = ClientAccount::findOne(['id' => $account_id]);
-            if ($account) {
-                return [$account->super_id];
+            $accountIds = array_keys(
+                ClientAccount::find()
+                    ->where(['id' => $account_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($accountIds) {
+                return $accountIds;
             }
         }
 
