@@ -19,95 +19,25 @@ use Yii;
 class ClientController extends ApiInternalController
 {
     /**
-     * @SWG\Definition(
-     *   definition="contract",
-     *   type="object",
-     *   required={"id","number","accounts"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор договора"
-     *   ),
-     *   @SWG\Property(
-     *     property="number",
-     *     type="string",
-     *     description="Номер договора"
-     *   ),
-     *   @SWG\Property(
-     *     property="accounts",
-     *     type="array",
-     *     description="Массив идентификаторов лицевых счетов",
-     *     @SWG\Items(
-     *       type="integer"
-     *     )
-     *   )
+     * @SWG\Definition(definition="contract", type="object", required={"id","number","accounts"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор договора"),
+     *   @SWG\Property(property="number", type="string", description="Номер договора"),
+     *   @SWG\Property(property="accounts", type="array", description="Массив идентификаторов лицевых счетов", @SWG\Items(type="integer"))
      * ),
-     * @SWG\Definition(
-     *   definition="contragent",
-     *   type="object",
-     *   required={"id","name","contracts"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор контрагента"
-     *   ),
-     *   @SWG\Property(
-     *     property="name",
-     *     type="string",
-     *     description="Название контрагента"
-     *   ),
-     *   @SWG\Property(
-     *     property="contracts",
-     *     type="array",
-     *     description="Массив договоров",
-     *     @SWG\Items(
-     *       ref="#/definitions/contract"
-     *     )
-     *   )
+     * @SWG\Definition(definition="contragent", type="object", required={"id","name","contracts"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор контрагента"),
+     *   @SWG\Property(property="name", type="string", description="Название контрагента"),
+     *   @SWG\Property(property="contracts", type="array", description="Массив договоров", @SWG\Items(ref="#/definitions/contract"))
      * ),
-     * @SWG\Definition(
-     *   definition="client",
-     *   type="object",
-     *   required={"id","name","contragents"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор супер-клиента"
-     *   ),
-     *   @SWG\Property(
-     *     property="name",
-     *     type="string",
-     *     description="Название супер-клиента"
-     *   ),
-     *   @SWG\Property(
-     *     property="contragents",
-     *     type="array",
-     *     description="Массив контрагентов",
-     *     @SWG\Items(
-     *       ref="#/definitions/contragent"
-     *     )
-     *   )
+     * @SWG\Definition(definition="client", type="object", required={"id","name","contragents"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор супер-клиента"),
+     *   @SWG\Property(property="name", type="string", description="Название супер-клиента"),
+     *   @SWG\Property(property="contragents", type="array", description="Массив контрагентов", @SWG\Items(ref="#/definitions/contragent"))
      * ),
-     * @SWG\Post(
-     *   tags={"Работа с клиентами"},
-     *   path="/internal/client/",
-     *   summary="Получение данных по клиенту",
-     *   operationId="Получение данных по клиенту",
+     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/", summary="Получение данных по клиенту", operationId="Получение данных по клиенту",
      *   @SWG\Parameter(name="client_id", type="integer", description="идентификатор супер-клиента", in="formData"),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="данные о клиенте",
-     *     @SWG\Schema(
-     *       ref="#/definitions/client"
-     *     )
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
-     *   )
+     *   @SWG\Response(response=200, description="данные о клиенте", @SWG\Schema(ref="#/definitions/client")),
+     *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
      */
     public function actionIndex()
@@ -152,134 +82,38 @@ class ClientController extends ApiInternalController
     }
 
     /**
-     * @SWG\Definition(
-     *   definition="get-client-struct-applications",
-     *   type="object",
-     *   required={"id","name","enabled"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор"
-     *   ),
-     *   @SWG\Property(
-     *     property="name",
-     *     type="string",
-     *     description="Название"
-     *   ),
-     *   @SWG\Property(
-     *     property="enabled",
-     *     type="boolean",
-     *     description="Признак отключенного"
-     *   )
+     * @SWG\Definition(definition="get-client-struct-applications", type="object", required={"id","name","enabled"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор"),
+     *   @SWG\Property(property="name", type="string", description="Название"),
+     *   @SWG\Property(property="enabled", type="boolean", description="Признак отключенного")
      * ),
-     * @SWG\Definition(
-     *   definition="get-client-struct-account",
-     *   type="object",
-     *   required={"id","is_partner","is_disabled","applications"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор ЛС"
-     *   ),
-     *   @SWG\Property(
-     *     property="is_partner",
-     *     type="boolean",
-     *     description="Признак партнера"
-     *   ),
-     *   @SWG\Property(
-     *     property="is_disabled",
-     *     type="boolean",
-     *     description="Признак отключенного"
-     *   ),
-     *   @SWG\Property(
-     *     property="applications",
-     *     type="array",
-     *     description="Массив приложений",
-     *     @SWG\Items(
-     *       ref="#/definitions/get-client-struct-applications"
-     *     )
-     *   )
+     * @SWG\Definition(definition="get-client-struct-account", type="object", required={"id","is_partner","is_disabled","applications"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор ЛС"),
+     *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнера"),
+     *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
+     *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
+     *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-client-struct-applications"))
      * ),
-     * @SWG\Definition(
-     *   definition="get-client-struct-contragent",
-     *   type="object",
-     *   required={"id","name","country","accounts"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор контрагента"
-     *   ),
-     *   @SWG\Property(
-     *     property="name",
-     *     type="string",
-     *     description="Имя контагента"
-     *   ),
-     *   @SWG\Property(
-     *     property="country",
-     *     type="string",
-     *     description="Страна"
-     *   ),
-     *   @SWG\Property(
-     *     property="accounts",
-     *     type="array",
-     *     description="Массив ЛС",
-     *     @SWG\Items(
-     *       ref="#/definitions/get-client-struct-account"
-     *     )
-     *   )
+     * @SWG\Definition(definition="get-client-struct-contragent", type="object", required={"id","name","country","accounts"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор контрагента"),
+     *   @SWG\Property(property="name", type="string", description="Имя контагента"),
+     *   @SWG\Property(property="country", type="string", description="Страна"),
+     *   @SWG\Property(property="accounts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-client-struct-account"))
      * ),
-     * @SWG\Definition(
-     *   definition="get-client-struct",
-     *   type="object",
-     *   required={"id","name","timezone","contragents"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор супер-клиента"
-     *   ),
-     *   @SWG\Property(
-     *     property="name",
-     *     type="string",
-     *     description="Название супер-клиента"
-     *   ),
-     *   @SWG\Property(
-     *     property="timezone",
-     *     type="string",
-     *     description="Таймзона"
-     *   ),
-     *   @SWG\Property(
-     *     property="contragents",
-     *     type="array",
-     *     description="Массив контрагентов",
-     *     @SWG\Items(
-     *       ref="#/definitions/get-client-struct-contragent"
-     *     )
-     *   )
+     * @SWG\Definition(definition="get-client-struct", type="object", required={"id","name","timezone","contragents"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор супер-клиента"),
+     *   @SWG\Property(property="name", type="string", description="Название супер-клиента"),
+     *   @SWG\Property(property="timezone", type="string", description="Таймзона"),
+     *   @SWG\Property(property="contragents", type="array", description="Массив контрагентов", @SWG\Items(ref="#/definitions/get-client-struct-contragent"))
      * ),
-     * @SWG\Post(
-     *   tags={"Работа с клиентами"},
-     *   path="/internal/client/get-client-struct/",
-     *   summary="Получение структуры клиента",
-     *   operationId="Получение структуры клиента",
+     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-client-struct/", summary="Получение структуры клиента", operationId="Получение структуры клиента",
      *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData"),
      *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData"),
      *   @SWG\Parameter(name="contragent_id", type="integer", description="идентификатор контрагента", in="formData"),
      *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData"),
      *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData"),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="данные о клиенте",
-     *     @SWG\Schema(
-     *       ref="#/definitions/get-client-struct"
-     *     )
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
-     *   )
+     *   @SWG\Response(response=200, description="данные о клиенте", @SWG\Schema(ref="#/definitions/get-client-struct")),
+     *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
      */
 
@@ -337,8 +171,8 @@ class ClientController extends ApiInternalController
                     foreach ($contract->accounts as $account) {
                         $resultAccounts[] = [
                             'id' => $account->id,
-                            'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
                             'is_partner' => $contract->isPartner(),
+                            'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
                             'version' => $account->account_version,
                             'applications' => $this->getPlatformaServices($account->client)
                         ];
@@ -370,172 +204,47 @@ class ClientController extends ApiInternalController
     }
 
     /**
-     * @SWG\Definition(
-     *   definition="get-full-client-struct-applications",
-     *   type="object",
-     *   required={"id","name","is_enabled"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор"
-     *   ),
-     *   @SWG\Property(
-     *     property="name",
-     *     type="string",
-     *     description="Название"
-     *   ),
-     *   @SWG\Property(
-     *     property="is_enabled",
-     *     type="boolean",
-     *     description="Признак отключенного"
-     *   )
+     * @SWG\Definition(definition="get-full-client-struct-applications", type="object", required={"id","name","is_enabled"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор"),
+     *   @SWG\Property(property="name", type="string", description="Название"),
+     *   @SWG\Property(property="is_enabled", type="boolean", description="Признак включенного")
      * ),
-     * @SWG\Definition(
-     *   definition="get-full-client-struct-account",
-     *   type="object",
-     *   required={"id","is_disabled","version","applications"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор ЛС"
-     *   ),
-     *   @SWG\Property(
-     *     property="is_disabled",
-     *     type="boolean",
-     *     description="Признак отключенного"
-     *   ),
-     *   @SWG\Property(
-     *     property="version",
-     *     type="integer",
-     *     description="Версия биллера ЛС"
-     *   ),
-     *   @SWG\Property(
-     *     property="applications",
-     *     type="array",
-     *     description="Массив приложений",
-     *     @SWG\Items(
-     *       ref="#/definitions/get-full-client-struct-applications"
-     *     )
-     *   )
+     * @SWG\Definition(definition="get-full-client-struct-account", type="object", required={"id","is_disabled","version","applications"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор ЛС"),
+     *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
+     *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
+     *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-full-client-struct-applications"))
      * ),
-     * @SWG\Definition(
-     *   definition="get-full-client-struct-contract",
-     *   type="object",
-     *   required={"id","number","state","is_partner","accounts"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор договора"
-     *   ),
-     *   @SWG\Property(
-     *     property="number",
-     *     type="string",
-     *     description="Номер договора"
-     *   ),
-     *   @SWG\Property(
-     *     property="state",
-     *     type="string",
-     *     description="Состояние договора"
-     *   ),
-     *   @SWG\Property(
-     *     property="is_partner",
-     *     type="boolean",
-     *     description="Признак партнерского договора"
-     *   ),
-     *   @SWG\Property(
-     *     property="accounts",
-     *     type="array",
-     *     description="Массив ЛС",
-     *     @SWG\Items(
-     *       ref="#/definitions/get-full-client-struct-account"
-     *     )
-     *   )
+     * @SWG\Definition(definition="get-full-client-struct-contract", type="object", required={"id","number","state","is_partner","accounts"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор договора"),
+     *   @SWG\Property(property="number", type="string", description="Номер договора"),
+     *   @SWG\Property(property="state", type="string", description="Состояние договора"),
+     *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнерского договора"),
+     *   @SWG\Property(property="accounts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-full-client-struct-account"))
      * ),
-     * @SWG\Definition(
-     *   definition="get-full-client-struct-contragent",
-     *   type="object",
-     *   required={"id","name","country","contracts"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор контрагента"
-     *   ),
-     *   @SWG\Property(
-     *     property="name",
-     *     type="string",
-     *     description="Имя контагента"
-     *   ),
-     *   @SWG\Property(
-     *     property="country",
-     *     type="string",
-     *     description="Страна"
-     *   ),
-     *   @SWG\Property(
-     *     property="contracts",
-     *     type="array",
-     *     description="Массив ЛС",
-     *     @SWG\Items(
-     *       ref="#/definitions/get-full-client-struct-contract"
-     *     )
-     *   )
+     * @SWG\Definition(definition="get-full-client-struct-contragent", type="object", required={"id","name","country","contracts"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор контрагента"),
+     *   @SWG\Property(property="name", type="string", description="Имя контагента"),
+     *   @SWG\Property(property="country", type="string", description="Страна"),
+     *   @SWG\Property(property="contracts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-full-client-struct-contract"))
      * ),
-     * @SWG\Definition(
-     *   definition="get-full-client-struct",
-     *   type="object",
-     *   required={"id","name","timezone","contragents"},
-     *   @SWG\Property(
-     *     property="id",
-     *     type="integer",
-     *     description="Идентификатор супер-клиента"
-     *   ),
-     *   @SWG\Property(
-     *     property="name",
-     *     type="string",
-     *     description="Название супер-клиента"
-     *   ),
-     *   @SWG\Property(
-     *     property="timezone",
-     *     type="string",
-     *     description="Таймзона"
-     *   ),
-     *   @SWG\Property(
-     *     property="contragents",
-     *     type="array",
-     *     description="Массив контрагентов",
-     *     @SWG\Items(
-     *       ref="#/definitions/get-full-client-struct-contragent"
-     *     )
-     *   )
+     * @SWG\Definition(definition="get-full-client-struct", type="object", required={"id","name","timezone","contragents"},
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор супер-клиента"),
+     *   @SWG\Property(property="name", type="string", description="Название супер-клиента"),
+     *   @SWG\Property(property="timezone", type="string", description="Таймзона"),
+     *   @SWG\Property(property="contragents", type="array", description="Массив контрагентов", @SWG\Items(ref="#/definitions/get-full-client-struct-contragent"))
      * ),
-     * @SWG\Post(
-     *   tags={"Работа с клиентами"},
-     *   path="/internal/client/get-full-client-struct/",
-     *   summary="Получение полной структуры клиента",
-     *   operationId="Получение полной структуры клиента",
-     *   @SWG\Parameter(name="id[0]", type="integer", description="идентификатор супер-клиента", in="formData"),
-     *   @SWG\Parameter(name="id[1]", type="integer", description="идентификатор супер-клиента", in="formData"),
+     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-full-client-struct/", summary="Получение полной структуры клиента", operationId="Получение полной структуры клиента",
+     *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData"),
      *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData"),
      *   @SWG\Parameter(name="contract_id[0]", type="integer", description="идентификатор договора", in="formData"),
      *   @SWG\Parameter(name="contract_id[1]", type="integer", description="идентификатор договора", in="formData"),
      *   @SWG\Parameter(name="contragent_id[0]", type="integer", description="идентификатор контрагента", in="formData"),
      *   @SWG\Parameter(name="contragent_id[1]", type="integer", description="идентификатор контрагента", in="formData"),
      *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData"),
-     *   @SWG\Parameter(name="account_id[0]", type="integer", description="идентификатор ЛС", in="formData"),
-     *   @SWG\Parameter(name="account_id[1]", type="integer", description="идентификатор ЛС", in="formData"),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="данные о клиенте",
-     *     @SWG\Schema(
-     *       ref="#/definitions/get-full-client-struct"
-     *     )
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
-     *   )
+     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData"),
+     *   @SWG\Response(response=200, description="данные о клиенте", @SWG\Schema(ref="#/definitions/get-full-client-struct")),
+     *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
      */
     public function actionGetFullClientStruct()

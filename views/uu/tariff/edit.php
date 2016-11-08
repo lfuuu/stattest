@@ -74,6 +74,9 @@ if (!$serviceType) {
         case ServiceType::ID_VOIP_PACKAGE:
             echo $this->render('_editMainVoipPackage', $viewParams);
             break;
+        case ServiceType::ID_VM_COLLOCATION:
+            echo $this->render('_editMainVmCollocation', $viewParams);
+            break;
     }
     ?>
 
