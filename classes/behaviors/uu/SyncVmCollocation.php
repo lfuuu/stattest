@@ -87,7 +87,7 @@ class SyncVmCollocation
     /**
      * Включить клиента в VM, если он там есть
      * @param int $clientAccountId
-     * @return int
+     * @return mixed
      */
     public function enableAccount($clientAccountId)
     {
@@ -97,7 +97,7 @@ class SyncVmCollocation
     /**
      * Включить клиента в VM, если он там есть
      * @param int $clientAccountId
-     * @return int
+     * @return mixed
      */
     public function disableAccount($clientAccountId)
     {
@@ -108,7 +108,7 @@ class SyncVmCollocation
      * Включить клиента в VM, если он там есть
      * @param int $clientAccountId
      * @param bool $isEnable
-     * @return int
+     * @return mixed
      */
     protected function enableOrDisableAccount($clientAccountId, $isEnable)
     {
