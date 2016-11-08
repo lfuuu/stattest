@@ -20,7 +20,7 @@ class Number extends ActiveRecord
 
     public static function getDb()
     {
-        return Yii::$app->dbPg;
+        return Yii::$app->dbPgSlave;
     }
 
     public static function dao()

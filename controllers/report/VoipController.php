@@ -97,7 +97,7 @@ class VoipController extends BaseController
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'db' => \Yii::$app->dbPg,
+            'db' => \Yii::$app->dbPgSlave,
 
             'pagination' => [
                 'pageSize' => 30,
@@ -237,7 +237,7 @@ class VoipController extends BaseController
             ->andWhere('rc.destination_id IS NOT NULL');
 
         $this->addFilters($query);
-        $baseStat = $query->one(\Yii::$app->dbPg);
+        $baseStat = $query->one(\Yii::$app->dbPgSlave);
 
         return $baseStat;
     }
