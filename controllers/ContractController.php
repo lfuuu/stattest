@@ -1,17 +1,21 @@
 <?php
 namespace app\controllers;
 
-use app\forms\client\ContractEditForm;
-use app\classes\BaseController;
-use app\models\BusinessProcessStatus;
-use app\models\ClientContract;
-use \Yii;
+use Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
-
+use app\classes\Assert;
+use app\forms\client\ContractEditForm;
+use app\classes\BaseController;
+use app\forms\client\ContractRewardsEditForm;
+use app\models\ClientContract;
 
 class ContractController extends BaseController
 {
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -32,6 +36,11 @@ class ContractController extends BaseController
         ];
     }
 
+    /**
+     * @param int $id
+     * @return \yii\web\Response
+     * @throws Exception
+     */
     public function actionView($id)
     {
         $model = ClientContract::findOne($id);
@@ -49,6 +58,11 @@ class ContractController extends BaseController
         return $this->redirect(['client/view', 'id' => $accountId]);
     }
 
+    /**
+     * @param int $parentId
+     * @param int|null $childId
+     * @return string|\yii\web\Response
+     */
     public function actionCreate($parentId, $childId = null)
     {
         $model = new ContractEditForm(['contragent_id' => $parentId]);
@@ -63,12 +77,18 @@ class ContractController extends BaseController
             ]);
         }
 
-        return $this->render("edit", [
+        return $this->render('edit', [
             'model' => $model
         ]);
 
     }
 
+    /**
+     * @param int $id
+     * @param int|null $childId
+     * @param string|null $date
+     * @return string|\yii\web\Response
+     */
     public function actionEdit($id, $childId = null, $date = null)
     {
         $model = new ContractEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
@@ -105,9 +125,28 @@ class ContractController extends BaseController
             return $this->redirect($returnTo);
         }
 
-        return $this->render("edit", [
+        return $this->render('edit', [
             'model' => $model
         ]);
-
     }
+
+    /**
+     * @param int $contractId
+     * @param string $usageType
+     * @throws Exception
+     */
+    public function actionEditRewards($contractId, $usageType)
+    {
+        $contract = ClientContract::findOne($contractId);
+        Assert::isObject($contract);
+
+        $model = new ContractRewardsEditForm(['contract_id' => $contractId, 'usage_type' => $usageType]);
+
+        if (!($model->load(Yii::$app->request->post(), 'ClientContractReward') && $model->validate() && $model->save())) {
+            Yii::$app->session->setFlash('error', $model->getFirstErrors());
+        }
+
+        $this->redirect(['contract/edit', 'id' => $contractId, '#' => 'rewards']);
+    }
+
 }
