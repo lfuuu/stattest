@@ -321,8 +321,8 @@ class ClientController extends ApiInternalController
         }
 
         $fullResult = [];
-        foreach ($ids as $id) {
-            $super = ClientSuper::find()->where(['id' => $id])->with('contragents')->with('contracts')->with('accounts')->one();
+        foreach ($ids as $idTmp) {
+            $super = ClientSuper::find()->where(['id' => $idTmp])->with('contragents')->with('contracts')->with('accounts')->one();
 
             $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
 
@@ -561,9 +561,6 @@ class ClientController extends ApiInternalController
                 $resultContracts = [];
                 /** @var ClientContract $contract */
                 foreach ($contragent->contracts as $contract) {
-                    if ($contract->is_external != ClientContract::IS_INTERNAL) {
-                        continue;
-                    }
                     $resultAccounts = [];
                     /** @var ClientAccount $account */
                     foreach ($contract->accounts as $account) {
