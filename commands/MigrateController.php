@@ -39,6 +39,16 @@ class MigrateController extends \yii\console\controllers\MigrateController
 
             $this->recreateDatabase();
 
+            // Чтобы тесты проходили быстрее надо периодически (раз в несколько месяцев)
+            //      codeception/bin/db migrate/recreate-db
+            //      mysqldump --user=root --password --host=localhost nispd_test --opt --force --no-autocommit > ~/www/stat/migrations/migrations/data/m100000_000001_init/nispd.sql
+            //      убрать из него m100000_000001_init, иначе будет дубль
+            //      удалить все старые (более 1-2 месяцев) миграции
+
+            // восстановить из дампа
+            // первичную миграцию нельзя накатить обычным образом, иначе он потом будет накатывать все миграции повторно (и, очевидно, ошибка будет)
+            $this->migrateUp('m100000_000001_init');
+
             if (!$this->applyMigrations()) {
                 echo "\nMigration failed. The rest of the migrations are canceled.\n";
 
