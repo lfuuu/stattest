@@ -4,6 +4,7 @@ namespace app\classes;
 use app\classes\behaviors\uu\AccountTariffBiller;
 use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\helpers\DateTimeZoneHelper;
+use app\classes\behaviors\uu\SyncVmCollocation;
 use app\models\EventQueue;
 
 class Event
@@ -100,8 +101,9 @@ class Event
         SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'Добавление услуги в NNP',
         SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'Удаление услуги из NNP',
         AccountTariffBiller::EVENT_RECALC => 'Билинговать UU-клиента',
-        self::ACCOUNT_BLOCKED => 'ЛС разблокирован',
-        self::ACCOUNT_UNBLOCKED => 'ЛС заблокирован',
+        self::ACCOUNT_BLOCKED => 'ЛС заблокирован',
+        self::ACCOUNT_UNBLOCKED => 'ЛС разблокирован',
+        SyncVmCollocation::EVENT_SYNC => 'API VM manager',
     ];
 
     /**

@@ -3,6 +3,7 @@ db_ats.local.php
 db_ats2.local.php
 db_pg_ats.local.php
 db_pgsql.local.php
+db_pg_slave.local.php
 log.local.php
 params.local.php
 /web.local.php
