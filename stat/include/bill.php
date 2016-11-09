@@ -99,6 +99,7 @@ class Bill {
             $bill->is_user_prepay = $isUserPrepay ? 1 : 0;
             $bill->is_approved = 1;
             $bill->price_include_vat = $this->client_data['price_include_vat'];
+            $bill->biller_version = $this->client_data['account_version'];
             $bill->save();
         }
 
