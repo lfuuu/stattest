@@ -39,6 +39,8 @@ class ContractEditForm extends Form
         $financial_type,
         $federal_district,
         $is_external,
+        $lk_access,
+        $partner_login_allow,
 
         $save_comment_stage = false,
         $public_comment = [],
@@ -51,6 +53,9 @@ class ContractEditForm extends Form
     public $historyVersionRequestedDate;
     public $historyVersionStoredDate;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = [
@@ -108,6 +113,9 @@ class ContractEditForm extends Form
         return $rules;
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return (new ClientContract())->attributeLabels() + ['comment' => 'Комментарий'];
@@ -121,6 +129,9 @@ class ContractEditForm extends Form
         return $this->contract;
     }
 
+    /**
+     * @throws Exception
+     */
     public function init()
     {
         if ($this->id) {
@@ -156,6 +167,9 @@ class ContractEditForm extends Form
         }
     }
 
+    /**
+     * @return array
+     */
     public function getOrganizationsList()
     {
         $date = date(DateTimeZoneHelper::DATE_FORMAT);
@@ -169,6 +183,10 @@ class ContractEditForm extends Form
         return ArrayHelper::map($organizations, 'organization_id', 'name');
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
     public function save()
     {
         /** @var ClientContract $contract */

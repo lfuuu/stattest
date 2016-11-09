@@ -25,6 +25,7 @@ use app\models\media\ClientFiles;
  * @property string federal_district
  * @property string is_external
  * @property string lk_access
+ * @property bool partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
  * @property ClientContragent contragent
  * @property Organization $organization
  * @property ClientMedia mediaManager
@@ -106,7 +107,8 @@ class ClientContract extends HistoryActiveRecord
             'federal_district' => 'Федеральный округ (ФО)',
             'contragent_id' => 'Контрагент',
             'is_external' => 'Внешний договор',
-            'lk_access' => 'Доступ к ЛК'
+            'lk_access' => 'Доступ к ЛК',
+            'partner_login_allow' => 'Разрешение клиента',
         ];
     }
 
@@ -359,8 +361,20 @@ class ClientContract extends HistoryActiveRecord
         return [];
     }
 
+    /**
+     * @return bool
+     */
     public function isPartner()
     {
         return $this->business_id == Business::PARTNER;
     }
+
+    /**
+     * @return int
+     */
+    public function isPartnerAgent()
+    {
+        return $this->contragent->partner_contract_id;
+    }
+
 }

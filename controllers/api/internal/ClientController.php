@@ -338,9 +338,11 @@ class ClientController extends ApiInternalController
                         $resultAccounts[] = [
                             'id' => $account->id,
                             'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                            'partner_id' => $contract->isPartnerAgent(),
                             'is_partner' => $contract->isPartner(),
+                            'partner_login_allow' => $contract->partner_login_allow,
                             'version' => $account->account_version,
-                            'applications' => $this->getPlatformaServices($account->client)
+                            'applications' => $this->getPlatformaServices($account->client),
                         ];
                         $timezone = $account->timezone_name;
                     }
@@ -581,7 +583,9 @@ class ClientController extends ApiInternalController
                             'id' => $contract->id,
                             'number' => $contract->number,
                             'state' => $contract->state,
+                            'partner_id' => $contract->isPartnerAgent(),
                             'is_partner' => $contract->isPartner(),
+                            'partner_login_allow' => $contract->partner_login_allow,
                             'accounts' => $resultAccounts
                         ];
                     }

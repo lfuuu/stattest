@@ -2,14 +2,18 @@
 
 namespace app\controllers\api\internal;
 
-use app\models\Region;
 use Yii;
+use app\exceptions\web\BadRequestHttpException;
+use app\exceptions\api\internal\ExceptionValidationAccountId;
+use app\exceptions\api\internal\PartnerNotFoundException;
+use app\classes\Assert;
 use app\classes\ApiInternalController;
 use app\models\ClientAccount;
 use app\models\ActualNumber;
 use app\models\ActualVirtpbx;
-use app\exceptions\web\BadRequestHttpException;
-use app\exceptions\api\internal\PartnerNotFoundException;
+use app\models\Business;
+use app\models\ClientContract;
+use app\models\Region;
 
 class AccountController extends ApiInternalController
 {
@@ -302,4 +306,59 @@ class AccountController extends ApiInternalController
             )
         ];
     }
+
+    /**
+     * @SWG\Get(
+     *   tags={"Работа с лицевыми счетами"},
+     *   path="/internal/account/set-partner-login-allow",
+     *   summary="Установка/Снятие флага-разрешения доступа к ЛК для парнера-родиителя",
+     *   operationId="Установка/Снятие флага-разрешения доступа к ЛК для парнера-родиителя",
+     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="query"),
+     *   @SWG\Parameter(name="value",type="integer",description="значение флага (Да/Нет)",in="query"),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    /**
+     * @param int $accountId
+     * @param int $value
+     * @return array
+     * @throws ExceptionValidationAccountId
+     * @throws PartnerNotFoundException
+     */
+    public function actionSetPartnerLoginAllow($accountId, $value)
+    {
+        $clientAccount = ClientAccount::findOne(['id' => $accountId]);
+        if (!$clientAccount) {
+            throw new ExceptionValidationAccountId;
+        }
+
+        $clientContract = ClientContract::findOne(['id' => $clientAccount->contract->id]);
+        Assert::isObject($clientContract);
+
+        if ($clientContract->business_id !== Business::TELEKOM) {
+            return [
+                'error' => 'Invalid client business process, only "Telekom" can grant access',
+            ];
+        }
+
+        if (!$clientContract->isPartnerAgent()) {
+            throw new PartnerNotFoundException('Partner for client not found');
+        }
+
+        $clientContract->partner_login_allow = (int)$value;
+        if (!$clientContract->save()) {
+            return [
+                'error' => 'Cant save contract',
+            ];
+        }
+
+        return ['message' => 'success'];
+    }
+
 }
