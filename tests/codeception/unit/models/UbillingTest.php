@@ -382,6 +382,7 @@ class UbillingTest extends TestCase
     public function testAccountLogResource()
     {
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
+        $dateTimeLastDayOfPrevMonth = (new DateTimeImmutable())->modify('last day of previous month');
 
         /** @var AccountTariff $accountTariff */
         $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 5])->one();
@@ -403,13 +404,14 @@ class UbillingTest extends TestCase
         $this->assertEquals(1, $accountLogHugeFromToTariffs[0]->tariffPeriod->id);
 
         // 1го сразу же подключил месячный тариф
-        // по этому тарифу с 1го до конца прошлого месяца и весь этот месяц
+        // по этому тарифу абонентка с 1го до конца прошлого месяца и весь этот месяц, а ресурсы только за 1ое (и только 1 раз!)
 
         // диапазон 1
         $this->assertNotEmpty($accountLogHugeFromToTariffs[1]->dateFrom);
         $this->assertEquals($dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[1]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT));
 
-        $this->assertEmpty($accountLogHugeFromToTariffs[1]->dateTo);
+        $this->assertNotEmpty($accountLogHugeFromToTariffs[1]->dateTo);
+        $this->assertEquals($dateTimeLastDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT), $accountLogHugeFromToTariffs[1]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT));
 
         $this->assertEquals(2, $accountLogHugeFromToTariffs[1]->tariffPeriod->id);
 
@@ -417,11 +419,24 @@ class UbillingTest extends TestCase
 
         // 1й день прошлого месяца в абонентке участвует дважды, а в ресурсах только один раз (по каждому ресурсу, то есть всего 2 шт.)!
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourcePeriods([[]]);
+
+        // ресурсы за 1ое
         $dateYmd = $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT);
         if (!isset($untarificatedPeriodss[$dateYmd])) {
             $untarificatedPeriodss[$dateYmd] = [];
         }
         $this->assertEquals(2, count($untarificatedPeriodss[$dateYmd]));
+
+        // ресурсы за 2ое
+        $dateYmd = $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
+        if (!isset($untarificatedPeriodss[$dateYmd])) {
+            $untarificatedPeriodss[$dateYmd] = [];
+        }
+        $this->assertEquals(2, count($untarificatedPeriodss[$dateYmd]));
+
+        // 1го со 3го выключил
+        // ресурсов за другой день быть не должно
+        $this->assertEquals(2, count($untarificatedPeriodss));
     }
 
 }
