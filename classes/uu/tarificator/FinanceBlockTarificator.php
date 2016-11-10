@@ -82,7 +82,7 @@ SQL;
             /** @var ClientAccount $client */
             $client = ClientAccount::findOne($row['id']);
 
-            if ($client->billingCounters->getRealtimeBalance() > 0) {
+            if ($client->billingCounters->getRealtimeBalance() + $client->credit > 0) {
                 // какая-то ошибка! баланс положительный, но находится месяц в финансовой блокировке
                 // @todo записать в лог
                 continue;

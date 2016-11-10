@@ -146,7 +146,7 @@ class UsageController extends Controller
         $now = new DateTime('now');
         echo PHP_EOL . 'start ' . $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        $ress = Yii::$app->dbPg->createCommand('
+        $ress = Yii::$app->dbPgSlave->createCommand('
             SELECT cc.client_id
             FROM
                 billing.clients c

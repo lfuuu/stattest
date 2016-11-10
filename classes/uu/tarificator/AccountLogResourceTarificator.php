@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\tarificator;
 
+use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
@@ -17,10 +18,6 @@ use Yii;
  */
 class AccountLogResourceTarificator implements TarificatorI
 {
-
-    /** @var TariffResource[] кэш */
-    protected $tariffIdToTariffResources = [];
-
     /** @var ResourceReaderInterface[] кэш */
     protected $resourceIdToReader = [];
 
@@ -77,46 +74,49 @@ class AccountLogResourceTarificator implements TarificatorI
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
         // ресурсы, по которым произведен расчет
-        /** @var AccountLogResource[] $accountLogs */
-        $accountLogs = AccountLogResource::find()
-            ->where(['account_tariff_id' => $accountTariff->id])
-            ->indexBy('date')
-            ->all();
+        $accountLogsQuery = AccountLogResource::find()
+            ->where(['account_tariff_id' => $accountTariff->id]);
+        /** @var AccountLogResource $accountLog */
+        $accountLogs = [];
+        foreach ($accountLogsQuery->each() as $accountLog) {
+            $accountLogs[$accountLog->date][$accountLog->tariffResource->resource_id] = $accountLog;
+        }
 
-        $untarificatedPeriods = $accountTariff->getUntarificatedResourcePeriods($accountLogs);
-        foreach ($untarificatedPeriods as $untarificatedPeriod) {
-            /** @var DateTimeImmutable $date */
-            $date = $untarificatedPeriod->dateFrom;
-            $tariffPeriod = $untarificatedPeriod->tariffPeriod;
+        $untarificatedPeriodss = $accountTariff->getUntarificatedResourcePeriods($accountLogs);
 
-            $tariffId = $tariffPeriod->tariff_id;
-            if (!isset($this->tariffIdToTariffResources[$tariffId])) {
-                // записать в кэш
-                $this->tariffIdToTariffResources[$tariffId] = $tariffPeriod->tariff->tariffResources;
-            }
+        /** @var AccountLogFromToTariff[] $untarificatedPeriods */
+        foreach ($untarificatedPeriodss as $dateYmd => $untarificatedPeriods) {
 
-            /** @var TariffResource[] $tariffResources */
-            $tariffResources = $this->tariffIdToTariffResources[$tariffId];
+            /** @var AccountLogFromToTariff $untarificatedPeriod */
+            foreach ($untarificatedPeriods as $resourceId => $untarificatedPeriod) {
 
-            foreach ($tariffResources as $tariffResource) {
+                /** @var DateTimeImmutable $date */
+                $date = $untarificatedPeriod->dateFrom;
+                $tariffPeriod = $untarificatedPeriod->tariffPeriod;
 
-                $resourceId = $tariffResource->resource_id;
+                $tariffResource = TariffResource::findOne([
+                    'resource_id' => $resourceId,
+                    'tariff_id' => $tariffPeriod->tariff_id,
+                ]);
+
                 if (!isset($this->resourceIdToReader[$resourceId])) {
                     // записать в кэш
                     $this->resourceIdToReader[$resourceId] = Resource::getReader($resourceId);
                 }
+
                 /** @var ResourceReaderInterface $reader */
                 $reader = $this->resourceIdToReader[$resourceId];
+                $amountUse = $reader->read($accountTariff, $date);
+                if ($amountUse === null) {
+                    continue; // нет данных. Пропустить
+                }
 
                 $accountLogResource = new AccountLogResource();
                 $accountLogResource->date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
                 $accountLogResource->tariff_period_id = $tariffPeriod->id;
                 $accountLogResource->account_tariff_id = $accountTariff->id;
                 $accountLogResource->tariff_resource_id = $tariffResource->id;
-                $accountLogResource->amount_use = $reader->read($accountTariff, $date);
-                if ($accountLogResource->amount_use === null) {
-                    continue; // нет данных. Пропустить
-                }
+                $accountLogResource->amount_use = $amountUse;
                 $accountLogResource->amount_free = $tariffResource->amount;
                 $accountLogResource->price_per_unit = $reader->getIsMonthPricePerUnit() ?
                     $tariffResource->price_per_unit / $date->format('t') : // это "цена за месяц", а надо перевести в "цену за день"

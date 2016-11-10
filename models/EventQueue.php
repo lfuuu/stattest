@@ -1,7 +1,6 @@
 <?php
 namespace app\models;
 
-use app\classes\behaviors\uu\SyncAccountTariffLight;
 use yii\db\ActiveRecord;
 
 /**
@@ -9,7 +8,7 @@ use yii\db\ActiveRecord;
  * @property string date timestamp
  * @property string event
  * @property string param
- * @property string status    enum('plan','ok','error','stop')
+ * @property string status enum('plan','ok','error','stop')
  * @property int iteration
  * @property string next_start timestamp
  * @property string log_error
@@ -25,7 +24,7 @@ class EventQueue extends ActiveRecord
 
     public static $statuses = [
         self::STATUS_PLAN => 'Запланирована',
-        self::STATUS_OK => 'Задача выполнена',
+        self::STATUS_OK => 'Выполнена',
         self::STATUS_ERROR => 'Временная ошибка',
         self::STATUS_STOP => 'Постоянная ошибка',
     ];
@@ -46,8 +45,8 @@ class EventQueue extends ActiveRecord
         return [
             'id' => 'ID',
             'insert_time' => 'Время создания',
-            'date' => 'Время запуска',
-            'next_start' => 'Время следующего запуска',
+            'date' => 'Запуск',
+            'next_start' => 'Следующий запуск',
             'event' => 'Событие',
             'param' => 'Параметры',
             'status' => 'Статус',

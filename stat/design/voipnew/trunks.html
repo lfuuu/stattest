@@ -1,19 +1,23 @@
 <p>
     Транки:
 </p>
-<table class=price cellSpacing=2 cellPadding=4 border=0>
+<table class="price" cellspacing="2" cellpadding="4" border="0">
 <tr>
-    <td class=header>Точка присоединения</td>
-    <td class=header>Оператор</td>
-    <td class=header>Транк</td>
-    <td class=header></td>
-    <td class=header>Описание</td>
+    <td class="header">Точка присоединения</td>
+    <td class="header">Оператор</td>
+    <td class="header">Договор</td>
+    <td class="header">Тип договора</td>
+    <td class="header">Транк</td>
+    <td class="header">Ориг/Терм</td>
+    <td class="header">Описание</td>
 </tr>
 {foreach from=$trunks item='t'}
-	<tr class="{cycle values='even,odd'}">
+    <tr class="{cycle values='even,odd'}">
         <td>{$regions[$t.connection_point_id].name}</td>
         <td>(<a href="/client/view?id={$t.client_id}">{$t.client_id}</a>) {$t.company}</td>
-        <td><a href='/usage/trunk/edit?id={$t.id}'>({$t.id}) {$bill_trunks[$t.trunk_id]}</a></td>
+        <td>{$t.contract_number}</td>
+        <td>{$t.contract_type}</td>
+        <td><a href="/usage/trunk/edit?id={$t.id}">({$t.id}) {$bill_trunks[$t.trunk_id]}</a></td>
         <td>{if $t.orig_enabled > 0}Оригинация{/if} {if $t.term_enabled > 0}Терминация{/if}</td>
         <td>{$t.description}</td>
     </tr>

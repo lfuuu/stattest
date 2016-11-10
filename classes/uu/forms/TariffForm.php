@@ -9,7 +9,6 @@ use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffVoipCity;
-use app\controllers\uu\TariffController;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
@@ -128,7 +127,14 @@ abstract class TariffForm extends Form
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-            if ($this->tariff->load($post)) {
+            if (isset($post['dropButton'])) {
+
+                // удалить
+                $this->tariff->delete();
+                $this->id = null;
+                $this->isSaved = true;
+
+            } elseif ($this->tariff->load($post)) {
 
                 if ($this->tariff->is_autoprolongation) {
                     $this->tariff->count_of_validity_period = 0;

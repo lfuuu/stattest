@@ -67,7 +67,8 @@ $rows = AccountTariff::getGroupedObjects($query);
                         </div>
                     <?php endforeach; ?>
 
-                    <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate(end($accountTariffFirst->accountTariffLogs)->actual_from, 'medium') ?></span>
+                    <?php $accountTariffLogs = $accountTariffFirst->accountTariffLogs ?>
+                    <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate(end($accountTariffLogs)->actual_from, 'medium') ?></span>
                 </div>
 
                 <div class="col-sm-10">

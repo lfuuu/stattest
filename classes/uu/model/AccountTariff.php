@@ -8,7 +8,6 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\Region;
-use app\models\usages\UsageInterface;
 use DateTime;
 use DateTimeImmutable;
 use Yii;
@@ -28,6 +27,7 @@ use yii\helpers\Url;
  * @property int $tariff_period_id   Если null, то закрыто. Кэш AccountTariffLog->TariffPeriod
  * @property string $comment
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
+ * @property int vm_elid_id ID VM collocation
  *
  * @property ClientAccount $clientAccount
  * @property ServiceType $serviceType
@@ -168,10 +168,23 @@ class AccountTariff extends ActiveRecord
      */
     public function getName($isWithAccount = true)
     {
-        $tariffPeriodName = $this->tariff_period_id ? $this->tariffPeriod->getName() : Yii::t('common', 'Switched off');
-        return $isWithAccount ?
-            sprintf('%s %s', $this->clientAccount->client, $tariffPeriodName) :
-            $tariffPeriodName;
+        $names = [];
+
+        if ($isWithAccount) {
+            $names[] = $this->clientAccount->client;
+        }
+
+        if ($this->service_type_id == ServiceType::ID_VOIP && $this->voip_number) {
+            // телефония
+            $names[] = Yii::t('uu', 'Number {number}', ['number' => $this->voip_number]);
+        } elseif ($this->service_type_id == ServiceType::ID_VOIP_PACKAGE && $this->prevAccountTariff->voip_number) {
+            // пакет телефонии. Номер взять от телефонии
+            $names[] = Yii::t('uu', 'Number {number}', ['number' => $this->prevAccountTariff->voip_number]);
+        }
+
+        $names[] = $this->tariff_period_id ? $this->tariffPeriod->getName() : Yii::t('common', 'Switched off');
+
+        return implode('. ', $names);
     }
 
     /**
@@ -373,9 +386,10 @@ class AccountTariff extends ActiveRecord
      * У последнего тарифа dateTo может быть null (не ограничен по времени)
      *
      * @param bool $isWithFuture
-     * @return \app\classes\uu\forms\AccountLogFromToTariff[]
+     * @param Period $chargePeriodMain если указано, то использовать указанное, а не из tariffPeriod
+     * @return AccountLogFromToTariff[]
      */
-    public function getAccountLogHugeFromToTariffs($isWithFuture = false)
+    public function getAccountLogHugeFromToTariffs($isWithFuture = false, $chargePeriodMain = null)
     {
         /** @var AccountLogFromToTariff[] $accountLogPeriods */
         $accountLogPeriods = [];
@@ -389,14 +403,14 @@ class AccountTariff extends ActiveRecord
 
                 // закончить предыдущий период
                 $prevAccountTariffLog = $accountLogPeriods[$count - 1];
-                $prevTariffPeriodChargePeriod = $prevAccountTariffLog->tariffPeriod->chargePeriod;
+                $prevTariffPeriodChargePeriod = $chargePeriodMain ?: $prevAccountTariffLog->tariffPeriod->chargePeriod;
 
                 // старый тариф должен закончиться не раньше этой даты
                 $dateActualFromYmd = $dateActualFrom->format(DateTimeZoneHelper::DATE_FORMAT);
                 $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($dateActualFromYmd < $insertTimeYmd) {
-                    $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
-//                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
+//                    $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
+                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
                 }
 
                 /** @var DateTimeImmutable $dateFromNext дата теоретического начала (продолжения) старого тарифа. Из нее -1day получается дата окончания его прошлого периода */
@@ -445,7 +459,7 @@ class AccountTariff extends ActiveRecord
 
         // взять большие периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам
-        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs();
+        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs($isWithFuture = false, $chargePeriodMain);
         foreach ($accountLogHugePeriods as $accountLogHugePeriod) {
 
             $dateTo = $accountLogHugePeriod->dateTo;
@@ -540,9 +554,9 @@ class AccountTariff extends ActiveRecord
             // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
             // Решили пока игнорировать
             printf(PHP_EOL . 'Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-            foreach ($accountLogs as $accountLog) {
-                $accountLog->delete();
-            }
+//            foreach ($accountLogs as $accountLog) {
+//                $accountLog->delete();
+//            }
         }
 
         return $untarificatedPeriods;
@@ -588,9 +602,9 @@ class AccountTariff extends ActiveRecord
             // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
             // Решили пока игнорировать
             printf(PHP_EOL . 'Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-            foreach ($accountLogs as $accountLog) {
-                $accountLog->delete();
-            }
+//            foreach ($accountLogs as $accountLog) {
+//                $accountLog->delete();
+//            }
         }
 
         return $untarificatedPeriods;
@@ -599,38 +613,57 @@ class AccountTariff extends ActiveRecord
     /**
      * Вернуть даты периодов, по которым не произведен расчет по ресурсам
      *
-     * @param AccountLogResource[] $accountLogs уже обработанные
-     * @return AccountLogFromToTariff[]
+     * @param AccountLogResource[][] $accountLogss уже обработанные. AccountLogResource[$dateYmd][$resourceId]
+     * @return AccountLogFromToTariff[][]
      */
-    public function getUntarificatedResourcePeriods($accountLogs)
+    public function getUntarificatedResourcePeriods($accountLogss)
     {
-        $untarificatedPeriods = [];
+        $untarificatedPeriodss = [];
         $chargePeriod = Period::findOne(['id' => Period::ID_DAY]);
         $accountLogFromToTariffs = $this->getAccountLogFromToTariffs($chargePeriod, false); // все
 
-        // вычитанием получим необработанные
+        // по всем периодам
         foreach ($accountLogFromToTariffs as $accountLogFromToTariff) {
-            $dateFromYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
-            if (isset($accountLogs[$dateFromYmd])) {
-                // такой период рассчитан
-                unset($accountLogs[$dateFromYmd]);
-            } else {
-                // этот период не рассчитан
-                $untarificatedPeriods[] = $accountLogFromToTariff;
+
+            $dateYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+            $tariffResources = $accountLogFromToTariff->tariffPeriod->tariff->tariffResources;
+
+            // по всем ресурсам тарифа
+            foreach ($tariffResources as $tariffResource) {
+
+                $resourceId = $tariffResource->resource_id;
+                if (array_key_exists($dateYmd, $accountLogss) && array_key_exists($resourceId, $accountLogss[$dateYmd])) {
+
+                    // такой ресурс-период рассчитан. unset нельзя, иначе потом ресурс добавится заново от другого пересекающегося периода
+                    $accountLogss[$dateYmd][$resourceId] = null;
+
+                } else {
+
+                    // этот ресурс-период не рассчитан
+                    // если в середине месяца сменили тариф, то за этот день будет две абонентки, но ресурс надо рассчитать только один раз (по последнему тарифу), поэтому используем хэш $dateYmd
+                    $untarificatedPeriodss[$dateYmd][$resourceId] = $accountLogFromToTariff;
+
+                }
+
             }
         }
 
-        if (count($accountLogs)) {
-            // остался неизвестный период, который уже рассчитан
-            // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
-            // Решили пока игнорировать
-            printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-            foreach ($accountLogs as $accountLog) {
-                $accountLog->delete();
+        if (count($accountLogss)) {
+            foreach ($accountLogss as $dateYmd => $accountLogs) {
+                foreach ($accountLogs as $resourceId => $accountLog) {
+                    if (!$accountLog) {
+                        continue;
+                    }
+                    // остался неизвестный период, который уже рассчитан
+                    // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
+                    // Решили пока игнорировать
+                    printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
+//                    $accountLog->delete();
+                }
             }
         }
 
-        return $untarificatedPeriods;
+        return $untarificatedPeriodss;
     }
 
     /**
