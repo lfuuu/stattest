@@ -551,11 +551,10 @@ echo Breadcrumbs::widget([
                 <td>
                     <?php
                     $updated = $package->lastUpdateData;
-                    $properties = \yii\helpers\ArrayHelper::map((array) $updated->properties, 'property', 'value');
                     echo DateTimeZoneHelper::getDateTime($updated->date) . '<br />';
 
-                    if (isset($properties['user_id'])) {
-                        if (($user = User::findOne($properties['user_id'])) !== null) {
+                    if (isset($updated->properties->user_id)) {
+                        if (($user = User::findOne($updated->properties->user_id)) !== null) {
                             /** @var User $user */
                             echo $user->name;
                         }
