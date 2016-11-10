@@ -316,7 +316,9 @@ class m_stats extends IModule{
                 $last_region = $r['region'];
             }
             $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
-            if ($phone==$r['region'] || $phone==$r['region'].'_'.$r['phone_num']) $phones_sel[]=$r['id'];
+            if (($phone==(string) $r['region']) || $phone==$r['region'].'_'.$r['phone_num']) {
+                $phones_sel[]=$r['id'];
+            }
         }
         $design->assign('phones',$phones);
 
