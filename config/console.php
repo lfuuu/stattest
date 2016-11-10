@@ -74,6 +74,7 @@ return [
         'dbPgAts' => $dbPgAts,
         'dbPgNnp' => $dbPgNnp,
         'dbPg' => $dbPg,
+        'dbPgSlave' => $dbPgSlave,
         'i18n' => [
             'translations' => [
                 '*' => [
