@@ -848,4 +848,32 @@ class AccountTariff extends ActiveRecord
             return;
         }
     }
+
+    /**
+     * УУ-аккаунт?
+     * @param int $clientAccountId
+     * @return bool|null null - нет клиента, false - 4 (старый), true - 5 (УУ)
+     */
+    public static function isUuAccount($clientAccountId = null)
+    {
+        if (!$clientAccountId) {
+            global $fixclient_data;
+            if (isset($fixclient_data['id']) && $fixclient_data['id'] > 0) {
+                $clientAccountId = (int)$fixclient_data['id'];
+
+            }
+        }
+
+        if (!$clientAccountId) {
+            return null;
+        }
+
+        $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
+        if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            Yii::$app->session->setFlash('error', 'Неуниверсальную услугу можно добавить только аккаунту, тарифицируемому неуниверсально.');
+            return true;
+        }
+
+        return false;
+    }
 }
