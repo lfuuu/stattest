@@ -14,6 +14,11 @@ if (file_exists($file = __DIR__ . '/db_pgsql.local.php')) {
     $dbPg = ArrayHelper::merge($dbPg, require($file));
 }
 
+$dbPgSlave = require(__DIR__ . '/db_pg_slave.php');
+if (file_exists($file = __DIR__ . '/db_pg_slave.local.php')) {
+    $dbPgSlave = ArrayHelper::merge($dbPgSlave, require($file));
+}
+
 $dbAts = require(__DIR__ . '/db_ats.php');
 if (file_exists($file = __DIR__ . '/db_ats.local.php')) {
     $dbAts = ArrayHelper::merge($dbAts, require($file));
