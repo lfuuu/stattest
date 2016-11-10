@@ -9,11 +9,10 @@ use app\models\Number;
 
 $userId = 10; // ava
 
-//$clientId = 36166; //Метротел
-$clientId = 41389; //Телемир
+$clientId = 36166; //Метротел
+//$clientId = 41389; //Телемир
 
 $address = '';
-
 
 
 $confs = [
@@ -32,21 +31,22 @@ $confs = [
     ],
     */
     //Партнёр 1000 и более (118.00-413.00) / Моб Партнёр местные мобильные 1,15/ МГ Партнёр мобильные РФ 1,15/ МГ Междугородные звонки Базовый/ МН Международные звонки Базовый
-/*
+
     [
         "didGroupId" => 12, //Стандартный
         "region" => 97, //Краснодар
-        "count_numbers" => 50,
+        "count_numbers" => 20,
 
         "id_tarif" => 640, //Партнёр 1000 и более (118.00-413.00)
-        "id_tarif_local_mob" => 636, //Моб Партнёр местные мобильные 1,15
-        "id_tarif_russia" => 637, //МГ Партнёр мобильные РФ 1,15
-        //"id_tarif_local_mob" => 85, //Моб Местные мобильные Базовый
-        //"id_tarif_russia" => 63, //МГ Междугородные звонки Базовый
+        //"id_tarif_local_mob" => 636, //Моб Партнёр местные мобильные 1,15
+        //"id_tarif_russia" => 637, //МГ Партнёр мобильные РФ 1,15
+        "id_tarif_local_mob" => 85, //Моб Местные мобильные Базовый
+        "id_tarif_russia" => 63, //МГ Междугородные звонки Базовый
         "id_tarif_russia_mob" => 63, //МГ Междугородные звонки Базовый
         "id_tarif_intern" => 69 //МН Международные звонки Базовый
     ],
-*/
+
+/*
     [
         "didGroupId" => 7,
         "region" => 98, //СПб
@@ -58,6 +58,7 @@ $confs = [
         "id_tarif_russia_mob" => 96,
         "id_tarif_intern" => 97,
     ],
+*/
 /*
     [
         "didGroupId" => 32,
@@ -98,11 +99,11 @@ $confs = [
 
     ],
 */
-/*
+
     [
         "didGroupId" => 22,
         "region" => 95, //Екатеринбург
-        "count_numbers" => 50,
+        "count_numbers" => 30,
 
         "id_tarif" => 646, //Партнёр 1000 и более
         "id_tarif_local_mob" => 159,
@@ -110,7 +111,7 @@ $confs = [
         "id_tarif_russia_mob" => 160,
         "id_tarif_intern" => 162
     ],
-*/
+
     /*
     [
         "didGroupId" => 42, //Стандартные
@@ -125,11 +126,11 @@ $confs = [
     ],
 
 */
-/*    
+
     [
         "didGroupId" => 47, //Стандартные
         "region" => 87, //Ростов-на-Дону
-        "count_numbers" => 50,
+        "count_numbers" => 20,
 
         "id_tarif" => 660, //Партнёр 1000 и более
         "id_tarif_local_mob" => 185,
@@ -137,7 +138,7 @@ $confs = [
         "id_tarif_russia_mob" => 186,
         "id_tarif_intern" => 188
     ],
- */
+
 /*
     [
         "didGroupId" => 37,
