@@ -97,6 +97,21 @@ if (!$didGroup->isNewRecord) {
             <?= $form->field($didGroup, 'name')->textInput() ?>
         </div>
 
+        <?php // Цена 1 ?>
+        <div class="col-sm-2">
+            <?= $form->field($didGroup, 'price1')->input('number', ['step' => 0.01]) ?>
+        </div>
+
+        <?php // Цена 2 ?>
+        <div class="col-sm-2">
+            <?= $form->field($didGroup, 'price2')->input('number', ['step' => 0.01]) ?>
+        </div>
+
+        <?php // Цена 3 ?>
+        <div class="col-sm-2">
+            <?= $form->field($didGroup, 'price3')->input('number', ['step' => 0.01]) ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>

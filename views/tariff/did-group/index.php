@@ -10,6 +10,7 @@ use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\NumberTypeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
@@ -56,6 +57,18 @@ $columns = [
     [
         'attribute' => 'number_type_id',
         'class' => NumberTypeColumn::className()
+    ],
+    [
+        'attribute' => 'price1',
+        'class' => IntegerRangeColumn::className()
+    ],
+    [
+        'attribute' => 'price2',
+        'class' => IntegerRangeColumn::className()
+    ],
+    [
+        'attribute' => 'price3',
+        'class' => IntegerRangeColumn::className()
     ],
     [
         'class' => ActionColumn::className(),

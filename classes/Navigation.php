@@ -44,8 +44,6 @@ class Navigation
                 ->addItem('Телефония Пакеты', ['/tariff/voip-package'], ['tarifs.read'])
                 ->addItem('Звонок_чат', ['/tariff/call-chat'], ['tarifs.read'])
                 ->addStatModuleItems('tarifs')
-                ->addItem('Телефония DID группы', ['/tariff/did-group/'], ['tarifs.read'])
-                ->addItem('Телефония Номера', ['/tariff/number/index'], ['tarifs.read'])
         );
         $this->addBlockForStatModule('tt');
         $this->addBlock(
@@ -99,6 +97,7 @@ class Navigation
                 ->addItem('Списки префиксов', ['/voip/prefixlist'], ['voip.access'])
                 ->addItem('Направления', ['/voip/destination'], ['voip.access'])
                 ->addItem('Тип номера', ['/voip/number-type'], ['voip.access'])
+                ->addItem('DID группы', ['/tariff/did-group/'], ['tarifs.read'])
                 ->addItem('Номера', ['/voip/number'], ['voip.access'])
                 ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
         );

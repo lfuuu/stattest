@@ -17,6 +17,15 @@ class DidGroupFilter extends DidGroup
     public $beauty_level = '';
     public $number_type_id = '';
 
+    public $price1_from = '';
+    public $price1_to = '';
+
+    public $price2_from = '';
+    public $price2_to = '';
+
+    public $price3_from = '';
+    public $price3_to = '';
+
     public function rules()
     {
         return [
@@ -26,6 +35,9 @@ class DidGroupFilter extends DidGroup
             [['name'], 'string'],
             [['beauty_level'], 'integer'],
             [['number_type_id'], 'integer'],
+            [['price1_from', 'price1_to'], 'number'],
+            [['price2_from', 'price2_to'], 'number'],
+            [['price3_from', 'price3_to'], 'number'],
         ];
     }
 
@@ -49,6 +61,15 @@ class DidGroupFilter extends DidGroup
         $this->name !== '' && $query->andWhere(['LIKE', $didGroupTableName . '.name', $this->name]);
         $this->beauty_level !== '' && $query->andWhere([$didGroupTableName . '.beauty_level' => $this->beauty_level]);
         $this->number_type_id !== '' && $query->andWhere([$didGroupTableName . '.number_type_id' => $this->number_type_id]);
+
+        $this->price1_from !== '' && $query->andWhere(['>=', $didGroupTableName . '.price1', $this->price1_from]);
+        $this->price1_to !== '' && $query->andWhere(['<=', $didGroupTableName . '.price1', $this->price1_to]);
+
+        $this->price2_from !== '' && $query->andWhere(['>=', $didGroupTableName . '.price2', $this->price2_from]);
+        $this->price2_to !== '' && $query->andWhere(['<=', $didGroupTableName . '.price2', $this->price2_to]);
+
+        $this->price3_from !== '' && $query->andWhere(['>=', $didGroupTableName . '.price3', $this->price3_from]);
+        $this->price3_to !== '' && $query->andWhere(['<=', $didGroupTableName . '.price3', $this->price3_to]);
 
         return $dataProvider;
     }

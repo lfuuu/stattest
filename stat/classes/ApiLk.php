@@ -12,7 +12,6 @@ use app\models\important_events\ImportantEventsSources;
 use app\models\LkClientSettings;
 use app\models\LogTarif;
 use app\models\Number;
-use app\models\TariffNumber;
 use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
 use app\models\City;
@@ -449,26 +448,24 @@ class ApiLk
 
         $numberTariffsByCityId = [];
 
-        $tariffs = TariffNumber::find()
+        $didGroups = DidGroup::find()
             ->where([
-                'status' => TariffNumber::STATUS_PUBLIC,
-                'country_id' => $clientAccount->country_id
+                'country_code' => $clientAccount->country_id
             ])
-            ->orderBy(['activation_fee' => SORT_ASC]);
+            ->orderBy(['price1' => SORT_ASC]);
+        /** @var DidGroup $didGroup */
+        foreach ($didGroups->each() as $didGroup) {
 
-        foreach ($tariffs->each() as $tariff) {
-
-            /** @var TariffNumber $tariff */
-            if (!isset($numberTariffsByCityId[$tariff->city_id])) {
-                $numberTariffsByCityId[$tariff->city_id] = [];
+            if (!isset($numberTariffsByCityId[$didGroup->city_id])) {
+                $numberTariffsByCityId[$didGroup->city_id] = [];
             }
 
-            $numberTariffsByCityId[$tariff->city_id][$tariff->id] = [
-                'id' => $tariff->id,
-                'name' => $tariff->name,
-                'activation_fee' => (float)$tariff->activation_fee,
-                'currency_id' => $tariff->currency_id,
-                'promo_info' => $tariff->city->country_id == Country::RUSSIA && $tariff->didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
+            $numberTariffsByCityId[$didGroup->city_id][$didGroup->id] = [
+                'id' => $didGroup->id,
+                'name' => $didGroup->name,
+                'activation_fee' => (float)$didGroup->price1,
+                'currency_id' => $didGroup->country->currency_id,
+                'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
             ];
         }
 
@@ -900,40 +897,6 @@ class ApiLk
             }
             $ret[] = $line;
         }
-        return $ret;
-    }
-
-    public static function getFreeNumbers($numberTariffId, $isSimple = false)
-    {
-        $numberTariff = TariffNumber::findOne($numberTariffId);
-        Assert::isObject($numberTariff);
-        Assert::isEqual($numberTariff->status, TariffNumber::STATUS_PUBLIC);
-
-        $ret = array();
-
-        $numbers =
-            (new \app\models\filter\FreeNumberFilter)
-                ->getNumbers()
-                ->setDidGroup($numberTariff->did_group_id);
-
-        $skipFrom = 1;
-        $areaLen = 3;
-        
-        foreach($numbers->result(null) as $number) {
-            $line = [
-                'number' => $number->number,
-                'full_number' => $number->number,
-                'area_code' => substr($number->number, $skipFrom, $areaLen)
-            ];
-            $l = strlen($line['number']);
-            $number = $line['number'];
-            $line['number'] =
-                substr($line['number'], 4, ($l-8)) . '-' .
-                substr($line['number'], ($l-4), 2) . '-' .
-                substr($line['number'], ($l-2), 2);
-            $ret[] = $isSimple ? $number : $line;
-        }
-
         return $ret;
     }
 

@@ -1,22 +1,20 @@
 <?php
 namespace app\forms\usage;
 
-use app\helpers\DateTimeZoneHelper;
-use Yii;
-use DateTime;
-use DateTimeZone;
 use app\classes\Assert;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Inflector;
+use app\helpers\DateTimeZoneHelper;
 use app\models\City;
+use app\models\ClientAccount;
 use app\models\LogTarif;
+use app\models\LogUsageHistory;
 use app\models\Number;
 use app\models\TariffVoip;
-use app\models\UsageVoip;
-use app\models\ClientAccount;
-use app\models\TariffNumber;
 use app\models\usages\UsageInterface;
-use app\models\LogUsageHistory;
+use app\models\UsageVoip;
+use DateTime;
+use DateTimeZone;
+use Yii;
+use yii\helpers\ArrayHelper;
 
 class UsageVoipEditForm extends UsageVoipForm
 {
@@ -97,7 +95,7 @@ class UsageVoipEditForm extends UsageVoipForm
         ];
 
         $rules[] = [
-            ['number_tariff_id'],
+            ['did_group_id'],
             'required',
             'on' => 'add',
             'when' => function ($model) {
@@ -330,17 +328,15 @@ class UsageVoipEditForm extends UsageVoipForm
             }
 
             if ($this->type_id !== 'number') {
-                $this->number_tariff_id = null;
+                $this->did_group_id = null;
             } else {
                 /** @var \app\models\Number $number */
                 $number = Number::findOne(['number' => $this->did]);
 
                 if ($number) {
-                    $tarifNumber = TariffNumber::findOne(['did_group_id' => $number->did_group_id]);
-
-                    if ($tarifNumber) {
+                    if ($number->did_group_id) {
                         $this->connection_point_id = $number->region;
-                        $this->number_tariff_id = $tarifNumber->id;
+                        $this->did_group_id = $number->did_group_id;
                         $this->city_id = $number->city_id;
                     } else {
                         $this->did = null;
@@ -550,13 +546,12 @@ class UsageVoipEditForm extends UsageVoipForm
 
         switch ($this->type_id) {
             case 'number': {
-                if ($this->city_id && $this->number_tariff_id && !$this->did) {
-                    $numberTariff = TariffNumber::findOne($this->number_tariff_id);
+                if ($this->city_id && $this->did_group_id && !$this->did) {
                     /** @var \app\models\Number $number */
                     $number =
                         (new \app\models\filter\FreeNumberFilter)
                             ->getNumbers()
-                            ->setDidGroup($numberTariff->did_group_id)
+                            ->setDidGroup($this->did_group_id)
                             ->randomOne();
 
                     if ($number) {
@@ -571,13 +566,9 @@ class UsageVoipEditForm extends UsageVoipForm
                             $this->did = null;
                         } else {
 
-                            $numberTariff = TariffNumber::findOne(['did_group_id' => $number->did_group_id]);
-
-                            if ($numberTariff) {
-                                if ($this->city_id != $number->city_id || $this->number_tariff_id != $numberTariff->id) {
-                                    $this->city_id = $number->city_id;
-                                    $this->number_tariff_id = $numberTariff->id;
-                                }
+                            if ($number->did_group_id) {
+                                $this->city_id = $number->city_id;
+                                $this->did_group_id = $number->did_group_id;
                             } else {
                                 $this->did = null;
                             }
@@ -588,7 +579,7 @@ class UsageVoipEditForm extends UsageVoipForm
             }
 
             case 'line': {
-                $this->number_tariff_id = null;
+                $this->did_group_id = null;
                 if (strlen($this->did) < 4 || strlen($this->did) > 5) {
                     $this->did = UsageVoip::dao()->getNextLineNumber();
                 }
@@ -596,7 +587,7 @@ class UsageVoipEditForm extends UsageVoipForm
             }
 
             case '7800': {
-                $this->number_tariff_id = null;
+                $this->did_group_id = null;
 
                 if (!$this->did) {
                     /** @var \app\models\Number $number */
@@ -622,7 +613,7 @@ class UsageVoipEditForm extends UsageVoipForm
             }
 
             case 'operator': {
-                $this->number_tariff_id = null;
+                $this->did_group_id = null;
                 if (strlen($this->did) != 3) {
                     $this->did =
                         UsageVoip::find()

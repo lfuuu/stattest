@@ -34,7 +34,6 @@ class m_voipnew_head extends IModuleHead
     {
         $this->menu = [
             ['Справочники', 'catalogs'],
-            ['Транки (старое)', 'trunks'],
             ['Транки', function () {
                 return '/voip/trunks';
             }],

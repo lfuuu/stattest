@@ -40,7 +40,7 @@ class NumberController extends BaseController
         $get = Yii::$app->request->get();
         $className = $filterModel->formName();
         !isset($get[$className]['country_id']) && $get[$className]['country_id'] = Country::RUSSIA;
-        !isset($get[$className]['number_type']) && $get[$className]['number_type'] = NumberType::ID_GEO_DID;
+//        !isset($get[$className]['number_type']) && $get[$className]['number_type'] = NumberType::ID_GEO_DID;
 
         $this->addClientAccountFilter($filterModel, $get);
 
