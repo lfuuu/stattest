@@ -108,9 +108,9 @@
 
 <table class="price" cellspacing="3" cellpadding="1" border="0" width="100%">
     <tr>
-        <td class="header" valign="bottom" colspan="3">Счёт</td>
+        <td class="header" valign="bottom" colspan="3"><b>{if $fixclient_data.account_version == 5}Счёт-фактура{else}Счёт{/if}</b></td>
         <td class="header" valign="bottom">&nbsp;</td>
-        <td class="header" valign="bottom" colspan="4">Платёж</td>
+        <td class="header" valign="bottom" colspan="4"><b>Платёж</b></td>
     </tr>
     <tr>
         <td class="header" valign="bottom">Дата</td>
