@@ -87,7 +87,8 @@ if (false && $ret == 'edit') {
 }
 
 use app\assets\AppAsset;
-use \yii\helpers\Html;
+use app\models\ClientAccount;
+use yii\helpers\Html;
 
 $view = Yii::$app->view;
 
@@ -108,7 +109,7 @@ AppAsset::register($view);
 <?php
 $dbf->nodesign = 1;
 HelpDbForm::assign_log_history($table, $id);
-$dbf->Display(array('table' => $table, 'id' => $id), $table, 'Редактирование' . ' id=' . $id);
+$dbf->Display(['table' => $table, 'id' => $id], $table, 'Редактирование' . ' id=' . $id);
 
 echo $view->render('@app/views/layouts/widgets/messages');
 $design->display('dbform.tpl');

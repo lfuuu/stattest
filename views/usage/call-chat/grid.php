@@ -3,6 +3,10 @@
 use kartik\grid\GridView;
 use app\classes\Html;
 
+if (\app\classes\uu\model\AccountTariff::isUuAccount()) {
+    return [];
+}
+
 echo Html::formLabel('Услуга Звонок_чат');
 
 echo GridView::widget([

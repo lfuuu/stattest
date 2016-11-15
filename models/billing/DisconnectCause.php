@@ -23,7 +23,7 @@ class DisconnectCause extends ActiveRecord
      */
     public static function getDb()
     {
-        return Yii::$app->dbPg;
+        return Yii::$app->dbPgSlave;
     }
 
     /**

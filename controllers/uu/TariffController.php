@@ -82,11 +82,11 @@ class TariffController extends BaseController
                 'edit',
                 'id' => $formModel->id,
             ]);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $formModel,
+        ]);
     }
 
     /**
@@ -111,15 +111,30 @@ class TariffController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
-            return $this->redirect([
-                'edit',
-                'id' => $formModel->id,
-            ]);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
+
+            if ($formModel->id) {
+
+                Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
+                return $this->redirect([
+                    'edit',
+                    'id' => $formModel->id,
+                ]);
+
+            } else {
+
+                Yii::$app->session->setFlash('success', Yii::t('common', 'The object was dropped successfully'));
+                return $this->redirect([
+                    'index',
+                    'serviceTypeId' => $formModel->tariff->service_type_id,
+                ]);
+
+            }
+
         }
+
+        return $this->render('edit', [
+            'formModel' => $formModel,
+        ]);
+
     }
 }

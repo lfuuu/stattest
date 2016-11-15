@@ -223,14 +223,14 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => 'unset_' . $mockObj->getEvent()]);
         $this->assertNotNull($event);
 
-        /** @var \app\models\important_events\ImportantEventsProperties $eventProperty */
+        /** @var array $eventProperty */
         $eventProperty = $event->properties;
         $this->assertNotNull($eventProperty);
         $isFind = false;
         $findObj = null;
-        foreach ($eventProperty as $prop) {
-            if ($prop->property == 'is_set') {
-                $findObj = $prop;
+        foreach ($eventProperty as $propertyName => $propertyValue) {
+            if ($propertyName == 'is_set') {
+                $findObj = $propertyName;
                 $isFind = true;
                 break;
             }

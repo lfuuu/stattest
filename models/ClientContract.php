@@ -269,6 +269,23 @@ class ClientContract extends HistoryActiveRecord
             ->one();
     }
 
+    /**
+     * @param string $usageType
+     * @return ClientContractReward[]
+     */
+    public function getRewards($usageType = null)
+    {
+        $link = $this->hasMany(ClientContractReward::className(), ['contract_id' => 'id']);
+
+        if (!is_null($usageType)) {
+            $link->andWhere(['usage_type' => $usageType]);
+        }
+
+        $link->orderBy(['actual_from' => SORT_DESC]);
+
+        return $link->all();
+    }
+
     public function getFederalDistrictAsArray()
     {
         return SetFieldTypeHelper::getFieldValue($this, 'federal_district');

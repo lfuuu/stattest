@@ -45,6 +45,9 @@ $columns = [
     [
         'attribute' => 'next_start',
         'class' => DateRangeDoubleColumn::className(),
+        'value' => function (EventQueue $eventQueue) {
+            return ($eventQueue->next_start === '0000-00-00 00:00:00') ? '' : $eventQueue->next_start;
+        }
     ],
     [
         'attribute' => 'event',
