@@ -893,23 +893,42 @@ where c.client="'.$trouble['client_orig'].'"')
             $close_date_to = $dateTo->getTimestamp();
 
 
-            $dates = array(
-                    "on" => array(
-                        "create" => get_param_raw("is_create", "") != "",
-                        "active" => get_param_raw("is_active", "") != "",
-                        "close" => get_param_raw("is_close", "") != ""),
-                    "create" => array($create_date_from, $create_date_to),
-                    "active" => array($active_date_from, $close_date_to),
-                    "close" => array($close_date_from, $close_date_to)
-                    );
+            $dates = [
+                "on" => [
+                    "create" => get_param_raw("is_create", "") != "",
+                    "active" => get_param_raw("is_active", "") != "",
+                    "close" => get_param_raw("is_close", "") != ""
+                ],
+                "create" => [
+                    $create_date_from,
+                    $create_date_to
+                ],
+                "active" => [
+                    $active_date_from,
+                    $active_date_to
+                ],
+                "close" => [
+                    $close_date_from,
+                    $close_date_to
+                ]
+            ];
 
-            $filter = array("owner" => $owner, "resp" => $resp, "edit" => $editor, "subtype" => $subtype);
+            $filter = [
+                "owner" => $owner,
+                "resp" => $resp,
+                "edit" => $editor,
+                "subtype" => $subtype
+            ];
             $ons = $dates["on"];
 
-            $_SESSION["trouble_filter"] = array("time_set" => time(), "date" => $dates, "filter" => $filter,"type_pk" => get_param_raw("type_pk"));
+            $_SESSION["trouble_filter"] = [
+                "time_set" => time(),
+                "date" => $dates,
+                "filter" => $filter,
+                "type_pk" => get_param_raw("type_pk")
+            ];
 
         }else{
-
 
             if(isset($_SESSION["trouble_filter"]) && $_SESSION["trouble_filter"])
             {
