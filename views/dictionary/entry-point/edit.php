@@ -3,6 +3,7 @@
 use app\dao\OrganizationDao;
 use app\models\Currency;
 use app\models\LkWizardState;
+use app\models\Region;
 use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use app\classes\Html;
@@ -98,13 +99,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'region_id')
-                    ->dropDownList(\app\models\Region::find()
-                        ->where(['country_id' => $model->country_id])
-                        ->orderBy(['id' => SORT_DESC])
-                        ->indexBy('id')
-                        ->select('name')
-                        ->column()
-                    )
+                    ->dropDownList(Region::dao()->getList(false, $model->country_id))
                 ?>
             </div>
         </div>
@@ -173,7 +168,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'timezone_name')
-                    ->dropDownList(\app\models\Region::getTimezoneList())
+                    ->dropDownList(Region::getTimezoneList())
                 ?>
             </div>
         </div>
@@ -209,10 +204,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
                 if (!processId) {
                     processId = value['id'];
                 }
-                var option = new Option;
-                option.value = value['id'];
-                option.text = value['name'];
-                businessProcessObj.append(option);
+                businessProcessObj.append($('<option>').val(value['id']).text(value['name']));
             }
         });
 
@@ -225,15 +217,17 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
         businessProcessStatusObj.empty();
         $.each(statuses.statuses, function (key, value) {
             if (processId == value['up_id']) {
-                var option = new Option;
-                option.value = value['id'];
-                option.text = value['name'];
-                businessProcessStatusObj.append(option);
+                businessProcessStatusObj.append($('<option>').val(value['id']).text(value['name']));
             }
         });
     }
 
-    var regions = <?= json_encode(\app\models\Region::find()->select(['id', 'name', 'country_id'])->orderBy(['id' => SORT_DESC])->asArray()->all()) ?>;
+    var regions = <?= json_encode(Region::find()
+        ->select(['id', 'name', 'country_id'])
+        ->orderBy(['id' => SORT_DESC])
+        ->asArray()
+        ->all())
+        ?>;
     $('#entrypoint-country_id').on('change', function (event) {
         redrawRegions(event.target.value);
     });
@@ -244,10 +238,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
         regionObj.empty();
         $.each(regions, function (key, value) {
             if (countryId == value['country_id']) {
-                var option = new Option;
-                option.value = value['id'];
-                option.text = value['name'];
-                regionObj.append(option);
+                regionObj.append($('<option>').val(value['id']).text(value['name']));
             }
         });
     }

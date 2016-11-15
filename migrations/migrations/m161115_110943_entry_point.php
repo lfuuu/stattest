@@ -61,7 +61,7 @@ class m161115_110943_entry_point extends \app\classes\Migration
             'currency_id' => Currency::RUB,
             'timezone_name' => Region::TIMEZONE_MOSCOW,
             'is_postpaid' => 1,
-            'account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
+            'account_version' => ClientAccount::VERSION_BILLER_USAGE,
             'credit' => 0,
             'voip_credit_limit_day' => 2000,
             'voip_limit_mn_day' => 1000,

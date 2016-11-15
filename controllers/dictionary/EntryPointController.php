@@ -4,11 +4,9 @@ namespace app\controllers\dictionary;
 
 use app\models\EntryPoint;
 use Yii;
-use app\classes\Assert;
 use app\classes\BaseController;
 use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
-use app\models\InvoiceSettings;
 
 /**
  * Class EntryPointController
@@ -63,7 +61,7 @@ class EntryPointController extends BaseController
      */
     public function actionAdd()
     {
-        /** @var InvoiceSettings $model */
+        /** @var EntryPoint $model */
         $model = new EntryPoint;
         if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
             $this->redirect('/dictionary/entry-point');
@@ -104,7 +102,7 @@ class EntryPointController extends BaseController
     }
 
     /**
-     * Удаленеи точки входа
+     * Удаление точки входа
      *
      * @param int $id id точки входа
      */
