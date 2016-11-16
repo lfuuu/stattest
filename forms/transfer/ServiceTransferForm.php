@@ -144,7 +144,7 @@ class ServiceTransferForm extends Form
         try {
             $this->targetAccount = ClientAccount::findOne(
                 (int)(
-                $this->target_account_id === 'custom'
+                $this->target_account_id === 'any'
                     ? $this->target_account_id_custom
                     : $this->target_account_id
                 )
