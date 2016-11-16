@@ -109,7 +109,6 @@ class VoipBiller extends Biller
 
         if ($prevActivationDate) {
             $to = clone $this->billerPeriodTo;
-            $to->modify('-1 second');
 
             $rangeTariff[] = [
                 'from' => $prevActivationDate,
