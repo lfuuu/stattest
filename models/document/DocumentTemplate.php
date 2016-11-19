@@ -7,6 +7,17 @@ use yii\helpers\ArrayHelper;
 use app\classes\Smarty;
 use app\models\ClientDocument;
 
+/**
+ * @property int id
+ * @property string name
+ * @property int folder_id
+ * @property string content
+ * @property string type
+ * @property int sort
+ *
+ * Class DocumentTemplate
+ * @package app\models\document
+ */
 class DocumentTemplate extends ActiveRecord
 {
     const ZAKAZ_USLUG = 13;
@@ -15,6 +26,9 @@ class DocumentTemplate extends ActiveRecord
     const DEFAULT_WIZARD_MCN = 102;
     const DEFAULT_WIZARD_EURO_LEGAL = 133;
     const DEFAULT_WIZARD_EURO_PERSON = 148;
+
+    const DEFAULT_WIZARD_MCN_LEGAL_LEGAL = 158;
+    const DEFAULT_WIZARD_MCN_LEGAL_PERSON = 159;
 
     const DOCUMENT_ICON_FOLDER = 'glyphicon glyphicon-folder-close';
     const DOCUMENT_ICON_CONTRACT = 'glyphicon glyphicon-book';
