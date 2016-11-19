@@ -25,7 +25,7 @@ use app\models\media\ClientFiles;
  * @property string federal_district
  * @property string is_external
  * @property string lk_access
- * @property int partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
+ * @property int is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
  * @property ClientContragent contragent
  * @property Organization $organization
  * @property ClientMedia mediaManager
@@ -108,7 +108,7 @@ class ClientContract extends HistoryActiveRecord
             'contragent_id' => 'Контрагент',
             'is_external' => 'Внешний договор',
             'lk_access' => 'Доступ к ЛК',
-            'partner_login_allow' => 'Доступ партнеру в ЛК',
+            'is_partner_login_allow' => 'Доступ партнеру в ЛК',
         ];
     }
 

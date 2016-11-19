@@ -78,10 +78,10 @@ $model->federal_district = $model->getModel()->getFederalDistrictAsArray();
                 <?php
                 if ($model->business_id === Business::TELEKOM) {
                     echo $f
-                        ->field($model, 'partner_login_allow')
+                        ->field($model, 'is_partner_login_allow')
                         ->textInput([
                             'disabled' => true,
-                            'value' => ($model->partner_login_allow ? 'Да' : 'Нет')
+                            'value' => ($model->is_partner_login_allow ? 'Да' : 'Нет')
                         ]);
                 }
                 ?>

@@ -351,7 +351,7 @@ class AccountController extends ApiInternalController
             throw new PartnerNotFoundException('Partner for client not found');
         }
 
-        $clientContract->partner_login_allow = $value ? 1 : 0;
+        $clientContract->is_partner_login_allow = $value ? 1 : 0;
         if (!$clientContract->save()) {
             return [
                 'error' => 'Cant save contract',

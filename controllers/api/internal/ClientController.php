@@ -90,7 +90,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="id", type="integer", description="Идентификатор ЛС"),
      *   @SWG\Property(property="partner_id", type="integer", description="Идентификатор договора партнера"),
      *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнерского договора"),
-     *   @SWG\Property(property="partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
+     *   @SWG\Property(property="is_partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
      *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
      *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
      *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-client-struct-applications"))
@@ -174,7 +174,7 @@ class ClientController extends ApiInternalController
                             'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
                             'partner_id' => $contract->isPartnerAgent(),
                             'is_partner' => $contract->isPartner(),
-                            'partner_login_allow' => $contract->partner_login_allow,
+                            'is_partner_login_allow' => $contract->is_partner_login_allow,
                             'version' => $account->account_version,
                             'applications' => $this->getPlatformaServices($account->client)
                         ];
@@ -223,7 +223,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="state", type="string", description="Состояние договора"),
      *   @SWG\Property(property="partner_id", type="integer", description="Идентификатор договора партнера"),
      *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнерского договора"),
-     *   @SWG\Property(property="partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
+     *   @SWG\Property(property="is_partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
      *   @SWG\Property(property="accounts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-full-client-struct-account"))
      * ),
      * @SWG\Definition(definition="get-full-client-struct-contragent", type="object", required={"id","name","country","contracts"},
@@ -293,7 +293,7 @@ class ClientController extends ApiInternalController
                             'state' => $contract->state,
                             'partner_id' => $contract->isPartnerAgent(),
                             'is_partner' => $contract->isPartner(),
-                            'partner_login_allow' => $contract->partner_login_allow,
+                            'is_partner_login_allow' => $contract->is_partner_login_allow,
                             'accounts' => $resultAccounts
                         ];
                     }

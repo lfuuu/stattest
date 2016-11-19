@@ -40,7 +40,7 @@ class ContractEditForm extends Form
         $federal_district,
         $is_external,
         $lk_access,
-        $partner_login_allow,
+        $is_partner_login_allow,
 
         $save_comment_stage = false,
         $public_comment = [],
