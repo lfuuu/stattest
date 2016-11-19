@@ -2,21 +2,13 @@
 
 namespace app\controllers\api;
 
-use app\helpers\DateTimeZoneHelper;
-use app\models\ClientContact;
 use app\models\ClientContragent;
-use yii;
+use Yii;
 use app\models\document\DocumentTemplate;
 use app\models\LkWizardState;
-use app\models\ClientDocument;
-use app\models\media\ClientFiles;
 use app\models\TroubleState;
 use app\models\User;
-use app\models\UsageVoip;
-use app\models\UsageVirtpbx;
 use app\forms\lk_wizard\WizardContragentMcnForm;
-use app\forms\lk_wizard\ContactForm;
-use yii\base\InvalidParamException;
 
 
 /**
@@ -150,45 +142,6 @@ class WizardMcnController extends WizardBaseController
         return base64_encode($content);
     }
 
-
-        /**
-     * @SWG\Post(
-     *   tags={"Работа с визардом"},
-     *   path="/wizard-mcn/save-contracts/",
-     *   summary="Сохранение договора",
-     *   operationId="Сохранение договора",
-     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
-     *   @SWG\Parameter(name="contact_phone",type="string",description="Контактный номер",in="formData"),
-     *   @SWG\Parameter(name="contact_fio",type="string",description="Контактное ФИО",in="formData"),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="информация по визарду",
-     *     @SWG\Schema(
-     *       ref="#/definitions/wizard_data"
-     *     )
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
-     *   )
-     * )
-     */
-    public function actionSaveContacts()
-    {
-        $data = $this->loadAndSet();
-        $result = $this->_saveStep3($data);
-
-        if ($result === true) {
-            return $this->makeWizardFull();
-        } else {
-            return $result;
-        }
-    }
-
-
     public function makeWizardFull()
     {
         return [
@@ -273,17 +226,4 @@ class WizardMcnController extends WizardBaseController
         return $stepData['is_contract_accept'];
     }
 
-    private function _saveStep3($stepData)
-    {
-        $form = new ContactForm;
-        $form->setScenario('mcn');
-
-        $form->load($stepData, "");
-
-        if (!$form->validate()) {
-            return $this->getFormErrors($form);
-        } else {
-            return $form->save($this->account);
-        }
-    }
 }
