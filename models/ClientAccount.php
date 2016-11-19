@@ -9,6 +9,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use app\classes\voip\VoipStatus;
 use app\dao\ClientAccountDao;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Locks;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
@@ -393,8 +394,10 @@ class ClientAccount extends HistoryActiveRecord
     /**
      * @return ClientContract
      */
-    public function getContract()
+    public function getContract($date)
     {
+        $date = $this->historyVersionRequestedDate ? $this->historyVersionRequestedDate : ($date ?: date(DateTimeZoneHelper::DATE_FORMAT));
+
         $contract = ClientContract::findOne($this->contract_id);
         if ($contract && $this->getHistoryVersionRequestedDate()) {
             $contract->loadVersionOnDate($this->getHistoryVersionRequestedDate());
@@ -518,7 +521,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getOrganization($date = '')
     {
-        return $this->contract->getOrganization($date);
+        return $this->getContract($date)->getOrganization($date);
     }
 
     public function getAllContacts()
