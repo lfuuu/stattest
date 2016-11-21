@@ -93,9 +93,6 @@ SQL;
                        SUM(price) AS price
                     FROM
                        {$accountEntryTableName} account_entry
-                    WHERE
-                        true
-                        {$sqlAndWhere}
                     GROUP BY
                        bill_id
                 ) t
