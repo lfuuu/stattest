@@ -390,7 +390,6 @@ class ClientAccount extends HistoryActiveRecord
         return $this->sale_channel ? SaleChannelOld::getList()[$this->sale_channel] : '';
     }
 
-
     /**
      * @param string $date
      * @return ClientContract
@@ -407,7 +406,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Business|ActiveQuery
+     * @return ActiveQuery
      */
     public function getBusiness()
     {
@@ -423,7 +422,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Country|ActiveQuery
+     * @return ActiveQuery
      */
     public function getCountry()
     {
@@ -431,7 +430,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Region|ActiveQuery
+     * @return ActiveQuery
      */
     public function getAccountRegion()
     {
