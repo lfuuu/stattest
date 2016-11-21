@@ -2,9 +2,13 @@
 
 namespace app\models;
 
+use ActiveRecord\UndefinedPropertyException;
 use app\models\billing\Counter as BillingCounter;
 use Yii;
+use yii\base\InvalidValueException;
 use yii\db\ActiveRecord;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 /**
  * @property int $client_id
@@ -27,11 +31,17 @@ class ClientCounter extends ActiveRecord
     // Индефикатор локальности данных
     public $isLocal = false;
 
+    // Ошибка синхронизации балансов
+    public $isSyncError = false;
+
     // Локальный кеш
     private static $localCache = [];
 
-    // Локальный кеш, для ускорения массовых запросов
+    // Локальный кеш, для ускорения массовых запросов. Содержит счетчики из низкоуровнего биллинга
     private static $localCacheFastMass = [];
+
+    // Локальный кеш, для ускорения массовых запросов. Содержит даты последнего обновления баланса в ЛС.
+    private static $localCacheFastMassLastAccountDate = [];
 
     /**
      * @return string
@@ -114,19 +124,42 @@ class ClientCounter extends ActiveRecord
 
         $localCounter = static::getLocalCounter($clientAccountId);
 
+        $lastAccountDate = (new Query())
+            ->select('last_account_date')
+            ->from(ClientAccount::tableName())
+            ->where(['id' => $clientAccountId])
+            ->createCommand()
+            ->queryScalar();
+
         try {
+
+            if (!$lastAccountDate) {
+                throw new \UnexpectedValueException('ЛС не найден');
+            }
+
             /** @var BillingCounter $billingCounter */
             $billingCounter = BillingCounter::findOne(['client_id' => $clientAccountId]);
 
-            if ($billingCounter) {
-                $localCounter->amount_sum = $billingCounter->amount_sum;
-                $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
-                $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
-                $localCounter->save();
+            if (!$billingCounter) {
+                throw new \UnexpectedValueException('BillingCounter для ЛС #' . $clientAccountId . ' не найден');
             }
+
+            if ($billingCounter->amount_date != $lastAccountDate) {
+                $localCounter->isSyncError = true;
+                throw new \UnexpectedValueException('Пересчет в биллинге не закончен. Нет актуального баланса.');
+            }
+
+            $localCounter->amount_sum = $billingCounter->amount_sum;
+            $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
+            $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
+            $localCounter->save();
+
+        } catch(\UnexpectedValueException $e) {
+            $localCounter->isLocal = true;
+            Yii::warning($e->getMessage());
         } catch (\Exception $e) {
             $localCounter->isLocal = true;
-            Yii::error('Failed to load billing data. ' . self::className() . '.', __METHOD__);
+            Yii::error($e->getMessage());
         }
 
         static::$localCache[$clientAccountId] = $localCounter;
@@ -141,22 +174,52 @@ class ClientCounter extends ActiveRecord
     public static function getCountersFastMass($clientAccountId)
     {
         if (!static::$localCacheFastMass) {
-            static::$localCacheFastMass = BillingCounter::find()->addSelect(['client_id'])->indexBy('client_id')->all();
+
+            static::$localCacheFastMass = ArrayHelper::index(
+                (new Query())
+                    ->from(BillingCounter::tableName())
+                    ->indexBy('client_id')
+                    ->createCommand(BillingCounter::getDb())
+                    ->queryAll(),
+                'client_id'
+            );
+
+            static::$localCacheFastMassLastAccountDate = ArrayHelper::map(
+                (new Query())
+                    ->select(['id', 'last_account_date'])
+                    ->from(ClientAccount::tableName())
+                    ->createCommand()
+                    ->queryAll(),
+                'id',
+                'last_account_date'
+            );
         }
 
-        if (isset(static::$localCacheFastMass[$clientAccountId])) {
-            $billingCounter = static::$localCacheFastMass[$clientAccountId];
+        if (
+            isset(static::$localCacheFastMass[$clientAccountId]) &&
+            isset(static::$localCacheFastMassLastAccountDate[$clientAccountId])
+        ) {
+            $billingLastBillingDate = static::$localCacheFastMass[$clientAccountId]['amount_date'];
+            $accountLastBillingDate = static::$localCacheFastMassLastAccountDate[$clientAccountId];
+
+            if ($billingLastBillingDate != $accountLastBillingDate) {
+                $billingCounter = static::getLocalCounter($clientAccountId)->toArray();
+                Yii::warning('Баланс не синхронизирован. ЛС: ' . $clientAccountId. ' ( billing ' . $billingLastBillingDate . ' != account ' . $accountLastBillingDate . ')');
+            } else {
+                $billingCounter = static::$localCacheFastMass[$clientAccountId];
+            }
 
             $counter = new self;
             $counter->client_id = $clientAccountId;
-            $counter->amount_sum = $billingCounter->amount_sum;
-            $counter->amount_day_sum = $billingCounter->amount_day_sum;
-            $counter->amount_month_sum = $billingCounter->amount_month_sum;
+            $counter->amount_sum = $billingCounter['amount_sum'];
+            $counter->amount_day_sum = $billingCounter['amount_day_sum'];
+            $counter->amount_month_sum = $billingCounter['amount_month_sum'];
             //$counter->save();
 
             return $counter;
         }
 
+        // default counter value
         $counter = new self;
         $counter->client_id = $clientAccountId;
         $counter->amount_sum = 0;
@@ -174,7 +237,7 @@ class ClientCounter extends ActiveRecord
     {
         $counter = self::findOne($clientAccountId);
 
-        if (is_null($counter)) {
+        if (!$counter) {
             $counter = new ClientCounter;
             $counter->client_id = $clientAccountId;
             $counter->amount_sum = 0;
