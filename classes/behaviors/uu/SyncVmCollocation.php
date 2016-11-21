@@ -140,7 +140,7 @@ class SyncVmCollocation
         }
 
         $apiVmCollocation = ApiVmCollocation::getInstance();
-        $vmClientId = $apiVmCollocation->createUser($clientAccount->client, $password = Utils::password_gen());
+        $vmClientId = $apiVmCollocation->createUser($name = 'client_' . $clientAccount->id, $password = Utils::password_gen());
         if (!$vmClientId) {
             throw new \LogicException('Ошибка создания клиента в VmCollocation');
         }
