@@ -12,7 +12,6 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientSuper;
-use app\models\Region;
 use Exception;
 use Yii;
 
@@ -89,7 +88,9 @@ class ClientController extends ApiInternalController
      * ),
      * @SWG\Definition(definition="get-client-struct-account", type="object", required={"id","is_partner","is_disabled","applications"},
      *   @SWG\Property(property="id", type="integer", description="Идентификатор ЛС"),
-     *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнера"),
+     *   @SWG\Property(property="partner_id", type="integer", description="Идентификатор договора партнера"),
+     *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнерского договора"),
+     *   @SWG\Property(property="is_partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
      *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
      *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
      *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-client-struct-applications"))
@@ -116,7 +117,6 @@ class ClientController extends ApiInternalController
      *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
      */
-
     public function actionGetClientStruct(
         $id = null,
         $name = null,
@@ -171,8 +171,10 @@ class ClientController extends ApiInternalController
                     foreach ($contract->accounts as $account) {
                         $resultAccounts[] = [
                             'id' => $account->id,
-                            'is_partner' => $contract->isPartner(),
                             'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                            'partner_id' => $contract->isPartnerAgent(),
+                            'is_partner' => $contract->isPartner(),
+                            'is_partner_login_allow' => $contract->is_partner_login_allow,
                             'version' => $account->account_version,
                             'applications' => $this->getPlatformaServices($account->client)
                         ];
@@ -219,7 +221,9 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="id", type="integer", description="Идентификатор договора"),
      *   @SWG\Property(property="number", type="string", description="Номер договора"),
      *   @SWG\Property(property="state", type="string", description="Состояние договора"),
+     *   @SWG\Property(property="partner_id", type="integer", description="Идентификатор договора партнера"),
      *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнерского договора"),
+     *   @SWG\Property(property="is_partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
      *   @SWG\Property(property="accounts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-full-client-struct-account"))
      * ),
      * @SWG\Definition(definition="get-full-client-struct-contragent", type="object", required={"id","name","country","contracts"},
@@ -287,7 +291,9 @@ class ClientController extends ApiInternalController
                             'id' => $contract->id,
                             'number' => $contract->number,
                             'state' => $contract->state,
+                            'partner_id' => $contract->isPartnerAgent(),
                             'is_partner' => $contract->isPartner(),
+                            'is_partner_login_allow' => $contract->is_partner_login_allow,
                             'accounts' => $resultAccounts
                         ];
                     }
