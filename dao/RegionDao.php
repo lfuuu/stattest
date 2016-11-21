@@ -20,14 +20,13 @@ class RegionDao extends Singleton
         }
 
         $list =
-            ArrayHelper::map(
                 $query
+                    ->select('name')
+                    ->indexBy('id')
                     ->orderBy('name')
                     ->asArray()
-                    ->all(),
-                'id',
-                'name'
-            );
+                    ->column();
+
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;
         }

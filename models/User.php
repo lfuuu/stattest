@@ -56,7 +56,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public static function findIdentityByAccessToken($token, $type = null)
     {
         if ($token == Yii::$app->params['API_SECURE_KEY']) {
-            return new User();
+            return self::findOne(['id' => static::SYSTEM_USER_ID]);
         }
         return null;
     }

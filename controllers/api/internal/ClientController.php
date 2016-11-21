@@ -485,6 +485,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Parameter(name="site_name", type="string", description="С какого сайта пришел клиент", in="formData"),
      *   @SWG\Parameter(name="vats_tariff_id", type="integer", description="ID тарифа для ВАТС", in="formData"),
      *   @SWG\Parameter(name="account_version", type="integer", description="Версия биллера", in="formData", default="4"),
+     *   @SWG\Parameter(name="entry_point_id", type="string", description="ID (code) точки входа", in="formData", default="RU1"),
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *     @SWG\Schema(type="object", required={"id","name","contragents"},
      *       @SWG\Property(property="client_id", type="integer", description="Идентификатор супер-клиента"),

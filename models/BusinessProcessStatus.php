@@ -166,4 +166,13 @@ class BusinessProcessStatus extends ActiveRecord
         return ["processes" => $processes, "statuses" => $statuses];
     }
 
+    /**
+     * Приведение модели к строке
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
 }
