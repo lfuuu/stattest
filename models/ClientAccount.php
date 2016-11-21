@@ -100,7 +100,6 @@ class ClientAccount extends HistoryActiveRecord
 
     const WARNING_UNAVAILABLE_BILLING = 'unavailable.billing'; // Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными
     const WARNING_UNAVAILABLE_LOCKS = 'unavailable.locks'; // Сервер статистики недоступен. Данные о блокировках недоступны
-    const WARNING_SYNC_ERROR = 'balance.sync_error'; // Ошибка синхронизации баланса
     const WARNING_FINANCE = 'lock.is_finance_block'; // Финансовая блокировка
     const WARNING_OVERRAN = 'lock.is_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали
     const WARNING_MN_OVERRAN = 'lock.is_mn_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали (МН)
@@ -688,11 +687,7 @@ class ClientAccount extends HistoryActiveRecord
         $counters = $this->billingCounters;
 
         if ($counters->isLocal) {
-            if ($counters->isSyncError) {
-                $warnings[self::WARNING_SYNC_ERROR] = 'Баланс не синхронизирован';
-            } else {
-                $warnings[self::WARNING_UNAVAILABLE_BILLING] = 'Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными';
-            }
+            $warnings[self::WARNING_UNAVAILABLE_BILLING] = 'Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными';
         }
 
         try {
