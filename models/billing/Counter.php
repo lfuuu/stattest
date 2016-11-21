@@ -33,6 +33,7 @@ class Counter extends ActiveRecord
                 'amount_sum' => 'CAST(amount_sum AS NUMERIC(10,2))',
                 'amount_day_sum' => 'CAST(amount_day_sum AS NUMERIC(10,2))',
                 'amount_month_sum' => 'CAST(amount_month_sum AS NUMERIC(10,2))',
+                'amount_date' => 'amount_date'
             ]);
     }
 
