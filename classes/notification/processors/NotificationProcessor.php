@@ -98,9 +98,9 @@ abstract class NotificationProcessor
                 
                 $transaction->rollback();
                 \Yii::error($e->getMessage());
+                continue;
             }
             $transaction->commit();
-
         }
     }
 
