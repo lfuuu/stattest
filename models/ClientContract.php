@@ -187,7 +187,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getOrganization($date = '')
     {
-        $date = $this->historyVersionRequestedDate ? $this->historyVersionRequestedDate : ($date ?: date(DateTimeZoneHelper::DATE_FORMAT));
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: date(DateTimeZoneHelper::DATE_FORMAT));
         $organization = Organization::find()->byId($this->organization_id)->actual($date)->one();
         return $organization;
     }
@@ -211,11 +211,13 @@ class ClientContract extends HistoryActiveRecord
     /**
      * @return ClientContragent
      */
-    public function getContragent()
+    public function getContragent($date = '')
     {
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
+
         $contragent = ClientContragent::findOne($this->contragent_id);
-        if ($contragent && $this->historyVersionRequestedDate) {
-            $contragent->loadVersionOnDate($this->historyVersionRequestedDate);
+        if ($contragent && $date) {
+            $contragent->loadVersionOnDate($date);
         }
         return $contragent;
     }

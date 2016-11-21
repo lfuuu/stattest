@@ -9,6 +9,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use app\classes\voip\VoipStatus;
 use app\dao\ClientAccountDao;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Locks;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
@@ -389,21 +390,23 @@ class ClientAccount extends HistoryActiveRecord
         return $this->sale_channel ? SaleChannelOld::getList()[$this->sale_channel] : '';
     }
 
-
     /**
+     * @param string $date
      * @return ClientContract
      */
-    public function getContract()
+    public function getContract($date = null)
     {
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
+
         $contract = ClientContract::findOne($this->contract_id);
-        if ($contract && $this->getHistoryVersionRequestedDate()) {
-            $contract->loadVersionOnDate($this->getHistoryVersionRequestedDate());
+        if ($contract && $date) {
+            $contract->loadVersionOnDate($date);
         }
         return $contract;
     }
 
     /**
-     * @return Business
+     * @return ActiveQuery
      */
     public function getBusiness()
     {
@@ -419,7 +422,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Country
+     * @return ActiveQuery
      */
     public function getCountry()
     {
@@ -427,7 +430,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Region
+     * @return ActiveQuery
      */
     public function getAccountRegion()
     {
@@ -518,7 +521,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getOrganization($date = '')
     {
-        return $this->contract->getOrganization($date);
+        return $this->getContract($date)->getOrganization($date);
     }
 
     public function getAllContacts()
