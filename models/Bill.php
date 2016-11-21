@@ -151,9 +151,7 @@ class Bill extends ActiveRecord
             return null;
         }
 
-        if ($account) {
-            $account->loadVersionOnDate($this->bill_date);
-        }
+        $account->loadVersionOnDate($this->bill_date);
 
         return $account;
     }

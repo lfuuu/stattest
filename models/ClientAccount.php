@@ -392,21 +392,22 @@ class ClientAccount extends HistoryActiveRecord
 
 
     /**
+     * @param string $date
      * @return ClientContract
      */
-    public function getContract($date)
+    public function getContract($date = null)
     {
-        $date = $this->historyVersionRequestedDate ? $this->historyVersionRequestedDate : ($date ?: date(DateTimeZoneHelper::DATE_FORMAT));
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
 
         $contract = ClientContract::findOne($this->contract_id);
-        if ($contract && $this->getHistoryVersionRequestedDate()) {
-            $contract->loadVersionOnDate($this->getHistoryVersionRequestedDate());
+        if ($contract && $date) {
+            $contract->loadVersionOnDate($date);
         }
         return $contract;
     }
 
     /**
-     * @return Business
+     * @return Business|ActiveQuery
      */
     public function getBusiness()
     {
@@ -422,7 +423,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Country
+     * @return Country|ActiveQuery
      */
     public function getCountry()
     {
@@ -430,7 +431,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Region
+     * @return Region|ActiveQuery
      */
     public function getAccountRegion()
     {
