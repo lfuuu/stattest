@@ -27,7 +27,7 @@ class LostCalls
 
         self::up();
         /* @var $pg Yii\db\Connection */
-        $pg = Yii::$app->dbPg;
+        $pg = Yii::$app->dbPgSlave;
         $calls = $pg->createCommand('
             SELECT id, cdr_id, server_id AS region, connect_time, src_number, dst_number, billed_time, \'' . $mode . '\' AS mode
                 FROM "calls_raw"."calls_raw_' . date('Ym', strtotime($date)) . '"

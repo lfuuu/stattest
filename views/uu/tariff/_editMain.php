@@ -98,7 +98,6 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_status_id')
                 ->widget(Select2::className(), [
                     'data' => TariffStatus::getList(false, $tariff->service_type_id),
-                    'options' => $options,
                 ]) ?></div>
 
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_person_id')->widget(Select2::className(), [

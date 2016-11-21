@@ -25,7 +25,7 @@ class InvoiceController extends BaseController
 
     /**
      * Права доступа
-     * @return []
+     * @return array
      */
     public function behaviors()
     {
@@ -44,7 +44,11 @@ class InvoiceController extends BaseController
     }
 
     /**
-     * @return string
+     * @param null|int $clientAccountId
+     * @param null|string $renderMode
+     * @param null|string $month
+     * @param null|string $langCode
+     * @return bool|string
      */
     public function actionView($clientAccountId = null, $renderMode = null, $month = null, $langCode = null)
     {
@@ -52,11 +56,11 @@ class InvoiceController extends BaseController
         !$clientAccountId && $clientAccountId = $this->getCurrentClientAccountId();
 
         if ($month) {
-            $date = $month . '-01';
+            $date = $month;
         } else {
             $date = (new \DateTime)
                 ->modify('first day of previous month')
-                ->format(DateTimeZoneHelper::DATE_FORMAT);
+                ->format('Y-m');
         }
 
         /** @var ClientAccount $clientAccount */

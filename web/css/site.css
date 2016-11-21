@@ -412,3 +412,8 @@ a.nohover:hover {
     overflow: hidden;
     white-space: nowrap;
 }
+
+.account-tariff-voip .well {
+    padding: 9px;
+    margin-bottom: 0;
+}

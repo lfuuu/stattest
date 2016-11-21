@@ -83,7 +83,7 @@ class TariffVoipForm extends Form
             'paid_redirect' => 'платные переадресации',
             'tariffication_by_minutes' => 'тарификация: поминутная (да), посекундная (нет)',
             'tariffication_full_first_minute' => 'тарификация: первая минута оплачивается полностью',
-            'tariffication_free_first_seconds' => 'тарификация: первые 5 секунд бесплатно',
+            'tariffication_free_first_seconds' => 'тарификация: первые 3 секунды бесплатно',
             'is_virtual' => 'тариф для виртуальных номеров',
             'is_default' => 'тариф по-умолчанию',
             'price_include_vat' => 'включить в цену ставку налога',

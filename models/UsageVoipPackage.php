@@ -5,11 +5,9 @@ use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use DateTimeZone;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\bill\Biller;
 use app\classes\bill\VoipPackageBiller;
-use app\classes\transfer\VoipPackageServiceTransfer;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVoipPackageHelper;
 use app\queries\ClientAccountQuery;
@@ -19,7 +17,6 @@ use app\models\billing\Calls as CallsStatPackage;
 use app\queries\UsageQuery;
 use app\classes\behaviors\important_events\UsageAction;
 use app\models\important_events\ImportantEvents;
-use app\models\important_events\ImportantEventsProperties;
 
 /**
  * @property int $id
@@ -200,18 +197,15 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return array|null|ActiveRecord
+     * @return null|ImportantEvents
      */
     public function getLastUpdateData()
     {
         return
             ImportantEvents::find()
-                ->leftJoin(['iep' => ImportantEventsProperties::tableName()],
-                    'iep.event_id = ' . ImportantEvents::tableName() . '.id')
-                ->where([
-                    'iep.property' => 'usage_id',
-                    'iep.value' => $this->id,
-                ])
+                ->where(['client_id' => $this->clientAccount->id])
+                // Placeholder нельзя брать в кавычки, пляшем с бубном
+                ->andWhere('context LIKE "%usage_id__' . $this->id . '%"')
                 ->orderBy(['date' => SORT_DESC])
                 ->one();
     }

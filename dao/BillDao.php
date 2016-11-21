@@ -10,6 +10,7 @@ use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\Transaction;
+use LogicException;
 use Yii;
 
 
@@ -181,13 +182,22 @@ class BillDao extends Singleton
      */
     public function transferUniversalBillsToBills(uuBill $uuBill)
     {
-        $clientAccount = $uuBill->clientAccount;
-
         $bill = Bill::find()
             ->where(['uu_bill_id' => $uuBill->id])
             ->one();
 
-        $newBillNo = 'uu' . $uuBill->id;
+        if (!$uuBill->price) {
+            // нулевые счета не нужны
+            if ($bill && !$bill->delete()) {
+                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+            }
+            return false;
+        }
+
+        $clientAccount = $uuBill->clientAccount;
+
+        $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
+        $newBillNo = $uuBillDateTime->format('ym') . $uuBill->id;
 
         if (!$bill) {
             $bill = new Bill();
@@ -197,41 +207,31 @@ class BillDao extends Singleton
             $bill->is_lk_show = 0;
             $bill->is_user_prepay = 0;
             $bill->is_approved = 1;
-            $bill->bill_date = $uuBill->date;
+            $bill->bill_date = $uuBillDateTime->format(DateTimeZoneHelper::DATE_FORMAT);
             $bill->sum_with_unapproved = $uuBill->price;
             $bill->price_include_vat = $clientAccount->price_include_vat;
             $bill->sum = $uuBill->price;
             $bill->bill_no = $newBillNo;
             $bill->biller_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
             $bill->uu_bill_id = $uuBill->id;
-            $bill->save();
+            if (!$bill->save()) {
+                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+            }
         } elseif ($bill->bill_no != $newBillNo) {
             $bill->bill_no = $newBillNo;
-            $bill->save();
+            if (!$bill->save()) {
+                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+            }
         }
 
         $toRecalculateBillSum = false;
         $billLinePosition = 0;
 
-        $billDateTime = new \DateTime($uuBill->date);
-
-        $firstDayBillDate = clone $billDateTime;
-        $lastDayBillDate = clone $billDateTime;
-
-        $firstDayPrevMonthBillDate = clone $billDateTime;
-        $lastDayPrevMonthBillDate = clone $billDateTime;
-
-        $firstDayBillDate->modify('first day of this month');
-        $lastDayBillDate->modify('last day of this month');
-
-        $firstDayPrevMonthBillDate->modify('first day of previous month');
-        $lastDayPrevMonthBillDate->modify('last day of previous month');
-
         // новые проводки
         /** @var AccountEntry[] $accountEntries */
         $accountEntries = $uuBill
             ->getAccountEntries()
-            ->andWhere(['>', 'price', 0])// игнорируем пустые строки
+            ->andWhere(['>', 'price', 0])// пустые строки нужны для расчета партнерского вознаграждения
             ->orderBy(['id' => SORT_ASC])
             ->all();
 
@@ -251,10 +251,10 @@ class BillDao extends Singleton
 
             // была и осталась
             $accountEntry = $accountEntries[$accountEntryId];
-            if ((float)$line->sum != $accountEntry->price_with_vat || $line->item != $accountEntry->typeName) {
+            if ((float)$line->sum != $accountEntry->price_with_vat || $line->item != $accountEntry->fullName) {
                 // ... но изменилась. Обновить
                 $line->sum = $accountEntry->price_with_vat;
-                $line->item = $accountEntry->typeName;
+                $line->item = $accountEntry->fullName;
                 $line->save();
 
                 $toRecalculateBillSum = true;
@@ -273,17 +273,16 @@ class BillDao extends Singleton
             $line->sort = $billLinePosition;
             $line->bill_no = $bill->bill_no;
 
-            $line->item = $accountEntry->typeName;
-            if ($accountEntry->type_id > 0) { //resource
-                $line->date_from = $firstDayPrevMonthBillDate->format(DateTimeZoneHelper::DATE_FORMAT);
-                $line->date_to = $lastDayPrevMonthBillDate->format(DateTimeZoneHelper::DATE_FORMAT);
-            } else {
-                $line->date_from = $firstDayBillDate->format(DateTimeZoneHelper::DATE_FORMAT);
-                $line->date_to = $lastDayBillDate->format(DateTimeZoneHelper::DATE_FORMAT);
-            }
+            $line->item = $accountEntry->fullName;
+            $line->date_from = $accountEntry->date_from;
+            $line->date_to = $accountEntry->date_to;
             $line->type = BillLine::LINE_TYPE_SERVICE;
-            $line->amount = 1;
-            $line->price = $accountEntry->price_without_vat;
+            $line->amount = $accountEntry->getAmount();
+            $line->price = $accountEntry->price_with_vat;
+            if ($line->amount) {
+                $line->price /= $line->amount; // цена за "1 шт."
+                $line->price = round($line->price, 2);
+            }
             $line->tax_rate = $accountEntry->vat;
             $line->sum = $accountEntry->price_with_vat;
             $line->sum_without_tax = $accountEntry->price_without_vat;
@@ -292,7 +291,9 @@ class BillDao extends Singleton
             $line->service = 'uu_account_tariff';
             $line->id_service = $accountEntry->account_tariff_id;
             $line->item_id = $accountEntry->accountTariff->getNonUniversalId();
-            $line->save();
+            if (!$line->save()) {
+                throw new LogicException(implode(' ', $line->getFirstErrors()));
+            }
 
             $toRecalculateBillSum = true;
         }
@@ -302,6 +303,8 @@ class BillDao extends Singleton
         }
 
         $uuBill->is_converted = 1;
-        $uuBill->save();
+        if (!$uuBill->save()) {
+            throw new LogicException(implode(' ', $uuBill->getFirstErrors()));
+        }
     }
 }

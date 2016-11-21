@@ -9,10 +9,8 @@
  * @var Payment[] $payments
  * @var Bill[] $bills
  * @var array $accountEntrySummary
- * @var array $accountLogSetupSummary
- * @var array $accountLogPeriodSummary
- * @var array $accountLogResourceSummary
  * @var array $paymentSummary
+ * @var array $uuBillSummary
  */
 
 use app\classes\Html;

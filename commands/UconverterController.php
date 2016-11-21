@@ -21,7 +21,7 @@ use Yii;
 use yii\console\Controller;
 
 /**
- * Конвертер старых тарифов/услуг в универсальные
+ * Конвертер старых тарифов/услуг в универсальные. Deprecated
  */
 class UconverterController extends Controller
 {
@@ -30,7 +30,7 @@ class UconverterController extends Controller
      * Доконвертировать тарифы и услуги
      * @return int
      */
-    public function actionIndex()
+    protected function actionIndex()
     {
         $this->actionTariff();
         $this->actionAccountTariff();
@@ -44,7 +44,7 @@ class UconverterController extends Controller
      * @param int $serviceTypeId тип услуги. Если не указано, то все
      * @return int
      */
-    public function actionTariff($serviceTypeId = null)
+    protected function actionTariff($serviceTypeId = null)
     {
         echo PHP_EOL . 'Тарифы. ' . date(DATE_ATOM) . PHP_EOL;
 
@@ -76,7 +76,7 @@ class UconverterController extends Controller
      * @param int $serviceTypeId тип услуги. Если не указано, то все
      * @return int
      */
-    public function actionAccountTariff($serviceTypeId = null)
+    protected function actionAccountTariff($serviceTypeId = null)
     {
         try {
             echo PHP_EOL . 'Услуги. ' . date(DATE_ATOM) . PHP_EOL;
@@ -115,7 +115,7 @@ class UconverterController extends Controller
      *
      * @return int
      */
-    public function actionTariffVoipPackage()
+    protected function actionTariffVoipPackage()
     {
         try {
             echo PHP_EOL . 'Пакеты телефонии в ННП. ' . date(DATE_ATOM) . PHP_EOL;
@@ -259,7 +259,7 @@ class UconverterController extends Controller
      * Удалить кривые ресурсы тарифа
      * @return int
      */
-    public function actionFixTariffResource()
+    protected function actionFixTariffResource()
     {
         $tariffTableName = Tariff::tableName();
         $resourceTableName = Resource::tableName();
@@ -315,7 +315,7 @@ SQL;
      * Синхронизировать пакеты в биллер
      * @return int
      */
-    public function actionSyncAccountTariffLight()
+    protected function actionSyncAccountTariffLight()
     {
         $activeQuery = AccountLogPeriod::find()
             ->joinWith('accountTariff')
@@ -339,7 +339,7 @@ SQL;
      * Надо раз в месяц запускать дефрагментацию до тех пор, пока конвертер не выключим
      * @return int
      */
-    public function actionFixAccountTariffLog()
+    protected function actionFixAccountTariffLog()
     {
         $accountTariffLogTableName = AccountTariffLog::tableName();
         $accountTariffDelta = AccountTariff::DELTA;

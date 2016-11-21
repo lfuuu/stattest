@@ -9,6 +9,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use app\classes\voip\VoipStatus;
 use app\dao\ClientAccountDao;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Locks;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
@@ -41,6 +42,7 @@ use yii\helpers\Url;
  * @property string $timezone_name
  * @property int $account_version
  * @property int $is_postpaid
+ * @property bool $type_of_bill
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -92,6 +94,9 @@ class ClientAccount extends HistoryActiveRecord
 
     const VERSION_BILLER_USAGE = 4;
     const VERSION_BILLER_UNIVERSAL = 5;
+
+    const TYPE_OF_BILL_SIMPLE = false;
+    const TYPE_OF_BILL_DETAILED = true;
 
     const WARNING_UNAVAILABLE_BILLING = 'unavailable.billing'; // Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными
     const WARNING_UNAVAILABLE_LOCKS = 'unavailable.locks'; // Сервер статистики недоступен. Данные о блокировках недоступны
@@ -242,6 +247,7 @@ class ClientAccount extends HistoryActiveRecord
             'account_version' => 'Версия ЛС',
             'anti_fraud_disabled' => 'Отключен анти-фрод',
             'is_postpaid' => 'Постоплата',
+            'type_of_bill' => 'Закрывающий документ (Полный)',
         ];
     }
 
@@ -385,21 +391,23 @@ class ClientAccount extends HistoryActiveRecord
         return $this->sale_channel ? SaleChannelOld::getList()[$this->sale_channel] : '';
     }
 
-
     /**
+     * @param string $date
      * @return ClientContract
      */
-    public function getContract()
+    public function getContract($date = null)
     {
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
+
         $contract = ClientContract::findOne($this->contract_id);
-        if ($contract && $this->getHistoryVersionRequestedDate()) {
-            $contract->loadVersionOnDate($this->getHistoryVersionRequestedDate());
+        if ($contract && $date) {
+            $contract->loadVersionOnDate($date);
         }
         return $contract;
     }
 
     /**
-     * @return Business
+     * @return ActiveQuery
      */
     public function getBusiness()
     {
@@ -415,7 +423,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Country
+     * @return ActiveQuery
      */
     public function getCountry()
     {
@@ -423,7 +431,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return Region
+     * @return ActiveQuery
      */
     public function getAccountRegion()
     {
@@ -514,7 +522,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getOrganization($date = '')
     {
-        return $this->contract->getOrganization($date);
+        return $this->getContract($date)->getOrganization($date);
     }
 
     public function getAllContacts()

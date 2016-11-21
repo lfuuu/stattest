@@ -45,15 +45,6 @@ $columns = [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
     ],
-    [
-        'label' => 'Универсальный?',
-        'attribute' => 'is_uu',
-        'class' => YesNoColumn::className(),
-        'value' => function (AccountTariff $tariff) {
-            $isOld = $tariff->getNonUniversalId();
-            return Yii::t('common', $isOld ? 'No' : 'Yes');
-        }
-    ],
 ];
 
 // столбцы для конкретной услуги
@@ -89,19 +80,10 @@ switch ($serviceType->id) {
 $baseView = $this;
 $columns[] = [
     'class' => ActionColumn::className(),
-    'template' => '{update} {delete}',
+    'template' => '{update}',
     'buttons' => [
         'update' => function ($url, AccountTariff $model, $key) use ($baseView) {
             return $baseView->render('//layouts/_actionEdit', [
-                    'url' => $model->getUrl(),
-                ]
-            );
-        },
-        'delete' => function ($url, AccountTariff $model, $key) use ($baseView) {
-            if (!$model->tariff_period_id) {
-                return '';
-            }
-            return $baseView->render('//layouts/_actionDrop', [
                     'url' => $model->getUrl(),
                 ]
             );

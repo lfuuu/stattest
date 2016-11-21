@@ -50,7 +50,6 @@ class AccountEntryTarificator implements TarificatorI
             new Expression((string)AccountEntry::TYPE_ID_SETUP),
             'date',
             $accountTariffId,
-            $sqlAndWhere = '',
             $isDefault = 0
         );
 
@@ -62,7 +61,6 @@ class AccountEntryTarificator implements TarificatorI
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
             $accountTariffId,
-            $sqlAndWhere = '',
             $isDefault = 0
         );
         $this->_tarificate(
@@ -70,7 +68,6 @@ class AccountEntryTarificator implements TarificatorI
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
             $accountTariffId,
-            $sqlAndWhere = 'AND IF(client_account.is_postpaid > 0, account_log.date_to > NOW(), true)',
             $isDefault = 1
         );
 
@@ -81,7 +78,6 @@ class AccountEntryTarificator implements TarificatorI
             'tariff_resource_id',
             'date',
             $accountTariffId,
-            $sqlAndWhere = '',
             $isDefault = 1
         );
 
@@ -92,7 +88,6 @@ class AccountEntryTarificator implements TarificatorI
             new Expression((string)AccountEntry::TYPE_ID_MIN),
             'date_to',
             $accountTariffId,
-            $sqlAndWhere = 'AND account_log.date_to > NOW()',
             $isDefault = 1
         );
 
@@ -110,14 +105,10 @@ class AccountEntryTarificator implements TarificatorI
      * @param int|Expression $typeId
      * @param string $dateFieldName
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
-     * @param string $sqlAndWhere
      * @param int $isDefault
-     * @param string $sqlAndWhere
      */
-    private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId, $sqlAndWhere, $isDefault)
+    private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId, $isDefault)
     {
-        $dateFormat = $isDefault ? '%Y-%m-01' : '%Y-%m-%d';
-
         /** @var Connection $db */
         $db = Yii::$app->db;
         $accountEntryTableName = AccountEntry::tableName();
@@ -125,6 +116,7 @@ class AccountEntryTarificator implements TarificatorI
         $clientAccountTableName = ClientAccount::tableName();
         $sqlParams = [];
 
+        $sqlAndWhere = '';
         if ($accountTariffId) {
             $sqlAndWhere .= ' AND account_log.account_tariff_id = :account_tariff_id';
             $sqlParams[':account_tariff_id'] = $accountTariffId;
@@ -139,11 +131,11 @@ class AccountEntryTarificator implements TarificatorI
             INSERT INTO {$accountEntryTableName}
             (date, account_tariff_id, type_id, price, is_default)
                 SELECT DISTINCT
-                    DATE_FORMAT(account_log.`{$dateFieldName}`, "{$dateFormat}"),
+                    DATE_FORMAT(account_log.`{$dateFieldName}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d")) AS date,
                     account_log.account_tariff_id,
-                    {$typeId},
-                    0,
-                    {$isDefault}
+                    {$typeId} as type_id,
+                    0 AS price,
+                    IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, 1, 0) AS is_default
                 FROM
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
@@ -161,7 +153,7 @@ SQL;
 
         if (!$isDefault && $accountLogTableName == AccountLogPeriod::tableName()) {
             // костыль для абонентки
-            // если есть соотвествующая проводка за подключение, то должна быть и за абонентку.
+            // если есть соответствующая проводка за подключение, то должна быть и за абонентку.
             // а все остальные абонентки включать в базовую (isDefault) проводку
             // поэтому создаем проводки для всех абоненток, а потом удаляем ненужные (для которых нет соотвествующих проводок за подключение). Это гораздо проще, чем сразу создавать только нужные
             $accountEntryTypeIdSetup = AccountEntry::TYPE_ID_SETUP;
@@ -200,8 +192,8 @@ SQL;
                 account_log.account_entry_id = account_entry.id
             WHERE
                 account_log.account_entry_id IS NULL
-                AND account_entry.is_default = {$isDefault}
-                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldName}`, "{$dateFormat}")
+                AND account_entry.is_default = IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, 1, 0)
+                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldName}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d"))
                 AND account_entry.type_id = {$typeId}
                 AND account_entry.account_tariff_id = account_log.account_tariff_id
                 AND account_log.account_tariff_id = account_tariff.id
@@ -289,18 +281,28 @@ SQL;
         unset($updateSql);
 
 
-        // посчитать цену без НДС для юр.лиц
-        echo '. ';
+        // посчитать цену без НДС
         $accountTariffTableName = AccountTariff::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $tariffResourceTableName = TariffResource::tableName();
         $resourceIdVoipCalls = Resource::ID_VOIP_CALLS; // стоимость звонков от низкоуровневого биллера уже приходит с НДС
-        $updateSql = <<<SQL
+
+        // нужно знать is_include_vat из тарифа, а это можно получить только через транзакции
+        // @todo может быть несколько транзакций на одну проводку. Будет лишнее обновление, но на значения это не влияет
+        $accountLogs = [
+            AccountLogSetup::tableName() => 'account_entry.type_id = ' . AccountEntry::TYPE_ID_SETUP,
+            AccountLogPeriod::tableName() => 'account_entry.type_id = ' . AccountEntry::TYPE_ID_PERIOD,
+            AccountLogMin::tableName() => 'account_entry.type_id = ' . AccountEntry::TYPE_ID_MIN,
+            AccountLogResource::tableName() => 'account_entry.type_id > 0',
+        ];
+        foreach($accountLogs as $accountLogTableName => $sqlAndWhereTmp) {
+            echo '. ';
+            $updateSql = <<<SQL
         UPDATE
             (
             {$accountEntryTableName} account_entry,
-            {$accountTariffTableName} account_tariff,
+            {$accountLogTableName} account_log,
             {$tariffPeriodTableName} tariff_period,
             {$tariffTableName} tariff
             )
@@ -315,14 +317,15 @@ SQL;
                )
         WHERE
             account_entry.vat_rate IS NOT NULL
-            AND account_entry.account_tariff_id = account_tariff.id
-            AND account_tariff.tariff_period_id = tariff_period.id
+            AND account_entry.id = account_log.account_entry_id
+            AND account_log.tariff_period_id = tariff_period.id
             AND tariff_period.tariff_id = tariff.id
             {$sqlAndWhere}
 SQL;
-        $db->createCommand($updateSql)
-            ->execute();
-        unset($updateSql);
+            $db->createCommand($updateSql)
+                ->execute();
+            unset($updateSql);
+        }
 
 
         // посчитать НДС и цену с НДС для юр.лиц

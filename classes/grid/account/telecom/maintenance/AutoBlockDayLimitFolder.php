@@ -17,7 +17,7 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
 
     public function getName()
     {
-        return 'Сут. Блок';
+        return 'Сут./МН. Блок';
     }
 
     public function getColumns()
@@ -43,8 +43,19 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
                 ->select('clients.id')
                 ->from(['clients' => Clients::tableName()])
                 ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
-                ->andWhere(new Expression('clients.voip_limit_day > 0'))
-                ->andWhere(new Expression('clients.voip_limit_day < counter.amount_day_sum'));
+                ->orWhere([
+                    'OR',
+                    [
+                        'AND',
+                        'clients.voip_limit_day < counter.amount_day_sum',
+                        'clients.voip_limit_day > 0'
+                    ],
+                    [
+                        'AND',
+                        'clients.voip_limit_mn_day < counter.amount_mn_day_sum',
+                        'clients.voip_limit_mn_day > 0'
+                    ]
+                ]);
 
         $clientsIDs = (array)$billingQuery->column(Clients::getDb());
 

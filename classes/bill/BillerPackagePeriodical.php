@@ -38,8 +38,8 @@ class BillerPackagePeriodical extends BillerPackage
         $amount = $this->amount;
 
         if ($this->isAlign) {
-            $currentPeriod = $this->currentTo->getTimestamp() - $this->currentFrom->getTimestamp();
-            $effectivePeriod = $to->getTimestamp() - $from->getTimestamp();
+            $currentPeriod = $this->currentTo->getTimestamp() - $this->currentFrom->getTimestamp() +1;
+            $effectivePeriod = $to->getTimestamp() - $from->getTimestamp() +1;
 
             if ($currentPeriod > 0) {
                 $amount = $amount * $effectivePeriod / $currentPeriod;

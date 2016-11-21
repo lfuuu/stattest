@@ -14,8 +14,11 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
     public $items = [];
 
     private
+        $clientAccount = null,
         $invoiceSetting,
-        $clientContragentEuroINN = false;
+        $language,
+        $clientContragentEuroINN = false,
+        $isDetailed = true;
 
     /**
      * @param ClientAccount $clientAccount
@@ -23,13 +26,19 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
      * @param InvoiceBillLight $bill
      * @param $invoiceSetting
      */
-    public function __construct(ClientAccount $clientAccount, InvoiceBillLight $bill, $items, $invoiceSetting)
+    public function __construct(ClientAccount $clientAccount, InvoiceBillLight $bill, $items, $invoiceSetting, $language)
     {
         parent::__construct();
 
+        $this->clientAccount = $clientAccount;
         $this->invoiceSetting = $invoiceSetting;
+        $this->language = $language;
         // Взять EU Vat ID у контрагента
         $this->clientContragentEuroINN = $clientAccount->contragent->inn_euro;
+        // Язык счета
+        $billLanguage = $bill->getLanguage();
+        // Установить тип закрывающего документа (Полный / Краткий)
+        $this->isDetailed = (bool)$clientAccount->type_of_bill;
 
         foreach ($items as $item) {
             // Пересчет НДС если необходимо
@@ -41,8 +50,13 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
                 ->setSummaryWithoutVat($item->price_without_vat)
                 ->setSummaryWithVat($item->price_with_vat);
 
+            $itemAmount = $item->getAmount();
+
             $this->items[] = [
-                'title' => $item->getTypeName($bill->getLanguage()),
+                'title' => $item->getFullName($billLanguage),
+                'amount' => $itemAmount,
+                'unit' => $item->getTypeUnitName($billLanguage),
+                'price_per_unit' => ($itemAmount > 0 ? (float)$item->price_without_vat / $itemAmount : ''),
                 'price_without_vat' => $item->price_without_vat,
                 'price_with_vat' => $item->price_with_vat,
                 'vat_rate' => $item->vat_rate,
@@ -56,6 +70,29 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
      */
     public function getAll()
     {
+        if ($this->isDetailed === ClientAccount::TYPE_OF_BILL_SIMPLE) {
+            $billLine = [
+                'title' => Yii::t(
+                    'biller',
+                    'Communications services contract #{contract_number}',
+                    ['contract_number' => $this->clientAccount->contract->number],
+                    $this->language
+                ),
+                'price_without_vat' => 0,
+                'price_with_vat' => 0,
+                'vat_rate' => 0,
+                'vat' => 0,
+            ];
+            foreach ($this->items as $item) {
+                $billLine['price_without_vat'] += $item['price_without_vat'];
+                $billLine['price_with_vat'] += $item['price_with_vat'];
+                $billLine['vat_rate'] = $item['vat_rate'];
+                $billLine['vat'] += $item['vat'];
+            }
+
+            return [$billLine];
+        }
+
         return $this->items;
     }
 
@@ -141,6 +178,9 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
     {
         return [
             'title' => 'Название услуги',
+            'amount' => 'Кол-во',
+            'unit' => 'Ед. измерения',
+            'price_per_unit' => 'Цена за ед. измерения',
             'price_without_vat' => 'Цена без НДС',
             'price_with_vat' => 'Цена с НДС',
             'vat' => 'НДС',

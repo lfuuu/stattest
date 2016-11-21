@@ -42,7 +42,7 @@ abstract class DocumentReport extends Object
      */
     public function getOrganization()
     {
-        return $this->bill->clientAccount->loadVersionOnDate($this->bill->bill_date)->contract->organization;
+        return $this->bill->clientAccount->getOrganization($this->bill->bill_date)->setLanguage($this->getLanguage());
     }
 
     /**

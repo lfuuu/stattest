@@ -9,6 +9,10 @@ use app\widgets\DateControl as CustomDateControl;
 use kartik\widgets\DatePicker;
 use \app\models\TariffCallChat;
 
+if (\app\classes\uu\model\AccountTariff::isUuAccount()) {
+    return [];
+}
+
 $status = [
     'connecting' => 'Подключаемый',
     'working' => 'Включенный',

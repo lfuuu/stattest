@@ -15,6 +15,7 @@ return [
     'tariff_person_id' => 'Person type',
     'voip_tarificate_id' => 'Voip tarification',
     'voip_group_id' => 'Voip group',
+    'vm_id' => 'VM collocation tariff',
 
     'insert_time' => 'Insert time',
     'insert_user_id' => 'Insert user',

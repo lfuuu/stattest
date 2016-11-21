@@ -128,7 +128,7 @@ class Navigation
                 ->addItem('Страны', ['/dictionary/country/'])
                 ->addItem('Города', ['/dictionary/city/'])
                 ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'])
-                ->addItem('Настройки платежных документов', ['/invoice-settings'])
+                ->addItem('Настройки платежных документов', ['/dictionary/invoice-settings'])
         );
 
         $this->addBlock(
@@ -280,14 +280,12 @@ class Navigation
             $block->addItem($serviceType->name, Url::to([
                 '/uu/tariff',
                 'serviceTypeId' => $serviceType->id,
-                'TariffFilter[is_uu]' => 1,
             ]), ['tarifs.read']);
 
             $block2->addItem($serviceType->name, Url::to([
                 '/uu/account-tariff',
                 'serviceTypeId' => $serviceType->id,
 //                'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET,
-                'AccountTariffFilter[is_uu]' => 1,
             ]), ['tarifs.read']);
 
         }

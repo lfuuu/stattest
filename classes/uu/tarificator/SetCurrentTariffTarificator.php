@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\tarificator;
 
+use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\Event;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
@@ -92,6 +93,13 @@ SQL;
                     case ServiceType::ID_VPBX: {
                         Event::go(Event::UU_ACCOUNT_TARIFF_VPBX, [
                             'account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                        break;
+                    }
+
+                    case ServiceType::ID_VM_COLLOCATION: {
+                        Event::go(SyncVmCollocation::EVENT_SYNC, [
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         break;

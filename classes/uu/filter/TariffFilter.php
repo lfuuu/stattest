@@ -24,7 +24,6 @@ class TariffFilter extends Tariff
 
     public $service_type_id = '';
 
-    public $is_uu = '';
     public $is_autoprolongation = '';
     public $is_charge_after_blocking = '';
     public $is_include_vat = '';
@@ -37,18 +36,6 @@ class TariffFilter extends Tariff
     {
         $this->service_type_id = $serviceTypeId;
         parent::__construct();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules()
-    {
-        return array_merge(
-            parent::rules(),
-            [
-                [['voip_city_id', 'is_uu'], 'integer'],
-            ]);
     }
 
     /**
@@ -84,7 +71,6 @@ class TariffFilter extends Tariff
         $this->currency_id !== '' && $query->andWhere([$tariffTableName . '.currency_id' => $this->currency_id]);
         $this->country_id !== '' && $query->andWhere([$tariffTableName . '.country_id' => $this->country_id]);
         $this->service_type_id !== '' && $query->andWhere([$tariffTableName . '.service_type_id' => $this->service_type_id]);
-        $this->is_uu !== '' && $query->andWhere([$this->is_uu ? '>=' : '<=', $tariffTableName . '.id', Tariff::DELTA]);
         $this->is_autoprolongation !== '' && $query->andWhere([$tariffTableName . '.is_autoprolongation' => (int)$this->is_autoprolongation]);
         $this->is_charge_after_blocking !== '' && $query->andWhere([$tariffTableName . '.is_charge_after_blocking' => (int)$this->is_charge_after_blocking]);
         $this->is_include_vat !== '' && $query->andWhere([$tariffTableName . '.is_include_vat' => (int)$this->is_include_vat]);

@@ -15,14 +15,20 @@ class m_voipnew_trunks
         $now = new DateTime();
         $now = $now->format('Y-m-d H:i:s');
 
-
-        $res = $db->AllRecords("    select u.*, c.id as client_id, cg.name as company
-                                    from usage_trunk u
-                                    left join clients c on c.id=u.client_account_id
-                                    left join client_contract cr on cr.id = c.contract_id
-                                    left join client_contragent cg on cg.id = cr.contragent_id
-                                    where u.activation_dt <= '{$now}' and u.expire_dt >= '{$now}'
-                                    order by u.connection_point_id desc, c.id, u.trunk_id          ");
+        $res = $db->AllRecords($query = "
+            SELECT
+                u.*, c.id AS client_id,
+                cr.number as contract_number,
+	            cct.name as contract_type,
+                cg.name as company
+            FROM usage_trunk u
+                 LEFT JOIN clients c on c.id=u.client_account_id
+                 LEFT JOIN client_contract cr ON cr.id = c.contract_id
+                 LEFT JOIN client_contragent cg ON cg.id = cr.contragent_id
+                 LEFT JOIN client_contract_type cct ON cct.id = cr.contract_type_id
+            WHERE u.activation_dt <= '{$now}' AND u.expire_dt >= '{$now}'
+            ORDER BY u.connection_point_id DESC, c.id, u.trunk_id
+        ");
 
         $design->assign('trunks', $res);
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));

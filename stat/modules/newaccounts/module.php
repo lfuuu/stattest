@@ -17,6 +17,7 @@ use app\classes\bill\ClientAccountBiller;
 use app\models\Organization;
 use app\models\Business;
 use app\models\User;
+use app\models\Language;
 
 class m_newaccounts extends IModule
 {
@@ -250,6 +251,7 @@ class m_newaccounts extends IModule
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
+        $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());
         $design->assign(
             'saldo_history',
             $db->AllRecords('
@@ -598,6 +600,7 @@ class m_newaccounts extends IModule
         $design->assign('billops', $R);
         $design->assign('sum', $sum);
         $design->assign('sum_cur', $sum[$fixclient_data['currency']]);
+        $design->assign('realtime_balance', $clientAccount->billingCounters->getRealtimeBalance());
         $design->assign(
             'saldo_history',
             $db->AllRecords('
@@ -690,7 +693,7 @@ class m_newaccounts extends IModule
             exit();
 
             // stat bills
-        } elseif (preg_match("/\d{6}-\d{4}/", $_GET["bill"]) || preg_match('/^uu\d{6}$/', $_GET['bill'])) {
+        } elseif (preg_match("/\d{6}-\d{4}/", $_GET["bill"]) || preg_match('/^\d{10,}$/', $_GET['bill'])) {
             $a = 1;
             //nothing
         } else {
@@ -817,6 +820,20 @@ class m_newaccounts extends IModule
             ];
         }
         $design->assign('available_documents', $documents);
+
+        if ($r->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            $listOfInvoices = [];
+            foreach(Language::getList() as $languageCode => $languageTitle) {
+                $listOfInvoices[] = [
+                    'langCode' => $languageCode,
+                    'langTitle' => $languageTitle,
+                    'langFlag' => explode('-', $languageCode)[0],
+                    'number' => $newbill->bill_no,
+                    'month' => substr($newbill->bill_date, 0, 7),
+                ];
+            }
+            $design->assign('listOfInvoices', $listOfInvoices);
+        }
 
         $design->AddMain('newaccounts/bill_view.tpl');
 

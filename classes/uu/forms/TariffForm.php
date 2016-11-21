@@ -9,7 +9,6 @@ use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffVoipCity;
-use app\controllers\uu\TariffController;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
@@ -101,11 +100,12 @@ abstract class TariffForm extends Form
             // Этот тариф автоматически сконвертирован из старого. Если надо отредактировать его - редактируйте исходный тариф.
             $post = [];
         } elseif ($this->tariff->isHasAccountTariff()) {
-            // На этом тарифе есть услуги. Редактировать можно только название тарифа.
+            // На этом тарифе есть услуги. Редактировать можно только некоторые свойства.
             if (isset($post['Tariff']['name'])) {
                 // checkbox передаются даже disabled, потому что они в паре с hidden. Надо все лишнее убрать
                 $post['Tariff'] = [
                     'name' => $post['Tariff']['name'],
+                    'tariff_status_id' => $post['Tariff']['tariff_status_id'],
                 ];
             }
             unset($post['TariffPeriod'], $post['TariffResource']);
@@ -127,7 +127,14 @@ abstract class TariffForm extends Form
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-            if ($this->tariff->load($post)) {
+            if (isset($post['dropButton'])) {
+
+                // удалить
+                $this->tariff->delete();
+                $this->id = null;
+                $this->isSaved = true;
+
+            } elseif ($this->tariff->load($post)) {
 
                 if ($this->tariff->is_autoprolongation) {
                     $this->tariff->count_of_validity_period = 0;

@@ -2,8 +2,10 @@
 
 namespace app\models;
 
+use ActiveRecord\UndefinedPropertyException;
 use app\models\billing\Counter as BillingCounter;
 use Yii;
+use yii\base\InvalidValueException;
 use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -76,7 +78,7 @@ class ClientCounter extends ActiveRecord
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
                 // новый (универсальный) биллинг
                 // пересчитывается в RealtimeBalanceTarificator
-                return $this->clientAccount->balance;
+                return $this->clientAccount->balance + $this->getDaySummary();
 
             default:
                 throw new \LogicException('Неизвестная версия биллинга у клиента ' . $this->client_id);
@@ -132,21 +134,29 @@ class ClientCounter extends ActiveRecord
         try {
 
             if (!$lastAccountDate) {
-                throw new \Exception('ЛС не найден');
+                throw new \UnexpectedValueException('ЛС не найден');
             }
 
             /** @var BillingCounter $billingCounter */
             $billingCounter = BillingCounter::findOne(['client_id' => $clientAccountId]);
 
+            if (!$billingCounter) {
+                throw new \UnexpectedValueException('BillingCounter для ЛС #' . $clientAccountId . ' не найден');
+            }
+
             if ($billingCounter->amount_date != $lastAccountDate) {
                 $localCounter->isSyncError = true;
-                throw new \Exception('Пересчет в биллинге не закончен. Нет актуального баланса.');
+                throw new \UnexpectedValueException('Пересчет в биллинге не закончен. Нет актуального баланса.');
             }
 
             $localCounter->amount_sum = $billingCounter->amount_sum;
             $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
             $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
             $localCounter->save();
+
+        } catch(\UnexpectedValueException $e) {
+            $localCounter->isLocal = true;
+            Yii::warning($e->getMessage());
         } catch (\Exception $e) {
             $localCounter->isLocal = true;
             Yii::error($e->getMessage());
