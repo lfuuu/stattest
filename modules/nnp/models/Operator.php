@@ -10,11 +10,14 @@ use yii\helpers\Url;
  * @property int id
  * @property string name
  * @property int country_prefix
+ * @property int cnt
  */
 class Operator extends ActiveRecord
 {
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
+
+    const MIN_CNT = 1000;
 
     /**
      * имена полей
@@ -26,6 +29,7 @@ class Operator extends ActiveRecord
             'id' => 'ID',
             'name' => 'Название',
             'country_prefix' => 'Страна', // префикс
+            'cnt' => 'Кол-во номеров',
         ];
     }
 
@@ -90,15 +94,31 @@ class Operator extends ActiveRecord
      * @param int $countryPrefix
      * @return self[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryPrefix = null)
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryPrefix = null, $minCnt = self::MIN_CNT)
     {
         $activeQuery = self::find();
         $countryPrefix && $activeQuery->andWhere(['country_prefix' => $countryPrefix]);
+        $minCnt && $activeQuery->andWhere(['>=', 'cnt', $minCnt]);
         $list = $activeQuery
             ->orderBy(self::getListOrderBy())
             ->indexBy('id')
             ->all();
 
         return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    }
+
+    /**
+     * Обновить столбец cnt
+     * @return int
+     */
+    public static function updateCnt()
+    {
+        $numberRangeTableName = NumberRange::tableName();
+        $operatorTableName = Operator::tableName();
+        $sql = <<<SQL
+            UPDATE {$operatorTableName}
+            SET cnt = (SELECT COALESCE(SUM(number_to - number_from), 0) FROM {$numberRangeTableName} WHERE operator_id = {$operatorTableName}.id AND is_active)
+SQL;
+        return self::getDb()->createCommand($sql)->execute();
     }
 }
