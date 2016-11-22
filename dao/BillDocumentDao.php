@@ -83,9 +83,6 @@ class BillDocumentDao extends Singleton
 
         // акты и счета-фактур при упрощенке не должны быть.
         if (!$taxRate) {
-            $doctypes['a1'] =
-            $doctypes['a2'] =
-            $doctypes['a3'] =
             $doctypes['i1'] =
             $doctypes['i2'] =
             $doctypes['i3'] =
