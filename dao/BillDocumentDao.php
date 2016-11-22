@@ -4,6 +4,7 @@ namespace app\dao;
 use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BillDocument;
+use app\models\ClientAccount;
 
 /**
  * @method static BillDocumentDao me($args = null)
@@ -25,6 +26,8 @@ class BillDocumentDao extends Singleton
     public function updateByBillNo($billNo, $L = null, $returnData = false)
     {
         $bill = new \Bill($billNo);
+
+        $taxRate = $bill->Client()->getTaxRate();
 
         if (!$L) {
             $L = $bill->GetLines();
@@ -76,6 +79,18 @@ class BillDocumentDao extends Singleton
         }
         for ($i = 1; $i <= 2; $i++) {
             $doctypes['ia' . $i] = $bill_invoice_akts[$i];
+        }
+
+        // акты и счета-фактур при упрощенке не должны быть.
+        if (!$taxRate) {
+            $doctypes['a1'] =
+            $doctypes['a2'] =
+            $doctypes['a3'] =
+            $doctypes['i1'] =
+            $doctypes['i2'] =
+            $doctypes['i3'] =
+            $doctypes['i4'] =
+            $doctypes['i5'] = 0;
         }
 
         $docs = BillDocument::findOne($billNo);

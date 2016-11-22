@@ -127,7 +127,7 @@ class Bill {
         $this->client_id=$this->bill['client_id'];
         
         if ($this->bill && isset($this->bill['client_id'])) {
-            $this->bill['tax_rate'] = ClientAccount::findOne($this->bill['client_id'])->getTaxRate();
+            $this->bill['tax_rate'] = $this->Client()->getTaxRate();
         }
         $this->bill_courier = Courier::dao()->getNameById($this->bill["courier_id"]);
         $this->changed=0;
@@ -395,7 +395,8 @@ class Bill {
 		$db->Query($query);
 		$pay = $db->NextRecord(MYSQL_ASSOC);
 		if($pay['type'] == 'PAY'){
-            $tax_rate = ClientAccount::findOne($this->client_id)->getTaxRate();
+
+            $tax_rate = $this->Client()->getTaxRate();
 
 			$ret_x['sum'] = $pay['sum'];
 			$ret_x['sum_tax'] = $pay['sum'] * $tax_rate / (100 + $tax_rate);
