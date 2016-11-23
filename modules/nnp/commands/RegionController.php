@@ -118,6 +118,7 @@ class RegionController extends Controller
                 if (!isset($regionSourceToId[$regionSource])) {
                     $region = new Region();
                     $region->name = $regionSource;
+                    $region->country_prefix = $numberRange->country_prefix;
                     if (!$region->save()) {
                         throw new InvalidParamException(implode('. ', $region->getFirstErrors()));
                     }
