@@ -79,5 +79,27 @@ SQL;
         $db->createCommand($updateSQL)
             ->query();
         echo '. ';
+
+        // Еще в реалтайм-балансе надо учитывать ручные счета
+        // Для УУ старый счет считается ручным, если у него нет ссылки на УУ-счет
+        // Счет с задатком не учитывается, но эта логика заложена в \app\dao\BillDao::calculateBillSum, а здесь достаточно просуммировать суммы старых счетов (для zadatok она будет нулевой)
+        $oldBillTableName = \app\models\Bill::tableName();
+        $updateSQL = <<<SQL
+            UPDATE
+                {$clientAccountTableName} clients,
+                {$oldBillTableName} bill
+            SET
+                clients.balance = clients.balance - bill.sum
+                {$updateSqlSet}
+            WHERE
+                clients.account_version = {$versionBillerUniversal}
+                {$sqlAndWhere}
+                AND clients.id = bill.client_id
+                AND bill.uu_bill_id IS NULL
+SQL;
+        $db->createCommand($updateSQL)
+            ->query();
+        echo '. ';
+
     }
 }
