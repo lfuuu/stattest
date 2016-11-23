@@ -30,16 +30,31 @@ abstract class NotificationProcessor
 
     public function __construct()
     {
-        $this->clients = ClientAccount::find()->select(['id', 'credit', 'voip_credit_limit_day'])->active();
+        $this->clients = ClientAccount::find()->select([
+            'id',
+            'credit',
+            'voip_credit_limit_day',
+            'voip_limit_mn_day'
+        ])->active();
     }
 
-    abstract function getEvent();
+    abstract function getSetEvent();
+
+    abstract function getUnSetEvent();
 
     abstract function getValue();
 
     abstract function getLimit();
 
     protected function isPositiveComparison()
+    {
+        return true;
+    }
+
+    /**
+     * Надо ли отправлять оповещение напрямую
+     */
+    protected function isOldNotification()
     {
         return true;
     }
@@ -72,7 +87,7 @@ abstract class NotificationProcessor
             ->distinct()
             ->select('client_id')
             ->where([
-                $this->getEvent() => 1
+                $this->getSetEvent() => 1
             ])
             ->andWhere(['status' => LkNoticeSetting::STATUS_WORK]);
 
@@ -90,13 +105,13 @@ abstract class NotificationProcessor
     public function checkAndMakeNotifications()
     {
         foreach ($this->clients->each() as $client) {
-            $transaction = \Yii::$app->getDB()->beginTransaction();
+            $transaction = \Yii::$app->getDb()->beginTransaction();
             try {
                 $this->compareAndNotificationClient($client);
             } catch (\Exception $e) {
-                echo "\n" . date('r') . ': (!)' . $client->id . ", " . $this->getEvent() . ', error: ' . $e->getMessage();
-                
-                $transaction->rollback();
+                echo "\n" . date('r') . ': (!)' . $client->id . ", " . $this->getSetEvent() . ', error: ' . $e->getMessage();
+
+                $transaction->rollBack();
                 \Yii::error($e->getMessage());
                 continue;
             }
@@ -115,27 +130,31 @@ abstract class NotificationProcessor
         ClientAccount::getDb()->transaction(function () use ($client, $isSet, $isUnSet) {
 
             if ($isSet || $isUnSet) {
-                LkClientSettings::saveState($client, $this->getEvent(), $isSet);
+                LkClientSettings::saveState($client, $this->getSetEvent(), $isSet);
             }
 
             if ($isSet) {
-                echo "\n" . date('r') . ': (+)' . $client->id . ", " . $this->getEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
-                $this->createImportantEventSet($client, true);
-                $this->oldSetupSendAndSaveLog();
+                echo "\n" . date('r') . ': (+)' . $client->id . ", " . $this->getSetEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
+                $this->createImportantEventSet($client, true, $this->getSetEvent());
+                if ($this->isOldNotification()) {
+                    $this->oldSetupSendAndSaveLog();
+                }
             }
 
             if ($isUnSet) {
-                echo "\n" . date('r') . ': (-)' . $client->id . ", " . $this->getEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
-                $this->createImportantEventSet($client, false);
-                $this->oldUnsetSaveLog();
+                echo "\n" . date('r') . ': (-)' . $client->id . ", " . $this->getSetEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
+                $this->createImportantEventSet($client, false, $this->getUnSetEvent());
+                if ($this->isOldNotification()) {
+                    $this->oldUnsetSaveLog();
+                }
             }
         });
     }
 
-    private function createImportantEventSet(ClientAccount $client, $isSet = true)
+    private function createImportantEventSet(ClientAccount $client, $isSet = true, $event = '')
     {
         ImportantEvents::create(
-            ($isSet ? "" : "unset_").$this->getEvent(),
+            $event,
             ImportantEventsSources::SOURCE_STAT, [
                 'client_id' => $client->id,
                 'value' => $this->getValue(),
@@ -148,7 +167,7 @@ abstract class NotificationProcessor
     public function makeSingleClientNotification()
     {
         if ($this->getContactsForSend()) {
-            ImportantEvents::create($this->getEvent(), ImportantEventsSources::SOURCE_STAT, [
+            ImportantEvents::create($this->getSetEvent(), ImportantEventsSources::SOURCE_STAT, [
                     'client_id' => $this->client->id,
                     'value' => $this->getValue(),
                     'user_id' => \Yii::$app->user->id
@@ -166,12 +185,12 @@ abstract class NotificationProcessor
 
             $Notification = new LkNotification(
                 $this->client->id, $contact->id,
-                $this->getEvent(), $this->getValue(), $balance
+                $this->getSetEvent(), $this->getValue(), $balance
             );
             if ($Notification->send()) {
                 $this->oldAddLogRaw(
                     $this->client->id, $contact->id,
-                    $this->getEvent(), true,
+                    $this->getSetEvent(), true,
                     $balance, $this->getLimit(), $this->getValue()
                 );
 
@@ -181,7 +200,8 @@ abstract class NotificationProcessor
 
     private function oldUnsetSaveLog()
     {
-        $this->oldAddLogRaw($this->client->id, 0, $this->getEvent(), false, sprintf('%0.2f', $this->client->billingCounters->realtimeBalance), $this->getLimit(),
+        $this->oldAddLogRaw($this->client->id, 0, $this->getSetEvent(), false,
+            sprintf('%0.2f', $this->client->billingCounters->realtimeBalance), $this->getLimit(),
             $this->getValue());
     }
 
@@ -199,7 +219,7 @@ abstract class NotificationProcessor
 
         /** @var \app\models\LkNoticeSetting $noticeSetting */
         foreach ($this->client->getLkNoticeSetting()->andWhere([
-            $this->getEvent() => 1,
+            $this->getSetEvent() => 1,
             'status' => LkNoticeSetting::STATUS_WORK
         ])->all() as $noticeSetting) {
             $contact = $noticeSetting->contact;
@@ -216,7 +236,7 @@ abstract class NotificationProcessor
         $value = $this->getValue();
         $limit = $this->getLimit();
 
-        if ($this->checkLimitToSkip($limit)){
+        if ($this->checkLimitToSkip($limit)) {
             return false;
         }
 
@@ -237,7 +257,7 @@ abstract class NotificationProcessor
 
         if ($isCompareSet) {
             $lkSettings = $this->client->lkClientSettings;
-            if (!$lkSettings || !$lkSettings->{'is_' . $this->getEvent() . '_sent'}) {
+            if (!$lkSettings || !$lkSettings->{'is_' . $this->getSetEvent() . '_sent'}) {
                 return true;
             }
         }
@@ -250,7 +270,7 @@ abstract class NotificationProcessor
         $value = $this->getValue();
         $limit = $this->getLimit();
 
-        if ($this->checkLimitToSkip($limit)){
+        if ($this->checkLimitToSkip($limit)) {
             return false;
         }
 
@@ -270,7 +290,7 @@ abstract class NotificationProcessor
 
         if ($isCompareUnset) {
             $lkSettings = $this->client->lkClientSettings;
-            if ($lkSettings && $lkSettings->{'is_' . $this->getEvent() . '_sent'}) {
+            if ($lkSettings && $lkSettings->{'is_' . $this->getSetEvent() . '_sent'}) {
                 return true;
             }
         }

@@ -36,10 +36,16 @@ class AddPaymentNotificationProcessor extends NotificationProcessor
         $this->eventFields['currency'] = $this->payment->currency;
     }
 
-    public function getEvent()
+    public function getSetEvent()
     {
         return ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF;
     }
+
+    public function getUnSetEvent()
+    {
+        return ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF;
+    }
+
 
     public function getValue()
     {

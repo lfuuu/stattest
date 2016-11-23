@@ -11,9 +11,14 @@ use app\models\important_events\ImportantEventsNames;
  */
 class MinDayLimitNotificationProcessor extends NotificationProcessor
 {
-    public function getEvent()
+    public function getSetEvent()
     {
         return ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT;
+    }
+
+    public function getUnSetEvent()
+    {
+        return ImportantEventsNames::IMPORTANT_EVENT_UNSET_MIN_DAY_LIMIT;
     }
 
     public function getValue()
@@ -23,7 +28,7 @@ class MinDayLimitNotificationProcessor extends NotificationProcessor
 
     public function getLimit()
     {
-        return $this->client->lkClientSettings->{$this->getEvent()};
+        return $this->client->lkClientSettings->{$this->getSetEvent()};
     }
 
     protected function isPositiveComparison()

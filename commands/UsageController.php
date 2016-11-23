@@ -43,6 +43,7 @@ class UsageController extends Controller
 
         } catch (\Exception $e) {
             Yii::error($e);
+            throw $e;
             return Controller::EXIT_CODE_ERROR;
         }
 
@@ -157,6 +158,7 @@ class UsageController extends Controller
                 AND NOT c.voip_disabled
                 AND (
                     (voip_limit_day != 0 AND amount_day_sum < -voip_limit_day) OR
+                    (voip_limit_mn_day != 0 AND amount_mn_day_sum < -voip_limit_mn_day) OR
                     (voip_limit_month != 0 AND amount_month_sum > voip_limit_month)
                 )
         ')->queryAll();

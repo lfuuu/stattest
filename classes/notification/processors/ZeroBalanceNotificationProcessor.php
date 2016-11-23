@@ -14,9 +14,14 @@ class ZeroBalanceNotificationProcessor extends NotificationProcessor
         return $this;
     }
 
-    public function getEvent()
+    public function getSetEvent()
     {
         return ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE;
+    }
+
+    public function getUnSetEvent()
+    {
+        return ImportantEventsNames::IMPORTANT_EVENT_UNSET_ZERO_BALANCE;
     }
 
     public function getValue()

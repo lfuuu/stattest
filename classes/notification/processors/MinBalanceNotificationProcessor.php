@@ -12,9 +12,14 @@ use app\models\important_events\ImportantEventsNames;
 class MinBalanceNotificationProcessor extends NotificationProcessor
 {
 
-    public function getEvent()
+    public function getSetEvent()
     {
         return ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE;
+    }
+
+    public function getUnSetEvent()
+    {
+        return ImportantEventsNames::IMPORTANT_EVENT_UNSET_MIN_BALANCE;
     }
 
     public function getValue()

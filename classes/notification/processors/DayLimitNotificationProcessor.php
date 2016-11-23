@@ -13,12 +13,19 @@ class DayLimitNotificationProcessor extends NotificationProcessor
 {
     public function filterClients()
     {
-        return $this; //no additional filter, no default filter
+        $this->clients->andWhere(['not', ['voip_credit_limit_day' => 0]]);
+
+        return $this;
     }
     
-    public function getEvent()
+    public function getSetEvent()
     {
         return ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT;
+    }
+
+    public function getUnSetEvent()
+    {
+        return ImportantEventsNames::IMPORTANT_EVENT_UNSET_DAY_LIMIT;
     }
 
     public function getValue()

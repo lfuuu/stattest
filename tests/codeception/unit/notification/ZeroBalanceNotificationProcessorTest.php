@@ -101,15 +101,15 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($this->account->lkClientSettings);
         $this->assertEquals($this->account->lkClientSettings->is_zero_balance_sent, 1);
 
-        $this->assertEquals($mockObj->getEvent(), $this->event);
+        $this->assertEquals($mockObj->getSetEvent(), $this->event);
 
-        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEvent()]);
+        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getSetEvent()]);
         $this->assertNotNull($event);
 
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
         $lkNoticeLog = LkNotificationLog::findOne([
             'client_id' => $this->account->id,
-            'event' => $mockObj->getEvent(),
+            'event' => $mockObj->getSetEvent(),
             'is_set' => 1
         ]);
         $this->assertNotNull($lkNoticeLog);
@@ -157,12 +157,12 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($this->account->lkClientSettings);
         $this->assertEquals($this->account->lkClientSettings->is_zero_balance_sent, 0);
 
-        $this->assertEquals($mockObj->getEvent(), $this->event);
+        $this->assertEquals($mockObj->getSetEvent(), $this->event);
 
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
         $lkNoticeLog = LkNotificationLog::findOne([
             'client_id' => $this->account->id,
-            'event' => $mockObj->getEvent(),
+            'event' => $mockObj->getSetEvent(),
             'is_set' => 0
         ]);
         $this->assertNotNull($lkNoticeLog);
