@@ -37,10 +37,8 @@ $model->federal_district = $model->getModel()->getFederalDistrictAsArray();
                 <?php
                 if ($model->business_id === Business::PARTNER) {
                     echo $f
-                        ->field($model, 'lk_access')
-                        ->dropDownList(ClientContract::$lkAccess, [
-                            'disabled' => true,
-                        ]);
+                        ->field($model, 'is_lk_access')
+                        ->dropDownList(ClientContract::$lkAccess);
                 }
                 ?>
             </div>
