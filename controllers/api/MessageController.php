@@ -298,9 +298,11 @@ class MessageController extends ApiController
                 case Template::TYPE_EMAIL_INNER:
                 case Template::TYPE_SMS: {
                     if (!empty($templateContent->content)) {
+                        $render = RenderParams::me();
                         return [
                             'locale' => $templateContent->lang_code,
-                            'content' => RenderParams::me()->apply($templateContent->content, $clientAccountId,
+                            'subject' => $render->apply($templateContent->title, $clientAccountId, $eventId),
+                            'content' => $render->apply($templateContent->content, $clientAccountId,
                                 $eventId),
                         ];
                     }
