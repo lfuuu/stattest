@@ -325,10 +325,10 @@
                 <input type=button class=button value='Поехали' onclick="doFormSend()" />
             </td>
             <td valign=top style="border-width:1 1 1 0; border-style:solid;border-color:#808080">
-                <input type=checkbox value="1" name="akt-1" id="cb8"><label for="cb8"{if !$bill_invoices[1]} style="color:#C0C0C0"{/if}>Акт (1 абонентка)</label>
+                <input type=checkbox value="1" name="akt-1" id="cb8"><label for="cb8"{if !$bill_akts[1]} style="color:#C0C0C0"{/if}>Акт (1 абонентка)</label>
                 <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-1&to_print=true&is_word=true">MS Word</a><br />
 
-                <input type=checkbox value="1" name="akt-2" id="cb9"><label for="cb9"{if !$bill_invoices[2]} style="color:#C0C0C0"{/if}>Акт (2 превышение)</label>
+                <input type=checkbox value="1" name="akt-2" id="cb9"><label for="cb9"{if !$bill_akts[2]} style="color:#C0C0C0"{/if}>Акт (2 превышение)</label>
                 <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-2&to_print=true&is_word=true">MS Word</a><br />
 
                 <input type=checkbox value="1" name="akt-3" id="cba"><label for="cba"{if !$bill_akts[3]} style="color:#C0C0C0"{/if}>Акт (3 оборудование)</label><br />
