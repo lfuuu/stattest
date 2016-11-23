@@ -79,7 +79,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 <div class="col-sm-2">
                     <?php
                     $params = [];
-                    if ($tariffResource->resource_id == Resource::ID_VOIP_CALLS) {
+                    if (in_array($tariffResource->resource_id, [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS])) {
                         $tariffResource->price_per_unit = 1; // стоимость звонков 1-в-1 из низкоуровневого биллинга
                         $params['readonly'] = 'readonly';
                     }

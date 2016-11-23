@@ -96,10 +96,6 @@ class Tariff extends \yii\db\ActiveRecord
 
     const DELTA = 10000;
 
-    const ID_ONE_TIME_RUB = 10100;
-    const ID_ONE_TIME_EUR = 10101;
-    const ID_ONE_TIME_HUF = 10102;
-
     const NUMBER_TYPE_NUMBER = 'number';
     const NUMBER_TYPE_7800 = '7800';
     const NUMBER_TYPE_LINE = 'line';
