@@ -146,7 +146,7 @@ class ClientCounter extends ActiveRecord
 
             if ($billingCounter->amount_date != $lastAccountDate) {
                 $localCounter->isSyncError = true;
-                throw new \UnexpectedValueException('Пересчет в биллинге не закончен. Нет актуального баланса.');
+                throw new \UnexpectedValueException('Пересчет в биллинге не закончен. Нет актуального баланса. ЛС#' . $clientAccountId);
             }
 
             $localCounter->amount_sum = $billingCounter->amount_sum;
