@@ -94,6 +94,7 @@ echo Breadcrumbs::widget([
 
                     $tabs[] = [
                         'label' =>
+                            $languageCode .
                             Html::tag(
                                 'div', '',
                                 ['title' => $languageTitle, 'class' => 'flag flag-' . explode('-', $languageCode)[0]]
