@@ -75,9 +75,11 @@ class Bill {
                 $client_id = $client_id->toArray();
 
             if (is_array($client_id)) {
-                $this->client_data=$client_id;
-                $client_id=$client_id['id'];
+                //$this->client_data=$client_id;
+                $this->client_id = $client_id=$client_id['id'];
             } else {
+                $this->client_id = $client_id;
+                /*
                 $this->client_data=$db->GetRow("
 					select
 						*
@@ -86,14 +88,17 @@ class Bill {
 					where
 						id='".$client_id."'
                 ");
+                */
             }
             if (!$currency) $currency=$this->client_data['currency'];
 
+            $this->bill_date = date('Y-m-'.($is_auto?'01':'d'),$bill_date);
+
             $bill = new \app\models\Bill();
             $bill->client_id = $client_id;
-            $bill->currency = $currency;
+            $bill->currency = $this->Client()->currency;
             $bill->bill_no = $this->bill_no;
-            $bill->bill_date = date('Y-m-'.($is_auto?'01':'d'),$bill_date);
+            $bill->bill_date = $this->bill_date;
             $bill->nal = $this->client_data["nal"];
             $bill->is_lk_show = $isLkShow ? 1 : 0;
             $bill->is_user_prepay = $isUserPrepay ? 1 : 0;
