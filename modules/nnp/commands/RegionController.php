@@ -4,6 +4,7 @@ namespace app\modules\nnp\commands;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Region;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\console\Controller;
 
 /**
@@ -82,12 +83,21 @@ class RegionController extends Controller
                 'id' => 'region_id',
             ])
             ->where('region_id IS NOT NULL')
+            ->andWhere('region_source IS NOT NULL AND region_source != :empty')
+            ->params([
+                ':empty' => '',
+            ])
             ->indexBy('name')
             ->asArray()
             ->all();
 
         $numberRangeQuery = NumberRange::find()
-            ->where('region_id IS NULL');
+            ->where('is_active')
+            ->andWhere('region_id IS NULL')
+            ->andWhere('region_source IS NOT NULL AND region_source != :empty')
+            ->params([
+                ':empty' => '',
+            ]);
         $i = 0;
 
         /** @var NumberRange $numberRange */
@@ -104,14 +114,20 @@ class RegionController extends Controller
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
+
                 if (!isset($regionSourceToId[$regionSource])) {
                     $region = new Region();
                     $region->name = $regionSource;
-                    $region->save();
+                    if (!$region->save()) {
+                        throw new InvalidParamException(implode('. ', $region->getFirstErrors()));
+                    }
                     $regionSourceToId[$regionSource] = ['id' => $region->id];
                 }
+
                 $numberRange->region_id = $regionSourceToId[$regionSource]['id'];
-                $numberRange->save();
+                if (!$numberRange->save()) {
+                    throw new InvalidParamException(implode('. ', $numberRange->getFirstErrors()));
+                }
 
                 $transaction->commit();
             } catch (\Exception $e) {
