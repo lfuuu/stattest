@@ -373,5 +373,32 @@ class NumberDao extends Singleton
 
         return $list;
     }
+    /**
+     * Получаем лог изменений состояния номера
+     *
+     * @param Number $number
+     * @return array
+     */
+    public function getChangeStateLog(\app\models\Number $number)
+    {
+        return
+            Yii::$app->db->createCommand("
+                select
+                    date_format(`es`.`time`,'%Y-%m-%d %H:%i:%s') `human_time`,
+                    `uu`.`user`,
+                    `es`.`user` `user_id`,
+                    `cl`.`client`,
+                    `es`.`client` `client_id`,
+                    `es`.`addition`,
+                    `es`.`action`
+                from `e164_stat` `es`
+                left join `clients` `cl` on `cl`.`id` = `es`.`client`
+                left join `user_users` `uu` on `uu`.`id` = `es`.`user`
+                where `es`.`e164`= :did
+                order by `es`.`time` desc
+            ", [
+                ':did' => $number->number
+            ])->queryAll();
+    }
 
 }

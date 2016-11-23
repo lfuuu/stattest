@@ -6,6 +6,18 @@ use kartik\widgets\ActiveForm;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 /** @var $number app\models\Number */
+
+
+echo app\classes\Html::formLabel($this->title = 'Номер '. $number->number);
+
+echo \yii\widgets\Breadcrumbs::widget([
+    'links' => [
+        'Телефония',
+        ['label' => 'Номера', 'url' => $cancelUrl = '/voip/number'],
+        ['label' => $number->number, 'url' => $number->getUrl()]
+    ],
+]);
+
 ?>
 
 <table width="100%">
