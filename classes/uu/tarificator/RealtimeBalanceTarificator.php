@@ -48,7 +48,7 @@ class RealtimeBalanceTarificator implements TarificatorI
                 clients.id
 SQL;
         $db->createCommand($selectSQL)
-            ->query();
+            ->execute();
         echo '. ';
 
         if ($accountClientId) {
@@ -69,15 +69,15 @@ SQL;
             WHERE
                 clients.id = clients_tmp.id
 SQL;
-        $db->createCommand($updateSQL)
-            ->query();
+        echo $db->createCommand($updateSQL)
+            ->execute();
         echo '. ';
 
         $updateSQL = <<<SQL
             DROP TEMPORARY TABLE clients_tmp
 SQL;
         $db->createCommand($updateSQL)
-            ->query();
+            ->execute();
         echo '. ';
 
         // Еще в реалтайм-балансе надо учитывать ручные счета
@@ -86,19 +86,16 @@ SQL;
         $oldBillTableName = \app\models\Bill::tableName();
         $updateSQL = <<<SQL
             UPDATE
-                {$clientAccountTableName} clients,
-                {$oldBillTableName} bill
+                {$clientAccountTableName} clients
             SET
-                clients.balance = clients.balance - bill.sum
+                clients.balance = clients.balance - (SELECT COALESCE(SUM(bill.sum), 0) FROM {$oldBillTableName} bill WHERE clients.id = bill.client_id AND bill.uu_bill_id IS NULL)
                 {$updateSqlSet}
             WHERE
                 clients.account_version = {$versionBillerUniversal}
                 {$sqlAndWhere}
-                AND clients.id = bill.client_id
-                AND bill.uu_bill_id IS NULL
 SQL;
-        $db->createCommand($updateSQL)
-            ->query();
+        echo $db->createCommand($updateSQL)
+            ->execute();
         echo '. ';
 
     }
