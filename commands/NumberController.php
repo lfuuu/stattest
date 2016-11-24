@@ -76,7 +76,7 @@ class NumberController extends Controller
         echo PHP_EOL . PHP_EOL . date("r");
         $saved = CounterInteropTrunk::find()->indexBy('account_id')->asArray()->all();
 
-        $loaded = ArrayHelper::index(\Yii::$app->dbPg->createCommand("
+        $loaded = ArrayHelper::index(\Yii::$app->dbPgSlave->createCommand("
           select 
             ROUND(CAST(SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END) as NUMERIC), 2) as income_sum, 
             ROUND(CAST(SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) as NUMERIC), 2) as outcome_sum, 

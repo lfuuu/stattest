@@ -35,7 +35,7 @@ class CallsDao extends Singleton
     ) {
 
         $command =
-            \Yii::$app->get('dbPg')
+            \Yii::$app->get('dbPgSlave')
                 ->createCommand("
                         select
                             case destination_id <= 0 when true then

@@ -7,6 +7,7 @@
  */
 
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\modules\nnp\filter\OperatorFilter;
@@ -37,12 +38,13 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
-        'label' => 'Диапазон номеров',
+        'attribute' => 'cnt',
+        'class' => IntegerRangeColumn::className(),
         'format' => 'html',
         'value' => function (Operator $operator) use ($baseView) {
             return $baseView->render('//layouts/_link', [
                     'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[operator_id]' => $operator->id]),
-                    'text' => Yii::t('common', 'Show'),
+                    'text' => $operator->cnt,
                     'glyphicon' => 'glyphicon-list-alt',
                 ]
             );

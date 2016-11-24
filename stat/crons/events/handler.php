@@ -5,6 +5,7 @@ use app\classes\ActaulizerVoipNumbers;
 use app\classes\api\ApiVpbx;
 use app\classes\behaviors\uu\AccountTariffBiller;
 use app\classes\behaviors\uu\SyncAccountTariffLight;
+use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
 use app\classes\partners\RewardCalculate;
@@ -226,6 +227,11 @@ function do_events()
                     break;
                 }
 
+                case SyncVmCollocation::EVENT_SYNC:
+                    // Синхронизировать в VM manager
+                    (new SyncVmCollocation)->syncVm($param['account_tariff_id']);
+                    break;
+
                 case Event::UU_ACCOUNT_TARIFF_VOIP:
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
                     $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
@@ -261,13 +267,14 @@ function do_events()
                     $isFeedbackServer && ActaulizerCallChatUsage::me()->actualizeUsage($param['usage_id']);
                     break;
 
-                case Event::ACCOUNT_BLOCKED: {
-                    $isVpbxServer && ApiVpbx::lockAccount($param['account_id']);
+                case Event::ACCOUNT_BLOCKED:
+                    $isVpbxServer && ApiVpbx::lockAccount($param['account_id']); // Синхронизировать в Vpbx
+                    (new SyncVmCollocation)->disableAccount($param['account_id']); // Синхронизировать в VM manager
                     break;
-                }
 
-                case Event::ACCOUNT_UNBLOCKED: {
-                    $isVpbxServer && ApiVpbx::unlockAccount($param['account_id']);
+                case Event::ACCOUNT_UNBLOCKED:
+                    $isVpbxServer && ApiVpbx::unlockAccount($param['account_id']); // Синхронизировать в Vpbx
+                    (new SyncVmCollocation)->enableAccount($param['account_id']); // Синхронизировать в VM manager
                     break;
                 }
 

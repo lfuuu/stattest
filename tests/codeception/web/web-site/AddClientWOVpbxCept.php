@@ -16,7 +16,7 @@ $query = http_build_query([
     'client_comment' => 'test TEST',
     'fio' => 'fio',
     'phone_connect' => '',
-    'lk_access' => 1,
+    'is_lk_access' => 1,
     'vats_tariff_id' => '',
 ]);
 

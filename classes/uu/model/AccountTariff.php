@@ -8,7 +8,6 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\Region;
-use app\models\usages\UsageInterface;
 use DateTime;
 use DateTimeImmutable;
 use Yii;
@@ -28,6 +27,7 @@ use yii\helpers\Url;
  * @property int $tariff_period_id   Если null, то закрыто. Кэш AccountTariffLog->TariffPeriod
  * @property string $comment
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
+ * @property int vm_elid_id ID VM collocation
  *
  * @property ClientAccount $clientAccount
  * @property ServiceType $serviceType
@@ -386,9 +386,10 @@ class AccountTariff extends ActiveRecord
      * У последнего тарифа dateTo может быть null (не ограничен по времени)
      *
      * @param bool $isWithFuture
-     * @return \app\classes\uu\forms\AccountLogFromToTariff[]
+     * @param Period $chargePeriodMain если указано, то использовать указанное, а не из tariffPeriod
+     * @return AccountLogFromToTariff[]
      */
-    public function getAccountLogHugeFromToTariffs($isWithFuture = false)
+    public function getAccountLogHugeFromToTariffs($isWithFuture = false, $chargePeriodMain = null)
     {
         /** @var AccountLogFromToTariff[] $accountLogPeriods */
         $accountLogPeriods = [];
@@ -402,14 +403,14 @@ class AccountTariff extends ActiveRecord
 
                 // закончить предыдущий период
                 $prevAccountTariffLog = $accountLogPeriods[$count - 1];
-                $prevTariffPeriodChargePeriod = $prevAccountTariffLog->tariffPeriod->chargePeriod;
+                $prevTariffPeriodChargePeriod = $chargePeriodMain ?: $prevAccountTariffLog->tariffPeriod->chargePeriod;
 
                 // старый тариф должен закончиться не раньше этой даты
                 $dateActualFromYmd = $dateActualFrom->format(DateTimeZoneHelper::DATE_FORMAT);
                 $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($dateActualFromYmd < $insertTimeYmd) {
-                    $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
-//                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
+//                    $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
+                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
                 }
 
                 /** @var DateTimeImmutable $dateFromNext дата теоретического начала (продолжения) старого тарифа. Из нее -1day получается дата окончания его прошлого периода */
@@ -458,7 +459,7 @@ class AccountTariff extends ActiveRecord
 
         // взять большие периоды, разбитые только по смене тарифов
         // и разбить по периодам списания и первым числам
-        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs();
+        $accountLogHugePeriods = $this->getAccountLogHugeFromToTariffs($isWithFuture = false, $chargePeriodMain);
         foreach ($accountLogHugePeriods as $accountLogHugePeriod) {
 
             $dateTo = $accountLogHugePeriod->dateTo;
@@ -846,5 +847,33 @@ class AccountTariff extends ActiveRecord
             $this->addError($attribute, 'Tariff_period_id не соответствует service_type_id');
             return;
         }
+    }
+
+    /**
+     * УУ-аккаунт?
+     * @param int $clientAccountId
+     * @return bool|null null - нет клиента, false - 4 (старый), true - 5 (УУ)
+     */
+    public static function isUuAccount($clientAccountId = null)
+    {
+        if (!$clientAccountId) {
+            global $fixclient_data;
+            if (isset($fixclient_data['id']) && $fixclient_data['id'] > 0) {
+                $clientAccountId = (int)$fixclient_data['id'];
+
+            }
+        }
+
+        if (!$clientAccountId) {
+            return null;
+        }
+
+        $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
+        if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            Yii::$app->session->setFlash('error', 'Неуниверсальную услугу можно добавить только аккаунту, тарифицируемому неуниверсально.');
+            return true;
+        }
+
+        return false;
     }
 }

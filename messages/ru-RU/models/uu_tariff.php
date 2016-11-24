@@ -15,6 +15,7 @@ return [
     'tariff_person_id' => 'Для кого',
     'voip_tarificate_id' => 'Тарификация',
     'voip_group_id' => 'Группа телефонии',
+    'vm_id' => 'Тариф VM collocation',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',

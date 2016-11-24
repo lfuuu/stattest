@@ -142,15 +142,16 @@ class VoipController extends BaseController
      * @param int $cityId
      * @param int $isWithEmpty
      * @param string $format
+     * @param int $statusId
      */
-    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $status = null)
+    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $statusId = null)
     {
         if (!$cityId) {
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
         $tariffPeriods = TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId, $currency, $cityId, $isWithEmpty,
-            $isWithNullAndNotNull = false, $isFilterUuOnly = true, $status);
+            $isWithNullAndNotNull = false, $statusId);
         $this->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
     }
 

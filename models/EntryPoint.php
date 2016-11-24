@@ -1,0 +1,178 @@
+<?php
+namespace app\models;
+
+use yii\db\ActiveRecord;
+
+/**
+ * @property int id
+ * @property string code
+ * @property string name
+ * @property string super_client_prefix
+ * @property string wizard_type
+ * @property int country_id
+ * @property int organization_id
+ * @property int client_contract_business_id
+ * @property int client_contract_business_process_id
+ * @property int client_contract_business_process_status_id
+ * @property string currency_id
+ * @property string timezone_name
+ * @property int is_postpaid
+ * @property int account_version
+ * @property int credit
+ * @property int voip_credit_limit_day
+ * @property int voip_limit_mn_day
+ * @property int is_default
+ */
+class EntryPoint extends ActiveRecord
+{
+    public function __construct(array $config = [])
+    {
+        parent::__construct($config);
+
+        //default values
+        $this->id = 0;
+        $this->credit = 0;
+        $this->voip_credit_limit_day = 0;
+        $this->voip_limit_mn_day = 0;
+
+        $this->account_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
+        $this->wizard_type = LkWizardState::TYPE_MCN;
+        $this->currency_id = Currency::RUB;
+        $this->organization_id = Organization::MCN_TELEKOM;
+        $this->country_id = Country::RUSSIA;
+        $this->timezone_name = Region::TIMEZONE_MOSCOW;
+        $this->is_postpaid = 1;
+
+        $this->client_contract_business_id = Business::TELEKOM;
+        $this->client_contract_business_process_id = BusinessProcess::TELECOM_MAINTENANCE;
+        $this->client_contract_business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
+    }
+
+    /**
+     * @return string
+     */
+    public static function tableName()
+    {
+        return 'entry_point';
+    }
+
+    /**
+     * @return array
+     */
+    public static function primaryKey()
+    {
+        return ['id', 'code'];
+    }
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [
+                [
+                    'code',
+                    'name',
+                    'wizard_type',
+                    'country_id',
+                    'organization_id',
+                    'currency_id',
+                    'timezone_name',
+                    'is_postpaid',
+                    'account_version',
+                    'credit',
+                    'voip_credit_limit_day',
+                    'voip_limit_mn_day',
+                    'client_contract_business_id',
+                    'client_contract_business_process_id',
+                    'client_contract_business_process_status_id'
+                ],
+                'required'
+            ],
+
+            ['wizard_type', 'in', 'range' => array_keys(LkWizardState::$name)],
+            ['country_id', 'in', 'range' => array_keys(Country::getList())],
+            ['region_id', 'in', 'range' => array_keys(Region::getList())],
+            ['organization_id', 'in', 'range' => array_keys(Organization::dao()->getList())],
+            ['currency_id', 'in', 'range' => array_keys(Currency::getList())],
+            ['timezone_name', 'in', 'range' => Region::getTimezoneList()],
+            [['is_postpaid', 'is_default'], 'boolean'],
+            ['account_version', 'in', 'range' => array_keys(ClientAccount::$versions)],
+            [['credit', 'voip_credit_limit_day', 'voip_limit_mn_day'], 'integer', 'min' => 0],
+            [
+                [
+                    'client_contract_business_id',
+                    'client_contract_business_process_id',
+                    'client_contract_business_process_status_id'
+                ],
+                'integer'
+            ],
+            ['super_client_prefix', 'safe'],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function attributeLabels()
+    {
+        return [
+            'code' => 'ID (code)',
+            'name' => 'Название точки входа',
+            'super_client_prefix' => 'СуперКлиент префикс',
+            'wizard_type' => "Тип Wizard'a",
+            'country_id' => 'Страна',
+            'organization_id' => 'Организация',
+            'client_contract_business_id' => 'Подразделение',
+            'client_contract_business_process_id' => 'Бизнес-процесс',
+            'client_contract_business_process_status_id' => 'Статус БП',
+            'currency_id' => 'Валюта',
+            'timezone_name' => 'Часовой пояс',
+            'is_postpaid' => 'Метод платежа - препейд',
+            'account_version' => 'Версия ЛС	',
+            'credit' => 'Кредит',
+            'voip_credit_limit_day' => 'Лимит телефонии',
+            'voip_limit_mn_day' => 'Лимит телефонии МН',
+            'is_default' => 'По-умолчанию',
+            'region_id' => 'Точка подключения',
+        ];
+    }
+
+    /**
+     * Только одна точка входа должна быть по-умолчанию
+     *
+     * @param bool $insert
+     * @return bool
+     */
+    public function beforeSave($insert)
+    {
+        if ($this->is_default) {
+            EntryPoint::updateAll(['is_default' => 0]);
+        }
+
+        return parent::beforeSave($insert);
+    }
+
+    /**
+     * Вовращает точку входа по коду, или по-умолчанию, если такая не найдена
+     *
+     * @param string $code
+     * @return EntryPoint
+     */
+    public static function getByIdOrDefault($code)
+    {
+        $entryPoint = null;
+
+        if ($code) {
+            $entryPoint = static::findOne(['code' => $code]);
+        }
+
+        if (!$entryPoint) {
+            $entryPoint = static::findOne(['is_default' => 1]);
+        }
+
+        return $entryPoint;
+    }
+
+}

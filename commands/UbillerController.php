@@ -268,14 +268,4 @@ class UbillerController extends Controller
         Bill::deleteAll();
         echo '. ' . PHP_EOL;
     }
-
-    /**
-     * Удаление счетов, сделанных из проводок универсального биллера
-     */
-    public function actionCleanTransferedBills()
-    {
-        stdBill::deleteAll(['biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]);
-
-        return Controller::EXIT_CODE_NORMAL;
-    }
 }

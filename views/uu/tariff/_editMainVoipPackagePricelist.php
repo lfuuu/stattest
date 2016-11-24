@@ -33,7 +33,24 @@ if (!$packagePricelists) {
     </script>
     <?php
 }
-$pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type = 'client', $orig = true);
+
+switch ($tariff = $formModel->tariff->service_type_id) {
+
+    case \app\classes\uu\model\ServiceType::ID_VOIP_PACKAGE:
+        $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type = 'client', $orig = true);
+        break;
+
+    case \app\classes\uu\model\ServiceType::ID_TRUNK_PACKAGE_ORIG:
+        $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type = 'operator', $orig = true);
+        break;
+
+    case \app\classes\uu\model\ServiceType::ID_TRUNK_PACKAGE_TERM:
+        $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type = 'operator', $orig = false);
+        break;
+
+    default:
+        throw new LogicException('Неизвестный тип услуги ' . $formModel->tariff->service_type_id);
+}
 
 if ($editableType <= TariffController::EDITABLE_LIGHT) {
     $options = ['disabled' => 'disabled'];
@@ -53,8 +70,8 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     'title' => $attributeLabels['pricelist_id'],
                     'type' => Editable::INPUT_SELECT2,
                     'options' => $options + [
-                        'data' => $pricelistList,
-                    ],
+                            'data' => $pricelistList,
+                        ],
                 ],
                 [
                     'name' => 'id', // чтобы идентифицировать модель

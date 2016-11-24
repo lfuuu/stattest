@@ -17,6 +17,7 @@ use app\classes\uu\resourceReader\VpbxExtDidResourceReader;
 use app\classes\uu\resourceReader\VpbxFaxResourceReader;
 use app\classes\uu\resourceReader\VpbxRecordResourceReader;
 use app\classes\uu\resourceReader\VpnTrafficResourceReader;
+use app\classes\uu\resourceReader\ZeroResourceReader;
 use app\models\Language;
 use Yii;
 use yii\db\ActiveQuery;
@@ -65,6 +66,8 @@ class Resource extends \yii\db\ActiveRecord
 
     const ID_VPBX_MIN_ROUTE = 19; // ВАТС. Маршрутизация по минимальной цене
     const ID_VPBX_GEO_ROUTE = 20; // ВАТС. Маршрутизация по географии
+
+    const ID_TRUNK_CALLS = 21; // Транк. Звонки
 
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
@@ -142,14 +145,16 @@ class Resource extends \yii\db\ActiveRecord
 
             self::ID_SMS => SmsResourceReader::className(),                           // СМС (шт, int). nispd.sms_stat - количество СМСок по дням;
 
-            self::ID_VM_COLLOCATION_PROCESSOR => DummyResourceReader::className(),    // VM collocation. Процессор
-            self::ID_VM_COLLOCATION_HDD => DummyResourceReader::className(),          // VM collocation. Постоянная память
-            self::ID_VM_COLLOCATION_RAM => DummyResourceReader::className(),          // VM collocation. Оперативная память
+            self::ID_VM_COLLOCATION_PROCESSOR => ZeroResourceReader::className(), // VM collocation. Процессор
+            self::ID_VM_COLLOCATION_HDD => ZeroResourceReader::className(), // VM collocation. Постоянная память
+            self::ID_VM_COLLOCATION_RAM => ZeroResourceReader::className(), // VM collocation. Оперативная память
 
             self::ID_ONE_TIME => DummyResourceReader::className(),                    // Разовая услуга
 
             self::ID_VPBX_MIN_ROUTE => DummyResourceReader::className(),              // ВАТС. Маршрутизация по минимальной цене
             self::ID_VPBX_GEO_ROUTE => DummyResourceReader::className(),              // ВАТС. Маршрутизация по географии
+
+            self::ID_TRUNK_CALLS => VoipCallsResourceReader::className(),        // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
         ];
         $className = $idToClassName[$id];
         return new $className();

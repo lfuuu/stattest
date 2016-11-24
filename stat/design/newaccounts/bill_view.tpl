@@ -1,34 +1,3 @@
-<style type="text/css">
-{literal}
-.content-wrap {
-    width: 300px;
-    height: 40px;
-    border: 1px dashed grey;
-    padding: 4px;
-    position: relative;
-    clear: both;
-}
-.content-wrap:hover .more-info {
-    display: block;
-    box-shadow: 0 0 8px rgba(0,0,0,0.5);
-}
-.full-text {
-    height: 35px;
-    overflow: hidden;
-}
-.more-info {
-    border: 1px dashed grey;
-    background: #ccc;
-    position: absolute;
-    left: -1px;
-    top: -1px;
-    right: -1px;
-    padding: 4px;
-    display: none;
-}
-{/literal}
-</style>
-
 <table border=0 width=100%>
     <tr>
         <td width="33%">
@@ -313,84 +282,108 @@
 </form>
 {/if}
 
-<hr>
-
-<form action='?' method=get target=_blank name=formsend id=formsend>
-<table cellspacing=0 cellpadding=10 valign=top><tr>
-
-<td style='border-width:1 0 1 1; border-style:solid;border-color:#808080' valign=top>
-<b>Печать/отправка:</b><br>
-<input type=hidden name=module value=newaccounts>
-<input type=hidden name=bill value="{$bill.bill_no}">
-
-{if $available_documents}
-    {foreach from=$available_documents item=item}
-        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" /><label for="{$item.class}">{$item.title}</label> <a href="/document/get-mhtml?billNo={$bill.bill_no}">MS Word</a><br />
-    {/foreach}
-{/if}
-
-<!--input type=checkbox value=1 name="bill-2-RUB" id=cb3><label for=cb3>Счет (предоплата)</label><br-->
-<input type=checkbox value=1 name="envelope" id=cb4c><label for=cb4c{if !in_array('payment', $client|client_options:mail_delivery_variant)} style="text-decoration: line-through;"{/if}>Сопроводительное письмо</label><br>
-
-<input type=checkbox value=1 name="invoice-1" id=cb5><label for=cb5{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Счёт-фактура (1 абонентка)</label><br>
-<input type=checkbox value=1 name="invoice-2" id=cb6><label for=cb6{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Счёт-фактура (2 превышение)</label><br>
-<input type=checkbox value=1 name="invoice-3" id=cb7><label for=cb7{if !$bill_invoices[3]} style='color:#C0C0C0'{/if}>Счёт-фактура (3 оборудование)</label><br>
-<input type=checkbox value=1 name="invoice-4" id=cbc><label for=cbc{if $bill_invoices[5] eq 0} style='color:#C0C0C0'{elseif $bill_invoices[5] eq -1} style='background-color:#ffc0c0;font-style: italic;'{/if}>Счёт-фактура (4 аванс)</label><br>
-
-<input type=checkbox value=1 name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style='color:#C0C0C0'{/if}>УПД (1 абонентка)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-1&to_print=true&is_word=true">MS Word</a><br />
-<input type=checkbox value=1 name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style='color:#C0C0C0'{/if}>УПД (2 превышение)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-2&to_print=true&is_word=true">MS Word</a><br />
-<input type=checkbox value=1 name="upd-3" id="updt"><label for="updt"{if !$bill_invoices[3]} style='color:#C0C0C0'{/if}>УПД (Т оборудование)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-3&to_print=true&is_word=true">MS Word</a><br />
-
-Действие: <select name=action id="action">
-<option value="bill_mprint">печать</option>
-<option value="bill_email">отправка</option>
-</select><br>
-PDF: <input type="checkbox" name="is_pdf" = value="1" /><br />
-
-<br><input type=button class=button value='Поехали' onclick="doFormSend()">
-
-
-
-
-</td><td valign=top style='border-width:1 1 1 0; border-style:solid;border-color:#808080'>
-
-<input type=checkbox value=1 name="akt-1" id=cb8><label for=cb8{if !$bill_invoices[1]} style='color:#C0C0C0'{/if}>Акт (1 абонентка)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-1&to_print=true&is_word=true">MS Word</a><br />
-<input type=checkbox value=1 name="akt-2" id=cb9><label for=cb9{if !$bill_invoices[2]} style='color:#C0C0C0'{/if}>Акт (2 превышение)</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-2&to_print=true&is_word=true">MS Word</a><br />
-<input type=checkbox value=1 name="akt-3" id=cba><label for=cba{if !$bill_akts[3]} style='color:#C0C0C0'{/if}>Акт (3 оборудование)</label><br />
-<input type=checkbox value=1 name="lading" id=cbb><label for=cbb{if !$bill_invoices[4]} style='color:#C0C0C0'{/if}>Накладная</label> <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=lading&to_print=true&is_word=true">MS Word</a><br>
-<input type="checkbox" value="1" name="gds" id="gds" /><label for=gds{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек</label><br>
-<input type="checkbox" value="1" name="gds-serial" id="gds_serial" /><label for=gds_serial{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек (с серийными номерами)</label><br>
-<input type="checkbox" value="1" name="gds-2" id="cbd" /><label for=cbd style='color:#808080'>Товарный чек (все позиции)</label><hr>
-{if $is_set_date}
-<input type='text' value='{if $bill.doc_ts}{$bill.doc_ts|date_format:"%d.%m.%Y"}{else}{$smarty.now|date_format:"%d.%m.%Y"}{/if}' name='without_date_date' size='10'{if $bill.doc_ts} style="color: #c40000; font-weight: bold;"{/if}> <br><input type='checkbox' name='without_date' value='1' id='wd' /><label for=wd>Установить дату документа</label><br>
 <hr />
-{/if}
-{if $bill_client.client_orig == "nbn"}
-<input type=checkbox value=1 name="nbn_deliv" id=wm9><label for='wm9'>NetByNet: акт доставка</label><br>
-<input type=checkbox value=1 name="nbn_modem" id=wm10><label for='wm10'>NetByNet: акт модем</label><br>
-<input type=checkbox value=1 name="nbn_gds" id=wm11><label for='wm11'>NetByNet: заказ</label><br>
-{/if}
-{if $bill_client.firma == 'mcm_telekom'}
-<input type=checkbox value=1 name="notice_mcm_telekom" id=wm10><label for='wm10'>Уведомление (МСМ Телеком)</label><br>
-{/if}
-{if $bill_client.firma == 'mcn_telekom'}
-    <input type="checkbox" value="1" name="sogl_mcm_telekom" id="wm112" />
-    <label for="wm112">Договор переуступки С МСН Телеком на МСМ Телеком</label><br />
-{/if}
 
+<form action="?" method="get" target="_blank" name="formsend" id="formsend">
+    <table cellspacing="2" cellpadding="10" valign="top">
+        <tr>
+            <td style="border-width:1 0 1 1; border-style:solid;border-color:#808080" valign="top">
+                <b>Печать/отправка:</b><br>
+                <input type="hidden" name="module" value="newaccounts" />
+                <input type="hidden" name="bill" value="{$bill.bill_no}" />
 
-</td><td valign=top>
-Почтовый реестр: {$bill.postreg}
-<br>
-<a href='{$LINK_START}module=newaccounts&action=bill_postreg&bill={$bill.bill_no}'>зарегистрировать</a><br>
-<a href='{$LINK_START}module=newaccounts&action=bill_postreg&option=1&bill={$bill.bill_no}'>удалить</a><br>
-<br><br>
-Счёт-фактура (2):
-            {if $bill.inv2to1==1}<a href='/bill/bill/set-invoice2-date-as-invoice1?billId={$bill.id}&value=0'>как обычно</a>{else}как обычно{/if} /
-            {if $bill.inv2to1==0}<a href='/bill/bill/set-invoice2-date-as-invoice1?billId={$bill.id}&value=1'>по дате первой</a>{else}по дате первой{/if}<br>
-</td></tr></table>
+                {if $available_documents}
+                    {foreach from=$available_documents item=item}
+                        <input type="checkbox" name="document_reports[]" value="{$item.class}" id="{$item.class}" />
+                            <label for="{$item.class}">{$item.title}</label> <a href="/document/get-mhtml?billNo={$bill.bill_no}">MS Word</a><br />
+                    {/foreach}
+                {/if}
 
+                <!--input type=checkbox value=1 name="bill-2-RUB" id=cb3><label for=cb3>Счет (предоплата)</label><br-->
+                <input type=checkbox value="1" name="envelope" id=cb4c><label for="cb4c"{if !in_array('payment', $client|client_options:mail_delivery_variant)} style="text-decoration: line-through;"{/if}>Сопроводительное письмо</label><br />
+
+                <input type=checkbox value="1" name="invoice-1" id=cb5><label for="cb5"{if !$bill_invoices[1]} style="color:#C0C0C0"{/if}>Счёт-фактура (1 абонентка)</label><br>
+                <input type=checkbox value="1" name="invoice-2" id=cb6><label for="cb6"{if !$bill_invoices[2]} style="color:#C0C0C0"{/if}>Счёт-фактура (2 превышение)</label><br>
+                <input type=checkbox value="1" name="invoice-3" id=cb7><label for="cb7"{if !$bill_invoices[3]} style="color:#C0C0C0"{/if}>Счёт-фактура (3 оборудование)</label><br>
+                <input type=checkbox value="1" name="invoice-4" id=cbc><label for="cbc"{if $bill_invoices[5] eq 0} style="color:#C0C0C0"{elseif $bill_invoices[5] eq -1} style="background-color:#ffc0c0;font-style: italic;"{/if}>Счёт-фактура (4 аванс)</label><br>
+
+                <input type=checkbox value="1" name="upd-1" id="upd1"><label for="upd1"{if !$bill_upd[1]} style="color:#C0C0C0"{/if}>УПД (1 абонентка)</label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-1&to_print=true&is_word=true">MS Word</a><br />
+
+                <input type=checkbox value="1" name="upd-2" id="upd2"><label for="upd2"{if !$bill_upd[2]} style="color:#C0C0C0"{/if}>УПД (2 превышение)</label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-2&to_print=true&is_word=true">MS Word</a><br />
+
+                <input type=checkbox value="1" name="upd-3" id="updt"><label for="updt"{if !$bill_invoices[3]} style="color:#C0C0C0"{/if}>УПД (Т оборудование)</label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=upd-3&to_print=true&is_word=true">MS Word</a><br />
+
+                Действие:
+                <select name="action" id="action">
+                    <option value="bill_mprint">печать</option>
+                    <option value="bill_email">отправка</option>
+                </select><br />
+                PDF: <input type="checkbox" name="is_pdf" = value="1" /><br /><br/>
+                <input type=button class=button value='Поехали' onclick="doFormSend()" />
+            </td>
+            <td valign=top style="border-width:1 1 1 0; border-style:solid;border-color:#808080">
+                <input type=checkbox value="1" name="akt-1" id="cb8"><label for="cb8"{if !$bill_akts[1]} style="color:#C0C0C0"{/if}>Акт (1 абонентка)</label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-1&to_print=true&is_word=true">MS Word</a><br />
+
+                <input type=checkbox value="1" name="akt-2" id="cb9"><label for="cb9"{if !$bill_akts[2]} style="color:#C0C0C0"{/if}>Акт (2 превышение)</label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=akt-2&to_print=true&is_word=true">MS Word</a><br />
+
+                <input type=checkbox value="1" name="akt-3" id="cba"><label for="cba"{if !$bill_akts[3]} style="color:#C0C0C0"{/if}>Акт (3 оборудование)</label><br />
+
+                <input type=checkbox value="1" name="lading" id="cbb"><label for="cbb"{if !$bill_invoices[4]} style="color:#C0C0C0"{/if}>Накладная</label>
+                <a href="?module=newaccounts&action=bill_print&bill={$bill.bill_no}&object=lading&to_print=true&is_word=true">MS Word</a><br />
+
+                <input type="checkbox" value="1" name="gds" id="gds" /><label for="gds"{if !$bill_invoices[7]} style="color:#C0C0C0"{/if}>Товарный чек</label><br />
+
+                <input type="checkbox" value="1" name="gds-serial" id="gds_serial" /><label for="gds_serial"{if !$bill_invoices[7]} style='color:#C0C0C0'{/if}>Товарный чек (с серийными номерами)</label><br />
+
+                <input type="checkbox" value="1" name="gds-2" id="cbd" /><label for="cbd" style="color:#808080">Товарный чек (все позиции)</label><hr />
+                {if $is_set_date}
+                    <input type="text" value="{if $bill.doc_ts}{$bill.doc_ts|date_format:"%d.%m.%Y"}{else}{$smarty.now|date_format:"%d.%m.%Y"}{/if}" name="without_date_date" size="10"{if $bill.doc_ts} style="color: #c40000; font-weight: bold;"{/if}><br />
+                    <input type="checkbox" name="without_date" value="1" id="wd" /><label for="wd">Установить дату документа</label><br />
+                    <hr />
+                {/if}
+                {if $bill_client.client_orig == "nbn"}
+                    <input type="checkbox" value="1" name="nbn_deliv" id="wm9"><label for="wm9">NetByNet: акт доставка</label><br />
+                    <input type="checkbox" value="1" name="nbn_modem" id="wm10"><label for="wm10">NetByNet: акт модем</label><br />
+                    <input type="checkbox" value="1" name="nbn_gds" id="wm11"><label for="wm11">NetByNet: заказ</label><br />
+                {/if}
+                {if $bill_client.firma == 'mcm_telekom'}
+                    <input type="checkbox" value="1" name="notice_mcm_telekom" id="wm10"><label for="wm10">Уведомление (МСМ Телеком)</label><br />
+                {/if}
+                {if $bill_client.firma == 'mcn_telekom'}
+                    <input type="checkbox" value="1" name="sogl_mcm_telekom" id="wm112" />
+                    <label for="wm112">Договор переуступки С МСН Телеком на МСМ Телеком</label><br />
+                {/if}
+            </td>
+            <td valign="top">
+                Почтовый реестр: {$bill.postreg}
+                <br />
+                <a href="{$LINK_START}module=newaccounts&action=bill_postreg&bill={$bill.bill_no}">зарегистрировать</a><br />
+                <a href="{$LINK_START}module=newaccounts&action=bill_postreg&option=1&bill={$bill.bill_no}">удалить</a><br />
+                <br /><br />
+                Счёт-фактура (2):
+                {if $bill.inv2to1==1}<a href="/bill/bill/set-invoice2-date-as-invoice1?billId={$bill.id}&value=0">как обычно</a>{else}как обычно{/if} /
+                {if $bill.inv2to1==0}<a href="/bill/bill/set-invoice2-date-as-invoice1?billId={$bill.id}&value=1">по дате первой</a>{else}по дате первой{/if}<br />
+            </td>
+            <td valign="top" style="width:300px;">
+                {if $bill_client.account_version == 5}
+                    {foreach from=$listOfInvoices item=item}
+                        <div title="{$item.langTitle}" class="flag flag-{$item.langFlag}"></div>
+                        <a href="/uu/invoice/view?langCode={$item.langCode}&month={$item.month}" target="_blank">
+                            Счет-фактура № {$item.number}
+                        </a>
+                        <br />
+                    {/foreach}
+                {/if}
+            </td>
+        </tr>
+    </table>
 </form>
+
 <script>
 {literal}
 function doFormSend()
@@ -460,3 +453,34 @@ jQuery(document).ready(function() {
 });
 {/literal}
 </script>
+
+<style type="text/css">
+    {literal}
+    .content-wrap {
+        width: 300px;
+        height: 40px;
+        border: 1px dashed grey;
+        padding: 4px;
+        position: relative;
+        clear: both;
+    }
+    .content-wrap:hover .more-info {
+        display: block;
+        box-shadow: 0 0 8px rgba(0,0,0,0.5);
+    }
+    .full-text {
+        height: 35px;
+        overflow: hidden;
+    }
+    .more-info {
+        border: 1px dashed grey;
+        background: #ccc;
+        position: absolute;
+        left: -1px;
+        top: -1px;
+        right: -1px;
+        padding: 4px;
+        display: none;
+    }
+    {/literal}
+</style>

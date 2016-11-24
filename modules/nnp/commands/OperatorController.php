@@ -4,6 +4,7 @@ namespace app\modules\nnp\commands;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\console\Controller;
 
 /**
@@ -11,55 +12,6 @@ use yii\console\Controller;
  */
 class OperatorController extends Controller
 {
-
-    protected $preProcessing = [
-//        '"',
-//        'ООО ',
-//        'ОАО ',
-//        'ЗАО ',
-//        'ПАО ',
-//        'АО ',
-//        'Закрытое акционерное общество ',
-//        'Акционерное общество ',
-//        'ФГУП ',
-//        'ГУП ',
-//        'государственное унитарное предприятие ',
-//        'Финансовая Компания ',
-//        'Компания ',
-        'Вымпел-Коммуникации' => 'Билайн',
-        'МегаФон' => 'МегаФон',
-        'Мобильные ТелеСистемы' => 'МТС',
-        'СИБИНТЕРТЕЛЕКОМ' => 'МТС',
-        'Ростелеком' => 'Ростелеком',
-        'Сибирьтелеком' => 'Ростелеком',
-        'Теле2' => 'Теле2',
-        'Т2 Мобайл' => 'Теле2',
-        'Глобалстар' => 'Глобалстар',
-        'Глобал Телеком' => 'Глобал Телеком',
-        'К-телеком' => 'К-телеком',
-        'ТранзитТелеком' => 'МТТ',
-        'Скартел' => 'Скартел',
-        'Антарес' => 'Антарес',
-        'ЕКАТЕРИНБУРГ-2000' => 'Мотив',
-        'Вайнах Телеком' => 'Вайнах Телеком',
-        'Московская телекоммуникационная корпорация' => 'Акадо',
-        'Московская городская телефонная сеть' => 'МГТС',
-        'Арктур' => 'Арктур',
-        'Астрахань GSM' => 'Астрахань GSM',
-        'Ярославль-GSM' => 'Ярославль GSM',
-        'Интеграл' => 'Интеграл',
-        'КРЫМТЕЛЕКОМ' => 'КрымТелеком',
-        'Центральный телеграф' => 'Центральный телеграф',
-        'ЗЕБРА ТЕЛЕКОМ' => 'Зебра',
-        'ТрансТелеКом' => 'ТрансТелеКом',
-        'Нэт Бай Нэт' => 'NetByNet',
-        'Твои мобильные технологии' => 'Твои мобильные технологии',
-        'АКОС' => 'АКОС',
-        'Элемтэ-Инвест' => 'Элемтэ-Инвест',
-        'Сотовая связь Башкортостана' => 'Сотовая связь Башкортостана',
-        'Императив' => 'Императив',
-        'Наша сеть' => 'Наша сеть',
-    ];
 
     /**
      * @return int
@@ -84,12 +36,21 @@ class OperatorController extends Controller
                 'id' => 'operator_id',
             ])
             ->where('operator_id IS NOT NULL')
+            ->andWhere('operator_source IS NOT NULL AND operator_source != :empty')
+            ->params([
+                ':empty' => '',
+            ])
             ->indexBy('name')
             ->asArray()
             ->all();
 
         $numberRangeQuery = NumberRange::find()
-            ->where('operator_id IS NULL');
+            ->where('is_active')
+            ->andWhere('operator_id IS NULL')
+            ->andWhere('operator_source IS NOT NULL AND operator_source != :empty')
+            ->params([
+                ':empty' => '',
+            ]);
         $i = 0;
 
         /** @var NumberRange $numberRange */
@@ -99,21 +60,25 @@ class OperatorController extends Controller
                 echo '. ';
             }
 
-            $operatorSource = $this->preProcessing($numberRange->operator_source);
-            if (!$operatorSource) {
-                continue;
-            }
+            $operatorSource = $numberRange->operator_source;
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
+
                 if (!isset($operatorSourceToId[$operatorSource])) {
                     $operator = new Operator();
                     $operator->name = $operatorSource;
-                    $operator->save();
+                    $operator->country_prefix = $numberRange->country_prefix;
+                    if (!$operator->save()) {
+                        throw new InvalidParamException(implode('. ', $operator->getFirstErrors()));
+                    }
                     $operatorSourceToId[$operatorSource] = ['id' => $operator->id];
                 }
+
                 $numberRange->operator_id = $operatorSourceToId[$operatorSource]['id'];
-                $numberRange->save();
+                if (!$numberRange->save()) {
+                    throw new InvalidParamException(implode('. ', $numberRange->getFirstErrors()));
+                }
 
                 $transaction->commit();
             } catch (\Exception $e) {
@@ -124,22 +89,10 @@ class OperatorController extends Controller
             }
         }
 
+        // Обновить столбец cnt
+        Operator::updateCnt();
+
         echo PHP_EOL;
         return Controller::EXIT_CODE_NORMAL;
-    }
-
-    /**
-     * Обработать напильником
-     * @param string $value
-     * @return string
-     */
-    protected function preProcessing($value)
-    {
-        foreach ($this->preProcessing as $preProcessingFrom => $preProcessingTo) {
-            if (strpos($value, $preProcessingFrom) !== false) {
-                return $preProcessingTo;
-            }
-        }
-        return null;
     }
 }

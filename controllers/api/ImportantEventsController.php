@@ -43,6 +43,11 @@ class ImportantEventsController extends ApiInternalController
      *   )
      * )
      */
+    /**
+     * @return array
+     * @throws FormValidationException
+     * @throws \yii\base\InvalidConfigException
+     */
     public function actionAdd()
     {
         $data = $this->getRequestParams();
@@ -83,31 +88,11 @@ class ImportantEventsController extends ApiInternalController
      *     description="результат работы метода",
      *     @SWG\Definition(
      *       type="object",
-     *       @SWG\Property(
-     *          property="id",
-     *          type="integer",
-     *          description="ID события"
-     *       ),
-     *       @SWG\Property(
-     *          property="client_id",
-     *          type="integer",
-     *          description="ID лицевого счета"
-     *       ),
-     *       @SWG\Property(
-     *          property="source_id",
-     *          type="integer",
-     *          description="ID источника события (table: important_events_sources)"
-     *       ),
-     *       @SWG\Property(
-     *          property="date",
-     *          type="string",
-     *          description="Дата события"
-     *       ),
-     *       @SWG\Property(
-     *          property="event",
-     *          type="string",
-     *          description="Код события"
-     *       ),
+     *       @SWG\Property(property="id", type="integer", description="ID события"),
+     *       @SWG\Property(property="client_id", type="integer", description="ID лицевого счета"),
+     *       @SWG\Property(property="source_id", type="integer", description="ID источника события (table: important_events_sources)"),
+     *       @SWG\Property(property="date", type="string", description="Дата события"),
+     *       @SWG\Property(property="event", type="string", description="Код события"),
      *     )
      *   ),
      *   @SWG\Response(
@@ -214,26 +199,10 @@ class ImportantEventsController extends ApiInternalController
      *     description="результат работы метода",
      *     @SWG\Definition(
      *       type="object",
-     *       @SWG\Property(
-     *          property="id",
-     *          type="integer",
-     *          description="ID названия"
-     *       ),
-     *       @SWG\Property(
-     *          property="code",
-     *          type="string",
-     *          description="Код события"
-     *       ),
-     *       @SWG\Property(
-     *          property="value",
-     *          type="string",
-     *          description="Название события"
-     *       ),
-     *       @SWG\Property(
-     *          property="group_id",
-     *          type="integer",
-     *          description="ID группы событий"
-     *       ),
+     *       @SWG\Property(property="id", type="integer", description="ID названия"),
+     *       @SWG\Property(property="code", type="string", description="Код события"),
+     *       @SWG\Property(property="value", type="string", description="Название события"),
+     *       @SWG\Property(property="group_id", type="integer", description="ID группы событий"),
      *     )
      *   ),
      *   @SWG\Response(
@@ -246,7 +215,7 @@ class ImportantEventsController extends ApiInternalController
      * )
      */
     /**
-     * @return array|\yii\db\ActiveRecord[]
+     * @return ImportantEventsNames[]
      */
     public function actionGetNames()
     {

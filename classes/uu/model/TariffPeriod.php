@@ -121,7 +121,6 @@ class TariffPeriod extends \yii\db\ActiveRecord
      * @param null $cityId
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
-     * @param bool $isFilterUuOnly false - все, true - только созданные в УУ
      * @param int $statusId
      * @return [][]
      */
@@ -132,7 +131,6 @@ class TariffPeriod extends \yii\db\ActiveRecord
         $cityId = null,
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
-        $isFilterUuOnly = false,
         $statusId = null
     ) {
         $defaultTariffPeriodId = null;
@@ -148,11 +146,6 @@ class TariffPeriod extends \yii\db\ActiveRecord
 
         if ($statusId) {
             $activeQuery->andWhere(['tariff.tariff_status_id' => $statusId]);
-        }
-
-        if ($isFilterUuOnly) {
-            // только созданные в УУ
-            $activeQuery->andWhere(['>=', 'tariff.id', Tariff::DELTA]);
         }
 
         if ($cityId && ($serviceTypeId == ServiceType::ID_VOIP || $serviceTypeId == ServiceType::ID_VOIP_PACKAGE)) {

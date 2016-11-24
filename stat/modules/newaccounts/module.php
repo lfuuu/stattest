@@ -17,6 +17,7 @@ use app\classes\bill\ClientAccountBiller;
 use app\models\Organization;
 use app\models\Business;
 use app\models\User;
+use app\models\Language;
 
 class m_newaccounts extends IModule
 {
@@ -819,6 +820,20 @@ class m_newaccounts extends IModule
             ];
         }
         $design->assign('available_documents', $documents);
+
+        if ($r->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            $listOfInvoices = [];
+            foreach(Language::getList() as $languageCode => $languageTitle) {
+                $listOfInvoices[] = [
+                    'langCode' => $languageCode,
+                    'langTitle' => $languageTitle,
+                    'langFlag' => explode('-', $languageCode)[0],
+                    'number' => $newbill->bill_no,
+                    'month' => substr($newbill->bill_date, 0, 7),
+                ];
+            }
+            $design->assign('listOfInvoices', $listOfInvoices);
+        }
 
         $design->AddMain('newaccounts/bill_view.tpl');
 

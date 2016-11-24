@@ -9,67 +9,63 @@ use app\models\Number;
 
 $userId = 10; // ava
 
-$clientId = 36166; //Метротел
-//$clientId = 41389; //Телемир
+//$clientId = 36166; //Метротел
+$clientId = 41389; //Телемир
 
 $address = '';
 
 
-
 $confs = [
-    [
-        "didGroupId" => 27, // стандарт
-        "region" => 94, // Новосибирск
-        "count_numbers" => 30,
+//    [
+//        "didGroupId" => 27, // стандарт
+//        "region" => 94, // Новосибирск
+//        "count_numbers" => 30,
+//
+//        "id_tarif" => 688, //Партнёр 1000 и более (118.00-413.00)
+//        "id_tarif_local_mob" => 690, //Моб Партнёр местные мобильные 1,15
+//        "id_tarif_russia" => 169, //МГ Междугородные звонки Базовый
+//        "id_tarif_russia_mob" => 689, //МГ Партнёр мобильные РФ 1,15
+//        "id_tarif_intern" => 170 //МН Международные звонки Базовый
+//    ],
 
-        "id_tarif" => 688, //Партнёр 1000 и более (118.00-413.00)
-        "id_tarif_local_mob" => 690, //Моб Партнёр местные мобильные 1,15
-        "id_tarif_russia" => 169, //МГ Междугородные звонки Базовый
-        "id_tarif_russia_mob" => 689, //МГ Партнёр мобильные РФ 1,15
-        "id_tarif_intern" => 170 //МН Международные звонки Базовый
-    ],
+//    [
+//        "didGroupId" => 17,
+//        "region" => 96, // Самара
+//        "count_numbers" => 60,
+//
+//        "id_tarif" => 667, //Партнёр 1000 и более (118.00-413.00)
+//        "id_tarif_local_mob" => 117,
+//        "id_tarif_russia" => 173,
+//        "id_tarif_russia_mob" => 173,
+//        "id_tarif_intern" => 174
+//    ],
 
-    /*
-    [
-        "didGroupId" => 17,
-        "region" => 96, // Самара
-        "count_numbers" => 30,
-
-        "id_tarif" => 667, //Партнёр 1000 и более (118.00-413.00)
-        "id_tarif_local_mob" => 117,
-        "id_tarif_russia" => 173,
-        "id_tarif_russia_mob" => 173,
-        "id_tarif_intern" => 174
-
-    ],
-    */
     //Партнёр 1000 и более (118.00-413.00) / Моб Партнёр местные мобильные 1,15/ МГ Партнёр мобильные РФ 1,15/ МГ Междугородные звонки Базовый/ МН Международные звонки Базовый
-/*
-    [
-        "didGroupId" => 12, //Стандартный
-        "region" => 97, //Краснодар
-        "count_numbers" => 50,
 
-        "id_tarif" => 640, //Партнёр 1000 и более (118.00-413.00)
-        "id_tarif_local_mob" => 636, //Моб Партнёр местные мобильные 1,15
-        "id_tarif_russia" => 637, //МГ Партнёр мобильные РФ 1,15
-        //"id_tarif_local_mob" => 85, //Моб Местные мобильные Базовый
-        //"id_tarif_russia" => 63, //МГ Междугородные звонки Базовый
-        "id_tarif_russia_mob" => 63, //МГ Междугородные звонки Базовый
-        "id_tarif_intern" => 69 //МН Международные звонки Базовый
-    ],
-*/
-   /* [
+//    [
+//        "didGroupId" => 12, //Стандартный
+//        "region" => 97, //Краснодар
+//        "count_numbers" => 30,
+//
+//        "id_tarif" => 640, //Партнёр 1000 и более (118.00-413.00)
+//        //"id_tarif_local_mob" => 636, //Моб Партнёр местные мобильные 1,15
+//        //"id_tarif_russia" => 637, //МГ Партнёр мобильные РФ 1,15
+//        "id_tarif_local_mob" => 85, //Моб Местные мобильные Базовый
+//        "id_tarif_russia" => 63, //МГ Междугородные звонки Базовый
+//        "id_tarif_russia_mob" => 63, //МГ Междугородные звонки Базовый
+//        "id_tarif_intern" => 69 //МН Международные звонки Базовый
+//    ],
+    [
         "didGroupId" => 7,
         "region" => 98, //СПб
-        "count_numbers" => 60,
+        "count_numbers" => 150,
 
         "id_tarif" => 851, //Партнёр 500-1000 (147.50-413.00)
         "id_tarif_local_mob" => 95,
         "id_tarif_russia" => 96,
         "id_tarif_russia_mob" => 96,
         "id_tarif_intern" => 97,
-    ],*/
+    ],
 /*
     [
         "didGroupId" => 32,
@@ -96,52 +92,49 @@ $confs = [
         "id_tarif_intern" => 69
     ],
     */
+
+//    [
+//        "didGroupId" => 37, //Стандартные
+//        "region" => 89, //Владивосток
+//        "count_numbers" => 30,
+//
+//        "id_tarif" => 674, // Партнёр 1000 и более; "672" - Партнёр 100-500
+//        "id_tarif_local_mob" => 315,
+//        "id_tarif_russia" => 316,
+//        "id_tarif_russia_mob" => 316,
+//        "id_tarif_intern" => 318
+//
+//    ],
+
+
+//    [
+//        "didGroupId" => 22,
+//        "region" => 95, //Екатеринбург
+//        "count_numbers" => 75,
+//
+//        "id_tarif" => 646, //Партнёр 1000 и более
+//        "id_tarif_local_mob" => 159,
+//        "id_tarif_russia" => 160,
+//        "id_tarif_russia_mob" => 160,
+//        "id_tarif_intern" => 162
+//    ],
+
+//    [
+//        "didGroupId" => 42, //Стандартные
+//        "region" => 88, //Нижний Новгород
+//        "count_numbers" => 30,
+//
+//        "id_tarif" => 681, //Партнёр 1000 и более
+//        "id_tarif_local_mob" => 207,
+//        "id_tarif_russia" => 208,
+//        "id_tarif_russia_mob" => 208,
+//        "id_tarif_intern" => 210,
+//    ],
 /*
-    [
-        "didGroupId" => 37, //Стандартные
-        "region" => 89, //Владивосток
-        "count_numbers" => 40,
-
-        "id_tarif" => 674, // Партнёр 1000 и более; "672" - Партнёр 100-500
-        "id_tarif_local_mob" => 315,
-        "id_tarif_russia" => 316,
-        "id_tarif_russia_mob" => 316,
-        "id_tarif_intern" => 318
-
-    ],
-*/
-/*
-    [
-        "didGroupId" => 22,
-        "region" => 95, //Екатеринбург
-        "count_numbers" => 50,
-
-        "id_tarif" => 646, //Партнёр 1000 и более
-        "id_tarif_local_mob" => 159,
-        "id_tarif_russia" => 160,
-        "id_tarif_russia_mob" => 160,
-        "id_tarif_intern" => 162
-    ],
-*/
-    /*
-    [
-        "didGroupId" => 42, //Стандартные
-        "region" => 88, //Нижний Новгород
-        "count_numbers" => 40,
-
-        "id_tarif" => 681, //Партнёр 1000 и более
-        "id_tarif_local_mob" => 207,
-        "id_tarif_russia" => 208,
-        "id_tarif_russia_mob" => 208,
-        "id_tarif_intern" => 210,
-    ],
-
-*/
-/*    
     [
         "didGroupId" => 47, //Стандартные
         "region" => 87, //Ростов-на-Дону
-        "count_numbers" => 50,
+        "count_numbers" => 20,
 
         "id_tarif" => 660, //Партнёр 1000 и более
         "id_tarif_local_mob" => 185,
@@ -149,7 +142,7 @@ $confs = [
         "id_tarif_russia_mob" => 186,
         "id_tarif_intern" => 188
     ],
- */
+*/
 /*
     [
         "didGroupId" => 37,

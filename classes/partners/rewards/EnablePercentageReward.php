@@ -27,7 +27,16 @@ abstract class EnablePercentageReward
      */
     public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
     {
-        if ($line->bill->biller_version === ClientAccount::VERSION_BILLER_UNIVERSAL && isset($settings[self::getField()])) {
+        if (
+            $line->bill->biller_version === ClientAccount::VERSION_BILLER_UNIVERSAL &&
+            !PartnerRewards::find()
+                ->where([
+                    'bill_id' => $line->bill->id,
+                    'line_pk' => $line->pk,
+                ])
+                ->count() &&
+            isset($settings[self::getField()])
+        ) {
             $setupSummary =
                 AccountLogSetup::find()
                     ->select('SUM(price)')

@@ -89,8 +89,18 @@ abstract class NotificationProcessor
 
     public function checkAndMakeNotifications()
     {
-        foreach ($this->clients->all() as $client) {
-            $this->compareAndNotificationClient($client);
+        foreach ($this->clients->each() as $client) {
+            $transaction = \Yii::$app->getDB()->beginTransaction();
+            try {
+                $this->compareAndNotificationClient($client);
+            } catch (\Exception $e) {
+                echo "\n" . date('r') . ': (!)' . $client->id . ", " . $this->getEvent() . ', error: ' . $e->getMessage();
+                
+                $transaction->rollback();
+                \Yii::error($e->getMessage());
+                continue;
+            }
+            $transaction->commit();
         }
     }
 

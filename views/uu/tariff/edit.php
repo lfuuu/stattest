@@ -68,11 +68,22 @@ if (!$serviceType) {
     <?php
     // свойства тарифа конкретного типа услуги (ВАТС, телефония и пр.)
     switch ($serviceType->id) {
+
         case ServiceType::ID_VOIP:
             echo $this->render('_editMainVoip', $viewParams);
             break;
+
         case ServiceType::ID_VOIP_PACKAGE:
             echo $this->render('_editMainVoipPackage', $viewParams);
+            break;
+
+        case ServiceType::ID_TRUNK_PACKAGE_ORIG:
+        case ServiceType::ID_TRUNK_PACKAGE_TERM:
+            echo $this->render('_editMainTrunkPackage', $viewParams);
+            break;
+
+        case ServiceType::ID_VM_COLLOCATION:
+            echo $this->render('_editMainVmCollocation', $viewParams);
             break;
     }
     ?>

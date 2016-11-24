@@ -11,6 +11,7 @@
 
 use app\classes\uu\model\AccountEntry;
 use app\widgets\MonthPicker;
+use kartik\widgets\Select2;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -27,26 +28,35 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
 ?>
 
 <div class="row">
-    <div class="col-sm-2">
+    <?php
+    $form = ActiveForm::begin([
+        'method' => 'get',
+        'action' => '/uu/invoice/view',
+    ])
+    ?>
+        <div class="col-sm-2">
+            <?= MonthPicker::widget([
+                'name' => 'month',
+                'value' => $month = substr($date, 0, 7), // гггг-мм
+                'options' => [
+                    'class' => 'form-control input-sm',
+                    'onChange' => '$(this).parents("form").submit()',
+                ],
+            ]) ?>
+        </div>
+        <div class="col-sm-2">
+            <?= Select2::widget([
+                'name' => 'langCode',
+                'value' => $langCode,
+                'data' => \app\models\Language::getList($isWithEmpty = true),
+                'options' => [
+                    'onChange' => '$(this).parents("form").submit()',
+                ],
+            ]) ?>
+        </div>
+    <?php ActiveForm::end(); ?>
 
-        <?php
-        $form = ActiveForm::begin([
-            'method' => 'get',
-            'action' => '/uu/invoice/view',
-        ])
-        ?>
-        <?= MonthPicker::widget([
-            'name' => 'month',
-            'value' => $month = substr($date, 0, 7), // гггг-мм
-            'options' => [
-                'class' => 'form-control input-sm',
-                'onChange' => '$(this).parent("form").submit()',
-            ],
-        ]) ?>
-        <?php ActiveForm::end(); ?>
-
-    </div>
-    <div class="col-sm-10">
+    <div class="col-sm-8">
         <div class="pull-right">
 
             <?php

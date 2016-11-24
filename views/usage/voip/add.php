@@ -1,6 +1,5 @@
 <?php
 
-use app\assets\AppAsset;
 use app\classes\Html;
 use app\models\City;
 use app\models\TariffNumber;
@@ -15,6 +14,9 @@ use yii\widgets\Breadcrumbs;
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
 
+if (\app\classes\uu\model\AccountTariff::isUuAccount()) {
+    return [];
+}
 
 $types = \app\classes\uu\model\Tariff::getVoipTypesByCountryId();
 
@@ -28,14 +30,13 @@ $status = [
     'working' => 'Включенный',
 ];
 
-$model->tariffGroupRussiaPrice   = $model->getMinByTariff($model->tariff_russia_id);
+$model->tariffGroupRussiaPrice = $model->getMinByTariff($model->tariff_russia_id);
 $model->tariffGroupLocalMobPrice = $model->getMinByTariff($model->tariff_local_mob_id);
-$model->tariffGroupInternPrice   = $model->getMinByTariff($model->tariff_intern_id);
+$model->tariffGroupInternPrice = $model->getMinByTariff($model->tariff_intern_id);
 
 $model->tariff_group_russia_price == $model->tariffGroupRussiaPrice && $model->tariff_group_russia_price = null;
-$model->tariff_group_local_mob_price == $model->tariffGroupLocalMobPrice && $model->tariff_group_local_mob_price  = null;
+$model->tariff_group_local_mob_price == $model->tariffGroupLocalMobPrice && $model->tariff_group_local_mob_price = null;
 $model->tariff_group_intern_price == $model->tariffGroupInternPrice && $model->tariff_group_intern_price = null;
-
 
 
 echo Html::formLabel('Добавление номера');
