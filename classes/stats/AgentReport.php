@@ -192,7 +192,7 @@ class AgentReport
 
         $query->params([
             ':service' => UsageVoip::tableName(),
-            ':usageType' => 'voip',
+            ':usageType' => 'usage_voip',
         ]);
 
         return $query->each();
@@ -265,7 +265,7 @@ class AgentReport
 
         $query->params([
             ':service' => UsageVirtpbx::tableName(),
-            ':usageType' => 'virtpbx',
+            ':usageType' => 'usage_virtpbx',
         ]);
 
         return $query->each();
