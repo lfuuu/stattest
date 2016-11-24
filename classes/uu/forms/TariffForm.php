@@ -167,32 +167,42 @@ abstract class TariffForm extends Form
                         break;
 
                     case ServiceType::ID_VOIP_PACKAGE:
+                    case ServiceType::ID_TRUNK_PACKAGE_ORIG:
+                    case ServiceType::ID_TRUNK_PACKAGE_TERM:
 
-                        if ($this->id) {
-
-                            if (!$this->tariff->package) {
-                                $package = new Package();
-                                $package->tariff_id = $this->id;
-                                if (!$package->validate() || !$package->save()) {
-                                    $this->validateErrors += $package->getFirstErrors();
-                                    throw new InvalidArgumentException('');
-                                }
-                            }
-
-                            $packageMinute = new PackageMinute();
-                            $packageMinute->tariff_id = $this->id;
-                            self::crudMultiple($this->tariff->packageMinutes, $post, $packageMinute);
-
-                            $packagePrice = new PackagePrice();
-                            $packagePrice->tariff_id = $this->id;
-                            self::crudMultiple($this->tariff->packagePrices, $post, $packagePrice);
-
-                            $packagePricelist = new PackagePricelist();
-                            $packagePricelist->tariff_id = $this->id;
-                            self::crudMultiple($this->tariff->packagePricelists, $post, $packagePricelist);
+                        if (!$this->id) {
+                            break;
                         }
 
-                    // без break;
+                        if (!$this->tariff->package) {
+                            $package = new Package();
+                            $package->tariff_id = $this->id;
+                            $package->service_type_id = $this->tariff->service_type_id;
+                            if (!$package->validate() || !$package->save()) {
+                                $this->validateErrors += $package->getFirstErrors();
+                                throw new InvalidArgumentException('');
+                            }
+                        }
+
+                        $packageMinute = new PackageMinute();
+                        $packageMinute->tariff_id = $this->id;
+                        self::crudMultiple($this->tariff->packageMinutes, $post, $packageMinute);
+
+                        $packagePrice = new PackagePrice();
+                        $packagePrice->tariff_id = $this->id;
+                        self::crudMultiple($this->tariff->packagePrices, $post, $packagePrice);
+
+                        $packagePricelist = new PackagePricelist();
+                        $packagePricelist->tariff_id = $this->id;
+                        self::crudMultiple($this->tariff->packagePricelists, $post, $packagePricelist);
+
+                        if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE) {
+                            $tariffVoipCity = new TariffVoipCity();
+                            $tariffVoipCity->tariff_id = $this->id;
+                            $this->tariffVoipCities = self::crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+                        }
+                        break;
+
                     case ServiceType::ID_VOIP:
                         // только для телефонии
                         $tariffVoipCity = new TariffVoipCity();
