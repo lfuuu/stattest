@@ -5,6 +5,7 @@ use app\classes\BaseController;
 use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\LkNoticeSetting;
+use app\models\LkWizardState;
 use \Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
@@ -51,24 +52,32 @@ class ContactController extends BaseController
         $this->redirect(Yii::$app->request->referrer);
     }
 
+    /**
+     * Установка, что контакт добавленный в ЛК проверен (или не проверен), в обход процедуры валидации.
+     *
+     * @param int $id id контакта
+     * @throws Exception
+     */
     public function actionLkActivate($id)
     {
-        $statuses = ['working', 'connecting'];
         $contact = ClientContact::findOne($id);
         if (!$contact) {
             throw new Exception('Contact not found');
         }
 
-        $lk = LkNoticeSetting::find()->where('client_id', $contact->client_id)->one();
+        $lk = LkNoticeSetting::findOne([
+            'client_id' => $contact->client_id,
+            'client_contact_id' => $contact->id
+        ]);
 
         if (!$lk) {
             throw new Exception('Contact not found');
         }
 
-        $contact->is_active = (int)!$contact->is_active;
-        $lk->status = $statuses[$contact->is_active];
-        $contact->save();
+        // статус через поведение сохраниться в контакт
+        $lk->status = $lk->status == LkNoticeSetting::STATUS_CONNECT ? LkNoticeSetting::STATUS_WORK : LkNoticeSetting::STATUS_CONNECT;
         $lk->save();
+
         $this->redirect(Yii::$app->request->referrer);
     }
 }
