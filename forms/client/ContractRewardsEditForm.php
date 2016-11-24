@@ -17,6 +17,7 @@ class ContractRewardsEditForm extends Form
         $actual_from,
         $period_type = ClientContractReward::PERIOD_ALWAYS,
         $once_only = 0,
+        $percentage_once_only = 0,
         $percentage_of_fee = 0,
         $percentage_of_over = 0,
         $percentage_of_margin = 0,

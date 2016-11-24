@@ -70,6 +70,7 @@ class Bill extends ActiveRecord
     {
         return [
             \app\classes\behaviors\HistoryChanges::className(),
+            \app\classes\behaviors\PartnerRewards::className(),
         ];
     }
 

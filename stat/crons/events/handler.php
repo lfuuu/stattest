@@ -7,6 +7,7 @@ use app\classes\behaviors\uu\AccountTariffBiller;
 use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
+use app\classes\partners\RewardCalculate;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
@@ -267,6 +268,11 @@ function do_events()
 
                 case Event::ACCOUNT_UNBLOCKED: {
                     $isVpbxServer && ApiVpbx::unlockAccount($param['account_id']);
+                    break;
+                }
+
+                case Event::PARTNER_REWARD: {
+                    RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
                     break;
                 }
             }
