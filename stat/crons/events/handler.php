@@ -276,7 +276,6 @@ function do_events()
                     $isVpbxServer && ApiVpbx::unlockAccount($param['account_id']); // Синхронизировать в Vpbx
                     (new SyncVmCollocation)->enableAccount($param['account_id']); // Синхронизировать в VM manager
                     break;
-                }
 
                 case Event::PARTNER_REWARD: {
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);

@@ -77,7 +77,7 @@ class ClientContractReward extends ActiveRecord
         return [
             'actual_from' => 'Дата активации',
             'once_only' => 'Разовое',
-            'percentage_once_only' => 'От номера',
+            'percentage_once_only' => 'От подключения',
             'percentage_of_fee' => 'От абонентской платы',
             'percentage_of_over' => 'От ресурса',
             'percentage_of_margin' => 'От маржи',

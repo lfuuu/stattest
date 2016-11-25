@@ -15,7 +15,7 @@ use app\models\Bill;
 abstract class RewardCalculate
 {
 
-    private static $services = [
+    public static $services = [
         Transaction::SERVICE_VOIP => VoipRewards::class,
         Transaction::SERVICE_VIRTPBX => VirtpbxRewards::class,
         Transaction::SERVICE_CALL_CHAT => CallChatRewards::class,
@@ -75,13 +75,15 @@ abstract class RewardCalculate
                 $reward->line_pk = $line->pk;
             }
 
+            $reward->created_at = $createdAt;
+
             foreach ($rewardsClass::$availableRewards as $rewardClass) {
                 /** @var Reward $rewardClass*/
                 $rewardClass::calculate($reward, $line, $contractRewards[$line->service]);
             }
 
             if (!$reward->save()) {
-                throw new \PDOException(reset($reward->getFirstErrors()));
+                throw new \LogicException(implode('', $reward->getFirstErrors()));
             }
         }
     }
