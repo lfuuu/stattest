@@ -442,11 +442,12 @@ class ApiLk
                     'in_use' => 1,
                     'country_id' => $clientAccount->country_id
                 ])
+                ->orderBy(['connection_point_id' => SORT_DESC])
                 ->asArray()
                 ->all();
 
 
-        $numberTariffsByCityId = [];
+        $didGroupsByCityId = [];
 
         $didGroups = DidGroup::find()
             ->where([
@@ -456,11 +457,11 @@ class ApiLk
         /** @var DidGroup $didGroup */
         foreach ($didGroups->each() as $didGroup) {
 
-            if (!isset($numberTariffsByCityId[$didGroup->city_id])) {
-                $numberTariffsByCityId[$didGroup->city_id] = [];
+            if (!isset($didGroupsByCityId[$didGroup->city_id])) {
+                $didGroupsByCityId[$didGroup->city_id] = [];
             }
 
-            $numberTariffsByCityId[$didGroup->city_id][$didGroup->id] = [
+            $didGroupsByCityId[$didGroup->city_id][$didGroup->id] = [
                 'id' => $didGroup->id,
                 'name' => $didGroup->name,
                 'activation_fee' => (float)$didGroup->price1,
@@ -471,7 +472,7 @@ class ApiLk
 
         return [
             'cities' => $cities,
-            'numberTariffsByCityId' => $numberTariffsByCityId
+            'didGroupsByCityId' => $didGroupsByCityId
         ];
     }
 
@@ -857,17 +858,6 @@ class ApiLk
         return $ret;
     }
 
-    public static function getNumberTariffs($regionId)
-    {
-        return [
-            ['id' => '0', 'name' => 'Стандартные'],
-            ['id' => '1', 'name' => 'Платиновые'],
-            ['id' => '2', 'name' => 'Золотые'],
-            ['id' => '3', 'name' => 'Серебряные'],
-            ['id' => '4', 'name' => 'Бронзовые'],
-        ];
-    }
-
     public static function getVoipTarifs($accountId)
     {
         $account = self::getAccount($accountId);
@@ -899,6 +889,40 @@ class ApiLk
         }
         return $ret;
     }
+
+    public static function getFreeNumbers($numberTariffId, $isSimple = false)
+    {
+        $didGroup = DidGroup::findOne(['id' => $numberTariffId]);
+        Assert::isObject($didGroup);
+
+        $ret = array();
+
+        $numbers =
+            (new \app\models\filter\FreeNumberFilter)
+                ->getNumbers()
+                ->setDidGroup($didGroup->id);
+
+        $skipFrom = 1;
+        $areaLen = 3;
+
+        foreach($numbers->result(null) as $number) {
+            $line = [
+                'number' => $number->number,
+                'full_number' => $number->number,
+                'area_code' => substr($number->number, $skipFrom, $areaLen)
+            ];
+            $l = strlen($line['number']);
+            $number = $line['number'];
+            $line['number'] =
+                substr($line['number'], 4, ($l-8)) . '-' .
+                substr($line['number'], ($l-4), 2) . '-' .
+                substr($line['number'], ($l-2), 2);
+            $ret[] = $isSimple ? $number : $line;
+        }
+
+        return $ret;
+    }
+
 
     public static function orderInternetTarif($client_id, $region_id, $tarif_id)
     {
