@@ -1742,13 +1742,13 @@ class ApiLk
     /**
      * Добавление контакта для уведомлений
      *
-     * @param int $client_id id клиента
+     * @param int|null $client_id id клиента
      * @param string $type тип (телефон или Email)
      * @param string $data значение
      * @param string $lang язык
      * @return array
      */
-    public static function addAccountNotification($client_id = '', $type = '', $data = '', $lang = LanguageModel::LANGUAGE_DEFAULT)
+    public static function addAccountNotification($client_id = null, $type = '', $data = '', $lang = LanguageModel::LANGUAGE_DEFAULT)
     {
         if (!($account = self::validateClient($client_id))) {
             return [

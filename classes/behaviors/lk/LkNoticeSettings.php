@@ -22,8 +22,8 @@ class LkNoticeSettings extends Behavior
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_INSERT => 'runer',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'runer',
+            ActiveRecord::EVENT_AFTER_INSERT => 'runner',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'runner',
         ];
     }
 
@@ -32,7 +32,7 @@ class LkNoticeSettings extends Behavior
      *
      * @param AfterSaveEvent $event
      */
-    public function runer(AfterSaveEvent $event)
+    public function runner(AfterSaveEvent $event)
     {
         $this->setToMailer($event);
         $this->linkStatus($event);
@@ -59,12 +59,14 @@ class LkNoticeSettings extends Behavior
     {
         $contact = ClientContact::findOne(['id' => $event->sender->client_contact_id]);
 
-        if ($contact) {
-            /** @var LkNoticeSetting $lkNotice */
-            $lkNotice = $event->sender;
-            $contact->is_active = $lkNotice->status && $lkNotice->status === LkNoticeSetting::STATUS_WORK ? 1 : 0;
-            $contact->save();
+        if (!$contact) {
+            return;
         }
+
+        /** @var LkNoticeSetting $lkNotice */
+        $lkNotice = $event->sender;
+        $contact->is_active = $lkNotice->status && $lkNotice->status === LkNoticeSetting::STATUS_WORK ? 1 : 0;
+        $contact->save();
     }
 
 }
