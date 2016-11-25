@@ -3,6 +3,7 @@ use app\classes\Encrypt;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\BillDocument;
+use app\models\ClientContact;
 use app\models\Country;
 use app\classes\Assert;
 use app\classes\Language;
@@ -23,9 +24,12 @@ use app\models\important_events\ImportantEventsNames;
 use app\models\Language as LanguageModel;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
+use app\models\User;
 
 class ApiLk
 {
+
+    const MAX_LK_NOTIFICATION_CONTACTS = 6;
     /**
      * @param $clientId
      * @return ClientAccount
@@ -1725,59 +1729,100 @@ class ApiLk
     /**
      * Добавление контакта для уведомлений
      *
-     *@param int $client_id id клиента
-     *@param string $type тип (телефон или Email)
-     *@param string $data значение
+     * @param int|null $client_id id клиента
+     * @param string $type тип (телефон или Email)
+     * @param string $data значение
+     * @param string $lang язык
+     * @return array
      */
-    public static function addAccountNotification($client_id = '', $type = '', $data = '', $lang = LanguageModel::LANGUAGE_DEFAULT)
+    public static function addAccountNotification($client_id = null, $type = '', $data = '', $lang = LanguageModel::LANGUAGE_DEFAULT)
     {
-        global $db;
-        if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'account_is_bad');
-
-        $account = ClientAccount::findOne($client_id);
-        if (!$account)
-            return array('status'=>'error','message'=>'account_not_found');
-
-        $lk_user = $db->GetRow("select id, user from user_users where user='AutoLK'");
-        if (!$lk_user)
-            return array('status'=>'error','message'=>'contact_add_error');
-
-        $contact_cnt = $db->GetValue("SELECT COUNT(*) FROM client_contacts WHERE client_id='".$client_id."' AND user_id='".$lk_user["id"]."'");
-        if ($contact_cnt > 6)
-            return array('status'=>'error','message'=>'contact_max_length');
- 
-        if (!in_array($type, array('email', 'phone')))
-            return array('status'=>'error','message'=>'contact_type_error');
-
-        if (!self::validateData($type, $data))
-            return array('status'=>'error','message'=>'format_error');
-
-        $contact_id = $db->GetValue("SELECT id FROM client_contacts WHERE client_id='".$client_id."' AND type='".$type."' AND data='".$data."' AND user_id='".$lk_user["id"]."'");
-        if (!$contact_id) {
-            $contact_id = $db->QueryInsert("client_contacts", array(
-                        "client_id"     => $client_id,
-                        "type"        => $type,
-                        "data"          => $data,
-                        "user_id"   => $lk_user['id'],
-                        "comment"   => "",
-                        "is_active"     => "1",
-                        "is_official"        => "0"
-                        )
-                    );
+        if (!($account = self::validateClient($client_id))) {
+            return [
+                'status' => 'error',
+                'message' => 'account_is_bad'
+            ];
         }
 
-        if ($contact_id && $contact_id > 0) {
-            $record = new LkNoticeSetting;
-            $record->client_contact_id = $contact_id;
-            $record->client_id = $client_id;
-            $record->save();
-        } else
-            return array('status'=>'error','message'=>'contact_add_error');
+        $contactsCount = ClientContact::find()->where([
+            'client_id' => $client_id,
+            'user_id' => User::LK_USER_ID
+        ])->count();
 
-        self::sendApproveMessage($client_id, $type, $data, $contact_id, $lang);
+        if ($contactsCount > self::MAX_LK_NOTIFICATION_CONTACTS) {
+            return [
+                'status' => 'error',
+                'message' => 'contact_max_length'
+            ];
+        }
+ 
+        if (!in_array($type, ['email', 'phone'])) {
+            return [
+                'status' => 'error',
+                'message' => 'contact_type_error'
+            ];
+        }
 
-        return array('status'=>'ok','message'=>'contact_add_ok');
+        if (!self::validateData($type, $data)) {
+            return [
+                'status' => 'error',
+                'message' => 'format_error'
+            ];
+        }
+
+        $attrs = [
+            'client_id' => $client_id,
+            'type' => $type,
+            'data' => $data,
+            'user_id' => User::LK_USER_ID
+        ];
+
+        $contact = ClientContact::findOne($attrs);
+
+        if (!$contact) {
+            $contact = new ClientContact();
+            $contact->setAttributes($attrs);
+
+            if (!$contact->validate()) {
+                return [
+                    'status' => 'error',
+                    'message' => 'format_error'
+                ];
+            }
+
+            if (!$contact->save()) {
+                return [
+                    'status' => 'error',
+                    'message' => 'contact_add_error'
+                ];
+            }
+        }
+
+        $lkNoticeAttrs = [
+            'client_contact_id' => $contact->id,
+            'client_id' => $contact->client_id
+        ];
+
+        $lkNotice = LkNoticeSetting::findOne($lkNoticeAttrs);
+
+        if (!$lkNotice) {
+            $lkNotice = new LkNoticeSetting;
+            $lkNotice->setAttributes($lkNoticeAttrs, false);
+
+            if (!$lkNotice->save()) {
+                return [
+                    'status' => 'error',
+                    'message' => 'contact_add_error'
+                ];
+            }
+
+            self::sendApproveMessage($client_id, $type, $data, $contact->id, $lang);
+        }
+
+        return [
+            'status' => 'ok',
+            'message' => 'contact_add_ok'
+        ];
     }
 
     public static function validateData($t = '', $d = '')
@@ -1796,54 +1841,6 @@ class ApiLk
     }
 
     /**
-     * Редактирование контакта для уведомлений
-     *
-     *@param int $client_id id клиента
-     *@param int $contact_id id контакта
-     *@param string $type тип (телефон или Email)
-     *@param string $data значение
-     */
-    public static function editAccountNotification($client_id = '', $contact_id = '', $type = '', $data = '')
-    {
-        global $db;
-        if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'account_is_bad');
-
-        if (!self::validateContact($client_id, $contact_id))
-            return array('status'=>'error','message'=>'contact_id_error');
-
-        if (!in_array($type, array('email', 'phone')))
-            return array('status'=>'error','message'=>'contact_type_error');
-
-        if (!self::validateData($type, $data))
-            return array('status'=>'error','message'=>'format_error');
-
-        $status = $db->GetValue("select status from lk_notice_settings where client_id='".$client_id."' and client_contact_id='".$contact_id."'");
-
-        $res = $db->QueryUpdate("client_contacts", array('client_id','id'), array(
-                        'type'=>$type,
-                        'data'=>$data,
-                        'client_id'=>$client_id,
-                        'id'=>$contact_id
-                        )
-                    );
-        if ($res) {
-            $res = LkNoticeSetting::updateAll([
-                'status' => LkNoticeSetting::STATUS_CONNECT,
-            ], [
-                'client_id' => $client_id,
-                'client_contact_id' => $contact_id,
-            ]);
-        }
-
-        if ($res && $status == 'working') {
-            self::sendApproveMessage($client_id, $type, $data, $contact_id);
-        }
-
-        return array('status'=>'ok','message'=>'contact_changed_ok');
-    }
-
-    /**
      * Удаление контакта для уведомлений
      *
      *@param int $client_id id клиента
@@ -1851,16 +1848,34 @@ class ApiLk
      */
     public static function disableAccountNotification($client_id = '', $contact_id = '')
     {
-        global $db;
-        if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'account_is_bad');
-        if (!self::validateContact($client_id, $contact_id))
-            return array('status'=>'error','message'=>'contact_id_error');
+        if (!self::validateClient($client_id)) {
+            return [
+                'status' => 'error',
+                'message' => 'account_is_bad'
+            ];
+        }
 
-        LkNoticeSetting::deleteAll(['client_contact_id' => $contact_id]);
-        $db->QueryDelete('client_contacts', array('id'=>$contact_id, 'client_id'=>$client_id));
+        if (!self::validateContact($client_id, $contact_id)) {
+            return [
+                'status' => 'error',
+                'message' => 'contact_id_error'
+            ];
+        }
 
-        return array('status'=>'ok','message'=>'contact_del_ok');
+        LkNoticeSetting::deleteAll([
+            'client_contact_id' => $contact_id
+        ]);
+
+        ClientContact::deleteAll([
+            'id' => $contact_id,
+            'client_id' => $client_id
+        ]);
+
+
+        return [
+            'status'=>'ok',
+            'message'=>'contact_del_ok'
+        ];
     }
 
     /**
@@ -1872,29 +1887,61 @@ class ApiLk
      */
     public static function activateAccountNotification($client_id = '', $contact_id = '', $code = '')
     {
-        global $db;
-        if (!self::validateClient($client_id))
-            return array('status'=>'error','message'=>'account_is_bad');
-        if (!self::validateContact($client_id, $contact_id))
-            return array('status'=>'error','message'=>'contact_id_error');
-        if ($code == '')
-            return array('status'=>'error','message'=>'contact_activation_code_empty');
-
-        $etalon_code = $db->GetValue("select activate_code from lk_notice_settings where client_id='".$client_id."' AND client_contact_id='".$contact_id."'");
-        if ($etalon_code != $code)
-            return array('status'=>'error','message'=>'contact_activation_code_bad');
-
-        $res = LkNoticeSetting::updateAll([
-            'status' => LkNoticeSetting::STATUS_WORK,
-        ], [
-            'client_id' => $client_id,
-            'client_contact_id' => $contact_id,
-        ]);
-        if ($res) {
-            return ['status'=>'ok','message'=>'contact_activation_ok'];
+        if (!self::validateClient($client_id)) {
+            return [
+                'status' => 'error',
+                'message' => 'account_is_bad'
+            ];
         }
 
-        return ['status'=>'error','message'=>'contact_activation_error'];
+        $contract = self::validateContact($client_id, $contact_id);
+
+        if (!$contract) {
+            return [
+                'status' => 'error',
+                'message' => 'contact_id_error'
+            ];
+        }
+
+        if ($code == '') {
+            return [
+                'status' => 'error',
+                'message' => 'contact_activation_code_empty'
+            ];
+        }
+
+        $settings = LkNoticeSetting::findOne([
+            'client_id' => $client_id,
+            'client_contact_id' => $contact_id
+            ]);
+
+        if (!$settings) {
+            return [
+                'status' => 'error',
+                'message' => 'contact_activation_error'
+            ];
+        }
+
+        if ($settings->activate_code != $code) {
+            return [
+                'status' => 'error',
+                'message' => 'contact_activation_code_bad'
+            ];
+        }
+
+        $settings->status = LkNoticeSetting::STATUS_WORK;
+
+        if (!$settings->save()) {
+            return [
+                'status' => 'error',
+                'message' => 'contact_activation_error'
+            ];
+        }
+
+        return [
+            'status'=>'ok',
+            'message'=>'contact_activation_ok'
+        ];
     }
 
     /**
@@ -1983,7 +2030,7 @@ class ApiLk
             $res[$tmp[1]][$tmp[0]] = 1;
         }
 
-        $contacts = \app\models\ClientContact::findAll([
+        $contacts = ClientContact::findAll([
             'client_id' => $client_id,
             'is_active' => 1,
             'user_id' => new \yii\db\Expression('(SELECT id FROM user_users WHERE user="AutoLK")'),
@@ -2182,30 +2229,40 @@ class ApiLk
     }
 
 
+    /**
+     * @param $id
+     * @return ClientAccount|bool
+     */
     public static function validateClient($id)
     {
-        if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
+        if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id)) {
             return false;
+        }
 
         $c = self::getAccount($id);
-        if(!$c)
-            return false;
 
-        return true;
+        if(!$c) {
+            return false;
+        }
+
+        return $c;
     }
 
     public static function validateContact($clientId, $id)
     {
-        global $db;
+        if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id)) {
+            return false;
+        }
 
-        if (is_array($id) || !$id || !preg_match("/^\d{1,6}$/", $id))
+        $contact = ClientContact::findOne([
+            'client_id' => $clientId,
+            'id' => $id
+        ]);
+
+        if (!$contact)
             return false;
 
-        $contactId = \app\models\ClientContact::findOne(['client_id' => $clientId, 'id' => $id]);
-        if (!$contactId)
-            return false;
-
-        return true;
+        return $contact;
     }
 
     private static function _getPaymentTypeName($pay)

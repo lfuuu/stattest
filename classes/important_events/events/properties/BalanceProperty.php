@@ -19,7 +19,7 @@ class BalanceProperty extends UnknownProperty implements PropertyInterface
     {
         parent::__construct($event);
 
-        $this->value = $this->setPropertyName('balance')->getValue();
+        $this->value = $this->setPropertyName('balance')->getPropertyValue();
     }
 
     /**

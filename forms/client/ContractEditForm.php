@@ -39,7 +39,7 @@ class ContractEditForm extends Form
         $financial_type,
         $federal_district,
         $is_external,
-        $lk_access,
+        $is_lk_access,
         $is_partner_login_allow,
 
         $save_comment_stage = false,
@@ -68,7 +68,8 @@ class ContractEditForm extends Form
                     'business_process_status_id',
                     'super_id',
                     'organization_id',
-                    'contract_type_id'
+                    'contract_type_id',
+                    'is_lk_access',
                 ],
                 'integer'
             ],

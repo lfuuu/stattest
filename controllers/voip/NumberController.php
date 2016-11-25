@@ -5,6 +5,7 @@
 
 namespace app\controllers\voip;
 
+use app\classes\Assert;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\voip\forms\NumberFormEdit;
@@ -12,12 +13,36 @@ use app\classes\voip\forms\NumberFormNew;
 use app\models\Country;
 use app\models\filter\voip\NumberFilter;
 use app\models\NumberType;
+use app\forms\usage\NumberForm;
+use app\models\Number;
 use Yii;
+use yii\filters\AccessControl;
 
 class NumberController extends BaseController
 {
     // Вернуть текущего клиента, если он есть
     use AddClientAccountFilterTraits;
+
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['view'],
+                        'roles' => ['services_voip.e164'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['stats.report'],
+                    ],
+                ],
+            ],
+        ];
+    }
 
     /**
      * Вернуть имя колонки, в которую надо установить фильтр по клиенту
@@ -76,25 +101,36 @@ class NumberController extends BaseController
     }
 
     /**
-     * Редактировать
+     * Просмотр и изменения состояния
      *
-     * @param int $id
+     * @param int $did
      * @return string
      */
-    public function actionEdit($id)
+    public function actionView($did)
     {
-        /** @var NumberFormEdit $form */
-        $form = new NumberFormEdit([
-            'id' => $id
-        ]);
-
-        if ($form->isSaved) {
-            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
-            return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $form,
-            ]);
+        $actionForm = new NumberForm();
+        if ($actionForm->load(Yii::$app->request->post()) && $actionForm->validate() && $actionForm->process()) {
+            return $this->redirect(['view', 'did' => $did]);
         }
+
+        if ($actionForm->hasErrors()) {
+            foreach ($actionForm->firstErrors as $error) {
+                Yii::$app->session->addFlash('error', $error);
+            }
+        }
+
+        $actionForm->scenario = 'default';
+        $actionForm->did = $did;
+        global $fixclient_data;
+        $actionForm->client_account_id = $fixclient_data ? $fixclient_data['id'] : null;
+
+        $number = Number::findOne($did);
+        Assert::isObject($number);
+
+        return $this->render('view', [
+            'number' => $number,
+            'logList' => $number->getChangeStatusLog(),
+            'actionForm' => $actionForm,
+        ]);
     }
 }

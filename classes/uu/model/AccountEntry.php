@@ -200,7 +200,7 @@ class AccountEntry extends ActiveRecord
 
         // Например, "Тариф «Максимальный»"
         // Кроме звонков. Чтобы было короче. У них тарификация зависит от пакета, а не тарифа
-        if ($this->type_id < 0 || $this->tariffResource->resource_id != Resource::ID_VOIP_CALLS) {
+        if ($this->type_id < 0 || !in_array($this->tariffResource->resource_id, [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS])) {
 
             // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
             $tariffPeriod = $this->getTariffPeriod();
@@ -271,7 +271,7 @@ class AccountEntry extends ActiveRecord
                     ($tariffResource = $this->tariffResource) &&
                     ($resource = $tariffResource->resource)
                 ) {
-                    if ($resource->id == Resource::ID_VOIP_CALLS) {
+                    if (in_array($resource->id, [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS])) {
                         // В звонках указана стоимость, но не минуты
                         return 1;
                     }

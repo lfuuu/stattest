@@ -46,6 +46,10 @@ class ServiceType extends \yii\db\ActiveRecord
 
     const ID_ONE_TIME = 21; // Разовая услуга
 
+    const ID_TRUNK = 22; // транк
+    const ID_TRUNK_PACKAGE_ORIG = 23; // пакет терм-транк
+    const ID_TRUNK_PACKAGE_TERM = 24; // пакет ориг-транк
+
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 

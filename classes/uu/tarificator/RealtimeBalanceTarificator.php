@@ -48,7 +48,7 @@ class RealtimeBalanceTarificator implements TarificatorI
                 clients.id
 SQL;
         $db->createCommand($selectSQL)
-            ->query();
+            ->execute();
         echo '. ';
 
         if ($accountClientId) {
@@ -69,15 +69,34 @@ SQL;
             WHERE
                 clients.id = clients_tmp.id
 SQL;
-        $db->createCommand($updateSQL)
-            ->query();
+        echo $db->createCommand($updateSQL)
+            ->execute();
         echo '. ';
 
         $updateSQL = <<<SQL
             DROP TEMPORARY TABLE clients_tmp
 SQL;
         $db->createCommand($updateSQL)
-            ->query();
+            ->execute();
         echo '. ';
+
+        // Еще в реалтайм-балансе надо учитывать ручные счета
+        // Для УУ старый счет считается ручным, если у него нет ссылки на УУ-счет
+        // Счет с задатком не учитывается, но эта логика заложена в \app\dao\BillDao::calculateBillSum, а здесь достаточно просуммировать суммы старых счетов (для zadatok она будет нулевой)
+        $oldBillTableName = \app\models\Bill::tableName();
+        $updateSQL = <<<SQL
+            UPDATE
+                {$clientAccountTableName} clients
+            SET
+                clients.balance = clients.balance - (SELECT COALESCE(SUM(bill.sum), 0) FROM {$oldBillTableName} bill WHERE clients.id = bill.client_id AND bill.uu_bill_id IS NULL)
+                {$updateSqlSet}
+            WHERE
+                clients.account_version = {$versionBillerUniversal}
+                {$sqlAndWhere}
+SQL;
+        echo $db->createCommand($updateSQL)
+            ->execute();
+        echo '. ';
+
     }
 }

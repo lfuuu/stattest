@@ -12,6 +12,7 @@ use yii\helpers\Url;
  * Пакеты
  *
  * @property int tariff_id
+ * @property int service_type_id
  *
  * @property Tariff tariff  FK нет, ибо в таблица в другой БД
  * @property PackageMinute[] packageMinutes

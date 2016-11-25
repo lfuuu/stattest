@@ -67,6 +67,8 @@ class Resource extends \yii\db\ActiveRecord
     const ID_VPBX_MIN_ROUTE = 19; // ВАТС. Маршрутизация по минимальной цене
     const ID_VPBX_GEO_ROUTE = 20; // ВАТС. Маршрутизация по географии
 
+    const ID_TRUNK_CALLS = 21; // Транк. Звонки
+
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
 
@@ -151,6 +153,8 @@ class Resource extends \yii\db\ActiveRecord
 
             self::ID_VPBX_MIN_ROUTE => DummyResourceReader::className(),              // ВАТС. Маршрутизация по минимальной цене
             self::ID_VPBX_GEO_ROUTE => DummyResourceReader::className(),              // ВАТС. Маршрутизация по географии
+
+            self::ID_TRUNK_CALLS => VoipCallsResourceReader::className(),        // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
         ];
         $className = $idToClassName[$id];
         return new $className();

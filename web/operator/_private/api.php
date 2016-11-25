@@ -114,7 +114,7 @@ function do_func($function)
             );
             break;
         }
-        case 'editAccountNotification': return ApiLk::editAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id"), get_param_raw("type"), get_param_raw("data")); break;
+
         case 'disableAccountNotification': return ApiLk::disableAccountNotification(get_param_integer("client_id"), get_param_integer("contact_id")); break;
         case 'saveAccountNotification': return ApiLk::saveAccountNotification(get_param_integer("client_id"), get_param_raw("data"), get_param_raw("min_balance"), get_param_raw("day_limit")); break;
         case 'getAccountSettings': return ApiLk::getAccountSettings(get_param_integer("client_id")); break;

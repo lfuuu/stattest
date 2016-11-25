@@ -252,7 +252,7 @@ class Number extends ActiveRecord
      */
     public static function getUrlById($id)
     {
-        return Url::to(['/voip/number/edit', 'id' => $id]);
+        return Url::to(['/voip/number/view', 'did' => $id]);
     }
 
     /**
@@ -271,5 +271,15 @@ class Number extends ActiveRecord
             }
         }
         return '';
+    }
+
+    /**
+     * Получаем лог изменений состояния номера
+     *
+     * @return array
+     */
+    public function getChangeStatusLog()
+    {
+        return self::dao()->getChangeStateLog($this);
     }
 }
