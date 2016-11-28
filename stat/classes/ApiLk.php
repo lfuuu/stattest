@@ -1720,7 +1720,7 @@ class ApiLk
             throw new Exception("account_is_bad");
 
         $ret = array();
-        foreach(ClientContact::find_by_sql("
+        foreach(\ClientContact::find_by_sql("
                 select c.id, c.type, c.data as info, n.min_balance, n.min_day_limit as day_limit, n.add_pay_notif, n.status
                 from client_contacts c
                 left join lk_notice_settings n on n.client_contact_id=c.id
@@ -2152,7 +2152,7 @@ class ApiLk
         }
 
         $ret = [];
-        foreach (ClientContact::find_by_sql("
+        foreach (\ClientContact::find_by_sql("
                 select *, min_day_limit as day_limit
                 from lk_client_settings
                 where client_id='" . $client_id . "'
