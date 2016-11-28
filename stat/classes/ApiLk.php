@@ -502,6 +502,7 @@ class ApiLk
                         actual_to,
                         no_of_lines,
                         CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to AS actual,
+                        CAST(NOW() AS DATE) <= actual_to AND actual_to < '".UsageInterface::MIDDLE_DATE."' AS is_will_be_off,
                         actual_to BETWEEN CAST(NOW() - interval 2 month AS DATE) AND CAST(NOW() AS DATE) AS actual_present_perfect,
                         CAST(NOW() AS DATE) < actual_from AS actual_future_indefinite,
                         region
@@ -514,6 +515,7 @@ class ApiLk
                 ",
                 [':client' => $account->client ]
             )->queryAll();
+
         foreach($usageRows as $usageRow)
         {
             $line = $usageRow;
@@ -561,7 +563,8 @@ class ApiLk
                         `u`.`id`,
                         `u`.`amount`,
                         `u`.`actual_to`,
-                        IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
+                        CAST(NOW() AS DATE) BETWEEN `u`.`actual_from` AND `u`.`actual_to` AS `actual`,
+                        CAST(NOW() AS DATE) <= u.actual_to AND u.actual_to < "'.UsageInterface::MIDDLE_DATE.'" AS is_will_be_off,
                         `u`.`status`,
                         `r`.`id` AS region_id,
                         (SELECT id_tarif FROM log_tarif WHERE service="usage_virtpbx" AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1) AS cur_tarif_id,
@@ -583,7 +586,7 @@ class ApiLk
                 LEFT JOIN `tarifs_virtpbx` AS `t` ON (`t`.`id` = cur_tarif_id)
             ', array($clientId)) as $v)
         {
-            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","region_id"), $v);
+            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "is_will_be_off", "tarif_name", "price", "space", "num_ports","region_id"), $v);
             $line["price"] = number_format($line["price"], 2, ".", " ");
             $line["amount"] = (float)$line["amount"];
             $ret[] = $line;
