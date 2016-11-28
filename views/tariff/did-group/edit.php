@@ -1,145 +1,136 @@
 <?php
+/**
+ * Создание/редактирование DID-группы
+ *
+ * @var \yii\web\View $this
+ * @var DidGroupForm $formModel
+ */
 
-/** @var \app\forms\tariff\DidGroupForm $model */
-use app\models\DidGroup;
-use yii\helpers\Url;
 use app\classes\Html;
+use app\forms\tariff\DidGroupForm;
+use app\models\City;
+use app\models\Country;
+use app\models\DidGroup;
+use app\models\NumberType;
+use kartik\select2\Select2;
+use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
 
+$didGroup = $formModel->didGroup;
 
-$countryList = \app\models\Country::getList();
-$cityLabelList = $cityList = \app\models\City::dao()->getList(false, $model->country_id);
-$numberTypeList = \app\models\NumberType::getList(true);
-
-$title = $model->id ? 'Редактирование DID-групы №' . $model->didGroup->id : 'Новая запись';
-
-echo Html::formLabel($title);
-
-$links = ['Тарифы', ['label' => 'DID группы', 'url' => '/tariff/did-group']];
-
-$cancelLink = ['/tariff/did-group'];
-
-if ($model->id) {
-    $links[] = [
-        'label' => $countryList[$model->original_country_id],
-        'url' => ['/tariff/did-group', 'DidGroupFilter' => ['country_id' => $model->original_country_id]]
-    ];
-
-    $links[] = [
-        'label' => $cityLabelList[$model->didGroup->city_id],
-        'url' => [
-            '/tariff/did-group',
-            'DidGroupFilter' => ['country_id' => $model->country_id, 'city_id' => $model->didGroup->city_id]
-        ]
-    ];
-
-    $cancelLink = [
-        '/tariff/did-group',
-        'DidGroupFilter' => ['country_id' => $model->country_id, 'city_id' => $model->didGroup->city_id]
-    ];
+if (!$didGroup->isNewRecord) {
+    $this->title = $didGroup->name;
+} else {
+    $this->title = Yii::t('common', 'Create');
 }
-
-$links[] = [
-    'label' => $title,
-    'url' => ($model->id ? ['/tariff/did-group/edit', 'id' => $model->id] : ['/tariff/did-group/add'])
-];
-
-echo Breadcrumbs::widget([
-    'links' => $links
-]);
 ?>
 
-    <div class="well">
-        <?php
+<?= Breadcrumbs::widget([
+    'links' => [
+        'Тарифы',
+        ['label' => 'DID группы', 'url' => $cancelUrl = '/tariff/did-group'],
+        $this->title
+    ],
+]) ?>
 
-        $form = ActiveForm::begin([
-            'id' => 'DidGroupForm',
-            'type' => ActiveForm::TYPE_VERTICAL,
-            'enableClientValidation' => true,
-        ]);
+<div class="well">
+    <?php
+    $form = ActiveForm::begin();
+    $viewParams = [
+        'formModel' => $formModel,
+        'form' => $form,
+    ];
+    ?>
 
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 3,
-            'attributes' => [
-                'country_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $countryList,
+    <?= Html::hiddenInput('isFake', '0', ['id' => 'isFake']) ?>
+
+    <?php
+    // сообщение об ошибке
+    if ($formModel->validateErrors) {
+        Yii::$app->session->setFlash('error', $formModel->validateErrors);
+    }
+    ?>
+
+    <div class="row">
+
+        <?php // Страна ?>
+        <div class="col-sm-3">
+            <?= $form->field($didGroup, 'country_code')
+                ->widget(Select2::className(), [
+                    'data' => Country::getList($isWithEmpty = false),
                     'options' => [
                         'class' => 'formReload'
-                    ]
-                ],
-                'city_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $cityList,
-                ],
-                'beauty_level' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => DidGroup::$beautyLevelNames,
-                ]
-            ]
-        ]);
+                    ],
+                ]) ?>
+        </div>
 
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 3,
-            'attributes' => [
-                'name' => [
-                    'type' => Form::INPUT_TEXT,
-                    'columnOptions' => [
-                        'colspan' => 2
-                    ]
-                ],
-                'number_type_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $numberTypeList
-                ]
-            ]
-        ]);
+        <?php // Город ?>
+        <div class="col-sm-3">
+            <?= $form->field($didGroup, 'city_id')
+                ->widget(Select2::className(), [
+                    'data' => City::dao()->getList($isWithEmpty = true, $didGroup->country_code),
+                ]) ?>
+        </div>
 
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 2,
-            'attributes' => [
-                'id' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => Html::activeHiddenInput($model, 'id')
-                ],
+        <?php // Красивость ?>
+        <div class="col-sm-3">
+            <?= $form->field($didGroup, 'beauty_level')
+                ->widget(Select2::className(), [
+                    'data' => DidGroup::dao()->getBeautyLevelList($didGroup->isNewRecord),
+                ]) ?>
+        </div>
 
-                'actions' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' =>
-                        Html::tag(
-                            'div',
-                            Html::button('Отменить', [
-                                'class' => 'btn btn-link',
-                                'style' => 'margin-right: 15px;',
-                                'onClick' => 'self.location = "' . Url::toRoute($cancelLink) . '";',
-                            ]) .
-                            Html::submitButton('Сохранить',
-                                [
-                                    'class' => 'btn btn-primary',
-                                    'name' => 'save',
-                                    'value' => 'Сохранить'
-                                ]),
-                            ['style' => 'text-align: right; padding-right: 0px;']
-                        )
-                ],
-            ],
-        ]);
+        <?php // Тип номера ?>
+        <div class="col-sm-3">
+            <?= $form->field($didGroup, 'number_type_id')
+                ->widget(Select2::className(), [
+                    'data' => NumberType::getList($isWithEmpty = true),
+                ]) ?>
+        </div>
 
-        ActiveForm::end();
-        ?>
     </div>
-    <script>
-        jQuery(document).ready(function () {
-            $('.formReload').on('change', function () {
-                document.getElementById('<?= $form->getId()?>').submit();
-            });
+
+    <div class="row">
+
+        <?php // Название ?>
+        <div class="col-sm-6">
+            <?= $form->field($didGroup, 'name')->textInput() ?>
+        </div>
+
+        <?php // Цена 1 ?>
+        <div class="col-sm-2">
+            <?= $form->field($didGroup, 'price1')->input('number', ['step' => 0.01]) ?>
+        </div>
+
+        <?php // Цена 2 ?>
+        <div class="col-sm-2">
+            <?= $form->field($didGroup, 'price2')->input('number', ['step' => 0.01]) ?>
+        </div>
+
+        <?php // Цена 3 ?>
+        <div class="col-sm-2">
+            <?= $form->field($didGroup, 'price3')->input('number', ['step' => 0.01]) ?>
+        </div>
+
+    </div>
+
+    <?php // кнопки ?>
+    <div class="form-group">
+        <?= $this->render('//layouts/_submitButton' . ($didGroup->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+        <?php if (!$didGroup->isNewRecord) : ?>
+            <?= $this->render('//layouts/_submitButtonDrop') ?>
+        <?php endif ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+</div>
+
+<script>
+    jQuery(document).ready(function () {
+        $('.formReload').on('change', function () {
+            $('#isFake').val(1);
+            document.getElementById('<?= $form->getId()?>').submit();
         });
-    </script>
+    });
+</script>

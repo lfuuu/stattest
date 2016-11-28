@@ -9,8 +9,8 @@
 use app\classes\dictionary\forms\CountryForm;
 use app\classes\traits\YesNoTraits;
 use app\models\Currency;
+use app\models\Language;
 use kartik\select2\Select2;
-use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -87,20 +87,20 @@ if (!$country->isNewRecord) {
 
         <?php // язык ?>
         <div class="col-sm-3">
-            <?= $form->field($country, 'lang')->dropDownList(\app\models\Language::getList()) ?>
+            <?= $form->field($country, 'lang')->dropDownList(Language::getList()) ?>
         </div>
 
         <?php // валюта ?>
         <div class="col-sm-3">
             <?= $form->field($country, 'currency_id')->widget(Select2::className(), [
-                'data' => Currency::getList($country->isNewRecord),
+                'data' => Currency::getList($isWithEmpty = $country->isNewRecord),
             ]) ?>
         </div>
 
         <?php // вкл ?>
         <div class="col-sm-3">
             <?= $form->field($country, 'in_use')->widget(Select2::className(), [
-                'data' => YesNoTraits::getYesNoList(false),
+                'data' => YesNoTraits::getYesNoList($isWithEmpty = false),
             ]) ?>
         </div>
 

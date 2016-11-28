@@ -6,7 +6,6 @@ use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\models\DidGroup;
 use kartik\grid\GridView;
-use Yii;
 
 
 class BeautyLevelColumn extends DataColumn
@@ -19,7 +18,7 @@ class BeautyLevelColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = DidGroup::dao()->getBeautyLevelList(true);
+        $this->filter = DidGroup::dao()->getBeautyLevelList($isWithEmpty = true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' beauty-level-column';
     }

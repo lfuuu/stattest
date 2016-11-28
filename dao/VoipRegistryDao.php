@@ -101,8 +101,20 @@ class VoipRegistryDao extends Singleton
 
         $didGroups = DidGroup::find()
             ->where([
-                'city_id' => $registry->city_id
-            ]);
+                'OR',
+                'city_id = :city_id', // город
+                [
+                    'AND',
+                    'country_code = :country_code', // страна без города
+                    'city_id IS NULL'
+                ]
+            ])
+            ->addParams([
+                ':city_id' => $registry->city_id,
+                ':country_code' => $registry->country_id,
+            ])
+            ->orderBy(new Expression('COALESCE(city_id, 0) DESC')) // выбор по стране без города имеет приоритет ниже страны с городом
+        ;
 
         if ($registry->isSourcePotability()) {
             $didGroups->andWhere(['beauty_level' => DidGroup::BEAUTY_LEVEL_STANDART]);

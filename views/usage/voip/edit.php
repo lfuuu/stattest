@@ -117,12 +117,12 @@ echo Breadcrumbs::widget([
             'form' => $form,
             'columns' => 4,
             'attributes' => [
-                'number_tariff_id' => [
+                'did_group_id' => [
                     'type' => Form::INPUT_RAW,
                     'value' => '
                         <div class="form-group">
                             <label class="control-label">DID группа</label>
-                            <input type="text" class="form-control" value="' . ($number? $number->didGroup->name: '') . '" readonly="readonly" />
+                            <input type="text" class="form-control" value="' . ($model->did? $number->didGroup->name: '') . '" readonly="readonly" />
                         </div>
                     ',
                 ],

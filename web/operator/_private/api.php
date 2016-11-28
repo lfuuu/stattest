@@ -65,11 +65,10 @@ function do_func($function)
 		case 'getInternetTarifs': return ApiLk::getInternetTarifs(); break;
 		case 'getVpbxTarifs': return ApiLk::getVpbxTarifs(get_param_raw("client_id")); break;
 		case 'getDomainTarifs': return ApiLk::getDomainTarifs(); break;
-		case 'getNumberTariffs': return ApiLk::getNumberTariffs(get_param_raw("region_id")); break;
 		case 'getVoipTarifs': return ApiLk::getVoipTarifs(get_param_raw("client_id")); break;
         case 'getVoipTariffTree': return ApiLk::getVoipTariffTree(get_param_raw("client_id")); break;
 		case 'getRegionList': return ApiLk::getRegionList(get_param_raw("client_id")); break;
-		case 'getFreeNumbers': return ApiLk::getFreeNumbers(get_param_raw("number_tariff_id")); break;
+        case 'getFreeNumbers': return ApiLk::getFreeNumbers(get_param_raw("did_group_id")); break;
 		case 'checkVoipNumber': return ApiLk::checkVoipNumber(get_param_raw('number')); break;
 		
 		case 'orderInternetTarif': return ApiLk::orderInternetTarif(get_param_raw("client_id"), get_param_raw("region_id"), get_param_raw("tarif_id")); break;
