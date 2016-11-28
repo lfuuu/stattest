@@ -99,17 +99,15 @@ class VoipServiceTransfer extends ServiceTransfer
      */
     private function process7800($targetService)
     {
-        if (!$targetService->line7800_id) {
+        $line7800 = UsageVoip::findOne(['line7800_id' => $this->service->id]);
+        if (is_null($line7800)) {
             return;
         }
 
-        $line7800 = UsageVoip::findOne($targetService->line7800_id);
-        Assert::isObject($line7800);
-
         $this->service = $line7800;
         $targetService7800 = parent::process();
-        $targetService->line7800_id = $targetService7800->id;
-        $targetService->save();
+        $targetService7800->line7800_id = $targetService->id;
+        $targetService7800->save();
 
         LogTarifTransfer::process($this, $targetService7800->id);
     }
@@ -149,12 +147,10 @@ class VoipServiceTransfer extends ServiceTransfer
      */
     private function fallback7800()
     {
-        if (!$this->service->line7800_id) {
+        $line7800 = UsageVoip::findOne(['line7800_id' => $this->service->id]);
+        if (is_null($line7800)) {
             return;
         }
-
-        $line7800 = UsageVoip::findOne($this->service->line7800_id);
-        Assert::isObject($line7800);
 
         $this->service = $line7800;
         LogTarifTransfer::fallback($this);
