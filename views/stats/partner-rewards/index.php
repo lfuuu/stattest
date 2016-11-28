@@ -30,7 +30,7 @@ echo Breadcrumbs::widget([
 
     <div class="col-sm-12">
         <?php
-        $form = ActiveForm::begin(['method' => 'get',])
+        $form = ActiveForm::begin(['method' => 'get', 'action' => '/stats/partner-rewards'])
         ?>
             <table border="0" align="center" width="50%" cellpadding="5" cellspacing="5">
                 <colgroup>
@@ -48,7 +48,7 @@ echo Breadcrumbs::widget([
                         <td>
                             <div class="col-sm-12">
                                 <?= MonthPicker::widget([
-                                    'name' => 'month',
+                                    'name' => 'filter[month]',
                                     'value' => $filterModel->month,
                                     'options' => [
                                         'class' => 'form-control input-sm',
