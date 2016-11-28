@@ -3,6 +3,7 @@ namespace app\classes\validators;
 
 use app\models\ClientContract;
 use app\models\Business;
+use app\models\ClientContragent;
 use app\models\Country;
 use yii\validators\Validator;
 
@@ -26,46 +27,35 @@ class InnKppValidator extends Validator
         if (in_array($model->legal_type, ['ip', 'legal'])) {
             $attributes[] = 'inn';
         }
+
         if ($model->legal_type == 'legal' && $model->country_id == Country::RUSSIA) {
             $attributes[] = 'kpp';
         }
 
-        $contracts = $this->hasOperatorContract($model);
         $hasCheckedContracts = $model->hasChecked || $this->hasCheckedContract($model);
 
         if ($attributes) {
-            $has = false;
+            $isValidated = false;
             foreach ($attributes as $attribute) {
-                if (
-                    ($hasCheckedContracts || $model->$attribute)
-                    && ($this->when === null || call_user_func($this->when, $model, $attribute))
+                if ($model->$attribute && ($this->when === null || call_user_func($this->when, $model, $attribute))
                 ) {
-                    $has = true;
+                    $isValidated = true;
                     self::createValidator($this->attrValidator[$attribute], $model,
                         $attribute)->validateAttribute($model, $attribute);
                 }
             }
-            if (!$contracts && ($has || $hasCheckedContracts)) {
+            if ($isValidated && $hasCheckedContracts) {
                 $this->checkUnique($model, $attributes);
             }
         }
-
-    }
-
-    private function hasOperatorContract($model)
-    {
-        return ClientContract::find()
-            ->andWhere(['contragent_id' => $model->id])
-            ->andWhere(['=', 'business_id', Business::OPERATOR])
-            ->count() ? true : false;
     }
 
     private function hasCheckedContract($model)
     {
-        return ClientContract::find()
+        return (bool) ClientContract::find()
             ->andWhere(['contragent_id' => $model->id])
             ->andWhere(['!=', 'state', ClientContract::STATE_UNCHECKED])
-            ->count() ? true : false;
+            ->count();
     }
 
     protected function checkUnique($model, $attributes)
@@ -78,23 +68,18 @@ class InnKppValidator extends Validator
             $query->andWhere([$attribute => $model->$attribute]);
         }
         $query->andWhere(['!=', 'id', $model->id]);
-        $models = $query->all();
+        /** @var ClientContragent $notUniqueContragent */
+        $notUniqueContragent = $query->one();
 
-        if ($models) {
+        if ($notUniqueContragent) {
             foreach ($attributes as $attribute) {
-                $this->addError($model, $attribute, '{attrs} must be unique', ['attrs' => implode(', ', $labels)]);
+                $this->addError($model, $attribute, '{attrs} должен быть уникальный (контрагент #{contragentId}, {contragentName}, ЛС: {accountId})', [
+                    'attrs' => implode(', ', $labels),
+                    'contragentId' => $notUniqueContragent->id,
+                    'contragentName' => $notUniqueContragent->name,
+                    'accountId' => $notUniqueContragent->getAccounts()[0]->id
+                ]);
             }
-            //$this->addError($model, $attribute, 'Связка {attrs} должна быть уникальной', ['attrs' => implode(', ', $labels)]);
-        }
-
-        $double = $model::find()
-            ->andWhere(['inn' => $model->inn])
-            ->andWhere(['!=', 'super_id', $model->super_id])
-            ->one();
-        if ($double instanceof $model) {
-            $this->addError($model, 'inn',
-                'Inn is already in another client <a href="/contragent/edit?id={contragentId}" target="_blank">контрагента</a>',
-                ['contragentId' => $double->id]);
         }
     }
 }
