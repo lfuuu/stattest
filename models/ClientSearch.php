@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\uu\model\AccountTariff;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 
@@ -81,9 +82,14 @@ class ClientSearch extends ClientAccount
         return isset($lastComment) ? $lastComment->comment : '';
     }
 
+    /**
+     * @param array $params
+     * @return ActiveDataProvider
+     */
     public function search($params)
     {
         $query = parent::find();
+        $query->alias('client');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -96,73 +102,75 @@ class ClientSearch extends ClientAccount
 
         $this->setAttributes($params);
 
-        $query->innerJoin(ClientContract::tableName(),
-            ClientContract::tableName() . '.id=' . ClientAccount::tableName() . '.contract_id');
-        $query->innerJoin(ClientContragent::tableName(),
-            ClientContragent::tableName() . '.id=' . ClientContract::tableName() . '.contragent_id');
-        $query->innerJoin(ClientSuper::tableName(),
-            ClientSuper::tableName() . '.id=' . ClientContragent::tableName() . '.super_id');
+        $query
+            ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
+            ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
+            ->innerJoin(['super_client' => ClientSuper::tableName()], 'super_client.id = contragent.super_id');
 
-        $query->orFilterWhere([ClientAccount::tableName() . '.id' => $this->id]);
-        $query->orFilterWhere([ClientContract::tableName() . '.manager' => $this->manager]);
-        $query->orFilterWhere([ClientContract::tableName() . '.account_manager' => $this->account_manager]);
-        $query->orFilterWhere(['like', ClientContragent::tableName() . '.name_full', $this->companyName]);
-        $query->orFilterWhere(['like', ClientContragent::tableName() . '.name', $this->companyName]);
-        $query->orFilterWhere(['like', ClientSuper::tableName() . '.name', $this->companyName]);
-        $query->orFilterWhere(['like', 'inn', $this->inn]);
-        $query->orFilterWhere(['like', 'address_connect', $this->address]);
-
+        $query
+            ->orFilterWhere(['client.id' => $this->id])
+            ->orFilterWhere(['contract.manager' => $this->manager])
+            ->orFilterWhere(['contract.account_manager' => $this->account_manager])
+            ->orFilterWhere(['LIKE', 'contragent.name_full', $this->companyName])
+            ->orFilterWhere(['LIKE', 'contragent.name', $this->companyName])
+            ->orFilterWhere(['LIKE', 'super_client.name', $this->companyName])
+            ->orFilterWhere(['LIKE', 'inn', $this->inn])
+            ->orFilterWhere(['LIKE', 'address_connect', $this->address]);
 
         if ($this->contractNo) {
-            $query->orFilterWhere(['number' => $this->contractNo]);
+            $query->orFilterWhere(['contract.number' => $this->contractNo]);
             if (!$dataProvider->getTotalCount()) {
-                $query->orFilterWhere(['like', 'number', $this->contractNo]);
+                $query->orFilterWhere(['LIKE', 'contract.number', $this->contractNo]);
             }
         }
 
         if ($this->email) {
-            $query->leftJoin(ClientContact::tableName(),
-                ClientContact::tableName() . '.client_id=' . ClientAccount::tableName() . '.id');
-            $query->andFilterWhere(['like', ClientContact::tableName() . '.data', $this->email]);
-            $query->andFilterWhere([ClientContact::tableName() . '.type' => 'email']);
+            $query->leftJoin(['contact' => ClientContact::tableName()], 'contact.client_id = client.id');
+            $query
+                ->andFilterWhere(['LIKE', 'contact.data', $this->email])
+                ->andFilterWhere(['contact.type' => 'email']);
         }
 
         if ($this->voip) {
-            $query->leftJoin(UsageVoip::tableName(),
-                UsageVoip::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->andFilterWhere(['like', UsageVoip::tableName() . '.e164', $this->voip]);
+            $uuQuery = clone $query;
+
+            $query->leftJoin(['base_voip' => UsageVoip::tableName()], 'base_voip.client = client.client');
+            $query->andFilterWhere(['LIKE', 'base_voip.e164', $this->voip]);
+
+            $uuQuery->leftJoin(['uu_voip' => AccountTariff::tableName()], 'uu_voip.client_account_id = client.id');
+            $uuQuery->andFilterWhere(['LIKE', 'uu_voip.voip_number', $this->voip]);
+
+            $query->union($uuQuery);
         }
 
         if ($this->ip) {
-            $query->leftJoin(UsageIpPorts::tableName(),
-                UsageIpPorts::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->leftJoin(UsageIpRoutes::tableName(),
-                UsageIpRoutes::tableName() . '.port_id=' . UsageIpPorts::tableName() . '.id');
-            $query->andFilterWhere(
+            $query
+                ->leftJoin(['ip_ports' => UsageIpPorts::tableName()], 'ip_ports.client = client.client')
+                ->leftJoin(['ip_routes' => UsageIpRoutes::tableName()], 'ip_routes.port_id = ip_ports.id');
+
+            $query->andFilterWhere([
+                'OR',
                 [
-                    'or',
-                    [
-                        'and',
-                        (new Expression('INET_ATON("' . $this->ip . '") >= INET_ATON(SUBSTRING_INDEX(net,"/",1))')),
-                        (new Expression('INET_ATON("' . $this->ip . '") <  INET_ATON(SUBSTRING_INDEX(net,"/",1))' .
-                            '+POW(2,32-SUBSTRING_INDEX(net,"/",-1))'))
-                    ],
-                    ['like', UsageIpRoutes::tableName() . '.net', $this->ip]
-                ]);
+                    'AND',
+                    (new Expression('INET_ATON("' . $this->ip . '") >= INET_ATON(SUBSTRING_INDEX(ip_routes.net,"/",1))')),
+                    (new Expression('INET_ATON("' . $this->ip . '") <  INET_ATON(SUBSTRING_INDEX(ip_routes.net,"/",1))' .
+                        '+POW(2,32-SUBSTRING_INDEX(ip_routes.net,"/",-1))'))
+                ],
+                ['LIKE', 'ip_routes.net', $this->ip]
+            ]);
         }
 
         if ($this->domain) {
-            $query->leftJoin(Domain::tableName(),
-                Domain::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->andFilterWhere(['like', Domain::tableName() . '.domain', $this->domain]);
+            $query->leftJoin(['domain' => Domain::tableName()], 'domain.client = client.client');
+            $query->andFilterWhere(['LIKE', 'domain.domain', $this->domain]);
         }
 
         if ($this->adsl) {
-            $query->leftJoin(UsageIpPorts::tableName(),
-                UsageIpPorts::tableName() . '.client=' . ClientAccount::tableName() . '.client');
-            $query->leftJoin(TechPort::tableName(),
-                UsageIpPorts::tableName() . '.port_id=' . TechPort::tableName() . '.id');
-            $query->andFilterWhere(['like', TechPort::tableName() . '.node', $this->adsl]);
+            $query
+                ->leftJoin(['ip_ports' => UsageIpPorts::tableName()], 'ip_ports.client = client.client')
+                ->leftJoin(['tech_port' => TechPort::tableName()], 'ip_ports.port_id = tech_port.id');
+
+            $query->andFilterWhere(['LIKE', 'tech_port.node', $this->adsl]);
         }
 
         return $dataProvider;
