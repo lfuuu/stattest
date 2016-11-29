@@ -1,9 +1,9 @@
 <?php
 namespace app\models;
 
-use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use DateTimeZone;
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\bill\Biller;
@@ -17,6 +17,7 @@ use app\models\billing\Calls as CallsStatPackage;
 use app\queries\UsageQuery;
 use app\classes\behaviors\important_events\UsageAction;
 use app\models\important_events\ImportantEvents;
+use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -39,6 +40,8 @@ use app\models\important_events\ImportantEvents;
  */
 class UsageVoipPackage extends ActiveRecord implements UsageInterface
 {
+
+    use UsageTrait;
 
     /**
      * @return array

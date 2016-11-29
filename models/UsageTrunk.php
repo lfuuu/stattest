@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\bill\VoipTrunkBiller;
+use app\classes\traits\UsageTrait;
 use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
 use app\helpers\usages\UsageVoipTrunkHelper;
@@ -30,6 +31,8 @@ use yii\db\ActiveRecord;
  */
 class UsageTrunk extends ActiveRecord implements UsageInterface
 {
+
+    use UsageTrait;
 
     /**
      * @return array
@@ -204,6 +207,16 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
         }
 
         return $list;
+    }
+
+    /**
+     * Возвращает связь по которой услуга связана с лицевым счетом
+     * @return array
+     */
+    public static function getClientAccountLink()
+    {
+        // Поле в услуге, Поле в лицевом счете
+        return ['client_account_id', 'id'];
     }
 
     /**

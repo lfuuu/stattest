@@ -10,6 +10,7 @@ use app\queries\UsageQuery;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageSmsHelper;
 use app\models\usages\UsageInterface;
+use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -18,6 +19,8 @@ use app\models\usages\UsageInterface;
  */
 class UsageSms extends ActiveRecord implements UsageInterface
 {
+
+    use UsageTrait;
 
     /**
      * @return array

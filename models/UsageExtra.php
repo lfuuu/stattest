@@ -10,6 +10,7 @@ use app\dao\services\ExtraServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageExtraHelper;
 use app\models\usages\UsageInterface;
+use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -18,6 +19,8 @@ use app\models\usages\UsageInterface;
  */
 class UsageExtra extends ActiveRecord implements UsageInterface
 {
+
+    use UsageTrait;
 
     /**
      * @return array

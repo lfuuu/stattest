@@ -10,6 +10,7 @@ use app\dao\services\WelltimeServiceDao;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageWelltimeHelper;
 use app\models\usages\UsageInterface;
+use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -19,6 +20,8 @@ use app\models\usages\UsageInterface;
  */
 class UsageWelltime extends ActiveRecord implements UsageInterface
 {
+
+    use UsageTrait;
 
     /**
      * @return array

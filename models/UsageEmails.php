@@ -9,6 +9,7 @@ use yii\db\ActiveRecord;
 use app\queries\UsageQuery;
 use app\helpers\usages\UsageEmailHelper;
 use app\models\usages\UsageInterface;
+use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -16,6 +17,8 @@ use app\models\usages\UsageInterface;
  */
 class UsageEmails extends ActiveRecord implements UsageInterface
 {
+
+    use UsageTrait;
 
     /**
      * @return array

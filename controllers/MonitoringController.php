@@ -7,6 +7,7 @@ use yii\db\Expression;
 use app\classes\BaseController;
 use app\classes\monitoring\MonitorFactory;
 use app\models\EventQueue;
+use app\models\ClientAccount;
 use app\models\filter\EventQueueFilter;
 use app\dao\MonitoringDao;
 use app\forms\transfer\ServiceTransferForm;
@@ -27,20 +28,25 @@ class MonitoringController extends BaseController
     }
 
     /**
+     * @param int $onlyCurrent
      * @return string
      * @throws \yii\base\Exception
      */
-    public function actionTransferedUsages()
+    public function actionTransferedUsages($onlyCurrent = true)
     {
+        global $fixclient_data;
+
         $services = ServiceTransferForm::getServicesGroups();
+        $clientAccount = ($onlyCurrent && $fixclient_data instanceof ClientAccount ? $fixclient_data : null);
 
         $listing = [];
         foreach ($services as $serviceKey => $serviceClass) {
-            $listing[(new $serviceClass)->helper->title] = MonitoringDao::transferedUsages($serviceClass);
+            $listing[(new $serviceClass)->helper->title] = MonitoringDao::transferedUsages($serviceClass, $clientAccount);
         }
 
         return $this->render('transfer', [
             'result' => $listing,
+            'clientAccount' => $clientAccount,
         ]);
     }
 

@@ -1,7 +1,6 @@
 <?php
 namespace app\models;
 
-
 use DateTime;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;
@@ -11,6 +10,7 @@ use app\helpers\usages\UsageCallChatHelper;
 use app\models\usages\UsageInterface;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\dao\services\CallChatServiceDao;
+use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -19,6 +19,8 @@ use app\dao\services\CallChatServiceDao;
  */
 class UsageCallChat extends ActiveRecord implements UsageInterface
 {
+
+    use UsageTrait;
 
     /**
      * @return array
