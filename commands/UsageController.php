@@ -4,6 +4,8 @@ namespace app\commands;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BusinessProcessStatus;
 use app\models\Emails;
+use app\models\LogTarif;
+use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use Yii;
@@ -71,7 +73,7 @@ class UsageController extends Controller
         echo $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": off:   " . $offDate->format(DateTimeZoneHelper::DATE_FORMAT) . "\n";
         echo $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": clean: " . $cleanOrderOfServiceDate->format(DateTimeZoneHelper::DATE_FORMAT) . "\n";
 
-        $infoOff = $this->cleanUsages($offDate, self::ACTION_SET_OFF);
+        $infoOff = $this->disableTestVoipUsages($offDate);
         $infoClean = $this->cleanUsages($cleanOrderOfServiceDate, self::ACTION_CLEAN_TRASH);
 
         if ($infoOff) {
@@ -104,7 +106,6 @@ class UsageController extends Controller
         $info = [];
 
         foreach ($usages as $usage) {
-            $tariff = $usage->tariff;
             $account = $usage->clientAccount;
 
             if ($action == self::ACTION_CLEAN_TRASH) {
@@ -119,19 +120,70 @@ class UsageController extends Controller
                 $model->disconnecting_date = $yesterday->format(DateTimeZoneHelper::DATE_FORMAT);
                 $model->status = UsageInterface::STATUS_WORKING;
                 $model->edit();
-            } elseif ($action == self::ACTION_SET_OFF) {
-                if (!$tariff || $tariff->isTest()) {// тестовый тариф, или без тарифа вообще
-                    if ($usage->actual_to != $now->format(DateTimeZoneHelper::DATE_FORMAT)) {// не выключенные сегодня
-                        $info[] = $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set off";
-
-                        $model = new UsageVoipEditForm();
-                        $model->initModel($account, $usage);
-                        $model->disconnecting_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
-                        $model->status = UsageInterface::STATUS_WORKING;
-                        $model->edit();
-                    }
-                }
             }
+        }
+
+        return $info;
+    }
+
+    /**
+     * Отключаем услуги телефонии на тестовом тарифе
+     *
+     * @param DateTime $date
+     * @return array
+     */
+    private function disableTestVoipUsages(\DateTime $date)
+    {
+        $now = new DateTime("now");
+
+        $info = [];
+
+        $usageVoipTable = UsageVoip::tableName();
+        $logTariffTable = LogTarif::tableName();
+        $tariffVoipTable = TariffVoip::tableName();
+
+        $query = \Yii::$app->getDb()->createCommand("
+            SELECT
+              u.id as usage_id
+            FROM
+              (
+                SELECT
+                  id AS     usage_id,
+                  (SELECT id
+                   FROM log_tarif
+                   WHERE id_service = u.id
+                         AND date_activation <= CAST(NOW() AS DATE)
+                         AND service = '{$usageVoipTable}'
+                   ORDER BY date_activation DESC, id DESC
+                   LIMIT 1) log_tariff_id
+            
+                FROM {$usageVoipTable} u
+                WHERE
+                  CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to
+              ) a, {$usageVoipTable} u, {$logTariffTable} lt, {$tariffVoipTable} tv
+            WHERE u.id = usage_id
+                  AND lt.id = log_tariff_id
+                  AND tv.id = lt.id_tarif
+                  AND tv.status = '{statusTest}'
+                  AND lt.date_activation <= '{date}'
+            ", [
+            'statusTest' => TariffVoip::STATUS_TEST,
+            'date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)
+        ]);
+
+        foreach($query->query()->read() as $row) {
+            $usage = UsageVoip::findOne(['id' => $row['usage_id']]);
+            if (!$usage) {
+                continue;
+            }
+
+            $info[] = $now->format(DateTimeZoneHelper::DATE_FORMAT) . ": " . $usage->E164 . ", from: " . $usage->actual_from . ": set off";
+
+            $model = new UsageVoipEditForm();
+            $model->initModel($usage->clientAccount, $usage);
+            $model->disconnecting_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
+            $model->status = UsageInterface::STATUS_WORKING;
+            $model->edit();
         }
 
         return $info;
