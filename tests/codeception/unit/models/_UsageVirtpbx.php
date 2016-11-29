@@ -2,6 +2,7 @@
 
 namespace tests\codeception\unit\models;
 
+use app\classes\uu\model\Tariff;
 use app\models\UsageVoip;
 use app\models\LogTarif;
 use app\models\TariffVoip;
@@ -9,12 +10,18 @@ use app\models\TariffVoip;
 class _UsageVirtpbx extends \app\models\UsageVirtpbx
 {
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getClientAccount()
     {
         _ClientAccount::$usageId = $this->id;
         return $this->hasOne(_ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function createUsageVoip()
     {
         $tariffId = TariffVoip::find()->select('MAX(id)')->scalar();
@@ -23,7 +30,7 @@ class _UsageVirtpbx extends \app\models\UsageVirtpbx
         $line7800->actual_from = $this->actual_from;
         $line7800->actual_to = $this->actual_to;
         $line7800->client = $this->client;
-        $line7800->type_id = 'line';
+        $line7800->type_id = Tariff::NUMBER_TYPE_LINE;
         $line7800->address = 'test address line 7800';
         $line7800->region = 99;
         $line7800->create_params = '';
@@ -40,6 +47,7 @@ class _UsageVirtpbx extends \app\models\UsageVirtpbx
         $usage->actual_from = $this->actual_from;
         $usage->actual_to = $this->actual_to;
         $usage->client = $this->client;
+        $usage->type_id = Tariff::NUMBER_TYPE_7800;
         $usage->address = 'test address';
         $usage->E164 = '123456' . mt_rand(0, 9);
         $usage->line7800_id = $line7800->id;

@@ -24,7 +24,10 @@ class UsageDateTime extends Behavior
         $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
 
         if (isset($event->sender->client)) {
-            $client = is_numeric($event->sender->client) ? ClientAccount::findOne($event->sender->client) : ClientAccount::findOne(['client' => $event->sender->client]);
+            $client =
+                is_numeric($event->sender->client)
+                    ? ClientAccount::findOne($event->sender->client)
+                    : ClientAccount::findOne(['client' => $event->sender->client]);
             Assert::isObject($client);
 
             $timezone = $client->timezone_name;
@@ -41,4 +44,5 @@ class UsageDateTime extends Behavior
                 ->modify('+1 day -1 second')
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
+
 }
