@@ -136,6 +136,8 @@ class UsageController extends Controller
     private function disableTestVoipUsages(\DateTime $date)
     {
         $now = new DateTime("now");
+        $yesterday = clone $now;
+        $yesterday->modify('-1 day');
 
         $info = [];
 
@@ -165,14 +167,14 @@ class UsageController extends Controller
             WHERE u.id = usage_id
                   AND lt.id = log_tariff_id
                   AND tv.id = lt.id_tarif
-                  AND tv.status = '{statusTest}'
-                  AND lt.date_activation <= '{date}'
+                  AND tv.status = :statusTest
+                  AND lt.date_activation <= :date
             ", [
-            'statusTest' => TariffVoip::STATUS_TEST,
-            'date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)
+            ':statusTest' => TariffVoip::STATUS_TEST,
+            ':date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)
         ]);
 
-        foreach($query->query()->read() as $row) {
+        foreach($query->queryAll() as $row) {
             $usage = UsageVoip::findOne(['id' => $row['usage_id']]);
             if (!$usage) {
                 continue;
@@ -182,7 +184,7 @@ class UsageController extends Controller
 
             $model = new UsageVoipEditForm();
             $model->initModel($usage->clientAccount, $usage);
-            $model->disconnecting_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
+            $model->disconnecting_date = $yesterday->format(DateTimeZoneHelper::DATE_FORMAT);
             $model->status = UsageInterface::STATUS_WORKING;
             $model->edit();
         }
