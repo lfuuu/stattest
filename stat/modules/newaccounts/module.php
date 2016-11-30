@@ -87,8 +87,7 @@ class m_newaccounts extends IModule
         $design->ProcessEx('errors.tpl');
 
         $clientAccounts = ClientAccount::find()
-            ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]])
-            ->limit(10);
+            ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]]);
 
         if (($organizationId = get_param_integer('organizationId'))) {
             $clientAccounts->leftJoin(['cc' => \app\models\ClientContract::tableName()], 'cc.id = '.ClientAccount::tableName().'.contract_id');
