@@ -82,9 +82,19 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_balance_mass($fixclient)
     {
-        global $design, $db, $user, $fixclient;
+        global $design;
+
         $design->ProcessEx('errors.tpl');
-        $R = $db->AllRecords("select c.id, c.client, c.currency from clients c where status not in ( 'closed', 'trash', 'once', 'tech_deny', 'double', 'deny') ");
+
+        $clientAccounts = ClientAccount::find()
+            ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]])
+            ->limit(10);
+
+        if (($organizationId = get_param_integer('organizationId'))) {
+            $clientAccounts->leftJoin(['cc' => \app\models\ClientContract::tableName()], 'cc.id = '.ClientAccount::tableName().'.contract_id');
+            $clientAccounts->andWhere(['cc.organization_id' => $organizationId]);
+        }
+
         set_time_limit(0);
         session_write_close();
 
@@ -92,11 +102,11 @@ class m_newaccounts extends IModule
             ob_end_clean();
         }
 
-
-        foreach ($R as $r) {
-            echo date("d-m-Y H:i:s") . ": " . $r['client'];
+        /** @var ClientAccount $clientAccount */
+        foreach ($clientAccounts->each() as $clientAccount) {
+            echo date("d-m-Y H:i:s") . ": " . $clientAccount->id . ' ' . $clientAccount->currency;
             try {
-                ClientAccount::dao()->updateBalance($r['id']);
+                ClientAccount::dao()->updateBalance($clientAccount);
             } catch (Exception $e) {
                 echo "<h1>!!! " . $e->getMessage() . "</h1>";
             }

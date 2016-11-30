@@ -74,7 +74,12 @@ class ClientAccountDao extends Singleton
 
     public function updateBalance($clientAccountId)
     {
-        $clientAccount = ClientAccount::findOne($clientAccountId);
+        if ($clientAccountId instanceof ClientAccount) {
+            $clientAccount = $clientAccountId;
+        } else {
+            $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
+        }
+
         Assert::isObject($clientAccount);
 
         if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {

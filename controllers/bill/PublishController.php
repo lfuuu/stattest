@@ -1,6 +1,8 @@
 <?php
 namespace app\controllers\bill;
 
+use app\models\Organization;
+use app\models\Region;
 use Yii;
 use yii\filters\AccessControl;
 use app\classes\BaseController;
@@ -23,9 +25,12 @@ class PublishController extends BaseController
         ];
     }
 
-    public function actionIndex()
+    public function actionIndex($organizationId = Organization::MCN_TELEKOM, $regionId = Region::HUNGARY)
     {
-        return $this->render('index', []);
+        return $this->render('index', [
+            'organizationId' => $organizationId,
+            'regionId' => $regionId
+        ]);
     }
 
     /**
@@ -33,7 +38,7 @@ class PublishController extends BaseController
      *
      * @param int $region
      */
-    public function actionRegion($region)
+    public function actionRegion($regionId)
     {
         $result =
             Yii::$app->db->createCommand('
@@ -46,12 +51,40 @@ class PublishController extends BaseController
                     AND c.`region` = :region',
                 [
                     ':bill_no' => date('Ym') . '-%',
-                    ':region' => $region,
+                    ':region' => $regionId,
                 ]
             )
                 ->execute();
 
         Yii::$app->session->addFlash('success', 'Опубликовано ' . $result . ' счетов');
-        return $this->redirect('/bill/publish/index');
+
+        return $this->redirect(['/bill/publish/index', 'regionId' => $regionId]);
     }
+
+    /**
+     * Публикация счетов по организации
+     *
+     * @param int $organizationId
+     */
+    public function actionOrganization($organizationId)
+    {
+        $result = Yii::$app->db->createCommand("
+                UPDATE newbills b
+                  LEFT JOIN `clients` c ON c.`id` = b.`client_id`
+                  LEFT JOIN `client_contract` cc ON cc.`id` = c.contract_id
+                SET b.is_lk_show = 1
+                WHERE
+                  b.bill_no LIKE :bill_mask
+                  AND cc.organization_id = :organizationId
+                  AND b.is_lk_show = 0",
+            [
+                ':bill_mask' => date('Ym') . '-%',
+                ':organizationId' => $organizationId
+            ])->execute();
+
+        Yii::$app->session->addFlash('success', 'Опубликовано ' . $result . ' счетов');
+
+        return $this->redirect(['/bill/publish/index', 'organizationId' => $organizationId]);
+    }
+
 }
