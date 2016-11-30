@@ -200,14 +200,14 @@ use app\models\ClientContract;
                                                         title="Реалтаймовый счетчик стоимости всех входящих звонков по ЛС" class="text-nowrap"
                                                         style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
                                                     >
-                                                        Вх: <?= abs($contractAccount->interopCounter->income_sum); ?> <?= $contractAccount->currency; ?>
+                                                        Ориг.: <?= abs($contractAccount->interopCounter->income_sum); ?> <?= $contractAccount->currency; ?>
                                                     </abbr>
                                                     <br />
                                                     <abbr
                                                         title="Реалтаймовое счетчик стоимости всех исходящих звонков по ЛС" class="text-nowrap"
                                                         style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
                                                     >
-                                                        Исх: <?= abs($contractAccount->interopCounter->outcome_sum); ?> <?= $contractAccount->currency; ?>
+                                                        Терм.: <?= abs($contractAccount->interopCounter->outcome_sum); ?> <?= $contractAccount->currency; ?>
                                                     </abbr>
 
                                                     <?php else:  ?>
