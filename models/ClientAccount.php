@@ -32,6 +32,7 @@ use yii\helpers\Url;
  * @property int $credit
  * @property int $voip_credit_limit_day
  * @property int $voip_limit_mn_day
+ * @property int $voip_disabled
  * @property int $business_id
  * @property int $price_include_vat
  * @property int $is_active
