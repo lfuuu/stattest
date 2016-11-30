@@ -38,14 +38,40 @@ abstract class NotificationProcessor
         ])->active();
     }
 
-    abstract function getSetEvent();
+    /**
+     * Возвращает событие входа в области проверяемого значения
+     *
+     * @return string
+     */
+    abstract function getEnterEvent();
 
-    abstract function getUnSetEvent();
+    /**
+     * Возвращает событие выхода из области проверяемого значения
+     *
+     * @return string
+     */
+    abstract function getLeaveEvent();
 
+    /**
+     * Получение величины значения
+     *
+     * @return float
+     */
     abstract function getValue();
 
+    /**
+     * Получение лимита значения
+     *
+     * @return float
+     */
     abstract function getLimit();
 
+    /**
+     * Должно ли значение быть больше лимита
+     * Сравниваемое значение в "нормальном" состоянии должно быть больше лимита (баланс и минимальный лимит), или наоборт (дневной лимит и дневное потредление)
+     *
+     * @return bool
+     */
     protected function isPositiveComparison()
     {
         return true;
@@ -53,6 +79,8 @@ abstract class NotificationProcessor
 
     /**
      * Надо ли отправлять оповещение напрямую
+     *
+     * @return bool
      */
     protected function isOldNotification()
     {
@@ -81,13 +109,18 @@ abstract class NotificationProcessor
         return false;
     }
 
+    /**
+     * Фильтр по клиентам
+     *
+     * @return $this
+     */
     public function filterClients()
     {
         $dayLimitClients = LkNoticeSetting::find()
             ->distinct()
             ->select('client_id')
             ->where([
-                $this->getSetEvent() => 1
+                $this->getEnterEvent() => 1
             ])
             ->andWhere(['status' => LkNoticeSetting::STATUS_WORK]);
 
@@ -96,12 +129,21 @@ abstract class NotificationProcessor
         return $this;
     }
 
+    /**
+     * Установка ЛС
+     *
+     * @param ClientAccount $client
+     * @return $this
+     */
     public function setClient(ClientAccount $client)
     {
         $this->client = $client;
         return $this;
     }
 
+    /**
+     * Проверка входа/выхода значения в зону лимита и оповещение.
+     */
     public function checkAndMakeNotifications()
     {
         foreach ($this->clients->each() as $client) {
@@ -109,7 +151,7 @@ abstract class NotificationProcessor
             try {
                 $this->compareAndNotificationClient($client);
             } catch (\Exception $e) {
-                echo "\n" . date('r') . ': (!)' . $client->id . ", " . $this->getSetEvent() . ', error: ' . $e->getMessage();
+                echo PHP_EOL . date('r') . ': (!)' . $client->id . ", " . $this->getEnterEvent() . ', error: ' . $e->getMessage();
 
                 $transaction->rollBack();
                 \Yii::error($e->getMessage());
@@ -119,6 +161,11 @@ abstract class NotificationProcessor
         }
     }
 
+    /**
+     * Сравнение и оповещение клиента
+     *
+     * @param ClientAccount $client
+     */
     public function compareAndNotificationClient(ClientAccount $client)
     {
         $this->setClient($client);
@@ -130,20 +177,20 @@ abstract class NotificationProcessor
         ClientAccount::getDb()->transaction(function () use ($client, $isSet, $isUnSet) {
 
             if ($isSet || $isUnSet) {
-                LkClientSettings::saveState($client, $this->getSetEvent(), $isSet);
+                LkClientSettings::saveState($client, $this->getEnterEvent(), $isSet);
             }
 
             if ($isSet) {
-                echo "\n" . date('r') . ': (+)' . $client->id . ", " . $this->getSetEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
-                $this->createImportantEventSet($client, true, $this->getSetEvent());
+                echo "\n" . date('r') . ': (+)' . $client->id . ", " . $this->getEnterEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
+                $this->createImportantEventSet($client, true, $this->getEnterEvent());
                 if ($this->isOldNotification()) {
                     $this->oldSetupSendAndSaveLog();
                 }
             }
 
             if ($isUnSet) {
-                echo "\n" . date('r') . ': (-)' . $client->id . ", " . $this->getSetEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
-                $this->createImportantEventSet($client, false, $this->getUnSetEvent());
+                echo "\n" . date('r') . ': (-)' . $client->id . ", " . $this->getEnterEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
+                $this->createImportantEventSet($client, false, $this->getLeaveEvent());
                 if ($this->isOldNotification()) {
                     $this->oldUnsetSaveLog();
                 }
@@ -151,6 +198,13 @@ abstract class NotificationProcessor
         });
     }
 
+    /**
+     * Создание события. Для обработчиков, проверющих переход через лимит.
+     *
+     * @param ClientAccount $client
+     * @param bool $isSet
+     * @param string $event
+     */
     private function createImportantEventSet(ClientAccount $client, $isSet = true, $event = '')
     {
         ImportantEvents::create(
@@ -164,10 +218,13 @@ abstract class NotificationProcessor
             ] + $this->eventFields);
     }
 
+    /**
+     * Создание события для "без лимитных" обработчиков.
+     */
     public function makeSingleClientNotification()
     {
         if ($this->getContactsForSend()) {
-            ImportantEvents::create($this->getSetEvent(), ImportantEventsSources::SOURCE_STAT, [
+            ImportantEvents::create($this->getEnterEvent(), ImportantEventsSources::SOURCE_STAT, [
                     'client_id' => $this->client->id,
                     'value' => $this->getValue(),
                     'user_id' => \Yii::$app->user->id
@@ -177,6 +234,9 @@ abstract class NotificationProcessor
         }
     }
 
+    /**
+     * Старая система оповещения, и сохранения в лог оповещений
+     */
     private function oldSetupSendAndSaveLog()
     {
         /** Оправка самих сообщений по старому */
@@ -185,12 +245,12 @@ abstract class NotificationProcessor
 
             $Notification = new LkNotification(
                 $this->client->id, $contact->id,
-                $this->getSetEvent(), $this->getValue(), $balance
+                $this->getEnterEvent(), $this->getValue(), $balance
             );
             if ($Notification->send()) {
                 $this->oldAddLogRaw(
                     $this->client->id, $contact->id,
-                    $this->getSetEvent(), true,
+                    $this->getEnterEvent(), true,
                     $balance, $this->getLimit(), $this->getValue()
                 );
 
@@ -198,19 +258,35 @@ abstract class NotificationProcessor
         }
     }
 
+    /**
+     * Подготовка и сохранение записи, о оповещении клиента.
+     */
     private function oldUnsetSaveLog()
     {
-        $this->oldAddLogRaw($this->client->id, 0, $this->getSetEvent(), false,
+        $this->oldAddLogRaw($this->client->id, 0, $this->getEnterEvent(), false,
             sprintf('%0.2f', $this->client->billingCounters->realtimeBalance), $this->getLimit(),
             $this->getValue());
     }
 
+    /**
+     * Сохранение записи, о оповещении клиента.
+     *
+     * @param $clientId
+     * @param $contactId
+     * @param $event
+     * @param $isSet
+     * @param $balance
+     * @param $limit
+     * @param $value
+     */
     private function oldAddLogRaw($clientId, $contactId, $event, $isSet, $balance, $limit, $value)
     {
         LkNotificationLog::addLogRaw($clientId, $contactId, $event, $isSet, $balance, $limit, $value);
     }
 
     /**
+     * Получаем контакты для отправки
+     *
      * @return array|\app\models\ClientContact[]
      */
     protected function getContactsForSend()
@@ -219,7 +295,7 @@ abstract class NotificationProcessor
 
         /** @var \app\models\LkNoticeSetting $noticeSetting */
         foreach ($this->client->getLkNoticeSetting()->andWhere([
-            $this->getSetEvent() => 1,
+            $this->getEnterEvent() => 1,
             'status' => LkNoticeSetting::STATUS_WORK
         ])->all() as $noticeSetting) {
             $contact = $noticeSetting->contact;
@@ -231,6 +307,11 @@ abstract class NotificationProcessor
         return $contacts;
     }
 
+    /**
+     * Наступило ли событие перехода значения через лимит
+     *
+     * @return bool
+     */
     public function compareSet()
     {
         $value = $this->getValue();
@@ -257,7 +338,7 @@ abstract class NotificationProcessor
 
         if ($isCompareSet) {
             $lkSettings = $this->client->lkClientSettings;
-            if (!$lkSettings || !$lkSettings->{'is_' . $this->getSetEvent() . '_sent'}) {
+            if (!$lkSettings || !$lkSettings->{'is_' . $this->getEnterEvent() . '_sent'}) {
                 return true;
             }
         }
@@ -265,6 +346,11 @@ abstract class NotificationProcessor
         return false;
     }
 
+    /**
+     * Наступило ли событие возвращения значения через лимит
+     *
+     * @return bool
+     */
     public function compareUnSet()
     {
         $value = $this->getValue();
@@ -290,7 +376,7 @@ abstract class NotificationProcessor
 
         if ($isCompareUnset) {
             $lkSettings = $this->client->lkClientSettings;
-            if ($lkSettings && $lkSettings->{'is_' . $this->getSetEvent() . '_sent'}) {
+            if ($lkSettings && $lkSettings->{'is_' . $this->getEnterEvent() . '_sent'}) {
                 return true;
             }
         }

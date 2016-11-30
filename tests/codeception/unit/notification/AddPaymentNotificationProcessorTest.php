@@ -86,18 +86,18 @@ class AddPaymentNotificationProcessorTest extends \yii\codeception\TestCase
 
         $this->assertEquals($processor->getValue(), $this->payment->sum);
         $this->assertEquals($processor->getLimit(), 0);
-        $this->assertEquals($processor->getSetEvent(), $this->event);
+        $this->assertEquals($processor->getEnterEvent(), $this->event);
 
 
         /** @var \app\models\important_events\ImportantEvents $event */
-        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $processor->getSetEvent()]);
+        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $processor->getEnterEvent()]);
         $this->assertNotNull($event);
         $this->assertNotNull($event->id);
 
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
         $lkNoticeLog = LkNotificationLog::findOne([
             'client_id' => $this->account->id,
-            'event' => $processor->getSetEvent(),
+            'event' => $processor->getEnterEvent(),
             'is_set' => 1
         ]);
         $this->assertNotNull($lkNoticeLog);

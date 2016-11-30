@@ -11,22 +11,33 @@ use app\models\important_events\ImportantEventsNames;
  */
 class MinBalanceNotificationProcessor extends NotificationProcessor
 {
-
-    public function getSetEvent()
+    /**
+     * @inheritdoc
+     */
+    public function getEnterEvent()
     {
         return ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE;
     }
 
-    public function getUnSetEvent()
+    /**
+     * @inheritdoc
+     */
+    public function getLeaveEvent()
     {
         return ImportantEventsNames::IMPORTANT_EVENT_UNSET_MIN_BALANCE;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getValue()
     {
         return $this->client->billingCountersFastMass->realtimeBalance;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getLimit()
     {
         return $this->client->lkClientSettings->min_balance;
