@@ -5,22 +5,24 @@ use app\classes\Form;
 
 class UsageTrunkForm extends Form
 {
-    public $id;
-    public $client_account_id;
-    public $connection_point_id;
-    public $trunk_id;
-    public $actual_from;
-    public $actual_to;
-    public $orig_enabled;
-    public $term_enabled;
-    public $orig_min_payment;
-    public $term_min_payment;
-    public $description;
+    public
+        $id,
+        $client_account_id,
+        $connection_point_id,
+        $trunk_id,
+        $actual_from,
+        $actual_to,
+        $orig_enabled,
+        $term_enabled,
+        $orig_min_payment,
+        $term_min_payment,
+        $description,
+        $trunk_type;
 
     public function rules()
     {
         return [
-            [['id', 'client_account_id', 'connection_point_id', 'trunk_id'], 'integer'],
+            [['id', 'client_account_id', 'connection_point_id', 'trunk_id', 'trunk_type',], 'integer'],
             [['actual_from', 'actual_to', 'description'], 'string'],
             [['orig_enabled', 'term_enabled', 'orig_min_payment', 'term_min_payment'], 'integer'],
         ];
@@ -40,6 +42,7 @@ class UsageTrunkForm extends Form
             'orig_min_payment' => 'Минимальный платеж за оригинацию',
             'term_min_payment' => 'Минимальный платеж за терминацию',
             'description' => 'Описание',
+            'trunk_type' => 'Тип транка',
         ];
     }
 
