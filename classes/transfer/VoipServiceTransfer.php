@@ -46,7 +46,7 @@ class VoipServiceTransfer extends ServiceTransfer
         $result = [];
         if ($usages->count()) {
             foreach ($usages->each() as $usage) {
-                if ($usage->type_id === Tariff::NUMBER_TYPE_7800 || in_array($usage->E164, $stopList)) {
+                if ($usage->type_id === Tariff::NUMBER_TYPE_LINE || in_array($usage->E164, $stopList)) {
                     continue;
                 }
                 $result[] = $usage;

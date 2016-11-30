@@ -82,6 +82,14 @@ class ClientContragent extends HistoryActiveRecord
         ];
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'inn' => "ИНН",
+            'kpp' => "КПП"
+        ];
+    }
+
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);

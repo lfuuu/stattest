@@ -17,7 +17,9 @@ abstract class LogTarifTransfer
     /**
      * Перенос тарифа
      * @param ServiceTransfer $serviceTransfer - объект переноса услуг
-     * @param ClientAccount $targetAccount - лицевой счет на который осуществляется перенос услуги
+     * @param $targetServiceId - лицевой счет на который осуществляется перенос услуги
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     public static function process(ServiceTransfer $serviceTransfer, $targetServiceId)
     {
@@ -59,6 +61,8 @@ abstract class LogTarifTransfer
     /**
      * Процесс отмены переноса тарифа
      * @param ServiceTransfer $serviceTransfer - объект переноса услуг
+     * @throws \Exception
+     * @throws \yii\db\Exception
      */
     public static function fallback(ServiceTransfer $serviceTransfer)
     {
