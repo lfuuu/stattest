@@ -46,7 +46,14 @@ class VoipServiceTransfer extends ServiceTransfer
         $result = [];
         if ($usages->count()) {
             foreach ($usages->each() as $usage) {
-                if ($usage->type_id === Tariff::NUMBER_TYPE_LINE || in_array($usage->E164, $stopList)) {
+                if (
+                    in_array($usage->E164, $stopList)
+                        ||
+                    (
+                        $usage->type_id === Tariff::NUMBER_TYPE_LINE &&
+                        UsageVoip::find()->where(['line7800_id' => $usage->id])->count()
+                    )
+                ) {
                     continue;
                 }
                 $result[] = $usage;
