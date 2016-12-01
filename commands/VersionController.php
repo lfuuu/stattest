@@ -20,6 +20,7 @@ class VersionController extends Controller
             $res = $version->exportCurrentVersion();
             $msg = $version->model . '(' . $version->model_id . ') ' . ($res ? 'successfully saved' : 'not saved');
             Yii::info($msg);
+            echo PHP_EOL . $msg;
         }
         Yii::info('Проверка закончена. Всего: ' . count($versions));
     }
