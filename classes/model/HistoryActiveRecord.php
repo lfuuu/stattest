@@ -2,45 +2,69 @@
 
 namespace app\classes\model;
 
-use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\db\ActiveRecord;
+use app\helpers\DateTimeZoneHelper;
 use app\models\HistoryVersion;
 use app\models\User;
 
 class HistoryActiveRecord extends ActiveRecord
 {
-    private $historyVersionStoredDate = null;
-    private $historyVersionRequestedDate = null;
 
+    private
+        $historyVersionStoredDate = null,
+        $historyVersionRequestedDate = null;
+
+    // Свойства модели которые не должны обновляться от версионности
+    public
+        $attributesProtectedFromVersioning = [];
+
+    /**
+     * @return null
+     */
     public function getHistoryVersionStoredDate()
     {
         return $this->historyVersionStoredDate;
     }
 
+    /**
+     * @param $date
+     */
     public function setHistoryVersionStoredDate($date)
     {
         $this->historyVersionStoredDate = $date;
     }
 
+    /**
+     * @return null
+     */
     public function getHistoryVersionRequestedDate()
     {
         return $this->historyVersionRequestedDate;
     }
 
+    /**
+     * @param $date
+     */
     public function setHistoryVersionRequestedDate($date)
     {
         $this->historyVersionRequestedDate = $date;
     }
 
     /**
-     * @return $this
+     * @param $date
+     * @return HistoryActiveRecord
      */
     public function loadVersionOnDate($date)
     {
         return HistoryVersion::loadVersionOnDate($this, $date);
     }
 
+    /**
+     * @param bool|true $runValidation
+     * @param null|array $attributeNames
+     * @return bool
+     */
     public function save($runValidation = true, $attributeNames = null)
     {
         $result =
@@ -55,6 +79,9 @@ class HistoryActiveRecord extends ActiveRecord
         return $result;
     }
 
+    /**
+     * @return array
+     */
     public function getDateList()
     {
         $months = [
@@ -83,6 +110,9 @@ class HistoryActiveRecord extends ActiveRecord
             ];
     }
 
+    /**
+     * @return bool
+     */
     private function isNeedHistoryVersionSaveModel()
     {
         if ($this->isNewRecord || !$this->getHistoryVersionStoredDate()) {
@@ -105,6 +135,9 @@ class HistoryActiveRecord extends ActiveRecord
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     private function createHistoryVersion()
     {
         if ($this->isNewRecord || !$this->getHistoryVersionStoredDate()) {
@@ -136,4 +169,5 @@ class HistoryActiveRecord extends ActiveRecord
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
         $model->save();
     }
+
 }

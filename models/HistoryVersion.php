@@ -19,8 +19,12 @@ use yii\db\ActiveRecord;
  */
 class HistoryVersion extends ActiveRecord
 {
+
     public $diffs = [];
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'history_version';
@@ -34,6 +38,10 @@ class HistoryVersion extends ActiveRecord
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
+    /**
+     * @param array $versions
+     * @return string
+     */
     public static function generateVersionsJson(array $versions)
     {
         $arr = [];
@@ -44,6 +52,9 @@ class HistoryVersion extends ActiveRecord
         return '[' . implode(',', $arr) . ']';
     }
 
+    /**
+     * @param $versions
+     */
     public static function generateDifferencesFor(&$versions)
     {
         for ($k = 0, $count = count($versions); $k < $count; $k++) {
@@ -69,16 +80,39 @@ class HistoryVersion extends ActiveRecord
         }
     }
 
-    //Export the current version for the current object in the table
+    /**
+     * Export the current version for the current object in the table
+     * @return mixed
+     */
     public function exportCurrentVersion()
     {
         $modelClass = 'app\\models\\' . $this->model;
+        /** @var ActiveRecord $currentModel */
         $currentModel = $modelClass::findOne($this->model_id);
 
-        $currentModel->setAttributes(json_decode($this->data_json, true), false);
+        $versionData = json_decode($this->data_json, $assoc = true);
+
+        if ($currentModel instanceof HistoryActiveRecord) {
+            $protectedAttributes = array_flip($currentModel->attributesProtectedFromVersioning);
+
+            foreach ($versionData as $key => $value) {
+                if (isset($protectedAttributes[$key])) {
+                    unset($versionData[$key]);
+                }
+            }
+        }
+
+        $currentModel->setAttributes($versionData, false);
         return $currentModel->save(false);
     }
 
+    /**
+     * @param string $modelName
+     * @param int $modelId
+     * @param null|string $date
+     * @return mixed
+     * @throws \yii\base\Exception
+     */
     public static function getVersionOnDate($modelName, $modelId, $date = null)
     {
         if (strpos($modelName, 'app\\models\\') === false) {
@@ -119,6 +153,11 @@ class HistoryVersion extends ActiveRecord
         return $currentModel;
     }
 
+    /**
+     * @param HistoryActiveRecord $model
+     * @param null|string $date
+     * @return HistoryActiveRecord
+     */
     public static function loadVersionOnDate(HistoryActiveRecord $model, $date = null)
     {
         $modelName = substr($model->className(), strlen('app\\models\\'));
@@ -142,6 +181,10 @@ class HistoryVersion extends ActiveRecord
         return $model;
     }
 
+    /**
+     * @param string $className
+     * @return string
+     */
     public static function prepareClassName($className)
     {
         if (strpos($className, 'app\\models\\') !== false) {

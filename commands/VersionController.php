@@ -1,11 +1,10 @@
 <?php
 namespace app\commands;
 
-use app\helpers\DateTimeZoneHelper;
-use app\models\ClientContract;
-use app\models\HistoryVersion;
 use Yii;
 use yii\console\Controller;
+use app\helpers\DateTimeZoneHelper;
+use app\models\HistoryVersion;
 
 class VersionController extends Controller
 {

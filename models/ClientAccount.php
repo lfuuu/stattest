@@ -164,6 +164,14 @@ class ClientAccount extends HistoryActiveRecord
 
     private $_lastComment = false;
 
+    // Свойства модели которые не должны обновляться от версионности
+    public
+        $attributesProtectedFromVersioning = [
+            'balance',
+            'last_account_date',
+            'last_payed_voip_month',
+        ];
+
     /*For old stat*/
 
     public static function tableName()
