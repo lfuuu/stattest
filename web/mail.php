@@ -23,7 +23,8 @@ if (in_array($o["object_type"], array(
     "new_director_info",
     "upd",
     "notice_mcm_telekom",
-    "sogl_mcm_telekom"
+    "sogl_mcm_telekom",
+    "sogl_mcn_telekom"
 ))) {
     if ($o["object_type"] == "assignment" && $o["source"] == 2) {
         $o["source"] = 4;
@@ -46,7 +47,7 @@ if (in_array($o["object_type"], array(
             $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
             $report->renderAsPDF();
         } else {
-            if ($R['obj'] === 'sogl_mcm_telekom') {
+            if ($R['obj'] === 'sogl_mcm_telekom' || $R['obj'] === 'sogl_mcn_telekom') {
                 $bill = Bill::findOne(['client_id' => $R['bill']]);
                 $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
                 $report->renderAsPDF();

@@ -135,14 +135,20 @@ class MailJob {
             case 'NOTICE_MCM': {
                 return
                     'Уведомление о передаче прав и обязанностей по договору №' .
-                    BillContract::getString($this->client['id'], time()) . ': ' .
+                    BillContract::getString($this->client['contract_id'], time()) . ': ' .
                     $this->get_object_link('notice_mcm_telekom', $this->client['id']);
             }
             case 'SOGL_MCM': {
                 return
                     'Соглашение о передаче прав и обязанностей по договору №' .
-                    BillContract::getString($this->client['id'], time()) . ': ' .
+                    BillContract::getString($this->client['contract_id'], time()) . ': ' .
                     $this->get_object_link('sogl_mcm_telekom', $this->client['id']);
+            }
+            case 'SOGL_MCN': {
+                return
+                    'Соглашение о передаче прав и обязанностей по договору №' .
+                    BillContract::getString($this->client['contract_id'], time()) . ': ' .
+                    $this->get_object_link('sogl_mcn_telekom', $this->client['id']);
             }
         }
         return '';
@@ -252,6 +258,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(SOGL_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(NOTICE_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
         $text = preg_replace_callback('/%(SOGL_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
+        $text = preg_replace_callback('/%(SOGL_MCN)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars_($text));
 		}

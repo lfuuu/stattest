@@ -12,6 +12,7 @@ $organizationMCMTelekom = Organization::find()->byId(11)->actual()->one(); //mcm
 
 $director_mcn = $organizationMCNTelekom->director;
 $director_mcm = $organizationMCMTelekom->director;
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
@@ -42,17 +43,17 @@ $director_mcm = $organizationMCMTelekom->director;
                         г. Москва
                     </td>
                     <td style="text-align: right;">
-                        &laquo;01&raquo; апреля 2016 г.&nbsp;&nbsp;&nbsp;
+                        &laquo;01&raquo; декабря 2016 г.&nbsp;&nbsp;&nbsp;
                     </td>
                 </tr>
             </table>
             <p style="text-align: justify; text-indent: 35.0pt;">ООО &laquo;МСН Телеком&raquo; в лице Генерального директора Пыцкой Марины Алексеевны, действующей на основании Устава, с одной стороны,</p>
-            <p style="text-align: justify; text-indent: 35.0pt;">ООО &laquo;МСМ Телеком&raquo; в лице Генерального директора Бирюковой Натальи Викторовны, действующей на основании Устава, с другой стороны,</p>
+            <p style="text-align: justify; text-indent: 35.0pt;">ООО &laquo;МСН Телеком Ритейл&raquo; в лице Генерального директора Бирюковой Натальи Викторовны, действующей на основании Устава, с другой стороны,</p>
             <p style="text-align: justify; text-indent: 35.0pt;">при совместном упоминании именуемые Стороны, а по отдельности Сторона, заключили настоящее Соглашение (далее - &laquo;Соглашение&raquo;) о передаче прав и обязанностей по Договору № <?= $contract?> (далее - Договор) о нижеследующем:</p>
-            <p style="text-align: justify;">1. ООО &laquo;МСН Телеком&raquo; с &laquo;01&raquo; апреля 2016 г. передает все свои права и обязанности по Договору, а ООО &laquo;МСМ Телеком&raquo; принимает на себя с &laquo;01&raquo; апреля 2016 г. все передаваемые ООО &laquo;МСН Телеком&raquo; права и обязанности по Договору.</p>
-            <p style="text-align: justify;">2. С &laquo;01&raquo; апреля 2016 г. права и обязанности по Договору возникают у ООО &laquo;МСМ Телеком&raquo;, а обязанности в отношении ООО &laquo;МСН Телеком&raquo; прекращаются.</p>
-            <p style="text-align: justify;">3. ООО &laquo;МСН Телеком&raquo; передает ООО &laquo;МСМ Телеком&raquo; свой оригинальный экземпляр Договора.</p>
-            <p style="text-align: justify;">4. ООО &laquo;МСМ Телеком&raquo; извещает о том, что вся поступающая корреспонденция в рамках исполнения Договора с &laquo;01&raquo; апреля 2016 г. должна быть адресована в ООО &laquo;МСМ Телеком&raquo;.</p>
+            <p style="text-align: justify;">1. ООО &laquo;МСН Телеком&raquo; с &laquo;01&raquo; декабря 2016 г. передает все свои права и обязанности по Договору, а ООО &laquo;МСН Телеком Ритейл&raquo; принимает на себя с &laquo;01&raquo; декабря 2016 г. все передаваемые ООО &laquo;МСН Телеком&raquo; права и обязанности по Договору.</p>
+            <p style="text-align: justify;">2. С &laquo;01&raquo; декабря 2016 г. права и обязанности по Договору возникают у ООО &laquo;МСН Телеком Ритейл&raquo;, а обязанности в отношении ООО &laquo;МСН Телеком&raquo; прекращаются.</p>
+            <p style="text-align: justify;">3. ООО &laquo;МСН Телеком&raquo; передает ООО &laquo;МСН Телеком Ритейл&raquo; свой оригинальный экземпляр Договора.</p>
+            <p style="text-align: justify;">4. ООО &laquo;МСН Телеком Ритейл&raquo; извещает о том, что вся поступающая корреспонденция в рамках исполнения Договора с &laquo;01&raquo; декабря 2016 г. должна быть адресована в ООО &laquo;МСН Телеком Ритейл&raquo;.</p>
             <p style="text-align: justify;">5. Настоящее Соглашение вступает в законную силу с даты его подписания Сторонами.</p>
             <p style="text-align: justify;">6. Передача прав и обязанностей в соответствии с настоящим Соглашением не влечет за собой каких-либо изменений условий Договора, кроме оговоренных в настоящем Соглашении.</p>
             <p style="text-align: justify;">7. Настоящее Соглашение составлено на одном листе, в двух экземплярах, имеющих одинаковую юридическую силу, по одному для каждой из Сторон, и является неотъемлемой частью Договора.</p>
@@ -114,7 +115,7 @@ $director_mcm = $organizationMCMTelekom->director;
 
                 </p>
                 <p style="text-align: justify; font-size: 10pt;">
-                    <strong style="mso-bidi-font-weight: normal;">Общество с ограниченной ответственностью &laquo;МСМ Телеком&raquo;</strong><br>
+                    <strong style="mso-bidi-font-weight: normal;">Общество с ограниченной ответственностью &laquo;МСН Телеком Ритейл&raquo;</strong><br>
                     Юридический адрес: 117574, г. Москва, Одоевского проезд, д. 3, корп. 7<br>
                     ОГРН 1157746324834 &nbsp;ИНН 7728226648 &nbsp;КПП 772801001<br>
                     р
