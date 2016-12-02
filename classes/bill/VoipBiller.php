@@ -45,14 +45,35 @@ class VoipBiller extends Biller
 
         // Фильтруем. Только реальные смены тарифов
         $filteredTariffList = [];
-        $prevTariffId = null;
+        $prevLogTariff = null;
+
         /** @var LogTarif $logTariff */
-        foreach($logTariffList as $activationDate => $logTariff) {
-            if ($prevTariffId != $logTariff->id_tarif) {
+        /** @var LogTarif $prevLogTariff */
+
+        foreach ($logTariffList as $activationDate => $logTariff) {
+            if (!$prevLogTariff
+                || $prevLogTariff->id_tarif != $logTariff->id_tarif
+                || $prevLogTariff->minpayment_group != $logTariff->minpayment_group
+                || $prevLogTariff->minpayment_local_mob != $logTariff->minpayment_local_mob
+                || $prevLogTariff->minpayment_russia != $logTariff->minpayment_russia
+                || $prevLogTariff->minpayment_intern != $logTariff->minpayment_intern
+                || $prevLogTariff->minpayment_sng != $logTariff->minpayment_sng
+            ) {
                 $filteredTariffList[$activationDate] = $logTariff;
+                $prevLogTariff = $logTariff;
             }
-            $prevTariffId = $logTariff->id_tarif;
         }
+
+        /** @var LogTarif $logTariff */
+
+//        $prevTariffId = null;
+//        foreach($logTariffList as $activationDate => $logTariff) {
+//            if ($prevTariffId != $logTariff->id_tarif) {
+//                $filteredTariffList[$activationDate] = $logTariff;
+//            }
+//            $prevTariffId = $logTariff->id_tarif;
+//        }
+
 
 
         //Нарезаем лог тарифов. Только за период биллера
