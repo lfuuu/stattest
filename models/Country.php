@@ -1,9 +1,10 @@
 <?php
 namespace app\models;
 
-use app\dao\CountryDao;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
+use app\dao\CountryDao;
+use app\classes\traits\GridSortTrait;
 
 /**
  * @property int $code
@@ -17,6 +18,9 @@ use yii\helpers\Url;
  */
 class Country extends ActiveRecord
 {
+
+    use GridSortTrait;
+
     const RUSSIA = 643;
     const HUNGARY = 348;
     const GERMANY = 276;
@@ -30,6 +34,8 @@ class Country extends ActiveRecord
     const PREFIX_SLOVAKIA = 421;
     const PREFIX_AUSTRIA = 43;
     const PREFIX_CZECH = 420;
+
+    public static $primaryField = 'code';
 
     /**
      * Вернуть имена полей

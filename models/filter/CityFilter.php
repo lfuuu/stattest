@@ -51,6 +51,8 @@ class CityFilter extends City
         $this->in_use !== '' && $query->andWhere(['in_use' => $this->in_use]);
         $this->billing_method_id !== '' && $query->andWhere(['billing_method_id' => $this->billing_method_id]);
 
+        $query->orderBy(['order' => SORT_ASC]);
+
         return $dataProvider;
     }
 }
