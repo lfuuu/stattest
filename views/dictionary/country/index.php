@@ -6,16 +6,17 @@
  * @var CountryFilter $filterModel
  */
 
-use app\classes\grid\column\universal\CurrencyColumn;
-use app\classes\grid\column\universal\IntegerColumn;
-use app\classes\grid\column\universal\StringColumn;
-use app\classes\grid\column\universal\YesNoColumn;
+use kartik\grid\ActionColumn;
+use yii\widgets\Breadcrumbs;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\Country;
 use app\models\filter\CountryFilter;
-use kartik\grid\ActionColumn;
-use yii\widgets\Breadcrumbs;
+use app\widgets\GridViewSequence\GridViewSequence;
+use app\classes\grid\column\universal\CurrencyColumn;
+use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 
 ?>
 
@@ -83,7 +84,7 @@ $columns = [
     ],
 ];
 
-echo GridView::widget([
+echo GridViewSequence::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'columns' => $columns,

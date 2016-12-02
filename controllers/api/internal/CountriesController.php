@@ -136,7 +136,7 @@ class CountriesController extends ApiInternalController
             throw new BadRequestHttpException;
         }
 
-        $countries = Country::find()->where(['site' => $domain])->all();
+        $countries = Country::find()->where(['site' => $domain])->orderBy(['order' => SORT_ASC])->all();
         $result = [];
 
         foreach ($countries as $country) {
@@ -179,7 +179,7 @@ class CountriesController extends ApiInternalController
      */
     public function actionGetCountries()
     {
-        $countries = Country::find()->where(['in_use' => 1])->all();
+        $countries = Country::find()->where(['in_use' => 1])->orderBy(['order' => SORT_ASC])->all();
         $result = [];
 
         foreach ($countries as $country) {
@@ -203,6 +203,7 @@ class CountriesController extends ApiInternalController
             'country_title' => $country->name,
             'country_lang' => $country->lang,
             'country_currency' => $country->currency_id,
+            'country_weight' => $country->order,
             'regions' => $regions,
         ];
     }
