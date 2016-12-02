@@ -74,6 +74,7 @@ class PartnerRewardsFilter extends DynamicModel
                 'paid_summary' => 'bills.sum',
                 'usage_type' => 'line.service',
                 'usage_id' => 'line.id_service',
+                'usage_paid' => 'line.sum',
             ]);
 
             $query
@@ -117,7 +118,7 @@ class PartnerRewardsFilter extends DynamicModel
                 ];
             }
 
-            $data[$record['client_id']]['paid_summary'] += $record['paid_summary'];
+            $data[$record['client_id']]['paid_summary'] = $record['paid_summary'];
             $data[$record['client_id']]['once'] += $record['once'];
             $data[$record['client_id']]['percentage_once'] += $record['percentage_once'];
             $data[$record['client_id']]['percentage_of_fee'] += $record['percentage_of_fee'];
@@ -126,7 +127,7 @@ class PartnerRewardsFilter extends DynamicModel
 
             $data[$record['client_id']]['details'][] = $record;
 
-            $this->summary['paid_summary'] += $record['paid_summary'];
+            $this->summary['paid_summary'] += $record['usage_paid'];
             $this->summary['once'] += $record['once'];
             $this->summary['percentage_once'] += $record['percentage_once'];
             $this->summary['percentage_of_fee'] += $record['percentage_of_fee'];
