@@ -325,15 +325,15 @@ class AccountController extends ApiInternalController
      * )
      */
     /**
-     * @param int $accountId
+     * @param int $account_id
      * @param int $value
      * @return array
      * @throws ExceptionValidationAccountId
      * @throws PartnerNotFoundException
      */
-    public function actionSetPartnerLoginAllow($accountId, $value)
+    public function actionSetPartnerLoginAllow($account_id, $value)
     {
-        $clientAccount = ClientAccount::findOne(['id' => $accountId]);
+        $clientAccount = ClientAccount::findOne(['id' => $account_id]);
         if (!$clientAccount) {
             throw new ExceptionValidationAccountId;
         }
