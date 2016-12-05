@@ -53,7 +53,7 @@ use app\models\Region;
 
 <div class="well" style="width: 500px;">
     <fieldset>
-        <label>Публикация счетов по компании</label>
+        <label>Публикация счетов по организации</label>
         <form action="/bill/publish/organization">
             <div class="col-sm-12">
                 <div class="col-sm-8">
@@ -75,7 +75,7 @@ use app\models\Region;
 </div>
 <div class="well" style="width: 500px;">
     <fieldset>
-        <label>Обновление баланса по компании</label>
+        <label>Обновление баланса по организации</label>
         <form action="/?module=newaccounts&action=bill_balance_mass" method="post">
             <div class="col-sm-12">
                 <div class="col-sm-8">

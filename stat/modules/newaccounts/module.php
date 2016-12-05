@@ -1365,14 +1365,15 @@ class m_newaccounts extends IModule
             'Уведомление о назначении: ' => array("notice"),
             'УПД: ' => array('upd-1', 'upd-2', 'upd-3'),
             'Уведомление о передачи прав: ' => array('notice_mcm_telekom'),
-            'Соглашение о передачи прав: ' => array('sogl_mcm_telekom')
+            'Соглашение о передачи прав: ' => array('sogl_mcm_telekom'),
+            'Соглашение о передачи прав (МСМ=>МСН Ретайл): ' => array('sogl_mcn_telekom'),
         );
 
         foreach ($D as $k => $rs) {
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
 
-                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom') {
+                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom' || $r === 'sogl_mcn_telekom') {
                         $is_pdf = 1;
                     }
 
@@ -1584,7 +1585,7 @@ class m_newaccounts extends IModule
             'upd-3'
         ));
         $L = array_merge($L, array('akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3'));
-        $L = array_merge($L, array('nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom'));
+        $L = array_merge($L, array('nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom'));
 
         //$L = array("invoice-1");
 
@@ -1886,15 +1887,9 @@ class m_newaccounts extends IModule
                 $this->_print_receipt();
                 break;
             }
-            case 'notice_mcm_telekom': {
-                if ($billModel) {
-                    $report = DocumentReportFactory::me()->getReport($billModel, $obj);
-                    echo $is_pdf ? $report->renderAsPDF() : $report->render();
-                    exit;
-                }
-                break;
-            }
-            case 'sogl_mcm_telekom': {
+            case 'notice_mcm_telekom':
+            case 'sogl_mcm_telekom':
+            case 'sogl_mcn_telekom': {
                 if ($billModel) {
                     $report = DocumentReportFactory::me()->getReport($billModel, $obj);
                     echo $is_pdf ? $report->renderAsPDF() : $report->render();

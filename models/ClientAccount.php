@@ -453,7 +453,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getLastContract($date = null)
     {
-        return BillContract::getLastContract($this->id, $date);
+        return BillContract::getLastContract($this->contract_id, $date);
     }
 
     /**

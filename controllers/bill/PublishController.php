@@ -36,25 +36,26 @@ class PublishController extends BaseController
     /**
      * Публикация счетов в регионе
      *
-     * @param int $region
+     * @param $regionId
+     * @return \yii\web\Response
      */
     public function actionRegion($regionId)
     {
         $result =
             Yii::$app->db->createCommand('
-                UPDATE `newbills` nb LEFT JOIN `clients` c ON c.`id` = nb.`client_id`
+                UPDATE `newbills` nb 
+                  LEFT JOIN `clients` c ON c.`id` = nb.`client_id`
                 SET
                     nb.`is_lk_show` = 1
                 WHERE
                     nb.`bill_no` LIKE :bill_no
-                    AND !nb.`is_lk_show`
+                    AND nb.`is_lk_show` = 0
                     AND c.`region` = :region',
                 [
                     ':bill_no' => date('Ym') . '-%',
                     ':region' => $regionId,
                 ]
-            )
-                ->execute();
+            )->execute();
 
         Yii::$app->session->addFlash('success', 'Опубликовано ' . $result . ' счетов');
 
