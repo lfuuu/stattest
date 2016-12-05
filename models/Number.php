@@ -284,7 +284,7 @@ class Number extends ActiveRecord
     }
 
     /**
-     * Увляется ли номер, номером 7800
+     * Является ли номер, номером 7800
      *
      * @return bool
      */
