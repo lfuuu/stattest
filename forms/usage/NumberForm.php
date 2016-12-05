@@ -11,6 +11,7 @@ class NumberForm extends Form
     public $did;
     public $client_account_id;
     public $hold_month;
+    public $number_tech;
 
     public function rules()
     {
@@ -28,11 +29,15 @@ class NumberForm extends Form
                     'stopHold',
                     'startNotSell',
                     'stopNotSell',
-                    'toRelease'
+                    'toRelease',
+                    'setTechNumber'
                 ]
             ],
             [['hold_month'], 'default', 'value' => 6],
             [['hold_month'], 'in', 'range' => [6, 3, 1]],
+            ['number_tech', 'default', 'value' => ''],
+            ['number_tech', 'trim',],
+            ['number_tech', 'number',],
             [['scenario'], 'safe'],
         ];
     }
@@ -44,24 +49,35 @@ class NumberForm extends Form
 
         $clientAccount = $this->client_account_id ? ClientAccount::findOne($this->client_account_id) : null;
 
-        if ($this->scenario == 'startHold') {
-            $holdTo = new \DateTime('now', new \DateTimeZone('UTC'));
-            $holdTo->modify("+" . $this->hold_month . " month");
+        try {
 
-            Number::dao()->startHold($number, $holdTo);
-        } elseif ($this->scenario == 'stopHold') {
-            Number::dao()->stopHold($number);
-        } elseif ($this->scenario == 'startReserve') {
-            Number::dao()->startReserve($number, $clientAccount);
-        } elseif ($this->scenario == 'stopReserve') {
-            Number::dao()->stopReserve($number);
-        } elseif ($this->scenario == 'startNotSell') {
-            Number::dao()->startNotSell($number);
-        } elseif ($this->scenario == 'stopNotSell') {
-            Number::dao()->stopNotSell($number);
-        } elseif ($this->scenario == 'toRelease') {
-            Number::dao()->toRelease($number);
+            if ($this->scenario == 'startHold') {
+                $holdTo = new \DateTime('now', new \DateTimeZone('UTC'));
+                $holdTo->modify("+" . $this->hold_month . " month");
+
+                Number::dao()->startHold($number, $holdTo);
+            } elseif ($this->scenario == 'stopHold') {
+                Number::dao()->stopHold($number);
+            } elseif ($this->scenario == 'startReserve') {
+                Number::dao()->startReserve($number, $clientAccount);
+            } elseif ($this->scenario == 'stopReserve') {
+                Number::dao()->stopReserve($number);
+            } elseif ($this->scenario == 'startNotSell') {
+                Number::dao()->startNotSell($number);
+            } elseif ($this->scenario == 'stopNotSell') {
+                Number::dao()->stopNotSell($number);
+            } elseif ($this->scenario == 'toRelease') {
+                Number::dao()->toRelease($number);
+            } elseif ($this->scenario == 'setTechNumber' && $number->is7800()) {
+                $number->number_tech = $this->number_tech;
+                $number->save();
+                \Yii::$app->session->addFlash('success', 'Технический номер сохранен');
+            }
+        } catch (\Exception $e) {
+            \Yii::$app->session->addFlash('error', 'Ошибка сохранения номера: ' . $e->getMessage());
+            return false;
         }
+
 
         return true;
     }

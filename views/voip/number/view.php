@@ -94,6 +94,31 @@ echo \yii\widgets\Breadcrumbs::widget([
                 echo Html::button('Номер продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
 
+            if ($number->is7800()) {
+                echo "<br />";
+
+                ?>
+                <br />
+                <div class="well" style="width: 500px;">
+                    <fieldset>
+                        <label>Тех номер</label>
+                        <div class="col-sm-12">
+                            <div class="col-sm-6">
+                                <?php
+                                echo Html::activeTextInput($actionForm, 'number_tech', ['class' => 'form-control']);
+                                ?>
+                            </div>
+                            <div class="col-sm-6">
+                                <?= Html::button('Установить тех номер',
+                                    ['class' => 'btn btn-info', 'onclick' => "saveTechNumber()"]) ?>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <?php
+            }
+
             $form->end();
             ?>
         </td>
@@ -181,6 +206,11 @@ echo \yii\widgets\Breadcrumbs::widget([
 <script>
     function numberSubmitForm(scenario) {
         $('#scenario').val(scenario);
+        $('#<?=$form->getId()?>').submit();
+    }
+
+    function saveTechNumber() {
+        $('#scenario').val('setTechNumber');
         $('#<?=$form->getId()?>').submit();
     }
 
