@@ -8,12 +8,13 @@ $contract = BillContract::getString($document->bill->clientAccount->contract_id,
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-    <title>Уведомление о передаче прав и обязанностей по договору: </title>
+    <!-- title>Уведомление о передаче прав и обязанностей по договору: </title-->
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 </head>
 
 <body bgcolor="#FFFFFF" style="background:#FFFFFF">
 <style>
+    <!--
     p {
         margin: 10px 0;
         font-size: 12pt;
@@ -21,20 +22,21 @@ $contract = BillContract::getString($document->bill->clientAccount->contract_id,
         text-align: justify;
         text-indent: 35.0pt;
     }
+    //-->
 </style>
 
-<p>Уважаемый клиент!</p>
+<p style="text-align: center;">Уважаемый клиент!</p>
 <br/>
 <br/>
 <br/>
-<p>С 1 декабря 2016 все права и обязанности по вашему Договору №<?= $contract ?> передаются от ООО «МСН Телеком» к ООО
+<p style="text-align: justify; text-indent: 35.0pt;">С 1 декабря 2016 все права и обязанности по вашему Договору №<?= $contract ?> передаются от ООО «МСН Телеком» к ООО
     «МСН Телеком Ритейл».</p>
 <br/><br/>
-<p>Обращаем ваше внимание, что условия Договора остаются прежними.</p>
-<p>Соглашение о передаче прав и обязанностей по Договору №<?= $contract ?> прилагается.</p><br/>
-<p>Абонентский ящик для отправки корреспонденции: 115162, г. Москва, а/я 46 для ООО «МСН Телеком Ритейл»</p>
+<p style="text-align: justify; text-indent: 35.0pt;">Обращаем ваше внимание, что условия Договора остаются прежними.</p>
+<p style="text-align: justify; text-indent: 35.0pt;">Соглашение о передаче прав и обязанностей по Договору №<?= $contract ?> прилагается.</p><br/>
+<p style="text-align: justify; text-indent: 35.0pt;">Абонентский ящик для отправки корреспонденции: 115162, г. Москва, а/я 46 для ООО «МСН Телеком Ритейл»</p>
 <br/>
-<p>Если у вас есть вопросы, наши специалисты с удовольствием помогут вам:</p>
+<p style="text-align: justify; text-indent: 35.0pt;">Если у вас есть вопросы, наши специалисты с удовольствием помогут вам:</p>
 <p style="padding-left: 100px; text-indent: 0">
     <u>info@mcn.ru</u><br/>
     <br/>
