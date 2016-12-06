@@ -218,7 +218,7 @@ class MailJob {
 
             $organization = $modelBill->clientAccount->getOrganization($r['bill_date']);
 
-            list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs($bill);
+            list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs_static($bill);
             /*
             if($b_sf[1]) $T .="\nСчет-фактура ".$r['bill_no']."-1: ".$this->get_object_link('invoice',$r['bill_no'],1);
             if($b_sf[2]) $T .="\nСчет-фактура ".$r['bill_no']."-2: ".$this->get_object_link('invoice',$r['bill_no'],2);

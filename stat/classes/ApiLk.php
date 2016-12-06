@@ -2071,8 +2071,8 @@ class ApiLk
             $clientSettings->client_id = $client_id;
         }
 
-        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = number_format($minBalance, 2);
-        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = number_format($minDayLimit, 2);
+        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = (int)$minBalance;
+        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = (int)$minDayLimit;
 
         if (
             $clientSettings->is_min_balance_sent
