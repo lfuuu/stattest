@@ -12,7 +12,6 @@ use app\exceptions\FormValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\classes\IpUtils;
 use app\classes\validators\ArrayValidator;
-use app\classes\traits\TagsTrait;
 use app\models\ClientAccount;
 use app\models\TagsResource;
 use yii\helpers\ArrayHelper;
@@ -143,7 +142,7 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return array
      */
     public function getProperties()
     {
