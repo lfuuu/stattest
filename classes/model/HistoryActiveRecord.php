@@ -16,17 +16,14 @@ class HistoryActiveRecord extends ActiveRecord
         $historyVersionStoredDate = null,
         $historyVersionRequestedDate = null;
 
-    // Свойства модели которые не должны обновляться при загрузки версионной модели
-    public
-        $attributesProtectedForVersioning = [];
 
-    // Свойства модели, которые должны обновляться при загрузки версионной модели
     public
-        $attributesAllowedForVersioning = [];
+        $attributesProtectedForVersioning = [], // Свойства модели которые не должны обновляться при загрузки версионной модели
+        $attributesAllowedForVersioning = [];   // Свойства модели, которые должны обновляться при загрузки версионной модели
 
 
     /**
-     * @return null
+     * @return null|string Дата сохранения версии
      */
     public function getHistoryVersionStoredDate()
     {
@@ -34,7 +31,7 @@ class HistoryActiveRecord extends ActiveRecord
     }
 
     /**
-     * @param $date
+     * @param string $date Формат: Y-m-d
      */
     public function setHistoryVersionStoredDate($date)
     {
@@ -42,7 +39,7 @@ class HistoryActiveRecord extends ActiveRecord
     }
 
     /**
-     * @return null
+     * @return null|string Дата запроса версии
      */
     public function getHistoryVersionRequestedDate()
     {
@@ -50,7 +47,7 @@ class HistoryActiveRecord extends ActiveRecord
     }
 
     /**
-     * @param $date
+     * @param string $date Формат: Y-m-d
      */
     public function setHistoryVersionRequestedDate($date)
     {
@@ -58,8 +55,8 @@ class HistoryActiveRecord extends ActiveRecord
     }
 
     /**
-     * @param bool|true $runValidation
-     * @param null|array $attributeNames
+     * @param bool $runValidation
+     * @param array $attributeNames
      * @return bool
      */
     public function save($runValidation = true, $attributeNames = null)
@@ -77,7 +74,7 @@ class HistoryActiveRecord extends ActiveRecord
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getDateList()
     {

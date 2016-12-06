@@ -2692,7 +2692,9 @@ class m_newaccounts extends IModule
             $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
 
 
-            $clientAccount = ClientAccount::findOne($account['id'])->loadVersionOnDate($bill->Get('bill_date'));
+            $clientAccount = ClientAccount::findOne($account['id'])
+                ->loadVersionOnDate($bill->Get('bill_date'));
+
             /** @var ClientAccount $clientAccount */
             $organization = $clientAccount->contract->organization;
 
@@ -4241,7 +4243,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $date_to = $dateTo->getDay();
 
         /** @var ClientAccount $clientData */
-        $clientData = ClientAccount::findOne(['id' => $fixclient_data['id']])->loadVersionOnDate($date_from);
+        $clientData = ClientAccount::findOne(['id' => $fixclient_data['id']])
+            ->loadVersionOnDate($date_from);
 
         //** Todo:  */
         $organization = Organization::find()->byId($clientData->contract->organization_id)->actual($date_to)->one();
@@ -4671,7 +4674,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['inv_date'];
 
                         // get property from history
-                        $c = ClientAccount::findOne(['id' => $p['client_id']])->loadVersionOnDate(date('Y-m-d', $invDate));
+                        $c = ClientAccount::findOne(['id' => $p['client_id']])
+                            ->loadVersionOnDate(date('Y-m-d', $invDate));
+
                         $p['company_full'] = trim($c['company_full']);
                         $p['inn'] = $c['inn'];
                         $p['kpp'] = $c['kpp'];

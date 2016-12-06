@@ -166,7 +166,7 @@ class ClientAccount extends HistoryActiveRecord
 
     private $_lastComment = false;
 
-    // Свойства модели которые не должны обновляться от версионности
+    // Свойства модели которые должны обновляться версионно
     public
         $attributesAllowedForVersioning = [
         'address_post',
