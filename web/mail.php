@@ -50,7 +50,7 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
             $report->renderAsPDF();
         } else {
             if ($R['obj'] === 'sogl_mcm_telekom' || $R['obj'] === 'sogl_mcn_telekom') {
-                $bill = Bill::findOne(['client_id' => $R['bill']]);
+                $bill = Bill::find()->where(['client_id' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
                 $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
                 $report->renderAsPDF();
             } else {
