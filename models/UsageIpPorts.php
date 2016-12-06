@@ -12,7 +12,6 @@ use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
 use app\helpers\usages\UsageIpPortsHelper;
 use app\helpers\usages\LogTariffTrait;
-use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -22,7 +21,6 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
 {
 
     use LogTariffTrait;
-    use UsageTrait;
 
     public $actual5d;
 

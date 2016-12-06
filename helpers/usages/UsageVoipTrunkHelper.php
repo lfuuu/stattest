@@ -9,6 +9,8 @@ use yii\helpers\Url;
 class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
 {
 
+    use UsageHelperTrait;
+
     private $usage;
 
     public function __construct(UsageInterface $usage)
@@ -55,6 +57,18 @@ class UsageVoipTrunkHelper extends Object implements UsageHelperInterface
     public function getTransferedFrom()
     {
         return null;
+    }
+
+    /**
+     * Получение полей для связи с лицевым счетом
+     * Поле в услуге => Поле в лицевом счете
+     *
+     * @return array
+     */
+    public function getFieldsForClientAccountLink()
+    {
+        // Поле в услуге, Поле в лицевом счете
+        return ['client_account_id', 'id'];
     }
 
 }

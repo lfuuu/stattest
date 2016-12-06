@@ -30,7 +30,7 @@ trait _TransferTrait
     protected function prepareTransfer($usageClass, \Closure $extendsAction = null)
     {
         // Создание услуги для переноса
-        $this->fromUsage = $usageClass::findOne(static::createSingleUsage($this->fromClientAccount, $usageClass));
+        $this->fromUsage = $usageClass::findOne(['id' => static::createSingleUsage($this->fromClientAccount, $usageClass)]);
         $this->assertNotNull($this->fromUsage, 'See object "fromUsage"');
 
         if (!is_null($extendsAction) && $extendsAction instanceof \Closure) {

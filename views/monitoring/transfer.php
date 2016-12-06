@@ -29,7 +29,7 @@ echo Breadcrumbs::widget([
     <?= $this->render('//layouts/_link', [
         'text' => ($clientName ? 'Показать для всех клиентов' : 'Показать для текущего клиента'),
         'glyphicon' => 'glyphicon-filter',
-        'url' => \yii\helpers\Url::toRoute(['/monitoring/transfered-usages', 'onlyCurrent' => ($clientName ? 0 : 1)]),
+        'url' => \yii\helpers\Url::toRoute(['/monitoring/transfered-usages', 'isCurrentOnly' => ($clientName ? 0 : 1)]),
         'params' => [
             'class' => 'btn btn-primary',
         ],

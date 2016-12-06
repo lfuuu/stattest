@@ -19,7 +19,6 @@ use app\classes\behaviors\UsageDateTime;
 use app\classes\behaviors\important_events\UsageAction;
 use app\classes\behaviors\UsageVoipActualToDependencyPackage;
 use yii\helpers\Url;
-use app\classes\traits\UsageTrait;
 
 /**
  * @property int id
@@ -55,7 +54,6 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
 {
 
     use LogTariffTrait;
-    use UsageTrait;
 
     public static $allowedDirection = [
         'full' => 'Все',

@@ -2,6 +2,8 @@
 
 namespace tests\codeception\unit\custom;
 
+use app\helpers\DateTimeZoneHelper;
+use app\models\Region;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -55,7 +57,9 @@ class UsageVoipTransferTest extends \yii\codeception\TestCase
     private static function createSingleUsage(ClientAccount $clientAccount, $usageClass)
     {
         $tariffId = TariffVoip::find()->select('MAX(id)')->scalar();
-        $actualFrom = (new DateTime('-1 week', new DateTimeZone('UTC')))->format('Y-m-d');
+        $actualFrom =
+            (new DateTime('-1 week', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+                ->format('Y-m-d');
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $usage = new $usageClass;
@@ -65,7 +69,7 @@ class UsageVoipTransferTest extends \yii\codeception\TestCase
         $usage->type_id = Tariff::NUMBER_TYPE_NUMBER;
         $usage->E164 = '123456' . mt_rand(0, 9);
         $usage->address = 'test address';
-        $usage->region = 99;
+        $usage->region = Region::MOSCOW;
         $usage->create_params = '';
         $usage->save();
 

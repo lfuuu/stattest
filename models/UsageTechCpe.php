@@ -6,7 +6,6 @@ use app\dao\UsageTechCpeDao;
 use app\queries\UsageTechCpeQuery;
 use app\classes\transfer\TechCpeTransfer;
 use app\helpers\usages\UsageTechCpeHelper;
-use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -14,8 +13,6 @@ use app\classes\traits\UsageTrait;
  */
 class UsageTechCpe extends ActiveRecord
 {
-
-    use UsageTrait;
 
     /**
      * @return array

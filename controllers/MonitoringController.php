@@ -28,16 +28,16 @@ class MonitoringController extends BaseController
     }
 
     /**
-     * @param int $onlyCurrent
+     * @param bool $isCurrentOnly
      * @return string
      * @throws \yii\base\Exception
      */
-    public function actionTransferedUsages($onlyCurrent = true)
+    public function actionTransferedUsages($isCurrentOnly = true)
     {
         global $fixclient_data;
 
         $services = ServiceTransferForm::getServicesGroups();
-        $clientAccount = ($onlyCurrent && $fixclient_data instanceof ClientAccount ? $fixclient_data : null);
+        $clientAccount = ($isCurrentOnly && $fixclient_data instanceof ClientAccount ? $fixclient_data : null);
 
         $listing = [];
         foreach ($services as $serviceKey => $serviceClass) {

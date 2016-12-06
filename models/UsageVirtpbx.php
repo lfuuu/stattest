@@ -12,7 +12,6 @@ use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
 use app\helpers\usages\UsageVirtpbxHelper;
 use app\helpers\usages\LogTariffTrait;
-use app\classes\traits\UsageTrait;
 
 /**
  * @property int $id
@@ -27,7 +26,6 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
 {
 
     use LogTariffTrait;
-    use UsageTrait;
 
     /**
      * @return array

@@ -2,6 +2,7 @@
 
 namespace tests\codeception\unit\custom;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -34,7 +35,9 @@ class UsageTrunkTransferTest extends \yii\codeception\TestCase
      */
     private static function createSingleUsage(ClientAccount $clientAccount, $usageClass)
     {
-        $actualFrom = (new DateTime('-1 week', new DateTimeZone('UTC')))->format('Y-m-d');
+        $actualFrom =
+            (new DateTime('-1 week', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+                ->format('Y-m-d');
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $usage = new $usageClass;
