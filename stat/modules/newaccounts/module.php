@@ -1642,8 +1642,8 @@ class m_newaccounts extends IModule
 
                 $d = $this->get_bill_docs($bill);
 
-                $isAkt1 = $d[1][1];
-                $isAkt2 = $d[1][2];
+                $isAkt1 = $d[0][1];
+                $isAkt2 = $d[0][2];
 
             }
             //$design->assign('bill',$bb);
