@@ -5,6 +5,8 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\BusinessProcessStatus;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
+use app\models\LogTarif;
+use app\models\TariffVoip;
 use Yii;
 use DateTime;
 use app\models\ClientAccount;
