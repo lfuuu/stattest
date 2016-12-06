@@ -61,6 +61,8 @@ use yii\helpers\Url;
  * @property LkWizardState lkWizardState
  * @property ClientCounter billingCounters
  * @property ClientCounter billingCountersFastMass
+ * @property string company_full
+ * @property string address_jur
  */
 class ClientAccount extends HistoryActiveRecord
 {
@@ -163,6 +165,22 @@ class ClientAccount extends HistoryActiveRecord
     /** /Virtual variables */
 
     private $_lastComment = false;
+
+    // Свойства модели которые должны обновляться версионно
+    public
+        $attributesAllowedForVersioning = [
+        'address_post',
+        'address_post_real',
+        'head_company',
+        'head_company_address_jur',
+        'consignee',
+        'bik',
+        'bank_properties',
+        'corr_acc',
+        'pay_acc',
+        'bank_name',
+        'bank_city',
+    ];
 
     /*For old stat*/
 

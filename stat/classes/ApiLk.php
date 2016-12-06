@@ -259,7 +259,9 @@ class ApiLk
         if ($billModel)
         {
             $contractId = $billModel->clientAccount->contract->id;
-            $c = \app\models\HistoryVersion::getVersionOnDate(app\models\ClientContract::className(), $contractId, $curr_bill->Get("bill_date"));
+            $c = app\models\ClientContract::findOne(['id' => $contractId])
+                ->loadVersionOnDate($curr_bill->Get("bill_date"));
+
             if ($c)
                 $organizationId = $c->organization_id;
         }
@@ -2071,8 +2073,8 @@ class ApiLk
             $clientSettings->client_id = $client_id;
         }
 
-        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = number_format($minBalance, 2);
-        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = number_format($minDayLimit, 2);
+        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = (int)$minBalance;
+        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = (int)$minDayLimit;
 
         if (
             $clientSettings->is_min_balance_sent

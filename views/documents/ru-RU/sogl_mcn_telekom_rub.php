@@ -21,6 +21,8 @@ if (isset($isPdf) && $isPdf) {
     $isPdf = false;
 }
 
+$isWithStamp = $isPdf;
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
@@ -79,9 +81,9 @@ if (isset($isPdf) && $isPdf) {
             <p style="<?=$fsStyle?>">
 
                 <table width="80%">
-                <tr>
-                    <td>М.А.&nbsp;Пыцкая</td>
-                    <td><?php if(MediaFileHelper::checkExists('SIGNATURE_DIR', $director_mcn->signature_file_name)):
+                <tr style="height: 78px;">
+                    <td><br><br><br>М.А.&nbsp;Пыцкая<br><br><br></td>
+                    <td><?php if($isWithStamp && MediaFileHelper::checkExists('SIGNATURE_DIR', $director_mcn->signature_file_name)):
                             $image_options = [
                                 'width' => 140,
                                 'border' => 0,
@@ -102,7 +104,7 @@ if (isset($isPdf) && $isPdf) {
                     </td>
                     <td>мп
 
-                        <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organizationMCNTelekom->stamp_file_name)):
+                        <?php if ($isWithStamp && MediaFileHelper::checkExists('STAMP_DIR', $organizationMCNTelekom->stamp_file_name)):
                             $image_options = [
                                 'width' => 170,
                                 'border' => 0,
@@ -136,8 +138,8 @@ if (isset($isPdf) && $isPdf) {
                 <p style="<?=$fsStyle?>">
             <table width="80%">
                 <tr>
-                    <td>Н.В.&nbsp;Бирюкова</td>
-                    <td><?php if(MediaFileHelper::checkExists('SIGNATURE_DIR', $director_mcm->signature_file_name)):
+                    <td><br><br><br>Н.В.&nbsp;Бирюкова<br><br><br></td>
+                    <td><?php if($isWithStamp && MediaFileHelper::checkExists('SIGNATURE_DIR', $director_mcm->signature_file_name)):
                             $image_options = [
                                 'width' => 140,
                                 'border' => 0,
@@ -156,7 +158,7 @@ if (isset($isPdf) && $isPdf) {
                         <?php endif; ?></td>
                     <td>мп
 
-                        <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organizationMCMTelekom->stamp_file_name)):
+                        <?php if ($isWithStamp && MediaFileHelper::checkExists('STAMP_DIR', $organizationMCMTelekom->stamp_file_name)):
                             $image_options = [
                                 'width' => 170,
                                 'border' => 0,
