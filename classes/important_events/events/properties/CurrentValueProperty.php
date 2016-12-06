@@ -15,7 +15,7 @@ class CurrentValueProperty extends UnknownProperty implements PropertyInterface
     public static function labels()
     {
         return [
-            self::PROPERTY_CURRENT_VALUE => 'Значение на момент события',
+            static::PROPERTY_CURRENT_VALUE => 'Значение на момент события',
         ];
     }
 
@@ -25,7 +25,7 @@ class CurrentValueProperty extends UnknownProperty implements PropertyInterface
     public function methods()
     {
         return [
-            self::PROPERTY_CURRENT_VALUE => $this->getValue(),
+            static::PROPERTY_CURRENT_VALUE => $this->getValue(),
         ];
     }
 
@@ -48,7 +48,7 @@ class CurrentValueProperty extends UnknownProperty implements PropertyInterface
     public function getDescription()
     {
         return
-            Html::tag('b', self::labels()[self::PROPERTY_CURRENT_VALUE] . ': ') . $this->getValue();
+            Html::tag('b', static::labels()[static::PROPERTY_CURRENT_VALUE] . ': ') . $this->getValue();
     }
 
 }
