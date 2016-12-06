@@ -13,6 +13,7 @@ class VersionController extends Controller
     {
         $date = date(DateTimeZoneHelper::DATE_FORMAT);
         Yii::info('Проверка наличия версий на ' . $date);
+        echo PHP_EOL . 'Проверка наличия версий на ' . $date;
         /** @var HistoryVersion[] $versions */
         $versions = HistoryVersion::find()->where(['date' => $date])->all();
         foreach ($versions as $version) {
@@ -22,6 +23,7 @@ class VersionController extends Controller
             echo PHP_EOL . $msg;
         }
         Yii::info('Проверка закончена. Всего: ' . count($versions));
+        echo PHP_EOL . 'Проверка закончена. Всего: ' . count($versions);
     }
 
 }
