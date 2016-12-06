@@ -54,6 +54,8 @@ class CountryFilter extends Country
         $this->prefix !== '' && $query->andWhere(['prefix' => $this->prefix]);
         $this->site !== '' && $query->andWhere(['LIKE', 'site', $this->site]);
 
+        $query->orderBy(['order' => SORT_ASC]);
+
         return $dataProvider;
     }
 }

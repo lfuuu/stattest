@@ -4,6 +4,7 @@ namespace app\models;
 use app\dao\CityDao;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
+use app\classes\traits\GridSortTrait;
 
 /**
  * @property int $id
@@ -12,13 +13,19 @@ use yii\helpers\Url;
  * @property int $connection_point_id
  * @property string $voip_number_format
  * @property int $in_use
+ * @property int $order
  *
  * @property Country $country
  * @property Region $region
  */
 class City extends ActiveRecord
 {
+
+    use GridSortTrait;
+
     const DEFAULT_USER_CITY_ID = 7495; // Moscow
+
+    public static $primaryField = 'id';
 
     /**
      * Вернуть имена полей

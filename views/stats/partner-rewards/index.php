@@ -153,7 +153,7 @@ if ($filterModel->partner_contract_id) {
                                 )
                             ) .
                             Html::tag('td', $usage->activation_dt, ['class' => 'text-center']) .
-                            Html::tag('td', $record['paid_summary'], ['class' => 'text-center']) .
+                            Html::tag('td', $record['usage_paid'], ['class' => 'text-center']) .
                             Html::endTag('tr');
                     }
 

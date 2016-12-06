@@ -2035,7 +2035,6 @@ class ApiLk
 
         $contacts = ClientContact::findAll([
             'client_id' => $client_id,
-            'is_active' => 1,
             'user_id' => new \yii\db\Expression('(SELECT id FROM user_users WHERE user="AutoLK")'),
         ]);
 

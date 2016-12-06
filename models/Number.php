@@ -282,4 +282,14 @@ class Number extends ActiveRecord
     {
         return self::dao()->getChangeStateLog($this);
     }
+
+    /**
+     * Является ли номер, номером 7800
+     *
+     * @return bool
+     */
+    public function is7800()
+    {
+        return (strpos($this->number, "7800") === 0);
+    }
 }
