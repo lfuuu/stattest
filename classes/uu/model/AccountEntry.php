@@ -28,6 +28,7 @@ use yii\helpers\Url;
  * @property int $id
  * @property string $date У обычной проводки (is_default) важен только месяц, день всегда 1. У проводки на доплату (когда создается новая услуга) - день фактический.
  * @property int $account_tariff_id
+ * @property int $tariff_period_id Кэш accountTariff.tariff_period_id на эту дату
  * @property int $type_id Если положительное, то TariffResource, иначе подключение или абонентка. Поэтому нет FK
  * @property float $price
  * @property float $price_without_vat
@@ -37,11 +38,12 @@ use yii\helpers\Url;
  * @property string $update_time
  * @property int $is_default
  * @property int $bill_id
- *
  * @property string $date_from Минимальная дата транзакций
  * @property string $date_to Максимальная дата транзакций
+ *
  * @property Bill $bill
  * @property AccountTariff $accountTariff
+ * @property TariffPeriod $tariffPeriod
  * @property TariffResource $tariffResource
  * @property AccountLogSetup[] $accountLogSetups
  * @property AccountLogPeriod[] $accountLogPeriods
@@ -90,6 +92,14 @@ class AccountEntry extends ActiveRecord
     public function getAccountTariff()
     {
         return $this->hasOne(AccountTariff::className(), ['id' => 'account_tariff_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTariffPeriod()
+    {
+        return $this->hasOne(TariffPeriod::className(), ['id' => 'tariff_period_id']);
     }
 
     /**
@@ -203,7 +213,7 @@ class AccountEntry extends ActiveRecord
         if ($this->type_id < 0 || !in_array($this->tariffResource->resource_id, [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS])) {
 
             // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
-            $tariffPeriod = $this->getTariffPeriod();
+            $tariffPeriod = $this->tariffPeriod;
             $name = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariffPeriod->tariff->name], $langCode);
 
             // Например, "100". @todo "руб/мес" или "форинтов/год"
@@ -217,35 +227,6 @@ class AccountEntry extends ActiveRecord
         }
 
         return implode('. ', $names);
-    }
-
-    public function getTariffPeriod()
-    {
-        switch ($this->type_id) {
-            case AccountEntry::TYPE_ID_SETUP:
-                $accountLogSetups = $this->accountLogSetups;
-                $accountLogSetup = reset($accountLogSetups);
-                return $accountLogSetup->tariffPeriod;
-                break;
-
-            case AccountEntry::TYPE_ID_PERIOD:
-                $accountLogPeriods = $this->accountLogPeriods;
-                $accountLogPeriod = reset($accountLogPeriods);
-                return $accountLogPeriod->tariffPeriod;
-                break;
-
-            case AccountEntry::TYPE_ID_MIN:
-                $accountLogMins = $this->accountLogMins;
-                $accountLogMin = reset($accountLogMins);
-                return $accountLogMin->tariffPeriod;
-                break;
-
-            default:
-                $accountLogResources = $this->accountLogResources;
-                $accountLogResource = reset($accountLogResources);
-                return $accountLogResource->tariffPeriod;
-                break;
-        }
     }
 
     /**
@@ -328,70 +309,5 @@ class AccountEntry extends ActiveRecord
     public function getUrl()
     {
         return Url::to(['uu/account-entry', 'AccountEntryFilter[id]' => $this->id]);
-    }
-
-    /**
-     * Вернуть минимальную дату транзакции
-     * метод для "date_from"
-     */
-    public function getDate_from()
-    {
-        if (!$this->dateFrom) {
-            $this->setDateFromTo();
-        }
-        return $this->dateFrom;
-
-    }
-
-    /**
-     * Вернуть максимальную дату транзакции
-     * метод для "date_to"
-     */
-    public function getDate_to()
-    {
-        if (!$this->dateTo) {
-            $this->setDateFromTo();
-        }
-        return $this->dateTo;
-
-    }
-
-    /**
-     * Найти и установить минимальную и максимальную дату транзакции
-     */
-    protected function setDateFromTo()
-    {
-        $this->dateFrom = UsageInterface::MAX_POSSIBLE_DATE;
-        $this->dateTo = UsageInterface::MIN_DATE;
-
-        switch ($this->type_id) {
-            case AccountEntry::TYPE_ID_SETUP:
-                foreach ($this->accountLogSetups as $accountLogSetup) {
-                    $this->dateFrom = min($this->dateFrom, $accountLogSetup->date);
-                    $this->dateTo = max($this->dateTo, $accountLogSetup->date);
-                }
-                break;
-
-            case AccountEntry::TYPE_ID_PERIOD:
-                foreach ($this->accountLogPeriods as $accountLogPeriod) {
-                    $this->dateFrom = min($this->dateFrom, $accountLogPeriod->date_from);
-                    $this->dateTo = max($this->dateTo, $accountLogPeriod->date_to);
-                }
-                break;
-
-            case AccountEntry::TYPE_ID_MIN:
-                foreach ($this->accountLogMins as $accountLogMin) {
-                    $this->dateFrom = min($this->dateFrom, $accountLogMin->date_from);
-                    $this->dateTo = max($this->dateTo, $accountLogMin->date_to);
-                }
-                break;
-
-            default:
-                foreach ($this->accountLogResources as $accountLogResource) {
-                    $this->dateFrom = min($this->dateFrom, $accountLogResource->date);
-                    $this->dateTo = max($this->dateTo, $accountLogResource->date);
-                }
-                break;
-        }
     }
 }

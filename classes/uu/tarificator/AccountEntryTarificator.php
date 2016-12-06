@@ -49,6 +49,7 @@ class AccountEntryTarificator implements TarificatorI
             AccountLogSetup::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_SETUP),
             'date',
+            'date',
             $accountTariffId,
             $isDefault = 0
         );
@@ -60,6 +61,7 @@ class AccountEntryTarificator implements TarificatorI
             AccountLogPeriod::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
+            'date_to',
             $accountTariffId,
             $isDefault = 0
         );
@@ -67,6 +69,7 @@ class AccountEntryTarificator implements TarificatorI
             AccountLogPeriod::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
             'date_from',
+            'date_to',
             $accountTariffId,
             $isDefault = 1
         );
@@ -77,6 +80,7 @@ class AccountEntryTarificator implements TarificatorI
             AccountLogResource::tableName(),
             'tariff_resource_id',
             'date',
+            'date',
             $accountTariffId,
             $isDefault = 1
         );
@@ -86,6 +90,7 @@ class AccountEntryTarificator implements TarificatorI
         $this->_tarificate(
             AccountLogMin::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_MIN),
+            'date_from',
             'date_to',
             $accountTariffId,
             $isDefault = 1
@@ -103,11 +108,12 @@ class AccountEntryTarificator implements TarificatorI
      *
      * @param string $accountLogTableName
      * @param int|Expression $typeId
-     * @param string $dateFieldName
+     * @param string $dateFieldNameFrom
+     * @param string $dateFieldNameTo
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @param int $isDefault
      */
-    private function _tarificate($accountLogTableName, $typeId, $dateFieldName, $accountTariffId, $isDefault)
+    private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isDefault)
     {
         /** @var Connection $db */
         $db = Yii::$app->db;
@@ -129,13 +135,16 @@ class AccountEntryTarificator implements TarificatorI
         echo '. ';
         $insertSQL = <<<SQL
             INSERT INTO {$accountEntryTableName}
-            (date, account_tariff_id, type_id, price, is_default)
+            (date, account_tariff_id, type_id, price, is_default, tariff_period_id, date_from, date_to)
                 SELECT DISTINCT
-                    DATE_FORMAT(account_log.`{$dateFieldName}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d")) AS date,
+                    DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d")) AS date,
                     account_log.account_tariff_id,
                     {$typeId} as type_id,
                     0 AS price,
-                    IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, 1, 0) AS is_default
+                    IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, 1, 0) AS is_default,
+                    account_log.tariff_period_id,
+                    DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d")) AS date_from,
+                    DATE_FORMAT(account_log.`{$dateFieldNameTo}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d")) AS date_to
                 FROM
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
@@ -193,7 +202,7 @@ SQL;
             WHERE
                 account_log.account_entry_id IS NULL
                 AND account_entry.is_default = IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, 1, 0)
-                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldName}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d"))
+                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d"))
                 AND account_entry.type_id = {$typeId}
                 AND account_entry.account_tariff_id = account_log.account_tariff_id
                 AND account_log.account_tariff_id = account_tariff.id
@@ -212,7 +221,9 @@ SQL;
             (
                 SELECT
                     account_log.account_entry_id,
-                    SUM(account_log.price) AS price
+                    SUM(account_log.price) AS price,
+                    MIN(`{$dateFieldNameFrom}`) AS date_from,
+                    MAX(`{$dateFieldNameTo}`) AS date_to
                 FROM
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
@@ -225,7 +236,9 @@ SQL;
                    account_log.account_entry_id
             ) t
          SET
-            account_entry.price = t.price
+            account_entry.price = t.price,
+            account_entry.date_from = t.date_from,
+            account_entry.date_to = t.date_to
          WHERE
             account_entry.id = t.account_entry_id
 SQL;
