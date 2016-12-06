@@ -857,6 +857,11 @@ class m_newaccounts extends IModule
 
     function get_bill_docs(Bill &$bill, $L = null)
     {
+        return self::get_bill_docs_static($bill, $L);
+    }
+
+    static function get_bill_docs_static(Bill &$bill, $L = null)
+    {
         $bill_akts = $bill_invoices = $bill_upd = array();
 
         if (($doctypes = BillDocument::dao()->getByBillNo($bill->GetNo())) == false) {
