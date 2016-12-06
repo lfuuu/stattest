@@ -70,21 +70,33 @@ class AgentReport
             $rewards = [];
 
             if (!array_key_exists($row['partner_contract_id'], $rewards)) {
-                $rewards[$row['partner_contract_id']] =
+                $rewardsQuery =
                     ClientContractReward::find()
                         ->where([
                             'usage_type' => 'usage_voip',
                             'contract_id' => $row['partner_contract_id'],
                         ])
-                        ->andWhere(new Expression('DATE_FORMAT(actual_from, "%Y-%m") = DATE_FORMAT(:month, "%Y-%m")', ['month' => $row['bill_date']]))
-                        ->orderBy(['actual_from' => SORT_DESC])
-                        ->one();
+                        ->orderBy(['actual_from' => SORT_ASC]);
+                $rewardsQueryTest = clone $rewardsQuery;
+                $rewardsActualExpression = new Expression(
+                    'actual_from >= CAST(:billDate AS DATE)',
+                    ['billDate' => $row['bill_date']]
+                );
+
+                if ($rewardsQueryTest->andWhere($rewardsActualExpression)->count()) {
+                    $rewards[$row['partner_contract_id']] =
+                        $rewardsQuery
+                            ->andWhere($rewardsActualExpression)
+                            ->one();
+                } else {
+                    $rewards[$row['partner_contract_id']] = $rewardsQuery->one();
+                }
             }
 
             $rewardSettings = $rewards[$row['partner_contract_id']];
             $dateOffset = (new DateTime($row['activation_dt']))->modify('+' . $rewardSettings['period_month'] . ' month');
 
-            if ($row['period_type'] !== 'always' && $billDate > $dateOffset) {
+            if ($rewardSettings['period_type'] !== 'always' && $billDate > $dateOffset) {
                 return;
             }
 
