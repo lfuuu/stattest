@@ -18,9 +18,9 @@ class BillContract
         return "";
     }
 
-    public static function getString($clientId, $date)
+    public static function getString($contractId, $date)
     {
-        $contract = self::getLastContract($clientId, $date);
+        $contract = self::getLastContract($contractId, $date);
 
         if ($contract) {
             return $contract["no"] . " от " . DateFunction::mdate($contract["date"], "d месяца Y") . " г.";

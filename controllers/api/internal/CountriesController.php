@@ -23,21 +23,9 @@ class CountriesController extends ApiInternalController
      * @SWG\Definition(
      *   definition="cityRecord",
      *   type="object",
-     *   @SWG\Property(
-     *     property="city_id",
-     *     type="integer",
-     *     description="Идентификатор города"
-     *   ),
-     *   @SWG\Property(
-     *     property="city_title",
-     *     type="string",
-     *     description="Название города"
-     *   ),
-     *   @SWG\Property(
-     *     property="free_numbers_count",
-     *     type="boolean",
-     *     description="Кол-во доступных для покупки номерных ёмкостей"
-     *   )
+     *   @SWG\Property(property="city_id", type="integer", description="Идентификатор города"),
+     *   @SWG\Property(property="city_title", type="string", description="Название города"),
+     *   @SWG\Property(property="free_numbers_count", type="boolean", description="Кол-во доступных для покупки номерных ёмкостей")
      * ),
      * @SWG\Post(
      *   tags={"Справочники"},
@@ -92,7 +80,7 @@ class CountriesController extends ApiInternalController
             $result[] = [
                 'city_id' => $cityId,
                 'city_name' => $cityName,
-                'free_numbers_count' => $freeNumbersCount,
+                'free_numbers_count' => (int)$freeNumbersCount,
             ];
         }
 
@@ -103,33 +91,11 @@ class CountriesController extends ApiInternalController
      * @SWG\Definition(
      *   definition="countryRecord",
      *   type="object",
-     *   @SWG\Property(
-     *     property="country_code",
-     *     type="integer",
-     *     description="Идентификатор страны"
-     *   ),
-     *   @SWG\Property(
-     *     property="country_title",
-     *     type="string",
-     *     description="Название страны"
-     *   ),
-     *   @SWG\Property(
-     *     property="country_lang",
-     *     type="string",
-     *     description="Используемый язык"
-     *   ),
-     *   @SWG\Property(
-     *     property="country_currency",
-     *     type="string",
-     *     description="Используемая валюта"
-     *   ),
-     *   @SWG\Property(
-     *     property="regions",
-     *     type="array",
-     *     @SWG\Items(
-     *       type="integer"
-     *     )
-     *   )
+     *   @SWG\Property(property="country_code", type="integer", description="Идентификатор страны"),
+     *   @SWG\Property(property="country_title", type="string", description="Название страны"),
+     *   @SWG\Property(property="country_lang", type="string", description="Используемый язык"),
+     *   @SWG\Property(property="country_currency", type="string", description="Используемая валюта"),
+     *   @SWG\Property(property="regions", type="array", @SWG\Items(type="integer"))
      * ),
      * @SWG\Post(
      *   tags={"Справочники"},
@@ -170,7 +136,7 @@ class CountriesController extends ApiInternalController
             throw new BadRequestHttpException;
         }
 
-        $countries = Country::find()->where(['site' => $domain])->all();
+        $countries = Country::find()->where(['site' => $domain])->orderBy(['order' => SORT_ASC])->all();
         $result = [];
 
         foreach ($countries as $country) {
@@ -213,7 +179,7 @@ class CountriesController extends ApiInternalController
      */
     public function actionGetCountries()
     {
-        $countries = Country::find()->where(['in_use' => 1])->all();
+        $countries = Country::find()->where(['in_use' => 1])->orderBy(['order' => SORT_ASC])->all();
         $result = [];
 
         foreach ($countries as $country) {
@@ -237,6 +203,7 @@ class CountriesController extends ApiInternalController
             'country_title' => $country->name,
             'country_lang' => $country->lang,
             'country_currency' => $country->currency_id,
+            'country_weight' => $country->order,
             'regions' => $regions,
         ];
     }

@@ -280,16 +280,8 @@ class ContractEditForm extends Form
                 $contragent->hasChecked = true;
             }
             if (!$contragent->validate()) {
-                if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp'])) {
-                    $this->addError('state',
-                        'Введите корректные ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                } elseif (isset($contragent->errors['inn'])) {
-                    $this->addError('state',
-                        'Введите корректный ИНН у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                } elseif (isset($contragent->errors['kpp'])) {
-                    $this->addError('state',
-                        'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                }
+                $this->addError('state', $contragent->getFirstError('inn'));
+                $this->addError('state', $contragent->getFirstError('kpp'));
             }
         }
     }

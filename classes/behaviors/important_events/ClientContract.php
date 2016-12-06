@@ -30,12 +30,23 @@ class ClientContract extends Behavior
      */
     public function registerAddEvent($event)
     {
-        if (($clientAccountId = (int)Yii::$app->request->get('childId'))) {
+        $clientAccountId = null;
+
+        /** @var \app\models\ClientContract $contract */
+        $contract = $event->sender;
+        $clientAccounts = $contract->getAccounts();
+        if ($clientAccounts && isset($clientAccounts[0])) {
+            $clientAccountId = $clientAccounts[0]->id;
+        }
+
+        $userId = Yii::$app->user->id;
+
+        if ($clientAccountId) {
             ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_EXTEND_ACCOUNT_CONTRACT,
                 ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                     'client_id' => $clientAccountId,
                     'contract_id' => $event->sender->id,
-                    'user_id' => Yii::$app->user->id,
+                    'user_id' => $userId,
                 ]);
         }
     }
@@ -46,17 +57,28 @@ class ClientContract extends Behavior
      */
     public function registerUpdateEvent($event)
     {
+        $clientAccountId = null;
+
+        /** @var \app\models\ClientContract $contract */
+        $contract = $event->sender;
+        $clientAccounts = $contract->getAccounts();
+        if ($clientAccounts && isset($clientAccounts[0])) {
+            $clientAccountId = $clientAccounts[0]->id;
+        }
+
+        $userId = Yii::$app->user->id;
+
         $changed = array_diff_assoc($event->changedAttributes, $event->sender->attributes);
         $changedCount = count($changed);
 
-        if ($changedCount && ($clientAccountId = (int)Yii::$app->request->get('childId'))) {
+        if ($changedCount && $clientAccountId) {
             if (isset($changed['contragent_id'])) {
                 ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_CONTRACT_TRANSFER,
                     ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                         'client_id' => $clientAccountId,
                         'contract_id' => $event->sender->id,
                         'to_contragent_id' => $changed['contragent_id'],
-                        'user_id' => Yii::$app->user->id,
+                        'user_id' => $userId,
                         'changed' => implode(', ', array_keys($changed)),
                     ]);
             } else {
@@ -64,7 +86,7 @@ class ClientContract extends Behavior
                     ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
                         'client_id' => $clientAccountId,
                         'contract_id' => $event->sender->id,
-                        'user_id' => Yii::$app->user->id,
+                        'user_id' => $userId,
                         'changed' => implode(', ', array_keys($changed)),
                     ]);
             }

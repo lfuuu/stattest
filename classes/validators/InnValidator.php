@@ -9,7 +9,7 @@ class InnValidator extends Validator
     public function init()
     {
         parent::init();
-        $this->message = 'Incorrect INN';
+        $this->message = 'Неправильный ИНН';
     }
 
     public function validateValue($value)

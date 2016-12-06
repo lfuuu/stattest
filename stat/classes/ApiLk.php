@@ -13,7 +13,6 @@ use app\models\important_events\ImportantEventsSources;
 use app\models\LkClientSettings;
 use app\models\LogTarif;
 use app\models\Number;
-use app\models\TariffNumber;
 use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
 use app\models\City;
@@ -447,38 +446,37 @@ class ApiLk
                     'in_use' => 1,
                     'country_id' => $clientAccount->country_id
                 ])
+                ->orderBy(['connection_point_id' => SORT_DESC])
                 ->asArray()
                 ->all();
 
 
-        $numberTariffsByCityId = [];
+        $didGroupsByCityId = [];
 
-        $tariffs = TariffNumber::find()
+        $didGroups = DidGroup::find()
             ->where([
-                'status' => TariffNumber::STATUS_PUBLIC,
-                'country_id' => $clientAccount->country_id
+                'country_code' => $clientAccount->country_id
             ])
-            ->orderBy(['activation_fee' => SORT_ASC]);
+            ->orderBy(['price1' => SORT_ASC]);
+        /** @var DidGroup $didGroup */
+        foreach ($didGroups->each() as $didGroup) {
 
-        foreach ($tariffs->each() as $tariff) {
-
-            /** @var TariffNumber $tariff */
-            if (!isset($numberTariffsByCityId[$tariff->city_id])) {
-                $numberTariffsByCityId[$tariff->city_id] = [];
+            if (!isset($didGroupsByCityId[$didGroup->city_id])) {
+                $didGroupsByCityId[$didGroup->city_id] = [];
             }
 
-            $numberTariffsByCityId[$tariff->city_id][$tariff->id] = [
-                'id' => $tariff->id,
-                'name' => $tariff->name,
-                'activation_fee' => (float)$tariff->activation_fee,
-                'currency_id' => $tariff->currency_id,
-                'promo_info' => $tariff->city->country_id == Country::RUSSIA && $tariff->didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
+            $didGroupsByCityId[$didGroup->city_id][$didGroup->id] = [
+                'id' => $didGroup->id,
+                'name' => $didGroup->name,
+                'activation_fee' => (float)$didGroup->price1,
+                'currency_id' => $didGroup->country->currency_id,
+                'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
             ];
         }
 
         return [
             'cities' => $cities,
-            'numberTariffsByCityId' => $numberTariffsByCityId
+            'didGroupsByCityId' => $didGroupsByCityId
         ];
     }
 
@@ -504,6 +502,7 @@ class ApiLk
                         actual_to,
                         no_of_lines,
                         CAST(NOW() AS DATE) BETWEEN actual_from AND actual_to AS actual,
+                        CAST(NOW() AS DATE) <= actual_to AND actual_to < '".UsageInterface::MIDDLE_DATE."' AS is_will_be_off,
                         actual_to BETWEEN CAST(NOW() - interval 2 month AS DATE) AND CAST(NOW() AS DATE) AS actual_present_perfect,
                         CAST(NOW() AS DATE) < actual_from AS actual_future_indefinite,
                         region
@@ -516,6 +515,7 @@ class ApiLk
                 ",
                 [':client' => $account->client ]
             )->queryAll();
+
         foreach($usageRows as $usageRow)
         {
             $line = $usageRow;
@@ -563,7 +563,8 @@ class ApiLk
                         `u`.`id`,
                         `u`.`amount`,
                         `u`.`actual_to`,
-                        IF ((`u`.`actual_from` <= NOW()) AND (`u`.`actual_to` > NOW()), 1, 0) AS `actual`,
+                        CAST(NOW() AS DATE) BETWEEN `u`.`actual_from` AND `u`.`actual_to` AS `actual`,
+                        CAST(NOW() AS DATE) <= u.actual_to AND u.actual_to < "'.UsageInterface::MIDDLE_DATE.'" AS is_will_be_off,
                         `u`.`status`,
                         `r`.`id` AS region_id,
                         (SELECT id_tarif FROM log_tarif WHERE service="usage_virtpbx" AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1) AS cur_tarif_id,
@@ -585,7 +586,7 @@ class ApiLk
                 LEFT JOIN `tarifs_virtpbx` AS `t` ON (`t`.`id` = cur_tarif_id)
             ', array($clientId)) as $v)
         {
-            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "tarif_name", "price", "space", "num_ports","region_id"), $v);
+            $line =  self::_exportModelRow(array("id", "amount", "status", "actual_from", "actual_to", "actual", "is_will_be_off", "tarif_name", "price", "space", "num_ports","region_id"), $v);
             $line["price"] = number_format($line["price"], 2, ".", " ");
             $line["amount"] = (float)$line["amount"];
             $ret[] = $line;
@@ -864,17 +865,6 @@ class ApiLk
         return $ret;
     }
 
-    public static function getNumberTariffs($regionId)
-    {
-        return [
-            ['id' => '0', 'name' => 'Стандартные'],
-            ['id' => '1', 'name' => 'Платиновые'],
-            ['id' => '2', 'name' => 'Золотые'],
-            ['id' => '3', 'name' => 'Серебряные'],
-            ['id' => '4', 'name' => 'Бронзовые'],
-        ];
-    }
-
     public static function getVoipTarifs($accountId)
     {
         $account = self::getAccount($accountId);
@@ -909,20 +899,19 @@ class ApiLk
 
     public static function getFreeNumbers($numberTariffId, $isSimple = false)
     {
-        $numberTariff = TariffNumber::findOne($numberTariffId);
-        Assert::isObject($numberTariff);
-        Assert::isEqual($numberTariff->status, TariffNumber::STATUS_PUBLIC);
+        $didGroup = DidGroup::findOne(['id' => $numberTariffId]);
+        Assert::isObject($didGroup);
 
         $ret = array();
 
         $numbers =
             (new \app\models\filter\FreeNumberFilter)
                 ->getNumbers()
-                ->setDidGroup($numberTariff->did_group_id);
+                ->setDidGroup($didGroup->id);
 
         $skipFrom = 1;
         $areaLen = 3;
-        
+
         foreach($numbers->result(null) as $number) {
             $line = [
                 'number' => $number->number,
@@ -940,6 +929,7 @@ class ApiLk
 
         return $ret;
     }
+
 
     public static function orderInternetTarif($client_id, $region_id, $tarif_id)
     {
@@ -1720,7 +1710,7 @@ class ApiLk
             throw new Exception("account_is_bad");
 
         $ret = array();
-        foreach(ClientContact::find_by_sql("
+        foreach(\ClientContact::find_by_sql("
                 select c.id, c.type, c.data as info, n.min_balance, n.min_day_limit as day_limit, n.add_pay_notif, n.status
                 from client_contacts c
                 left join lk_notice_settings n on n.client_contact_id=c.id
@@ -2045,7 +2035,6 @@ class ApiLk
 
         $contacts = ClientContact::findAll([
             'client_id' => $client_id,
-            'is_active' => 1,
             'user_id' => new \yii\db\Expression('(SELECT id FROM user_users WHERE user="AutoLK")'),
         ]);
 
@@ -2152,7 +2141,7 @@ class ApiLk
         }
 
         $ret = [];
-        foreach (ClientContact::find_by_sql("
+        foreach (\ClientContact::find_by_sql("
                 select *, min_day_limit as day_limit
                 from lk_client_settings
                 where client_id='" . $client_id . "'

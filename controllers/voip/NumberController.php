@@ -65,7 +65,7 @@ class NumberController extends BaseController
         $get = Yii::$app->request->get();
         $className = $filterModel->formName();
         !isset($get[$className]['country_id']) && $get[$className]['country_id'] = Country::RUSSIA;
-        !isset($get[$className]['number_type']) && $get[$className]['number_type'] = NumberType::ID_GEO_DID;
+//        !isset($get[$className]['number_type']) && $get[$className]['number_type'] = NumberType::ID_GEO_DID;
 
         $this->addClientAccountFilter($filterModel, $get);
 
@@ -108,7 +108,12 @@ class NumberController extends BaseController
      */
     public function actionView($did)
     {
+        $number = Number::findOne($did);
+        Assert::isObject($number);
+
         $actionForm = new NumberForm();
+        $actionForm->number_tech = $number->number_tech;
+
         if ($actionForm->load(Yii::$app->request->post()) && $actionForm->validate() && $actionForm->process()) {
             return $this->redirect(['view', 'did' => $did]);
         }
@@ -123,9 +128,6 @@ class NumberController extends BaseController
         $actionForm->did = $did;
         global $fixclient_data;
         $actionForm->client_account_id = $fixclient_data ? $fixclient_data['id'] : null;
-
-        $number = Number::findOne($did);
-        Assert::isObject($number);
 
         return $this->render('view', [
             'number' => $number,

@@ -119,6 +119,10 @@ $columns = [
     [
         'attribute' => 'did_group_id',
         'class' => DidGroupColumn::className(),
+        'value' => function (\app\models\Number $number) {
+            $didGroup = $number->didGroup;
+            return Html::a($didGroup->name, $didGroup->getUrl());
+        },
     ],
     [
         'attribute' => 'number_tech',

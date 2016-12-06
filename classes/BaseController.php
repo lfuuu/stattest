@@ -167,7 +167,7 @@ class BaseController extends Controller
     public function renderAsPDF($view, $params = [], $pdfParams = [])
     {
         $this->layout = 'empty';
-        $content = parent::render($view, $params);
+        $content = parent::render($view, $params + ['isPdf' => 1]);
 
         $pdfDefault = [
             // set to use core fonts only
@@ -183,7 +183,7 @@ class BaseController extends Controller
             // call mPDF methods on the fly
             'methods' => [
                 //'SetHeader'=>[''],
-                'SetFooter'=>['{PAGENO}'],
+                //'SetFooter'=>['{PAGENO}'],
             ]
         ];
 

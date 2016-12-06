@@ -86,6 +86,20 @@ abstract class CountryForm extends Form
     }
 
     /**
+     * @return Country[]
+     */
+    public function getOrderedList()
+    {
+        return
+            Country::find()
+                ->orderBy([
+                    'in_use' => SORT_DESC,
+                    'order' => SORT_ASC,
+                ])
+                ->all();
+    }
+
+    /**
      * Устанавливаем порядок сортировки. Последний внизу.
      */
     protected function setModelOrder()
@@ -94,4 +108,5 @@ abstract class CountryForm extends Form
         $this->country->order = $max+1;
         $this->country->save();
     }
+
 }

@@ -12,6 +12,11 @@ use yii\db\ActiveRecord;
  * @property string ts
  * @property string comment
  * @property string date_activation
+ * @property int minpayment_group
+ * @property int minpayment_local_mob
+ * @property int minpayment_russia
+ * @property int minpayment_intern
+ * @property int minpayment_sng
  * @property UsageVoip $usageVoip
  * @property TariffVoip $voipTariffMain
  * @property TariffVoip $voipTariffLocalMob

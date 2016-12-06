@@ -10,9 +10,9 @@ header('Content-Type: text/html; charset=utf-8');
 define("PATH_TO_ROOT", '../stat/');
 include PATH_TO_ROOT . "conf_yii.php";
 $o = MailJob::GetObjectP();
-$db->Query('update mail_object set view_count=view_count+1, view_ts = IF(view_ts=0,NOW(),view_ts) where object_id=' . $o['object_id']);
 
-if (in_array($o["object_type"], array(
+
+if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"], array(
     "bill",
     "assignment",
     "order",
@@ -23,8 +23,11 @@ if (in_array($o["object_type"], array(
     "new_director_info",
     "upd",
     "notice_mcm_telekom",
-    "sogl_mcm_telekom"
+    "sogl_mcm_telekom",
+    "sogl_mcn_telekom"
 ))) {
+    $db->Query('update mail_object set view_count=view_count+1, view_ts = IF(view_ts=0,NOW(),view_ts) where object_id=' . $o['object_id']);
+
     if ($o["object_type"] == "assignment" && $o["source"] == 2) {
         $o["source"] = 4;
     }
@@ -46,7 +49,7 @@ if (in_array($o["object_type"], array(
             $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
             $report->renderAsPDF();
         } else {
-            if ($R['obj'] === 'sogl_mcm_telekom') {
+            if ($R['obj'] === 'sogl_mcm_telekom' || $R['obj'] === 'sogl_mcn_telekom') {
                 $bill = Bill::findOne(['client_id' => $R['bill']]);
                 $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
                 $report->renderAsPDF();
@@ -59,4 +62,4 @@ if (in_array($o["object_type"], array(
         }
     }
 }
-?>
+

@@ -9,7 +9,7 @@ class KppValidator extends Validator
     public function init()
     {
         parent::init();
-        $this->message = 'Incorrect KPP';
+        $this->message = 'Неправильный КПП';
     }
 
     public function validateValue($value)

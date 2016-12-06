@@ -35,6 +35,8 @@ class CityDao extends Singleton
             $query->andWhere(['in_use' => 1]);
         }
 
+        $query->orderBy(['order' => SORT_ASC]);
+
         $list =
             ArrayHelper::map(
                 $query
@@ -84,7 +86,7 @@ class CityDao extends Singleton
         $cities =
             City::find()
                 ->joinWith('country')
-                ->orderBy('name')
+                ->orderBy(['order' => SORT_ASC])
                 ->all();
 
         foreach ($cities as $city) {

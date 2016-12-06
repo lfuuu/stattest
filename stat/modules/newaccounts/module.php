@@ -82,9 +82,18 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_balance_mass($fixclient)
     {
-        global $design, $db, $user, $fixclient;
+        global $design;
+
         $design->ProcessEx('errors.tpl');
-        $R = $db->AllRecords("select c.id, c.client, c.currency from clients c where status not in ( 'closed', 'trash', 'once', 'tech_deny', 'double', 'deny') ");
+
+        $clientAccounts = ClientAccount::find()
+            ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]]);
+
+        if (($organizationId = get_param_integer('organizationId'))) {
+            $clientAccounts->leftJoin(['cc' => \app\models\ClientContract::tableName()], 'cc.id = '.ClientAccount::tableName().'.contract_id');
+            $clientAccounts->andWhere(['cc.organization_id' => $organizationId]);
+        }
+
         set_time_limit(0);
         session_write_close();
 
@@ -92,11 +101,11 @@ class m_newaccounts extends IModule
             ob_end_clean();
         }
 
-
-        foreach ($R as $r) {
-            echo date("d-m-Y H:i:s") . ": " . $r['client'];
+        /** @var ClientAccount $clientAccount */
+        foreach ($clientAccounts->each() as $clientAccount) {
+            echo date("d-m-Y H:i:s") . ": " . $clientAccount->id . ' ' . $clientAccount->currency;
             try {
-                ClientAccount::dao()->updateBalance($r['id']);
+                ClientAccount::dao()->updateBalance($clientAccount);
             } catch (Exception $e) {
                 echo "<h1>!!! " . $e->getMessage() . "</h1>";
             }
@@ -1356,14 +1365,15 @@ class m_newaccounts extends IModule
             'Уведомление о назначении: ' => array("notice"),
             'УПД: ' => array('upd-1', 'upd-2', 'upd-3'),
             'Уведомление о передачи прав: ' => array('notice_mcm_telekom'),
-            'Соглашение о передачи прав: ' => array('sogl_mcm_telekom')
+            'Соглашение о передачи прав: ' => array('sogl_mcm_telekom'),
+            'Соглашение о передачи прав (МСМ=>МСН Ретайл): ' => array('sogl_mcn_telekom'),
         );
 
         foreach ($D as $k => $rs) {
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
 
-                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom') {
+                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom' || $r === 'sogl_mcn_telekom') {
                         $is_pdf = 1;
                     }
 
@@ -1575,7 +1585,7 @@ class m_newaccounts extends IModule
             'upd-3'
         ));
         $L = array_merge($L, array('akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3'));
-        $L = array_merge($L, array('nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom'));
+        $L = array_merge($L, array('nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom'));
 
         //$L = array("invoice-1");
 
@@ -1877,15 +1887,9 @@ class m_newaccounts extends IModule
                 $this->_print_receipt();
                 break;
             }
-            case 'notice_mcm_telekom': {
-                if ($billModel) {
-                    $report = DocumentReportFactory::me()->getReport($billModel, $obj);
-                    echo $is_pdf ? $report->renderAsPDF() : $report->render();
-                    exit;
-                }
-                break;
-            }
-            case 'sogl_mcm_telekom': {
+            case 'notice_mcm_telekom':
+            case 'sogl_mcm_telekom':
+            case 'sogl_mcn_telekom': {
                 if ($billModel) {
                     $report = DocumentReportFactory::me()->getReport($billModel, $obj);
                     echo $is_pdf ? $report->renderAsPDF() : $report->render();

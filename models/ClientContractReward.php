@@ -52,7 +52,7 @@ class ClientContractReward extends ActiveRecord
         return [
             [
                 [
-                    'contract_id', 'once_only',
+                    'contract_id', 'once_only', 'percentage_once_only',
                     'percentage_of_fee', 'percentage_of_over', 'percentage_of_margin', 'period_month'
                 ],
                 'integer',
@@ -62,7 +62,7 @@ class ClientContractReward extends ActiveRecord
             ['period_type', 'in', 'range' => [self::PERIOD_ALWAYS, self::PERIOD_MONTH]],
             ['usage_type', 'in', 'range' => array_keys(self::$usages)],
 
-            [['once_only', 'percentage_of_fee', 'percentage_of_over', 'period_month'], 'default', 'value' => 0],
+            [['once_only', 'percentage_once_only', 'percentage_of_fee', 'percentage_of_over', 'period_month'], 'default', 'value' => 0],
             [['period_type'], 'default', 'value' => self::PERIOD_ALWAYS],
 
             [['contract_id', 'usage_type', 'actual_from', 'period_type'], 'required'],
@@ -77,6 +77,7 @@ class ClientContractReward extends ActiveRecord
         return [
             'actual_from' => 'Дата активации',
             'once_only' => 'Разовое',
+            'percentage_once_only' => 'От подключения',
             'percentage_of_fee' => 'От абонентской платы',
             'percentage_of_over' => 'От ресурса',
             'percentage_of_margin' => 'От маржи',

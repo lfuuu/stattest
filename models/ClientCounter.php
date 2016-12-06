@@ -14,6 +14,7 @@ use yii\helpers\ArrayHelper;
  * @property int $client_id
  * @property float $amount_sum
  * @property float $amount_day_sum
+ * @property float $amount_mn_day_sum
  * @property float $amount_month_sum
  * @property float $subscription_rt_balance
  * @property float $subscription_rt_last_month
@@ -21,6 +22,7 @@ use yii\helpers\ArrayHelper;
  * @property float $realtimeBalance
  * @property float $totalSummary
  * @property float $daySummary
+ * @property float $dayMnSummary
  * @property float $monthSummary
  *
  * @property ClientAccount clientAccount
@@ -104,6 +106,15 @@ class ClientCounter extends ActiveRecord
     }
 
     /**
+     * Возвращает сумму за разговоры по МН за текущий день
+     * @return float
+     */
+    public function getDayMnSummary()
+    {
+        return $this->amount_mn_day_sum;
+    }
+
+    /**
      * Возвращает сумму за разговоры за текущий месяц
      * @return float
      */
@@ -151,6 +162,7 @@ class ClientCounter extends ActiveRecord
 
             $localCounter->amount_sum = $billingCounter->amount_sum;
             $localCounter->amount_day_sum = $billingCounter->amount_day_sum;
+            $localCounter->amount_mn_day_sum = $billingCounter->amount_mn_day_sum;
             $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
             $localCounter->save();
 
@@ -213,6 +225,7 @@ class ClientCounter extends ActiveRecord
             $counter->client_id = $clientAccountId;
             $counter->amount_sum = $billingCounter['amount_sum'];
             $counter->amount_day_sum = $billingCounter['amount_day_sum'];
+            $counter->amount_mn_day_sum = $billingCounter['amount_mn_day_sum'];
             $counter->amount_month_sum = $billingCounter['amount_month_sum'];
             //$counter->save();
 
@@ -224,6 +237,7 @@ class ClientCounter extends ActiveRecord
         $counter->client_id = $clientAccountId;
         $counter->amount_sum = 0;
         $counter->amount_day_sum = 0;
+        $counter->amount_mn_day_sum = 0;
         $counter->amount_month_sum = 0;
 
         return $counter;
@@ -242,6 +256,7 @@ class ClientCounter extends ActiveRecord
             $counter->client_id = $clientAccountId;
             $counter->amount_sum = 0;
             $counter->amount_day_sum = 0;
+            $counter->amount_mn_day_sum = 0;
             $counter->amount_month_sum = 0;
             $counter->subscription_rt_balance = 0;
             $counter->subscription_rt_last_month = 0;

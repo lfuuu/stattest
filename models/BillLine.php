@@ -58,6 +58,17 @@ class BillLine extends ActiveRecord
     }
 
     /**
+     * @return bool|string
+     */
+    public function getType()
+    {
+        return
+            $this->hasOne(Transaction::className(), ['bill_line_id' => 'pk'])
+                ->select('transaction_type')
+                ->scalar();
+    }
+
+    /**
      * @param boolean $priceIncludeVat
      */
     public function calculateSum($priceIncludeVat)

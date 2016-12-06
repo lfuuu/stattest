@@ -2,8 +2,8 @@
 namespace app\controllers\tariff;
 
 use app\classes\BaseController;
-use app\forms\tariff\DidGroupForm;
-use app\models\DidGroup;
+use app\forms\tariff\DidGroupFormEdit;
+use app\forms\tariff\DidGroupFormNew;
 use app\models\filter\DidGroupFilter;
 use Yii;
 use yii\filters\AccessControl;
@@ -27,6 +27,7 @@ class DidGroupController extends BaseController
 
     /**
      * Список
+     *
      * @return string
      */
     public function actionIndex()
@@ -39,41 +40,46 @@ class DidGroupController extends BaseController
         ]);
     }
 
-    public function actionAdd($city_id = null)
+    /**
+     * Создать
+     *
+     * @return string
+     */
+    public function actionNew()
     {
-        return $this->actionEdit(null, $city_id);
+        /** @var DidGroupFormNew $form */
+        $form = new DidGroupFormNew();
+
+        if ($form->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
+            return $this->redirect(['index']);
+        } else {
+            return $this->render('edit', [
+                'formModel' => $form,
+            ]);
+        }
     }
 
-    public function actionEdit($id = null, $city_id = null)
+    /**
+     * Редактировать
+     *
+     * @param int $id
+     * @return string
+     */
+    public function actionEdit($id)
     {
-        $didGroup = null;
-        $form = new DidGroupForm();
-
-        $city_id = (int) $city_id;
-        $id = (int) $id;
-
-        if ($city_id) {
-            $form->city_id = $city_id;
-        }
-
-        if ($id) {
-            $didGroup = DidGroup::findOne(['id' => $id]);
-            $form->initModel($didGroup);
-        }
-
-        if (Yii::$app->request->post('save')) {
-            $form->setScenario('save');
-        }
-
-        if ($form->load(Yii::$app->request->post()) && $form->getScenario() == 'save' && $form->validate() && $form->save()) {
-            Yii::$app->session->addFlash('success', ($id ? 'Запись обновлена' : 'Запись создана'));
-            return $this->redirect(['edit', 'id' => $form->id]);
-        }
-
-        $form->initForm();
-
-        return $this->render('edit', [
-            'model' => $form,
+        /** @var DidGroupFormEdit $form */
+        $form = new DidGroupFormEdit([
+            'id' => $id
         ]);
+
+        if ($form->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
+            return $this->redirect(['index']);
+        } else {
+            return $this->render('edit', [
+                'formModel' => $form,
+            ]);
+        }
     }
 }

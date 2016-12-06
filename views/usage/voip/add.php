@@ -2,7 +2,7 @@
 
 use app\classes\Html;
 use app\models\City;
-use app\models\TariffNumber;
+use app\models\DidGroup;
 use app\models\TariffVoip;
 use app\widgets\DateControl as CustomDateControl;
 use kartik\builder\Form;
@@ -84,15 +84,15 @@ echo Breadcrumbs::widget([
         ],
     ]);
 
-    if ($model->type_id == 'number') {
+    if ($model->type_id === 'number') {
         echo Form::widget([
             'model' => $model,
             'form' => $form,
             'columns' => 4,
             'attributes' => [
-                'number_tariff_id' => [
+                'did_group_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => TariffNumber::dao()->getList(true, $clientAccount->country_id, $clientAccount->currency, $model->city_id),
+                    'items' => DidGroup::dao()->getList(true, $model->city_id),
                     'options' => ['class' => 'select2 form-reload'],
                 ],
                 'did' => ['type' => Form::INPUT_TEXT],

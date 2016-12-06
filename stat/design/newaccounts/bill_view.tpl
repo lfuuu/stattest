@@ -352,11 +352,17 @@
                     <input type="checkbox" value="1" name="nbn_gds" id="wm11"><label for="wm11">NetByNet: заказ</label><br />
                 {/if}
                 {if $bill_client.firma == 'mcm_telekom'}
-                    <input type="checkbox" value="1" name="notice_mcm_telekom" id="wm10"><label for="wm10">Уведомление (МСМ Телеком)</label><br />
+                    <input type="checkbox" value="1" name="notice_mcm_telekom" id="wm10"><label for="wm10">Уведомление (МСН Телеком Ритейл)</label><br />
+
+                    {if $bill.bill_date == '2016-12-01'}
+                        <input type="checkbox" value="1" name="sogl_mcn_telekom" id="wm113" />
+                        <label for="wm113">Договор переуступки c МСН Телеком на МСН Телеком Ретайл</label><br />
+                    {/if}
+
                 {/if}
                 {if $bill_client.firma == 'mcn_telekom'}
                     <input type="checkbox" value="1" name="sogl_mcm_telekom" id="wm112" />
-                    <label for="wm112">Договор переуступки С МСН Телеком на МСМ Телеком</label><br />
+                    <label for="wm112">Договор переуступки c МСН Телеком на МСМ Телеком</label><br />
                 {/if}
             </td>
             <td valign="top">

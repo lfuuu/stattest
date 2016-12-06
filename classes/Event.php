@@ -54,6 +54,7 @@ class Event
     const UPDATE_BALANCE = 'update_balance';
     const ACCOUNT_BLOCKED = 'account_blocked';
     const ACCOUNT_UNBLOCKED = 'account_unblocked';
+    const PARTNER_REWARD = 'partner_reward';
 
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
@@ -104,6 +105,7 @@ class Event
         self::ACCOUNT_BLOCKED => 'ЛС заблокирован',
         self::ACCOUNT_UNBLOCKED => 'ЛС разблокирован',
         SyncVmCollocation::EVENT_SYNC => 'API VM manager',
+        self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',
     ];
 
     /**
