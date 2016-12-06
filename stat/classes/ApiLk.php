@@ -259,7 +259,9 @@ class ApiLk
         if ($billModel)
         {
             $contractId = $billModel->clientAccount->contract->id;
-            $c = \app\models\HistoryVersion::getVersionOnDate(app\models\ClientContract::className(), $contractId, $curr_bill->Get("bill_date"));
+            $c = app\models\ClientContract::findOne(['id' => $contractId])
+                ->loadVersionOnDate($curr_bill->Get("bill_date"));
+
             if ($c)
                 $organizationId = $c->organization_id;
         }

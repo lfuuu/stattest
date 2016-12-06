@@ -61,6 +61,15 @@ class ClientContragent extends HistoryActiveRecord
         self::IP_TYPE => Organization::MCN_TELEKOM,
     ];
 
+    public
+        $attributesProtectedForVersioning = [
+        'super_id',
+        'country_id',
+        'comment',
+        'sale_channel_id',
+        'partner_contract_id',
+    ];
+
     public static function tableName()
     {
         return 'client_contragent';
