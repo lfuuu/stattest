@@ -63,18 +63,30 @@ class AgentReport
     private function counter($row, &$result)
     {
         $billDate = (new DateTime($row['bill_date']));
-        $dateOffset = (new DateTime($row['activation_dt']))->modify('+' . $row['period_month'] . ' month');
 
-        if (
-            $this->dateFrom <= $billDate && $this->dateTo >= $billDate
-            &&
-            (
-                $row['period_type'] === 'always'
-                ||
-                $billDate < $dateOffset
-            )
-        ) {
+        if ($this->dateFrom <= $billDate && $this->dateTo >= $billDate) {
             $blockKey = $row['client_id'];
+
+            $rewards = [];
+
+            if (!array_key_exists($row['partner_contract_id'], $rewards)) {
+                $rewards[$row['partner_contract_id']] =
+                    ClientContractReward::find()
+                        ->where([
+                            'usage_type' => 'usage_voip',
+                            'contract_id' => $row['partner_contract_id'],
+                        ])
+                        ->andWhere(new Expression('DATE_FORMAT(actual_from, "%Y-%m") = DATE_FORMAT(:month, "%Y-%m")', ['month' => $row['bill_date']]))
+                        ->orderBy(['actual_from' => SORT_DESC])
+                        ->one();
+            }
+
+            $rewardSettings = $rewards[$row['partner_contract_id']];
+            $dateOffset = (new DateTime($row['activation_dt']))->modify('+' . $rewardSettings['period_month'] . ' month');
+
+            if ($row['period_type'] !== 'always' && $billDate > $dateOffset) {
+                return;
+            }
 
             if (!isset($result[$blockKey])) {
                 $result[$blockKey] = [
@@ -95,27 +107,26 @@ class AgentReport
 
             $firstPaymentDate = (new DateTime($row['first_payment_date']));
             if ($firstPaymentDate <= $this->dateTo && $firstPaymentDate >= $this->dateFrom) {
-                $result[$blockKey]['once'] = $row['once_only'];
-                $this->summary['once'] += $row['once_only'];
+                $result[$blockKey]['once'] = $rewardSettings['once_only'];
+                $this->summary['once'] += $rewardSettings['once_only'];
             }
 
             $result[$blockKey]['amount'] += $row['sum'];
             $this->summary['amount'] += $row['sum'];
 
             if ($row['is_payed'] == 1) {
-                $transactionSummaryValue = 0;
                 $result[$blockKey]['amount_payed'] += $row['sum'];
                 $this->summary['amount_payed'] += $row['sum'];
 
                 switch ($row['transaction_type']) {
                     case Transaction::TYPE_RESOURCE: {
-                        $transactionSummaryValue = $row['percentage_of_over'] * $row['sum'] / 100;
+                        $transactionSummaryValue = $rewardSettings['percentage_of_over'] * $row['sum'] / 100;
                         $result[$blockKey]['excess'] += $transactionSummaryValue;
                         $this->summary['excess'] += $transactionSummaryValue;
                         break;
                     }
                     case Transaction::TYPE_PERIODICAL: {
-                        $transactionSummaryValue = $row['percentage_of_fee'] * $row['sum'] / 100;
+                        $transactionSummaryValue = $rewardSettings['percentage_of_fee'] * $row['sum'] / 100;
                         $result[$blockKey]['fee'] += $transactionSummaryValue;
                         $this->summary['fee'] += $transactionSummaryValue;
                         break;
@@ -138,15 +149,10 @@ class AgentReport
 
         $query->select([
             'client_id' => 'client.id',
+            'partner_contract_id' => 'contragent.partner_contract_id',
             'contragent_name' => 'contragent.name',
             'client_created' => 'DATE(client.created)',
-            'usage_type' => new Expression('"voip"'),
             'usage_id' => 'usage.id',
-            'rewards.once_only',
-            'rewards.percentage_of_fee',
-            'rewards.percentage_of_over',
-            'rewards.period_type',
-            'rewards.period_month',
             'bill_date' => 'DATE(bills.bill_date)',
             'transaction.name',
             'transaction_type' => new Expression("IFNULL(transaction.transaction_type, '" . Transaction::TYPE_PERIODICAL . "')"),
@@ -169,10 +175,6 @@ class AgentReport
             ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
             ->innerJoin(['usage' => UsageVoip::tableName()], 'usage.client = client.client')
             ->innerJoin(
-                ['rewards' => ClientContractReward::tableName()],
-                'rewards.contract_id = contragent.partner_contract_id AND rewards.usage_type = :usageType'
-            )
-            ->innerJoin(
                 ['transaction' => Transaction::tableName()],
                 'transaction.service_type = :service AND transaction.service_id = usage.id'
             )
@@ -192,7 +194,6 @@ class AgentReport
 
         $query->params([
             ':service' => UsageVoip::tableName(),
-            ':usageType' => 'usage_voip',
         ]);
 
         return $query->each();
@@ -211,15 +212,10 @@ class AgentReport
 
         $query->select([
             'client_id' => 'client.id',
+            'partner_contract_id' => 'contragent.partner_contract_id',
             'contragent_name' => 'contragent.name',
             'client_created' => 'DATE(client.created)',
-            'usage_type' => new Expression('"vpbx"'),
             'usage_id' => 'usage.id',
-            'rewards.once_only',
-            'rewards.percentage_of_fee',
-            'rewards.percentage_of_over',
-            'rewards.period_type',
-            'rewards.period_month',
             'bill_date' => 'DATE(bills.bill_date)',
             'transaction.name',
             'transaction_type' => new Expression("IFNULL(transaction.transaction_type, '" . Transaction::TYPE_PERIODICAL . "')"),
@@ -242,10 +238,6 @@ class AgentReport
             ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
             ->innerJoin(['usage' => UsageVirtpbx::tableName()], 'usage.client = client.client')
             ->innerJoin(
-                ['rewards' => ClientContractReward::tableName()],
-                'rewards.contract_id = contragent.partner_contract_id AND rewards.usage_type = :usageType'
-            )
-            ->innerJoin(
                 ['transaction' => Transaction::tableName()],
                 'transaction.service_type = :service AND transaction.service_id = usage.id'
             )
@@ -265,7 +257,6 @@ class AgentReport
 
         $query->params([
             ':service' => UsageVirtpbx::tableName(),
-            ':usageType' => 'usage_virtpbx',
         ]);
 
         return $query->each();
