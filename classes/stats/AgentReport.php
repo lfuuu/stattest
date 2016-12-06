@@ -73,7 +73,7 @@ class AgentReport
                 $rewardsQuery =
                     ClientContractReward::find()
                         ->where([
-                            'usage_type' => 'usage_voip',
+                            'usage_type' => $row['usage_type'],
                             'contract_id' => $row['partner_contract_id'],
                         ])
                         ->orderBy(['actual_from' => SORT_ASC]);
@@ -164,6 +164,7 @@ class AgentReport
             'partner_contract_id' => 'contragent.partner_contract_id',
             'contragent_name' => 'contragent.name',
             'client_created' => 'DATE(client.created)',
+            'usage_type' => new Expression('"usage_voip"'),
             'usage_id' => 'usage.id',
             'bill_date' => 'DATE(bills.bill_date)',
             'transaction.name',
@@ -227,6 +228,7 @@ class AgentReport
             'partner_contract_id' => 'contragent.partner_contract_id',
             'contragent_name' => 'contragent.name',
             'client_created' => 'DATE(client.created)',
+            'usage_type' => new Expression('"usage_virtpbx"'),
             'usage_id' => 'usage.id',
             'bill_date' => 'DATE(bills.bill_date)',
             'transaction.name',
