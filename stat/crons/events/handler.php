@@ -100,9 +100,9 @@ function do_events()
                     Event::go(Event::CHECK__USAGES);
 
                     /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
-                    if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
-                        Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
-                    }
+//                    if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
+//                        Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
+//                    }
 
                     /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
                     if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {

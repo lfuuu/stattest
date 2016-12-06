@@ -84,6 +84,15 @@ class ClientContract extends HistoryActiveRecord
         self::IS_LK_ACCESS_NO => 'Нет',
     ];
 
+    public
+        $attributesAllowedForVersioning = [
+        'organization_id',
+        'business_id',
+        'business_process_id',
+        'business_process_status_id',
+    ];
+
+
     public static function tableName()
     {
         return 'client_contract';

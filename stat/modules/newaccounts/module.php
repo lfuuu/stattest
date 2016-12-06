@@ -4240,11 +4240,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $date_from = $dateFrom->getDay();
         $date_to = $dateTo->getDay();
 
-        $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'],
-            $date_from);
+        /** @var ClientAccount $clientData */
+        $clientData = ClientAccount::findOne(['id' => $fixclient_data['id']])->loadVersionOnDate($date_from);
 
         //** Todo:  */
-        $organization = Organization::find()->byId($c->contract->organization_id)->actual($date_to)->one();
+        $organization = Organization::find()->byId($clientData->contract->organization_id)->actual($date_to)->one();
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
         $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
@@ -4262,7 +4262,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $R[0] = array('type' => 'saldo', 'date' => $date_from_val, 'sum_outcome' => $startsaldo);
         $B = array();
 
-        $W = array('AND', 'P.client_id="' . $fixclient_data['id'] . '"', 'P.currency="' . $c->currency . '"');
+        $W = array('AND', 'P.client_id="' . $fixclient_data['id'] . '"', 'P.currency="' . $clientData->currency . '"');
         if ($saldo) {
             $W[] = 'P.payment_date>="' . $saldo['ts'] . '"';
         }
@@ -4416,13 +4416,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         );
 
 
-        $period_client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(),
-            $fixclient_data['id'], $date_from);
-        $design->assign("company_full", $period_client_data["company_full"]);
-        $design->assign("client_id", $fixclient_data['id']);
+        $design->assign("company_full", $clientData->company_full);
+        $design->assign("client_id", $clientData->id);
 
-        $contractId = ClientAccount::findOne($fixclient_data['id'])->contract_id;
-        $design->assign("last_contract", BillContract::getLastContract($contractId, $date_from_val));
+        $design->assign("last_contract", BillContract::getLastContract($clientData->contract_id, $date_from_val));
         $design->assign('data', $R);
         $design->assign('zalog', $zalog);
         $design->assign('sum_bill', $S_b);
@@ -4430,7 +4427,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $design->assign('sum_zalog', $S_zalog);
         $design->assign('ressaldo', $ressaldo);
         $design->assign('formula', $formula);
-        $design->assign('currency', $c->currency);
+        $design->assign('currency', $clientData->currency);
 
         $fullscreen = get_param_protected('fullscreen', 0);
         $is_pdf = get_param_protected('is_pdf', 0);
@@ -4455,10 +4452,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             //Create file
             $V = array(
                 'name' => str_replace(array('"'), "",
-                        $period_client_data["company_full"]) . ' Акт сверки (на ' . $date_to . ').pdf',
+                        $clientData["company_full"]) . ' Акт сверки (на ' . $date_to . ').pdf',
                 'ts' => array('NOW()'),
                 'contract_id' => $fixclient_data['contract_id'],
-                'comment' => $period_client_data["company_full"] . ' Акт сверки (на ' . $date_to . ')',
+                'comment' => $clientData["company_full"] . ' Акт сверки (на ' . $date_to . ')',
                 'user_id' => $user->Get('id')
             );
             $id = $db->QueryInsert('client_files', $V);
@@ -4674,8 +4671,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['inv_date'];
 
                         // get property from history
-                        $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $p['client_id'],
-                            date('Y-m-d', $invDate));
+                        $c = ClientAccount::findOne(['id' => $p['client_id']])->loadVersionOnDate(date('Y-m-d', $invDate));
                         $p['company_full'] = trim($c['company_full']);
                         $p['inn'] = $c['inn'];
                         $p['kpp'] = $c['kpp'];
