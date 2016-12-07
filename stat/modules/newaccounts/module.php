@@ -2816,11 +2816,11 @@ class m_newaccounts extends IModule
                     "colspan" => 1
                 ],
                 "telekom" => [
-                    "title" => "МС( Н )Телеком",
+                    "title" => "МСН Телеком",
                     "colspan" => 1
                 ],
                 "mcm_telekom" => [
-                    "title" => "МС(_М_) Телеком",
+                    "title" => "МСН Телеком Ритейл",
                     "colspan" => 1
                 ],
                 "sber_online" => [
@@ -3201,6 +3201,21 @@ where cg.inn = '" . $inn . "'";
 
             $pay["bill_no"] = $billNo;
             $pay["clients"] = $this->getClient($clientIdSum);
+
+            $pay['from_str'] = implode(
+                "<br />",
+                array_map(
+                    function ($key, $value) {
+                        $names = [
+                            'bik' => "БИК",
+                            'account' => "р/с",
+                            'a2' => "БАНК"
+                        ];
+                        return (isset($names[$key]) ? $names[$key] : $key) . ": " . $value;
+                    },
+                    array_keys($pay['from']),
+                    $pay['from']
+                ));
 
 
             if ($clientIdSum) {
