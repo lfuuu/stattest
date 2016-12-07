@@ -840,11 +840,11 @@ class AccountTariff extends ActiveRecord
         }
         $tariffPeriod = $this->tariffPeriod;
         if (!$tariffPeriod) {
-            $this->addError($attribute, 'Неправильный tariff_period_id');
+            $this->addError($attribute, 'Неправильный tariff_period_id ' . $this->tariff_period_id);
             return;
         }
         if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
-            $this->addError($attribute, 'Tariff_period_id не соответствует service_type_id');
+            $this->addError($attribute, 'Tariff_period_id ' . $tariffPeriod->tariff->service_type_id . ' не соответствует service_type_id ' . $this->service_type_id);
             return;
         }
     }

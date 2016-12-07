@@ -20,6 +20,7 @@ use yii\db\ActiveRecord;
  * @property bool tariffication_full_first_minute
  * @property bool tariffication_free_first_seconds
  * @property float price
+ * @property int service_type_id
  */
 class AccountTariffLight extends ActiveRecord
 {
@@ -44,6 +45,7 @@ class AccountTariffLight extends ActiveRecord
             'tariffication_full_first_minute' => 'Первая минута поминутно?',
             'tariffication_free_first_seconds' => 'Первые 5 сек. бесплатно?',
             'price' => 'Цена пакета', // полная (из TariffPeriod), без учета coefficient
+            'service_type_id' => 'Тип услуги',
         ];
     }
 

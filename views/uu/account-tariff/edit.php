@@ -6,8 +6,11 @@
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  */
 
+use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
+use app\models\Business;
 use app\models\ClientAccount;
+use app\models\UsageTrunk;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
@@ -41,6 +44,7 @@ if ($formModel->IsNeedToSelectClient || !$clientAccount) {
     Yii::$app->session->setFlash('error', Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
     return;
 }
+
 if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
     if ($accountTariff->isNewRecord) {
         Yii::$app->session->setFlash('error', 'Универсальную услугу можно добавить только аккаунту, тарифицируемому универсально.');

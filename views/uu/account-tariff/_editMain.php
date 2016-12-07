@@ -139,15 +139,19 @@ if (!$serviceType) {
         'form' => $form,
     ];
     switch ($serviceType->id) {
+
         case ServiceType::ID_VOIP:
             echo $this->render('_editMainVoip', $viewParams);
             break;
+
         case ServiceType::ID_VOIP_PACKAGE:
             echo $this->render('_editMainVoipPackage', $viewParams);
             break;
+
         case ServiceType::ID_ONE_TIME:
             echo $this->render('_editMainOneTime', $viewParams);
             break;
+
     }
     ?>
 

@@ -31,9 +31,17 @@ $viewParams = [
 ];
 
 if ($serviceType && $serviceType->id == ServiceType::ID_VOIP && $filterModel->client_account_id) {
-    // персональная форма
-    echo $this->render('_indexVoip', $viewParams);
+
+    // персональная форма телефонии
+    echo $this->render('_indexVoip', $viewParams + ['packageServiceTypeIds' => [ServiceType::ID_VOIP_PACKAGE]]);
+
+} elseif ($serviceType && $serviceType->id == ServiceType::ID_TRUNK && $filterModel->client_account_id) {
+
+    // персональная форма транка
+    echo $this->render('_indexVoip', $viewParams + ['packageServiceTypeIds' => [ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM]]);
+
 } else {
+
     // типовая форма
     echo $this->render('_indexMain', $viewParams);
 
