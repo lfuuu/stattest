@@ -5,12 +5,10 @@
 
 namespace app\models\voip;
 
-use \Exception;
+use Psr\Log\InvalidArgumentException;
 use Yii;
 use yii\base\Model;
 use yii\data\SqlDataProvider;
-
-class FillingException extends Exception { }
 
 class Filling extends Model
 {
@@ -27,14 +25,17 @@ class Filling extends Model
         ];
     }
 
+    /**
+     * Loading class properties from GET-params
+     *
+     * @param array $get
+     * @return bool
+     */
     public function load (array $get)
     {
-        if ($get['date'] && $get['number'])
+        if (isset($get['date']) && isset($get['number']))
         {
-            $d = & $get['date'];
-            $d = explode(':', $d);
-            $get['dateStart'] = $d[0];
-            $get['dateEnd'] = $d[1];
+            list($get['dateStart'], $get['dateEnd']) = explode(':', $get['date']);
             parent::load($get, '');
             if ($this->validate())
             {
@@ -42,12 +43,17 @@ class Filling extends Model
             }
             else
             {
-                throw new FillingException('Не все параметры введены корректно');
+                throw new InvalidArgumentException('Не все параметры введены корректно');
             }
         }
         return true;
     }
 
+    /**
+     * Getting report data
+     *
+     * @return SqlDataProvider
+     */
     public function getFilling ()
     {
         return new SqlDataProvider([

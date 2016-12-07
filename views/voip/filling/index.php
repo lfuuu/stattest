@@ -19,7 +19,7 @@ use yii\widgets\Pjax;
 ]);
 ?>
 
-<div class="well" style="overflow-x: auto; margin-bottom: -20px;">
+<div class="well no_panel">
             <form method="GET" action="/voip/filling" data-pjax>
                 <div class="col-sm-8">
                     <legend style="font-size: 16px;">Фильтр</legend>
@@ -100,20 +100,10 @@ echo GridView::widget([
         ]
     ],
     'pjax' => true,
-    'panelHeadingTemplate' => ''
+    'panelHeadingTemplate' => false
 ]);
 Pjax::end();
 
+echo $this->render('//layouts/_pjax');
 ?>
-<img id="preloader" src="/images/preloader.png" style="position: fixed; z-index: 9999; left: calc(50% - 32px); top: calc(50% - 32px); display: none">
-<script>
-    $(document)
-        .on('pjax:send', function ()
-        {
-            $('#preloader').show();
-        })
-        .on('pjax:complete', function ()
-        {
-            $('#preloader').hide();
-        });
-</script>
+

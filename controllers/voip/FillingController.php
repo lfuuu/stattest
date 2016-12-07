@@ -8,9 +8,7 @@ namespace app\controllers\voip;
 use app\models\voip\Filling;
 use Yii;
 use app\classes\BaseController;
-use app\models\voip\Generic;
 use yii\filters\AccessControl;
-use app\classes\SkaTpl;
 
 class FillingController extends BaseController
 {
@@ -22,7 +20,7 @@ class FillingController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'getasync'],
+                        'actions' => ['index'],
                         'roles' => ['voip.access'],
                     ],
                 ],

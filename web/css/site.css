@@ -417,3 +417,8 @@ a.nohover:hover {
     padding: 9px;
     margin-bottom: 0;
 }
+
+.well.no_panel {
+    overflow-x: auto;
+    margin-bottom: -20px;
+}
