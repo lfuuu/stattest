@@ -51,6 +51,7 @@ class Filling extends Model
     public function getFilling ()
     {
         return new SqlDataProvider([
+            'db' => 'dbPgSlave',
             'sql' => "SELECT
                         gs.gs || ' - ' || gs.gs + interval '1 hour' AS interval,
                         sn.lines_count,
