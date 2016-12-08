@@ -12,16 +12,19 @@ use yii\data\SqlDataProvider;
 
 class Filling extends Model
 {
+    const PAGE_SIZE = 10;
+
     public $number = null;
     public $dateStart = null;
     public $dateEnd = null;
+    public $date = '';
 
     public function rules()
     {
         return [
-            [['dateStart', 'dateEnd'], 'trim'],
+            [['dateStart', 'dateEnd', 'date'], 'trim'],
             [['dateStart', 'dateEnd'], 'date', 'format' => 'php:Y-m-d'],
-            [['number'], 'string']
+            [['number', 'date'], 'string']
         ];
     }
 
@@ -33,7 +36,7 @@ class Filling extends Model
      */
     public function load(array $get)
     {
-        if (isset($get['date'], $get['number']) && strpos(':', $get['date']) !== false) {
+        if (isset($get['date'], $get['number']) && strpos($get['date'], ':') !== false) {
             list($get['dateStart'], $get['dateEnd']) = explode(':', $get['date']);
             parent::load($get, '');
             if ($this->validate()) {
@@ -95,8 +98,7 @@ class Filling extends Model
                 ':date_start' => $this->dateStart,
                 ':date_end' => $this->dateEnd
             ],
-            'pagination' => false,
-            'sort' => false
+            'pagination' => false
         ]);
     }
 }

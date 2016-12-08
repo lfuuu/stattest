@@ -39,7 +39,7 @@ class FillingController extends BaseController
         $model->load(Yii::$app->request->get());
 
         return $this->render('index', [
-            'dataProvider' => $model->getFilling()
+            'filterModel' => $model
         ]);
     }
 

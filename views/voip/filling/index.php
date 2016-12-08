@@ -1,12 +1,16 @@
 <?php
 /**
  * Main page view for number filling report (/voip/filling)
+ *
+ * @var Filling $filterModel
  */
 
 use app\classes\grid\GridView;
+use app\models\voip\Filling;
 use yii\widgets\Breadcrumbs;
-use kartik\daterange\DateRangePicker;
 use yii\widgets\Pjax;
+use app\classes\grid\column\DateRangePickerColumn;
+use app\classes\grid\column\universal\StringColumn;
 
 ?>
 
@@ -17,74 +21,38 @@ use yii\widgets\Pjax;
         ['label' => $this->title],
     ],
 ]);
-?>
 
-<div class="well no_panel">
-    <form method="GET" action="/voip/filling" data-pjax>
-        <div class="col-sm-8">
-            <legend style="font-size: 16px;">Фильтр</legend>
-            <table border="0" width="40%">
-                <thead>
-                <tr>
-                    <th>Период</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>
-                        <?php
-                        $dateStart = $dataProvider->params[':date_start'] ? $dataProvider->params[':date_start'] : date('Y-m-d',
-                            strtotime('yesterday'));
-                        $dateEnd = $dataProvider->params[':date_end'] ? $dataProvider->params[':date_end'] : date('Y-m-d');
-                        echo DateRangePicker::widget([
-                            'name' => 'date',
-                            'presetDropdown' => true,
-                            'hideInput' => true,
-                            'value' => "$dateStart : $dateEnd",
-                            'pluginOptions' => [
-                                'locale' => [
-                                    'format' => 'YYYY-MM-DD',
-                                    'separator' => ' : ',
-                                ],
-                            ],
-                        ]);
-                        ?>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+$filter = [
+    [
+        'attribute' => 'date',
+        'name' => 'date',
+        'label' => 'Период',
+        'class' => DateRangePickerColumn::className(),
+        'value' => $filterModel->date,
+    ],
+    [
+        'attribute' => 'number',
+        'label' => 'Номер',
+        'class' => StringColumn::className(),
+        'value' => $filterModel->number,
+        'options' => [
+            'name' => 'number',
+        ]
+    ]
+];
 
-        <div class="col-sm-4">
-            <legend style="font-size: 16px;">Введите номер</legend>
-            <table border="0" width="100%" style="margin-top: 32px;">
-                <tbody>
-                <tr>
-                    <td>
-                        <input id="number" type="text" class="form-control" name="number"
-                               value="<?= $dataProvider->params[':number'] ?>"
-                               placeholder="Проверяемый номер"></td>
-                    <td>
-                        <div class="col-sm-10">
-                            <button type="submit" class="btn btn-primary">Искать</button>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </form>
-</div>
-
-<?php
 Pjax::begin([
-    'formSelector' => '.well form[data-pjax]',
+    'formSelector' => false,
     'linkSelector' => false,
     'enableReplaceState' => true,
-    'timeout' => 180000
+    'timeout' => 180000,
 ]);
 echo GridView::widget([
-    'dataProvider' => $dataProvider,
+    'dataProvider' => $filterModel->getFilling(),
+    'filterModel' => $filterModel,
+    'beforeHeader' => [
+        'columns' => $filter
+    ],
     'columns' => [
         [
             'label' => 'Интервал',
@@ -104,10 +72,25 @@ echo GridView::widget([
         ]
     ],
     'pjax' => true,
-    'panelHeadingTemplate' => false
+    'filterPosition' => '',
+    'panelHeadingTemplate' => <<< HTML
+            <div class="pull-right">
+                {extraButtons}
+                {filterButton}
+                {floatThead}
+                {export}
+            </div>
+            <div class="pull-left">
+                {summary}
+            </div>
+            <h3 class="panel-title">
+                {heading}
+            </h3>
+            <div class="clearfix"></div>
+HTML
 ]);
 Pjax::end();
 
-echo $this->render('//layouts/_pjax');
+//echo $this->render('//layouts/_pjax');
 ?>
 
