@@ -3,6 +3,7 @@
  * Main page view for number filling report (/voip/filling)
  *
  * @var Filling $filterModel
+ * @var \yii\web\View $this
  */
 
 use app\classes\grid\GridView;
