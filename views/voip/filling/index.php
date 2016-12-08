@@ -91,6 +91,5 @@ HTML
 ]);
 Pjax::end();
 
-//echo $this->render('//layouts/_pjax');
 ?>
 
