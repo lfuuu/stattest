@@ -16,7 +16,7 @@ class Filling extends Model
     public $dateStart = null;
     public $dateEnd = null;
 
-    public function rules ()
+    public function rules()
     {
         return [
             [['dateStart', 'dateEnd'], 'trim'],
@@ -31,18 +31,14 @@ class Filling extends Model
      * @param array $get
      * @return bool
      */
-    public function load (array $get)
+    public function load(array $get)
     {
-        if (isset($get['date'], $get['number']))
-        {
+        if (isset($get['date'], $get['number']) && strpos(':', $get['date']) !== false) {
             list($get['dateStart'], $get['dateEnd']) = explode(':', $get['date']);
             parent::load($get, '');
-            if ($this->validate())
-            {
+            if ($this->validate()) {
                 return true;
-            }
-            else
-            {
+            } else {
                 throw new InvalidArgumentException('Не все параметры введены корректно');
             }
         }
@@ -54,7 +50,7 @@ class Filling extends Model
      *
      * @return SqlDataProvider
      */
-    public function getFilling ()
+    public function getFilling()
     {
         return new SqlDataProvider([
             'db' => 'dbPgSlave',
@@ -96,10 +92,11 @@ class Filling extends Model
                         gs.gs",
             'params' => [
                 ':number' => $this->number,
-                ':date_start'   => $this->dateStart,
-                ':date_end'   => $this->dateEnd
+                ':date_start' => $this->dateStart,
+                ':date_end' => $this->dateEnd
             ],
             'pagination' => false,
-            'sort' => false]);
+            'sort' => false
+        ]);
     }
 }

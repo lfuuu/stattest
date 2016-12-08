@@ -33,7 +33,7 @@ class FillingController extends BaseController
      *
      * @return string
      */
-    public function actionIndex ()
+    public function actionIndex()
     {
         $model = new Filling();
         $model->load(Yii::$app->request->get());
