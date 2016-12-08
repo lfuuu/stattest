@@ -33,7 +33,7 @@ class Filling extends Model
      */
     public function load (array $get)
     {
-        if (isset($get['date']) && isset($get['number']))
+        if (isset($get['date'], $get['number']))
         {
             list($get['dateStart'], $get['dateEnd']) = explode(':', $get['date']);
             parent::load($get, '');
