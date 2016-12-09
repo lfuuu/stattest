@@ -47,10 +47,10 @@ if ($formModel->IsNeedToSelectClient || !$clientAccount) {
 
 if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
     if ($accountTariff->isNewRecord) {
-        Yii::$app->session->setFlash('error', 'Универсальную услугу можно добавить только аккаунту, тарифицируемому универсально.');
+        Yii::$app->session->setFlash('error', 'Универсальную услугу можно добавить только ЛС, тарифицируемому универсально.');
         return;
     }
-    Yii::$app->session->setFlash('error', 'Универсальную услугу можно редактировать только у аккаунта, тарифицируемого универсально. Все ваши изменения будут затерты конвертером из старых услуг.');
+    Yii::$app->session->setFlash('error', 'Универсальную услугу можно редактировать только у ЛС, тарифицируемого универсально. Все ваши изменения будут затерты конвертером из старых услуг.');
     $isReadOnly = true;
 }
 ?>

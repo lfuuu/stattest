@@ -409,7 +409,7 @@ class UuController extends ApiInternalController
      *
      * @SWG\Definition(definition = "accountTariffRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID"),
-     *   @SWG\Property(property = "client_account_id", type = "integer", description = "ID аккаунта клиента"),
+     *   @SWG\Property(property = "client_account_id", type = "integer", description = "ID ЛС"),
      *   @SWG\Property(property = "service_type", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "region", type = "object", description = "Регион (кроме телефонии)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "city", type = "object", description = "Город (только для телефонии)", ref = "#/definitions/idNameRecord"),
@@ -425,7 +425,7 @@ class UuController extends ApiInternalController
      *
      * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-account-tariffs", summary = "Список услуг у клиента", operationId = "Список услуг у клиента",
      *   @SWG\Parameter(name = "id", type = "integer", description = "ID", in = "query"),
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID аккаунта клиента", in = "query"),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query"),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query"),
      *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона (кроме телефонии)", in = "query"),
      *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "query"),
@@ -501,7 +501,7 @@ class UuController extends ApiInternalController
      * ),
      *
      * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-account-tariffs-voip", summary = "Сгруппированный список услуг телефонии у клиента", operationId = "Сгруппированный список услуг телефонии у клиента",
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID аккаунта клиента", in = "query"),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query"),
      *
      *   @SWG\Response(response = 200, description = "Сгруппированный список услуг телефонии у клиента",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/grouppedAccountTariffVoipRecord"))
@@ -544,7 +544,7 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Put(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/add-account-tariff", summary = "Добавить услугу клиенту", operationId = "Добавить услугу клиенту",
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID аккаунта клиента", in = "formData", required = true),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "formData", required = true),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true),
      *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указан, то с сегодня. Если с сегодня, то отменить нельзя - можно только закрыть с завтра", in = "formData"),
@@ -1273,10 +1273,10 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property="vm_user_password", type="string", description="Пароль юзера в VM manager"),
      * ),
      *
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VM collocation аккаунта", operationId = "Информация о VM collocation аккаунта",
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID аккаунта клиента", in = "query"),
+     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VM collocation ЛС", operationId = "Информация о VM collocation ЛС",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query"),
      *
-     *   @SWG\Response(response = 200, description = "Информация о VM collocation аккаунта",
+     *   @SWG\Response(response = 200, description = "Информация о VM collocation ЛС",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/vmCollocationRecord"))
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",

@@ -77,7 +77,7 @@ if (!$serviceType) {
                         Yii::t('common', '(not set)') ?></div>
             </div>
 
-            <?php // аккаунт ?>
+            <?php // ЛС ?>
             <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('client_account_id') ?></label>
                 <div><?= $accountTariff->clientAccount->getLink() ?></div>

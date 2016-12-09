@@ -474,7 +474,7 @@ class AccountTariff extends ActiveRecord
             if ($dateTo) {
                 $dateToLimited = $dateTo;
             } else {
-                // текущий день по таймзоне аккаунта
+                // текущий день по таймзоне ЛС
                 $dateToLimited = $chargePeriod->getMaxDateTo($dateFrom, $dateTimeNow);
                 unset($timezoneName, $timezone);
             }
@@ -850,7 +850,7 @@ class AccountTariff extends ActiveRecord
     }
 
     /**
-     * УУ-аккаунт?
+     * УУ-ЛС?
      * @param int $clientAccountId
      * @return bool|null null - нет клиента, false - 4 (старый), true - 5 (УУ)
      */
@@ -870,7 +870,7 @@ class AccountTariff extends ActiveRecord
 
         $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
         if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            Yii::$app->session->setFlash('error', 'Неуниверсальную услугу можно добавить только аккаунту, тарифицируемому неуниверсально.');
+            Yii::$app->session->setFlash('error', 'Неуниверсальную услугу можно добавить только ЛС, тарифицируемому неуниверсально.');
             return true;
         }
 

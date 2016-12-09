@@ -107,7 +107,7 @@ class AccountLogSetupTarificator implements TarificatorI
 
         if ($accountLogFromToTariff->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > 10000 && $accountTariff->number) {
             // телефонный номер кроме телефонной линии (4-5 знаков)
-            // только первое подключение. При смене тарифа на том же аккаунте не считать
+            // только первое подключение. При смене тарифа на том же ЛС не считать
             $accountLogSetup->price_number = $accountTariff->number->getPrice($tariffPeriod->tariff->currency_id);
             if (is_null($accountLogSetup->price_number)) {
                 throw new \Exception('Не указана стоимость подключения номера ' . $accountTariff->voip_number);

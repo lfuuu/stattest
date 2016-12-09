@@ -192,12 +192,12 @@ class AccountTariffController extends BaseController
             ])
             ->count()
         ) {
-            Yii::$app->session->setFlash('error', 'Аккаунту можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.');
+            Yii::$app->session->setFlash('error', 'ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.');
             return;
         }
 
         if ($clientAccount->contract->business_id != Business::OPERATOR) {
-            Yii::$app->session->setFlash('error', 'Универсальную услугу транка можно добавить только аккаунту с договором Межоператорка.');
+            Yii::$app->session->setFlash('error', 'Универсальную услугу транка можно добавить только ЛС с договором Межоператорка.');
             return;
         }
 
@@ -494,13 +494,13 @@ class AccountTariffController extends BaseController
         }
 
         if ($id) {
-            // редактировали один - на его карточку
+            // редактировали одну услугу - на ее карточку
             return $this->redirect([
                 'edit',
                 'id' => $id,
             ]);
         } else {
-            // редактировали много - на их список
+            // редактировали много услуг одновременно - на их список
             switch ($serviceTypeId) {
                 case ServiceType::ID_TRUNK_PACKAGE_ORIG:
                 case ServiceType::ID_TRUNK_PACKAGE_TERM:

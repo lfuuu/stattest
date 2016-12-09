@@ -35,7 +35,7 @@ class AccountTariffLight extends ActiveRecord
     {
         return [
             'id' => 'ID', // фактически это AccountLogPeriod.id
-            'account_client_id' => 'Аккаунт клиента',
+            'account_client_id' => 'ЛС',
             'tariff_id' => 'Тариф', // не путайте с tariff_period_id
             'activate_from' => 'С',
             'deactivate_from' => 'По',

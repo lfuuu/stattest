@@ -1,7 +1,7 @@
 <?php
 return [
     'id' => 'ID',
-    'client_account_id' => 'Аккаунт',
+    'client_account_id' => 'ЛС',
     'service_type_id' => 'Тип услуги',
     'region_id' => 'Регион',
     'city_id' => 'Город',
