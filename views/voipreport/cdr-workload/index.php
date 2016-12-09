@@ -1,6 +1,6 @@
 <?php
 /**
- * Main page view for number cdr-workload report (/voip/cdr-workload)
+ * Main page view for number cdr-workload report (/voipreport/cdr-workload)
  *
  * @var CdrWorkload $filterModel
  * @var \yii\web\View $this

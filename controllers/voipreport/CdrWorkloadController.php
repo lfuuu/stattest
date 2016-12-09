@@ -3,7 +3,7 @@
  * Controller for number cdr-workload report
  */
 
-namespace app\controllers\voip;
+namespace app\controllers\voipreport;
 
 use app\models\voip\filter\CdrWorkload;
 use Yii;
