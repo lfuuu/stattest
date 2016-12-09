@@ -52,6 +52,12 @@ if (!$operator->isNewRecord) {
             <?= $form->field($operator, 'name')->textInput() ?>
         </div>
 
+        <?php // Кол-во ?>
+        <div class="col-sm-2">
+            <label><?= $operator->getAttributeLabel('cnt') ?></label>
+            <div><?= $operator->cnt ?></div>
+        </div>
+
     </div>
 
     <?php // кнопки ?>

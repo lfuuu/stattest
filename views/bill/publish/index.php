@@ -28,23 +28,68 @@ use app\models\Region;
 <br />
 <a href="./?module=newaccounts&action=bill_publish">Опубликовать счета выставленные в этом месяце</a><br />
 <br />
-<div class="well" style="width: 400px;">
+<div class="well" style="width: 500px;">
     <fieldset>
         <label>Публикация счетов в регионе</label>
         <form action="/bill/publish/region">
             <div class="col-sm-12">
-                <div class="col-sm-6">
+                <div class="col-sm-8">
                     <?php
                     echo Html::dropDownList(
-                        'region',
-                        Region::HUNGARY,
+                        'regionId',
+                        $regionId,
                         ['' => 'Укажите регион'] + Region::getList(),
                         ['class' => 'form-control select2', 'style' => 'width: 160px;',]
                     );
                     ?>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                     <input type="submit" value="Опубликовать" class="btn btn-primary" />
+                </div>
+            </div>
+        </form>
+    </fieldset>
+</div>
+
+<div class="well" style="width: 500px;">
+    <fieldset>
+        <label>Публикация счетов по организации</label>
+        <form action="/bill/publish/organization">
+            <div class="col-sm-12">
+                <div class="col-sm-8">
+                    <?php
+                    echo Html::dropDownList(
+                        'organizationId',
+                        $organizationId,
+                        ['' => 'Выберите организацию'] + \app\models\Organization::dao()->getList(),
+                        ['class' => 'form-control select2', 'style' => 'width: 250px;',]
+                    );
+                    ?>
+                </div>
+                <div class="col-sm-4">
+                    <input type="submit" value="Опубликовать" class="btn btn-primary" />
+                </div>
+            </div>
+        </form>
+    </fieldset>
+</div>
+<div class="well" style="width: 500px;">
+    <fieldset>
+        <label>Обновление баланса по организации</label>
+        <form action="/?module=newaccounts&action=bill_balance_mass" method="post">
+            <div class="col-sm-12">
+                <div class="col-sm-8">
+                    <?php
+                    echo Html::dropDownList(
+                        'organizationId',
+                        $organizationId,
+                        ['' => 'Выберите организацию'] + \app\models\Organization::dao()->getList(),
+                        ['class' => 'form-control select2', 'style' => 'width: 250px;',]
+                    );
+                    ?>
+                </div>
+                <div class="col-sm-4">
+                    <input type="submit" value="Обновить баланс" class="btn btn-primary" />
                 </div>
             </div>
         </form>

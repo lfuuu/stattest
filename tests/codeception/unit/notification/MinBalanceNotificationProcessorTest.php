@@ -125,17 +125,17 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($this->account->lkClientSettings);
         $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 1);
 
-        $this->assertEquals($mockObj->getEvent(), $this->event);
+        $this->assertEquals($mockObj->getEnterEvent(), $this->event);
 
         /** @var \app\models\important_events\ImportantEvents $event */
-        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEvent()]);
+        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEnterEvent()]);
         $this->assertNotNull($event);
         $this->assertNotNull($event->id);
 
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
         $lkNoticeLog = LkNotificationLog::findOne([
             'client_id' => $this->account->id,
-            'event' => $mockObj->getEvent(),
+            'event' => $mockObj->getEnterEvent(),
             'is_set' => 1
         ]);
         $this->assertNotNull($lkNoticeLog);
@@ -174,15 +174,15 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($this->account->lkClientSettings);
         $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 1);
 
-        $this->assertEquals($mockObj->getEvent(), $this->event);
+        $this->assertEquals($mockObj->getEnterEvent(), $this->event);
 
-        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEvent()]);
+        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEnterEvent()]);
         $this->assertNull($event);
 
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
         $lkNoticeLog = LkNotificationLog::findOne([
             'client_id' => $this->account->id,
-            'event' => $mockObj->getEvent(),
+            'event' => $mockObj->getEnterEvent(),
             'is_set' => 1
         ]);
         $this->assertNull($lkNoticeLog);
@@ -217,10 +217,10 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($this->account->lkClientSettings);
         $this->assertEquals($this->account->lkClientSettings->is_min_balance_sent, 0);
 
-        $this->assertEquals($mockObj->getEvent(), $this->event);
+        $this->assertEquals($mockObj->getEnterEvent(), $this->event);
 
         /** @var \app\models\important_events\ImportantEvents $event */
-        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => 'unset_' . $mockObj->getEvent()]);
+        $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => 'unset_' . $mockObj->getEnterEvent()]);
         $this->assertNotNull($event);
 
         /** @var array $eventProperty */
@@ -243,7 +243,7 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         /** @var \app\models\LkNotificationLog $lkNoticeLog */
         $lkNoticeLog = LkNotificationLog::findOne([
             'client_id' => $this->account->id,
-            'event' => $mockObj->getEvent(),
+            'event' => $mockObj->getEnterEvent(),
             'is_set' => 0
         ]);
         $this->assertNotNull($lkNoticeLog);

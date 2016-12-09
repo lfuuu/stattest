@@ -3,7 +3,7 @@ namespace app\modules\nnp\commands;
 
 use app\classes\Connection;
 use app\helpers\DateTimeZoneHelper;
-use app\models\billing\Server;
+use app\models\billing\InstanceSettings;
 use app\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
@@ -601,11 +601,12 @@ SQL;
 
         // синхронизировать данные по региональным серверам
         $sql = "select from event.notify(:table_name, 0, :p_server_id)";
-        $activeQuery = Server::find();
-        foreach ($activeQuery->each() as $server) {
+        $activeQuery = InstanceSettings::find()
+            ->where(['active' => true]);
+        foreach ($activeQuery->each() as $instanceSettings) {
             $this->db->createCommand($sql, [
                 ':table_name' => 'nnp_number_range',
-                ':p_server_id' => $server->id,
+                ':p_server_id' => $instanceSettings->id,
             ])->execute();
         }
     }

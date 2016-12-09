@@ -49,45 +49,83 @@ echo Breadcrumbs::widget([
 <div class="well">
     <?php
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+    ?>
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            ['type' => Form::INPUT_RAW, 'value' => '
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Точка подключения</label>
-                    <input type="text" class="form-control" value="' . $usage->connectionPoint->name . '" readonly>
+                    <input type="text" class="form-control" value="<?= $usage->connectionPoint->name ?>" readonly="readonly" />
                 </div>
-            '],
-            ['type' => Form::INPUT_RAW, 'value' => '
+            </div>
+            <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Страна</label>
-                    <input type="text" class="form-control" value="' . $clientAccount->country->name . '" readonly>
+                    <input type="text" class="form-control" value="<?= $clientAccount->country->name ?>" readonly="readonly" />
                 </div>
-            '],
-            ['type' => Form::INPUT_RAW, 'value' => '
+            </div>
+            <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Валюта</label>
-                    <input type="text" class="form-control" value="' . $clientAccount->currency . '" readonly>
+                    <input type="text" class="form-control" value="<?= $clientAccount->currency ?>" readonly="readonly" />
                 </div>
-            '],
-        ],
-    ]);
+            </div>
+        </div>
+    </div>
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            'trunk_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $trunks, 'options' => ['class' => 'select2']],
-            'actual_from' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'options' => ['autoWidget' => false, 'readonly' => true]],
-            'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className(), 'options' => ['autoWidget' => false, 'readonly' => true]],
-        ],
-    ]);
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <div class="col-sm-7">
+                    <?= $form
+                        ->field($model, 'trunk_id')
+                        ->dropDownList($trunks, ['class' => 'select2'])
+                    ?>
+                </div>
+                <div class="col-sm-5">
+                    <?= $form
+                        ->field($model, 'trunk_type')
+                        ->dropDownList(\app\models\UsageTrunk::$typesOfTrunk)
+                    ?>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <?= $form
+                    ->field($model, 'actual_from')
+                    ->widget(DateControl::className(), ['autoWidget' => false, 'readonly' => true])
+                ?>
+            </div>
+            <div class="col-sm-4">
+                <?= $form
+                    ->field($model, 'actual_to')
+                    ->widget(DateControl::className(), ['autoWidget' => false, 'readonly' => true])
+                ?>
+            </div>
+        </div>
+    </div>
 
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="col-sm-4">
+                <?= Html::label('Оператор:') . ' (' . Html::a($clientAccount->id, ['client/view', 'id' => $clientAccount->id]) . ') ' . $clientAccount->company ?>
+            </div>
+            <div class="col-sm-4">
+                <div class="col-sm-6">
+                    <?= $form->field($model, 'orig_enabled')->checkbox()->label('') ?>
+                </div>
+                <div class="col-sm-6">
+                    <?= $form->field($model, 'term_enabled')->checkbox()->label('') ?>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <?= $form->field($model, 'description')->textInput() ?>
+            </div>
+        </div>
+    </div>
 
+    <?php
+    /*
     echo Form::widget([
         'model' => $model,
         'form' => $form,
@@ -109,16 +147,7 @@ echo Breadcrumbs::widget([
             'term_min_payment' => ['type' => Form::INPUT_TEXT],
         ],
     ]);
-
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            '' => ['type' => Form::INPUT_RAW],
-            'description' => ['type' => Form::INPUT_TEXT],
-        ],
-    ]);
+    */
 
     if ($usage->isActive()):
 

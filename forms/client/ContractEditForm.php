@@ -39,6 +39,8 @@ class ContractEditForm extends Form
         $financial_type,
         $federal_district,
         $is_external,
+        $is_lk_access,
+        $is_partner_login_allow,
 
         $save_comment_stage = false,
         $public_comment = [],
@@ -51,6 +53,9 @@ class ContractEditForm extends Form
     public $historyVersionRequestedDate;
     public $historyVersionStoredDate;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = [
@@ -63,7 +68,8 @@ class ContractEditForm extends Form
                     'business_process_status_id',
                     'super_id',
                     'organization_id',
-                    'contract_type_id'
+                    'contract_type_id',
+                    'is_lk_access',
                 ],
                 'integer'
             ],
@@ -108,6 +114,9 @@ class ContractEditForm extends Form
         return $rules;
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return (new ClientContract())->attributeLabels() + ['comment' => 'Комментарий'];
@@ -121,6 +130,9 @@ class ContractEditForm extends Form
         return $this->contract;
     }
 
+    /**
+     * @throws Exception
+     */
     public function init()
     {
         if ($this->id) {
@@ -156,6 +168,9 @@ class ContractEditForm extends Form
         }
     }
 
+    /**
+     * @return array
+     */
     public function getOrganizationsList()
     {
         $date = date(DateTimeZoneHelper::DATE_FORMAT);
@@ -169,6 +184,10 @@ class ContractEditForm extends Form
         return ArrayHelper::map($organizations, 'organization_id', 'name');
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
     public function save()
     {
         /** @var ClientContract $contract */
@@ -261,16 +280,8 @@ class ContractEditForm extends Form
                 $contragent->hasChecked = true;
             }
             if (!$contragent->validate()) {
-                if (isset($contragent->errors['inn']) && isset($contragent->errors['kpp'])) {
-                    $this->addError('state',
-                        'Введите корректные ИНН и КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                } elseif (isset($contragent->errors['inn'])) {
-                    $this->addError('state',
-                        'Введите корректный ИНН у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                } elseif (isset($contragent->errors['kpp'])) {
-                    $this->addError('state',
-                        'Введите корректный КПП у <a href="/contragent/edit?id=' . $this->contragent_id . '" target="_blank">контрагента</a>');
-                }
+                $this->addError('state', $contragent->getFirstError('inn'));
+                $this->addError('state', $contragent->getFirstError('kpp'));
             }
         }
     }

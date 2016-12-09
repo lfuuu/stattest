@@ -17,6 +17,7 @@ use app\classes\bill\ClientAccountBiller;
 use app\models\Organization;
 use app\models\Business;
 use app\models\User;
+use app\models\Language;
 
 class m_newaccounts extends IModule
 {
@@ -81,9 +82,18 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_balance_mass($fixclient)
     {
-        global $design, $db, $user, $fixclient;
+        global $design;
+
         $design->ProcessEx('errors.tpl');
-        $R = $db->AllRecords("select c.id, c.client, c.currency from clients c where status not in ( 'closed', 'trash', 'once', 'tech_deny', 'double', 'deny') ");
+
+        $clientAccounts = ClientAccount::find()
+            ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]]);
+
+        if (($organizationId = get_param_integer('organizationId'))) {
+            $clientAccounts->leftJoin(['cc' => \app\models\ClientContract::tableName()], 'cc.id = '.ClientAccount::tableName().'.contract_id');
+            $clientAccounts->andWhere(['cc.organization_id' => $organizationId]);
+        }
+
         set_time_limit(0);
         session_write_close();
 
@@ -91,11 +101,11 @@ class m_newaccounts extends IModule
             ob_end_clean();
         }
 
-
-        foreach ($R as $r) {
-            echo date("d-m-Y H:i:s") . ": " . $r['client'];
+        /** @var ClientAccount $clientAccount */
+        foreach ($clientAccounts->each() as $clientAccount) {
+            echo date("d-m-Y H:i:s") . ": " . $clientAccount->id . ' ' . $clientAccount->currency;
             try {
-                ClientAccount::dao()->updateBalance($r['id']);
+                ClientAccount::dao()->updateBalance($clientAccount);
             } catch (Exception $e) {
                 echo "<h1>!!! " . $e->getMessage() . "</h1>";
             }
@@ -820,6 +830,20 @@ class m_newaccounts extends IModule
         }
         $design->assign('available_documents', $documents);
 
+        if ($r->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            $listOfInvoices = [];
+            foreach(Language::getList() as $languageCode => $languageTitle) {
+                $listOfInvoices[] = [
+                    'langCode' => $languageCode,
+                    'langTitle' => $languageTitle,
+                    'langFlag' => explode('-', $languageCode)[0],
+                    'number' => $newbill->bill_no,
+                    'month' => substr($newbill->bill_date, 0, 7),
+                ];
+            }
+            $design->assign('listOfInvoices', $listOfInvoices);
+        }
+
         $design->AddMain('newaccounts/bill_view.tpl');
 
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='" . $bill_no . "'");
@@ -832,6 +856,11 @@ class m_newaccounts extends IModule
     }
 
     function get_bill_docs(Bill &$bill, $L = null)
+    {
+        return self::get_bill_docs_static($bill, $L);
+    }
+
+    static function get_bill_docs_static(Bill &$bill, $L = null)
     {
         $bill_akts = $bill_invoices = $bill_upd = array();
 
@@ -1341,14 +1370,15 @@ class m_newaccounts extends IModule
             'Уведомление о назначении: ' => array("notice"),
             'УПД: ' => array('upd-1', 'upd-2', 'upd-3'),
             'Уведомление о передачи прав: ' => array('notice_mcm_telekom'),
-            'Соглашение о передачи прав: ' => array('sogl_mcm_telekom')
+            'Соглашение о передачи прав: ' => array('sogl_mcm_telekom'),
+            'Соглашение о передачи прав (МСМ=>МСН Ретайл): ' => array('sogl_mcn_telekom'),
         );
 
         foreach ($D as $k => $rs) {
             foreach ($rs as $r) {
                 if (get_param_protected($r)) {
 
-                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom') {
+                    if ($r === 'notice_mcm_telekom' || $r === 'sogl_mcm_telekom' || $r === 'sogl_mcn_telekom') {
                         $is_pdf = 1;
                     }
 
@@ -1560,7 +1590,7 @@ class m_newaccounts extends IModule
             'upd-3'
         ));
         $L = array_merge($L, array('akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3'));
-        $L = array_merge($L, array('nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom'));
+        $L = array_merge($L, array('nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom'));
 
         //$L = array("invoice-1");
 
@@ -1617,8 +1647,8 @@ class m_newaccounts extends IModule
 
                 $d = $this->get_bill_docs($bill);
 
-                $isAkt1 = $d[1][1];
-                $isAkt2 = $d[1][2];
+                $isAkt1 = $d[0][1];
+                $isAkt2 = $d[0][2];
 
             }
             //$design->assign('bill',$bb);
@@ -1862,15 +1892,9 @@ class m_newaccounts extends IModule
                 $this->_print_receipt();
                 break;
             }
-            case 'notice_mcm_telekom': {
-                if ($billModel) {
-                    $report = DocumentReportFactory::me()->getReport($billModel, $obj);
-                    echo $is_pdf ? $report->renderAsPDF() : $report->render();
-                    exit;
-                }
-                break;
-            }
-            case 'sogl_mcm_telekom': {
+            case 'notice_mcm_telekom':
+            case 'sogl_mcm_telekom':
+            case 'sogl_mcn_telekom': {
                 if ($billModel) {
                     $report = DocumentReportFactory::me()->getReport($billModel, $obj);
                     echo $is_pdf ? $report->renderAsPDF() : $report->render();
@@ -2668,7 +2692,9 @@ class m_newaccounts extends IModule
             $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
 
 
-            $clientAccount = ClientAccount::findOne($account['id'])->loadVersionOnDate($bill->Get('bill_date'));
+            $clientAccount = ClientAccount::findOne($account['id'])
+                ->loadVersionOnDate($bill->Get('bill_date'));
+
             /** @var ClientAccount $clientAccount */
             $organization = $clientAccount->contract->organization;
 
@@ -2790,11 +2816,11 @@ class m_newaccounts extends IModule
                     "colspan" => 1
                 ],
                 "telekom" => [
-                    "title" => "МС( Н )Телеком",
+                    "title" => "МСН Телеком",
                     "colspan" => 1
                 ],
                 "mcm_telekom" => [
-                    "title" => "МС(_М_) Телеком",
+                    "title" => "МСН Телеком Ритейл",
                     "colspan" => 1
                 ],
                 "sber_online" => [
@@ -3175,6 +3201,21 @@ where cg.inn = '" . $inn . "'";
 
             $pay["bill_no"] = $billNo;
             $pay["clients"] = $this->getClient($clientIdSum);
+
+            $pay['from_str'] = implode(
+                "<br />",
+                array_map(
+                    function ($key, $value) {
+                        $names = [
+                            'bik' => "БИК",
+                            'account' => "р/с",
+                            'a2' => "БАНК"
+                        ];
+                        return (isset($names[$key]) ? $names[$key] : $key) . ": " . $value;
+                    },
+                    array_keys($pay['from']),
+                    $pay['from']
+                ));
 
 
             if ($clientIdSum) {
@@ -4216,11 +4257,12 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $date_from = $dateFrom->getDay();
         $date_to = $dateTo->getDay();
 
-        $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $fixclient_data['id'],
-            $date_from);
+        /** @var ClientAccount $clientData */
+        $clientData = ClientAccount::findOne(['id' => $fixclient_data['id']])
+            ->loadVersionOnDate($date_from);
 
         //** Todo:  */
-        $organization = Organization::find()->byId($c->contract->organization_id)->actual($date_to)->one();
+        $organization = Organization::find()->byId($clientData->contract->organization_id)->actual($date_to)->one();
         $design->assign('firma', $organization->getOldModeInfo());
         $design->assign('firm_director', $organization->director->getOldModeInfo());
         $design->assign('firm_buh', $organization->accountant->getOldModeInfo());
@@ -4238,7 +4280,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $R[0] = array('type' => 'saldo', 'date' => $date_from_val, 'sum_outcome' => $startsaldo);
         $B = array();
 
-        $W = array('AND', 'P.client_id="' . $fixclient_data['id'] . '"', 'P.currency="' . $c->currency . '"');
+        $W = array('AND', 'P.client_id="' . $fixclient_data['id'] . '"', 'P.currency="' . $clientData->currency . '"');
         if ($saldo) {
             $W[] = 'P.payment_date>="' . $saldo['ts'] . '"';
         }
@@ -4392,13 +4434,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         );
 
 
-        $period_client_data = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(),
-            $fixclient_data['id'], $date_from);
-        $design->assign("company_full", $period_client_data["company_full"]);
-        $design->assign("client_id", $fixclient_data['id']);
+        $design->assign("company_full", $clientData->company_full);
+        $design->assign("client_id", $clientData->id);
 
-        $contractId = ClientAccount::findOne($fixclient_data['id'])->contract_id;
-        $design->assign("last_contract", BillContract::getLastContract($contractId, $date_from_val));
+        $design->assign("last_contract", BillContract::getLastContract($clientData->contract_id, $date_from_val));
         $design->assign('data', $R);
         $design->assign('zalog', $zalog);
         $design->assign('sum_bill', $S_b);
@@ -4406,7 +4445,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $design->assign('sum_zalog', $S_zalog);
         $design->assign('ressaldo', $ressaldo);
         $design->assign('formula', $formula);
-        $design->assign('currency', $c->currency);
+        $design->assign('currency', $clientData->currency);
 
         $fullscreen = get_param_protected('fullscreen', 0);
         $is_pdf = get_param_protected('is_pdf', 0);
@@ -4431,10 +4470,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             //Create file
             $V = array(
                 'name' => str_replace(array('"'), "",
-                        $period_client_data["company_full"]) . ' Акт сверки (на ' . $date_to . ').pdf',
+                        $clientData["company_full"]) . ' Акт сверки (на ' . $date_to . ').pdf',
                 'ts' => array('NOW()'),
                 'contract_id' => $fixclient_data['contract_id'],
-                'comment' => $period_client_data["company_full"] . ' Акт сверки (на ' . $date_to . ')',
+                'comment' => $clientData["company_full"] . ' Акт сверки (на ' . $date_to . ')',
                 'user_id' => $user->Get('id')
             );
             $id = $db->QueryInsert('client_files', $V);
@@ -4650,8 +4689,9 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             $A['inv_date'];
 
                         // get property from history
-                        $c = \app\models\HistoryVersion::getVersionOnDate(ClientAccount::className(), $p['client_id'],
-                            date('Y-m-d', $invDate));
+                        $c = ClientAccount::findOne(['id' => $p['client_id']])
+                            ->loadVersionOnDate(date('Y-m-d', $invDate));
+
                         $p['company_full'] = trim($c['company_full']);
                         $p['inn'] = $c['inn'];
                         $p['kpp'] = $c['kpp'];

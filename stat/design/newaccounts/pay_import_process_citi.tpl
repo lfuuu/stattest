@@ -37,13 +37,14 @@
                 {if $pay.sum > 0}<br /><br />{/if}
                 Платеж &#8470;{$pay.noref} от {$pay.date}
                 {if $pay.inn}<br /><span style="color: #AAA;">ИНН {$pay.inn}</span>{/if}
+                <br /><div style="font-size: xx-small; color: gray;">{$pay.from_str}</div>
                 {if isset($pay.to_check) && $pay.to_check}<div style="color:#C40000;font: bold 8pt sans-serif;">Внимание! Компания платильшик и компания, вледелец счета не совпадаю!</div>{/if}
                 {if isset($pay.to_check_bill_only) && $pay.to_check_bill_only}<br /><br /><div style="color:#C40000;font: bold 8pt sans-serif;">Внимание! Компания&nbsp;найдена&nbsp;по&nbsp;счету</div>{/if}
                 {if !$pay.clients || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)}
                     {if !isset($pay.to_check_bill_only) || !$pay.to_check_bill_only}<br /><br />{/if}
                     <span style="color: gray;">р/с: {$pay.from.account} <br />бик: {$pay.from.bik}</span>
                 {/if}
-                <br /><br /><br /><span style="font-size:7pt;" title="{$pay.company|escape}">{$pay.company|truncate:35}</span>
+                <br /><br /><span style="font-size:7pt;" title="{$pay.company|escape}">{$pay.company|truncate:35}</span>
                 <input type="hidden" name="pay[{$pay.no}][pay]" value="{$pay.noref}" />
                 <input type="hidden" name="pay[{$pay.no}][date]" value="{$pay.date}" />
                 <input type="hidden" name="pay[{$pay.no}][oper_date]" value="{$pay.oper_date}" />

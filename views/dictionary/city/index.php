@@ -15,6 +15,7 @@ use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\models\City;
 use app\models\filter\CityFilter;
+use app\widgets\GridViewSequence\GridViewSequence;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
@@ -81,7 +82,7 @@ $columns = [
 
 ];
 
-echo GridView::widget([
+echo GridViewSequence::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/dictionary/city/new/']),

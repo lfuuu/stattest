@@ -23,15 +23,16 @@ $rewards = $contract->getModel()->getRewards($usageType);
 <table class="table table-hover" width="100%">
     <colgroup>
         <col width="180" />
-        <col width="180" />
-        <col width="180" />
+        <col width="160" />
+        <col width="160" />
+        <col width="160" />
         <col width="200" />
         <col width="50" />
         <col width="510" />
     </colgroup>
     <thead>
         <tr>
-            <th colspan="6" class="text-center"><?= ClientContractReward::$usages[$usageType] ?></th>
+            <th colspan="7" class="text-center"><?= ClientContractReward::$usages[$usageType] ?></th>
         </tr>
         <tr>
             <td>
@@ -56,6 +57,13 @@ $rewards = $contract->getModel()->getRewards($usageType);
                 <?= $form
                     ->field($model, 'once_only', [
                         'addon' => ['append' => ['content' => Currency::symbol(Currency::RUB)]],
+                    ])
+                ?>
+            </td>
+            <td>
+                <?= $form
+                    ->field($model, 'percentage_once_only', [
+                        'addon' => ['append' => ['content' => '%']],
                     ])
                 ?>
             </td>
@@ -115,6 +123,7 @@ $rewards = $contract->getModel()->getRewards($usageType);
                     <?= ($reward->isEditable() ? $this->render('//layouts/_actionEdit', ['url' => 'javascript:void(0)']) : '') ?>
                 </td>
                 <td data-field="once_only"><?= $reward->once_only ?></td>
+                <td data-field="percentage_once_only"><?= $reward->percentage_once_only ?></td>
                 <td data-field="percentage_of_fee"><?= $reward->percentage_of_fee ?></td>
                 <td data-field="period_type" data-value="<?= $reward->period_type ?>">
                     <?= ClientContractReward::$period[$reward->period_type] ?>

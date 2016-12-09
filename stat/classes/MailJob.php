@@ -135,14 +135,20 @@ class MailJob {
             case 'NOTICE_MCM': {
                 return
                     'Уведомление о передаче прав и обязанностей по договору №' .
-                    BillContract::getString($this->client['id'], time()) . ': ' .
+                    BillContract::getString($this->client['contract_id'], time()) . ': ' .
                     $this->get_object_link('notice_mcm_telekom', $this->client['id']);
             }
             case 'SOGL_MCM': {
                 return
                     'Соглашение о передаче прав и обязанностей по договору №' .
-                    BillContract::getString($this->client['id'], time()) . ': ' .
+                    BillContract::getString($this->client['contract_id'], time()) . ': ' .
                     $this->get_object_link('sogl_mcm_telekom', $this->client['id']);
+            }
+            case 'SOGL_MCN': {
+                return
+                    'Соглашение о передаче прав и обязанностей по договору №' .
+                    BillContract::getString($this->client['contract_id'], time()) . ': ' .
+                    $this->get_object_link('sogl_mcn_telekom', $this->client['id']);
             }
         }
         return '';
@@ -195,32 +201,49 @@ class MailJob {
 
 		$rows = $db->AllRecords($query,null,MYSQL_ASSOC);
 
-		foreach($rows as $r){//while($r = $db->NextRecord()){
-			if(strlen($T)>0)
-				$T .= "\n";
-			$T .=
-				"Счет ".$r['bill_no']. // номер счета
-				$s1. // от
-				date('d.m.Y',strtotime($r['bill_date'])). // дата счета
-				$s2. // г.
-				$this->get_object_link('bill',$r['bill_no']); // вот тут косяк. Здешняя библиотека sql не готова к таким зигзагам. Если счетов больше чем 1 - будет выход из цикла.
+		foreach($rows as $r) {//while($r = $db->NextRecord()){
+            if (strlen($T) > 0) {
+                $T .= "\n";
+            }
+            $T .=
+                "Счет " . $r['bill_no'] . // номер счета
+                $s1 . // от
+                date('d.m.Y', strtotime($r['bill_date'])) . // дата счета
+                $s2 . // г.
+                $this->get_object_link('bill',
+                    $r['bill_no']); // вот тут косяк. Здешняя библиотека sql не готова к таким зигзагам. Если счетов больше чем 1 - будет выход из цикла.
 
             $bill = new Bill($r["bill_no"]);
-            list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs($bill);
+            $modelBill = \app\models\Bill::findOne(['bill_no' => $r['bill_no']]);
+
+            $organization = $modelBill->clientAccount->getOrganization($r['bill_date']);
+
+            list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs_static($bill);
             /*
             if($b_sf[1]) $T .="\nСчет-фактура ".$r['bill_no']."-1: ".$this->get_object_link('invoice',$r['bill_no'],1);
             if($b_sf[2]) $T .="\nСчет-фактура ".$r['bill_no']."-2: ".$this->get_object_link('invoice',$r['bill_no'],2);
             if($b_sf[3]) $T .="\nСчет-фактура ".$r['bill_no']."-3: ".$this->get_object_link('invoice',$r['bill_no'],3);
             if($b_sf[5]) $T .="\nСчет-фактура ".$r['bill_no']."-4: ".$this->get_object_link('invoice',$r['bill_no'],5);
             if($b_sf[6]) $T .="\nСчет-фактура ".$r['bill_no']."-5: ".$this->get_object_link('invoice',$r['bill_no'],6);
+            */
 
-            if($b_akt[1]) $T .="\nАкт ".$r['bill_no']."-1: ".$this->get_object_link('akt',$r['bill_no'],1);
-            if($b_akt[2]) $T .="\nАкт ".$r['bill_no']."-2: ".$this->get_object_link('akt',$r['bill_no'],2);
-            if($b_akt[3]) $T .="\nАкт ".$r['bill_no']."-3: ".$this->get_object_link('akt',$r['bill_no'],3);
-             */
+            if ($organization->is_simple_tax_system) {
+                if ($b_akt[1]) {
+                    $T .= "\nАкт " . $r['bill_no'] . "-1: " . $this->get_object_link('akt', $r['bill_no'], 1);
+                }
+                if ($b_akt[2]) {
+                    $T .= "\nАкт " . $r['bill_no'] . "-2: " . $this->get_object_link('akt', $r['bill_no'], 2);
+                }
+                //if($b_akt[3]) $T .="\nАкт ".$r['bill_no']."-3: ".$this->get_object_link('akt',$r['bill_no'],3);
+            } else {
+                if ($b_upd[1]) {
+                    $T .= "\nУПД " . $r['bill_no'] . "-1: " . $this->get_object_link('upd', $r['bill_no'], 1);
+                }
+                if ($b_upd[2]) {
+                    $T .= "\nУПД " . $r['bill_no'] . "-2: " . $this->get_object_link('upd', $r['bill_no'], 2);
+                }
+            }
 
-            if($b_upd[1]) $T .="\nУПД ".$r['bill_no']."-1: ".$this->get_object_link('upd',$r['bill_no'],1);
-            if($b_upd[2]) $T .="\nУПД ".$r['bill_no']."-2: ".$this->get_object_link('upd',$r['bill_no'],2);
 
             if($b_sf[4]) $T .="\nТоварная накладная ".$r['bill_no'].": ".$this->get_object_link('lading',$r['bill_no']);
 
@@ -252,6 +275,7 @@ class MailJob {
 		$text = preg_replace_callback('/%(SOGL_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(NOTICE_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
         $text = preg_replace_callback('/%(SOGL_MCM)_TELEKOM%/',array($this,'_get_assignments'),$text);
+        $text = preg_replace_callback('/%(SOGL_MCN)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		if($format=='html'){
 			$text = nl2br(htmlspecialchars_($text));
 		}

@@ -17,7 +17,7 @@ class PaymentAddEvent extends UnknownEvent
             'date' => DateProperty::class,
             'client' => ClientProperty::class,
             'balance' => BalanceProperty::class,
-            'sum' => SummaryProperty::class,
+            'value' => SummaryProperty::class,
             'currency' => CurrencyProperty::class,
             'user_id' => UserProperty::class,
         ];

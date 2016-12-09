@@ -45,14 +45,35 @@ class VoipBiller extends Biller
 
         // Фильтруем. Только реальные смены тарифов
         $filteredTariffList = [];
-        $prevTariffId = null;
+        $prevLogTariff = null;
+
         /** @var LogTarif $logTariff */
-        foreach($logTariffList as $activationDate => $logTariff) {
-            if ($prevTariffId != $logTariff->id_tarif) {
+        /** @var LogTarif $prevLogTariff */
+
+        foreach ($logTariffList as $activationDate => $logTariff) {
+            if (!$prevLogTariff
+                || $prevLogTariff->id_tarif != $logTariff->id_tarif
+                || $prevLogTariff->minpayment_group != $logTariff->minpayment_group
+                || $prevLogTariff->minpayment_local_mob != $logTariff->minpayment_local_mob
+                || $prevLogTariff->minpayment_russia != $logTariff->minpayment_russia
+                || $prevLogTariff->minpayment_intern != $logTariff->minpayment_intern
+                || $prevLogTariff->minpayment_sng != $logTariff->minpayment_sng
+            ) {
                 $filteredTariffList[$activationDate] = $logTariff;
+                $prevLogTariff = $logTariff;
             }
-            $prevTariffId = $logTariff->id_tarif;
         }
+
+        /** @var LogTarif $logTariff */
+
+//        $prevTariffId = null;
+//        foreach($logTariffList as $activationDate => $logTariff) {
+//            if ($prevTariffId != $logTariff->id_tarif) {
+//                $filteredTariffList[$activationDate] = $logTariff;
+//            }
+//            $prevTariffId = $logTariff->id_tarif;
+//        }
+
 
 
         //Нарезаем лог тарифов. Только за период биллера
@@ -60,28 +81,25 @@ class VoipBiller extends Biller
         $prevTariffId = null;
         $prevActivationDate = null;
         $prevLogTariff = null;
+
+        $startDateDt = $this->billerPeriodFrom < $this->usageActualFrom ? $this->usageActualFrom : $this->billerPeriodFrom;
+        $endDateDt = $this->usageActualTo < $this->billerPeriodTo ? $this->usageActualTo : $this->billerPeriodTo;
+
         foreach($filteredTariffList as $activationDate => $logTariff) {
             $activationDateDt = new \DateTime($activationDate, $this->timezone);
 
             //отбрасываем тарифы, начинающиеся до начала услуги.
-            if ($activationDateDt <= $this->usageActualFrom) {
-                $prevActivationDate = clone $this->billerPeriodFrom;
+            if ($activationDateDt <= $startDateDt) {
+                $prevActivationDate = clone $startDateDt;
                 $prevLogTariff = $logTariff;
                 continue;
             }
 
-            //отбрасываем тарифы, начинающиеся до периода билингации
-            if ($activationDateDt <= $this->billerPeriodFrom) {
-                $prevActivationDate = clone $this->billerPeriodFrom;
-                $prevLogTariff = $logTariff;
-                continue;
-            }
-
-            if ($activationDateDt > $this->billerPeriodTo) {
+            if ($activationDateDt > $endDateDt) {
                 if ($prevActivationDate) {
                     $rangeTariff[] = [
                         'from' => $prevActivationDate,
-                        'to' => clone $this->billerPeriodTo,
+                        'to' => clone $endDateDt,
                         'tariff' => TariffVoip::findOne($prevLogTariff->id_tarif),
                         'logTariff' => $prevLogTariff
                     ];
@@ -108,7 +126,7 @@ class VoipBiller extends Biller
         }
 
         if ($prevActivationDate) {
-            $to = clone $this->billerPeriodTo;
+            $to = clone $endDateDt;
 
             $rangeTariff[] = [
                 'from' => $prevActivationDate,

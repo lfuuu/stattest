@@ -50,6 +50,7 @@ if ($action == 'add_client') {
         'vats_tariff_id' => 'vats_tariff_id',
         'connect_region' => 'connect_region',
         'ip' => 'ip',
+        'entry_point_id' => 'entry_point_id'
     );
 
     $P = [];

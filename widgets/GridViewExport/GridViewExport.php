@@ -160,7 +160,13 @@ class GridViewExport extends GridView
             } elseif ($column instanceof ActionColumn) {
                 $value = '';
             } else {
-                $format = isset($column->format) ? $column->format : 'raw';
+                $format = 'raw';
+                if (isset($column->format)) {
+                    if (is_array($column->format)) {
+                        $column->format = $format;
+                    }
+                    $format = $column->format;
+                }
 
                 if (method_exists($column, 'renderDataCell')) {
                     $value = strip_tags($column->renderDataCell($model, $key, $index));

@@ -40,8 +40,6 @@ use yii\helpers\Url;
  * @property City $city
  * @property DidGroup $didGroup
  * @property UsageVoip $usage
- * @property NumberType $numberType
- * @property TariffNumber $tariff
  * @property ClientAccount $clientAccount
  *
  * @property float originPrice
@@ -174,15 +172,6 @@ class Number extends ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTariff()
-    {
-        return $this->hasOne(TariffNumber::className(), ['city_id' => 'city_id', 'did_group_id' => 'did_group_id']);
-    }
-
-
-    /**
      * @param string|null $currency
      * @return float|null
      */
@@ -194,8 +183,8 @@ class Number extends ActiveRecord
             return null;
         }
 
-        if (!is_null($currency) && $this->tariff->currency != $currency) {
-            if (($tariffCurrencyRate = CurrencyRate::find()->currency($this->tariff->currency)) !== null) {
+        if (!is_null($currency) && $this->didGroup->country->currency_id != $currency) {
+            if (($tariffCurrencyRate = CurrencyRate::find()->currency($this->didGroup->country->currency_id)) !== null) {
                 $price *= $tariffCurrencyRate->rate;
             }
 
@@ -226,10 +215,7 @@ class Number extends ActiveRecord
      */
     public function getOriginPrice()
     {
-        if (!$this->tariff) {
-            throw new \Exception('Не указана стоимость подключения номера ' . $this->number);
-        }
-        return $this->tariff->activation_fee;
+        return (float)$this->didGroup->price1;
     }
 
     /**
@@ -240,7 +226,7 @@ class Number extends ActiveRecord
         $formattedResult = new NumberPriceLight;
         try {
             $formattedResult->setAttributes([
-                'currency' => $this->tariff->currency->id,
+                'currency' => $this->didGroup->country->currency_id,
                 'price' => $this->originPrice,
             ]);
         } catch (\Exception $e) {
@@ -266,7 +252,7 @@ class Number extends ActiveRecord
      */
     public static function getUrlById($id)
     {
-        return Url::to(['/voip/number/edit', 'id' => $id]);
+        return Url::to(['/voip/number/view', 'did' => $id]);
     }
 
     /**
@@ -285,5 +271,25 @@ class Number extends ActiveRecord
             }
         }
         return '';
+    }
+
+    /**
+     * Получаем лог изменений состояния номера
+     *
+     * @return array
+     */
+    public function getChangeStatusLog()
+    {
+        return self::dao()->getChangeStateLog($this);
+    }
+
+    /**
+     * Является ли номер, номером 7800
+     *
+     * @return bool
+     */
+    public function is7800()
+    {
+        return (strpos($this->number, "7800") === 0);
     }
 }

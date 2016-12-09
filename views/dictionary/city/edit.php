@@ -63,7 +63,7 @@ if (!$city->isNewRecord) {
         <div class="col-sm-3">
             <?= $form->field($city, 'country_id')
                 ->widget(Select2::className(), [
-                    'data' => Country::getList($city->isNewRecord),
+                    'data' => Country::getList($isWithEmpty = $city->isNewRecord),
                 ]) ?>
         </div>
 
@@ -71,7 +71,7 @@ if (!$city->isNewRecord) {
         <div class="col-sm-3">
             <?= $form->field($city, 'connection_point_id')
                 ->widget(Select2::className(), [
-                    'data' => Region::dao()->getList($city->isNewRecord),
+                    'data' => Region::dao()->getList($isWithEmpty = $city->isNewRecord),
                 ]) ?>
         </div>
 

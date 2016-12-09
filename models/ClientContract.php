@@ -24,7 +24,8 @@ use app\models\media\ClientFiles;
  * @property string financial_type
  * @property string federal_district
  * @property string is_external
- * @property string lk_access
+ * @property int is_lk_access
+ * @property int is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
  * @property ClientContragent contragent
  * @property Organization $organization
  * @property ClientMedia mediaManager
@@ -44,9 +45,8 @@ class ClientContract extends HistoryActiveRecord
     const IS_EXTERNAL = 'external';
     const IS_INTERNAL = 'internal';
 
-    const LK_ACCESS_FULL = 'full';
-    const LK_ACCESS_READONLY = 'readonly';
-    const LK_ACCESS_NO = 'noaccess';
+    const IS_LK_ACCESS_YES = 1;
+    const IS_LK_ACCESS_NO = 0;
 
     public $newClient = null;
 
@@ -80,10 +80,18 @@ class ClientContract extends HistoryActiveRecord
     ];
 
     public static $lkAccess = [
-        self::LK_ACCESS_FULL => 'Полный доступ',
-        self::LK_ACCESS_READONLY => 'readonly',
-        self::LK_ACCESS_NO => 'noaccess',
+        self::IS_LK_ACCESS_YES => 'Да',
+        self::IS_LK_ACCESS_NO => 'Нет',
     ];
+
+    public
+        $attributesAllowedForVersioning = [
+        'organization_id',
+        'business_id',
+        'business_process_id',
+        'business_process_status_id',
+    ];
+
 
     public static function tableName()
     {
@@ -106,7 +114,8 @@ class ClientContract extends HistoryActiveRecord
             'federal_district' => 'Федеральный округ (ФО)',
             'contragent_id' => 'Контрагент',
             'is_external' => 'Внешний договор',
-            'lk_access' => 'Доступ к ЛК'
+            'is_lk_access' => 'Доступ к ЛК',
+            'is_partner_login_allow' => 'Доступ партнеру в ЛК',
         ];
     }
 
@@ -187,7 +196,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getOrganization($date = '')
     {
-        $date = $this->historyVersionRequestedDate ? $this->historyVersionRequestedDate : ($date ?: date(DateTimeZoneHelper::DATE_FORMAT));
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: date(DateTimeZoneHelper::DATE_FORMAT));
         $organization = Organization::find()->byId($this->organization_id)->actual($date)->one();
         return $organization;
     }
@@ -211,11 +220,13 @@ class ClientContract extends HistoryActiveRecord
     /**
      * @return ClientContragent
      */
-    public function getContragent()
+    public function getContragent($date = '')
     {
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
+
         $contragent = ClientContragent::findOne($this->contragent_id);
-        if ($contragent && $this->historyVersionRequestedDate) {
-            $contragent->loadVersionOnDate($this->historyVersionRequestedDate);
+        if ($contragent && $date) {
+            $contragent->loadVersionOnDate($date);
         }
         return $contragent;
     }
@@ -359,8 +370,20 @@ class ClientContract extends HistoryActiveRecord
         return [];
     }
 
+    /**
+     * @return bool
+     */
     public function isPartner()
     {
         return $this->business_id == Business::PARTNER;
     }
+
+    /**
+     * @return int
+     */
+    public function isPartnerAgent()
+    {
+        return $this->contragent->partner_contract_id;
+    }
+
 }

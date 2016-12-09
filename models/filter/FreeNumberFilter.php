@@ -7,7 +7,6 @@ use app\models\DidGroup;
 use app\models\light_models\NumberLight;
 use app\models\Number;
 use app\models\NumberType;
-use app\models\TariffNumber;
 use yii\db\Expression;
 
 /**
@@ -35,7 +34,8 @@ class FreeNumberFilter extends Number
      */
     public function init()
     {
-        $this->query = parent::find()->where([parent::tableName() . '.status' => parent::STATUS_INSTOCK]);
+        $this->query = parent::find()
+            ->where([parent::tableName() . '.status' => parent::STATUS_INSTOCK]);
     }
 
     /**
@@ -123,7 +123,9 @@ class FreeNumberFilter extends Number
     public function setMinCost($minCost = null)
     {
         if (!is_null($minCost)) {
-            $this->query->andWhere(['>=', 'tariff1.activation_fee', $minCost])->joinWith('tariff tariff1');
+            $this->query
+                ->joinWith('didGroup didGroup1')
+                ->andWhere(['>=', 'didGroup1.price1', $minCost]);
         }
         return $this;
     }
@@ -135,7 +137,9 @@ class FreeNumberFilter extends Number
     public function setMaxCost($maxCost = null)
     {
         if (!is_null($maxCost)) {
-            $this->query->andWhere(['<=', 'tariff2.activation_fee', $maxCost])->joinWith('tariff tariff2');
+            $this->query
+                ->joinWith('didGroup didGroup2')
+                ->andWhere(['<=', 'didGroup2.price1', $maxCost]);
         }
         return $this;
     }
@@ -259,7 +263,9 @@ class FreeNumberFilter extends Number
      */
     public function orderByPrice($direction = SORT_ASC)
     {
-        $this->query->addOrderBy([TariffNumber::tableName() . '.activation_fee' => $direction])->joinWith('tariff');
+        $this->query
+            ->joinWith('didGroup')
+            ->addOrderBy([DidGroup::tableName() . '.price1' => $direction]);
         return $this;
     }
 

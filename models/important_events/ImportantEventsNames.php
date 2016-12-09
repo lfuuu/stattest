@@ -19,6 +19,8 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_ADD_PAY_NOTIF = 'add_pay_notif';
     const IMPORTANT_EVENT_DAY_LIMIT = 'day_limit';
     const IMPORTANT_EVENT_UNSET_DAY_LIMIT = 'unset_day_limit';
+    const IMPORTANT_EVENT_DAY_LIMIT_MN = 'day_limit_mn';
+    const IMPORTANT_EVENT_UNSET_DAY_LIMIT_MN = 'unset_day_limit_mn';
     const IMPORTANT_EVENT_MIN_DAY_LIMIT = 'min_day_limit';
     const IMPORTANT_EVENT_UNSET_MIN_DAY_LIMIT = 'unset_min_day_limit';
     const IMPORTANT_EVENT_MIN_BALANCE = 'min_balance';

@@ -1,8 +1,10 @@
 <?php
 namespace app\forms\client;
 
+use app\forms\comment\ClientContractCommentForm;
 use app\models\City;
 use app\models\Country;
+use app\models\EntryPoint;
 use app\models\Region;
 use Yii;
 use DateTime;
@@ -60,8 +62,13 @@ class ClientCreateExternalForm extends Form
     public $isCreated = null;
 
     public $ip = "";
-    public $connect_region = "";
+    public $connect_region = Region::MOSCOW;
     public $account_version = "";
+
+    public $entry_point_id = "";
+
+    /** @var EntryPoint $entryPoint */
+    private $entryPoint = null;
 
 
     public function rules()
@@ -94,7 +101,8 @@ class ClientCreateExternalForm extends Form
                     'fax',
                     'address',
                     'comment',
-                    'site_name'
+                    'site_name',
+                    'entry_point_id',
                 ],
                 FormFieldValidator::className()
             ],
@@ -102,8 +110,8 @@ class ClientCreateExternalForm extends Form
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
             [['partner_id', 'account_version'], 'integer'],
             [['partner_id'], 'validatePartnerId'],
-            ['timezone', 'default', 'value' => Region::TIMEZONE_MOSCOW],
-            ['timezone', 'in', 'range' => Region::getTimezoneList()],
+            //['timezone', 'default', 'value' => Region::TIMEZONE_MOSCOW],
+            ['timezone', 'in', 'range' => Region::getTimezoneList() + [""]],
             ['country_id', 'default', 'value' => Country::RUSSIA],
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
@@ -140,7 +148,7 @@ class ClientCreateExternalForm extends Form
         }
 
         if (
-            !(($account = ClientAccount::findOne(['id' => $partnerId])) && ($account->isPartner()))
+        !(($account = ClientAccount::findOne(['id' => $partnerId])) && ($account->isPartner()))
         ) {
             $this->addError($attr, "Партнер не найден");
         }
@@ -170,6 +178,15 @@ class ClientCreateExternalForm extends Form
     public function create()
     {
         $resVats = null;
+
+        $this->entryPoint = EntryPoint::getByIdOrDefault($this->entry_point_id);
+        if (!$this->timezone) {
+            $this->timezone = $this->entryPoint->timezone_name;
+        }
+
+        if (!$this->timezone) {
+            $this->timezone = Region::TIMEZONE_MOSCOW;
+        }
 
         $transaction = Yii::$app->db->beginTransaction();
 
@@ -216,6 +233,11 @@ class ClientCreateExternalForm extends Form
         Yii::info($super);
         $this->super_id = $super->id;
 
+        if ($this->entryPoint) {
+            $super->name = $this->entryPoint->super_client_prefix . $super->id;
+            $super->save();
+        }
+
         $contragent = new \app\forms\client\ContragentEditForm(['super_id' => $super->id]);
         $contragent->name = $contragent->name_full = $this->company;
         $contragent->address_jur = $this->address;
@@ -224,16 +246,30 @@ class ClientCreateExternalForm extends Form
         if ($this->partner_id) {
             $contragent->partner_contract_id = $this->partner_id;
         }
+
+        if ($this->entryPoint) {
+            $contragent->country_id = $this->entryPoint->country_id;
+        }
+
         $contragent->validate();
         $contragent->save();
         $this->contragent_id = $contragent->id;
         Yii::info($contragent);
 
         $contract = new \app\forms\client\ContractEditForm(['contragent_id' => $contragent->id]);
-        $contract->business_id = Business::TELEKOM;
-        $contract->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
-        $contract->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
-        $contract->organization_id = Organization::MCN_TELEKOM;
+
+        if ($this->entryPoint) {
+            $contract->business_id = $this->entryPoint->client_contract_business_id;
+            $contract->business_process_id = $this->entryPoint->client_contract_business_process_id;
+            $contract->business_process_status_id = $this->entryPoint->client_contract_business_process_status_id;
+            $contract->organization_id = $this->entryPoint->organization_id;
+        } else {
+            $contract->business_id = Business::TELEKOM;
+            $contract->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
+            $contract->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
+            $contract->organization_id = Organization::MCN_TELEKOM;
+        }
+
         $contract->validate();
         $contract->save();
         $this->contract_id = $contract->id;
@@ -247,6 +283,27 @@ class ClientCreateExternalForm extends Form
         $account->timezone_name = $this->timezone;
         $account->site_name = $this->site_name;
         $account->account_version = $this->account_version;
+
+        if ($this->entryPoint) {
+            $account->currency = $this->entryPoint->currency_id;
+            $account->is_postpaid = $this->entryPoint->is_postpaid;
+            $account->account_version = $this->entryPoint->account_version;
+            $account->credit = $this->entryPoint->credit;
+            $account->voip_credit_limit_day = $this->entryPoint->voip_credit_limit_day;
+            $account->voip_limit_mn_day = $this->entryPoint->voip_limit_mn_day;
+            $account->status = BusinessProcessStatus::find()
+                ->where(['id' => $this->entryPoint->client_contract_business_process_status_id])
+                ->select('oldstatus')
+                ->scalar();
+
+            if ($this->entryPoint->name) {
+                $comment = new ClientContractCommentForm();
+                $comment->contract_id = $this->contract_id;
+                $comment->comment = $this->entryPoint->name;
+                $comment->save();
+            }
+        }
+
         $account->validate();
 
         $account->save();
@@ -289,7 +346,7 @@ class ClientCreateExternalForm extends Form
 
     private function createTroubleAndWizard()
     {
-        $R = array(
+        $R = [
             'trouble_type' => 'connect',
             'trouble_subtype' => 'connect',
             'client' => "id" . $this->account_id,
@@ -298,10 +355,15 @@ class ClientCreateExternalForm extends Form
             'problem' => "Входящие клиент с сайта" . ($this->site_name ? ' ' . $this->site_name : '') . ": " . $this->company,
             'user_author' => "system",
             'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : '')
-        );
+        ];
 
         $troubleId = StatModule::tt()->createTrouble($R, "system");
-        LkWizardState::create($this->contract_id, $troubleId);
+
+        if ($this->entryPoint) {
+            LkWizardState::create($this->contract_id, $troubleId, $this->entryPoint->wizard_type);
+        } else {
+            LkWizardState::create($this->contract_id, $troubleId);
+        }
 
         return true;
     }
@@ -326,7 +388,7 @@ class ClientCreateExternalForm extends Form
                 $vats->actual_to = $actual_to;
                 $vats->amount = 1;
                 $vats->status = 'connecting';
-                $vats->region = Region::MOSCOW;
+                $vats->region = $this->connect_region;
                 $vats->save();
 
                 $logTarif = new LogTarif;
@@ -369,7 +431,10 @@ class ClientCreateExternalForm extends Form
                                 $form->did = $freeNumber->number;
                             }
                             $form->prepareAdd();
-                            $form->tariff_main_id = VoipReserveNumber::getDefaultTariffId($client->region, $client->currency);
+                            $form->tariff_main_id = VoipReserveNumber::getDefaultTariffId(
+                                $client->region,
+                                $client->currency
+                            );
                             $form->create_params = \yii\helpers\Json::encode([
                                 'vpbx_stat_product_id' => $vats->id,
                             ]);

@@ -70,6 +70,7 @@ class Bill extends ActiveRecord
     {
         return [
             \app\classes\behaviors\HistoryChanges::className(),
+            \app\classes\behaviors\PartnerRewards::className(),
         ];
     }
 
@@ -141,11 +142,19 @@ class Bill extends ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
+     * @return ClientAccount
      */
     public function getClientAccount()
     {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+        $account = ClientAccount::findOne(['id' => $this->client_id]);
+
+        if (!$account) {
+            return null;
+        }
+
+        $account->loadVersionOnDate($this->bill_date);
+
+        return $account;
     }
 
     /**

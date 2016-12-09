@@ -74,7 +74,12 @@ class ClientAccountDao extends Singleton
 
     public function updateBalance($clientAccountId)
     {
-        $clientAccount = ClientAccount::findOne($clientAccountId);
+        if ($clientAccountId instanceof ClientAccount) {
+            $clientAccount = $clientAccountId;
+        } else {
+            $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
+        }
+
         Assert::isObject($clientAccount);
 
         if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
@@ -641,44 +646,51 @@ class ClientAccountDao extends Singleton
                 select id
                 from usage_extra u
                 where u.client = :client and u.actual_to >= :date
-                limit 1
 
                 union all
 
                 select id
                 from usage_welltime u
                 where u.client = :client and u.actual_to >= :date
-                limit 1
 
                 union all
 
                 select id
                 from usage_ip_ports u
                 where u.client = :client and u.actual_to >= :date
-                limit 1
 
                 union all
 
                 select id
                 from usage_sms u
                 where u.client = :client and u.actual_to >= :date
-                limit 1
 
                 union all
 
                 select id
                 from usage_virtpbx u
                 where u.client = :client and u.actual_to >= :date
-                limit 1
 
                 union all
 
                 select id
                 from usage_voip u
                 where u.client = :client and u.actual_to >= :date
-                limit 1
+                
+                union all
+
+                select id
+                from usage_trunk u
+                where u.client_account_id = :client_account_id and u.actual_to >= :date
+                
+                union all
+
+                select id
+                from uu_account_tariff u
+                where u.client_account_id = :client_account_id and tariff_period_id is not null
             ", [
                 ':client' => $clientAccount->client,
+                ':client_account_id' => $clientAccount->id,
                 ':date' => $now->format(DateTimeZoneHelper::DATE_FORMAT),
             ])
                 ->queryOne();

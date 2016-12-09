@@ -8,6 +8,7 @@ use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
+use app\classes\partners\RewardCalculate;
 
 define("NO_WEB", 1);
 define("PATH_TO_ROOT", "../../");
@@ -99,9 +100,9 @@ function do_events()
                     Event::go(Event::CHECK__USAGES);
 
                     /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
-                    if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
-                        Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
-                    }
+//                    if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
+//                        Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
+//                    }
 
                     /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
                     if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {
@@ -275,6 +276,11 @@ function do_events()
                     $isVpbxServer && ApiVpbx::unlockAccount($param['account_id']); // Синхронизировать в Vpbx
                     (new SyncVmCollocation)->enableAccount($param['account_id']); // Синхронизировать в VM manager
                     break;
+
+                case Event::PARTNER_REWARD: {
+                    RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
+                    break;
+                }
             }
 
             $event->setOk();

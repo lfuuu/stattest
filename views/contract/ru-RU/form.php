@@ -1,192 +1,191 @@
 <?php
 
+use kartik\widgets\ActiveForm;
 use app\classes\Html;
-use app\models\ClientContractReward;
 use kartik\widgets\Select2;
 use kartik\builder\Form;
+use app\forms\client\ContractEditForm;
 use app\models\ClientContract;
+use app\models\ContractType;
+use app\models\ClientContractReward;
+use app\models\Business;
+use app\models\BusinessProcess;
+use app\models\BusinessProcessStatus;
 
+/** @var ActiveForm $f */
+/** @var ContractEditForm $model */
+
+$model->federal_district = $model->getModel()->getFederalDistrictAsArray();
 ?>
 
 <div class="row" style="width: 1100px;">
-    <?php
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-4">
+                <?= $f
+                    ->field($model, 'business_id')
+                    ->dropDownList(Business::getList(), [
+                        'disabled' =>
+                            !$model->getIsNewRecord()
+                            && $model->state !== ClientContract::STATE_UNCHECKED
+                            && !Yii::$app->user->can('clients.client_type_change')
+                    ])
+                ?>
+            </div>
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4">
+                <?php
+                if ($model->business_id === Business::PARTNER) {
+                    echo $f
+                        ->field($model, 'is_lk_access')
+                        ->dropDownList(ClientContract::$lkAccess);
+                }
+                ?>
+            </div>
+        </div>
 
-    $model->federal_district = $model->getModel()->getFederalDistrictAsArray();
+        <div class="row">
+            <div class="col-sm-4">
+                <?= $f
+                    ->field($model, 'business_process_id')
+                    ->dropDownList(BusinessProcess::getList(), [
+                        'disabled' =>
+                            !$model->getIsNewRecord()
+                            && $model->state !== ClientContract::STATE_UNCHECKED
+                            && !Yii::$app->user->can('clients.restatus')
+                            && !Yii::$app->user->can('clients.client_type_change')
+                    ])
+                ?>
+            </div>
+            <div class="col-sm-4">
+                <?= $f
+                    ->field($model, 'manager')
+                    ->widget(Select2::className(), [
+                        'data' => [],
+                        'options' => [
+                            'placeholder' => 'Начните вводить фамилию',
+                            'data-current-value' => $model->manager ?: 0,
+                        ],
+                        'pluginOptions' => [
+                            'allowClear' => true
+                        ],
+                    ])
+                ?>
+            </div>
+            <div class="col-sm-4">
+                <?php
+                if ($model->business_id === Business::TELEKOM) {
+                    echo $f
+                        ->field($model, 'is_partner_login_allow')
+                        ->textInput([
+                            'disabled' => true,
+                            'value' => ($model->is_partner_login_allow ? 'Да' : 'Нет')
+                        ]);
+                }
+                ?>
+            </div>
+        </div>
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $f,
-        'columns' => 3,
-        'attributeDefaults' => [
-            'container' => ['class' => 'col-sm-12'],
-            'type' => Form::INPUT_TEXT
-        ],
-        'attributes' => array_merge([
-                'business_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\Business::getList(),
-                    'options' => ['disabled' =>
-                        !$model->getIsNewRecord()
-                        && $model->state != ClientContract::STATE_UNCHECKED
-                        && !Yii::$app->user->can('clients.client_type_change')
-                    ]
-                ],
-                ['type' => Form::INPUT_RAW],
-                [
-                    'type' => Form::INPUT_RAW,
-                    'value' =>  ($model->business_id == \app\models\Business::PARTNER) ? '
-                                <div class="col-sm-12 form-group">
-                                    <label class="control-label" for="">Доступ к ЛК</label>
-                                    '. Html::dropDownList('lk_access', null, ClientContract::$lkAccess, ['disabled' => true, 'class' => 'form-control'])
-                                .'</div>':'',
-                ],
+        <div class="row">
+            <div class="col-sm-4">
+                <?= $f
+                    ->field($model, 'business_process_status_id')
+                    ->dropDownList(BusinessProcessStatus::getList(), [
+                        'disabled' => !Yii::$app->user->can('clients.restatus')
+                    ])
+                ?>
+            </div>
+            <div class="col-sm-4">
+                <?= $f
+                    ->field($model, 'account_manager')
+                    ->widget(Select2::className(), [
+                        'data' => [],
+                        'options' => [
+                            'placeholder' => 'Начните вводить фамилию',
+                            'data-current-value' => $model->account_manager ?: 0,
+                        ],
+                        'pluginOptions' => [
+                            'allowClear' => true
+                        ],
+                    ])
+                ?>
+            </div>
+            <div class="col-sm-4">
+                <?= $f
+                    ->field($model, 'organization_id')
+                    ->dropDownList($model->getOrganizationsList())
+                ?>
+            </div>
+        </div>
 
-                'business_process_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\BusinessProcess::getList(),
-                    'options' => ['disabled' =>
-                        !$model->getIsNewRecord()
-                        && $model->state != ClientContract::STATE_UNCHECKED
-                        && !Yii::$app->user->can('clients.restatus')
-                        && !Yii::$app->user->can('clients.client_type_change')
-                    ]
-                ],
-                'manager' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['manager'] . '</label>'
-                        . Select2::widget([
-                            'model' => $model,
-                            'attribute' => 'manager',
-                            'data' => [],
-                            'options' => [
-                                'placeholder' => 'Начните вводить фамилию',
-                                'data-current-value' => $model->manager ?: 0,
-                            ],
-                            'pluginOptions' => [
-                                'allowClear' => true
-                            ],
-                        ])
-                        . '</div>'
-                ],
-                ['type' => Form::INPUT_RAW],
+        <div class="row">
+            <div class="col-sm-12">
+                <?php
+                if (isset($contragents, $contragentsOptions)) {
+                    echo $f
+                        ->field($model, 'contragent_id')
+                        ->dropDownList($contragents, [
+                            'options' => $contragentsOptions,
+                        ]);
+                }
+                ?>
+            </div>
+        </div>
 
-                'business_process_status_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\BusinessProcessStatus::getList(),
-                    'options' => ['disabled' => !Yii::$app->user->can('clients.restatus')]
-                ],
-                'account_manager' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => '<div class="col-sm-12" style="padding-bottom: 15px;"><label>' . $model->attributeLabels()['account_manager'] . '</label>'
-                        . Select2::widget([
-                            'model' => $model,
-                            'attribute' => 'account_manager',
-                            'data' => [],
-                            'options' => [
-                                'placeholder' => 'Начните вводить фамилию',
-                                'data-current-value' => $model->account_manager ?: 0,
-                            ],
-                            'pluginOptions' => [
-                                'allowClear' => true
-                            ],
-                        ])
-                        . '</div>'
-                ],
-                'organization_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getOrganizationsList()],
-            ]
-            , (
-            (isset($contragents) && isset($contragentsOptions))
-                ? ['contragent_id' =>
-                [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $contragents,
-                    'options' => [
-                        'options' => $contragentsOptions,
-                    ],
-                    'columnOptions' => ['colspan' => 3],
+        <div class="row">
+            <div class="col-sm-4">
+                <?= $f
+                    ->field($model, 'state')
+                    ->dropDownList($model->model->statusesForChange())
+                ?>
+            </div>
+            <?php switch ($model->business_id) {
+                case Business::OPERATOR: {
+                    echo Html::beginTag('div', ['class' => 'col-sm-4']);
+                        echo $f
+                            ->field($model, 'contract_type_id')
+                            ->dropDownList(ContractType::getList());
+                    echo Html::endTag('div');
 
-                ],
-                ['type' => Form::INPUT_RAW],
-                ['type' => Form::INPUT_RAW],
-            ]
-                : []
-            )
-            , [
-                'state' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => function () use ($f, $model) {
-                        $res = '<div class="col-sm-12">';
-                        $res .= $f->field($model, 'state')->begin();
-                        $res .= Html::activeLabel($model, 'state', ['class' => 'control-label']); //label
-                        $res .= Html::activeDropDownList(
-                            $model,
-                            'state', $model->model->statusesForChange(),
-                            [
-                                'class' => 'form-control ' . $model->state,
-                            ]
-                        ); //Field
-                        $res .= Html::error($model, 'state', ['class' => 'help-block', 'encode' => false]); //error
-                        $res .= $f->field($model, 'state')->end();
-                        $res .= '</div>';
-                        return $res;
-                    },
-                ],
-            ]
-            , (
-            ($model->business_id == \app\models\Business::OPERATOR)
-                ? [
-                'contract_type_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\ContractType::getList(),
+                    echo Html::beginTag('div', ['class' => 'col-sm-4']);
+                        echo $f
+                            ->field($model, 'financial_type')
+                            ->dropDownList(ClientContract::$financialTypes, [
+                                'disabled' =>
+                                    !$model->getIsNewRecord()
+                                    && $model->state !== ClientContract::STATE_UNCHECKED
+                                    && !Yii::$app->user->can('clients.client_type_change')
+                            ]);
+                    echo Html::endTag('div');
 
-                ],
-                'financial_type' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\ClientContract::$financialTypes,
-                    'options' => ['disabled' =>
-                        !$model->getIsNewRecord()
-                        && $model->state != ClientContract::STATE_UNCHECKED
-                        && !Yii::$app->user->can('clients.client_type_change')]
-                ],
-                [
-                    'type' => Form::INPUT_RAW,
-                    'columnOptions' => ['colspan' => 2],
-                    'value' =>
-                        '<div class=col-sm-12>'
-                        . $f->field($model, 'federal_district')->checkboxButtonGroup(
-                            \app\models\ClientContract::$districts,
-                            ['style' => 'width:100%;',
+                    echo Html::beginTag('div', ['class' => 'col-sm-12']);
+                        echo $f
+                            ->field($model, 'federal_district')
+                            ->checkboxButtonGroup(ClientContract::$districts, [
+                                'style' => 'width:100%;',
                                 'class' =>
                                     !$model->getIsNewRecord()
                                     && $model->state != ClientContract::STATE_UNCHECKED
                                     && !Yii::$app->user->can('clients.client_type_change')
                                         ? 'btn-disabled'
                                         : ''
-                            ]
-                        )
-                        . '</div>'
-                ],
-                ['type' => Form::INPUT_RAW],
-            ]
-                : (
-            ($model->business_id == \app\models\Business::PARTNER)
-                ? [
-                'contract_type_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\models\ContractType::getList(),
+                            ]);
+                    echo Html::endTag('div');
+                    break;
+                }
 
-                ],
-                ['type' => Form::INPUT_RAW],
-            ]
-                : [
-                ['type' => Form::INPUT_RAW],
-                ['type' => Form::INPUT_RAW],
-            ]
-            )
-            )
-        )
-    ]);
-    ?>
+                case Business::PARTNER: {
+                    echo Html::beginTag('div', ['class' => 'col-sm-4']);
+                    echo $f
+                        ->field($model, 'contract_type_id')
+                        ->dropDownList(ContractType::getList());
+                    echo Html::endTag('div');
+                    break;
+                }
+            }
+            ?>
+        </div>
+    </div>
 </div>
 
 <script>

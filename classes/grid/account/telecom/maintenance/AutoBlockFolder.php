@@ -61,9 +61,17 @@ class AutoBlockFolder extends AccountGridFolder
                     'OR',
                     new Expression('clients.credit < -clients.balance'),
                     [
-                        'AND',
-                        'clients.voip_limit_day < counter.amount_day_sum',
-                        'clients.voip_limit_day > 0'
+                        'OR',
+                        [
+                            'AND',
+                            'clients.voip_limit_day < counter.amount_day_sum',
+                            'clients.voip_limit_day > 0'
+                        ],
+                        [
+                            'AND',
+                            'clients.voip_limit_mn_day < counter.amount_mn_day_sum',
+                            'clients.voip_limit_mn_day > 0'
+                        ]
                     ]
                 ]);
 

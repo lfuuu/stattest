@@ -2,16 +2,16 @@
 
 namespace app\forms\comment;
 
-use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use DateTimeZone;
 use app\classes\Form;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContractComment;
+use app\models\User;
 
 class ClientContractCommentForm extends Form
 {
-
     const SET_BUSINESS = 'Установлено подразделение: ';
     const SET_BUSINESS_PROCESS = 'Установлен бизнес процесc: ';
     const SET_BUSINESS_PROCESS_STATUS = 'Установлен статус бизнес процесса: ';
@@ -32,7 +32,7 @@ class ClientContractCommentForm extends Form
         return [
             [['contract_id',], 'integer'],
             [['contract_id', 'comment',], 'required'],
-            [['user_id',], 'string'],
+            [['user',], 'string'],
         ];
     }
 
@@ -41,7 +41,15 @@ class ClientContractCommentForm extends Form
         $comment = new ClientContractComment;
         $comment->setAttributes($this->getAttributes(), false);
 
-        $comment->user = $this->user ?: (Yii::$app->user->identity ? Yii::$app->user->identity->user : 'system');
+        if ($this->user) {
+            $comment->user = $this->user;
+        } elseif (Yii::$app->user->identity && Yii::$app->user->identity->user) {
+            $comment->user = Yii::$app->user->identity->user;
+        } else {
+            /** @var User $user */
+            $user = User::findOne(['id' => User::SYSTEM_USER_ID]);
+            $comment->user = $user ? $user->user : '';
+        }
         $comment->ts = (new DateTime('now', new DateTimeZone('UTC')))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $comment->is_publish = 0;
 

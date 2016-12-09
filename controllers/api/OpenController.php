@@ -2,15 +2,14 @@
 
 namespace app\controllers\api;
 
-use Yii;
-use yii\helpers\ArrayHelper;
-use yii\web\Controller;
 use app\models\City;
 use app\models\Country;
 use app\models\Currency;
 use app\models\DidGroup;
-use app\models\TariffNumber;
 use app\models\filter\FreeNumberFilter;
+use Yii;
+use yii\helpers\ArrayHelper;
+use yii\web\Controller;
 
 final class OpenController extends Controller
 {
@@ -311,6 +310,7 @@ final class OpenController extends Controller
      * @SWG\Definition(definition="did_group", type="object",
      *   @SWG\Property(property="id", type="integer", description="Идентификатор группы"),
      *   @SWG\Property(property="name", type="string", description="Наименование группы"),
+     *   @SWG\Property(property="country_code", type="integer", description="Идентификатор страны"),
      *   @SWG\Property(property="city_id", type="integer", description="Идентификатор города"),
      *   @SWG\Property(property="beauty_level", type="integer", description="Степень красоты"),
      *   @SWG\Property(property="number_type_id", type="integer", description="Тип номеров")
@@ -353,58 +353,4 @@ final class OpenController extends Controller
 
         return $result->all();
     }
-
-    /**
-     * @SWG\Definition(definition="number_tariff", type="object",
-     *   @SWG\Property(property="id", type="integer", description="Идентификатор тарифного плана"),
-     *   @SWG\Property(property="country_id", type="integer", description="Идентификатор страны"),
-     *   @SWG\Property(property="currency_id", type="integer", description="Идентификатор валюты"),
-     *   @SWG\Property(property="city_id", type="integer", description="Идентификатор города"),
-     *   @SWG\Property(property="name", type="string", description="Наименование тарифного плана"),
-     *   @SWG\Property(property="status", type="string", description="Тип тарифного плана"),
-     *   @SWG\Property(property="activation_fee", type="float", description="Стоимость подключения тарифного плана"),
-     *   @SWG\Property(property="period", type="string", description="Период действия тарифного плана"),
-     *   @SWG\Property(property="did_group_id", type="integer", description="Идентификатор DID группы"),
-     *   @SWG\Property(property="old_beauty_level", type="integer", description="Не используется"),
-     *   @SWG\Property(property="old_beauty_prefix", type="integer", description="Не используется")
-     * ),
-     * @SWG\Get(
-     *   tags={"Список DID групп"},
-     *   path="/open/numbers-tariffs",
-     *   summary="Получение тарифных планов",
-     *   operationId="Получение тарифных планов",
-     *   @SWG\Parameter(name="didGroupIds[0]",type="integer",description="идентификатор(ы) DID групп",in="query"),
-     *   @SWG\Parameter(name="didGroupIds[1]",type="integer",description="идентификатор(ы) DID групп",in="query"),
-     *   @SWG\Parameter(name="didGroupIds[2]",type="integer",description="идентификатор(ы) DID групп",in="query"),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="Список тарифных планов",
-     *     @SWG\Definition(
-     *       ref="#/definitions/number_tariff"
-     *     )
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
-     *   )
-     * )
-     */
-    /**
-     * @param int[] $didGroupIds
-     * @return TariffNumber[]
-     */
-    public function actionNumbersTariffs(array $didGroupIds = [])
-    {
-        $result = TariffNumber::find();
-
-        if (count($didGroupIds)) {
-            $result->where(['IN', 'did_group_id', $didGroupIds])->all();
-        }
-
-        return $result->all();
-    }
-
 }

@@ -38,13 +38,13 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
         $description = '';
         $checkboxOptions = [];
 
-        if ($this->usage->type_id === Tariff::NUMBER_TYPE_LINE) {
-            $number7800 = UsageVoip::findOne(['line7800_id' => $this->usage->id]);
-            if ($number7800 instanceof UsageVoip) {
+        if ($this->usage->type_id === Tariff::NUMBER_TYPE_7800) {
+            $line = UsageVoip::findOne(['id' => $this->usage->line7800_id]);
+            if ($line instanceof UsageVoip) {
                 $description =
                     Html::tag(
                         'div',
-                        Html::tag('small', $number7800->id) . ': ' . reset($number7800->helper->description),
+                        Html::tag('small', $line->id) . ': ' . reset($line->helper->description),
                         ['style' => 'margin-left: 10px;']
                     );
             }

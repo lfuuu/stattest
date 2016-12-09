@@ -61,6 +61,15 @@ class ClientContragent extends HistoryActiveRecord
         self::IP_TYPE => Organization::MCN_TELEKOM,
     ];
 
+    public
+        $attributesProtectedForVersioning = [
+        'super_id',
+        'country_id',
+        'comment',
+        'sale_channel_id',
+        'partner_contract_id',
+    ];
+
     public static function tableName()
     {
         return 'client_contragent';
@@ -79,6 +88,14 @@ class ClientContragent extends HistoryActiveRecord
         return [
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'ContragentCountry' => \app\classes\behaviors\ContragentCountry::className(),
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'inn' => "ИНН",
+            'kpp' => "КПП"
         ];
     }
 
