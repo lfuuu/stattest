@@ -22,6 +22,12 @@ use app\models\tariffs\TariffInterface;
  * @property int next_usage_id
  *
  * @property  LogTarif $logTariff см. LogTariffTrait
+ * @property ClientAccount $clientAccount
+ * @property $biller
+ * @property string $serviceType
+ * @property $tariff
+ * @property $transferHelper
+ * @property $helper
  */
 interface UsageInterface
 {

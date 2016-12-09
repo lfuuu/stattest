@@ -9,6 +9,8 @@ use app\models\usages\UsageInterface;
 class UsageVoipPackageHelper extends Object implements UsageHelperInterface
 {
 
+    use UsageHelperTrait;
+
     private $usage;
 
     public function __construct(UsageInterface $usage)

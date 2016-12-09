@@ -19,7 +19,7 @@ class SimpleUsagesTransferTest extends \yii\codeception\TestCase
      */
     public function testUsageExtra()
     {
-        $this->checkTransfer(UsageExtra::className());
+        $this->prepareTransfer(UsageExtra::className());
     }
 
     /**
@@ -27,7 +27,7 @@ class SimpleUsagesTransferTest extends \yii\codeception\TestCase
      */
     public function testUsageWelltime()
     {
-        $this->checkTransfer(UsageWelltime::className());
+        $this->prepareTransfer(UsageWelltime::className());
     }
 
     /**
@@ -35,7 +35,7 @@ class SimpleUsagesTransferTest extends \yii\codeception\TestCase
      */
     public function testUsageSms()
     {
-        $this->checkTransfer(UsageSms::className());
+        $this->prepareTransfer(UsageSms::className());
     }
 
     /**
@@ -43,7 +43,7 @@ class SimpleUsagesTransferTest extends \yii\codeception\TestCase
      */
     public function testUsageEmail()
     {
-        $this->checkTransfer(UsageEmails::className());
+        $this->prepareTransfer(UsageEmails::className());
     }
 
     /**
@@ -51,7 +51,7 @@ class SimpleUsagesTransferTest extends \yii\codeception\TestCase
      */
     public function testUsageTechCpe()
     {
-        $this->checkTransfer(UsageTechCpe::className());
+        $this->prepareTransfer(UsageTechCpe::className());
     }
 
 }

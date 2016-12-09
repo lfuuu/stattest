@@ -3,13 +3,46 @@
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
+use yii\widgets\Breadcrumbs;
 
-echo Html::formLabel('Перемещаемые услуги');
+/** @var ClientAccount|null $clientAccount */
+/** @var array $result */
 
+$clientName =
+    !is_null($clientAccount)
+        ? ' для клиента ' . $clientAccount->contract->contragent->name
+        : '';
+
+echo Html::formLabel('Перемещаемые услуги' . $clientName);
+
+echo Breadcrumbs::widget([
+    'links' => [
+        'Мониторинг',
+        ['label' => 'Перемещаемые услуги' . $clientName, 'url' => '/monitoring/transfered-usages'],
+    ],
+]);
+
+?>
+
+<div class="text-right">
+    <?= $this->render('//layouts/_link', [
+        'text' => ($clientName ? 'Показать для всех клиентов' : 'Показать для текущего клиента'),
+        'glyphicon' => 'glyphicon-filter',
+        'url' => \yii\helpers\Url::toRoute(['/monitoring/transfered-usages', 'isCurrentOnly' => ($clientName ? 0 : 1)]),
+        'params' => [
+            'class' => 'btn btn-primary',
+        ],
+    ]) ?>
+</div>
+
+<?php
+$isUsagesExists = 0;
 foreach ($result as $usageTitle => $records) {
     if (!count($records)) {
         continue;
     }
+    $isUsagesExists = 1;
     ?>
     <label><?= $usageTitle; ?></label>
     <table class="table table-bordered table-striped table-condensed table-hover">
@@ -58,3 +91,12 @@ foreach ($result as $usageTitle => $records) {
     </table>
     <?php
 }
+?>
+
+<?php if (!$isUsagesExists): ?>
+    <div class="row text-center">
+        <div class="label label-info" style="padding: 10px;">
+            Перемещаемых услуг не найдено
+        </div>
+    </div>
+<?php endif; ?>

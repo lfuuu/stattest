@@ -1,7 +1,6 @@
 <?php
 namespace app\models;
 
-
 use DateTime;
 use yii\db\ActiveRecord;
 use app\classes\bill\IpPortBiller;

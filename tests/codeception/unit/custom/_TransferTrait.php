@@ -5,6 +5,7 @@ namespace tests\codeception\unit\custom;
 use Yii;
 use DateTime;
 use DateTimeZone;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\usages\UsageInterface;
 
@@ -17,39 +18,48 @@ trait _TransferTrait
 
     private $transaction;
 
+    protected
+        $fromUsage,
+        $toUsage;
+
     /**
-     * @param $usageType - Класс услуги
-     * @param $extendsData
+     * @param string $usageClass - Класс услуги
+     * @param null|\Closure $extendsAction - Вызов дополнительного метода, после создания услуги
      * @return array
      */
-    protected function checkTransfer($usageType, $extendsData)
+    protected function prepareTransfer($usageClass, \Closure $extendsAction = null)
     {
         // Создание услуги для переноса
-        $fromUsage = $usageType::findOne(static::createSingleUsage($this->fromClientAccount, $usageType));
-        $this->assertNotNull($fromUsage, 'See object "fromUsage"');
+        $this->fromUsage = $usageClass::findOne(['id' => static::createSingleUsage($this->fromClientAccount, $usageClass)]);
+        $this->assertNotNull($this->fromUsage, 'See object "fromUsage"');
 
-        if ($extendsData instanceof \Closure) {
-            $extendsData($fromUsage);
+        if (!is_null($extendsAction) && $extendsAction instanceof \Closure) {
+            $extendsAction($this->fromUsage);
         }
 
         // Подготовка переноса услуги
         try {
+            $usage = $this->fromUsage;
+
             $serviceTransfer =
-                $fromUsage::getTransferHelper($fromUsage)
+                $usage::getTransferHelper($usage)
                     ->setTargetAccount($this->toClientAccount)
-                    ->setActivationDate((new DateTime('first day of next month midnight',
-                        new DateTimeZone('UTC')))->format('Y-m-d'));
+                    ->setActivationDate(
+                        (new DateTime(
+                            'first day of next month midnight',
+                            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)
+                        ))
+                            ->format('Y-m-d')
+                    );
         } catch (\Exception $e) {
             $this->fail($e->getMessage());
         }
 
         // Запуск переноса с возвратом результата
-        $toUsage = $usageType::findOne($serviceTransfer->process()->id);
-        $this->assertNotNull($toUsage, 'See object "toUsage" after transfer');
+        $this->toUsage = $usageClass::findOne($serviceTransfer->process()->id);
+        $this->assertNotNull($this->toUsage, 'See object "toUsage" after transfer');
 
-        $this->checkUsagesAfter($fromUsage, $toUsage);
-
-        return [$fromUsage, $toUsage];
+        $this->checkUsagesAfter($this->fromUsage, $this->toUsage);
     }
 
     /**
@@ -68,6 +78,9 @@ trait _TransferTrait
         $this->assertEquals($from->next_usage_id, $to->id, 'UsageNextId equals');
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function setUp()
     {
         parent::setUp();
@@ -75,14 +88,20 @@ trait _TransferTrait
         $this->transaction = Yii::$app->db->beginTransaction();
 
         // Создание аккаунта с которого будет перенос услуги
-        $this->fromClientAccount = ClientAccount::findOne($this->createSingleClientAccount());
+        $this->fromClientAccount = $this->createSingleClientAccount();
         $this->assertNotNull($this->fromClientAccount, 'See object "fromClientAccount"');
 
         // Создание аккаунта на который будет перенос услуги
-        $this->toClientAccount = ClientAccount::findOne($this->createSingleClientAccount());
+        $this->toClientAccount = $this->createSingleClientAccount();
         $this->assertNotNull($this->toClientAccount, 'See object "toClientAccount"');
+
+        // Example: display debug info
+        //\Codeception\Util\Debug::debug($this->toClientAccount->getAttributes(['id', 'client', 'timezone_name']));
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function tearDown()
     {
         $this->transaction->rollBack();
@@ -100,34 +119,32 @@ trait _TransferTrait
         $client->sale_channel = 0;
         $client->consignee = '';
         $client->is_active = 0;
-        $client->client = 'id';
-        $client->validate();
-        $client->save();
-
-        $client->client = 'id' . $client->id;
-        $client->save();
-
-        return $client->id;
+        $client->client = 'id' . mt_rand(0, 1000);
+        $client->timezone_name = DateTimeZoneHelper::TIMEZONE_MOSCOW;
+        if ($client->validate() && $client->save()) {
+            return $client;
+        }
+        $this->fail('Cant create client account');
     }
 
     /**
      * Создание болванки услуги для переноса
-     * @param ClientAccount $client
+     * @param ClientAccount $clientAccount
+     * @param string $usageClass
      * @return int
      */
-    private static function createSingleUsage(ClientAccount $client, $usageClass)
+    private static function createSingleUsage(ClientAccount $clientAccount, $usageClass)
     {
-        $actualFrom = (new DateTime('-1 week', new DateTimeZone('UTC')))->format('Y-m-d');
-        $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
-        $client = 'id' . $client->id;
-
         $usage = new $usageClass;
-        $usage->actual_from = $actualFrom;
-        $usage->actual_to = $actualTo;
-        $usage->client = $client;
-        $usage->save();
-
-        return $usage->id;
+        $usage->actual_from =
+            (new DateTime('-1 week', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+                ->format('Y-m-d');
+        $usage->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
+        $usage->client = $clientAccount->client;
+        if ($usage->save()) {
+            return $usage->id;
+        }
+        self::fail('Cant create usage "' . $usageClass . '"');
     }
 
 }

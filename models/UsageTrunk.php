@@ -231,4 +231,5 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     {
         return $this->description ?: (string)$this->id;
     }
+
 }
