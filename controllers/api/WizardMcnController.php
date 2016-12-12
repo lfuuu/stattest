@@ -2,7 +2,9 @@
 
 namespace app\controllers\api;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContragent;
+use app\models\ClientDocument;
 use Yii;
 use app\models\document\DocumentTemplate;
 use app\models\LkWizardState;
@@ -120,17 +122,37 @@ class WizardMcnController extends WizardBaseController
     {
         $data = $this->loadAndSet();
 
+        $contract = ClientDocument::findOne([
+            "contract_id" => $this->account->contract->id,
+            "user_id" => User::CLIENT_USER_ID
+        ]);
+
+        if ($contract) {
+            $contract->erase();
+        }
+
+
         $content = "error";
         $document = null;
 
         if (isset($data['type']) && $data['type'] == 'legal') {
-            $document = DocumentTemplate::findOne(['id' => DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_LEGAL]);
+            $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_LEGAL;
         } else {
-            $document = DocumentTemplate::findOne(['id' => DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_PERSON]);
+            $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_PERSON;
         }
 
-        if ($document) {
-            $content = $document->content;
+        $contract = new ClientDocument();
+        $contract->contract_id = $this->account->contract->id;
+        $contract->type = 'contract';
+        $contract->contract_no = $this->accountId;
+        $contract->contract_date = date(DateTimeZoneHelper::DATE_FORMAT);
+        $contract->comment = 'ЛК - wizard - оферта';
+        $contract->user_id = User::CLIENT_USER_ID;
+        $contract->template_id = $documentId;
+        $contract->save();
+
+        if ($contract) {
+            $content = $contract->fileContent;
         }
 
         $content = $this->renderPartial("//wrapper_html", ['content' => $content]);

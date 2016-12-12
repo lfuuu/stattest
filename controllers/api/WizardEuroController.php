@@ -4,6 +4,7 @@ namespace app\controllers\api;
 
 use app\forms\lk_wizard\AcceptsForm;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientContact;
 use app\models\ClientContragent;
 use yii;
 use app\models\document\DocumentTemplate;
@@ -133,24 +134,19 @@ class WizardEuroController extends WizardBaseController
             "user_id" => User::CLIENT_USER_ID
         ]);
 
-        if (!$contract) {
-            $clientDocument = new ClientDocument();
-            $clientDocument->contract_id = $this->account->contract->id;
-            $clientDocument->type = 'contract';
-            $clientDocument->contract_no = $this->accountId;
-            $clientDocument->contract_date = date(DateTimeZoneHelper::DATE_FORMAT);
-            $clientDocument->comment = 'ЛК - wizard';
-            $clientDocument->user_id = User::CLIENT_USER_ID;
-            $clientDocument->template_id = ($this->account->contract->contragent->legal_type == ClientContragent::LEGAL_TYPE ? DocumentTemplate::DEFAULT_WIZARD_EURO_LEGAL : DocumentTemplate::DEFAULT_WIZARD_EURO_PERSON);
-            $clientDocument->save();
-
-            $contract = ClientDocument::find()
-                ->where(["user_id" => User::CLIENT_USER_ID])
-                ->contractId($this->account->contract->id)
-                ->contract()
-                ->one();
-
+        if ($contract) {
+            $contract->erase();
         }
+
+        $contract = new ClientDocument();
+        $contract->contract_id = $this->account->contract->id;
+        $contract->type = 'contract';
+        $contract->contract_no = $this->accountId;
+        $contract->contract_date = date(DateTimeZoneHelper::DATE_FORMAT);
+        $contract->comment = 'ЛК - wizard';
+        $contract->user_id = User::CLIENT_USER_ID;
+        $contract->template_id = ($this->account->contract->contragent->legal_type == ClientContragent::LEGAL_TYPE ? DocumentTemplate::DEFAULT_WIZARD_EURO_LEGAL : DocumentTemplate::DEFAULT_WIZARD_EURO_PERSON);
+        $contract->save();
 
         if (!$contract || !$contract->fileContent) {
             $content = "error";
@@ -273,6 +269,26 @@ class WizardEuroController extends WizardBaseController
 
             return ['errors' => ['' => 'save error']]; //imposible... but can by
         }
+    }
+
+    /**
+     * Возвращает контакную информацию
+     *
+     * @return ClientContact
+     */
+    protected function getContact()
+    {
+        $contact = ClientContact::findOne([
+            "client_id" => $this->account->id,
+            "user_id" => User::CLIENT_USER_ID,
+            "type" => ClientContact::TYPE_PHONE
+        ]);
+
+        if (!$contact) {
+            $contact = new ClientContact();
+        }
+
+        return $contact;
     }
 
     /**
