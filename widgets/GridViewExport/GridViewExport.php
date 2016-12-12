@@ -184,7 +184,7 @@ class GridViewExport extends GridView
                 $value = ArrayHelper::getValue($model, $column->attribute, '');
             }
 
-            $row[] = empty($value) ? '' : strip_tags($value);
+            $row[] = strip_tags($value);
         }
 
         return $row;
