@@ -13,6 +13,8 @@ use app\models\UsageVirtpbx;
 class UsageVirtpbxHelper extends Object implements UsageHelperInterface
 {
 
+    use UsageHelperTrait;
+
     private $usage;
 
     public function __construct(UsageInterface $usage)

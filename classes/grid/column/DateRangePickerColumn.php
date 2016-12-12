@@ -8,6 +8,8 @@ use Yii;
 
 class DateRangePickerColumn extends DataColumn
 {
+    public $name = '';
+    public $value = '';
     public $filterType = '';
     public $filter = '';
 
@@ -18,21 +20,18 @@ class DateRangePickerColumn extends DataColumn
         $this->filterType = DateRangePicker::className();
 
         $this->filterWidgetOptions = [
+            'name' => $this->name,
             'presetDropdown' => true,
             'hideInput' => true,
+            'value' => $this->value,
             'pluginOptions' => [
                 'locale' => [
-                    'format' => 'DD.MM.YYYY',
-                    'separator' => ' - ',
+                    'format' => 'YYYY-MM-DD',
+                    'separator' => ' : ',
                 ],
-            ],
-            'containerOptions' => [
-                'style' => 'width:50px; overflow: hidden;',
-                'class' => 'drp-container input-group',
-            ],
-            'pluginEvents' => [
-                'cancel.daterangepicker' => 'function(e, picker) { picker.element.find("input").val("").trigger("change"); }',
-            ],
+            ]
         ];
+
+        $this->filter = DateRangePicker::widget($this->filterWidgetOptions);
     }
 }

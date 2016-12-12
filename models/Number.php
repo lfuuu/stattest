@@ -59,6 +59,8 @@ class Number extends ActiveRecord
     const STATUS_GROUP_ACTIVE = 'active';
     const STATUS_GROUP_NOTACTIVE = 'notactive';
 
+    const NUMBER_MAX_LINE = 10000; // если Number до этого числа - это линия, если больше - номер
+
     public static $statusList = [
         self::STATUS_NOTSALE => 'Не продается',
         self::STATUS_INSTOCK => 'Свободен',

@@ -13,7 +13,7 @@ use Yii;
 class RealtimeBalanceTarificator implements TarificatorI
 {
     /**
-     * @param int|null $accountClientId Если указан, то только для этого аккаунта. Если не указан - для всех
+     * @param int|null $accountClientId Если указан, то только для этого ЛС. Если не указан - для всех
      */
     public function tarificate($accountClientId = null)
     {

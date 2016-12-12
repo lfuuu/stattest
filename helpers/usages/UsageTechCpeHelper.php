@@ -10,6 +10,8 @@ use app\models\UsageTechCpe;
 class UsageTechCpeHelper extends Object implements UsageHelperInterface
 {
 
+    use UsageHelperTrait;
+
     private $usage;
 
     public function __construct($usage)

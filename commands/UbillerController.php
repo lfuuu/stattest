@@ -41,7 +41,7 @@ class UbillerController extends Controller
         $this->actionMin();
 
         // Не списывать абонентку и минималку при финансовой блокировке
-        // Ибо аккаунт все равно не может пользоваться услугами
+        // Ибо ЛС все равно не может пользоваться услугами
         // Обязательно после транзакций и до проводок
         $this->actionFreePeriodInFinanceBlock();
 
@@ -195,7 +195,7 @@ class UbillerController extends Controller
 
     /**
      * Не списывать абонентку и минималку при финансовой блокировке. 1 секунда
-     * Ибо аккаунт все равно не может пользоваться услугами
+     * Ибо ЛС все равно не может пользоваться услугами
      */
     public function actionFreePeriodInFinanceBlock()
     {

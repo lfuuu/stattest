@@ -9,6 +9,7 @@ return [
     'comment' => 'Comment',
     'voip_number' => 'Number',
     'vm_elid_id' => 'ID VM collocation',
+    'trunk_id' => 'Trunk',
 
     'insert_time' => 'Insert time',
     'insert_user_id' => 'Insert user',

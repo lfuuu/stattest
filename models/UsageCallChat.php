@@ -1,7 +1,6 @@
 <?php
 namespace app\models;
 
-
 use DateTime;
 use app\queries\UsageQuery;
 use yii\db\ActiveRecord;

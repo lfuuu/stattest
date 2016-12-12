@@ -13,6 +13,7 @@ use app\classes\uu\forms\AccountTariffEditForm;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
+use app\classes\uu\model\TariffPeriod;
 use app\helpers\DateTimeZoneHelper;
 use InvalidArgumentException;
 use LogicException;
@@ -59,6 +60,8 @@ class AccountTariffController extends BaseController
      */
     public function actionIndex($serviceTypeId = '')
     {
+        $this->checkNonPackage($serviceTypeId);
+
         $filterModel = new AccountTariffFilter($serviceTypeId);
         $this->addClientAccountFilter($filterModel);
 
@@ -75,6 +78,8 @@ class AccountTariffController extends BaseController
      */
     public function actionNew($serviceTypeId)
     {
+        $this->checkNonPackage($serviceTypeId);
+
         $formModel = new AccountTariffAddForm([
             'serviceTypeId' => $serviceTypeId,
         ]);
@@ -125,6 +130,8 @@ class AccountTariffController extends BaseController
             ]);
         }
 
+        $this->checkNonPackage($formModel->serviceTypeId);
+
         if ($formModel->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
             return $this->redirect([
@@ -145,7 +152,7 @@ class AccountTariffController extends BaseController
      * @param int $id
      * @return string
      */
-    public function actionEditVoip($id = null, $cityId = null)
+    public function actionEditVoip($id = null, $cityId = null, $serviceTypeId = null)
     {
         $this->layout = 'minimal';
 
@@ -157,7 +164,7 @@ class AccountTariffController extends BaseController
                 ])) :
                 // добавить пакет телефонии
                 (new AccountTariffAddForm([
-                    'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE,
+                    'serviceTypeId' => $serviceTypeId,
                 ]));
 
             $cityId = (int)$cityId;
@@ -188,6 +195,7 @@ class AccountTariffController extends BaseController
         // загрузить параметры от юзера
         // здесь сильно разнородные данные, поэтому проще хардкорно валидировать, чем писать штатный обработчик
         $transaction = \Yii::$app->db->beginTransaction();
+        $serviceTypeId = ServiceType::ID_VOIP;
         try {
             $post = Yii::$app->request->post();
 
@@ -198,12 +206,15 @@ class AccountTariffController extends BaseController
                     $post['AccountTariffLog'],
                     $post['AccountTariffLog']['tariff_period_id'],
                     $post['AccountTariffLog']['actual_from'],
-                    $post['accountTariffId']
+                    $post['accountTariffId'],
+                    $post['serviceTypeId']
                 )
                 || !($actualFromTimestamp = strtotime($post['AccountTariffLog']['actual_from']))
             ) {
                 throw new InvalidArgumentException('Неправильные параметры');
             }
+
+            $serviceTypeId = (int)$post['serviceTypeId'];
 
             // id первой услуги (тарифа или пакета) или 0 (добавление пакета)
             $accountTariffFirstId = (int)$post['accountTariffId'];
@@ -222,8 +233,9 @@ class AccountTariffController extends BaseController
             $accountTariffIds = (array)$post['AccountTariff']['ids'];
             foreach ($accountTariffIds as $accountTariffId) {
 
-                // найти услугу телефонии или пакета телефонии
-                $accountTariff = $this->findAccountTariff($accountTariffId, $accountTariffFirstHash);
+                // найти базовую услугу или пакета
+                $packageServiceTypeId = $tariffPeriodIdNew ? TariffPeriod::findOne(['id' => $tariffPeriodIdNew])->tariff->service_type_id : null;
+                $accountTariff = $this->findAccountTariff($accountTariffId, $accountTariffFirstHash, $packageServiceTypeId);
 
                 // изменить услугу
                 $accountTariff->tariff_period_id = $tariffPeriodIdNew;
@@ -291,7 +303,7 @@ class AccountTariffController extends BaseController
 
         return $this->redirect([
             'index',
-            'serviceTypeId' => ServiceType::ID_VOIP,
+            'serviceTypeId' => $serviceTypeId,
         ]);
     }
 
@@ -322,8 +334,8 @@ class AccountTariffController extends BaseController
 
             foreach ($ids as $accountTariffId) {
 
-                // найти услугу телефонии или пакета телефонии
-                $accountTariff = $this->findAccountTariff($accountTariffId, $accountTariffHash);
+                // найти базовую услугу или пакета
+                $accountTariff = $this->findAccountTariff($accountTariffId, $accountTariffHash, null);
                 $serviceTypeId = $accountTariff->service_type_id;
 
                 // лог тарифов
@@ -387,15 +399,23 @@ class AccountTariffController extends BaseController
         }
 
         if ($id) {
-            // редактировали один - на его карточку
+            // редактировали одну услугу - на ее карточку
             return $this->redirect([
                 'edit',
                 'id' => $id,
             ]);
         } else {
-            // редактировали много - на их список
-            if (!$serviceTypeId || $serviceTypeId == ServiceType::ID_VOIP_PACKAGE) {
-                $serviceTypeId = ServiceType::ID_VOIP;
+            // редактировали много услуг одновременно - на их список
+            switch ($serviceTypeId) {
+                case ServiceType::ID_TRUNK_PACKAGE_ORIG:
+                case ServiceType::ID_TRUNK_PACKAGE_TERM:
+                    $serviceTypeId = ServiceType::ID_TRUNK;
+                    break;
+
+                case ServiceType::ID_VOIP_PACKAGE:
+                case null:
+                    $serviceTypeId = ServiceType::ID_VOIP;
+                    break;
             }
             return $this->redirect([
                 'index',
@@ -405,12 +425,14 @@ class AccountTariffController extends BaseController
     }
 
     /**
-     * найти услугу телефонии или пакета телефонии
+     * найти базовую услугу или пакета
+     *
      * @param int $accountTariffId
      * @param string $accountTariffFirstHash хэш первой услуги (тарифа или пакета) или null (добавление пакета)
+     * @param int $packageServiceTypeId
      * @return AccountTariff
      */
-    protected function findAccountTariff($accountTariffId, $accountTariffFirstHash)
+    protected function findAccountTariff($accountTariffId, $accountTariffFirstHash, $packageServiceTypeId)
     {
         $accountTariffId = (int)$accountTariffId;
         if (!$accountTariffId) {
@@ -425,7 +447,7 @@ class AccountTariffController extends BaseController
         if (!$accountTariffFirstHash) {
             // создание нового пакета
             $accountTariffPackage = new AccountTariff;
-            $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
+            $accountTariffPackage->service_type_id = $packageServiceTypeId;
             $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
             $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
             $accountTariffPackage->region_id = $accountTariff->region_id;
@@ -434,18 +456,30 @@ class AccountTariffController extends BaseController
         }
 
         if ($accountTariff->getHash() == $accountTariffFirstHash) {
-            // тариф телефонии
+            // базовый тариф телефонии или транка
             return $accountTariff;
         }
 
         foreach ($accountTariff->nextAccountTariffs as $accountTariffPackage) {
             if ($accountTariffPackage->getHash() == $accountTariffFirstHash) {
-                // тариф пакета телефонии
+                // базовый тариф телефонии или транка
                 return $accountTariffPackage;
             }
         }
         unset($accountTariffPackage);
 
         throw new InvalidArgumentException(sprintf('Услуга %d с хэшем %s не найдена', $accountTariffId, $accountTariffFirstHash));
+    }
+
+    /**
+     * @param int $serviceTypeId
+     */
+    private function checkNonPackage($serviceTypeId)
+    {
+        if (in_array($serviceTypeId, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
+            // для пакетов услуги подключаются через базовую услугу
+            throw new InvalidArgumentException('Пакеты надо подключать через базовую услугу');
+        }
+
     }
 }

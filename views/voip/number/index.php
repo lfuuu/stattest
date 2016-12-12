@@ -33,12 +33,12 @@ use yii\widgets\Breadcrumbs;
     ],
 ]) ?>
 
-    <div class="well">
-        <?= $this->render('_indexGroupEdit', [
+    <!-- div class="well">
+        <?= '' /*$this->render('_indexGroupEdit', [
             'city_id' => $filterModel->city_id,
             'currentClientAccountId' => $currentClientAccountId,
-        ]) ?>
-    </div>
+        ]) */?>
+    </div -->
 
 <?php
 $baseView = $this;

@@ -2,6 +2,7 @@
 
 namespace tests\codeception\unit\custom;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -21,25 +22,28 @@ class UsageTrunkTransferTest extends \yii\codeception\TestCase
      */
     public function testUsageTrunk()
     {
-        list($fromUsage, $toUsage) = $this->checkTransfer(UsageTrunk::className());
+        $this->prepareTransfer(UsageTrunk::className());
 
-        $this->assertEquals(count($fromUsage->settings), count($toUsage->settings), 'Settings is good');
+        $this->assertEquals(count($this->fromUsage->settings), count($this->toUsage->settings), 'Settings is good');
     }
 
     /**
      * Создание болванки услуги для переноса
-     * @param ClientAccount $client
+     * @param ClientAccount $clientAccount
+     * @param string $usageClass
      * @return int
      */
-    private static function createSingleUsage(ClientAccount $client, $usageClass)
+    private static function createSingleUsage(ClientAccount $clientAccount, $usageClass)
     {
-        $actualFrom = (new DateTime('-1 week', new DateTimeZone('UTC')))->format('Y-m-d');
+        $actualFrom =
+            (new DateTime('-1 week', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+                ->format('Y-m-d');
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
         $usage = new $usageClass;
         $usage->actual_from = $actualFrom;
         $usage->actual_to = $actualTo;
-        $usage->client_account_id = $client->id;
+        $usage->client_account_id = $clientAccount->id;
         $usage->connection_point_id = Region::MOSCOW;
 
         if ($usage instanceof UsageTrunk) {

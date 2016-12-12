@@ -6,6 +6,9 @@ use app\classes\Event;
 use app\models\TechPort;
 
 class DbForm {
+
+    const HIDDEN_PASSWORD = "*******";
+
     protected $table;
     protected $fields=array();
     public $data = null;
@@ -140,7 +143,7 @@ class DbForm {
 
             foreach($this->fields as $f=>$F){
                 if($f!='id' && !(isset($F['db_ignore']) && $F['db_ignore']==1)){
-                    if(isset($F["type"]) && $F["type"] == "password" && $this->dbform[$f] == "*******") continue;
+                    if(isset($F["type"]) && $F["type"] == "password" && $this->dbform[$f] == self::HIDDEN_PASSWORD) continue;
 
                     if ($usageForm) {
                         $s[$f] = (
@@ -194,12 +197,15 @@ class DbForm {
     {
         $p = null;
 
+        // edit
         if ($this->dbform['id']) {
             if ($sDiff) {
                 $this->dbform["t_fields_changes"] = $sDiff;
             }
 
             $model = (new $usageForm->model)->findOne($this->dbform['id']);
+
+            $usageForm->setAttributes($model->getAttributes(), false);
 
             if (
                 $usageForm->load([$usageForm->formName() => ['id' => $this->dbform['id']] + $fields])
@@ -212,8 +218,9 @@ class DbForm {
 
                 Yii::$app->session->addFlash('success', 'Запись обновлена');
             }
-        }
-        else {
+
+            //add
+        } else {
             $model = new $usageForm->model;
 
             if (
@@ -1681,7 +1688,12 @@ class DbFormTechCPE extends DbForm{
             return '';
 
         $this->dbform['service'] = 'usage_ip_ports';
-        if(!$v && $this->dbform_action!='delete'){
+        if ($this->dbform['admin_pass'] == self::HIDDEN_PASSWORD) {
+            $this->fields['admin_pass']['db_ignore'] = 1;
+            unset($this->dbform['admin_pass']);
+        }
+
+        if($this->dbform_action!='delete'){
             if(isset($this->dbform['t_C2U'])){
                 $db->Query('
                     delete from
@@ -1708,7 +1720,7 @@ class DbFormTechCPE extends DbForm{
             unset($this->dbform['t_C2U']);
         }
 
-       $res = DbForm::Process($v);
+       $res = DbForm::Process();
 
             $db->QueryInsert(
                 'log_tech_cpe',
@@ -1725,6 +1737,9 @@ class DbFormTechCPE extends DbForm{
     public function Display($form_params = array(),$h2='',$h3='') {
         global $db,$design;
         $this->fields['id_model']['assoc_enum']=array(''=>'');
+        if (\Yii::$app->user->identity->usergroup != \app\models\UserGroups::ADMIN && $this->data['admin_pass']) {
+            $this->data['admin_pass'] = self::HIDDEN_PASSWORD;
+        }
         $db->Query('select id,vendor,model from tech_cpe_models order by vendor,model');
         while ($r=$db->NextRecord()) $this->fields['id_model']['assoc_enum'][$r['id']]=$r['vendor'].' '.$r['model'];
         if ($this->isData('id') && (int) $this->data['id']) {

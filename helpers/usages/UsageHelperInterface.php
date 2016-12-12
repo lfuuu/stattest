@@ -2,7 +2,6 @@
 
 namespace app\helpers\usages;
 
-use app\models\ClientAccount;
 use app\models\usages\UsageInterface;
 use yii\db\ActiveRecord;
 
@@ -13,6 +12,8 @@ use yii\db\ActiveRecord;
  * @property string description
  * @property string help
  * @property string editLink
+ * @property ActiveRecord $transferedFrom
+ * @property $fieldsForClientAccountLink
  */
 interface UsageHelperInterface
 {
@@ -50,5 +51,13 @@ interface UsageHelperInterface
      * @return UsageInterface
      */
     public function getTransferedFrom();
+
+    /**
+     * Получение полей для связи с лицевым счетом
+     * Поле в услуге => Поле в лицевом счете
+     *
+     * @return array
+     */
+    public function getFieldsForClientAccountLink();
 
 }

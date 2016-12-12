@@ -101,7 +101,14 @@ class Navigation
                 ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
         );
 
-        $this->addBlockForStatModule('voipreports');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Межоператорка (Отчеты)')
+                ->addStatModuleItems('voipreports')
+            ->addItem('Загруженность номеров', ['/voipreport/cdr-workload'], ['voipreports.access'])
+        );
+
+//        $this->addBlockForStatModule('voipreports');
         $this->addBlockForStatModule('ats');
         $this->addBlockForStatModule('data');
         $this->addBlockForStatModule('incomegoods');
@@ -281,6 +288,10 @@ class Navigation
                 'serviceTypeId' => $serviceType->id,
             ]), ['tarifs.read']);
 
+            if (in_array($serviceType->id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
+                // для пакетов услуги подключаются через базовую услугу
+                continue;
+            }
             $block2->addItem($serviceType->name, Url::to([
                 '/uu/account-tariff',
                 'serviceTypeId' => $serviceType->id,

@@ -2,6 +2,7 @@
 
 namespace tests\codeception\unit\custom;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -22,19 +23,27 @@ class UsageIpPortsTransferTest extends \yii\codeception\TestCase
      */
     public function testUsageIpPorts()
     {
-        list($fromUsage, $toUsage) = $this->checkTransfer(UsageIpPorts::className());
+        $this->prepareTransfer(UsageIpPorts::className());
 
-        $this->checkLogTariffAfter($fromUsage, $toUsage);
+        $this->checkLogTariffAfter($this->fromUsage, $this->toUsage);
 
-        $this->checkRoutesAfter($fromUsage, $toUsage);
-        $this->checkDevicesAfter($fromUsage, $toUsage);
+        $this->checkRoutesAfter($this->fromUsage, $this->toUsage);
+        $this->checkDevicesAfter($this->fromUsage, $this->toUsage);
     }
 
+    /**
+     * @param UsageInterface $from
+     * @param UsageInterface $to
+     */
     private function checkRoutesAfter($from, $to)
     {
         $this->assertEquals(count($from->netList), count($to->netList), 'Routers is good');
     }
 
+    /**
+     * @param UsageInterface $from
+     * @param UsageInterface $to
+     */
     private function checkDevicesAfter($from, $to)
     {
         $this->assertEquals(count($from->cpeList), count($to->cpeList), 'Devices is good');
@@ -42,20 +51,22 @@ class UsageIpPortsTransferTest extends \yii\codeception\TestCase
 
     /**
      * Создание болванки услуги для переноса
-     * @param ClientAccount $client
+     * @param ClientAccount $clientAccount
+     * @param string $usageClass
      * @return int
      */
-    private static function createSingleUsage(ClientAccount $client)
+    private static function createSingleUsage(ClientAccount $clientAccount, $usageClass)
     {
         $tariffId = TariffInternet::find()->select('MAX(id)')->scalar();
-        $actualFrom = (new DateTime('-1 week', new DateTimeZone('UTC')))->format('Y-m-d');
+        $actualFrom =
+            (new DateTime('-1 week', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+                ->format('Y-m-d');
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
-        $client = 'id' . $client->id;
 
-        $usage = new UsageIpPorts;
+        $usage = new $usageClass;
         $usage->actual_from = $actualFrom;
         $usage->actual_to = $actualTo;
-        $usage->client = $client;
+        $usage->client = $clientAccount->client;
         $usage->address = 'test address';
         $usage->save();
 

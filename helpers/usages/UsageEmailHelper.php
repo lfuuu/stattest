@@ -11,6 +11,8 @@ use app\models\ClientAccount;
 class UsageEmailHelper extends Object implements UsageHelperInterface
 {
 
+    use UsageHelperTrait;
+
     private $usage;
 
     /**
