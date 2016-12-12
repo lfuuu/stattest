@@ -101,7 +101,14 @@ class Navigation
                 ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
         );
 
-        $this->addBlockForStatModule('voipreports');
+        $this->addBlock(
+            NavigationBlock::create()
+                ->setTitle('Межоператорка (Отчеты)')
+                ->addStatModuleItems('voipreports')
+            ->addItem('Загруженность номеров', ['/voipreport/cdr-workload'], ['voipreports.access'])
+        );
+
+//        $this->addBlockForStatModule('voipreports');
         $this->addBlockForStatModule('ats');
         $this->addBlockForStatModule('data');
         $this->addBlockForStatModule('incomegoods');
