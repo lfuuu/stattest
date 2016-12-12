@@ -3,7 +3,6 @@
 namespace app\classes\uu\model;
 
 use app\models\Language;
-use app\models\usages\UsageInterface;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -209,22 +208,9 @@ class AccountEntry extends ActiveRecord
         $names[] = $this->name;
 
         // Например, "Тариф «Максимальный»"
-        // Кроме звонков. Чтобы было короче. У них тарификация зависит от пакета, а не тарифа
-        if ($this->type_id < 0 || !in_array($this->tariffResource->resource_id, [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS])) {
-
-            // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
-            $tariffPeriod = $this->tariffPeriod;
-            $name = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariffPeriod->tariff->name], $langCode);
-
-            // Например, "100". @todo "руб/мес" или "форинтов/год"
-            // Только для абонентки за неполный месяц
-//            if ($this->type_id == self::TYPE_ID_PERIOD && (new \DateTimeImmutable($this->date_from))->format('j') !== '1') {
-//                $name .= ' (' . $tariffPeriod->price_per_period . ')';
-//            }
-
-            $names[] = $name;
-
-        }
+        // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
+        $tariffPeriod = $this->tariffPeriod;
+        $names[] = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariffPeriod->tariff->name], $langCode);
 
         return implode('. ', $names);
     }
