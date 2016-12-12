@@ -1,7 +1,7 @@
 <?php
 return [
     'id' => 'ID',
-    'client_account_id' => 'Аккаунт',
+    'client_account_id' => 'ЛС',
     'service_type_id' => 'Тип услуги',
     'region_id' => 'Регион',
     'city_id' => 'Город',
@@ -9,6 +9,7 @@ return [
     'comment' => 'Комментарий',
     'voip_number' => 'Номер',
     'vm_elid_id' => 'ID VM collocation',
+    'trunk_id' => 'Транк',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',

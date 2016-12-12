@@ -143,7 +143,7 @@ class AccountTariffLog extends ActiveRecord
 
         $clientAccount = $this->accountTariff->clientAccount;
         if (!$clientAccount) {
-            $this->addError($attribute, 'Аккаунт не указан.');
+            $this->addError($attribute, 'ЛС не указан.');
             return;
         }
 
@@ -241,12 +241,12 @@ class AccountTariffLog extends ActiveRecord
 
         $clientAccount = $accountTariff->clientAccount;
         if (!$clientAccount) {
-            $this->addError($attribute, 'Аккаунт не указан.');
+            $this->addError($attribute, 'ЛС не указан.');
             return;
         }
 
         if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            $this->addError($attribute, 'Универсальную услугу можно добавить только аккаунту, тарифицируемому универсально.');
+            $this->addError($attribute, 'Универсальную услугу можно добавить только ЛС, тарифицируемому универсально.');
             // а конвертация из неуниверсальных услуг идет с помощью SQL и сюда не попадает
             return;
         }
@@ -276,7 +276,7 @@ class AccountTariffLog extends ActiveRecord
         }
 
         if ($clientAccount->is_blocked) {
-            $error = 'Аккаунт заблокирован';
+            $error = 'ЛС заблокирован';
             if ($isCountLogs) {
                 // смена тарифа или закрытие услуги
                 $this->shiftActualFrom($error);
@@ -288,7 +288,7 @@ class AccountTariffLog extends ActiveRecord
         }
 
         if (isset($warnings[ClientAccount::WARNING_OVERRAN])) {
-            $error = 'Аккаунт заблокирован из-за превышения лимитов';
+            $error = 'ЛС заблокирован из-за превышения лимитов';
             if ($isCountLogs) {
                 // смена тарифа или закрытие услуги
                 $this->shiftActualFrom($error);
@@ -300,7 +300,7 @@ class AccountTariffLog extends ActiveRecord
         }
 
         if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
-            $error = sprintf('Аккаунт находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
+            $error = sprintf('ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
             if ($isCountLogs) {
                 // смена тарифа или закрытие услуги
                 $this->shiftActualFrom($error);
@@ -331,7 +331,7 @@ class AccountTariffLog extends ActiveRecord
         $tariffPrice = $accountLogSetup->price + $accountLogPeriod->price + $priceMin;
 
         if ($realtimeBalanceWithCredit < $tariffPrice) {
-            $error = sprintf('У аккаунта на счету %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
+            $error = sprintf('На ЛС %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
                 $realtimeBalance, $clientAccount->currency,
                 $credit, $clientAccount->currency,
                 $tariffPrice, $clientAccount->currency,

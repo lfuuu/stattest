@@ -77,7 +77,7 @@ if (!$serviceType) {
                         Yii::t('common', '(not set)') ?></div>
             </div>
 
-            <?php // аккаунт ?>
+            <?php // ЛС ?>
             <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('client_account_id') ?></label>
                 <div><?= $accountTariff->clientAccount->getLink() ?></div>
@@ -139,15 +139,23 @@ if (!$serviceType) {
         'form' => $form,
     ];
     switch ($serviceType->id) {
+
         case ServiceType::ID_VOIP:
             echo $this->render('_editMainVoip', $viewParams);
             break;
+
         case ServiceType::ID_VOIP_PACKAGE:
             echo $this->render('_editMainVoipPackage', $viewParams);
             break;
+
+        case ServiceType::ID_TRUNK:
+            echo $this->render('_editMainTrunk', $viewParams);
+            break;
+
         case ServiceType::ID_ONE_TIME:
             echo $this->render('_editMainOneTime', $viewParams);
             break;
+
     }
     ?>
 

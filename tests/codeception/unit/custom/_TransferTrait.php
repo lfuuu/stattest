@@ -87,11 +87,11 @@ trait _TransferTrait
 
         $this->transaction = Yii::$app->db->beginTransaction();
 
-        // Создание аккаунта с которого будет перенос услуги
+        // Создание ЛС с которого будет перенос услуги
         $this->fromClientAccount = $this->createSingleClientAccount();
         $this->assertNotNull($this->fromClientAccount, 'See object "fromClientAccount"');
 
-        // Создание аккаунта на который будет перенос услуги
+        // Создание ЛС на который будет перенос услуги
         $this->toClientAccount = $this->createSingleClientAccount();
         $this->assertNotNull($this->toClientAccount, 'See object "toClientAccount"');
 
@@ -110,7 +110,7 @@ trait _TransferTrait
     }
 
     /**
-     * Создание болванки аккаунта для переноса
+     * Создание болванки ЛС для переноса
      * @return int
      */
     private function createSingleClientAccount()

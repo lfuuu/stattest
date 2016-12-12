@@ -9,7 +9,6 @@
  */
 
 use app\controllers\uu\TariffController;
-use app\modules\nnp\forms\package\Form;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PackagePrice;
 use kartik\editable\Editable;
@@ -54,8 +53,8 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     'title' => $attributeLabels['destination_id'],
                     'type' => Editable::INPUT_SELECT2,
                     'options' => $options + [
-                        'data' => $destinationList,
-                    ],
+                            'data' => $destinationList,
+                        ],
                     'headerOptions' => [
                         'class' => 'col-sm-9',
                     ],

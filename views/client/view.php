@@ -1,6 +1,7 @@
 <?php
 
 use app\assets\AppAsset;
+use app\classes\uu\model\ServiceType;
 
 $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [AppAsset::className()]]);
 ?>
@@ -24,7 +25,8 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
             if ($uuFilterModel) {
                 echo $this->render('//uu/account-tariff/_indexVoip',[
                     'filterModel' => $uuFilterModel,
-                    'isShowAddButton' => false
+                    'isShowAddButton' => false,
+                    'packageServiceTypeIds' => [ServiceType::ID_VOIP_PACKAGE],
                 ]);
             }
         ?>
