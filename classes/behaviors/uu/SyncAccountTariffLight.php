@@ -87,6 +87,7 @@ class SyncAccountTariffLight extends Behavior
                 'tariffication_free_first_seconds' => in_array($voipTarificateId, [TariffVoipTarificate::ID_VOIP_BY_SECOND_FREE, TariffVoipTarificate::ID_VOIP_BY_MINUTE_FREE]),
                 'price' => $accountLogPeriod->tariffPeriod->price_setup + $accountLogPeriod->tariffPeriod->price_per_period, // чтобы учесть и разовые услуги (price_setup), и обычные (price_per_period)
                 'service_type_id' => $accountTariff->service_type_id,
+                'trunk_id' => $accountTariff->trunk_id,
             ]
         );
 
@@ -137,6 +138,7 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->tariffication_free_first_seconds = $params['tariffication_free_first_seconds'];
         $accountTariffLight->price = $params['price'];
         $accountTariffLight->service_type_id = $params['service_type_id'];
+        $accountTariffLight->trunk_id = $params['trunk_id'];
         if (!$accountTariffLight->save()) {
             throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
         }

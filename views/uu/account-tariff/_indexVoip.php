@@ -66,7 +66,10 @@ $rows = AccountTariff::getGroupedObjects($query);
                         <?php // номера ?>
                         <div>
                             <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'style' => 'display: none;']) ?>
-                            <?= Html::a($accountTariff->voip_number ?: Yii::t('common', '(not set)'), $accountTariff->getUrl()) ?>
+                            <?= Html::a(
+                                $accountTariff->voip_number ?: ($accountTariff->trunk_id ? $accountTariff->trunk->name : Yii::t('common', '(not set)')),
+                                $accountTariff->getUrl()
+                            ) ?>
                         </div>
                     <?php endforeach; ?>
 

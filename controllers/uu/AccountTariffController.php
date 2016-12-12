@@ -13,11 +13,8 @@ use app\classes\uu\forms\AccountTariffEditForm;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
-use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\helpers\DateTimeZoneHelper;
-use app\models\Business;
-use app\models\ClientAccount;
 use InvalidArgumentException;
 use LogicException;
 use Yii;
@@ -87,17 +84,6 @@ class AccountTariffController extends BaseController
             'serviceTypeId' => $serviceTypeId,
         ]);
 
-        if ($serviceTypeId == ServiceType::ID_TRUNK) {
-            // Автоматически создать базовую услугу транка
-            $clientAccount = $formModel->getAccountTariffModel()->clientAccount;
-            $this->autocreateTrunc($clientAccount);
-            return $this->redirect([
-                'index',
-                'serviceTypeId' => $serviceTypeId,
-                'AccountTariffFilter[client_account_id]' => $clientAccount->id,
-            ]);
-        }
-
         if ($formModel->isSaved) {
 
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
@@ -158,87 +144,6 @@ class AccountTariffController extends BaseController
             ]);
         }
 
-    }
-
-    /**
-     * Автоматически создать базовую услугу транка
-     *
-     * @param ClientAccount $clientAccount
-     */
-    private function autocreateTrunc(ClientAccount $clientAccount)
-    {
-        $serviceTypeId = ServiceType::ID_TRUNK;
-
-        $tariff = Tariff::findOne([
-            'service_type_id' => $serviceTypeId,
-            'country_id' => $clientAccount->country_id,
-            'currency_id' => $clientAccount->currency,
-        ]);
-        if (!$tariff) {
-            Yii::$app->session->setFlash('error', 'Не найден базовый тариф транка.');
-            return;
-        }
-
-        $tariffPeriods = $tariff->tariffPeriods;
-        if (count($tariffPeriods) != 1) {
-            Yii::$app->session->setFlash('error', 'У базового тарифа транка должен быть только один период.');
-            return;
-        }
-
-        if (AccountTariff::find()
-            ->where([
-                'client_account_id' => $clientAccount->id,
-                'service_type_id' => $serviceTypeId,
-            ])
-            ->count()
-        ) {
-            Yii::$app->session->setFlash('error', 'ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.');
-            return;
-        }
-
-        if ($clientAccount->contract->business_id != Business::OPERATOR) {
-            Yii::$app->session->setFlash('error', 'Универсальную услугу транка можно добавить только ЛС с договором Межоператорка.');
-            return;
-        }
-
-        $usageTrunk = \app\models\UsageTrunk::find()
-            ->where(['client_account_id' => $clientAccount->id])
-            ->one();
-
-        if (!$usageTrunk) {
-            Yii::$app->session->setFlash('error', 'Универсальную услугу транка пока можно добавить только при наличии транка (неуниверсальной услуги телефония/транк).');
-            return;
-        }
-
-        // автоматически создать услугу транка
-        $transaction = AccountTariff::getDb()->beginTransaction();
-        try {
-
-            $accountTariff = new AccountTariff;
-            $accountTariff->client_account_id = $clientAccount->id;
-            $accountTariff->service_type_id = $serviceTypeId;
-            $accountTariff->tariff_period_id = reset($tariffPeriods)->id;
-            if (!$accountTariff->save()) {
-                throw new LogicException(implode(', ', $accountTariff->getFirstErrors()));
-            }
-
-            $accountTariffLog = new AccountTariffLog();
-            $accountTariffLog->account_tariff_id = $accountTariff->id;
-            $accountTariffLog->tariff_period_id = reset($tariffPeriods)->id;
-            $accountTariffLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
-            if (!$accountTariffLog->save()) {
-                throw new LogicException(implode(', ', $accountTariffLog->getFirstErrors()));
-            }
-
-            $transaction->commit();
-            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
-            return;
-
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            Yii::$app->session->setFlash('error', $e->getMessage());
-            return;
-        }
     }
 
     /**

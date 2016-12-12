@@ -5,6 +5,8 @@ namespace app\classes\uu\model;
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\Trunk;
+use app\models\Business;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\Region;
@@ -28,6 +30,7 @@ use yii\helpers\Url;
  * @property string $comment
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
  * @property int vm_elid_id ID VM collocation
+ * @property int trunk_id ID физического транка
  *
  * @property ClientAccount $clientAccount
  * @property ServiceType $serviceType
@@ -38,6 +41,7 @@ use yii\helpers\Url;
  * @property AccountTariff[] $nextAccountTariffs   Пакеты
  * @property AccountTariffLog[] $accountTariffLogs
  * @property TariffPeriod $tariffPeriod
+ * @property Trunk $trunk
  *
  * @property AccountLogSetup[] $accountLogSetups
  * @property AccountLogPeriod[] $accountLogPeriods
@@ -152,13 +156,15 @@ class AccountTariff extends ActiveRecord
                     'region_id',
                     'city_id',
                     'prev_account_tariff_id',
-                    'tariff_period_id'
+                    'tariff_period_id',
+                    'trunk_id',
                 ],
                 'integer'
             ],
             [['comment'], 'string'],
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
             ['service_type_id', 'validatorServiceType'],
+            ['trunk_id', 'validatorTrunk', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorTariffPeriod'],
         ];
     }
@@ -302,6 +308,14 @@ class AccountTariff extends ActiveRecord
     public function getServiceType()
     {
         return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTrunk()
+    {
+        return $this->hasOne(Trunk::className(), ['id' => 'trunk_id']);
     }
 
     /**
@@ -816,7 +830,7 @@ class AccountTariff extends ActiveRecord
     }
 
     /**
-     * Валидировать, что tariff_period_id соответствует service_type_id
+     * Валидировать, что нельзя менять service_type_id
      * @param string $attribute
      * @param [] $params
      */
@@ -824,6 +838,39 @@ class AccountTariff extends ActiveRecord
     {
         if (!$this->isNewRecord && $this->serviceTypeIdOld != $this->service_type_id) {
             $this->addError($attribute, 'Нельзя менять service_type_id');
+            return;
+        }
+    }
+
+    /**
+     * Валидировать, что задан транк для соответствующей услуги
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorTrunk($attribute, $params)
+    {
+        if ($this->service_type_id != ServiceType::ID_TRUNK) {
+            return;
+        }
+
+        if (!$this->trunk_id) {
+            $this->addError($attribute, 'Для услуги транка необходимо указать транк');
+            return;
+        }
+
+        if ($this->isNewRecord && AccountTariff::find()
+                ->where([
+                    'client_account_id' => $this->client_account_id,
+                    'service_type_id' => $this->service_type_id,
+                ])
+                ->count()
+        ) {
+            $this->addError($attribute, 'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.');
+            return;
+        }
+
+        if ($this->clientAccount->contract->business_id != Business::OPERATOR) {
+            $this->addError($attribute, 'Универсальную услугу транка можно добавить только ЛС с договором Межоператорка.');
             return;
         }
     }

@@ -9,6 +9,7 @@ return [
     'comment' => 'Комментарий',
     'voip_number' => 'Номер',
     'vm_elid_id' => 'ID VM collocation',
+    'trunk_id' => 'Транк',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',
