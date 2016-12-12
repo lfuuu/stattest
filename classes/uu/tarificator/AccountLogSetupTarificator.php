@@ -8,6 +8,7 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Number;
 use Yii;
 
 /**
@@ -105,7 +106,7 @@ class AccountLogSetupTarificator implements TarificatorI
 
         $accountLogSetup->price_setup = $tariffPeriod->price_setup;
 
-        if ($accountLogFromToTariff->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > 10000 && $accountTariff->number) {
+        if ($accountLogFromToTariff->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > Number::NUMBER_MAX_LINE && $accountTariff->number) {
             // телефонный номер кроме телефонной линии (4-5 знаков)
             // только первое подключение. При смене тарифа на том же ЛС не считать
             $accountLogSetup->price_number = $accountTariff->number->getPrice($tariffPeriod->tariff->currency_id);
