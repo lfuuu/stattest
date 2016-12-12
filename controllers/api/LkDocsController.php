@@ -222,17 +222,17 @@ class LkDocsController extends ApiController
             ->contractId($contractId)
             ->active()
             ->andWhere(["id" => $form->id])
-            ->select(["id", "type", "contract_no", "contract_date", "contract_dop_no", "contract_dop_date"])
+            ->select(["id", "type", "contract_id", "contract_no", "contract_date", "contract_dop_no", "contract_dop_date"])
             ->one();
 
 
         if (!$document) {
-            $form->addError("id", "Document not found");
+            $form->addError("id", "Document not ready");
             throw new FormValidationException($form);
         }
 
         $result = $document->toArray();
-        $result["content"] = $document->content;
+        $result["content"] = $document->fileContent;
 
         if ($document->type != "agreement") {
             unset($result["contract_dop_no"], $result["contract_dop_date"]);

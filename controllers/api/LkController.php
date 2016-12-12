@@ -196,6 +196,7 @@ class LkController extends ApiController
             throw new FormValidationException($form);
         }
 
+        /** @var ClientAccount $account */
         $account = ClientAccount::findOne(["id" => $form->account_id]);
         Assert::isObject($account);
 
