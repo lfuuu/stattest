@@ -37,7 +37,10 @@
                         $dialog.find('.dialog-export-progress-bar div').css('width', ((100 / iterations) * (nextIteration + 1)) + '%');
 
                         if (nextIteration < iterations) {
-                            $dialog.find('span.dialog-export-total').text((data.iteration * that.options.batchSize) + ' \/ ' + data.total);
+                            var subTotal = data.iteration * that.options.batchSize;
+                            $dialog.find('span.dialog-export-total').text(
+                                (subTotal > data.total ? data.total : subTotal) + ' \/ ' + data.total
+                            );
                             that.actionIteration(driver, columns, $dialog, iterations, key, data.iteration++);
                         } else {
                             $dialog.find('.dialog-step:visible').hide();
@@ -73,6 +76,7 @@
                     if (data.total) {
                         $dialog.find('span.dialog-export-total').text('0 \/ ' + data.total);
                         $dialog.find('.dialog-step:visible').hide().next().show();
+                        $dialog.find('.dialog-export-progress-bar div').css('width', 0);
 
                         iterations = Math.ceil(data.total / that.options.batchSize);
 
