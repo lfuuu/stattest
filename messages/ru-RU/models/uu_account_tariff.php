@@ -3,7 +3,7 @@ return [
     'id' => 'ID',
     'client_account_id' => 'ЛС',
     'service_type_id' => 'Тип услуги',
-    'region_id' => 'Регион',
+    'region_id' => 'Точка присоединения',
     'city_id' => 'Город',
     'prev_account_tariff_id' => 'Основная услуга', // если из пакета, то ссылка на основную услугу "телефония"
     'comment' => 'Комментарий',
