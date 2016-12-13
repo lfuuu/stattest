@@ -77,8 +77,7 @@ class TariffConverterExtra extends TariffConverterA
                 user_users.id AS insert_user_id,
                 tarifs_extra.edit_time AS insert_time,
                 user_users.id AS update_user_id,
-                tarifs_extra.edit_time AS update_time,
-                null AS voip_tarificate_id
+                tarifs_extra.edit_time AS update_time
             FROM tarifs_extra
             LEFT JOIN user_users
                 ON tarifs_extra.edit_user = user_users.id

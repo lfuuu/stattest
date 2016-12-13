@@ -24,7 +24,7 @@ $tariffTableName = Tariff::tableName();
 
 <div class="row">
 
-    <div class="col-sm-4">
+    <div class="col-sm-12">
         <label><?= Yii::t('models/' . $tariffVoipCityTableName, 'city_id') ?></label>
         <?= Select2::widget([
             'name' => 'TariffVoipCity[]',

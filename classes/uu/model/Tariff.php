@@ -39,7 +39,9 @@ use yii\helpers\Url;
  * @property TariffPeriod[] $tariffPeriods
  *
  * VOIP && VOIP package only!
- * @property integer $voip_tarificate_id
+ * @property integer $voip_tarification_free_seconds
+ * @property integer $voip_tarification_interval_seconds
+ * @property integer $voip_tarification_type
  * @property integer $voip_group_id
  *
  * VOIP package only!
@@ -52,7 +54,6 @@ use yii\helpers\Url;
  * @property integer $vm_id
  * @property TariffVm $vm
  *
- * @property TariffVoipTarificate $voipTarificate
  * @property TariffVoipGroup $voipGroup
  * @property TariffVoipCity[] $voipCities
  * @property boolean $isTest
@@ -182,10 +183,13 @@ class Tariff extends \yii\db\ActiveRecord
                     'is_default',
                     'country_id',
                     'vm_id',
+                    'voip_tarification_free_seconds',
+                    'voip_tarification_interval_seconds',
+                    'voip_tarification_type',
                 ],
                 'integer'
             ],
-            [['voip_tarificate_id', 'voip_group_id'], 'integer'],
+            [['voip_group_id'], 'integer'],
             [['name'], 'string', 'max' => 255],
             [['currency_id'], 'string', 'max' => 3],
             [['name'], 'required'],
@@ -276,7 +280,7 @@ class Tariff extends \yii\db\ActiveRecord
     public function getTariffResources()
     {
         return $this->hasMany(TariffResource::className(), ['tariff_id' => 'id'])
-            ->indexBy('resource_id');
+            ->indexBy('id');
     }
 
     /**
@@ -326,14 +330,6 @@ class Tariff extends \yii\db\ActiveRecord
     public function getServiceType()
     {
         return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getVoipTarificate()
-    {
-        return $this->hasOne(TariffVoipTarificate::className(), ['id' => 'voip_tarificate_id']);
     }
 
     /**

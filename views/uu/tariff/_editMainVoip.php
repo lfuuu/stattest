@@ -8,7 +8,6 @@
  * @var int $editableType
  */
 
-use app\classes\uu\model\TariffVoipTarificate;
 use app\controllers\uu\TariffController;
 use kartik\select2\Select2;
 
@@ -23,13 +22,23 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
 <div class="well">
     <div class="row">
+
         <div class="col-sm-4">
-            <?= $form->field($tariff, 'voip_tarificate_id')
+            <?= $form->field($tariff, 'voip_tarification_free_seconds')->textInput($options) ?>
+        </div>
+
+        <div class="col-sm-4">
+            <?= $form->field($tariff, 'voip_tarification_interval_seconds')->textInput($options) ?>
+        </div>
+
+        <div class="col-sm-4">
+            <?= $form->field($tariff, 'voip_tarification_type')
                 ->widget(Select2::className(), [
-                    'data' => TariffVoipTarificate::getList(),
+                    'data' => [2 => 'В большую сторону (ceil)', 1 => 'Математическое округление (round)'],
                     'options' => $options,
                 ]) ?>
         </div>
+
     </div>
 
     <?= $this->render('_editMainVoipCity', [

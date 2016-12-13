@@ -13,7 +13,9 @@ return [
     'tariff_status_id' => 'Статус',
     'currency_id' => 'Валюта',
     'tariff_person_id' => 'Для кого',
-    'voip_tarificate_id' => 'Тарификация',
+    'voip_tarification_free_seconds' => 'Бесплатно, сек.',
+    'voip_tarification_interval_seconds' => 'Интервал билингования, сек.',
+    'voip_tarification_type' => 'Тип округления',
     'voip_group_id' => 'Группа телефонии',
     'vm_id' => 'Тариф VM collocation',
 

@@ -18,7 +18,6 @@ class TariffFilter extends Tariff
     public $currency_id = '';
     public $country_id = '';
 
-    public $voip_tarificate_id = '';
     public $voip_group_id = '';
     public $voip_city_id = '';
 
@@ -75,7 +74,6 @@ class TariffFilter extends Tariff
         $this->is_charge_after_blocking !== '' && $query->andWhere([$tariffTableName . '.is_charge_after_blocking' => (int)$this->is_charge_after_blocking]);
         $this->is_include_vat !== '' && $query->andWhere([$tariffTableName . '.is_include_vat' => (int)$this->is_include_vat]);
         $this->is_default !== '' && $query->andWhere([$tariffTableName . '.is_default' => (int)$this->is_default]);
-        $this->voip_tarificate_id !== '' && $query->andWhere([$tariffTableName . '.voip_tarificate_id' => $this->voip_tarificate_id]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
 
         if ($this->voip_city_id !== '') {

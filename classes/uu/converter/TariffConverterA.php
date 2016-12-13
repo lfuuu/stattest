@@ -88,8 +88,7 @@ abstract class TariffConverterA
             tariff.insert_user_id = tariff_tmp.insert_user_id,
             tariff.insert_time = tariff_tmp.insert_time,
             tariff.update_user_id = tariff_tmp.update_user_id,
-            tariff.update_time = tariff_tmp.update_time,
-            tariff.voip_tarificate_id = tariff_tmp.voip_tarificate_id
+            tariff.update_time = tariff_tmp.update_time
         WHERE
             tariff.id = tariff_tmp.id
         ");
@@ -109,7 +108,7 @@ abstract class TariffConverterA
         $affectedRows = $this->execute("INSERT INTO {$tariffTableName}
             (id, service_type_id, currency_id, name, tariff_status_id, is_include_vat, tariff_person_id, country_id,
             is_autoprolongation, is_charge_after_period, is_charge_after_blocking, count_of_validity_period,
-            insert_user_id, insert_time, update_user_id, update_time, voip_tarificate_id)
+            insert_user_id, insert_time, update_user_id, update_time)
         SELECT *
         FROM tariff_tmp
         ");

@@ -114,7 +114,7 @@ class TariffController extends BaseController
 
             if ($formModel->id) {
 
-                Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
+                Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
                 return $this->redirect([
                     'edit',
                     'id' => $formModel->id,

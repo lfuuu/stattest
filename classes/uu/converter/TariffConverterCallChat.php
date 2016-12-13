@@ -56,8 +56,7 @@ class TariffConverterCallChat extends TariffConverterA
                 IF(edit_user>0, edit_user, NULL) AS insert_user_id,
                 edit_time AS insert_time,
                 IF(edit_user>0, edit_user, NULL) AS update_user_id,
-                edit_time AS update_time,
-                null AS voip_tarificate_id
+                edit_time AS update_time
             FROM tarifs_call_chat
         ");
     }

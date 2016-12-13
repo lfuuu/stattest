@@ -29,7 +29,7 @@ class TariffConverterWelltimeSaas extends TariffConverterA
             SELECT
                 id - {$deltaTariffOld} + {$deltaTariff} as id, {$serviceTypeId} as service_type_id, currency_id, name, tariff_status_id, is_include_vat, tariff_person_id, country_id,
                 is_autoprolongation, is_charge_after_period, is_charge_after_blocking, count_of_validity_period,
-                insert_user_id, insert_time, update_user_id, update_time, voip_tarificate_id
+                insert_user_id, insert_time, update_user_id, update_time
             FROM {$tariffTableName}
             WHERE
                 service_type_id = {$serviceTypeIdOld}
