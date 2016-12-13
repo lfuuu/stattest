@@ -262,25 +262,6 @@ abstract class WizardBaseController extends ApiController
         }
     }
 
-    /**
-     * Возвращает контакную информацию
-     *
-     * @return ClientContact
-     */
-    protected function getContact()
-    {
-        $contact = ClientContact::findOne([
-            "client_id" => $this->account->id,
-            "user_id" => User::CLIENT_USER_ID,
-            "type" => ClientContact::TYPE_PHONE
-        ]);
-
-        if (!$contact) {
-            $contact = new ClientContact();
-        }
-
-        return $contact;
-    }
 
     /**
      * Оповещение по почте менеджера о завершении заполнения визарда
