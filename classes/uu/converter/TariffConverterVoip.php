@@ -9,7 +9,6 @@ use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPerson;
 use app\classes\uu\model\TariffStatus;
 use app\classes\uu\model\TariffVoipCity;
-use app\classes\uu\model\TariffVoipTarificate;
 use Yii;
 
 /**
@@ -33,11 +32,6 @@ class TariffConverterVoip extends TariffConverterA
         $personIdAll = TariffPerson::ID_ALL;
         $serviceTypeIdVoip = ServiceType::ID_VOIP;
         $deltaVoipTariff = Tariff::DELTA_VOIP;
-
-        $tarificateBySecond = TariffVoipTarificate::ID_VOIP_BY_SECOND;
-        $tarificateBySecondFree = TariffVoipTarificate::ID_VOIP_BY_SECOND_FREE;
-        $tarificateByMinute = TariffVoipTarificate::ID_VOIP_BY_MINUTE;
-        $tarificateByMinuteFree = TariffVoipTarificate::ID_VOIP_BY_MINUTE_FREE;
 
         // подготовить старые тарифы
         $this->execute("CREATE TEMPORARY TABLE tariff_tmp
@@ -67,10 +61,6 @@ class TariffConverterVoip extends TariffConverterA
                 edit_time AS insert_time,
                 edit_user AS update_user_id,
                 edit_time AS update_time,
-                IF(tariffication_by_minutes=0,
-                    IF(tariffication_free_first_seconds=0, {$tarificateBySecond}, {$tarificateBySecondFree}),
-                    IF(tariffication_free_first_seconds=0, {$tarificateByMinute}, {$tarificateByMinuteFree})
-                ) AS voip_tarificate_id
             FROM tarifs_voip
         ");
     }

@@ -56,8 +56,7 @@ class TariffConverterInternet extends TariffConverterA
                 edit_user AS insert_user_id,
                 edit_time AS insert_time,
                 edit_user AS update_user_id,
-                edit_time AS update_time,
-                null AS voip_tarificate_id
+                edit_time AS update_time
             FROM tarifs_internet
             WHERE type = 'I'
         ");

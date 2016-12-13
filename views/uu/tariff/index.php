@@ -13,7 +13,6 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\TariffPersonColumn;
 use app\classes\grid\column\universal\TariffStatusColumn;
 use app\classes\grid\column\universal\TariffVoipGroupColumn;
-use app\classes\grid\column\universal\TariffVoipTarificateColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -105,15 +104,6 @@ switch ($serviceType->id) {
         break;
 
     case ServiceType::ID_VOIP:
-        $columns[] = [
-            'label' => Html::encode(Yii::t('models/' . Tariff::tableName(), 'voip_tarificate_id')),
-            'attribute' => 'voip_tarificate_id',
-            'class' => TariffVoipTarificateColumn::className(),
-            'value' => function (Tariff $tariff) {
-                return $tariff->voip_tarificate_id;
-            }
-        ];
-
         $columns[] = [
             'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
             'attribute' => 'voip_city_id',

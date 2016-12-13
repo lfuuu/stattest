@@ -42,8 +42,7 @@ class TariffConverterVoipPackage extends TariffConverterA
                 null AS insert_user_id,
                 null AS insert_time,
                 null AS update_user_id,
-                null AS update_time,
-                null AS voip_tarificate_id
+                null AS update_time
             FROM tarifs_voip_package
         ");
     }

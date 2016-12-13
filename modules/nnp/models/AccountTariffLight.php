@@ -16,9 +16,9 @@ use yii\db\ActiveRecord;
  * @property int deactivate_from
  * @property float coefficient
  * @property int account_tariff_id
- * @property bool tariffication_by_minutes
- * @property bool tariffication_full_first_minute
- * @property bool tariffication_free_first_seconds
+ * @property integer $tarification_free_seconds
+ * @property integer $tarification_interval_seconds
+ * @property integer $tarification_type
  * @property float price
  * @property int service_type_id
  * @property int trunk_id
@@ -42,9 +42,9 @@ class AccountTariffLight extends ActiveRecord
             'deactivate_from' => 'По',
             'coefficient' => 'Коэффициент', // если подключение не в начале месяца
             'account_tariff_id' => 'Базовая услуга', // тариф (2), а не пакет (3)!
-            'tariffication_by_minutes' => 'Поминутно?',
-            'tariffication_full_first_minute' => 'Первая минута поминутно?',
-            'tariffication_free_first_seconds' => 'Первые 5 сек. бесплатно?',
+            'tarification_free_seconds' => 'Бесплатно, сек.',
+            'tarification_interval_seconds' => 'Интервал билингования, сек.',
+            'tarification_type' => 'Тип округления',
             'price' => 'Цена пакета', // полная (из TariffPeriod), без учета coefficient
             'service_type_id' => 'Тип услуги',
             'trunk_id' => 'Транк',

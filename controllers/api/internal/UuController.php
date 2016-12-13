@@ -19,7 +19,6 @@ use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffStatus;
 use app\classes\uu\model\TariffVoipCity;
 use app\classes\uu\model\TariffVoipGroup;
-use app\classes\uu\model\TariffVoipTarificate;
 use app\exceptions\api\internal\ExceptionValidationForm;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
@@ -166,31 +165,6 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-tariff-voip-tarificates", summary = "Список типов тарификации телефонии", operationId = "Список типов тарификации телефонии",
-     *
-     *   @SWG\Response(response = 200, description = "Список типов тарификации телефонии (посекундный, поминутный и пр.)",
-     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-    /**
-     * @return array
-     */
-    public function actionGetTariffVoipTarificates()
-    {
-        $query = TariffVoipTarificate::find();
-        $result = [];
-        foreach ($query->each() as $model) {
-            $result[] = $this->getIdNameRecord($model);
-        }
-
-        return $result;
-    }
-
-    /**
      * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-tariff-voip-groups", summary = "Список групп телефонии", operationId = "Список групп телефонии",
      *
      *   @SWG\Response(response = 200, description = "Список групп телефонии (местные, междугородние, международные и пр.)",
@@ -264,7 +238,9 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "tariff_person", type = "object", description = "Для кого действует тариф (для всех, физиков, юриков)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_resources", type = "array", description = "Ресурсы (дисковое пространство, абоненты, линии и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffResourceRecord")),
      *   @SWG\Property(property = "tariff_periods", type = "array", description = "Периоды (посуточно, помесячно и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
-     *   @SWG\Property(property = "voip_tarificate", type = "object", description = "Телефония. Тип тарификации (посекундный, поминутный и пр.)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "voip_tarification_free_seconds", type = "integer", description = "Телефония. Бесплатно, секунд"),
+     *   @SWG\Property(property = "voip_tarification_interval_seconds", type = "integer", description = "Телефония. 'Интервал билингования, секунд"),
+     *   @SWG\Property(property = "voip_tarification_type", type = "integer", description = "Телефония. Тип округления. 1 - round, 2 - ceil"),
      *   @SWG\Property(property = "voip_group", type = "object", description = "Телефония. Группа (местные, междугородние, международные и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_cities", type = "array", description = "Телефония. Города", @SWG\Items(ref = "#/definitions/idNameRecord")),
      *   @SWG\Property(property = "voip_package_minute", type = "array", description = "Телефония. Пакет. Предоплаченные минуты", @SWG\Items(ref = "#/definitions/voipPackageMinuteRecord")),
@@ -282,7 +258,6 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны", in = "query"),
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query"),
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query"),
-     *   @SWG\Parameter(name = "voip_tarificate_id", type = "integer", description = "ID типа тарификации телефонии (посекундный, поминутный и пр.)", in = "query"),
      *   @SWG\Parameter(name = "voip_group_id", type = "integer", description = "ID группы телефонии (местные, междугородние, международные и пр.)", in = "query"),
      *   @SWG\Parameter(name = "voip_city_id", type = "integer", description = "ID города телефонии", in = "query"),
      *
@@ -306,7 +281,6 @@ class UuController extends ApiInternalController
         $is_default = 0,
         $tariff_status_id = null,
         $tariff_person_id = null,
-        $voip_tarificate_id = null,
         $voip_group_id = null,
         $voip_city_id = null
     ) {
@@ -333,7 +307,6 @@ class UuController extends ApiInternalController
         !is_null($is_default) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int)$tariff_person_id]);
-        $voip_tarificate_id && $tariffQuery->andWhere([$tariffTableName . '.voip_tarificate_id' => (int)$voip_tarificate_id]);
         $voip_group_id && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int)$voip_group_id]);
 
         if ($voip_city_id) {
@@ -356,7 +329,6 @@ class UuController extends ApiInternalController
                     $is_default_tmp = 1,
                     $tariff_status_id_tmp = null,
                     $tariff_person_id_tmp = null,
-                    $voip_tarificate_id_tmp = null,
                     $voip_group_id_tmp = null,
                     $voip_city_id_tmp = null
                 );
@@ -798,7 +770,9 @@ class UuController extends ApiInternalController
             'tariff_person' => $this->getIdNameRecord($tariff->person),
             'tariff_resources' => $this->getTariffResourceRecord($tariff->tariffResources),
             'tariff_periods' => $this->getTariffPeriodRecord($tariff->tariffPeriods),
-            'voip_tarificate' => $this->getIdNameRecord($tariff->voipTarificate),
+            'voip_tarification_free_seconds' => $tariff->voip_tarification_free_seconds,
+            'voip_tarification_interval_seconds' => $tariff->voip_tarification_interval_seconds,
+            'voip_tarification_type' => $tariff->voip_tarification_type,
             'voip_group' => $this->getIdNameRecord($tariff->voipGroup),
             'voip_cities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
             'voip_package_minute' => $this->getVoipPackageMinuteRecord($tariff->packageMinutes),
