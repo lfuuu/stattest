@@ -175,26 +175,30 @@ class m_newaccounts extends IModule
         }
     }
 
-    function _getSwitchTelekomDate($contractId)
+    /**
+     * @param int $contractId
+     * @return array
+     */
+    function _getWhenOrganizationSwitched($contractId)
     {
-        $data = [];
-        $lastOrgId = 0;
+        $result = [];
+        $lastOrganizationId = 0;
 
-        foreach (\app\models\HistoryVersion::find()
-                     ->andWhere(
-                         ['regexp', 'data_json', '"organization_id":"?[0-9]+"?,']
-                     )
-                     ->andWhere(["model" => 'ClientContract', 'model_id' => $contractId])
-                     ->orderBy("date")
-                     ->all() as $l) {
-            $v = json_decode($l->data_json, true);
-            if ($lastOrgId != $v["organization_id"]) {
-                $data[$l->date] = $v["organization_id"];
-                $lastOrgId = $v["organization_id"];
+        foreach (
+            \app\models\HistoryVersion::find()
+                 ->andWhere(['regexp', 'data_json', '"organization_id":"?[0-9]+"?,'])
+                 ->andWhere(['model' => 'ClientContract', 'model_id' => $contractId])
+                 ->orderBy(['date' => SORT_ASC])
+                 ->all() as $record
+        ) {
+            $historyData = json_decode($record->data_json, true);
+            if ($lastOrganizationId != $historyData['organization_id']) {
+                $result[$record->date] = $historyData['organization_id'];
+                $lastOrganizationId = $historyData['organization_id'];
             }
         }
 
-        return $data;
+        return $result;
     }
 
     function newaccounts_bill_list_simple($get_sum = false)
@@ -236,21 +240,21 @@ class m_newaccounts extends IModule
 
         ksort($sw);
 
-        $stDates = $this->_getSwitchTelekomDate($clientAccount->contract_id);
+        $stDates = $this->_getWhenOrganizationSwitched($clientAccount->contract_id);
 
         if ($stDates) {
-            foreach ($stDates as $stDate => $stOrgId) {
+            foreach ($stDates as $date => $organizationId) {
                 $ks = false;
                 foreach ($sw as $bDate => $billNo) {
-                    if ($bDate >= $stDate) {
+                    if ($bDate >= $date) {
                         $ks = $billNo;
                         break;
                     }
                 }
 
                 if ($ks && isset($R[$ks])) {
-                    $organization = Organization::find()->byId($stOrgId)->one();
-                    $R[$ks]["switch_to_mcn"] = $organization->name;
+                    $organization = Organization::find()->byId($organizationId)->actual($date)->one();
+                    $R[$ks]['organization_switched'] = $organization;
                 }
             }
         }
@@ -575,21 +579,21 @@ class m_newaccounts extends IModule
         ksort($buf);
         ksort($sw);
 
-        $stDates = $this->_getSwitchTelekomDate($clientAccount->contract_id);
+        $stDates = $this->_getWhenOrganizationSwitched($clientAccount->contract_id);
 
         if ($stDates) {
-            foreach ($stDates as $stDate => $stOrgId) {
+            foreach ($stDates as $date => $organizationId) {
                 $ks = false;
                 foreach ($sw as $bDate => $billNo) {
-                    if ($bDate >= $stDate) {
+                    if ($bDate >= $date) {
                         $ks = $billNo;
                         break;
                     }
                 }
 
                 if ($ks && isset($R[$ks])) {
-                    $organization = Organization::find()->byId($stOrgId)->one();
-                    $R[$ks]["switch_to_mcn"] = $organization->name;
+                    $organization = Organization::find()->byId($organizationId)->actual($date)->one();
+                    $R[$ks]['organization_switched'] = $organization;
                 }
             }
         }
