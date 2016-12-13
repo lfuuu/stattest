@@ -3,7 +3,7 @@ return [
     'id' => 'ID',
     'client_account_id' => 'Account',
     'service_type_id' => 'Service type',
-    'region_id' => 'Region',
+    'region_id' => 'Attachment point',
     'city_id' => 'City',
     'prev_account_tariff_id' => 'Main service',
     'comment' => 'Comment',

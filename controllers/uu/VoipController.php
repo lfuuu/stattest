@@ -9,6 +9,7 @@ use app\classes\BaseController;
 use app\classes\Html;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
+use app\models\billing\Trunk;
 use app\models\City;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
@@ -153,6 +154,20 @@ class VoipController extends BaseController
         $tariffPeriods = TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId, $currency, $cityId, $isWithEmpty,
             $isWithNullAndNotNull = false, $statusId);
         $this->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
+    }
+
+    /**
+     * Вернуть массив транков в зависимости от региона (сервера)
+     * Используется для динамической подгрузки select2 или selectbox
+     *
+     * @param int $regionId
+     * @param string $format
+     * @param bool $isWithEmpty
+     */
+    public function actionGetTrunks($regionId = null, $format = null, $isWithEmpty = true)
+    {
+        $trunks = Trunk::getList($regionId, $isWithEmpty);
+        $this->returnFormattedValues($trunks, $format);
     }
 
     /**
