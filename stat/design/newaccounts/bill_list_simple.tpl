@@ -188,9 +188,9 @@
                 {/if}
             {/if}
         </tr>
-        {if isset($op.switch_to_mcn) && $op.switch_to_mcn}
+        {if isset($op.organization_switched) && $op.organization_switched}
             <tr>
-                <td colspan="12" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0; font-size: 8pt; text-align: center;">{$op.switch_to_mcn}</td>
+                <td colspan="12" style="padding:0 0 0 0;margin: 0 0 0 0;background-color: #9edbf0; font-size: 8pt; text-align: center;">{$op.organization_switched.name}</td>
             </tr>
         {/if}
     {/foreach}
