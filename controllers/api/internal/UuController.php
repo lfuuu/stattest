@@ -1269,8 +1269,9 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Definition(definition = "vmCollocationRecord", type = "object",
-     *   @SWG\Property(property="vm_user_id", type="string", description="ID юзера в VM manager"),
-     *   @SWG\Property(property="vm_user_password", type="string", description="Пароль юзера в VM manager"),
+     *   @SWG\Property(property="vm_user_id", type="string|null", description="ID юзера в VM manager (обычно не нужен)"),
+     *   @SWG\Property(property="vm_user_login", type="string|null", description="Логин юзера в VM manager"),
+     *   @SWG\Property(property="vm_user_password", type="string|null", description="Постоянный пароль юзера в VM manager (обычно не нужен)"),
      * ),
      *
      * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VM collocation ЛС", operationId = "Информация о VM collocation ЛС",
@@ -1295,7 +1296,8 @@ class UuController extends ApiInternalController
         }
         $syncVmCollocation = (new SyncVmCollocation);
         return [
-            'vm_user_id' => $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_ELID),
+            'vm_user_id' => $vm_user_id = $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_ELID),
+            'vm_user_login' => $vm_user_id ? ('client_' . $client_account_id) : null,
             'vm_user_password' => $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_PASSWORD),
         ];
     }
