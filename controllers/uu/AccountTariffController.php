@@ -237,11 +237,14 @@ class AccountTariffController extends BaseController
                 $packageServiceTypeId = $tariffPeriodIdNew ? TariffPeriod::findOne(['id' => $tariffPeriodIdNew])->tariff->service_type_id : null;
                 $accountTariff = $this->findAccountTariff($accountTariffId, $accountTariffFirstHash, $packageServiceTypeId);
 
-                // изменить услугу
-                $accountTariff->tariff_period_id = $tariffPeriodIdNew;
-                if (!$accountTariff->save()) {
-                    $errors = $accountTariff->getFirstErrors();
-                    throw new LogicException(reset($errors));
+                // создать новую услугу, но не менять существующую
+                // если тариф меняется с текущего момента, она пересчитается триггером; если с будущего - по крону
+                if ($accountTariff->isNewRecord) {
+                    $accountTariff->tariff_period_id = $tariffPeriodIdNew;
+                    if (!$accountTariff->save()) {
+                        $errors = $accountTariff->getFirstErrors();
+                        throw new LogicException(reset($errors));
+                    }
                 }
 
                 // записать в лог тарифа

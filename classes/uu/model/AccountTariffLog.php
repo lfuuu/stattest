@@ -63,6 +63,7 @@ class AccountTariffLog extends ActiveRecord
             ['actual_from', 'validatorPackage', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
+            ['tariff_period_id', 'validatorDoublePackage'],
         ];
     }
 
@@ -463,5 +464,59 @@ class AccountTariffLog extends ActiveRecord
         } else {
             return new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
         }
+    }
+
+    /**
+     * Валидировать, что пакет подключен только 1 раз
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorDoublePackage($attribute, $params)
+    {
+        if (!$this->tariff_period_id) {
+            // закрытие услуги всегда можно
+            return;
+        }
+
+        $accountTariff = $this->accountTariff;
+        if (!$accountTariff->prev_account_tariff_id) {
+            // не пакет
+            return;
+        }
+
+        if (AccountTariff::find()
+            ->where([
+                'service_type_id' => $accountTariff->service_type_id,
+                'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                'tariff_period_id' => $this->tariff_period_id,
+            ])
+            ->andWhere(['!=', 'id', (int)$this->account_tariff_id]) // кроме себя же
+            ->count()
+        ) {
+            $this->addError($attribute, 'Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.');
+            return;
+        }
+
+        $accountTariffTableName = AccountTariff::tableName();
+        $accountTariffLogTableName = AccountTariffLog::tableName();
+        if (AccountTariffLog::find()
+            ->joinWith('accountTariff')
+            ->where([
+                $accountTariffTableName . '.service_type_id' => $accountTariff->service_type_id,
+                $accountTariffTableName . '.prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                $accountTariffLogTableName . '.tariff_period_id' => $this->tariff_period_id,
+            ])
+            ->andWhere([
+                '>=',
+                $accountTariffLogTableName . '.actual_from_utc',
+                (new DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT)
+            ])// "-1 day" для того, чтобы не мучиться с таймзоной клиента, а гарантированно получить нужное
+            ->count()
+        ) {
+            $this->addError($attribute, 'Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла.');
+            return;
+        }
+
+
     }
 }
