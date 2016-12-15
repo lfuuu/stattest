@@ -187,7 +187,7 @@ class Cdr extends Model
         $condition2 = $condition2 ? 'WHERE ' . implode(' AND ', $condition2) : '';
         $condition3 = $condition3 ? 'WHERE ' . implode(' AND ', $condition3) : '';
 
-        if (!$condition1 && !$condition2 && $condition3) {
+        if (!$condition1 && !$condition2 && !$condition3) {
             return new ArrayDataProvider([
                 'allModels' => [],
             ]);
