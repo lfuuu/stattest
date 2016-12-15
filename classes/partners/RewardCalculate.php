@@ -2,6 +2,7 @@
 
 namespace app\classes\partners;
 
+use app\models\BillLine;
 use yii\db\Expression;
 use yii\db\Query;
 use app\classes\Assert;
@@ -37,6 +38,7 @@ abstract class RewardCalculate
         $bill = Bill::findOne(['id' => $billId]);
         Assert::isObject($bill);
 
+        // Список используемых настроек вознаграждений
         $contractRewards =
             (new Query)
                 ->select([
@@ -62,6 +64,24 @@ abstract class RewardCalculate
 
         foreach ($bill->lines as $line) {
             if (!array_key_exists($line->service, $contractRewards)) {
+                // В настройках вознаграждения нет данного типа услуги
+                continue;
+            }
+
+            $rewardsSettingsByType = $contractRewards[$line->service];
+
+            if (
+                $rewardsSettingsByType['period_type'] === ClientContractReward::PERIOD_MONTH
+                    &&
+                $rewardsSettingsByType['period_month'] < BillLine::find()
+                    ->where([
+                        'service' => $line->service,
+                        'id_service' => $line->id_service,
+                    ])
+                    ->andWhere(['<', 'date_to', $line->date_to])
+                    ->count()
+            ) {
+                // Период выплат ограничен и их кол-во не превышает настроенное
                 continue;
             }
 
@@ -78,8 +98,8 @@ abstract class RewardCalculate
             $reward->created_at = $createdAt;
 
             foreach ($rewardsClass::$availableRewards as $rewardClass) {
-                /** @var Reward $rewardClass*/
-                $rewardClass::calculate($reward, $line, $contractRewards[$line->service]);
+                /** @var Reward $rewardClass */
+                $rewardClass::calculate($reward, $line, $rewardsSettingsByType);
             }
 
             if (!$reward->save()) {
