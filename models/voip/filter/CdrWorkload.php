@@ -5,26 +5,25 @@
 
 namespace app\models\voip\filter;
 
-use Psr\Log\InvalidArgumentException;
 use Yii;
 use yii\base\Model;
 use yii\data\SqlDataProvider;
+use yii\data\ArrayDataProvider;
 
 class CdrWorkload extends Model
 {
-    const PAGE_SIZE = 10;
-
     public $number = null;
     public $dateStart = null;
     public $dateEnd = null;
-    public $date = '';
+    public $date = null;
 
     public function rules()
     {
         return [
             [['dateStart', 'dateEnd', 'date'], 'trim'],
             [['dateStart', 'dateEnd'], 'date', 'format' => 'php:Y-m-d'],
-            [['number', 'date'], 'string']
+            [['number', 'date'], 'string'],
+            [['dateStart', 'dateEnd', 'date', 'number'], 'required'],
         ];
     }
 
@@ -39,13 +38,8 @@ class CdrWorkload extends Model
         if (isset($get['date'], $get['number']) && strpos($get['date'], ':') !== false) {
             list($get['dateStart'], $get['dateEnd']) = explode(':', $get['date']);
             parent::load($get, '');
-            if ($this->validate()) {
-                return true;
-            } else {
-                throw new InvalidArgumentException('Не все параметры введены корректно');
-            }
         }
-        return true;
+        return $this->validate();
     }
 
     /**
@@ -55,6 +49,11 @@ class CdrWorkload extends Model
      */
     public function getWorkload()
     {
+        if (!$this->dateStart || !$this->dateEnd || !$this->number) {
+            return new ArrayDataProvider([
+                'allModels' => [],
+            ]);
+        }
         return new SqlDataProvider([
             'db' => 'dbPgSlave',
             'sql' => "SELECT
@@ -73,13 +72,11 @@ class CdrWorkload extends Model
                     LEFT JOIN
                         billing.service_number AS sn
                         ON
-                         (sn.did = cc.src_number
-                                OR
-                            sn.did = cc.dst_number)
+                          sn.did = :number
+                            AND
+                          sn.activation_dt <= gs.gs 
                               AND
-                            sn.activation_dt <= gs.gs 
-                                AND
-                            sn.expire_dt >= gs.gs + interval '1 hour'
+                          sn.expire_dt >= gs.gs + interval '1 hour'
                     WHERE
                         cc.connect_time >= :date_start
                           AND 

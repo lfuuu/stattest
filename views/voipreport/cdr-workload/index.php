@@ -15,7 +15,7 @@ use app\classes\grid\column\universal\StringColumn;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Загрузка номера') ?>
+<?= app\classes\Html::formLabel($this->title = 'Загруженность номеров') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Телефония'],
