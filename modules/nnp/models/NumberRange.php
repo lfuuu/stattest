@@ -3,6 +3,7 @@ namespace app\modules\nnp\models;
 
 use app\classes\Connection;
 use app\models\City;
+use app\models\Country;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -22,6 +23,7 @@ use yii\helpers\Url;
  * @property int region_id
  * @property int city_id // индекса и FK нет, потому что таблица городов в другой БД
  * @property bool is_active
+ * @property string ndc_type_source
  * @property int ndc_type_id
  * @property string date_stop date
  * @property string date_resolution date
@@ -33,6 +35,7 @@ use yii\helpers\Url;
  * @property Region region
  * @property NumberRangePrefix[] numberRangePrefixes
  * @property NdcType ndcType
+ * @property Country country
  */
 class NumberRange extends ActiveRecord
 {
@@ -59,6 +62,7 @@ class NumberRange extends ActiveRecord
             'region_id' => 'Регион',
             'city_id' => 'Город',
             'is_active' => 'Вкл.',
+            'ndc_type_source' => 'Исходный тип NDC',
             'ndc_type_id' => 'Тип NDC',
             'date_stop' => 'Дата выключения',
             'date_resolution' => 'Дата принятия решения о выделении диапазона',
@@ -87,7 +91,7 @@ class NumberRange extends ActiveRecord
     public function rules()
     {
         return [
-            [['operator_id', 'region_id', 'city_id'], 'integer'],
+            [['operator_id', 'region_id', 'city_id', 'ndc_type_id'], 'integer'],
         ];
     }
 
@@ -146,6 +150,14 @@ class NumberRange extends ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['prefix' => 'country_prefix']);
     }
 
     /**

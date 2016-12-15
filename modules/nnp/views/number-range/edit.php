@@ -8,6 +8,7 @@
 
 use app\models\City;
 use app\modules\nnp\forms\numberRange\Form;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\Region;
 use kartik\select2\Select2;
@@ -51,10 +52,10 @@ if (!$numberRange->isNewRecord) {
             </div>
         </div>
 
-        <?php // Тип NDC ?>
+        <?php // Кол-во номеров ?>
         <div class="col-sm-2">
-            <label><?= $numberRange->getAttributeLabel('ndc_type_id') ?></label>
-            <div><?= $numberRange->ndc_type_id ? htmlspecialchars($numberRange->ndcType->name) : '' ?></div>
+            <label>Кол-во номеров</label>
+            <div><?= 1 + $numberRange->number_to - $numberRange->number_from ?></div>
         </div>
 
         <?php // Вкл. ?>
@@ -81,21 +82,27 @@ if (!$numberRange->isNewRecord) {
     <div class="row">
 
         <?php // Статус номера ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <label><?= $numberRange->getAttributeLabel('status_number') ?></label>
             <div><?= $numberRange->status_number ?></div>
         </div>
 
         <?php // Дата принятия решения о выделении диапазона ?>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <label><?= $numberRange->getAttributeLabel('date_resolution') ?></label>
             <div><?= $numberRange->date_resolution ? Yii::$app->formatter->asDate($numberRange->date_resolution, 'medium') : '' ?></div>
         </div>
 
         <?php // Комментарий или номер решения о выделении диапазона ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <label><?= $numberRange->getAttributeLabel('detail_resolution') ?></label>
             <div><?= $numberRange->detail_resolution ?></div>
+        </div>
+
+        <?php // Страна ?>
+        <div class="col-sm-3">
+            <label><?= $numberRange->getAttributeLabel('country_prefix') ?></label>
+            <div><?= $numberRange->country ? $numberRange->country->name : '' ?></div>
         </div>
 
     </div>
@@ -110,9 +117,15 @@ if (!$numberRange->isNewRecord) {
         </div>
 
         <?php // Исходный оператор ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <label><?= $numberRange->getAttributeLabel('operator_source') ?></label>
             <div><?= htmlspecialchars($numberRange->operator_source) ?></div>
+        </div>
+
+        <?php // исходный тип NDC ?>
+        <div class="col-sm-3">
+            <label><?= $numberRange->getAttributeLabel('ndc_type_source') ?></label>
+            <div><?= $numberRange->ndc_type_source ?></div>
         </div>
 
     </div>
@@ -135,9 +148,16 @@ if (!$numberRange->isNewRecord) {
         </div>
 
         <?php // Оператор ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($numberRange, 'operator_id')->widget(Select2::className(), [
                 'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
+            ]) ?>
+        </div>
+
+        <?php // Тип NDC ?>
+        <div class="col-sm-3">
+            <?= $form->field($numberRange, 'ndc_type_id')->widget(Select2::className(), [
+                'data' => NdcType::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
         </div>
 
