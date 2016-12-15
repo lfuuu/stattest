@@ -99,6 +99,7 @@ class Navigation
                 ->addItem('DID группы', ['/tariff/did-group/'], ['tarifs.read'])
                 ->addItem('Номера', ['/voip/number'], ['stats.report'])
                 ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])
+                ->addItem('Отчет по calls_cdr', ['/voip/cdr'], ['voip.access'])
         );
 
         $this->addBlock(

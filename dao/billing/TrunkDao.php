@@ -1,6 +1,7 @@
 <?php
 namespace app\dao\billing;
 
+use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -101,4 +102,39 @@ class TrunkDao extends Singleton
         return $query->all();
     }
 
+    /**
+     * Получить список транков с идентификатором логического транка
+     *
+     * @param $serverId
+     * @param $operatorId
+     * @param $contractId
+     * @param bool $isWithEmpty
+     * @return $this|array
+     */
+    public static function getListWithName($serverId, $operatorId, $contractId, $isWithEmpty = false)
+    {
+        $list = (new Query)
+            ->select(['t.name AS id', "COALESCE('(' || st.id || ') ' || t.name, t.name) AS name"])
+            ->from('billing.service_trunk AS st')
+            ->rightJoin('auth.trunk AS t', 't.id = st.trunk_id')
+            ->orderBy('st.id ASC');
+
+        $serverId && $list->andWhere(['t.server_id' => $serverId]);
+        $operatorId && $list->andWhere(['st.operator_id' => $operatorId]);
+        $contractId && $list->andWhere(['st.contract_id' => $contractId]);
+
+        $list = $list->all(Yii::$app->dbPgSlave);
+
+        $list = ArrayHelper::map(
+            $list,
+            'id',
+            'name'
+        );
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+
+        return $list;
+    }
 }
