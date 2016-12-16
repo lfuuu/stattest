@@ -17,6 +17,7 @@ use yii\helpers\Url;
  * @property int tarification_interval_seconds
  * @property int tarification_type
  * @property int tarification_min_paid_seconds
+ * @property int currency_id
  *
  * @property Tariff tariff  FK нет, ибо в таблица в другой БД
  * @property PackageMinute[] packageMinutes
@@ -41,6 +42,7 @@ class Package extends ActiveRecord
             'tarification_interval_seconds' => 'Интервал билингования, сек.',
             'tarification_type' => 'Тип округления',
             'tarification_min_paid_seconds' => 'Минимальная плата, сек.',
+            'currency_id' => 'Валюта',
         ];
     }
 
@@ -60,7 +62,16 @@ class Package extends ActiveRecord
     {
         return [
             [['tariff_id'], 'required'],
-            [['tariff_id'], 'integer'],
+            [
+                [
+                    'tariff_id',
+                    'tarification_free_seconds',
+                    'tarification_interval_seconds',
+                    'tarification_type',
+                    'tarification_min_paid_seconds',
+                ],
+                'integer'
+            ],
         ];
     }
 
