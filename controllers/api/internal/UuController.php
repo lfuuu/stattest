@@ -238,9 +238,10 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "tariff_person", type = "object", description = "Для кого действует тариф (для всех, физиков, юриков)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_resources", type = "array", description = "Ресурсы (дисковое пространство, абоненты, линии и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffResourceRecord")),
      *   @SWG\Property(property = "tariff_periods", type = "array", description = "Периоды (посуточно, помесячно и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
-     *   @SWG\Property(property = "voip_tarification_free_seconds", type = "integer", description = "Телефония. Бесплатно, секунд"),
-     *   @SWG\Property(property = "voip_tarification_interval_seconds", type = "integer", description = "Телефония. 'Интервал билингования, секунд"),
-     *   @SWG\Property(property = "voip_tarification_type", type = "integer", description = "Телефония. Тип округления. 1 - round, 2 - ceil"),
+     *   @SWG\Property(property = "tarification_free_seconds", type = "integer", description = "Телефония. Бесплатно, секунд"),
+     *   @SWG\Property(property = "tarification_interval_seconds", type = "integer", description = "Телефония. 'Интервал билингования, секунд"),
+     *   @SWG\Property(property = "tarification_type", type = "integer", description = "Телефония. Тип округления. 1 - round, 2 - ceil"),
+     *   @SWG\Property(property = "tarification_min_paid_seconds", type = "integer", description = "Телефония. Минимальная плата, секунд"),
      *   @SWG\Property(property = "voip_group", type = "object", description = "Телефония. Группа (местные, междугородние, международные и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_cities", type = "array", description = "Телефония. Города", @SWG\Items(ref = "#/definitions/idNameRecord")),
      *   @SWG\Property(property = "voip_package_minute", type = "array", description = "Телефония. Пакет. Предоплаченные минуты", @SWG\Items(ref = "#/definitions/voipPackageMinuteRecord")),
@@ -745,6 +746,7 @@ class UuController extends ApiInternalController
      */
     private function getTariffRecord(Tariff $tariff, $tariffPeriod)
     {
+        $package = $tariff->package;
         return [
             'id' => $tariff->id,
             'name' => $tariff->name,
@@ -761,9 +763,10 @@ class UuController extends ApiInternalController
             'tariff_person' => $this->getIdNameRecord($tariff->person),
             'tariff_resources' => $this->getTariffResourceRecord($tariff->tariffResources),
             'tariff_periods' => $this->getTariffPeriodRecord($tariffPeriod),
-            'voip_tarification_free_seconds' => $tariff->voip_tarification_free_seconds,
-            'voip_tarification_interval_seconds' => $tariff->voip_tarification_interval_seconds,
-            'voip_tarification_type' => $tariff->voip_tarification_type,
+            'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,
+            'tarification_interval_seconds' => $package ? $package->tarification_interval_seconds : null,
+            'tarification_type' => $package ? $package->tarification_type : null,
+            'tarification_min_paid_seconds' => $package ? $package->tarification_min_paid_seconds : null,
             'voip_group' => $this->getIdNameRecord($tariff->voipGroup),
             'voip_cities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
             'voip_package_minute' => $this->getVoipPackageMinuteRecord($tariff->packageMinutes),

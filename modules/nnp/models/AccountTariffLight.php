@@ -16,12 +16,8 @@ use yii\db\ActiveRecord;
  * @property int deactivate_from
  * @property float coefficient
  * @property int account_tariff_id
- * @property integer $tarification_free_seconds
- * @property integer $tarification_interval_seconds
- * @property integer $tarification_type
  * @property float price
  * @property int service_type_id
- * @property int trunk_id
  */
 class AccountTariffLight extends ActiveRecord
 {
@@ -35,19 +31,15 @@ class AccountTariffLight extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID', // фактически это AccountLogPeriod.id
-            'account_client_id' => 'ЛС',
-            'tariff_id' => 'Тариф', // не путайте с tariff_period_id
-            'activate_from' => 'С',
-            'deactivate_from' => 'По',
-            'coefficient' => 'Коэффициент', // если подключение не в начале месяца
-            'account_tariff_id' => 'Базовая услуга', // тариф (2), а не пакет (3)!
-            'tarification_free_seconds' => 'Бесплатно, сек.',
-            'tarification_interval_seconds' => 'Интервал билингования, сек.',
-            'tarification_type' => 'Тип округления',
-            'price' => 'Цена пакета', // полная (из TariffPeriod), без учета coefficient
-            'service_type_id' => 'Тип услуги',
-            'trunk_id' => 'Транк',
+            'id' => 'ID', // ID ежемесячного списания за пакет (AccountLogPeriod.id)
+            'account_client_id' => 'ЛС', // ID ЛС (AccountClient.id)
+            'tariff_id' => 'Тариф', // ID пакета (Tariff.id, он же nnp.package.id)
+            'activate_from' => 'С', // Дата начала действия пакета по UTC
+            'deactivate_from' => 'По', // Дата окончания действия пакета по UTC
+            'coefficient' => 'Коэффициент', // Коэффициент от 0 до 1, если пакет действует меньше месяца. Цену и кол-во доступных минут надо умножать на этот коэффициент
+            'account_tariff_id' => 'Базовая услуга', // ID базовой (не пакет!) универсальной услуги (AccountTariff.id). Для пакетов телефонии (service_type_id = 3) это номер телефона/линии (он же billing.service_number.id). Для пакетов транков (service_type_id = 23, 24) это номер транка (он же billing.service_trunk.id). Чтобы не пересекаться со старыми услугами - больше 100000.
+            'price' => 'Цена пакета', // Цена пакета. Для получения стоимости надо умножить на coefficient
+            'service_type_id' => 'Тип услуги', // ID типа услуги (ServiceType.id). 3 - пакет телефонии. 23 - пакет терм-транк. 24 - пакет ориг-транк
         ];
     }
 

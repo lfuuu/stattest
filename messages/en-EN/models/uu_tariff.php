@@ -13,9 +13,6 @@ return [
     'tariff_status_id' => 'Status',
     'currency_id' => 'Currency',
     'tariff_person_id' => 'Person type',
-    'voip_tarification_free_seconds' => 'Free, sec.',
-    'voip_tarification_interval_seconds' => 'Billing interval, sec.',
-    'voip_tarification_type' => 'Round type',
     'voip_group_id' => 'Voip group',
     'vm_id' => 'VM collocation tariff',
 

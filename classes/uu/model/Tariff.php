@@ -39,9 +39,6 @@ use yii\helpers\Url;
  * @property TariffPeriod[] $tariffPeriods
  *
  * VOIP && VOIP package only!
- * @property integer $voip_tarification_free_seconds
- * @property integer $voip_tarification_interval_seconds
- * @property integer $voip_tarification_type
  * @property integer $voip_group_id
  *
  * VOIP package only!
@@ -50,7 +47,7 @@ use yii\helpers\Url;
  * @property PackagePrice[] packagePrices
  * @property PackagePricelist[] packagePricelists
  *
- * VO collocation only!
+ * VM collocation only!
  * @property integer $vm_id
  * @property TariffVm $vm
  *
@@ -183,9 +180,6 @@ class Tariff extends \yii\db\ActiveRecord
                     'is_default',
                     'country_id',
                     'vm_id',
-                    'voip_tarification_free_seconds',
-                    'voip_tarification_interval_seconds',
-                    'voip_tarification_type',
                 ],
                 'integer'
             ],

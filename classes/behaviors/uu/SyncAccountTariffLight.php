@@ -71,8 +71,6 @@ class SyncAccountTariffLight extends Behavior
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
         }
 
-        $tariffPeriod = $accountTariff->prevAccountTariff->tariffPeriod;
-        $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
         \app\classes\Event::go(self::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT, [
                 'id' => $accountLogPeriod->id,
                 'account_client_id' => $accountTariff->client_account_id,
@@ -81,12 +79,8 @@ class SyncAccountTariffLight extends Behavior
                 'deactivate_from' => $deactivateFrom,
                 'coefficient' => $coefficient,
                 'account_tariff_id' => $accountTariff->prevAccountTariff->id,
-                'tarification_free_seconds' => $tariff ? $tariff->voip_tarification_free_seconds : null,
-                'tarification_interval_seconds' => $tariff ? $tariff->voip_tarification_interval_seconds : null,
-                'tarification_type' => $tariff ? $tariff->voip_tarification_type : null,
                 'price' => $accountLogPeriod->tariffPeriod->price_setup + $accountLogPeriod->tariffPeriod->price_per_period, // чтобы учесть и разовые услуги (price_setup), и обычные (price_per_period)
                 'service_type_id' => $accountTariff->service_type_id,
-                'trunk_id' => $accountTariff->trunk_id,
             ]
         );
 
@@ -132,12 +126,8 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->deactivate_from = $params['deactivate_from'] ? new Expression(sprintf("TIMESTAMP '%s'", $params['deactivate_from'])) : null;
         $accountTariffLight->coefficient = str_replace(',', '.', $params['coefficient']);
         $accountTariffLight->account_tariff_id = $params['account_tariff_id'];
-        $accountTariffLight->tarification_free_seconds = $params['tarification_free_seconds'];
-        $accountTariffLight->tarification_interval_seconds = $params['tarification_interval_seconds'];
-        $accountTariffLight->tarification_type = $params['tarification_type'];
         $accountTariffLight->price = $params['price'];
         $accountTariffLight->service_type_id = $params['service_type_id'];
-        $accountTariffLight->trunk_id = $params['trunk_id'];
         if (!$accountTariffLight->save()) {
             throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
         }

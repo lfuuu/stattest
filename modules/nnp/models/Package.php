@@ -13,6 +13,10 @@ use yii\helpers\Url;
  *
  * @property int tariff_id
  * @property int service_type_id
+ * @property int tarification_free_seconds
+ * @property int tarification_interval_seconds
+ * @property int tarification_type
+ * @property int tarification_min_paid_seconds
  *
  * @property Tariff tariff  FK нет, ибо в таблица в другой БД
  * @property PackageMinute[] packageMinutes
@@ -21,6 +25,9 @@ use yii\helpers\Url;
  */
 class Package extends ActiveRecord
 {
+    const TARIFICATION_TYPE_ROUND = 1;
+    const TARIFICATION_TYPE_CEIL = 2;
+
     /**
      * имена полей
      * @return [] [полеВТаблице => Перевод]
@@ -29,6 +36,11 @@ class Package extends ActiveRecord
     {
         return [
             'tariff_id' => 'Тариф',
+            'service_type_id' => 'Тип услуги',
+            'tarification_free_seconds' => 'Бесплатно, сек.',
+            'tarification_interval_seconds' => 'Интервал билингования, сек.',
+            'tarification_type' => 'Тип округления',
+            'tarification_min_paid_seconds' => 'Минимальная плата, сек.',
         ];
     }
 
