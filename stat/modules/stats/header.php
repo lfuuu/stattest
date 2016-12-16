@@ -8,12 +8,9 @@ class m_stats_head extends IModuleHead{
 		'ppp'				=> array('stats','r'),
 		'voip'				=> array('stats','r'),
 		'callback'			=> array('stats','r'),
-		'vpn'				=> array('stats','r'),
 		'send_view'			=> array('stats','report'),
 		'send_process'		=> array('stats','report'),
 		'send_add'			=> array('stats','report'),
-		'report'			=> array('stats','report'),
-		'report_traff_less'	=> array('stats','report'),
 		'report_sms_gate'	=> array('stats','report'),
 		'report_voip_e164_free' => array('stats','report'),
 		'report_services'	=> array('stats','report'),
@@ -52,8 +49,6 @@ class m_stats_head extends IModuleHead{
             array('Callback',		'callback'),
             array('VPN',			'vpn'),
             array('Рассылка',		'send_view'),
-            array('Отчёт',			'report'),
-            array('Отчёт по мин. трафику',	'report_traff_less'),
             array('Свободные номера', 'report_voip_e164_free'),
             array('SMS Gate',		'report_sms_gate'),
             array('Отчет по услугам', 'report_services'),
@@ -77,4 +72,5 @@ class m_stats_head extends IModuleHead{
         );
     }
 }
-?>
+
+

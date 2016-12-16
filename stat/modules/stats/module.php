@@ -2,10 +2,18 @@
 
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
+use app\models\flows\TraffFlow1d;
 use app\models\ClientAccount;
+use app\models\flows\TraffFlow1h;
 use app\models\Param;
 use app\models\StatVoipFreeCache;
 use app\classes\BaseView;
+use app\models\UsageIpPorts;
+use app\models\UsageIpRoutes;
+use app\models\usages\UsageInterface;
+use yii\db\Expression;
+use yii\db\Query;
 
 class m_stats extends IModule{
     private $_inheritances = array();
@@ -76,7 +84,7 @@ class m_stats extends IModule{
 		$is_coll = get_param_integer('is_coll',0);
 		$design->assign('is_collocation',$is_coll);
 
-		$stats = $this->GetStatsInternet($fixclient,$from,$to,$detality,$routes,$is_coll);
+		$stats = $this->GetStatsInternet($from, $to, $detality, $routes);
 		if(!$stats)
 			return;
 
@@ -90,71 +98,6 @@ class m_stats extends IModule{
 			$design->AddMain('stats/internet.tpl');
 			$design->AddMain('stats/internet_form.tpl');
 		}
-	}
-
-
-	function stats_vpn($fixclient) {
-		global $db,$design;
-		if (!$fixclient) {trigger_error2('Выберите клиента'); return;}
-        $clientNick = ClientAccount::findOne($fixclient)->client;
-		$ip=get_param_raw('ip','');
-
-		$dateFrom = new DatePickerValues('date_from', 'first');
-		$dateTo = new DatePickerValues('date_to', 'last');
-
-		$from = $dateFrom->getTimestamp();
-		$to = $dateTo->getTimestamp();
-		
-		DatePickerPeriods::assignStartEndMonth($dateFrom->day, 'prev_', '-1 month');
-		DatePickerPeriods::assignPeriods(new DateTime());
-
-		$detality=get_param_protected('detality','day');
-		$design->assign('detality',$detality);
-
-		$IPs=array();
-		$db->Query('
-			select
-				ip,
-				D.actual_from,
-				D.actual_to
-			from
-				usage_ip_ports as S
-			INNER JOIN
-				usage_tech_cpe as D
-			ON
-				D.service="usage_ip_ports"
-			and
-				D.id_service=S.id
-			and
-				D.client=S.client
-			INNER JOIN
-				tarifs_internet as T
-			ON
-				T.id=get_tarif_internet(S.id)
-			where
-				S.client="'.$clientNick.'"
-			AND
-				T.type="V"
-			and
-				serial != ""
-			and
-				ip != ""
-		');
-
-		while ($r=$db->NextRecord()) $IPs[$r['ip']]=$r;
-
-		if ($ip){
-			if (!isset($IPs[$ip])) {trigger_error2('Выбрана неправильная сеть'); return;}
-			$IPs=array($IPs[$ip]);
-		}
-		$stats=$this->GetStatsVPN($fixclient,$from,$to,$detality,$IPs);
-		if (!$stats) return;
-
-		$design->assign('stats',$stats);
-		$design->assign('ip',$ip);
-		$design->assign('IPs',$IPs);
-		$design->AddMain('stats/vpn.tpl');
-		$design->AddMain('stats/vpn_form.tpl');
 	}
 
 	function stats_ppp($fixclient){
@@ -624,264 +567,36 @@ class m_stats extends IModule{
 		$design->AddMain('stats/callback_form.tpl');
 	}
 
-	function GetStatsInternet($client,$from,$to,$detality,$routes,$is_collocation=0){
-		global $db;
-		if($from > strtotime('3000-01-01')){
-			$r=array('in_bytes'=>0, 'out_bytes'=>0,'ts'=>0,'tsf'=>0);
-			return array($r,$r);
-		}
+    /**
+     * Статистика по Интернет
+     *
+     * @param string $from Дата начала
+     * @param string $to Дата окончания
+     * @param string $detality Детализация
+     * @param array $routes список ip-адресов/ip-сетей для отчета
+     * @param int $isCollocation
+     * @return app\models\HistoryVersion|app\models\UsageTechCpe
+     */
+    function GetStatsInternet($from, $to, $detality, $routes)
+    {
+        $tz = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
+        $fromDt = new DateTime('now', $tz);
+        $fromDt->setTimestamp($from);
 
-		$group='';
-
-		if($detality=='year'){
-			$tbl='traf_flows_1d';
-			$group=' group by YEAR(time)';
-			$format='Y г.';
-			$order='time';
-		}elseif($detality=='month'){
-			$tbl='traf_flows_1d';
-			$group=' group by YEAR(time), MONTH(time)';
-			$format='Месяц Y г.';
-			$order='time';
-		}elseif($detality=='day'){
-			$tbl='traf_flows_1d';
-			$group=' group by time';
-			$format='d месяца Y г.';
-			$order='time';
-		}elseif($detality=='hour'){
-			$tbl='traf_flows_1h';
-			$group=' group by time';
-			$format='d месяца Y г. H:i';
-			$order='time';
-		}elseif($detality=='ip'){
-			$tbl='traf_flows_1d';
-			$group=' group by ip';
-			$format='&\nb\sp;';
-			$order='ip';
-		}elseif($detality=='no'){
-			$tbl='traf_flows_1d';
-			$group=' group by time=0';
-			$format='';
-			$order='time';
-		}else
-			return;
-//printdbg($routes);
-		$P = array('OR');
-		foreach($routes as $k=>$R)
-			if(
-					$R[1]!='9999-00-00'
-				&&
-					$R[1] < '3000-01-01'
-				&&
-					$R[2]>=date('Y-m-d',$from)
-			){
-
-				$res = netmask_to_ip_sum($R[0]);
-				if($res)
-				{
-					list($ip,$sum)=$res;
-
-					$t = array('AND','time>="'.$R[1].'"');
-					if($R[2]!="9999-00-00" && $R[2] < "3000-01-01")
-						$t[]='time<="'.$R[2].'"';
-					if($sum<=128){
-						$cnt = 0;
-						$s='ip_int IN (';
-						for($i=0;$i<$sum;$i++){
-							$s.=($i?',':'').($ip+$i);
-							$cnt++;
-						}
-						if($cnt>0)
-							$t[]=$s.')';
-					}else{
-						$t[]='ip_int>='.$ip;
-						$t[]='ip_int<='.($ip+$sum-1);
-					}
-					$P[]=$t;
-				}else{
-					$P = array("AND", "1=2");
-				}
-
-			}
+        $toDt = new DateTime('now', $tz);
+        $toDt->setTimestamp($to);
+        $toDt->setTime(23, 59, 59);
 
 
+        $stat = TraffFlow1d::getStatistic($fromDt, $toDt, $detality, $routes);
 
-		$R=array();
-		$T=array(
-			'in_bytes'=>0,
-			'out_bytes'=>0,
-			'in_r'=>0,
-			'in_r2'=>0,
-			'in_f'=>0,
-			'out_r'=>0,
-			'out_r2'=>0,
-			'out_f'=>0,
-            'is_total' => 0
-		);
-		//define("print_sql",1);
-		if(count($P)>1){
-			$W=array('AND',$P,'router="rubicon"','time>=FROM_UNIXTIME('.$from.')');
-			if($to < strtotime("3000-01-01"))
-				$W[]='time<FROM_UNIXTIME('.$to.'+86400)';
-			//printdbg($W);
-			$whsql=MySQLDatabase::Generate($W);
 
-			if($is_collocation){
-				if($group){
-					$db->Query($q="
-						select
-							inet_ntoa(ip_int) as ip,
-							sum(in_r) as in_r,
-							sum(in_r2) as in_r2,
-							sum(in_f) as in_f,
-							sum(out_r) as out_r,
-							sum(out_r2) as out_r2,
-							sum(out_f) as out_f,
-							UNIX_TIMESTAMP(time) as ts
-						from
-							$tbl
-						where
-							".$whsql.$group."
-						ORDER BY
-							".$order."
-						ASC LIMIT
-							5000
-					");
-				}else{
-					$db->Query($q="
-						select
-							inet_ntoa(ip_int) as ip,
-							in_r,
-							in_r2,
-							in_f,
-							out_r,
-							out_r2,
-							out_f,
-							UNIX_TIMESTAMP(time) as ts
-						from
-							$tbl
-						where
-							".$whsql.$group."
-						ORDER BY
-							".$order." ASC
-						LIMIT 5000
-					");
-				}
-			}else{
-				$db->Query($q="
-					select
-						inet_ntoa(ip_int) as ip,
-						".($group?'sum':'')."(in_r+in_r2+in_f) as in_bytes,
-						".($group?'sum':'')."(out_r+out_r2+out_f) as out_bytes,
-						UNIX_TIMESTAMP(time) as ts
-					from
-						$tbl
-					where
-						".$whsql.$group."
-					ORDER BY
-						".$order." ASC
-					LIMIT 5000
-				");
-			}
+        if (!$stat) {
+            return [];
+        }
 
-            $countRow = 0;
-			while ($r=$db->NextRecord()){
-				$r['tsf']=mdate($format,$r['ts']);
-                $r['is_total'] = 0;
-				$R[]=$r;
-				//printdbg($r);
-				if ($is_collocation) {
-					$T['in_bytes']+=$r['in_r2']+$r['in_f'];
-					$T['out_bytes']+=$r['out_r2']+$r['out_f'];
-					$T['in_r']+=$r['in_r'];
-					$T['in_r2']+=$r['in_r2'];
-					$T['in_f']+=$r['in_f'];
-					$T['out_r']+=$r['out_r'];
-					$T['out_r2']+=$r['out_r2'];
-					$T['out_f']+=$r['out_f'];
-				} else {
-					$T['in_bytes']+=$r['in_bytes'];
-					$T['out_bytes']+=$r['out_bytes'];
-                }
-                $countRow++;
-			}
-            if ($countRow == 5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-		}
-		$T['ts']='<b>Итого</b>';
-		$T['tsf']='<b>Итого</b>';
-		$T['ip']='&nbsp;';
-        $T["is_total"] = 1;
-		$R[]=$T;
-		return $R;
-	}
-	function GetStatsVPN($client,$from,$to,$detality,$IPs){
-		global $db;
-		if ($from > strtotime('3000-01-01')) {
-			$r=array('in_bytes'=>0, 'out_bytes'=>0,'ts'=>0,'tsf'=>0);
-			return array($r,$r);
-		}
-		$group='';
-		if ($detality=='year'){
-			$tbl='mod_traf_1d';
-			$group=' group by YEAR(datetime)';
-			$format='Y г.';
-			$order='datetime';
-		} elseif ($detality=='month'){
-			$tbl='mod_traf_1d';
-			$group=' group by MONTH(datetime)';
-			$format='Месяц Y г.';
-			$order='datetime';
-		} elseif ($detality=='day'){
-			$tbl='mod_traf_1d';
-			$group=' group by datetime';
-			$format='d месяца Y г.';
-			$order='datetime';
-		} elseif ($detality=='hour'){
-			$tbl='mod_traf_5m';
-			$group=' group by DATE(datetime),HOUR(datetime)';
-			$format='d месяца Y г. H:i';
-			$order='datetime';
-		} elseif ($detality=='ip'){
-			$tbl='mod_traf_1d';
-			$group=' group by ip_int';
-			$format='&\nb\sp;';
-			$order='ip';
-		} elseif ($detality=='no') {
-			$tbl='mod_traf_1d';
-			$group=' group by 1';
-			$format='';
-			$order='datetime';
-		} else return;
-
-		$whsql='';
-		foreach ($IPs as $k=>$R) if ($R['actual_from']!='9999-00-00' && $R['actual_from'] < '3000-01-01'){
-			if ($whsql) $whsql.=' OR ';
-			$whsql.='(ip_int=INET_ATON("'.$R['ip'].'") AND (datetime>="'.$R['actual_from'].'")'.
-					($R['actual_to']=="9999-00-00" || $R['actual_to'] > "3000-01-01" ?'':' AND (datetime<="'.$R['actual_to'].'")').')';
-		}
-
-		$R=array();
-		$rt=array('in_bytes'=>0, 'out_bytes'=>0);
-		if ($whsql) {
-			$whsql= '(datetime>=FROM_UNIXTIME('.$from.') AND datetime<FROM_UNIXTIME('.$to.'+86400)) AND ('.$whsql.')';
-			$db->Query("select inet_ntoa(ip_int) as ip,sum(transfer_rx) as in_bytes,sum(transfer_tx) as out_bytes,UNIX_TIMESTAMP(datetime) as ts from $tbl where ".$whsql.$group." ORDER by ".$order." ASC LIMIT 5000");
-
-            $countRow = 0;
-			while ($r=$db->NextRecord()){
-				$r['tsf']=mdate($format,$r['ts']);
-				$R[]=$r;
-				$rt['in_bytes']+=$r['in_bytes'];
-                $rt['out_bytes']+=$r['out_bytes'];
-                $countRow++;
-			}
-            if ($countRow == 5000) trigger_error2('Статистика отображается не полностью. Сделайте ее менее детальной или сузьте временной период');
-		}
-		$rt['ts']='<b>Итого</b>';
-		$rt['tsf']='<b>Итого</b>';
-		$rt['ip']='&nbsp;';
-		$R[]=$rt;
-		return $R;
-	}
+        return $stat;
+    }
 
     function FindByNumber($region , $from, $to, $find, $timezone = "Europe/Moscow")
     {
@@ -1316,68 +1031,86 @@ class m_stats extends IModule{
 		return $R;
 	}
 
-	function get_routes_list_ip($routes_allB){
-		$routes_all=$routes_allB;
-		foreach ($routes_allB as $k=>$R){
-			$r=$R[0];
-			if(!$r)
-				continue;
-			if (!preg_match("/(\d+)\.(\d+)\.(\d+)\.(\d+)(\/(\d+))?/",$r,$m))
-				return;
-			$ip="{$m[1]}.{$m[2]}.{$m[3]}.{$m[4]}";
-			$sum=1;
-			if (isset($m[6]) && $m[6]>0) for ($i=$m[6];$i<32;$i++) $sum*=2;
-			$n=$m;
-			for ($i=0;$i<$sum;$i++){
-				$routes_all["{$n[1]}.{$n[2]}.{$n[3]}.{$n[4]}"]=array("{$n[1]}.{$n[2]}.{$n[3]}.{$n[4]}",$R[1],$R[2]);
-				$n[4]++;
-				if ($n[4]>=256) {$n[3]+=(int)($n[4]/256); $n[4]=$n[2]%256; $k=3;}
-				if ($n[3]>=256) {$n[2]+=(int)($n[3]/256); $n[3]=$n[2]%256; $k=2;}
-				if ($n[2]>=256) {$n[1]+=(int)($n[2]/256); $n[2]=$n[2]%256; $k=1;}
-			}
-		}
-		return $routes_all;
-	}
+    function get_routes_list_ip($routes_allB)
+    {
+        $routes_all = $routes_allB;
+        foreach ($routes_allB as $k => $R) {
+            $r = $R['net'];
 
-	function get_routes_list($client){
-		global $db;
-		$routes_all=array();
-		//список всех сетей, нужен для вывода их списка.
-		$db->Query('
-			select
-				*
-			from
-				usage_ip_ports
-			where
-				client="'.$client.'"
-			order by
-				id
-		');
-		$V=array();
-		while($r=$db->NextRecord())
-			$V[]=$r['id'];
-		if(!count($V))
-			return array(array(),array());
-		$db->Query('
-			select
-				*
-			from
-				usage_ip_routes
-			where
-				port_id IN ("'.implode('","',$V).'")
-			order by
-				net,id
-		');
-		while ($r=$db->NextRecord()){
-            if ($r['net'])
-                $routes_all[$r['net']]=array($r['net'],$r['actual_from'],$r['actual_to']);
-		}
-		$routes_all_f=$this->get_routes_list_ip($routes_all);
-		return array($routes_all_f,$routes_all);
-	}
+            if (!$r) {
+                continue;
+            }
+
+            if (!preg_match('/(\d+\.\d+\.\d+\.\d+)(\/(\d+))?/', $r, $m)) {
+                return null;
+            }
+
+            $sum = 1;
+            if (isset($m[3]) && $m[3] > 0) {
+                for ($i = $m[3]; $i < 32; $i++) {
+                    $sum *= 2;
+                }
+            }
+
+            $ip = $m[1];
+            $ipInt =ip2long($ip);
+
+            for ($i = 0; $i < $sum; $i++) {
+                $ip = long2ip($ipInt+$i);
+                $routes_all[$ip] = [
+                    'net' => $ip,
+                    'actual_from' => $R['actual_from'],
+                    'actual_to' => $R['actual_to']
+                ];
+            }
+        }
+
+        return $routes_all;
+    }
+
+    function get_routes_list($client)
+    {
+        $routes_all = array();
+
+        //список всех сетей, нужен для вывода их списка.
+        $V = UsageIpPorts::find()
+            ->select('id')
+            ->where(['client' => $client])
+            ->orderBy(['id' => SORT_ASC])
+            ->column();
+
+        if (!$V) {
+            return [[], []];
+        }
+
+        $query = UsageIpRoutes::find()
+            ->where([
+                'port_id' => $V
+            ])
+            ->orderBy([
+                'net' => SORT_ASC,
+                'id' => SORT_ASC
+            ]);
+
+        /** @var UsageIpRoutes $r */
+        foreach ($query->each() as $r) {
+            if ($r['net']) {
+                $routes_all[$r->net] = [
+                    'net' => $r->net,
+                    'actual_from' => $r->actual_from,
+                    'actual_to' => $r->actual_to
+                ];
+            }
+        }
+
+        $routes_all_f = $this->get_routes_list_ip($routes_all);
+
+        return [$routes_all_f, $routes_all];
+    }
+
 	function get_client_stats($client,$from,$to){
 		list($a,$b)=$this->get_routes_list($client);
-		$stats=$this->GetStatsInternet($client,$from,$to,'no',$b);
+		$stats=$this->GetStatsInternet($from,$to,'no',$b);
 		$c=count($stats); $r=$stats[$c-1];
 		return array('in_bytes'=>$r['in_bytes'],'out_bytes'=>$r['out_bytes']);
 	}
@@ -1471,377 +1204,6 @@ class m_stats extends IModule{
 		}
 		ob_end_clean();
 		error_init();
-	}
-
-	function stats_report_traff_less() {
-		global $db,$design;
-		$managers=array('anyone'=>'Все');
-		$mtmp = User::dao()->getListByDepartments('manager');
-		foreach($mtmp as $key=>$val){
-			$managers[$key] = $val['name']." (".$key.")";
-		}
-		unset($mtmp);
-
-		$offclients_flag = get_param_protected('offclients', false);
-		$design->assign('offclients',$offclients_flag);
-		$design->assign('managers',$managers);
-		$design->assign('manager',$manager=get_param_protected('manager', 'anyone'));
-
-		$dateFrom = new DatePickerValues('date_from', 'first');
-		$dateTo = new DatePickerValues('date_to', 'today');
-		$dateFrom->format = 'Y-m-d'; $dateTo->format = 'Y-m-d';
-		$date = $dateFrom->getDay();
-		$date2 = $dateTo->getDay();
-
-		$trafLess = (float)(get_param_raw('traf_less',10));
-
-		$R = array();
-
-        if(get_param_raw("make_report", "false") != "false")
-        {
-			$manager_inj = ($manager<>'anyone')?'AND c.manager = \''.addcslashes($manager,"'\\").'\' ':'';
-			$q = "
-				SELECT
-					uip.*,
-					tfr.*,
-					tfr.sum_in+tfr.sum_out total_sum,
-					ti.name tarif_name,
-					ti.mb_month,
-					ti.pay_month,
-					ti.pay_mb,
-					c.id AS clientid
-				FROM
-					usage_ip_ports uip
-				INNER JOIN
-					clients c
-				ON
-					c.client = uip.client
-				AND
-					c.status = 'work'
-				AND
-					c.client <> ''
-				".$manager_inj."
-				INNER JOIN
-					usage_ip_routes uir
-				ON
-					uir.port_id = uip.id
-				INNER JOIN
-					log_tarif lt
-				ON
-					lt.id_service = uip.id
-				AND
-					lt.service = 'usage_ip_ports'
-				AND
-					lt.date_activation <= NOW()
-				AND
-					lt.id_tarif<>0
-				INNER JOIN
-					tarifs_internet ti
-				ON
-					ti.id = lt.id_tarif
-				AND
-					ti.type = 'I'
-				AND
-					ti.name NOT LIKE 'cdma%'
-				AND
-					ti.name NOT LIKE 'Резервирование%'
-				AND
-					ti.type_internet <> 'wimax'
-				LEFT JOIN
-					(
-						SELECT
-							id_port,
-							sum(in_bytes) as sum_in,
-							sum(out_bytes) as sum_out
-						FROM
-							traf_flows_report
-						WHERE
-							date BETWEEN '".$date."' AND '".$date2."'
-						GROUP BY
-							id_port
-					) tfr
-				ON
-					tfr.id_port = uip.id
-				WHERE
-					uip.client <> ''
-				AND
-					uip.actual_from < '".$date2."'
-				AND
-					uip.actual_to > '".(($offclients_flag)?$date:$date2)."'
-				AND
-					lt.id = (
-						SELECT
-							id
-						FROM
-							log_tarif
-						WHERE
-							service = 'usage_ip_ports'
-						AND
-							date_activation <= NOW()
-						AND
-							id_service = uip.id
-						ORDER BY
-							date_activation desc,
-							ts desc,
-							id desc
-						LIMIT 1
-					)
-				HAVING
-					total_sum < ".($trafLess*1024*1024)."
-				OR
-					total_sum IS NULL
-				ORDER BY
-					uip.client
-			";
-
-            $R = $db->AllRecords($q,'id',MYSQL_ASSOC);
-
-            /*foreach ($T as $r) { // ugly code...
-                $r['tarif'] = get_tarif_current('usage_ip_ports',$r['id_port']);
-                $R[$r['id']] = $r;
-            }
-            usort($R,create_function('$a,$b','return $a["client"]>=$b["client"];'));*/
-        }
-
-		$design->assign('newgen',true);
-		$design->assign('stats',$R);
-		$design->assign('traf_less',$trafLess);
-		$design->AddMain('stats/report_traff_less.tpl');
-		$design->AddMain('stats/report_traff_less_form.tpl');
-	}
-	function stats_report(){
-		global $db,$design;
-		$date=param_load_date('',getdate(),true);
-
-		if(isset($_GET['d']) && (int)$_GET['d']===0){
-			$date_sql_filter = "tfr.date BETWEEN '".
-				date('Y-m-d',mktime(0, 0, 0, (int)$_GET['m'], 1, (int)$_GET['y'])).
-				"' and '".
-				date('Y-m-d',mktime(0,0,0,((int)$_GET['m']==12)?1:(int)$_GET['m']+1,1,((int)$_GET['m']==12)?(int)$_GET['y']+1:(int)$_GET['y'])-60*60*24).
-				"'";
-			$design->assign('d',0);
-		}else
-			$date_sql_filter = "tfr.date='".$date."'";
-
-		$isInLessOut = get_param_raw('is_in_less_out',"nan");
-        $isInLessOut = $isInLessOut == "true";
-
-		$isOver = get_param_raw('is_over',"nan");
-        $isOver = $isOver == "true";
-
-        if(get_param_raw("over", "nan") == "nan"){
-            $isInLessOut = $isOver = true;
-        }
-
-		$over = (float)(get_param_raw('over',0.3));
-
-		$isTrafLess = get_param_raw('is_traf_less',"nan") == "true";
-		$trafLess = (float)(get_param_raw('traf_less',10));
-		$show_unlim = get_param_protected('show_unlim',false);
-
-		$R = array();
-
-        if($isInLessOut || $isOver || $isTrafLess){
-			/*$q = " // ugly code ...
-				select
-					P.*,
-					R.in_bytes,
-					R.out_bytes
-				from
-					traf_flows_report as R
-				INNER JOIN
-					usage_ip_ports as P
-				ON
-					P.id=R.id_port
-				WHERE
-					".$date_sql_filter;
-
-			$T = $db->AllRecords($q);
-
-            foreach($T as $r){
-				$r['tarif'] = get_tarif_current('usage_ip_ports',$r['id']);
-				if(!$show_unlim){
-					if(preg_match('/Безлимитный/',$r['tarif']['name']))
-						continue;
-				}
-                $traf = ($r['in_bytes']+$r['out_bytes'])/(1024*1024);
-                if(
-					(
-						$isOver
-					&&
-						$traf>10
-					&&
-						$traf*$over > $r['tarif']['mb_month']
-					)
-				||
-					(
-						$isInLessOut
-					&&
-						$traf>10
-					&&
-						$r['out_bytes'] > $r['in_bytes']
-					)
-				||
-					(
-						$isTrafLess
-					&&
-						$traf < $trafLess
-					)
-				){
-					$r["flags"]["over"] = $traf>10 && $traf*$over>$r['tarif']['mb_month'];
-
-					$r["flags"]["in_less_out"] = $traf>10 && $r['out_bytes']>$r['in_bytes'];
-					$r["flags"]["traf_less"] = $traf < $trafLess;
-
-                    //$r["client"] .= " ".$r['tarif']['mb_month'];
-					$R[$r['id']] = $r;
-                }
-            }
-            usort($R,create_function('$a,$b','return $a["client"]>=$b["client"];'));
-        }*/
-
-			/**
-			 * Устанавливаем флаги.
-			 * Не показываем клиентов, трафик которых меньше 10 мегабайт, но только
-			 * если не установлен флаг $isTrafLess.
-			 */
-			if($show_unlim){ // показывать ли безлимитные тарифы
-				$unlim_flag = 'AND ti.pay_mb = 0';
-			}else{
-				$unlim_flag = "AND ti.pay_mb > 0";
-			}
-
-			$flags = array();
-
-			if($isOver){ // превышение трафика в "небезлимитных" тарифах
-				$flags['over_flag'] = "
-						(
-							((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) > 10
-						AND
-							(((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) * ".$over.") > ti.mb_month
-						AND
-							ti.name NOT LIKE 'Безлимитный%'
-						)";
-			}
-
-			if($isInLessOut){
-				$flags['less_out_flag'] = "
-						(
-							((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) > 10
-						AND
-							sum(tfr.out_bytes) > sum(tfr.in_bytes)
-						)";
-			}
-
-			if($isTrafLess){
-				$flags['traf_less_flag'] = "
-						((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) < ".$trafLess;
-			}
-
-			$query = "
-				SELECT
-					uip.id,
-					uip.client,
-					c.id AS clientid,
-					sum(tfr.in_bytes) in_bytes,
-					sum(tfr.out_bytes) out_bytes,
-					ti.name tarif_name,
-					ti.mb_month,
-					ti.pay_month,
-					ti.pay_mb,
-					IF((
-							((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) > 10
-						AND
-							(((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) * ".$over.") > ti.mb_month
-						AND
-							ti.name NOT LIKE 'Безлимитный%'
-					),'Y','N') over_flag,
-					IF((
-							((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) > 10
-						AND
-							sum(tfr.out_bytes) > sum(tfr.in_bytes)
-					),'Y','N') less_out_flag,
-					IF(
-						((sum(tfr.in_bytes)+sum(tfr.out_bytes))/(1024*1024)) < ".$trafLess.",
-					'Y','N') traf_less_flag
-				FROM
-					traf_flows_report as tfr
-				INNER JOIN
-					usage_ip_ports as uip
-				ON
-					uip.id=tfr.id_port
-				INNER JOIN clients c ON c.client = uip.client
-				LEFT JOIN
-					log_tarif lt
-				ON
-					lt.id_service = uip.id
-				AND
-					lt.service = 'usage_ip_ports'
-				INNER JOIN
-					tarifs_internet ti
-				ON
-					ti.id = lt.id_tarif
-				".$unlim_flag."
-				WHERE
-					".$date_sql_filter."
-				AND
-					lt.id = (
-						SELECT
-							id
-						FROM
-							log_tarif
-						WHERE
-							id_service = uip.id
-						AND
-							service = 'usage_ip_ports'
-						ORDER BY
-							date_activation desc,
-							ts desc,
-							id desc
-						LIMIT 1
-					)
-				GROUP BY
-					uip.id,
-					uip.client,
-					ti.name,
-					ti.mb_month,
-					ti.pay_month,
-					ti.pay_mb
-				HAVING
-					".implode("\n\t\t\t\t\tOR",$flags)."
-				ORDER BY
-					uip.client ASC
-			";
-
-			$query_total = "
-				select
-					id_port,
-					sum(in_bytes) in_bytes,
-					sum(out_bytes) out_bytes
-				from
-					traf_flows_report
-				where
-					date between date_format('".$date."','%Y-%m-1') and date_format('".$date."','%Y-%m-1')+interval 1 month-interval 1 day
-				group by
-					id_port";
-
-			$R = $db->AllRecords($query,'id',MYSQL_ASSOC);
-			$T = $db->AllRecords($query_total,'id_port',MYSQL_ASSOC);
-			$design->assign('newgen',true);
-		}
-
-		if(isset($_GET['show_tarif_traf']) && $_GET['show_tarif_traf']=='true')
-			$design->assign('show_tarif_traf',true);
-		$design->assign('stats',$R);
-		$design->assign('totals',$T);
-		$design->assign('is_in_less_out',$isInLessOut);
-		$design->assign('is_over',$isOver);
-		$design->assign('is_traf_less',$isTrafLess);
-		$design->assign('show_unlim',$show_unlim);
-		$design->assign('over',$over);
-		$design->assign('traf_less',$trafLess);
-		$design->AddMain('stats/report.tpl');
-		$design->AddMain('stats/report_form.tpl');
 	}
 
 	function stats_report_voip_e164_free(){

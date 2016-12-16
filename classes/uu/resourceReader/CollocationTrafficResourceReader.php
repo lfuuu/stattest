@@ -10,8 +10,8 @@ use yii\base\Object;
 
 class CollocationTrafficResourceReader extends Object implements ResourceReaderInterface
 {
-    protected $fieldNameIn = '';
-    protected $fieldNameOut = '';
+    protected $fieldNameIn = 'in_bytes';
+    protected $fieldNameOut = 'out_bytes';
 
     /** @var [] кэш данных */
     protected $dateToValue = [];
@@ -58,12 +58,8 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
         $sql = <<<SQL
             SELECT
                 DATE(traf_flows_1d.time) AS `date`,
-                sum(traf_flows_1d.in_r)/1048576 as `in_r`,
-                sum(traf_flows_1d.out_r)/1048576 as `out_r`,
-                sum(traf_flows_1d.in_r2)/1048576 as `in_r2`,
-                sum(traf_flows_1d.out_r2)/1048576 as `out_r2`,
-                sum(traf_flows_1d.in_f)/1048576 as `in_f`,
-                sum(traf_flows_1d.out_f)/1048576 as `out_f`
+                sum(traf_flows_1d.in_bytes)/1048576 as `in_bytes`,
+                sum(traf_flows_1d.out_bytes)/1048576 as `out_bytes`,
             FROM
             (
                 SELECT
@@ -109,6 +105,10 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
             GROUP BY
                 DATE(traf_flows_1d.time)
 SQL;
+
+        // Если эти данные будут использованы - надо перевести на новые трафиковые таблицы
+
+        /*
         $db = UsageIpPorts::getDb();
         $dataReader = $db->createCommand($sql, [
             ':date' => AccountTariff::getMinLogDatetime()->format(DateTimeZoneHelper::DATE_FORMAT),
@@ -118,6 +118,7 @@ SQL;
         foreach ($dataReader as $row) {
             $this->dateToValue[$row['date']] = $row;
         }
+        */
 
     }
 

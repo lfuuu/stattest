@@ -84,57 +84,6 @@ class TariffConverterCollocation extends TariffConverterA
      */
     protected function createTemporaryTableForTariffResource()
     {
-        $deltaCollocationTariff = Tariff::DELTA_COLLOCATION;
-
-        $this->execute("CREATE TEMPORARY TABLE tariff_resource_tmp
-            (
-                `amount` float NOT NULL DEFAULT '0',
-                `price_per_unit` float NOT NULL DEFAULT '0',
-                `price_min` float NOT NULL DEFAULT '0',
-                `resource_id` int(11) NOT NULL,
-                `tariff_id` int(11) NOT NULL
-            )
-        ");
-
-        // Collocation. Трафик Russia
-        $resourceIdTrafficRussia = Resource::ID_COLLOCATION_TRAFFIC_RUSSIA;
-        $this->execute("INSERT INTO tariff_resource_tmp
-            SELECT
-                month_r AS amount,
-                pay_r AS price_per_unit,
-                0 AS price_min,
-                {$resourceIdTrafficRussia} AS resource_id,
-                id + {$deltaCollocationTariff} AS tariff_id
-            FROM tarifs_internet
-            WHERE type = 'C'
-        ");
-
-        // Collocation. Трафик Russia2
-        $resourceIdTrafficRussia2 = Resource::ID_COLLOCATION_TRAFFIC_RUSSIA2;
-        $this->execute("INSERT INTO tariff_resource_tmp
-           SELECT
-                month_r2 AS amount,
-                pay_r2 AS price_per_unit,
-                0 AS price_min,
-                {$resourceIdTrafficRussia2} AS resource_id,
-                id + {$deltaCollocationTariff} AS tariff_id
-            FROM tarifs_internet
-            WHERE type = 'C'
-        ");
-
-        // Collocation. Трафик Foreign
-        $resourceIdTrafficForeign = Resource::ID_COLLOCATION_TRAFFIC_FOREIGN;
-        $this->execute("INSERT INTO tariff_resource_tmp
-           SELECT
-                month_f AS amount,
-                pay_f AS price_per_unit,
-                0 AS price_min,
-                {$resourceIdTrafficForeign} AS resource_id,
-                id + {$deltaCollocationTariff} AS tariff_id
-            FROM tarifs_internet
-            WHERE type = 'C'
-        ");
-
         return true;
     }
 }

@@ -50,9 +50,7 @@ class Resource extends \yii\db\ActiveRecord
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 
-    const ID_COLLOCATION_TRAFFIC_RUSSIA = 10; // Collocation. Трафик Russia
-    const ID_COLLOCATION_TRAFFIC_RUSSIA2 = 11; // Collocation. Трафик Russia2
-    const ID_COLLOCATION_TRAFFIC_FOREIGN = 12; // Collocation. Трафик Foreign
+    const ID_COLLOCATION_TRAFFIC = 10; // Collocation. Трафик
 
     const ID_VPN_TRAFFIC = 13; // VPN. Трафик
 
@@ -137,9 +135,7 @@ class Resource extends \yii\db\ActiveRecord
 
             self::ID_INTERNET_TRAFFIC => InternetTrafficResourceReader::className(),    // Трафик (Мб., float). nispd.traf_flows_1d;
 
-            self::ID_COLLOCATION_TRAFFIC_RUSSIA => CollocationTrafficRussiaResourceReader::className(),    // Трафик Russia (Мб., float). nispd.traf_flows_1d.in_r - входящий, nispd.traf_flows_1d.out_r - исходящий;
-            self::ID_COLLOCATION_TRAFFIC_RUSSIA2 => CollocationTrafficRussia2ResourceReader::className(),  // Трафик Russia2 (Мб., float). nispd.traf_flows_1d.in_r2 - входящий, nispd.traf_flows_1d.out_r2 - исходящий;
-            self::ID_COLLOCATION_TRAFFIC_FOREIGN => CollocationTrafficForeignResourceReader::className(),  // Трафик Foreign (Мб., float). nispd.traf_flows_1d.in_f - входящий, nispd.traf_flows_1d.out_f - исходящий;
+            self::ID_COLLOCATION_TRAFFIC => CollocationTrafficResourceReader::className(),    // Трафик Russia (Мб., float). nispd.traf_flows_1d.in_r - входящий, nispd.traf_flows_1d.out_r - исходящий;
 
             self::ID_VPN_TRAFFIC => VpnTrafficResourceReader::className(),            // Трафик (Мб., float). nispd.mod_traf_1d, но таблицы пустые, походу никто их не использует давно. Какой-то рудимент. Видимо из-за повального использования безлимитных тарифов;
 

@@ -16,10 +16,6 @@ return [
 
     'ipports_out_traffic' => 'исходящего трафика',
 
-    'ipports_free_in_traffic' => 'бесплатного входящего трафика',
-
-    'ipports_pay_in_traffic' => 'платного входящего трафика',
-
     'ipports_in_traffic_RUSSIA' => 'входящего трафика "Россия"',
 
     'ipports_in_traffic_RUSSIA-2' => 'входящего трафика "Россия-2"',

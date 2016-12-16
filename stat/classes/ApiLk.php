@@ -690,6 +690,8 @@ class ApiLk
 
     public static function _getInternet_cpe($portId)
     {
+        $ret = [];
+
         foreach(NewBill::find_by_sql("
 					SELECT
 						`usage_tech_cpe`.*,
@@ -1645,7 +1647,6 @@ class ApiLk
 
     public static function getStatisticsInternetRoutes($client_id = '')
     {
-        global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
         $module_stats = new m_stats();
 
@@ -1656,37 +1657,44 @@ class ApiLk
         return $routes_all;
     }
 
-    public static function getStatisticsInternetData($client_id = '', $from = '', $to = '', $detality = 'day', $route = '', $is_coll = 0)
-    {
-        global $db;
+    public static function getStatisticsInternetData(
+        $client_id = '',
+        $from = '',
+        $to = '',
+        $detality = 'day',
+        $route = '',
+        $is_coll = 0
+    ) {
+
         include PATH_TO_ROOT . "modules/stats/module.php";
+
         $module_stats = new m_stats();
 
         $account = self::getAccount($client_id);
 
-        list($routes_all,$routes_allB)=$module_stats->get_routes_list($account->client);
+        list($routes_all, $routes_allB) = $module_stats->get_routes_list($account->client);
 
         $from = strtotime($from);
         $to = strtotime($to);
 
         //если сеть не задана, выводим все подсети клиента.
-        if($route){
-            if(isset($routes_all[$route])){
-                $routes=array($routes_all[$route]);
-            }else{
-                return array();
+        $routes = [];
+
+        if ($route) {
+            if (isset($routes_all[$route])) {
+                $routes = [$routes_all[$route]];
+            } else {
+                return [];
             }
-        }else{
-            $routes=array();
-            foreach($routes_allB as $r)
+        } else {
+            $routes = [];
+            foreach ($routes_allB as $r) {
                 $routes[] = $r;
+            }
         }
 
-        $stats = $module_stats->GetStatsInternet($account->client,$from,$to,$detality,$routes,$is_coll);
-        foreach ($stats as $k=>$r) {
-            $stats[$k]["tsf"] = $stats[$k]["tsf"];
-            $stats[$k]["ts"] = $stats[$k]["ts"];
-        }
+        $stats = $module_stats->GetStatsInternet($from, $to, $detality, $routes, $is_coll);
+
         return $stats;
     }
 

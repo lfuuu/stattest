@@ -2,11 +2,14 @@
 namespace app\classes\bill;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\flows\TraffFlow1d;
 use app\models\LogTarif;
 use app\models\TariffInternet;
 use app\models\UsageTechCpe;
 use app\models\UsageIpRoutes;
 use Yii;
+use yii\db\Expression;
+use yii\db\Query;
 
 class IpPortBiller extends Biller
 {
@@ -78,15 +81,12 @@ class IpPortBiller extends Biller
             'tariff' => $this->tariff->name
         ];
 
-        if ($this->tariff->type == 'I') {
+        if ($this->tariff->type == 'I' || $this->tariff->type == 'C') {
             $S = $this->calcIC();
-            $S['in'] = $S['in_r'] + $S['in_r2'] + $S['in_f'];
-            $S['out'] = $S['out_r'] + $S['out_r2'] + $S['out_f'];
-            $mb = max($S['in'], $S['out']);
 
             $template_data['overlimit'] = Yii::t(
                 $this->getTranslateFilename(),
-                ($S['in'] > $S['out'] ? 'ipports_in_traffic' : 'ipports_out_traffic'),
+                ($S['in_bytes'] > $S['out_bytes'] ? 'ipports_in_traffic' : 'ipports_out_traffic'),
                 [],
                 $this->clientAccount->contragent->country->lang
             );
@@ -95,233 +95,46 @@ class IpPortBiller extends Biller
                 BillerPackageResource::create($this)
                     ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                     ->setFreeAmount($this->tariff->mb_month)
-                    ->setAmount($mb)
+                    ->setAmount(max($S['in_bytes'], $S['out_bytes']))
                     ->setPrice($this->tariff->pay_mb)
-                    ->setTemplate($template)
-                    ->setTemplateData($template_data)
-            );
-        } elseif ($this->tariff->type == 'C') {
-            $S = $this->calcIC();
-            if ($this->tariff->type_count == 'r2_f') {
-                $S['in_f'] += $S['in_r2'];
-                $S['in_r2'] = 0;
-                $N = array(
-                    Yii::t(
-                        $this->getTranslateFilename(),
-                        'ipports_free_in_traffic',
-                        [],
-                        $this->clientAccount->contragent->country->lang
-                    ),
-                    '',
-                    Yii::t(
-                        $this->getTranslateFilename(),
-                        'ipports_pay_in_traffic',
-                        [],
-                        $this->clientAccount->contragent->country->lang
-                    )
-                );
-            } elseif ($this->tariff->type_count == 'all_f') {
-                $S['in_f'] += $S['in_r'] + $S['in_r2'];
-                $S['in_r'] = 0;
-                $S['in_r2'] = 0;
-                $N = array(
-                    '',
-                    '',
-                    Yii::t(
-                        $this->getTranslateFilename(),
-                        'ipports_pay_in_traffic',
-                        [],
-                        $this->clientAccount->contragent->country->lang
-                    )
-                );
-            } else {
-                $N = array(
-                    Yii::t(
-                        $this->getTranslateFilename(),
-                        'ipports_in_traffic_RUSSIA',
-                        [],
-                        $this->clientAccount->contragent->country->lang
-                    ),
-                    Yii::t(
-                        $this->getTranslateFilename(),
-                        'ipports_in_traffic_RUSSIA-2',
-                        [],
-                        $this->clientAccount->contragent->country->lang
-                    ),
-                    Yii::t(
-                        $this->getTranslateFilename(),
-                        'ipports_in_traffic_FOREIGN',
-                        [],
-                        $this->clientAccount->contragent->country->lang
-                    )
-                );
-            }
-
-            $template_data['overlimit'] = $N[0];
-            $this->addPackage(
-                BillerPackageResource::create($this)
-                    ->setPeriodType(self::PERIOD_MONTH)// Need for localization
-                    ->setFreeAmount($this->tariff->month_r)
-                    ->setAmount($S['in_r'])
-                    ->setPrice($this->tariff->pay_r)
-                    ->setTemplate($template)
-                    ->setTemplateData($template_data)
-            );
-            $template_data['overlimit'] = $N[1];
-            $this->addPackage(
-                BillerPackageResource::create($this)
-                    ->setPeriodType(self::PERIOD_MONTH)// Need for localization
-                    ->setFreeAmount($this->tariff->month_r2)
-                    ->setAmount($S['in_r2'])
-                    ->setPrice($this->tariff->pay_r2)
-                    ->setTemplate($template)
-                    ->setTemplateData($template_data)
-            );
-            $template_data['overlimit'] = $N[2];
-            $this->addPackage(
-                BillerPackageResource::create($this)
-                    ->setPeriodType(self::PERIOD_MONTH)// Need for localization
-                    ->setFreeAmount($this->tariff->month_f)
-                    ->setAmount($S['in_f'])
-                    ->setPrice($this->tariff->pay_f)
                     ->setTemplate($template)
                     ->setTemplateData($template_data)
             );
         } elseif ($this->tariff->type == 'V') {
-            $S = $this->calcV();
-            $mb = max($S['in'], $S['out']);
-
-            $template_data['overlimit'] = Yii::t(
-                $this->getTranslateFilename(),
-                ($S['in'] > $S['out'] ? 'ipports_in_traffic' : 'ipports_out_traffic'),
-                [],
-                $this->clientAccount->contragent->country->lang
-            );
-
-            $this->addPackage(
-                BillerPackageResource::create($this)
-                    ->setPeriodType(self::PERIOD_MONTH)// Need for localization
-                    ->setFreeAmount($this->tariff->mb_month)
-                    ->setAmount($mb)
-                    ->setPrice($this->tariff->pay_mb)
-                    ->setTemplate($template)
-                    ->setTemplateData($template_data)
-            );
+            //Nothing. Not need.
         }
     }
 
     private function calcIC()
     {
-        $filter = '';
-
         $routes =
             UsageIpRoutes::find()
                 ->andWhere(['port_id' => $this->usage->id])
                 ->asArray()
                 ->all();
 
+        $validedRouters = [];
         foreach ($routes as $r) {
             list($ip, $sum) = $this->netmask_to_ip_sum($r['net']);
             if ($sum && $ip) {
-                $filterR = 'time>="' . $r['actual_from'] . '" and time<="' . $r['actual_to'] . '"';
-                if ($sum <= 128) {
-                    $s = 'ip_int IN (';
-                    for ($i = 0; $i < $sum; $i++) {
-                        $s .= ($i ? ',' : '') . ($ip + $i);
-                    }
-                    $s .= ')';
-                    $filterR .= ' and ' . $s;
-                } else {
-                    $filterR .= ' and ip_int>=' . $ip;
-                    $filterR .= ' and ip_int<=' . ($ip + $sum - 1);
-                }
-                if ($filter) {
-                    $filter .= ' or (' . $filterR . ') ';
-                } else {
-                    $filter = ' (' . $filterR . ') ';
-                }
+                $validedRouters[] = $r;
             }
         }
 
-        if ($this->usage->id == 4465) {
-            return array(
-                'in_r' => 4000000000,
-                'in_r2' => 4000000000,
-                'in_f' => 4000000000,
-                'out_r' => 0,
-                'out_r2' => 0,
-                'out_f' => 0
-            );
+        if (!$validedRouters) {
+            return [
+                'in_bytes' => 0,
+                'out_bytes' => 0
+            ];
         }
 
-        if (!$filter) {
-            return array('in_r' => 0, 'in_r2' => 0, 'in_f' => 0, 'out_r' => 0, 'out_r2' => 0, 'out_f' => 0);
-        }
+        $stat = TraffFlow1d::getStatistic($this->billerActualFrom, $this->billerActualTo, TraffFlow1d::STAT_TOTAL_ONLY, $validedRouters);
 
-        return
-            Yii::$app->db->createCommand("
-                    select
-                        sum(in_r)/1048576 as in_r,
-                        sum(out_r)/1048576 as out_r,
-                        sum(in_r2)/1048576 as in_r2,
-                        sum(out_r2)/1048576 as out_r2,
-                        sum(in_f)/1048576 as in_f,
-                        sum(out_f)/1048576 as out_f
-                    from
-                        traf_flows_1d
-                    where
-                        time >= :from
-                        and time <= :to
-                        and router='rubicon'
-                        " . ($filter ? ' and (' . $filter . ')' : '') . "
-                ",
-                [
-                    ':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-                    ':to' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT),
-                ]
-            )
-                ->queryOne();
-    }
+        //в мегабайтах
+        $stat['in_bytes'] /= 1024*1024;
+        $stat['out_bytes'] /= 1024*1024;
 
-    private function calcV()
-    {
-        $filter = '';
-        $techCpe =
-            UsageTechCpe::find()
-                ->andWhere(['service' => 'usage_ip_ports', 'id_service' => $this->usage->id])
-                ->asArray()
-                ->all();
-        foreach ($techCpe as $r) {
-            $filterR = 'ip_int=INET_ATON("' . $r['ip'] . '") and datetime>="' . $r['actual_from'] . '" and datetime<="' . $r['actual_to'] . '"';
-            if ($filter) {
-                $filter .= ' or (' . $filterR . ') ';
-            } else {
-                $filter = ' (' . $filterR . ') ';
-            }
-        }
-
-        if (!$filter) {
-            return array('in' => 0, 'out' => 0);
-        }
-
-        return
-            Yii::$app->db->createCommand("
-                    select
-                        sum(transfer_rx)/1048576 as `in`,
-                        sum(transfer_tx)/1048576 as `out`
-                    from
-                        mod_traf_1d
-                    where
-                      datetime >= :from
-                      and datetime <= :to
-                        " . ($filter ? ' and (' . $filter . ')' : '') . "
-                ",
-                [
-                    ':from' => $this->billerActualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-                    ':to' => $this->billerActualTo->format(DateTimeZoneHelper::DATE_FORMAT),
-                ]
-            )
-                ->queryOne();
+        return $stat;
     }
 
     /**

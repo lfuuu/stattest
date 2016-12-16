@@ -114,6 +114,9 @@ TABLE.price TR.even_g {
 TABLE.price TR.odd_g {
 	BACKGROUND-color: #d0f0d0;
 }
+TABLE.price TR.total {
+	border-top: 1px solid gray;
+}
 
 .comment {
 	background: #fff0d8;

@@ -24,12 +24,8 @@ class InternetTrafficResourceReader extends CollocationTrafficResourceReader
         return
             isset($this->dateToValue[$date]) ?
                 (
-                    (int)$this->dateToValue[$date]['in_r'] +
-                    (int)$this->dateToValue[$date]['out_r'] +
-                    (int)$this->dateToValue[$date]['in_r2'] +
-                    (int)$this->dateToValue[$date]['out_r2'] +
-                    (int)$this->dateToValue[$date]['in_f'] +
-                    (int)$this->dateToValue[$date]['out_f']
+                    (int)$this->dateToValue[$date]['in_bytes'] +
+                    (int)$this->dateToValue[$date]['out_bytes']
                 )
                 :
                 null;
