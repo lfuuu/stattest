@@ -174,14 +174,18 @@ abstract class TariffForm extends Form
                             break;
                         }
 
-                        if (!$this->tariff->package) {
+                        $package = $this->tariff->package;
+                        if (!$package) {
                             $package = new Package();
                             $package->tariff_id = $this->id;
                             $package->service_type_id = $this->tariff->service_type_id;
-                            if (!$package->validate() || !$package->save()) {
-                                $this->validateErrors += $package->getFirstErrors();
-                                throw new InvalidArgumentException('');
-                            }
+                        }
+
+                        $package->load($post);
+                        $package->currency_id = $this->tariff->currency_id;
+                        if (!$package->validate() || !$package->save()) {
+                            $this->validateErrors += $package->getFirstErrors();
+                            throw new InvalidArgumentException('');
                         }
 
                         $packageMinute = new PackageMinute();
