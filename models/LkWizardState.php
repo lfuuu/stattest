@@ -68,12 +68,9 @@ class LkWizardState extends ActiveRecord
                     return "Заполнение реквизитов";
                     break;
                 case 2:
-                    return "Скачивание договора";
+                    return "Принятие оферты";
                     break;
                 case 3:
-                    return "Загрузка договора";
-                    break;
-                case 4:
                     $s = "Ожидание проверки";
                     switch ($this->state) {
                         case 'approve':

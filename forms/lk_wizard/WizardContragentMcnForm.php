@@ -26,15 +26,17 @@ class WizardContragentMcnForm extends Form
         $okpo = "",
         $okvd = "",
         $ogrn = "",
-        $country_id = Country::RUSSIA;
-    public $last_name;
-    public $first_name;
-    public $middle_name;
-    public $passport_serial;
-    public $passport_number;
-    public $passport_issued;
-    public $passport_date_issued;
-    public $address;
+        $country_id = Country::RUSSIA,
+        $last_name,
+        $first_name,
+        $middle_name,
+        $passport_serial,
+        $passport_number,
+        $passport_issued,
+        $passport_date_issued,
+        $birthday,
+        $address
+    ;
 
     public function rules()
     {
@@ -44,26 +46,36 @@ class WizardContragentMcnForm extends Form
         $rules[] = [['middle_name'], 'safe'];
 
         $rules[] = [
-            ["name", "inn", "address_jur", "position", "fio"],
+            ["name", "inn", "kpp", "address_jur", "position", "fio", "tax_regime"],
             "required",
             'when' => function ($model) {
-                return $model->legal_type == 'legal';
+                return $model->legal_type == ClientContragent::LEGAL_TYPE;
             }
         ];
 
         $rules[] = [
-            ['first_name', 'last_name', "address"],
-            "required",
-            'when' => function ($model) {
-                return $model->legal_type == 'person';
+            "tax_regime",
+            "in",
+            "range" => array_keys(ClientContragent::$taxRegtimeTypes),
+            "when" => function ($model) {
+                return $model->legal_type == ClientContragent::LEGAL_TYPE;
             }
         ];
 
         $rules[] = [
-            ["kpp"],
+            [
+                'first_name',
+                'last_name',
+                'address',
+                'birthday',
+                'passport_serial',
+                'passport_number',
+                'passport_date_issued',
+                'passport_issued'
+            ],
             "required",
             'when' => function ($model) {
-                return $model->legal_type == 'legal';
+                return $model->legal_type == ClientContragent::PERSON_TYPE;
             }
         ];
 
@@ -71,27 +83,12 @@ class WizardContragentMcnForm extends Form
             [
                 'name',
                 'address_jur',
-                'first_name',
-                'last_name',
                 'inn',
                 'ogrn',
             ],
             'required',
             'when' => function ($model) {
-                return $model->legal_type == 'ip';
-            }
-        ];
-
-        $rules[] = [
-            [
-                'passport_serial',
-                'passport_number',
-                'passport_date_issued',
-                'passport_issued'
-            ],
-            'required',
-            'when' => function ($model) {
-                return $model->legal_type == 'person';
+                return $model->legal_type == ClientContragent::IP_TYPE;
             }
         ];
 
@@ -100,6 +97,7 @@ class WizardContragentMcnForm extends Form
 
     public function saveInContragent(ClientAccount $account)
     {
+        /** @var ClientContragent $contragent */
         $contragent = $account->contragent;
         $contragent->legal_type = $this->legal_type;
         $contragent->name = $this->name;
@@ -112,13 +110,14 @@ class WizardContragentMcnForm extends Form
         $contragent->fio = $this->fio;
 
 
-        if ($contragent->legal_type == "legal") {
+        if ($contragent->legal_type == ClientContragent::LEGAL_TYPE) {
             if (trim($contragent->name_full) == "") {
                 $contragent->name_full = $contragent->name;
             }
+            $contragent->tax_regime = $this->tax_regime;
         }
 
-        if ($contragent->legal_type == "person") {
+        if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
             $contragent->name = $contragent->name_full = $this->last_name . " " . $this->first_name . ($this->middle_name ? " " . $this->middle_name : "");
         }
 
@@ -126,7 +125,7 @@ class WizardContragentMcnForm extends Form
 
         $contract = ClientContract::findOne($account->contract->id);
 
-        if ($contragent->legal_type == "ip" || $contragent->legal_type == "person") {
+        if ($contragent->legal_type == ClientContragent::IP_TYPE || $contragent->legal_type == ClientContragent::PERSON_TYPE) {
             $person = $contragent->person;
             if (!$person) {
                 $person = new ClientContragentPerson();
@@ -141,6 +140,7 @@ class WizardContragentMcnForm extends Form
             $person->passport_number = $this->passport_number;
             $person->passport_issued = $this->passport_issued;
             $person->passport_date_issued = $this->passport_date_issued;
+            $person->birthday = $this->birthday;
 
             $person->save();
             $contragent->refresh();

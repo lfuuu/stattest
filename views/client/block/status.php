@@ -7,7 +7,7 @@ use kartik\builder\Form;
 use yii\helpers\Url;
 use app\helpers\DateTimeZoneHelper;
 
-$currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($contractForm->business_process_status_id);;
+$currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($contractForm->business_process_status_id);
 ?>
 <div class="status-block">
     <?php
@@ -36,7 +36,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
                     [
                     <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=off">выключить</a>
 
-                    <?php if ($account->lkWizardState->step == ($account->lkWizardState->step == LkWizardState::TYPE_MCN ? 4 : 3 /** wizard_eur */)): ?>
+                    <?php if ($account->lkWizardState->step == 3 ): ?>
 
                         <? if ($account->lkWizardState->step != 'rejected'): ?>
                             | <a
@@ -58,7 +58,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
                         | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=first">*первый шаг*</a>
                     <?php endif; ?>
 
-                    <? if ($account->lkWizardState->step != ($account->lkWizardState->type == 'mcn' ? 4 : 3)): ?>
+                    <? if ($account->lkWizardState->step != 3): ?>
                         | <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=next">*след шаг*</a>
                     <?php endif; ?>
 

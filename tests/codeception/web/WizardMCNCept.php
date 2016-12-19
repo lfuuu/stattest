@@ -113,7 +113,8 @@ $s = [
         "passport_number" => "669",
         "passport_date_issued" => "2015-05-05",
         "passport_issued" => "6546",
-        "address" => "35465"
+        "address" => "35465",
+        "birthday" => "2001-01-01",
     ],
     "step2" => [
         "is_contract_accept" => false
@@ -196,9 +197,6 @@ function save_step1_ip($I, $s_base, $s)
         "legal_type" => "ip",
         "inn" => "344800075077",
         "ogrn" => "305346104800081",
-        "last_name" => "Иванов",
-        "first_name" => "Иван",
-        "middle_name" => "Иванович",
         "address_jur" => "Россия, Воронежская область, город Воронеж, Железнодорожный район, ул. Мира, д.1, кв.2"
     ];
 
@@ -239,6 +237,7 @@ function save_step1_person($I, $s_base, $s)
         "passport_serial" => "5600",
         "passport_number" => "088855",
         "passport_date_issued" => "2015-10-05",
+        "birthday" => "2001-01-01",
         "passport_issued" => "ОВД г.Воронежа",
 
         "address" => "Россия, Воронежская область, город Воронеж, Железнодорожный район, ул. Мира, д.1, кв.3"

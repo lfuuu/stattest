@@ -69,11 +69,6 @@ class WizardMcnController extends WizardBaseController
                 $result = $this->_saveStep2($postData["step2"]);
                 break;
             }
-
-            case 3: {
-                $result = $this->_saveStep3($postData["step3"]);
-                break;
-            }
         }
 
         if ($result === true) {
@@ -135,7 +130,11 @@ class WizardMcnController extends WizardBaseController
         $content = "error";
         $document = null;
 
-        if (isset($data['type']) && $data['type'] == 'legal') {
+        if (
+            isset($data['type'])
+            && $data['type'] == ClientContragent::LEGAL_TYPE
+            && $this->account->contragent->tax_regime != ClientContragent::TAX_REGTIME_YCH_VAT0
+        ) {
             $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_LEGAL;
         } else {
             $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_PERSON;
@@ -177,6 +176,7 @@ class WizardMcnController extends WizardBaseController
 
     private function getOrganizationInformation()
     {
+        /** @var ClientContragent $c */
         $c = $this->account->contragent;
 
         $d = [
@@ -196,7 +196,9 @@ class WizardMcnController extends WizardBaseController
             "passport_number" => ($c->person ? $c->person->passport_number : ""),
             "passport_date_issued" => ($c->person ? ($c->person->passport_date_issued && $c->person->passport_date_issued != '0000-00-00' ? $c->person->passport_date_issued : '') : ''),
             "passport_issued" => ($c->person ? $c->person->passport_issued : ""),
+            "birthday" => ($c->person ? $c->person->birthday : ""),
             "address" => ($c->person ? $c->person->registration_address : ""),
+            'tax_regime' => $c->tax_regime
         ];
         return $d;
     }
