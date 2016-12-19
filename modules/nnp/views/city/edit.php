@@ -1,0 +1,67 @@
+<?php
+/**
+ * Создание/редактирование города
+ *
+ * @var \yii\web\View $this
+ * @var Form $formModel
+ */
+
+use app\models\Country;
+use app\modules\nnp\forms\city\Form;
+use kartik\select2\Select2;
+use yii\widgets\ActiveForm;
+use yii\widgets\Breadcrumbs;
+
+$city = $formModel->city;
+
+if (!$city->isNewRecord) {
+    $this->title = $city->name;
+} else {
+    $this->title = Yii::t('common', 'Create');
+}
+?>
+
+<?= Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
+        ['label' => 'Города', 'url' => $cancelUrl = '/nnp/city/'],
+        $this->title
+    ],
+]) ?>
+
+<div class="well">
+    <?php
+    $form = ActiveForm::begin();
+    $viewParams = [
+        'formModel' => $formModel,
+        'form' => $form,
+    ];
+    ?>
+
+    <div class="row">
+
+        <?php // Префикс страны ?>
+        <div class="col-sm-2">
+            <?= $form->field($city, 'country_prefix')->widget(Select2::className(), [
+                'data' => Country::getList(true, 'prefix'),
+            ]) ?>
+        </div>
+
+        <?php // Название ?>
+        <div class="col-sm-6">
+            <?= $form->field($city, 'name')->textInput() ?>
+        </div>
+
+    </div>
+
+    <?php // кнопки ?>
+    <div class="form-group">
+        <?= $this->render('//layouts/_submitButton' . ($city->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+        <?php if (!$city->isNewRecord) : ?>
+            <?= $this->render('//layouts/_submitButtonDrop') ?>
+        <?php endif ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+</div>

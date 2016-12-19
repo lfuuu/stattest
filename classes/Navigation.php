@@ -156,6 +156,7 @@ class Navigation
                 ->addItem('Диапазон номеров', ['/nnp/number-range/'], ['tarifs.read'])
                 ->addItem('Операторы', ['/nnp/operator/'], ['tarifs.read'])
                 ->addItem('Регионы', ['/nnp/region/'], ['tarifs.read'])
+                ->addItem('Города', ['/nnp/city/'], ['tarifs.read'])
                 ->addItem('Префиксы', ['/nnp/prefix/'], ['tarifs.read'])
                 ->addItem('Типы NDC', ['/nnp/ndc-type/'], ['tarifs.read'])
                 ->addItem('Направления', ['/nnp/destination/'], ['tarifs.read'])
