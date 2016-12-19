@@ -91,11 +91,21 @@ class Cdr extends Model
         ];
     }
 
+    /**
+     * Получить список кодов ответа, считающихся успешными, в виде строки
+     *
+     * @return string
+     */
     public function getSuccessDisconnectCauses ()
     {
         return implode(',', DisconnectCause::$successCodes);
     }
 
+    /**
+     * Отчет по calls_cdr (живет по адресу /voip/cdr)
+     *
+     * @return McnSqlDataProvider|ArrayDataProvider
+     */
     public function getReport()
     {
         $condition1 = $condition2 = $condition3 = $params = [];
@@ -128,31 +138,33 @@ class Cdr extends Model
             $params[':dst_route'] = $this->dst_route;
         }
 
-        if ($this->src_operator_id || $this->src_region_id) {
-            if ($this->src_operator_id) {
-                $condition3[] = 'cr1.nnp_operator_id = :src_operator_id';
-                $params[':src_operator_id'] = $this->src_operator_id;
-            }
-            if ($this->src_region_id) {
-                $condition3[] = 'cr1.nnp_region_id = :src_region_id';
-                $params[':src_region_id'] = $this->src_region_id;
-            }
+        if ($this->src_operator_id) {
+            $condition3[] = 'cr1.nnp_operator_id = :src_operator_id';
+            $params[':src_operator_id'] = $this->src_operator_id;
         }
-
-        if ($this->dst_operator_id || $this->dst_region_id) {
-            if ($this->dst_operator_id) {
-                $condition3[] = 'cr2.nnp_operator_id = :dst_operator_id';
-                $params[':dst_operator_id'] = $this->dst_operator_id;
-            }
-            if ($this->dst_region_id) {
-                $condition3[] = 'cr2.nnp_region_id = :dst_region_id';
-                $params[':dst_region_id'] = $this->dst_region_id;
-            }
+        if ($this->src_region_id) {
+            $condition3[] = 'cr1.nnp_region_id = :src_region_id';
+            $params[':src_region_id'] = $this->src_region_id;
+        }
+        if ($this->src_contract_id) {
+            $condition2[] = 'cr.contract_id = :src_contract_id';
+            $params[':src_contract_id'] = $this->src_contract_id;
+        }
+        if ($this->dst_operator_id) {
+            $condition3[] = 'cr2.nnp_operator_id = :dst_operator_id';
+            $params[':dst_operator_id'] = $this->dst_operator_id;
+        }
+        if ($this->dst_region_id) {
+            $condition3[] = 'cr2.nnp_region_id = :dst_region_id';
+            $params[':dst_region_id'] = $this->dst_region_id;
+        }
+        if ($this->dst_contract_id) {
+            $condition2[] = 'cr2.contract_id = :dst_contract_id';
+            $params[':dst_contract_id'] = $this->dst_contract_id;
         }
 
         if ($this->is_success_calls) {
-            $condition1[] = '(session_time > 0 OR disconnect_cause = ANY(:success_causes::int[]))';
-            $params[':success_causes'] = $this->getSuccessDisconnectCauses();
+            $condition1[] = '(session_time > 0 OR disconnect_cause IN ('. $this->getSuccessDisconnectCauses() . '))';
         }
 
         if ($this->src_number) {
@@ -222,7 +234,8 @@ class Cdr extends Model
 						st.contract_number,
 						cct.name AS contract_type,
 						cr.nnp_operator_id,
-						cr.nnp_region_id
+						cr.nnp_region_id,
+						st.contract_id
                     FROM
                         calls_raw.calls_raw AS cr
                     LEFT JOIN

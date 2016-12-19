@@ -5,7 +5,7 @@ namespace app\classes\grid\column\billing;
 use kartik\grid\GridView;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\dao\billing\TrunkDao;
+use app\models\billing\ServiceTrunk;
 
 class ServiceTrunkColumn extends DataColumn
 {
@@ -22,7 +22,7 @@ class ServiceTrunkColumn extends DataColumn
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' trunk-column';
 
-        $this->filter = TrunkDao::getListWithName($this->filterByServerId, $this->filterByOperatorId, $this->filterByContractId, $isWithEmpty = true);
+        $this->filter = ServiceTrunk::getListWithName($this->filterByServerId, $this->filterByOperatorId, $this->filterByContractId, $isWithEmpty = true);
     }
 
 }
