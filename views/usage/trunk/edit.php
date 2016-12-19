@@ -2,6 +2,7 @@
 
 use app\classes\Html;
 use app\assets\AppAsset;
+use app\widgets\TagsSelect2\TagsSelect2;
 use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
@@ -77,18 +78,10 @@ echo Breadcrumbs::widget([
     <div class="row">
         <div class="col-sm-12">
             <div class="col-sm-4">
-                <div class="col-sm-7">
-                    <?= $form
-                        ->field($model, 'trunk_id')
-                        ->dropDownList($trunks, ['class' => 'select2'])
-                    ?>
-                </div>
-                <div class="col-sm-5">
-                    <?= $form
-                        ->field($model, 'trunk_type')
-                        ->dropDownList(\app\models\UsageTrunk::$typesOfTrunk)
-                    ?>
-                </div>
+                <?= $form
+                    ->field($model, 'trunk_id')
+                    ->dropDownList($trunks, ['class' => 'select2'])
+                ?>
             </div>
             <div class="col-sm-4">
                 <?= $form
@@ -125,30 +118,6 @@ echo Breadcrumbs::widget([
     </div>
 
     <?php
-    /*
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            '' => ['type' => Form::INPUT_RAW, 'value' => Html::label('Оператор:') . ' (' . Html::a($clientAccount->id, ['client/view', 'id' => $clientAccount->id]) . ') ' . $clientAccount->company],
-            'orig_enabled' => ['type' => Form::INPUT_CHECKBOX],
-            'orig_min_payment' => ['type' => Form::INPUT_TEXT],
-        ],
-    ]);
-
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            '' => ['type' => Form::INPUT_RAW],
-            'term_enabled' => ['type' => Form::INPUT_CHECKBOX],
-            'term_min_payment' => ['type' => Form::INPUT_TEXT],
-        ],
-    ]);
-    */
-
     if ($usage->isActive()):
 
         echo Form::widget([
@@ -188,7 +157,22 @@ echo Breadcrumbs::widget([
     </script>
 
     <?php if($usage->orig_enabled): ?>
-        <h2>Оригинация:</h2>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="col-sm-2">
+                    <h2>Оригинация:</h2>
+                </div>
+                <div class="col-sm-6">
+                    <?= TagsSelect2::widget([
+                        'model' => $model->getModel(),
+                        'attribute' => 'tagsOrig',
+                        'feature' => 'orig_enabled',
+                        'label' => 'Тип транка',
+                    ])?>
+                </div>
+            </div>
+        </div>
+
         <table class="table table-condensed table-striped">
             <tr>
                 <th width="26%">A номер</th>
@@ -243,7 +227,22 @@ echo Breadcrumbs::widget([
     <?php endif; ?>
 
     <?php if($usage->term_enabled): ?>
-        <h2>Терминация:</h2>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="col-sm-2">
+                    <h2>Терминация:</h2>
+                </div>
+                <div class="col-sm-6">
+                    <?= TagsSelect2::widget([
+                        'model' => $model->getModel(),
+                        'attribute' => 'tagsTerm',
+                        'feature' => 'term_enabled',
+                        'label' => 'Тип транка',
+                    ])?>
+                </div>
+            </div>
+        </div>
+
         <table class="table table-condensed table-striped">
             <tr>
                 <th width="33%">A номер</th>

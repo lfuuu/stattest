@@ -13,7 +13,7 @@ class TagsController extends BaseController
 {
 
     /**
-     * @return []
+     * @return array
      * @throws BadRequestHttpException
      * @throws FormValidationException
      */
@@ -35,9 +35,10 @@ class TagsController extends BaseController
 
     /**
      * @param string $resource
-     * @return []
+     * @param string $feature
+     * @return array
      */
-    public function actionLoadList($resource)
+    public function actionLoadList($resource, $feature)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -46,7 +47,7 @@ class TagsController extends BaseController
                 function($row) {
                     return ['id' => $row['name'], 'text' => $row['name']];
                 },
-                TagsResource::getTagList($resource)
+                TagsResource::getTagList($resource, $indexBy = null, $resourceId = 0, $feature)
             )
         ];
     }

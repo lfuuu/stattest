@@ -2,6 +2,7 @@
 namespace app\forms\usage;
 
 use app\classes\Form;
+use app\models\UsageTrunk;
 
 class UsageTrunkForm extends Form
 {
@@ -16,18 +17,23 @@ class UsageTrunkForm extends Form
         $term_enabled,
         $orig_min_payment,
         $term_min_payment,
-        $description,
-        $trunk_type;
+        $description;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
-            [['id', 'client_account_id', 'connection_point_id', 'trunk_id', 'trunk_type',], 'integer'],
+            [['id', 'client_account_id', 'connection_point_id', 'trunk_id',], 'integer'],
             [['actual_from', 'actual_to', 'description'], 'string'],
             [['orig_enabled', 'term_enabled', 'orig_min_payment', 'term_min_payment'], 'integer'],
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -42,8 +48,15 @@ class UsageTrunkForm extends Form
             'orig_min_payment' => 'Минимальный платеж за оригинацию',
             'term_min_payment' => 'Минимальный платеж за терминацию',
             'description' => 'Описание',
-            'trunk_type' => 'Тип транка',
         ];
+    }
+
+    /**
+     * @return UsageTrunk
+     */
+    public function getModel()
+    {
+        return $this->usage;
     }
 
 }

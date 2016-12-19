@@ -22,6 +22,9 @@ class UsageTrunkEditForm extends UsageTrunkForm
     /** @var DateTime */
     public $today;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = parent::rules();
@@ -32,7 +35,11 @@ class UsageTrunkEditForm extends UsageTrunkForm
         return $rules;
     }
 
-
+    /**
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
     public function add()
     {
         $actualFrom = new DateTime($this->actual_from, $this->timezone);
@@ -57,7 +64,6 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->orig_min_payment = $this->orig_min_payment;
         $usage->term_min_payment = $this->term_min_payment;
         $usage->description = $this->description;
-        $usage->trunk_type = $this->trunk_type;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -75,6 +81,12 @@ class UsageTrunkEditForm extends UsageTrunkForm
         return true;
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
     public function edit()
     {
         $usage = $this->usage;
@@ -86,7 +98,6 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->orig_min_payment = $this->orig_enabled ? $this->orig_min_payment : 0;
         $usage->term_min_payment = $this->term_enabled ? $this->term_min_payment : 0;
         $usage->description = $this->description;
-        $usage->trunk_type = $this->trunk_type;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
@@ -102,7 +113,10 @@ class UsageTrunkEditForm extends UsageTrunkForm
         return true;
     }
 
-
+    /**
+     * @param ClientAccount $clientAccount
+     * @param UsageTrunk|null $usage
+     */
     public function initModel(ClientAccount $clientAccount, UsageTrunk $usage = null)
     {
         $this->clientAccount = $clientAccount;
@@ -124,6 +138,10 @@ class UsageTrunkEditForm extends UsageTrunkForm
         }
     }
 
+    /**
+     * @param $attribute
+     * @param $params
+     */
     public function validateTrunkId($attribute, $params)
     {
         if (!$this->trunk_id) {

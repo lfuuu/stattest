@@ -8,7 +8,7 @@ class m161129_151953_usage_trunk_trunk_type extends \app\classes\Migration
     {
         $tableName = UsageTrunk::tableName();
 
-        $this->addColumn($tableName, 'trunk_type', $this->integer()->defaultValue(UsageTrunk::TRUNK_TYPE_UNKNOWN));
+        $this->addColumn($tableName, 'trunk_type', $this->integer()->defaultValue(0));
     }
 
     public function down()

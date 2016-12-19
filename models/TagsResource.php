@@ -6,13 +6,13 @@ use Yii;
 use LogicException;
 use yii\db\ActiveRecord;
 use yii\db\Query;
-use yii\helpers\ArrayHelper;
 use app\classes\validators\ArrayValidator;
 
 /**
  * @property int $tag_id
  * @property string $resource
  * @property int $resource_id
+ * @property string $feature
  *
  * @property Tags $tag
  * @property [] $tagList
@@ -31,13 +31,14 @@ class TagsResource extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function rules()
     {
         return [
             ['resource', 'string'],
             ['resource_id', 'integer'],
+            ['feature', 'string'],
             ['tags', ArrayValidator::className()],
             [['resource', 'resource_id', ], 'required'],
         ];
@@ -55,9 +56,10 @@ class TagsResource extends ActiveRecord
      * @param string $resource
      * @param string $indexBy
      * @param int $resourceId
-     * @return []
+     * @param string $feature
+     * @return array
      */
-    public static function getTagList($resource, $indexBy = null, $resourceId = 0)
+    public static function getTagList($resource, $indexBy = null, $resourceId = 0, $feature = '')
     {
         $query =
             (new Query)
@@ -68,7 +70,10 @@ class TagsResource extends ActiveRecord
                 ->groupBy(['t.id', 't.name']);
 
         if ((int)$resourceId) {
-            $query->andWhere(['resource_id' => $resourceId]);
+            $query->andWhere(['tc.resource_id' => $resourceId]);
+        }
+        if (!empty($feature)) {
+            $query->andWhere(['tc.feature' => $feature]);
         }
         if (!is_null($indexBy)) {
             $query->indexBy($indexBy);
@@ -85,8 +90,8 @@ class TagsResource extends ActiveRecord
     {
         $this->tags = (array) $this->tags;
 
-        $tagList = self::getTagList($this->resource, 'name');
-        $resourceTagList = self::getTagList($this->resource, 'name', $this->resource_id);
+        $tagList = self::getTagList($this->resource, 'name', 0, $this->feature);
+        $resourceTagList = self::getTagList($this->resource, 'name', $this->resource_id, $this->feature);
         $diffTags = array_diff(array_keys($resourceTagList), $this->tags);
 
         $transaction = self::getDb()->beginTransaction();
@@ -99,9 +104,10 @@ class TagsResource extends ActiveRecord
                     $tagsToRemove[] = $tagList[$tagName]['id'];
                 }
                 self::deleteAll([
-                    'and',
+                    'AND',
                     ['resource' => $this->resource],
                     ['resource_id' => $this->resource_id],
+                    ['feature' => $this->feature],
                     ['IN', 'tag_id', $tagsToRemove],
                 ]);
             }
@@ -127,6 +133,7 @@ class TagsResource extends ActiveRecord
                     $tagCloudRecord = new self;
                     $tagCloudRecord->resource = $this->resource;
                     $tagCloudRecord->resource_id = $this->resource_id;
+                    $tagCloudRecord->feature = $this->feature;
                     $tagCloudRecord->tag_id = $tagId;
                     if (!$tagCloudRecord->save()) {
                         throw new LogicException(implode(' ', $tagCloudRecord->getFirstErrors()));

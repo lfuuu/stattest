@@ -15,7 +15,9 @@ class TagsSelect2 extends Select2
     public
         $attribute = 'id',
         $actionURL = '/tags/apply',
-        $listURL = '/tags/load-list';
+        $listURL = '/tags/load-list',
+        $label = 'Метки',
+        $feature = '';
 
     /**
      * @throws InvalidConfigException
@@ -30,7 +32,7 @@ class TagsSelect2 extends Select2
             throw new InvalidConfigException('"TagsSelect2::$attribute" attribute cannot be blank.');
         }
 
-        echo Html::tag('label', 'Метки', ['class' => 'control-label']);
+        echo Html::tag('label', $this->label, ['class' => 'control-label']);
 
         $this->size = parent::SMALL;
         $this->maintainOrder = true;
@@ -40,6 +42,7 @@ class TagsSelect2 extends Select2
             'multiple' => true,
             'data-tags-resource' => $this->model->formName(),
             'data-tags-resource-id' => $this->model->getAttribute(reset($this->model->primaryKey())),
+            'data-tags-feature' => $this->feature,
         ], $this->options);
 
         $this->pluginOptions = array_merge([
@@ -47,7 +50,7 @@ class TagsSelect2 extends Select2
             'tokenSeparators' => [',', ' '],
             'maximumInputLength' => 10,
             'ajax' => [
-                'url' => $this->listURL . '?resource=' . $this->model->formName(),
+                'url' => $this->listURL . '?resource=' . $this->model->formName() . '&feature=' . $this->feature,
                 'dataType' => 'json',
                 'data' => new JsExpression('function(params) { return {q:params.term}; }'),
             ],

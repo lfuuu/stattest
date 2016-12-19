@@ -8,7 +8,7 @@ trait TagsTrait
 {
 
     /**
-     * @return []
+     * @return array
      */
     public function getTagList()
     {
@@ -16,13 +16,15 @@ trait TagsTrait
     }
 
     /**
+     * @param string $feature
      * @return string[]
      */
-    public function getTags()
+    public function getTags($feature)
     {
         $tags = TagsResource::findAll([
             'resource' => $this->formName(),
             'resource_id' => $this->id,
+            'feature' => $feature,
         ]);
 
         return ArrayHelper::getColumn($tags, function($row) { return $row->tag->name; });

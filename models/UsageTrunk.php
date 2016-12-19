@@ -2,6 +2,7 @@
 namespace app\models;
 
 use app\classes\bill\VoipTrunkBiller;
+use app\classes\traits\TagsTrait;
 use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
 use app\helpers\usages\UsageVoipTrunkHelper;
@@ -24,7 +25,6 @@ use yii\db\ActiveRecord;
  * @property int $orig_min_payment
  * @property int $term_min_payment
  * @property string $description
- * @property int $trunk_type
  * @property ClientAccount $clientAccount
  * @property Region $connectionPoint
  * @property UsageVoipTrunkHelper $helper
@@ -32,21 +32,7 @@ use yii\db\ActiveRecord;
 class UsageTrunk extends ActiveRecord implements UsageInterface
 {
 
-    const TRUNK_TYPE_UNKNOWN = 0;
-    const TRUNK_TYPE_MCN = 1;
-    const TRUNK_TYPE_CONNECTED = 2;
-    const TRUNK_TYPE_FULL_CLI = 3;
-    const TRUNK_TYPE_RUS_CLI = 4;
-    const TRUNK_TYPE_NO_CLI = 5;
-
-    public static $typesOfTrunk = [
-        self::TRUNK_TYPE_UNKNOWN => '-- Не задано --',
-        self::TRUNK_TYPE_MCN => 'MCN',
-        self::TRUNK_TYPE_CONNECTED => 'Присоединенный',
-        self::TRUNK_TYPE_FULL_CLI => 'Full CLI',
-        self::TRUNK_TYPE_RUS_CLI => 'Rus CLI',
-        self::TRUNK_TYPE_NO_CLI => 'No CLI',
-    ];
+    use TagsTrait;
 
     /**
      * @return array
@@ -221,6 +207,22 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
         }
 
         return $list;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTagsOrig()
+    {
+        return self::getTags($feature = 'orig_enabled');
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getTagsTerm()
+    {
+        return self::getTags($feature = 'term_enabled');
     }
 
     /**

@@ -58,18 +58,10 @@ echo Breadcrumbs::widget([
     <div class="row">
         <div class="col-sm-12">
             <div class="col-sm-4">
-                <div class="col-sm-7">
-                    <?= $form
-                        ->field($model, 'trunk_id')
-                        ->dropDownList($trunks, ['class' => 'select2'])
-                    ?>
-                </div>
-                <div class="col-sm-5">
-                    <?= $form
-                        ->field($model, 'trunk_type')
-                        ->dropDownList(\app\models\UsageTrunk::$typesOfTrunk)
-                    ?>
-                </div>
+                <?= $form
+                    ->field($model, 'trunk_id')
+                    ->dropDownList($trunks, ['class' => 'select2'])
+                ?>
             </div>
             <div class="col-sm-4">
                 <?= $form
@@ -97,30 +89,6 @@ echo Breadcrumbs::widget([
     </div>
 
     <?php
-    /*
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            '' => ['type' => Form::INPUT_RAW],
-            'orig_enabled' => ['type' => Form::INPUT_CHECKBOX],
-            'orig_min_payment' => ['type' => Form::INPUT_TEXT],
-        ],
-    ]);
-
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            '' => ['type' => Form::INPUT_RAW],
-            'term_enabled' => ['type' => Form::INPUT_CHECKBOX],
-            'term_min_payment' => ['type' => Form::INPUT_TEXT],
-        ],
-    ]);
-    */
-
     echo Form::widget([
         'model' => $model,
         'form' => $form,
