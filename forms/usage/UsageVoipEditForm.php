@@ -40,7 +40,11 @@ class UsageVoipEditForm extends UsageVoipForm
         $tariffLocalMobile,
         $tariffRussia,
         $tariffRussiaMobile,
-        $tariffIntern;
+        $tariffIntern,
+        $count_numbers = 1,
+        $isMultiAdd = false,
+        $numbers = []
+    ;
 
     private static $mapPriceToId = [
         'tariff_group_intern_price' => 'tariff_intern_id',
@@ -119,7 +123,21 @@ class UsageVoipEditForm extends UsageVoipForm
             }
         ];
 
+        $rules[] = [
+            'count_numbers',
+            'integer',
+            'min' => 1,
+            'max' => 50
+        ];
+
         return $rules;
+    }
+
+    public function attributeLabels()
+    {
+        return parent::attributeLabels() + [
+            'count_numbers' => 'Кол-во номеров (для пакетного добавления)'
+        ];
     }
 
     /**
@@ -275,30 +293,59 @@ class UsageVoipEditForm extends UsageVoipForm
 
         $actualTo = UsageInterface::MAX_POSSIBLE_DATE;
 
-        $usage = new UsageVoip;
-        $usage->region = $this->connection_point_id;
-        $usage->actual_from = $actualFrom;
-        $usage->actual_to = $actualTo;
-        $usage->type_id = $this->type_id;
-        $usage->client = $this->clientAccount->client;
-        $usage->E164 = $this->did;
-        $usage->no_of_lines = (int)$this->no_of_lines;
-        $usage->status = $this->status;
-        $usage->address = $this->address;
-        $usage->edit_user_id = Yii::$app->user->getId();
-        $usage->line7800_id = $this->type_id === '7800' ? $this->line7800_id : 0;
-        $usage->is_trunk = $this->type_id === 'operator' ? 1 : 0;
-        $usage->one_sip = 0;
-        $usage->create_params = $this->create_params;
+        $this->isMultiAdd = $this->count_numbers > 1;
 
-        $transaction = Yii::$app->db->beginTransaction();
         try {
 
-            $this->saveChangeHistory($usage->oldAttributes, $usage->attributes, 'usage_voip');
+            $transaction = Yii::$app->db->beginTransaction();
 
-            $usage->save();
+            for ($i=0; $i < $this->count_numbers; $i++) {
+                if ($this->isMultiAdd) {
+                    /** @var \app\models\Number $number */
+                    $number =
+                        (new \app\models\filter\FreeNumberFilter)
+                            ->getNumbers()
+                            ->setDidGroup($this->did_group_id)
+                            ->randomOne();
 
-            $this->saveTariff($usage, $this->connecting_date);
+                    if (!$number) {
+                        throw new \Exception(
+                            'Нет свободного номера в заданной DID-групе (нашлось только: '. $i .')'
+                        );
+                    }
+
+                    if (UsageVoip::find()->actual()->andWhere(['E164' => $number->number])->count()) {
+                        throw new \Exception('Номер ' . $number->number . ' уже используется');
+                    }
+                    $numberStr = $number->number;
+                } else {
+                    $numberStr = $this->did;
+                }
+
+                $this->numbers[] = $numberStr;
+
+                $usage = new UsageVoip;
+                $usage->region = $this->connection_point_id;
+                $usage->actual_from = $actualFrom;
+                $usage->actual_to = $actualTo;
+                $usage->type_id = $this->type_id;
+                $usage->client = $this->clientAccount->client;
+                $usage->E164 = $numberStr;
+                $usage->no_of_lines = (int)$this->no_of_lines;
+                $usage->status = $this->status;
+                $usage->address = $this->address;
+                $usage->edit_user_id = Yii::$app->user->getId();
+                $usage->line7800_id = $this->type_id === '7800' ? $this->line7800_id : 0;
+                $usage->is_trunk = $this->type_id === 'operator' ? 1 : 0;
+                $usage->one_sip = 0;
+                $usage->create_params = $this->create_params;
+
+                $this->saveChangeHistory($usage->oldAttributes, $usage->attributes, 'usage_voip');
+
+                $usage->save();
+
+                $this->saveTariff($usage, $this->connecting_date);
+            }
 
             $transaction->commit();
         } catch (\Exception $e) {

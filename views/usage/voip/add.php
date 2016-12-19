@@ -142,7 +142,10 @@ echo Breadcrumbs::widget([
                     ],
                 ]
             ],
-            'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $status],
+            'status' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $status
+            ],
         ],
     ]);
 
@@ -259,6 +262,21 @@ echo Breadcrumbs::widget([
             ],
         ]);
     }
+
+    echo Form::widget([
+        'model' => $model,
+        'form' => $form,
+        'columns' => 4,
+        'attributes' => [
+            'count_numbers' => [
+                'type' => Form::INPUT_TEXT,
+            ],
+            ['type' => Form::INPUT_RAW],
+            ['type' => Form::INPUT_RAW],
+            ['type' => Form::INPUT_RAW]
+        ],
+    ]);
+
 
     $attributes = [
         'actions' => [

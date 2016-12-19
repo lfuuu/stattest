@@ -60,7 +60,18 @@ class VoipController extends BaseController
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->scenario === 'add' && $model->validate() && $model->add()) {
-                Yii::$app->session->addFlash('success', 'Запись добавлена');
+                if ($model->isMultiAdd) {
+                    Yii::$app->session->addFlash(
+                        'success',
+                        'Добавленные номера: ' . implode(', ', $model->numbers)
+                    );
+                } else {
+                    Yii::$app->session->addFlash(
+                        'success',
+                        'Номер добавлен'
+                    );
+                }
+
                 return $this->redirect(['edit', 'id' => $model->id]);
             }
         }
