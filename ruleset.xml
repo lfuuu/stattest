@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Custom">
+    <description>The STAT coding standard by Boris Korobkov</description>
+
+    <!--
+    Установить
+        sudo apt install php-codesniffer
+    Проверить
+        phpcs \-\-version
+    PhpStorm
+        "Language & Frameworks" / PHP / Code sniffer / Configuration / ... / "/usr/bin/phpcs" / Ok
+        "Language & Frameworks" / Editor / Inspertions / PHP Code Sniffer Validation / "V"
+        Подробнее см. https://www.jetbrains.com/help/phpstorm/2016.2/using-php-code-sniffer-tool.html
+    -->
+
+    <!--
+    Чтобы найти название нужного code_sniffer-правила для его отключения или редактирования:
+        cd /usr/share/php/PHP/CodeSniffer/Standards
+        grep СООБЩЕНИЕ * -r
+        Если найдено в xml-файле - скопируйте имя правила оттуда
+        Если найдено в php-файле - возьмите путь, удалите из него "Sniffs/" и "Sniff.php". Слэши заменить на точки. Например, из "PEAR/Sniffs/Commenting/FileCommentSniff.php" получится "PEAR.Commenting.FileComment"
+        Если надо создать новое правило - см. http://pear.php.net/manual/en/package.php.php-codesniffer.coding-standard-tutorial.php
+    -->
+
+    <!--
+    Найти нужное phpmd-правило можно на https://phpmd.org/rules/index.html
+    -->
+
+    <!--
+    Описание формата этого файла - https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
+    -->
+
+    <!-- не проверять "старый стат" -->
+    <exclude-pattern type="relative">^/stat/*</exclude-pattern>
+
+    <!-- Наследоваться от PHPCS -->
+    <rule ref="PHPCS">
+
+        <!-- Выключить правила -->
+
+        <!-- Запрещает to do-комментарии. "Comment refers to a TODO task" -->
+        <exclude name="Generic.Commenting.Todo"/>
+
+        <!-- Требует "PHP Version 5" в каждом файле. "PHP version not specified" -->
+        <exclude name="PEAR.Commenting.FileComment"/>
+
+    </rule>
+
+    <!-- Отредактировать правила -->
+
+    <!-- Запрещает длинные строки. Причем считает побайтно, а не посимвольно. "Line exceeds 120 characters; contains ... characters" -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="500"/>
+            <property name="absoluteLineLimit" value="600"/>
+        </properties>
+    </rule>
+</ruleset>
