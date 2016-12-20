@@ -33,7 +33,7 @@ class OrganizationForm extends Form
     const EDIT_TITLE = 'Обновление данных организации';
 
     /**
-     * @return []
+     * @return array
      */
     public function rules()
     {
@@ -73,7 +73,7 @@ class OrganizationForm extends Form
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function attributeLabels()
     {

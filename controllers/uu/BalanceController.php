@@ -8,14 +8,10 @@ namespace app\controllers\uu;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\model\AccountEntry;
-use app\classes\uu\model\AccountLogPeriod;
-use app\classes\uu\model\AccountLogResource;
-use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Payment;
-use Yii;
 use yii\filters\AccessControl;
 
 class BalanceController extends BaseController
@@ -25,7 +21,8 @@ class BalanceController extends BaseController
 
     /**
      * Права доступа
-     * @return []
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -44,6 +41,7 @@ class BalanceController extends BaseController
     }
 
     /**
+     * @param int $clientAccountId
      * @return string
      */
     public function actionView($clientAccountId = null)
@@ -61,11 +59,13 @@ class BalanceController extends BaseController
             // сводная информация AccountEntry
             $accountEntryTableName = AccountEntry::tableName();
             $accountEntrySummary = AccountEntry::find()
-                ->select([
-                    'total_count' => 'COUNT(*)',
-                    'total_price' => 'SUM(' . $accountEntryTableName . '.price)',
-                    'account_tariff_id' => $accountEntryTableName . '.account_tariff_id', // потому что джойнится по нему, а yii зачем то лезет в результирующий массив
-                ])
+                ->select(
+                    [
+                        'total_count' => 'COUNT(*)',
+                        'total_price' => 'SUM(' . $accountEntryTableName . '.price)',
+                        'account_tariff_id' => $accountEntryTableName . '.account_tariff_id', // потому что джойнится по нему, а yii зачем то лезет в результирующий массив
+                    ]
+                )
                 ->joinWith('accountTariff')
                 ->where([$accountTariffTableName . '.client_account_id' => $clientAccountId])
                 ->andWhere(['<', $accountEntryTableName . '.date', date('Y-m-01')])// кроме этого месяца
@@ -74,40 +74,48 @@ class BalanceController extends BaseController
 
             // сводная информация Payment
             $paymentSummary = Payment::find()
-                ->select([
-                    'total_count' => 'COUNT(*)',
-                    'total_price' => 'SUM(sum)',
-                ])
+                ->select(
+                    [
+                        'total_count' => 'COUNT(*)',
+                        'total_price' => 'SUM(sum)',
+                    ]
+                )
                 ->where(['client_id' => $clientAccountId])
                 ->asArray()
                 ->one();
 
             // Все проводки клиента для грида
-//            $accountEntryTableName = AccountEntry::tableName();
+            // $accountEntryTableName = AccountEntry::tableName();
             $accountEntries = AccountEntry::find()
                 ->joinWith('accountTariff')
                 ->where([$accountTariffTableName . '.client_account_id' => $clientAccountId])
-                //->andWhere(['>', $accountEntryTableName . '.price', 0])
-                ->orderBy([
-                    'date' => SORT_DESC,
-                    'account_tariff_id' => SORT_ASC,
-                    'type_id' => SORT_ASC,
-                ])
+                // ->andWhere(['>', $accountEntryTableName . '.price', 0])
+                ->orderBy(
+                    [
+                        'date' => SORT_DESC,
+                        'account_tariff_id' => SORT_ASC,
+                        'type_id' => SORT_ASC,
+                    ]
+                )
                 ->all();
 
             // Все универсальные счета клиента
             $uuBills = \app\classes\uu\model\Bill::find()
                 ->where(['client_account_id' => $clientAccountId])
-                ->orderBy([
-                    'date' => SORT_DESC,
-                    'id' => SORT_DESC,
-                ])
+                ->orderBy(
+                    [
+                        'date' => SORT_DESC,
+                        'id' => SORT_DESC,
+                    ]
+                )
                 ->all();
 
             $uuBillSummary = \app\classes\uu\model\Bill::find()
-                ->select([
-                    'total_price' => 'SUM(price)',
-                ])
+                ->select(
+                    [
+                        'total_price' => 'SUM(price)',
+                    ]
+                )
                 ->where(['client_account_id' => $clientAccountId])
                 ->asArray()
                 ->one();
@@ -115,65 +123,75 @@ class BalanceController extends BaseController
             // Все платежи клиента для грида
             $payments = Payment::find()
                 ->where(['client_id' => $clientAccountId])
-                ->orderBy([
-                    'payment_date' => SORT_DESC,
-                    'id' => SORT_DESC,
-                ])
+                ->orderBy(
+                    [
+                        'payment_date' => SORT_DESC,
+                        'id' => SORT_DESC,
+                    ]
+                )
                 ->all();
 
             // Все старые счета клиента
             $billsUsage = Bill::find()
-                ->where([
-                    'client_id' => $clientAccountId,
-                    'biller_version' => ClientAccount::VERSION_BILLER_USAGE
-                ])
-                ->orderBy([
-                    'bill_date' => SORT_DESC,
-                    'id' => SORT_DESC,
-                ])
+                ->where(
+                    [
+                        'client_id' => $clientAccountId,
+                        'biller_version' => ClientAccount::VERSION_BILLER_USAGE
+                    ]
+                )
+                ->orderBy(
+                    [
+                        'bill_date' => SORT_DESC,
+                        'id' => SORT_DESC,
+                    ]
+                )
                 ->all();
 
             // Все сконвертиованные новые счета в старые счета клиента
             $billsUniversal = Bill::find()
-                ->where([
-                    'client_id' => $clientAccountId,
-                    'biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL
-                ])
-                ->orderBy([
-                    'bill_date' => SORT_DESC,
-                    'id' => SORT_DESC,
-                ])
+                ->where(
+                    [
+                        'client_id' => $clientAccountId,
+                        'biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL
+                    ]
+                )
+                ->orderBy(
+                    [
+                        'bill_date' => SORT_DESC,
+                        'id' => SORT_DESC,
+                    ]
+                )
                 ->all();
 
 
         } else {
-            $clientAccount =
-            $currency =
-            $accountEntries =
-            $payments =
-            $uuBills =
-            $billsUsage =
-            $billsUniversal =
-            $accountEntrySummary =
-            $accountLogSetupSummary =
-            $accountLogPeriodSummary =
-            $accountLogResourceSummary =
-            $paymentSummary =
-            $uuBillSummary =
-                null;
+            $clientAccount
+                = $currency
+                = $accountEntries
+                = $payments
+                = $uuBills
+                = $billsUsage
+                = $billsUniversal
+                = $accountEntrySummary
+                = $paymentSummary
+                = $uuBillSummary
+                = null;
         }
 
-        return $this->render('view', [
-            'clientAccount' => $clientAccount,
-            'currency' => $currency,
-            'accountEntries' => $accountEntries,
-            'payments' => $payments,
-            'uuBills' => $uuBills,
-            'billsUsage' => $billsUsage,
-            'billsUniversal' => $billsUniversal,
-            'accountEntrySummary' => $accountEntrySummary,
-            'paymentSummary' => $paymentSummary,
-            'uuBillSummary' => $uuBillSummary,
-        ]);
+        return $this->render(
+            'view',
+            [
+                'clientAccount' => $clientAccount,
+                'currency' => $currency,
+                'accountEntries' => $accountEntries,
+                'payments' => $payments,
+                'uuBills' => $uuBills,
+                'billsUsage' => $billsUsage,
+                'billsUniversal' => $billsUniversal,
+                'accountEntrySummary' => $accountEntrySummary,
+                'paymentSummary' => $paymentSummary,
+                'uuBillSummary' => $uuBillSummary,
+            ]
+        );
     }
 }

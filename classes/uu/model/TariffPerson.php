@@ -20,12 +20,16 @@ class TariffPerson extends \yii\db\ActiveRecord
     const ID_NATURAL_PERSON = 2;
     const ID_LEGAL_PERSON = 3;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_tariff_person';
     }
 
     /**
+     * @return array
      */
     public function rules()
     {

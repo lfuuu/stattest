@@ -21,7 +21,7 @@ class VoipController extends BaseController
 {
 
     /**
-     * @return []
+     * @return array
      */
     public function behaviors()
     {

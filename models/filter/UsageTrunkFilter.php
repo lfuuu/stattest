@@ -26,7 +26,7 @@ class UsageTrunkFilter extends UsageTrunk
     private $trunkIDs = [];
 
     /**
-     * @return []
+     * @return array
      */
     public function rules()
     {

@@ -21,7 +21,7 @@ class TrunkDao extends Singleton
 
     /**
      * @param int|false $serverId
-     * @return []
+     * @return array
      */
     public function getList($serverId = false)
     {
@@ -45,7 +45,7 @@ class TrunkDao extends Singleton
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function getListAll()
     {

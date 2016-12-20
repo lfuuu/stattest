@@ -35,6 +35,7 @@ class Period extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array
      */
     public function rules()
     {
@@ -47,6 +48,7 @@ class Period extends \yii\db\ActiveRecord
 
     /**
      * Вернуть список всех доступных моделей
+     *
      * @return self[]
      */
     public static function getList()
@@ -59,6 +61,7 @@ class Period extends \yii\db\ActiveRecord
 
     /**
      * Преобразовать объект в строку
+     *
      * @return string
      */
     public function __toString()
@@ -68,6 +71,7 @@ class Period extends \yii\db\ActiveRecord
 
     /**
      * Вернуть modify-параметр для DateTime
+     *
      * @return string
      */
     public function getModify()
@@ -141,6 +145,7 @@ class Period extends \yii\db\ActiveRecord
                 } else {
                     return $dateTimeFrom->modify('last day of december');
                 }
+                break;
 
             case 6:
                 // полгода
@@ -150,6 +155,7 @@ class Period extends \yii\db\ActiveRecord
                 } else {
                     return $dateTimeFrom->modify('last day of december');
                 }
+                break;
 
             case 12:
                 // год

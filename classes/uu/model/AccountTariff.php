@@ -140,11 +140,17 @@ class AccountTariff extends ActiveRecord
     /** @var int */
     protected $serviceTypeIdOld = null;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_account_tariff';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -170,6 +176,7 @@ class AccountTariff extends ActiveRecord
     }
 
     /**
+     * @param bool $isWithAccount
      * @return string
      */
     public function getName($isWithAccount = true)
@@ -203,6 +210,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Вернуть html: имя + ссылка на услугу
+     *
      * @param bool $isWithAccount
      * @return string
      */
@@ -213,6 +221,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Вернуть html: имя + ссылка на тариф
+     *
      * @param bool $isWithAccount
      * @return string
      */
@@ -223,6 +232,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Вернуть html: имя + ссылка на тариф
+     *
      * @param bool $isWithAccount
      * @param bool $isTariffPeriodLink
      * @return string
@@ -238,6 +248,7 @@ class AccountTariff extends ActiveRecord
     }
 
     /**
+     * @param int $serviceTypeId
      * @return string
      */
     public static function getUrlNew($serviceTypeId)
@@ -385,12 +396,15 @@ class AccountTariff extends ActiveRecord
                 // если переопределен в тот же день, то списываем за оба
                 continue;
             }
+
             if (!$isWithFuture && $accountTariffLog->actual_from > $clientDate) {
                 // еще не наступил
                 continue;
             }
+
             $accountTariffLogs[$accountTariffLog->getUniqueId()] = $accountTariffLogPrev = $accountTariffLog;
         }
+
         $accountTariffLogs = array_reverse($accountTariffLogs, true); // по возрастанию. Это важно для расчета периодов и цен
         return $accountTariffLogs;
     }
@@ -416,14 +430,14 @@ class AccountTariff extends ActiveRecord
             if (($count = count($accountLogPeriods)) > 0) {
 
                 // закончить предыдущий период
-                $prevAccountTariffLog = $accountLogPeriods[$count - 1];
+                $prevAccountTariffLog = $accountLogPeriods[($count - 1)];
                 $prevTariffPeriodChargePeriod = $chargePeriodMain ?: $prevAccountTariffLog->tariffPeriod->chargePeriod;
 
                 // старый тариф должен закончиться не раньше этой даты
                 $dateActualFromYmd = $dateActualFrom->format(DateTimeZoneHelper::DATE_FORMAT);
                 $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($dateActualFromYmd < $insertTimeYmd) {
-//                    $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
+                    // $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
                     throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
                 }
 
@@ -434,6 +448,7 @@ class AccountTariff extends ActiveRecord
                 } else {
                     $dateTimeMin = $dateActualFrom->modify('-1 day');
                 }
+
                 unset($dateActualFromYmd, $insertTimeYmd);
 
                 $prevAccountTariffLog->dateTo = $prevTariffPeriodChargePeriod->getMaxDateTo($prevAccountTariffLog->dateFrom, $dateTimeMin);
@@ -448,8 +463,8 @@ class AccountTariff extends ActiveRecord
             $accountLogPeriods[] = new AccountLogFromToTariff();
 
             $count = count($accountLogPeriods);
-            $accountLogPeriods[$count - 1]->dateFrom = $dateActualFrom;
-            $accountLogPeriods[$count - 1]->tariffPeriod = $uniqueAccountTariffLog->tariffPeriod;
+            $accountLogPeriods[($count - 1)]->dateFrom = $dateActualFrom;
+            $accountLogPeriods[($count - 1)]->tariffPeriod = $uniqueAccountTariffLog->tariffPeriod;
         }
 
         return $accountLogPeriods;
@@ -518,8 +533,8 @@ class AccountTariff extends ActiveRecord
         ) {
             // если count, то $dateTo и $dateFrom определены
             // если тариф действующий (!$dateTo) и следующий должен начаться не сегодня ($dateFrom > (new DateTimeImmutable()))
-            //      значит, последний период еще длится - удалить из расчета
-            unset($accountLogPeriods[$count - 1]);
+            // значит, последний период еще длится - удалить из расчета
+            unset($accountLogPeriods[($count - 1)]);
             return $accountLogPeriods;
         }
 
@@ -568,9 +583,6 @@ class AccountTariff extends ActiveRecord
             // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
             // Решили пока игнорировать
             printf(PHP_EOL . 'Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-//            foreach ($accountLogs as $accountLog) {
-//                $accountLog->delete();
-//            }
         }
 
         return $untarificatedPeriods;
@@ -579,7 +591,7 @@ class AccountTariff extends ActiveRecord
     /**
      * Вернуть даты периодов, по которым не произведен расчет абонентки
      *
-     * @param AccountLogPeriod[] $accountLogClassName уже обработанные
+     * @param AccountLogPeriod[] $accountLogs уже обработанные
      * @return AccountLogFromToTariff[]
      */
     public function getUntarificatedPeriodPeriods($accountLogs)
@@ -604,7 +616,9 @@ class AccountTariff extends ActiveRecord
                 if ($accountLog->tariff_period_id !== $tariffPeriodId) {
                     throw new \LogicException(sprintf('Error. Calculated accountLogPeriod %s is not equal %s for accountTariffId %d', $accountLog->tariff_period_id, $tariffPeriodId, $this->id));
                 }
+
                 unset($accountLogs[$uniqueId]);
+
             } else {
                 // этот период не рассчитан
                 $untarificatedPeriods[] = $accountLogFromToTariff;
@@ -616,9 +630,6 @@ class AccountTariff extends ActiveRecord
             // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
             // Решили пока игнорировать
             printf(PHP_EOL . 'Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-//            foreach ($accountLogs as $accountLog) {
-//                $accountLog->delete();
-//            }
         }
 
         return $untarificatedPeriods;
@@ -658,7 +669,6 @@ class AccountTariff extends ActiveRecord
                     $untarificatedPeriodss[$dateYmd][$resourceId] = $accountLogFromToTariff;
 
                 }
-
             }
         }
 
@@ -668,11 +678,11 @@ class AccountTariff extends ActiveRecord
                     if (!$accountLog) {
                         continue;
                     }
+
                     // остался неизвестный период, который уже рассчитан
                     // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
                     // Решили пока игнорировать
                     printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
-//                    $accountLog->delete();
                 }
             }
         }
@@ -682,12 +692,13 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Вернуть ID неуниверсальной услуги
+     *
      * @return int
      */
     public function getNonUniversalId()
     {
         if ($this->id && $this->id < self::DELTA && isset($this->serviceIdToDelta[$this->service_type_id])) {
-            return $this->id - $this->serviceIdToDelta[$this->service_type_id];
+            return ($this->id - $this->serviceIdToDelta[$this->service_type_id]);
         } else {
             return null;
         }
@@ -695,6 +706,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Вернуть html-ссылку на неуниверсальную услугу
+     *
      * @return string
      */
     public function getNonUniversalUrl()
@@ -718,12 +730,15 @@ class AccountTariff extends ActiveRecord
     public function getNextAccountTariffsAsString()
     {
         if ($this->nextAccountTariffs) {
-            $strings = array_map(function (AccountTariff $nextAccountTariff) {
-                return Html::a(
-                    Html::encode($nextAccountTariff->getName(false)),
-                    $nextAccountTariff->getUrl()
-                );
-            }, $this->nextAccountTariffs);
+            $strings = array_map(
+                function (AccountTariff $nextAccountTariff) {
+                    return Html::a(
+                        Html::encode($nextAccountTariff->getName(false)),
+                        $nextAccountTariff->getUrl()
+                    );
+                },
+                $this->nextAccountTariffs
+            );
             return implode('<br />', $strings);
         } else {
             return Yii::t('common', '(not set)');
@@ -732,6 +747,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Можно ли отменить последнюю смену тарифа
+     *
      * @return bool
      */
     public function isCancelable()
@@ -747,7 +763,8 @@ class AccountTariff extends ActiveRecord
     }
 
     /**
-     * сгруппировать одинаковые город-тариф-пакеты по строчкам
+     * Сгруппировать одинаковые город-тариф-пакеты по строчкам
+     *
      * @param ActiveQuery $query
      * @return AccountTariff[][]
      */
@@ -762,11 +779,13 @@ class AccountTariff extends ActiveRecord
             !isset($rows[$hash]) && $rows[$hash] = [];
             $rows[$hash][$accountTariff->id] = $accountTariff;
         }
+
         return $rows;
     }
 
     /**
      * Вернуть хеш услуги. Нужно для группировки похожих услуг телефонии по разным номерам.
+     *
      * @return string
      */
     public function getHash()
@@ -810,6 +829,7 @@ class AccountTariff extends ActiveRecord
      * Вернуть дату, с которой рассчитываем лог. Если date_from строго меньше этой даты, то этот период не нужен в расчете
      * Фактически расчитываем за этот и предыдущий месяц
      * Это нужно для оптимизации, чтобы не хранить много лишних данных, которые не нужны, а только тормозят расчет новых
+     *
      * @return DateTime
      */
     public static function getMinLogDatetime()
@@ -831,6 +851,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Валидировать, что нельзя менять service_type_id
+     *
      * @param string $attribute
      * @param [] $params
      */
@@ -844,6 +865,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Валидировать, что задан транк для соответствующей услуги
+     *
      * @param string $attribute
      * @param [] $params
      */
@@ -858,11 +880,15 @@ class AccountTariff extends ActiveRecord
             return;
         }
 
-        if ($this->isNewRecord && AccountTariff::find()
-                ->where([
-                    'client_account_id' => $this->client_account_id,
-                    'service_type_id' => $this->service_type_id,
-                ])
+        if (
+            $this->isNewRecord
+            && AccountTariff::find()
+                ->where(
+                    [
+                        'client_account_id' => $this->client_account_id,
+                        'service_type_id' => $this->service_type_id,
+                    ]
+                )
                 ->count()
         ) {
             $this->addError($attribute, 'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.');
@@ -877,6 +903,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * Валидировать, что tariff_period_id соответствует service_type_id
+     *
      * @param string $attribute
      * @param [] $params
      */
@@ -885,11 +912,13 @@ class AccountTariff extends ActiveRecord
         if (!$this->tariff_period_id) {
             return;
         }
+
         $tariffPeriod = $this->tariffPeriod;
         if (!$tariffPeriod) {
             $this->addError($attribute, 'Неправильный tariff_period_id ' . $this->tariff_period_id);
             return;
         }
+
         if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
             $this->addError($attribute, 'Tariff_period_id ' . $tariffPeriod->tariff->service_type_id . ' не соответствует service_type_id ' . $this->service_type_id);
             return;
@@ -898,6 +927,7 @@ class AccountTariff extends ActiveRecord
 
     /**
      * УУ-ЛС?
+     *
      * @param int $clientAccountId
      * @return bool|null null - нет клиента, false - 4 (старый), true - 5 (УУ)
      */

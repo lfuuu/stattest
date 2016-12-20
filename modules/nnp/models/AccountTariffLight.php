@@ -26,7 +26,7 @@ class AccountTariffLight extends ActiveRecord
 
     /**
      * имена полей
-     * @return [] [полеВТаблице => Перевод]
+     * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
     {

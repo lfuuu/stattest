@@ -36,8 +36,9 @@ class VoipController extends BaseController
         if (!$countryId) {
             throw new \InvalidArgumentException('Wrong countryId');
         }
+
         $numberTypes = Tariff::getVoipTypesByCountryId($countryId, $isWithEmpty);
-        $this->returnFormattedValues($numberTypes, $format);
+        $this->_returnFormattedValues($numberTypes, $format);
     }
 
     /**
@@ -53,8 +54,9 @@ class VoipController extends BaseController
         if (!$countryId) {
             throw new \InvalidArgumentException('Wrong countryId');
         }
+
         $numberTypes = City::dao()->getList($isWithEmpty, $countryId);
-        $this->returnFormattedValues($numberTypes, $format);
+        $this->_returnFormattedValues($numberTypes, $format);
     }
 
     /**
@@ -70,14 +72,23 @@ class VoipController extends BaseController
         if (!$cityId) {
             throw new \InvalidArgumentException('Wrong cityId');
         }
+
         $numberTypes = DidGroup::dao()->getList($isWithEmpty, $cityId);
-        $this->returnFormattedValues($numberTypes, $format);
+        $this->_returnFormattedValues($numberTypes, $format);
     }
 
     /**
      * Вернуть массив свободных номеров по городу и красивости номера
      *
+     * @param int $cityId
      * @param int $didGroupId
+     * @param int $rowClass
+     * @param string $orderByField
+     * @param string $orderByType
+     * @param string $mask
+     * @param int $limit
+     * @param string $numberType
+     * @return string
      */
     public function actionGetFreeNumbers(
         $cityId = null,
@@ -100,11 +111,15 @@ class VoipController extends BaseController
                 break;
             case Tariff::NUMBER_TYPE_LINE:
                 $number = UsageVoip::dao()->getNextLineNumber();
-                return Html::checkbox('numberIds[]', true, [
-                    'value' => $number,
-                    'label' => $number,
-                    'disabled' => 'disabled',
-                ]);
+                return Html::checkbox(
+                    'numberIds[]',
+                    true,
+                    [
+                        'value' => $number,
+                        'label' => $number,
+                        'disabled' => 'disabled',
+                    ]
+                );
                 break;
             default:
                 throw new \InvalidArgumentException('Wrong numberType');
@@ -128,10 +143,13 @@ class VoipController extends BaseController
         $orderByField && $orderByType && $numbers->orderBy([$orderByField => (int)$orderByType]);
         $limit = (int)$limit;
 
-        return $this->renderPartial('getFreeNumbers', [
-            'numbers' => $numbers->result($limit ?: 100),
-            'rowClass' => $rowClass,
-        ]);
+        return $this->renderPartial(
+            'getFreeNumbers',
+            [
+                'numbers' => $numbers->result($limit ?: 100),
+                'rowClass' => $rowClass,
+            ]
+        );
     }
 
     /**
@@ -144,6 +162,8 @@ class VoipController extends BaseController
      * @param int $isWithEmpty
      * @param string $format
      * @param int $statusId
+     *
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $statusId = null)
     {
@@ -151,9 +171,17 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $tariffPeriods = TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId, $currency, $cityId, $isWithEmpty,
-            $isWithNullAndNotNull = false, $statusId);
-        $this->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
+        $tariffPeriods = TariffPeriod::getList(
+            $defaultTariffPeriodId,
+            $serviceTypeId,
+            $currency,
+            $cityId,
+            $isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $statusId
+        );
+
+        $this->_returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
     }
 
     /**
@@ -167,7 +195,7 @@ class VoipController extends BaseController
     public function actionGetTrunks($regionId = null, $format = null, $isWithEmpty = true)
     {
         $trunks = Trunk::getList($regionId, $isWithEmpty);
-        $this->returnFormattedValues($trunks, $format);
+        $this->_returnFormattedValues($trunks, $format);
     }
 
     /**
@@ -175,8 +203,9 @@ class VoipController extends BaseController
      *
      * @param string[] $values
      * @param string $format
+     * @param string $defaultValue
      */
-    private function returnFormattedValues($values, $format, $defaultValue = '')
+    private function _returnFormattedValues($values, $format, $defaultValue = '')
     {
         $response = Yii::$app->getResponse();
 
@@ -194,6 +223,7 @@ class VoipController extends BaseController
                 echo json_encode($values);
                 break;
         }
+
         Yii::$app->end();
     }
 }

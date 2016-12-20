@@ -30,11 +30,17 @@ class AccountLogPeriod extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_account_log_period';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -45,7 +51,7 @@ class AccountLogPeriod extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function behaviors()
     {
@@ -89,6 +95,7 @@ class AccountLogPeriod extends ActiveRecord
     /**
      * Вернуть уникальный Id
      * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     *
      * @return string
      */
     public function getUniqueId()

@@ -22,7 +22,7 @@ class TariffVoipCity extends \yii\db\ActiveRecord
     use \app\classes\traits\AttributeLabelsTraits;
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public static function tableName()
     {
@@ -30,7 +30,7 @@ class TariffVoipCity extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function rules()
     {
@@ -58,6 +58,7 @@ class TariffVoipCity extends \yii\db\ActiveRecord
 
     /**
      * Преобразовать объект в строку
+     *
      * @return string
      */
     public function __toString()

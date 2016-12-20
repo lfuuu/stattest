@@ -69,7 +69,8 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Вернуть имена полей
-     * @return [] [полеВТаблице => Перевод]
+     *
+     * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
     {
@@ -79,7 +80,7 @@ class AccountTariffLog extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function behaviors()
     {
@@ -106,6 +107,7 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Вернуть сгенерированное имя
+     *
      * @return string
      */
     public function getName()
@@ -117,6 +119,7 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Вернуть html: имя + ссылка на тариф
+     *
      * @return string
      */
     public function getTariffPeriodLink()
@@ -131,6 +134,7 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Валидировать дату смены тарифа
+     *
      * @param string $attribute
      * @param [] $params
      */
@@ -160,7 +164,9 @@ class AccountTariffLog extends ActiveRecord
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
         }
 
-        if ($this->actual_from_utc == $currentDateTimeUtc && self::find()
+        if (
+            $this->actual_from_utc == $currentDateTimeUtc
+            && self::find()
                 ->where(['account_tariff_id' => $this->account_tariff_id])
                 ->andWhere(['=', 'actual_from_utc', $currentDateTimeUtc])
                 ->count()
@@ -181,6 +187,7 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Валидировать, что при создании сразу же не закрытый
+     *
      * @param string $attribute
      * @param [] $params
      */
@@ -212,6 +219,7 @@ class AccountTariffLog extends ActiveRecord
     /**
      * Вернуть уникальный Id
      * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     *
      * @return string
      */
     public function getUniqueId()
@@ -254,14 +262,15 @@ class AccountTariffLog extends ActiveRecord
 
         $tariffPeriod = $this->tariffPeriod;
         if ($tariffPeriod && $tariffPeriod->tariff->currency_id != $clientAccount->currency) {
-            $this->addError($attribute,
+            $this->addError(
+                $attribute,
                 sprintf('Валюта акаунта %s и тарифа %s не совпадают.', $clientAccount->currency, $tariffPeriod->tariff->currency_id)
             );
         }
 
         $credit = $clientAccount->credit; // кредитный лимит
         $realtimeBalance = $clientAccount->balance; // $clientAccount->billingCounters->getRealtimeBalance()
-        $realtimeBalanceWithCredit = $realtimeBalance + $credit;
+        $realtimeBalanceWithCredit = ($realtimeBalance + $credit);
 
         $warnings = $clientAccount->getVoipWarnings();
         $isCountLogs = $this->getCountLogs(); // смена тарифа или закрытие услуги
@@ -285,6 +294,7 @@ class AccountTariffLog extends ActiveRecord
                 // подключение новой услуги
                 $this->addError($attribute, $error);
             }
+
             return;
         }
 
@@ -297,6 +307,7 @@ class AccountTariffLog extends ActiveRecord
                 // подключение новой услуги
                 $this->addError($attribute, $error);
             }
+
             return;
         }
 
@@ -309,6 +320,7 @@ class AccountTariffLog extends ActiveRecord
                 // подключение новой услуги
                 $this->addError($attribute, $error);
             }
+
             return;
         }
 
@@ -324,21 +336,29 @@ class AccountTariffLog extends ActiveRecord
         if ($isCountLogs) {
             // смена тарифа или закрытие услуги
             // плата за номер не взимается
-            $accountLogSetup->price = max(0, $accountLogSetup->price - $accountLogSetup->price_number);
+            $accountLogSetup->price = max(0, ($accountLogSetup->price - $accountLogSetup->price_number));
             $accountLogSetup->price_number = 0;
         }
+
         $accountLogPeriod = (new AccountLogPeriodTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToTariff);
-        $priceMin = $tariffPeriod->price_min * $accountLogPeriod->coefficient;
-        $tariffPrice = $accountLogSetup->price + $accountLogPeriod->price + $priceMin;
+        $priceMin = ($tariffPeriod->price_min * $accountLogPeriod->coefficient);
+        $tariffPrice = ($accountLogSetup->price + $accountLogPeriod->price + $priceMin);
 
         if ($realtimeBalanceWithCredit < $tariffPrice) {
-            $error = sprintf('На ЛС %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
-                $realtimeBalance, $clientAccount->currency,
-                $credit, $clientAccount->currency,
-                $tariffPrice, $clientAccount->currency,
-                $accountLogSetup->price, $clientAccount->currency,
-                $accountLogPeriod->price, $clientAccount->currency,
-                $priceMin, $clientAccount->currency
+            $error = sprintf(
+                'На ЛС %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
+                $realtimeBalance,
+                $clientAccount->currency,
+                $credit,
+                $clientAccount->currency,
+                $tariffPrice,
+                $clientAccount->currency,
+                $accountLogSetup->price,
+                $clientAccount->currency,
+                $accountLogPeriod->price,
+                $clientAccount->currency,
+                $priceMin,
+                $clientAccount->currency
             );
             if ($isCountLogs) {
                 // смена тарифа или закрытие услуги
@@ -347,18 +367,19 @@ class AccountTariffLog extends ActiveRecord
                 // подключение новой услуги
                 $this->addError($attribute, $error);
             }
+
             return;
         }
 
         // все хорошо - денег хватает
         // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
         // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
-
         Yii::info('AccountTariffLog. After validatorBalance', 'uu');
     }
 
     /**
      * Сдвинуть actual_from на завтра
+     * @param string $error
      */
     protected function shiftActualFrom($error)
     {
@@ -419,6 +440,7 @@ class AccountTariffLog extends ActiveRecord
     /**
      * Установить actual_from из date в таймзоне клиента в datetime UTC
      * Для совместимости, ибо старое поле actual_from удалено
+     *
      * @param string $date
      */
     public function setActual_from($date)
@@ -433,6 +455,7 @@ class AccountTariffLog extends ActiveRecord
     /**
      * Вернуть actual_from в виде date в таймзоне клиента, а не datetime UTC
      * Для совместимости, ибо старое поле actual_from удалено
+     *
      * @return string
      */
     public function getActual_from()
@@ -445,6 +468,7 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Вернуть DateTime в таймзоне клиента
+     *
      * @param string $date в таймзоне клиента
      * @return DateTimeImmutable
      */
@@ -455,6 +479,7 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Вернуть DateTimeZone клиента
+     *
      * @return DateTimeZone
      */
     public function getClientTimeZone()
@@ -468,6 +493,7 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Валидировать, что пакет подключен только 1 раз
+     *
      * @param string $attribute
      * @param [] $params
      */
@@ -485,12 +511,14 @@ class AccountTariffLog extends ActiveRecord
         }
 
         if (AccountTariff::find()
-            ->where([
-                'service_type_id' => $accountTariff->service_type_id,
-                'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
-                'tariff_period_id' => $this->tariff_period_id,
-            ])
-            ->andWhere(['!=', 'id', (int)$this->account_tariff_id]) // кроме себя же
+            ->where(
+                [
+                    'service_type_id' => $accountTariff->service_type_id,
+                    'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                    'tariff_period_id' => $this->tariff_period_id,
+                ]
+            )
+            ->andWhere(['!=', 'id', (int)$this->account_tariff_id])// кроме себя же
             ->count()
         ) {
             $this->addError($attribute, 'Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.');
@@ -501,22 +529,24 @@ class AccountTariffLog extends ActiveRecord
         $accountTariffLogTableName = AccountTariffLog::tableName();
         if (AccountTariffLog::find()
             ->joinWith('accountTariff')
-            ->where([
-                $accountTariffTableName . '.service_type_id' => $accountTariff->service_type_id,
-                $accountTariffTableName . '.prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
-                $accountTariffLogTableName . '.tariff_period_id' => $this->tariff_period_id,
-            ])
-            ->andWhere([
-                '>=',
-                $accountTariffLogTableName . '.actual_from_utc',
-                (new DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT)
-            ])// "-1 day" для того, чтобы не мучиться с таймзоной клиента, а гарантированно получить нужное
+            ->where(
+                [
+                    $accountTariffTableName . '.service_type_id' => $accountTariff->service_type_id,
+                    $accountTariffTableName . '.prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+                    $accountTariffLogTableName . '.tariff_period_id' => $this->tariff_period_id,
+                ]
+            )
+            ->andWhere(
+                [
+                    '>=',
+                    $accountTariffLogTableName . '.actual_from_utc',
+                    (new DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT)
+                ]
+            )// "-1 day" для того, чтобы не мучиться с таймзоной клиента, а гарантированно получить нужное
             ->count()
         ) {
             $this->addError($attribute, 'Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла.');
             return;
         }
-
-
     }
 }

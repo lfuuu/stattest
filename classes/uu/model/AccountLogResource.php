@@ -34,11 +34,17 @@ class AccountLogResource extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_account_log_resource';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [

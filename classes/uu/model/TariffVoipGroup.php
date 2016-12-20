@@ -15,6 +15,9 @@ class TariffVoipGroup extends \yii\db\ActiveRecord
 
     const ID_DEFAULT = 1;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_tariff_voip_group';
@@ -22,7 +25,8 @@ class TariffVoipGroup extends \yii\db\ActiveRecord
 
     /**
      * Вернуть имена полей
-     * @return [] [полеВТаблице => Перевод]
+     *
+     * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
     {
@@ -33,6 +37,7 @@ class TariffVoipGroup extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array
      */
     public function rules()
     {
@@ -45,7 +50,8 @@ class TariffVoipGroup extends \yii\db\ActiveRecord
 
     /**
      * По какому полю сортировать для getList()
-     * @return []
+     *
+     * @return array
      */
     public static function getListOrderBy()
     {

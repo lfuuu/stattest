@@ -8,7 +8,6 @@ namespace app\controllers\uu;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\filter\AccountEntryFilter;
-use Yii;
 use yii\filters\AccessControl;
 
 class AccountEntryController extends BaseController
@@ -18,7 +17,8 @@ class AccountEntryController extends BaseController
 
     /**
      * Права доступа
-     * @return []
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -44,8 +44,11 @@ class AccountEntryController extends BaseController
         $filterModel = new AccountEntryFilter();
         $this->addClientAccountFilter($filterModel);
 
-        return $this->render('index', [
-            'filterModel' => $filterModel,
-        ]);
+        return $this->render(
+            'index',
+            [
+                'filterModel' => $filterModel,
+            ]
+        );
     }
 }

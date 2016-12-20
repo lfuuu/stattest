@@ -5,18 +5,12 @@
 
 namespace app\controllers\uu;
 
-use app\classes\Smarty;
-use app\forms\templates\uu\InvoiceForm;
-use app\helpers\DateTimeZoneHelper;
-use Yii;
-use yii\filters\AccessControl;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
-use app\classes\uu\model\AccountEntry;
-use app\classes\uu\model\AccountTariff;
 use app\models\ClientAccount;
-use app\models\Language;
 use app\models\light_models\uu\InvoiceLight;
+use Yii;
+use yii\filters\AccessControl;
 
 class InvoiceController extends BaseController
 {
@@ -25,6 +19,7 @@ class InvoiceController extends BaseController
 
     /**
      * Права доступа
+     *
      * @return array
      */
     public function behaviors()
@@ -83,29 +78,44 @@ class InvoiceController extends BaseController
 
         switch ($renderMode) {
             case 'pdf': {
-                return $this->renderAsPDF('print', [
-                    'invoiceContent' => $invoice->render(),
-                ], [
-                    'cssFile' => '@web/css/invoice/invoice.css',
-                ]);
+                return $this->renderAsPDF(
+                    'print',
+                    [
+                        'invoiceContent' => $invoice->render(),
+                    ],
+                    [
+                        'cssFile' => '@web/css/invoice/invoice.css',
+                    ]
+                );
             }
+
             case 'mhtml': {
-                return $this->renderAsMHTML('print', [
-                    'invoiceContent' => $invoice->render(),
-                ]);
+                return $this->renderAsMHTML(
+                    'print',
+                    [
+                        'invoiceContent' => $invoice->render(),
+                    ]
+                );
             }
+
             case 'print': {
                 $this->layout = 'empty';
-                return $this->render('print', [
-                    'invoiceContent' => $invoice->render(),
-                ]);
+                return $this->render(
+                    'print',
+                    [
+                        'invoiceContent' => $invoice->render(),
+                    ]
+                );
             }
             default: {
-                return $this->render('view', [
-                    'invoice' => $invoiceData,
-                    'langCode' => $langCode,
-                    'date' => $date,
-                ]);
+                return $this->render(
+                    'view',
+                    [
+                        'invoice' => $invoiceData,
+                        'langCode' => $langCode,
+                        'date' => $date,
+                    ]
+                );
             }
         }
     }

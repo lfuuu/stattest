@@ -16,7 +16,7 @@ class NumberTypeController extends BaseController
 {
     /**
      * Права доступа
-     * @return []
+     * @return array
      */
     public function behaviors()
     {

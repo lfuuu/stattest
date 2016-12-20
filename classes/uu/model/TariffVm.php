@@ -4,6 +4,7 @@ namespace app\classes\uu\model;
 
 /**
  * Типы VM
+ *
  * @link http://datacenter.mcn.ru/vps-hosting/
  *
  * @property int $id
@@ -17,12 +18,16 @@ class TariffVm extends \yii\db\ActiveRecord
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_tariff_vm';
     }
 
     /**
+     * @return array
      */
     public function rules()
     {

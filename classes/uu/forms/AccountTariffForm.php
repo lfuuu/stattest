@@ -340,7 +340,7 @@ abstract class AccountTariffForm extends Form
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function getAvailableTariffPeriods(
         &$defaultTariffPeriodId,

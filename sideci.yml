@@ -2,6 +2,3 @@ linter:
   code_sniffer:
     options:
       standard: ruleset.xml
-  phpmd:
-    options:
-      rule: rulesetMd.xml

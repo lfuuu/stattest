@@ -28,7 +28,8 @@ class AccountTariffController extends BaseController
 
     /**
      * Права доступа
-     * @return []
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -58,16 +59,19 @@ class AccountTariffController extends BaseController
      * @param int $serviceTypeId
      * @return string
      */
-    public function actionIndex($serviceTypeId = '')
+    public function actionIndex($serviceTypeId = null)
     {
-        $this->checkNonPackage($serviceTypeId);
+        $this->_checkNonPackage($serviceTypeId);
 
         $filterModel = new AccountTariffFilter($serviceTypeId);
         $this->addClientAccountFilter($filterModel);
 
-        return $this->render('index', [
-            'filterModel' => $filterModel,
-        ]);
+        return $this->render(
+            'index',
+            [
+                'filterModel' => $filterModel,
+            ]
+        );
     }
 
     /**
@@ -78,11 +82,13 @@ class AccountTariffController extends BaseController
      */
     public function actionNew($serviceTypeId)
     {
-        $this->checkNonPackage($serviceTypeId);
+        $this->_checkNonPackage($serviceTypeId);
 
-        $formModel = new AccountTariffAddForm([
-            'serviceTypeId' => $serviceTypeId,
-        ]);
+        $formModel = new AccountTariffAddForm(
+            [
+                'serviceTypeId' => $serviceTypeId,
+            ]
+        );
 
         if ($formModel->isSaved) {
 
@@ -90,22 +96,29 @@ class AccountTariffController extends BaseController
 
             if ($formModel->id) {
                 // добавили одного - на его карточку
-                return $this->redirect([
-                    'edit',
-                    'id' => $formModel->id,
-                ]);
+                return $this->redirect(
+                    [
+                        'edit',
+                        'id' => $formModel->id,
+                    ]
+                );
             } else {
                 // добавили мульти - на их список
-                return $this->redirect([
-                    'index',
-                    'serviceTypeId' => $serviceTypeId,
-                    'AccountTariffFilter[client_account_id]' => $formModel->clientAccountId,
-                ]);
+                return $this->redirect(
+                    [
+                        'index',
+                        'serviceTypeId' => $serviceTypeId,
+                        'AccountTariffFilter[client_account_id]' => $formModel->clientAccountId,
+                    ]
+                );
             }
         } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
+            return $this->render(
+                'edit',
+                [
+                    'formModel' => $formModel,
+                ]
+            );
         }
 
     }
@@ -119,37 +132,48 @@ class AccountTariffController extends BaseController
     public function actionEdit($id)
     {
         try {
-            $formModel = new AccountTariffEditForm([
-                'id' => $id,
-            ]);
+            $formModel = new AccountTariffEditForm(
+                [
+                    'id' => $id,
+                ]
+            );
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
 
-            return $this->render('//layouts/empty', [
-                'content' => '',
-            ]);
+            return $this->render(
+                '//layouts/empty',
+                [
+                    'content' => '',
+                ]
+            );
         }
 
-        $this->checkNonPackage($formModel->serviceTypeId);
+        $this->_checkNonPackage($formModel->serviceTypeId);
 
         if ($formModel->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
-            return $this->redirect([
-                'edit',
-                'id' => $formModel->id,
-            ]);
+            return $this->redirect(
+                [
+                    'edit',
+                    'id' => $formModel->id,
+                ]
+            );
         } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
+            return $this->render(
+                'edit',
+                [
+                    'formModel' => $formModel,
+                ]
+            );
         }
-
     }
 
     /**
      * Отобразить аяксом форму смены тарифа телефонии
      *
      * @param int $id
+     * @param int $cityId
+     * @param int $serviceTypeId
      * @return string
      */
     public function actionEditVoip($id = null, $cityId = null, $serviceTypeId = null)
@@ -159,13 +183,17 @@ class AccountTariffController extends BaseController
         try {
             $formModel = $id ?
                 // редактировать телефонию или пакет телефонии
-                (new AccountTariffEditForm([
-                    'id' => $id,
-                ])) :
+                (new AccountTariffEditForm(
+                    [
+                        'id' => $id,
+                    ]
+                )) :
                 // добавить пакет телефонии
-                (new AccountTariffAddForm([
-                    'serviceTypeId' => $serviceTypeId,
-                ]));
+                (new AccountTariffAddForm(
+                    [
+                        'serviceTypeId' => $serviceTypeId,
+                    ]
+                ));
 
             $cityId = (int)$cityId;
             if ($cityId && !$formModel->accountTariff->city_id) {
@@ -175,14 +203,20 @@ class AccountTariffController extends BaseController
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
 
-            return $this->render('//layouts/empty', [
-                'content' => '',
-            ]);
+            return $this->render(
+                '//layouts/empty',
+                [
+                    'content' => '',
+                ]
+            );
         }
 
-        return $this->render('editVoip', [
-            'formModel' => $formModel,
-        ]);
+        return $this->render(
+            'editVoip',
+            [
+                'formModel' => $formModel,
+            ]
+        );
     }
 
     /**
@@ -223,6 +257,7 @@ class AccountTariffController extends BaseController
                 if (!$accountTariffFirst) {
                     throw new InvalidArgumentException(Yii::t('common', 'Wrong first ID ' . $accountTariffFirstId));
                 }
+
                 $accountTariffFirstHash = $accountTariffFirst->getHash();
             } else {
                 $accountTariffFirstHash = null;
@@ -282,7 +317,6 @@ class AccountTariffController extends BaseController
                             $errors = $accountTariffLogPackage->getFirstErrors();
                             throw new LogicException(reset($errors));
                         }
-
                     }
                 }
             }
@@ -304,10 +338,12 @@ class AccountTariffController extends BaseController
             Yii::$app->session->setFlash('error', YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error'));
         }
 
-        return $this->redirect([
-            'index',
-            'serviceTypeId' => $serviceTypeId,
-        ]);
+        return $this->redirect(
+            [
+                'index',
+                'serviceTypeId' => $serviceTypeId,
+            ]
+        );
     }
 
     /**
@@ -332,6 +368,7 @@ class AccountTariffController extends BaseController
                 if (!$id) {
                     throw new InvalidArgumentException('Неправильные параметры');
                 }
+
                 $ids = [$id];
             }
 
@@ -380,7 +417,6 @@ class AccountTariffController extends BaseController
                         $errors = $accountTariff->getFirstErrors();
                         throw new LogicException(reset($errors));
                     }
-
                 }
             }
 
@@ -403,10 +439,12 @@ class AccountTariffController extends BaseController
 
         if ($id) {
             // редактировали одну услугу - на ее карточку
-            return $this->redirect([
-                'edit',
-                'id' => $id,
-            ]);
+            return $this->redirect(
+                [
+                    'edit',
+                    'id' => $id,
+                ]
+            );
         } else {
             // редактировали много услуг одновременно - на их список
             switch ($serviceTypeId) {
@@ -420,15 +458,18 @@ class AccountTariffController extends BaseController
                     $serviceTypeId = ServiceType::ID_VOIP;
                     break;
             }
-            return $this->redirect([
-                'index',
-                'serviceTypeId' => $serviceTypeId,
-            ]);
+
+            return $this->redirect(
+                [
+                    'index',
+                    'serviceTypeId' => $serviceTypeId,
+                ]
+            );
         }
     }
 
     /**
-     * найти базовую услугу или пакета
+     * Найти базовую услугу или пакета
      *
      * @param int $accountTariffId
      * @param string $accountTariffFirstHash хэш первой услуги (тарифа или пакета) или null (добавление пакета)
@@ -469,6 +510,7 @@ class AccountTariffController extends BaseController
                 return $accountTariffPackage;
             }
         }
+
         unset($accountTariffPackage);
 
         throw new InvalidArgumentException(sprintf('Услуга %d с хэшем %s не найдена', $accountTariffId, $accountTariffFirstHash));
@@ -477,7 +519,7 @@ class AccountTariffController extends BaseController
     /**
      * @param int $serviceTypeId
      */
-    private function checkNonPackage($serviceTypeId)
+    private function _checkNonPackage($serviceTypeId)
     {
         if (in_array($serviceTypeId, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
             // для пакетов услуги подключаются через базовую услугу

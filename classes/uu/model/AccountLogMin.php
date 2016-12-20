@@ -31,11 +31,17 @@ class AccountLogMin extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_account_log_min';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -80,6 +86,7 @@ class AccountLogMin extends ActiveRecord
     /**
      * Вернуть уникальный Id
      * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     *
      * @return string
      */
     public function getUniqueId()

@@ -20,7 +20,8 @@ class AccountLogController extends BaseController
 
     /**
      * Права доступа
-     * @return []
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -46,9 +47,12 @@ class AccountLogController extends BaseController
         $filterModel = new AccountLogSetupFilter();
         $this->addClientAccountFilter($filterModel);
 
-        return $this->render('setup', [
-            'filterModel' => $filterModel,
-        ]);
+        return $this->render(
+            'setup',
+            [
+                'filterModel' => $filterModel,
+            ]
+        );
     }
 
     /**
@@ -59,9 +63,12 @@ class AccountLogController extends BaseController
         $filterModel = new AccountLogPeriodFilter();
         $this->addClientAccountFilter($filterModel);
 
-        return $this->render('period', [
-            'filterModel' => $filterModel,
-        ]);
+        return $this->render(
+            'period',
+            [
+                'filterModel' => $filterModel,
+            ]
+        );
     }
 
     /**
@@ -72,9 +79,12 @@ class AccountLogController extends BaseController
         $filterModel = new AccountLogResourceFilter();
         $this->addClientAccountFilter($filterModel);
 
-        return $this->render('resource', [
-            'filterModel' => $filterModel,
-        ]);
+        return $this->render(
+            'resource',
+            [
+                'filterModel' => $filterModel,
+            ]
+        );
     }
 
     /**
@@ -85,9 +95,12 @@ class AccountLogController extends BaseController
         $filterModel = new AccountLogMinFilter();
         $this->addClientAccountFilter($filterModel);
 
-        return $this->render('min', [
-            'filterModel' => $filterModel,
-        ]);
+        return $this->render(
+            'min',
+            [
+                'filterModel' => $filterModel,
+            ]
+        );
     }
 
 }

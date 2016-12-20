@@ -14,7 +14,7 @@ class Destination extends ActiveRecord
 {
     /**
      * Вернуть имена полей
-     * @return [] [полеВТаблице => Перевод]
+     * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
     {
@@ -38,7 +38,7 @@ class Destination extends ActiveRecord
 
     /**
      * По какому полю сортировать для getList()
-     * @return []
+     * @return array
      */
     public static function getListOrderBy()
     {

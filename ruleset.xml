@@ -9,12 +9,12 @@
         phpcs \-\-version
     PhpStorm
         "Language & Frameworks" / PHP / Code sniffer / Configuration / ... / "/usr/bin/phpcs" / Ok
-        "Language & Frameworks" / Editor / Inspertions / PHP Code Sniffer Validation / "V"
+        "Language & Frameworks" / Editor / Inspertions / PHP Code Sniffer Validation / включить, "Show sniff name"
         Подробнее см. https://www.jetbrains.com/help/phpstorm/2016.2/using-php-code-sniffer-tool.html
     -->
 
     <!--
-    Чтобы найти название нужного code_sniffer-правила для его отключения или редактирования:
+    Название правила указывается, если включить "Show sniff name". Если же название правила не известно, то его можно найти по тексту ошибки:
         cd /usr/share/php/PHP/CodeSniffer/Standards
         grep СООБЩЕНИЕ * -r
         Если найдено в xml-файле - скопируйте имя правила оттуда
@@ -24,6 +24,10 @@
 
     <!--
     Найти нужное phpmd-правило можно на https://phpmd.org/rules/index.html
+
+    Неиспользуемые переменные иногда нужны, чтобы при вызове метода понимать значение параметра. "Avoid unused local variables such as ..."
+    Для подавления ошибки добавь в PHP метод:
+    @SuppressWarnings(PHPMD.UnusedLocalVariable)
     -->
 
     <!--
@@ -38,14 +42,20 @@
 
         <!-- Выключить правила -->
 
-        <!-- Запрещает to do-комментарии. "Comment refers to a TODO task" -->
+        <!-- Не запрещать to do-комментарии. "Comment refers to a TODO task" -->
         <exclude name="Generic.Commenting.Todo"/>
 
-        <!-- Требует "PHP Version 5" в каждом файле. "PHP version not specified" -->
+        <!-- Не требовать "PHP Version 5" в каждом файле. "PHP version not specified" -->
         <exclude name="PEAR.Commenting.FileComment"/>
 
-        <!-- Отсутпы элеементов массива должны быть смещены на уровень декларации имени массива -->
+        <!-- Не требовать отступы и выравнивание среди элементов массива, switch -->
         <exclude name="Squiz.Arrays.ArrayDeclaration"/>
+        <exclude name="PEAR.WhiteSpace.ScopeIndent.IncorrectExact"/>
+        <exclude name="PEAR.Functions.FunctionCallSignature.Indent"/>
+        <exclude name="PEAR.WhiteSpace.ScopeIndent.Incorrect"/>
+        <exclude name="PEAR.Formatting.MultiLineAssignment.Indent"/>
+        <exclude name="PEAR.WhiteSpace.ScopeClosingBrace.BreakIndent"/>
+        <exclude name="PEAR.WhiteSpace.ObjectOperatorIndent.Incorrect"/>
 
         <!-- Operator ! not allowed. Use === false -->
         <exclude name="Squiz.Operators.ComparisonOperatorUsage.NotAllowed"/>
@@ -53,38 +63,95 @@
         <!-- Implicit true comparisons prohibited; use === TRUE instead -->
         <exclude name="Squiz.Operators.ComparisonOperatorUsage.ImplicitTrue"/>
 
-        <!-- //end functionName() -->
-        <exclude name="Squiz.Commenting.ClosingDeclarationComment" />
+        <!-- Не требовать //end -->
+        <exclude name="Squiz.Commenting.ClosingDeclarationComment"/>
+        <exclude name="Squiz.Commenting.LongConditionClosingComment.Missing"/>
 
         <!-- Expected 1 blank line before closing function brace; %s found -->
-        <exclude name="Squiz.WhiteSpace.FunctionClosingBraceSpace" />
+        <exclude name="Squiz.WhiteSpace.FunctionClosingBraceSpace"/>
 
         <!-- Блок констант форматируется по правому краю -->
-        <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame" />
+        <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
 
         <!-- Class comment missing properties -->
-        <exclude name="PEAR.Commenting.ClassComment.MissingAuthorTag" />
-        <exclude name="PEAR.Commenting.ClassComment.MissingCategoryTag" />
-        <exclude name="PEAR.Commenting.ClassComment.MissingLicenseTag" />
-        <exclude name="PEAR.Commenting.ClassComment.MissingLinkTag" />
-        <exclude name="PEAR.Commenting.ClassComment.MissingPackageTag" />
+        <exclude name="PEAR.Commenting.ClassComment.MissingAuthorTag"/>
+        <exclude name="PEAR.Commenting.ClassComment.MissingCategoryTag"/>
+        <exclude name="PEAR.Commenting.ClassComment.MissingLicenseTag"/>
+        <exclude name="PEAR.Commenting.ClassComment.MissingLinkTag"/>
+        <exclude name="PEAR.Commenting.ClassComment.MissingPackageTag"/>
 
         <!-- Коментарий параметра функции -->
-        <exclude name="PEAR.Commenting.FunctionComment.MissingParamComment" />
+        <exclude name="PEAR.Commenting.FunctionComment.MissingParamComment"/>
 
         <!-- форматирование описания и типа параметров функции -->
-        <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamName" />
-        <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamType" />
+        <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamName"/>
+        <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamType"/>
 
         <!-- @return не обязательно в описании функции -->
-        <exclude name="PEAR.Commenting.FunctionComment.MissingReturn" />
+        <exclude name="PEAR.Commenting.FunctionComment.MissingReturn"/>
 
         <!-- форматирование в описании функции. Тип под типом -->
-        <exclude name="Generic.Commenting.DocComment.TagValueIndent" />
+        <exclude name="Generic.Commenting.DocComment.TagValueIndent"/>
 
         <!-- не группировать параметры в phpdoc -->
-        <exclude name="Generic.Commenting.DocComment.NonParamGroup" />
+        <exclude name="Generic.Commenting.DocComment.NonParamGroup"/>
 
+        <!-- Не требовать точку в конце комментария -->
+        <exclude name="Squiz.Commenting.InlineComment.InvalidEndChar"/>
+
+        <!-- Не требовать 2 абзаца между функциями -->
+        <exclude name="Squiz.WhiteSpace.FunctionSpacing.Before"/>
+        <exclude name="Squiz.WhiteSpace.FunctionSpacing.After"/>
+
+        <!-- Разрешить phpDoc без текста (например в hasOne) -->
+        <exclude name="Generic.Commenting.DocComment.MissingShort"/>
+
+        <!-- Разрешить пробел на пустой строчке phpDoc -->
+        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine"/>
+
+        <!-- Разрешить inline-комментарий с маленькой буквы -->
+        <exclude name="Squiz.Commenting.InlineComment.NotCapital"/>
+
+        <!-- После приведения типа не требовать пробел -->
+        <exclude name="Generic.Formatting.SpaceAfterCast.NoSpace"/>
+
+        <!-- Не запрещать "elseif" -->
+        <exclude name="Squiz.ControlStructures.ElseIfDeclaration.NotAllowed"/>
+
+        <!-- Не запрещать пробелы при конкатенации -->
+        <exclude name="Squiz.Strings.ConcatenationSpacing.PaddingFound"/>
+
+        <!-- Не докапываться до мультистрочных if -->
+        <exclude name="PEAR.ControlStructures.MultiLineCondition.StartWithBoolean"/>
+        <exclude name="PEAR.ControlStructures.MultiLineCondition.SpacingAfterOpenBrace"/>
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpenBrace"/>
+        <exclude name="PEAR.ControlStructures.MultiLineCondition.Alignment"/>
+
+        <!-- Не запрещать однострочный phpDoc -->
+        <exclude name="Generic.Commenting.DocComment.ContentAfterOpen"/>
+        <exclude name="Generic.Commenting.DocComment.ContentBeforeClose"/>
+        <exclude name="Squiz.Commenting.BlockComment.WrongStart"/>
+        <exclude name="Squiz.Commenting.InlineComment.DocBlock"/>
+
+        <!-- Не запрещать inline-коммент справа -->
+        <exclude name="Squiz.Commenting.PostStatementComment.Found"/>
+        <exclude name="Squiz.WhiteSpace.OperatorSpacing.SpacingAfter"/>
+
+        <!-- Не запрещать inline-if -->
+        <exclude name="Squiz.PHP.DisallowInlineIf.Found"/>
+
+        <!-- Не запрещать пустую строку в начале if -->
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen"/>
+
+        <!-- Не запрещать < ?= -->
+        <exclude name="Generic.PHP.DisallowShortOpenTag.EchoFound"/>
+
+        <!-- Не докапываться до swagger -->
+        <exclude name="Squiz.Commenting.DocCommentAlignment.SpaceAfterStar"/>
+
+        <!-- Не требовать специального форматирования мультистрочных массивов в вызове функции -->
+        <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
+        <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
     </rule>
 
     <!-- Отредактировать правила -->

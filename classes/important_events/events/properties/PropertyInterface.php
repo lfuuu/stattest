@@ -19,13 +19,13 @@ interface PropertyInterface
 
     /**
      * Получение списка доступных описаний переменных
-     * @return []
+     * @return array
      */
     public static function labels();
 
     /**
      * Получение списка доступных методов
-     * @return []
+     * @return array
      */
     public function methods();
 

@@ -200,6 +200,7 @@ class Tariff extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)
@@ -208,6 +209,7 @@ class Tariff extends \yii\db\ActiveRecord
     }
 
     /**
+     * @param int $serviceTypeId
      * @return string
      */
     public static function getUrlNew($serviceTypeId)
@@ -259,7 +261,7 @@ class Tariff extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param $resourceId
+     * @param int $resourceId
      * @return ActiveQuery
      */
     public function getTariffResource($resourceId)
@@ -345,6 +347,7 @@ class Tariff extends \yii\db\ActiveRecord
 
     /**
      * Есть ли услуги
+     *
      * @return bool
      */
     public function isHasAccountTariff()
@@ -361,12 +364,13 @@ class Tariff extends \yii\db\ActiveRecord
 
     /**
      * Вернуть ID неуниверсальной услуги
+     *
      * @return int|null
      */
     public function getNonUniversalId()
     {
         if ($this->id && $this->id < self::DELTA && isset($this->serviceIdToDelta[$this->service_type_id])) {
-            return $this->id - $this->serviceIdToDelta[$this->service_type_id];
+            return ($this->id - $this->serviceIdToDelta[$this->service_type_id]);
         } else {
             return null;
         }
@@ -374,6 +378,7 @@ class Tariff extends \yii\db\ActiveRecord
 
     /**
      * Вернуть html-ссылку на неуниверсальную услугу
+     *
      * @return string
      */
     public function getNonUniversalUrl()
@@ -404,11 +409,11 @@ class Tariff extends \yii\db\ActiveRecord
             self::NUMBER_TYPE_NUMBER => 'Номер',
             self::NUMBER_TYPE_7800 => '7800',
             self::NUMBER_TYPE_LINE => 'Линия без номера',
-            //'operator' => 'Оператор',
+            // 'operator' => 'Оператор',
         ];
 
         if ($isWithEmpty) {
-            $types = ['' => '----'] + $types;
+            $types = (['' => '----'] + $types);
         }
 
         if ($countryId && $countryId != Country::RUSSIA) {
@@ -424,6 +429,7 @@ class Tariff extends \yii\db\ActiveRecord
 
     /**
      * Вернуть список всех доступных моделей
+     *
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
      * @param int $serviceTypeId
@@ -437,11 +443,12 @@ class Tariff extends \yii\db\ActiveRecord
         $serviceTypeId && $query->where(['service_type_id' => $serviceTypeId]);
         $list = $query->all();
 
-        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+        return (self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list);
     }
 
     /**
      * Тестовый ли?
+     *
      * @return bool
      */
     public function getIsTest()

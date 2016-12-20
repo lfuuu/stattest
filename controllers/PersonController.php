@@ -14,7 +14,7 @@ class PersonController extends BaseController
 {
 
     /**
-     * @return []
+     * @return array
      */
     public function behaviors()
     {

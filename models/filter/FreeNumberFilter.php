@@ -334,7 +334,7 @@ class FreeNumberFilter extends Number
     /**
      * @param \app\models\light_models\NumberLight[] $number
      * @param string|false $currency
-     * @return []
+     * @return array
      */
     public function formattedNumbers($numbers = [], $currency = Currency::RUB)
     {
@@ -348,7 +348,7 @@ class FreeNumberFilter extends Number
     /**
      * @param Number $number
      * @param string|false $currency
-     * @return []
+     * @return array
      */
     public function formattedNumber(\app\models\Number $number, $currency = Currency::RUB)
     {

@@ -8,10 +8,6 @@ namespace app\controllers\uu;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\filter\AccountLogMonitorFilter;
-use app\classes\uu\filter\AccountLogPeriodFilter;
-use app\classes\uu\filter\AccountLogResourceFilter;
-use app\classes\uu\filter\AccountLogSetupFilter;
-use Yii;
 use yii\filters\AccessControl;
 
 class MonitorController extends BaseController
@@ -21,7 +17,8 @@ class MonitorController extends BaseController
 
     /**
      * Права доступа
-     * @return []
+     *
+     * @return array
      */
     public function behaviors()
     {
@@ -47,8 +44,11 @@ class MonitorController extends BaseController
         $filterModel = new AccountLogMonitorFilter();
         $this->addClientAccountFilter($filterModel);
 
-        return $this->render('index', [
-            'filterModel' => $filterModel,
-        ]);
+        return $this->render(
+            'index',
+            [
+                'filterModel' => $filterModel,
+            ]
+        );
     }
 }

@@ -17,16 +17,17 @@ class AccountTariffVoip extends AccountTariff
     public $voip_numbers_list_order_by_type = SORT_ASC;
     public $voip_numbers_list_mask = '';
     public $voip_numbers_list_limit = 50;
-    public $voip_numbers = []; # Номера
-    public $voip_package_tariff_period_ids = []; # Пакеты
+    public $voip_numbers = []; // Номера
+    public $voip_package_tariff_period_ids = []; // Пакеты
 
     /**
      * Вернуть имена полей
-     * @return [] [полеВТаблице => Перевод]
+     *
+     * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
     {
-        return parent::attributeLabels() + [
+        return (parent::attributeLabels() + [
             'voip_country_id' => 'Страна',
             'voip_number_type' => 'Тип',
             'voip_did_group' => 'DID группа',
@@ -35,9 +36,12 @@ class AccountTariffVoip extends AccountTariff
             'voip_numbers_list_order_by_type' => 'Тип сортировки',
             'voip_numbers_list_mask' => 'Шаблон поиска',
             'voip_numbers_list_limit' => 'Количество на странице',
-        ];
+        ]);
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -59,6 +63,11 @@ class AccountTariffVoip extends AccountTariff
         ];
     }
 
+    /**
+     * @param array $data
+     * @param null $formName
+     * @return bool
+     */
     public function load($data, $formName = null)
     {
         $isLoaded = parent::load($data, $formName);

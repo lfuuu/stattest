@@ -17,7 +17,7 @@ class NotificationController extends Controller
     public $enableCsrfValidation = false;
 
     /**
-     * @return []
+     * @return array
      */
     public function behaviors()
     {

@@ -72,7 +72,7 @@ class DisconnectCause extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function getDb()
     {
@@ -97,7 +97,7 @@ class DisconnectCause extends ActiveRecord
 
     /**
      * По какому полю сортировать для getList()
-     * @return []
+     * @return array
      */
     public static function getListOrderBy()
     {

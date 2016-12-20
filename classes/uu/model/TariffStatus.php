@@ -34,12 +34,16 @@ class TariffStatus extends \yii\db\ActiveRecord
 
     const ID_VOIP_8800_TEST = 9;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_tariff_status';
     }
 
     /**
+     * @return array
      */
     public function rules()
     {
@@ -52,7 +56,8 @@ class TariffStatus extends \yii\db\ActiveRecord
 
     /**
      * По какому полю сортировать для getList()
-     * @return []
+     *
+     * @return array
      */
     public static function getListOrderBy()
     {

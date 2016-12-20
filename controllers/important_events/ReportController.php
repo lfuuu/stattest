@@ -28,7 +28,7 @@ class ReportController extends BaseController
     }
 
     /**
-     * @return []
+     * @return array
      * @throws FormValidationException
      * @throws RecordNotFound
      * @throws \yii\base\InvalidConfigException

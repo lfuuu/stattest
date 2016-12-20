@@ -48,7 +48,7 @@ class Person extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function attributeLabels()
     {
@@ -62,7 +62,7 @@ class Person extends ActiveRecord
 
     /**
      * @param string $langCode
-     * @return []
+     * @return array
      */
     public function getI18N($langCode = Language::LANGUAGE_DEFAULT)
     {
@@ -142,7 +142,7 @@ class Person extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function getOldModeInfo()
     {

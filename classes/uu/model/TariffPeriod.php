@@ -30,7 +30,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
     const IS_SET = -2;
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public static function tableName()
     {
@@ -38,7 +38,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function rules()
     {
@@ -57,11 +57,14 @@ class TariffPeriod extends \yii\db\ActiveRecord
     public function getName()
     {
         $tariff = $this->tariff;
-        return sprintf('%s %d+%d %s %s/%s',
+        return sprintf(
+            '%s %d+%d %s %s/%s',
             $tariff->name,
-            $this->price_setup, $this->price_per_period,
+            $this->price_setup,
+            $this->price_per_period,
             $tariff->currency_id,
-            $this->period->name, $this->chargePeriod->name
+            $this->period->name,
+            $this->chargePeriod->name
         );
     }
 
@@ -122,7 +125,7 @@ class TariffPeriod extends \yii\db\ActiveRecord
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
      * @param int $statusId
-     * @return [][]
+     * @return array
      */
     public static function getList(
         &$defaultTariffPeriodId,
@@ -171,17 +174,21 @@ class TariffPeriod extends \yii\db\ActiveRecord
             if ($tariffPeriod->tariff->is_default) {
                 $defaultTariffPeriodId = $tariffPeriod->id;
             }
+
             if (!isset($selectboxItems[$status])) {
                 $selectboxItems[$status] = [];
             }
+
             $selectboxItems[$status][$tariffPeriod->id] = $tariffPeriod->getName();
         }
+
         return $selectboxItems;
     }
 
     /**
      * Одноразовый ли? Относится только к пакетам
      * Одноразовый не продлевается, не имеет абонентки, имеет плату за подключение. В качестве бонуса нет лимита по времени
+     *
      * @return bool
      */
     public function getIsOneTime()

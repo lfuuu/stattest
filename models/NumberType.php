@@ -41,7 +41,7 @@ class NumberType extends ActiveRecord
 
     /**
      * Вернуть имена полей
-     * @return [] [полеВТаблице => Перевод]
+     * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
     {

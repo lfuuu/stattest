@@ -45,7 +45,7 @@ class InvoicePersonLight extends Component implements InvoiceLightInterface
     }
 
     /**
-     * @return []
+     * @return array
      */
     public static function attributeLabels()
     {

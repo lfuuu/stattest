@@ -192,7 +192,7 @@ class ApiVpbx
      * @param int $clientAccountId
      * @param int $usageVpbxId
      * @param \DateTimeImmutable $date
-     * @return []. int_number_amount=>... или errors=>...
+     * @return array. int_number_amount=>... или errors=>...
      */
     public static function getResourceVoipLines($clientAccountId, $usageVpbxId, \DateTimeImmutable $date)
     {

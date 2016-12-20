@@ -85,7 +85,7 @@ class Payment extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function behaviors()
     {

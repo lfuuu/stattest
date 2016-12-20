@@ -39,11 +39,17 @@ class Bill extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_bill';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [

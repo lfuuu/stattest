@@ -57,7 +57,7 @@ trait GetListTrait
 
     /**
      * По какому полю сортировать для getList()
-     * @return []
+     * @return array
      */
     public static function getListOrderBy()
     {

@@ -20,9 +20,12 @@ $accountTariff = $formModel->accountTariff;
     <?php // транк ?>
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'trunk_id')
-            ->widget(Select2::className(), [
-                'data' => Trunk::getList($accountTariff->region_id, $isWithEmpty = true),
-            ]) ?>
+            ->widget(
+                Select2::className(),
+                [
+                    'data' => Trunk::getList($accountTariff->region_id, $isWithEmpty = true),
+                ]
+            ) ?>
     </div>
 
 </div>

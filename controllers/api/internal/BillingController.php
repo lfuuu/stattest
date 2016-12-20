@@ -60,7 +60,7 @@ class BillingController extends ApiInternalController
      * @param string $dstNumber
      * @param int $srcNoa
      * @param int $dstNoa
-     * @return []
+     * @return array
      * @throws \yii\base\Exception
      */
     public function actionTestAuth($trunkName, $srcNumber, $dstNumber, $srcNoa = self::NOA, $dstNoa = self::NOA)
@@ -131,7 +131,7 @@ class BillingController extends ApiInternalController
      * @param string $dstNumber
      * @param int $srcNoa
      * @param int $dstNoa
-     * @return []
+     * @return array
      * @throws \yii\base\Exception
      */
     public function actionTestCall($trunkName, $srcNumber, $dstNumber, $srcNoa = self::NOA, $dstNoa = self::NOA)
@@ -158,7 +158,7 @@ class BillingController extends ApiInternalController
 
     /**
      * @param string $request
-     * @return []
+     * @return array
      */
     private function getResponse($request)
     {

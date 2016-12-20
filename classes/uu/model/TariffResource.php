@@ -21,7 +21,7 @@ class TariffResource extends \yii\db\ActiveRecord
     use \app\classes\traits\AttributeLabelsTraits;
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public static function tableName()
     {
@@ -29,7 +29,7 @@ class TariffResource extends \yii\db\ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * @return array
      */
     public function rules()
     {

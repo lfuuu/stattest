@@ -24,7 +24,7 @@ class CityBillingMethod extends ActiveRecord
     }
 
     /**
-     * @return []
+     * @return array
      */
     public function attributeLabels()
     {

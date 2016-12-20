@@ -16,7 +16,7 @@ interface InvoiceLightInterface
     public static function getTitle();
 
     /**
-     * @return []
+     * @return array
      */
     public static function attributeLabels();
 

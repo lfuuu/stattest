@@ -93,6 +93,7 @@ class ServiceType extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array
      */
     public function rules()
     {
@@ -121,7 +122,8 @@ class ServiceType extends \yii\db\ActiveRecord
 
     /**
      * По какому полю сортировать для getList()
-     * @return []
+     *
+     * @return array
      */
     public static function getListOrderBy()
     {

@@ -71,11 +71,17 @@ class AccountEntry extends ActiveRecord
     protected $dateFrom = null;
     protected $dateTo = null;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'uu_account_entry';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -152,6 +158,8 @@ class AccountEntry extends ActiveRecord
     /**
      * Вернуть название на нужном языке
      * Например, "Ресурс", "Подключение", "Подключение номера ..."
+     *
+     * @param string $langCode
      * @return string
      */
     public function getName($langCode = Language::LANGUAGE_DEFAULT)
@@ -188,6 +196,7 @@ class AccountEntry extends ActiveRecord
 
     /**
      * Вернуть тип текстом
+     *
      * @param string $langCode
      * @return string
      */
@@ -235,26 +244,35 @@ class AccountEntry extends ActiveRecord
             default:
                 // ресурсы
                 if (
-                    ($tariffResource = $this->tariffResource) &&
-                    ($resource = $tariffResource->resource)
+                    ($tariffResource = $this->tariffResource)
+                    && ($resource = $tariffResource->resource)
                 ) {
                     if (in_array($resource->id, [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS])) {
                         // В звонках указана стоимость, но не минуты
                         return 1;
                     }
 
-                    $accountLogResources = array_filter($this->accountLogResources, function (AccountLogResource $accountLogResource) {
-                        return $accountLogResource->amount_overhead;
-                    });
+                    $accountLogResources = array_filter(
+                        $this->accountLogResources,
+                        function (AccountLogResource $accountLogResource) {
+                            return $accountLogResource->amount_overhead;
+                        }
+                    );
 
                     if (!count($accountLogResources)) {
                         return 0;
                     }
 
-                    return array_reduce($accountLogResources, function ($summary, AccountLogResource $accountLogResource) {
-                        $summary = (float)$summary;
-                        return $summary + $accountLogResource->amount_overhead;
-                    }) / count($accountLogResources);
+                    return
+                        (
+                            array_reduce(
+                                $accountLogResources,
+                                function ($summary, AccountLogResource $accountLogResource) {
+                                    $summary = (float)$summary;
+                                    return ($summary + $accountLogResource->amount_overhead);
+                                }
+                            ) / count($accountLogResources)
+                        );
                 } else {
                     Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
                     return 0;
