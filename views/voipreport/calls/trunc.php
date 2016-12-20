@@ -15,12 +15,12 @@ use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\TrunkColumn;
 use app\classes\grid\column\billing\TrunkSuperClientColumn;
 use app\classes\grid\column\universal\AccountVersionColumn;
-use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\NnpCityColumn;
 use app\classes\grid\column\universal\NnpOperatorColumn;
 use app\classes\grid\column\universal\NnpRegionColumn;
 use app\classes\grid\column\universal\StringColumn;
@@ -28,7 +28,6 @@ use app\classes\grid\column\universal\UsageTrunkColumn;
 use app\classes\grid\GridView;
 use app\models\billing\Calls;
 use app\models\filter\CallsFilter;
-use kartik\export\ExportMenu;
 use yii\db\ActiveQuery;
 use yii\widgets\Breadcrumbs;
 
@@ -196,7 +195,7 @@ $columns = [
     ],
     [
         'attribute' => 'nnp_city_id',
-        'class' => CityColumn::className(),
+        'class' => NnpCityColumn::className(),
     ],
     [
         'attribute' => 'stats_nnp_package_minute_id',

@@ -2,7 +2,6 @@
 namespace app\modules\nnp\models;
 
 use app\classes\Connection;
-use app\models\City;
 use app\models\Country;
 use Yii;
 use yii\db\ActiveQuery;

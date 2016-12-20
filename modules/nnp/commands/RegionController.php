@@ -6,6 +6,7 @@ use app\modules\nnp\models\Region;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\console\Controller;
+use yii\db\Expression;
 
 /**
  * Группировка регионов
@@ -68,36 +69,30 @@ class RegionController extends Controller
         // Группированные значение
         $regionSourceToId = Region::find()
             ->select([
-                'name',
                 'id',
+                new Expression('CONCAT(country_prefix, name)'),
             ])
             ->indexBy('name')
-            ->asArray()
-            ->all();
+            ->column();
 
         // уже сделанные соответствия
         $regionSourceToId += NumberRange::find()
             ->distinct()
             ->select([
-                'name' => 'region_source',
                 'id' => 'region_id',
+                'name' => new Expression('CONCAT(country_prefix, region_source)'),
             ])
             ->where('region_id IS NOT NULL')
-            ->andWhere('region_source IS NOT NULL AND region_source != :empty')
-            ->params([
-                ':empty' => '',
-            ])
+            ->andWhere(['IS NOT', 'region_source', null])
+            ->andWhere(['!=', 'region_source', ''])
             ->indexBy('name')
-            ->asArray()
-            ->all();
+            ->column();
 
         $numberRangeQuery = NumberRange::find()
             ->where('is_active')
             ->andWhere('region_id IS NULL')
-            ->andWhere('region_source IS NOT NULL AND region_source != :empty')
-            ->params([
-                ':empty' => '',
-            ]);
+            ->andWhere(['IS NOT', 'region_source', null])
+            ->andWhere(['!=', 'region_source', '']);
         $i = 0;
 
         /** @var NumberRange $numberRange */
@@ -115,17 +110,17 @@ class RegionController extends Controller
             $transaction = Yii::$app->db->beginTransaction();
             try {
 
-                if (!isset($regionSourceToId[$regionSource])) {
+                if (!isset($regionSourceToId[$numberRange->country_prefix . $regionSource])) {
                     $region = new Region();
                     $region->name = $regionSource;
                     $region->country_prefix = $numberRange->country_prefix;
                     if (!$region->save()) {
                         throw new InvalidParamException(implode('. ', $region->getFirstErrors()));
                     }
-                    $regionSourceToId[$regionSource] = ['id' => $region->id];
+                    $regionSourceToId[$numberRange->country_prefix . $regionSource] = ['id' => $region->id];
                 }
 
-                $numberRange->region_id = $regionSourceToId[$regionSource]['id'];
+                $numberRange->region_id = $regionSourceToId[$numberRange->country_prefix . $regionSource]['id'];
                 if (!$numberRange->save()) {
                     throw new InvalidParamException(implode('. ', $numberRange->getFirstErrors()));
                 }

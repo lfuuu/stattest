@@ -6,7 +6,7 @@
  * @var RegionFilter $filterModel
  */
 
-use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\modules\nnp\filter\RegionFilter;
@@ -30,7 +30,8 @@ $baseView = $this;
 $columns = [
     [
         'attribute' => 'country_prefix',
-        'class' => IntegerColumn::className(),
+        'class' => CountryColumn::className(),
+        'indexBy' => 'prefix',
     ],
     [
         'attribute' => 'name',

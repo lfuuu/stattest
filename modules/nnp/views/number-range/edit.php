@@ -6,8 +6,8 @@
  * @var Form $formModel
  */
 
-use app\models\City;
 use app\modules\nnp\forms\numberRange\Form;
+use app\modules\nnp\models\City;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\models\Region;
@@ -143,7 +143,7 @@ if (!$numberRange->isNewRecord) {
         <?php // Город ?>
         <div class="col-sm-3">
             <?= $form->field($numberRange, 'city_id')->widget(Select2::className(), [
-                'data' => City::dao()->getList($isWithEmpty = true, $isWithNullAndNotNull = false),
+                'data' => City::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
         </div>
 

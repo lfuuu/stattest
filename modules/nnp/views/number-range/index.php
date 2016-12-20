@@ -10,6 +10,7 @@ use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\NnpCityColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
@@ -91,9 +92,9 @@ $columns = [
     ],
     [
         'attribute' => 'city_id',
-//        'reverseCheckboxAttribute' => 'is_reverse_city_id', // выключен для упрощения интерфейса
-        'class' => CityColumn::className(),
+        'class' => NnpCityColumn::className(),
         'isWithNullAndNotNull' => true,
+        'countryPrefix' => $filterModel->country_prefix,
     ],
     [
         'attribute' => 'ndc_type_id',
