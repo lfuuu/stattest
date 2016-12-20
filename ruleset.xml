@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="Custom">
-    <description>The STAT coding standard by Boris Korobkov</description>
+    <description>The STAT coding standard</description>
 
     <!--
     Установить
@@ -43,6 +43,47 @@
 
         <!-- Требует "PHP Version 5" в каждом файле. "PHP version not specified" -->
         <exclude name="PEAR.Commenting.FileComment"/>
+
+        <!-- Отсутпы элеементов массива должны быть смещены на уровень декларации имени массива -->
+        <exclude name="Squiz.Arrays.ArrayDeclaration"/>
+
+        <!-- Operator ! not allowed. Use === false -->
+        <exclude name="Squiz.Operators.ComparisonOperatorUsage.NotAllowed"/>
+
+        <!-- Implicit true comparisons prohibited; use === TRUE instead -->
+        <exclude name="Squiz.Operators.ComparisonOperatorUsage.ImplicitTrue"/>
+
+        <!-- //end functionName() -->
+        <exclude name="Squiz.Commenting.ClosingDeclarationComment" />
+
+        <!-- Expected 1 blank line before closing function brace; %s found -->
+        <exclude name="Squiz.WhiteSpace.FunctionClosingBraceSpace" />
+
+        <!-- Блок констант форматируется по правому краю -->
+        <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame" />
+
+        <!-- Class comment missing properties -->
+        <exclude name="PEAR.Commenting.ClassComment.MissingAuthorTag" />
+        <exclude name="PEAR.Commenting.ClassComment.MissingCategoryTag" />
+        <exclude name="PEAR.Commenting.ClassComment.MissingLicenseTag" />
+        <exclude name="PEAR.Commenting.ClassComment.MissingLinkTag" />
+        <exclude name="PEAR.Commenting.ClassComment.MissingPackageTag" />
+
+        <!-- Коментарий параметра функции -->
+        <exclude name="PEAR.Commenting.FunctionComment.MissingParamComment" />
+
+        <!-- форматирование описания и типа параметров функции -->
+        <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamName" />
+        <exclude name="PEAR.Commenting.FunctionComment.SpacingAfterParamType" />
+
+        <!-- @return не обязательно в описании функции -->
+        <exclude name="PEAR.Commenting.FunctionComment.MissingReturn" />
+
+        <!-- форматирование в описании функции. Тип под типом -->
+        <exclude name="Generic.Commenting.DocComment.TagValueIndent" />
+
+        <!-- не группировать параметры в phpdoc -->
+        <exclude name="Generic.Commenting.DocComment.NonParamGroup" />
 
     </rule>
 

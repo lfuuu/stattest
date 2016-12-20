@@ -7,6 +7,7 @@ use app\classes\validators\InnKppValidator;
 
 /**
  * Class ClientContragent
+ *
  * @property int id
  * @property int super_id
  * @property int country_id
@@ -30,12 +31,11 @@ use app\classes\validators\InnKppValidator;
  * @property string comment
  * @property int sale_channel_id
  * @property int partner_contract_id
+ * @property ClientAccount[] accounts
  * @property ClientContragentPerson person
- * @property Country country
  * @property ClientContract[] contracts
- * @property ClientContragentPerson person
- *
- * @package app\models
+ * @property Country country
+ * @property ClientSuper super
  */
 class ClientContragent extends HistoryActiveRecord
 {
@@ -65,18 +65,30 @@ class ClientContragent extends HistoryActiveRecord
 
     public
         $attributesProtectedForVersioning = [
-        'super_id',
-        'country_id',
-        'comment',
-        'sale_channel_id',
-        'partner_contract_id',
-    ];
+            'super_id',
+            'country_id',
+            'comment',
+            'sale_channel_id',
+            'partner_contract_id',
+        ];
 
+
+    /**
+     * Возвращает название таблицы
+     *
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_contragent';
     }
 
+
+    /**
+     * Правила
+     *
+     * @return array
+     */
     public function rules()
     {
         $rules = [
@@ -85,6 +97,12 @@ class ClientContragent extends HistoryActiveRecord
         return $rules;
     }
 
+
+    /**
+     * Поведение
+     *
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -93,6 +111,12 @@ class ClientContragent extends HistoryActiveRecord
         ];
     }
 
+
+    /**
+     * Название полей
+     *
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -101,6 +125,13 @@ class ClientContragent extends HistoryActiveRecord
         ];
     }
 
+
+    /**
+     * Model afterSave
+     *
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
@@ -116,8 +147,16 @@ class ClientContragent extends HistoryActiveRecord
                 $account->sync1C();
             }
         }
+
     }
 
+
+    /**
+     * Model BeforeSave
+     *
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if (!parent::beforeSave($insert)) {
@@ -125,7 +164,6 @@ class ClientContragent extends HistoryActiveRecord
         }
 
         if (!$this->name && !$this->name_full) {
-
             $lang = Yii::$app->language;
             if ($this->country_id) {
                 $country = Country::findOne(['code' => $this->country_id]);
@@ -136,10 +174,14 @@ class ClientContragent extends HistoryActiveRecord
 
             $this->name = $this->name_full = Yii::t('contragent', 'New contragent', [], $lang);
         }
+
         return true;
     }
 
+
     /**
+     * Вернуть ClientAccount
+     *
      * @return array|ClientAccount[]
      */
     public function getAccounts()
@@ -148,10 +190,14 @@ class ClientContragent extends HistoryActiveRecord
         foreach ($this->getContracts() as $contract) {
             $result = array_merge($result, $contract->getAccounts());
         }
+
         return $result;
     }
 
+
     /**
+     * Вернуть ClientContragentPerson
+     *
      * @return ClientContragentPerson
      */
     public function getPerson()
@@ -165,36 +211,49 @@ class ClientContragent extends HistoryActiveRecord
             $person = new ClientContragentPerson();
             $person->contragent_id = $this->id;
         }
+
         return $person;
     }
 
+
     /**
+     * Вернуть ClientContract
+     *
      * @return array|ClientContract[]
      */
     public function getContracts()
     {
         $models = ClientContract::findAll(['contragent_id' => $this->id]);
         foreach ($models as &$model) {
-            if ($model && $this->historyVersionRequestedDate) {
-                $model->loadVersionOnDate($this->historyVersionRequestedDate);
+            if ($model && $this->getHistoryVersionRequestedDate()) {
+                $model->loadVersionOnDate($this->getHistoryVersionRequestedDate());
             }
         }
+
         return $models;
     }
 
+
     /**
-     * @return Country
+     * Вернуть Country
+     *
+     * @return \yii\db\ActiveQuery
      */
     public function getCountry()
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
 
+
     /**
-     * @return ClientSuper
+     * Вернуть ClientSuper
+     *
+     * @return \yii\db\ActiveQuery
      */
     public function getSuper()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
+
+
 }
