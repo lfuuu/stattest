@@ -1,12 +1,13 @@
 <?php
 
-namespace app\classes\important_events\events;
+namespace app\classes\important_events\events\transfer;
 
 use app\classes\important_events\events\properties\ClientProperty;
 use app\classes\important_events\events\properties\ContragentProperty;
 use app\classes\important_events\events\properties\DateProperty;
 use app\classes\important_events\events\properties\SuperClientProperty;
 use app\classes\important_events\events\properties\UserProperty;
+use app\classes\important_events\events\UnknownEvent;
 
 class TransferContragentEvent extends UnknownEvent
 {

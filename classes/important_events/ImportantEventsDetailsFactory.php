@@ -19,13 +19,21 @@ abstract class ImportantEventsDetailsFactory
      */
     public static function get($eventName, ImportantEvents $eventModel = null)
     {
-        $className = self::EVENTS_NAMESPACE . Inflector::camelize($eventName . '_event');
+        $eventNamespace = substr($eventName, 0, strpos($eventName, '_'));
 
-        if (!class_exists($className)) {
-            $className = self::EVENTS_NAMESPACE . Inflector::camelize(self::DEFAULT_EVENT);
+        $classNames = [
+           self::EVENTS_NAMESPACE . $eventNamespace . '\\' . Inflector::camelize($eventName . '_event'),
+           self::EVENTS_NAMESPACE . Inflector::camelize($eventName . '_event'),
+           self::EVENTS_NAMESPACE . Inflector::camelize(self::DEFAULT_EVENT),
+        ];
+
+        foreach ($classNames as $className) {
+            if (class_exists($className)) {
+                return new $className($eventModel);
+            }
         }
 
-        return new $className($eventModel);
+        throw new \LogicException('Cant find event class by name "' . $eventName . '"');
     }
 
 }

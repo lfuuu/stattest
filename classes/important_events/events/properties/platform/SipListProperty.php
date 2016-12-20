@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\important_events\events\properties\virtpbx;
+namespace app\classes\important_events\events\properties\platform;
 
 use app\classes\important_events\events\properties\CurrentValueProperty;
 use yii\helpers\ArrayHelper;

@@ -1,13 +1,14 @@
 <?php
 
-namespace app\classes\important_events\events;
+namespace app\classes\important_events\events\vpbx;
 
 use app\classes\important_events\events\properties\ClientProperty;
 use app\classes\important_events\events\properties\DateProperty;
-use app\classes\important_events\events\properties\virtpbx\IsSupportProperty;
-use app\classes\important_events\events\properties\virtpbx\SipListProperty;
-use app\classes\important_events\events\properties\virtpbx\VpbxIdProperty;
-use app\classes\important_events\events\properties\virtpbx\DidValueProperty;
+use app\classes\important_events\events\properties\platform\IsSupportProperty;
+use app\classes\important_events\events\properties\platform\SipListProperty;
+use app\classes\important_events\events\properties\platform\VpbxIdProperty;
+use app\classes\important_events\events\properties\platform\DidValueProperty;
+use app\classes\important_events\events\UnknownEvent;
 
 class VpbxAttachDidEvent extends UnknownEvent
 {

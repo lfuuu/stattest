@@ -1,10 +1,10 @@
 <?php
 
-namespace app\classes\important_events\events\properties\virtpbx;
+namespace app\classes\important_events\events\properties\platform;
 
 use app\classes\important_events\events\properties\CurrentValueProperty;
 
-class PasswordProperty extends CurrentValueProperty
+class PasswordValueProperty extends CurrentValueProperty
 {
 
     const PROPERTY_CURRENT_VALUE = 'password';

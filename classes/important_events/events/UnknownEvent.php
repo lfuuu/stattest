@@ -2,11 +2,11 @@
 
 namespace app\classes\important_events\events;
 
-use app\classes\important_events\events\properties\UnknownProperty;
 use yii\base\Component;
 use yii\base\Exception;
 use app\classes\Html;
 use app\classes\important_events\events\properties\PropertyInterface;
+use app\classes\important_events\events\properties\UnknownProperty;
 use app\classes\important_events\events\properties\ClientProperty;
 use app\classes\important_events\events\properties\DateProperty;
 use app\classes\important_events\events\properties\IpProperty;
@@ -104,16 +104,50 @@ class UnknownEvent extends Component
         $descriptions = [];
 
         foreach (static::$properties as $key => $property) {
+            $row = null;
+
             if (class_exists($property)) {
                 /** @var PropertyInterface $property */
-                $descriptions[] = (new $property($this->eventModel))->description;
-            } else if (isset($this->eventModel->{$key})) {
+                $row = (new $property($this->eventModel))->description;
+            } elseif (isset($this->eventModel->{$key})) {
                 /** @var string $property */
-                $descriptions[] = Html::tag('b', $property . ': ') . $this->eventModel->{$key};
+                $row = Html::tag('b', $property . ': ') . $this->eventModel->{$key};
+            }
+
+            if (!empty($row)) {
+                $descriptions[] = $row;
             }
         }
 
-        return implode('<br />', $descriptions);
+        $unknownProperties = array_diff(
+            array_keys((array)$this->eventModel->properties),
+            array_keys(static::$properties)
+        );
+
+        if (count($unknownProperties)) {
+            $listOfUnknownProperties = '';
+
+            foreach ($unknownProperties as $field) {
+                $listOfUnknownProperties .=
+                    Html::beginTag('tr') .
+                        Html::tag('td', $field) .
+                        Html::tag('td', $this->eventModel->properties->{$field}) .
+                    Html::endTag('tr');
+            }
+
+            $descriptions[] =
+                Html::beginTag('div', ['class' => 'important-events table-of-changes']) .
+                    Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
+                        Html::beginTag('tr') .
+                            Html::tag('th', 'Поле') .
+                            Html::tag('th', 'Значение') .
+                        Html::endTag('tr') .
+                        $listOfUnknownProperties .
+                    Html::endTag('table') .
+                Html::endTag('div');
+        }
+
+        return implode(Html::tag('br'), $descriptions);
     }
 
     /**

@@ -1,11 +1,12 @@
 <?php
 
-namespace app\classes\important_events\events;
+namespace app\classes\important_events\events\core;
 
 use app\classes\important_events\events\properties\ClientProperty;
 use app\classes\important_events\events\properties\DateProperty;
-use app\classes\important_events\events\properties\virtpbx\IsSupportProperty;
-use app\classes\important_events\events\properties\virtpbx\LoginProperty;
+use app\classes\important_events\events\properties\platform\IsSupportProperty;
+use app\classes\important_events\events\properties\platform\LoginValueProperty;
+use app\classes\important_events\events\UnknownEvent;
 
 class CoreUserDeletedEvent extends UnknownEvent
 {
@@ -14,7 +15,7 @@ class CoreUserDeletedEvent extends UnknownEvent
         $properties = [
             'date' => DateProperty::class,
             'client' => ClientProperty::class,
-            'login' => LoginProperty::class,
+            'login' => LoginValueProperty::class,
             'is_support' => IsSupportProperty::class,
         ];
 
