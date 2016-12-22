@@ -5,7 +5,6 @@ use kartik\widgets\ActiveForm;
 use app\classes\Html;
 use app\widgets\MonthPicker;
 use app\models\ClientContractReward;
-use app\models\Currency;
 use app\forms\client\ContractEditForm;
 
 /** @var ContractEditForm $contract */
@@ -36,34 +35,45 @@ $rewards = $contract->getModel()->getRewards($usageType);
         <tr>
             <td>
                 <?= $form
-                    ->field($model, 'actual_from', [
-                        'addon' => ['prepend' => ['content' => '<i class="glyphicon glyphicon-calendar"></i>']],
-                    ])
-                    ->widget(MonthPicker::class, [
-                        'options' => [
-                            'id' => $form->getId() . '-actual_from',
-                            'class' => 'form-control',
-                        ],
-                        'widgetOptions' => [
-                            'ShowIcon' => false,
-                            'MonthFormat' => 'yy-mm',
-                            'MinMonth' => '+1m',
-                        ],
-                    ])
+                    ->field($model,
+                        'actual_from',
+                        [
+                            'addon' => ['prepend' => ['content' => '<i class="glyphicon glyphicon-calendar"></i>']],
+                        ]
+                    )
+                    ->widget(MonthPicker::class,
+                        [
+                            'options' => [
+                                'id' => $form->getId() . '-actual_from',
+                                'class' => 'form-control',
+                            ],
+                            'widgetOptions' => [
+                                'ShowIcon' => false,
+                                'MonthFormat' => 'yy-mm',
+                                'MinMonth' => (count($rewards) ? '+1m' : '0m'),
+                            ],
+                        ]
+                    )
                 ?>
             </td>
             <td>
                 <?= $form
-                    ->field($model, 'percentage_of_over', [
-                        'addon' => ['append' => ['content' => '%']],
-                    ])
+                    ->field($model,
+                        'percentage_of_over',
+                        [
+                            'addon' => ['append' => ['content' => '%']],
+                        ]
+                    )
                 ?>
             </td>
             <td>
                 <?= $form
-                    ->field($model, 'percentage_of_margin', [
-                        'addon' => ['append' => ['content' => '%']],
-                    ])
+                    ->field($model,
+                        'percentage_of_margin',
+                        [
+                            'addon' => ['append' => ['content' => '%']],
+                        ]
+                    )
                 ?>
             </td>
             <td>
@@ -79,24 +89,28 @@ $rewards = $contract->getModel()->getRewards($usageType);
                 ?>
             </td>
             <td class="text-right" style="vertical-align: middle;">
-                <?= $this->render('//layouts/_submitButton', [
-                    'text' => 'Зарегистрировать',
-                    'params' => [
-                        'class' => 'btn btn-primary',
-                    ],
-                ]) ?>
+                <?= $this->render('//layouts/_submitButton',
+                    [
+                        'text' => 'Зарегистрировать',
+                        'params' => [
+                            'class' => 'btn btn-primary',
+                        ],
+                    ]
+                ) ?>
             </td>
         </tr>
-        <?php if(count($rewards) > ClientContractReward::SHOW_LAST_REWARDS): ?>
+        <?php if (count($rewards) > ClientContractReward::SHOW_LAST_REWARDS) : ?>
             <tr>
                 <td colspan="6" class="text-left">
-                    <?= $this->render('//layouts/_link', [
-                        'text' => 'Показать все (' . count($rewards) . ')',
-                        'url' => 'javascript:void(0)',
-                        'params' => [
-                            'class' => 'label label-primary show-all',
-                        ],
-                    ]) ?>
+                    <?= $this->render('//layouts/_link',
+                        [
+                            'text' => 'Показать все (' . count($rewards) . ')',
+                            'url' => 'javascript:void(0)',
+                            'params' => [
+                                'class' => 'label label-primary show-all',
+                            ],
+                        ]
+                    ) ?>
                 </td>
             </tr>
         <?php endif; ?>
@@ -135,4 +149,5 @@ $rewards = $contract->getModel()->getRewards($usageType);
     </tbody>
 </table>
 
-<?php ActiveForm::end() ?>
+<?php
+ActiveForm::end();
