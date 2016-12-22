@@ -64,6 +64,7 @@ class SyncAccountTariffLight extends Behavior
             $coefficient = $accountLogPeriod->coefficient;
             $deactivateFrom = (new \DateTimeImmutable($accountLogPeriod->date_to, $clientTimezone))
                 ->setTimezone($utcTimezone)
+                ->modify('+1 day') // в AccountLogPeriod указан последний день действия, то есть выключить надо не в этот день, а только после его окончания (на следующий день)
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 
