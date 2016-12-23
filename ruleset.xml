@@ -150,9 +150,6 @@
         <!-- Не запрещать < ?= -->
         <exclude name="Generic.PHP.DisallowShortOpenTag.EchoFound"/>
 
-        <!-- Не требовать брать в скобки арифметические операции -->
-        <exclude name="Squiz.Formatting.OperatorBracket.MissingBrackets"/>
-
         <!-- Не докапываться до swagger -->
         <exclude name="Squiz.Commenting.DocCommentAlignment.SpaceAfterStar"/>
 
