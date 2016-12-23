@@ -1026,7 +1026,7 @@ class m_services extends IModule
             $design->assign('items', $R);
             $design->assign('regions', $db->AllRecords('select * from regions order by if(id = 99, "zzz", name)', 'id'));
             try {
-                $design->assign('bill_trunks', \app\models\billing\Trunk::dao()->getListAll());
+                $design->assign('bill_trunks', \app\models\billing\Trunk::dao()->getList());
             } catch (Exception $e) {
                 trigger_error2($e->getMessage());
             }

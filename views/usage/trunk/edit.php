@@ -1,20 +1,22 @@
 <?php
 
-use app\classes\Html;
 use app\assets\AppAsset;
-use app\widgets\TagsSelect2\TagsSelect2;
-use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
-use kartik\datecontrol\DateControl;
-use yii\helpers\Url;
-use app\models\UsageTrunkSettings;
+use app\classes\Html;
+use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\ServiceType;
 use app\forms\usage\UsageTrunkCloseForm;
+use app\forms\usage\UsageTrunkSettingsAddForm;
+use app\forms\usage\UsageTrunkSettingsEditForm;
 use app\models\billing\Number;
 use app\models\billing\Pricelist;
 use app\models\billing\Trunk;
-use app\forms\usage\UsageTrunkSettingsAddForm;
-use app\forms\usage\UsageTrunkSettingsEditForm;
+use app\models\UsageTrunkSettings;
+use app\widgets\TagsSelect2\TagsSelect2;
+use kartik\builder\Form;
+use kartik\datecontrol\DateControl;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageTrunk */
@@ -31,8 +33,39 @@ $trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($
 
 $srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
 $dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);
-$termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_LOCAL,false) + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR,false,false);
-$origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR,true,false);
+
+$termPackages = ['' => '-- Пакет -- '];
+$origPackages = ['' => '-- Пакет -- '];
+
+$isUu = $usage->id > AccountTariff::DELTA;
+if ($isUu) {
+    // Построить список допустимых пакетов. Только тех, которые подключены на услугу транка
+    /** @var AccountTariff[] $accountTariffs */
+    $accountTariffs = AccountTariff::find()
+        ->where(['prev_account_tariff_id' => $usage->id])
+        ->andWhere(['IS NOT', 'tariff_period_id', null])
+        ->all();
+    foreach ($accountTariffs as $accountTariff) {
+        $tariff = $accountTariff->tariffPeriod->tariff;
+
+        switch ($accountTariff->service_type_id) {
+
+            case ServiceType::ID_TRUNK_PACKAGE_ORIG:
+                $origPackages[$tariff->id] = $tariff->name;
+                break;
+
+            case ServiceType::ID_TRUNK_PACKAGE_TERM:
+                $termPackages[$tariff->id] = $tariff->name;
+                break;
+        }
+    }
+
+    $termPricelists = [];
+    $origPricelists = [];
+} else {
+    $termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_LOCAL, false) + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR, false, false);
+    $origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR, true, false);
+}
 
 echo Html::formLabel('Редактирование транка');
 echo Breadcrumbs::widget([
@@ -49,6 +82,7 @@ echo Breadcrumbs::widget([
 
 <div class="well">
     <?php
+    /** @var ActiveForm $form */
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
     ?>
 
@@ -57,19 +91,19 @@ echo Breadcrumbs::widget([
             <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Точка подключения</label>
-                    <input type="text" class="form-control" value="<?= $usage->connectionPoint->name ?>" readonly="readonly" />
+                    <input type="text" class="form-control" value="<?= $usage->connectionPoint->name ?>" readonly="readonly"/>
                 </div>
             </div>
             <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Страна</label>
-                    <input type="text" class="form-control" value="<?= $clientAccount->country->name ?>" readonly="readonly" />
+                    <input type="text" class="form-control" value="<?= $clientAccount->country->name ?>" readonly="readonly"/>
                 </div>
             </div>
             <div class="col-sm-4">
                 <div class="form-group">
                     <label class="control-label">Валюта</label>
-                    <input type="text" class="form-control" value="<?= $clientAccount->currency ?>" readonly="readonly" />
+                    <input type="text" class="form-control" value="<?= $clientAccount->currency ?>" readonly="readonly"/>
                 </div>
             </div>
         </div>
@@ -118,7 +152,7 @@ echo Breadcrumbs::widget([
     </div>
 
     <?php
-    if ($usage->isActive()):
+    if ($usage->isActive()) :
 
         echo Form::widget([
             'model' => $model,
@@ -127,8 +161,12 @@ echo Breadcrumbs::widget([
                 'actions' => [
                     'type' => Form::INPUT_RAW,
                     'value' =>
+
                         Html::tag(
                             'div',
+                            ($isUu ?
+                                Html::a('<span class="glyphicon glyphicon-magnet" aria-hidden="true"></span> УУ', ['/uu/account-tariff/', 'serviceTypeId' => ServiceType::ID_TRUNK]) : // УУ
+                                '') .
                             Html::button('Отменить', [
                                 'class' => 'btn btn-link',
                                 'style' => 'margin-right: 15px;',
@@ -151,25 +189,23 @@ echo Breadcrumbs::widget([
             $('#scenario').val(scenario);
             $('#<?=$form->getId()?>')[0].submit();
         }
-        $('.form-reload').change(function() {
+        $('.form-reload').change(function () {
             submitForm('default');
         });
     </script>
 
-    <?php if($usage->orig_enabled): ?>
+    <?php if ($usage->orig_enabled) : ?>
         <div class="row">
-            <div class="col-sm-8">
-                <div class="col-sm-2">
-                    <h2>Оригинация:</h2>
-                </div>
-                <div class="col-sm-6">
-                    <?= TagsSelect2::widget([
-                        'model' => $model->getModel(),
-                        'attribute' => 'tagsOrig',
-                        'feature' => 'orig_enabled',
-                        'label' => 'Тип транка',
-                    ])?>
-                </div>
+            <div class="col-sm-2">
+                <h2>Оригинация:</h2>
+            </div>
+            <div class="col-sm-4">
+                <?= TagsSelect2::widget([
+                    'model' => $model->getModel(),
+                    'attribute' => 'tagsOrig',
+                    'feature' => 'orig_enabled',
+                    'label' => 'Тип транка',
+                ]) ?>
             </div>
         </div>
 
@@ -177,7 +213,7 @@ echo Breadcrumbs::widget([
             <tr>
                 <th width="26%">A номер</th>
                 <th width="26%">B номер</th>
-                <th width="33%">Прайслист</th>
+                <th width="33%"><?= $isUu ? 'Пакет' : 'Прайслист' ?></th>
                 <th width="14%" colspan="2">Ограничение по минимальной марже</th>
                 <th></th>
             </tr>
@@ -186,18 +222,31 @@ echo Breadcrumbs::widget([
                 $formModel = new UsageTrunkSettingsEditForm();
                 $formModel->setAttributes($rule->attributes, false);
 
+                /** @var ActiveForm $form */
                 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
                 echo Html::activeHiddenInput($formModel, 'id');
                 ?>
                 <tr>
                     <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
                     <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
-                    <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($origPricelists, ['class' => 'select2 pricelist_with_link', 'data' => ['setting-id' => $formModel->id]]) ?><?=Html::a('Цены', ['#'], ['class' => 'usage_trunk_pricelist_link', 'style' => 'display: none', 'id' => 'link_for_pricelist' . $formModel->id])?></td>
+                    <td>
+                        <?=
+                        $isUu ?
+                            // пакет
+                            $form->field($formModel, 'package_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)
+                                ->dropDownList($origPackages, ['class' => 'select2 package_with_link', 'data' => ['setting-id' => $formModel->id]]) :
+                            // прайслист
+                            $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)
+                                ->dropDownList($origPricelists, ['class' => 'select2 pricelist_with_link', 'data' => ['setting-id' => $formModel->id]])
+                        ?>
+                        <?= Html::a('Цены', ['#'], ['class' => 'usage_trunk_pricelist_link', 'style' => 'display: none', 'id' => 'link_for_pricelist' . $formModel->id]) ?>
+                    </td>
                     <td><?= $form->field($formModel, 'minimum_margin', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 105px']) ?></td>
                     <td><?= $form->field($formModel, 'minimum_margin_type', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList([
                             UsageTrunkSettings::MIN_MARGIN_ABSENT => 'нет',
                             UsageTrunkSettings::MIN_MARGIN_VALUE => 'денег',
-                            UsageTrunkSettings::MIN_MARGIN_PERCENT => '%'], ['style' => 'min-width: 90px']) ?></td>
+                            UsageTrunkSettings::MIN_MARGIN_PERCENT => '%'
+                        ], ['style' => 'min-width: 90px']) ?></td>
                     <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
                 </tr>
                 <?php
@@ -205,28 +254,30 @@ echo Breadcrumbs::widget([
                 ?>
             <?php endforeach; ?>
             <?php
-            if ($usage->isActive()):
+            if ($usage->isActive()) :
                 $formModel = new UsageTrunkSettingsAddForm();
                 $formModel->usage_id = $usage->id;
                 $formModel->type = UsageTrunkSettings::TYPE_ORIGINATION;
 
+                /** @var ActiveForm $form */
                 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
                 echo Html::activeHiddenInput($formModel, 'usage_id');
                 echo Html::activeHiddenInput($formModel, 'type');
-            ?>
-            <tr>
-                <td colspan="5"></td>
-                <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
-                <td></td>
-            </tr>
-            <?php
-                $form->end();
+                ?>
+                <tr>
+                    <td colspan="3"></td>
+                    <td colspan="2"><?= ($isUu ? Html::a('<span class="glyphicon glyphicon-magnet" aria-hidden="true"></span> Добавить УУ-пакет', ['/uu/account-tariff/', 'serviceTypeId' => ServiceType::ID_TRUNK]) : '') ?></td>
+                    <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
+                    <td></td>
+                </tr>
+                <?php
+                ActiveForm::end();
             endif;
             ?>
         </table>
     <?php endif; ?>
 
-    <?php if($usage->term_enabled): ?>
+    <?php if ($usage->term_enabled) : ?>
         <div class="row">
             <div class="col-sm-8">
                 <div class="col-sm-2">
@@ -238,7 +289,7 @@ echo Breadcrumbs::widget([
                         'attribute' => 'tagsTerm',
                         'feature' => 'term_enabled',
                         'label' => 'Тип транка',
-                    ])?>
+                    ]) ?>
                 </div>
             </div>
         </div>
@@ -247,7 +298,7 @@ echo Breadcrumbs::widget([
             <tr>
                 <th width="33%">A номер</th>
                 <th width="33%">B номер</th>
-                <th width="33%">Прайслист</th>
+                <th width="33%"><?= $isUu ? 'Пакет' : 'Прайслист' ?></th>
                 <th width="10%">Квота, минут</th>
                 <th width="10%">Минимальный платеж</th>
                 <th></th>
@@ -258,37 +309,51 @@ echo Breadcrumbs::widget([
                 $formModel = new UsageTrunkSettingsEditForm();
                 $formModel->setAttributes($rule->attributes, false);
 
+                /** @var ActiveForm $form */
                 $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
                 echo Html::activeHiddenInput($formModel, 'id');
                 ?>
                 <tr>
-                    <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers,  ['class' => 'select2']) ?></td>
+                    <td><?= $form->field($formModel, 'src_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($srcNumbers, ['class' => 'select2']) ?></td>
                     <td><?= $form->field($formModel, 'dst_number_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($dstNumbers, ['class' => 'select2']) ?></td>
-                    <td><?= $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->dropDownList($termPricelists, ['class' => 'select2 pricelist_with_link', 'data' => ['setting-id' => $formModel->id]]) ?><?=Html::a('Цены', ['#'], ['class' => 'usage_trunk_pricelist_link', 'style' => 'display: none', 'id' => 'link_for_pricelist' . $formModel->id])?></td>
+                    <td>
+                        <?=
+                        $isUu ?
+                            // пакет
+                            $form->field($formModel, 'package_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)
+                                ->dropDownList($termPackages, ['class' => 'select2 package_with_link', 'data' => ['setting-id' => $formModel->id]]) :
+                            // прайслист
+                            $form->field($formModel, 'pricelist_id', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)
+                                ->dropDownList($termPricelists, ['class' => 'select2 pricelist_with_link', 'data' => ['setting-id' => $formModel->id]])
+                        ?>
+                        <?= Html::a('Цены', ['#'], ['class' => 'usage_trunk_pricelist_link', 'style' => 'display: none', 'id' => 'link_for_pricelist' . $formModel->id]) ?>
+                    </td>
                     <td><?= $form->field($formModel, 'minimum_minutes', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 80px']) ?></td>
                     <td><?= $form->field($formModel, 'minimum_cost', ['options' => ['class' => ''], 'errorOptions' => ['class' => '']])->label(false)->textInput(['style' => 'min-width: 80px']) ?></td>
                     <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
                 </tr>
                 <?php
-                $form->end();
+                ActiveForm::end();
                 ?>
             <?php endforeach; ?>
             <?php
-            if ($usage->isActive()):
+            if ($usage->isActive()) :
                 $formModel = new UsageTrunkSettingsAddForm();
                 $formModel->usage_id = $usage->id;
                 $formModel->type = UsageTrunkSettings::TYPE_TERMINATION;
 
+                /** @var ActiveForm $form */
                 $form = ActiveForm::begin();
                 echo Html::activeHiddenInput($formModel, 'usage_id');
                 echo Html::activeHiddenInput($formModel, 'type');
-            ?>
-            <tr>
-                <td colspan="5"></td>
-                <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
-            </tr>
-            <?php
-                $form->end();
+                ?>
+                <tr>
+                    <td colspan="3"></td>
+                    <td colspan="2"><?= ($isUu ? Html::a('<span class="glyphicon glyphicon-magnet" aria-hidden="true"></span> Добавить УУ-пакет', ['/uu/account-tariff/', 'serviceTypeId' => ServiceType::ID_TRUNK]) : '') ?></td>
+                    <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
+                </tr>
+                <?php
+                ActiveForm::end();
             endif;
             ?>
         </table>
@@ -305,6 +370,7 @@ echo Breadcrumbs::widget([
             $formModel = new UsageTrunkSettingsEditForm();
             $formModel->setAttributes($rule->attributes, false);
 
+            /** @var ActiveForm $form */
             $form = ActiveForm::begin();
             echo Html::activeHiddenInput($formModel, 'id');
             ?>
@@ -313,36 +379,38 @@ echo Breadcrumbs::widget([
                 <td><?= $usage->isActive() ? Html::submitButton('Сохранить', ['class' => 'btn btn-primary btn-sm']) : ''; ?></td>
             </tr>
             <?php
-            $form->end();
+            ActiveForm::end();
             ?>
         <?php endforeach; ?>
         <?php
-        if ($usage->isActive()):
+        if ($usage->isActive()) :
             $formModel = new UsageTrunkSettingsAddForm();
             $formModel->usage_id = $usage->id;
             $formModel->type = UsageTrunkSettings::TYPE_DESTINATION;
 
+            /** @var ActiveForm $form */
             $form = ActiveForm::begin();
             echo Html::activeHiddenInput($formModel, 'usage_id');
             echo Html::activeHiddenInput($formModel, 'type');
-        ?>
-        <tr>
-            <td></td>
-            <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
-        </tr>
-        <?php
-            $form->end();
+            ?>
+            <tr>
+                <td></td>
+                <td><?= Html::submitButton('Добавить', ['class' => 'btn btn-primary btn-sm']); ?></td>
+            </tr>
+            <?php
+            ActiveForm::end();
         endif;
         ?>
     </table>
 
-    <?php if ($usage->isActive()): ?>
+    <?php if ($usage->isActive()) : ?>
         <h2><span style="border-bottom: 1px dotted #000; cursor: pointer;" onclick="$('#div_close').toggle()">Отключение услуги:</span></h2>
         <div id="div_close" style="display: none">
             <?php
             $formModel = new UsageTrunkCloseForm();
             $formModel->usage_id = $usage->id;
 
+            /** @var ActiveForm $form */
             $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL, 'options' => ['style' => 'margin-bottom: 10px;']]);
             echo Html::activeHiddenInput($formModel, 'usage_id');
             echo Form::widget([
@@ -351,14 +419,17 @@ echo Breadcrumbs::widget([
                 'columns' => 3,
                 'attributes' => [
                     'actual_to' => ['type' => Form::INPUT_WIDGET, 'widgetClass' => DateControl::className()],
-                    'x2' => ['type' => Form::INPUT_RAW, 'value' => '
+                    'x2' => [
+                        'type' => Form::INPUT_RAW,
+                        'value' => '
                                     <div style="padding-top: 22px">
                                         ' . Html::submitButton('Установить дату отключения', ['class' => 'btn btn-primary']) . '
                                     </div>
-                                '],
+                                '
+                    ],
                 ],
             ]);
-            $form->end();
+            ActiveForm::end();
             ?>
         </div>
     <?php endif; ?>

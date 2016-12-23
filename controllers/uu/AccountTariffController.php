@@ -15,6 +15,7 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
 use app\helpers\DateTimeZoneHelper;
+use app\models\UsageTrunkSettings;
 use InvalidArgumentException;
 use LogicException;
 use Yii;
@@ -279,6 +280,38 @@ class AccountTariffController extends BaseController
                     if (!$accountTariff->save()) {
                         $errors = $accountTariff->getFirstErrors();
                         throw new LogicException(reset($errors));
+                    }
+                }
+
+                if ($accountTariff->tariff_period_id && in_array($accountTariff->service_type_id, [ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
+                    // дополнительно добавить этот пакет транка в маршрутизацию "логического транка"
+                    //
+                    $type = ($accountTariff->service_type_id == ServiceType::ID_TRUNK_PACKAGE_ORIG) ?
+                        UsageTrunkSettings::TYPE_ORIGINATION :
+                        UsageTrunkSettings::TYPE_TERMINATION;
+
+                    $usageTrunkSettings = UsageTrunkSettings::findOne([
+                        'usage_id' => $accountTariff->prev_account_tariff_id,
+                        'package_id' => $accountTariff->id,
+                        'type' => $type,
+                    ]);
+
+                    if (!$usageTrunkSettings) {
+                        $maxOrder = UsageTrunkSettings::find()
+                            ->andWhere([
+                                'usage_id' => $accountTariff->prev_account_tariff_id,
+                                'type' => $type,
+                            ])
+                            ->max('`order`');
+
+                        $usageTrunkSettings = new UsageTrunkSettings;
+                        $usageTrunkSettings->usage_id = $accountTariff->prev_account_tariff_id;
+                        $usageTrunkSettings->package_id = $accountTariff->tariffPeriod->tariff_id;
+                        $usageTrunkSettings->type = $type;
+                        $usageTrunkSettings->order = $maxOrder + 1;
+                        if (!$usageTrunkSettings->save()) {
+                            throw new LogicException(implode(' ', $usageTrunkSettings->getFirstErrors()));
+                        }
                     }
                 }
 

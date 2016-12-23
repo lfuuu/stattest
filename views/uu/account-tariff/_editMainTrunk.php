@@ -13,19 +13,25 @@ use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 
 $accountTariff = $formModel->accountTariff;
+if (!$accountTariff->isNewRecord) {
+    // Здесь нечего делать. Можно только отредактировать "логический транк" в другом интерфейсе
+    return;
+}
 ?>
 
 <div class="row">
 
     <?php // транк ?>
     <div class="col-sm-2">
-        <?= $form->field($accountTariff, 'trunk_id')
-            ->widget(
-                Select2::className(),
-                [
-                    'data' => Trunk::getList($accountTariff->region_id, $isWithEmpty = true),
-                ]
-            ) ?>
+        <label class="control-label" for="accounttariff-trunk_id">Транк</label>
+        <?= Select2::widget(
+            [
+                'id' => 'accounttariff-trunk_id',
+                'name' => 'trunkId',
+                'data' => Trunk::dao()->getList($accountTariff->region_id, $isWithEmpty = true),
+            ]
+        ) ?>
+        <div class="help-block"></div>
     </div>
 
 </div>

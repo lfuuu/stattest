@@ -4,13 +4,16 @@ namespace app\classes\uu\forms;
 
 use app\classes\uu\model\AccountTariff;
 
+/**
+ * Class AccountTariffAddForm
+ */
 class AccountTariffAddForm extends AccountTariffForm
 {
     /** @var int ID клиента */
     public $clientAccountId = null;
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {
@@ -34,7 +37,8 @@ class AccountTariffAddForm extends AccountTariffForm
     }
 
     /**
-     * показывать ли предупреждение, что необходимо выбрать клиента
+     * Показывать ли предупреждение, что необходимо выбрать клиента
+     *
      * @return bool
      */
     public function getIsNeedToSelectClient()

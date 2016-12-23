@@ -2,12 +2,18 @@
 namespace app\forms\usage;
 
 use app\classes\Assert;
+use app\models\UsageTrunk;
 use app\models\UsageTrunkSettings;
 use Yii;
-use app\models\UsageTrunk;
 
+/**
+ * Class UsageTrunkSettingsAddForm
+ */
 class UsageTrunkSettingsAddForm extends UsageTrunkSettingsForm
 {
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = parent::rules();
@@ -15,6 +21,10 @@ class UsageTrunkSettingsAddForm extends UsageTrunkSettingsForm
         return $rules;
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
     public function process()
     {
         $usage = UsageTrunk::findOne($this->usage_id);
@@ -22,10 +32,9 @@ class UsageTrunkSettingsAddForm extends UsageTrunkSettingsForm
         Assert::isObject($usage);
         Assert::isTrue($usage->isActive());
 
-        $maxOrder =
-            UsageTrunkSettings::find()
-                ->andWhere(['usage_id' => $this->usage_id, 'type' => $this->type])
-                ->max('`order`');
+        $maxOrder = UsageTrunkSettings::find()
+            ->andWhere(['usage_id' => $this->usage_id, 'type' => $this->type])
+            ->max('`order`');
 
         $item = new UsageTrunkSettings();
         $item->usage_id = $this->usage_id;

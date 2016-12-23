@@ -194,14 +194,14 @@ class VoipController extends BaseController
      */
     public function actionGetTrunks($regionId = null, $format = null, $isWithEmpty = true)
     {
-        $trunks = Trunk::getList($regionId, $isWithEmpty);
+        $trunks = Trunk::dao()->getList($regionId, $isWithEmpty);
         $this->_returnFormattedValues($trunks, $format);
     }
 
     /**
      * Вернуть массив в нужном формате
      *
-     * @param string[] $values
+     * @param string[]|array $values
      * @param string $format
      * @param string $defaultValue
      */

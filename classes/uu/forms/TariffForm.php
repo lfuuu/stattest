@@ -106,6 +106,7 @@ abstract class TariffForm extends Form
                 $post['Tariff'] = [
                     'name' => $post['Tariff']['name'],
                     'tariff_status_id' => $post['Tariff']['tariff_status_id'],
+                    'is_default' => $post['Tariff']['is_default'],
                 ];
             }
             unset($post['TariffPeriod'], $post['TariffResource']);

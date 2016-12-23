@@ -2,16 +2,17 @@
 
 namespace app\classes\transfer;
 
-use Yii;
-use DateTime;
-use DateTimeZone;
-use yii\base\InvalidValueException;
-use yii\db\ActiveRecord;
-use yii\base\Component;
 use app\classes\Assert;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\usages\UsageInterface;
+use DateTime;
+use DateTimeZone;
+use LogicException;
+use Yii;
+use yii\base\Component;
+use yii\base\InvalidValueException;
+use yii\db\ActiveRecord;
 
 abstract class ServiceTransfer extends Component
 {
@@ -22,7 +23,7 @@ abstract class ServiceTransfer extends Component
         /** @var DateTime $activationDate */
         $activationDate;
 
-    /** @var ActiveRecord */
+    /** @var UsageInterface|ActiveRecord */
     public $service;
 
     /**
@@ -36,7 +37,7 @@ abstract class ServiceTransfer extends Component
     }
 
     /**
-     * @param ActiveRecord $service
+     * @param UsageInterface|ActiveRecord $service
      */
     public function __construct($service)
     {
@@ -137,18 +138,18 @@ abstract class ServiceTransfer extends Component
         try {
             /** @var ActiveRecord $movedService */
             $movedService = new $this->service;
-            $movedService =
-                $movedService->find()
-                    ->andWhere(['id' => $this->service->next_usage_id])
-                    ->andWhere(['>', 'actual_from', date(DateTimeZoneHelper::DATE_FORMAT)])
-                    ->one();
+            $movedService = $movedService->find()
+                ->andWhere(['id' => $this->service->next_usage_id])
+                ->andWhere(['>', 'actual_from', date(DateTimeZoneHelper::DATE_FORMAT)])
+                ->one();
             Assert::isObject($movedService);
 
             $this->service->next_usage_id = 0;
             $this->service->expire_dt = $movedService->expire_dt;
             $this->service->actual_to = $movedService->actual_to;
-
-            $this->service->save();
+            if (!$this->service->save()) {
+                throw new LogicException(implode(' ', $this->service->getFirstErrors()));
+            }
 
             $movedService->delete();
             $dbTransaction->commit();

@@ -110,7 +110,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         <div class="col-sm-2">
             <?php //$form->field($tariff, 'is_charge_after_period')->checkbox($options) ?>
             <?= $form->field($tariff, 'is_autoprolongation')->checkbox($options) ?>
-            <?= $form->field($tariff, 'is_default')->checkbox($options) ?>
+            <?= $form->field($tariff, 'is_default')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
         </div>
         <div class="col-sm-2"></div>
     </div>

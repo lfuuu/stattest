@@ -21,13 +21,13 @@ use app\models\tariffs\TariffInterface;
  * @property int prev_usage_id
  * @property int next_usage_id
  *
- * @property  LogTarif $logTariff см. LogTariffTrait
+ * @property LogTarif $logTariff см. LogTariffTrait
  * @property ClientAccount $clientAccount
- * @property $biller
+ * @property Biller $biller
  * @property string $serviceType
- * @property $tariff
- * @property $transferHelper
- * @property $helper
+ * @property TariffInterface $tariff
+ * @property ServiceTransfer $transferHelper
+ * @property UsageHelperInterface $helper
  */
 interface UsageInterface
 {

@@ -9,6 +9,7 @@ use app\helpers\usages\UsageVoipTrunkHelper;
 use app\models\billing\Trunk;
 use app\models\usages\UsageInterface;
 use DateTime;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -25,13 +26,13 @@ use yii\db\ActiveRecord;
  * @property int $orig_min_payment
  * @property int $term_min_payment
  * @property string $description
+ *
  * @property ClientAccount $clientAccount
  * @property Region $connectionPoint
  * @property UsageVoipTrunkHelper $helper
  */
 class UsageTrunk extends ActiveRecord implements UsageInterface
 {
-
     use TagsTrait;
 
     /**
@@ -40,6 +41,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     public function behaviors()
     {
         return [
+            'UsageTrunkId' => \app\classes\behaviors\UsageTrunkId::className(),
             'ActiveDateTime' => \app\classes\behaviors\UsageDateTime::className(),
             'ImportantEvents' => \app\classes\behaviors\important_events\UsageAction::className(),
         ];
@@ -87,8 +89,9 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
         return Transaction::SERVICE_TRUNK;
     }
 
-    /** Заглушка, чтобы не падало из-за различий в client и client_account_id */
     /**
+     * Заглушка, чтобы не падало из-за различий в client и client_account_id
+     *
      * @return string
      */
     public function getClient()
@@ -97,7 +100,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return ClientAccount
+     * @return ActiveQuery
      */
     public function getClientAccount()
     {
@@ -105,7 +108,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return Region
+     * @return ActiveQuery
      */
     public function getConnectionPoint()
     {
@@ -113,7 +116,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return Trunk
+     * @return ActiveQuery
      */
     public function getTrunk()
     {
@@ -121,7 +124,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return UsageTrunkSettings
+     * @return ActiveQuery
      */
     public function getSettings()
     {
@@ -142,7 +145,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @param $usage
+     * @param UsageInterface $usage
      * @return TrunkServiceTransfer
      */
     public static function getTransferHelper($usage = null)
@@ -160,6 +163,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
 
     /**
      * Вернуть список trunk_id => суперклиент
+     *
      * @param bool $isWithEmpty
      * @return string[]
      */
@@ -177,9 +181,12 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
             ->indexBy('trunk_id')
             ->all();
 
-        $list = array_map(function ($row) {
-            return $row['name'];
-        }, $list);
+        $list = array_map(
+            function ($row) {
+                return $row['name'];
+            },
+            $list
+        );
 
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;
@@ -190,6 +197,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
 
     /**
      * Вернуть список всех доступных моделей
+     *
      * @param int $trunkId
      * @param bool $isWithEmpty
      * @return self[]
@@ -227,6 +235,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
 
     /**
      * Преобразовать объект в строку
+     *
      * @return string
      */
     public function __toString()

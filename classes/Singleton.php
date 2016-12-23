@@ -7,7 +7,7 @@ abstract class Singleton
 
     /**
      * @param null $args
-     * @return self
+     * @return mixed
      * @throws \yii\base\Exception
      */
     public static function me($args = null /* , ... */)

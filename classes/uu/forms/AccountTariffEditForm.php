@@ -4,6 +4,9 @@ namespace app\classes\uu\forms;
 
 use app\classes\uu\model\AccountTariff;
 
+/**
+ * Class AccountTariffEditForm
+ */
 class AccountTariffEditForm extends AccountTariffForm
 {
     /**
@@ -21,12 +24,14 @@ class AccountTariffEditForm extends AccountTariffForm
         if (!$accountTariff) {
             throw new \InvalidArgumentException(\Yii::t('common', 'Wrong ID'));
         }
+
         $this->serviceTypeId = $accountTariff->service_type_id;
         return $accountTariff;
     }
 
     /**
-     * показывать ли предупреждение, что необходимо выбрать клиента
+     * Показывать ли предупреждение, что необходимо выбрать клиента
+     *
      * @return bool
      */
     public function getIsNeedToSelectClient()

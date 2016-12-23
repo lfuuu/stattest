@@ -66,10 +66,15 @@ $rows = AccountTariff::getGroupedObjects($query);
                         <?php // номера ?>
                         <div>
                             <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'style' => 'display: none;']) ?>
-                            <?= Html::a(
-                                $accountTariff->voip_number ?: ($accountTariff->trunk_id ? $accountTariff->trunk->name : Yii::t('common', '(not set)')),
-                                $accountTariff->getUrl()
-                            ) ?>
+
+                            <?php if ($accountTariff->service_type_id == ServiceType::ID_TRUNK) : ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
+                            <?php else : ?>
+                                <?= Html::a(
+                                    $accountTariff->voip_number ?: Yii::t('common', '(not set)'),
+                                    $accountTariff->getUrl()
+                                ) ?>
+                            <?php endif ?>
                         </div>
                     <?php endforeach; ?>
 

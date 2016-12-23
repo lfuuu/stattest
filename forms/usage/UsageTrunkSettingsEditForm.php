@@ -5,8 +5,14 @@ use app\classes\Assert;
 use app\models\UsageTrunkSettings;
 use Yii;
 
+/**
+ * Class UsageTrunkSettingsEditForm
+ */
 class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
 {
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = parent::rules();
@@ -14,6 +20,9 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
         return $rules;
     }
 
+    /**
+     * @return bool
+     */
     public function process()
     {
         $item = UsageTrunkSettings::findOne($this->id);
@@ -23,26 +32,31 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
 
         if ($item->type == UsageTrunkSettings::TYPE_DESTINATION) {
             if ($this->dst_number_id) {
-                $this->save($item);
+                $this->_save($item);
             } else {
-                $this->delete($item);
+                $this->_delete($item);
             }
         } else {
-            if ($this->pricelist_id) {
-                $this->save($item);
+            if ($this->pricelist_id || $this->package_id) {
+                $this->_save($item);
             } else {
-                $this->delete($item);
+                $this->_delete($item);
             }
         }
 
         return true;
     }
 
-    private function save(UsageTrunkSettings $item)
+    /**
+     * @param UsageTrunkSettings $item
+     * @throws \Exception
+     */
+    private function _save(UsageTrunkSettings $item)
     {
         $item->src_number_id = $this->src_number_id;
         $item->dst_number_id = $this->dst_number_id;
         $item->pricelist_id = $this->pricelist_id;
+        $item->package_id = $this->package_id;
         if ($item->type == UsageTrunkSettings::TYPE_DESTINATION) {
             $item->minimum_minutes = 0;
             $item->minimum_cost = 0;
@@ -76,19 +90,21 @@ class UsageTrunkSettingsEditForm extends UsageTrunkSettingsForm
         $this->id = $item->id;
     }
 
-    private function delete(UsageTrunkSettings $item)
+    /**
+     * @param UsageTrunkSettings $item
+     * @throws \Exception
+     */
+    private function _delete(UsageTrunkSettings $item)
     {
         $item = UsageTrunkSettings::findOne($this->id);
         /** @var UsageTrunkSettings $item */
         Assert::isObject($item);
 
-
-        $nextRules =
-            UsageTrunkSettings::find()
-                ->andWhere(['usage_id' => $this->usage_id, 'type' => $this->type])
-                ->andWhere('`order` > :order', [':order' => $item->order])
-                ->all();
         /** @var UsageTrunkSettings[] $nextRules */
+        $nextRules = UsageTrunkSettings::find()
+            ->andWhere(['usage_id' => $this->usage_id, 'type' => $this->type])
+            ->andWhere('`order` > :order', [':order' => $item->order])
+            ->all();
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

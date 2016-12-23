@@ -5,8 +5,14 @@ use app\classes\Assert;
 use app\models\UsageTrunkSettings;
 use Yii;
 
+/**
+ * Class UsageTrunkSettingsDeleteForm
+ */
 class UsageTrunkSettingsDeleteForm extends UsageTrunkSettingsForm
 {
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = parent::rules();
@@ -14,6 +20,10 @@ class UsageTrunkSettingsDeleteForm extends UsageTrunkSettingsForm
         return $rules;
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
     public function process()
     {
         $item = UsageTrunkSettings::findOne($this->id);
@@ -21,12 +31,11 @@ class UsageTrunkSettingsDeleteForm extends UsageTrunkSettingsForm
         Assert::isObject($item);
         Assert::isTrue($item->usage->isActive());
 
-        $nextRules =
-            UsageTrunkSettings::find()
-                ->andWhere(['usage_id' => $this->usage_id, 'type' => $this->type])
-                ->andWhere('`order` > :order', [':order' => $item->order])
-                ->all();
         /** @var UsageTrunkSettings[] $nextRules */
+        $nextRules = UsageTrunkSettings::find()
+            ->andWhere(['usage_id' => $this->usage_id, 'type' => $this->type])
+            ->andWhere('`order` > :order', [':order' => $item->order])
+            ->all();
 
         $transaction = Yii::$app->db->beginTransaction();
         try {

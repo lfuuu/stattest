@@ -32,7 +32,7 @@ class m_voipnew_trunks
 
         $design->assign('trunks', $res);
         $design->assign('regions', $db->AllRecords('select id, name from regions', 'id'));
-        $design->assign('bill_trunks', Trunk::dao()->getListAll());
+        $design->assign('bill_trunks', Trunk::dao()->getList());
         $design->AddMain('voipnew/trunks.html');
     }
 

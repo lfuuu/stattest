@@ -1,6 +1,7 @@
 <?php
 namespace app\models\billing;
 
+use app\classes\Connection;
 use app\dao\billing\TrunkDao;
 use Yii;
 use yii\db\ActiveRecord;
@@ -13,9 +14,6 @@ use yii\db\ActiveRecord;
  */
 class Trunk extends ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
-
     const TRUNK_DIRECTION_ORIG = 'orig_enabled';
     const TRUNK_DIRECTION_TERM = 'term_enabled';
     const TRUNK_DIRECTION_BOTH = 'both_enabled'; // Только для условий
@@ -28,6 +26,7 @@ class Trunk extends ActiveRecord
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -40,39 +39,38 @@ class Trunk extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'auth.trunk';
     }
 
+    /**
+     * @return Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPgSlave;
     }
 
+    /**
+     * @return TrunkDao
+     */
     public static function dao()
     {
         return TrunkDao::me();
     }
 
     /**
-     * Вернуть список всех доступных моделей
-     * @param int $serverId
-     * @param bool $isWithEmpty
-     * @return self[]
+     * Преобразовать объект в строку
+     *
+     * @return string
      */
-    public static function getList($serverId = null, $isWithEmpty = false)
+    public function __toString()
     {
-        $query = self::find();
-        $serverId && $query->where(['server_id' => $serverId]);
-        $list = $query->orderBy(self::getListOrderBy())
-            ->indexBy('id')
-            ->all();
-
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-
-        return $list;
+        return $this->name;
     }
+
 }

@@ -2,13 +2,10 @@
 
 namespace app\classes\grid\column\billing;
 
-use kartik\grid\GridView;
-use yii\db\ActiveRecord;
-use yii\helpers\Url;
-use app\classes\Html;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\models\billing\Trunk;
+use kartik\grid\GridView;
 
 class TrunkColumn extends DataColumn
 {
@@ -25,7 +22,7 @@ class TrunkColumn extends DataColumn
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' trunk-column';
 
-        $this->filter = Trunk::getList($this->filterByServerId, true);
+        $this->filter = Trunk::dao()->getList($this->filterByServerId, true);
 
         // если выбран оператор, то в списке показать только его транки
         if ($this->filterByIds) {
@@ -36,6 +33,7 @@ class TrunkColumn extends DataColumn
                     $newFilter[$trunkId] = $trunk;
                 }
             }
+
             $this->filter = $newFilter;
 
             // это извращение из-за того, что php 5.5 не понимает ARRAY_FILTER_USE_KEY

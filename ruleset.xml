@@ -35,7 +35,10 @@
     -->
 
     <!-- не проверять "старый стат" -->
-    <exclude-pattern type="relative">^/stat/*</exclude-pattern>
+    <exclude-pattern type="relative">^stat/*</exclude-pattern>
+
+    <!-- не проверять миграции, ибо там свои правила именования классов и пр. -->
+    <exclude-pattern type="relative">^migrations/*</exclude-pattern>
 
     <!-- Наследоваться от PHPCS -->
     <rule ref="PHPCS">
@@ -69,6 +72,7 @@
 
         <!-- Expected 1 blank line before closing function brace; %s found -->
         <exclude name="Squiz.WhiteSpace.FunctionClosingBraceSpace"/>
+        <exclude name="PSR2.Files.EndFileNewline.NoneFound"/>
 
         <!-- Блок констант форматируется по правому краю -->
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
@@ -152,6 +156,10 @@
         <!-- Не требовать специального форматирования мультистрочных массивов в вызове функции -->
         <exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
         <exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
+        <exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments"/>
+
+        <!-- Не требовать круглых скобок для арифметических операций -->
+        <exclude name="Squiz.Formatting.OperatorBracket.MissingBrackets"/>
     </rule>
 
     <!-- Отредактировать правила -->

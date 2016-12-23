@@ -17,9 +17,10 @@ trait GetListTrait
 
     /**
      * Вернуть список всех доступных моделей
+     *
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
-     * @return self[]
+     * @return array
      */
     public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false)
     {
@@ -33,6 +34,7 @@ trait GetListTrait
 
     /**
      * Вернуть пустой список без конкретных моделей
+     *
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
      * @return string[]
@@ -57,6 +59,7 @@ trait GetListTrait
 
     /**
      * По какому полю сортировать для getList()
+     *
      * @return array
      */
     public static function getListOrderBy()
@@ -66,6 +69,7 @@ trait GetListTrait
 
     /**
      * Преобразовать объект в строку
+     *
      * @return string
      */
     public function __toString()

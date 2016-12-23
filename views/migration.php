@@ -3,19 +3,22 @@
 echo "<?php\n";
 ?>
 
+/**
+* Class <?= $className ?>
+*/
 class <?= $className ?> extends \app\classes\Migration
 {
-    public function up()
+    /**
+    * Up
+    */
+    public function safeUp()
     {
-        $this->execute("
-
-        ");
     }
 
-    public function down()
+    /**
+    * Down
+    */
+    public function safeDown()
     {
-        echo "<?= $className ?> cannot be reverted.\n";
-
-        return false;
     }
 }

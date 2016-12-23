@@ -10,13 +10,16 @@ use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
 use app\helpers\DateTimeZoneHelper;
+use app\models\usages\UsageInterface;
+use app\models\UsageTrunk;
+use app\models\UsageTrunkSettings;
 use InvalidArgumentException;
+use LogicException;
 use Yii;
 use yii\data\ActiveDataProvider;
 
 /**
  * Class AccountTariffForm
- * @property bool IsNeedToSelectClient
  */
 abstract class AccountTariffForm extends Form
 {
@@ -45,13 +48,14 @@ abstract class AccountTariffForm extends Form
 
 
     /**
-     * показывать ли предупреждение, что необходимо выбрать клиента
+     * Показывать ли предупреждение, что необходимо выбрать клиента
+     *
      * @return bool
      */
     abstract public function getIsNeedToSelectClient();
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {
@@ -66,7 +70,7 @@ abstract class AccountTariffForm extends Form
         $this->accountTariffLog->populateRelation('accountTariff', $this->accountTariff);
         $this->accountTariffLog->actual_from = $this->accountTariffLog
             ->getClientDateTime()
-//            ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
+            // ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
             ->format(DateTimeZoneHelper::DATE_FORMAT);
 
         // Обработать submit (создать, редактировать, удалить)
@@ -157,6 +161,7 @@ abstract class AccountTariffForm extends Form
                             $this->validateErrors += $accountTariffLogPackage->getFirstErrors();
                             throw new InvalidArgumentException('');
                         }
+
                         Yii::info('AccountTariffForm. After voip $accountTariffLogPackage->save', 'uu');
                     }
                 }
@@ -168,6 +173,7 @@ abstract class AccountTariffForm extends Form
                 $post = []; // чтобы дальше логика универсальных услуг не отрабатывала
             }
 
+            // Создание/редактирование обычной услуги
             Yii::info('AccountTariffForm. Before accountTariff->load', 'uu');
             if ($this->accountTariff->load($post)) {
 
@@ -175,13 +181,33 @@ abstract class AccountTariffForm extends Form
                 if ($this->accountTariff->save()) {
                     $this->id = $this->accountTariff->id;
                     $this->isSaved = true;
+
+                    if ($this->accountTariff->service_type_id == ServiceType::ID_TRUNK && isset($post['trunkId'])) {
+                        // isset($post['trunkId']) гарантирует, что сюда попадаем только при создании, но не при редактировании
+                        if (!(int)$post['trunkId']) {
+                            throw new LogicException('Не указан транк');
+                        }
+
+                        // дополнительно создать "логический транк"
+                        $usageTrunk = new UsageTrunk;
+                        $usageTrunk->id = $this->accountTariff->id;
+                        $usageTrunk->client_account_id = $this->accountTariff->client_account_id;
+                        $usageTrunk->connection_point_id = $this->accountTariff->region_id;
+                        $usageTrunk->trunk_id = (int)$post['trunkId'];
+                        $usageTrunk->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+                        $usageTrunk->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
+                        $usageTrunk->status = UsageTrunk::STATUS_CONNECTING;
+                        if (!$usageTrunk->save()) {
+                            throw new LogicException(implode(' ', $usageTrunk->getFirstErrors()));
+                        }
+                    }
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
                     $this->validateErrors += $this->accountTariff->getFirstErrors();
                 }
-
             }
 
+            // Лог тарифов
             Yii::info('AccountTariffForm. Before accountTariffLog->load', 'uu');
             if ($this->accountTariffLog->load($post)) {
 
@@ -205,6 +231,7 @@ abstract class AccountTariffForm extends Form
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
                     $this->validateErrors += $this->accountTariffLog->getFirstErrors();
                 }
+
                 Yii::info('AccountTariffForm. After accountTariffLog->save', 'uu');
 
                 if (isset($post['closeTariff'])) {
@@ -225,16 +252,14 @@ abstract class AccountTariffForm extends Form
                         if (!$accountTariffLogPackage->save()) {
                             $this->validateErrors += $accountTariffLogPackage->getFirstErrors();
                         }
-
                     }
                 }
-
             }
 
             Yii::info('AccountTariffForm. Before разовая услуга', 'uu');
             if ($post && $isNewRecord && !$this->validateErrors && $this->serviceTypeId == ServiceType::ID_ONE_TIME) {
-                // разовая услуга
 
+                // разовая услуга
                 $tariffResources = $this->accountTariffLog->tariffPeriod->tariff->tariffResources;
                 if (count($tariffResources) != 1) {
                     $this->validateErrors['resourceOneTimeResource'] = 'Неправильные ресурсы у тарифа';
@@ -340,6 +365,11 @@ abstract class AccountTariffForm extends Form
     }
 
     /**
+     * @param int $defaultTariffPeriodId
+     * @param bool $isWithEmpty
+     * @param int $serviceTypeId
+     * @param int $cityId
+     * @param bool $isWithNullAndNotNull
      * @return array
      */
     public function getAvailableTariffPeriods(
