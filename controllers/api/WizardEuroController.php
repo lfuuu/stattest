@@ -17,8 +17,6 @@ use app\forms\lk_wizard\ContactForm;
 
 /**
  * Class WizardEuroController
- *
- * @package app\controllers\api
  */
 class WizardEuroController extends WizardBaseController
 {
@@ -73,14 +71,14 @@ class WizardEuroController extends WizardBaseController
                 $result = $this->_saveStep2($stepData);
                 break;
             }
-
         }
 
         if ($result === true) {
             if ($step == 1 || $step == 2) {
-                if ($step == 1 && $this->wizard->step >= 2) { //если пользователь вернулся назад и пересохранил шаг 1
+                if ($step == 1 && $this->wizard->step >= 2) { // если пользователь вернулся назад и пересохранил шаг 1
                     $this->eraseContract();
                 }
+
                 $step++;
 
                 $this->wizard->step = $step;
@@ -98,7 +96,7 @@ class WizardEuroController extends WizardBaseController
                     );
                 }
             }
-        } else { //error
+        } else { // error
             return $result;
         }
 
@@ -169,8 +167,8 @@ class WizardEuroController extends WizardBaseController
     public function makeWizardFull()
     {
         return [
-            "step1" => $this->getOrganizationInformation(),
-            "step2" => $this->getContract(),
+            "step1" => $this->_getOrganizationInformation(),
+            "step2" => $this->_getContract(),
             "state" => $this->getWizardState()
         ];
     }
@@ -180,7 +178,7 @@ class WizardEuroController extends WizardBaseController
      *
      * @return array
      */
-    private function getOrganizationInformation()
+    private function _getOrganizationInformation()
     {
         $contact = $this->getContact();
 
@@ -205,7 +203,7 @@ class WizardEuroController extends WizardBaseController
             "middle_name" => ($c->person ? $c->person->middle_name : ""),
 
             "address_birth" => ($c->person ? $c->person->birthplace : ''),
-            "birthday" => (($c->person ? ($c->person->birthday && $c->person->birthday != '0000-00-00' ? $c->person->birthday : ''): '') ?: ''),
+            "birthday" => ($c->person ? $this->getValidedDateStr($c->person->birthday) : ''),
 
             "contact_phone" => $contact->data,
             "is_rules_accept_person" => (bool)$this->wizard->is_rules_accept_person,
@@ -218,9 +216,10 @@ class WizardEuroController extends WizardBaseController
 
     /**
      * Данные второго шага. Договор.
+     *
      * @return array
      */
-    private function getContract()
+    private function _getContract()
     {
         return [
             "link_contract" => "/lk/wizard/contract",
@@ -253,7 +252,7 @@ class WizardEuroController extends WizardBaseController
         }
 
         if (!$form->validate() || !$contactForm->validate() || !$acceptForm->validate()) {
-            return $this->getFormErrors($form->getErrors() + $contactForm->getErrors() + $acceptForm->getErrors());
+            return $this->getFormErrors(($form->getErrors() + $contactForm->getErrors() + $acceptForm->getErrors()));
         } else {
             $transaction = Yii::$app->getDb()->beginTransaction();
             if (
@@ -267,7 +266,7 @@ class WizardEuroController extends WizardBaseController
 
             $transaction->rollBack();
 
-            return ['errors' => ['' => 'save error']]; //imposible... but can by
+            return ['errors' => ['' => 'save error']]; // imposible... but can by
         }
     }
 

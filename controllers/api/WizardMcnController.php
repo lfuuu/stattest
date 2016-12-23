@@ -5,7 +5,7 @@ namespace app\controllers\api;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContragent;
 use app\models\ClientDocument;
-use Yii;
+use app\models\Organization;
 use app\models\document\DocumentTemplate;
 use app\models\LkWizardState;
 use app\models\TroubleState;
@@ -17,10 +17,12 @@ use app\forms\lk_wizard\WizardContragentMcnForm;
  * Класс-контроллер работы с российским визардом
  *
  * Class WizardMcnController
- * @package app\controllers\api
  */
 class WizardMcnController extends WizardBaseController
 {
+    /**
+     * @var int
+     */
     protected $lastStep = 3;
 
     /**
@@ -73,8 +75,16 @@ class WizardMcnController extends WizardBaseController
 
         if ($result === true) {
             if ($step == 1 || $step == 2) {
-                $this->wizard->step = $step+1;
-                $this->wizard->state = ($step == 1 ? LkWizardState::STATE_PROCESS : ($step+1 == $this->lastStep ? LkWizardState::STATE_REVIEW : LkWizardState::STATE_PROCESS));
+                $this->wizard->step = ($step + 1);
+                $this->wizard->state = (
+                    $step == 1 ?
+                        LkWizardState::STATE_PROCESS :
+                        ($step + 1 == $this->lastStep ?
+                            LkWizardState::STATE_REVIEW :
+                            LkWizardState::STATE_PROCESS
+                        )
+                );
+
                 $this->wizard->save();
 
                 if ($this->wizard->step == $this->lastStep && $this->wizard->state == LkWizardState::STATE_REVIEW) {
@@ -88,13 +98,18 @@ class WizardMcnController extends WizardBaseController
                     );
                 }
             }
-        } else { //error
+        } else { // error
             return $result;
         }
 
         return $this->makeWizardFull();
     }
 
+    /**
+     * Действие контроллера. Переход на следующий шаг
+     *
+     * @return array
+     */
     public function actionNextstep()
     {
         $data = $this->loadAndSet();
@@ -102,17 +117,23 @@ class WizardMcnController extends WizardBaseController
         $this->wizard->step = 2;
         $this->wizard->save();
 
-        $legalType = isset($data['legal_type']) && isset(ClientContragent::$defaultOrganization[$data['legal_type']])? $data['legal_type'] : ClientContragent::LEGAL_TYPE;
+        $legalType = isset($data['legal_type']) && isset(ClientContragent::$defaultOrganization[$data['legal_type']]) ?
+            $data['legal_type'] :
+            ClientContragent::LEGAL_TYPE;
 
         $contragent = $this->account->contragent;
 
         $contragent->legal_type = $legalType;
         $contragent->save();
 
-
         return ['result' => true];
     }
 
+    /**
+     * Действие контроллера. ПОлучение договора.
+     *
+     * @return string
+     */
     public function actionGetContract()
     {
         $data = $this->loadAndSet();
@@ -126,7 +147,6 @@ class WizardMcnController extends WizardBaseController
             $contract->erase();
         }
 
-
         $content = "error";
         $document = null;
 
@@ -136,8 +156,15 @@ class WizardMcnController extends WizardBaseController
             && $this->account->contragent->tax_regime != ClientContragent::TAX_REGTIME_YCH_VAT0
         ) {
             $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_LEGAL;
+            $organizationId = Organization::MCN_TELEKOM;
         } else {
             $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_PERSON;
+            $organizationId = Organization::MCM_TELEKOM;
+        }
+
+        if ($this->account->contract->organization_id != $organizationId) {
+            $this->account->contract->organization_id = $organizationId;
+            $this->account->contract->save();
         }
 
         $contract = new ClientDocument();
@@ -163,18 +190,28 @@ class WizardMcnController extends WizardBaseController
         return base64_encode($content);
     }
 
+    /**
+     * Формируем структуру данных визарда
+     *
+     * @return array
+     */
     public function makeWizardFull()
     {
         return [
-            "step1" => $this->getOrganizationInformation(),
-            "step2" => $this->getContractAccepts(),
-            "step3" => $this->getAccountManager(),
+            "step1" => $this->_getOrganizationInformation(),
+            "step2" => $this->_getContractAccepts(),
+            "step3" => $this->_getAccountManager(),
             "state" => $this->getWizardState()
         ];
     }
 
 
-    private function getOrganizationInformation()
+    /**
+     * Информация об организации
+     *
+     * @return array
+     */
+    private function _getOrganizationInformation()
     {
         /** @var ClientContragent $c */
         $c = $this->account->contragent;
@@ -194,23 +231,34 @@ class WizardMcnController extends WizardBaseController
             "middle_name" => ($c->person ? $c->person->middle_name : ""),
             "passport_serial" => ($c->person ? $c->person->passport_serial : ""),
             "passport_number" => ($c->person ? $c->person->passport_number : ""),
-            "passport_date_issued" => ($c->person ? ($c->person->passport_date_issued && $c->person->passport_date_issued != '0000-00-00' ? $c->person->passport_date_issued : '') : ''),
+            "passport_date_issued" => ($c->person ? $this->getValidedDateStr($c->person->passport_date_issued) : ''),
             "passport_issued" => ($c->person ? $c->person->passport_issued : ""),
-            "birthday" => ($c->person ? $c->person->birthday : ""),
+            "birthday" => ($c->person ? $this->getValidedDateStr($c->person->birthday) : ''),
             "address" => ($c->person ? $c->person->registration_address : ""),
             'tax_regime' => $c->tax_regime
         ];
+
         return $d;
     }
 
-    private function getContractAccepts()
+    /**
+     * Получение настроек принятия договора
+     *
+     * @return array
+     */
+    private function _getContractAccepts()
     {
         return [
             "is_contract_accept" => (bool)$this->wizard->is_contract_accept
         ];
     }
 
-    private function getAccountManager()
+    /**
+     * Информация о менеджере
+     *
+     * @return array
+     */
+    private function _getAccountManager()
     {
         $manager = $this->account->userAccountManager ?: User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
 
@@ -227,6 +275,12 @@ class WizardMcnController extends WizardBaseController
         ];
     }
 
+    /**
+     * Сохранение шага 1
+     *
+     * @param array $stepData
+     * @return array|bool
+     */
     private function _saveStep1($stepData)
     {
         $form = new WizardContragentMcnForm();
@@ -240,6 +294,12 @@ class WizardMcnController extends WizardBaseController
         }
     }
 
+    /**
+     * Сохранение шага 2
+     *
+     * @param array $stepData
+     * @return array|bool
+     */
     private function _saveStep2($stepData)
     {
         $this->wizard->is_contract_accept = (int)$stepData['is_contract_accept'];

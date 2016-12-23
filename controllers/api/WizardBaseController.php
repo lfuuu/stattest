@@ -8,7 +8,6 @@ use yii;
 use app\classes\ApiController;
 use app\models\LkWizardState;
 use app\models\ClientAccount;
-use app\models\ClientContact;
 use app\models\ClientDocument;
 use app\models\BusinessProcessStatus;
 use app\models\TroubleState;
@@ -18,7 +17,6 @@ use yii\base\InvalidParamException;
 
 /**
  * Class WizardBaseController
- * @package app\controllers\api
  */
 abstract class WizardBaseController extends ApiController
 {
@@ -36,6 +34,7 @@ abstract class WizardBaseController extends ApiController
 
     /**
      * Загружает из POST'а данные и проверяет, что указанный accountId правильный
+     *
      * @param bool $isCheckWizard включить в проверку наличие включенного визарда
      * @return array|mixed
      */
@@ -43,7 +42,7 @@ abstract class WizardBaseController extends ApiController
     {
         $this->postData = Yii::$app->request->bodyParams;
 
-        $this->getAndSetAccount();
+        $this->_getAndSetAccount();
 
         $this->wizard = LkWizardState::findOne([
             "contract_id" => $this->account->contract->id,
@@ -54,7 +53,7 @@ abstract class WizardBaseController extends ApiController
             throw new InvalidParamException("account_is_bad");
         }
 
-        $this->postProcessing();
+        $this->_postProcessing();
 
         return $this->postData;
     }
@@ -62,7 +61,7 @@ abstract class WizardBaseController extends ApiController
     /**
      * Проверяет и получает ЛС
      */
-    private function getAndSetAccount()
+    private function _getAndSetAccount()
     {
         if (!isset($this->postData["account_id"])) {
             throw new InvalidParamException("account_is_bad");
@@ -85,10 +84,10 @@ abstract class WizardBaseController extends ApiController
      * в случаи включения его ЛС
      * или перевода заявки на подключение в отработанное состояние
      */
-    private function postProcessing()
+    private function _postProcessing()
     {
-        if ($this->account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) //Клиента включили
-        {
+        // Клиента включили
+        if ($this->account->contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES) {
             /** @var LkWizardState $wizard */
             $wizard = LkWizardState::findOne(['contract_id' => $this->account->contract->id]);
             if ($wizard) {
@@ -97,8 +96,7 @@ abstract class WizardBaseController extends ApiController
                     $wizard->save();
                 } else {
                     if (
-                        !$wizard->trouble
-                        || !in_array($wizard->trouble->currentStage->state_id, [
+                        !$wizard->trouble || !in_array($wizard->trouble->currentStage->state_id, [
                             TroubleState::CONNECT__INCOME,
                             TroubleState::CONNECT__NEGOTIATION,
                             TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS
@@ -192,7 +190,8 @@ abstract class WizardBaseController extends ApiController
 
         $fullWizard = $this->makeWizardFull();
 
-        if ($this->wizard->step == $this->lastStep && $this->wizard->state != LkWizardState::STATE_REVIEW) { //удаляем wizard после просмотра последнего шага, с участием менеджера
+        // удаляем wizard после просмотра последнего шага, с участием менеджера
+        if ($this->wizard->step == $this->lastStep && $this->wizard->state != LkWizardState::STATE_REVIEW) {
             $this->wizard->is_on = 0;
             $this->wizard->save();
         }
@@ -202,6 +201,7 @@ abstract class WizardBaseController extends ApiController
 
     /**
      * Возвращает структуру состояния визарда
+     *
      * @return array
      */
     public function getWizardState()
@@ -236,6 +236,7 @@ abstract class WizardBaseController extends ApiController
 
     /**
      * Возвращает полную структуру данных визарда
+     *
      * @return array
      */
     abstract function makeWizardFull();
@@ -275,11 +276,11 @@ abstract class WizardBaseController extends ApiController
         $subj = "ЛК - Wizard";
         $text = "Клиент id: " . $this->account->id . " заполнил Wizard в ЛК";
 
-        //если менеджер установлен
+        // если менеджер установлен
         if ($manager && $manager->email) {
             mail($manager->email, $subj, $text);
         } else {
-            //менеджер по-умолчанию
+            // менеджер по-умолчанию
             $manager = User::findOne(User::DEFAULT_ACCOUNT_MANAGER_USER_ID);
             if ($manager && $manager->email) {
                 mail($manager->email, $subj, $text);
@@ -289,10 +290,12 @@ abstract class WizardBaseController extends ApiController
         return $manager;
     }
 
+
     /**
      * Функция возвращает ошибки формы в формате ошибки визарда.
      *
-     * @param $error array|Form
+     * @param array|Form $error
+     *
      * @return array
      */
     protected function getFormErrors($error)
@@ -303,16 +306,18 @@ abstract class WizardBaseController extends ApiController
             $error = $error->getErrors();
         }
 
-        foreach ($error as $field => $error) {
-            $errors[] = ["field" => $field, "error" => $error[0]];
+        foreach ($error as $field => $messages) {
+            $errors[] = ["field" => $field, "error" => $messages[0]];
         }
+
         return ["errors" => $errors];
     }
 
     /**
      * Функция генерации PDF из HTML
      *
-     * @param $html
+     * @param string $html
+     *
      * @return mixed
      */
     protected function getPDFfromHTML($html)
@@ -321,5 +326,22 @@ abstract class WizardBaseController extends ApiController
         $generator->html = $html;
 
         return $generator->pdf;
+    }
+
+
+    /**
+     * Получаем правильную дату
+     *
+     * @param string $date
+     *
+     * @return string
+     */
+    protected function getValidedDateStr($date)
+    {
+        if (!$date || in_array($date, ['0000-00-00', '1970-01-01'])) {
+            return '';
+        }
+
+        return $date;
     }
 }
