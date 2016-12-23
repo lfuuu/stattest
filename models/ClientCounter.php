@@ -2,10 +2,8 @@
 
 namespace app\models;
 
-use ActiveRecord\UndefinedPropertyException;
 use app\models\billing\Counter as BillingCounter;
 use Yii;
-use yii\base\InvalidValueException;
 use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -37,13 +35,13 @@ class ClientCounter extends ActiveRecord
     public $isSyncError = false;
 
     // Локальный кеш
-    private static $localCache = [];
+    private static $_localCache = [];
 
     // Локальный кеш, для ускорения массовых запросов. Содержит счетчики из низкоуровнего биллинга
-    private static $localCacheFastMass = [];
+    private static $_localCacheFastMass = [];
 
     // Локальный кеш, для ускорения массовых запросов. Содержит даты последнего обновления баланса в ЛС.
-    private static $localCacheFastMassLastAccountDate = [];
+    private static $_localCacheFastMassLastAccountDate = [];
 
     /**
      * @return string
@@ -63,6 +61,7 @@ class ClientCounter extends ActiveRecord
 
     /**
      * Возвращает текущий баланс лицевого счета
+     *
      * @return float
      */
     public function getRealtimeBalance()
@@ -72,9 +71,9 @@ class ClientCounter extends ActiveRecord
             case ClientAccount::VERSION_BILLER_USAGE:
                 // старый (текущий) биллинг
                 return
-                    $this->clientAccount->credit > -1
-                        ? $this->clientAccount->balance + $this->amount_sum
-                        : $this->clientAccount->balance;
+                    $this->clientAccount->credit > -1 ?
+                        $this->clientAccount->balance + $this->amount_sum :
+                        $this->clientAccount->balance;
 
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL:
@@ -89,6 +88,7 @@ class ClientCounter extends ActiveRecord
 
     /**
      * Возвращает общую сумму
+     *
      * @return float
      */
     public function getTotalSummary()
@@ -98,6 +98,7 @@ class ClientCounter extends ActiveRecord
 
     /**
      * Возвращает сумму за разговоры за текущий день
+     *
      * @return float
      */
     public function getDaySummary()
@@ -107,6 +108,7 @@ class ClientCounter extends ActiveRecord
 
     /**
      * Возвращает сумму за разговоры по МН за текущий день
+     *
      * @return float
      */
     public function getDayMnSummary()
@@ -116,6 +118,7 @@ class ClientCounter extends ActiveRecord
 
     /**
      * Возвращает сумму за разговоры за текущий месяц
+     *
      * @return float
      */
     public function getMonthSummary()
@@ -129,11 +132,11 @@ class ClientCounter extends ActiveRecord
      */
     public static function getCounters($clientAccountId)
     {
-        if (isset(static::$localCache[$clientAccountId])) {
-            return static::$localCache[$clientAccountId];
+        if (isset(static::$_localCache[$clientAccountId])) {
+            return static::$_localCache[$clientAccountId];
         }
 
-        $localCounter = static::getLocalCounter($clientAccountId);
+        $localCounter = static::_getLocalCounter($clientAccountId);
 
         $lastAccountDate = (new Query())
             ->select('last_account_date')
@@ -166,7 +169,7 @@ class ClientCounter extends ActiveRecord
             $localCounter->amount_month_sum = $billingCounter->amount_month_sum;
             $localCounter->save();
 
-        } catch(\UnexpectedValueException $e) {
+        } catch (\UnexpectedValueException $e) {
             $localCounter->isLocal = true;
             Yii::warning($e->getMessage());
         } catch (\Exception $e) {
@@ -174,9 +177,9 @@ class ClientCounter extends ActiveRecord
             Yii::error($e->getMessage());
         }
 
-        static::$localCache[$clientAccountId] = $localCounter;
+        static::$_localCache[$clientAccountId] = $localCounter;
 
-        return static::$localCache[$clientAccountId];
+        return static::$_localCache[$clientAccountId];
     }
 
     /**
@@ -185,9 +188,9 @@ class ClientCounter extends ActiveRecord
      */
     public static function getCountersFastMass($clientAccountId)
     {
-        if (!static::$localCacheFastMass) {
+        if (!static::$_localCacheFastMass) {
 
-            static::$localCacheFastMass = ArrayHelper::index(
+            static::$_localCacheFastMass = ArrayHelper::index(
                 (new Query())
                     ->from(BillingCounter::tableName())
                     ->indexBy('client_id')
@@ -196,7 +199,7 @@ class ClientCounter extends ActiveRecord
                 'client_id'
             );
 
-            static::$localCacheFastMassLastAccountDate = ArrayHelper::map(
+            static::$_localCacheFastMassLastAccountDate = ArrayHelper::map(
                 (new Query())
                     ->select(['id', 'last_account_date'])
                     ->from(ClientAccount::tableName())
@@ -208,17 +211,19 @@ class ClientCounter extends ActiveRecord
         }
 
         if (
-            isset(static::$localCacheFastMass[$clientAccountId]) &&
-            isset(static::$localCacheFastMassLastAccountDate[$clientAccountId])
+        isset(
+            static::$_localCacheFastMass[$clientAccountId],
+            static::$_localCacheFastMassLastAccountDate[$clientAccountId]
+        )
         ) {
-            $billingLastBillingDate = static::$localCacheFastMass[$clientAccountId]['amount_date'];
-            $accountLastBillingDate = static::$localCacheFastMassLastAccountDate[$clientAccountId];
+            $billingLastBillingDate = static::$_localCacheFastMass[$clientAccountId]['amount_date'];
+            $accountLastBillingDate = static::$_localCacheFastMassLastAccountDate[$clientAccountId];
 
             if ($billingLastBillingDate != $accountLastBillingDate) {
-                $billingCounter = static::getLocalCounter($clientAccountId)->toArray();
-                Yii::warning('Баланс не синхронизирован. ЛС: ' . $clientAccountId. ' ( billing ' . $billingLastBillingDate . ' != account ' . $accountLastBillingDate . ')');
+                $billingCounter = static::_getLocalCounter($clientAccountId)->toArray();
+                Yii::warning('Баланс не синхронизирован. ЛС: ' . $clientAccountId . ' ( billing ' . $billingLastBillingDate . ' != account ' . $accountLastBillingDate . ')');
             } else {
-                $billingCounter = static::$localCacheFastMass[$clientAccountId];
+                $billingCounter = static::$_localCacheFastMass[$clientAccountId];
             }
 
             $counter = new self;
@@ -227,8 +232,7 @@ class ClientCounter extends ActiveRecord
             $counter->amount_day_sum = $billingCounter['amount_day_sum'];
             $counter->amount_mn_day_sum = $billingCounter['amount_mn_day_sum'];
             $counter->amount_month_sum = $billingCounter['amount_month_sum'];
-            //$counter->save();
-
+            // $counter->save();
             return $counter;
         }
 
@@ -246,8 +250,9 @@ class ClientCounter extends ActiveRecord
     /**
      * @param int $clientAccountId
      * @return ClientCounter
+     * @throws \yii\db\Exception
      */
-    private static function getLocalCounter($clientAccountId)
+    private static function _getLocalCounter($clientAccountId)
     {
         $counter = self::findOne($clientAccountId);
 
