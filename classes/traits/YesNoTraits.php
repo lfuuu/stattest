@@ -9,6 +9,10 @@ use Yii;
  */
 trait YesNoTraits
 {
+    /**
+     * @param bool $isWithEmpty
+     * @return array
+     */
     public static function getYesNoList($isWithEmpty = false)
     {
         $list = [
@@ -19,6 +23,7 @@ trait YesNoTraits
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;
         }
+
         return $list;
     }
 }

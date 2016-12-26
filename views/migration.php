@@ -1,23 +1,25 @@
 <?php
-/* @var $className string the new migration class name */
+/**
+ * @var $className string the new migration class name
+ */
 echo "<?php\n";
 ?>
 
 /**
-* Class <?= $className ?>
-*/
+ * Class <?= $className ?>
+ */
 class <?= $className ?> extends \app\classes\Migration
 {
     /**
-    * Up
-    */
+     * Up
+     */
     public function safeUp()
     {
     }
 
     /**
-    * Down
-    */
+     * Down
+     */
     public function safeDown()
     {
     }

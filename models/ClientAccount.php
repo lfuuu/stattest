@@ -2,6 +2,12 @@
 namespace app\models;
 
 use app\classes\Assert;
+use app\classes\behaviors\AccountPriceIncludeVat;
+use app\classes\behaviors\ActualizeClientVoip;
+use app\classes\behaviors\ClientAccountComments;
+use app\classes\behaviors\ClientAccountSyncEvent;
+use app\classes\behaviors\HistoryChanges;
+use app\classes\behaviors\SetOldStatus;
 use app\classes\BillContract;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
@@ -9,7 +15,6 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use app\classes\voip\VoipStatus;
 use app\dao\ClientAccountDao;
-use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Locks;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
@@ -30,6 +35,7 @@ use yii\helpers\Url;
  * @property string $nal
  * @property int $balance
  * @property int $credit
+ * @property int $voip_credit_limit
  * @property int $voip_credit_limit_day
  * @property int $voip_limit_mn_day
  * @property int $voip_disabled
@@ -41,9 +47,19 @@ use yii\helpers\Url;
  * @property string $address_post
  * @property string $site_name
  * @property string $timezone_name
+ * @property string $sale_channel
+ * @property string $password
+ * @property string $lk_balance_view_mode
  * @property int $account_version
  * @property int $is_postpaid
  * @property bool $type_of_bill
+ * @property bool $is_calc_with_tax
+ * @property string pay_acc
+ * @property string bik
+ * @property string bank_name
+ * @property string bank_city
+ * @property string bank_properties
+ * @property int admin_contact_id
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -89,7 +105,7 @@ class ClientAccount extends HistoryActiveRecord
     const STATUS_BLOCKED = 'blocked';
 
     const DEFAULT_REGION = Region::MOSCOW;
-    const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 2000; //BIL-2081: http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=14221857
+    const DEFAULT_VOIP_CREDIT_LIMIT_DAY = 2000; // BIL-2081: http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=14221857
     const DEFAULT_VOIP_MN_LIMIT_DAY = 1000;
     const DEFAULT_VOIP_IS_DAY_CALC = 1;
     const DEFAULT_VOIP_IS_MN_DAY_CALC = 1;
@@ -160,9 +176,13 @@ class ClientAccount extends HistoryActiveRecord
 
     public static $shopIds = [14050, 18042];
 
-    /** Virtual variables */
+    /**
+     * Virtual variables
+     */
     public $payment_info;
-    /** /Virtual variables */
+    /**
+     * /Virtual variables
+     */
 
     private $_lastComment = false;
 
@@ -182,13 +202,21 @@ class ClientAccount extends HistoryActiveRecord
         'bank_city',
     ];
 
-    /*For old stat*/
-
+    /**
+     * Название таблицы
+     *
+     * @return string
+     */
     public static function tableName()
     {
         return 'clients';
     }
 
+    /**
+     * Правила
+     *
+     * @return array
+     */
     public function rules()
     {
         $rules = [];
@@ -202,19 +230,29 @@ class ClientAccount extends HistoryActiveRecord
         return $rules;
     }
 
+    /**
+     * Поведение
+     *
+     * @return array
+     */
     public function behaviors()
     {
         return [
-            'AccountPriceIncludeVat' => \app\classes\behaviors\AccountPriceIncludeVat::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
-            'ActaulizeClientVoip' => \app\classes\behaviors\ActualizeClientVoip::className(),
-            'ClientAccountComments' => \app\classes\behaviors\ClientAccountComments::className(),
+            'AccountPriceIncludeVat' => AccountPriceIncludeVat::className(),
+            'HistoryChanges' => HistoryChanges::className(),
+            'SetOldStatus' => SetOldStatus::className(),
+            'ActualizeClientVoip' => ActualizeClientVoip::className(),
+            'ClientAccountComments' => ClientAccountComments::className(),
             'ClientAccountEvent' => \app\classes\behaviors\important_events\ClientAccount::className(),
-            'ClientAccountSyncEvent' => \app\classes\behaviors\ClientAccountSyncEvent::className(),
+            'ClientAccountSyncEvent' => ClientAccountSyncEvent::className(),
         ];
     }
 
+    /**
+     * Навзание полей
+     *
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -267,20 +305,32 @@ class ClientAccount extends HistoryActiveRecord
             'anti_fraud_disabled' => 'Отключен анти-фрод',
             'is_postpaid' => 'Постоплата',
             'type_of_bill' => 'Закрывающий документ (Полный)',
+            'is_calc_with_tax' => 'Расчет с НДС (для н/у биллинга)'
         ];
     }
 
+    /**
+     * DAO
+     *
+     * @return ClientAccountDao
+     */
     public static function dao()
     {
         return ClientAccountDao::me();
     }
 
+    /**
+     * @return ClientAccountQuery
+     */
     public static function find()
     {
         return new ClientAccountQuery(get_called_class());
     }
 
 
+    /**
+     * @return ActiveQuery
+     */
     public function getSuperClient()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
@@ -294,117 +344,186 @@ class ClientAccount extends HistoryActiveRecord
         return $this->hasOne(Currency::className(), ['id' => 'currency']);
     }
 
+    /**
+     * @return string
+     */
     public function getType()
     {
         return ($this->contract->contragent->legal_type != 'person') ? 'org' : 'person';
     }
 
+    /**
+     * @return int
+     */
     public function getFirma()
     {
         return $this->contract->organization->firma;
     }
 
+    /**
+     * @return string
+     */
     public function getManager()
     {
         return $this->contract->manager;
     }
 
+    /**
+     * @return mixed
+     */
     public function getManager_name()
     {
-        return User::find()->where(['user' => $this->contract->manager])->one()->name;;
+        return User::find()->where(['user' => $this->contract->manager])->one()->name;
     }
 
+    /**
+     * @return string
+     */
     public function getNumber()
     {
         return $this->contract->number;
     }
 
+    /**
+     * @return int
+     */
     public function getBusiness_process_id()
     {
         return $this->contract->business_process_id;
     }
 
+    /**
+     * @return int
+     */
     public function getBusiness_process_status_id()
     {
         return $this->contract->business_process_status_id;
     }
 
+    /**
+     * @return int
+     */
     public function getBusinessId()
     {
         return $this->contract->business_id;
     }
 
+    /**
+     * @return string
+     */
     public function getAccount_manager()
     {
         return $this->contract->account_manager;
     }
 
+    /**
+     * @return string
+     */
     public function getCompany()
     {
         return $this->contract->contragent->name;
     }
 
+    /**
+     * @return string
+     */
     public function getCompany_full()
     {
         return $this->contract->contragent->name_full;
     }
 
+    /**
+     * @return string
+     */
     public function getAddress_jur()
     {
         return $this->contract->contragent->address_jur;
     }
 
+    /**
+     * @return string
+     */
     public function getInn()
     {
         return $this->contract->contragent->inn;
     }
 
+    /**
+     * @return string
+     */
     public function getKpp()
     {
         return $this->contract->contragent->kpp;
     }
 
+    /**
+     * @return string
+     */
     public function getSigner_position()
     {
         return $this->contract->contragent->position;
     }
 
+    /**
+     * @return string
+     */
     public function getSigner_positionV()
     {
         return $this->contract->contragent->positionV;
     }
 
+    /**
+     * @return string
+     */
     public function getSigner_name()
     {
         return $this->contract->contragent->fio;
     }
 
+    /**
+     * @return string
+     */
     public function getSigner_nameV()
     {
         return $this->contract->contragent->fioV;
     }
 
+    /**
+     * @return string
+     */
     public function getOgrn()
     {
         return $this->contract->contragent->ogrn;
     }
 
+    /**
+     * @return string
+     */
     public function getOkpo()
     {
         return $this->contract->contragent->okpo;
     }
 
+    /**
+     * @return string
+     */
     public function getOpf()
     {
         return $this->contract->contragent->opf_id;
     }
 
+    /**
+     * @return string
+     */
     public function getOkvd()
     {
         return $this->contract->contragent->okvd;
     }
 
 
+    /**
+     * @return string
+     */
     public function getChannelName()
     {
         return $this->sale_channel ? SaleChannelOld::getList()[$this->sale_channel] : '';
@@ -422,6 +541,7 @@ class ClientAccount extends HistoryActiveRecord
         if ($contract && $date) {
             $contract->loadVersionOnDate($date);
         }
+
         return $contract;
     }
 
@@ -498,33 +618,36 @@ class ClientAccount extends HistoryActiveRecord
         return $this->getContract()->getContragent();
     }
 
+    /**
+     * @return string
+     */
     public function getStatusName()
     {
-        /** @var $this ClientAccount */
-        return
-            isset(self::$statuses[$this->status])
-                ? self::$statuses[$this->status]['name']
-                : $this->status;
+        return isset(self::$statuses[$this->status]) ? self::$statuses[$this->status]['name'] : $this->status;
     }
 
+    /**
+     * @return string
+     */
     public function getStatusColor()
     {
-        return
-            isset(self::$statuses[$this->status])
-                ? self::$statuses[$this->status]['color']
-                : '';
+        return isset(self::$statuses[$this->status]) ? self::$statuses[$this->status]['color'] : '';
     }
 
+    /**
+     * @return bool|ClientContractComment
+     */
     public function getLastComment()
     {
         if ($this->_lastComment === false) {
-            $this->_lastComment =
-                ClientContractComment::find()
+            $this->_lastComment
+                = ClientContractComment::find()
                     ->andWhere(['contract_id' => $this->contract_id])
                     ->andWhere(['is_publish' => 1])
                     ->orderBy('ts desc')
                     ->all();
         }
+
         return $this->_lastComment;
     }
 
@@ -537,6 +660,7 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * @param string $date
      * @return Organization
      */
     public function getOrganization($date = '')
@@ -544,11 +668,17 @@ class ClientAccount extends HistoryActiveRecord
         return $this->getContract($date)->getOrganization($date);
     }
 
+    /**
+     * @return ActiveQuery
+     */
     public function getAllContacts()
     {
         return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
     }
 
+    /**
+     * @return array
+     */
     public function getOfficialContact()
     {
         $contacts = ClientContact::find()
@@ -567,17 +697,27 @@ class ClientAccount extends HistoryActiveRecord
         return $result;
     }
 
+    /**
+     * @param bool $isActive
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getAdditionalInn($isActive = true)
     {
         return $this->hasMany(ClientInn::className(),
             ['client_id' => 'id'])->andWhere(['is_active' => (int)$isActive])->all();
     }
 
+    /**
+     * @return ActiveQuery
+     */
     public function getAdditionalPayAcc()
     {
         return $this->hasMany(ClientPayAcc::className(), ['client_id' => 'id']);
     }
 
+    /**
+     * @return int
+     */
     public function getTaxRate()
     {
         $organization = $this->getOrganization();
@@ -612,15 +752,20 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @param $name
-     * @return array
+     * @param string $name
+     * @return array|bool
      */
     public function getOption($name)
     {
-        $option  = $this->getOptions()->where(['option' => $name])->all();
+        $option = $this->getOptions()->where(['option' => $name])->all();
         return $option !== null ? ArrayHelper::getColumn($option, 'value') : false;
     }
 
+    /**
+     * @param float $originalSum
+     * @param null $taxRate
+     * @return array
+     */
     public function convertSum($originalSum, $taxRate = null)
     {
         if ($taxRate === null) {
@@ -640,16 +785,20 @@ class ClientAccount extends HistoryActiveRecord
         return [$sum, $sum_without_tax, $sum_tax];
     }
 
+    /**
+     * @throws Exception
+     */
     public function sync1C()
     {
         if (!defined('PATH_TO_ROOT')) {
             define("PATH_TO_ROOT", \Yii::$app->basePath . '/stat/');
         }
+
         if (!defined("NO_WEB")) {
             define("NO_WEB", 1);
         }
 
-        require_once PATH_TO_ROOT . 'conf.php';
+        include_once PATH_TO_ROOT . 'conf.php';
 
         if (!defined('SYNC1C_UT_SOAP_URL') || !SYNC1C_UT_SOAP_URL) {
             return;
@@ -666,12 +815,24 @@ class ClientAccount extends HistoryActiveRecord
         }
     }
 
+    /**
+     * AfterSave
+     *
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
     public function afterSave($insert, $changedAttributes)
     {
         $this->sync1C();
         parent::afterSave($insert, $changedAttributes);
     }
 
+    /**
+     * BeforeSave
+     *
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if (!$this->password) {
@@ -699,6 +860,7 @@ class ClientAccount extends HistoryActiveRecord
 
     /**
      * Возвращает список кодов предупреждений
+     *
      * @return array
      */
     public function getVoipWarnings()
@@ -722,9 +884,11 @@ class ClientAccount extends HistoryActiveRecord
                 if ($locks->is_finance_block) {
                     $warnings[self::WARNING_FINANCE] = $locks->getLastLock('is_finance_block');
                 }
+
                 if ($locks->is_overran) {
                     $warnings[self::WARNING_OVERRAN] = $locks->getLastLock('is_overran');
                 }
+
                 if ($locks->is_mn_overran) {
                     $warnings[self::WARNING_MN_OVERRAN] = $locks->getLastLock('is_mn_overran');
                 }
@@ -740,39 +904,57 @@ class ClientAccount extends HistoryActiveRecord
         if ($need_lock_limit_day) {
             $warnings[self::WARNING_LIMIT_DAY] = 'Превышен дневной лимит: ' . (-$counters->daySummary) . ' > ' . $this->voip_credit_limit_day;
         }
+
         if ($need_lock_limit_month) {
             $warnings[self::WARNING_LIMIT_MONTH] = 'Превышен месячный лимит: ' . (-$counters->monthSummary) . ' > ' . $this->voip_credit_limit;
         }
+
         if ($need_lock_credit || array_key_exists(self::WARNING_FINANCE, $warnings)) {
-            $warnings[self::WARNING_CREDIT] =
-                'Превышен лимит кредита: ' .
+            $warnings[self::WARNING_CREDIT]
+                = 'Превышен лимит кредита: ' .
                 sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit .
                 (
-                    array_key_exists(self::WARNING_FINANCE, $warnings)
-                        ? ' (на уровне биллинга): ' . (new DateTimeWithUserTimezone($warnings[self::WARNING_FINANCE]->dt, $this->timezone))->format('H:i:s d.m.Y')
-                        : ''
-
+                    array_key_exists(self::WARNING_FINANCE, $warnings) ?
+                        ' (на уровне биллинга): ' . (new DateTimeWithUserTimezone($warnings[self::WARNING_FINANCE]->dt, $this->timezone))->format('H:i:s d.m.Y') :
+                        ''
                 );
         }
 
         return $warnings;
     }
 
+    /**
+     * @return array|null
+     */
     public function getVoipNumbers()
     {
         return self::dao()->getClientVoipNumbers($this);
     }
 
+    /**
+     * @return bool
+     */
     public function getHasVoip()
     {
         return UsageVoip::find()->andWhere(['client' => $this->client])->actual()->exists();
     }
 
+    /**
+     * Это магазин
+     *
+     * @return bool
+     */
     public function isMulty()
     {
         return in_array($this->id, self::$shopIds);
     }
 
+    /**
+     * Получение баланса ЛС
+     *
+     * @param bool $isWithExp
+     * @return array
+     */
     public function makeBalance($isWithExp = false)
     {
         $res = [
@@ -790,6 +972,11 @@ class ClientAccount extends HistoryActiveRecord
         return $res;
     }
 
+    /**
+     * Это партнер
+     *
+     * @return bool
+     */
     public function isPartner()
     {
         return $this->contract->isPartner();

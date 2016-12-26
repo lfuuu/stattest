@@ -37,9 +37,6 @@
     <!-- не проверять "старый стат" -->
     <exclude-pattern type="relative">^stat/*</exclude-pattern>
 
-    <!-- не проверять миграции, ибо там свои правила именования классов и пр. -->
-    <exclude-pattern type="relative">^migrations/*</exclude-pattern>
-
     <!-- Наследоваться от PHPCS -->
     <rule ref="PHPCS">
 
@@ -160,6 +157,25 @@
 
         <!-- Не требовать круглых скобок для арифметических операций -->
         <exclude name="Squiz.Formatting.OperatorBracket.MissingBrackets"/>
+
+    </rule>
+
+
+    <!-- правила для миграций -->
+    <rule ref="PEAR.NamingConventions.ValidClassName.Invalid">
+        <exclude-pattern>/migrations/*</exclude-pattern>
+    </rule>
+    <rule ref="PEAR.NamingConventions.ValidClassName.StartWithCapital">
+        <exclude-pattern>/migrations/*</exclude-pattern>
+    </rule>
+    <rule ref="PEAR.Commenting.ClassComment.Missing">
+        <exclude-pattern>/migrations/*</exclude-pattern>
+    </rule>
+
+
+    <!-- Magic-метод getCompany_name для моделей -->
+    <rule ref="PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps">
+        <exclude-pattern>/models/*</exclude-pattern>
     </rule>
 
     <!-- Отредактировать правила -->
