@@ -56,12 +56,20 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                             'data' => $destinationList,
                         ],
                     'headerOptions' => [
-                        'class' => 'col-sm-9',
+                        'class' => 'col-sm-6',
                     ],
                 ],
                 [
                     'name' => 'price',
                     'title' => $attributeLabels['price'],
+                    'options' => $options,
+                    'headerOptions' => [
+                        'class' => 'col-sm-3',
+                    ],
+                ],
+                [
+                    'name' => 'interconnect_price',
+                    'title' => $attributeLabels['interconnect_price'],
                     'options' => $options,
                     'headerOptions' => [
                         'class' => 'col-sm-3',

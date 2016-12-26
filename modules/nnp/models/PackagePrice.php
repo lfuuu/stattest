@@ -14,6 +14,7 @@ use yii\db\ActiveRecord;
  * @property int tariff_id
  * @property int destination_id
  * @property float price
+ * @property float interconnect_price
  *
  * @property Tariff tariff  FK нет, ибо в таблица в другой БД
  * @property Package package
@@ -31,6 +32,7 @@ class PackagePrice extends ActiveRecord
             'tariff_id' => 'Тариф',
             'destination_id' => 'Направление',
             'price' => 'Цена',
+            'interconnect_price' => 'Цена интерконнекта',
         ];
     }
 
@@ -51,7 +53,7 @@ class PackagePrice extends ActiveRecord
         return [
             [['tariff_id', 'destination_id', 'price'], 'required'],
             [['tariff_id', 'destination_id'], 'integer'],
-            [['price'], 'number'],
+            [['price', 'interconnect_price'], 'number'],
         ];
     }
 
