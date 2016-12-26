@@ -27,6 +27,7 @@ use app\models\media\ClientFiles;
  * @property int is_lk_access
  * @property int is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
  * @property ClientContragent contragent
+ * @property ClientAccount[] accounts
  * @property Organization $organization
  * @property ClientMedia mediaManager
  */

@@ -508,10 +508,29 @@ class ClientController extends ApiInternalController
 
         if ($form->validate()) {
             if ($form->create()) {
-                return [
+                $data = [
                     'client_id' => $form->super_id,
                     'is_created' => $form->isCreated,
                 ];
+
+                $account = ClientAccount::findOne(['id' => $form->account_id]);
+
+                if ($account->contract->isPartner()) {
+                    $data += [
+                        'is_partner' => true,
+                        'partner_id' => $account->id
+                    ];
+                }
+
+                if ($account->contract->isPartnerAgent()) {
+                    $contract = ClientContract::findOne(['id' => $account->contragent->partner_contract_id]);
+                    $data += [
+                        'is_partner_agent' => true,
+                        'partner_id' => $contract->accounts[0]->id
+                    ];
+                }
+
+                return $data;
             }
         } else {
             $fields = array_keys($form->errors);

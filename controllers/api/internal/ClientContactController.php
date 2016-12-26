@@ -10,6 +10,9 @@ use app\classes\DynamicModel;
 use app\models\ClientContact;
 use yii\db\Query;
 
+/**
+ * Class ClientContactController
+ */
 class ClientContactController extends ApiInternalController
 {
 
@@ -92,12 +95,12 @@ class ClientContactController extends ApiInternalController
      * @param int $limit
      * @param bool|null $isActive
      * @return array|\yii\db\ActiveRecord[]
-     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidConfigException|FormValidationException
      */
     public function actionGet($clientAccountId, $eventType = '', $isOfficial = null, $limit = 0, $isActive = null)
     {
-        $result =
-            (new Query)
+        $result
+            = (new Query)
                 ->select([
                     'contacts.*',
                     'lk_settings.min_balance',
@@ -131,6 +134,7 @@ class ClientContactController extends ApiInternalController
         if (!is_null($model->is_official)) {
             $result->andWhere(['contacts.is_official' => $model->is_official]);
         }
+
         if (!is_null($model->is_active)) {
             $result->andWhere(['contacts.is_active' => $model->is_active]);
         }
@@ -139,9 +143,10 @@ class ClientContactController extends ApiInternalController
             $result->andWhere(['contacts.type' => $model->type]);
         }
 
-        $result->leftJoin([
-            'lk_settings' => LkNoticeSetting::tableName()
-        ], 'lk_settings.client_id = contacts.client_id AND lk_settings.client_contact_id = contacts.id');
+        $result->leftJoin(
+            ['lk_settings' => LkNoticeSetting::tableName()],
+            'lk_settings.client_id = contacts.client_id AND lk_settings.client_contact_id = contacts.id'
+        );
 
         if ((int)$model->limit) {
             $result->limit($model->limit);

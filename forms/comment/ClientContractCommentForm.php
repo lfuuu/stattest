@@ -10,6 +10,9 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContractComment;
 use app\models\User;
 
+/**
+ * Class ClientContractCommentForm
+ */
 class ClientContractCommentForm extends Form
 {
     const SET_BUSINESS = 'Установлено подразделение: ';
@@ -27,6 +30,11 @@ class ClientContractCommentForm extends Form
         $user,
         $comment;
 
+    /**
+     * Правила
+     *
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -36,6 +44,12 @@ class ClientContractCommentForm extends Form
         ];
     }
 
+    /**
+     * Сохранение формы
+     *
+     * @return bool
+     * @throws \Exception
+     */
     public function save()
     {
         $comment = new ClientContractComment;
@@ -50,6 +64,7 @@ class ClientContractCommentForm extends Form
             $user = User::findOne(['id' => User::SYSTEM_USER_ID]);
             $comment->user = $user ? $user->user : '';
         }
+
         $comment->ts = (new DateTime('now', new DateTimeZone('UTC')))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $comment->is_publish = 0;
 

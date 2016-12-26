@@ -8795,6 +8795,72 @@ UNLOCK TABLES;
 commit;
 
 --
+-- Table structure for table `entry_point`
+--
+
+DROP TABLE IF EXISTS `entry_point`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `entry_point` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `super_client_prefix` varchar(255) NOT NULL DEFAULT '',
+  `wizard_type` varchar(255) NOT NULL DEFAULT 'mcn',
+  `country_id` int(11) NOT NULL DEFAULT '643',
+  `region_id` int(11) NOT NULL DEFAULT '99',
+  `organization_id` int(11) NOT NULL DEFAULT '11',
+  `client_contract_business_id` int(11) NOT NULL DEFAULT '2',
+  `client_contract_business_process_id` int(11) NOT NULL DEFAULT '1',
+  `client_contract_business_process_status_id` int(11) NOT NULL DEFAULT '19',
+  `currency_id` varchar(255) NOT NULL DEFAULT 'RUB',
+  `timezone_name` varchar(255) DEFAULT NULL,
+  `is_postpaid` int(11) NOT NULL DEFAULT '0',
+  `account_version` int(11) NOT NULL DEFAULT '5',
+  `credit` int(11) DEFAULT NULL,
+  `voip_credit_limit_day` int(11) NOT NULL DEFAULT '0',
+  `voip_limit_mn_day` int(11) NOT NULL,
+  `is_default` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq-code` (`code`),
+  KEY `fk-country-code` (`country_id`),
+  KEY `fk-regions-id` (`region_id`),
+  KEY `fk-organization-id` (`organization_id`),
+  KEY `fk-client_contract_business-id` (`client_contract_business_id`),
+  KEY `fk-client_contract_business_process-id` (`client_contract_business_process_id`),
+  KEY `fk-client_contract_business_process_status-id` (`client_contract_business_process_status_id`),
+  CONSTRAINT `fk-client_contract_business-id` FOREIGN KEY (`client_contract_business_id`) REFERENCES `client_contract_business` (`id`),
+  CONSTRAINT `fk-client_contract_business_process-id` FOREIGN KEY (`client_contract_business_process_id`) REFERENCES `client_contract_business_process` (`id`),
+  CONSTRAINT `fk-client_contract_business_process_status-id` FOREIGN KEY (`client_contract_business_process_status_id`) REFERENCES `client_contract_business_process_status` (`id`),
+  CONSTRAINT `fk-country-code` FOREIGN KEY (`country_id`) REFERENCES `country` (`code`),
+  CONSTRAINT `fk-organization-id` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`),
+  CONSTRAINT `fk-regions-id` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `entry_point`
+--
+
+LOCK TABLES `entry_point` WRITE;
+/*!40000 ALTER TABLE `entry_point` DISABLE KEYS */;
+INSERT INTO `entry_point` VALUES
+  (1,'RU1','Клиентская заявка с mcn.ru','Client #','mcn',643,99,11,2,1,19,'RUB','Europe/Moscow',1,4,0,2000,1000,1),
+  (2,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#','mcn',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,0,0,0,0);
+/*!40000 ALTER TABLE `entry_point` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+
+--
 -- Final view structure for view `tt_states_rb`
 --
 

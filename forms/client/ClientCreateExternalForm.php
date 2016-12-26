@@ -2,9 +2,12 @@
 namespace app\forms\client;
 
 use app\forms\comment\ClientContractCommentForm;
+use app\models\BusinessProcess;
 use app\models\City;
+use app\models\ClientSuper;
 use app\models\Country;
 use app\models\EntryPoint;
+use app\models\filter\FreeNumberFilter;
 use app\models\Region;
 use Yii;
 use DateTime;
@@ -30,47 +33,54 @@ use app\models\ClientContact;
 use app\models\LogTarif;
 use app\models\usages\UsageInterface;
 use app\helpers\DateTimeZoneHelper;
+use yii\helpers\Json;
 
 /**
  * Форма добавления клиента из внешнего мира.
- *
  **/
 class ClientCreateExternalForm extends Form
 {
-    public $super_id = 0;
-    public $contragent_id = 0;
-    public $contract_id = 0;
-    public $account_id = 0;
+    public
+        $super_id = 0,
+        $contragent_id = 0,
+        $contract_id = 0,
+        $account_id = 0,
 
-    public $vats_tariff_id = 0;
+        $vats_tariff_id = 0,
 
-    public $email;
-    public $company;
-    public $fio;
-    public $contact_phone;
-    public $official_phone;
-    public $fax;
-    public $address;
-    public $comment;
-    public $partner_id;
+        $email,
+        $company,
+        $fio,
+        $contact_phone,
+        $official_phone,
+        $fax,
+        $address,
+        $comment,
+        $partner_id,
+        $partner_contract_id = 0,
 
-    public $timezone;
-    public $country_id;
-    public $site_name;
+        $timezone,
+        $country_id,
+        $site_name,
 
-    public $info = "";
-    public $isCreated = null;
+        $info = "",
+        $isCreated = null,
 
-    public $ip = "";
-    public $connect_region = Region::MOSCOW;
-    public $account_version = "";
+        $ip = "",
+        $connect_region = Region::MOSCOW,
+        $account_version = "",
 
-    public $entry_point_id = "";
+        $entry_point_id = ""
+;
+    /** @var EntryPoint */
+    public $entryPoint = null;
 
-    /** @var EntryPoint $entryPoint */
-    private $entryPoint = null;
 
-
+    /**
+     * Правила модели
+     *
+     * @return array
+     */
     public function rules()
     {
         $rules = [
@@ -110,8 +120,7 @@ class ClientCreateExternalForm extends Form
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
             [['partner_id', 'account_version'], 'integer'],
             [['partner_id'], 'validatePartnerId'],
-            //['timezone', 'default', 'value' => Region::TIMEZONE_MOSCOW],
-            ['timezone', 'in', 'range' => Region::getTimezoneList() + [""]],
+            ['timezone', 'in', 'range' => (Region::getTimezoneList() + [""])],
             ['country_id', 'default', 'value' => Country::RUSSIA],
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['connect_region', 'default', 'value' => Region::MOSCOW],
@@ -122,6 +131,11 @@ class ClientCreateExternalForm extends Form
         return $rules;
     }
 
+    /**
+     * Название полей
+     *
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -139,7 +153,12 @@ class ClientCreateExternalForm extends Form
         ];
     }
 
-    public function validatePartnerId($attr, $params = [])
+    /**
+     * Валидация id партнера
+     *
+     * @param string $attr
+     */
+    public function validatePartnerId($attr)
     {
         $partnerId = $this->$attr;
 
@@ -148,12 +167,23 @@ class ClientCreateExternalForm extends Form
         }
 
         if (
-        !(($account = ClientAccount::findOne(['id' => $partnerId])) && ($account->isPartner()))
+            !(
+                ($account = ClientAccount::findOne(['id' => $partnerId]))
+                && ($account->contract->isPartner())
+            )
         ) {
             $this->addError($attr, "Партнер не найден");
+            return;
         }
+
+        $this->partner_contract_id = $account->contract_id;
     }
 
+    /**
+     * Поиск клиента по email'у
+     *
+     * @return bool
+     */
     public function findByEmail()
     {
         $c = ClientContact::findOne(['data' => $this->email, 'type' => 'email']);
@@ -170,11 +200,19 @@ class ClientCreateExternalForm extends Form
         return false;
     }
 
+    /**
+     * Сохранение формы. Сохранения реализовано другими функциями
+     */
     public function save()
     {
-        //
+        // nothing
     }
 
+    /**
+     * Создание клиента
+     *
+     * @return bool|null
+     */
     public function create()
     {
         $resVats = null;
@@ -193,18 +231,18 @@ class ClientCreateExternalForm extends Form
         if ($this->findByEmail()) {
             $this->isCreated = false;
         } else {
-            $this->createClientStruct();
+            $this->_createClientStruct();
 
             $this->isCreated = true;
 
             if ($this->account_id) {
-                $this->createTroubleAndWizard();
+                $this->_createTroubleAndWizard();
             }
         }
 
         if ($this->account_id) {
             if ($this->vats_tariff_id) {
-                $resVats = $this->createVats();
+                $resVats = $this->_createVats();
             }
         }
 
@@ -224,9 +262,12 @@ class ClientCreateExternalForm extends Form
         return $result;
     }
 
-    private function createClientStruct()
+    /**
+     * Создание структуры клиента
+     */
+    private function _createClientStruct()
     {
-        $super = new \app\models\ClientSuper();
+        $super = new ClientSuper();
         $super->name = $this->company;
         $super->validate();
         $super->save();
@@ -238,13 +279,13 @@ class ClientCreateExternalForm extends Form
             $super->save();
         }
 
-        $contragent = new \app\forms\client\ContragentEditForm(['super_id' => $super->id]);
+        $contragent = new ContragentEditForm(['super_id' => $super->id]);
         $contragent->name = $contragent->name_full = $this->company;
         $contragent->address_jur = $this->address;
         $contragent->legal_type = 'legal';
         $contragent->country_id = $this->country_id;
-        if ($this->partner_id) {
-            $contragent->partner_contract_id = $this->partner_id;
+        if ($this->partner_contract_id) {
+            $contragent->partner_contract_id = $this->partner_contract_id;
         }
 
         if ($this->entryPoint) {
@@ -256,7 +297,7 @@ class ClientCreateExternalForm extends Form
         $this->contragent_id = $contragent->id;
         Yii::info($contragent);
 
-        $contract = new \app\forms\client\ContractEditForm(['contragent_id' => $contragent->id]);
+        $contract = new ContractEditForm(['contragent_id' => $contragent->id]);
 
         if ($this->entryPoint) {
             $contract->business_id = $this->entryPoint->client_contract_business_id;
@@ -265,7 +306,7 @@ class ClientCreateExternalForm extends Form
             $contract->organization_id = $this->entryPoint->organization_id;
         } else {
             $contract->business_id = Business::TELEKOM;
-            $contract->business_process_id = \app\models\BusinessProcess::TELECOM_SUPPORT;
+            $contract->business_process_id = BusinessProcess::TELECOM_SUPPORT;
             $contract->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
             $contract->organization_id = Organization::MCN_TELEKOM;
         }
@@ -275,7 +316,7 @@ class ClientCreateExternalForm extends Form
         $this->contract_id = $contract->id;
         Yii::info($contract);
 
-        $account = new \app\forms\client\AccountEditForm(['id' => $contract->newClient->id]);
+        $account = new AccountEditForm(['id' => $contract->newClient->id]);
         $account->address_post = $this->address;
         $account->address_post_real = $this->address;
         $account->address_connect = $this->address;
@@ -311,7 +352,7 @@ class ClientCreateExternalForm extends Form
 
         Yii::info($account);
         if ($this->contact_phone) {
-            $this->addContact([
+            $this->_addContact([
                 'type' => 'phone',
                 'data' => $this->contact_phone,
                 'comment' => $this->fio,
@@ -319,7 +360,7 @@ class ClientCreateExternalForm extends Form
         }
 
         if ($this->official_phone) {
-            $this->addContact([
+            $this->_addContact([
                 'type' => 'phone',
                 'data' => $this->official_phone,
                 'comment' => $this->fio,
@@ -328,7 +369,7 @@ class ClientCreateExternalForm extends Form
         }
 
         if ($this->fax) {
-            $this->addContact([
+            $this->_addContact([
                 'type' => 'fax',
                 'data' => $this->fax,
                 'comment' => $this->fio,
@@ -336,7 +377,7 @@ class ClientCreateExternalForm extends Form
             ]);
         }
 
-        $this->addContact([
+        $this->_addContact([
             'type' => 'email',
             'data' => $this->email,
             'comment' => $this->fio,
@@ -344,7 +385,12 @@ class ClientCreateExternalForm extends Form
         ]);
     }
 
-    private function createTroubleAndWizard()
+    /**
+     * Создание заявки и визарда
+     *
+     * @return bool
+     */
+    private function _createTroubleAndWizard()
     {
         $R = [
             'trouble_type' => 'connect',
@@ -368,17 +414,23 @@ class ClientCreateExternalForm extends Form
         return true;
     }
 
-    public function createVats()
+    /**
+     * Создание ВАТС
+     *
+     * @return array
+     * @throws Exception
+     */
+    private function _createVats()
     {
         $result = ['status' => 'error'];
 
         $client = ClientAccount::findOne(['id' => $this->account_id]);
-        $tarif = TariffVirtpbx::findOne([['id' => $this->vats_tariff_id], ['!=', 'status', 'archive']]);
+        $tariff = TariffVirtpbx::findOne([['id' => $this->vats_tariff_id], ['!=', 'status', 'archive']]);
 
         $vats = UsageVirtpbx::findOne(['client' => $client->client]);
 
         if (!$vats) {
-            if ($client && $tarif) {
+            if ($client && $tariff) {
                 $actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
                 $actual_to = UsageInterface::MAX_POSSIBLE_DATE;
 
@@ -391,19 +443,19 @@ class ClientCreateExternalForm extends Form
                 $vats->region = $this->connect_region;
                 $vats->save();
 
-                $logTarif = new LogTarif;
-                $logTarif->service = 'usage_virtpbx';
-                $logTarif->id_service = $vats->id;
-                $logTarif->id_tarif = $tarif->id;
-                $logTarif->ts = (new DateTime())->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))->format(DateTimeZoneHelper::DATETIME_FORMAT);
-                $logTarif->date_activation = date(DateTimeZoneHelper::DATE_FORMAT);
-                $logTarif->id_user = User::LK_USER_ID;
-                $logTarif->save();
+                $logTariff = new LogTarif;
+                $logTariff->service = 'usage_virtpbx';
+                $logTariff->id_service = $vats->id;
+                $logTariff->id_tarif = $tariff->id;
+                $logTariff->ts = (new DateTime())->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                $logTariff->date_activation = date(DateTimeZoneHelper::DATE_FORMAT);
+                $logTariff->id_user = User::LK_USER_ID;
+                $logTariff->save();
 
                 $result['status'] = 'ok';
                 $result['info'][] = 'created';
 
-                if ($tarif->id == TariffVirtpbx::TEST_TARIFF_ID) {
+                if ($tariff->id == TariffVirtpbx::TEST_TARIFF_ID) {
                     $usage = UsageVoip::findOne(['client' => $client->client]);
 
                     if (!($usage instanceof UsageVoip)) {
@@ -414,12 +466,12 @@ class ClientCreateExternalForm extends Form
                             $form = new UsageVoipEditForm;
                             $form->scenario = 'add';
                             $form->initModel($client);
-                            if ($this->connect_region == Region::HUNGARY) { //в венгрии подключаем только линии без номера
+                            if ($this->connect_region == Region::HUNGARY) { // в венгрии подключаем только линии без номера
                                 $form->type_id = 'line';
                                 $form->city_id = City::DEFAULT_USER_CITY_ID;
                             } else {
-                                $freeNumber =
-                                    (new \app\models\filter\FreeNumberFilter)
+                                $freeNumber
+                                    = (new FreeNumberFilter)
                                         ->getNumbers()
                                         ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
                                         ->randomOne();
@@ -430,12 +482,13 @@ class ClientCreateExternalForm extends Form
 
                                 $form->did = $freeNumber->number;
                             }
+
                             $form->prepareAdd();
                             $form->tariff_main_id = VoipReserveNumber::getDefaultTariffId(
                                 $client->region,
                                 $client->currency
                             );
-                            $form->create_params = \yii\helpers\Json::encode([
+                            $form->create_params = Json::encode([
                                 'vpbx_stat_product_id' => $vats->id,
                             ]);
 
@@ -468,15 +521,22 @@ class ClientCreateExternalForm extends Form
         return $result;
     }
 
-    private function addContact($attrs = [])
+    /**
+     * Добавление контакта
+     *
+     * @param array $attrs
+     */
+    private function _addContact($attrs = [])
     {
         $c = new ClientContact();
         $c->setAttributes(array_merge([
-            'client_id' => $this->account_id,
-            'user_id' => User::CLIENT_USER_ID,
-            'is_active' => 1,
-            'is_official' => 0
-        ], $attrs));
+                'client_id' => $this->account_id,
+                'user_id' => User::CLIENT_USER_ID,
+                'is_active' => 1,
+                'is_official' => 0
+            ],
+                $attrs)
+        );
         $c->save();
     }
 }

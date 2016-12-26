@@ -5,6 +5,7 @@ use app\classes\Event;
 use app\helpers\DateTimeZoneHelper;
 use app\helpers\SetFieldTypeHelper;
 use app\models\BusinessProcessStatus;
+use app\models\ClientAccount;
 use app\models\ClientContractComment;
 use app\models\ClientContractReward;
 use app\models\ClientContragent;
@@ -17,11 +18,15 @@ use app\models\ClientContract;
 use yii\helpers\ArrayHelper;
 use app\forms\comment\ClientContractCommentForm;
 
+/**
+ * Class ContractEditForm
+ */
 class ContractEditForm extends Form
 {
-    public
-        $newClient = null,
+    /** @var ClientAccount */
+    public $newClient = null;
 
+    public
         $id,
         $super_id,
         $contragent_id,
@@ -48,12 +53,15 @@ class ContractEditForm extends Form
         $rewards = [];
 
 
+    /** @var ClientContract  */
     public $contract = null;
 
     public $historyVersionRequestedDate;
     public $historyVersionStoredDate;
 
     /**
+     * Правила
+     *
      * @return array
      */
     public function rules()
@@ -115,11 +123,13 @@ class ContractEditForm extends Form
     }
 
     /**
+     * Названия полей
+     *
      * @return array
      */
     public function attributeLabels()
     {
-        return (new ClientContract())->attributeLabels() + ['comment' => 'Комментарий'];
+        return ((new ClientContract())->attributeLabels() + ['comment' => 'Комментарий']);
     }
 
     /**
@@ -140,9 +150,11 @@ class ContractEditForm extends Form
             if ($this->contract && $this->historyVersionRequestedDate) {
                 $this->contract->loadVersionOnDate($this->historyVersionRequestedDate);
             }
+
             if ($this->contract === null) {
                 throw new Exception('Contract not found');
             }
+
             $this->setAttributes($this->contract->getAttributes(), false);
         } elseif ($this->contragent_id) {
             $this->contract = new ClientContract();
@@ -161,9 +173,11 @@ class ContractEditForm extends Form
                     'usage_type' => $usage,
                 ]);
             }
+
             if (!$reward) {
                 $reward = new ClientContractReward();
             }
+
             $this->rewards[$usage] = $reward;
         }
     }
@@ -177,6 +191,7 @@ class ContractEditForm extends Form
         if ($this->contract && $this->contract->getHistoryVersionStoredDate()) {
             $date = $this->contract->getHistoryVersionStoredDate();
         }
+
         $organizations = Organization::find()
             ->andWhere(['<=', 'actual_from', $date])
             ->andWhere(['>=', 'actual_to', $date])
@@ -195,12 +210,14 @@ class ContractEditForm extends Form
 
         if ($this->save_comment_stage) {
             $comments = ClientContractComment::find()->where(['contract_id' => $this->id])->all();
+            /** @var ClientContractComment $comment */
             foreach ($comments as $comment) {
                 if (in_array($comment->id, array_keys($this->public_comment))) {
                     $comment->is_publish = 1;
                 } else {
                     $comment->is_publish = 0;
                 }
+
                 $comment->save();
             }
 
@@ -235,9 +252,11 @@ class ContractEditForm extends Form
                     'contract_id' => $contract->id,
                     'usage_type' => $usage,
                 ]);
+
                 if (!$model) {
                     $model = new ClientContractReward();
                 }
+
                 $model->setAttributes([
                     'contract_id' => $contract->id,
                     'usage_type' => $usage,
@@ -263,11 +282,21 @@ class ContractEditForm extends Form
         return false;
     }
 
+    /**
+     * Это новая запись
+     *
+     * @return bool
+     */
     public function getIsNewRecord()
     {
         return $this->id ? false : true;
     }
 
+    /**
+     * Валидация статуса
+     *
+     * @param string $attribute
+     */
     public function validateState($attribute)
     {
         if (!array_key_exists($this->$attribute, $this->getModel()->statusesForChange())) {
@@ -279,6 +308,7 @@ class ContractEditForm extends Form
             if (!$contragent->getIsNewRecord()) {
                 $contragent->hasChecked = true;
             }
+
             if (!$contragent->validate()) {
                 $this->addError('state', $contragent->getFirstError('inn'));
                 $this->addError('state', $contragent->getFirstError('kpp'));
