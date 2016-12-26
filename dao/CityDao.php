@@ -1,13 +1,12 @@
 <?php
 namespace app\dao;
 
+use Yii;
+use yii\helpers\ArrayHelper;
 use app\classes\Singleton;
 use app\classes\traits\GetListTrait;
 use app\models\City;
 use app\models\Number;
-use app\models\UsageVoip;
-use Yii;
-use yii\helpers\ArrayHelper;
 
 /**
  * @method static CityDao me($args = null)
@@ -35,17 +34,14 @@ class CityDao extends Singleton
             $query->andWhere(['in_use' => 1]);
         }
 
-        $query->orderBy(['order' => SORT_ASC]);
+        $query->orderBy([
+            'order' => SORT_ASC,
+            'name' => SORT_ASC,
+        ]);
 
-        $list =
-            ArrayHelper::map(
-                $query
-                    ->orderBy('name')
-                    ->asArray()
-                    ->all(),
-                'id',
-                'name'
-            );
+        $list = $query
+            ->indexBy('id')
+            ->all();
 
         if ($isWithNullAndNotNull) {
             $list = [

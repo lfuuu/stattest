@@ -113,6 +113,7 @@ class City extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)

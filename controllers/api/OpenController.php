@@ -2,14 +2,14 @@
 
 namespace app\controllers\api;
 
+use Yii;
+use yii\helpers\ArrayHelper;
+use yii\web\Controller;
 use app\models\City;
 use app\models\Country;
 use app\models\Currency;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
-use Yii;
-use yii\helpers\ArrayHelper;
-use yii\web\Controller;
 
 final class OpenController extends Controller
 {
@@ -18,6 +18,9 @@ final class OpenController extends Controller
 
     public $enableCsrfValidation = false;
 
+    /**
+     * @inheritdoc
+     */
     public function init()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -47,17 +50,22 @@ final class OpenController extends Controller
      *   )
      * )
      */
+    /**
+     * @param int $region
+     * @param string $currency
+     * @return array
+     */
     public function actionGetFreeNumbers($region = null, $currency = Currency::RUB)
     {
-        $numbers =
-            (new FreeNumberFilter)
-                ->getNumbers()
-                ->setRegions([$region]);
+        $numbers = (new FreeNumberFilter)
+            ->getNumbers()
+            ->setRegions([$region]);
 
         $response = [];
         foreach ($numbers->result(null) as $row) {
             $response[] = $numbers->formattedNumber($row, $currency);
         }
+
         return $response;
     }
 
@@ -98,6 +106,22 @@ final class OpenController extends Controller
      *   )
      * )
      */
+    /**
+     * @param array $regions
+     * @param null $numberType
+     * @param null $minCost
+     * @param null $maxCost
+     * @param array $beautyLvl
+     * @param null $like
+     * @param null $mask
+     * @param int $offset
+     * @param int $limit
+     * @param string $currency
+     * @param int $countryCode
+     * @param array $cities
+     * @param null $similar
+     * @return array
+     */
     public function actionGetFreeNumbersByFilter(
         array $regions = [],
         $numberType = null,
@@ -113,20 +137,21 @@ final class OpenController extends Controller
         array $cities = [],
         $similar = null
     ) {
-        $numbers =
-            (new FreeNumberFilter)
-                ->setRegions($regions)
-                ->setCountry($countryCode)
-                ->setCities($cities)
-                ->setMinCost($minCost)
-                ->setMaxCost($maxCost)
-                ->setBeautyLvl($beautyLvl)
-                ->setNumberLike($like)
-                ->setNumberMask($mask)
-                ->setSimilar($similar);
+        $numbers = (new FreeNumberFilter)
+            ->setRegions($regions)
+            ->setCountry($countryCode)
+            ->setCities($cities)
+            ->setMinCost($minCost)
+            ->setMaxCost($maxCost)
+            ->setBeautyLvl($beautyLvl)
+            ->setNumberLike($like)
+            ->setNumberMask($mask)
+            ->setSimilar($similar);
+
         if ((int)$offset) {
             $numbers->setOffset((int)$offset);
         }
+
         if ((int)$numberType) {
             $numbers->setType((int)$numberType);
         }
@@ -234,19 +259,20 @@ final class OpenController extends Controller
      */
     public function actionGetFreeNumbersPreview($currency = Currency::RUB)
     {
-        $countries =
-            Country::find()
-                ->where(['in_use' => 1])
-                ->orderBy(['code' => SORT_DESC])
-                ->asArray()
-                ->all();
+        $countries = Country::find()
+            ->where(['in_use' => 1])
+            ->orderBy(['code' => SORT_DESC])
+            ->asArray()
+            ->all();
 
-        $cities =
-            City::find()
-                ->where(['IN', 'country_id', (array)ArrayHelper::getColumn($countries, 'code')])
-                ->orderBy('name')
-                ->asArray()
-                ->all();
+        $cities = City::find()
+            ->where(['IN', 'country_id', (array)ArrayHelper::getColumn($countries, 'code')])
+            ->orderBy([
+                'order' => SORT_ASC,
+                'name' => SORT_ASC,
+            ])
+            ->asArray()
+            ->all();
 
         $beautyLvls = [
             DidGroup::BEAUTY_LEVEL_STANDART,
@@ -285,11 +311,10 @@ final class OpenController extends Controller
 
                 foreach ($beautyLvls as $beautyLvl) {
                     $numbersFilter = new FreeNumberFilter;
-                    $numbers =
-                        $numbersFilter
-                            ->setCity($city['id'])
-                            ->setBeautyLvl([$beautyLvl])
-                            ->result(self::FREE_NUMBERS_PREVIEW_MODE);
+                    $numbers = $numbersFilter
+                        ->setCity($city['id'])
+                        ->setBeautyLvl([$beautyLvl])
+                        ->result(self::FREE_NUMBERS_PREVIEW_MODE);
 
                     $cityRow['numbers'][] = [
                         'beauty_level' => $beautyLvl,
@@ -323,6 +348,9 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name="id[0]",type="integer",description="идентификатор(ы) DID групп",in="query",),
      *   @SWG\Parameter(name="id[1]",type="integer",description="идентификатор(ы) DID групп",in="query"),
      *   @SWG\Parameter(name="id[2]",type="integer",description="идентификатор(ы) DID групп",in="query"),
+     *   @SWG\Parameter(name="beautyLvl[0]",type="integer",description="уровень(ни) красоты",in="query"),
+     *   @SWG\Parameter(name="beautyLvl[1]",type="integer",description="уровень(ни) красоты",in="query"),
+     *   @SWG\Parameter(name="beautyLvl[2]",type="integer",description="уровень(ни) красоты",in="query"),
      *   @SWG\Response(
      *     response=200,
      *     description="Список DID групп",
@@ -341,14 +369,19 @@ final class OpenController extends Controller
      */
     /**
      * @param int[] $id
+     * @param int[] $beautyLvl
      * @return DidGroup[]
      */
-    public function actionDidGroups(array $id = [])
+    public function actionDidGroups(array $id = [], array $beautyLvl = [])
     {
         $result = DidGroup::find();
 
         if (count($id)) {
-            $result->where(['IN', 'id', $id]);
+            $result->andWhere(['IN', 'id', $id]);
+        }
+
+        if (count($beautyLvl)) {
+            $result->andWhere(['IN', 'beauty_level', $beautyLvl]);
         }
 
         return $result->all();
