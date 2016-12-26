@@ -19,11 +19,12 @@ class DestinationColumn extends DataColumn
 
     public $isAddLink = true;
     public $filterType = GridView::FILTER_SELECT2;
+    public $isWithEmpty = true;
 
     public function __construct($config = [])
     {
-        $this->filter = Destination::getList(true);
         parent::__construct($config);
+        $this->filter = Destination::getList($this->isWithEmpty);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' destination-column';
     }

@@ -20,11 +20,12 @@ class NnpRegionColumn extends DataColumn
 
     public $isAddLink = true;
     public $filterType = GridView::FILTER_SELECT2;
+    public $isWithEmpty = true;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Region::getList(true);
+        $this->filter = Region::getList($this->isWithEmpty);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' nnp-region-column';
     }

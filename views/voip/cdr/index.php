@@ -9,7 +9,6 @@
 use app\classes\grid\GridView;
 use app\models\voip\filter\Cdr;
 use yii\widgets\Breadcrumbs;
-use yii\widgets\Pjax;
 use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\CheckboxColumn;
@@ -22,6 +21,10 @@ use app\classes\grid\column\universal\NnpRegionColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\billing\DisconnectCauseColumn;
+use app\classes\grid\column\universal\ConstructColumn;
+use app\classes\grid\column\universal\WithEmptyFilterColumn;
+use app\classes\grid\column\universal\CountryColumn;
+use app\modules\nnp\column\DestinationColumn;
 
 ?>
 
@@ -35,18 +38,27 @@ use app\classes\grid\column\billing\DisconnectCauseColumn;
 
 $filter = [
     [
-        'attribute' => 'server_id',
+        'attribute' => 'server_ids',
         'label' => 'Точка присоединения',
+        'isWithEmpty' => false,
         'class' => ServerColumn::className(),
-        'value' => $filterModel->server_id,
+        'value' => $filterModel->server_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'filterOptions' => [
+            'class' => 'alert-danger'
+        ],
     ],
     [
-        'attribute' => 'src_route',
+        'attribute' => 'src_routes',
         'label' => 'Транк-оригинатор',
         'class' => ServiceTrunkColumn::className(),
-        'filterByOperatorId' => $filterModel->src_operator_id,
-        'filterByServerId' => $filterModel->server_id,
-        'filterByContractId' => $filterModel->src_contract_id,
+        'filterByServerId' => $filterModel->server_ids,
+        'filterByContractId' => $filterModel->src_contracts,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ]
     ],
     [
         'attribute' => 'src_number',
@@ -59,25 +71,40 @@ $filter = [
         'class' => StringColumn::className(),
     ],
     [
-        'attribute' => 'setup_time',
+        'attribute' => 'connect_time',
         'label' => 'Время начала',
         'class' => DateTimeRangeDoubleColumn::className(),
+        'filterOptions' => [
+            'class' => 'alert-danger'
+        ],
     ],
     [
-        'attribute' => 'src_contract_id',
+        'attribute' => 'src_contracts',
         'label' => 'Договор номера А',
         'class' => ContractColumn::className(),
-        'filterByTrunkName' => $filterModel->src_route,
+        'filterByTrunkName' => $filterModel->src_routes,
+        'filterByServerId' => $filterModel->server_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
-        'attribute' => 'src_operator_id',
+        'attribute' => 'src_operator_ids',
         'label' => 'Оператор номера А',
         'class' => NnpOperatorColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'dst_operator_id',
+        'attribute' => 'dst_operator_ids',
         'label' => 'Оператор номера В',
         'class' => NnpOperatorColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
         'attribute' => 'session_time',
@@ -85,22 +112,32 @@ $filter = [
         'class' => IntegerRangeColumn::className(),
     ],
     [
-        'attribute' => 'dst_route',
+        'attribute' => 'dst_routes',
         'label' => 'Транк-терминатор',
         'class' => ServiceTrunkColumn::className(),
-        'filterByOperatorId' => $filterModel->dst_operator_id,
-        'filterByContractId' => $filterModel->dst_contract_id,
-        'filterByServerId' => $filterModel->server_id,
+        'filterByContractId' => $filterModel->dst_contracts,
+        'filterByServerId' => $filterModel->server_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
-        'attribute' => 'src_region_id',
+        'attribute' => 'src_region_ids',
         'label' => 'Регион номера А',
         'class' => NnpRegionColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'dst_region_id',
+        'attribute' => 'dst_region_ids',
         'label' => 'Регион номера B',
         'class' => NnpRegionColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
         'attribute' => 'call_id',
@@ -108,20 +145,65 @@ $filter = [
         'class' => IntegerColumn::className(),
     ],
     [
-        'attribute' => 'dst_contract_id',
+        'attribute' => 'dst_contracts',
         'label' => 'Договор номера B',
         'class' => ContractColumn::className(),
-        'filterByTrunkName' => $filterModel->dst_route,
+        'filterByTrunkName' => $filterModel->dst_routes,
+        'filterByServerId' => $filterModel->server_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
-        'attribute' => 'disconnect_cause',
+        'attribute' => 'src_country_prefixes',
+        'label' => 'Страна номера А',
+        'class' => CountryColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+        'indexBy' => 'prefix',
+    ],
+    [
+        'attribute' => 'dst_country_prefixes',
+        'label' => 'Страна номера B',
+        'class' => CountryColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+    ],
+    [
+        'attribute' => 'disconnect_causes',
         'label' => 'Код завершения',
         'class' => DisconnectCauseColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
         'attribute' => 'releasing_party',
         'label' => 'Инициатор завершения',
         'class' => ReleasingPartyColumn::className(),
+    ],
+    [
+        'attribute' => 'src_destination_ids',
+        'label' => 'Направление номера А',
+        'class' => DestinationColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+    ],
+    [
+        'attribute' => 'dst_destination_ids',
+        'label' => 'Направление номера А',
+        'class' => DestinationColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
         'attribute' => 'redirect_number',
@@ -133,118 +215,268 @@ $filter = [
         'label' => 'Только успешные попытки',
         'class' => CheckboxColumn::className(),
     ],
-];
-
-$columns = [
     [
-        'label' => 'Идентификатор звонка',
-        'attribute' => 'call_id',
-        'enableSorting' => true,
-        //'class' => IntegerColumn::className(),
+        'class' => WithEmptyFilterColumn::className(),
     ],
     [
-        'label' => 'Время начала',
-        'attribute' => 'setup_time',
-        //'class' => DateTimeRangeDoubleColumn::className(),
+        'class' => WithEmptyFilterColumn::className(),
     ],
     [
-        'label' => 'Длительность разговора',
-        'attribute' => 'session_time',
-        'enableSorting' => true,
-        //'class' => IntegerColumn::className(),
+        'attribute' => 'group_period',
+        'label' => 'Период группировки',
+        'class' => ConstructColumn::className(),
+        'filterOptions' => [
+            'class' => ' col-sm-4'
+        ],
+        'filter' => [
+            '' => 'За весь период',
+            'month' => 'По месяцам',
+            'day' => 'По дням',
+            'hour' => 'По часам'
+        ],
+        'isWithEmpty' => false,
     ],
     [
-        'label' => 'Код завершения',
-        'attribute' => 'disconnect_cause',
-        'class' => DisconnectCauseColumn::className(),
+        'attribute' => 'group',
+        'label' => 'Группировки',
+        'class' => ConstructColumn::className(),
+        'filterOptions' => [
+            'class' => ' col-sm-4'
+        ],
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'filter' => $filterModel->groupConst,
+        'isWithEmpty' => false,
     ],
     [
-        'label' => 'Номер А',
-        'attribute' => 'src_number',
-        //'class' => StringColumn::className(),
-    ],
-    [
-        'label' => 'Оператор',
-        'attribute' => 'src_operator_name',
-        //'class' => NnpOperatorColumn::className(),
-    ],
-    [
-        'label' => 'Регион',
-        'attribute' => 'src_region_name',
-        //'class' => NnpRegionColumn::className(),
-    ],
-    [
-        'label' => 'Номер В',
-        'attribute' => 'dst_number',
-        //'class' => StringColumn::className(),
-    ],
-    [
-        'label' => 'Оператор',
-        'attribute' => 'dst_operator_name',
-        //'class' => NnpOperatorColumn::className(),
-    ],
-    [
-        'label' => 'Регион',
-        'attribute' => 'dst_region_name',
-        //'class' => NnpRegionColumn::className(),
-    ],
-    [
-        'label' => 'Redirect number',
-        'attribute' => 'redirect_number',
-        //'class' => StringColumn::className(),
-    ],
-    [
-        'label' => 'Транк-оригинатор',
-        'attribute' => 'src_route',
-        //'class' => ServiceTrunkColumn::className(),
-    ],
-    [
-        'label' => 'Договор',
-        'attribute' => 'src_contract_name',
-        //'class' => ContractColumn::className(),
-    ],
-    [
-        'label' => 'Транк-терминатор',
-        'attribute' => 'dst_route',
-        //'class' => ServiceTrunkColumn::className(),
-    ],
-    [
-        'label' => 'Договор',
-        'attribute' => 'dst_contract_name',
-        //'class' => ContractColumn::className(),
-    ],
-    [
-        'label' => 'Инициатор завершения',
-        'attribute' => 'releasing_party',
-        //'class' => ReleasingPartyColumn::className(),
-    ],
-    [
-        'label' => 'Время соединения',
-        'attribute' => 'connect_time',
-    ],
-    [
-        'label' => 'ПДД',
-        'attribute' => 'pdd',
+        'attribute' => 'aggr',
+        'label' => 'Что считать',
+        'class' => ConstructColumn::className(),
+        'filterOptions' => [
+            'class' => ' col-sm-4'
+        ],
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'filter' => $filterModel->aggrLabels,
+        'isWithEmpty' => false,
     ],
 ];
 
-Pjax::begin([
-    'formSelector' => false,
-    'linkSelector' => false,
-    'enableReplaceState' => true,
-    'timeout' => 180000,
-]);
+$columns = [];
+if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
+    if ($filterModel->group) {
+        foreach ($filterModel->group as $value) {
+            $columns[] = [
+                'label' => $filterModel->groupConst[$value],
+                'attribute' => $value
+            ];
+        }
+    }
 
-echo GridView::widget([
-    'dataProvider' => $filterModel->getReport(),
-    'filterModel' => $filterModel,
-    'beforeHeader' => [
-        'columns' => $filter
-    ],
-    'columns' => $columns,
-    'pjax' => true,
-    'filterPosition' => '',
-]);
-Pjax::end();
+    if ($filterModel->group_period) {
+        $columns[] = [
+            'label' => 'Интервал',
+            'attribute' => 'interval',
+        ];
+    }
+
+    foreach ($filterModel->aggr as $value) {
+        $columns[] = [
+            'label' => $filterModel->aggrLabels[$value],
+            'attribute' => $value
+        ];
+    }
+} else {
+    $columns = [
+        [
+            'label' => 'Идентификатор звонка',
+            'attribute' => 'call_id',
+        ],
+        [
+            'label' => 'Время начала',
+            'attribute' => 'setup_time',
+        ],
+        [
+            'label' => 'Длительность разговора',
+            'attribute' => 'session_time',
+        ],
+        [
+            'label' => 'Код завершения',
+            'attribute' => 'disconnect_cause',
+            'class' => DisconnectCauseColumn::className(),
+        ],
+        [
+            'label' => 'Номер А',
+            'attribute' => 'src_number',
+        ],
+        [
+            'label' => 'Оператор',
+            'attribute' => 'src_operator_name',
+        ],
+        [
+            'label' => 'Регион',
+            'attribute' => 'src_region_name',
+        ],
+        [
+            'label' => 'Номер В',
+            'attribute' => 'dst_number',
+        ],
+        [
+            'label' => 'Оператор',
+            'attribute' => 'dst_operator_name',
+        ],
+        [
+            'label' => 'Регион',
+            'attribute' => 'dst_region_name',
+        ],
+        [
+            'label' => 'Redirect number',
+            'attribute' => 'redirect_number',
+        ],
+        [
+            'label' => 'Транк-оригинатор',
+            'attribute' => 'src_route',
+        ],
+        [
+            'label' => 'Договор',
+            'attribute' => 'src_contract_name',
+        ],
+        [
+            'label' => 'Транк-терминатор',
+            'attribute' => 'dst_route',
+        ],
+        [
+            'label' => 'Договор',
+            'attribute' => 'dst_contract_name',
+        ],
+        [
+            'label' => 'Продажа',
+            'attribute' => 'sale',
+        ],
+        [
+            'label' => 'Себестоимость',
+            'attribute' => 'cost_price',
+        ],
+        [
+            'label' => 'Маржа',
+            'attribute' => 'margin',
+        ],
+        [
+            'label' => 'Стоимость минуты: оригинация',
+            'attribute' => 'orig_rate',
+        ],
+        [
+            'label' => 'Стоимость минуты: теминация',
+            'attribute' => 'term_rate',
+        ],
+        [
+            'label' => 'Инициатор завершения',
+            'attribute' => 'releasing_party',
+        ],
+        [
+            'label' => 'Время соединения',
+            'attribute' => 'connect_time',
+        ],
+        [
+            'label' => 'ПДД',
+            'attribute' => 'pdd',
+        ],
+    ];
+}
+
+try {
+    GridView::separateWidget([
+        'dataProvider' => $filterModel->getReport(),
+        'filterModel' => $filterModel,
+        'beforeHeader' => [
+            'columns' => $filter
+        ],
+        'columns' => $columns,
+        'pjaxSettings' => [
+            'formSelector' => false,
+            'linkSelector' => false,
+            'enableReplaceState' => true,
+            'timeout' => 180000,
+        ],
+        'filterPosition' => '',
+        'panelHeadingTemplate' => <<< HTML
+    <div class="pull-right">
+        {extraButtons}
+        {filterButton}
+        {floatThead}
+        {toggleData}
+        {export}
+    </div>
+    <h3 class="panel-title">
+        {heading}
+    </h3>
+    <div class="clearfix"></div>
+HTML
+        ,
+        'emptyText' => isset($emptyText) ? $emptyText : ($filterModel->isFilteringPossible() ?
+            Yii::t('yii', 'No results found.') :
+            'Выберите точку присоединения и время начала разговора'),
+    ]);
+} catch (yii\db\Exception $e) {
+    if ($e->getCode() == 8) {
+        Yii::$app->session->addFlash(
+            'error',
+            'Запрос слишком тяжелый чтобы выполниться. Задайте, пожалуйста, другие фильтры'
+        );
+    } else {
+        Yii::$app->session->addFlash('error', "Ошибка выполнения запроса");
+    }
+}
 
 ?>
+
+<script type='text/javascript'>
+    $(function () {
+        $('select[name="Cdr[server_ids][]"], select[name="Cdr[src_routes][]"], select[name="Cdr[src_contracts][]"]')
+            .on('change', function () {
+                var server_id = $('*[name="Cdr[server_ids][]"]'),
+                    src_contract = $('*[name="Cdr[src_contracts][]"]'),
+                    src_route = $('*[name="Cdr[src_routes][]"]');
+
+                if (!$(this).is(src_route))
+                    $.get("/voip/cdr/get-routes", {
+                            server_id: server_id.val(),
+                            contract: src_contract.val()
+                        }, function (data) {
+                            src_route.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                        });
+                if (!$(this).is(src_contract))
+                    $.get("/voip/cdr/get-contracts", {
+                            server_id: server_id.val(),
+                            trunk: src_route.val()
+                        }, function (data) {
+                            src_contract.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                        });
+        });
+
+        $('select[name="Cdr[server_ids][]"], select[name="Cdr[dst_routes][]"], select[name="Cdr[dst_contracts][]"]')
+            .on('change', function () {
+                var server_id = $('*[name="Cdr[server_ids][]"]'),
+                    dst_contract = $('*[name="Cdr[dst_contracts][]"]'),
+                    dst_route = $('*[name="Cdr[dst_routes][]"]');
+
+                if (!$(this).is(dst_route))
+                    $.get("/voip/cdr/get-routes", {
+                            server_id: server_id.val(),
+                            contract: dst_contract.val()
+                        }, function (data) {
+                            dst_route.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                        });
+                if (!$(this).is(dst_contract))
+                    $.get("/voip/cdr/get-contracts", {
+                            server_id: server_id.val(),
+                            trunk: dst_route.val()
+                        }, function (data) {
+                            dst_contract.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                        });
+        });
+
+    });
+</script>

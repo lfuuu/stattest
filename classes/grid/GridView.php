@@ -104,6 +104,70 @@ HTML;
      */
     public $exportWidget = null;
 
+    public $showTableBody = true;
+
+    /**
+     * Переопределенный метод рендеринга таблицы.
+     * Дополнительно проверяет нужно ли ее рендерить,
+     * если нужно, то выполнить родительский метод
+     *
+     * @return string
+     */
+    public function renderTableBody()
+    {
+        return $this->showTableBody ? parent::renderTableBody() : '';
+    }
+
+    /**
+     * Делает возможным pjax-перезагрузку таблицы без перезагрузки фильтров,
+     * если они размещены перед таблицей.
+     * Костыль и требует более фундаментального решения.
+     *
+     * TODO Refactor this method
+     *
+     * @param array $config
+     * @throws \Exception
+     */
+    public static function separateWidget(array $config = [])
+    {
+        $gridView = new GridView(['dataProvider' => new \yii\data\ArrayDataProvider([
+            'allModels' => [],
+        ])]);
+        $view = $gridView->getView();
+        $view->registerJs(new JsExpression('
+            $("select[name=\"' . $gridView->pageSizeParam . '\"]").on("change", function() {
+                var data = Cookies.get("' . $gridView->pageSizeCookie . '");
+                data = !data ? {} : $.parseJSON(data);
+                data["' . $gridView->_toggleDataKey . '"] = $(this).find("option:selected").val();
+                Cookies.set("' . $gridView->pageSizeCookie . '", data, { path: "/" });
+                self.location.reload(true);
+            });
+        '));
+
+        $config1 = $config2 = $config;
+        unset($config1['columns']);
+        $config1['dataProvider'] = new \yii\data\ArrayDataProvider([
+            'allModels' => [],
+        ]);
+        echo self::widget([
+                'pjax' => true,
+                'showTableBody' => false,
+                'showFooter' => false,
+                'panelHeadingTemplate' => '',
+                'panelTemplate' => '
+                <div class="{prefix}{type}">
+                    {panelHeading}
+                    {panelBefore}
+                    {items}
+                </div>',
+            ] + $config1);
+
+        unset($config2['beforeHeader']);
+        echo self::widget([
+                'pjax' => true,
+            ] + $config2);
+    }
+
     /**
      * Сгенерировать HTML до/после header/footer
      * В отличии от базового генерируются фильтры вне колонок. Можно было бы сделать это вне грида, но проще использовать его готовые column-классы для фильтров

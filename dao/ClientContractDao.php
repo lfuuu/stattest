@@ -12,6 +12,38 @@ class ClientContractDao extends Singleton
 {
 
     /**
+     * Получить транковые контракты с типом контракта в скобках
+     *
+     * @param int $serverId - фильтр по серверу
+     * @param string $trunkName - фильтр по транку
+     * @param bool $isWithEmpty
+     * @return string[]
+     */
+    public static function getListWithType($serverId = null, $trunkName = null, $isWithEmpty = false)
+    {
+        $query = (new Query)
+            ->select([
+                'name' => "COALESCE(st.contract_number || ' (' || cct.name || ')', st.contract_number)",
+                'id' => 't.name'
+            ])
+            ->from('billing.service_trunk AS st')
+            ->leftJoin(['t' => 'auth.trunk'], 't.id = st.trunk_id')
+            ->leftJoin('stat.client_contract_type AS cct', 'cct.id = st.contract_type_id')
+            ->where(['IS NOT', 't.name', null]);
+
+        $serverId && $query->andWhere(['st.server_id' => $serverId]);
+        $trunkName && $query->andWhere(['t.name' => $trunkName]);
+
+        $list = $query->indexBy('id')->column(Yii::$app->dbPgSlave);
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+
+        return $list;
+    }
+
+    /**
      * @param ClientContract $contract
      * @param \DateTime|null $date
      * @return null|\app\models\ClientDocument
@@ -30,31 +62,5 @@ class ClientContractDao extends Singleton
             ->last();
 
         return $contractDoc;
-    }
-
-    /**
-     * Получить транковые контракты с типом контракта в скобках
-     *
-     * @param string $trunkName - фильтр по транку
-     * @param bool $isWithEmpty
-     * @return $this|array
-     */
-    public static function getListWithType ($trunkName, $isWithEmpty = false)
-    {
-        $list = (new Query)
-            ->select(["COALESCE(st.contract_number || ' (' || cct.name || ')', st.contract_number) AS name", 'st.contract_id AS id'])
-            ->from('billing.service_trunk AS st')
-            ->leftJoin('client_contract_type AS cct', 'cct.id = st.contract_type_id');
-
-        $trunkName && $list->leftJoin('auth.trunk AS t', 't.id = st.trunk_id') && $list->andWhere(['t.name' => $trunkName]);
-
-
-        $list = $list->indexBy('id')->column(Yii::$app->dbPgSlave);
-
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-
-        return $list;
     }
 }

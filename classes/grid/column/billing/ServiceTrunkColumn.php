@@ -22,7 +22,10 @@ class ServiceTrunkColumn extends DataColumn
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' trunk-column';
 
-        $this->filter = ServiceTrunk::getListWithName($this->filterByServerId, $this->filterByOperatorId, $this->filterByContractId, $isWithEmpty = true);
+        $this->filter = ServiceTrunk::getListWithName(
+            $this->filterByServerId,
+            $this->filterByContractId
+        );
     }
 
 }

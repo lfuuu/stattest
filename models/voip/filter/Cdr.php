@@ -7,290 +7,497 @@ namespace app\models\voip\filter;
 
 use Yii;
 use yii\base\Model;
+use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
-use app\classes\yii\McnSqlDataProvider;
 use yii\db\Expression;
 use app\models\billing\DisconnectCause;
+use app\classes\yii\CTEQuery;
+use yii\db\Query;
 
 /**
  * Class Cdr
  * @package app\models\voip\filter
  *
- * @property int $server_id
- * @property string $setup_time_from
- * @property string $setup_time_to
+ * @property array $server_ids
+ * @property string $connect_time_from
+ * @property string $connect_time_to
  * @property string $session_time_from
  * @property string $session_time_to
  * @property bool $is_full_way
  * @property bool $is_success_calls
- * @property bool $src_route
- * @property bool $dst_route
+ * @property array $src_routes
+ * @property array $dst_routes
+ * @property string $src_number
+ * @property string $dst_number
+ * @property array $src_operator_ids
+ * @property array $dst_operator_ids
+ * @property array $src_region_ids
+ * @property array $dst_region_ids
+ * @property array $src_contracts
+ * @property array $dst_contracts
+ * @property string $releasing_party
+ * @property int $call_id
+ * @property array $disconnect_causes
+ * @property string $redirect_number
+ * @property array $src_country_prefixes
+ * @property array $dst_country_prefixes
+ * @property array $src_destination_ids
+ * @property array $dst_destination_ids
+ *
+ * @property array $group
+ * @property array $aggr
+ * @property string $group_period
  */
 class Cdr extends Model
 {
     const UNATTAINABLE_SESSION_TIME = 2592000;
 
-    public $server_id = null;
-    public $setup_time_from = null;
-    public $setup_time_to = null;
+    public $groupConst = [
+        'src_route' => 'Транк-оригинатор',
+        'dst_route' => 'Транк-терминатор',
+        'src_number' => 'Номер А',
+        'dst_number' => 'Номер В',
+        'src_operator_name' => 'Оператор номера А',
+        'dst_operator_name' => 'Оператор номера В',
+        'src_region_name' => 'Регион номера А',
+        'dst_region_name' => 'Регион номера В',
+    ];
+
+    public $aggrConst = [
+        'sale_sum' => 'SUM(cr1.cost) ',
+        'sale_avg' => 'round(AVG(cr1.cost)::numeric,2)',
+        'sale_min' => 'MIN(cr1.cost) ',
+        'sale_max' => 'MAX(cr1.cost)',
+        'cost_price_sum' => 'SUM(cr2.cost)',
+        'cost_price_avg' => 'round(AVG(cr2.cost)::numeric,2)',
+        'cost_price_min' => 'MIN(cr2.cost)',
+        'cost_price_max' => 'MAX(cr2.cost)',
+        'margin_sum' => 'SUM((@(cr1.cost))-cr2.cost)',
+        'margin_avg' => 'round(AVG((@(cr1.cost))-cr2.cost)::numeric,2)',
+        'margin_min' => 'MIN((@(cr1.cost))-cr2.cost)',
+        'margin_max' => 'MAX((@(cr1.cost))-cr2.cost)',
+        'session_time_sum' => 'SUM(session_time)',
+        'session_time_avg' => 'round(AVG(session_time)::numeric,2)',
+        'session_time_min' => 'MIN(session_time)',
+        'session_time_max' => 'MAX(session_time)',
+    ];
+
+    public $aggrLabels = [
+        'sale_sum' => 'Продажа: сумма',
+        'sale_avg' => 'Продажа: средняя',
+        'sale_min' => 'Продажа: минимальная',
+        'sale_max' => 'Продажа: максимальная',
+        'cost_price_sum' => 'Себестоимость: сумма',
+        'cost_price_avg' => 'Себестоимость: средняя',
+        'cost_price_min' => 'Себестоимость: минимальная',
+        'cost_price_max' => 'Себестоимость: максимальная',
+        'margin_sum' => 'Маржа: сумма',
+        'margin_avg' => 'Маржа: средняя',
+        'margin_min' => 'Маржа: минимальная',
+        'margin_max' => 'Маржа: максимальная',
+        'session_time_sum' => 'Длительность: сумма',
+        'session_time_avg' => 'Длительность: средняя',
+        'session_time_min' => 'Длительность: минимальная',
+        'session_time_max' => 'Длительность: максимальная',
+    ];
+
+    public $server_ids = null;
+    public $connect_time_from = null;
+    public $connect_time_to = null;
     public $session_time_from = null;
     public $session_time_to = null;
     public $is_full_way = null;
     public $is_success_calls = null;
-    public $src_route = null;
-    public $dst_route = null;
+    public $src_routes = null;
+    public $dst_routes = null;
     public $src_number = null;
     public $dst_number = null;
-    public $src_operator_id = null;
-    public $dst_operator_id = null;
-    public $src_region_id = null;
-    public $dst_region_id = null;
-    public $src_contract_id = null;
-    public $dst_contract_id = null;
+    public $src_operator_ids = null;
+    public $dst_operator_ids = null;
+    public $src_region_ids = null;
+    public $dst_region_ids = null;
+    public $src_contracts = null;
+    public $dst_contracts = null;
 
     public $releasing_party = null;
     public $call_id = null;
-    public $disconnect_cause = null;
+    public $disconnect_causes = null;
     public $redirect_number = null;
+    public $src_country_prefixes = null;
+    public $dst_country_prefixes = null;
+    public $src_destination_ids = null;
+    public $dst_destination_ids = null;
+
+    public $group = [];
+
+    public $aggr = [];
+
+    public $group_period = '';
 
     public function rules()
     {
         return [
             [
                 [
-                    'server_id',
                     'session_time_from',
                     'session_time_to',
                     'is_full_way',
                     'is_success_calls',
-                    'src_operator_id',
-                    'dst_operator_id',
-                    'src_region_id',
-                    'dst_region_id',
-                    'src_contract_id',
-                    'dst_contract_id',
                     'releasing_party',
                     'call_id',
-                    'disconnect_cause',
-                    'session_time',
                 ],
                 'integer'
             ],
             [
                 [
-                    'setup_time_from',
-                    'setup_time_to',
+                    'connect_time_from',
+                    'connect_time_to',
                     'src_number',
                     'dst_number',
-                    'dst_route',
-                    'src_route',
-                    'redirect_number'
+                    'redirect_number',
+                    'group_period',
                 ],
                 'string'
+            ],
+            [
+                [
+                    'server_ids',
+                    'src_operator_ids',
+                    'dst_operator_ids',
+                    'src_region_ids',
+                    'dst_region_ids',
+                    'disconnect_causes',
+                    'src_country_prefixes',
+                    'dst_country_prefixes',
+                    'src_destination_ids',
+                    'dst_destination_ids',
+                ],
+                'each',
+                'rule' => ['integer']
+            ],
+            [
+                [
+                    'dst_routes',
+                    'src_routes',
+                    'src_contracts',
+                    'dst_contracts',
+                    'group',
+                    'aggr',
+                ],
+                'each',
+                'rule' => ['string']
             ]
         ];
     }
 
     /**
-     * Получить список кодов ответа, считающихся успешными, в виде строки
-     *
-     * @return string
+     * @param array $get
+     * @return bool
      */
-    public function getSuccessDisconnectCauses ()
+    public function load(array $get)
     {
-        return implode(',', DisconnectCause::$successCodes);
+        if (!isset($get['Cdr']['group']) || !$get['Cdr']['group']) {
+            unset($get['Cdr']['group']);
+        }
+
+        parent::load($get);
+        return $this->validate();
+    }
+
+    /**
+     * Проверка на наличие обязательных фильтров
+     *
+     * @return bool
+     */
+    public function isFilteringPossible()
+    {
+        return $this->connect_time_from && $this->server_ids;
     }
 
     /**
      * Отчет по calls_cdr (живет по адресу /voip/cdr)
      *
-     * @return McnSqlDataProvider|ArrayDataProvider
+     * @return ActiveDataProvider|ArrayDataProvider
      */
     public function getReport()
     {
-        $condition1 = $condition2 = $condition3 = $params = [];
-
-        if ($this->server_id) {
-            $condition1[] = 'cc.server_id = :server_id';
-            $condition2[] = 'cr.server_id = :server_id';
-            $params[':server_id'] = $this->server_id;
-        }
-
-        if ($this->setup_time_from || $this->setup_time_to) {
-            $condition1[] = 'cc.setup_time BETWEEN :setup_time_from AND :setup_time_to';
-            $params[':setup_time_from'] = $this->setup_time_from ? $this->setup_time_from : new Expression('to_timestamp(0)');
-            $params[':setup_time_to'] = $this->setup_time_to ? $this->setup_time_to : new Expression('now()');
-        }
-
-        if ($this->session_time_from || $this->session_time_to) {
-            $condition1[] = 'cc.session_time BETWEEN :session_time_from AND :session_time_to';
-            $params[':session_time_from'] = $this->session_time_from ? $this->session_time_from : 0;
-            $params[':session_time_to'] = $this->session_time_to ? $this->session_time_to : self::UNATTAINABLE_SESSION_TIME;
-        }
-
-        if ($this->src_route) {
-            $condition1[] = 'cc.src_route = :src_route';
-            $params[':src_route'] = $this->src_route;
-        }
-
-        if ($this->dst_route) {
-            $condition1[] = 'cc.dst_route = :dst_route';
-            $params[':dst_route'] = $this->dst_route;
-        }
-
-        if ($this->src_operator_id) {
-            $condition3[] = 'cr1.nnp_operator_id = :src_operator_id';
-            $params[':src_operator_id'] = $this->src_operator_id;
-        }
-        if ($this->src_region_id) {
-            $condition3[] = 'cr1.nnp_region_id = :src_region_id';
-            $params[':src_region_id'] = $this->src_region_id;
-        }
-        if ($this->src_contract_id) {
-            $condition2[] = 'cr.contract_id = :src_contract_id';
-            $params[':src_contract_id'] = $this->src_contract_id;
-        }
-        if ($this->dst_operator_id) {
-            $condition3[] = 'cr2.nnp_operator_id = :dst_operator_id';
-            $params[':dst_operator_id'] = $this->dst_operator_id;
-        }
-        if ($this->dst_region_id) {
-            $condition3[] = 'cr2.nnp_region_id = :dst_region_id';
-            $params[':dst_region_id'] = $this->dst_region_id;
-        }
-        if ($this->dst_contract_id) {
-            $condition2[] = 'cr2.contract_id = :dst_contract_id';
-            $params[':dst_contract_id'] = $this->dst_contract_id;
-        }
-
-        if ($this->is_success_calls) {
-            $condition1[] = '(session_time > 0 OR disconnect_cause IN ('. $this->getSuccessDisconnectCauses() . '))';
-        }
-
-        if ($this->src_number) {
-            $condition1[] = 'cc.src_number LIKE :src_number || \'%\'';
-            $condition2[] = 'cr.src_number::varchar LIKE :src_number || \'%\'';
-            $params[':src_number'] = $this->src_number;
-        }
-
-        if ($this->dst_number) {
-            $condition1[] = 'cc.dst_number LIKE :dst_number || \'%\'';
-            $condition2[] = 'cr.dst_number::varchar LIKE :dst_number || \'%\'';
-            $params[':dst_number'] = $this->dst_number;
-        }
-
-        if ($this->disconnect_cause) {
-            $condition1[] = 'cc.disconnect_cause = :disconnect_cause';
-            $condition2[] = 'cr.disconnect_cause = :disconnect_cause';
-            $params[':disconnect_cause'] = $this->disconnect_cause;
-        }
-
-        if ($this->releasing_party) {
-            $condition1[] = 'cc.releasing_party = :releasing_party';
-            $params[':releasing_party'] = $this->releasing_party;
-        }
-
-        if ($this->call_id) {
-            $condition1[] = 'cc.call_id = :call_id';
-            $params[':call_id'] = $this->call_id;
-        }
-
-        $condition1 = $condition1 ? 'WHERE ' . implode(' AND ', $condition1) : '';
-        $condition2 = $condition2 ? 'WHERE ' . implode(' AND ', $condition2) : '';
-        $condition3 = $condition3 ? 'WHERE ' . implode(' AND ', $condition3) : '';
-
-        if (!$condition1 && !$condition2 && !$condition3) {
+        if (!$this->connect_time_from || !$this->server_ids) {
             return new ArrayDataProvider([
                 'allModels' => [],
             ]);
         }
 
-        $sql = "WITH cc AS (
-                    SELECT
-                        cc.id,
-                        cc.call_id,
-                        date_trunc('second', cc.setup_time) AS setup_time,
-                        cc.session_time,
-                        cc.disconnect_cause,
-                        cc.redirect_number,
-                        cc.releasing_party,
-                        cc.src_route,
-                        cc.dst_route,
-                        cc.src_number,
-                        cc.dst_number,
-                        date_trunc('second', cc.connect_time) AS connect_time,
-                        date_trunc('second', cc.connect_time - cc.setup_time) AS pdd
-                    FROM
-                        calls_cdr.cdr AS cc
-                    $condition1),
-                    
-                    cr AS (
-                    SELECT
-                        cr.cdr_id,
-                        cr.orig,
-                        o.name AS operator_name,
-                        r.name AS region_name,
-                        st.id AS contract_id,
-						st.contract_number,
-						cct.name AS contract_type,
-						cr.nnp_operator_id,
-						cr.nnp_region_id,
-						st.contract_id
-                    FROM
-                        calls_raw.calls_raw AS cr
-                    LEFT JOIN
-                        nnp.operator AS o
-                        ON
-                            cr.nnp_operator_id = o.id
-                    LEFT JOIN
-                        nnp.region AS r
-                        ON
-                            r.id = cr.nnp_region_id
-                    LEFT JOIN
-                        billing.service_trunk AS st
-                        ON
-                            st.id = cr.trunk_id
-                    LEFT JOIN
-                        stat.client_contract_type AS cct
-                        ON
-                            cct.id = st.contract_type_id
-                    $condition2)
-                    
-                    SELECT 
-                        cc.*,
-                        cr1.operator_name AS src_operator_name,
-                        cr2.operator_name AS dst_operator_name,
-                        cr1.region_name AS src_region_name,
-                        cr2.region_name AS dst_region_name,
-                        cr1.contract_number || ' (' || cr1.contract_type || ')' AS src_contract_name,
-						cr2.contract_number || ' (' || cr2.contract_type || ')' AS dst_contract_name,
-						cr1.nnp_operator_id,
-						cr2.nnp_operator_id,
-						cr1.nnp_region_id,
-						cr2.nnp_region_id
-                    FROM 
-                      cc
-                    LEFT JOIN
-                        cr AS cr1
-                        ON
-                            cc.id = cr1.cdr_id
-                                AND
-                            cr1.orig = true
-                    LEFT JOIN
-                        cr AS cr2
-                        ON
-                            cc.id = cr1.cdr_id
-                                AND
-                            cr1.orig = false
-                    $condition3";
+        $query1 = new Query();
+        $query2 = new Query();
+        $query3 = new CTEQuery();
 
-        return new McnSqlDataProvider([
+        $this->server_ids
+        && $query1->where(['IN', 'cc.server_id', ':server_ids'], ['server_ids' => $this->server_ids])
+        && $query2->where(['IN', 'cr.server_id', ':server_ids'], ['server_ids' => $this->server_ids]);
+
+        ($this->connect_time_from || $this->connect_time_to)
+        && $query1->andWhere(
+            'cc.connect_time BETWEEN :connect_time_from AND :connect_time_to',
+            [
+                'connect_time_from' => $this->connect_time_from ? $this->connect_time_from : new Expression('to_timestamp(0)'),
+                'connect_time_to' => $this->connect_time_to ? $this->connect_time_to : new Expression('now()')
+            ]
+        )
+        && $query2->andWhere(
+            'cr.connect_time BETWEEN :connect_time_from AND :connect_time_to',
+            [
+                'connect_time_from' => $this->connect_time_from ? $this->connect_time_from : new Expression('to_timestamp(0)'),
+                'connect_time_to' => $this->connect_time_to ? $this->connect_time_to : new Expression('now()')
+            ]
+        );
+
+        ($this->session_time_from || $this->session_time_to)
+        && $query1->andWhere(
+            'cc.session_time BETWEEN :session_time_from AND :session_time_to',
+            [
+                'session_time_from' => $this->session_time_from ? (int) $this->session_time_from : 0,
+                'session_time_to' => $this->session_time_to ? (int) $this->session_time_to : self::UNATTAINABLE_SESSION_TIME
+            ]
+        );
+
+        if ($this->src_routes || $this->src_contracts) {
+            $filter = &$this->src_routes ? $this->src_routes : $this->src_contracts;
+            $query1->andWhere(['IN', 'cc.src_route', ':src_routes'], ['src_routes' => $filter]);
+            $query2->andWhere(['IN', 't.name', ':src_routes'], ['src_routes' => $filter]);
+        }
+
+        if ($this->dst_routes || $this->dst_contracts) {
+            $filter = &$this->dst_routes ? $this->dst_routes : $this->dst_contracts;
+            $query1->andWhere(['IN', 'cc.dst_route', ':dst_routes'], ['dst_routes' => $filter]);
+            $query2->andWhere(['IN', 't.name', ':dst_routes'], ['dst_routes' => $filter]);
+        }
+
+        $this->src_operator_ids
+        && $query2->andWhere(
+            ['and', 'cr.orig', ['IN', 'cr.nnp_operator_id', ':src_operator_ids']],
+            ['src_operator_ids' => $this->src_operator_ids]
+        )
+        && $query3->andWhere(
+            ['IN', 'cr1.nnp_operator_id', ':src_operator_ids'],
+            ['src_operator_ids' => $this->src_operator_ids]
+        );
+
+        $this->src_region_ids
+        && $query2->andWhere(
+            ['and', 'cr.orig', ['IN', 'cr.nnp_region_id', ':src_region_ids']],
+            ['src_region_ids' => $this->src_region_ids])
+        && $query3->andWhere(
+            ['IN', 'cr1.nnp_region_id', ':src_region_ids'],
+            ['src_region_ids' => $this->src_region_ids]
+        );
+
+        $this->src_destination_ids
+        && $query2->andWhere(
+            ['and', 'cr.orig', ['IN', 'pd.destination_id', ':src_destination_ids']],
+            ['src_destination_ids' => $this->src_destination_ids]
+        )
+        && $query3->andWhere(
+            ['IN', 'cr1.destination_id', ':src_destination_ids'],
+            ['src_destination_ids' => $this->src_destination_ids]
+        );
+
+        $this->src_country_prefixes
+        && $query2->andWhere(
+            ['and', 'cr.orig', ['IN', 'cr.nnp_country_prefix', ':src_country_prefixes']],
+            ['src_country_prefixes' => $this->src_country_prefixes]
+        )
+        && $query3->andWhere(
+            ['IN', 'cr1.nnp_country_prefix', ':src_country_prefixes'],
+            ['src_country_prefixes' => $this->src_country_prefixes]
+        );
+
+        $this->dst_operator_ids
+        && $query2->andWhere(
+            ['and', 'NOT cr.orig', ['IN', 'cr.nnp_operator_id', ':dst_operator_ids']],
+            ['dst_operator_ids' => $this->dst_operator_ids]
+        )
+        && $query3->andWhere(
+            ['IN', 'cr2.nnp_operator_id', ':dst_operator_ids'],
+            ['dst_operator_ids' => $this->dst_operator_ids]
+        );
+
+        $this->dst_region_ids
+        && $query2->andWhere(
+            ['and', 'NOT cr.orig', ['IN', 'cr.nnp_region_id', ':dst_region_ids']],
+            ['dst_region_ids' => $this->dst_region_ids]
+        )
+        && $query3->andWhere(
+            ['IN', 'cr2.nnp_region_id', ':dst_region_ids'],
+            ['dst_region_ids' => $this->dst_region_ids]
+        );
+
+        $this->dst_destination_ids
+        && $query2->andWhere(
+            ['and', 'NOT cr.orig', ['IN', 'pd.destination_id', ':dst_destination_ids']],
+            ['dst_destination_ids' => $this->dst_destination_ids]
+        )
+        && $query3->andWhere(
+            ['IN', 'cr2.destination_id', ':dst_destination_ids'],
+            ['dst_destination_ids' => $this->dst_destination_ids]
+        );
+
+        $this->dst_country_prefixes
+        && $query2->andWhere(
+            ['and', 'NOT cr.orig', ['IN', 'cr.nnp_country_prefix', ':dst_country_prefixes']],
+            ['dst_country_prefixes' => $this->dst_country_prefixes]
+        )
+        && $query3->andWhere(
+            ['IN', 'cr1.nnp_country_prefix', ':dst_country_prefixes'],
+            ['dst_country_prefixes' => $this->dst_country_prefixes]
+        );
+
+        $this->is_success_calls
+        && $query1->andWhere(
+            ['or', 'session_time > 0', ['IN', 'disconnect_cause', ':success_cause']],
+            ['success_cause' => DisconnectCause::$successCodes]
+        );
+
+        $this->redirect_number
+        && $query1->andWhere(
+            'cc.redirect_number LIKE :redirect_number || \'%\'',
+            ['redirect_number' => $this->redirect_number]
+        );
+
+        $this->dst_number
+        && $query1->andWhere('cc.dst_number LIKE :dst_number || \'%\'', ['dst_number' => $this->dst_number])
+        && $query2->andWhere('cr.dst_number::varchar LIKE :dst_number || \'%\'', ['dst_number' => $this->dst_number]);
+
+        $this->src_number
+        && $query1->andWhere('cc.src_number LIKE :src_number || \'%\'', ['src_number' => $this->src_number])
+        && $query2->andWhere('cr.src_number::varchar LIKE :src_number || \'%\'', ['src_number' => $this->src_number]);
+
+        $this->disconnect_causes
+        && $query1->andWhere(
+            ['IN', 'cc.disconnect_cause', ':disconnect_causes'],
+            ['disconnect_causes' => $this->disconnect_causes]
+        )
+        && $query2->andWhere(
+            ['IN', 'cr.disconnect_cause', ':disconnect_causes'],
+            ['disconnect_causes' => $this->disconnect_causes]
+        );
+
+        $this->releasing_party
+        && $query1->andWhere('cc.releasing_party = :releasing_party', ['releasing_party' => $this->releasing_party]);
+
+        $this->call_id
+        && $query1->andWhere('cc.call_id = :call_id', ['call_id' => $this->call_id]);
+
+        $query1
+            ->select([
+                'cc.id',
+                'cc.call_id',
+                'date_trunc(\'second\', cc.setup_time) setup_time',
+                'cc.session_time',
+                'cc.disconnect_cause',
+                'cc.redirect_number',
+                'cc.releasing_party',
+                'cc.src_route',
+                'cc.dst_route',
+                'cc.src_number',
+                'cc.dst_number',
+                'date_trunc(\'second\', cc.connect_time) connect_time',
+                'date_trunc(\'second\', cc.connect_time - cc.setup_time) pdd'
+            ])
+            ->from('calls_cdr.cdr cc');
+
+        $query2->select([
+            'cr.cdr_id',
+            'cr.orig',
+            'o.name operator_name',
+            'r.name region_name',
+            'st.id contract',
+            'st.contract_number',
+            'cct.name contract_type',
+            'cr.nnp_operator_id',
+            'cr.nnp_region_id',
+            'cr.nnp_country_prefix',
+            'cost',
+            'rate',
+        ])
+            ->from('calls_raw.calls_raw cr')
+            ->leftJoin('nnp.operator o', 'cr.nnp_operator_id = o.id')
+            ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
+            ->leftJoin('billing.service_trunk st', 'st.id = cr.trunk_id')
+            ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id');
+
+        if ($this->src_routes || $this->src_contracts || $this->dst_routes || $this->dst_contracts) {
+            $query2->leftJoin('auth.trunk t', 'st.trunk_id = t.id');
+        }
+
+        if ($this->src_destination_ids || $this->dst_destination_ids) {
+            $query2->leftJoin(
+                'nnp.number_range nr',
+                '(cr.orig 
+                    AND 
+                  cr.src_number >= nr.number_from 
+                    AND 
+                  cr.src_number <= nr.number_to) 
+                    OR 
+                 (NOT cr.orig
+                    AND 
+                  cr.dst_number >= nr.number_from 
+                    AND 
+                  cr.dst_number <= nr.number_to)'
+            )
+                ->leftJoin('nnp.number_range_prefix nrp', 'nr.id = nrp.number_range_id')
+                ->leftJoin('nnp.prefix_destination pd', 'nrp.prefix_id = pd.prefix_id');
+
+            $query2->addSelect('pd.destination_id destination_id');
+        }
+
+        $fields = [];
+        if ($this->group || $this->group_period || $this->aggr) {
+            $fields = array_merge($this->group, array_intersect_key($this->aggrConst, array_flip($this->aggr)));
+            $groups = $this->group;
+            if ($this->group_period) {
+                $query3->rightJoin('generate_series (:connect_time_from::timestamp ,:connect_time_to::timestamp,\'1' .
+                    $this->group_period . '\'::interval) gs',
+                    'cc.connect_time >= gs.gs AND cc.connect_time <= gs.gs + interval \'1' . $this->group_period .'\'');
+                $fields[] = '"gs"."gs" || \' - \' || "gs"."gs" + interval \'1' . $this->group_period . '\' interval';
+                $groups[] = '"gs"."gs"';
+            }
+
+            $query3->select($fields)
+                ->groupBy($groups);
+        } else {
+            $query3->select([
+                'cc.*',
+                'cr1.operator_name src_operator_name',
+                'cr2.operator_name dst_operator_name',
+                'cr1.region_name src_region_name',
+                'cr2.region_name dst_region_name',
+                'cr1.cost sale',
+                'cr2.cost cost_price',
+                '(@(cr1.cost)) - cr2.cost margin',
+                'cr1.rate orig_rate',
+                'cr2.rate term_rate',
+                'cr1.contract_number || \' (\' || cr1.contract_type || \')\' src_contract_name',
+                'cr2.contract_number || \' (\' || cr2.contract_type || \')\' dst_contract_name',
+                'cr1.nnp_operator_id',
+                'cr2.nnp_operator_id',
+                'cr1.nnp_region_id',
+                'cr2.nnp_region_id'
+            ]);
+            $query1->limit(500);
+        }
+        $query3->from('cc')
+            ->leftJoin('cr cr1', 'cc.id = cr1.cdr_id AND cr1.orig')
+            ->leftJoin('cr cr2', 'cc.id = cr2.cdr_id AND NOT cr2.orig');
+
+        $query3->addLinkQueries(['cc' => $query1, 'cr' => $query2]);
+
+        return new ActiveDataProvider([
             'db' => 'dbPgSlave',
-            'sql' => $sql,
-            'params' => $params,
+            'query' => $query3,
             'pagination' => [],
+            'totalCount' => 2000,
             'sort' => [
-                'attributes' => [
+                'attributes' => array_merge([
                     'call_id',
                     'setup_time',
                     'session_time',
@@ -306,10 +513,17 @@ class Cdr extends Model
                     'src_contract_name',
                     'dst_route',
                     'dst_contract_name',
+                    'sale',
+                    'cost_price',
+                    'margin',
+                    'orig_rate',
+                    'term_rate',
                     'releasing_party',
                     'connect_time',
-                    'pdd'
+                    'pdd',
+                    'interval',
                 ],
+                    array_keys($fields)),
             ],
         ]);
     }

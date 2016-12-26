@@ -15,14 +15,15 @@ class DisconnectCauseColumn extends DataColumn
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
+    public $isWithEmpty = true;
 
     /**
      * @param [] $config
      */
     public function __construct($config = [])
     {
-        $this->filter = DisconnectCause::getList(true);
         parent::__construct($config);
+        $this->filter = DisconnectCause::getList($this->isWithEmpty);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' disconnect-cause-column';
     }

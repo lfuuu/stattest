@@ -13,11 +13,15 @@ class ContractColumn extends DataColumn
 
     public $filterType = GridView::FILTER_SELECT2;
     public $filterByTrunkName = '';
+    public $filterByServerId = '';
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = ClientContractDao::getListWithType($this->filterByTrunkName, $isWithEmpty = true);
+        $this->filter = ClientContractDao::getListWithType(
+            $this->filterByServerId,
+            $this->filterByTrunkName
+        );
     }
 
 }

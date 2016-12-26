@@ -7,6 +7,7 @@ namespace app\controllers\uu;
 
 use app\classes\BaseController;
 use app\classes\Html;
+use app\classes\ReturnFormatted;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\models\billing\Trunk;
@@ -15,14 +16,10 @@ use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\models\UsageVoip;
 use Yii;
-use yii\web\Response;
 
 
 class VoipController extends BaseController
 {
-    const FORMAT_JSON = 'json';
-    const FORMAT_OPTIONS = 'options';
-
     /**
      * Вернуть массив типов номера в зависимости от страны
      * Используется для динамической подгрузки select2 или selectbox
@@ -38,7 +35,7 @@ class VoipController extends BaseController
         }
 
         $numberTypes = Tariff::getVoipTypesByCountryId($countryId, $isWithEmpty);
-        $this->_returnFormattedValues($numberTypes, $format);
+        ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
     }
 
     /**
@@ -56,7 +53,7 @@ class VoipController extends BaseController
         }
 
         $numberTypes = City::dao()->getList($isWithEmpty, $countryId);
-        $this->_returnFormattedValues($numberTypes, $format);
+        ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
     }
 
     /**
@@ -74,7 +71,7 @@ class VoipController extends BaseController
         }
 
         $numberTypes = DidGroup::dao()->getList($isWithEmpty, $cityId);
-        $this->_returnFormattedValues($numberTypes, $format);
+        ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
     }
 
     /**
@@ -181,7 +178,7 @@ class VoipController extends BaseController
             $statusId
         );
 
-        $this->_returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
+        ReturnFormatted::me()->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);
     }
 
     /**
@@ -194,36 +191,7 @@ class VoipController extends BaseController
      */
     public function actionGetTrunks($regionId = null, $format = null, $isWithEmpty = true)
     {
-        $trunks = Trunk::dao()->getList($regionId, $isWithEmpty);
-        $this->_returnFormattedValues($trunks, $format);
-    }
-
-    /**
-     * Вернуть массив в нужном формате
-     *
-     * @param string[]|array $values
-     * @param string $format
-     * @param string $defaultValue
-     */
-    private function _returnFormattedValues($values, $format, $defaultValue = '')
-    {
-        $response = Yii::$app->getResponse();
-
-        switch ($format) {
-            case self::FORMAT_OPTIONS:
-                $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
-                $response->format = Response::FORMAT_HTML;
-                echo Html::renderSelectOptions($defaultValue, $values);
-                break;
-
-            case self::FORMAT_JSON:
-            default:
-                $response->headers->set('Content-Type', 'application/json');
-                $response->format = Response::FORMAT_JSON;
-                echo json_encode($values);
-                break;
-        }
-
-        Yii::$app->end();
+        $trunks = Trunk::getList($regionId, $isWithEmpty);
+        ReturnFormatted::me()->returnFormattedValues($trunks, $format);
     }
 }

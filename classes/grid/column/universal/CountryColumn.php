@@ -21,11 +21,12 @@ class CountryColumn extends DataColumn
     public $isAddLink = true;
     public $filterType = GridView::FILTER_SELECT2;
     public $indexBy = 'code';
+    public $isWithEmpty = true;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Country::getList(true, $this->indexBy);
+        $this->filter = Country::getList($this->isWithEmpty, $this->indexBy);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' country-column';
     }

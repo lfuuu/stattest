@@ -28,7 +28,7 @@ use yii\db\ActiveRecord;
 class ServiceTrunk extends ActiveRecord
 {
     use \app\classes\traits\GetListTrait;
-    
+
     public static function tableName()
     {
         return 'billing.service_trunk';
@@ -50,13 +50,12 @@ class ServiceTrunk extends ActiveRecord
     /**
      * Получить список транков с идентификатором логического транка
      *
-     * @param int $serverId
-     * @param int $operatorId
-     * @param int $contractId
+     * @param int $serverId - фильтр по серверу
+     * @param int $contractId - фильтр по контракту
      * @param bool $isWithEmpty
      * @return array
      */
-    public static function getListWithName($serverId, $operatorId, $contractId, $isWithEmpty = false)
+    public static function getListWithName($serverId = null, $contractId = null, $isWithEmpty = false)
     {
         $query = self::find()
             ->select(["COALESCE('(' || st.id || ') ' || t.name, t.name) AS name", 't.name AS id'])
@@ -64,7 +63,6 @@ class ServiceTrunk extends ActiveRecord
             ->joinWith('trunk t', true, 'RIGHT JOIN');
 
         $serverId && $query->andWhere(['t.server_id' => $serverId]);
-        $operatorId && $query->andWhere(['st.operator_id' => $operatorId]);
         $contractId && $query->andWhere(['st.contract_id' => $contractId]);
 
         $list = $query
