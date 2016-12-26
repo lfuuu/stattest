@@ -14,6 +14,9 @@ use app\models\filter\FreeNumberFilter;
 class CountriesController extends ApiInternalController
 {
 
+    /**
+     * @throws NotImplementedHttpException
+     */
     public function actionIndex()
     {
         throw new NotImplementedHttpException;
@@ -71,16 +74,17 @@ class CountriesController extends ApiInternalController
         $result = [];
         $cities = City::dao()->getList(false, $countryId);
 
-        foreach ($cities as $cityId => $cityName) {
-            $freeNumbersCount =
-                $withNumbers
-                    ? $freeNumbersCount = (new FreeNumberFilter)->getNumbers()->setCity($cityId)->count()
-                    : 0;
+        foreach ($cities as $cityId => $city) {
+            $freeNumbersCount = 0;
+            if ($withNumbers) {
+                $freeNumbersCount = (new FreeNumberFilter)->getNumbers()->setCity($cityId)->count();
+            }
 
             $result[] = [
                 'city_id' => $cityId,
-                'city_name' => $cityName,
+                'city_name' => (string)$city,
                 'free_numbers_count' => (int)$freeNumbersCount,
+                'weight' => $city->order,
             ];
         }
 
@@ -122,7 +126,7 @@ class CountriesController extends ApiInternalController
      *     )
      *   )
      * )
-     */
+     **/
     /**
      * @return array
      * @throws BadRequestHttpException
@@ -136,12 +140,14 @@ class CountriesController extends ApiInternalController
             throw new BadRequestHttpException;
         }
 
-        $countries = Country::find()->where(['site' => $domain])->orderBy(['order' => SORT_ASC])->all();
+        $countries = Country::find()
+            ->where(['site' => $domain])
+            ->orderBy(['order' => SORT_ASC]);
         $result = [];
 
-        foreach ($countries as $country) {
+        foreach ($countries->each() as $country) {
             /** @var Country $country */
-            $result[] = $this->countryInfo($country);
+            $result[] = $this->_countryInfo($country);
         }
 
         return $result;
@@ -179,12 +185,14 @@ class CountriesController extends ApiInternalController
      */
     public function actionGetCountries()
     {
-        $countries = Country::find()->where(['in_use' => 1])->orderBy(['order' => SORT_ASC])->all();
+        $countries = Country::find()
+            ->where(['in_use' => 1])
+            ->orderBy(['order' => SORT_ASC]);
         $result = [];
 
-        foreach ($countries as $country) {
+        foreach ($countries->each() as $country) {
             /** @var Country $country */
-            $result[] = $this->countryInfo($country);
+            $result[] = $this->_countryInfo($country);
         }
 
         return $result;
@@ -192,11 +200,14 @@ class CountriesController extends ApiInternalController
 
     /**
      * @param Country $country
-     * @return string[]
+     * @return array
      */
-    private function countryInfo(Country $country)
+    private function _countryInfo(Country $country)
     {
-        $regions = Region::find()->select('id')->where(['country_id' => $country->code])->createCommand()->queryColumn();
+        $regions = Region::find()
+            ->select('id')
+            ->where(['country_id' => $country->code])
+            ->column();
 
         return [
             'country_code' => $country->code,
