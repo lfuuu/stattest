@@ -1096,9 +1096,9 @@ class m_stats extends IModule{
         foreach ($query->each() as $r) {
             if ($r['net']) {
                 $routes_all[$r->net] = [
-                    'net' => $r->net,
-                    'actual_from' => $r->actual_from,
-                    'actual_to' => $r->actual_to
+                    'net' => trim($r->net),
+                    'actual_from' => trim($r->actual_from),
+                    'actual_to' => trim($r->actual_to)
                 ];
             }
         }
