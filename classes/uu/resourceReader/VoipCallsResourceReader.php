@@ -2,7 +2,6 @@
 
 namespace app\classes\uu\resourceReader;
 
-use app\classes\DateTimeWithUserTimezone;
 use app\classes\uu\model\AccountTariff;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsAggr;
@@ -14,6 +13,13 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
 {
     /** @var [] кэш данных */
     protected $dateToValue = [];
+
+    /**
+     * @var string День (Y-m-d) последнего расчета данных в БД по таймзоне клиента. То есть за этот день еще не все рассчитано, его не надо учитывать! Только строго меньше
+     * Если до этой даты нет данных - звонков не было, если после - неизвестно, надо посчитать позже
+     */
+    protected $maxCalculatedDate = null;
+
     protected $accountTariffId = null;
 
     /**
@@ -30,10 +36,12 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
         $dateStr = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         if ($this->accountTariffId === $accountTariffId) {
             // для этой услуги уже есть кэш
-            if (isset($this->dateToValue[$dateStr])) {
-                return $this->dateToValue[$dateStr]['sum_cost'];
+            if ($this->maxCalculatedDate <= $dateStr) {
+                return null; // нет данных
+            } elseif (isset($this->dateToValue[$dateStr])) {
+                return $this->dateToValue[$dateStr];
             } else {
-                return 0; // если нет звонков, то это нормально, поэтому 0, а не null
+                return 0; // нет звонков
             }
         }
 
@@ -48,6 +56,13 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
             ) / 3600; // таймзона клиента в часах относительно UTC
 
 
+        // Дата актуальности данных в БД
+        $this->maxCalculatedDate = CallsAggr::find()
+            ->select([
+                'max_aggr_time' => sprintf("TO_CHAR(MAX(aggr_time) + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta),
+            ])
+            ->scalar();
+
         // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
         $this->dateToValue = CallsAggr::find()
@@ -61,13 +76,14 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
                 [':date' => $dateTime->format(DATE_ATOM)])
             ->groupBy('aggr_date')
             ->indexBy('aggr_date')
-            ->asArray()
-            ->all();
+            ->column();
 
-        if (isset($this->dateToValue[$dateStr])) {
-            return $this->dateToValue[$dateStr]['sum_cost'];
+        if ($this->maxCalculatedDate <= $dateStr) {
+            return null; // нет данных
+        } elseif (isset($this->dateToValue[$dateStr])) {
+            return $this->dateToValue[$dateStr];
         } else {
-            return 0; // если нет звонков, то это нормально, поэтому 0, а не null
+            return 0; // нет звонков
         }
 
     }
@@ -76,6 +92,7 @@ class VoipCallsResourceReader extends Object implements ResourceReaderInterface
      * Как считать PricePerUnit - указана за месяц или за день
      * true - за месяц (при ежедневном расчете надо разделить на кол-во дней в месяце)
      * false - за день (при ежедневном расчете так и оставить)
+     *
      * @return bool
      */
     public function getIsMonthPricePerUnit()

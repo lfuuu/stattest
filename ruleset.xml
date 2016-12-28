@@ -158,6 +158,9 @@
         <!-- Не требовать круглых скобок для арифметических операций -->
         <exclude name="Squiz.Formatting.OperatorBracket.MissingBrackets"/>
 
+        <!-- Не требовать phpDoc для класса -->
+        <exclude name="PEAR.Commenting.ClassComment.Missing"/>
+
     </rule>
 
 
