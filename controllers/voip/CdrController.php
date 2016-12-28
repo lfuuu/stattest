@@ -77,9 +77,12 @@ class CdrController extends BaseController
         $model = new Cdr();
         $model->load(Yii::$app->request->get());
 
-        return $this->render('index', [
-            'filterModel' => $model
-        ]);
+        return $this->render(
+            'index',
+            [
+                'filterModel' => $model
+            ]
+        );
     }
 
 }

@@ -16,7 +16,6 @@ use yii\db\Query;
 
 /**
  * Class Cdr
- * @package app\models\voip\filter
  *
  * @property array $server_ids
  * @property string $connect_time_from
@@ -44,6 +43,11 @@ use yii\db\Query;
  * @property array $src_destination_ids
  * @property array $dst_destination_ids
  *
+ * @property string $src_operator_name
+ * @property string $dst_operator_name
+ * @property string $src_region_name
+ * @property string $dst_region_name
+ *
  * @property array $group
  * @property array $aggr
  * @property string $group_period
@@ -61,6 +65,17 @@ class Cdr extends Model
         'dst_operator_name' => 'Оператор номера В',
         'src_region_name' => 'Регион номера А',
         'dst_region_name' => 'Регион номера В',
+    ];
+
+    public $groupFieldsConst = [
+        'src_route' => 'cc.src_route',
+        'dst_route' => 'cc.dst_route',
+        'src_number' => 'cc.src_number',
+        'dst_number' => 'cc.dst_number',
+        'src_operator_name' => 'cr1.operator_name src_operator_name',
+        'dst_operator_name' => 'cr2.operator_name dst_operator_name',
+        'src_region_name' => 'cr1.region_name src_region_name',
+        'dst_region_name' => 'cr2.region_name dst_region_name',
     ];
 
     public $aggrConst = [
@@ -128,12 +143,22 @@ class Cdr extends Model
     public $src_destination_ids = null;
     public $dst_destination_ids = null;
 
+    public $src_operator_name = null;
+    public $dst_operator_name = null;
+    public $src_region_name = null;
+    public $dst_region_name = null;
+
     public $group = [];
 
     public $aggr = [];
 
     public $group_period = '';
 
+    /**
+     * Rules set
+     *
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -191,16 +216,24 @@ class Cdr extends Model
     }
 
     /**
+     * Custom data load
+     *
      * @param array $get
+     *
      * @return bool
      */
     public function load(array $get)
     {
-        if (!isset($get['Cdr']['group']) || !$get['Cdr']['group']) {
-            unset($get['Cdr']['group']);
+        parent::load($get);
+
+        if (!is_array($this->group)) {
+            $this->group = [];
         }
 
-        parent::load($get);
+        if (!is_array($this->aggr)) {
+            $this->aggr = [];
+        }
+
         return $this->validate();
     }
 
@@ -222,9 +255,11 @@ class Cdr extends Model
     public function getReport()
     {
         if (!$this->connect_time_from || !$this->server_ids) {
-            return new ArrayDataProvider([
-                'allModels' => [],
-            ]);
+            return new ArrayDataProvider(
+                [
+                    'allModels' => [],
+                ]
+            );
         }
 
         $query1 = new Query();
@@ -274,7 +309,7 @@ class Cdr extends Model
 
         $this->src_operator_ids
         && $query2->andWhere(
-            ['and', 'cr.orig', ['IN', 'cr.nnp_operator_id', ':src_operator_ids']],
+            ['or', 'NOT cr.orig', ['and', 'cr.orig', ['IN', 'cr.nnp_operator_id', ':src_operator_ids']]],
             ['src_operator_ids' => $this->src_operator_ids]
         )
         && $query3->andWhere(
@@ -284,8 +319,9 @@ class Cdr extends Model
 
         $this->src_region_ids
         && $query2->andWhere(
-            ['and', 'cr.orig', ['IN', 'cr.nnp_region_id', ':src_region_ids']],
-            ['src_region_ids' => $this->src_region_ids])
+            ['or', 'NOT cr.orig', ['and', 'cr.orig', ['IN', 'cr.nnp_region_id', ':src_region_ids']]],
+            ['src_region_ids' => $this->src_region_ids]
+        )
         && $query3->andWhere(
             ['IN', 'cr1.nnp_region_id', ':src_region_ids'],
             ['src_region_ids' => $this->src_region_ids]
@@ -293,7 +329,7 @@ class Cdr extends Model
 
         $this->src_destination_ids
         && $query2->andWhere(
-            ['and', 'cr.orig', ['IN', 'pd.destination_id', ':src_destination_ids']],
+            ['or', 'NOT cr.orig', ['and', 'cr.orig', ['IN', 'pd.destination_id', ':src_destination_ids']]],
             ['src_destination_ids' => $this->src_destination_ids]
         )
         && $query3->andWhere(
@@ -303,7 +339,7 @@ class Cdr extends Model
 
         $this->src_country_prefixes
         && $query2->andWhere(
-            ['and', 'cr.orig', ['IN', 'cr.nnp_country_prefix', ':src_country_prefixes']],
+            ['or', 'NOT cr.orig', ['and', 'cr.orig', ['IN', 'cr.nnp_country_prefix', ':src_country_prefixes']]],
             ['src_country_prefixes' => $this->src_country_prefixes]
         )
         && $query3->andWhere(
@@ -313,7 +349,7 @@ class Cdr extends Model
 
         $this->dst_operator_ids
         && $query2->andWhere(
-            ['and', 'NOT cr.orig', ['IN', 'cr.nnp_operator_id', ':dst_operator_ids']],
+            ['or', 'cr.orig', ['and', 'NOT cr.orig', ['IN', 'cr.nnp_operator_id', ':dst_operator_ids']]],
             ['dst_operator_ids' => $this->dst_operator_ids]
         )
         && $query3->andWhere(
@@ -323,7 +359,7 @@ class Cdr extends Model
 
         $this->dst_region_ids
         && $query2->andWhere(
-            ['and', 'NOT cr.orig', ['IN', 'cr.nnp_region_id', ':dst_region_ids']],
+            ['or', 'cr.orig', ['and', 'NOT cr.orig', ['IN', 'cr.nnp_region_id', ':dst_region_ids']]],
             ['dst_region_ids' => $this->dst_region_ids]
         )
         && $query3->andWhere(
@@ -333,7 +369,7 @@ class Cdr extends Model
 
         $this->dst_destination_ids
         && $query2->andWhere(
-            ['and', 'NOT cr.orig', ['IN', 'pd.destination_id', ':dst_destination_ids']],
+            ['or', 'cr.orig', ['and', 'NOT cr.orig', ['IN', 'pd.destination_id', ':dst_destination_ids']]],
             ['dst_destination_ids' => $this->dst_destination_ids]
         )
         && $query3->andWhere(
@@ -343,7 +379,7 @@ class Cdr extends Model
 
         $this->dst_country_prefixes
         && $query2->andWhere(
-            ['and', 'NOT cr.orig', ['IN', 'cr.nnp_country_prefix', ':dst_country_prefixes']],
+            ['or', 'cr.orig', ['and', 'NOT cr.orig', ['IN', 'cr.nnp_country_prefix', ':dst_country_prefixes']]],
             ['dst_country_prefixes' => $this->dst_country_prefixes]
         )
         && $query3->andWhere(
@@ -388,37 +424,41 @@ class Cdr extends Model
         && $query1->andWhere('cc.call_id = :call_id', ['call_id' => $this->call_id]);
 
         $query1
-            ->select([
-                'cc.id',
-                'cc.call_id',
-                'date_trunc(\'second\', cc.setup_time) setup_time',
-                'cc.session_time',
-                'cc.disconnect_cause',
-                'cc.redirect_number',
-                'cc.releasing_party',
-                'cc.src_route',
-                'cc.dst_route',
-                'cc.src_number',
-                'cc.dst_number',
-                'date_trunc(\'second\', cc.connect_time) connect_time',
-                'date_trunc(\'second\', cc.connect_time - cc.setup_time) pdd'
-            ])
+            ->select(
+                [
+                    'cc.id',
+                    'cc.call_id',
+                    'date_trunc(\'second\', cc.setup_time) setup_time',
+                    'cc.session_time',
+                    'cc.disconnect_cause',
+                    'cc.redirect_number',
+                    'cc.releasing_party',
+                    'cc.src_route',
+                    'cc.dst_route',
+                    'cc.src_number',
+                    'cc.dst_number',
+                    'date_trunc(\'second\', cc.connect_time) connect_time',
+                    'date_trunc(\'second\', cc.connect_time - cc.setup_time) pdd'
+                ]
+            )
             ->from('calls_cdr.cdr cc');
 
-        $query2->select([
-            'cr.cdr_id',
-            'cr.orig',
-            'o.name operator_name',
-            'r.name region_name',
-            'st.id contract',
-            'st.contract_number',
-            'cct.name contract_type',
-            'cr.nnp_operator_id',
-            'cr.nnp_region_id',
-            'cr.nnp_country_prefix',
-            'cost',
-            'rate',
-        ])
+        $query2->select(
+            [
+                'cr.cdr_id',
+                'cr.orig',
+                'o.name operator_name',
+                'r.name region_name',
+                'st.id contract',
+                'st.contract_number',
+                'cct.name contract_type',
+                'cr.nnp_operator_id',
+                'cr.nnp_region_id',
+                'cr.nnp_country_prefix',
+                'cost',
+                'rate',
+            ]
+        )
             ->from('calls_raw.calls_raw cr')
             ->leftJoin('nnp.operator o', 'cr.nnp_operator_id = o.id')
             ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
@@ -452,7 +492,11 @@ class Cdr extends Model
 
         $fields = [];
         if ($this->group || $this->group_period || $this->aggr) {
-            $fields = array_merge($this->group, array_intersect_key($this->aggrConst, array_flip($this->aggr)));
+            foreach ($this->group as $value) {
+                $fields[] = $this->groupFieldsConst[$value];
+            }
+
+            $fields = array_merge($fields, array_intersect_key($this->aggrConst, array_flip($this->aggr)));
             $groups = $this->group;
             if ($this->group_period) {
                 $query3->rightJoin('generate_series (:connect_time_from::timestamp ,:connect_time_to::timestamp,\'1' .
@@ -465,66 +509,73 @@ class Cdr extends Model
             $query3->select($fields)
                 ->groupBy($groups);
         } else {
-            $query3->select([
-                'cc.*',
-                'cr1.operator_name src_operator_name',
-                'cr2.operator_name dst_operator_name',
-                'cr1.region_name src_region_name',
-                'cr2.region_name dst_region_name',
-                'cr1.cost sale',
-                'cr2.cost cost_price',
-                '(@(cr1.cost)) - cr2.cost margin',
-                'cr1.rate orig_rate',
-                'cr2.rate term_rate',
-                'cr1.contract_number || \' (\' || cr1.contract_type || \')\' src_contract_name',
-                'cr2.contract_number || \' (\' || cr2.contract_type || \')\' dst_contract_name',
-                'cr1.nnp_operator_id',
-                'cr2.nnp_operator_id',
-                'cr1.nnp_region_id',
-                'cr2.nnp_region_id'
-            ]);
+            $query3->select(
+                [
+                    'cc.*',
+                    'cr1.operator_name src_operator_name',
+                    'cr2.operator_name dst_operator_name',
+                    'cr1.region_name src_region_name',
+                    'cr2.region_name dst_region_name',
+                    'cr1.cost sale',
+                    'cr2.cost cost_price',
+                    '(@(cr1.cost)) - cr2.cost margin',
+                    'cr1.rate orig_rate',
+                    'cr2.rate term_rate',
+                    'cr1.contract_number || \' (\' || cr1.contract_type || \')\' src_contract_name',
+                    'cr2.contract_number || \' (\' || cr2.contract_type || \')\' dst_contract_name',
+                    'cr1.nnp_operator_id',
+                    'cr2.nnp_operator_id',
+                    'cr1.nnp_region_id',
+                    'cr2.nnp_region_id'
+                ]
+            );
             $query1->limit(500);
         }
+
         $query3->from('cc')
             ->leftJoin('cr cr1', 'cc.id = cr1.cdr_id AND cr1.orig')
             ->leftJoin('cr cr2', 'cc.id = cr2.cdr_id AND NOT cr2.orig');
 
         $query3->addLinkQueries(['cc' => $query1, 'cr' => $query2]);
 
-        return new ActiveDataProvider([
-            'db' => 'dbPgSlave',
-            'query' => $query3,
-            'pagination' => [],
-            'totalCount' => 2000,
-            'sort' => [
-                'attributes' => array_merge([
-                    'call_id',
-                    'setup_time',
-                    'session_time',
-                    'disconnect_cause',
-                    'src_number',
-                    'src_operator_name',
-                    'src_region_name',
-                    'dst_number',
-                    'dst_operator_name',
-                    'dst_region_name',
-                    'redirect_number',
-                    'src_route',
-                    'src_contract_name',
-                    'dst_route',
-                    'dst_contract_name',
-                    'sale',
-                    'cost_price',
-                    'margin',
-                    'orig_rate',
-                    'term_rate',
-                    'releasing_party',
-                    'connect_time',
-                    'pdd',
-                    'interval',
+        return new ActiveDataProvider(
+            [
+                'db' => 'dbPgSlave',
+                'query' => $query3,
+                'pagination' => [],
+                'totalCount' => 2000,
+                'sort' => [
+                    'attributes' => array_merge(
+                        [
+                            'call_id',
+                            'setup_time',
+                            'session_time',
+                            'disconnect_cause',
+                            'src_number',
+                            'src_operator_name',
+                            'src_region_name',
+                            'dst_number',
+                            'dst_operator_name',
+                            'dst_region_name',
+                            'redirect_number',
+                            'src_route',
+                            'src_contract_name',
+                            'dst_route',
+                            'dst_contract_name',
+                            'sale',
+                            'cost_price',
+                            'margin',
+                            'orig_rate',
+                            'term_rate',
+                            'releasing_party',
+                            'connect_time',
+                            'pdd',
+                            'interval',
+                        ],
+                        array_keys($fields)
+                    ),
                 ],
-                    array_keys($fields)),
-            ],
-        ]);
+            ]
+        );
     }
 }

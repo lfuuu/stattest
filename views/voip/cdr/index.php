@@ -312,11 +312,11 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             'attribute' => 'src_number',
         ],
         [
-            'label' => 'Оператор',
+            'label' => 'Оператор А',
             'attribute' => 'src_operator_name',
         ],
         [
-            'label' => 'Регион',
+            'label' => 'Регион А',
             'attribute' => 'src_region_name',
         ],
         [
@@ -324,11 +324,11 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             'attribute' => 'dst_number',
         ],
         [
-            'label' => 'Оператор',
+            'label' => 'Оператор В',
             'attribute' => 'dst_operator_name',
         ],
         [
-            'label' => 'Регион',
+            'label' => 'Регион В',
             'attribute' => 'dst_region_name',
         ],
         [
@@ -387,38 +387,40 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
 }
 
 try {
-    GridView::separateWidget([
-        'dataProvider' => $filterModel->getReport(),
-        'filterModel' => $filterModel,
-        'beforeHeader' => [
-            'columns' => $filter
-        ],
-        'columns' => $columns,
-        'pjaxSettings' => [
-            'formSelector' => false,
-            'linkSelector' => false,
-            'enableReplaceState' => true,
-            'timeout' => 180000,
-        ],
-        'filterPosition' => '',
-        'panelHeadingTemplate' => <<< HTML
-    <div class="pull-right">
-        {extraButtons}
-        {filterButton}
-        {floatThead}
-        {toggleData}
-        {export}
-    </div>
-    <h3 class="panel-title">
-        {heading}
-    </h3>
-    <div class="clearfix"></div>
+    GridView::separateWidget(
+        [
+            'dataProvider' => $filterModel->getReport(),
+            'filterModel' => $filterModel,
+            'beforeHeader' => [
+                'columns' => $filter
+            ],
+            'columns' => $columns,
+            'pjaxSettings' => [
+                'formSelector' => false,
+                'linkSelector' => false,
+                'enableReplaceState' => true,
+                'timeout' => 180000,
+            ],
+            'filterPosition' => '',
+            'panelHeadingTemplate' => <<< HTML
+        <div class="pull-right">
+            {extraButtons}
+            {filterButton}
+            {floatThead}
+            {toggleData}
+            {export}
+        </div>
+        <h3 class="panel-title">
+            {heading}
+        </h3>
+        <div class="clearfix"></div>
 HTML
-        ,
-        'emptyText' => isset($emptyText) ? $emptyText : ($filterModel->isFilteringPossible() ?
-            Yii::t('yii', 'No results found.') :
-            'Выберите точку присоединения и время начала разговора'),
-    ]);
+            ,
+            'emptyText' => isset($emptyText) ? $emptyText : ($filterModel->isFilteringPossible() ?
+                Yii::t('yii', 'No results found.') :
+                'Выберите точку присоединения и время начала разговора'),
+        ]
+    );
 } catch (yii\db\Exception $e) {
     if ($e->getCode() == 8) {
         Yii::$app->session->addFlash(
@@ -426,7 +428,7 @@ HTML
             'Запрос слишком тяжелый чтобы выполниться. Задайте, пожалуйста, другие фильтры'
         );
     } else {
-        Yii::$app->session->addFlash('error', "Ошибка выполнения запроса");
+        Yii::$app->session->addFlash('error', "Ошибка выполнения запроса: " . $e->getMessage());
     }
 }
 
