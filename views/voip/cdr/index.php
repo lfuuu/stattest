@@ -198,7 +198,7 @@ $filter = [
     ],
     [
         'attribute' => 'dst_destination_ids',
-        'label' => 'Направление номера А',
+        'label' => 'Направление номера B',
         'class' => DestinationColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
