@@ -4,7 +4,7 @@
  *
  * @var \yii\web\View $this
  * @var ClientAccount $clientAccount
- * @var Currency $currency
+ * @var \app\models\Currency $currency
  * @var AccountEntry[] $accountEntries
  * @var Payment[] $payments
  * @var Bill[] $bills
@@ -31,25 +31,22 @@ use yii\helpers\Url;
     <tr>
         <td>Всего платежей</td>
         <td><?= $paymentSummary['total_count'] ?> шт.</td>
-        <td><?= sprintf('%+.2f', $paymentSummary['total_price']) ?> <?= $currency->symbol ?></td>
+        <td>+<?= $currency->format($paymentSummary['total_price']) ?></td>
     </tr>
     <tr>
         <td>Всего транзакций</td>
         <td></td>
         <td>
             <?= Html::a(
-                sprintf('%+.2f', -$uuBillSummary['total_price']),
+                $currency->format(-$uuBillSummary['total_price']),
                 Url::to(['uu/bill', 'AccountBillFilter[client_account_id]' => $clientAccount->id])
             ) ?>
-            <?= $currency->symbol ?>
         </td>
     </tr>
     <tr>
         <td>Баланс</td>
         <td></td>
-        <td>
-            <b><?= sprintf('%+.2f', $clientAccount->billingCounters->getRealtimeBalance()) ?></b> <?= $currency->symbol ?>
-        </td>
+        <td><b><?= $currency->format($clientAccount->billingCounters->getRealtimeBalance()) ?></b></td>
     </tr>
     </tbody>
 </table>

@@ -1,7 +1,8 @@
 <?php
 namespace app\models;
 
-use app\dao\CurrencyDao;
+use NumberFormatter;
+use Yii;
 use yii\db\ActiveRecord;
 
 /**
@@ -19,14 +20,14 @@ class Currency extends ActiveRecord
     const HUF = 'HUF';
     const EUR = 'EUR';
 
-    private static $symbols = [
+    private static $_symbols = [
         self::RUB => 'руб.',
         self::USD => '$',
         self::HUF => 'HUF',
         self::EUR => 'EUR',
     ];
 
-    private static $currencyByCountry = [
+    private static $_currencyByCountry = [
         Country::RUSSIA => self::RUB,
         Country::HUNGARY => self::HUF,
         Country::GERMANY => self::EUR,
@@ -34,6 +35,7 @@ class Currency extends ActiveRecord
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -45,45 +47,83 @@ class Currency extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'currency';
     }
 
-    public static function dao()
-    {
-        return CurrencyDao::me();
-    }
-
+    /**
+     * @param string $currencyId
+     * @return string
+     */
     public static function symbol($currencyId)
     {
-        return
-            isset(self::$symbols[$currencyId])
-                ? self::$symbols[$currencyId]
-                : $currencyId;
+        return isset(self::$_symbols[$currencyId]) ?
+            self::$_symbols[$currencyId] :
+            $currencyId;
     }
 
+    /**
+     * @return string[]
+     */
     public static function enum()
     {
-        return array_keys(self::$symbols);
+        return array_keys(self::$_symbols);
     }
 
+    /**
+     * @return string[]
+     */
     public static function map()
     {
-        return self::$symbols;
+        return self::$_symbols;
     }
 
+    /**
+     * @param int $countyId
+     * @return string
+     */
     public static function defaultCurrencyByCountryId($countyId)
     {
-        return isset(self::$currencyByCountry[$countyId]) ? self::$currencyByCountry[$countyId] : self::RUB;
+        return isset(self::$_currencyByCountry[$countyId]) ?
+            self::$_currencyByCountry[$countyId] :
+            self::RUB;
     }
 
     /**
      * Преобразовать объект в строку
+     *
      * @return string
      */
     public function __toString()
     {
         return $this->id;
+    }
+
+    /**
+     * Вывести валюту с учетом региональных правил форматирования
+     *
+     * @param float $value
+     * @return string
+     */
+    public function format($value)
+    {
+        return self::formatCurrency($value, $this->id);
+    }
+
+    /**
+     * Вывести валюту с учетом региональных правил форматирования
+     *
+     * @param float $value
+     * @param string $currency
+     * @return string
+     */
+    public static function formatCurrency($value, $currency = self::RUB)
+    {
+        $fmt = new NumberFormatter(Yii::$app->language, NumberFormatter::CURRENCY);
+        return $fmt->formatCurrency($value, $currency);
     }
 }

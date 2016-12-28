@@ -10,7 +10,7 @@ use app\classes\enum\TariffStatusEnum;
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 
-$currencies = ['' => '-- Валюта --'] + Currency::dao()->getList('id', true);
+$currencies = Currency::getList($isWithEmpty = true);
 
 
 echo Html::formLabel($model->description ? 'Редактирование тарифа' : 'Новый тариф');

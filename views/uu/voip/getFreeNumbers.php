@@ -5,6 +5,8 @@
  * @var \yii\web\View $this
  * @var \yii\db\ActiveQuery $numberActiveQuery
  * @var int $rowClass
+ * @var \app\models\Currency $currency
+ * @var \app\models\Number[] $numbers
  */
 
 use app\classes\Html;
@@ -14,7 +16,6 @@ use app\classes\Html;
 <div class="row">
     <?php
     $isAnyShowed = false;
-    /** @var \app\models\Number $number */
     foreach ($numbers as $number) :
         $isAnyShowed = true;
         ?>
@@ -29,7 +30,7 @@ use app\classes\Html;
             ?>
             <?= is_null($price) ?
                 'Договорная' :
-                ($price ? sprintf('%d %s', $price, $currency) : 'Бесплатно')
+                ($price ? $currency->format($price) : 'Бесплатно')
             ?>
         </div>
         <?php

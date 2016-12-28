@@ -30,23 +30,22 @@ use yii\helpers\Url;
     <tr>
         <td>Всего платежей</td>
         <td><?= $paymentSummary['total_count'] ?> шт.</td>
-        <td><?= sprintf('%+.2f', $paymentSummary['total_price']) ?> <?= $currency->symbol ?></td>
+        <td>+<?= $currency->format($paymentSummary['total_price']) ?></td>
     </tr>
     <tr>
         <td>Всего проводок</td>
         <td><?= $accountEntrySummary['total_count'] ?> шт.</td>
         <td>
             <?= Html::a(
-                sprintf('%+.2f', -$accountEntrySummary['total_price']),
+                $currency->format(-$accountEntrySummary['total_price']),
                 Url::to(['uu/account-entry', 'AccountEntryFilter[client_account_id]' => $clientAccount->id])
             ) ?>
-            <?= $currency->symbol ?>
         </td>
     </tr>
     <tr>
         <td>Баланс</td>
         <td></td>
-        <td><b><?= sprintf('%+.2f', $paymentSummary['total_price'] - $accountEntrySummary['total_price']) ?></b> <?= $currency->symbol ?></td>
+        <td><b><?= $currency->format($paymentSummary['total_price'] - $accountEntrySummary['total_price']) ?></b></td>
     </tr>
     </tbody>
 </table>

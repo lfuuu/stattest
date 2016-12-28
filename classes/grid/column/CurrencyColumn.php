@@ -13,9 +13,12 @@ class CurrencyColumn extends DataColumn
     public $label = 'Валюта';
     public $filterType = GridView::FILTER_SELECT2;
 
+    /**
+     * @param array $config
+     */
     public function __construct($config = [])
     {
-        $this->filter = ['' => '----'] + Currency::dao()->getList($columnName = 'id', false);
+        $this->filter = Currency::getList($isWithEmpty = true);
         parent::__construct($config);
     }
 

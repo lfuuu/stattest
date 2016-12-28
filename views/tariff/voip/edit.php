@@ -30,7 +30,7 @@ foreach ($connectionPoints as $connectionPoint) {
 $connectionPoints = ['' => '-- Точка подключения --'] + ArrayHelper::map($connectionPoints, 'id', 'name');
 
 $destinations = ['0' => '-- Направление --'] + TariffVoip::$destinations;
-$currencies = ['' => '-- Валюта --'] + Currency::dao()->getList('id', true);
+$currencies = Currency::getList($isWithEmpty = true);
 $statuses = TariffVoip::$statuses;
 
 $priceLists =

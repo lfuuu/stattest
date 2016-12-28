@@ -31,7 +31,7 @@ foreach ($connectionPoints as $connectionPoint) {
 $connectionPoints = ['' => '-- Точка подключения --'] + ArrayHelper::map($connectionPoints, 'id', 'name');
 
 $destinations = Destination::dao()->getList(true);
-$currencies = ['' => '-- Валюта --'] + Currency::dao()->getList('id', true);
+$currencies = Currency::getList($isWithEmpty = true);
 
 $priceLists =
     Pricelist::find()
