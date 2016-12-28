@@ -21,7 +21,6 @@ use yii\helpers\Url;
  * @property string reserved_free_date
  * @property string used_until_date
  * @property int edit_user_id
- * @property string site_publish
  * @property int city_id
  * @property int did_group_id
  * @property string number_tech

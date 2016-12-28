@@ -31,10 +31,10 @@ class DidGroup extends ActiveRecord
 
     public static $beautyLevelNames = [
         self::BEAUTY_LEVEL_STANDART => 'Стандартный',
-        self::BEAUTY_LEVEL_PLATINUM => 'Платиновый',
-        self::BEAUTY_LEVEL_GOLD => 'Золотой',
-        self::BEAUTY_LEVEL_SILVER => 'Серебряный',
         self::BEAUTY_LEVEL_BRONZE => 'Бронзовый',
+        self::BEAUTY_LEVEL_SILVER => 'Серебряный',
+        self::BEAUTY_LEVEL_GOLD => 'Золотой',
+        self::BEAUTY_LEVEL_PLATINUM => 'Платиновый',
     ];
 
     /**

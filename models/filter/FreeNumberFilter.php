@@ -3,7 +3,6 @@
 namespace app\models\filter;
 
 use app\models\Currency;
-use app\models\DidGroup;
 use app\models\light_models\NumberLight;
 use app\models\Number;
 use app\models\NumberType;
@@ -22,24 +21,32 @@ class FreeNumberFilter extends Number
 
     /** @var \yii\db\ActiveQuery */
     private
-        $query,
-        $offset = 0,
-        $mask = null,
-        $applyMask = false,
-        $similar = null,
-        $applySimilar = false;
+        $_query,
+        $_offset = 0,
+        $_mask = null,
+        $_similar = null;
+
+    /**
+     * При клонировании
+     */
+    public function __clone()
+    {
+        // Force a copy of this->object, otherwise it will point to same object.
+        $this->_query = clone $this->_query;
+    }
 
     /**
      * @return void
      */
     public function init()
     {
-        $this->query = parent::find()
+        $this->_query = parent::find()
             ->where([parent::tableName() . '.status' => parent::STATUS_INSTOCK]);
     }
 
     /**
      * Выборка только стандартных номеров
+     *
      * @return $this
      */
     public function getNumbers()
@@ -50,6 +57,7 @@ class FreeNumberFilter extends Number
 
     /**
      * Выборка номеров типа 7800
+     *
      * @return $this
      */
     public function getNumbers7800()
@@ -64,10 +72,10 @@ class FreeNumberFilter extends Number
      */
     public function setType($numberType = NumberType::ID_GEO_DID)
     {
-        $this->query->andWhere([parent::tableName() . '.number_type' => $numberType]);
+        $this->_query->andWhere([parent::tableName() . '.number_type' => $numberType]);
 
         if ($numberType == NumberType::ID_GEO_DID) {
-            $this->query->having(new Expression('
+            $this->_query->having(new Expression('
                     IF(
                         `' . parent::tableName() . '`.`number` LIKE "7495%",
                         `' . parent::tableName() . '`.`number` LIKE "74951059%"
@@ -88,8 +96,9 @@ class FreeNumberFilter extends Number
     public function setRegions(array $regions = [])
     {
         if (count($regions)) {
-            $this->query->andWhere(['IN', parent::tableName() . '.region', $regions]);
+            $this->_query->andWhere(['IN', parent::tableName() . '.region', $regions]);
         }
+
         return $this;
     }
 
@@ -100,8 +109,9 @@ class FreeNumberFilter extends Number
     public function setCountry($countryCode = 0)
     {
         if ((int)$countryCode) {
-            $this->query->andWhere(['country_code' => $countryCode]);
+            $this->_query->andWhere(['country_code' => $countryCode]);
         }
+
         return $this;
     }
 
@@ -111,7 +121,7 @@ class FreeNumberFilter extends Number
      */
     public function setNumbers(array $numbers)
     {
-        $this->query->andWhere(['IN', parent::tableName() . '.number', $numbers]);
+        $this->_query->andWhere(['IN', parent::tableName() . '.number', $numbers]);
 
         return $this;
     }
@@ -123,10 +133,11 @@ class FreeNumberFilter extends Number
     public function setMinCost($minCost = null)
     {
         if (!is_null($minCost)) {
-            $this->query
+            $this->_query
                 ->joinWith('didGroup didGroup1')
                 ->andWhere(['>=', 'didGroup1.price1', $minCost]);
         }
+
         return $this;
     }
 
@@ -137,28 +148,26 @@ class FreeNumberFilter extends Number
     public function setMaxCost($maxCost = null)
     {
         if (!is_null($maxCost)) {
-            $this->query
+            $this->_query
                 ->joinWith('didGroup didGroup2')
                 ->andWhere(['<=', 'didGroup2.price1', $maxCost]);
         }
+
         return $this;
     }
 
     /**
-     * @param int[] $beautyLvl
+     * @param int $beautyLvl
      * @return $this
      */
-    public function setBeautyLvl(array $beautyLvl = [])
+    public function setBeautyLvl($beautyLvl = null)
     {
-        if (count($beautyLvl)) {
-            $this->query->andWhere([
-                'IN',
-                parent::tableName() . '.beauty_level',
-                array_filter($beautyLvl, function ($row) {
-                    return isset(DidGroup::$beautyLevelNames[$row]);
-                })
+        if (isset($beautyLvl)) {
+            $this->_query->andWhere([
+                parent::tableName() . '.beauty_level' => $beautyLvl
             ]);
         }
+
         return $this;
     }
 
@@ -169,9 +178,9 @@ class FreeNumberFilter extends Number
     public function setNumberMask($mask = null)
     {
         if (!empty($mask)) {
-            $this->applyMask = true;
-            $this->mask = (string)$mask;
+            $this->_mask = (string)$mask;
         }
+
         return $this;
     }
 
@@ -183,8 +192,9 @@ class FreeNumberFilter extends Number
     {
         if (!empty($mask)) {
             $mask = strtr($mask, ['.' => '_', '*' => '%']);
-            $this->query->andWhere(parent::tableName() . '.number LIKE :number', [':number' => $mask]);
+            $this->_query->andWhere(parent::tableName() . '.number LIKE :number', [':number' => $mask]);
         }
+
         return $this;
     }
 
@@ -195,8 +205,9 @@ class FreeNumberFilter extends Number
     public function setDidGroup($didGroupId)
     {
         if ((int)$didGroupId) {
-            $this->query->andWhere([parent::tableName() . '.did_group_id' => (int)$didGroupId]);
+            $this->_query->andWhere([parent::tableName() . '.did_group_id' => (int)$didGroupId]);
         }
+
         return $this;
     }
 
@@ -207,8 +218,9 @@ class FreeNumberFilter extends Number
     public function setCity($cityId)
     {
         if ((int)$cityId) {
-            $this->query->andWhere([parent::tableName() . '.city_id' => (int)$cityId]);
+            $this->_query->andWhere([parent::tableName() . '.city_id' => (int)$cityId]);
         }
+
         return $this;
     }
 
@@ -219,8 +231,9 @@ class FreeNumberFilter extends Number
     public function setCities(array $cityIds = [])
     {
         if (count($cityIds)) {
-            $this->query->andWhere(['IN', parent::tableName() . '.city_id', $cityIds]);
+            $this->_query->andWhere(['IN', parent::tableName() . '.city_id', $cityIds]);
         }
+
         return $this;
     }
 
@@ -230,7 +243,7 @@ class FreeNumberFilter extends Number
      */
     public function setOffset($offset = 0)
     {
-        $this->offset = (int)$offset;
+        $this->_offset = (int)$offset;
         return $this;
     }
 
@@ -241,9 +254,22 @@ class FreeNumberFilter extends Number
     public function setSimilar($similar = null)
     {
         if (!empty($similar)) {
-            $this->applySimilar = true;
-            $this->similar = (string)$similar;
+            $this->_similar = (string)$similar;
         }
+
+        return $this;
+    }
+
+    /**
+     * @param int|null $ndc
+     * @return $this
+     */
+    public function setNdc($ndc = null)
+    {
+        if (!empty($ndc)) {
+            $this->_query->andWhere([parent::tableName() . '.ndc' => (int)$ndc]);
+        }
+
         return $this;
     }
 
@@ -253,60 +279,54 @@ class FreeNumberFilter extends Number
      */
     public function orderBy($columns)
     {
-        $this->query->addOrderBy($columns);
-        return $this;
-    }
-
-    /**
-     * @param int $direction
-     * @return $this
-     */
-    public function orderByPrice($direction = SORT_ASC)
-    {
-        $this->query
-            ->joinWith('didGroup')
-            ->addOrderBy([DidGroup::tableName() . '.price1' => $direction]);
+        $this->_query->addOrderBy($columns);
         return $this;
     }
 
     /**
      * @param int|null $limit
-     * @return null|Number|Number[]
+     * @return \app\models\Number[]
      */
     public function result($limit = self::FREE_NUMBERS_LIMIT)
     {
-        $this->query->addOrderBy([
-            new Expression('IF(`' . parent::tableName() . '`.`beauty_level` = 0, 10, `' . parent::tableName() . '`.`beauty_level`) DESC'),
-            parent::tableName() . '.number' => SORT_ASC,
-        ]);
+        $result = $this->_query->all();
 
-        if ($limit === 1) {
-            return $this->query->one();
+        if ($this->_mask) {
+            $result = $this->_applyMask($result, $this->_mask);
         }
 
-        $result = $this->query->all();
-
-        if ($this->applyMask) {
-            $result = $this->applyMask($result, $this->mask);
-        }
-
-        if ($this->applySimilar) {
-            $result = $this->applyLevenshtein($result, $this->similar);
+        if ($this->_similar) {
+            $result = $this->_applyLevenshtein($result, $this->_similar);
         }
 
         if (!is_null($limit)) {
-            $result = array_slice($result, (int)$this->offset, $limit);
+            $result = array_slice($result, (int)$this->_offset, $limit);
         }
 
         return $result;
     }
 
     /**
-     * @return null|Number
+     * Вернуть уникальные NDC по установленным фильтрам
+     */
+    public function getDistinctNdc()
+    {
+        $query = clone $this->_query;
+        return $query->select(
+            [
+                'ndc' => new Expression('DISTINCT ndc'),
+            ]
+        )
+            ->asArray()
+            ->column();
+    }
+
+    /**
+     * @return \app\models\Number
      */
     public function one()
     {
-        return $this->result(1);
+        return reset($this->result(1));
     }
 
     /**
@@ -314,17 +334,17 @@ class FreeNumberFilter extends Number
      */
     public function count()
     {
-        return $this->query->count();
+        return $this->_query->count();
     }
 
     /**
-     * @return null|\yii\db\ActiveRecord
+     * @return \app\models\Number
      */
     public function randomOne()
     {
-        $union = clone $this->query;
+        $union = clone $this->_query;
 
-        $this->query
+        $this->_query
             ->andWhere([parent::tableName() . '.number_cut' => str_pad(mt_rand(0, 99), 2, 0, STR_PAD_LEFT)])
             ->union($union);
 
@@ -332,8 +352,8 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param \app\models\light_models\NumberLight[] $number
-     * @param string|false $currency
+     * @param \app\models\light_models\NumberLight[] $numbers
+     * @param string $currency
      * @return array
      */
     public function formattedNumbers($numbers = [], $currency = Currency::RUB)
@@ -342,13 +362,14 @@ class FreeNumberFilter extends Number
         foreach ($numbers as $number) {
             $result[] = $this->formattedNumber($number, $currency);
         }
+
         return $result;
     }
 
     /**
-     * @param Number $number
-     * @param string|false $currency
-     * @return array
+     * @param \app\models\Number $number
+     * @param string $currency
+     * @return NumberLight
      */
     public function formattedNumber(\app\models\Number $number, $currency = Currency::RUB)
     {
@@ -360,11 +381,11 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param Number[] $numbers
+     * @param \app\models\Number[] $numbers
      * @param string $mask
-     * @return Number[]|[]
+     * @return \app\models\Number[]|[]
      */
-    private function applyMask($numbers, $mask)
+    private function _applyMask($numbers, $mask)
     {
         $mask = trim($mask);
         $fromEnd = false;
@@ -385,9 +406,9 @@ class FreeNumberFilter extends Number
             return array_filter($numbers, function ($number) use ($mask, $fromEnd) {
                 $realNumber = substr($number->number, strlen($number->number) - 7);
                 return
-                    !$fromEnd
-                        ? strpos($realNumber, $mask) !== false
-                        : strrpos($realNumber, $mask) + strlen($mask) === strlen($realNumber);
+                    !$fromEnd ?
+                        strpos($realNumber, $mask) !== false :
+                        strrpos($realNumber, $mask) + strlen($mask) === strlen($realNumber);
             });
         }
 
@@ -415,21 +436,20 @@ class FreeNumberFilter extends Number
         }
 
         return array_filter($numbers, function ($number) use ($regexp, $patternLength, $fromEnd) {
-            $realNumber =
-                !$fromEnd
-                    ? substr($number->number, strlen($number->number) - 7, $patternLength)
-                    : substr($number->number, strlen($number->number) - $patternLength);
+            $realNumber = (!$fromEnd) ?
+                substr($number->number, strlen($number->number) - 7, $patternLength) :
+                substr($number->number, strlen($number->number) - $patternLength);
 
             return preg_match('#' . $regexp . ($fromEnd ? '$' : '') . '#', $realNumber);
         });
     }
 
     /**
-     * @param Number[] $numbers
+     * @param \app\models\Number[] $numbers
      * @param string $similar
-     * @return Number[]
+     * @return \app\models\Number[]
      */
-    private function applyLevenshtein($numbers, $similar)
+    private function _applyLevenshtein($numbers, $similar)
     {
         array_walk($numbers, function ($row) use ($similar) {
             $row->levenshtein = levenshtein(substr($row->number, strlen($row->number) - 7), $similar);
@@ -439,6 +459,7 @@ class FreeNumberFilter extends Number
             if ($a->levenshtein == $b->levenshtein) {
                 return 0;
             }
+
             return ($a->levenshtein < $b->levenshtein) ? -1 : 1;
         });
 

@@ -2,10 +2,12 @@
 
 namespace app\models\light_models;
 
-use yii\base\Model;
-use app\models\Number;
 use app\models\Currency;
+use yii\base\Model;
 
+/**
+ * Class NumberLight
+ */
 class NumberLight extends Model
 {
 
@@ -20,8 +22,7 @@ class NumberLight extends Model
         $city_id,
         $did_group_id,
         $number_type,
-        $site_publish,
-        $country_code;
+        $ndc;
 
     /**
      * @return array
@@ -29,8 +30,8 @@ class NumberLight extends Model
     public function rules()
     {
         return [
-            [['beauty_level', 'region', 'city_id', 'did_group_id', 'number_type', 'site_publish', 'country_code'], 'integer'],
-            [['number', 'currency', 'origin_currency',], 'string'],
+            [['beauty_level', 'region', 'city_id', 'did_group_id', 'number_type', 'ndc'], 'integer'],
+            [['number', 'currency', 'origin_currency'], 'string'],
             [['price', 'origin_price'], 'number'],
         ];
     }
@@ -44,9 +45,9 @@ class NumberLight extends Model
         $actualPrice = $number->getPriceWithCurrency($currency);
         $originPrice = $number->getOriginPriceWithCurrency();
 
-        $this->price = (float) $actualPrice->formattedPrice;
+        $this->price = (float)$actualPrice->formattedPrice;
         $this->currency = $actualPrice->currency;
-        $this->origin_price = (float) $originPrice->formattedPrice;
+        $this->origin_price = (float)$originPrice->formattedPrice;
         $this->origin_currency = $originPrice->currency;
     }
 }

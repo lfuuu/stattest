@@ -157,6 +157,8 @@ class VoipRegistryDao extends Singleton
 
         $transaction = \Yii::$app->getDb()->beginTransaction();
 
+        $country = $registry->city->country;
+
         $number = new Number;
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
@@ -167,7 +169,8 @@ class VoipRegistryDao extends Singleton
         $number->status = Number::STATUS_NOTSALE;
         $number->edit_user_id = \Yii::$app->user->identity->id;
         $number->operator_account_id = $registry->account_id;
-        $number->country_code = $registry->city->country->code;
+        $number->country_code = $country->code;
+        $number->ndc = substr($addNumber, strlen($country->prefix), $ndcLength = 3); // NDC - 3 символа после кода страны
         $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $number->is_ported = (int)$registry->isSourcePotability();
 
