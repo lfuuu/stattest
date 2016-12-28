@@ -19,4 +19,12 @@ class UsageVoipQuery extends UsageQuery
         return $this->andWhere(['E164' => $number]);
     }
 
+    /**
+     * @return $this
+     */
+    public function actual()
+    {
+        return $this->andWhere('CAST(NOW() AS date) BETWEEN actual_from AND actual_to');
+    }
+
 }

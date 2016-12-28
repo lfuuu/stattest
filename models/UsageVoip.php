@@ -179,7 +179,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
      */
     public function getDatacenter()
     {
-        return $this->hasOne(Datacenter::className(), ["region" => "region"]);
+        return $this->hasOne(Datacenter::className(), ['region' => 'region']);
     }
 
     /**
@@ -207,7 +207,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @param $usage
+     * @param UsageInterface|ActiveRecord $usage
      * @return VoipServiceTransfer
      */
     public static function getTransferHelper($usage = null)
@@ -248,11 +248,20 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)
     {
         return Url::to(['/usage/voip/edit', 'id' => $id]);
     }
-}
 
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->E164;
+    }
+
+}

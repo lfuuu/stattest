@@ -4,9 +4,9 @@ namespace app\models;
 use DateTime;
 use DateTimeZone;
 use app\helpers\DateTimeZoneHelper;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use app\classes\DateTimeWithUserTimezone;
-use app\classes\bill\Biller;
 use app\classes\bill\VoipPackageBiller;
 use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageVoipPackageHelper;
@@ -35,10 +35,12 @@ use app\models\important_events\ImportantEvents;
  * @property TariffVoipPackage $tariff
  * @property UsageVoip $usageVoip
  * @property UsageVoipPackageHelper $helper
- * @property
+ * @property ActiveQuery $billingStat
  */
 class UsageVoipPackage extends ActiveRecord implements UsageInterface
 {
+
+    public $billingStat = null;
 
     /**
      * @return array
@@ -84,7 +86,9 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @return Biller
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     * @return VoipPackageBiller
      */
     public function getBiller(DateTime $date, ClientAccount $clientAccount)
     {
@@ -98,31 +102,36 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
      */
     public function getBillingStat($dateRangeFrom = '', $dateRangeTo = '')
     {
-        $link = $this->hasMany(BillingStatPackage::className(), ['package_id' => 'id']);
+        $cacheKey = $dateRangeFrom . '#' . $dateRangeTo;
 
-        if ($dateRangeFrom) {
-            $dateRangeFromStr =
-                (new DateTimeWithUserTimezone($dateRangeFrom,
+        if (!array_key_exists($cacheKey, $this->billingStat)) {
+            $link = $this->hasMany(BillingStatPackage::className(), ['package_id' => 'id']);
+
+            if ($dateRangeFrom) {
+                $dateRangeFromStr = (new DateTimeWithUserTimezone($dateRangeFrom,
                     new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))
                     ->modify('first day of this month')
                     ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-            $link->andWhere(['>=', 'activation_dt', $dateRangeFromStr]);
-        }
-        if ($dateRangeTo) {
-            $dateRangeToStr =
-                (new DateTimeWithUserTimezone($dateRangeTo,
+                $link->andWhere(['>=', 'activation_dt', $dateRangeFromStr]);
+            }
+
+            if ($dateRangeTo) {
+                $dateRangeToStr = (new DateTimeWithUserTimezone($dateRangeTo,
                     new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))
                     ->modify('-1 second')
                     ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))
                     ->modify('last day of this month')
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-            $link->andWhere(['<=', 'activation_dt', $dateRangeToStr]);
+                $link->andWhere(['<=', 'activation_dt', $dateRangeToStr]);
+            }
+
+            $this->billingStat[$cacheKey] = $link->all();
         }
 
-        return $link->all();
+        return $this->billingStat[$cacheKey];
     }
 
     /**
@@ -144,6 +153,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
                 (new DateTime($dateRangeFrom))->setTime(0, 0, 0)->format(DateTimeZoneHelper::DATETIME_FORMAT)
             ]);
         }
+
         if ($dateRangeTo) {
             $link->andWhere([
                 '<=',
@@ -211,4 +221,3 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
 }
-

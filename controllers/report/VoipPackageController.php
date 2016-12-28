@@ -56,25 +56,27 @@ class VoipPackageController extends BaseController
 
         if ($data) {
             /** @var DynamicModel $filter */
-            $filter = DynamicModel::validateData($data, [
-                ['number', 'integer'],
-                ['number', 'required', 'message' => 'Необходимо выбрать номер'],
+            $filter = DynamicModel::validateData($data,
                 [
-                    'mode',
-                    'in',
-                    'range' => [self::FILTER_VOIP_PACKAGE_BY_PACKAGE, self::FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS]
-                ],
-                [['range', 'date_range_from', 'date_range_to'], 'string'],
-                ['range', 'required', 'message' => 'Необходимо указать период'],
-                [
-                    'packages',
-                    'required',
-                    'when' => function ($model) {
-                        return $model->mode === 'by_package_calls' && $model->packages != 0;
-                    },
-                    'message' => 'Необходимо выбрать пакет'
-                ],
-            ]);
+                    ['number', 'integer'],
+                    ['number', 'required', 'message' => 'Необходимо выбрать номер'],
+                    [
+                        'mode',
+                        'in',
+                        'range' => [self::FILTER_VOIP_PACKAGE_BY_PACKAGE, self::FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS]
+                    ],
+                    [['range', 'date_range_from', 'date_range_to'], 'string'],
+                    ['range', 'required', 'message' => 'Необходимо указать период'],
+                    [
+                        'packages',
+                        'required',
+                        'when' => function ($model) {
+                            return $model->mode === 'by_package_calls' && $model->packages != 0;
+                        },
+                        'message' => 'Необходимо выбрать пакет'
+                    ],
+                ]
+            );
 
             if ($filter->hasErrors()) {
                 Yii::$app->session->setFlash('error', $filter->getFirstErrors());
@@ -96,8 +98,8 @@ class VoipPackageController extends BaseController
                             'allModels' =>
                                 ReportUsageDao::getUsageVoipStatistic(
                                     $usage->region,
-                                    (new DateTime($filter->date_range_from))->getTimeStamp(),
-                                    (new DateTime($filter->date_range_to))->getTimeStamp(),
+                                    (new DateTime($filter->date_range_from))->getTimestamp(),
+                                    (new DateTime($filter->date_range_to))->getTimestamp(),
                                     $detality = 'call',
                                     $usage->clientAccount->id,
                                     [$usage->id],
@@ -116,16 +118,19 @@ class VoipPackageController extends BaseController
             }
         }
 
-        $numbers = UsageVoip::find()->client($fixclient_data->client)->all();
+        $numbers = UsageVoip::find()->client($fixclient_data->client)->actual()->indexBy('id')->all();
         $packages = UsageVoipPackage::find()->client($fixclient_data->client)->all();
 
-        return $this->render('use-report', [
-            'clientAccount' => $fixclient_data,
-            'numbers' => $numbers,
-            'packages' => $packages,
-            'report' => $report,
-            'filter' => $filter,
-        ]);
+        return $this->render(
+            'use-report',
+            [
+                'clientAccount' => $fixclient_data,
+                'numbers' => $numbers,
+                'packages' => $packages,
+                'report' => $report,
+                'filter' => $filter,
+            ]
+        );
     }
 
 }

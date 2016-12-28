@@ -2,21 +2,22 @@
 
 namespace app\dao\reports;
 
-use app\modules\nnp\models\PackageMinute;
-use app\modules\nnp\models\PackagePrice;
-use app\modules\nnp\models\PackagePricelist;
 use Yii;
 use DateTime;
 use DateTimeZone;
 use yii\db\ActiveQuery;
 use yii\db\Expression;
 use app\classes\Singleton;
+use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\billing\Calls;
 use app\models\billing\Geo;
 use app\models\billing\InstanceSettings;
 use app\models\UsageVoipPackage;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 
 class ReportUsageDao extends Singleton
 {
@@ -52,19 +53,17 @@ class ReportUsageDao extends Singleton
         $isFull = false,
         $packages = []
     ) {
-        $from =
-            (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-                ->setTimestamp($from)
-                ->setTime(0, 0, 0);
-        $to =
-            (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-                ->setTimestamp($to)
-                ->setTime(23, 59, 59);
+        $from = (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+            ->setTimestamp($from)
+            ->setTime(0, 0, 0);
+
+        $to = (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+            ->setTimestamp($to)
+            ->setTime(23, 59, 59);
 
         $clientAccount = ClientAccount::findOne($clientId);
-        $query =
-            Calls::find()
-                ->from(['cr' => Calls::tableName()]);
+        $query = Calls::find()
+            ->from(['cr' => Calls::tableName()]);
 
         $query->andWhere([
             'between',
@@ -118,12 +117,13 @@ class ReportUsageDao extends Singleton
                 }
             }
         }
+
         switch ($detality) {
             case 'dest':
-                return self::voipStatisticByDestination($query, $clientAccount, $region);
+                return self::_voipStatisticByDestination($query, $clientAccount, $region);
                 break;
             default:
-                return self::voipStatistic($query, $clientAccount, $from, $packages, $detality, $paidonly, $isFull);
+                return self::_voipStatistic($query, $clientAccount, $from, $packages, $detality, $paidonly, $isFull);
                 break;
         }
     }
@@ -135,8 +135,7 @@ class ReportUsageDao extends Singleton
      */
     public static function getUsageVoipPackagesStatistic($usageId, $packageId = 0)
     {
-        $query =
-            UsageVoipPackage::find()
+        $query = UsageVoipPackage::find()
                 ->actual()
                 ->andWhere(['usage_voip_id' => $usageId]);
 
@@ -158,12 +157,12 @@ class ReportUsageDao extends Singleton
      * @return array
      * @throws \Exception
      */
-    private static function voipStatistic(
+    private static function _voipStatistic(
         ActiveQuery $query,
         ClientAccount $clientAccount,
         DateTime $from,
         $packages = [],
-        $detality,
+        $detality = '',
         $paidOnly = 0,
         $isFull = false
     ) {
@@ -215,7 +214,6 @@ class ReportUsageDao extends Singleton
 
         $isWithPackageDetail = false;
         if (!$groupBy && $clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
-
             $isWithPackageDetail = true;
 
             $query->addSelect([
@@ -229,7 +227,10 @@ class ReportUsageDao extends Singleton
 
         if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
             Yii::$app->session->setFlash('error',
-                'Статистика отображается не полностью.' . '<br />' . PHP_EOL . ' Сделайте ее менее детальной или сузьте временной период');
+                'Статистика отображается не полностью.' .
+                Html::tag('br') . PHP_EOL .
+                ' Сделайте ее менее детальной или сузьте временной период'
+            );
         }
 
         $query->limit($isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS);
@@ -245,6 +246,7 @@ class ReportUsageDao extends Singleton
                 if (!isset($geo[$record['geo_id']])) {
                     $geo[$record['geo_id']] = Geo::find()->select('name')->where(['id' => (int)$record['geo_id']])->scalar();
                 }
+
                 $record['geo'] = $geo[$record['geo_id']];
                 if ($record['geo_mob'] === true) {
                     $record['geo'] .= ' (mob)';
@@ -267,7 +269,7 @@ class ReportUsageDao extends Singleton
             $record['price'] = number_format($record['price'], 2, '.', '');
 
             if ($isWithPackageDetail) {
-                self::admixedPackageDetails($record);
+                self::_admixedPackageDetails($record);
             }
 
             $result[] = $record;
@@ -288,7 +290,7 @@ class ReportUsageDao extends Singleton
         }
 
         $rt['tsf2'] = ($d ? $d . 'd ' : '') . gmdate('H:i:s', $rt['ts2'] - $d * 24 * 60 * 60);
-        $rt = self::getTotalPrices($clientAccount, $rt);
+        $rt = self::_getTotalPrices($clientAccount, $rt);
 
         $result['total'] = $rt;
 
@@ -301,7 +303,7 @@ class ReportUsageDao extends Singleton
      * @param int $region
      * @return array
      */
-    private static function voipStatisticByDestination(ActiveQuery $query, ClientAccount $clientAccount, $region)
+    private static function _voipStatisticByDestination(ActiveQuery $query, ClientAccount $clientAccount, $region)
     {
         $query->select([
             'dest' => 'cr.destination_id',
@@ -405,7 +407,7 @@ class ReportUsageDao extends Singleton
         }
 
         $total_row['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s', $len - $delta * 24 * 60 * 60);
-        $total_row = self::getTotalPrices($clientAccount, $total_row);
+        $total_row = self::_getTotalPrices($clientAccount, $total_row);
         $total_row['cnt'] = $cnt;
 
         $result['total'] = $total_row;
@@ -418,7 +420,7 @@ class ReportUsageDao extends Singleton
      * @param array $row
      * @return array
      */
-    private static function getTotalPrices(ClientAccount $clientAccount, $row = [])
+    private static function _getTotalPrices(ClientAccount $clientAccount, array $row = [])
     {
         $taxRate = $clientAccount->getTaxRate();
 
@@ -440,14 +442,13 @@ class ReportUsageDao extends Singleton
      * 
      * @param array $record
      */
-    private static function admixedPackageDetails(&$record)
+    private static function _admixedPackageDetails(&$record)
     {
-        //детализация универсальных пакетов.
+        // Детализация универсальных пакетов.
         $packageMinute = $record['nnp_package_minute_id'] ?
             PackageMinute::findOne([
                 'id' => $record['nnp_package_minute_id']
-            ])
-            : null;
+            ]) : null;
 
         /** @var PackageMinute $packageMinute */
         if ($packageMinute) {
@@ -462,8 +463,7 @@ class ReportUsageDao extends Singleton
         $packagePrice = $record['nnp_package_price_id'] ?
             PackagePrice::findOne([
                 'id' => $record['nnp_package_price_id']
-            ])
-            : null;
+            ]) : null;
 
         /** @var PackagePrice $packagePrice */
         if ($packagePrice) {
@@ -478,8 +478,7 @@ class ReportUsageDao extends Singleton
         $packagePriceList = $record['nnp_package_pricelist_id'] ?
             PackagePricelist::findOne([
                 'id' => $record['nnp_package_pricelist_id']
-            ])
-            : null;
+            ]) : null;
 
         if ($packagePriceList) {
             $record['package_pricelist'] = [

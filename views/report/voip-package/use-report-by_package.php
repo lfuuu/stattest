@@ -61,8 +61,17 @@ echo GridView::widget([
         [
             'label' => 'Всего',
             'format' => 'raw',
-            'value' => function ($package) {
-                return sprintf('%.2f', $package->tariff->minutes_count);
+            'value' => function ($package) use ($filter) {
+                /** @var app\models\UsageVoipPackage $package */
+                /** @var app\classes\DynamicModel $filter */
+                $stat = $package->getBillingStat($filter->date_range_from, $filter->date_range_to);
+                $paidMinutes = $package->tariff->minutes_count;
+
+                if (!is_null($stat)) {
+                    $paidMinutes = array_sum(ArrayHelper::getColumn($stat, 'paid_seconds')) / 60;
+                }
+
+                return sprintf('%.2f', $paidMinutes);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
@@ -73,15 +82,30 @@ echo GridView::widget([
                 /** @var app\models\UsageVoipPackage $package */
                 /** @var app\classes\DynamicModel $filter */
                 $stat = $package->getBillingStat($filter->date_range_from, $filter->date_range_to);
-                return sprintf('%.2f', $package->tariff->minutes_count - array_sum(ArrayHelper::getColumn($stat, 'used_seconds')) / 60);
+                $paidMinutesLeft = $package->tariff->minutes_count;
+
+                if (!is_null($stat)) {
+                    $paidMinutesLeft = (array_sum(ArrayHelper::getColumn($stat, 'paid_seconds')) - array_sum(ArrayHelper::getColumn($stat, 'used_seconds'))) / 60;
+                }
+
+                return sprintf('%.2f', $paidMinutesLeft);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
         [
             'headerOptions' => ['class' => 'hidden'],
             'format' => 'raw',
-            'value' => function ($package) {
-                return ceil($package->tariff->periodical_fee / $package->tariff->minutes_count);
+            'value' => function ($package) use ($filter) {
+                /** @var app\models\UsageVoipPackage $package */
+                /** @var app\classes\DynamicModel $filter */
+                $stat = $package->getBillingStat($filter->date_range_from, $filter->date_range_to);
+                $paidMinutes = $package->tariff->minutes_count;
+
+                if (!is_null($stat)) {
+                    $paidMinutes = array_sum(ArrayHelper::getColumn($stat, 'paid_seconds')) / 60;
+                }
+
+                return ceil($package->tariff->periodical_fee / $paidMinutes);
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
@@ -105,6 +129,7 @@ echo GridView::widget([
 
                     return $result > 0 ? $result : 0;
                 }
+
                 return '--';
             },
             'hAlign' => GridView::ALIGN_CENTER,

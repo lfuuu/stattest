@@ -43,8 +43,7 @@ foreach ($packages as $package) {
                 <div class="form-group col-sm-8">
                     <label>Период</label>
                     <?php
-                    $dateRangeValue =
-                        $filter->range
+                    $dateRangeValue = $filter->range
                             ?:
                                 (new DateTime('first day of this month'))->format(DateTimeZoneHelper::DATE_FORMAT) .
                                 ' : ' .
@@ -57,7 +56,7 @@ foreach ($packages as $package) {
                         'pluginOptions' => [
                             'locale' => [
                                 'format' => 'YYYY-MM-DD',
-                                'separator'=> ' : ',
+                                'separator' => ' : ',
                             ],
                         ],
                         'containerOptions' => [
@@ -81,7 +80,7 @@ foreach ($packages as $package) {
                     <?php
                     echo Select2::widget([
                         'name' => 'filter[number]',
-                        'data' => ArrayHelper::map($numbers, 'id', 'E164'),
+                        'data' => $numbers,
                         'value' => $filter->number,
                         'options' => [
                             'placeholder' => '-- Выбрать номер --',
