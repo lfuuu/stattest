@@ -75,7 +75,7 @@ class FreeNumberFilter extends Number
         $this->_query->andWhere([parent::tableName() . '.number_type' => $numberType]);
 
         if ($numberType == NumberType::ID_GEO_DID) {
-            $this->_query->having(new Expression('
+            $this->_query->andWhere(new Expression('
                     IF(
                         `' . parent::tableName() . '`.`number` LIKE "7495%",
                         `' . parent::tableName() . '`.`number` LIKE "74951059%"
