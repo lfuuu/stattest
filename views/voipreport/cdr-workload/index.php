@@ -9,7 +9,6 @@
 use app\classes\grid\GridView;
 use app\models\voip\filter\CdrWorkload;
 use yii\widgets\Breadcrumbs;
-use yii\widgets\Pjax;
 use app\classes\grid\column\DateRangePickerColumn;
 use app\classes\grid\column\universal\StringColumn;
 
@@ -42,55 +41,70 @@ $filter = [
     ]
 ];
 
-Pjax::begin([
-    'formSelector' => false,
-    'linkSelector' => false,
-    'enableReplaceState' => true,
-    'timeout' => 180000,
-]);
-echo GridView::widget([
-    'dataProvider' => $filterModel->getWorkload(),
-    'filterModel' => $filterModel,
-    'beforeHeader' => [
-        'columns' => $filter
-    ],
-    'columns' => [
+if ($filterModel->number) {
+    $first = [
+        'label' => 'Интервал',
+        'attribute' => 'interval'
+    ];
+} else {
+    $first = [
+        'label' => 'Номер',
+        'attribute' => 'number'
+    ];
+}
+
+try {
+    echo GridView::widget(
         [
-            'label' => 'Интервал',
-            'attribute' => 'interval'
-        ],
-        [
-            'label' => 'Количество линий',
-            'attribute' => 'lines_count'
-        ],
-        [
-            'label' => 'Количество минут',
-            'attribute' => 'minutes_count'
-        ],
-        [
-            'label' => 'Загрузка',
-            'attribute' => 'workload'
-        ]
-    ],
-    'pjax' => true,
-    'filterPosition' => '',
-    'panelHeadingTemplate' => <<< HTML
-            <div class="pull-right">
-                {extraButtons}
-                {filterButton}
-                {floatThead}
-                {export}
-            </div>
-            <div class="pull-left">
-                {summary}
-            </div>
-            <h3 class="panel-title">
-                {heading}
-            </h3>
-            <div class="clearfix"></div>
+            'dataProvider' => $filterModel->getWorkload(),
+            'filterModel' => $filterModel,
+            'beforeHeader' => [
+                'columns' => $filter
+            ],
+            'columns' => [
+                $first,
+                [
+                    'label' => 'Количество линий',
+                    'attribute' => 'lines_count'
+                ],
+                [
+                    'label' => 'Количество секунд',
+                    'attribute' => 'seconds_count'
+                ],
+                [
+                    'label' => 'Загрузка',
+                    'attribute' => 'workload'
+                ]
+            ],
+            'filterPosition' => '',
+            'panelHeadingTemplate' => <<< HTML
+                    <div class="pull-right">
+                        {extraButtons}
+                        {filterButton}
+                        {floatThead}
+                        {export}
+                    </div>
+                    <div class="pull-left">
+                        {summary}
+                    </div>
+                    <h3 class="panel-title">
+                        {heading}
+                    </h3>
+                    <div class="clearfix"></div>
 HTML
-]);
-Pjax::end();
+        ]
+    );
+} catch (yii\db\Exception $e) {
+    if ($e->getCode() == 8) {
+        Yii::$app->session->addFlash(
+            'error',
+            'Запрос слишком тяжелый, чтобы выполниться. 
+             Задайте, пожалуйста, другие фильтры'
+        );
+    } else {
+        Yii::$app->session->addFlash('error', "Ошибка выполнения запроса");
+    }
+}
 
 ?>
 
