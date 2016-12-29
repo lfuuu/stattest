@@ -5,6 +5,7 @@
 
 namespace app\models\voip\filter;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\SqlDataProvider;
@@ -51,11 +52,14 @@ class CdrWorkload extends Model
         list($get['dateStart'], $get['dateEnd']) = explode(':', $get['date']);
         $dateStart = new \DateTime($get['dateStart']);
         $dateEnd = new \DateTime($get['dateEnd']);
+        $dateEnd->modify('+1 day');
         $interval = $dateEnd->diff($dateStart);
         if ($interval->m > 1 || ($interval->m && ($interval->i || $interval->d || $interval->h || $interval->s))) {
             Yii::$app->session->addFlash('error', 'Временной период больше одного месяца');
             return false;
         }
+
+        $get['dateEnd'] = $dateEnd->format(DateTimeZoneHelper::DATE_FORMAT);
 
         parent::load($get, '');
 
@@ -99,11 +103,11 @@ class CdrWorkload extends Model
                         gs.gs || ' - ' || gs.gs + interval '1 hour' AS interval,
                         sn.lines_count,
                         SUM (cc.session_time) AS seconds_count,
-                        round(SUM (cc.session_time) / (60 * 60 * sn.lines_count), 3) || ' Эрл' AS workload
+                        round(SUM (cc.session_time) / (60 * 60 * sn.lines_count), 3) AS workload
                     FROM
                         calls_cdr.cdr AS cc
                     RIGHT JOIN
-                        generate_series (:date_start::timestamp ,:date_end::timestamp,'1 hour'::interval) AS gs
+                        generate_series (:date_start::timestamp ,:date_end::timestamp, '1 hour'::interval) AS gs
                         ON
                         cc.connect_time >= gs.gs 
                                 AND
@@ -140,7 +144,13 @@ class CdrWorkload extends Model
                 'db' => 'dbPgSlave',
                 'sql' => $sql,
                 'params' => $params,
-                'pagination' => false
+                'pagination' => false,
+                'sort' => [
+                    'attributes' => [
+                        'seconds_count',
+                        'workload',
+                    ]
+                ],
             ]
         );
     }
@@ -164,7 +174,7 @@ class CdrWorkload extends Model
                         sn.did AS number,
                         sn.lines_count,
                         SUM (cc.session_time) AS seconds_count,
-                        round(SUM (cc.session_time) / (60 * 60 * sn.lines_count), 3) || ' Эрл' AS workload
+                        round(SUM (cc.session_time) / (60 * 60 * sn.lines_count), 3) AS workload
                     FROM
                         billing.service_number AS sn
                     RIGHT JOIN
@@ -181,10 +191,7 @@ class CdrWorkload extends Model
                          sn.expire_dt BETWEEN :date_start AND :date_end
                     GROUP BY
                         did,
-                        lines_count
-                    ORDER BY
-                        lines_count DESC,
-                        workload DESC";
+                        lines_count";
         $params = [
             ':date_start' => $this->dateStart,
             ':date_end' => $this->dateEnd,
@@ -195,7 +202,13 @@ class CdrWorkload extends Model
                 'db' => 'dbPgSlave',
                 'sql' => $sql,
                 'params' => $params,
-                'pagination' => false
+                'pagination' => false,
+                'sort' => [
+                    'attributes' => [
+                        'seconds_count',
+                        'workload',
+                    ]
+                ],
             ]
         );
     }

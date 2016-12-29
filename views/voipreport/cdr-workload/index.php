@@ -72,8 +72,11 @@ try {
                     'attribute' => 'seconds_count'
                 ],
                 [
-                    'label' => 'Загрузка',
-                    'attribute' => 'workload'
+                    'label' => 'Нагрузка',
+                    'attribute' => 'workload',
+                    'value' => function ($filterModel) {
+                        return $filterModel['workload']  . ' Эрл';
+                    },
                 ]
             ],
             'filterPosition' => '',
