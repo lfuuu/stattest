@@ -21,12 +21,15 @@ class PartnerRewardsFilter extends DynamicModel
 
     public
         $partner_contract_id,
-        $month;
+        $month,
+        $isExtendsMode;
 
     public
-        $contractsWithoutRewardSettings,
-        $contractsWithIncorrectBusinessProcess,
-        $summary = [];
+        $contractsWithoutRewardSettings = [],
+        $contractsWithIncorrectBusinessProcess = [],
+        $partnersList = [],
+        $summary = [],
+        $possibleSummary = [];
 
     /**
      * @return array
@@ -40,14 +43,25 @@ class PartnerRewardsFilter extends DynamicModel
     }
 
     /**
+     * @param bool|false $isExtendsMode
+     */
+    public function __construct($isExtendsMode = false)
+    {
+        parent::__construct();
+
+        $this->isExtendsMode = $isExtendsMode;
+    }
+
+    /**
      * @return $this
      */
     public function load()
     {
         parent::load(Yii::$app->request->get(), 'filter');
 
-        $this->contractsWithoutRewardSettings = $this->getContractsWithoutRewardSettings();
-        $this->contractsWithIncorrectBusinessProcess = $this->getContractsWithIncorrectBusinessProcess();
+        $this->contractsWithoutRewardSettings = $this->_getContractsWithoutRewardSettings();
+        $this->contractsWithIncorrectBusinessProcess = $this->_getContractsWithIncorrectBusinessProcess();
+        $this->partnersList = $this->_getPartnersList();
 
         if (is_null($this->month)) {
             $this->month = (new \DateTime('now'))->format('Y-m');
@@ -71,6 +85,7 @@ class PartnerRewardsFilter extends DynamicModel
                 'client.account_version',
                 'contragent_name' => 'contragent.name',
                 'bill_no' => 'bills.bill_no',
+                'bill_paid' => 'bills.is_payed',
                 'paid_summary' => 'bills.sum',
                 'usage_type' => 'line.service',
                 'usage_id' => 'line.id_service',
@@ -89,8 +104,12 @@ class PartnerRewardsFilter extends DynamicModel
                 ->where(new Expression('DATE_FORMAT(rewards.created_at, "%Y-%m") = :month', ['month' => $this->month]))
                 ->andWhere(['contragent.partner_contract_id' => $this->partner_contract_id]);
 
+            if (!$this->isExtendsMode) {
+                $query->andWhere(['bills.is_payed' => Bill::STATUS_IS_PAID]);
+            }
+
             $dataProvider = new ArrayDataProvider([
-                'allModels' => $this->prepareData($query),
+                'allModels' => $this->_prepareData($query),
                 'sort' => false,
                 'pagination' => false,
             ]);
@@ -102,10 +121,29 @@ class PartnerRewardsFilter extends DynamicModel
     }
 
     /**
+     * @return array
+     */
+    private function _getPartnersList()
+    {
+        $partners = ClientContract::find()
+            ->andWhere(['business_id' => Business::PARTNER])
+            ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
+            ->orderBy(ClientContragent::tableName() . '.name')
+            ->all();
+
+        $partnerList = [];
+        foreach ($partners as $partner) {
+            $partnerList[$partner->id] = $partner->contragent->name . ' (#' . $partner->id . ')';
+        }
+
+        return $partnerList;
+    }
+
+    /**
      * @param Query $query
      * @return array
      */
-    private function prepareData(Query $query)
+    private function _prepareData(Query $query)
     {
         $data = [];
 
@@ -118,21 +156,30 @@ class PartnerRewardsFilter extends DynamicModel
                 ];
             }
 
-            $data[$record['client_id']]['paid_summary'] = $record['paid_summary'];
-            $data[$record['client_id']]['once'] += $record['once'];
-            $data[$record['client_id']]['percentage_once'] += $record['percentage_once'];
-            $data[$record['client_id']]['percentage_of_fee'] += $record['percentage_of_fee'];
-            $data[$record['client_id']]['percentage_of_over'] += $record['percentage_of_over'];
-            $data[$record['client_id']]['percentage_of_margin'] += $record['percentage_of_margin'];
+            $fieldPrefix = '';
+            $summaryField = 'summary';
+            if ($this->isExtendsMode) {
+                if ((int)$record['bill_paid'] !== Bill::STATUS_IS_PAID) {
+                    $fieldPrefix = 'possible_';
+                    $summaryField = 'possibleSummary';
+                }
+            }
 
+            $data[$record['client_id']]['paid_summary'] = $record['paid_summary'];
             $data[$record['client_id']]['details'][] = $record;
 
-            $this->summary['paid_summary'] += $record['usage_paid'];
-            $this->summary['once'] += $record['once'];
-            $this->summary['percentage_once'] += $record['percentage_once'];
-            $this->summary['percentage_of_fee'] += $record['percentage_of_fee'];
-            $this->summary['percentage_of_over'] += $record['percentage_of_over'];
-            $this->summary['percentage_of_margin'] += $record['percentage_of_margin'];
+            $data[$record['client_id']][$fieldPrefix . 'once'] += $record['once'];
+            $data[$record['client_id']][$fieldPrefix . 'percentage_once'] += $record['percentage_once'];
+            $data[$record['client_id']][$fieldPrefix . 'percentage_of_fee'] += $record['percentage_of_fee'];
+            $data[$record['client_id']][$fieldPrefix . 'percentage_of_over'] += $record['percentage_of_over'];
+            $data[$record['client_id']][$fieldPrefix . 'percentage_of_margin'] += $record['percentage_of_margin'];
+
+            $this->{$summaryField}['paid_summary'] += $record['usage_paid'];
+            $this->{$summaryField}['once'] += $record['once'];
+            $this->{$summaryField}['percentage_once'] += $record['percentage_once'];
+            $this->{$summaryField}['percentage_of_fee'] += $record['percentage_of_fee'];
+            $this->{$summaryField}['percentage_of_over'] += $record['percentage_of_over'];
+            $this->{$summaryField}['percentage_of_margin'] += $record['percentage_of_margin'];
         }
 
         return $data;
@@ -141,7 +188,7 @@ class PartnerRewardsFilter extends DynamicModel
     /**
      * @return array
      */
-    private function getContractsWithoutRewardSettings()
+    private function _getContractsWithoutRewardSettings()
     {
         $query = new Query;
 
@@ -177,7 +224,7 @@ class PartnerRewardsFilter extends DynamicModel
     /**
      * @return array
      */
-    private function getContractsWithIncorrectBusinessProcess()
+    private function _getContractsWithIncorrectBusinessProcess()
     {
         $query = new Query;
 

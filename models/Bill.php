@@ -16,7 +16,7 @@ use yii\helpers\Url;
  * @property int $is_approved    Признак проведенности счета. 1 - проведен, влияет на балланс. 0 - не проведен, не влияет на баланс.
  * @property string $sum            итоговая сумма, влияющая на баланс. не включает задаток. не включает не проведенные строки
  * @property string $sum_with_unapproved  итоговая сумма. не включает задаток. включает не проведенный строки
- * @property int $is_payed       признак оплаченности счета 0 - не оплачен, 1 - ??, 2 - ??, 3 - ??
+ * @property int $is_payed       признак оплаченности счета 0 - не оплачен, 1 - оплачен, 2 - оплачен частично, 3 - ??
  * @property string $comment
  * @property int $inv2to1        ??
  * @property float $inv_rub        ??
@@ -44,6 +44,16 @@ use yii\helpers\Url;
 class Bill extends ActiveRecord
 {
     const MINIMUM_BILL_DATE = '2000-01-01';
+
+    const STATUS_NOT_PAID = 0;
+    const STATUS_IS_PAID = 1;
+    const STATUS_PAID_IN_PART = 2;
+
+    public static $paidStatuses = [
+        self::STATUS_NOT_PAID => 'Не оплачен',
+        self::STATUS_IS_PAID => 'Оплачен',
+        self::STATUS_PAID_IN_PART => 'Оплачен частично',
+    ];
 
     /**
      * @return string
@@ -117,11 +127,13 @@ class Bill extends ActiveRecord
     {
         switch ($field) {
             case 'courier_id':
-                if ($curier = Courier::findOne($value)) {
-                    return $value . ' (' . $curier->name . ')';
+                if ($courier = Courier::findOne($value)) {
+                    /** @var Courier $courier */
+                    return $value . ' (' . $courier->name . ')';
                 }
                 break;
         }
+
         return $value;
     }
 
@@ -146,6 +158,7 @@ class Bill extends ActiveRecord
      */
     public function getClientAccount()
     {
+        /** @var ClientAccount $account */
         $account = ClientAccount::findOne(['id' => $this->client_id]);
 
         if (!$account) {
@@ -174,7 +187,7 @@ class Bill extends ActiveRecord
     }
 
     /**
-     * @param $clientId
+     * @param int $clientId
      * @return boolean|\app\models\Bill
      */
     public static function getLastUnpaidBill($clientId)
@@ -190,22 +203,20 @@ class Bill extends ActiveRecord
         }
 
         // First unpaid bill
-        $bill =
-            self::find()
+        $bill = self::find()
                 ->where([
                     'client_id' => $clientAccount->id,
                     'currency' => $clientAccount->currency,
                     'biller_version' => ClientAccount::VERSION_BILLER_USAGE
                 ])
-                ->andWhere(['in', 'is_payed', [0, 2]])
+                ->andWhere(['in', 'is_payed', [self::STATUS_NOT_PAID, self::STATUS_PAID_IN_PART]])
                 ->andWhere(['>', 'bill_date', $fromDate])
                 ->orderBy('bill_date')
                 ->one();
 
         if ($bill === null) {
             // Last bill
-            $bill =
-                self::find()
+            $bill = self::find()
                     ->where([
                         'client_id' => $clientAccount->id,
                         'currency' => $clientAccount->currency,

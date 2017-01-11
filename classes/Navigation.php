@@ -109,7 +109,7 @@ class Navigation
             ->addItem('Загруженность номеров', ['/voipreport/cdr-workload'], ['voipreports.access'])
         );
 
-//        $this->addBlockForStatModule('voipreports');
+        // $this->addBlockForStatModule('voipreports');
         $this->addBlockForStatModule('ats');
         $this->addBlockForStatModule('data');
         $this->addBlockForStatModule('incomegoods');

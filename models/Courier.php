@@ -12,11 +12,18 @@ use yii\db\ActiveRecord;
  */
 class Courier extends ActiveRecord
 {
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'courier';
     }
 
+    /**
+     * @return CourierDao
+     */
     public static function dao()
     {
         return CourierDao::me();
