@@ -307,4 +307,92 @@ class BillDao extends Singleton
             throw new LogicException(implode(' ', $uuBill->getFirstErrors()));
         }
     }
+
+    /**
+     * Этот счет выписывается на новую компанию?
+     *
+     * Переход с МСН Телкома на МСН Телеком Ритейл
+     *
+     * @param Bill $bill
+     * @return bool
+     */
+    public function isBillNewCompany(Bill $bill)
+    {
+        $sql = <<<ESQL
+SELECT
+  model,
+  model_id,
+  date,
+  replace(replace(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15,
+                            instr(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15), ',') - 1), '\"', ''),
+          ':', '')              new_org_id,
+  replace(replace(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15,
+                            instr(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15), ',') - 1), '\"',
+                  ''), ':', '') old_org_id,
+  client_id
+FROM (
+       SELECT
+         h1.*,
+         c.id AS   client_id,
+         (SELECT data_json
+          FROM history_version h2
+          WHERE h2.model = 'ClientContract' AND h2.date < :billDate AND h1.model_id = h2.model_id
+          ORDER BY date DESC
+          LIMIT 1) h2_json
+       FROM history_version h1, clients c
+       WHERE h1.model = 'ClientContract' AND h1.date = :billDate AND c.id = :accountId AND h1.model_id = c.contract_id
+     ) a
+HAVING new_org_id = 11 AND old_org_id = 1
+ESQL;
+
+        return (bool) \Yii::$app->db->createCommand($sql, [
+            ":billDate" => $bill->bill_date,
+            ":accountId" => $bill->client_id
+        ])->queryOne();
+    }
+
+    /**
+     * Дата перехода с МСН Телкома на МСН Телеком Ритейл
+     *
+     * @param integer $accountId
+     * @return false|null|string
+     */
+    public function getNewCompanyDate($accountId)
+    {
+        $sql = <<<SQL
+          select 
+              date 
+          from (
+                SELECT
+                        model,
+                        model_id,
+                        date,
+                        replace(replace(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15,
+                                    instr(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15), ',') - 1), '\"',
+                                ''), ':', '') new_org_id,
+                        replace(replace(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15,
+                                    instr(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15), ',') - 1), '\"',
+                                ''), ':', '') old_org_id,
+                         client_id
+                        FROM (
+                            SELECT
+                            h1.*,c.id as client_id,
+                            (SELECT data_json
+                             FROM history_version h2
+                             WHERE h2.model = 'ClientContract' AND h2.date < h1.date AND h1.model_id = h2.model_id
+                             ORDER BY date DESC
+                             LIMIT 1) h2_json
+                            FROM history_version h1, clients c
+                            WHERE h1.model = 'ClientContract' and c.id = :accountId and h1.model_id = c.contract_id
+                            ) a
+													
+                        HAVING new_org_id = 11 AND old_org_id = 1
+												ORDER BY date DESC
+												LIMIT 1
+)a
+SQL;
+
+        return \Yii::$app->db->createCommand($sql, [':accountId' => $accountId])->queryScalar();
+
+    }
 }

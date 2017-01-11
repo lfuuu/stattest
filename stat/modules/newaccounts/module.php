@@ -742,6 +742,7 @@ class m_newaccounts extends IModule
         $design->assign('bill_courier', $bill->GetCourier());
         $design->assign('bill_lines', $L = $bill->GetLines());
         $design->assign('bill_bonus', $this->getBillBonus($bill->GetNo()));
+        $design->assign('bill_is_new_company', \app\models\Bill::dao()->isBillNewCompany($newbill));
 
         /*
            счет-фактура(1)-абонен.плата

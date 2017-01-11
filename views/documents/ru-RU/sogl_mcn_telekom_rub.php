@@ -4,6 +4,7 @@ use app\classes\BillContract;
 use app\helpers\MediaFileHelper;
 use app\classes\Html;
 use app\models\Organization;
+use app\models\Bill;
 
 $contract = BillContract::getString($document->bill->clientAccount->contract_id, time());
 
@@ -12,6 +13,7 @@ $organizationMCMTelekom = Organization::find()->byId(11)->actual()->one(); //mcm
 
 $director_mcn = $organizationMCNTelekom->director;
 $director_mcm = $organizationMCMTelekom->director;
+$dateStr = \app\classes\DateFunction::mdate(strtotime(Bill::dao()->getNewCompanyDate($document->bill->client_id) ?: $document->bill->bill_date), '\&\l\a\q\u\o\;d\&\r\a\q\u\o\; месяца Y г.');
 
 $fsStyle = "";
 if (isset($isPdf) && $isPdf) {
@@ -55,17 +57,17 @@ $isWithStamp = $isPdf;
                         г. Москва
                     </td>
                     <td style="text-align: right;">
-                        &laquo;01&raquo; января 2017 г.&nbsp;&nbsp;&nbsp;
+                        <?=$dateStr?>&nbsp;&nbsp;&nbsp;
                     </td>
                 </tr>
             </table>
             <p style="<?=$fsStyle?>text-align: justify; text-indent: 35.0pt;">ООО &laquo;МСН Телеком&raquo; в лице Генерального директора Пыцкой Марины Алексеевны, действующей на основании Устава, с одной стороны,</p>
             <p style="<?=$fsStyle?>text-align: justify; text-indent: 35.0pt;">ООО &laquo;МСН Телеком Ритейл&raquo; в лице Генерального директора Бирюковой Натальи Викторовны, действующей на основании Устава, с другой стороны,</p>
             <p style="<?=$fsStyle?>text-align: justify; text-indent: 35.0pt;">при совместном упоминании именуемые Стороны, а по отдельности Сторона, заключили настоящее Соглашение (далее - &laquo;Соглашение&raquo;) о передаче прав и обязанностей по Договору № <?= $contract?> (далее - Договор) о нижеследующем:</p>
-            <p style="<?=$fsStyle?>text-align: justify;">1. ООО &laquo;МСН Телеком&raquo; с &laquo;01&raquo; января 2017 г. передает все свои права и обязанности по Договору, а ООО &laquo;МСН Телеком Ритейл&raquo; принимает на себя с &laquo;01&raquo; января 2017 г. все передаваемые ООО &laquo;МСН Телеком&raquo; права и обязанности по Договору.</p>
-            <p style="<?=$fsStyle?>text-align: justify;">2. С &laquo;01&raquo; января 2017 г. права и обязанности по Договору возникают у ООО &laquo;МСН Телеком Ритейл&raquo;, а обязанности в отношении ООО &laquo;МСН Телеком&raquo; прекращаются.</p>
+            <p style="<?=$fsStyle?>text-align: justify;">1. ООО &laquo;МСН Телеком&raquo; с <?=$dateStr?> передает все свои права и обязанности по Договору, а ООО &laquo;МСН Телеком Ритейл&raquo; принимает на себя с <?=$dateStr?> все передаваемые ООО &laquo;МСН Телеком&raquo; права и обязанности по Договору.</p>
+            <p style="<?=$fsStyle?>text-align: justify;">2. С <?=$dateStr?> права и обязанности по Договору возникают у ООО &laquo;МСН Телеком Ритейл&raquo;, а обязанности в отношении ООО &laquo;МСН Телеком&raquo; прекращаются.</p>
             <p style="<?=$fsStyle?>text-align: justify;">3. ООО &laquo;МСН Телеком&raquo; передает ООО &laquo;МСН Телеком Ритейл&raquo; свой оригинальный экземпляр Договора.</p>
-            <p style="<?=$fsStyle?>text-align: justify;">4. ООО &laquo;МСН Телеком Ритейл&raquo; извещает о том, что вся поступающая корреспонденция в рамках исполнения Договора с &laquo;01&raquo; января 2017 г. должна быть адресована в ООО &laquo;МСН Телеком Ритейл&raquo;.</p>
+            <p style="<?=$fsStyle?>text-align: justify;">4. ООО &laquo;МСН Телеком Ритейл&raquo; извещает о том, что вся поступающая корреспонденция в рамках исполнения Договора с <?=$dateStr?> должна быть адресована в ООО &laquo;МСН Телеком Ритейл&raquo;.</p>
             <p style="<?=$fsStyle?>text-align: justify;">5. Настоящее Соглашение вступает в законную силу с даты его подписания Сторонами.</p>
             <p style="<?=$fsStyle?>text-align: justify;">6. Передача прав и обязанностей в соответствии с настоящим Соглашением не влечет за собой каких-либо изменений условий Договора, кроме оговоренных в настоящем Соглашении.</p>
             <p style="<?=$fsStyle?>text-align: justify;">7. Настоящее Соглашение составлено на одном листе, в двух экземплярах, имеющих одинаковую юридическую силу, по одному для каждой из Сторон, и является неотъемлемой частью Договора.</p>
