@@ -186,7 +186,7 @@ class Bill extends ActiveRecord
         }
 
         if ($lastSaldo = Saldo::getLastSaldo($clientAccount->id)) {
-            $fromDate = $lastSaldo->date;
+            $fromDate = $lastSaldo->ts;
         }
 
         // First unpaid bill

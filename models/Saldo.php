@@ -20,7 +20,7 @@ class Saldo extends ActiveRecord
         return
             self::find()
                 ->select([
-                    'date' => 'ts',
+                    'ts',
                     'saldo'
                 ])
                 ->where(['client_id' => $clientId])

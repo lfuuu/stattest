@@ -21,7 +21,7 @@ class NewBill extends ActiveRecord\Model
         $fromDate = "2000-01-01";
 
         if($lastSaldo = Saldo::getLastSaldo($clientId)) {
-            $fromDate = $lastSaldo->date;
+            $fromDate = $lastSaldo->ts;
         }
 
         // unpayed

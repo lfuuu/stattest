@@ -6,7 +6,7 @@ class Saldo extends ActiveRecord\Model
     public static function getLastSaldo($clientId)
     {
         return Saldo::first(array(
-                    'select' => 'ts as date, saldo',
+                    'select' => 'ts, saldo',
                     'conditions' => array('client_id = ?', $clientId),
                     'order' => 'ts desc, id desc',
                     'limit' => 1
