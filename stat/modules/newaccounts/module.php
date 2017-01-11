@@ -1800,10 +1800,8 @@ class m_newaccounts extends IModule
         $isBill = get_param_raw("bill-2-RUB", "") == "1";
         $isEnvelope = get_param_raw("envelope", "") == "1";
 
-        $printObjects = [];
-        $printParams = [];
-
         $P = "";
+        $R = [];
 
         foreach ($bills as $billNo) {
             $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
@@ -1813,19 +1811,25 @@ class m_newaccounts extends IModule
             }
 
             $docs = BillDocument::dao()->getByBillNo($billNo);
+            if (!$docs) {
+                continue;
+            }
 
+            $printObjects = [];
+            $printParams = [];
+
+            $isEnvelope && ($printObjects[] = "envelope") && ($printParams[] = []);
+            $isBill && ($printObjects[] = "bill-2-RUB") && ($printParams[] = []);
             $isSF && $docs['i1'] && ($printObjects[] = "invoice-1") && ($printParams[] = []);
             $isSF && $docs['i2'] && ($printObjects[] = "invoice-2") && ($printParams[] = []);
-            $isUPD && $docs['ia1'] && ($printObjects[] = "upd-1") && ($printParams[] = []);
-            $isUPD && $docs['ia1'] && ($printObjects[] = "upd-1") && ($printParams[] = ['to_client' => "true"]);
-            $isUPD && $docs['ia2'] && ($printObjects[] = "upd-2") && ($printParams[] = []);
-            $isUPD && $docs['ia2'] && ($printObjects[] = "upd-2") && ($printParams[] = ['to_client' => "true"]);
             $isAkt && $docs['a1'] && ($printObjects[] = "akt-1") && ($printParams[] = []);
             $isAkt && $docs['a1'] && ($printObjects[] = "akt-1") && ($printParams[] = ['to_client' => "true"]);
             $isAkt && $docs['a2'] && ($printObjects[] = "akt-2") && ($printParams[] = []);
             $isAkt && $docs['a2'] && ($printObjects[] = "akt-2") && ($printParams[] = ['to_client' => "true"]);
-            $isBill && ($printObjects[] = "bill-2-RUB") && ($printParams[] = []);
-            $isEnvelope && ($printObjects[] = "envelope") && ($printParams[] = []);
+            $isUPD && $docs['ia1'] && ($printObjects[] = "upd-1") && ($printParams[] = []);
+            $isUPD && $docs['ia1'] && ($printObjects[] = "upd-1") && ($printParams[] = ['to_client' => "true"]);
+            $isUPD && $docs['ia2'] && ($printObjects[] = "upd-2") && ($printParams[] = []);
+            $isUPD && $docs['ia2'] && ($printObjects[] = "upd-2") && ($printParams[] = ['to_client' => "true"]);
 
             foreach($printObjects as $idx => $obj) {
 
