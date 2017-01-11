@@ -317,6 +317,10 @@ class ApiLk
                 ],
             ];
 
+        if ($billModel->clientAccount->contragent->country_id != Country::RUSSIA) {
+            return $ret;
+        }
+
         if (isset($dt["i1"]) && $dt["i1"]) {
             $ret["link"]["invoice1"] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $billNo,
