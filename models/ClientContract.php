@@ -87,6 +87,7 @@ class ClientContract extends HistoryActiveRecord
 
     public
         $attributesAllowedForVersioning = [
+        'contragent_id',
         'organization_id',
         'business_id',
         'business_process_id',
