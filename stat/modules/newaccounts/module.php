@@ -1574,8 +1574,12 @@ class m_newaccounts extends IModule
         $P = '';
 
         $isFromImport = get_param_raw("from", "") == "import";
+        $isFromImport2 = get_param_raw("from", "") == "import2";
         $isToPrint = true;//get_param_raw("to_print", "") == "true";
         $stamp = get_param_raw("stamp", "");
+
+
+
 
         $documentReports = get_param_raw('document_reports', array());
 
@@ -1596,6 +1600,9 @@ class m_newaccounts extends IModule
         $L = array_merge($L, array('akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3'));
         $L = array_merge($L, array('nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom'));
 
+        if ($isFromImport2) {
+            return $this->importOnDocType($bills, $is_pdf);
+        }
         //$L = array("invoice-1");
 
         //$bills = array("201204-0465");
@@ -1775,6 +1782,71 @@ class m_newaccounts extends IModule
         $design->assign('objects', $R);
         $design->ProcessEx('newaccounts/print_bill_frames.tpl');
         #$design->ProcessEx('errors.tpl');
+    }
+
+    /**
+     * Новый, экспериментальный, импорт для документов
+     *
+     * @param array $bills
+     * @param bool $isPDF
+     */
+    function importOnDocType($bills = [], $isPDF = false)
+    {
+        global $design;
+
+        $isSF = get_param_raw("invoice-1", "") == "1";
+        $isUPD = get_param_raw("upd-1", "") == "1";
+        $isAkt = get_param_raw("akt-1", "") == "1";
+        $isBill = get_param_raw("bill-2-RUB", "") == "1";
+        $isEnvelope = get_param_raw("envelope", "") == "1";
+
+        $printObjects = [];
+        $printParams = [];
+
+        $P = "";
+
+        foreach ($bills as $billNo) {
+            $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
+
+            if (!$bill) {
+                continue;
+            }
+
+            $docs = BillDocument::dao()->getByBillNo($billNo);
+
+            $isSF && $docs['i1'] && ($printObjects[] = "invoice-1") && ($printParams[] = []);
+            $isSF && $docs['i2'] && ($printObjects[] = "invoice-2") && ($printParams[] = []);
+            $isUPD && $docs['ia1'] && ($printObjects[] = "upd-1") && ($printParams[] = []);
+            $isUPD && $docs['ia1'] && ($printObjects[] = "upd-1") && ($printParams[] = ['to_client' => "true"]);
+            $isUPD && $docs['ia2'] && ($printObjects[] = "upd-2") && ($printParams[] = []);
+            $isUPD && $docs['ia2'] && ($printObjects[] = "upd-2") && ($printParams[] = ['to_client' => "true"]);
+            $isAkt && $docs['a1'] && ($printObjects[] = "akt-1") && ($printParams[] = []);
+            $isAkt && $docs['a1'] && ($printObjects[] = "akt-1") && ($printParams[] = ['to_client' => "true"]);
+            $isAkt && $docs['a2'] && ($printObjects[] = "akt-2") && ($printParams[] = []);
+            $isAkt && $docs['a2'] && ($printObjects[] = "akt-2") && ($printParams[] = ['to_client' => "true"]);
+            $isBill && ($printObjects[] = "bill-2-RUB") && ($printParams[] = []);
+            $isEnvelope && ($printObjects[] = "envelope") && ($printParams[] = []);
+
+            foreach($printObjects as $idx => $obj) {
+
+                $R[] = [
+                    "bill_no" => $billNo,
+                    "obj" => $obj . "&" . http_build_query([
+                            "to_print" => "true",
+                        ] + $printParams[$idx]
+                    ),
+                    "bill_client" => $bill->client_id,
+                ];
+
+                $P .= ($P ? ',' : '') . '1';
+            }
+        }
+
+        $design->assign('is_pdf', $isPDF);
+        $design->assign('rows', $P);
+        $design->assign('objects', $R);
+        $design->ProcessEx('newaccounts/print_bill_frames.tpl');
+
     }
 
     function newaccounts_bill_clear($fixclient)
@@ -2875,7 +2947,7 @@ class m_newaccounts extends IModule
                 PaymentSberOnline::dao()->loadPaymentListFromFile($_FILES['file']['tmp_name']);
             } else {
                 include INCLUDE_PATH . "mt940.php";
-                $d = banks::detect($fHeader);
+                $d = Banks::detect($fHeader);
             }
         }
 
@@ -2960,7 +3032,7 @@ class m_newaccounts extends IModule
         include_once INCLUDE_PATH . "mt940.php";
 
         $c = file_get_contents($fPath);
-        mt940_list_manager::parseAndSave($c);
+        MT940ListManager::parseAndSave($c);
     }
 
     function saveClientBankExchangePL($fPath, $prefix)
@@ -3104,7 +3176,7 @@ where cg.inn = '" . $inn . "'";
 
         if ($_payAccs === false) {
             $c = file_get_contents($file);
-            $m = new mt940($c);
+            $m = new MT940($c);
 
             $pays = $m->getPays();
             $payAccs = array($m->getPayAcc());
@@ -3126,7 +3198,7 @@ where cg.inn = '" . $inn . "'";
             $payAccs = $_payAccs;
             $pays = $_pays;
             //$pays=array($pays[0]);
-            usort($pays, array("mt940", "sortBySum"));
+            usort($pays, array("MT940", "sortBySum"));
         }
 
         $firms = $this->getFirmByPayAccs($payAccs);

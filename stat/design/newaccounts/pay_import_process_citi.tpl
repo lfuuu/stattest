@@ -260,6 +260,76 @@
             </td>
         </tr>
     </table>
+    <hr />
+    <hr />
+    <hr />
+    <hr />
+    Печать сопроводительного письма, счета и акт-1(2):
+
+    {assign var="cc" value=0}
+    {assign var="cp" value=1}
+    <table border=0>
+        <tr>
+            <td>
+                <form style="padding: 0; margin: 0;">
+                    {foreach from=$bills item=bill_no}
+                    {if $bill_no}
+                    {if $cc%10 == 0}
+                </form>
+            </td>
+            <td>
+                <form action="./?module=newaccounts&bill-2-RUB=1&envelope=1&akt-1=1&action=bill_mprint&from=import2"
+                      method=post target=_blank><input type="submit" value="{$cp}" style="padding: 5px;width: 50px;"
+                                                       onclick="this.style.background='#E0FFE0';">
+                    {assign var="cp" value=$cp+1}
+                    {/if}
+                    <input type=hidden name=bill[] value="{$bill_no}">{assign var="cc" value=$cc+1}{/if}
+                    {/foreach}
+                </form>
+            </td>
+            <td>
+                <form action="./?module=newaccounts&bill-2-RUB=1&envelope=1&akt-1=1&action=bill_mprint&from=import2&one_pdf=1"
+                      method="POST" target="_blank">
+                    {foreach from=$bills item=bill_no}
+                        <input type="hidden" name="bill[]" value="{$bill_no}"/>
+                    {/foreach}
+                    <input type="submit" value="PDF одним файлом" style="padding: 5px;"/>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <hr />
+    <hr />
+    Печать с/ф, УПД:
+    {assign var="cc" value=0}
+    {assign var="cp" value=1}
+    <table border="0">
+        <tr>
+            <td>
+                <form  style="padding: 0; margin: 0;">
+                    {foreach from=$bills item=bill_no}
+                    {if $bill_no}
+                    {if $cc%10 == 0}
+                </form></td><td>
+                <form action="./?module=newaccounts&upd-1=1&upd-2=1&invoice-1=1&invoice-2=1&action=bill_mprint&from=import2" method="POST" target="_blank">
+                    <input type="submit" value="{$cp}" style="padding: 5px;width: 50px;" onclick="this.style.background='#E0FFE0';" />
+                    {assign var="cp" value=$cp+1}
+                    {/if}
+                    <input type="hidden" name="bill[]" value="{$bill_no}">{assign var="cc" value=$cc+1}
+                    {/if}
+                    {/foreach}
+                </form>
+            </td>
+            <td>
+                <form action="./?module=newaccounts&upd-1=1&upd-2=1&invoice-1=1&invoice-2=1&action=bill_mprint&from=import2&one_pdf=1" method="POST" target="_blank">
+                    {foreach from=$bills item=bill_no}
+                        <input type="hidden" name="bill[]" value="{$bill_no}" />
+                    {/foreach}
+                    <input type="submit" value="PDF одним файлом" style="padding: 5px;">
+                </form>
+            </td>
+        </tr>
+    </table>
 {/if}
 
 <script type="text/javascript">

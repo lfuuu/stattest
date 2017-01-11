@@ -252,9 +252,11 @@ class ApiLk
         $curr_bill = new Bill($billNo);
         $dt = BillDocument::dao()->getByBillNo($curr_bill->GetNo());
 
+        $types = array("bill_no" => $dt["bill_no"], "ts" => $dt["ts"]);
 
         $billModel = app\models\Bill::findOne(['bill_no' => $billNo]);
 
+        /*
         $organizationId = 1;
         if ($billModel)
         {
@@ -267,15 +269,22 @@ class ApiLk
         }
 
 
-        $types = array("bill_no" => $dt["bill_no"], "ts" => $dt["ts"]);
 
         if ($organizationId == app\models\Organization::MCM_TELEKOM)
         {
             $types["a1"] = $dt["a1"];
             $types["a2"] = $dt["a2"];
         } else {
+            $billTs = strtotime($curr_bill->Get("bill_date"));
+            $period1 = strtotime("2014-07-01"); // переход на УПД
+            $period2 = strtotime("2017-01-01"); // возврат на с/ф и акт
 
-            if (strtotime($curr_bill->Get("bill_date")) >= strtotime("2014-07-01"))
+            if ($billTs >= $period2) {
+                $types["a1"] = $dt["a1"];
+                $types["a2"] = $dt["a2"];
+                $types["i1"] = $dt["a1"];
+                $types["i2"] = $dt["a2"];
+            } else if ($billTs >= $period1)
             {
                 $types["u1"] = $dt["a1"];
                 $types["u2"] = $dt["a2"];
@@ -287,6 +296,7 @@ class ApiLk
                 $types["i2"] = $dt["a2"];
             }
         }
+        */
 
 
         $ret = [
@@ -307,7 +317,7 @@ class ApiLk
                 ],
             ];
 
-        if (isset($types["i1"]) && $types["i1"]) {
+        if (isset($dt["i1"]) && $dt["i1"]) {
             $ret["link"]["invoice1"] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $billNo,
                     'object' => "invoice-1",
@@ -315,7 +325,7 @@ class ApiLk
                 ]);
         }
 
-        if (isset($types["i2"]) && $types["i2"]) {
+        if (isset($dt["i2"]) && $dt["i2"]) {
             $ret["link"]["invoice2"] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $billNo,
                     'object' => "invoice-2",
@@ -323,7 +333,7 @@ class ApiLk
                 ]);
         }
 
-        if (isset($types["a1"]) && $types["a1"]) {
+        if (isset($dt["a1"]) && $dt["a1"]) {
             $ret["link"]["akt1"] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $billNo,
                     'object' => "akt-1",
@@ -331,7 +341,7 @@ class ApiLk
                 ]);
         }
 
-        if (isset($types["a2"]) && $types["a2"]) {
+        if (isset($dt["a2"]) && $dt["a2"]) {
             $ret["link"]["akt2"] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $billNo,
                     'object' => "akt-2",
@@ -339,7 +349,7 @@ class ApiLk
                 ]);
         }
 
-        if (isset($types["u1"]) && $types["u1"]) {
+        if (isset($dt["ia1"]) && $dt["ia1"]) {
             $ret["link"]["upd1"] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $billNo,
                     'object' => "upd-1",
@@ -347,7 +357,7 @@ class ApiLk
                 ]);
         }
 
-        if (isset($types["u2"]) && $types["u2"]) {
+        if (isset($dt["ia2"]) && $dt["ia2"]) {
             $ret["link"]["upd2"] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $billNo,
                     'object' => "upd-2",
@@ -355,15 +365,13 @@ class ApiLk
                 ]);
         }
 
-        if (isset($types["ut"]) && $types["ut"]) {
+        if (isset($dt["i3"]) && $dt["i3"]) {
             $ret["link"]["updt"] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $billNo,
                     'object' => "upd-3",
                     "client" => $clientId
                 ]);
         }
-
-
 
         return $ret;
     }
