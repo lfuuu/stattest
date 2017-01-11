@@ -1,6 +1,7 @@
 <?php
 namespace app\models\flows;
 
+use app\classes\DateFunction;
 use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
 use yii\db\ActiveRecord;
@@ -9,13 +10,13 @@ use yii\db\Query;
 
 /**
  * Class TraffFlow1d
+ *
  * @property  string datetime
  * @property  string router_ip
  * @property  string ip_addr
  * @property  integer in_bytes
  * @property  integer out_bytes
  * @property  integer type
- * @package app\models\flows
  */
 class TraffFlow1d extends ActiveRecord
 {
@@ -34,22 +35,41 @@ class TraffFlow1d extends ActiveRecord
         self::STAT_GROUP_HOUR => 'по часам',
     ];
 
+    /**
+     * Название таблицы
+     *
+     * @return string
+     */
     public static function tableName()
     {
         return 'flows.traf_flow_1d';
     }
 
+    /**
+     * Подключение для работы с таблицей
+     *
+     * @return mixed
+     */
     public static function getDb()
     {
         return \Yii::$app->dbPgNfDump;
     }
 
+    /**
+     * Получение статистики по Интернет
+     *
+     * @param \DateTime $fromDt
+     * @param \DateTime $toDt
+     * @param string $grouping
+     * @param array $routes
+     * @param bool $isWithTotal
+     * @return array
+     */
     public static function getStatistic(\DateTime $fromDt, \DateTime $toDt, $grouping, $routes, $isWithTotal = true)
     {
         $tz = new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
 
         $middleDt = new \DateTime(UsageInterface::MIDDLE_DATE, $tz);
-
 
         // выход за разумные пределы
         if ($fromDt > $middleDt) {
@@ -156,7 +176,7 @@ class TraffFlow1d extends ActiveRecord
             $countRow = 0;
             $sql = $query->createCommand(self::getDb())->rawSql;
             foreach ($query->createCommand(self::getDb())->queryAll() as $row) {
-                $row['tsf'] = $format ? mdate($format, $row['ts']) : $row['ts'];
+                $row['tsf'] = $format ? DateFunction::mdate($row['ts'], $format) : $row['ts'];
                 $row['is_total'] = 0;
                 $rows[] = $row;
 
