@@ -29,7 +29,7 @@ $contract = BillContract::getString($document->bill->clientAccount->contract_id,
 <br/>
 <br/>
 <br/>
-<p style="text-align: justify; text-indent: 35.0pt;">С 1 декабря 2016 все права и обязанности по вашему Договору №<?= $contract ?> передаются от ООО «МСН Телеком» к ООО
+<p style="text-align: justify; text-indent: 35.0pt;">С 1 января 2017 г. все права и обязанности по вашему Договору №<?= $contract ?> передаются от ООО «МСН Телеком» к ООО
     «МСН Телеком Ритейл».</p>
 <br/><br/>
 <p style="text-align: justify; text-indent: 35.0pt;">Обращаем ваше внимание, что условия Договора остаются прежними.</p>
