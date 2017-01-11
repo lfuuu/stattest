@@ -13,21 +13,26 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
             <div class="col-sm-10">
                 <?= $this->render('block/status', ['account' => $account, 'contractForm' => $contractForm]); ?>
                 <?= $this->render('block/contact', ['account' => $account]); ?>
-                <?= $this->render('block/file', ['account' => $account]); ?>
             </div>
             <div class="col-sm-2">
                 <?= $this->render('block/rightmenu', ['account' => $account]); ?>
             </div>
         </div>
+        <?= $this->render('//contract/files/grid', [
+            'contract' => $account->contract,
+            'isHidden' => true,
+        ]) ?>
         <?= $this->render('block/trouble', ['troubles' => $troubles, 'serverTroubles' => $serverTroubles]); ?>
         <?= $this->render('block/service', ['account' => $account, 'services' => $services, 'account' => $account]); ?>
         <?php
             if ($uuFilterModel) {
-                echo $this->render('//uu/account-tariff/_indexVoip',[
-                    'filterModel' => $uuFilterModel,
-                    'isShowAddButton' => false,
-                    'packageServiceTypeIds' => [ServiceType::ID_VOIP_PACKAGE],
-                ]);
+                echo $this->render('//uu/account-tariff/_indexVoip',
+                    [
+                        'filterModel' => $uuFilterModel,
+                        'isShowAddButton' => false,
+                        'packageServiceTypeIds' => [ServiceType::ID_VOIP_PACKAGE],
+                    ]
+                );
             }
         ?>
 
@@ -35,11 +40,9 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
 
     <?= $this->render('block/style'); ?>
 
-
-    <script>
-        d = false;
+    <script type="text/javascript">
         $('.showFullTable').on('click', function () {
-            $(this).parent().find('.fullTable').toggle();
+            $('.fullTable').toggleClass('collapse');
         });
         $(document).ready(function () {
             $('.select2').select2();

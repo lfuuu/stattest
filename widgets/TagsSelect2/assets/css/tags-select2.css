@@ -1,0 +1,22 @@
+.tags-inline-edit {
+    position: relative;
+    float: right;
+    bottom: 0;
+    margin-top: 10px;
+    cursor: pointer;
+    width: 10px;
+}
+
+.tags-inline-edit.disable-edit {
+    display: none;
+}
+
+.tags-label {
+    margin: 2px;
+}
+
+.tags-resource-list {
+    float: left;
+    width: 95%;
+    display: none;
+}

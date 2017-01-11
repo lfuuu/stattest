@@ -39,7 +39,7 @@ foreach ($contacts as $contact) {
                 </div>
             <?php endforeach; ?>
         </div>
-        <div class="col-sm-12 fullTable" style="display: none;">
+        <div class="col-sm-12 fullTable collapse">
             <div class="row head3">
                 <div class="col-sm-1"></div>
                 <div class="col-sm-2">Тип</div>
@@ -59,10 +59,10 @@ foreach ($contacts as $contact) {
                         <?= htmlspecialchars($contact->data) ?><br />
                         <?= htmlspecialchars($contact->comment) ?>
                     </div>
-                    <div class="col-sm-2"><?= $contact->user? $contact->user->name: '' ?></div>
+                    <div class="col-sm-2"><?= $contact->user ? $contact->user->name : '' ?></div>
                     <div class="col-sm-2"><?= DateTimeZoneHelper::getDateTime($contact->ts) ?></div>
                     <div class="col-sm-1 text-center">
-                        <?php if ($contact->user && $contact->user->user === 'AutoLK'): ?>
+                        <?php if ($contact->user && $contact->user->user === 'AutoLK') : ?>
                             <a href="<?= Url::toRoute(['contact/lk-activate', 'id' => $contact->id]) ?>">
                                 <img style="margin-left:-2px;margin-top:-3px" class="icon"
                                      src="/images/icons/<?= $contact->is_active ? 'action_check_off.gif' : 'action_check.gif' ?>"
@@ -91,8 +91,8 @@ foreach ($contacts as $contact) {
                 </div>
                 <div class="col-sm-2 field-clientcontact-data">
                     <?php
-                    $f->beginField((new ClientContact),'data');
-                        echo Html::activeInput('text', (new ClientContact),'data', [
+                    $f->beginField((new ClientContact), 'data');
+                        echo Html::activeInput('text', (new ClientContact), 'data', [
                             'placeholder' => 'Контактные данные',
                             'name' => 'data',
                             'id' => 'clientcontact-data',

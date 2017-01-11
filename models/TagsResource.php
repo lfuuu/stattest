@@ -41,6 +41,7 @@ class TagsResource extends ActiveRecord
             ['feature', 'string'],
             ['tags', ArrayValidator::className()],
             [['resource', 'resource_id', ], 'required'],
+            ['feature', 'default', 'value' => null],
         ];
     }
 
@@ -56,13 +57,12 @@ class TagsResource extends ActiveRecord
      * @param string $resource
      * @param string $indexBy
      * @param int $resourceId
-     * @param string $feature
+     * @param string|null $feature
      * @return array
      */
-    public static function getTagList($resource, $indexBy = null, $resourceId = 0, $feature = '')
+    public static function getTagList($resource, $indexBy = null, $resourceId = 0, $feature = null)
     {
-        $query =
-            (new Query)
+        $query = (new Query)
                 ->select(['t.id', 't.name'])
                 ->from(['tc' => self::tableName()])
                 ->innerJoin(['t' => Tags::tableName()], 't.id = tc.tag_id')
@@ -72,9 +72,11 @@ class TagsResource extends ActiveRecord
         if ((int)$resourceId) {
             $query->andWhere(['tc.resource_id' => $resourceId]);
         }
+
         if (!empty($feature)) {
             $query->andWhere(['tc.feature' => $feature]);
         }
+
         if (!is_null($indexBy)) {
             $query->indexBy($indexBy);
         }
@@ -88,7 +90,7 @@ class TagsResource extends ActiveRecord
      */
     public function saveAll()
     {
-        $this->tags = (array) $this->tags;
+        $this->tags = (array)$this->tags;
 
         $tagList = self::getTagList($this->resource, 'name', 0, $this->feature);
         $resourceTagList = self::getTagList($this->resource, 'name', $this->resource_id, $this->feature);
@@ -103,13 +105,19 @@ class TagsResource extends ActiveRecord
                 foreach ($diffTags as $tagName) {
                     $tagsToRemove[] = $tagList[$tagName]['id'];
                 }
-                self::deleteAll([
+
+                $conditions = [
                     'AND',
                     ['resource' => $this->resource],
                     ['resource_id' => $this->resource_id],
-                    ['feature' => $this->feature],
                     ['IN', 'tag_id', $tagsToRemove],
-                ]);
+                ];
+
+                if ($this->feature) {
+                    $conditions[] = ['feature' => $this->feature];
+                }
+
+                self::deleteAll($conditions);
             }
 
             foreach ($this->tags as $tagName) {
@@ -121,9 +129,11 @@ class TagsResource extends ActiveRecord
                     if (!array_key_exists($tagName, $tagList)) {
                         $tag = new Tags;
                         $tag->name = $tagName;
+
                         if (!$tag->save()) {
                             throw new LogicException(implode(' ', $tag->getFirstErrors()));
                         }
+
                         $tagId = $tag->id;
                         $tagList[$tagName] = ['id' => $tag->id, 'name' => $tagName];
                     } else {

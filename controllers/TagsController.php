@@ -35,16 +35,16 @@ class TagsController extends BaseController
 
     /**
      * @param string $resource
-     * @param string $feature
+     * @param string|null $feature
      * @return array
      */
-    public function actionLoadList($resource, $feature)
+    public function actionLoadList($resource, $feature = null)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         return [
             'results' => array_map(
-                function($row) {
+                function ($row) {
                     return ['id' => $row['name'], 'text' => $row['name']];
                 },
                 TagsResource::getTagList($resource, $indexBy = null, $resourceId = 0, $feature)

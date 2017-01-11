@@ -3,7 +3,6 @@
 use kartik\widgets\ActiveForm;
 use app\classes\Html;
 use kartik\widgets\Select2;
-use kartik\builder\Form;
 use app\forms\client\ContractEditForm;
 use app\models\ClientContract;
 use app\models\ContractType;
@@ -166,9 +165,9 @@ $model->federal_district = $model->getModel()->getFederalDistrictAsArray();
                                 'class' =>
                                     !$model->getIsNewRecord()
                                     && $model->state != ClientContract::STATE_UNCHECKED
-                                    && !Yii::$app->user->can('clients.client_type_change')
-                                        ? 'btn-disabled'
-                                        : ''
+                                    && !Yii::$app->user->can('clients.client_type_change') ?
+                                        'btn-disabled' :
+                                        ''
                             ]);
                     echo Html::endTag('div');
                     break;

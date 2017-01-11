@@ -279,18 +279,16 @@ echo Breadcrumbs::widget([
 
     <?php if ($usage->term_enabled) : ?>
         <div class="row">
-            <div class="col-sm-8">
-                <div class="col-sm-2">
-                    <h2>Терминация:</h2>
-                </div>
-                <div class="col-sm-6">
-                    <?= TagsSelect2::widget([
-                        'model' => $model->getModel(),
-                        'attribute' => 'tagsTerm',
-                        'feature' => 'term_enabled',
-                        'label' => 'Тип транка',
-                    ]) ?>
-                </div>
+            <div class="col-sm-2">
+                <h2>Терминация:</h2>
+            </div>
+            <div class="col-sm-4">
+                <?= TagsSelect2::widget([
+                    'model' => $model->getModel(),
+                    'attribute' => 'tagsTerm',
+                    'feature' => 'term_enabled',
+                    'label' => 'Тип транка',
+                ]) ?>
             </div>
         </div>
 

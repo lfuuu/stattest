@@ -2,24 +2,25 @@
 
 namespace app\classes\media;
 
-use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
 use yii\db\ActiveRecord;
 use app\models\ClientContract;
 use app\models\media\ClientFiles;
+use app\helpers\DateTimeZoneHelper;
 
 class ClientMedia extends MediaManager
 {
+
     /** @var ClientContract */
-    private $contract;
+    private $_contract;
 
     /**
      * @param ClientContract $contract
      */
     public function __construct(ClientContract $contract)
     {
-        $this->contract = $contract;
+        $this->_contract = $contract;
     }
 
     /**
@@ -71,9 +72,8 @@ class ClientMedia extends MediaManager
     protected function createFileModel($name, $comment, $userId = null)
     {
         $model = new ClientFiles;
-        $model->contract_id = $this->contract->id;
+        $model->contract_id = $this->_contract->id;
         $model->ts = (new DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
-
         $model->name = $name;
         $model->comment = $comment;
         $model->user_id = $userId ?: Yii::$app->user->getId();
@@ -86,11 +86,12 @@ class ClientMedia extends MediaManager
     /**
      * @param ActiveRecord $fileModel
      * @throws \Exception
+     * @return void
      */
     protected function deleteFileModel(ActiveRecord $fileModel)
     {
         /** @var ClientFiles $model */
-        $model = ClientFiles::findOne(['contract_id' => $this->contract->id, 'id' => $fileModel->id]);
+        $model = ClientFiles::findOne(['contract_id' => $this->_contract->id, 'id' => $fileModel->id]);
         if ($model) {
             $model->delete();
         }
@@ -101,7 +102,7 @@ class ClientMedia extends MediaManager
      */
     protected function getFileModels()
     {
-        return ClientFiles::findAll(['contract_id' => $this->contract->id]);
+        return ClientFiles::findAll(['contract_id' => $this->_contract->id]);
     }
 
 }

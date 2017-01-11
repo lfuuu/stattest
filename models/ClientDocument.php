@@ -11,8 +11,6 @@ use app\dao\ClientDocumentDao;
 
 
 /**
- * Class ClientDocument
- *
  * @property int id
  * @property int contract_id
  * @property int account_id
@@ -26,7 +24,6 @@ use app\dao\ClientDocumentDao;
  * @property int is_active
  * @property string type
  * @property string fileContent
- * @package app\models
  */
 class ClientDocument extends ActiveRecord
 {
@@ -44,20 +41,32 @@ class ClientDocument extends ActiveRecord
         'blank' => 'Бланк заказа',
     ];
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_document';
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
             'contract_no' => '№',
-            'contract_date' => 'От',
-            'comment' => 'Комментарий'
+            'contract_date' => 'Дата',
+            'comment' => 'Комментарий',
+            'user' => 'Кто добавил',
+            'ts' => 'Когда',
+            'is_external' => 'Внут/Внеш',
         ];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -72,52 +81,95 @@ class ClientDocument extends ActiveRecord
         ];
     }
 
+    /**
+     * @return ClientDocumentQuery
+     */
     public static function find()
     {
         return new ClientDocumentQuery(get_called_class());
     }
 
+    /**
+     * @return ClientDocument[]
+     */
     public function getAgreements()
     {
-        return self::find()->andWhere(['contract_id' => $this->contract_id])->active()->agreement()->fromContract($this)->orderBy('contract_dop_date')->all();
+        return self::find()
+            ->andWhere(['contract_id' => $this->contract_id])
+            ->active()
+            ->agreement()
+            ->fromContract($this)
+            ->orderBy('contract_dop_date')
+            ->all();
     }
 
+    /**
+     * @return ClientDocument
+     */
     public function getBlank()
     {
-        return self::find()->andWhere(['account_id' => $this->account_id])->active()->blank()->fromContract($this)->last();
+        return self::find()
+            ->andWhere(['account_id' => $this->account_id])
+            ->active()
+            ->blank()
+            ->fromContract($this)
+            ->last();
     }
 
+    /**
+     * @return ClientDocumentDao
+     */
     public function dao()
     {
         return ClientDocumentDao::me();
     }
 
+    /**
+     * @return string
+     */
     public function getFileContent()
     {
         return self::dao()->getFileContent($this);
     }
 
+    /**
+     * @return false|int
+     * @throws \Exception
+     */
     public function erase()
     {
         self::dao()->deleteFile($this);
         return $this->delete();
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
+    /**
+     * @return string
+     */
     public function getLink()
     {
         return Encrypt::encodeString($this->id . '-' . $this->contract_id, 'CLIENTS');
     }
 
+    /**
+     * @param string $data
+     * @return string
+     */
     public static function linkDecode($data)
     {
         return Encrypt::decodeString($data, 'CLIENTS');
     }
 
+    /**
+     * @return ClientAccount
+     */
     public function getAccount()
     {
         $params = $this->account_id ? $this->account_id : ['contract_id' => $this->contract_id];
@@ -132,6 +184,10 @@ class ClientDocument extends ActiveRecord
         return ClientContract::findOne($this->contract_id)->loadVersionOnDate($this->contract_date);
     }
 
+    /**
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if ($insert) {
@@ -167,6 +223,10 @@ class ClientDocument extends ActiveRecord
         return parent::beforeSave($insert);
     }
 
+    /**
+     * @param bool $insert
+     * @param string[] $changedAttributes
+     */
     public function afterSave($insert, $changedAttributes)
     {
         if ($insert && $this->template_id) {
@@ -186,6 +246,7 @@ class ClientDocument extends ActiveRecord
             $this->dao()->updateFile($this);
         }
 
-        return parent::afterSave($insert, $changedAttributes);
+        parent::afterSave($insert, $changedAttributes);
     }
+
 }

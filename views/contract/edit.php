@@ -1,22 +1,22 @@
 <?php
 
 /** @var $this \app\classes\BaseView */
+/** @var ContractEditForm $model */
 
 use app\assets\AppAsset;
-use app\helpers\DateTimeZoneHelper;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
-use yii\helpers\Url;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use app\classes\Language;
 use app\classes\Html;
-use app\models\ClientContract;
 use app\models\ClientDocument;
 use app\models\UserGroups;
 use app\models\ClientContragent;
 use app\dao\ClientDocumentDao;
 use app\models\ClientContractReward;
+use app\forms\client\ContractEditForm;
+use app\helpers\DateTimeZoneHelper;
 
 $this->registerJsFile('@web/js/behaviors/managers_by_contract_type.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/organization_by_legal_type.js', ['depends' => [AppAsset::className()]]);
@@ -27,7 +27,7 @@ $contragents = ClientContragent::find()->andWhere(['super_id' => $model->getMode
 $contragentsOptions = [];
 
 foreach ($contragents as $contragent) {
-    $contragentsOptions[ $contragent->id ] = [
+    $contragentsOptions[$contragent->id] = [
         'data-legal-type' => $contragent->legal_type,
     ];
 }
@@ -35,8 +35,10 @@ $language = Language::getLanguageByCountryId($contragents[0]->country_id?: \app\
 $contragents = ArrayHelper::map($contragents, 'id', 'name');
 
 if (!$model->id) {
-    $model->organization_id = ClientContragent::$defaultOrganization[ $model->contract->contragent->legal_type ];
+    $model->organization_id = ClientContragent::$defaultOrganization[$model->contract->contragent->legal_type];
 }
+
+$docs = $model->model->allDocuments;
 ?>
 
 <div class="row">
@@ -81,10 +83,10 @@ if (!$model->id) {
             </div>
             <?php ActiveForm::end(); ?>
 
-            <?php if (!$model->isNewRecord): ?>
+            <?php if (!$model->isNewRecord) : ?>
                 <div class="col-sm-12 form-group">
                     <a href="#" onclick="return showVersion({ClientContract:<?= $model->id ?>}, true);">Версии</a><br/>
-                    <?php if(Yii::$app->user->identity->usergroup == UserGroups::ADMIN): ?>
+                    <?php if(Yii::$app->user->identity->usergroup == UserGroups::ADMIN) : ?>
                         <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
                         <span>История изменений</span>
                     <?php endif; ?>
@@ -117,213 +119,21 @@ if (!$model->id) {
         </script>
     </div>
 
-    <?php $docs = $model->model->allDocuments; ?>
+    <?= $this->render('contract/grid', [
+        'contract' => $model,
+        'docs' => array_filter($docs, function ($row) {
+            return $row->type === ClientDocument::DOCUMENT_CONTRACT_TYPE;
+        }),
+    ]) ?>
 
-    <div class="col-sm-12">
-        <div class="row"
-             style="padding: 5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
-            <div class="col-sm-12">Договор</div>
-        </div>
-        <div class="row head3" style=" padding: 5px 0;">
-            <div class="col-sm-1">Внут/Внеш</div>
-            <div class="col-sm-1">№</div>
-            <div class="col-sm-2">Дата</div>
-            <div class="col-sm-2">Комментарий</div>
-            <div class="col-sm-2">Кто добавил</div>
-            <div class="col-sm-2">Когда</div>
-            <div class="col-sm-2"></div>
-        </div>
-        <?php $hasContract = false; ?>
-        <?php foreach ($docs as $doc) if ($doc->type == 'contract'): ?>
-            <?php $hasContract = true; ?>
-            <div class="row"
-                 style=" border-top: 1px solid black; padding: 5px 0; <?= !$doc->is_active ? 'color:#CCC;' : '' ?>">
-                <div class="col-sm-1"><b><?= ClientContract::$externalType[$doc->contract->is_external] ?></b></div>
-                <div class="col-sm-1"><?= $doc->contract_no ?></div>
-                <div class="col-sm-2"><?= $doc->contract_date ?></div>
-                <div class="col-sm-2"><?= $doc->comment ?></div>
-                <div class="col-sm-2"><?= $doc->user->name ?></div>
-                <div class="col-sm-2"><?= $doc->ts ?></div>
-                <div class="col-sm-2">
-                    <?php if (!empty($doc->getFileContent())): ?>
-                        <?php if ($model->state == ClientContract::STATE_UNCHECKED) : ?>
-                            <a href="/document/edit?id=<?= $doc->id ?>" target="_blank">
-                                <img class="icon" src="/images/icons/edit.gif">
-                            </a>
-                        <? endif; ?>
-                        <a href="/document/print/?id=<?= $doc->id ?>"
-                           target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
-                        <a href="/document/send?id=<?= $doc->id ?>" target="_blank">
-                            <img class="icon" src="/images/icons/contract.gif">
-                        </a>
-                        <?php if ($model->state == ClientContract::STATE_UNCHECKED) : ?>
-                            <?php if ($doc->is_active) : ?>
-                                <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
-                                    <img style="margin-left:-2px;margin-top:-3px" class="icon"
-                                         src="/images/icons/delete.gif">
-                                </a>
-                            <?php else : ?>
-                                <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
-                                    <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
-                                </a>
-                            <? endif; ?>
-                        <? endif; ?>
-                        <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
-                    <?php else: ?>
-                        <b>Не создан</b>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endif; ?>
-        <?php if ($model->state == ClientContract::STATE_UNCHECKED) : ?>
-            <div class="row" style="padding-top: 5px;">
-                <form action="/document/create" method="post">
-                    <div class="col-sm-1">
-                        <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
-                        <input type="hidden" name="ClientDocument[type]" value="<?=ClientDocument::DOCUMENT_CONTRACT_TYPE?>">
-                        <?=Html::dropDownList('ClientDocument[is_external]', ClientContract::IS_INTERNAL, ClientContract::$externalType, [
-                            'id' =>'change-external',
-                            'class' => 'form-control input-sm',
-                        ])?>
-                    </div>
-                    <div class="col-sm-1">
-                        <input class="form-control input-sm unchecked-contract-no" type="text" name="ClientDocument[contract_no]" value="<?= $model->number ?>" />
-                    </div>
-                    <div class="col-sm-2">
-                        <?= DatePicker::widget(
-                            [
-                                'name' => 'ClientDocument[contract_date]',
-                                'value' => date(DateTimeZoneHelper::DATE_FORMAT),
-                                'removeButton' => false,
-                                'options' => ['class' => 'form-control input-sm'],
-                                'pluginOptions' => [
-                                    'autoclose' => true,
-                                    'format' => 'yyyy-mm-dd',
-                                ],
-                            ]
-                        ); ?>
-                    </div>
-                    <div class="col-sm-2">
-                        <input class="form-control input-sm" type="text" name="ClientDocument[comment]" />
-                    </div>
+    <?= $this->render('agreements/grid', [
+        'contract' => $model,
+        'docs' => array_filter($docs, function ($row) {
+            return $row->type === ClientDocument::DOCUMENT_AGREEMENT_TYPE;
+        }),
+    ]) ?>
 
-                    <div class="col-sm-2">
-                        <?php
-                        $defaultFolder = ClientDocumentDao::getFolderIsDefaultForBusiness($model->business_id);
-                        ?>
-
-                        <?= Html::dropDownList('', (!is_null($defaultFolder) ? $defaultFolder->id : ''), ClientDocumentDao::getFolders(), [
-                            'class' => 'form-control input-sm document-template',
-                            'data-documents' => ClientDocument::DOCUMENT_CONTRACT_TYPE,
-                            'data-folders' => ClientDocument::DOCUMENT_AGREEMENT_TYPE,
-                        ]);
-                        ?>
-                    </div>
-                    <div class="col-sm-2">
-                        <select
-                            class="form-control input-sm tmpl-documents"
-                            name="ClientDocument[template_id]"
-                            data-documents-type="<?= ClientDocument::DOCUMENT_CONTRACT_TYPE ?>">
-                        </select>
-                    </div>
-                    <div class="col-sm-2">
-                        <button type="submit"
-                                class="btn btn-primary btn-sm col-sm-12"><?= $hasContract ? 'Обновить' : 'Зарегистрировать' ?></button>
-                    </div>
-                </form>
-            </div>
-        <?php endif; ?>
-    </div>
-
-    <div class="col-sm-12" id="agreement-block">
-        <div class="row"
-             style="padding:5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
-            <div class="col-sm-12">Доп. соглашения</div>
-        </div>
-        <div class="row head3" style=" padding: 5px 0;">
-            <div class="col-sm-2">№</div>
-            <div class="col-sm-2">Дата</div>
-            <div class="col-sm-2">Комментарий</div>
-            <div class="col-sm-2">Кто добавил</div>
-            <div class="col-sm-2">Когда</div>
-            <div class="col-sm-2"></div>
-        </div>
-        <?php $armnt = 0; ?>
-        <?php foreach ($docs as $doc) if ($doc->type == 'agreement'): ?>
-            <?php $armnt = $doc->contract_no; ?>
-            <div class="row"
-                 style="border-top: 1px solid black; padding: 5px 0;<?= !$doc->is_active ? 'color:#CCC;' : '' ?>">
-                <div class="col-sm-2"><?= $doc->contract_no ?></div>
-                <div class="col-sm-2"><?= $doc->contract_date ?></div>
-                <div class="col-sm-2"><?= $doc->comment ?></div>
-                <div class="col-sm-2"><?= $doc->user->name ?></div>
-                <div class="col-sm-2"><?= $doc->ts ?></div>
-                <div class="col-sm-2">
-                    <a href="/document/edit?id=<?= $doc->id ?>"
-                       target="_blank"><img
-                            class="icon" src="/images/icons/edit.gif"></a>
-                    <a href="/document/print/?id=<?= $doc->id ?>"
-                       target="_blank"><img class="icon" src="/images/icons/printer.gif"></a>
-                    <a href="/document/send?id=<?= $doc->id ?>"
-                       target="_blank"><img class="icon" src="/images/icons/contract.gif"></a>
-                    <?php if ($doc->is_active) : ?>
-                        <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
-                            <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/delete.gif">
-                        </a>
-                    <?php else : ?>
-                        <a href="<?= Url::toRoute(['document/activate', 'id' => $doc->id]) ?>">
-                            <img style="margin-left:-2px;margin-top:-3px" class="icon" src="/images/icons/add.gif">
-                        </a>
-                    <? endif; ?>
-                    <a href="/document/print-by-code?code=<?= $doc->link ?>" target="_blank">ссылка</a>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <div class="row" style="padding-top: 5px;">
-            <form action="/document/create" method="post">
-                <div class="col-sm-2">
-                    <input type="hidden" name="ClientDocument[contract_id]" value="<?= $model->id ?>">
-                    <input type="hidden" name="ClientDocument[type]" value="<?=ClientDocument::DOCUMENT_AGREEMENT_TYPE?>">
-                    <input class="form-control input-sm" type="text" name="ClientDocument[contract_no]"
-                           value="<?= isset($armnt) && $armnt > 0 ? $armnt + 1 : 1 ?>"></div>
-                <div class="col-sm-2">
-                    <?= DatePicker::widget(
-                        [
-                            'name' => 'ClientDocument[contract_date]',
-                            'value' => date(DateTimeZoneHelper::DATE_FORMAT),
-                            'removeButton' => false,
-                            'options' => ['class' => 'form-control input-sm'],
-                            'pluginOptions' => [
-                                'autoclose' => true,
-                                'format' => 'yyyy-mm-dd',
-                            ],
-                        ]
-                    ); ?>
-                </div>
-                <div class="col-sm-2"><input class="form-control input-sm" type="text" name="ClientDocument[comment]"></div>
-                <div class="col-sm-2">
-                    <select
-                        class="form-control input-sm document-template"
-                        data-documents="<?= ClientDocument::DOCUMENT_AGREEMENT_TYPE ?>"
-                        data-folder-type="<?= ClientDocument::DOCUMENT_AGREEMENT_TYPE ?>">
-                    </select>
-                </div>
-                <div class="col-sm-2">
-                    <select
-                        class="form-control input-sm tmpl-documents"
-                        name="ClientDocument[template_id]"
-                        data-documents-type="<?= ClientDocument::DOCUMENT_AGREEMENT_TYPE ?>">
-                    </select>
-                </div>
-                <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary btn-sm col-sm-12">Зарегистрировать</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <?php if ($model->business_id == \app\models\Business::PARTNER): ?>
+    <?php if ($model->business_id == \app\models\Business::PARTNER) : ?>
         <a name="rewards"></a>
         <div class="col-sm-12">
             <div class="row" style="padding:5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
@@ -332,181 +142,29 @@ if (!$model->id) {
 
             <?php
             foreach (ClientContractReward::$usages as $usageType => $usageTitle) {
-                echo $this->render('rewards/' . $usageType , [
-                    'contract' => $model,
-                    'model' => new ClientContractReward,
-                    'usageType' => $usageType,
-                ]);
+                echo $this->render('rewards/' . $usageType,
+                    [
+                        'contract' => $model,
+                        'model' => new ClientContractReward,
+                        'usageType' => $usageType,
+                    ]
+                );
             }
             ?>
         </div>
     <?php endif; ?>
 
-
-    <?php $files = $model->model->allFiles; ?>
-
-    <div class="col-sm-12"
-         style="padding: 5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
-        Файлы
-    </div>
-    <div class="col-sm-12">
-        <div class="row head3" style="padding: 5px 0;">
-            <div class="col-sm-4">Имя файла</div>
-            <div class="col-sm-4">Комментарий</div>
-            <div class="col-sm-2">Кто</div>
-            <div class="col-sm-2">Когда</div>
-        </div>
-        <?php foreach ($files as $file): ?>
-            <div class="row" style="padding: 5px 0; border-top: 1px solid black;">
-                <div class="col-sm-4">
-                    <a href="/file/get-file?model=clients&id=<?= $file->id ?>" target="_blank">
-                        <?= $file->name ?>
-                    </a>
-                    <a href="#" data-id="<?= $file->id ?>" class="fileSend">
-                        <img border=0 src="/images/icons/envelope.gif" />
-                    </a>
-                </div>
-                <div class="col-sm-4">
-                    <?= $file->comment ?>
-                </div>
-                <div class="col-sm-2">
-                    <?= $file->user->name ?>
-                </div>
-                <div class="col-sm-2">
-                    <?= $file->ts ?>
-                    <?php if (\Yii::$app->user->can('clients.can_delete_contract_documents')): ?>
-                        <a href="#" class="deleteFile" data-id="<?= $file->id ?>" title="Удалить документ">
-                            <img class=icon src="/images/icons/delete.gif" alt="Удалить документ" style="margin: -3px 0 0 -2px;" />
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endforeach; ?>
-
-        <div class="row" style="padding: 5px 0;">
-            <form action="/file/upload-client-file?model=clients&contractId=<?= $model->model->id ?>" method="post"
-                  enctype="multipart/form-data">
-                <div class="col-sm-4">
-                    <input class="form-control input-sm" type=text name="name" placeholder="Название файла">
-                </div>
-                <div class="col-sm-4">
-                    <input class="form-control input-sm" type=text name="comment" placeholder="Комментарий">
-                </div>
-                <div class="col-sm-2">
-                    <div class="file_upload form-control input-sm">Выбрать<input type="file" name="file"/></div>
-                </div>
-                <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary btn-sm col-sm-12">Загрузить</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-    <div id="dialog-form" title="Отправить файл">
-        <div class="col-sm-12">
-            <div class="form-group">
-                <form method="post" id="send-file-form" target="_blank"
-                      action="http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5">
-                    <label for="client-email">Email</label>
-                    <select id="client-email" class="form-control" name="to">
-                        <?php foreach ($model->model->accounts[0]->allContacts as $contact)
-                            if ($contact->is_active && $contact->type == 'email'):?>
-                                <option value="<?= $contact->data ?>"><?= $contact->data ?></option>
-                            <?php endif; ?>
-                    </select>
-                    <input type="hidden" name="file_content" id="file_content">
-                    <input type="hidden" name="file_name" id="file_name">
-                    <input type="hidden" name="file_mime" id="file_mime">
-                    <input type="hidden" name="msg_session" id="msg_session">
-                    <input type="hidden" name="send_from_stat" value="1">
-                </form>
-            </div>
-        </div>
-    </div>
+    <?= $this->render('files/grid', [
+        'contract' => $model->getModel(),
+    ]) ?>
 </div>
-
-<style type="text/css">
-.file_upload {
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-    width: 100%;
-}
-
-.insblock td, .insblock th {
-    padding: 2px 5px;
-}
-
-.file_upload input[type=file] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    opacity: 0;
-    filter: alpha(opacity=0);
-    cursor: pointer;
-}
-</style>
-
 
 <script type="text/javascript">
 var
     documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
-    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>,
-    dialog;
+    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
 
 jQuery(document).ready(function () {
-    dialog = $("#dialog-form").dialog({
-        autoOpen: false,
-        height: 200,
-        width: 400,
-        modal: true,
-        buttons: {
-            "Отправить": function () {
-                $('#send-file-form').submit();
-                dialog.dialog("close");
-            },
-            "Отмена": function () {
-                dialog.dialog("close");
-            }
-        }
-    });
-
-    $('.fileSend').on('click', function (e) {
-        e.preventDefault();
-        $.getJSON('/file/send-client-file', {id: $(this).data('id')}, function (data) {
-            $('#file_content').val(data['file_content']);
-            $('#file_name').val(data['file_name']);
-            $('#file_mime').val(data['file_mime']);
-            $('#msg_session').val(data['msg_session']);
-            dialog.dialog("open");
-        });
-    });
-
-    $('.deleteFile').on('click', function (e) {
-        e.preventDefault();
-        var fid = $(this).data('id');
-        var row = $(this).closest('.row');
-        if (confirm('Вы уверены, что хотите удалить файл?')) {
-            $.ajax({
-                url: '/file/delete-client-file',
-                data: {id: fid},
-                success: function(data) {
-                    if (data['status'] == 'ok')
-                        row.remove();
-                },
-                error: function (request, textStatus, errorThrown) {
-                    if (request.status == 403) {
-                        alert('У Вас недостаточно прав для удаления документа');
-                    }
-                    else {
-                        alert('При удалении документа произошла ошибка "' + textStatus + '"')
-                    }
-                }
-            });
-        }
-    });
-
     var $businessIdField = $('#contracteditform-business_id'),
         $changeExternal = $('#change-external');
 

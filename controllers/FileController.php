@@ -1,19 +1,23 @@
 <?php
 namespace app\controllers;
 
-use app\classes\Assert;
 use Yii;
 use yii\data\ActiveDataProvider;
-use app\classes\BaseController;
 use yii\base\Exception;
 use yii\web\Response;
 use yii\filters\AccessControl;
+use app\classes\Assert;
+use app\classes\BaseController;
 use app\models\media\ClientFiles;
 use app\models\media\TroubleFiles;
 use app\models\ClientContract;
 
 class FileController extends BaseController
 {
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -45,6 +49,11 @@ class FileController extends BaseController
         ];
     }
 
+    /**
+     * @param string $model
+     * @param int $id
+     * @throws Exception
+     */
     public function actionGetFile($model, $id)
     {
         switch ($model) {
@@ -61,22 +70,17 @@ class FileController extends BaseController
         $file->mediaManager->getContent($file);
     }
 
-    public function actionList($contractId)
-    {
-        $model = ClientContract::findOne($contractId);
-        if (null === $model) {
-            throw new Exception('Договор не найден');
-        }
-
-        return $this->render('list', ['model' => $model]);
-    }
-
-    public function actionUploadClientFile($contractId, $childId = null)
+    /**
+     * @param int $contractId
+     * @return Response
+     * @throws Exception
+     */
+    public function actionUploadClientFile($contractId)
     {
         $model = ClientContract::findOne($contractId);
 
         if (!$model) {
-            throw new Exception("Договор не найден");
+            throw new Exception('Договор не найден');
         }
 
         $request = Yii::$app->request->post();
@@ -84,13 +88,14 @@ class FileController extends BaseController
             $model->mediaManager->addFile($_FILES['file'], $request['comment'], $request['name']);
         }
 
-        if ($childId) {
-            return $this->redirect(['client/view', 'id' => $childId]);
-        } else {
-            return $this->redirect(['file/list', 'contractId' => $contractId]);
-        }
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
+    /**
+     * @param int $id
+     * @return array
+     * @throws Exception
+     */
     public function actionDeleteClientFile($id)
     {
         $fileModel = ClientFiles::findOne($id);
@@ -101,10 +106,19 @@ class FileController extends BaseController
 
         $fileModel->contract->mediaManager->removeFile($fileModel);
 
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        return ['status' => 'ok'];
+        if (Yii::$app->request->isAjax) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ['status' => 'ok'];
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
     }
 
+    /**
+     * @param int $id
+     * @return array
+     * @throws Exception
+     */
     public function actionSendClientFile($id)
     {
         $model = ClientFiles::findOne($id);
@@ -118,7 +132,7 @@ class FileController extends BaseController
         $res = [
             'file_name' => $model->name,
             'file_content' => base64_encode($file['content']),
-            'msg_session' => md5(rand() + time()),
+            'msg_session' => md5(mt_rand() + time()),
             'file_mime' => $file['mimeType'],
         ];
 
@@ -126,6 +140,9 @@ class FileController extends BaseController
         return $res;
     }
 
+    /**
+     * @return string
+     */
     public function actionReport()
     {
         $request = Yii::$app->request->post();
@@ -134,9 +151,11 @@ class FileController extends BaseController
         if ($request['user_id']) {
             $query->andWhere(['user_id' => $request['user_id']]);
         }
+
         if ($request['date_from']) {
             $query->andWhere(['<=', 'ts', $request['date_from']]);
         }
+
         if ($request['date_to']) {
             $query->andWhere(['>=', 'ts', $request['date_to']]);
         }

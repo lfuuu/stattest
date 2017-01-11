@@ -65,7 +65,7 @@ echo GridView::widget([
         ],
         [
             'class' => EventNameColumn::class,
-            'width' => '20%',
+            'width' => '15%',
         ],
         [
             'class' => SourceColumn::class,
@@ -74,7 +74,7 @@ echo GridView::widget([
         [
             'attribute' => 'ip',
             'format' => 'raw',
-            'value' => function($model, $key, $index, $column) {
+            'value' => function ($model, $key, $index, $column) {
                 return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('ip');
             },
             'width' => '10%',

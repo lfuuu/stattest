@@ -95,11 +95,17 @@ class ClientContract extends HistoryActiveRecord
     ];
 
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_contract';
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -121,6 +127,9 @@ class ClientContract extends HistoryActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -152,48 +161,70 @@ class ClientContract extends HistoryActiveRecord
         return ClientContractDao::me()->getContractInfo($this, $date);
     }
 
+    /**
+     * @return string
+     */
     public function getManagerName()
     {
         $m = User::findByUsername($this->manager);
         return ($m) ? $m->name : $this->manager;
     }
 
+    /**
+     * @return string
+     */
     public function getAccountManagerName()
     {
         $m = User::findByUsername($this->account_manager);
         return ($m) ? $m->name : $this->account_manager;
     }
 
+    /**
+     * @return string
+     */
     public function getManagerColor()
     {
         $m = User::findByUsername($this->manager);
         return ($m) ? $m->color : '';
     }
 
+    /**
+     * @return string
+     */
     public function getAccountManagerColor()
     {
         $m = User::findByUsername($this->account_manager);
         return ($m) ? $m->color : '';
     }
 
+    /**
+     * @return int|string
+     */
     public function getBusinessProcess()
     {
         $m = $this->hasOne(BusinessProcess::className(), ['id' => 'business_process_id'])->one();
         return ($m) ? $m->name : $this->business_process_id;
     }
 
+    /**
+     * @return int|string
+     */
     public function getBusiness()
     {
         $m = Business::findOne($this->business_id);
         return $m ? $m->name : $this->business_id;
     }
 
+    /**
+     * @return null|static
+     */
     public function getBusinessProcessStatus()
     {
         return BusinessProcessStatus::findOne($this->business_process_status_id);
     }
 
     /**
+     * @param string $date
      * @return Organization
      */
     public function getOrganization($date = '')
@@ -220,6 +251,7 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
+     * @param string $date
      * @return ClientContragent
      */
     public function getContragent($date = '')
@@ -230,10 +262,12 @@ class ClientContract extends HistoryActiveRecord
         if ($contragent && $date) {
             $contragent->loadVersionOnDate($date);
         }
+
         return $contragent;
     }
 
     /**
+     * @param bool $isFromHistory
      * @return array|ClientAccount[]
      */
     public function getAccounts($isFromHistory = true)
@@ -243,20 +277,14 @@ class ClientContract extends HistoryActiveRecord
         if (!$isFromHistory) {
             return $models;
         }
+
         foreach ($models as &$model) {
             if ($model && $this->historyVersionRequestedDate) {
                 $model->loadVersionOnDate($this->historyVersionRequestedDate);
             }
         }
-        return $models;
-    }
 
-    /**
-     * @return array|ClientFiles[]
-     */
-    public function getAllFiles()
-    {
-        return $this->hasMany(ClientFiles::className(), ['contract_id' => 'id']);
+        return $models;
     }
 
     /**
@@ -267,6 +295,9 @@ class ClientContract extends HistoryActiveRecord
         return new ClientMedia($this);
     }
 
+    /**
+     * @return \yii\db\ActiveRecord[]
+     */
     public function getAllDocuments()
     {
         return ClientDocument::find()
@@ -274,6 +305,9 @@ class ClientContract extends HistoryActiveRecord
             ->all();
     }
 
+    /**
+     * @return ClientDocument[]
+     */
     public function getDocument()
     {
         return ClientDocument::find()
@@ -299,11 +333,19 @@ class ClientContract extends HistoryActiveRecord
         return $link->all();
     }
 
+    /**
+     * @return array
+     */
     public function getFederalDistrictAsArray()
     {
         return SetFieldTypeHelper::getFieldValue($this, 'federal_district');
     }
 
+    /**
+     * @param bool $runValidation
+     * @param string[] $attributeNames
+     * @return bool
+     */
     public function save($runValidation = true, $attributeNames = null)
     {
         if (is_array($this->federal_district)) {
@@ -314,6 +356,11 @@ class ClientContract extends HistoryActiveRecord
         return parent::save($runValidation, $attributeNames);
     }
 
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @throws \yii\base\Exception
+     */
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
@@ -344,6 +391,9 @@ class ClientContract extends HistoryActiveRecord
         }
     }
 
+    /**
+     * @return array
+     */
     public function statusesForChange()
     {
         if (!$this->state || $this->state == self::STATE_UNCHECKED || \Yii::$app->user->can('clients.changeback_contract_state')) {

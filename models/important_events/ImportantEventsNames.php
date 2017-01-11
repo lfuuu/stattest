@@ -8,7 +8,6 @@ use yii\data\ActiveDataProvider;
 
 /**
  * @property string $value
- * @package app\models\important_events
  */
 class ImportantEventsNames extends ActiveRecord
 {
@@ -31,7 +30,7 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_CHANGE_CREDIT_LIMIT = 'change_credit_limit';
     const IMPORTANT_EVENT_CHANGE_MIN_DAY_LIMIT = 'change_min_day_limit';
 
-    //Payment
+    // Payment
     const IMPORTANT_EVENT_PAYMENT_ADD = 'payment_add';
     const IMPORTANT_EVENT_PAYMENT_DELETE = 'payment_del';
 

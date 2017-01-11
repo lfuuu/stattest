@@ -8,16 +8,16 @@ use DateTimeZone;
 use ReflectionClass;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
+use yii\helpers\ArrayHelper;
 use app\exceptions\FormValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\classes\traits\TagsTrait;
 use app\classes\IpUtils;
 use app\classes\validators\ArrayValidator;
 use app\models\ClientAccount;
 use app\models\TagsResource;
-use yii\helpers\ArrayHelper;
 
 /**
- * Class ImportantEvents
  * @property int id
  * @property int date
  * @property int client_id
@@ -25,16 +25,15 @@ use yii\helpers\ArrayHelper;
  * @property int source_id
  * @property string comment
  * @property array properties
- * @package app\models\important_events
  */
 class ImportantEvents extends ActiveRecord
 {
 
+    use TagsTrait;
+
     const ROWS_PER_PAGE = 50;
 
-    public
-        $propertiesCollection = [],
-        $tags_filter = []; // Входящий параметр, aka Database field name
+    public $propertiesCollection = [];
 
     /**
      * @return array
@@ -86,8 +85,8 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
-     * @param $eventType
-     * @param $eventSource
+     * @param string $eventType
+     * @param string $eventSource
      * @param array $data
      * @param string $date
      * @return bool
@@ -187,6 +186,8 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
+     * Method overriding
+     *
      * @return array
      */
     public function getTagList()
@@ -199,6 +200,8 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
+     * Method overriding
+     *
      * @return array
      */
     public function getTags()
@@ -207,14 +210,14 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
+     * @param array $params
      * @return ActiveDataProvider
      */
     public function search($params)
     {
         global $fixclient_data;
 
-        $query =
-            self::find()
+        $query = self::find()
                 ->joinWith('name')
                 ->joinWith('clientAccount')
                 ->where(['IS NOT', ImportantEventsNames::tableName() . '.id', null])
@@ -242,34 +245,24 @@ class ImportantEvents extends ActiveRecord
         if ((int)$this->client_id) {
             $query->andFilterWhere(['client_id' => $this->client_id]);
         }
+
         if (is_array($this->event) && count($this->event)) {
             $query->andFilterWhere(['IN', 'event', (array)$this->event]);
         }
+
         if (is_array($this->source_id) && count($this->source_id)) {
             $query->andFilterWhere(['IN', 'source_id', (array)$this->source_id]);
         }
-        if (is_array($this->tags_filter) && count($this->tags_filter)) {
-            $query->innerJoin(
-                ['tags' => TagsResource::tableName()],
-                '
-                    tags.resource = :resource
-                    AND tags.resource_id = ' . ImportantEventsNames::tableName() . '.id
-                ',
-                [
-                    'resource' => (new ReflectionClass(ImportantEventsNames::className()))->getShortName(),
-                ]
-            );
-            $query->andWhere(['IN', 'tags.tag_id', $this->tags_filter]);
-        }
+
+        $this->setTagsFilter($query, ImportantEventsNames::class);
 
         list($filter_from, $filter_to) = preg_split('#\s\-\s#', $this->date);
 
-        $filter_from =
-            (new DateTime($filter_from, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+        $filter_from = (new DateTime($filter_from, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
                 ->setTime(0, 0, 0)
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        $filter_to =
-            (new DateTime($filter_to, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+
+        $filter_to = (new DateTime($filter_to, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
                 ->setTime(23, 59, 59)
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
@@ -283,12 +276,13 @@ class ImportantEvents extends ActiveRecord
     /**
      * @return float
      */
-    private function getBalance()
+    public function getBalance()
     {
         $clientAccount = ClientAccount::findOne(['id' => (int)$this->client_id]);
         if (!is_null($clientAccount)) {
             return $clientAccount->billingCounters->realtimeBalance;
         }
+
         return 0;
     }
 

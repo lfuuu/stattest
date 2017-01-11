@@ -1,0 +1,109 @@
+<?php
+
+/** @var \app\forms\client\ContractEditForm $contract */
+/** @var bool $isHidden */
+/** @var \app\classes\BaseView $baseView */
+
+use app\models\media\ClientFiles;
+use kartik\grid\ActionColumn;
+use app\assets\AppAsset;
+use app\classes\Html;
+use app\classes\grid\GridView;
+use app\classes\grid\column\universal\TagsColumn;
+
+$this->registerCssFile('@web/css/behaviors/media-manager.css', ['depends' => [AppAsset::className()]]);
+
+$model = new ClientFiles;
+$dataProvider = $model->search($contract->id);
+
+$baseView = $this;
+?>
+
+<div class="clearfix"></div><br />
+
+<?= GridView::widget([
+    'dataProvider' => $dataProvider,
+    'filterModel' => $model,
+    'columns' => [
+        [
+            'class' => ActionColumn::className(),
+            'template' => '{delete} {send}',
+            'buttons' => [
+                'delete' => function ($url, $model) use ($baseView) {
+                    if (\Yii::$app->user->can('clients.can_delete_contract_documents')) {
+                        return $baseView->render('//layouts/_actionDrop', [
+                            'url' => '/file/delete-client-file?id=' . $model->id,
+                        ]);
+                    }
+
+                    return '';
+                },
+                'send' => function ($url, $model) {
+                    return Html::a(Html::img('/images/icons/envelope.gif'), '#', [
+                        'class' => 'fileSend',
+                        'data-id' => $model->id,
+                        'title' => 'Отправить файл',
+                    ]);
+                },
+            ],
+            'hAlign' => GridView::ALIGN_CENTER,
+        ],
+        [
+            'attribute' => 'name',
+            'format' => 'raw',
+            'value' => function ($file) {
+                $comment = '';
+
+                if ($file->comment) {
+                    $comment = Html::tag('br') . Html::tag('label', $file->comment, ['class' => 'label label-default']);
+                }
+
+                return
+                    Html::a($file->name, ['/file/get-file', 'model' => 'clients', 'id' => $file->id], ['target' => '_blank']) .
+                    $comment;
+            }
+        ],
+        [
+            'class' => TagsColumn::class,
+            'filter' => TagsColumn::class,
+            'isEditable' => true,
+            'width' => '25%',
+        ],
+        [
+            'attribute' => 'user',
+            'format' => 'raw',
+            'value' => function ($file) {
+                return $file->user->name;
+            },
+            'width' => '15%',
+        ],
+        [
+            'attribute' => 'ts',
+            'width' => '10%',
+            'hAlign' => GridView::ALIGN_CENTER,
+        ],
+    ],
+    'panel' => [
+        'heading' => 'Файлы',
+        'footer' => false,
+        'before' => $baseView->render('add', [
+            'contract' => $contract,
+        ]),
+    ],
+    'panelHeadingTemplate' => '
+        <div class="pull-right">
+            {filterButton}
+        </div>
+        <div class="pull-left col-sm-4">
+            <b>Файлы</b> {summary}
+        </div>
+        <div class="clearfix"></div>
+    ',
+    'options' => [
+        'class' => 'fullTable' . ($isHidden ? ' collapse' : ''),
+    ],
+]);
+
+echo $baseView->render('send', [
+    'contract' => $contract,
+]);

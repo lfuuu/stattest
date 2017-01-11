@@ -2,22 +2,32 @@
 
 namespace app\widgets\TagsSelect2;
 
-use app\classes\Html;
 use Yii;
+use app\classes\Html;
 use kartik\select2\Select2;
 use yii\base\InvalidConfigException;
-use yii\helpers\ArrayHelper;
 use yii\web\JsExpression;
 
 class TagsSelect2 extends Select2
 {
 
-    public
-        $attribute = 'id',
-        $actionURL = '/tags/apply',
-        $listURL = '/tags/load-list',
-        $label = 'Метки',
-        $feature = '';
+    /** @var string Base attribute */
+    public $attribute = 'id';
+
+    /** @var string URL of apply query */
+    public $actionURL = '/tags/apply';
+
+    /** @var string URL of reading query */
+    public $listURL = '/tags/load-list';
+
+    /** @var string Label text */
+    public $label = 'Метки';
+
+    /** @var string Custom tag feature */
+    public $feature = '';
+
+    /** @var bool Send apply query via AJAX */
+    public $isApplyViaAjax = true;
 
     /**
      * @throws InvalidConfigException
@@ -32,7 +42,9 @@ class TagsSelect2 extends Select2
             throw new InvalidConfigException('"TagsSelect2::$attribute" attribute cannot be blank.');
         }
 
-        echo Html::tag('label', $this->label, ['class' => 'control-label']);
+        if (!is_null($this->label)) {
+            echo Html::tag('label', $this->label, ['class' => 'control-label']);
+        }
 
         $this->size = parent::SMALL;
         $this->maintainOrder = true;
@@ -66,17 +78,19 @@ class TagsSelect2 extends Select2
     {
         parent::registerAssetBundle();
 
-        $view = $this->getView();
-        TagsSelect2Asset::register($view);
+        if ($this->isApplyViaAjax) {
+            $view = $this->getView();
+            TagsSelect2Asset::register($view);
 
-        $script = new JsExpression('
+            $script = new JsExpression('
             jQuery("select[data-tags-resource]")
                 .tagsSelect2({
                     "url": "' . $this->actionURL . '"
                 });
-        ');
+            ');
 
-        $view->registerJs($script);
+            $view->registerJs($script);
+        }
     }
 
 }

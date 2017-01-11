@@ -12,6 +12,9 @@ class TagsSelect2Asset extends AssetBundle
         $js = [
             'js/tags-select2.js',
         ],
+        $css = [
+            'css/tags-select2.css',
+        ],
         $depends = [
             'yii\web\JqueryAsset',
         ];
