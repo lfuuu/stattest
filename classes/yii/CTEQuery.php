@@ -19,7 +19,6 @@ use app\classes\McnQueryBuilder;
  * @property array $linkQueries
  *
  * Class CTEQuery
- * @package app\classes\yii
  */
 class CTEQuery extends Query
 {
@@ -29,6 +28,7 @@ class CTEQuery extends Query
      * Добавить CTE-запросы к основному запросу
      *
      * @param array $query
+     *
      * @return $this
      * @throws Exception
      */
@@ -55,6 +55,7 @@ class CTEQuery extends Query
      * Удалить CTE-запрос
      *
      * @param string $index
+     *
      * @return $this
      */
     public function removeLinkQuery($index)
@@ -68,6 +69,7 @@ class CTEQuery extends Query
      * делающий возможным выполнения сложных запросов с WITH
      *
      * @param Connection $db
+     *
      * @return array
      */
     public function all($db = null)
@@ -85,6 +87,7 @@ class CTEQuery extends Query
      * Сформирования полный текст запроса из основного и связанных
      *
      * @param Connection $db
+     *
      * @return array
      */
     protected function createSQL($db)
@@ -103,8 +106,7 @@ class CTEQuery extends Query
             list($sql_last, $query_params) = $builder->build($this);
             $sql = 'WITH ' . implode(',', $sql) . ' ' . $sql_last;
             $params = $params + $query_params;
-        }
-        else {
+        } else {
             $sql = $this->createCommand()->getSql();
             $params = $this->params;
         }
@@ -118,6 +120,7 @@ class CTEQuery extends Query
      * @param Query $query
      * @param string $cte_name
      * @param Connection $db
+     * 
      * @return array
      */
     protected function createCommandWithCTE($query, $cte_name, $db)

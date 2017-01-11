@@ -36,6 +36,22 @@ use app\modules\nnp\column\DestinationColumn;
     ],
 ]);
 
+$aggrDigitCount = [
+    'sale_sum' => 2,
+    'sale_avg' => 2,
+    'sale_min' => 2,
+    'sale_max' => 2,
+    'cost_price_sum' => 2,
+    'cost_price_avg' => 2,
+    'cost_price_min' => 2,
+    'cost_price_max' => 2,
+    'margin_sum' => 2,
+    'margin_avg' => 2,
+    'margin_min' => 2,
+    'margin_max' => 2,
+    'session_time_avg' => 2,
+];
+
 $filter = [
     [
         'attribute' => 'server_ids',
@@ -46,16 +62,13 @@ $filter = [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'filterOptions' => [
-            'class' => 'alert-danger'
-        ],
     ],
     [
         'attribute' => 'src_routes',
         'label' => 'Транк-оригинатор',
         'class' => ServiceTrunkColumn::className(),
         'filterByServerId' => $filterModel->server_ids,
-        'filterByContractId' => $filterModel->src_contracts,
+        'filterByTrunkName' => $filterModel->src_contracts,
         'filterInputOptions' => [
             'multiple' => true,
         ]
@@ -110,12 +123,15 @@ $filter = [
         'attribute' => 'session_time',
         'label' => 'Длительность разговора',
         'class' => IntegerRangeColumn::className(),
+        'options' => [
+            'min' => 0,
+        ],
     ],
     [
         'attribute' => 'dst_routes',
         'label' => 'Транк-терминатор',
         'class' => ServiceTrunkColumn::className(),
-        'filterByContractId' => $filterModel->dst_contracts,
+        'filterByTrunkName' => $filterModel->dst_contracts,
         'filterByServerId' => $filterModel->server_ids,
         'filterInputOptions' => [
             'multiple' => true,
@@ -282,11 +298,14 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
         ];
     }
 
-    foreach ($filterModel->aggr as $value) {
-        $columns[] = [
+    foreach ($filterModel->aggr as $key => $value) {
+        $columns[$key + 1] = [
             'label' => $filterModel->aggrLabels[$value],
-            'attribute' => $value
+            'attribute' => $value,
         ];
+        if (isset($aggrDigitCount[$value])) {
+            $columns[$key + 1]['format'] = ['decimal', $aggrDigitCount[$value]];
+        }
     }
 } else {
     $columns = [
@@ -418,65 +437,78 @@ HTML
             ,
             'emptyText' => isset($emptyText) ? $emptyText : ($filterModel->isFilteringPossible() ?
                 Yii::t('yii', 'No results found.') :
-                'Выберите точку присоединения и время начала разговора'),
+                'Выберите время начала разговора и хотя бы еще одно поле'),
         ]
     );
 } catch (yii\db\Exception $e) {
     if ($e->getCode() == 8) {
         Yii::$app->session->addFlash(
             'error',
-            'Запрос слишком тяжелый чтобы выполниться. Задайте, пожалуйста, другие фильтры'
+            'Запрос слишком тяжелый, чтобы выполниться. Задайте, пожалуйста, другие фильтры'
         );
     } else {
         Yii::$app->session->addFlash('error', "Ошибка выполнения запроса: " . $e->getMessage());
     }
 }
 
+$this->registerJsFile(
+    '@web/js/reverse_options.js',
+    ['depends' => [\app\assets\AppAsset::className()], 'position' => \yii\web\View::POS_BEGIN]);
+
 ?>
 
 <script type='text/javascript'>
     $(function () {
+        reverseOptions($('select[name="Cdr[src_routes][]"] option,' +
+            'select[name="Cdr[src_contracts][]"] option,' +
+            'select[name="Cdr[dst_routes][]"] option,' +
+            'select[name="Cdr[dst_contracts][]"] option'));
+
         $('select[name="Cdr[server_ids][]"], select[name="Cdr[src_routes][]"], select[name="Cdr[src_contracts][]"]')
             .on('change', function () {
-                var server_id = $('*[name="Cdr[server_ids][]"]'),
-                    src_contract = $('*[name="Cdr[src_contracts][]"]'),
-                    src_route = $('*[name="Cdr[src_routes][]"]');
+                var server_ids = $('*[name="Cdr[server_ids][]"]'),
+                    src_contracts = $('*[name="Cdr[src_contracts][]"]'),
+                    src_routes = $('*[name="Cdr[src_routes][]"]');
 
-                if (!$(this).is(src_route))
+                if (!$(this).is(src_routes))
                     $.get("/voip/cdr/get-routes", {
-                            server_id: server_id.val(),
-                            contract: src_contract.val()
+                            serverIds: server_ids.val(),
+                            trunkName: src_contracts.val()
                         }, function (data) {
-                            src_route.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                            src_routes.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                            reverseOptions(src_routes.find('option'));
                         });
-                if (!$(this).is(src_contract))
+                if (!$(this).is(src_contracts))
                     $.get("/voip/cdr/get-contracts", {
-                            server_id: server_id.val(),
-                            trunk: src_route.val()
+                            serverIds: server_ids.val(),
+                            trunkName: src_routes.val()
                         }, function (data) {
-                            src_contract.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                            src_contracts.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                            reverseOptions(src_contracts.find('option'));
                         });
         });
 
         $('select[name="Cdr[server_ids][]"], select[name="Cdr[dst_routes][]"], select[name="Cdr[dst_contracts][]"]')
             .on('change', function () {
-                var server_id = $('*[name="Cdr[server_ids][]"]'),
-                    dst_contract = $('*[name="Cdr[dst_contracts][]"]'),
-                    dst_route = $('*[name="Cdr[dst_routes][]"]');
+                var server_ids = $('*[name="Cdr[server_ids][]"]'),
+                    dst_contracts = $('*[name="Cdr[dst_contracts][]"]'),
+                    dst_routes = $('*[name="Cdr[dst_routes][]"]');
 
-                if (!$(this).is(dst_route))
+                if (!$(this).is(dst_routes))
                     $.get("/voip/cdr/get-routes", {
-                            server_id: server_id.val(),
-                            contract: dst_contract.val()
+                            serverIds: server_ids.val(),
+                            trunkName: dst_contracts.val()
                         }, function (data) {
-                            dst_route.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                            dst_routes.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                            reverseOptions(dst_routes.find('option'));
                         });
-                if (!$(this).is(dst_contract))
+                if (!$(this).is(dst_contracts))
                     $.get("/voip/cdr/get-contracts", {
-                            server_id: server_id.val(),
-                            trunk: dst_route.val()
+                            serverIds: server_ids.val(),
+                            trunkName: dst_routes.val()
                         }, function (data) {
-                            dst_contract.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                            dst_contracts.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
+                            reverseOptions(dst_contracts.find('option'));
                         });
         });
 

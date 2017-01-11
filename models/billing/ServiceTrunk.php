@@ -5,6 +5,8 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
+ * Модель таблицы billing.service_trunk
+ *
  * @property int $id
  * @property int $server_id
  * @property int $client_account_id
@@ -51,22 +53,23 @@ class ServiceTrunk extends ActiveRecord
      * Получить список транков с идентификатором логического транка
      *
      * @param int $serverId - фильтр по серверу
-     * @param int $contractId - фильтр по контракту
+     * @param string $trunkName - фильтр по контракту
      * @param bool $isWithEmpty
+     *
      * @return array
      */
-    public static function getListWithName($serverId = null, $contractId = null, $isWithEmpty = false)
+    public static function getListWithName($serverId = null, $trunkName = null, $isWithEmpty = false)
     {
         $query = self::find()
-            ->select(["COALESCE('(' || st.id || ') ' || t.name, t.name) AS name", 't.name AS id'])
+            ->select(['t.trunk_name AS id', "COALESCE('(' || st.id || ') ' || t.name, t.name) AS name"])
             ->from('billing.service_trunk st')
             ->joinWith('trunk t', true, 'RIGHT JOIN');
 
         $serverId && $query->andWhere(['t.server_id' => $serverId]);
-        $contractId && $query->andWhere(['st.contract_id' => $contractId]);
+        $trunkName && $query->andWhere(['t.name' => $trunkName]);
 
         $list = $query
-            ->indexBy('id')
+            ->indexBy('name')
             ->orderBy(['st.id' => SORT_ASC])
             ->column(Yii::$app->dbPgSlave);
 

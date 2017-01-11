@@ -10,6 +10,11 @@ use app\classes\BaseController;
 use yii\filters\AccessControl;
 use app\models\billing\ServiceTrunk;
 
+/**
+ * Контроллер страницы /voip/cdr (отчет по calls_cdr)
+ *
+ * Class CdrController
+ */
 class CdrController extends BaseController
 {
     /**
@@ -43,8 +48,8 @@ class CdrController extends BaseController
     {
         ReturnFormatted::me()->returnFormattedValues(
             ServiceTrunk::getListWithName(
-                Yii::$app->request->get()['server_id'],
-                Yii::$app->request->get()['contract_id']
+                Yii::$app->request->get()['serverIds'],
+                Yii::$app->request->get()['trunkName']
             ),
             'options'
         );
@@ -60,8 +65,8 @@ class CdrController extends BaseController
     {
         ReturnFormatted::me()->returnFormattedValues(
             ClientContractDao::getListWithType(
-                Yii::$app->request->get()['server_id'],
-                Yii::$app->request->get()['trunk']
+                Yii::$app->request->get()['serverIds'],
+                Yii::$app->request->get()['trunkName']
             ),
             'options'
         );

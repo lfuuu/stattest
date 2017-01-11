@@ -25,8 +25,8 @@ class ClientContractDao extends Singleton
         $query = (new Query)
             ->select(
                 [
+                    'id' => 't.name',
                     'name' => "COALESCE(st.contract_number || ' (' || cct.name || ')', st.contract_number)",
-                    'id' => 't.name'
                 ]
             )
             ->from('billing.service_trunk AS st')
@@ -38,7 +38,7 @@ class ClientContractDao extends Singleton
         $serverId && $query->andWhere(['st.server_id' => $serverId]);
         $trunkName && $query->andWhere(['t.name' => $trunkName]);
 
-        $list = $query->indexBy('id')->column(Yii::$app->dbPgSlave);
+        $list = $query->indexBy('name')->column(Yii::$app->dbPgSlave);
 
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;

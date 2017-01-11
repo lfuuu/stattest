@@ -5,6 +5,7 @@
 
 namespace app\models\voip\filter;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
@@ -79,22 +80,23 @@ class Cdr extends Model
     ];
 
     public $aggrConst = [
-        'sale_sum' => 'SUM(cr1.cost) ',
-        'sale_avg' => 'round(AVG(cr1.cost)::numeric,2)',
-        'sale_min' => 'MIN(cr1.cost) ',
+        'sale_sum' => 'SUM(cr1.cost)',
+        'sale_avg' => 'AVG(cr1.cost)',
+        'sale_min' => 'MIN(cr1.cost)',
         'sale_max' => 'MAX(cr1.cost)',
         'cost_price_sum' => 'SUM(cr2.cost)',
-        'cost_price_avg' => 'round(AVG(cr2.cost)::numeric,2)',
+        'cost_price_avg' => 'AVG(cr2.cost)',
         'cost_price_min' => 'MIN(cr2.cost)',
         'cost_price_max' => 'MAX(cr2.cost)',
         'margin_sum' => 'SUM((@(cr1.cost))-cr2.cost)',
-        'margin_avg' => 'round(AVG((@(cr1.cost))-cr2.cost)::numeric,2)',
+        'margin_avg' => 'AVG((@(cr1.cost))-cr2.cost)',
         'margin_min' => 'MIN((@(cr1.cost))-cr2.cost)',
         'margin_max' => 'MAX((@(cr1.cost))-cr2.cost)',
         'session_time_sum' => 'SUM(session_time)',
-        'session_time_avg' => 'round(AVG(session_time)::numeric,2)',
+        'session_time_avg' => 'AVG(session_time)',
         'session_time_min' => 'MIN(session_time)',
         'session_time_max' => 'MAX(session_time)',
+        'calls_count' => 'COUNT(cc.id)',
     ];
 
     public $aggrLabels = [
@@ -114,6 +116,7 @@ class Cdr extends Model
         'session_time_avg' => 'Длительность: средняя',
         'session_time_min' => 'Длительность: минимальная',
         'session_time_max' => 'Длительность: максимальная',
+        'calls_count' => 'Количество звонков',
     ];
 
     public $server_ids = null;
@@ -226,6 +229,26 @@ class Cdr extends Model
     {
         parent::load($get);
 
+        /**
+         * BETWEEN делать сравнение <= со вторым параметром,
+         * поэтому в интервал могут попасть лишние звонки.
+         * Чтобы этого не случилось отнимает 1 секунду.
+         * +
+         * Проверяем не составляет ли интервал больше одного месяца
+         */
+        if ($this->connect_time_from && $this->connect_time_to) {
+            $dateStart = new \DateTime($this->connect_time_from);
+            $dateEnd = new \DateTime($this->connect_time_to);
+            $dateEnd->modify('-1 second');
+            $interval = $dateEnd->diff($dateStart);
+            if ($interval->m > 1 || ($interval->m && ($interval->i || $interval->d || $interval->h || $interval->s))) {
+                Yii::$app->session->addFlash('error', 'Временной период больше одного месяца');
+                return false;
+            }
+
+            $this->connect_time_to = $dateEnd->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        }
+
         if (!is_array($this->group)) {
             $this->group = [];
         }
@@ -244,7 +267,30 @@ class Cdr extends Model
      */
     public function isFilteringPossible()
     {
-        return $this->connect_time_from && $this->server_ids;
+        if ($this->connect_time_from) {
+            $attributes = $this->getAttributes(
+                null,
+                [
+                    'groupConst',
+                    'groupFieldsConst',
+                    'aggrConst',
+                    'aggrLabels',
+                    'group',
+                    'aggr',
+                    'group_period',
+                    'connect_time_to',
+                    'connect_time_from',
+                ]
+            );
+            foreach ($attributes as $value) {
+                if ($value) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+
     }
 
     /**
@@ -254,7 +300,7 @@ class Cdr extends Model
      */
     public function getReport()
     {
-        if (!$this->connect_time_from || !$this->server_ids) {
+        if (!$this->isFilteringPossible()) {
             return new ArrayDataProvider(
                 [
                     'allModels' => [],
@@ -296,15 +342,13 @@ class Cdr extends Model
         );
 
         if ($this->src_routes || $this->src_contracts) {
-            $filter = &$this->src_routes ? $this->src_routes : $this->src_contracts;
+            $filter = $this->src_routes ? $this->src_routes : $this->src_contracts;
             $query1->andWhere(['IN', 'cc.src_route', ':src_routes'], ['src_routes' => $filter]);
-            $query2->andWhere(['IN', 't.name', ':src_routes'], ['src_routes' => $filter]);
         }
 
         if ($this->dst_routes || $this->dst_contracts) {
-            $filter = &$this->dst_routes ? $this->dst_routes : $this->dst_contracts;
+            $filter = $this->dst_routes ? $this->dst_routes : $this->dst_contracts;
             $query1->andWhere(['IN', 'cc.dst_route', ':dst_routes'], ['dst_routes' => $filter]);
-            $query2->andWhere(['IN', 't.name', ':dst_routes'], ['dst_routes' => $filter]);
         }
 
         $this->src_operator_ids
@@ -499,12 +543,15 @@ class Cdr extends Model
             $fields = array_merge($fields, array_intersect_key($this->aggrConst, array_flip($this->aggr)));
             $groups = $this->group;
             if ($this->group_period) {
-                $query3->rightJoin('generate_series (:connect_time_from::timestamp ,:connect_time_to::timestamp,\'1' .
-                    $this->group_period . '\'::interval) gs',
-                    'cc.connect_time >= gs.gs AND cc.connect_time <= gs.gs + interval \'1' . $this->group_period .'\'');
-                $fields[] = '"gs"."gs" || \' - \' || "gs"."gs" + interval \'1' . $this->group_period . '\' interval';
+                $query3->rightJoin(
+                    'generate_series (:connect_time_from::timestamp ,:connect_time_to::timestamp,\'1' . $this->group_period . '\'::interval) gs',
+                    'cc.connect_time >= gs.gs AND cc.connect_time <= gs.gs + interval \'1' . $this->group_period .'\''
+                );
+                $fields['interval'] = '"gs"."gs" || \' - \' || "gs"."gs" + interval \'1' . $this->group_period . '\'';
                 $groups[] = '"gs"."gs"';
             }
+
+            $sort = array_keys($fields);
 
             $query3->select($fields)
                 ->groupBy($groups);
@@ -530,6 +577,33 @@ class Cdr extends Model
                 ]
             );
             $query1->limit(500);
+
+            $sort = [
+                'call_id',
+                'setup_time',
+                'session_time',
+                'disconnect_cause',
+                'src_number',
+                'src_operator_name',
+                'src_region_name',
+                'dst_number',
+                'dst_operator_name',
+                'dst_region_name',
+                'redirect_number',
+                'src_route',
+                'src_contract_name',
+                'dst_route',
+                'dst_contract_name',
+                'sale',
+                'cost_price',
+                'margin',
+                'orig_rate',
+                'term_rate',
+                'releasing_party',
+                'connect_time',
+                'pdd',
+                'interval',
+            ];
         }
 
         $query3->from('cc')
@@ -545,35 +619,7 @@ class Cdr extends Model
                 'pagination' => [],
                 'totalCount' => 2000,
                 'sort' => [
-                    'attributes' => array_merge(
-                        [
-                            'call_id',
-                            'setup_time',
-                            'session_time',
-                            'disconnect_cause',
-                            'src_number',
-                            'src_operator_name',
-                            'src_region_name',
-                            'dst_number',
-                            'dst_operator_name',
-                            'dst_region_name',
-                            'redirect_number',
-                            'src_route',
-                            'src_contract_name',
-                            'dst_route',
-                            'dst_contract_name',
-                            'sale',
-                            'cost_price',
-                            'margin',
-                            'orig_rate',
-                            'term_rate',
-                            'releasing_party',
-                            'connect_time',
-                            'pdd',
-                            'interval',
-                        ],
-                        array_keys($fields)
-                    ),
+                    'attributes' => $sort,
                 ],
             ]
         );
