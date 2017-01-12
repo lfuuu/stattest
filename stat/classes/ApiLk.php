@@ -1762,6 +1762,8 @@ class ApiLk
      */
     public static function addAccountNotification($client_id = null, $type = '', $data = '', $lang = LanguageModel::LANGUAGE_DEFAULT)
     {
+        $data = trim($data);
+
         if (!($account = self::validateClient($client_id))) {
             return [
                 'status' => 'error',
@@ -1787,7 +1789,6 @@ class ApiLk
                 'message' => 'contact_type_error'
             ];
         }
-
         if (!self::validateData($type, $data)) {
             return [
                 'status' => 'error',
@@ -1850,19 +1851,24 @@ class ApiLk
         ];
     }
 
-    public static function validateData($t = '', $d = '')
+    /**
+     * Валидация контактной информации
+     *
+     * @param string $type тип контакта
+     * @param string $data данные контакты
+     * @return bool
+     */
+    public static function validateData($type = '', $data = '')
     {
-        switch ($t) {
+        switch ($type) {
             case 'email':
-                if (!preg_match("/^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,}\.)?[a-z]{2,}$/", $d))
-                    return false;
+                return (bool)filter_var($data, FILTER_VALIDATE_EMAIL);
             break;
             case 'phone':
-                if (!preg_match("/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/", $d))
-                    return false;
+                return (bool)preg_match("/^\s*\+?[0-9\- ]{7,15}\s*$/", $data);
             break;
         }
-        return true;
+        return false;
     }
 
     /**
