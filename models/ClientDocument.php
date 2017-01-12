@@ -168,20 +168,22 @@ class ClientDocument extends ActiveRecord
     }
 
     /**
-     * @return ClientAccount
+     * @return ClientAccount|null
      */
     public function getAccount()
     {
         $params = $this->account_id ? $this->account_id : ['contract_id' => $this->contract_id];
-        return ClientAccount::findOne($params)->loadVersionOnDate($this->contract_date);
+        $clientAccount = ClientAccount::findOne($params);
+        return !is_null($clientAccount) ? $clientAccount->loadVersionOnDate($this->contract_date) : null;
     }
 
     /**
-     * @return ClientContract
+     * @return ClientContract|null
      */
     public function getContract()
     {
-        return ClientContract::findOne($this->contract_id)->loadVersionOnDate($this->contract_date);
+        $clientContract = ClientContract::findOne($this->contract_id);
+        return !is_null($clientContract) ? $clientContract->loadVersionOnDate($this->contract_date) : null;
     }
 
     /**

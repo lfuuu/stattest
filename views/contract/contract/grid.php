@@ -7,8 +7,12 @@
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\ClientContract;
+use app\models\ClientDocument;
 use kartik\grid\ActionColumn;
 use yii\data\ArrayDataProvider;
+
+$emptyDocument = new ClientDocument;
+$hasContract = count($docs);
 
 $dataProvider = new ArrayDataProvider([
     'allModels' => $docs,
@@ -120,18 +124,22 @@ $dataProvider = new ArrayDataProvider([
             },
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '10%',
+            'label' => $emptyDocument->getAttributeLabel('is_external'),
         ],
         [
             'attribute' => 'contract_no',
             'width' => '20%',
+            'label' => $emptyDocument->getAttributeLabel('contract_no'),
         ],
         [
             'attribute' => 'contract_date',
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '10%',
+            'label' => $emptyDocument->getAttributeLabel('contract_date'),
         ],
         [
             'attribute' => 'comment',
+            'label' => $emptyDocument->getAttributeLabel('comment'),
         ],
         [
             'attribute' => 'user',
@@ -140,11 +148,13 @@ $dataProvider = new ArrayDataProvider([
                 return $data->user->name;
             },
             'width' => '15%',
+            'label' => $emptyDocument->getAttributeLabel('user'),
         ],
         [
             'attribute' => 'ts',
             'width' => '10%',
             'hAlign' => GridView::ALIGN_CENTER,
+            'label' => $emptyDocument->getAttributeLabel('ts'),
         ],
     ],
     'panel' => [
@@ -152,6 +162,7 @@ $dataProvider = new ArrayDataProvider([
         'footer' => false,
         'before' => $this->render('add', [
             'contract' => $contract,
+            'hasContract' => $hasContract,
         ]),
     ],
     'panelHeadingTemplate' => '

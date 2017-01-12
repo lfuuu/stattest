@@ -1,6 +1,7 @@
 <?php
 
 /** @var \app\forms\client\ContractEditForm $contract */
+/** @var int $hasContract */
 
 use app\classes\Html;
 use app\dao\ClientDocumentDao;
@@ -57,7 +58,7 @@ use kartik\widgets\DatePicker;
 
         <div class="col-sm-2">
             <?php
-            $defaultFolder = ClientDocumentDao::getFolderIsDefaultForBusiness($model->business_id);
+            $defaultFolder = ClientDocumentDao::getFolderIsDefaultForBusiness($contract->business_id);
             ?>
 
             <?= Html::dropDownList(
@@ -65,7 +66,7 @@ use kartik\widgets\DatePicker;
                     (!is_null($defaultFolder) ? $defaultFolder->id : ''),
                     ClientDocumentDao::getFolders(),
                     [
-                        'class' => 'form-control input-sm document-template',
+                        'class' => 'form-control document-template',
                         'data-documents' => ClientDocument::DOCUMENT_CONTRACT_TYPE,
                         'data-folders' => ClientDocument::DOCUMENT_AGREEMENT_TYPE,
                     ]
@@ -75,7 +76,7 @@ use kartik\widgets\DatePicker;
 
         <div class="col-sm-2">
             <select
-                class="form-control input-sm tmpl-documents"
+                class="form-control tmpl-documents"
                 name="ClientDocument[template_id]"
                 data-documents-type="<?= ClientDocument::DOCUMENT_CONTRACT_TYPE ?>">
             </select>

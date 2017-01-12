@@ -5,6 +5,7 @@ use Yii;
 use yii\db\Expression;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
+use app\classes\Smarty;
 use app\classes\Singleton;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
@@ -43,8 +44,7 @@ class ClientDocumentDao extends Singleton
      */
     public static function getFolders($documentType = ClientDocument::DOCUMENT_CONTRACT_TYPE)
     {
-        $query =
-            self::getFoldersWithDocumentsData()
+        $query = self::_getFoldersWithDocumentsData()
                 ->andWhere(['folders.parent_id' => 0])
                 ->andWhere(['documents.type' => $documentType]);
 
@@ -64,8 +64,7 @@ class ClientDocumentDao extends Singleton
      */
     public static function getFoldersByDocumentType($documentTypes = [])
     {
-        $query =
-            self::getFoldersWithDocumentsData()
+        $query = self::_getFoldersWithDocumentsData()
                 ->andWhere(['IN', 'documents.type', $documentTypes]);
 
         $result = [];
@@ -110,32 +109,49 @@ class ClientDocumentDao extends Singleton
         return $res;
     }
 
+    /**
+     * @param ClientDocument $document
+     * @return bool
+     */
     public function deleteFile(ClientDocument $document)
     {
-        $file = $this->getFilePath($document);
+        $file = $this->_getFilePath($document);
 
         if (file_exists($file)) {
             return unlink($file);
         }
+
         return true;
     }
 
-
+    /**
+     * @param ClientDocument $document
+     * @param int $contractTemplateId
+     * @return int
+     */
     public function generateFile(ClientDocument $document, $contractTemplateId)
     {
         $content = DocumentTemplate::findOne($contractTemplateId)['content'];
-        file_put_contents($this->getFilePath($document), $content);
-        return $this->generateDefault($document);
+        file_put_contents($this->_getFilePath($document), $content);
+        return $this->_generateDefault($document);
     }
 
+    /**
+     * @param ClientDocument $document
+     * @return int
+     */
     public function updateFile(ClientDocument $document)
     {
-        return file_put_contents($this->getFilePath($document), $document->content);
+        return file_put_contents($this->_getFilePath($document), $document->content);
     }
 
+    /**
+     * @param ClientDocument $document
+     * @return string
+     */
     public function getFileContent(ClientDocument $document)
     {
-        $file = $this->getFilePath($document);
+        $file = $this->_getFilePath($document);
 
         if (file_exists($file)) {
             return file_get_contents($file);
@@ -144,38 +160,58 @@ class ClientDocumentDao extends Singleton
         return '';
     }
 
-    private function generateDefault(ClientDocument $document)
+    /**
+     * @param ClientDocument $document
+     * @return int
+     */
+    private function _generateDefault(ClientDocument $document)
     {
-        $file = $this->getFilePath($document);
+        $file = $this->_getFilePath($document);
         $content = file_get_contents($file);
 
         $design = \app\classes\Smarty::init();
-        $design->assign($this->spawnDocumentData($document));
+        $design->assign($this->_spawnDocumentData($document));
 
-        $content = $this->contract_fix_static_parts_of_template($design, $content);
-        if (strpos($content, "{*#blank_zakaz#*}") !== false) {
-            $content = str_replace("{*#blank_zakaz#*}", $this->makeBlankZakaz($document, $design), $content);
+        $content = $this->_contractFixStaticPartsOfTemplate($design, $content);
+        if (strpos($content, '{*#blank_zakaz#*}') !== false) {
+            $content = str_replace('{*#blank_zakaz#*}', $this->_makeBlankZakaz($document, $design), $content);
         }
+
         file_put_contents($file, $content);
         $newDocument = $design->fetch($file);
         return file_put_contents($file, $newDocument);
     }
 
-    private function getFilePath(ClientDocument $document)
+    /**
+     * @param ClientDocument $document
+     * @return string
+     */
+    private function _getFilePath(ClientDocument $document)
     {
         $contractId = $document->account_id ? $document->account_id : $document->contract_id;
         return Yii::$app->params['STORE_PATH'] . 'contracts/' . $contractId . '-' . $document->id . '.html';
     }
 
-    private function fix_style(&$content)
+    /**
+     * @param string $content
+     */
+    private function _fixStyle(&$content)
     {
         if (strpos($content, '{/literal}</style>') === false) {
-            $content = preg_replace('/<style([^>]*)>(.*?)<\/style>/six', '<style\\1>{literal}\\2{/literal}</style>',
-                $content);
+            $content = preg_replace(
+                '/<style([^>]*)>(.*?)<\/style>/six',
+                '<style\\1>{literal}\\2{/literal}</style>',
+                $content
+            );
         }
     }
 
-    private function makeBlankZakaz(ClientDocument $document, &$design)
+    /**
+     * @param ClientDocument $document
+     * @param \Smarty $design
+     * @return mixed
+     */
+    private function _makeBlankZakaz(ClientDocument $document, &$design)
     {
         /** @var ClientAccount $clientAccount */
         $clientAccount = $document->contract->accounts[0];
@@ -268,15 +304,18 @@ class ClientDocumentDao extends Singleton
                             break;
                     }
                 }
+
                 $row['minpayments'][] = $minpayment;
             }
 
             if ($currentTariff->minpayment_local_mob > 0) {
                 $row['minpayments'][] = ['value' => $currentTariff->minpayment_local_mob, 'variants' => [1, 0, 0, 0,]];
             }
+
             if ($currentTariff->minpayment_russia > 0) {
                 $row['minpayments'][] = ['value' => $currentTariff->minpayment_russia, 'variants' => [0, 1, 1, 0,]];
             }
+
             if ($currentTariff->minpayment_intern > 0) {
                 $row['minpayments'][] = ['value' => $currentTariff->minpayment_intern, 'variants' => [0, 0, 0, 1,]];
             }
@@ -329,7 +368,7 @@ class ClientDocumentDao extends Singleton
         }
 
         /*
-        foreach(\app\models\UsageSms::find()->client($client)->actual()->all() as $usage) {
+        foreach (\app\models\UsageSms::find()->client($client)->actual()->all() as $usage) {
             $usageTaxRate = ($usage->tariff->price_include_vat && $taxRate) ? false : $taxRate;
             list($sum, $sum_without_tax) = $clientAccount->convertSum($usage->tariff->per_month_price, $usageTaxRate);
 
@@ -382,7 +421,7 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        foreach(\app\models\UsageCallChat::find()->client($client)->actual()->all() as $usage) {
+        foreach (\app\models\UsageCallChat::find()->client($client)->actual()->all() as $usage) {
             $data['call_chat'][] = [
                 'tariff' => $usage->tariff,
                 'from' => $usage->actual_from,
@@ -393,7 +432,12 @@ class ClientDocumentDao extends Singleton
         return $design->fetch('tarifs/blank.htm');
     }
 
-    private function contract_fix_static_parts_of_template(&$design, $content)
+    /**
+     * @param \Smarty $design
+     * @param string $content
+     * @return mixed
+     */
+    private function _contractFixStaticPartsOfTemplate(&$design, $content)
     {
         if (($pos = strpos($content, '{\$include_')) !== false) {
             $c = substr($content, $pos);
@@ -419,45 +463,53 @@ class ClientDocumentDao extends Singleton
             $content = str_replace('{*#voip_moscow_tarifs_mob#*}', $repl, $content);
         }
 
-        $this->fix_style($content);
+        $this->_fixStyle($content);
 
         return $content;
     }
 
-    private function generateFirmDetail($f, $b = true)
+    /**
+     * @param array $f
+     * @param bool $b
+     * @return string
+     */
+    private function _generateFirmDetail($f, $b = true)
     {
-        $d = $f["name"] . "<br /> Юридический адрес: " . $f["address"] .
-            (isset($f["post_address"]) ? "<br /> Почтовый адрес: " . $f["post_address"] : "")
-            . "<br /> ИНН " . $f["inn"] . ", КПП " . $f["kpp"]
-            . ($b ?
-                "<br /> Банковские реквизиты:"
-                . "<br /> р/с:&nbsp;" . $f["acc"] . " в " . $f["bank_name"]
-                . "<br /> к/с:&nbsp;" . $f["kor_acc"]
-                . "<br /> БИК:&nbsp;" . $f["bik"]
-                : '');
+        $d = $f['name'] . '<br /> Юридический адрес: ' . $f['address'] .
+            (isset($f['post_address']) ? '<br /> Почтовый адрес: ' . $f['post_address'] : '') .
+            '<br /> ИНН ' . $f['inn'] . ', КПП ' . $f['kpp'] .
+            (
+                $b ?
+                    '<br /> Банковские реквизиты: <br /> р/с:&nbsp;' . $f['acc'] . ' в ' . $f['bank_name'] .
+                    '<br /> к/с:&nbsp;' . $f['kor_acc'] .
+                    '<br /> БИК:&nbsp;' . $f['bik'] :
+                    ''
+            );
         return $d;
     }
 
-    private function prepareContragentPaymentInfo(ClientAccount $account)
+    /**
+     * @param ClientAccount $account
+     * @return string
+     */
+    private function _prepareContragentPaymentInfo(ClientAccount $account)
     {
         $contragent = $account->contract->contragent;
         $officialContacts = $account->getOfficialContact();
 
         $result = $contragent->name_full . '<br />Адрес: ' . (
-            $contragent->legal_type == 'person'
-                ? $contragent->person->registration_address
-                : $account->address_jur
+            $contragent->legal_type == ClientContragent::PERSON_TYPE ?
+                $contragent->person->registration_address :
+                $account->address_jur
             ) . '<br />';
 
-        if ($contragent->legal_type == 'person') {
-            if ($contragent->person
-                && !empty(
-                    $contragent->person->passport_serial
-                    . $contragent->person->passport_number
-                    . $contragent->person->passport_issued
-                    . $contragent->person->passport_date_issued
-                )
-            ) {
+        if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
+            $personData = $contragent->person->passport_serial .
+                $contragent->person->passport_number .
+                $contragent->person->passport_issued .
+                $contragent->person->passport_date_issued;
+
+            if ($contragent->person && !empty($personData)) {
                 return
                     $result .
                     'Паспорт серия ' . $contragent->person->passport_serial .
@@ -465,48 +517,51 @@ class ClientDocumentDao extends Singleton
                     '<br />Выдан: ' . $contragent->person->passport_issued .
                     '<br />Дата выдачи: ' . $contragent->person->passport_date_issued . ' г.' .
                     (
-                    count($officialContacts)
-                        ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
-                        : ''
+                    count($officialContacts) ?
+                        '<br />E-mail: ' . implode('; ', $officialContacts['email']) :
+                        ''
                     );
             }
-
         } else {
             return
                 $result .
                 'ИНН ' . $contragent->inn .
-                ', КПП ' . $contragent->kpp . '<br/>' .
-                'Банковские реквизиты: ' .
-                'р/с ' . ($account->pay_acc ?: '') . '<br />' .
+                ', КПП ' . $contragent->kpp .
+                '<br />Банковские реквизиты: р/с ' . ($account->pay_acc ?: '') . '<br />' .
                 $account->bank_name . ' ' . $account->bank_city .
                 ($account->corr_acc ? '<br />к/с ' . $account->corr_acc : '') .
                 ', БИК ' . $account->bik .
                 (!empty($account->address_post_real) ? '<br />Почтовый адрес: ' . $account->address_post_real : '') .
                 (
-                count($officialContacts)
-                    ? '<br />E-mail: ' . implode('; ', $officialContacts['email'])
-                    : ''
+                count($officialContacts) ?
+                    '<br />E-mail: ' . implode('; ', $officialContacts['email']) :
+                    ''
                 );
         }
+
+        return '';
     }
 
-    private function spawnDocumentData(ClientDocument $document)
+    /**
+     * @param ClientDocument $document
+     * @return array
+     */
+    private function _spawnDocumentData(ClientDocument $document)
     {
         $account = $document->getAccount();
         $contractDate = $document->contract_date;
         $officialContacts = $account->getOfficialContact();
 
-        if ($document->type == 'contract') {
+        if ($document->type == ClientDocument::DOCUMENT_CONTRACT_TYPE) {
             $lastContract = [
                 'contract_no' => $document->contract_no,
                 'contract_date' => $document->contract_date,
             ];
         } else {
-            $contractDocument =
-                ClientDocument::find()
-                    ->andWhere(['type' => 'contract', 'contract_id' => $account->contract_id])
-                    ->orderBy('is_active desc, contract_date desc, id desc')
-                    ->one();
+            $contractDocument = ClientDocument::find()
+                ->andWhere(['type' => 'contract', 'contract_id' => $account->contract_id])
+                ->orderBy('is_active desc, contract_date desc, id desc')
+                ->one();
 
             $lastContract = [
                 'contract_no' => $contractDocument->contract_no,
@@ -525,12 +580,12 @@ class ClientDocumentDao extends Singleton
         }
 
         return [
-            'position' => $document->getContract()->getContragent()->legal_type == 'legal'
-                ? $document->getContract()->getContragent()->position
-                : '',
-            'fio' => $document->getContract()->getContragent()->legal_type == 'legal'
-                ? $document->getContract()->getContragent()->fio
-                : $document->getContract()->getContragent()->name_full,
+            'position' => $document->getContract()->getContragent()->legal_type == ClientContragent::LEGAL_TYPE ?
+                $document->getContract()->getContragent()->position :
+                '',
+            'fio' => $document->getContract()->getContragent()->legal_type == ClientContragent::LEGAL_TYPE ?
+                $document->getContract()->getContragent()->fio :
+                $document->getContract()->getContragent()->name_full,
             'name' => $document->getContract()->getContragent()->name,
             'name_full' => $document->getContract()->getContragent()->name_full,
 
@@ -549,7 +604,7 @@ class ClientDocumentDao extends Singleton
             'kpp' => $document->getContract()->getContragent()->kpp,
             'stamp' => $account->stamp,
             'legal_type' => $account->getContract()->getContragent()->legal_type,
-            'old_legal_type' => $account->getContract()->getContragent()->legal_type != 'person' ? 'org' : 'person',
+            'old_legal_type' => $account->getContract()->getContragent()->legal_type != ClientContragent::PERSON_TYPE ? 'org' : 'person',
             'address_connect' => $account->address_connect,
             'account_id' => $account->id,
             'bank_name' => $account->bank_name,
@@ -578,30 +633,29 @@ class ClientDocumentDao extends Singleton
             'organization_email' => $firm['email'],
             'organization_pay_acc' => $firm['acc'],
 
-            'firm_detail_block' => $this->generateFirmDetail($firm, $account->bik),
-            'payment_info' => $this->prepareContragentPaymentInfo($account),
+            'firm_detail_block' => $this->_generateFirmDetail($firm, $account->bik),
+            'payment_info' => $this->_prepareContragentPaymentInfo($account),
         ];
     }
 
     /**
      * @return Query
      */
-    private static function getFoldersWithDocumentsData()
+    private static function _getFoldersWithDocumentsData()
     {
-        $query =
-            (new Query)
-                ->select([
-                    'folders.*',
-                    'documents' => new Expression('COUNT(documents.id)'),
-                ])
-                ->from(['folders' => DocumentFolder::tableName()])
-                ->leftJoin(
-                    ['documents' => DocumentTemplate::tableName()],
-                    'documents.folder_id = folders.id'
-                )
-                ->groupBy('folders.id')
-                ->having('documents > 0')
-                ->orderBy(DocumentFolder::$orderBy);
+        $query = (new Query)
+            ->select([
+                'folders.*',
+                'documents' => new Expression('COUNT(documents.id)'),
+            ])
+            ->from(['folders' => DocumentFolder::tableName()])
+            ->leftJoin(
+                ['documents' => DocumentTemplate::tableName()],
+                'documents.folder_id = folders.id'
+            )
+            ->groupBy('folders.id')
+            ->having('documents > 0')
+            ->orderBy(DocumentFolder::$orderBy);
 
         return $query;
     }

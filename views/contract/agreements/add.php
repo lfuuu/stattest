@@ -50,7 +50,7 @@ use kartik\widgets\DatePicker;
 
     <div class="col-sm-2">
         <select
-            class="form-control input-sm tmpl-documents"
+            class="form-control tmpl-documents"
             name="ClientDocument[template_id]"
             data-documents-type="<?= ClientDocument::DOCUMENT_AGREEMENT_TYPE ?>">
         </select>

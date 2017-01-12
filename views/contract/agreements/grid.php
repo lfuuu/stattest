@@ -8,6 +8,9 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use kartik\grid\ActionColumn;
 use yii\data\ArrayDataProvider;
+use app\models\ClientDocument;
+
+$emptyDocument = new ClientDocument;
 
 $dataProvider = new ArrayDataProvider([
     'allModels' => $docs,
@@ -106,13 +109,16 @@ $dataProvider = new ArrayDataProvider([
         [
             'attribute' => 'contract_no',
             'width' => '20%',
+            'label' => $emptyDocument->getAttributeLabel('contract_no'),
         ],
         [
             'attribute' => 'contract_date',
             'width' => '10%',
+            'label' => $emptyDocument->getAttributeLabel('contract_date'),
         ],
         [
             'attribute' => 'comment',
+            'label' => $emptyDocument->getAttributeLabel('comment'),
         ],
         [
             'attribute' => 'user',
@@ -121,11 +127,13 @@ $dataProvider = new ArrayDataProvider([
                 return $data->user->name;
             },
             'width' => '15%',
+            'label' => $emptyDocument->getAttributeLabel('user'),
         ],
         [
             'attribute' => 'ts',
             'width' => '10%',
             'hAlign' => GridView::ALIGN_CENTER,
+            'label' => $emptyDocument->getAttributeLabel('ts'),
         ]
     ],
     'panel' => [
