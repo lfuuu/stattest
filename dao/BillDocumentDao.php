@@ -4,6 +4,7 @@ namespace app\dao;
 use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
 use app\models\BillDocument;
+use app\models\ClientAccount;
 
 /**
  * Class BillDocumentDao
@@ -42,6 +43,8 @@ class BillDocumentDao extends Singleton
         $bill = new \Bill($billNo);
 
         $taxRate = $bill->Client()->getTaxRate();
+
+        $accountId = $bill->Get('client_id');
 
         if (!$L) {
             $L = $bill->GetLines();
@@ -90,18 +93,16 @@ class BillDocumentDao extends Singleton
             'ia1' => 0, 'ia2' => 0
         ];
         for ($i = 1; $i <= 3; $i++) {
-            $doctypes['a' . $i] = (int)$this->_isSF($bill_akts[$i]);
+            $doctypes['a' . $i] = (int)$this->_isSF($accountId, $billNo, 'akt', $bill_akts[$i]);
         }
 
-        if ($taxRate) {
-            for ($i = 1; $i <= 7; $i++) {
-                $doctypes['i' . $i] = (int)$this->_isSF($bill_invoices[$i]);
-            }
+        for ($i = 1; $i <= 7; $i++) {
+            $doctypes['i' . $i] = (int)$this->_isSF($accountId, $billNo, 'inv', $bill_invoices[$i]);
+        }
 
-            for ($i = 1; $i <= 2; $i++) {
-                $v = $this->_isSF($bill_invoice_akts[$i]);
-                $doctypes['ia' . $i] = $v === null ? 0 : (int)!$v;
-            }
+        for ($i = 1; $i <= 2; $i++) {
+            $v = $this->_isSF($accountId, $billNo, 'upd', $bill_invoice_akts[$i]);
+            $doctypes['ia' . $i] = $v === null ? 0 : (int)!$v;
         }
 
         $docs = BillDocument::findOne($billNo);
@@ -121,20 +122,46 @@ class BillDocumentDao extends Singleton
     /**
      * Доступна ли счет/фактура
      *
-     * @param array $L
-     * @return bool|void
+     * @param integer $accountId
+     * @param string  $billNo
+     * @param string  $type
+     * @param array   $L
+     * @return bool|null
      */
-    private function _isSF($L)
+    private function _isSF($accountId, $billNo, $type, $L)
     {
+        static $cache = [];
+
         if (!$L) {
             return null;
         }
 
-        $period1 = 1404172800; // strtotime("2014-07-01"); // переход на УПД
-        $period2 = 1483228800; // strtotime("2017-01-01"); // возврат на с/ф и акт
-
         $l = reset($L);
         $ts = $l['ts_from'];
+
+        if (!isset($cache[$billNo]) || !isset($cache[$billNo][$ts])) {
+
+            /** @var ClientAccount $account */
+            $account = ClientAccount::findOne(['id' => $accountId])
+                ->loadVersionOnDate($l['date_from']);
+
+            $cache[$billNo][$ts] = $account->getTaxRate();
+        }
+
+        $taxRate = $cache[$billNo][$ts];
+
+        if (!$taxRate) {
+            if ($type != "akt") { // в упрощенке только акты
+                return null;
+            }
+
+            return true; // если мы здесь, значит в документе должен быть доступен
+        }
+
+        // далее отработка ЛС с основной системой налогооблажения (ОСН)
+        $period1 = strtotime("2014-07-01"); // переход на УПД
+        $period2 = strtotime("2017-01-01"); // возврат на с/ф и акт
+
 
         if ($ts >= $period2) {
             return true;
