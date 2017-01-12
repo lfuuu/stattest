@@ -17,6 +17,9 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
 
     private $usage;
 
+    /**
+     * @param UsageInterface $usage
+     */
     public function __construct(UsageInterface $usage)
     {
         $this->usage = $usage;
@@ -47,19 +50,22 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
             if ($options['type'] !== 'vpbx' || $options['stat_product_id'] != $this->usage->id) {
                 continue;
             }
+
             $enabledNumbers[] = $number;
         }
 
-        $usages = UsageVoip::find()->where(['IN', 'E164', $enabledNumbers]);
+        $usages = UsageVoip::find()
+            ->where(['IN', 'E164', $enabledNumbers])
+            ->andWhere(['client' => $this->usage->clientAccount->client])
+            ->actual();
 
         if ($usages->count()) {
             foreach ($usages->each() as $usage) {
-                $description[] =
-                    Html::tag(
-                        'div',
-                        Html::tag('small', $usage->id) . ': ' . reset($usage->helper->description),
-                        ['style' => 'margin-left: 10px;']
-                    );
+                $description[] = Html::tag(
+                    'div',
+                    Html::tag('small', $usage->id) . ': ' . reset($usage->helper->description),
+                    ['style' => 'margin-left: 10px;']
+                );
             }
         }
 
@@ -73,8 +79,8 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
     {
         return Html::tag(
             'div',
-            'ВАТС переносится только с подключенными номерами. ' .
-            'Отключить номера можно в настройках ВАТС',
+            'ВАТС переносится только с подключенными номерами.
+            Отключить номера можно в настройках ВАТС',
             [
                 'style' => 'background-color: #F9F0DF; font-size: 11px; font-weight: bold; padding: 5px; margin-top: 10px;',
             ]

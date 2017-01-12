@@ -11,7 +11,6 @@ use yii\db\ActiveRecord;
 
 /**
  * Класс переноса услуг типа "Виртуальная АТС"
- * @package app\classes\transfer
  */
 class VirtpbxServiceTransfer extends ServiceTransfer
 {
@@ -42,7 +41,7 @@ class VirtpbxServiceTransfer extends ServiceTransfer
     {
         $targetService = parent::process();
 
-        $this->processVoipNumbers($targetService);
+        $this->_processVoipNumbers($targetService);
         LogTarifTransfer::process($this, $targetService->id);
 
         return $targetService;
@@ -55,7 +54,7 @@ class VirtpbxServiceTransfer extends ServiceTransfer
      * @throws \Exception
      * @throws \yii\db\Exception
      */
-    private function processVoipNumbers($targetService)
+    private function _processVoipNumbers($targetService)
     {
         foreach ($this->service->clientAccount->voipNumbers as $number => $options) {
             if ($options['type'] !== 'vpbx' || $options['stat_product_id'] != $this->service->id) {
@@ -64,8 +63,7 @@ class VirtpbxServiceTransfer extends ServiceTransfer
 
             if (
                 (
-                $usage =
-                    UsageVoip::find()
+                $usage = UsageVoip::find()
                         ->where([
                             'E164' => $number,
                             'client' => $this->service->clientAccount->client,

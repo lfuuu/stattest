@@ -44,18 +44,22 @@ echo Breadcrumbs::widget([
                             ->checkboxList(
                                 $serviceData['usages'],
                                 [
-                                    'item' => function($index, $label, $name, $checked, $value) {
+                                    'item' => function ($index, $label, $name, $checked, $value) {
                                         list($fulltext, $description) = (array)$label->description;
 
                                         return
                                             Html::beginTag('div', ['class' => 'checkbox']) .
                                                 Html::beginTag('label') .
                                                     Html::checkbox($name, $checked, ['value' => $value]) .
-                                                    Html::a(Html::tag('small', $value) . ': ' . $fulltext, $label->editLink,['target' => '_blank']) .
+                                                    Html::a(
+                                                        Html::tag('small', $value) . ': ' . $fulltext,
+                                                        $label->editLink,
+                                                        ['target' => '_blank']
+                                                    ) .
                                                     (
-                                                        !empty($description)
-                                                            ? Html::tag('div', $description, ['class' => 'help-block'])
-                                                            : ''
+                                                        !empty($description) ?
+                                                            Html::tag('div', $description, ['class' => 'help-block']) :
+                                                            ''
                                                     ) .
                                                 Html::endTag('label') .
                                             Html::endTag('div');
@@ -67,7 +71,7 @@ echo Breadcrumbs::widget([
                     </fieldset>
                 <?php endforeach; ?>
 
-                <?php if (!count($model->availableUsages)): ?>
+                <?php if (!count($model->availableUsages)) : ?>
                     <div class="row" style="margin: 10px;">
                         <div class="col-sm-12 label label-danger">
                             Услуг для переноса не найдено
@@ -88,7 +92,7 @@ echo Breadcrumbs::widget([
                             ])
                         ],
                         [
-                            'item' => function($index, $label, $name, $checked, $value) {
+                            'item' => function ($index, $label, $name, $checked, $value) {
                                 return
                                     Html::beginTag('div', ['class' => 'radio']) .
                                         Html::beginTag('label', ['class' => 'col-sm-12']) .

@@ -49,14 +49,14 @@ class ServiceTransferForm extends Form
         $availableDates = [];
 
     private static
-        $datesVariants = [
-        'first day of next month midnight',
-        'first day of next month +1 month midnight',
-        'first day of next month +2 month midnight',
-    ];
+        $_datesVariants = [
+            'first day of next month midnight',
+            'first day of next month +1 month midnight',
+            'first day of next month +2 month midnight',
+        ];
 
     /** @var ClientAccount|null $targetAccount */
-    private $targetAccount = null;
+    private $_targetAccount = null;
 
     /**
      * @param ClientAccount $clientAccount
@@ -67,9 +67,9 @@ class ServiceTransferForm extends Form
 
         $this->clientAccount = $clientAccount;
         $this->source_account_id = $clientAccount->id;
-        $this->availableAccounts = $this->getClientAccountsBySuperClient($clientAccount);
-        $this->availableDates = $this->getActualDateVariants();
-        $this->availableUsages = $this->getAvailableServices();
+        $this->availableAccounts = $this->_getClientAccountsBySuperClient($clientAccount);
+        $this->availableDates = $this->_getActualDateVariants();
+        $this->availableUsages = $this->_getAvailableServices();
     }
 
     /**
@@ -119,6 +119,9 @@ class ServiceTransferForm extends Form
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -142,14 +145,14 @@ class ServiceTransferForm extends Form
     public function validateTargetAccountId()
     {
         try {
-            $this->targetAccount = ClientAccount::findOne(
+            $this->_targetAccount = ClientAccount::findOne(
                 (int)(
-                $this->target_account_id === 'any'
-                    ? $this->target_account_id_custom
-                    : $this->target_account_id
+                $this->target_account_id === 'any' ?
+                    $this->target_account_id_custom :
+                    $this->target_account_id
                 )
             );
-            Assert::isObject($this->targetAccount);
+            Assert::isObject($this->_targetAccount);
         } catch (\Exception $e) {
             $this->addError('target_account_not_found', 'Выбранный клиент не найден');
         }
@@ -193,13 +196,12 @@ class ServiceTransferForm extends Form
 
             foreach ($this->usages[$serviceKey] as $usageId) {
                 /** @var ServiceTransfer $serviceTransfer */
-                $serviceTransfer =
-                    $serviceClass::getTransferHelper($serviceClass::findOne($usageId))
-                        ->setTargetAccount($this->targetAccount)
+                $serviceTransfer = $serviceClass::getTransferHelper($serviceClass::findOne($usageId))
+                        ->setTargetAccount($this->_targetAccount)
                         ->setActivationDate(
-                            $this->actual_from === 'other'
-                                ? $this->actual_custom
-                                : $this->actual_from
+                            $this->actual_from === 'other' ?
+                                $this->actual_custom :
+                                $this->actual_from
                         );
 
                 try {
@@ -221,6 +223,7 @@ class ServiceTransferForm extends Form
 
     /**
      * Список возможных услуг
+     *
      * @return array
      */
     public static function getServicesGroups()
@@ -242,7 +245,7 @@ class ServiceTransferForm extends Form
     /**
      * @return array
      */
-    private function getAvailableServices()
+    private function _getAvailableServices()
     {
         $result = [];
 
@@ -268,13 +271,13 @@ class ServiceTransferForm extends Form
 
     /**
      * Получение всех лицевых счетов супер-клиента
+     *
      * @param ClientAccount $clientAccount
      * @return ClientAccount[]
      */
-    private function getClientAccountsBySuperClient(ClientAccount $clientAccount)
+    private function _getClientAccountsBySuperClient(ClientAccount $clientAccount)
     {
-        $accounts =
-            ClientAccount::find()
+        $accounts = ClientAccount::find()
                 ->andWhere(['super_id' => $clientAccount->super_id])
                 ->andWhere(['!=', 'id', $clientAccount->id])
                 ->orderBy('contract_id ASC, id ASC')
@@ -292,13 +295,14 @@ class ServiceTransferForm extends Form
 
     /**
      * Получение списка доступных для переноса дат
+     *
      * @return array
      */
-    private function getActualDateVariants()
+    private function _getActualDateVariants()
     {
         $result = [];
 
-        foreach (self::$datesVariants as $variant) {
+        foreach (self::$_datesVariants as $variant) {
             $date = (new DateTime($variant))->format(DateTimeZoneHelper::DATE_FORMAT);
             $result[$date] = $date;
         }
