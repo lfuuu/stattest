@@ -14,7 +14,6 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use InvalidArgumentException;
-use yii;
 
 abstract class TariffForm extends Form
 {
@@ -62,7 +61,7 @@ abstract class TariffForm extends Form
     abstract public function getTariffModel();
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {
@@ -83,8 +82,9 @@ abstract class TariffForm extends Form
 
         $tariffPeriod = new TariffPeriod();
         if ($period) {
-            $tariffPeriod->period_id = $period->id;
+            $tariffPeriod->period_id = $tariffPeriod->charge_period_id = $period->id;
         }
+
         $tariffPeriod->price_setup = 0;
         $tariffPeriod->price_min = 0;
         return [$tariffPeriod];
@@ -95,7 +95,7 @@ abstract class TariffForm extends Form
      */
     protected function loadFromInput()
     {
-        $post = Yii::$app->request->post();
+        $post = \Yii::$app->request->post();
         if ($this->tariff->getNonUniversalId()) {
             // Этот тариф автоматически сконвертирован из старого. Если надо отредактировать его - редактируйте исходный тариф.
             $post = [];
@@ -109,6 +109,7 @@ abstract class TariffForm extends Form
                     'is_default' => $post['Tariff']['is_default'],
                 ];
             }
+
             unset($post['TariffPeriod'], $post['TariffResource']);
         }
 
@@ -229,9 +230,9 @@ abstract class TariffForm extends Form
 
         } catch (\Exception $e) {
             $transaction->rollBack();
-            Yii::error($e);
+            \Yii::error($e);
             $this->isSaved = false;
-            $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error');
+            $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : \Yii::t('common', 'Internal error');
         }
     }
 }

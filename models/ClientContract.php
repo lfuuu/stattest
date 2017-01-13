@@ -1,12 +1,12 @@
 <?php
 namespace app\models;
 
+use app\classes\media\ClientMedia;
+use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContractDao;
 use app\helpers\DateTimeZoneHelper;
 use app\helpers\SetFieldTypeHelper;
-use app\classes\media\ClientMedia;
-use app\classes\model\HistoryActiveRecord;
-use app\models\media\ClientFiles;
+use yii\db\ActiveQuery;
 
 /**
  * @property int id
@@ -93,7 +93,6 @@ class ClientContract extends HistoryActiveRecord
         'business_process_id',
         'business_process_status_id',
     ];
-
 
     /**
      * @return string
@@ -216,7 +215,7 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
-     * @return null|static
+     * @return BusinessProcessStatus
      */
     public function getBusinessProcessStatus()
     {
@@ -230,12 +229,13 @@ class ClientContract extends HistoryActiveRecord
     public function getOrganization($date = '')
     {
         $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: date(DateTimeZoneHelper::DATE_FORMAT));
+        /** @var Organization $organization */
         $organization = Organization::find()->byId($this->organization_id)->actual($date)->one();
         return $organization;
     }
 
     /**
-     * @return array|ClientContractComment[]
+     * @return ActiveQuery
      */
     public function getComments()
     {
@@ -243,7 +243,7 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
-     * @return ClientSuper
+     * @return ActiveQuery
      */
     public function getSuper()
     {
@@ -268,19 +268,19 @@ class ClientContract extends HistoryActiveRecord
 
     /**
      * @param bool $isFromHistory
-     * @return array|ClientAccount[]
+     * @return ClientAccount[]|array
      */
     public function getAccounts($isFromHistory = true)
     {
         $models = ClientAccount::findAll(['contract_id' => $this->id]);
-        
+
         if (!$isFromHistory) {
             return $models;
         }
 
         foreach ($models as &$model) {
-            if ($model && $this->historyVersionRequestedDate) {
-                $model->loadVersionOnDate($this->historyVersionRequestedDate);
+            if ($model && $historyDate = $this->getHistoryVersionRequestedDate()) {
+                $model->loadVersionOnDate($historyDate);
             }
         }
 
@@ -296,7 +296,7 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveRecord[]
+     * @return ClientDocument[]
      */
     public function getAllDocuments()
     {
@@ -306,14 +306,18 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
-     * @return ClientDocument[]
+     * @return ClientDocument
      */
     public function getDocument()
     {
-        return ClientDocument::find()
-            ->contractId($this->id)->active()->contract()
-            ->orderBy('id DESC')
+        /** @var ClientDocument $clientDocument */
+        $clientDocument = ClientDocument::find()
+            ->contractId($this->id)
+            ->active()
+            ->contract()
+            ->orderBy(['id' => SORT_DESC])
             ->one();
+        return $clientDocument;
     }
 
     /**

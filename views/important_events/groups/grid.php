@@ -1,12 +1,12 @@
 <?php
 
-use kartik\grid\ActionColumn;
-use yii\widgets\Breadcrumbs;
-use yii\helpers\Url;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\forms\user\GroupForm;
 use app\models\important_events\ImportantEventsGroups;
+use kartik\grid\ActionColumn;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var GroupForm $dataProvider */
 /** @var \yii\web\View $baseView */
@@ -25,15 +25,6 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'attribute' => 'title',
-            'label' => 'Название',
-            'format' => 'raw',
-            'value' => function($data) {
-                return Html::a($data->title, ['/important_events/groups/edit', 'id' => $data->id]);
-            },
-            'width' => '*',
-        ],
-        [
             'class' => ActionColumn::className(),
             'template' => '{delete}',
             'buttons' => [
@@ -45,6 +36,15 @@ echo GridView::widget([
                 },
             ],
             'hAlign' => GridView::ALIGN_CENTER,
+        ],
+        [
+            'attribute' => 'title',
+            'label' => 'Название',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a($data->title, ['/important_events/groups/edit', 'id' => $data->id]);
+            },
+            'width' => '*',
         ],
     ],
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/important_events/groups/edit']),

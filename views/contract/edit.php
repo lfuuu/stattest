@@ -1,22 +1,24 @@
 <?php
 
-/** @var $this \app\classes\BaseView */
-/** @var ContractEditForm $model */
+/**
+ * @var ContractEditForm $model
+ * @var \app\classes\BaseView $this
+ */
 
 use app\assets\AppAsset;
+use app\classes\Html;
+use app\classes\Language;
+use app\dao\ClientDocumentDao;
+use app\forms\client\ContractEditForm;
+use app\helpers\DateTimeZoneHelper;
+use app\models\ClientContractReward;
+use app\models\ClientContragent;
+use app\models\ClientDocument;
+use app\models\UserGroups;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
-use app\classes\Language;
-use app\classes\Html;
-use app\models\ClientDocument;
-use app\models\UserGroups;
-use app\models\ClientContragent;
-use app\dao\ClientDocumentDao;
-use app\models\ClientContractReward;
-use app\forms\client\ContractEditForm;
-use app\helpers\DateTimeZoneHelper;
 
 $this->registerJsFile('@web/js/behaviors/managers_by_contract_type.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/organization_by_legal_type.js', ['depends' => [AppAsset::className()]]);
@@ -31,7 +33,7 @@ foreach ($contragents as $contragent) {
         'data-legal-type' => $contragent->legal_type,
     ];
 }
-$language = Language::getLanguageByCountryId($contragents[0]->country_id?: \app\models\Country::RUSSIA);
+$language = Language::getLanguageByCountryId($contragents[0]->country_id ?: \app\models\Country::RUSSIA);
 $contragents = ArrayHelper::map($contragents, 'id', 'name');
 
 if (!$model->id) {
@@ -81,18 +83,19 @@ $docs = $model->model->allDocuments;
             <div class="col-sm-12 form-group">
                 <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
             </div>
-            <?php ActiveForm::end(); ?>
 
             <?php if (!$model->isNewRecord) : ?>
                 <div class="col-sm-12 form-group">
-                    <a href="#" onclick="return showVersion({ClientContract:<?= $model->id ?>}, true);">Версии</a><br/>
-                    <?php if(Yii::$app->user->identity->usergroup == UserGroups::ADMIN) : ?>
-                        <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContract:' . $model->id . '})']); ?>
-                        <span>История изменений</span>
-                    <?php endif; ?>
+                    <?= $this->render('//layouts/_showVersion', ['model' => $model->contract]) ?>
+                    <?php
+                    if (Yii::$app->user->identity->usergroup == UserGroups::ADMIN) {
+                        echo $this->render('//layouts/_showHistory', ['model' => $model->contract]);
+                    }
+                    ?>
                 </div>
             <?php endif; ?>
         </div>
+        <?php ActiveForm::end(); ?>
 
         <script>
             $(function () {
@@ -160,70 +163,73 @@ $docs = $model->model->allDocuments;
 </div>
 
 <script type="text/javascript">
-var
-    documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
-    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
+    var
+        documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
+        documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
 
-jQuery(document).ready(function () {
-    var $businessIdField = $('#contracteditform-business_id'),
-        $changeExternal = $('#change-external');
+    jQuery(document).ready(function () {
+        var $businessIdField = $('#contracteditform-business_id'),
+            $changeExternal = $('#change-external');
 
-    if ($businessIdField.val() == 3) {
-        $changeExternal.val('external');
-    } else {
-        $changeExternal.val('internal');
-    }
+        var $businessIdField = $('#contracteditform-business_id'),
+            $changeExternal = $('#change-external');
 
-    $businessIdField.on('change', function() {
         if ($businessIdField.val() == 3) {
             $changeExternal.val('external');
         } else {
             $changeExternal.val('internal');
         }
 
-        $changeExternal.trigger('change');
-    });
+        $businessIdField.on('change', function () {
+            if ($businessIdField.val() == 3) {
+                $changeExternal.val('external');
+            } else {
+                $changeExternal.val('internal');
+            }
 
-    $changeExternal.on('change', function () {
-        var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"], #agreement-block');
+            $changeExternal.trigger('change');
+        });
 
-        if($(this).val() == 'internal') {
-            fields.show();
-        } else {
-            fields.hide();
-        }
-    }).trigger('change');
+        $changeExternal.on('change', function () {
+            var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"], #agreement-block');
 
-    $('a.show-all').on('click', function() {
-        $(this).parents('table').find('tbody > tr.show-all').toggleClass('hidden');
-        $(this).toggleClass('label-success');
-        return false;
-    });
+            if ($(this).val() == 'internal') {
+                fields.show();
+            } else {
+                fields.hide();
+            }
+        }).trigger('change');
 
-    $('tr.editable').find('a').on('click', function() {
-        var $fields = $(this).parents('tr').find('td[data-field]')
+        $('a.show-all').on('click', function () {
+            $(this).parents('table').find('tbody > tr.show-all').toggleClass('hidden');
+            $(this).toggleClass('label-success');
+            return false;
+        });
+
+        $('tr.editable').find('a').on('click', function () {
+            var $fields = $(this).parents('tr').find('td[data-field]')
             $form = $(this).parents('form');
 
-        $fields.each(function() {
-            var $field = $form.find('[name*="' + $(this).data('field') + '"]'),
-                $value = $(this).data('value') ? $(this).data('value') : $(this).text();
+            $fields.each(function () {
+                var $field = $form.find('[name*="' + $(this).data('field') + '"]'),
+                    $value = $(this).data('value') ? $(this).data('value') : $(this).text();
 
-            $field.val($value).trigger('change');
+                $field.val($value).trigger('change');
+            });
+            $form.find('input:eq(2)').trigger('focus');
+
+            return false;
         });
-        $form.find('input:eq(2)').trigger('focus');
 
-        return false;
+        $('select[name*="period_type"]').on('change', function () {
+            var $nextInput = $(this).parents('td').next().find('input');
+            if ($(this).val() == 'month') {
+                $nextInput.show();
+            } else {
+                $nextInput.hide();
+            }
+        });
+
     });
-
-    $('select[name*="period_type"]').on('change', function() {
-        var $nextInput = $(this).parents('td').next().find('input');
-        if ($(this).val() == 'month') {
-            $nextInput.show();
-        } else {
-            $nextInput.hide();
-        }
-    });
-
-});
 
 </script>

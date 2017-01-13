@@ -2,19 +2,24 @@
 
 namespace app\classes\model;
 
-use app\classes\Assert;
-use Yii;
-use yii\db\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\HistoryVersion;
 use app\models\User;
+use Yii;
+use yii\base\InvalidParamException;
+use yii\db\ActiveRecord;
 
+/**
+ * Class HistoryActiveRecord
+ *
+ * @property int $id
+ */
 class HistoryActiveRecord extends ActiveRecord
 {
 
     private
-        $historyVersionStoredDate = null,
-        $historyVersionRequestedDate = null;
+        $_historyVersionStoredDate = null,
+        $_historyVersionRequestedDate = null;
 
 
     public
@@ -27,7 +32,7 @@ class HistoryActiveRecord extends ActiveRecord
      */
     public function getHistoryVersionStoredDate()
     {
-        return $this->historyVersionStoredDate;
+        return $this->_historyVersionStoredDate;
     }
 
     /**
@@ -35,7 +40,7 @@ class HistoryActiveRecord extends ActiveRecord
      */
     public function setHistoryVersionStoredDate($date)
     {
-        $this->historyVersionStoredDate = $date;
+        $this->_historyVersionStoredDate = $date;
     }
 
     /**
@@ -43,7 +48,7 @@ class HistoryActiveRecord extends ActiveRecord
      */
     public function getHistoryVersionRequestedDate()
     {
-        return $this->historyVersionRequestedDate;
+        return $this->_historyVersionRequestedDate;
     }
 
     /**
@@ -51,7 +56,7 @@ class HistoryActiveRecord extends ActiveRecord
      */
     public function setHistoryVersionRequestedDate($date)
     {
-        $this->historyVersionRequestedDate = $date;
+        $this->_historyVersionRequestedDate = $date;
     }
 
     /**
@@ -61,13 +66,12 @@ class HistoryActiveRecord extends ActiveRecord
      */
     public function save($runValidation = true, $attributeNames = null)
     {
-        $result =
-            $this->isNeedHistoryVersionSaveModel()
-                ? parent::save($runValidation, $attributeNames)
-                : true;
+        $result = $this->_isNeedHistoryVersionSaveModel() ?
+            parent::save($runValidation, $attributeNames) :
+            true;
 
         if ($result) {
-            $this->createHistoryVersion();
+            $this->_createHistoryVersion();
         }
 
         return $result;
@@ -93,8 +97,7 @@ class HistoryActiveRecord extends ActiveRecord
             'декабря'
         ];
         return
-            ($this->historyVersionStoredDate ? [$this->historyVersionStoredDate => $this->historyVersionStoredDate] : [])
-            +
+            ($this->_historyVersionStoredDate ? [$this->_historyVersionStoredDate => $this->_historyVersionStoredDate] : []) +
             [
                 date(DateTimeZoneHelper::DATE_FORMAT) => 'Текущую дату',
                 date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
@@ -107,20 +110,20 @@ class HistoryActiveRecord extends ActiveRecord
     /**
      * @return bool
      */
-    private function isNeedHistoryVersionSaveModel()
+    private function _isNeedHistoryVersionSaveModel()
     {
         if ($this->isNewRecord || !$this->getHistoryVersionStoredDate()) {
             return true;
         } else {
             $date = $this->getHistoryVersionStoredDate();
-            if (strtotime($date) < time() && HistoryVersion::find()
+            if (strtotime($date) < time() && !HistoryVersion::find()
                     ->andWhere([
-                        'model' => $this->prepareClassName($this->className()),
+                        'model' => $this->getClassName(),
                         'model_id' => $this->id
                     ])
                     ->andWhere(['<=', 'date', date(DateTimeZoneHelper::DATE_FORMAT)])
                     ->andWhere(['>', 'date', $date])
-                    ->count() == 0
+                    ->count()
             ) {
                 return true;
             } else {
@@ -132,7 +135,7 @@ class HistoryActiveRecord extends ActiveRecord
     /**
      * @inheritdoc
      */
-    private function createHistoryVersion()
+    private function _createHistoryVersion()
     {
         if ($this->isNewRecord || !$this->getHistoryVersionStoredDate()) {
             $date = date(DateTimeZoneHelper::DATE_FORMAT);
@@ -141,16 +144,15 @@ class HistoryActiveRecord extends ActiveRecord
         }
 
         $queryData = [
-            'model' => substr(get_class($this), 11),
+            'model' => $this->getClassName(),
             'model_id' => $this->primaryKey,
             'date' => $date,
-            'data_json' => json_encode($this->toArray(),
-                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
+            'data_json' => json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT),
             'user_id' => Yii::$app->user->getId() ?: User::SYSTEM_USER_ID,
         ];
 
         $model = HistoryVersion::findOne([
-            'model' => substr(get_class($this), 11),
+            'model' => $this->getClassName(),
             'model_id' => $this->primaryKey,
             'date' => $date,
         ]);
@@ -159,9 +161,10 @@ class HistoryActiveRecord extends ActiveRecord
             $model = new HistoryVersion($queryData);
         }
 
-        $model->data_json = json_encode($this->toArray(),
-            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
-        $model->save();
+        $model->data_json = json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
+        if (!$model->save()) {
+            throw new InvalidParamException(implode('. ', $model->getFirstErrors()));
+        }
     }
 
 
@@ -178,35 +181,65 @@ class HistoryActiveRecord extends ActiveRecord
             return $this;
         }
 
-        $modelName = $this->prepareClassName($this->className());
+        $modelName = $this->getClassName();
 
         $historyModel = HistoryVersion::find()
             ->andWhere(['model' => $modelName])
             ->andWhere(['model_id' => $this->primaryKey])
             ->andWhere(['<=', 'date', $date])
-            ->orderBy('date DESC')->one();
+            ->orderBy('date DESC')
+            ->one();
 
         if ($historyModel) {
             $this->fillHistoryDataInModel(json_decode($historyModel['data_json'], true));
             $this->setHistoryVersionStoredDate($historyModel['date']);
         }
+
         $this->setHistoryVersionRequestedDate($date);
 
         return $this;
     }
 
     /**
-     * Подготавливает названия класса, для работы с историей
+     * Подготавливает названия класса для работы с историей
      *
-     * @param string $className
      * @return string
      */
-    public function prepareClassName($className)
+    public function getClassName()
     {
-        if (strpos($className, 'app\\models\\') !== false) {
-            $className = substr($className, strlen('app\\models\\'));
+        return get_class($this);
+    }
+
+    /**
+     * Вернуть класс + ID
+     *
+     * @param HistoryActiveRecord|HistoryActiveRecord[] $models Одна или массив моделей, которые надо искать
+     * @param array $deleteModel Исходная модель (можно свежесозданную и несохраненную), поле и значение, которые надо искать среди удаленных моделей
+     * @return string
+     */
+    public static function getHistoryIds($models, $deleteModel = [])
+    {
+        if (!is_array($models)) {
+            $models = [$models];
         }
-        return $className;
+
+        $historyIdPhp = [];
+        foreach ($models as $model) {
+            if ($model->isNewRecord) {
+                continue;
+            }
+
+            $historyIdPhp[] = [$model->getClassName(), $model->id];
+        }
+
+        if (count($deleteModel) === 3) {
+            list($model, $fieldName, $fieldValue) = $deleteModel;
+            $historyIdPhp[] = [$model->getClassName(), $fieldName, $fieldValue];
+        }
+
+        $historyIdJson = json_encode($historyIdPhp);
+        $historyIdJson = str_replace('"', "'", $historyIdJson); // чтобы не конфликтовать с кавычками html-атрибута
+        return $historyIdJson;
     }
 
     /**
@@ -219,18 +252,19 @@ class HistoryActiveRecord extends ActiveRecord
     {
         if ($this instanceof HistoryActiveRecord) {
 
-            //модели со списком атрибутов доступных для версионирования
+            // модели со списком атрибутов доступных для версионирования
             if ($this->attributesAllowedForVersioning) {
                 $newVersionData = [];
 
-                foreach($this->attributesAllowedForVersioning as $key) {
+                foreach ($this->attributesAllowedForVersioning as $key) {
                     if (isset($versionData[$key])) {
                         $newVersionData[$key] = $versionData[$key];
                     }
                 }
+
                 $versionData = $newVersionData;
 
-                //модели с атрибутами, которые надо исключить из версионирования
+                // модели с атрибутами, которые надо исключить из версионирования
             } elseif ($this->attributesProtectedForVersioning) {
                 $protectedAttributes = array_flip($this->attributesProtectedForVersioning);
 

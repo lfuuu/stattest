@@ -120,8 +120,12 @@ class ClientContragent extends HistoryActiveRecord
     public function attributeLabels()
     {
         return [
-            'inn' => "ИНН",
-            'kpp' => "КПП"
+            'inn' => 'ИНН',
+            'kpp' => 'КПП',
+            'name' => 'Название',
+            'name_full' => 'Название полное',
+            'address_jur' => 'Юридический адрес',
+            'legal_type' => 'Юридический тип',
         ];
     }
 
@@ -204,8 +208,8 @@ class ClientContragent extends HistoryActiveRecord
     {
         $person = ClientContragentPerson::findOne(['contragent_id' => $this->id]);
         if ($person) {
-            if ($this->getHistoryVersionRequestedDate()) {
-                $person = $person->loadVersionOnDate($this->getHistoryVersionRequestedDate());
+            if ($historyDate = $this->getHistoryVersionRequestedDate()) {
+                $person = $person->loadVersionOnDate($historyDate);
             }
         } else {
             $person = new ClientContragentPerson();

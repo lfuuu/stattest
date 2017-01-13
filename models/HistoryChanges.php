@@ -12,8 +12,8 @@ use yii\db\ActiveRecord;
  * @property string $action
  * @property string $data_json
  * @property string $prev_data_json
+ *
  * @property User $user
- * @property
  */
 class HistoryChanges extends ActiveRecord
 {
@@ -21,11 +21,17 @@ class HistoryChanges extends ActiveRecord
     const ACTION_UPDATE = 'update';
     const ACTION_DELETE = 'delete';
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'history_changes';
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);

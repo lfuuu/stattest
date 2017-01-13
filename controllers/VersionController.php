@@ -1,14 +1,17 @@
 <?php
 namespace app\controllers;
 
+use app\classes\BaseController;
 use app\models\HistoryVersion;
 use Yii;
-use app\classes\BaseController;
 use yii\base\Exception;
 use yii\web\Response;
 
 class VersionController extends BaseController
 {
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -27,38 +30,54 @@ class VersionController extends BaseController
         return $behaviors;
     }
 
+    /**
+     * @return string
+     * @throws Exception
+     */
     public function actionShow()
     {
         $getRequest = Yii::$app->request->get();
-        if (!$getRequest) {
-            throw new Exception('Models does not exists');
+        if (!isset($getRequest['params']) || !is_array($getRequest['params'])) {
+            throw new \InvalidArgumentException('params');
         }
 
-        $versions = HistoryVersion::find();
+        $params = $getRequest['params'];
         $models = [];
-
-        foreach ($getRequest as $model => $id) {
-            $model = str_replace('_', '\\', $model);
-            $className = 'app\\models\\' . $model;
-            if (!class_exists($className)) {
-                throw new Exception('Bad model type');
+        $versionsQuery = HistoryVersion::find();
+        foreach ($params as $param) {
+            if (!is_array($param) || count($param) != 2) {
+                throw new \InvalidArgumentException('param');
             }
 
-            $versions->orWhere(['model' => $model, 'model_id' => $id]);
-            $models[$model] = new $className();
+            list($modelName, $modelId) = $param;
+            if (!class_exists($modelName)) {
+                throw new \InvalidArgumentException('Bad model type');
+            }
+
+            if (!isset($models[$modelName])) {
+                $models[$modelName] = new $modelName();
+            }
+
+            $versionsQuery->orWhere(['model' => $modelName, 'model_id' => $modelId]);
         }
 
-        $versions = $versions->all();
-
+        $versions = $versionsQuery->all();
         HistoryVersion::generateDifferencesFor($versions);
 
         $this->layout = 'minimal';
 
-        return Yii::$app->request->isAjax
-            ? $this->renderPartial('show', ['versions' => $versions, 'models' => $models])
-            : $this->render('show', ['versions' => $versions, 'models' => $models]);
+        return Yii::$app->request->isAjax ?
+            $this->renderPartial('show', ['versions' => $versions, 'models' => $models]) :
+            $this->render('show', ['versions' => $versions, 'models' => $models]);
     }
 
+    /**
+     * @param string $model
+     * @param int $modelId
+     * @param string $date
+     * @return array
+     * @throws Exception
+     */
     public function actionDelete($model, $modelId, $date)
     {
         $version = HistoryVersion::findOne(['model' => $model, 'model_id' => $modelId, 'date' => $date]);

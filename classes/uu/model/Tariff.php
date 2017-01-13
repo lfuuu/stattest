@@ -2,7 +2,9 @@
 
 namespace app\classes\uu\model;
 
+use app\classes\behaviors\HistoryChanges;
 use app\classes\Html;
+use app\classes\model\HistoryActiveRecord;
 use app\models\Country;
 use app\models\Currency;
 use app\modules\nnp\models\Package;
@@ -55,7 +57,7 @@ use yii\helpers\Url;
  * @property TariffVoipCity[] $voipCities
  * @property boolean $isTest
  */
-class Tariff extends \yii\db\ActiveRecord
+class Tariff extends HistoryActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -152,6 +154,17 @@ class Tariff extends \yii\db\ActiveRecord
 
         ServiceType::ID_CALL_CHAT => '/tariff/call-chat/edit?id=%d',
     ];
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => HistoryChanges::className(),
+        ];
+
+    }
 
     /**
      * @inheritdoc
@@ -454,7 +467,7 @@ class Tariff extends \yii\db\ActiveRecord
     public function getIsTest()
     {
         return $this->tariff_status_id == TariffStatus::ID_TEST ||
-        $this->tariff_status_id == TariffStatus::ID_VOIP_8800_TEST;
+            $this->tariff_status_id == TariffStatus::ID_VOIP_8800_TEST;
 
     }
 

@@ -2,25 +2,25 @@ var timeout = null;
 var timeout2 = null;
 var $dialog = null;
 function doLoadUp(step) {
-	if(timeout)
-		clearTimeout(timeout);
-	if(step > 0)
-		timeout = setTimeout(doLoad, step);
-	else
-		timeout = setTimeout(doLoad, 100);
+    if (timeout)
+        clearTimeout(timeout);
+    if (step > 0)
+        timeout = setTimeout(doLoad, step);
+    else
+        timeout = setTimeout(doLoad, 100);
 }
 function doHide() {
-	timeout2 = setTimeout("document.getElementById('variants').style.display='none'",1000);
+    timeout2 = setTimeout("document.getElementById('variants').style.display='none'", 1000);
 }
 
 function doGetNet() {
-	document.getElementById('getnet_size').style.visibility = "hidden";
-	document.getElementById('getnet_button').disabled = true;
-	
-	var query = '' + document.getElementById('getnet_size').value; 
+    document.getElementById('getnet_size').style.visibility = "hidden";
+    document.getElementById('getnet_button').disabled = true;
+
+    var query = '' + document.getElementById('getnet_size').value;
 
     $.getJSON('/index_lite.php?module=routers&action=n_acquire_as&query=' + encodeURI(query))
-        .done(function(data){
+        .done(function (data) {
             document.getElementById('getnet_button').disabled = false;
             document.getElementById('getnet_size').style.visibility = "";
             if (data && data.data) {
@@ -30,271 +30,264 @@ function doGetNet() {
 }
 
 
-function doLoad() { 
-	var query = '' + document.getElementById('searchfield').value; 
+function doLoad() {
+    var query = '' + document.getElementById('searchfield').value;
     $.getJSON('/index_lite.php?module=clients&action=search_as&query=' + encodeURI(query))
-        .done(function(data){
+        .done(function (data) {
             if (data && data.data) {
                 document.getElementById('variants').innerHTML = data.data;
-                document.getElementById('variants').style.display="";
-            } else document.getElementById('variants').style.display='none';
+                document.getElementById('variants').style.display = "";
+            } else document.getElementById('variants').style.display = 'none';
         })
-} 
+}
 
-function openNavigationBlock(id){
+function openNavigationBlock(id) {
     var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
     $('#' + id).addClass('opened');
     openedBlocks[id] = true;
     localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
 }
 
-function closeNavigationBlock(id){
+function closeNavigationBlock(id) {
     var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
     $('#' + id).removeClass('opened');
     delete openedBlocks[id];
     localStorage.setItem('navigation-opened-blocks', JSON.stringify(openedBlocks));
 }
 
-function openAllNavigationBlocks()
-{
-    $('.layout_left .menupanel').each(function(){
+function openAllNavigationBlocks() {
+    $('.layout_left .menupanel').each(function () {
         openNavigationBlock($(this).attr('id'));
     });
 }
 
-function closeAllNavigationBlocks()
-{
-    $('.layout_left .menupanel').each(function(){
+function closeAllNavigationBlocks() {
+    $('.layout_left .menupanel').each(function () {
         closeNavigationBlock($(this).attr('id'));
     });
 }
 
-function toggleNavigationBlock(id){
+function toggleNavigationBlock(id) {
     if ($('#' + id).hasClass('opened')) {
         closeNavigationBlock(id);
     } else {
         var blocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
-        $.map(blocks, function(v,k){
+        $.map(blocks, function (v, k) {
             closeNavigationBlock(k);
         });
         openNavigationBlock(id);
     }
 }
 
-function initNavigationBlocks(){
+function initNavigationBlocks() {
     var openedBlocks = JSON.parse(localStorage.getItem('navigation-opened-blocks') || '{}');
-    for(var blockId in openedBlocks) {
+    for (var blockId in openedBlocks) {
         openNavigationBlock(blockId);
     }
 }
 
 
-function toggle2(obj){
-	if (!obj.style) obj = document.getElementById(obj);
-	if (!obj) return;
-	if (obj.style.display=='none'){
-		obj.style.display = '';
-	} else {
-		obj.style.display = 'none';	
-	}
+function toggle2(obj) {
+    if (!obj.style) obj = document.getElementById(obj);
+    if (!obj) return;
+    if (obj.style.display == 'none') {
+        obj.style.display = '';
+    } else {
+        obj.style.display = 'none';
+    }
 }
 
-function menu_item(element,flag){
-	if (flag){
-		element.style.backgroundColor="#FFA3A3";
-	}else {
-		element.style.backgroundColor="#FFFFD8";
-	};
+function menu_item(element, flag) {
+    if (flag) {
+        element.style.backgroundColor = "#FFA3A3";
+    } else {
+        element.style.backgroundColor = "#FFFFD8";
+    }
+    ;
 }
 
 
-function options_waiting(id,add_first) {
-	var obj=document.getElementById(id);
-	for (var i=obj.childNodes.length-1;i>=0;i--) {
-		obj.removeChild(obj.childNodes[i]);
-	}
-	if (add_first) {
-		var opt = document.createElement("OPTION");
-		opt.innerHTML = "загрузка...";
-		opt.value = "";
-		obj.appendChild(opt);
-	}
+function options_waiting(id, add_first) {
+    var obj = document.getElementById(id);
+    for (var i = obj.childNodes.length - 1; i >= 0; i--) {
+        obj.removeChild(obj.childNodes[i]);
+    }
+    if (add_first) {
+        var opt = document.createElement("OPTION");
+        opt.innerHTML = "загрузка...";
+        opt.value = "";
+        obj.appendChild(opt);
+    }
 }
 
-function options_update(id,data) {
-	var obj=document.getElementById(id);
-	if (obj.childNodes.length) obj.removeChild(obj.childNodes[0]);
-	for (var i in data) {
-		if(arguments[2] && !data[i])
-			continue
-		var opt = document.createElement("OPTION");
-		opt.innerHTML = data[i];
-		opt.value = i;
-		if (opt.value==obj.getAttribute('tag')) opt.selected=1;
-		obj.appendChild(opt);
-	}
+function options_update(id, data) {
+    var obj = document.getElementById(id);
+    if (obj.childNodes.length) obj.removeChild(obj.childNodes[0]);
+    for (var i in data) {
+        if (arguments[2] && !data[i])
+            continue
+        var opt = document.createElement("OPTION");
+        opt.innerHTML = data[i];
+        opt.value = i;
+        if (opt.value == obj.getAttribute('tag')) opt.selected = 1;
+        obj.appendChild(opt);
+    }
 }
 
-function options_select(id,value) {
-	var obj=document.getElementById(id);
-    for(i =0;i< obj.options.length; i++)
-    {
-        if(obj.options[i].value == value)
-        {
+function options_select(id, value) {
+    var obj = document.getElementById(id);
+    for (i = 0; i < obj.options.length; i++) {
+        if (obj.options[i].value == value) {
             obj.selectedIndex = i;
             return;
         }
     }
 }
 
-function form_ip_ports_tarif(){
-	val=document.getElementById('t_tarif_type').value;
-	val+=document.getElementById('t_tarif_status').value;
-	document.getElementById('t_id_tarifIP').style.display=(val=='IP'?'':'none');
-	document.getElementById('t_id_tarifIS').style.display=(val=='IS'?'':'none');
-	document.getElementById('t_id_tarifIA').style.display=(val=='IA'?'':'none');
-	document.getElementById('t_id_tarifIT').style.display=(val=='IT'?'':'none');
-	document.getElementById('t_id_tarifCP').style.display=(val=='CP'?'':'none');
-	document.getElementById('t_id_tarifCS').style.display=(val=='CS'?'':'none');
-	document.getElementById('t_id_tarifCA').style.display=(val=='CA'?'':'none');
-	document.getElementById('t_id_tarifCT').style.display=(val=='CT'?'':'none');
-	document.getElementById('t_id_tarifVP').style.display=(val=='VP'?'':'none');
-	document.getElementById('t_id_tarifVS').style.display=(val=='VS'?'':'none');
-	document.getElementById('t_id_tarifVA').style.display=(val=='VA'?'':'none');
-	document.getElementById('t_id_tarifVT').style.display=(val=='VT'?'':'none');
-	document.getElementById('t_id_tarifISu').style.display=(val=='ISu'?'':'none');
-	document.getElementById('t_id_tarifISs').style.display=(val=='ISs'?'':'none');
-	document.getElementById('t_id_tarifISc').style.display=(val=='ISc'?'':'none');
+function form_ip_ports_tarif() {
+    val = document.getElementById('t_tarif_type').value;
+    val += document.getElementById('t_tarif_status').value;
+    document.getElementById('t_id_tarifIP').style.display = (val == 'IP' ? '' : 'none');
+    document.getElementById('t_id_tarifIS').style.display = (val == 'IS' ? '' : 'none');
+    document.getElementById('t_id_tarifIA').style.display = (val == 'IA' ? '' : 'none');
+    document.getElementById('t_id_tarifIT').style.display = (val == 'IT' ? '' : 'none');
+    document.getElementById('t_id_tarifCP').style.display = (val == 'CP' ? '' : 'none');
+    document.getElementById('t_id_tarifCS').style.display = (val == 'CS' ? '' : 'none');
+    document.getElementById('t_id_tarifCA').style.display = (val == 'CA' ? '' : 'none');
+    document.getElementById('t_id_tarifCT').style.display = (val == 'CT' ? '' : 'none');
+    document.getElementById('t_id_tarifVP').style.display = (val == 'VP' ? '' : 'none');
+    document.getElementById('t_id_tarifVS').style.display = (val == 'VS' ? '' : 'none');
+    document.getElementById('t_id_tarifVA').style.display = (val == 'VA' ? '' : 'none');
+    document.getElementById('t_id_tarifVT').style.display = (val == 'VT' ? '' : 'none');
+    document.getElementById('t_id_tarifISu').style.display = (val == 'ISu' ? '' : 'none');
+    document.getElementById('t_id_tarifISs').style.display = (val == 'ISs' ? '' : 'none');
+    document.getElementById('t_id_tarifISc').style.display = (val == 'ISc' ? '' : 'none');
 }
 
-function form_ip_ports_hide(is_first){
-	var val=document.getElementById('port_type').value;
-	if (!is_first) document.getElementById('port').value=(val=='adsl'||val=='adsl_cards'||val=='adsl_connect'||val=='adsl_karta'||val=='adsl_rabota'||val=='adsl_terminal'||val=='adsl_tranzit1'?'mgts':document.getElementById('port').getAttribute('tag'));
+function form_ip_ports_hide(is_first) {
+    var val = document.getElementById('port_type').value;
+    if (!is_first) document.getElementById('port').value = (val == 'adsl' || val == 'adsl_cards' || val == 'adsl_connect' || val == 'adsl_karta' || val == 'adsl_rabota' || val == 'adsl_terminal' || val == 'adsl_tranzit1' ? 'mgts' : document.getElementById('port').getAttribute('tag'));
 
-	if (val=='adsl'||val=='adsl_cards'||val=='adsl_karta'||val=='adsl_connect'||val=='adsl_rabota'||val=='adsl_terminal'||val=='adsl_tranzit1') {
-		document.getElementById('tr_node').style.display='none';
-		document.getElementById('tr_phone').style.display='';
-		document.getElementById('tr_port').style.display='none';
-		//document.getElementById('tr_speed_contract').style.display='';
-		form_ip_ports_tarif()
-	} else if (val=='wimax' || val == 'yota' || val == 'GPON' || val == 'megafon_4G') {
-		document.getElementById('tr_node').style.display='none';
-		document.getElementById('tr_phone').style.display='none';
-		document.getElementById('tr_port').style.display='none';
-		document.getElementById('tr_speed_contract').style.display='none';
-	} else {
-		document.getElementById('tr_node').style.display='';
-		document.getElementById('tr_phone').style.display='none';
-		document.getElementById('tr_port').style.display='';
-		document.getElementById('tr_speed_contract').style.display='none';
-		form_ip_ports_get_ports();
-	}
+    if (val == 'adsl' || val == 'adsl_cards' || val == 'adsl_karta' || val == 'adsl_connect' || val == 'adsl_rabota' || val == 'adsl_terminal' || val == 'adsl_tranzit1') {
+        document.getElementById('tr_node').style.display = 'none';
+        document.getElementById('tr_phone').style.display = '';
+        document.getElementById('tr_port').style.display = 'none';
+        //document.getElementById('tr_speed_contract').style.display='';
+        form_ip_ports_tarif()
+    } else if (val == 'wimax' || val == 'yota' || val == 'GPON' || val == 'megafon_4G') {
+        document.getElementById('tr_node').style.display = 'none';
+        document.getElementById('tr_phone').style.display = 'none';
+        document.getElementById('tr_port').style.display = 'none';
+        document.getElementById('tr_speed_contract').style.display = 'none';
+    } else {
+        document.getElementById('tr_node').style.display = '';
+        document.getElementById('tr_phone').style.display = 'none';
+        document.getElementById('tr_port').style.display = '';
+        document.getElementById('tr_speed_contract').style.display = 'none';
+        form_ip_ports_get_ports();
+    }
 }
 
 var usagevoip_line7800_hide = false;
-function form_usagevoip_hide()
-{
+function form_usagevoip_hide() {
     var val = document.getElementById("E164").value;
 
     var toHide = false;
 
-    toHide = val.substr(0,4) != "7800";
+    toHide = val.substr(0, 4) != "7800";
 
-    if (toHide != usagevoip_line7800_hide)
-    {
-        document.getElementById("tr_line7800_id").style.display= toHide ? 'none' : '';
+    if (toHide != usagevoip_line7800_hide) {
+        document.getElementById("tr_line7800_id").style.display = toHide ? 'none' : '';
         usagevoip_line7800_hide = toHide;
     }
 }
 
 function form_ip_ports_get_ports() {
-	var nodeval=document.getElementById('node').value;
-	var porttypeval=document.getElementById('port_type').value;
-	options_waiting('port',(nodeval && porttypeval));
-    $.getJSON('index_lite.php?module=services&action=in_async&node='+nodeval+'&port_type='+porttypeval)
-        .done(function(data){
+    var nodeval = document.getElementById('node').value;
+    var porttypeval = document.getElementById('port_type').value;
+    options_waiting('port', (nodeval && porttypeval));
+    $.getJSON('index_lite.php?module=services&action=in_async&node=' + nodeval + '&port_type=' + porttypeval)
+        .done(function (data) {
             if (data && data) {
-                options_update('port',data.ports);
+                options_update('port', data.ports);
             }
         });
 }
 
-function form_cpe_get_clients(first_load) { 
-	var id_modelval=document.getElementById('id_model').value;
-	document.getElementById('deposit_sumRUB').title='загрузка...';
-	document.getElementById('deposit_sumUSD').title='загрузка...';
-	options_waiting('client',id_modelval);
-    $.getJSON('/index_lite.php?module=routers&action=d_async&res=client&id_model='+id_modelval+'&client='+document.getElementById('client').getAttribute('tag'))
-        .done(function(data){
+function form_cpe_get_clients(first_load) {
+    var id_modelval = document.getElementById('id_model').value;
+    document.getElementById('deposit_sumRUB').title = 'загрузка...';
+    document.getElementById('deposit_sumUSD').title = 'загрузка...';
+    options_waiting('client', id_modelval);
+    $.getJSON('/index_lite.php?module=routers&action=d_async&res=client&id_model=' + id_modelval + '&client=' + document.getElementById('client').getAttribute('tag'))
+        .done(function (data) {
             if (data.depositUSD && data.depositRUB) {
-                document.getElementById('deposit_sumUSD').title=data.depositUSD;
-                document.getElementById('deposit_sumRUB').title=data.depositRUB;
-                if (!document.getElementById('deposit_sumRUB').value) document.getElementById('deposit_sumRUB').value=data.depositRUB;
-                if (!document.getElementById('deposit_sumUSD').value) document.getElementById('deposit_sumUSD').value=data.depositUSD;
+                document.getElementById('deposit_sumUSD').title = data.depositUSD;
+                document.getElementById('deposit_sumRUB').title = data.depositRUB;
+                if (!document.getElementById('deposit_sumRUB').value) document.getElementById('deposit_sumRUB').value = data.depositRUB;
+                if (!document.getElementById('deposit_sumUSD').value) document.getElementById('deposit_sumUSD').value = data.depositUSD;
             }
             if (data.data) {
-                options_update('client',data.data, true);
+                options_update('client', data.data, true);
                 options_select('client', _client);
                 form_cpe_get_services();
             }
         });
-} 
+}
 
 function form_cpe_get_services(first_load) {
-	var id_modelval=document.getElementById('id_model').value;
-	var clientval=(first_load?document.getElementById('client').getAttribute('tag'):document.getElementById('client').value);
-	options_waiting('id_service',id_modelval);
-    $.getJSON('/index_lite.php?module=routers&action=d_async&res=service&id_model='+id_modelval+'&client='+clientval+'&id='+document.getElementById('id_service').getAttribute('tag'))
-        .done(function(data){
-            if (data && data.data) options_update('id_service',data.data);
+    var id_modelval = document.getElementById('id_model').value;
+    var clientval = (first_load ? document.getElementById('client').getAttribute('tag') : document.getElementById('client').value);
+    options_waiting('id_service', id_modelval);
+    $.getJSON('/index_lite.php?module=routers&action=d_async&res=service&id_model=' + id_modelval + '&client=' + clientval + '&id=' + document.getElementById('id_service').getAttribute('tag'))
+        .done(function (data) {
+            if (data && data.data) options_update('id_service', data.data);
         })
-} 
+}
 
 function form_usage_extra_group(o) {
     var gValue = o.options[o.selectedIndex].value;
 
     var oTarif = document.getElementById("tarif_id");
 
-    for(i = oTarif.options.length; i > 1 ;i--){
-        oTarif.remove(i-1);
+    for (i = oTarif.options.length; i > 1; i--) {
+        oTarif.remove(i - 1);
     }
 
     aIds = tGroup[gValue];
 
     var optNames = new Array();
 
-    if(aIds){
-        for(a in aIds){
+    if (aIds) {
+        for (a in aIds) {
             id = aIds[a];
-            if(ids[id])
-                optNames.push([id,ids[id]])
+            if (ids[id])
+                optNames.push([id, ids[id]])
         }
     }
 
     optNames.sort(optSort);
 
-    for(a in optNames) {
+    for (a in optNames) {
         var o = optNames[a];
         createOption(oTarif, o[0], o[1]);
     }
 
 }
 
-function optSort(i, ii)
-{
+function optSort(i, ii) {
     return i[1] == ii[1] ? 0 : (i[1] > ii[1] ? 1 : -1);
 }
 
 
-function createOption(oSel, id,value){
+function createOption(oSel, id, value) {
     var opt = document.createElement("OPTION");
     opt.innerHTML = value;
     opt.value = id;
     oSel.appendChild(opt);
 }
 
-function form_usage_sms_get(id)
-{
+function form_usage_sms_get(id) {
     __form_get(id, 'sms');
 }
 
@@ -303,101 +296,75 @@ function form_usage_extra_get(id) {
 }
 
 function __form_get(id, tarif_table) {
-	if (!id) {
-		if (loading) return;
-		var id=document.getElementById('tarif_id').value;
-	}
-	if (!id) return;
-	document.getElementById('async_price').value='загрузка...';
+    if (!id) {
+        if (loading) return;
+        var id = document.getElementById('tarif_id').value;
+    }
+    if (!id) return;
+    document.getElementById('async_price').value = 'загрузка...';
 
-    $.getJSON('/index_lite.php?module=services&action=ex_async&tarif_table='+tarif_table+'&id='+id)
-        .done(function(data){
-            if (data.async_price) document.getElementById('tr_async_price').childNodes[1].innerHTML=data.async_price;
-            if (data.async_period) document.getElementById('tr_async_period').childNodes[1].innerHTML=data.async_period;
+    $.getJSON('/index_lite.php?module=services&action=ex_async&tarif_table=' + tarif_table + '&id=' + id)
+        .done(function (data) {
+            if (data.async_price) document.getElementById('tr_async_price').childNodes[1].innerHTML = data.async_price;
+            if (data.async_period) document.getElementById('tr_async_period').childNodes[1].innerHTML = data.async_period;
             if (data.param_name) {
-                document.getElementById('tr_param_value').childNodes[0].innerHTML=data.param_name;
-                document.getElementById('tr_param_value').style.display='';
-            } else document.getElementById('tr_param_value').style.display='none';
-            if (data.is_countable && data.is_countable==1) {
-                document.getElementById('tr_amount').style.display='';
+                document.getElementById('tr_param_value').childNodes[0].innerHTML = data.param_name;
+                document.getElementById('tr_param_value').style.display = '';
+            } else document.getElementById('tr_param_value').style.display = 'none';
+            if (data.is_countable && data.is_countable == 1) {
+                document.getElementById('tr_amount').style.display = '';
             } else {
-                document.getElementById('amount').value="1";
-                document.getElementById('tr_amount').style.display='none';
+                document.getElementById('amount').value = "1";
+                document.getElementById('tr_amount').style.display = 'none';
             }
             loading = false;
         });
 }
 
-function form_cpe_load(){
+function form_cpe_load() {
 //	document.getElementById('service').disabled=1;
-	form_cpe_get_clients(1);
+    form_cpe_get_clients(1);
 }
 
-function showHistory(obj, popup) {
-    var el = $('.showhistorybutton');
-    var loading = false;
-    if(loading == false) {
-        if(popup === true){
-            if(!$('#history-dialog').length)
-                $('<div id="history-dialog">').appendTo('.layout_main');
-            var dialog = $('#history-dialog');
-            dialog.dialog({
-                width:'80%',
-                height:'700'
-            });
-            dialog.empty();
-            loading = true;
-            $.get('/history/show', obj, function (data) {
-                dialog.append(data);
-                dialog.dialog('open');
-                loading = false;
-            }, 'html');
-        }
-        else{
-            if (el.data('sh') !== false) {
-                loading = true;
-                $.get('/history/show', obj, function (data) {
-                    el.next().after(data);
-                    el.text('∧');
-                    el.data('sh', false);
-                    loading = false;
-                }, 'html');
-            }
-            else {
-                el.text('∨');
-                el.next().next().remove();
-                el.data('sh', true);
-            }
-        }
+function showHistoryOrVersion(clickObj, obj, btnSelector, url) {
+    var el = $(clickObj);
+
+    var btn;
+    if (el.is(btnSelector)) {
+        btn = el;
+    } else {
+        btn = el.find(btnSelector);
+    }
+
+    if (btn.data('sh') !== false) {
+        //  показать
+        $.get(url, {params: obj}, function (data) {
+            $("<div>")
+                .hide()
+                .append(data)
+                .insertAfter(el)
+                .slideDown();
+            btn.text('∧');
+            btn.data('sh', false);
+        }, 'html');
+    }
+    else {
+        // повторный клик - скрыть
+        btn.text('∨');
+        el.next().slideUp(function () {
+            $(this).remove();
+        });
+        btn.data('sh', true);
     }
     return false;
 }
 
-function showVersion(obj, popup) {
-    var el = $('.showhistorybutton');
-    var loading = false;
-    if(loading == false) {
-        if(popup === true){
-            if(!$('#history-dialog').length)
-                $('<div id="history-dialog">').appendTo('.layout_main');
-            var dialog = $('#history-dialog');
-            dialog.dialog({
-                width:800,
-                height:700
-            });
-            dialog.empty();
-            loading = true;
-            $.get('/version/show', obj, function (data) {
-                dialog.append(data);
-                dialog.dialog('open');
-                loading = false;
-            }, 'html');
-        }
-        else{
+function showHistory(clickObj, obj) {
+    return showHistoryOrVersion(clickObj, obj, '.showHistoryButton', '/history/show');
+}
 
-        }
-    }
-    return false;
+function showVersion(clickObj, obj) {
+    return showHistoryOrVersion(clickObj, obj, '.showVersionButton', '/version/show');
 }
 
 function showIframePopup(element) {
@@ -424,18 +391,18 @@ function showIframePopup(element) {
             resizable: false,
             draggable: false,
             closeOnEscape: true,
-            open: function() {
+            open: function () {
                 $dialog.dialog('widget')
                     .find('.ui-dialog-titlebar')
                     .replaceWith(loader);
 
-                $dialog.css('width', '100%').load(function() {
+                $dialog.css('width', '100%').load(function () {
                     $dialog.dialog('widget')
                         .find('.dialog-loader')
                         .remove();
                 });
             },
-            close: function() {
+            close: function () {
                 $dialog.remove();
             }
         });
@@ -447,16 +414,16 @@ function createLoader() {
     return $('<div />')
         .addClass('dialog-loader')
         .css({
-            'position':       'fixed',
-            'top':            '50%',
-            'left':           '50%',
-            'margin-left':    '-50px',
-            'margin-top':     '-50px',
-            'text-align':     'center',
-            'z-index':        1234,
-            'overflow':       'auto',
-            'width':          '100px',
-            'height':         '102px'
+            'position': 'fixed',
+            'top': '50%',
+            'left': '50%',
+            'margin-left': '-50px',
+            'margin-top': '-50px',
+            'text-align': 'center',
+            'z-index': 1234,
+            'overflow': 'auto',
+            'width': '100px',
+            'height': '102px'
         })
         .append(
             $('<img />')

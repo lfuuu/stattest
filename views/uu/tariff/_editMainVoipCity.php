@@ -10,7 +10,6 @@
 
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffVoipCity;
-use app\controllers\uu\TariffController;
 use app\models\City;
 use kartik\select2\Select2;
 
@@ -38,13 +37,17 @@ $tariffTableName = Tariff::tableName();
 
 </div>
 
+<?php if (!$tariff->isNewRecord) : ?>
+    <?= $this->render('//layouts/_showHistory', ['model' => $tariffVoipCities, 'deleteModel' => [new TariffVoipCity(), 'tariff_id', $tariff->id]]) ?>
+<?php endif; ?>
+
 <script type="text/javascript">
-jQuery(document).ready(function() {
-    $('select[name="Tariff[country_id]"]').on('change', function() {
-        var location = self.location.href.replace(/&?countryId=[0-9]+/, '');
-        if (confirm('Страница будет перезагружена, для установки нового списка городов, уверены ?')) {
-            self.location.href = location + '&countryId=' + $(this).val();
-        }
+    jQuery(document).ready(function () {
+        $('select[name="Tariff[country_id]"]').on('change', function () {
+            var location = self.location.href.replace(/&?countryId=[0-9]+/, '');
+            if (confirm('Страница будет перезагружена, для установки нового списка городов, уверены ?')) {
+                self.location.href = location + '&countryId=' + $(this).val();
+            }
+        });
     });
-});
 </script>

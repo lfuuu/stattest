@@ -33,6 +33,25 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, City $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, City $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
+    [
         'attribute' => 'id',
         'class' => IntegerColumn::className(),
     ],
@@ -60,26 +79,6 @@ $columns = [
         'attribute' => 'in_use',
         'class' => YesNoColumn::className(),
     ],
-    [
-        'class' => ActionColumn::className(),
-        'template' => '{update} {delete}',
-        'buttons' => [
-            'update' => function ($url, City $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, City $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
-    ],
-
 ];
 
 echo GridViewSequence::widget([

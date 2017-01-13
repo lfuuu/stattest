@@ -2,8 +2,9 @@
 
 namespace app\classes\uu\model;
 
+use app\classes\behaviors\HistoryChanges;
+use app\classes\model\HistoryActiveRecord;
 use app\models\City;
-use Yii;
 use yii\db\ActiveQuery;
 
 /**
@@ -16,10 +17,21 @@ use yii\db\ActiveQuery;
  * @property Tariff $tariff
  * @property City $city
  */
-class TariffVoipCity extends \yii\db\ActiveRecord
+class TariffVoipCity extends HistoryActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => HistoryChanges::className(),
+        ];
+
+    }
 
     /**
      * @return string

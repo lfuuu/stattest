@@ -1,22 +1,25 @@
 <?php
 
-/** @var $this \app\classes\BaseView */
+/**
+ * @var \app\forms\client\ContragentEditForm $model
+ * @var $this \app\classes\BaseView
+ */
 
 use app\classes\Html;
+use app\classes\Language;
 use app\helpers\DateTimeZoneHelper;
+use app\models\UserGroups;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
-use app\classes\Language;
-use app\models\UserGroups;
 
-$language = Language::getLanguageByCountryId($model->country_id?: \app\models\Country::RUSSIA);
+$language = Language::getLanguageByCountryId($model->country_id ?: \app\models\Country::RUSSIA);
 $model->formLang = $language;
 ?>
 <div class="row">
     <div class="col-sm-12">
 
         <h2 style="display: inline-block; width: 62%;"><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> контрагента</h2>
-        <?php if (!$model->isNewRecord): ?>
+        <?php if (!$model->isNewRecord) : ?>
             <a href="/contragent/transfer?id=<?= $model->id; ?>" onClick="return showIframePopup(this)" data-height="500">Переместить</a>
         <?php endif; ?>
 
@@ -60,21 +63,22 @@ $model->formLang = $language;
         <?php ActiveForm::end(); ?>
     </div>
 
-    <?php if (!$model->isNewRecord): ?>
+    <?php if (!$model->isNewRecord) : ?>
         <div class="col-sm-12 form-group">
-            <a href="#" onclick="return showVersion({ClientContragent:<?= $model->id ?>}, true);">Версии</a><br/>
-        <?php if(Yii::$app->user->identity->usergroup == UserGroups::ADMIN): ?>
-            <?= Html::button('∨', ['style' => 'border-radius: 22px;', 'class' => 'btn btn-default showhistorybutton', 'onclick' => 'showHistory({ClientContragent:' . $model->id . ', ClientContragentPerson:' . $model->getPersonId() . '})']); ?>
-            <span>История изменений</span>
-        <?php endif; ?>
+            <?= $this->render('//layouts/_showVersion', ['model' => [$model->contragent, $model->person]]) ?>
+            <?php
+            if (Yii::$app->user->identity->usergroup == UserGroups::ADMIN) {
+                echo $this->render('//layouts/_showHistory', ['model' => [$model->contragent, $model->person]]);
+            }
+            ?>
         </div>
     <?php endif; ?>
 </div>
 
 <script>
-    showLastChanges = <?= $showLastChanges ? 'true':'false' ?>;
+    showLastChanges = <?= $showLastChanges ? 'true' : 'false' ?>;
 
-    $(function(){
+    $(function () {
         $('#deferred-date-input').parent().parent().hide();
     });
 

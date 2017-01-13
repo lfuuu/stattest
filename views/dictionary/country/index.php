@@ -32,6 +32,19 @@ use app\classes\grid\column\universal\YesNoColumn;
 $baseView = $this;
 $columns = [
     [
+        'class' => ActionColumn::className(),
+        'template' => '{update}',
+        'buttons' => [
+            'update' => function ($url, Country $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
+    [
         'attribute' => 'code',
         'class' => IntegerColumn::className(),
     ],
@@ -68,19 +81,6 @@ $columns = [
     [
         'attribute' => 'prefix',
         'class' => IntegerColumn::className(),
-    ],
-    [
-        'class' => ActionColumn::className(),
-        'template' => '{update}',
-        'buttons' => [
-            'update' => function ($url, Country $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

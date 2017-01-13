@@ -108,12 +108,17 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         <div class="col-sm-4"><?= $form->field($tariff, 'count_of_validity_period')->textInput($options) ?></div>
 
         <div class="col-sm-2">
-            <?php //$form->field($tariff, 'is_charge_after_period')->checkbox($options) ?>
+            <?php // $form->field($tariff, 'is_charge_after_period')->checkbox($options) ?>
             <?= $form->field($tariff, 'is_autoprolongation')->checkbox($options) ?>
             <?= $form->field($tariff, 'is_default')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
         </div>
         <div class="col-sm-2"></div>
     </div>
+
+    <?php if (!$tariff->isNewRecord) : ?>
+        <?= $this->render('//layouts/_showHistory', ['model' => $tariff]) ?>
+    <?php endif; ?>
+
 </div>
 
 <?php // если ресурс может быть выключен/включен, то при его включении цену указывать нет смысла, потому что она входит в абонентку ?>

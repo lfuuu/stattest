@@ -72,10 +72,9 @@ class HistoryVersion extends ActiveRecord
      */
     public function exportCurrentVersion()
     {
-        $modelClass = 'app\\models\\' . $this->model;
-
         /** @var HistoryActiveRecord $currentModel */
-        $currentModel = $modelClass::findOne($this->model_id);
+        $className = $this->model;
+        $currentModel = $className::findOne($this->model_id);
         $currentModel->fillHistoryDataInModel(json_decode($this->data_json, $assoc = true));
 
         return $currentModel->save(false);

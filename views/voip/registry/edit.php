@@ -261,12 +261,7 @@ echo Breadcrumbs::widget([
 
 <?php if ($model->id): ?>
     <div class="col-sm-12 form-group">
-        <a href="#" onclick="return showVersion({'voip_Registry':<?= $model->id ?>}, true);">Версии</a><br/>
-        <?= Html::button('∨', [
-            'style' => 'border-radius: 22px;',
-            'class' => 'btn btn-default showhistorybutton',
-            'onclick' => "showHistory({'voip_Registry':" . $model->id . "})"
-        ]); ?>
-        <span>История изменений</span>
+        <?= $this->render('//layouts/_showVersion', ['model' => $model->registry]) ?>
+        <?= $this->render('//layouts/_showHistory', ['model' => $model->registry]) ?>
     </div>
 <?php endif; ?>

@@ -411,7 +411,7 @@ function doFormSend()
 
 <br/>
 
-<button class="showhistorybutton" onclick="showHistory({literal}{Bill:{/literal}{$bill.id}{literal}}{/literal})">Открыть историю изменений</button>
+<button class="showHistoryButton" onclick="showHistory(this, {literal}{params: [['app\\models\\Bill', {/literal}{$bill.id}{literal}]]{/literal})">Открыть историю изменений</button>
 
 <h3>События счета:</h3>
 {if count($bill_history)}{foreach from=$bill_history item=L key=key name=outer}

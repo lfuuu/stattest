@@ -165,4 +165,9 @@ if (!$serviceType) {
     </div>
 
     <?php ActiveForm::end(); ?>
+
+    <?php if (!$tariff->isNewRecord) : ?>
+        <?= $this->render('//layouts/_showHistory', ['model' => $accountTariff]) ?>
+    <?php endif; ?>
+
 </div>

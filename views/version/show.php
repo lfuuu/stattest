@@ -1,87 +1,86 @@
 <?php
-/** @var $versions array */
+/**
+ * @var HistoryVersion[] $versions
+ * @var HistoryActiveRecord[] $models
+ */
+
+use app\classes\model\HistoryActiveRecord;
+use app\models\HistoryVersion;
 
 $links = [
-    'ClientAccount' => '/account/edit?id=',
-    'ClientContragent' => '/contragent/edit?id=',
-    'ClientContragentPerson' => '/contragent/edit?id=',
-    'ClientContract' => '/contract/edit?id=',
+    'app\models\ClientAccount' => '/account/edit?id=',
+    'app\models\ClientContragent' => '/contragent/edit?id=',
+    'app\models\ClientContragentPerson' => '/contragent/edit?id=',
+    'app\models\ClientContract' => '/contract/edit?id=',
 ];
 ?>
 <?php if (!$versions) : ?>
     Версий не найдено
-<?php else : ?>
+    <?php return ?>
+<?php endif ?>
 
-    <div class="row" style="background: #dcdcdc;">
-        <div class="col-sm-2">
-            Дата
-        </div>
-        <div class="col-sm-2">
-            Пользователь
-        </div>
-        <div class="col-sm-8">
-                <div class="row">
-                    <div class="col-sm-4">
-                        Название аттрибута
-                    </div>
-                    <div class="col-sm-4">
-                        Новое значение
-                    </div>
-                    <div class="col-sm-4">
-                        Старое значение
-                    </div>
-                </div>
-        </div>
-    </div>
+<table class="table table-condensed table-striped table-bordered" style="width: auto; margin-top: 20px">
+    <tr class="info">
+        <th>Дата</th>
+        <th>Пользователь</th>
+        <th>Атрибут</th>
+        <th>Старое значение</th>
+        <th>Новое значение</th>
+    </tr>
 
     <?php $last = count($versions) - 1; ?>
-    <?php foreach($versions as $k => $version) : ?>
-    <div class="row" style="background: <?= $k%2==0 ? '#f7f7f7' : 'white' ?>; border-top: 1px solid rgb(33, 51, 237);">
-        <div class="col-sm-2">
-            <a href="<?= $links[$version->model].$version->model_id.'&date=' . $version->date ?>"><?= $version->date ?></a>
-            <?php if($last !== $k || !$version['diffs']) : ?>
-                <i class="uncheck btn-delete-version" style="cursor: pointer;" data-model="<?= $version->model ?>"
-                   data-model-id="<?= $version->model_id ?>" data-date="<?= $version->date ?>"></i>
-            <?php endif; ?>
-        </div>
-        <div class="col-sm-2">
-            <?= ($version->user_id ? $version->user->name : '') ?>
-        </div>
-        <div class="col-sm-8">
-        <?php $i=0; foreach($version['diffs'] as $filed => $values) : ?>
-            <div class="row" style="background: <?= $i%2==0?'rgb(104, 199, 244)': 'rgb(65, 181, 237)'?>;">
-                <div class="col-sm-4">
-                    <?= $models[$version->model]->getAttributeLabel($filed) ?>
-                </div>
-                <div class="col-sm-4">
-                    <?= $values[1] ?>
-                </div>
-                <div class="col-sm-4">
-                    <?= $values[0] ?>
-                </div>
-            </div>
-            <?php $i++; ?>
-        <?php endforeach; ?>
-        </div>
-    </div>
-    <?php endforeach; ?>
+    <?php foreach ($versions as $k => $version) : ?>
+        <?php $firstRow = true; ?>
+        <?php foreach ($version['diffs'] as $field => $values) : ?>
+            <tr>
 
-<?php endif; ?>
+                <?php if ($firstRow) : ?>
+                    <?php $firstRow = false; ?>
+
+                    <td nowrap rowspan="<?= count($version['diffs']) ?>">
+                        <?php if (isset($links[$version->model])) : ?>
+                            <a href="<?= $links[$version->model] . $version->model_id . '&date=' . $version->date ?>"><?= $version->date ?></a>
+                        <?php endif ?>
+                        <?php if ($last !== $k || !$version['diffs']) : ?>
+                            <i class="uncheck btn-delete-version" style="cursor: pointer;" data-model="<?= $version->model ?>" data-model-id="<?= $version->model_id ?>" data-date="<?= $version->date ?>"></i>
+                        <?php endif; ?>
+                    </td>
+
+                    <td nowrap rowspan="<?= count($version['diffs']) ?>">
+                        <?= ($version->user_id ? $version->user->name : '') ?>
+                    </td>
+
+                <?php endif; ?>
+
+                <td>
+                    <?= $models[$version->model]->getAttributeLabel($field) ?>
+                </td>
+                <td>
+                    <?= $values[0] ?>
+                </td>
+                <td>
+                    <?= $values[1] ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    <?php endforeach; ?>
+</table>
 
 <script>
-    $('#history-dialog').off('click', '.btn-delete-version');
-    $('#history-dialog').on('click', '.btn-delete-version', function () {
-        if(confirm('Удалить версию?')){
-            var t = $(this);
-            var params = {
-                model: t.data('model'),
-                modelId: t.data('model-id'),
-                date: t.data('date'),
-            };
-            $.getJSON('/version/delete', params, function(data){
-                if(data['status'] == 'ok')
-                    t.closest('.row').remove();
-            })
-        }
-    })
+    $('#history-dialog')
+        .off('click', '.btn-delete-version')
+        .on('click', '.btn-delete-version', function () {
+            if (confirm('Удалить версию?')) {
+                var t = $(this);
+                var params = {
+                    model: t.data('model'),
+                    modelId: t.data('model-id'),
+                    date: t.data('date')
+                };
+                $.getJSON('/version/delete', params, function (data) {
+                    if (data['status'] == 'ok')
+                        t.closest('.row').remove();
+                })
+            }
+        })
 </script>

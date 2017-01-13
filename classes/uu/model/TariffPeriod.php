@@ -2,6 +2,8 @@
 
 namespace app\classes\uu\model;
 
+use app\classes\behaviors\HistoryChanges;
+use app\classes\model\HistoryActiveRecord;
 use Yii;
 use yii\db\ActiveQuery;
 
@@ -21,7 +23,7 @@ use yii\db\ActiveQuery;
  * @property Tariff $tariff
  * @property AccountTariff[] $accountTariffs
  */
-class TariffPeriod extends \yii\db\ActiveRecord
+class TariffPeriod extends HistoryActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -35,6 +37,17 @@ class TariffPeriod extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return 'uu_tariff_period';
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => HistoryChanges::className(),
+        ];
+
     }
 
     /**

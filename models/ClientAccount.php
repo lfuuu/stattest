@@ -305,7 +305,18 @@ class ClientAccount extends HistoryActiveRecord
             'anti_fraud_disabled' => 'Отключен анти-фрод',
             'is_postpaid' => 'Постоплата',
             'type_of_bill' => 'Закрывающий документ (Полный)',
-            'is_calc_with_tax' => 'Расчет с НДС (для н/у биллинга)'
+            'is_calc_with_tax' => 'Расчет с НДС (для н/у биллинга)',
+            'status' => 'Статус',
+            'is_active' => 'Вкл.',
+            'previous_reincarnation' => 'Предыдущий аккаунт',
+            'password_type' => 'Тип пароля',
+            'currency_bill' => 'Валюта счета',
+            'balance_usd' => 'Баланс в $',
+            'last_account_date' => 'Дата актуальности баланса',
+            'created' => 'Дата создания',
+            'mail_print' => 'Печатать письма',
+            'nds_calc_method' => 'Тип расчета НДС',
+            'timezone_offset' => 'Таймзона, часы',
         ];
     }
 

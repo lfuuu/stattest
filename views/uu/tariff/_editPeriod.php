@@ -14,6 +14,7 @@ use app\controllers\uu\TariffController;
 use kartik\editable\Editable;
 use unclead\widgets\TabularInput;
 
+$tariff = $formModel->tariff;
 $tariffPeriods = $formModel->tariffPeriods;
 $tariffPeriodTableName = TariffPeriod::tableName();
 
@@ -22,6 +23,14 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 } else {
     $options = [];
 }
+
+if (!$tariff->isNewRecord) {
+    // это нужно сделать ДО TabularInput, иначе он попортит данные $tariffPeriods
+    $showHistory = $this->render('//layouts/_showHistory', ['model' => $tariffPeriods, 'deleteModel' => [new TariffPeriod(), 'tariff_id', $tariff->id]]);
+} else {
+    $showHistory = '';
+}
+
 ?>
 
 <div class="well chargePeriod">
@@ -36,16 +45,16 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     'title' => Yii::t('models/' . $tariffPeriodTableName, 'period_id'),
                     'type' => Editable::INPUT_SELECT2,
                     'options' => $options + [
-                        'data' => $periodList,
-                    ],
+                            'data' => $periodList,
+                        ],
                 ],
                 [
                     'name' => 'charge_period_id',
                     'title' => Yii::t('models/' . $tariffPeriodTableName, 'charge_period_id'),
                     'type' => Editable::INPUT_SELECT2,
                     'options' => $options + [
-                        'data' => $periodList,
-                    ],
+                            'data' => $periodList,
+                        ],
                 ],
                 [
                     'name' => 'price_setup',
@@ -72,6 +81,9 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         ]
     );
     ?>
+
+    <?= $showHistory ?>
+
 </div>
 
 <script type='text/javascript'>
@@ -87,11 +99,11 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     periods.first().removeClass('hidden'); // ... кроме первого
 
                     // пустым строчкам установить 0
-                    $(".chargePeriod .list-cell__price_setup input").each(function() {
+                    $(".chargePeriod .list-cell__price_setup input").each(function () {
                         var $this = $(this);
                         ($this.val() == '') && $this.val(0);
                     });
-                    $(".chargePeriod .list-cell__price_min input").each(function() {
+                    $(".chargePeriod .list-cell__price_min input").each(function () {
                         var $this = $(this);
                         ($this.val() == '') && $this.val(0);
                     });

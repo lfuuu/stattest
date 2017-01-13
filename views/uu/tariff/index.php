@@ -45,7 +45,27 @@ if (!$serviceType) {
 
 <?php
 // базовые столбцы
+$baseView = $this;
 $columns = [
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, Tariff $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, Tariff $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
@@ -196,28 +216,6 @@ foreach ($resources as $resource) {
         }
     ];
 }
-
-// "действия"
-$baseView = $this;
-$columns[] = [
-    'class' => ActionColumn::className(),
-    'template' => '{update} {delete}',
-    'buttons' => [
-        'update' => function ($url, Tariff $model, $key) use ($baseView) {
-            return $baseView->render('//layouts/_actionEdit', [
-                    'url' => $model->getUrl(),
-                ]
-            );
-        },
-        'delete' => function ($url, Tariff $model, $key) use ($baseView) {
-            return $baseView->render('//layouts/_actionDrop', [
-                    'url' => $model->getUrl(),
-                ]
-            );
-        },
-    ],
-    'hAlign' => GridView::ALIGN_CENTER,
-];
 
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),

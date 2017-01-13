@@ -2,6 +2,9 @@
 
 namespace app\classes\uu\model;
 
+use app\classes\behaviors\HistoryChanges;
+use app\classes\model\HistoryActiveRecord;
+
 /**
  * Стоимость ресурса (дисковое пространство, абоненты, линии и пр.)
  *
@@ -15,10 +18,21 @@ namespace app\classes\uu\model;
  * @property \app\classes\uu\model\Resource $resource
  * @property Tariff $tariff
  */
-class TariffResource extends \yii\db\ActiveRecord
+class TariffResource extends HistoryActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => HistoryChanges::className(),
+        ];
+
+    }
 
     /**
      * @return string

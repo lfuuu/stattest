@@ -18,14 +18,6 @@ echo Breadcrumbs::widget([
 $baseView = $this;
 $columns = [
     [
-        'attribute' => 'id',
-        'width' => '100px',
-    ],
-    [
-        'attribute' => 'name',
-        'width' => '*',
-    ],
-    [
         'class' => ActionColumn::className(),
         'template' => '{update} {delete}',
         'buttons' => [
@@ -44,6 +36,14 @@ $columns = [
         ],
         'width' => '100px',
         'hAlign' => GridView::ALIGN_CENTER,
+    ],
+    [
+        'attribute' => 'id',
+        'width' => '100px',
+    ],
+    [
+        'attribute' => 'name',
+        'width' => '*',
     ],
 ];
 

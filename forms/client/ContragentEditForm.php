@@ -20,7 +20,7 @@ class ContragentEditForm extends Form
 
     public $id;
     public $super_id;
-    protected $person = null,
+    public $person = null,
         $contragent = null;
 
     public $historyVersionRequestedDate = null;
@@ -176,17 +176,18 @@ class ContragentEditForm extends Form
     {
         if ($this->id) {
             $this->contragent = ClientContragent::findOne($this->id);
-            if ($this->contragent && $this->historyVersionRequestedDate) {
-                $this->contragent->loadVersionOnDate($this->historyVersionRequestedDate);
+            if ($this->contragent && $historyDate = $this->historyVersionRequestedDate) {
+                $this->contragent->loadVersionOnDate($historyDate);
             }
+
             if ($this->contragent === null) {
                 throw new Exception('Contragent not found');
             }
 
             $this->person = ClientContragentPerson::findOne(['contragent_id' => $this->contragent->id]);
             if ($this->person) {
-                if ($this->historyVersionRequestedDate) {
-                    $this->person->loadVersionOnDate($this->historyVersionRequestedDate);
+                if ($historyDate = $this->historyVersionRequestedDate) {
+                    $this->person->loadVersionOnDate($historyDate);
                 }
             } else {
                 $this->person = new ClientContragentPerson();

@@ -37,7 +37,7 @@ use yii\widgets\Breadcrumbs;
         <?= '' /*$this->render('_indexGroupEdit', [
             'city_id' => $filterModel->city_id,
             'currentClientAccountId' => $currentClientAccountId,
-        ]) */?>
+        ]) */ ?>
     </div -->
 
 <?php
@@ -47,6 +47,25 @@ $month1 = $month0->modify('-1 month');
 $month2 = $month1->modify('-1 month');
 
 $columns = [
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update}', // {delete}
+        'buttons' => [
+            'update' => function ($url, \app\models\Number $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, \app\models\Number $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
     [
         'attribute' => 'number',
         'class' => StringColumn::className(),
@@ -127,25 +146,6 @@ $columns = [
     [
         'attribute' => 'number_tech',
         'class' => StringColumn::className(),
-    ],
-    [
-        'class' => ActionColumn::className(),
-        'template' => '{update}', // {delete}
-        'buttons' => [
-            'update' => function ($url, \app\models\Number $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, \app\models\Number $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

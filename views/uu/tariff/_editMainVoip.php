@@ -26,5 +26,4 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         'form' => $form,
         'editableType' => $editableType,
     ]) ?>
-
 </div>

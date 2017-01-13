@@ -6,8 +6,19 @@ use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
+/**
+ * Class HistoryChanges
+ *
+ * @property ActiveRecord $owner
+ */
 class HistoryChanges extends Behavior
 {
+    /** @var ActiveRecord */
+    public $owner;
+
+    /**
+     * @return array
+     */
     public function events()
     {
         return [
@@ -17,28 +28,42 @@ class HistoryChanges extends Behavior
         ];
     }
 
+    /**
+     * After insert
+     */
     public function afterInsert()
     {
-        $this->logChanges(\app\models\HistoryChanges::ACTION_INSERT, $this->owner->toArray(), null);
+        $this->_logChanges(\app\models\HistoryChanges::ACTION_INSERT, $this->owner->toArray(), null);
     }
 
+    /**
+     * Before update
+     */
     public function beforeUpdate()
     {
         $this->fillChanges($data, $prevData);
         if (!empty($data)) {
-            $this->logChanges(\app\models\HistoryChanges::ACTION_UPDATE, $data, $prevData);
+            $this->_logChanges(\app\models\HistoryChanges::ACTION_UPDATE, $data, $prevData);
         }
     }
 
+    /**
+     * After delete
+     */
     public function afterDelete()
     {
-        $this->logChanges(\app\models\HistoryChanges::ACTION_DELETE, null, $this->owner->toArray());
+        $this->_logChanges(\app\models\HistoryChanges::ACTION_DELETE, null, $this->owner->toArray());
     }
 
-    private function logChanges($action, $data, $prevData)
+    /**
+     * @param string $action
+     * @param string $data
+     * @param mixed $prevData
+     */
+    private function _logChanges($action, $data, $prevData)
     {
         $queryData = [
-            'model' => substr(get_class($this->owner), 11), // remove 'app\models\'
+            'model' => $this->_getClassName(),
             'model_id' => $this->owner->primaryKey,
             'user_id' => Yii::$app->user->getId(),
             'created_at' => date(DateTimeZoneHelper::DATETIME_FORMAT),
@@ -76,5 +101,15 @@ class HistoryChanges extends Behavior
                 $resultOld[$name] = '';
             }
         }
+    }
+
+    /**
+     * Подготавливает названия класса для работы с историей
+     *
+     * @return string
+     */
+    private function _getClassName()
+    {
+        return get_class($this->owner);
     }
 }

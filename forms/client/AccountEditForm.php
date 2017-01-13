@@ -22,7 +22,7 @@ use app\classes\validators\ArrayValidator;
 class AccountEditForm extends Form
 {
     /** @var ClientAccount */
-    protected $clientM = null;
+    public $clientM = null;
 
     public $historyVersionRequestedDate = null;
     public $historyVersionStoredDate = null;
@@ -235,8 +235,8 @@ class AccountEditForm extends Form
         if ($this->id) {
             $this->clientM = ClientAccount::findOne($this->id);
 
-            if ($this->clientM && $this->historyVersionRequestedDate) {
-                $this->clientM->loadVersionOnDate($this->historyVersionRequestedDate);
+            if ($this->clientM && $historyDate = $this->historyVersionRequestedDate) {
+                $this->clientM->loadVersionOnDate($historyDate);
             }
 
             if ($this->clientM === null) {

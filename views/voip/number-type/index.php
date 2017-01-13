@@ -28,20 +28,6 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'attribute' => 'name',
-        'class' => StringColumn::className(),
-    ],
-    [
-        'label' => 'Страны',
-        'attribute' => 'number_type_country_id',
-        'class' => CountryColumn::className(),
-        'isAddLink' => false,
-        'format' => 'html',
-        'value' => function (NumberType $numberType) {
-            return implode('<br />', $numberType->numberTypeCountries);
-        },
-    ],
-    [
         'class' => ActionColumn::className(),
         'template' => '{update} {delete}',
         'buttons' => [
@@ -59,6 +45,20 @@ $columns = [
             },
         ],
         'hAlign' => GridView::ALIGN_CENTER,
+    ],
+    [
+        'attribute' => 'name',
+        'class' => StringColumn::className(),
+    ],
+    [
+        'label' => 'Страны',
+        'attribute' => 'number_type_country_id',
+        'class' => CountryColumn::className(),
+        'isAddLink' => false,
+        'format' => 'html',
+        'value' => function (NumberType $numberType) {
+            return implode('<br />', $numberType->numberTypeCountries);
+        },
     ],
 ];
 

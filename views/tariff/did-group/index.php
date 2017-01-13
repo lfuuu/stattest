@@ -14,7 +14,6 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\NumberTypeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
-use app\classes\Html;
 use app\models\DidGroup;
 use app\models\filter\DidGroupFilter;
 use kartik\grid\ActionColumn;
@@ -33,6 +32,25 @@ use yii\widgets\Breadcrumbs;
 <?php
 $baseView = $this;
 $columns = [
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, DidGroup $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, DidGroup $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
     [
         'attribute' => 'id',
         'class' => IntegerColumn::className(),
@@ -69,25 +87,6 @@ $columns = [
     [
         'attribute' => 'price3',
         'class' => IntegerRangeColumn::className()
-    ],
-    [
-        'class' => ActionColumn::className(),
-        'template' => '{update} {delete}',
-        'buttons' => [
-            'update' => function ($url, DidGroup $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, DidGroup $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

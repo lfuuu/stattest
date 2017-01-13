@@ -2,7 +2,9 @@
 
 namespace app\classes\uu\model;
 
+use app\classes\behaviors\HistoryChanges;
 use app\classes\Html;
+use app\classes\model\HistoryActiveRecord;
 use app\classes\uu\forms\AccountLogFromToTariff;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
@@ -13,7 +15,6 @@ use DateTime;
 use DateTimeImmutable;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
@@ -44,7 +45,7 @@ use yii\helpers\Url;
  * @property AccountLogPeriod[] $accountLogPeriods
  * @property AccountLogResource[] $accountLogResources
  */
-class AccountTariff extends ActiveRecord
+class AccountTariff extends HistoryActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -136,6 +137,17 @@ class AccountTariff extends ActiveRecord
 
     /** @var int */
     protected $serviceTypeIdOld = null;
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => HistoryChanges::className(),
+        ];
+
+    }
 
     /**
      * @return string

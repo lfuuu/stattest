@@ -11,7 +11,6 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\TariffPeriodColumn;
-use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\classes\uu\filter\AccountTariffFilter;
@@ -22,7 +21,21 @@ use kartik\grid\ActionColumn;
 $serviceType = $filterModel->getServiceType();
 
 // базовые столбцы
+$baseView = $this;
 $columns = [
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update}',
+        'buttons' => [
+            'update' => function ($url, AccountTariff $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
     [
         'label' => Yii::t('tariff', 'Universal services'),
         'attribute' => 'tariff_period_id',
@@ -74,23 +87,6 @@ switch ($serviceType->id) {
         ];
         break;
 }
-
-
-// "действия"
-$baseView = $this;
-$columns[] = [
-    'class' => ActionColumn::className(),
-    'template' => '{update}',
-    'buttons' => [
-        'update' => function ($url, AccountTariff $model, $key) use ($baseView) {
-            return $baseView->render('//layouts/_actionEdit', [
-                    'url' => $model->getUrl(),
-                ]
-            );
-        },
-    ],
-    'hAlign' => GridView::ALIGN_CENTER,
-];
 
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),

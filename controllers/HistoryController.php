@@ -1,14 +1,17 @@
 <?php
 namespace app\controllers;
 
+use app\classes\BaseController;
 use app\models\ClientContragent;
 use app\models\HistoryChanges;
 use Yii;
-use app\classes\BaseController;
-use yii\base\Exception;
+use yii\db\ActiveQuery;
 
 class HistoryController extends BaseController
 {
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -22,37 +25,70 @@ class HistoryController extends BaseController
         return $behaviors;
     }
 
+    /**
+     * @return string
+     * @throws \InvalidArgumentException
+     */
     public function actionShow()
     {
-        $models = [];
         $getRequest = Yii::$app->request->get();
-        $getOptions = $getRequest['options'];
-        if (!$getRequest) {
-            throw new Exception('Models does not exists');
+        if (!isset($getRequest['params']) || !is_array($getRequest['params'])) {
+            throw new \InvalidArgumentException('params');
         }
 
-        $changes = HistoryChanges::find()
-            ->joinWith('user');
-        foreach ($getRequest as $modelName => $modelId) {
-            if ($modelName == 'options') {
-                continue;
-            }
-            $modelName = str_replace('_', '\\', $modelName);
-
-            $className = 'app\\models\\' . $modelName;
-            if (!class_exists($className)) {
-                throw new Exception('Bad model type');
+        $params = $getRequest['params'];
+        $models = [];
+        $changesQuery = HistoryChanges::find();
+        foreach ($params as $param) {
+            if (!is_array($param)) {
+                throw new \InvalidArgumentException('param');
             }
 
-            $changes->orWhere(['model' => $modelName, 'model_id' => $modelId]);
-            $models[$modelName] = new $className();
+            $modelName = $param[0];
+            if (!class_exists($modelName)) {
+                throw new \InvalidArgumentException('Bad model type');
+            }
+
+            if (!isset($models[$modelName])) {
+                $models[$modelName] = new $modelName();
+            }
+
+            // формат параметров см. в \app\classes\model\HistoryActiveRecord::getHistoryIds и script.js
+            switch (count($param)) {
+
+                case 2:
+                    // Существующая модель. Класс и ID
+                    list($modelName, $modelId) = $param;
+                    $changesQuery->orWhere(['model' => $modelName, 'model_id' => $modelId]); // insert, update существующих
+                    break;
+
+                case 3:
+                    // Удаленная модель. Класс, поле и значение
+                    list($modelName, $fieldName, $fieldValue) = $param;
+                    $changesQuery->orWhere([
+                        'AND',
+                        ['model' => $modelName],
+                        [
+                            'OR', // LIKE по json-строке - это извращение, но ничего лучше не придумал
+                            ['LIKE', 'data_json', sprintf('"%s":%d,', $fieldName, $fieldValue)], // insert удаленных
+                            ['LIKE', 'prev_data_json', sprintf('"%s":%d,', $fieldName, $fieldValue)], // delete
+                        ]
+                    ]);
+                    break;
+
+                default:
+                    throw new \InvalidArgumentException('param');
+            }
         }
 
-        $changes = $changes->orderBy('created_at desc');
+        /** @var ActiveQuery $changesQuery */
+        $changesQuery = $changesQuery->orderBy('created_at desc');
         if (Yii::$app->request->isAjax && isset($getOptions['showLastChanges'])) {
-            $changes = $changes->limit(isset($getOptions['howMany']) ? (int)$getOptions['howMany'] : 1);
+            $changesQuery = $changesQuery->limit(isset($getOptions['howMany']) ? (int)$getOptions['howMany'] : 1);
         }
-        $changes = $changes->all();
+
+        /** @var HistoryChanges[] $changes */
+        $changes = $changesQuery->all();
 
         foreach ($changes as &$change) {
             if (false !== strpos($change->data_json, 'contragent_id')) {
@@ -65,11 +101,12 @@ class HistoryController extends BaseController
             }
         }
 
+        unset($change);
         $this->layout = 'minimal';
 
-        return Yii::$app->request->isAjax
-            ? $this->renderPartial('show', ['changes' => $changes, 'models' => $models])
-            : $this->render('show', ['changes' => $changes, 'models' => $models]);
+        return Yii::$app->request->isAjax ?
+            $this->renderPartial('show', ['changes' => $changes, 'models' => $models]) :
+            $this->render('show', ['changes' => $changes, 'models' => $models]);
     }
 
 }

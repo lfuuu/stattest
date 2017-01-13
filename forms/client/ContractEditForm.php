@@ -147,8 +147,8 @@ class ContractEditForm extends Form
     {
         if ($this->id) {
             $this->contract = ClientContract::findOne($this->id);
-            if ($this->contract && $this->historyVersionRequestedDate) {
-                $this->contract->loadVersionOnDate($this->historyVersionRequestedDate);
+            if ($this->contract && $historyDate = $this->historyVersionRequestedDate) {
+                $this->contract->loadVersionOnDate($historyDate);
             }
 
             if ($this->contract === null) {

@@ -1,12 +1,12 @@
 <?php
 
-use yii\widgets\Breadcrumbs;
-use yii\helpers\Url;
 use app\classes\grid\GridView;
-use kartik\grid\ActionColumn;
 use app\classes\Html;
 use app\forms\user\GroupForm;
 use app\models\important_events\ImportantEventsRulesConditions;
+use kartik\grid\ActionColumn;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var GroupForm $dataProvider */
 /** @var \yii\web\View $baseView */
@@ -14,7 +14,7 @@ use app\models\important_events\ImportantEventsRulesConditions;
 $baseView = $this;
 
 $recordBtns = [
-    'delete' => function($url, $model, $key) {
+    'delete' => function ($url, $model, $key) {
         return Html::a(
             '<span class="glyphicon glyphicon-trash"></span> Удаление',
             ['/important_events/rules/delete', 'rule_id' => $model->id],
@@ -39,53 +39,6 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
-            'attribute' => 'title',
-            'label' => 'Название',
-            'format' => 'raw',
-            'value' => function($data) {
-                return Html::a($data->title, ['/important_events/rules/edit', 'id' => $data->id]);
-            },
-            'width' => '*',
-        ],
-        [
-            'label' => 'Действие',
-            'format' => 'raw',
-            'value' => function($data) {
-                return $data->getAction($data->action)->title;
-            },
-            'width' => '20%',
-        ],
-        [
-            'label' => 'Событие',
-            'format' => 'raw',
-            'value' => function($data) {
-                return $data->eventInfo->value . ' (' . $data->event . ')';
-            },
-            'width' => '20%',
-        ],
-        [
-            'label' => 'Шаблон сообщения',
-            'format' => 'raw',
-            'value' => function($data) {
-                return Html::a($data->template->name, ['/message/template/edit', 'id' => $data->template->id], ['target' => '_blank']);
-            },
-            'width' => '20%',
-        ],
-        [
-            'label' => 'Условие',
-            'format' => 'raw',
-            'value' => function($data) {
-                $result = [];
-
-                foreach ($data->allConditions as $condition) {
-                    $result[] = Html::tag('b', $condition->property) . ' ' . ImportantEventsRulesConditions::$conditions[$condition->condition] . ' ' . Html::tag('b', $condition->value);
-                }
-
-                return implode('<br />', $result);
-            },
-            'width' => '20%',
-        ],
-        [
             'class' => ActionColumn::className(),
             'template' => '{delete}',
             'buttons' => [
@@ -97,6 +50,53 @@ echo GridView::widget([
                 },
             ],
             'hAlign' => GridView::ALIGN_CENTER,
+        ],
+        [
+            'attribute' => 'title',
+            'label' => 'Название',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a($data->title, ['/important_events/rules/edit', 'id' => $data->id]);
+            },
+            'width' => '*',
+        ],
+        [
+            'label' => 'Действие',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return $data->getAction($data->action)->title;
+            },
+            'width' => '20%',
+        ],
+        [
+            'label' => 'Событие',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return $data->eventInfo->value . ' (' . $data->event . ')';
+            },
+            'width' => '20%',
+        ],
+        [
+            'label' => 'Шаблон сообщения',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a($data->template->name, ['/message/template/edit', 'id' => $data->template->id], ['target' => '_blank']);
+            },
+            'width' => '20%',
+        ],
+        [
+            'label' => 'Условие',
+            'format' => 'raw',
+            'value' => function ($data) {
+                $result = [];
+
+                foreach ($data->allConditions as $condition) {
+                    $result[] = Html::tag('b', $condition->property) . ' ' . ImportantEventsRulesConditions::$conditions[$condition->condition] . ' ' . Html::tag('b', $condition->value);
+                }
+
+                return implode('<br />', $result);
+            },
+            'width' => '20%',
         ],
     ],
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/important_events/rules/edit']),
