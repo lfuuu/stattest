@@ -1,0 +1,29 @@
+#socket-img {
+    float: right;
+    padding-right: 10px;
+}
+
+#socket-img.glyphicon-eye-open {
+    color: green;
+    cursor: pointer;
+}
+
+#socket-img.glyphicon-eye-close {
+    color: #f0ad4e;
+}
+
+#socket-div {
+    position: fixed;
+    right: 35px;
+    left: auto;
+    top: 8px;
+    width: 400px;
+    padding: 10px;
+    max-width: none;
+    min-height: 30px;
+}
+
+#socket-div .arrow {
+    top: 14px;
+}
+

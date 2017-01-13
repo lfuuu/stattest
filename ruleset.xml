@@ -132,6 +132,7 @@
         <exclude name="Generic.Commenting.DocComment.ContentAfterOpen"/>
         <exclude name="Generic.Commenting.DocComment.ContentBeforeClose"/>
         <exclude name="Squiz.Commenting.BlockComment.WrongStart"/>
+        <exclude name="Squiz.Commenting.BlockComment.SingleLine"/>
         <exclude name="Squiz.Commenting.InlineComment.DocBlock"/>
 
         <!-- Не запрещать inline-коммент справа -->
@@ -160,6 +161,9 @@
 
         <!-- Не требовать phpDoc для класса -->
         <exclude name="PEAR.Commenting.ClassComment.Missing"/>
+
+        <!-- Не требовать include вместо require -->
+        <exclude name="PEAR.Files.IncludingFile.UseInclude"/>
 
     </rule>
 

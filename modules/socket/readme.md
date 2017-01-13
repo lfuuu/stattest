@@ -1,0 +1,1 @@
+См. http://gitlab.mcn.ru/stat/comet-server

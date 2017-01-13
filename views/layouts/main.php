@@ -249,6 +249,11 @@ if ($this->js) {
     });
 </script>
 
+<?php
+// Вывести необходимые скрипты для работы с сокетами
+\app\modules\socket\classes\Socket::me()->echoScript();
+?>
+
 </body>
 </html>
 <?php $this->endPage() ?>

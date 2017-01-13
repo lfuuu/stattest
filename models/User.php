@@ -23,6 +23,7 @@ use app\dao\user\UserDao;
  */
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
+    const SYSTEM_USER = 'system';
     const SYSTEM_USER_ID = 60;
     const CLIENT_USER_ID = 25;
     const LK_USER_ID = 177;
