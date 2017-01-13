@@ -1,43 +1,43 @@
 <?php
 namespace app\forms\client;
 
+use app\classes\Form;
+use app\classes\StatModule;
+use app\classes\validators\FormFieldValidator;
 use app\forms\comment\ClientContractCommentForm;
+use app\forms\usage\UsageVoipEditForm;
+use app\helpers\DateTimeZoneHelper;
+use app\models\Business;
 use app\models\BusinessProcess;
+use app\models\BusinessProcessStatus;
 use app\models\City;
+use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientSuper;
 use app\models\Country;
+use app\models\DidGroup;
 use app\models\EntryPoint;
 use app\models\filter\FreeNumberFilter;
+use app\models\LkWizardState;
+use app\models\LogTarif;
+use app\models\Number;
+use app\models\Organization;
 use app\models\Region;
-use Yii;
+use app\models\TariffVirtpbx;
+use app\models\usages\UsageInterface;
+use app\models\UsageVirtpbx;
+use app\models\UsageVoip;
+use app\models\User;
 use DateTime;
 use DateTimeZone;
 use Exception;
 use VoipReserveNumber;
-use app\classes\Form;
-use app\classes\validators\FormFieldValidator;
-use app\classes\StatModule;
-use app\models\Number;
-use app\models\LkWizardState;
-use app\models\Business;
-use app\models\BusinessProcessStatus;
-use app\models\ClientAccount;
-use app\models\TariffVirtpbx;
-use app\models\User;
-use app\models\Organization;
-use app\forms\usage\UsageVoipEditForm;
-use app\models\UsageVoip;
-use app\models\UsageVirtpbx;
-use app\models\DidGroup;
-use app\models\ClientContact;
-use app\models\LogTarif;
-use app\models\usages\UsageInterface;
-use app\helpers\DateTimeZoneHelper;
+use Yii;
 use yii\helpers\Json;
 
 /**
  * Форма добавления клиента из внешнего мира.
- **/
+ */
 class ClientCreateExternalForm extends Form
 {
     public
@@ -70,8 +70,7 @@ class ClientCreateExternalForm extends Form
         $connect_region = Region::MOSCOW,
         $account_version = "",
 
-        $entry_point_id = ""
-;
+        $entry_point_id = "";
     /** @var EntryPoint */
     public $entryPoint = null;
 
@@ -167,10 +166,10 @@ class ClientCreateExternalForm extends Form
         }
 
         if (
-            !(
-                ($account = ClientAccount::findOne(['id' => $partnerId]))
-                && ($account->contract->isPartner())
-            )
+        !(
+            ($account = ClientAccount::findOne(['id' => $partnerId]))
+            && ($account->contract->isPartner())
+        )
         ) {
             $this->addError($attr, "Партнер не найден");
             return;
@@ -472,9 +471,9 @@ class ClientCreateExternalForm extends Form
                             } else {
                                 $freeNumber
                                     = (new FreeNumberFilter)
-                                        ->getNumbers()
-                                        ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
-                                        ->randomOne();
+                                    ->getNumbers()
+                                    ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
+                                    ->randomOne();
 
                                 if (!($freeNumber instanceof Number)) {
                                     throw new Exception('Not found free number into 499 DID group', 500);

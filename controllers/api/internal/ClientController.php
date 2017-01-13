@@ -34,7 +34,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="contragents", type="array", description="Массив контрагентов", @SWG\Items(ref="#/definitions/contragent"))
      * ),
      * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/", summary="Получение данных по клиенту", operationId="Получение данных по клиенту",
-     *   @SWG\Parameter(name="client_id", type="integer", description="идентификатор супер-клиента", in="formData"),
+     *   @SWG\Parameter(name="client_id", type="integer", description="идентификатор супер-клиента", in="formData", default=""),
      *   @SWG\Response(response=200, description="данные о клиенте", @SWG\Schema(ref="#/definitions/client")),
      *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
@@ -58,6 +58,7 @@ class ClientController extends ApiInternalController
                     foreach ($cc->accounts as $a) {
                         $accounts[] = $a->id;
                     }
+
                     $contracts[] = ['id' => $cc->id, 'number' => $cc->number, 'accounts' => $accounts];
                 }
 
@@ -109,14 +110,21 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="contragents", type="array", description="Массив контрагентов", @SWG\Items(ref="#/definitions/get-client-struct-contragent"))
      * ),
      * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-client-struct/", summary="Получение структуры клиента", operationId="Получение структуры клиента",
-     *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData"),
-     *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData"),
-     *   @SWG\Parameter(name="contragent_id", type="integer", description="идентификатор контрагента", in="formData"),
-     *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData"),
-     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData"),
+     *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData", default=""),
+     *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData", default=""),
+     *   @SWG\Parameter(name="contragent_id", type="integer", description="идентификатор контрагента", in="formData", default=""),
+     *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData", default=""),
+     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData", default=""),
      *   @SWG\Response(response=200, description="данные о клиенте", @SWG\Schema(ref="#/definitions/get-client-struct")),
      *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
+     *
+     * @param int $id
+     * @param string $name
+     * @param int $contragent_id
+     * @param string $contragent_name
+     * @param int $account_id
+     * @return array|bool
      */
     public function actionGetClientStruct(
         $id = null,
@@ -139,20 +147,20 @@ class ClientController extends ApiInternalController
                             return false;
                         } else {
                             $account = ClientAccount::findOne(['id' => $account_id]);
-                            $ids [] = $account->super_id;
+                            $ids[] = $account->super_id;
                         }
                     } else {
                         $ids = array_keys(ClientContragent::find()->andWhere(['name' => $contragent_name])->indexBy('super_id')->all());
                     }
                 } else {
                     $contragent = ClientContragent::findOne(['id' => $contragent_id]);
-                    $ids [] = $contragent->super_id;
+                    $ids[] = $contragent->super_id;
                 }
             } else {
                 $ids = array_keys(ClientSuper::find()->andWhere(['name' => $name])->indexBy('id')->all());
             }
         } else {
-            $ids [] = $id;
+            $ids[] = $id;
         }
 
         $fullResult = [];
@@ -178,7 +186,7 @@ class ClientController extends ApiInternalController
                             'is_partner' => $contract->isPartner(),
                             'partner_login_allow' => $contract->is_partner_login_allow,
                             'version' => $account->account_version,
-                            'applications' => $this->getPlatformaServices($account->client)
+                            'applications' => $this->_getPlatformaServices($account->client)
                         ];
                         $timezone = $account->timezone_name;
                     }
@@ -213,12 +221,14 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="name", type="string", description="Название"),
      *   @SWG\Property(property="is_enabled", type="boolean", description="Признак включенного")
      * ),
+     *
      * @SWG\Definition(definition="get-full-client-struct-account", type="object", required={"id","is_disabled","version","applications"},
      *   @SWG\Property(property="id", type="integer", description="Идентификатор ЛС"),
      *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
      *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
      *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-full-client-struct-applications"))
      * ),
+     *
      * @SWG\Definition(definition="get-full-client-struct-contract", type="object", required={"id","number","state","is_partner","accounts"},
      *   @SWG\Property(property="id", type="integer", description="Идентификатор договора"),
      *   @SWG\Property(property="number", type="string", description="Номер договора"),
@@ -229,35 +239,37 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
      *   @SWG\Property(property="accounts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-full-client-struct-account"))
      * ),
+     *
      * @SWG\Definition(definition="get-full-client-struct-contragent", type="object", required={"id","name","country","contracts"},
      *   @SWG\Property(property="id", type="integer", description="Идентификатор контрагента"),
      *   @SWG\Property(property="name", type="string", description="Имя контагента"),
      *   @SWG\Property(property="country", type="string", description="Страна"),
      *   @SWG\Property(property="contracts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-full-client-struct-contract"))
      * ),
+     *
      * @SWG\Definition(definition="get-full-client-struct", type="object", required={"id","name","timezone","contragents"},
      *   @SWG\Property(property="id", type="integer", description="Идентификатор супер-клиента"),
      *   @SWG\Property(property="name", type="string", description="Название супер-клиента"),
      *   @SWG\Property(property="timezone", type="string", description="Таймзона"),
      *   @SWG\Property(property="contragents", type="array", description="Массив контрагентов", @SWG\Items(ref="#/definitions/get-full-client-struct-contragent"))
      * ),
+     *
      * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-full-client-struct/", summary="Получение полной структуры клиента", operationId="Получение полной структуры клиента",
-     *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData"),
-     *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData"),
-     *   @SWG\Parameter(name="contract_id[0]", type="integer", description="идентификатор договора", in="formData"),
-     *   @SWG\Parameter(name="contract_id[1]", type="integer", description="идентификатор договора", in="formData"),
-     *   @SWG\Parameter(name="contragent_id[0]", type="integer", description="идентификатор контрагента", in="formData"),
-     *   @SWG\Parameter(name="contragent_id[1]", type="integer", description="идентификатор контрагента", in="formData"),
-     *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData"),
-     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData"),
+     *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData", default=""),
+     *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData", default=""),
+     *   @SWG\Parameter(name="contract_id[0]", type="integer", description="идентификатор договора", in="formData", default=""),
+     *   @SWG\Parameter(name="contract_id[1]", type="integer", description="идентификатор договора", in="formData", default=""),
+     *   @SWG\Parameter(name="contragent_id[0]", type="integer", description="идентификатор контрагента", in="formData", default=""),
+     *   @SWG\Parameter(name="contragent_id[1]", type="integer", description="идентификатор контрагента", in="formData", default=""),
+     *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData", default=""),
+     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData", default=""),
      *   @SWG\Response(response=200, description="данные о клиенте", @SWG\Schema(ref="#/definitions/get-full-client-struct")),
      *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
      */
     public function actionGetFullClientStruct()
     {
-
-        $ids = $this->getIdsForFullClientStruct();
+        $ids = $this->_getIdsForFullClientStruct();
 
         $fullResult = [];
         foreach ($ids as $id) {
@@ -284,7 +296,7 @@ class ClientController extends ApiInternalController
                             'id' => $account->id,
                             'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
                             'version' => $account->account_version,
-                            'applications' => $this->getPlatformaServicesCleaned($account->client)
+                            'applications' => $this->_getPlatformaServicesCleaned($account->client)
                         ];
                         $timezone = $account->timezone_name;
                     }
@@ -332,7 +344,7 @@ class ClientController extends ApiInternalController
      *
      * @return int[]
      */
-    private function getIdsForFullClientStruct()
+    private function _getIdsForFullClientStruct()
     {
         $id = $name = $contract_id = $contragent_id = $contragent_name = $account_id = null;
 
@@ -396,11 +408,16 @@ class ClientController extends ApiInternalController
         return [];
     }
 
-    private function getPlatformaServices($client)
+    /**
+     * @param int $client
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    private function _getPlatformaServices($client)
     {
         return array_map(function ($row) {
             $row['id'] = (int)$row['id'];
-            $row['is_enabled'] = (bool)$row['enabled']; //TODO: Разобраться кто использует, и перевести с текстового "enabled" на булевое "is_enabled"
+            $row['is_enabled'] = (bool)$row['enabled']; // TODO: Разобраться кто использует, и перевести с текстового "enabled" на булевое "is_enabled"
             return $row;
         },
             Yii::$app->db->createCommand("
@@ -439,8 +456,9 @@ class ClientController extends ApiInternalController
      *
      * @param string $client
      * @return array
+     * @throws \yii\db\Exception
      */
-    private function getPlatformaServicesCleaned($client)
+    private function _getPlatformaServicesCleaned($client)
     {
         return array_map(function ($row) {
             $row['id'] = (int)$row['id'];
@@ -476,20 +494,21 @@ class ClientController extends ApiInternalController
     /**
      * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/create/", summary="Создание клиента", operationId="Создание клиента",
      *   @SWG\Parameter(name="company", type="string", description="Название клиента", in="formData", default="Клиент без названия"),
-     *   @SWG\Parameter(name="address", type="string", description="Адрес", in="formData"),
-     *   @SWG\Parameter(name="partner_id", type="integer", description="ID партнёра", in="formData"),
-     *   @SWG\Parameter(name="contact_phone", type="string", description="Контактный телефон", in="formData"),
-     *   @SWG\Parameter(name="official_phone", type="string", description="Телефон организации", in="formData"),
-     *   @SWG\Parameter(name="fio", type="string", description="Ф.И.О. контактного лица", in="formData"),
-     *   @SWG\Parameter(name="fax", type="string", description="Факс", in="formData"),
-     *   @SWG\Parameter(name="email", type="string", description="Email", in="formData",required=true),
-     *   @SWG\Parameter(name="comment", type="string", description="Комментарий к заказу", in="formData"),
+     *   @SWG\Parameter(name="address", type="string", description="Адрес", in="formData", default=""),
+     *   @SWG\Parameter(name="partner_id", type="integer", description="ID партнёра", in="formData", default=""),
+     *   @SWG\Parameter(name="contact_phone", type="string", description="Контактный телефон", in="formData", default=""),
+     *   @SWG\Parameter(name="official_phone", type="string", description="Телефон организации", in="formData", default=""),
+     *   @SWG\Parameter(name="fio", type="string", description="Ф.И.О. контактного лица", in="formData", default=""),
+     *   @SWG\Parameter(name="fax", type="string", description="Факс", in="formData", default=""),
+     *   @SWG\Parameter(name="email", type="string", description="Email", in="formData", default="", required=true),
+     *   @SWG\Parameter(name="comment", type="string", description="Комментарий к заказу", in="formData", default=""),
      *   @SWG\Parameter(name="timezone", type="string", description="Таймзона лицевого счета", in="formData", default="Europe/Moscow"),
      *   @SWG\Parameter(name="country_id", type="integer", description="Код страны подключения (ISO)", in="formData", default="643"),
-     *   @SWG\Parameter(name="site_name", type="string", description="С какого сайта пришел клиент", in="formData"),
-     *   @SWG\Parameter(name="vats_tariff_id", type="integer", description="ID тарифа для ВАТС", in="formData"),
+     *   @SWG\Parameter(name="site_name", type="string", description="С какого сайта пришел клиент", in="formData", default=""),
+     *   @SWG\Parameter(name="vats_tariff_id", type="integer", description="ID тарифа для ВАТС", in="formData", default=""),
      *   @SWG\Parameter(name="account_version", type="integer", description="Версия биллера", in="formData", default="4"),
      *   @SWG\Parameter(name="entry_point_id", type="string", description="ID (code) точки входа", in="formData", default="RU1"),
+     *
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *     @SWG\Schema(type="object", required={"id","name","contragents"},
      *       @SWG\Property(property="client_id", type="integer", description="Идентификатор супер-клиента"),
@@ -544,8 +563,8 @@ class ClientController extends ApiInternalController
 
     /**
      * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/set-timezone", summary="Устанавливаем таймзону клиента", operationId="Устанавливаем таймзону клиента",
-     *   @SWG\Parameter(name="client_id", type="integer", description="ID (супер) клиента", in="formData"),
-     *   @SWG\Parameter(name="account_id", type="integer", description="ID лицевого счета", in="formData"),
+     *   @SWG\Parameter(name="client_id", type="integer", description="ID (супер) клиента", in="formData", default=""),
+     *   @SWG\Parameter(name="account_id", type="integer", description="ID лицевого счета", in="formData", default=""),
      *   @SWG\Parameter(name="timezone", type="string", enum={"Bad/Timezone", "Asia/Novosibirsk", "Asia/Vladivostok", "Asia/Yekaterinburg", "Europe/Budapest", "Europe/Moscow", "Europe/Samara", "Europe/Volgograd"}, description="Таймзона", in="formData", default="Europe/Moscow"),
      *   @SWG\Response(response=200, description="данные о созданном клиенте",
      *   ),
@@ -584,5 +603,4 @@ class ClientController extends ApiInternalController
 
         return true;
     }
-
 }
