@@ -2,12 +2,10 @@
 namespace app\models\voip;
 
 use app\classes\behaviors\CreatedAt;
-use app\classes\behaviors\HistoryChanges;
 use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\model\HistoryActiveRecord;
 use app\dao\VoipRegistryDao;
 use app\models\City;
-use yii\db\ActiveRecord;
 
 /**
  * Class Registry
@@ -42,7 +40,7 @@ class Registry extends HistoryActiveRecord
     {
         return [
             'CreatedAt' => CreatedAt::className(),
-            'HistoryChanges' => HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
 
     }

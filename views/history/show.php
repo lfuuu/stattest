@@ -1,9 +1,8 @@
 <?php
 use app\classes\model\HistoryActiveRecord;
-use app\models\HistoryChanges;
 
 /**
- * @var HistoryChanges[] $changes
+ * @var \app\models\HistoryChanges[] $changes
  * @var HistoryActiveRecord[] $models
  */
 ?>

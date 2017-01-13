@@ -2,7 +2,6 @@
 
 namespace app\classes\uu\model;
 
-use app\classes\behaviors\HistoryChanges;
 use app\classes\model\HistoryActiveRecord;
 use app\models\City;
 use yii\db\ActiveQuery;
@@ -28,7 +27,7 @@ class TariffVoipCity extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
 
     }

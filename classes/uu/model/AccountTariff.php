@@ -2,7 +2,6 @@
 
 namespace app\classes\uu\model;
 
-use app\classes\behaviors\HistoryChanges;
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\uu\forms\AccountLogFromToTariff;
@@ -144,7 +143,7 @@ class AccountTariff extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
 
     }

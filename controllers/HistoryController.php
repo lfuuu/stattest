@@ -3,7 +3,6 @@ namespace app\controllers;
 
 use app\classes\BaseController;
 use app\models\ClientContragent;
-use app\models\HistoryChanges;
 use Yii;
 use yii\db\ActiveQuery;
 
@@ -38,7 +37,7 @@ class HistoryController extends BaseController
 
         $params = $getRequest['params'];
         $models = [];
-        $changesQuery = HistoryChanges::find();
+        $changesQuery = \app\models\HistoryChanges::find();
         foreach ($params as $param) {
             if (!is_array($param)) {
                 throw new \InvalidArgumentException('param');
@@ -87,7 +86,7 @@ class HistoryController extends BaseController
             $changesQuery = $changesQuery->limit(isset($getOptions['howMany']) ? (int)$getOptions['howMany'] : 1);
         }
 
-        /** @var HistoryChanges[] $changes */
+        /** @var \app\models\HistoryChanges[] $changes */
         $changes = $changesQuery->all();
 
         foreach ($changes as &$change) {

@@ -4,13 +4,12 @@ namespace app\classes\important_events\events\properties;
 
 use app\classes\Html;
 use app\models\ClientAccount;
-use app\models\HistoryChanges;
 use app\models\important_events\ImportantEvents;
 
 class ClientAccountChangesProperty extends UnknownProperty implements PropertyInterface
 {
 
-    private $clientAccountId = 0;
+    private $_clientAccountId = 0;
 
     /**
      * @param ImportantEvents $event
@@ -19,7 +18,7 @@ class ClientAccountChangesProperty extends UnknownProperty implements PropertyIn
     {
         parent::__construct($event);
 
-        $this->clientAccountId = $event->client_id;
+        $this->_clientAccountId = $event->client_id;
     }
 
     /**
@@ -53,12 +52,11 @@ class ClientAccountChangesProperty extends UnknownProperty implements PropertyIn
     {
         $clientAccount = new ClientAccount;
         $labels = $clientAccount->attributeLabels();
-        $history =
-            HistoryChanges::find()
-                ->where(['model' => $clientAccount->formName()])
-                ->andWhere(['model_id' => $this->clientAccountId])
-                ->orderBy('created_at DESC')
-                ->one();
+        $history = \app\models\HistoryChanges::find()
+            ->where(['model' => $clientAccount->formName()])
+            ->andWhere(['model_id' => $this->_clientAccountId])
+            ->orderBy('created_at DESC')
+            ->one();
 
         $changes = '';
         $current = json_decode($history->data_json);
@@ -67,9 +65,9 @@ class ClientAccountChangesProperty extends UnknownProperty implements PropertyIn
         foreach ($current as $field => $value) {
             $changes .=
                 Html::beginTag('tr') .
-                    Html::tag('td', $field . (isset($labels[$field]) ? ': ' . $labels[$field] : '' )) .
-                    Html::tag('td', $previous->{$field}) .
-                    Html::tag('td', $value) .
+                Html::tag('td', $field . (isset($labels[$field]) ? ': ' . $labels[$field] : '')) .
+                Html::tag('td', $previous->{$field}) .
+                Html::tag('td', $value) .
                 Html::endTag('tr');
         }
 
@@ -77,16 +75,15 @@ class ClientAccountChangesProperty extends UnknownProperty implements PropertyIn
             return $changes;
         }
 
-        $changes =
-            Html::beginTag('div', ['class' => 'important-events table-of-changes']) .
-                Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
-                        Html::beginTag('tr') .
-                        Html::tag('th', 'Поле') .
-                        Html::tag('th', 'Значение "До"') .
-                        Html::tag('th', 'Значение "После"') .
-                    Html::endTag('tr') .
-                    $changes .
-                Html::endTag('table') .
+        $changes = Html::beginTag('div', ['class' => 'important-events table-of-changes']) .
+            Html::beginTag('table', ['width' => '100%', 'class' => 'table table-bordered']) .
+            Html::beginTag('tr') .
+            Html::tag('th', 'Поле') .
+            Html::tag('th', 'Значение "До"') .
+            Html::tag('th', 'Значение "После"') .
+            Html::endTag('tr') .
+            $changes .
+            Html::endTag('table') .
             Html::endTag('div');
 
         return $changes;

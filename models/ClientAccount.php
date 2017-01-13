@@ -6,14 +6,12 @@ use app\classes\behaviors\AccountPriceIncludeVat;
 use app\classes\behaviors\ActualizeClientVoip;
 use app\classes\behaviors\ClientAccountComments;
 use app\classes\behaviors\ClientAccountSyncEvent;
-use app\classes\behaviors\HistoryChanges;
 use app\classes\behaviors\SetOldStatus;
 use app\classes\BillContract;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
-use app\classes\voip\VoipStatus;
 use app\dao\ClientAccountDao;
 use app\models\billing\Locks;
 use app\queries\ClientAccountQuery;
@@ -239,7 +237,7 @@ class ClientAccount extends HistoryActiveRecord
     {
         return [
             'AccountPriceIncludeVat' => AccountPriceIncludeVat::className(),
-            'HistoryChanges' => HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => SetOldStatus::className(),
             'ActualizeClientVoip' => ActualizeClientVoip::className(),
             'ClientAccountComments' => ClientAccountComments::className(),
