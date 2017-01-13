@@ -140,12 +140,16 @@ class BillDocumentDao extends Singleton
         $ts = $l['ts_from'];
 
         if (!isset($cache[$billNo]) || !isset($cache[$billNo][$ts])) {
+            try {
 
-            /** @var ClientAccount $account */
-            $account = ClientAccount::findOne(['id' => $accountId])
-                ->loadVersionOnDate($l['date_from']);
+                /** @var ClientAccount $account */
+                $account = ClientAccount::findOne(['id' => $accountId])
+                    ->loadVersionOnDate($l['date_from']);
 
-            $cache[$billNo][$ts] = $account->getTaxRate();
+                $cache[$billNo][$ts] = $account->getTaxRate();
+            }catch(\Exception $e) {
+                $cache[$billNo][$ts] = 18; // TODO: fix для товарных счетов. Разобраться, почему нет компании.
+            }
         }
 
         $taxRate = $cache[$billNo][$ts];
