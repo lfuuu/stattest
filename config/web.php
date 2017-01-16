@@ -163,9 +163,6 @@ $config = [
                 'time' => [], // setup if needed
             ],
         ],
-        'glpi' => [
-            'class' => 'app\modules\glpi\Module',
-        ],
         'nnp' => [
             'class' => 'app\modules\nnp\Module',
         ],

@@ -2,58 +2,39 @@
 
 namespace app\classes;
 
+use Yii;
 use yii\httpclient\Client;
+use yii\httpclient\Request as HttpRequest;
 
-/**
- * Class HttpClient
- *
- * @method HttpRequest createRequest()
- */
 class HttpClient extends Client
 {
 
     /**
-     * HttpClient constructor
-     *
-     * @param array $config
+     * @param [] $config
      */
-    public function __construct($config = [])
+    public function auth(HttpRequest $request, array $config)
     {
+        if (isset($config['method'])) {
+            switch ($config['method']) {
+                case 'basic': {
+                    $request->setOptions([
+                        CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+                        CURLOPT_USERPWD =>
+                            (isset($config['user']) ? $config['user'] : '') .
+                            ':' .
+                            (isset($config['passwd']) ? $config['passwd'] : ''),
+                    ]);
+                    break;
+                }
 
-        parent::__construct($config);
-
-        $this->requestConfig['class'] = HttpRequest::className();
-        $this->setTransport(\yii\httpclient\CurlTransport::class);
+                case 'bearer': {
+                    $request->setHeaders([
+                        'Authorization' => 'Bearer ' . (isset($config['token']) ? $config['token'] : ''),
+                    ]);
+                    break;
+                }
+            }
+        }
     }
-
-    /**
-     * @return $this
-     */
-    public function addRequestFormatJson()
-    {
-        $this->requestConfig['format'] = HttpClient::FORMAT_JSON;
-        return $this;
-    }
-
-    /**
-     * @return $this
-     */
-    public function addResponseFormatJson()
-    {
-        $this->responseConfig['format'] = HttpClient::FORMAT_JSON;
-        return $this;
-    }
-
-    /**
-     * @return HttpRequest
-     */
-    public function createJsonRequest()
-    {
-        return $this
-            ->addRequestFormatJson()
-            ->addResponseFormatJson()
-            ->createRequest();
-    }
-
 
 }

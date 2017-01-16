@@ -1,46 +1,33 @@
 <?php
 namespace app\classes\api;
 
-use app\classes\HttpClient;
+use app\classes\JSONQuery;
 use yii\base\InvalidConfigException;
 
 class ApiFeedback
 {
-    /**
-     * @return bool
-     */
-    private static function _isAvailable()
+    private static function isAvailable()
     {
         return
             isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']
             && isset(\Yii::$app->params['FEEDBACK_SERVER']) && \Yii::$app->params['FEEDBACK_SERVER'];
     }
 
-    /**
-     * @return bool|string
-     */
-    private static function _getApiUrl()
+    private static function getApiUrl()
     {
-        return self::_isAvailable() ? 'https://' . \Yii::$app->params['FEEDBACK_SERVER'] . '/feedback/api/' : false;
+        return
+            self::isAvailable() ? 'https://' . \Yii::$app->params['FEEDBACK_SERVER'] . '/feedback/api/' : false;
     }
 
-    /**
-     * @return bool
-     */
-    private static function _getApiKey()
+    private static function getApiKey()
     {
-        return isset(\Yii::$app->params['FEEDBACK_API_KEY']) ? \Yii::$app->params['FEEDBACK_API_KEY'] : false;
+        return
+            isset(\Yii::$app->params['FEEDBACK_API_KEY']) ?
+                \Yii::$app->params['FEEDBACK_API_KEY'] :
+                false;
     }
 
 
-    /**
-     * @param int $clientId
-     * @param int $chatId
-     * @return mixed
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
-     */
     public static function createChat($clientId, $chatId = 0)
     {
         $data = [
@@ -49,17 +36,9 @@ class ApiFeedback
             'name' => 'Chat ' . $chatId
         ];
 
-        return self::_exec('createChat', $data);
+        return self::exec('createChat', $data);
     }
 
-    /**
-     * @param int $clientId
-     * @param int $chatId
-     * @return mixed
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
-     */
     public static function updateChat($clientId, $chatId)
     {
         $data = [
@@ -67,17 +46,9 @@ class ApiFeedback
             'stat_product_id' => $chatId
         ];
 
-        return self::_exec('updateChat', $data);
+        return self::exec('updateChat', $data);
     }
 
-    /**
-     * @param int $clientId
-     * @param int $chatId
-     * @return mixed
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
-     */
     public static function removeChat($clientId, $chatId)
     {
         $data = [
@@ -85,40 +56,25 @@ class ApiFeedback
             'stat_product_id' => $chatId
         ];
 
-        return self::_exec('removeChat', $data);
+        return self::exec('removeChat', $data);
     }
 
-    /**
-     * @param int $clientId
-     * @return mixed
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
-     */
     public static function getChatList($clientId)
     {
         $data = [
             'account_id' => $clientId
         ];
 
-        return self::_exec('getChatList', $data);
+        return self::exec('getChatList', $data);
     }
 
-    /**
-     * @param string $action
-     * @param array $data
-     * @return mixed
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws InvalidConfigException
-     */
-    private static function _exec($action, $data = null)
+    private static function exec($action, $data = null)
     {
-        if (!self::_isAvailable()) {
+        if (!self::isAvailable()) {
             throw new InvalidConfigException('API Feedback was not configured');
         }
 
-        if (!($apiKey = self::_getApiKey())) {
+        if (!($apiKey = self::getApiKey())) {
             throw new InvalidConfigException('FEEDBACK_API_KEY now set');
         }
 
@@ -128,12 +84,31 @@ class ApiFeedback
             $data = ['api_key' => $apiKey];
         }
 
-        return (new HttpClient)
-            ->createJsonRequest()
-            ->setMethod('post')
-            ->setData($data)
-            ->setUrl(self::_getApiUrl() . $action)
-            ->getResponseDataWithCheck();
+        $result = JSONQuery::exec(self::getApiUrl() . $action, $data);
+
+        if (isset($result["errors"]) && $result["errors"]) {
+
+            if (isset($result["errors"]["message"]) && isset($result["errors"]["code"])) {
+                $msg = $result["errors"]["message"];
+                $code = $result["errors"]["code"];
+            } else {
+                if (isset($result['errors'][0]) && isset($result['errors'][0]["message"])) {
+                    $msg = $result['errors'][0]["message"];
+                    $code = $result['errors'][0]["code"];
+                } else {
+                    $msg = "Текст ошибки не найден! <br>\n" . var_export($result, true);
+                    $code = 500;
+                }
+            }
+
+            if (!is_numeric($code)) { //продукт "feedback" иногда возвращает не числовой код ошибки, а какой-то мнемонический код (etc 'not_found'...).
+                $code = 500;
+            }
+
+            throw new \Exception($msg, $code);
+        }
+
+        return $result;
     }
 
 }

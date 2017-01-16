@@ -1,64 +1,39 @@
 <?php
 namespace app\classes\api;
 
-use app\classes\HttpClient;
+use app\classes\JSONQuery;
 use app\models\important_events\ImportantEventsNames;
+use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 
 /**
  * Class ApiCore
+ * @package app\classes\api
  */
 class ApiCore
 {
-    const ERROR_PRODUCT_NOT_EXSISTS = 538; // "Приложения 'vpbx' для лицевого счёта '####' не существует";
+    const ERROR_PRODUCT_NOT_EXSISTS = 538;//"Приложения 'vpbx' для лицевого счёта '####' не существует";
 
-    /**
-     * @return bool
-     */
     public static function isAvailable()
     {
         return isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER'];
     }
 
-    /**
-     * @return bool|string
-     */
     public static function getApiUrl()
     {
         return self::isAvailable() ? 'https://' . \Yii::$app->params['CORE_SERVER'] . '/core/api/' : false;
     }
 
-    /**
-     * @param string $action
-     * @param array $data
-     * @param bool $isPostJSON
-     * @return mixed
-     * @throws InvalidConfigException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\web\BadRequestHttpException
-     */
     public static function exec($action, $data, $isPostJSON = true)
     {
         if (!self::isAvailable()) {
             throw new InvalidConfigException('API Core was not configured');
         }
 
-        return (new HttpClient)
-            ->createJsonRequest()
-            ->setMethod($isPostJSON ? 'post' : 'get')
-            ->setData($data)
-            ->setUrl(self::getApiUrl() . $action)
-            ->getResponseDataWithCheck();
+        return JSONQuery::exec(self::getApiUrl() . $action, $data, $isPostJSON);
     }
 
-    /**
-     * @param string $product
-     * @param int $clientId
-     * @param int $productId
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\web\BadRequestHttpException
-     */
     public static function addProduct($product, $clientId, $productId = 0)
     {
         $newState = ["mnemonic" => $product];
@@ -70,14 +45,6 @@ class ApiCore
         ApiCore::exec('add_products_from_stat', \SyncCoreHelper::getAddProductStruct($clientId, $newState));
     }
 
-    /**
-     * @param string $product
-     * @param int $clientId
-     * @param int $productId
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
-     */
     public static function remoteProduct($product, $clientId, $productId = 0)
     {
         $state = \SyncCoreHelper::getRemoveProductStruct($clientId, $product);
@@ -89,14 +56,6 @@ class ApiCore
         ApiCore::exec('remove_product', $state);
     }
 
-    /**
-     * @param int $contragentId
-     * @param int $fromClientId
-     * @param int $toClientId
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\web\BadRequestHttpException
-     */
     public static function transferContragent($contragentId, $fromClientId, $toClientId)
     {
         self::exec(ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_CONTRAGENT, [
@@ -111,8 +70,6 @@ class ApiCore
      *
      * @param string $email
      * @return bool
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
      * @throws InvalidConfigException
      * @throws \Exception
      */

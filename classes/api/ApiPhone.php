@@ -1,31 +1,22 @@
 <?php
 namespace app\classes\api;
 
-use app\classes\HttpClient;
+use app\classes\JSONQuery;
 use app\models\ClientAccount;
-use yii\base\InvalidConfigException;
+use yii\base\Exception;
 
 class ApiPhone
 {
-    /**
-     * @return bool
-     */
     public static function isAvailable()
     {
         return isset(\Yii::$app->params['PHONE_SERVER']) && \Yii::$app->params['PHONE_SERVER'];
     }
 
-    /**
-     * @return bool|string
-     */
     public static function getApiUrl()
     {
         return self::isAvailable() ? 'https://' . \Yii::$app->params['PHONE_SERVER'] . '/phone/api/' : false;
     }
 
-    /**
-     * @return array
-     */
     public static function getMultitranks()
     {
         $data = [];
@@ -34,40 +25,33 @@ class ApiPhone
                 $data[$d["id"]] = $d["name"];
             }
         } catch (\Exception $e) {
-            // так исторически сложилось
+            //
         }
 
         return $data;
     }
 
-    /**
-     * @param string $action
-     * @param array $data
-     * @return mixed
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     */
     public static function exec($action, $data)
     {
         if (!self::isAvailable()) {
-            throw new InvalidConfigException('API Phone was not configured');
+            throw new Exception('API Phone was not configured');
         }
 
-        return (new HttpClient)
-            ->createJsonRequest()
-            ->setMethod('post')
-            ->setData($data)
-            ->setUrl(self::getApiUrl() . $action)
-            ->getResponseDataWithCheck();
+        $result = JSONQuery::exec(self::getApiUrl() . $action, $data);
+
+        if (isset($result["errors"][0]["message"])) {
+            $msg = !isset($result['errors'][0]["message"]) && isset($result['errors'][0])
+                ? "Текст ошибки не найден! <br>\n" . var_export($result['errors'][0], true)
+                : '';
+            throw new Exception($msg ?: $result["errors"][0]["message"], $result["errors"][0]["code"]);
+        }
+
+        return $result;
     }
 
     /**
      * @param ClientAccount $client
      * @return array
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
      */
     public static function getNumbersInfo(ClientAccount $client)
     {

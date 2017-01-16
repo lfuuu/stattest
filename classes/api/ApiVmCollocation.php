@@ -1,21 +1,18 @@
 <?php
 namespace app\classes\api;
 
-use app\classes\HttpClient;
-use app\classes\Singleton;
+use app\classes\JSONQuery;
 use Yii;
-use yii\base\InvalidConfigException;
+use yii\base\Exception;
 
 /**
  * Class ApiVmCollocation
- *
- * @method static ApiVmCollocation me($args = null)
- *
+ * @package app\classes\api
  * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=3508161
  * @link http://doc.ispsystem.ru/index.php/VMmanager_API
  * @link http://doc.ispsystem.ru/index.php/%D0%92%D0%B7%D0%B0%D0%B8%D0%BC%D0%BE%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D0%B5_%D1%87%D0%B5%D1%80%D0%B5%D0%B7_API
  */
-class ApiVmCollocation extends Singleton
+class ApiVmCollocation
 {
     const FUNC_USER_EDIT = 'user.edit';
     const FUNC_USER_DISABLE = 'user.suspend';
@@ -24,19 +21,45 @@ class ApiVmCollocation extends Singleton
     const FUNC_VM_EDIT = 'vm.edit';
     const FUNC_VM_DELETE = 'vm.extdelete';
 
+    protected static $_instance = null;
+
+    /**
+     * singletone
+     */
+    protected function __construct()
+    {
+    }
+
+    /**
+     * singletone
+     */
+    protected function __clone()
+    {
+    }
+
+    /**
+     * singletone
+     */
+    static public function getInstance()
+    {
+        if (is_null(self::$_instance)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
+
     /**
      * @return bool
      */
     public function isAvailable()
     {
-        return $this->_getUrl() && $this->_getAuthinfo();
+        return $this->getUrl() && $this->getAuthinfo();
     }
 
     /**
-     * @param string $param
      * @return string
      */
-    private function _getConfig($param)
+    protected function getConfig($param)
     {
         return Yii::$app->params['vmCollocation'][$param];
     }
@@ -44,58 +67,52 @@ class ApiVmCollocation extends Singleton
     /**
      * @return string
      */
-    private function _getUrl()
+    protected function getUrl()
     {
-        return $this->_getConfig('url');
+        return $this->getConfig('url');
     }
 
     /**
      * @return string
      */
-    private function _getAuthinfo()
+    protected function getAuthinfo()
     {
-        return $this->_getConfig('authinfo');
+        return $this->getConfig('authinfo');
     }
 
     /**
      * Отправить данные
-     *
-     * @param array $data
-     * @param string $out
+     * @param $data
      * @return mixed
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
+     * @throws Exception
      */
     public function exec($data, $out = 'JSONdata')
     {
         if (!$this->isAvailable()) {
-            throw new InvalidConfigException('API VM collocation is not configured');
+            throw new Exception('API VM collocation is not configured');
         }
 
         $data = array_merge($data, [
             'out' => $out,
             'sok' => 'ok',
-            'authinfo' => $this->_getAuthinfo(),
+            'authinfo' => $this->getAuthinfo(),
         ]);
+        $result = JSONQuery::exec($this->getUrl(), $data, false);
 
-        return (new HttpClient)
-            ->createJsonRequest()
-            ->setMethod('get')
-            ->setData($data)
-            ->setUrl($this->_getUrl())
-            ->getResponseDataWithCheck();
+        if (isset($result['error']) && $result['error']) { // $result['error'] = [code => 'exists', obj => 'user', msg => 'userid40821user.editThe __value__  already exists The id40821  already exists ']
+            $msg = print_r([$data, $result], true);
+            throw new Exception($msg);
+        }
+
+        return $result;
     }
 
     /**
      * Создать VM-юзера и вернуть его elid
      *
-     * @param string $name
-     * @param string $password
-     * @return int
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
+     * @param $name
+     * @param $password
+     * @return int|null
      */
     public function createUser($name, $password)
     {
@@ -115,9 +132,6 @@ class ApiVmCollocation extends Singleton
      * @param int $elid
      * @param bool $isEnable
      * @return array
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
      */
     public function enableOrDisableUser($elid, $isEnable)
     {
@@ -132,15 +146,12 @@ class ApiVmCollocation extends Singleton
     /**
      * Создать VPS
      *
-     * @param string $name
-     * @param string $password
-     * @param string $domain
-     * @param string $preset
-     * @param int $clientId
+     * @param $name
+     * @param $password
+     * @param $domain
+     * @param $preset
+     * @param $clientId
      * @return int
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
      */
     public function createVps($name, $password, $domain, $preset, $clientId)
     {
@@ -155,7 +166,7 @@ class ApiVmCollocation extends Singleton
             'preset' => $preset, // http://datacenter.mcn.ru/vps-hosting/    Optimum - 4, Premium - 3, Standart - 2
         ];
         $result = $this->exec($data); // $result = [doc, ip, id, elid, hostnode, ok]
-        return (int)$result['elid'];
+        return (int) $result['elid'];
     }
 
     /**
@@ -166,9 +177,6 @@ class ApiVmCollocation extends Singleton
      * @param int $resourceHdd
      * @param int $resourceProcessor
      * @return string
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
      */
     public function updateVps($vmId, $resourceRam, $resourceHdd, $resourceProcessor)
     {
@@ -180,7 +188,7 @@ class ApiVmCollocation extends Singleton
             'vcpu' => $resourceProcessor,
         ];
         $result = $this->exec($data); // $result = [doc, elid, ok]
-        return (int)$result['doc'];
+        return (int) $result['doc'];
     }
 
     /**
@@ -188,9 +196,6 @@ class ApiVmCollocation extends Singleton
      *
      * @param int $vmId
      * @return string
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
      */
     public function dropVps($vmId)
     {
