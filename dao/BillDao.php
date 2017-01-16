@@ -4,6 +4,7 @@ namespace app\dao;
 use app\classes\Singleton;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\Bill as uuBill;
+use app\classes\uu\model\Period;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillLine;
@@ -19,6 +20,10 @@ use Yii;
  */
 class BillDao extends Singleton
 {
+    /**
+     * @param \DateTime|string $billDate
+     * @return string
+     */
     public function spawnBillNumber($billDate)
     {
         if ($billDate instanceof \DateTime) {
@@ -27,13 +32,12 @@ class BillDao extends Singleton
             $prefix = substr($billDate, 0, 4) . substr($billDate, 5, 2);
         }
 
-        $lastBillNumber =
-            Bill::find()
-                ->select('bill_no')
-                ->andWhere('bill_no like :prefix', [':prefix' => $prefix . '-%'])
-                ->orderBy('bill_no desc')
-                ->limit(1)
-                ->scalar();
+        $lastBillNumber = Bill::find()
+            ->select('bill_no')
+            ->andWhere('bill_no like :prefix', [':prefix' => $prefix . '-%'])
+            ->orderBy('bill_no desc')
+            ->limit(1)
+            ->scalar();
 
         if ($lastBillNumber) {
             $suffix = 1 + intval(substr($lastBillNumber, 7));
@@ -44,16 +48,20 @@ class BillDao extends Singleton
         return sprintf("%s-%04d", $prefix, $suffix);
     }
 
+    /**
+     * @param Bill $bill
+     * @throws \Exception
+     */
     public function recalcBill(Bill $bill)
     {
         $dbTransaction = Bill::getDb()->beginTransaction();
         try {
             $lines = $bill->getLines()->all();
 
-            $this->calculateBillSum($bill, $lines);
+            $this->_calculateBillSum($bill, $lines);
 
             if ($bill->biller_version === null || $bill->biller_version == ClientAccount::VERSION_BILLER_USAGE) {
-                $this->updateTransactions($bill, $lines);
+                $this->_updateTransactions($bill, $lines);
             }
 
             $bill->save();
@@ -65,7 +73,11 @@ class BillDao extends Singleton
         }
     }
 
-    private function calculateBillSum(Bill $bill, array $lines)
+    /**
+     * @param Bill $bill
+     * @param array $lines
+     */
+    private function _calculateBillSum(Bill $bill, array $lines)
     {
         /** @var BillLine[] $lines */
 
@@ -74,6 +86,7 @@ class BillDao extends Singleton
             if ($line->type == 'zadatok') {
                 continue;
             }
+
             $bill->sum_with_unapproved += $line->sum;
         }
 
@@ -81,13 +94,14 @@ class BillDao extends Singleton
             $bill->sum_with_unapproved = -$bill->sum_with_unapproved;
         }
 
-        $bill->sum =
-            $bill->is_approved
-                ? $bill->sum_with_unapproved
-                : 0;
+        $bill->sum = $bill->is_approved ? $bill->sum_with_unapproved : 0;
     }
 
-    private function updateTransactions(Bill $bill, array $lines)
+    /**
+     * @param Bill $bill
+     * @param array $lines
+     */
+    private function _updateTransactions(Bill $bill, array $lines)
     {
         $transactions = Transaction::find()->andWhere(['bill_id' => $bill->id])->indexBy('bill_line_id')->all();
 
@@ -99,10 +113,8 @@ class BillDao extends Singleton
                 }
 
                 if (isset($transactions[$line->pk])) {
-
                     Transaction::dao()->updateByBillLine($bill, $line, $transactions[$line->pk]);
                     unset($transactions[$line->pk]);
-
                 } else {
                     Transaction::dao()->insertByBillLine($bill, $line);
                 }
@@ -118,6 +130,10 @@ class BillDao extends Singleton
         }
     }
 
+    /**
+     * @param string $bill_no
+     * @return array
+     */
     public function getDocumentType($bill_no)
     {
         if (preg_match("/\d{2}-\d{8}/", $bill_no)) {
@@ -129,36 +145,46 @@ class BillDao extends Singleton
             return ['type' => 'bill', 'bill_type' => '1c'];
 
         } elseif (preg_match("/20\d{4}-\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)) {
+
             // mcn telekom || all4net
-
             return ['type' => 'bill', 'bill_type' => 'stat'];
-
         }
 
         return ['type' => 'unknown'];
     }
 
+    /**
+     * @param Bill $bill
+     * @return bool
+     * @throws \yii\db\Exception
+     */
     public function isClosed(Bill $bill)
     {
-        $stateId =
-            Yii::$app->db->createCommand('
+        $stateId = Yii::$app->db->createCommand('
                     SELECT state_id
                     FROM tt_troubles t, tt_stages s
                     WHERE bill_no = :billNo and  t.cur_stage_id = s.stage_id
                 ', [':billNo' => $bill->bill_no]
-            )->queryScalar();
+        )->queryScalar();
         return $stateId == 20;
     }
 
+    /**
+     * @param string $billNo
+     * @return bool|string
+     */
     public function getManager($billNo)
     {
-        return
-            BillOwner::find()
-                ->select('owner_id')
-                ->andWhere(['bill_no' => $billNo])
-                ->scalar();
+        return BillOwner::find()
+            ->select('owner_id')
+            ->andWhere(['bill_no' => $billNo])
+            ->scalar();
     }
 
+    /**
+     * @param string $billNo
+     * @param int $userId
+     */
     public function setManager($billNo, $userId)
     {
         $owner = BillOwner::findOne($billNo);
@@ -166,18 +192,21 @@ class BillDao extends Singleton
             if ($owner == null) {
                 $owner = new BillOwner();
             }
+
             $owner->bill_no = $billNo;
             $owner->owner_id = $userId;
             $owner->save();
         } elseif ($owner) {
-            //$owner->delete();
+            // $owner->delete();
         }
     }
 
 
     /**
      * Функция переноса проводок универсального биллера в "старые" счета
+     *
      * @param uuBill $uuBill
+     * @return bool
      * @throws \Exception
      */
     public function transferUniversalBillsToBills(uuBill $uuBill)
@@ -191,6 +220,7 @@ class BillDao extends Singleton
             if ($bill && !$bill->delete()) {
                 throw new LogicException(implode(' ', $bill->getFirstErrors()));
             }
+
             return false;
         }
 
@@ -235,6 +265,37 @@ class BillDao extends Singleton
             ->orderBy(['id' => SORT_ASC])
             ->all();
 
+        if (!$clientAccount->is_postpaid) {
+
+            // для предоплаты не надо включать в счет посуточную абонентку
+            $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
+                return
+                    $accountEntry->type_id != AccountEntry::TYPE_ID_PERIOD ||
+                    $accountEntry->tariffPeriod->charge_period_id != Period::ID_DAY;
+            });
+
+            // если не осталось строчек счета, то и сам счет не нужен
+            if (!count($accountEntries) && !$bill->isNewRecord && !$bill->delete()) {
+                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+            }
+
+            // могла измениться сумма счета - обновить ее
+            $billPrice = array_reduce(
+                $accountEntries,
+                function ($carry, AccountEntry $accountEntry) {
+                    $carry += $accountEntry->price_with_vat;
+                    return $carry;
+                },
+                0
+            );
+            if ($billPrice != $bill->sum) {
+                $bill->sum = $bill->sum_with_unapproved = $billPrice;
+                if (!$bill->save()) {
+                    throw new LogicException(implode(' ', $bill->getFirstErrors()));
+                }
+            }
+        }
+
         // старые проводки
         $lines = $bill->getLines()
             ->indexBy('uu_account_entry_id')
@@ -259,9 +320,11 @@ class BillDao extends Singleton
 
                 $toRecalculateBillSum = true;
             }
+
             unset($accountEntries[$accountEntryId]);
             $billLinePosition = max($billLinePosition, $line->sort);
         }
+
         unset($lines, $line);
 
         // не было, но стало. Добавить
@@ -283,6 +346,7 @@ class BillDao extends Singleton
                 $line->price /= $line->amount; // цена за "1 шт."
                 $line->price = round($line->price, 2);
             }
+
             $line->tax_rate = $accountEntry->vat;
             $line->sum = $accountEntry->price_with_vat;
             $line->sum_without_tax = $accountEntry->price_without_vat;
@@ -315,39 +379,40 @@ class BillDao extends Singleton
      *
      * @param Bill $bill
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function isBillNewCompany(Bill $bill)
     {
         $sql = <<<ESQL
-SELECT
-  model,
-  model_id,
-  date,
-  replace(replace(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15,
-                            instr(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15), ',') - 1), '\"', ''),
-          ':', '')              new_org_id,
-  replace(replace(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15,
-                            instr(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15), ',') - 1), '\"',
-                  ''), ':', '') old_org_id,
-  client_id
-FROM (
-       SELECT
-         h1.*,
-         c.id AS   client_id,
-         (SELECT data_json
-          FROM history_version h2
-          WHERE h2.model = 'ClientContract' AND h2.date < :billDate AND h1.model_id = h2.model_id
-          ORDER BY date DESC
-          LIMIT 1) h2_json
-       FROM history_version h1, clients c
-       WHERE h1.model = 'ClientContract' AND h1.date = :billDate AND c.id = :accountId AND h1.model_id = c.contract_id
-     ) a
-HAVING new_org_id = 11 AND old_org_id = 1
+            SELECT
+                model,
+                model_id,
+                date,
+                replace(replace(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15,
+                                        instr(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15), ',') - 1), '\"', ''),
+                      ':', '')              new_org_id,
+                replace(replace(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15,
+                                        instr(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15), ',') - 1), '\"',
+                              ''), ':', '') old_org_id,
+                client_id
+            FROM (
+                   SELECT
+                     h1.*,
+                     c.id AS   client_id,
+                     (SELECT data_json
+                      FROM history_version h2
+                      WHERE h2.model = 'ClientContract' AND h2.date < :billDate AND h1.model_id = h2.model_id
+                      ORDER BY date DESC
+                      LIMIT 1) h2_json
+                   FROM history_version h1, clients c
+                   WHERE h1.model = 'ClientContract' AND h1.date = :billDate AND c.id = :accountId AND h1.model_id = c.contract_id
+                 ) a
+            HAVING new_org_id = 11 AND old_org_id = 1
 ESQL;
 
-        return (bool) \Yii::$app->db->createCommand($sql, [
-            ":billDate" => $bill->bill_date,
-            ":accountId" => $bill->client_id
+        return (bool)\Yii::$app->db->createCommand($sql, [
+            ':billDate' => $bill->bill_date,
+            ':accountId' => $bill->client_id
         ])->queryOne();
     }
 
@@ -360,36 +425,36 @@ ESQL;
     public function getNewCompanyDate($accountId)
     {
         $sql = <<<SQL
-          select 
-              date 
-          from (
+            select 
+                date 
+            from (
                 SELECT
-                        model,
-                        model_id,
-                        date,
-                        replace(replace(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15,
-                                    instr(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15), ',') - 1), '\"',
-                                ''), ':', '') new_org_id,
-                        replace(replace(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15,
-                                    instr(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15), ',') - 1), '\"',
-                                ''), ':', '') old_org_id,
-                         client_id
-                        FROM (
-                            SELECT
-                            h1.*,c.id as client_id,
-                            (SELECT data_json
-                             FROM history_version h2
-                             WHERE h2.model = 'ClientContract' AND h2.date < h1.date AND h1.model_id = h2.model_id
-                             ORDER BY date DESC
-                             LIMIT 1) h2_json
-                            FROM history_version h1, clients c
-                            WHERE h1.model = 'ClientContract' and c.id = :accountId and h1.model_id = c.contract_id
-                            ) a
-													
-                        HAVING new_org_id = 11 AND old_org_id = 1
-												ORDER BY date DESC
-												LIMIT 1
-)a
+                    model,
+                    model_id,
+                    date,
+                    replace(replace(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15,
+                                instr(SUBSTRING(data_json, instr(data_json, 'organization_id') + 15), ',') - 1), '\"',
+                            ''), ':', '') new_org_id,
+                    replace(replace(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15,
+                                instr(SUBSTRING(h2_json, instr(h2_json, 'organization_id') + 15), ',') - 1), '\"',
+                            ''), ':', '') old_org_id,
+                     client_id
+                FROM (
+                    SELECT
+                    h1.*,c.id as client_id,
+                    (SELECT data_json
+                     FROM history_version h2
+                     WHERE h2.model = 'ClientContract' AND h2.date < h1.date AND h1.model_id = h2.model_id
+                     ORDER BY date DESC
+                     LIMIT 1) h2_json
+                    FROM history_version h1, clients c
+                    WHERE h1.model = 'ClientContract' and c.id = :accountId and h1.model_id = c.contract_id
+                    ) a
+                                            
+                HAVING new_org_id = 11 AND old_org_id = 1
+                ORDER BY date DESC
+                LIMIT 1
+            ) a
 SQL;
 
         return \Yii::$app->db->createCommand($sql, [':accountId' => $accountId])->queryScalar();

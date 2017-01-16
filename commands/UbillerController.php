@@ -8,7 +8,6 @@ use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\Bill;
 use app\classes\uu\tarificator\TarificatorI;
-use app\models\Bill as stdBill;
 use app\models\ClientAccount;
 use Yii;
 use yii\console\Controller;
@@ -21,6 +20,7 @@ class UbillerController extends Controller
 
     /**
      * Создать транзакции, проводки, счета. hot 4 минуты / cold 3 часа
+     *
      * @return int
      */
     public function actionIndex()
@@ -65,10 +65,12 @@ class UbillerController extends Controller
 
     /**
      * Тарифицировать, вызвав нужный класс
+     *
      * @param string $className
      * @param string $name
+     * @return int
      */
-    protected function _tarificate($className, $name)
+    private function _tarificate($className, $name)
     {
         try {
             echo PHP_EOL . $name . '. ' . date(DATE_ATOM) . PHP_EOL;
@@ -170,7 +172,7 @@ class UbillerController extends Controller
     }
 
     /**
-     * пересчитать realtimeBalance. 1 секунда
+     * Пересчитать realtimeBalance. 1 секунда
      */
     public function actionRealtimeBalance()
     {
@@ -265,6 +267,12 @@ class UbillerController extends Controller
      */
     public function actionClearBill()
     {
+        // сначала надо удалить старые сконвертированные счета, иначе они останутся, потому что у них 'on delete set null'
+        \app\models\Bill::deleteAll([
+            'AND',
+            ['biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL],
+            ['IS NOT', 'uu_bill_id', null]
+        ]);
         Bill::deleteAll();
         echo '. ' . PHP_EOL;
     }
