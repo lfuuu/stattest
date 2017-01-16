@@ -4,6 +4,16 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
+/**
+ * Class BusinessProcessStatus
+ *
+ * @property int    id
+ * @property int    business_process_id
+ * @property string name
+ * @property int    sort
+ * @property string oldstatus
+ * @property string color
+ */
 class BusinessProcessStatus extends ActiveRecord
 {
 
@@ -12,7 +22,7 @@ class BusinessProcessStatus extends ActiveRecord
 
     // Телеком
     const TELEKOM_MAINTENANCE_ORDER_OF_SERVICES = 19; // Заказ услуг
-    const TELEKOM_MAINTENANCE_CONNECTED = 8; //Подключаемые
+    const TELEKOM_MAINTENANCE_CONNECTED = 8; // Подключаемые
     const TELEKOM_MAINTENANCE_WORK = 9; // Включенные
     const TELEKOM_MAINTENANCE_DISCONNECTED = 10; // Отключенные
     const TELEKOM_MAINTENANCE_DISCONNECTED_DEBT = 11; // Отключенные за долги
@@ -100,7 +110,7 @@ class BusinessProcessStatus extends ActiveRecord
     const WELLTIME_MAINTENANCE_TRASH = 100; // Мусор
 
 
-    const ITOUTSOURSING_MAINTENANCE_INCOMING = 132; //Входящие
+    const ITOUTSOURSING_MAINTENANCE_INCOMING = 132; // Входящие
     const ITOUTSOURSING_MAINTENANCE_NEGOTIATIONS = 133; // В стадии переговоров
     const ITOUTSOURSING_MAINTENANCE_VERIFICATION = 134; // Проверка документов
     const ITOUTSOURSING_MAINTENANCE_CONNECTING = 135; // Подключаемые
@@ -109,20 +119,47 @@ class BusinessProcessStatus extends ActiveRecord
     const ITOUTSOURSING_MAINTENANCE_FAILURE = 138; // Отказ
     const ITOUTSOURSING_MAINTENANCE_TRASH = 139; // Мусор
 
+    // OTT
+    const OTT_MAINTENANCE_ORDER_OF_SERVICES = 141; // Заказ услуг
+    const OTT_MAINTENANCE_CONNECTED = 142; // Подключаемые
+    const OTT_MAINTENANCE_WORK = 143; // Включенные
+    const OTT_MAINTENANCE_DISCONNECTED = 144; // Отключенные
+    const OTT_MAINTENANCE_DISCONNECTED_DEBT = 145; // Отключенные за долги
+    const OTT_MAINTENANCE_TRASH = 146; // Мусор
+    const OTT_MAINTENANCE_TECH_FAILURE = 147; // Тех. отказ
+    const OTT_MAINTENANCE_FAILURE = 148; // Отказ
+    const OTT_MAINTENANCE_DUPLICATE = 149; // Дубликат
+
 
     const FOLDER_TELECOM_AUTOBLOCK = 21;
 
+    /**
+     * Название таблицы
+     *
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_contract_business_process_status';
     }
 
+    /**
+     * Получение ассоциативного списка
+     *
+     * @return array
+     */
     public static function getList()
     {
         $arr = self::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
         return ArrayHelper::map($arr, 'id', 'name');
     }
 
+    /**
+     * Получение статуса по ID бизнес процесса
+     *
+     * @param integer $id
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public static function getStatusesByBusinessId($id)
     {
         return
@@ -134,6 +171,11 @@ class BusinessProcessStatus extends ActiveRecord
                 ->all();
     }
 
+    /**
+     * Получение дерева статусов
+     *
+     * @return array
+     */
     public static function getTree()
     {
         $processes = [];
@@ -161,9 +203,12 @@ class BusinessProcessStatus extends ActiveRecord
                     'up_id' => $status->business_process_id
                 ];
             }
-
         }
-        return ["processes" => $processes, "statuses" => $statuses];
+
+        return [
+            "processes" => $processes,
+            "statuses" => $statuses
+        ];
     }
 
     /**

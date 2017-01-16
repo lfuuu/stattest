@@ -62,7 +62,7 @@ class AutoBlockCreditFolder extends AccountGridFolder
             $query->andWhere(['IN', 'c.id', $clientsIDs]);
         }
         else {
-            $query->andWhere('false');
+            $query->andWhere(new Expression('false'));
         }
 
     }

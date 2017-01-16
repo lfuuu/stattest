@@ -4,6 +4,15 @@ namespace app\models;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
+/**
+ * Class BusinessProcess
+ *
+ * @property integer id
+ * @property integer business_id
+ * @property string  name
+ * @property integer show_as_status
+ * @property integer sort
+ */
 class BusinessProcess extends ActiveRecord
 {
 
@@ -32,11 +41,25 @@ class BusinessProcess extends ActiveRecord
 
     const ITOUTSOURSING_MAINTENANCE = 17;
 
+    const OTT_MAINTENANCE = 18;
+    const OTT_REPORTS = 19;
+    const OTT_SALES = 20;
+
+    /**
+     * Навзание таблицы
+     *
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_contract_business_process';
     }
 
+    /**
+     * Получить список бизнес процессов
+     *
+     * @return array
+     */
     public static function getList()
     {
         $arr = self::find()
@@ -46,6 +69,11 @@ class BusinessProcess extends ActiveRecord
         return ArrayHelper::map($arr, 'id', 'name');
     }
 
+    /**
+     * Связка со статусами
+     *
+     * @return $this
+     */
     public function getBusinessProcessStatuses()
     {
         return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id'])->orderBy('sort');

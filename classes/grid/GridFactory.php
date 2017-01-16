@@ -17,9 +17,10 @@ use app\classes\grid\account\ProviderOrders;
 use app\classes\grid\account\TelecomMaintenance;
 use app\classes\grid\account\TelecomReports;
 use app\classes\grid\account\TelecomSales;
+use app\classes\grid\account\OTTMaintenance;
+use app\classes\grid\account\OTTSales;
 use app\classes\grid\account\WelltimeMaintenance;
 use app\classes\Singleton;
-use Yii;
 
 /**
  * @method static GridFactory me($args = null)
@@ -47,11 +48,17 @@ class GridFactory extends Singleton
             new ProviderOrders(),
             new PartnerMaintenance(),
             new WelltimeMaintenance(),
-            new ITOutsoursingMaintenance()
+            new ITOutsoursingMaintenance(),
+            new OTTMaintenance(),
+            new OTTSales(),
+
         ];
     }
 
     /**
+     * Получение грида по бизнес процессу
+     *
+     * @param integer $businessProcessId
      * @return AccountGrid
      */
     public function getAccountGridByBusinessProcessId($businessProcessId)

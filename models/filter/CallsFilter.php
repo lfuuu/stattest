@@ -277,7 +277,7 @@ class CallsFilter extends Calls
 
         (int)$this->disconnect_cause && $query->andWhere(['disconnect_cause' => $this->disconnect_cause]);
 
-        !$this->isFilteringPossible() && $query->andWhere('false');
+        !$this->isFilteringPossible() && $query->andWhere(new Expression('false'));
 
         // having
         $this->calls_count_from !== '' && $query->andHaving(['>=', 'COUNT(*)', (int)$this->calls_count_from]);

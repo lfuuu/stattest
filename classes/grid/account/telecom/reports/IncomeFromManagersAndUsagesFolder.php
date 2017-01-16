@@ -2,19 +2,27 @@
 namespace app\classes\grid\account\telecom\reports;
 
 use app\classes\grid\account\AccountGridFolder;
-use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use Yii;
 use yii\db\Query;
 
 
+/**
+ * Class IncomeFromManagersAndUsagesFolder
+ */
 class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
 {
+    /**
+     * @return string
+     */
     public function getName()
     {
         return 'Доход по менеджеру и услугам';
     }
 
+    /**
+     * @return array
+     */
     public function getColumns()
     {
         return [
@@ -29,6 +37,9 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
         ];
     }
 
+    /**
+     * @param Query $query
+     */
     public function queryParams(Query $query)
     {
         parent::queryParams($query);
@@ -52,6 +63,7 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
         if (!$dateFrom) {
             $dateFrom = date('Y-m-01');
         }
+
         if (!$dateTo) {
             $dateTo = date('Y-m-t');
         }
@@ -61,9 +73,13 @@ class IncomeFromManagersAndUsagesFolder extends AccountGridFolder
             'date_to' => $dateTo
         ]);
 
+        // $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
         $query->groupBy(['cr.account_manager', 'l.service']);
     }
 
+    /**
+     * @return string
+     */
     public function queryOrderBy()
     {
         return 'over DESC';

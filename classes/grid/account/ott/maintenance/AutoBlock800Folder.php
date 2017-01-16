@@ -1,5 +1,5 @@
 <?php
-namespace app\classes\grid\account\telecom\maintenance;
+namespace app\classes\grid\account\ott\maintenance;
 
 use app\models\UsageVoip;
 use Yii;
@@ -11,15 +11,24 @@ use app\models\billing\Clients;
 use app\models\billing\Counter;
 use app\models\billing\Locks;
 
+/**
+ * Class AutoBlock800Folder
+ */
 class AutoBlock800Folder extends AccountGridFolder
 {
     public $block_date;
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return '800-Блок';
     }
 
+    /**
+     * @return array
+     */
     public function getColumns()
     {
         return [
@@ -34,6 +43,9 @@ class AutoBlock800Folder extends AccountGridFolder
         ];
     }
 
+    /**
+     * @param Query $query
+     */
     public function queryParams(Query $query)
     {
         parent::queryParams($query);
@@ -49,25 +61,26 @@ class AutoBlock800Folder extends AccountGridFolder
             'ab.`client_id` = c.`id`');
         $query->leftJoin(['uv' => UsageVoip::tableName()], 'uv.client = c.client AND CAST(NOW() AS DATE) BETWEEN uv.actual_from AND uv.actual_to');
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::OTT_MAINTENANCE_WORK]);
         $query->andWhere(['c.is_blocked' => 0]);
-        $query->andWhere('uv.line7800_id');
+        $query->andWhere(['not', ['uv.line7800_id' => null]]);
 
-        $billingQuery =
-            (new Query)
+        $billingQuery
+            = (new Query)
                 ->select('clients.id')
                 ->from(['clients' => Clients::tableName()])
                 ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
                 ->leftJoin(['lock' => Locks::tableName()], 'lock.client_id = clients.id')
-                ->where(new Expression('TRUE IN (lock.voip_auto_disabled, lock.voip_auto_disabled_local)'));
+                ->where(['or',
+                    ['lock.voip_auto_disabled' => true],
+                    ['lock.voip_auto_disabled_local' => true]
+                ]);
 
         $clientsIDs = $billingQuery->column(Clients::getDb());
         if (count($clientsIDs)) {
             $query->andWhere(['IN', 'c.id', $clientsIDs]);
-        }
-        else {
+        } else {
             $query->andWhere(new Expression('false'));
         }
-
     }
 }

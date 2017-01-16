@@ -5,10 +5,13 @@ use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 /**
- * @property int $id
- * @property string $name
- * @property int $sort
- * @property
+ * Class Business
+ *
+ * @property int id
+ * @property string name
+ * @property int sort
+ *
+ * @property BusinessProcess BusinessProcesses
  */
 class Business extends ActiveRecord
 {
@@ -24,7 +27,13 @@ class Business extends ActiveRecord
     const PARTNER = 7;
     const WELLTIME = 8;
     const ITOUTSOURSING = 9;
+    const OTT = 10;
 
+    /**
+     * Название таблицы
+     *
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_contract_business';
@@ -32,6 +41,7 @@ class Business extends ActiveRecord
 
     /**
      * По какому полю сортировать для getList()
+     *
      * @return array
      */
     public static function getListOrderBy()
@@ -39,6 +49,11 @@ class Business extends ActiveRecord
         return ['sort' => SORT_ASC];
     }
 
+    /**
+     * Связанные бизнес процессы
+     *
+     * @return \yii\db\ActiveQuery
+     */
     public function getBusinessProcesses()
     {
         return $this->hasMany(BusinessProcess::className(), ['business_id' => 'id']);
