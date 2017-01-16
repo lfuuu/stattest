@@ -187,7 +187,7 @@ class m_newaccounts extends IModule
         foreach (
             \app\models\HistoryVersion::find()
                  ->andWhere(['regexp', 'data_json', '"organization_id":"?[0-9]+"?,'])
-                 ->andWhere(['model' => 'ClientContract', 'model_id' => $contractId])
+                 ->andWhere(['model' => 'app\\models\\ClientContract', 'model_id' => $contractId])
                  ->orderBy(['date' => SORT_ASC])
                  ->all() as $record
         ) {
