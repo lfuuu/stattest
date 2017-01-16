@@ -1,7 +1,6 @@
 <?php
 
 /** @var \app\forms\client\ContractEditForm $contract */
-/** @var bool $isHidden */
 /** @var \app\classes\BaseView $baseView */
 
 use app\models\media\ClientFiles;
@@ -100,7 +99,7 @@ $baseView = $this;
         <div class="clearfix"></div>
     ',
     'options' => [
-        'class' => 'fullTable' . ($isHidden ? ' collapse' : ''),
+        'class' => 'fullTable',
     ],
 ]);
 

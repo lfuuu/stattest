@@ -18,10 +18,6 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
                 <?= $this->render('block/rightmenu', ['account' => $account]); ?>
             </div>
         </div>
-        <?= $this->render('//contract/files/grid', [
-            'contract' => $account->contract,
-            'isHidden' => true,
-        ]) ?>
         <?= $this->render('block/trouble', ['troubles' => $troubles, 'serverTroubles' => $serverTroubles]); ?>
         <?= $this->render('block/service', ['account' => $account, 'services' => $services, 'account' => $account]); ?>
         <?php
