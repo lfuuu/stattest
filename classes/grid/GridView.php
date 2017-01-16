@@ -130,9 +130,11 @@ HTML;
      */
     public static function separateWidget(array $config = [])
     {
-        $gridView = new GridView(['dataProvider' => new \yii\data\ArrayDataProvider([
-            'allModels' => [],
-        ])]);
+        $gridView = new GridView([
+            'dataProvider' => new \yii\data\ArrayDataProvider([
+                'allModels' => [],
+            ])
+        ]);
         $view = $gridView->getView();
         $view->registerJs(new JsExpression(
             '$("body").on("change", "select[name=\"' . $gridView->pageSizeParam . '\"]", function() {
@@ -363,9 +365,11 @@ HTML;
             });
         '));
 
+        $pagination = $this->dataProvider->getPagination();
+
         return
             Html::beginTag('div', ['class' => 'btn-group']) .
-            Html::dropDownList($this->pageSizeParam, $this->dataProvider->getPagination()->pageSize ?: -1, $this->pageSizes, [
+            Html::dropDownList($this->pageSizeParam, ($pagination && $pagination->pageSize) ?: -1, $this->pageSizes, [
                 'class' => 'form-control',
                 'style' => 'width:140px;'
             ]) .
