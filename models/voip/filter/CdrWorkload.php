@@ -19,6 +19,8 @@ class CdrWorkload extends Model
     public $date = null;
     public $period = 'hour';
 
+    public $correctDateEnd = null;
+
     /**
      * Rule array
      *
@@ -52,14 +54,14 @@ class CdrWorkload extends Model
         list($get['dateStart'], $get['dateEnd']) = explode(':', $get['date']);
         $dateStart = new \DateTime($get['dateStart']);
         $dateEnd = new \DateTime($get['dateEnd']);
-        $dateEnd->modify('+1 day');
+        $dateEnd->modify('+1 day')->modify('-1 second');
         $interval = $dateEnd->diff($dateStart);
         if ($interval->m > 1 || ($interval->m && ($interval->i || $interval->d || $interval->h || $interval->s))) {
             Yii::$app->session->addFlash('error', 'Временной период больше одного месяца');
             return false;
         }
 
-        $get['dateEnd'] = $dateEnd->format(DateTimeZoneHelper::DATE_FORMAT);
+        $this->correctDateEnd = $dateEnd->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         parent::load($get, '');
 
@@ -136,7 +138,7 @@ class CdrWorkload extends Model
         $params = [
             ':number' => $this->number,
             ':date_start' => $this->dateStart,
-            ':date_end' => $this->dateEnd
+            ':date_end' => $this->correctDateEnd
         ];
 
         return new SqlDataProvider(
@@ -194,7 +196,7 @@ class CdrWorkload extends Model
                         lines_count";
         $params = [
             ':date_start' => $this->dateStart,
-            ':date_end' => $this->dateEnd,
+            ':date_end' => $this->correctDateEnd,
         ];
 
         return new SqlDataProvider(
@@ -284,7 +286,7 @@ class CdrWorkload extends Model
         $params = [
             ':number' => $this->number,
             ':date_start' => $this->dateStart,
-            ':date_end' => $this->dateEnd,
+            ':date_end' => $this->correctDateEnd,
         ];
 
         return Yii::$app->dbPgSlave
