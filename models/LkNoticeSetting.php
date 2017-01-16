@@ -1,17 +1,17 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\lk\LkNoticeSettings;
+use app\classes\HttpClient;
+use app\forms\important_events\ImportantEventsNoticesForm;
+use app\models\important_events\ImportantEventsNames;
+use app\queries\LkNoticeSettingQuery;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\db\Query;
-use yii\base\Exception;
-use yii\base\InvalidConfigException;
-use app\queries\LkNoticeSettingQuery;
-use app\classes\HttpClient;
-use app\classes\behaviors\lk\LkNoticeSettings;
-use app\models\important_events\ImportantEventsNames;
-use app\forms\important_events\ImportantEventsNoticesForm;
+use yii\web\BadRequestHttpException;
 
 /**
  * Class LkNoticeSetting
@@ -25,8 +25,6 @@ use app\forms\important_events\ImportantEventsNoticesForm;
  * @property int add_pay_notif
  * @property string status
  * @property string activate_code
- *
- * @package app\models
  */
 class LkNoticeSetting extends ActiveRecord
 {
@@ -79,8 +77,10 @@ class LkNoticeSetting extends ActiveRecord
     }
 
     /**
-     * @param $clientAccountId
+     * @param int $clientAccountId
      * @return bool|string
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
      */
     public static function sendToMailer($clientAccountId)
     {
@@ -90,17 +90,7 @@ class LkNoticeSetting extends ActiveRecord
             throw new InvalidConfigException('Mailer was not configured');
         }
 
-        $client = new HttpClient;
-        $client->setTransport(\yii\httpclient\CurlTransport::class);
-        $client->requestConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
-        $client->responseConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
-
         $result = [];
-
         foreach (self::$noticeTypes as $type => $typeInLk) {
             $settings = (new Query)
                 ->select([
@@ -127,26 +117,16 @@ class LkNoticeSetting extends ActiveRecord
             }
         }
 
-        $request = $client
-            ->createRequest()
+        $response = (new HttpClient)
+            ->createJsonRequest()
             ->setMethod('post')
             ->setData($result)
-            ->setUrl($config['url'] . ImportantEventsNoticesForm::MAILER_METHOD_UPDATE . '?clientAccountId=' . $clientAccountId);
-
-        if (isset($config['auth'])) {
-            $client->auth($request, $config['auth']);
-        }
-
-        /** @var \yii\httpclient\Response $response */
-        try {
-            $response = $client->send($request);
-        }
-        catch (\Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+            ->setUrl($config['url'] . ImportantEventsNoticesForm::MAILER_METHOD_UPDATE . '?clientAccountId=' . $clientAccountId)
+            ->auth(isset($config['auth']) ? $config['auth'] : [])
+            ->send();
 
         if (!$response->getIsOk()) {
-            throw new Exception($response->getContent());
+            throw new BadRequestHttpException($response->getContent());
         }
 
         return true;

@@ -20,6 +20,7 @@ class SyncVmCollocation
 
     /**
      * Синхронизировать в VM manager
+     *
      * @param int $accountTariffId
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=3508161
      */
@@ -33,7 +34,7 @@ class SyncVmCollocation
             throw new InvalidParamException('SyncVmCollocation. Неправильный параметр ' . $accountTariffId);
         }
 
-        $apiVmCollocation = ApiVmCollocation::getInstance();
+        $apiVmCollocation = ApiVmCollocation::me();
 
         if (!$accountTariff->tariff_period_id) {
             // выключить
@@ -45,6 +46,7 @@ class SyncVmCollocation
                     throw new \LogicException(implode(' ', $accountTariff->getFirstErrors()));
                 }
             }
+
             return;
         }
 
@@ -75,17 +77,18 @@ class SyncVmCollocation
             if (!$vmElidId) {
                 throw new InvalidParamException('Ошибка создания VM collocation ' . $accountTariffId);
             }
+
             // ... и запомнить
             $accountTariff->vm_elid_id = $vmElidId;
             if (!$accountTariff->save()) {
                 throw new \LogicException(implode(' ', $accountTariff->getFirstErrors()));
             }
-
         }
     }
 
     /**
      * Включить клиента в VM, если он там есть
+     *
      * @param int $clientAccountId
      * @return mixed
      */
@@ -96,6 +99,7 @@ class SyncVmCollocation
 
     /**
      * Включить клиента в VM, если он там есть
+     *
      * @param int $clientAccountId
      * @return mixed
      */
@@ -106,13 +110,14 @@ class SyncVmCollocation
 
     /**
      * Включить клиента в VM, если он там есть
+     *
      * @param int $clientAccountId
      * @param bool $isEnable
      * @return mixed
      */
     protected function enableOrDisableAccount($clientAccountId, $isEnable)
     {
-        $apiVmCollocation = ApiVmCollocation::getInstance();
+        $apiVmCollocation = ApiVmCollocation::me();
         if (!$apiVmCollocation->isAvailable()) {
             return null;
         }
@@ -128,6 +133,7 @@ class SyncVmCollocation
 
     /**
      * Вернуть ID клиента в VM
+     *
      * @param ClientAccount $clientAccount
      * @return int
      */
@@ -139,7 +145,7 @@ class SyncVmCollocation
             return $vmClientId;
         }
 
-        $apiVmCollocation = ApiVmCollocation::getInstance();
+        $apiVmCollocation = ApiVmCollocation::me();
         $vmClientId = $apiVmCollocation->createUser($name = 'client_' . $clientAccount->id, $password = Utils::password_gen());
         if (!$vmClientId) {
             throw new \LogicException('Ошибка создания клиента в VmCollocation');
@@ -154,6 +160,7 @@ class SyncVmCollocation
         if (!$clientAccountOptions->save()) {
             throw new \LogicException(implode(' ', $clientAccountOptions->getFirstErrors()));
         }
+
         unset($clientAccountOptions);
 
         // пароль
@@ -164,6 +171,7 @@ class SyncVmCollocation
         if (!$clientAccountOptions->save()) {
             throw new \LogicException(implode(' ', $clientAccountOptions->getFirstErrors()));
         }
+
         unset($clientAccountOptions);
 
         return $vmClientId;
@@ -171,7 +179,8 @@ class SyncVmCollocation
 
     /**
      * @param ClientAccount $clientAccount
-     * @return string|null
+     * @param string $option
+     * @return null|string
      */
     public function getVmUserInfo(ClientAccount $clientAccount, $option = self::CLIENT_ACCOUNT_OPTION_VM_ELID)
     {

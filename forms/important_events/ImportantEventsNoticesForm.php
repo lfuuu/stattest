@@ -1,14 +1,15 @@
 <?php
 namespace app\forms\important_events;
 
-use Yii;
-use app\classes\validators\ArrayValidator;
 use app\classes\Form;
 use app\classes\HttpClient;
-use app\models\Language;
-use app\models\ClientAccountOptions;
+use app\classes\validators\ArrayValidator;
 use app\forms\client\ClientAccountOptionsForm;
+use app\models\ClientAccountOptions;
+use app\models\Language;
+use Yii;
 use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 
 class ImportantEventsNoticesForm extends Form
 {
@@ -48,10 +49,11 @@ class ImportantEventsNoticesForm extends Form
      * Загрузка данных для формы
      *
      * @return array|bool
+     * @throws \yii\base\InvalidConfigException
      */
     public function loadData()
     {
-        if (!$this->validateConfig()) {
+        if (!$this->_validateConfig()) {
             return false;
         }
 
@@ -61,34 +63,20 @@ class ImportantEventsNoticesForm extends Form
             throw new InvalidConfigException('Mailer was not configured');
         }
 
-        $client = new HttpClient;
-        $client->setTransport(\yii\httpclient\CurlTransport::class);
-        $client->requestConfig = [
-            'format' => HttpClient::FORMAT_RAW_URLENCODED,
-        ];
-        $client->responseConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
-        $request = $client
-            ->createRequest()
-            ->setMethod('get')
-            ->setData(['clientAccountId' => $this->clientAccountId])
-            ->setUrl($config['url'] . self::MAILER_METHOD_READ);
-
-        if (isset($config['auth'])) {
-            $client->auth($request, $config['auth']);
-        }
-
-        /** @var \yii\httpclient\Response $response */
         try {
-            $response = $client->send($request);
-        } catch (\Exception $e) {
-            Yii::$app->session->addFlash('error',
-                'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
+            $response = (new HttpClient)
+                ->createJsonRequest()
+                ->setMethod('get')
+                ->setData(['clientAccountId' => $this->clientAccountId])
+                ->setUrl($config['url'] . self::MAILER_METHOD_READ)
+                ->auth(isset($config['auth']) ? $config['auth'] : [])
+                ->send();
+        } catch (BadRequestHttpException $e) {
+            Yii::$app->session->addFlash('error', 'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
             return false;
         }
 
-        if (!$response->isOk) {
+        if (!$response->getIsOk()) {
             Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Код ошибки:' . $response->getStatusCode());
             return false;
         }
@@ -121,10 +109,12 @@ class ImportantEventsNoticesForm extends Form
      * Сохранение формы
      *
      * @return bool
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
      */
     public function saveData()
     {
-        if (!$this->validateConfig()) {
+        if (!$this->_validateConfig()) {
             return false;
         }
 
@@ -148,34 +138,21 @@ class ImportantEventsNoticesForm extends Form
             $result[] = $row;
         }
 
-        $client = new HttpClient;
-        $client->setTransport(\yii\httpclient\CurlTransport::class);
-        $client->requestConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
-        $client->responseConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
-        $request = $client
-            ->createRequest()
-            ->setMethod('post')
-            ->setData($result)
-            ->setUrl($config['url'] . self::MAILER_METHOD_UPDATE . '?clientAccountId=' . $this->clientAccountId);
-
-        if (isset($config['auth'])) {
-            $client->auth($request, $config['auth']);
-        }
-
-        /** @var \yii\httpclient\Response $response */
         try {
-            $response = $client->send($request);
-        } catch (\Exception $e) {
-            Yii::$app->session->addFlash('error',
-                'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
+            $response = (new HttpClient)
+                ->createJsonRequest()
+                ->setMethod('post')
+                ->setData($result)
+                ->setUrl($config['url'] . self::MAILER_METHOD_UPDATE . '?clientAccountId=' . $this->clientAccountId)
+                ->auth(isset($config['auth']) ? $config['auth'] : [])
+                ->send();
+
+        } catch (BadRequestHttpException $e) {
+            Yii::$app->session->addFlash('error', 'Отсутствует соединение с MAILER' . PHP_EOL . '<br />Ошибка: ' . $e->getMessage());
             return false;
         }
 
-        if (!$response->isOk) {
+        if (!$response->getIsOk()) {
             Yii::$app->session->addFlash('error', 'Ошибка работы с MAILER. Код ошибки:' . $response->getStatusCode());
             return false;
         }
@@ -194,12 +171,13 @@ class ImportantEventsNoticesForm extends Form
      *
      * @return bool
      */
-    private function validateConfig()
+    private function _validateConfig()
     {
         if (!isset(Yii::$app->params['MAILER'], Yii::$app->params['MAILER']['url'])) {
             Yii::$app->session->addFlash('error', 'Отсутствует конфигурация для MAILER');
             return false;
         }
+
         return true;
     }
 

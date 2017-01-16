@@ -1,21 +1,25 @@
 <?php
 namespace app\commands;
 
+use app\classes\HttpClient;
+use app\forms\important_events\ImportantEventsNoticesForm;
+use app\models\ClientContact;
+use app\models\important_events\ImportantEventsNames;
+use app\models\LkNoticeSetting;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\console\Controller;
 use yii\db\Expression;
 use yii\db\Query;
 use yii\web\BadRequestHttpException;
-use yii\base\InvalidConfigException;
-use app\classes\HttpClient;
-use app\models\ClientContact;
-use app\models\LkNoticeSetting;
-use app\models\important_events\ImportantEventsNames;
-use app\forms\important_events\ImportantEventsNoticesForm;
 
 class LkSettingsToMailerController extends Controller
 {
 
+    /**
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     */
     public function actionIndex()
     {
         $config = Yii::$app->params['MAILER'];
@@ -23,15 +27,6 @@ class LkSettingsToMailerController extends Controller
         if (!isset($config, $config['url'])) {
             throw new InvalidConfigException('Mailer was not configured');
         }
-
-        $client = new HttpClient;
-        $client->setTransport(\yii\httpclient\CurlTransport::class);
-        $client->requestConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
-        $client->responseConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
 
         foreach (LkNoticeSetting::$noticeTypes as $type => $typeInLk) {
             $settings = (new Query)
@@ -68,23 +63,13 @@ class LkSettingsToMailerController extends Controller
                     'event_code' => ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_ADD,
                 ];
 
-                $request = $client
-                    ->createRequest()
+                $response = (new HttpClient)
+                    ->createJsonRequest()
                     ->setMethod('post')
                     ->setData($result)
-                    ->setUrl($config['url'] . ImportantEventsNoticesForm::MAILER_METHOD_UPDATE . '?clientAccountId=' . $setting['client_id']);
-
-                if (isset($config['auth'])) {
-                    $client->auth($request, $config['auth']);
-                }
-
-                /** @var \yii\httpclient\Response $response */
-                try {
-                    $response = $client->send($request);
-                }
-                catch (\Exception $e) {
-                    throw new BadRequestHttpException($e->getCode());
-                }
+                    ->setUrl($config['url'] . ImportantEventsNoticesForm::MAILER_METHOD_UPDATE . '?clientAccountId=' . $setting['client_id'])
+                    ->auth(isset($config['auth']) ? $config['auth'] : [])
+                    ->send();
 
                 if (!$response->getIsOk()) {
                     throw new BadRequestHttpException($response->getContent());
