@@ -1,13 +1,13 @@
 <?php
 /**
- * Main page view for CDR report (/voip/cdr)
+ * Main page view for Raw report (/voip/raw)
  *
- * @var Cdr $filterModel
+ * @var CallsRawFilter $filterModel
  * @var \yii\web\View $this
  */
 
 use app\classes\grid\GridView;
-use app\models\voip\filter\Cdr;
+use app\models\voip\filter\CallsRawFilter;
 use yii\widgets\Breadcrumbs;
 use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
 use app\classes\grid\column\universal\StringColumn;
@@ -15,20 +15,17 @@ use app\classes\grid\column\universal\CheckboxColumn;
 use app\classes\grid\column\billing\ServiceTrunkColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\ContractColumn;
-use app\classes\grid\column\billing\ReleasingPartyColumn;
 use app\classes\grid\column\universal\NnpOperatorColumn;
 use app\classes\grid\column\universal\NnpRegionColumn;
-use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\billing\DisconnectCauseColumn;
 use app\classes\grid\column\universal\ConstructColumn;
 use app\classes\grid\column\universal\WithEmptyFilterColumn;
 use app\classes\grid\column\universal\CountryColumn;
-use app\modules\nnp\column\DestinationColumn;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Отчет по данным calls_cdr') ?>
+<?= app\classes\Html::formLabel($this->title = 'Отчет по данным calls_raw') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Телефония'],
@@ -64,11 +61,11 @@ $filter = [
         ],
     ],
     [
-        'attribute' => 'src_routes',
+        'attribute' => 'src_routes_ids',
         'label' => 'Транк-оригинатор',
         'class' => ServiceTrunkColumn::className(),
         'filterByServerId' => $filterModel->server_ids,
-        'filterByTrunkName' => $filterModel->src_contracts,
+        'filterByServiceTrunkId' => $filterModel->src_contracts_ids,
         'filterInputOptions' => [
             'multiple' => true,
         ]
@@ -92,10 +89,10 @@ $filter = [
         ],
     ],
     [
-        'attribute' => 'src_contracts',
+        'attribute' => 'src_contracts_ids',
         'label' => 'Договор номера А',
         'class' => ContractColumn::className(),
-        'filterByTrunkName' => $filterModel->src_routes,
+        'filterByServiceTrunkId' => $filterModel->src_routes_ids,
         'filterByServerId' => $filterModel->server_ids,
         'filterInputOptions' => [
             'multiple' => true,
@@ -128,10 +125,10 @@ $filter = [
         ],
     ],
     [
-        'attribute' => 'dst_routes',
+        'attribute' => 'dst_routes_ids',
         'label' => 'Транк-терминатор',
         'class' => ServiceTrunkColumn::className(),
-        'filterByTrunkName' => $filterModel->dst_contracts,
+        'filterByServiceTrunkId' => $filterModel->dst_contracts_ids,
         'filterByServerId' => $filterModel->server_ids,
         'filterInputOptions' => [
             'multiple' => true,
@@ -156,15 +153,19 @@ $filter = [
         'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'call_id',
-        'label' => 'call_id',
-        'class' => IntegerColumn::className(),
+        'attribute' => 'disconnect_causes',
+        'label' => 'Код завершения',
+        'class' => DisconnectCauseColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'dst_contracts',
+        'attribute' => 'dst_contracts_ids',
         'label' => 'Договор номера B',
         'class' => ContractColumn::className(),
-        'filterByTrunkName' => $filterModel->dst_routes,
+        'filterByServiceTrunkId' => $filterModel->dst_routes_ids,
         'filterByServerId' => $filterModel->server_ids,
         'filterInputOptions' => [
             'multiple' => true,
@@ -190,46 +191,12 @@ $filter = [
         'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'disconnect_causes',
-        'label' => 'Код завершения',
-        'class' => DisconnectCauseColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-    ],
-    [
-        'attribute' => 'releasing_party',
-        'label' => 'Инициатор завершения',
-        'class' => ReleasingPartyColumn::className(),
-    ],
-    [
-        'attribute' => 'src_destination_ids',
-        'label' => 'Направление номера А',
-        'class' => DestinationColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-    ],
-    [
-        'attribute' => 'dst_destination_ids',
-        'label' => 'Направление номера B',
-        'class' => DestinationColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-    ],
-    [
-        'attribute' => 'redirect_number',
-        'label' => 'Redirect number',
-        'class' => StringColumn::className(),
-    ],
-    [
         'attribute' => 'is_success_calls',
         'label' => 'Только успешные попытки',
         'class' => CheckboxColumn::className(),
+    ],
+    [
+        'class' => WithEmptyFilterColumn::className(),
     ],
     [
         'class' => WithEmptyFilterColumn::className(),
@@ -282,6 +249,13 @@ $filter = [
 
 $columns = [];
 if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
+    if ($filterModel->group_period) {
+        $columns[] = [
+            'label' => 'Интервал',
+            'attribute' => 'interval',
+        ];
+    }
+
     if ($filterModel->group) {
         foreach ($filterModel->group as $value) {
             $columns[] = [
@@ -291,31 +265,21 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
         }
     }
 
-    if ($filterModel->group_period) {
-        $columns[] = [
-            'label' => 'Интервал',
-            'attribute' => 'interval',
-        ];
-    }
-
+    $c = count($columns);
     foreach ($filterModel->aggr as $key => $value) {
-        $columns[$key + 1] = [
+        $columns[$key + $c] = [
             'label' => $filterModel->aggrLabels[$value],
             'attribute' => $value,
         ];
         if (isset($aggrDigitCount[$value])) {
-            $columns[$key + 1]['format'] = ['decimal', $aggrDigitCount[$value]];
+            $columns[$key + $c]['format'] = ['decimal', $aggrDigitCount[$value]];
         }
     }
 } else {
     $columns = [
         [
-            'label' => 'Идентификатор звонка',
-            'attribute' => 'call_id',
-        ],
-        [
-            'label' => 'Время начала',
-            'attribute' => 'setup_time',
+            'label' => 'Время начала звонка',
+            'attribute' => 'connect_time',
         ],
         [
             'label' => 'Длительность разговора',
@@ -351,10 +315,6 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             'attribute' => 'dst_region_name',
         ],
         [
-            'label' => 'Redirect number',
-            'attribute' => 'redirect_number',
-        ],
-        [
             'label' => 'Транк-оригинатор',
             'attribute' => 'src_route',
         ],
@@ -373,14 +333,17 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
         [
             'label' => 'Продажа',
             'attribute' => 'sale',
+            'format' => ['decimal', 2],
         ],
         [
             'label' => 'Себестоимость',
             'attribute' => 'cost_price',
+            'format' => ['decimal', 2],
         ],
         [
             'label' => 'Маржа',
             'attribute' => 'margin',
+            'format' => ['decimal', 2],
         ],
         [
             'label' => 'Стоимость минуты: оригинация',
@@ -389,14 +352,6 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
         [
             'label' => 'Стоимость минуты: теминация',
             'attribute' => 'term_rate',
-        ],
-        [
-            'label' => 'Инициатор завершения',
-            'attribute' => 'releasing_party',
-        ],
-        [
-            'label' => 'Время соединения',
-            'attribute' => 'connect_time',
         ],
         [
             'label' => 'ПДД',
@@ -421,20 +376,6 @@ try {
                 'timeout' => 180000,
             ],
             'filterPosition' => '',
-            'panelHeadingTemplate' => <<< HTML
-        <div class="pull-right">
-            {extraButtons}
-            {filterButton}
-            {floatThead}
-            {toggleData}
-            {export}
-        </div>
-        <h3 class="panel-title">
-            {heading}
-        </h3>
-        <div class="clearfix"></div>
-HTML
-            ,
             'emptyText' => isset($emptyText) ? $emptyText : ($filterModel->isFilteringPossible() ?
                 Yii::t('yii', 'No results found.') :
                 'Выберите время начала разговора и хотя бы еще одно поле'),
@@ -451,64 +392,53 @@ HTML
     }
 }
 
-$this->registerJsFile(
-    '@web/js/reverse_options.js',
-    ['depends' => [\app\assets\AppAsset::className()], 'position' => \yii\web\View::POS_BEGIN]);
-
 ?>
 
 <script type='text/javascript'>
     $(function () {
-        reverseOptions($('select[name="Cdr[src_routes][]"] option,' +
-            'select[name="Cdr[src_contracts][]"] option,' +
-            'select[name="Cdr[dst_routes][]"] option,' +
-            'select[name="Cdr[dst_contracts][]"] option'));
+        var settings = {"theme":"krajee","width":"100%","language":"ru-RU"};
 
-        $('select[name="Cdr[server_ids][]"], select[name="Cdr[src_routes][]"], select[name="Cdr[src_contracts][]"]')
+        $('select[name="CallsRawFilter[server_ids][]"], select[name="CallsRawFilter[src_routes_ids][]"], select[name="CallsRawFilter[src_contracts_ids][]"]')
             .on('change', function () {
-                var server_ids = $('*[name="Cdr[server_ids][]"]'),
-                    src_contracts = $('*[name="Cdr[src_contracts][]"]'),
-                    src_routes = $('*[name="Cdr[src_routes][]"]');
+                var server_ids = $('*[name="CallsRawFilter[server_ids][]"]'),
+                    src_contracts_ids = $('*[name="CallsRawFilter[src_contracts_ids][]"]'),
+                    src_routes_ids = $('*[name="CallsRawFilter[src_routes_ids][]"]');
 
-                if (!$(this).is(src_routes))
-                    $.get("/voip/cdr/get-routes", {
+                if (!$(this).is(src_routes_ids))
+                    $.get("/voip/raw/get-routes", {
                             serverIds: server_ids.val(),
-                            trunkName: src_contracts.val()
+                            serviceTrunkId: src_contracts_ids.val()
                         }, function (data) {
-                            src_routes.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
-                            reverseOptions(src_routes.find('option'));
+                            src_routes_ids.html(data).select2(settings);
                         });
-                if (!$(this).is(src_contracts))
-                    $.get("/voip/cdr/get-contracts", {
+                if (!$(this).is(src_contracts_ids))
+                    $.get("/voip/raw/get-contracts", {
                             serverIds: server_ids.val(),
-                            trunkName: src_routes.val()
+                            serviceTrunkId: src_routes_ids.val()
                         }, function (data) {
-                            src_contracts.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
-                            reverseOptions(src_contracts.find('option'));
+                            src_contracts_ids.html(data).select2(settings);
                         });
         });
 
-        $('select[name="Cdr[server_ids][]"], select[name="Cdr[dst_routes][]"], select[name="Cdr[dst_contracts][]"]')
+        $('select[name="CallsRawFilter[server_ids][]"], select[name="CallsRawFilter[dst_routes_ids][]"], select[name="CallsRawFilter[dst_contracts_ids][]"]')
             .on('change', function () {
-                var server_ids = $('*[name="Cdr[server_ids][]"]'),
-                    dst_contracts = $('*[name="Cdr[dst_contracts][]"]'),
-                    dst_routes = $('*[name="Cdr[dst_routes][]"]');
+                var server_ids = $('*[name="CallsRawFilter[server_ids][]"]'),
+                    dst_contracts_ids = $('*[name="CallsRawFilter[dst_contracts_ids][]"]'),
+                    dst_routes_ids = $('*[name="CallsRawFilter[dst_routes_ids][]"]');
 
-                if (!$(this).is(dst_routes))
-                    $.get("/voip/cdr/get-routes", {
+                if (!$(this).is(dst_routes_ids))
+                    $.get("/voip/raw/get-routes", {
                             serverIds: server_ids.val(),
-                            trunkName: dst_contracts.val()
+                            serviceTrunkId: dst_contracts_ids.val()
                         }, function (data) {
-                            dst_routes.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
-                            reverseOptions(dst_routes.find('option'));
+                            dst_routes_ids.html(data).select2(settings);
                         });
-                if (!$(this).is(dst_contracts))
-                    $.get("/voip/cdr/get-contracts", {
+                if (!$(this).is(dst_contracts_ids))
+                    $.get("/voip/raw/get-contracts", {
                             serverIds: server_ids.val(),
-                            trunkName: dst_routes.val()
+                            serviceTrunkId: dst_routes_ids.val()
                         }, function (data) {
-                            dst_contracts.html(data).select2({"theme":"krajee","width":"100%","language":"ru-RU"});
-                            reverseOptions(dst_contracts.find('option'));
+                            dst_contracts_ids.html(data).select2(settings);
                         });
         });
 

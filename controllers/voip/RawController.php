@@ -5,17 +5,17 @@ namespace app\controllers\voip;
 use app\classes\ReturnFormatted;
 use app\dao\ClientContractDao;
 use Yii;
-use app\models\voip\filter\Cdr;
+use app\models\voip\filter\CallsRawFilter;
 use app\classes\BaseController;
 use yii\filters\AccessControl;
 use app\models\billing\ServiceTrunk;
 
 /**
- * Контроллер страницы /voip/cdr (отчет по calls_cdr)
+ * Контроллер страницы /voip/raw (отчет по calls_raw)
  *
- * Class CdrController
+ * Class RawController
  */
-class CdrController extends BaseController
+class RawController extends BaseController
 {
     /**
      * Права доступа
@@ -49,7 +49,7 @@ class CdrController extends BaseController
         ReturnFormatted::me()->returnFormattedValues(
             ServiceTrunk::getListWithName(
                 Yii::$app->request->get()['serverIds'],
-                Yii::$app->request->get()['trunkName']
+                Yii::$app->request->get()['serviceTrunkId']
             ),
             'options'
         );
@@ -66,20 +66,20 @@ class CdrController extends BaseController
         ReturnFormatted::me()->returnFormattedValues(
             ClientContractDao::getListWithType(
                 Yii::$app->request->get()['serverIds'],
-                Yii::$app->request->get()['trunkName']
+                Yii::$app->request->get()['serviceTrunkId']
             ),
             'options'
         );
     }
 
     /**
-     * Контроллер страницы /voip/cdr
+     * Контроллер страницы /voip/raw
      *
      * @return string
      */
     public function actionIndex()
     {
-        $model = new Cdr();
+        $model = new CallsRawFilter();
         $model->load(Yii::$app->request->get());
 
         return $this->render(

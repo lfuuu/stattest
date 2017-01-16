@@ -120,7 +120,7 @@ class CTEQuery extends Query
      * @param Query $query
      * @param string $cte_name
      * @param Connection $db
-     * 
+     *
      * @return array
      */
     protected function createCommandWithCTE($query, $cte_name, $db)
@@ -131,5 +131,34 @@ class CTEQuery extends Query
         $sql = "$cte_name as ($sql)";
 
         return [$sql, $params];
+    }
+
+    /**
+     * Посчитать количество строк, которое может возвратить запрос
+     *
+     * @param Connection $db
+     * @return int mixed
+     */
+    public function rowCount($db = null)
+    {
+        if ($db == null) {
+            $db = Yii::$app->dbPgSlave;
+        }
+
+        $main = clone $this;
+
+        foreach ($main->linkQueries as $query) {
+            $query->limit(-1)->offset(-1)->orderBy([]);
+        }
+
+        foreach ($main->union as $query) {
+            if ($query instanceof Query) {
+                $query->limit(-1)->offset(-1)->orderBy([]);
+            }
+        }
+
+        $main->limit(-1)->offset(-1)->orderBy([]);
+        list($sql, $params) = $main->createSQL($db);
+        return $db->createCommand('SELECT COUNT(*) FROM (' . $sql . ') c', $params)->queryScalar();
     }
 }

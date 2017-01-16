@@ -15,30 +15,28 @@ class ClientContractDao extends Singleton
      * Получить транковые контракты с типом контракта в скобках
      *
      * @param int $serverId - фильтр по серверу
-     * @param string $trunkName - фильтр по транку
+     * @param string $serviceTrunkId - фильтр по транку
      * @param bool $isWithEmpty
      *
      * @return string[]
      */
-    public static function getListWithType($serverId = null, $trunkName = null, $isWithEmpty = false)
+    public static function getListWithType($serverId = null, $serviceTrunkId = null, $isWithEmpty = false)
     {
         $query = (new Query)
             ->select(
                 [
-                    'id' => 't.name',
                     'name' => "COALESCE(st.contract_number || ' (' || cct.name || ')', st.contract_number)",
+                    'id' => 'st.id',
                 ]
             )
             ->from('billing.service_trunk AS st')
-            ->leftJoin(['t' => 'auth.trunk'], 't.id = st.trunk_id')
             ->leftJoin('stat.client_contract_type AS cct', 'cct.id = st.contract_type_id')
-            ->where(['IS NOT', 't.name', null])
             ->orderBy('name DESC');
 
         $serverId && $query->andWhere(['st.server_id' => $serverId]);
-        $trunkName && $query->andWhere(['t.name' => $trunkName]);
+        $serviceTrunkId && $query->andWhere(['st.id' => $serviceTrunkId]);
 
-        $list = $query->indexBy('name')->column(Yii::$app->dbPgSlave);
+        $list = $query->indexBy('id')->column(Yii::$app->dbPgSlave);
 
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;

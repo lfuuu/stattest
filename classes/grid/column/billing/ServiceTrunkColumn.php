@@ -13,7 +13,7 @@ class ServiceTrunkColumn extends DataColumn
 
     public $filterType = GridView::FILTER_SELECT2;
     public $filterByServerId = '';
-    public $filterByTrunkName = '';
+    public $filterByServiceTrunkId = '';
 
     public function __construct($config = [])
     {
@@ -23,7 +23,7 @@ class ServiceTrunkColumn extends DataColumn
 
         $this->filter = ServiceTrunk::getListWithName(
             $this->filterByServerId,
-            $this->filterByTrunkName
+            $this->filterByServiceTrunkId
         );
     }
 

@@ -12,15 +12,15 @@ class ContractColumn extends DataColumn
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
-    public $filterByTrunkName = '';
     public $filterByServerId = '';
+    public $filterByServiceTrunkId = '';
 
     public function __construct($config = [])
     {
         parent::__construct($config);
         $this->filter = ClientContractDao::getListWithType(
             $this->filterByServerId,
-            $this->filterByTrunkName
+            $this->filterByServiceTrunkId
         );
     }
 

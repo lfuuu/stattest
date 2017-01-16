@@ -134,15 +134,15 @@ HTML;
             'allModels' => [],
         ])]);
         $view = $gridView->getView();
-        $view->registerJs(new JsExpression('
-            $("select[name=\"' . $gridView->pageSizeParam . '\"]").on("change", function() {
+        $view->registerJs(new JsExpression(
+            '$("body").on("change", "select[name=\"' . $gridView->pageSizeParam . '\"]", function() {
                 var data = Cookies.get("' . $gridView->pageSizeCookie . '");
                 data = !data ? {} : $.parseJSON(data);
                 data["' . $gridView->_toggleDataKey . '"] = $(this).find("option:selected").val();
                 Cookies.set("' . $gridView->pageSizeCookie . '", data, { path: "/" });
                 self.location.reload(true);
-            });
-        '));
+            });'
+        ));
 
         $config1 = $config2 = $config;
         unset($config1['columns']);
