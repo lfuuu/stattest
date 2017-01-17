@@ -6,6 +6,7 @@ use app\models\billing\Calls;
 use app\models\UsageTrunk;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Фильтрация для CallsFilter
