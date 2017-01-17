@@ -62,7 +62,7 @@ echo Breadcrumbs::widget([
         'columns' => 4,
         'attributes' => [
             'type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $types, 'options' => ['class' => 'select2 form-reload']],
-            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getList(true, $clientAccount->country_id), 'options' => ['class' => 'select2 form-reload',]],
+            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getList($isWithEmpty = true, $clientAccount->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false), 'options' => ['class' => 'select2 form-reload',]],
             [
                 'type' => Form::INPUT_RAW,
                 'value' => '
