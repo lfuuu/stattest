@@ -46,7 +46,11 @@ class CdrWorkload extends Model
      */
     public function load(array $get)
     {
-        if (!isset($get['date']) || strpos($get['date'], ':') === false) {
+        if (!isset($get['date'])) {
+            return false;
+        }
+
+        if (strpos($get['date'], ':') === false) {
             Yii::$app->session->addFlash('error', 'Не задан период или имеет неверный формат');
             return false;
         }
