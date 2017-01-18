@@ -1,0 +1,93 @@
+<?php
+
+use app\classes\grid\GridView;
+use app\classes\Html;
+use app\modules\notifier\models\Schemes;
+
+/**
+ * @var \app\modules\notifier\forms\SchemesForm $dataForm
+ * @var int $countryCode
+ */
+
+$notificationScheme = $dataForm->getCountryNotificationScheme($countryCode);
+
+echo $this->render('//layouts/_submitButtonSave', ['class' => 'pull-right', 'style' => 'clear: both; margin-bottom: 20px;',]);
+
+echo GridView::widget([
+    'dataProvider' => $dataForm->getAvailableEvents(),
+    'columns' => [
+        [
+            'attribute' => 'code',
+            'label' => 'Код',
+            'format' => 'raw',
+            'value' => function ($data) {
+                return Html::a($data->value, ['/important_events/names/edit', 'id' => $data->id]);
+            },
+        ],
+        [
+            'attribute' => 'group_id',
+            'label' => 'Группа',
+            'class' => \app\classes\grid\column\important_events\GroupColumn::class,
+        ],
+        [
+            'label' => 'Email (Мониторинг)',
+            'format' => 'raw',
+            'value' => function ($data) use ($dataForm, $countryCode, $notificationScheme) {
+                $notificationType = Schemes::NOTIFICATION_TYPE_EMAIL_MONITORING;
+                $fieldName = 'formData[' . $countryCode . '][' . $data['code'] . '][' . $notificationType . ']';
+
+                return
+                    Html::hiddenInput($fieldName, 0) .
+                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data['code']));
+            },
+            'hAlign' => GridView::ALIGN_CENTER,
+            'width' => '5%',
+        ],
+        [
+            'label' => 'Email (Оператор)',
+            'format' => 'raw',
+            'value' => function ($data) use ($dataForm, $countryCode, $notificationScheme) {
+                $notificationType = Schemes::NOTIFICATION_TYPE_EMAIL_OPERATOR;
+                $fieldName = 'formData[' . $countryCode . '][' . $data['code'] . '][' . $notificationType . ']';
+
+                return
+                    Html::hiddenInput($fieldName, 0) .
+                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data['code']));
+            },
+            'hAlign' => GridView::ALIGN_CENTER,
+            'width' => '5%',
+        ],
+        [
+            'label' => 'Email (Официальный)',
+            'format' => 'raw',
+            'value' => function ($data) use ($dataForm, $countryCode, $notificationScheme) {
+                $notificationType = Schemes::NOTIFICATION_TYPE_EMAIL;
+                $fieldName = 'formData[' . $countryCode . '][' . $data['code'] . '][' . $notificationType . ']';
+
+                return
+                    Html::hiddenInput($fieldName, 0) .
+                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data['code']));
+            },
+            'hAlign' => GridView::ALIGN_CENTER,
+            'width' => '5%',
+        ],
+        [
+            'label' => 'Sms (Официальный)',
+            'format' => 'raw',
+            'value' => function ($data) use ($dataForm, $countryCode, $notificationScheme) {
+                $notificationType = Schemes::NOTIFICATION_TYPE_SMS;
+                $fieldName = 'formData[' . $countryCode . '][' . $data['code'] . '][' . $notificationType . ']';
+
+                return
+                    Html::hiddenInput($fieldName, 0) .
+                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data['code']));
+            },
+            'hAlign' => GridView::ALIGN_CENTER,
+            'width' => '5%',
+        ],
+    ],
+    'floatHeader' => true,
+    'isFilterButton' => false,
+    'export' => false,
+    'panel' => '',
+]);

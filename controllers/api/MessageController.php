@@ -12,9 +12,9 @@ use app\helpers\RenderParams;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\Message;
-use app\models\message\Template;
-use app\models\message\TemplateContent;
-use app\models\message\TemplateEvents;
+use app\modules\notifier\models\templates\Template;
+use app\modules\notifier\models\templates\TemplateContent;
+use app\modules\notifier\models\templates\TemplateEvents;
 use app\models\Language;
 
 class MessageController extends ApiController
@@ -84,6 +84,7 @@ class MessageController extends ApiController
                     $listMessages[] = $message->toArray();
                 }
             }
+
             return $listMessages;
         } else {
             throw new FormValidationException($form);
@@ -134,7 +135,8 @@ class MessageController extends ApiController
     public function actionDetails()
     {
         $form = DynamicModel::validateData(
-            Yii::$app->request->bodyParams, [
+            Yii::$app->request->bodyParams,
+            [
                 ['client_account_id', AccountIdValidator::className()],
                 ['id', 'integer'],
                 [['id'], 'required'],
@@ -193,7 +195,8 @@ class MessageController extends ApiController
     public function actionRead()
     {
         $form = DynamicModel::validateData(
-            Yii::$app->request->bodyParams, [
+            Yii::$app->request->bodyParams,
+            [
                 ['client_account_id', AccountIdValidator::className()],
                 ['id', 'integer'],
                 [['id'], 'required'],
@@ -208,6 +211,7 @@ class MessageController extends ApiController
                     $message->is_read = 1;
                     $message->save();
                 }
+
                 return $message->toArray();
             } else {
                 throw new \Exception('Message not found');
@@ -265,14 +269,15 @@ class MessageController extends ApiController
 
         /** @var TemplateContent $templateContent */
         $templateContentTbl = TemplateContent::tableName();
-        $templateContent =
-            TemplateContent::find()
-                ->leftJoin([
-                    'event' => TemplateEvents::tableName()
-                ], 'event.template_id = ' . $templateContentTbl . '.template_id')
-                ->leftJoin([
-                    'template' => Template::tableName()
-                ], 'template.id = ' . $templateContentTbl . '.template_id')
+        $templateContent = TemplateContent::find()
+                ->leftJoin(
+                    ['event' => TemplateEvents::tableName()],
+                    'event.template_id = ' . $templateContentTbl . '.template_id'
+                )
+                ->leftJoin(
+                    ['template' => Template::tableName()],
+                    'template.id = ' . $templateContentTbl . '.template_id'
+                )
                 ->where([
                     'event.event_code' => $eventCode,
                     $templateContentTbl . '.lang_code' => $languageCode,
@@ -293,6 +298,7 @@ class MessageController extends ApiController
                             'content' => $render->apply($content['content'], $clientAccountId, $eventId),
                         ];
                     }
+
                     break;
                 }
                 case Template::TYPE_EMAIL_INNER:
@@ -302,10 +308,10 @@ class MessageController extends ApiController
                         return [
                             'locale' => $templateContent->lang_code,
                             'subject' => $render->apply($templateContent->title, $clientAccountId, $eventId),
-                            'content' => $render->apply($templateContent->content, $clientAccountId,
-                                $eventId),
+                            'content' => $render->apply($templateContent->content, $clientAccountId, $eventId),
                         ];
                     }
+
                     break;
                 }
             }

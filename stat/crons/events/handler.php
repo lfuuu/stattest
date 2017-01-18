@@ -9,19 +9,19 @@ use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
 use app\classes\partners\RewardCalculate;
+use app\modules\notifier\classes\NotifierActions;
 
-define("NO_WEB", 1);
-define("PATH_TO_ROOT", "../../");
-include PATH_TO_ROOT . "conf_yii.php";
-include INCLUDE_PATH . "runChecker.php";
+define('NO_WEB', 1);
+define('PATH_TO_ROOT', '../../');
 
-echo "\n" . date("r") . ":";
+require PATH_TO_ROOT . 'conf_yii.php';
+require INCLUDE_PATH . 'runChecker.php';
 
+echo PHP_EOL . date('r') . ':';
 
 if (runChecker::isRun()) {
     exit();
 }
-
 
 $sleepTime = 3;
 $workTime = 120;
@@ -33,22 +33,24 @@ $counter = 2;
 EventQueue::table()->conn->query("SET @@session.time_zone = '+00:00'");
 
 do {
-    do_events();
+    doEvents();
     sleep($sleepTime);
-    echo ".";
+    echo '.';
 } while ($counter++ < round($workTime / $sleepTime));
 
 runChecker::stop();
-echo "\nstop-" . date("r") . ":";
+echo PHP_EOL . 'stop-' . date('r') . ':';
 
-
-function do_events()
+/**
+ * @inheritdoc
+ */
+function doEvents()
 {
     /** @var \EventQueue $event */
-    foreach (EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents() as $event) {
+    foreach ((EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents()) as $event) {
 
         try {
-            echo "\n" . date("r") . ": event: " . $event->event . ", " . $event->param;
+            echo PHP_EOL . date('r') . ': event: ' . $event->event . ', ' . $event->param;
 
             // для того, чтобы при фатале на конкретном событии они при следующем запуске не мешало другим событиям
             $event->setError();
@@ -56,20 +58,22 @@ function do_events()
 
             $param = $event->param;
 
-            if (strpos($param, "a:") === 0) {
+            if (strpos($param, 'a:') === 0) {
                 $param = unserialize($param);
             } else {
-                if (strpos($param, "|") !== false) {
-                    $param = explode("|", $param);
+                if (strpos($param, '|') !== false) {
+                    $param = explode('|', $param);
                 } else {
-                    if (strpos($param, "{\"") === 0) {
+                    if (strpos($param, '{"') === 0) {
                         $param = json_decode($param, true);
                     }
                 }
             }
 
-            Yii::info('Handle event: ' . $event->event . ' ' . json_encode($param,
-                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+            Yii::info(
+                'Handle event: ' . $event->event . ' ' .
+                json_encode($param, (JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))
+            );
 
             $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
             $isVpbxServer = ApiVpbx::getVpbxHost() && ApiVpbx::getApiUrl();
@@ -78,7 +82,7 @@ function do_events()
                 case Event::USAGE_VOIP__INSERT:
                 case Event::USAGE_VOIP__UPDATE:
                 case Event::USAGE_VOIP__DELETE: {
-                    //ats2Numbers::check();
+                    // ats2Numbers::check();
                     break;
                 }
 
@@ -96,97 +100,99 @@ function do_events()
 
                 case Event::MIDNIGHT: {
 
-                    /* проверка необходимости включать или выключать услуги */
+                    // проверка необходимости включать или выключать услуги
                     Event::go(Event::CHECK__USAGES);
 
-                    /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
-//                    if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
-//                        Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
-//                    }
+                    // каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
+                    /* if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
+                        Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
+                    } */
 
-                    /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
+                    // за 4 дня предупреждаем о списании абонентки аваносовым клиентам
                     if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {
                         Event::go(Event::MIDNIGHT__MONTHLY_FEE_MSG);
                     }
 
-                    /* очистка предоплаченных счетов */
+                    // очистка предоплаченных счетов
                     Event::go(Event::MIDNIGHT__CLEAN_PRE_PAYED_BILLS);
 
-                    /* очистка очереди событий */
+                    // очистка очереди событий
                     Event::go(Event::MIDNIGHT__CLEAN_EVENT_QUEUE);
 
                     break;
                 }
 
                 case Event::CHECK__USAGES: {
-                    /* проверка необходимости включить или выключить услугу UsageVoip */
+                    // проверка необходимости включить или выключить услугу UsageVoip
                     Event::go(Event::CHECK__VOIP_OLD_NUMBERS);
 
-                    /* проверка необходимости включить или выключить услугу в новой схеме */
+                    // проверка необходимости включить или выключить услугу в новой схеме
                     Event::go(Event::CHECK__VOIP_NUMBERS);
 
-                    /* проверка необходимости включить или выключить услугу UsageVirtPbx */
+                    // проверка необходимости включить или выключить услугу UsageVirtPbx
                     Event::go(Event::CHECK__VIRTPBX3);
 
-                    /* проверка необходимости включить или выключить улугу UsageCallChat */
+                    // проверка необходимости включить или выключить улугу UsageCallChat
                     Event::go(Event::CHECK__CALL_CHAT);
 
                     break;
                 }
 
-                /* проверка необходимости включить или выключить услугу UsageVoip */
+                // проверка необходимости включить или выключить услугу UsageVoip
                 case Event::CHECK__VOIP_OLD_NUMBERS: {
                     voipNumbers::check();
-                    echo "...voipNumbers::check()";
+                    echo '...voipNumbers::check()';
                     break;
                 }
 
-                /* проверка необходимости включить или выключить услугу UsageVirtPbx */
+                // проверка необходимости включить или выключить услугу UsageVirtPbx
                 case Event::CHECK__VIRTPBX3: {
                     $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
                     VirtPbx3::check($usageId);
-                    echo "...VirtPbx3::check()";
+                    echo '...VirtPbx3::check()';
                     break;
                 }
 
-                /* проверка необходимости включить или выключить услугу UsageCallChat */
-                // TODO: перенести в новый демон
+                // проверка необходимости включить или выключить услугу UsageCallChat
+                // @todo перенести в новый демон
                 case Event::CHECK__CALL_CHAT: {
                     ActaulizerCallChatUsage::me()->actualizeUsages();
-                    echo "...ActaulizerCallChatUsage::actualizeUsages()";
+                    echo '...ActaulizerCallChatUsage::actualizeUsages()';
                     break;
                 }
 
-                /* каждый 2-ой рабочий день, помечаем, что все счета показываем в LK */
+                // каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
                 case Event::MIDNIGHT__LK_BILLS4ALL: {
                     NewBill::setLkShowForAll();
                     break;
                 }
 
-                /* за 4 дня предупреждаем о списании абонентки аваносовым клиентам */
+                // за 4 дня предупреждаем о списании абонентки аваносовым клиентам
                 case Event::MIDNIGHT__MONTHLY_FEE_MSG: {
-                    //$execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
-                    //echo " exec: ".$execStr;
-                    //exec($execStr);
+                    // $execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
+                    // echo " exec: ".$execStr;
+                    // exec($execStr);
                     break;
                 }
 
-                /* очистка предоплаченных счетов */
+                // очистка предоплаченных счетов
                 case Event::MIDNIGHT__CLEAN_PRE_PAYED_BILLS: {
                     Bill::cleanOldPrePayedBills();
-                    echo "... clear prebilled bills";
+                    echo '... clear prebilled bills';
                     break;
                 }
 
-                /* очистка очереди событий */
+                // очистка очереди событий
                 case Event::MIDNIGHT__CLEAN_EVENT_QUEUE: {
                     EventQueue::clean();
-                    echo "...EventQueue::clean()";
+                    echo '...EventQueue::clean()';
                     break;
                 }
 
                 case Event::LK_SETTINGS_TO_MAILER: {
-                    \app\models\LkNoticeSetting::sendToMailer($param['client_account_id']);
+                    /** @var \app\modules\notifier\Module $notifier */
+                    $notifier = Yii::$app->getModule('notifier');
+                    $notifier->actions->applyPersonalLkSchemeForClientAccount($param['client_account_id']);
                     break;
                 }
 
@@ -207,6 +213,10 @@ function do_events()
 
                 case Event::ADD_ACCOUNT:
                     $isCoreServer && SyncCore::addAccount($param, true);
+
+                    /** @var \app\modules\notifier\Module $notifier */
+                    $notifier = Yii::$app->getModule('notifier');
+                    $notifier->actions->applySchemeForClientAccount($param);
                     break;
 
                 case Event::CLIENT_SET_STATUS:
@@ -255,7 +265,7 @@ function do_events()
                     break;
 
                 case Event::ATS3__SYNC:
-                    $isCoreServer && ActaulizerVoipNumbers::me()->sync($param["number"]);
+                    $isCoreServer && ActaulizerVoipNumbers::me()->sync($param['number']);
                     $isCoreServer && SyncCore::checkProductState('phone', $param['client_id']);
                     break;
 
@@ -281,13 +291,20 @@ function do_events()
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
                     break;
                 }
+
+                case Event::PUBLISH_NOTIFICATION_SCHEME: {
+                    /** @var \app\modules\notifier\Module $notifier */
+                    $notifier = Yii::$app->getModule('notifier');
+                    $notifier->actions->applySchemeForCountry($param['country'], $param['user_id']);
+                    break;
+                }
             }
 
             $event->setOk();
 
         } catch (Exception $e) {
-            echo "\n--------------\n";
-            echo "[" . $event->event . "] Code: " . $e->getCode() . ": " . $e->getMessage() . " in " . $e->getFile() . " +" . $e->getLine();
+            echo PHP_EOL . '--------------' . PHP_EOL;
+            echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' +' . $e->getLine();
             $event->setError($e);
         }
     }

@@ -123,17 +123,17 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
-            //'enableStrictParsing' => true,
+            // 'enableStrictParsing' => true,
             'rules' => [
-                //'<controller:\w+>' => '<controller>/index',
-                //'<controller:\w+>/<action:\w+>' => '<controller>/<action>',
+                // '<controller:\w+>' => '<controller>/index',
+                // '<controller:\w+>/<action:\w+>' => '<controller>/<action>',
             ]
         ],
         'i18n' => [
             'translations' => [
                 '*' => [
                     'class' => 'yii\i18n\PhpMessageSource',
-                    //'sourceLanguage' => 'ru-RU'
+                    // 'sourceLanguage' => 'ru-RU'
                 ],
             ],
         ],
@@ -168,6 +168,9 @@ $config = [
         ],
         'socket' => [
             'class' => 'app\modules\socket\Module',
+        ],
+        'notifier' => [
+            'class' => 'app\modules\notifier\Module',
         ],
     ],
     'params' => $params,

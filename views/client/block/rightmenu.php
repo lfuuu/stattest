@@ -36,7 +36,7 @@
             <a href="/custom-print/print-client/?id=<?= $account->id ?>" onclick="return ImmediatelyPrint(this)">Карточка</a>
         </li>
         <li style="background: url('/images/icons/envelope.gif') no-repeat 0px 6px;">
-            <a href="/client/notices">Уведомления</a>
+            <a href="/notifier/personal-scheme">Уведомления</a>
         </li>
     </ul>
 </div>

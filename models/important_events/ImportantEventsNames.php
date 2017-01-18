@@ -7,7 +7,10 @@ use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 
 /**
+ * @property string $code
  * @property string $value
+ * @property int $group_id
+ * @property string $comment
  */
 class ImportantEventsNames extends ActiveRecord
 {
@@ -49,7 +52,7 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_SET_RESPONSIBLE_TROUBLE = 'set_responsible_trouble';
     const IMPORTANT_EVENT_NEW_COMMENT_TROUBLE = 'new_comment_trouble';
 
-    // USAGES
+    // Usages
     const IMPORTANT_EVENT_ENABLED_USAGE = 'enabled_usage';
     const IMPORTANT_EVENT_DISABLED_USAGE = 'disabled_usage';
     const IMPORTANT_EVENT_CREATED_USAGE = 'created_usage';

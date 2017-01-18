@@ -14,5 +14,6 @@
     'glyphicon' => 'glyphicon-save',
     'params' => [
         'class' => 'btn btn-primary ' . $class,
+        'style' => $style,
     ],
 ]) ?>

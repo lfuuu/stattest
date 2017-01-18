@@ -10,7 +10,8 @@ class HttpClient extends Client
 {
 
     /**
-     * @param [] $config
+     * @param HttpRequest $request
+     * @param array $config
      */
     public function auth(HttpRequest $request, array $config)
     {

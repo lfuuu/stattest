@@ -8,23 +8,14 @@ return [
     'FEEDBACK_SERVER' => false,
     'FEEDBACK_API_KEY' => '',
 
-    'MAILER' => [
-        'url' => '',
-        'auth' => [
-            'method' => 'basic',
-            'user' => '',
-            'passwd' => '',
-        ],
-    ],
-
     'NOTIFICATION_TOKEN' => '4Zf|4Jdney10@t55?Xj80tiDIfTe&{',
 
-    //доступ к шлюзу отправки sms-сообщений на thiamis.mcn.ru
+    // доступ к шлюзу отправки sms-сообщений на thiamis.mcn.ru
     'sms_client' => null,
     'sms_password' => null,
     'sms_server' => 'http://thiamis.mcn.ru/sms/gateway.php',
 
-    //емайл, на который дублируются все сообщения системы
+    // емайл, на который дублируются все сообщения системы
     'monitoring_email' => null,
 
 ];

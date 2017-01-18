@@ -271,15 +271,18 @@ HTML;
     protected function initLayout()
     {
         parent::initLayout();
-        $this->layout = strtr($this->layout, [
-            '{floatThead}' => $this->renderFloatTheadButton(),
-            '{extraButtons}' => $this->extraButtons,
-            '{filterButton}' => $this->isFilterButton ? $this->render('//layouts/_buttonFilter') : '',
-        ]);
+        $this->layout = strtr($this->layout,
+            [
+                '{floatThead}' => $this->renderFloatTheadButton(),
+                '{extraButtons}' => $this->extraButtons,
+                '{filterButton}' => $this->isFilterButton ? $this->render('//layouts/_buttonFilter') : '',
+            ]
+        );
     }
 
     /**
      * Returns the options for the grid view JS widget.
+     *
      * @return array the options
      */
     protected function getClientOptions()
@@ -297,13 +300,15 @@ HTML;
                     e.keyCode = 13; // enter
                     $("' . $clientOptions['filterSelector'] . '").first().trigger(e);
                 });
-        }, 300);');
+            }, 300);');
         }
+
         return $clientOptions;
     }
 
     /**
      * Сгенерировать кнопку для {floatThead}
+     *
      * @return string
      */
     protected function renderFloatTheadButton()
@@ -323,11 +328,13 @@ HTML;
             });
         });');
 
-        return Html::button('', [
-            'class' => 'btn btn-default glyphicon glyphicon-pushpin active pointer',
-            'title' => Yii::t('common', 'Pushpin table header'),
-            'id' => 'pushpinTableHeader',
-        ]);
+        return Html::button('',
+            [
+                'class' => 'btn btn-default glyphicon glyphicon-pushpin active pointer',
+                'title' => Yii::t('common', 'Pushpin table header'),
+                'id' => 'pushpinTableHeader',
+            ]
+        );
     }
 
     /**

@@ -22,20 +22,24 @@ class SyncAccountTariffLight extends Behavior
     const EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT = 'add_to_account_tariff_light';
     const EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT = 'delete_from_account_tariff_light';
 
+    /**
+     * @return array
+     */
     public function events()
     {
         return [
-            ActiveRecord::EVENT_AFTER_INSERT => 'AccountLogPeriodChange',
-            ActiveRecord::EVENT_AFTER_UPDATE => 'AccountLogPeriodChange',
-            ActiveRecord::EVENT_AFTER_DELETE => 'AccountLogPeriodDelete',
+            ActiveRecord::EVENT_AFTER_INSERT => 'accountLogPeriodChange',
+            ActiveRecord::EVENT_AFTER_UPDATE => 'accountLogPeriodChange',
+            ActiveRecord::EVENT_AFTER_DELETE => 'accountLogPeriodDelete',
         ];
     }
 
     /**
      * Триггер при изменении (добавлении/редактировании) списания абонентки
+     *
      * @param Event $event
      */
-    public function AccountLogPeriodChange(Event $event)
+    public function accountLogPeriodChange(Event $event)
     {
         /** @var AccountLogPeriod $accountLogPeriod */
         $accountLogPeriod = $event->sender;
@@ -44,6 +48,7 @@ class SyncAccountTariffLight extends Behavior
             // только для пакетов
             return;
         }
+
         if ($accountTariff->id < AccountTariff::DELTA) {
             // только для новых
             return;
@@ -72,7 +77,8 @@ class SyncAccountTariffLight extends Behavior
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
         }
 
-        \app\classes\Event::go(self::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT, [
+        \app\classes\Event::go(self::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT,
+            [
                 'id' => $accountLogPeriod->id,
                 'account_client_id' => $accountTariff->client_account_id,
                 'tariff_id' => $accountLogPeriod->tariffPeriod->tariff_id,
@@ -80,7 +86,7 @@ class SyncAccountTariffLight extends Behavior
                 'deactivate_from' => $deactivateFrom,
                 'coefficient' => $coefficient,
                 'account_tariff_id' => $accountTariff->prevAccountTariff->id,
-                'price' => $accountLogPeriod->tariffPeriod->price_setup + $accountLogPeriod->tariffPeriod->price_per_period, // чтобы учесть и разовые услуги (price_setup), и обычные (price_per_period)
+                'price' => ($accountLogPeriod->tariffPeriod->price_setup + $accountLogPeriod->tariffPeriod->price_per_period), // чтобы учесть и разовые услуги (price_setup), и обычные (price_per_period)
                 'service_type_id' => $accountTariff->service_type_id,
             ]
         );
@@ -89,9 +95,10 @@ class SyncAccountTariffLight extends Behavior
 
     /**
      * Триггер при удалении списания абонентки
+     *
      * @param Event $event
      */
-    public function AccountLogPeriodDelete(Event $event)
+    public function accountLogPeriodDelete(Event $event)
     {
         /** @var AccountLogPeriod $accountLogPeriod */
         $accountLogPeriod = $event->sender;
@@ -101,7 +108,8 @@ class SyncAccountTariffLight extends Behavior
             return;
         }
 
-        \app\classes\Event::go(self::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT, [
+        \app\classes\Event::go(self::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT,
+            [
                 'id' => $accountLogPeriod->id,
             ]
         );
@@ -110,9 +118,9 @@ class SyncAccountTariffLight extends Behavior
 
     /**
      * Добавить данные в AccountTariffLight
+     *
      * @param array $params [id, account_client_id, tariff_id, activate_from, deactivate_from, coefficient, account_tariff_id, tariffication_by_minutes, tariffication_full_first_minute, tariffication_free_first_seconds, price]
      * @throws \Exception
-     * @internal param AccountLogPeriod $accountLogPeriod
      */
     public static function addToAccountTariffLight(array $params)
     {
@@ -121,6 +129,7 @@ class SyncAccountTariffLight extends Behavior
             $accountTariffLight = new AccountTariffLight;
             $accountTariffLight->id = $params['id'];
         }
+
         $accountTariffLight->account_client_id = $params['account_client_id'];
         $accountTariffLight->tariff_id = $params['tariff_id'];
         $accountTariffLight->activate_from = new Expression(sprintf("TIMESTAMP '%s'", $params['activate_from']));
@@ -136,9 +145,9 @@ class SyncAccountTariffLight extends Behavior
 
     /**
      * Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
+     *
      * @param array $params [id]
      * @throws \Exception
-     * @internal param AccountLogPeriod $accountLogPeriod
      */
     public static function deleteFromAccountTariffLight(array $params)
     {

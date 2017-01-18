@@ -85,7 +85,7 @@ return [
             'translations' => [
                 '*' => [
                     'class' => 'yii\i18n\PhpMessageSource',
-                    //'sourceLanguage' => 'ru-RU'
+                    // 'sourceLanguage' => 'ru-RU'
                 ],
             ],
         ],
@@ -96,6 +96,9 @@ return [
         ],
         'socket' => [
             'class' => 'app\modules\socket\Module',
+        ],
+        'notifier' => [
+            'class' => 'app\modules\notifier\Module',
         ],
     ],
     'params' => $params,

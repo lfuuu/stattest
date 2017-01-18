@@ -55,6 +55,7 @@ class Event
     const ACCOUNT_BLOCKED = 'account_blocked';
     const ACCOUNT_UNBLOCKED = 'account_unblocked';
     const PARTNER_REWARD = 'partner_reward';
+    const PUBLISH_NOTIFICATION_SCHEME = 'publish_notification_scheme';
 
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
@@ -106,6 +107,7 @@ class Event
         self::ACCOUNT_UNBLOCKED => 'ЛС разблокирован',
         SyncVmCollocation::EVENT_SYNC => 'API VM manager',
         self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',
+        self::PUBLISH_NOTIFICATION_SCHEME => 'Публикация схемы уведомлений',
     ];
 
     /**
@@ -145,6 +147,7 @@ class Event
             $eventQueue->iteration = 0;
             $eventQueue->status = EventQueue::STATUS_PLAN;
         }
+
         $eventQueue->save();
 
         return $eventQueue;

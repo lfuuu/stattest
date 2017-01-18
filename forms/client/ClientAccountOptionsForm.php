@@ -58,6 +58,7 @@ class ClientAccountOptionsForm extends Form
 
     /**
      * @param bool|true $deleteExisting
+     * @return bool
      * @throws \yii\db\Exception
      */
     public function save($deleteExisting = true)

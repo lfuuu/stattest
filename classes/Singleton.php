@@ -3,37 +3,29 @@ namespace app\classes;
 
 abstract class Singleton
 {
-    private static $instances = array();
+
+    private static $_instances = [];
 
     /**
-     * @param null $args
-     * @return mixed
+     * @param array $args
+     * @return self
      * @throws \yii\base\Exception
      */
-    public static function me($args = null /* , ... */)
+    public static function me(array $args = null)
     {
         $class = get_called_class();
-        if (!isset(self::$instances[$class])) {
+        if (!isset(self::$_instances[$class])) {
             // for Singleton::getInstance('class_name', $arg1, ...) calling
             if (2 < func_num_args()) {
                 $args = func_get_args();
                 array_shift($args);
 
                 // emulat`ion of ReflectionClass->newInstanceWithoutConstructor
-                $object =
-                    unserialize(
-                        sprintf('O:%d:"%s":0:{}', strlen($class), $class)
-                    );
+                $object = unserialize(sprintf('O:%d:"%s":0:{}', strlen($class), $class));
 
-                call_user_func_array(
-                    array($object, '__construct'),
-                    $args
-                );
+                call_user_func_array([$object, '__construct'], $args);
             } else {
-                $object =
-                    $args
-                        ? new $class($args)
-                        : new $class();
+                $object = ($args ? new $class($args) : new $class);
             }
 
             Assert::isTrue(
@@ -41,21 +33,37 @@ abstract class Singleton
                 "Class '{$class}' is something not a Singleton's child"
             );
 
-            self::$instances[$class] = $object;
+            self::$_instances[$class] = $object;
         }
 
-        return self::$instances[$class];
+        return self::$_instances[$class];
     }
 
-    final protected function __construct()
-    {/* you can't create me */
+    /**
+     * Do not create more than one
+     *
+     * @inheritdoc
+     */
+    protected function __construct()
+    {
     }
 
+    /**
+     * Do not duplicate
+     *
+     * @inheritdoc
+     */
     final private function __clone()
-    {/* do not clone me */
+    {
     }
 
+    /**
+     * Do not awaken
+     *
+     * @inheritdoc
+     */
     final private function __wakeup()
-    {/* restless class */
+    {
     }
+
 }

@@ -136,7 +136,6 @@ class Navigation
                 ->addItem('Названия событий', ['/important_events/names'])
                 ->addItem('Группы событий', ['/important_events/groups'])
                 ->addItem('Источники событий', ['/important_events/sources'])
-                ->addItem('Правила на события', ['/important_events/rules'])
                 ->addItem('Страны', ['/dictionary/country/'])
                 ->addItem('Города', ['/dictionary/city/'])
                 ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'])
@@ -149,7 +148,6 @@ class Navigation
                 ->setId('templates')
                 ->setTitle('Шаблоны')
                 ->addItem('Договоры', ['/templates/document/template'])
-                ->addItem('Почтовые оповещения', ['/templates/email/template'], ['mail.w'])
                 ->addItem('Универсальные счета-фактуры', ['/templates/uu/invoice'], ['newaccounts_balance.read'])
         );
 
@@ -168,6 +166,16 @@ class Navigation
                 ->addItem('Типы NDC', ['/nnp/ndc-type/'], ['tarifs.read'])
                 ->addItem('Направления', ['/nnp/destination/'], ['tarifs.read'])
                 ->addItem('Пакеты', Url::to(['/uu/tariff', 'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE]), ['tarifs.read'])
+        );
+
+        $this->_addBlock(
+            NavigationBlock::create()
+                ->setId('notifier')
+                ->setTitle('Mailer')
+                ->addItem('Общие схемы оповещения', ['/notifier/schemes'])
+                ->addItem('Персональная схема оповещения', ['/notifier/personal-scheme'])
+                ->addItem('Шаблоны почтовых оповещений', ['/notifier/email-templates'], ['mail.w'])
+                ->addItem('Управление оповещениями', ['/notifier/control'])
         );
     }
 
@@ -237,8 +245,7 @@ class Navigation
             return null;
         }
 
-        $block
-            = NavigationBlock::create()
+        $block = NavigationBlock::create()
                 ->setId($moduleName)
                 ->setTitle($title);
 

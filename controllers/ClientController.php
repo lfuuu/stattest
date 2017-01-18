@@ -1,17 +1,17 @@
 <?php
 namespace app\controllers;
 
-use app\classes\uu\filter\AccountTariffFilter;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\ServiceType;
 use Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
 use yii\web\Response;
+use app\classes\Assert;
 use app\classes\BaseController;
 use app\classes\grid\GridFactory;
-use app\classes\Assert;
+use app\classes\uu\filter\AccountTariffFilter;
+use app\classes\uu\model\ServiceType;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
@@ -30,15 +30,15 @@ use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
 use app\models\Saldo;
-use app\forms\important_events\ImportantEventsNoticesForm;
-use app\forms\important_events\filter\ImportantEventsNoticesFilter;
-use app\models\ClientAccountOptions;
-use app\classes\traits\AddClientAccountFilterTraits;
 
 class ClientController extends BaseController
 {
+
     use AddClientAccountFilterTraits;
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -59,6 +59,11 @@ class ClientController extends BaseController
         ];
     }
 
+    /**
+     * @param int $id
+     * @return string
+     * @throws Exception
+     */
     public function actionView($id)
     {
         $account = ClientAccount::findOne($id);
@@ -66,7 +71,7 @@ class ClientController extends BaseController
             throw new Exception('Client not found');
         }
 
-        //Для старого стата, для старых модулей
+        // Для старого стата, для старых модулей
         Yii::$app->session->set('clients_client', $account->id);
         $this->applyFixClient($account->id);
 
@@ -84,69 +89,59 @@ class ClientController extends BaseController
 
         $services = [];
 
-        $services['voip'] =
-            UsageVoip::find()
+        $services['voip'] = UsageVoip::find()
                 ->where(['client' => $account->client])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
-        $services['device'] =
-            UsageTechCpe::find()
+        $services['device'] = UsageTechCpe::find()
                 ->where(['client' => $account->client])
                 ->hideNotLinked()
                 ->orderBy(['actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
-        $services['welltime'] =
-            UsageWelltime::find()
+        $services['welltime'] = UsageWelltime::find()
                 ->where(['client' => $account->client])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
-        $services['extra'] =
-            UsageExtra::find()
+        $services['extra'] = UsageExtra::find()
                 ->where(['client' => $account->client])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
-        $services['virtpbx'] =
-            UsageVirtpbx::find()
+        $services['virtpbx'] = UsageVirtpbx::find()
                 ->where(['client' => $account->client])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
-        $services['sms'] =
-            UsageSms::find()
+        $services['sms'] = UsageSms::find()
                 ->where(['client' => $account->client])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
-        $services['ipport'] =
-            UsageIpPorts::find()
+        $services['ipport'] = UsageIpPorts::find()
                 ->where(['client' => $account->client])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
-        $services['voip_reserve'] =
-            Number::find()
+        $services['voip_reserve'] = Number::find()
                 ->where(['status' => Number::STATUS_NOTACTIVE_RESERVED])
                 ->andWhere(['client_id' => $account->id])
                 ->all();
 
-        $services['trunk'] =
-            UsageTrunk::find()
+        $services['trunk'] = UsageTrunk::find()
                 ->where(['client_account_id' => $account->id])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
-        $services['call_chat'] =
-            UsageCallChat::find()
+        $services['call_chat'] = UsageCallChat::find()
                 ->where(['client' => $account->client])
                 ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
                 ->all();
 
         $uuFilterModel = null;
-        if ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+        if ($account->account_version === ClientAccount::VERSION_BILLER_UNIVERSAL) {
             $uuFilterModel = new AccountTariffFilter(ServiceType::ID_VOIP);
             $this->addClientAccountFilter($uuFilterModel);
         }
@@ -166,6 +161,10 @@ class ClientController extends BaseController
             );
     }
 
+    /**
+     * @return string|Response
+     * @throws \yii\db\Exception
+     */
     public function actionCreate()
     {
         $request = Yii::$app->request->post();
@@ -198,6 +197,7 @@ class ClientController extends BaseController
                     }
                 }
             }
+
             if ($commit) {
                 $transaction->commit();
                 return $this->redirect(['client/view', 'id' => $account->id]);
@@ -206,9 +206,20 @@ class ClientController extends BaseController
             }
         }
 
-        return $this->render('create', ['contragent' => $contragent, 'account' => $account, 'contract' => $contract]);
+        return $this->render('create',
+            [
+                'contragent' => $contragent,
+                'account' => $account,
+                'contract' => $contract
+            ]
+        );
     }
 
+    /**
+     * @param int $businessProcessId
+     * @param null $folderId
+     * @return string
+     */
     public function actionGrid($businessProcessId, $folderId = null)
     {
         $accountGrid = GridFactory::me()->getAccountGridByBusinessProcessId($businessProcessId);
@@ -217,12 +228,17 @@ class ClientController extends BaseController
 
         $dataProvider = $gridFolder->spawnDataProvider();
 
-        return $this->render('index', [
-            'dataProvider' => $dataProvider,
-            'activeFolder' => $gridFolder,
-        ]);
+        return $this->render('index',
+            [
+                'dataProvider' => $dataProvider,
+                'activeFolder' => $gridFolder,
+            ]
+        );
     }
 
+    /**
+     * @return array|string|Response
+     */
     public function actionSearch()
     {
         $searchModel = new ClientSearch();
@@ -247,20 +263,31 @@ class ClientController extends BaseController
                     ];
                 }
             }
+
             Yii::$app->response->format = Response::FORMAT_JSON;
             return $res;
         } else {
             if ($dataProvider->query->count() == 1) {
                 return $this->redirect(['client/view', 'id' => $dataProvider->query->one()->id]);
             } else {
-                return $this->render('search', [
-//              'searchModel' => $dataProvider,
-                    'dataProvider' => $dataProvider,
-                ]);
+                return $this->render('search',
+                    [
+                        // 'searchModel' => $dataProvider,
+                        'dataProvider' => $dataProvider,
+                    ]
+                );
             }
         }
     }
 
+    /**
+     * @param int $id
+     * @param int $clientId
+     * @return Response
+     * @throws Exception
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     */
     public function actionCancelSaldo($id, $clientId)
     {
         $saldo = Saldo::find()->where(['id' => $id, 'client_id' => $clientId])->one();
@@ -279,35 +306,6 @@ class ClientController extends BaseController
         }
 
         return $this->redirect(Yii::$app->request->referrer);
-    }
-
-
-    /**
-     * @return bool|string
-     */
-    public function actionNotices()
-    {
-        if (!($clientAccount = $this->getFixClient()) instanceof ClientAccount) {
-            Yii::$app->session->addFlash('error', 'Выберите клиента');
-            return $this->redirect('/');
-        }
-
-        $form = new ImportantEventsNoticesForm;
-        $form->clientAccountId = $clientAccount->id;
-
-        $formFilter = new ImportantEventsNoticesFilter;
-        $formFilter->load(Yii::$app->request->get());
-
-        if ($form->load(Yii::$app->request->post(), 'FormData') && $form->validate()) {
-            $form->saveData();
-        }
-
-        return $this->render('notices', [
-            'formData' => $form->loadData(),
-            'formFilterModel' => $formFilter,
-            'mailDeliveryLanguageOption' => $clientAccount->getOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE),
-            'form' => $form,
-        ]);
     }
 
 }
