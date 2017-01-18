@@ -69,11 +69,7 @@ if ($model->isNewRecord) {
     <?php if (!$model->isNewRecord) : ?>
         <div class="col-sm-12 form-group">
             <?= $this->render('//layouts/_showVersion', ['model' => [$model->contragent, $model->person]]) ?>
-            <?php
-            if (Yii::$app->user->identity->usergroup == UserGroups::ADMIN) {
-                echo $this->render('//layouts/_showHistory', ['model' => [$model->contragent, $model->person]]);
-            }
-            ?>
+            <?= $this->render('//layouts/_showHistory', ['model' => [$model->contragent, $model->person]]) ?>
         </div>
     <?php endif; ?>
 </div>

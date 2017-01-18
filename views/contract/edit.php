@@ -87,11 +87,7 @@ $docs = $model->model->allDocuments;
             <?php if (!$model->isNewRecord) : ?>
                 <div class="col-sm-12 form-group">
                     <?= $this->render('//layouts/_showVersion', ['model' => $model->contract]) ?>
-                    <?php
-                    if (Yii::$app->user->identity->usergroup == UserGroups::ADMIN) {
-                        echo $this->render('//layouts/_showHistory', ['model' => $model->contract]);
-                    }
-                    ?>
+                    <?= $this->render('//layouts/_showHistory', ['model' => $model->contract]) ?>
                 </div>
             <?php endif; ?>
         </div>

@@ -65,11 +65,7 @@ $language = Language::getLanguageByCountryId($model->getModel()->contragent->cou
             <?php if (!$model->isNewRecord) : ?>
                 <div class="col-sm-12 form-group">
                     <?= $this->render('//layouts/_showVersion', ['model' => $model->clientM]) ?>
-                    <?php
-                    if (Yii::$app->user->identity->usergroup == UserGroups::ADMIN) {
-                        echo $this->render('//layouts/_showHistory', ['model' => $model->clientM]);
-                    }
-                    ?>
+                    <?= $this->render('//layouts/_showHistory', ['model' => $model->clientM]) ?>
                 </div>
             <?php endif; ?>
 
