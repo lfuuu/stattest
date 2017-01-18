@@ -23,7 +23,7 @@ class HttpRequest extends \yii\httpclient\Request
 
         switch ($config['method']) {
             case 'basic': {
-                $this->addHeaders([
+                $this->addOptions([
                     CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
                     CURLOPT_USERPWD =>
                         (isset($config['user']) ? $config['user'] : '') .

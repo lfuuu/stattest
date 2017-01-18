@@ -47,7 +47,7 @@ class Module extends \yii\base\Module
         $this->request = (new HttpClient)
             ->createJsonRequest()
             ->setMethod(isset($this->config['request']['method']) ? $this->config['request']['method'] : 'post')
-            ->auth(isset($config['auth']) ? $config['auth'] : []);
+            ->auth(isset($this->config['auth']) ? $this->config['auth'] : []);
     }
 
     /**

@@ -7,13 +7,13 @@
  */
 
 !isset($class) && $class = '';
-?>
+!isset($style) && $style = '';
 
-<?= $this->render('//layouts/_submitButton', [
+echo $this->render('//layouts/_submitButton', [
     'text' => Yii::t('common', 'Save'),
     'glyphicon' => 'glyphicon-save',
     'params' => [
         'class' => 'btn btn-primary ' . $class,
         'style' => $style,
     ],
-]) ?>
+]);

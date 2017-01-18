@@ -17,8 +17,8 @@ echo Breadcrumbs::widget([
     ],
 ]);
 
-/** @var \app\modules\notifier\forms\PersonalSchemeForm $formData */
-/** @var \app\modules\notifier\filters\SchemeFilter $formFilterModel */
+/** @var array $formData */
+/** @var \app\modules\notifier\filters\PersonalSchemeFilter $formFilterModel */
 /** @var \app\models\ClientAccountOptions $mailDeliveryLanguageOption */
 ?>
 
@@ -66,7 +66,7 @@ echo Breadcrumbs::widget([
 $form = ActiveForm::begin();
 
 echo GridView::widget([
-    'dataProvider' => $formFilterModel->search($formData),
+    'dataProvider' => $formFilterModel->search((array)$formData),
     'columns' => [
         [
             'class' => \app\classes\grid\column\important_events\EventNameColumn::class,
