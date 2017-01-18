@@ -130,28 +130,15 @@ HTML;
      */
     public static function separateWidget(array $config = [])
     {
-        $gridView = new GridView([
-            'dataProvider' => new \yii\data\ArrayDataProvider([
-                'allModels' => [],
-            ])
-        ]);
-        $view = $gridView->getView();
-        $view->registerJs(new JsExpression(
-            '$("body").on("change", "select[name=\"' . $gridView->pageSizeParam . '\"]", function() {
-                var data = Cookies.get("' . $gridView->pageSizeCookie . '");
-                data = !data ? {} : $.parseJSON(data);
-                data["' . $gridView->_toggleDataKey . '"] = $(this).find("option:selected").val();
-                Cookies.set("' . $gridView->pageSizeCookie . '", data, { path: "/" });
-                self.location.reload(true);
-            });'
-        ));
-
         $config1 = $config2 = $config;
         unset($config1['columns']);
-        $config1['dataProvider'] = new \yii\data\ArrayDataProvider([
-            'allModels' => [],
-        ]);
-        echo self::widget([
+        $config1['dataProvider'] = new \yii\data\ArrayDataProvider(
+            [
+                'allModels' => [],
+            ]
+        );
+        echo self::widget(
+            [
                 'pjax' => true,
                 'showTableBody' => false,
                 'showFooter' => false,
@@ -162,12 +149,15 @@ HTML;
                     {panelBefore}
                     {items}
                 </div>',
-            ] + $config1);
+            ] + $config1
+        );
 
         unset($config2['beforeHeader']);
-        echo self::widget([
+        echo self::widget(
+            [
                 'pjax' => true,
-            ] + $config2);
+            ] + $config2
+        );
     }
 
     /**
@@ -355,24 +345,30 @@ HTML;
         }
 
         $view = $this->getView();
-        $view->registerJs(new JsExpression('
-            $("select[name=\"' . $this->pageSizeParam . '\"]").on("change", function() {
-                var data = Cookies.get("' . $this->pageSizeCookie . '");
-                data = !data ? {} : $.parseJSON(data);
-                data["' . $this->_toggleDataKey . '"] = $(this).find("option:selected").val();
-                Cookies.set("' . $this->pageSizeCookie . '", data, { path: "/" });
-                self.location.reload(true);
-            });
-        '));
+        $view->registerJs(
+            new JsExpression(
+                '$("body").on("change", "select[name=\"' . $this->pageSizeParam . '\"]", function() {
+                    var data = Cookies.get("' . $this->pageSizeCookie . '");
+                    data = data ? $.parseJSON(data) : {};
+                    data["' . $this->_toggleDataKey . '"] = $(this).find("option:selected").val();
+                    Cookies.set("' . $this->pageSizeCookie . '", data, { path: "/" });
+                    $("#submitButtonFilter").click();
+                });'
+            )
+        );
 
         $pagination = $this->dataProvider->getPagination();
 
         return
             Html::beginTag('div', ['class' => 'btn-group']) .
-            Html::dropDownList($this->pageSizeParam, ($pagination && $pagination->pageSize) ?: -1, $this->pageSizes, [
-                'class' => 'form-control',
-                'style' => 'width:140px;'
-            ]) .
+            Html::dropDownList(
+                $this->pageSizeParam,
+                ($pagination && $pagination->pageSize) ? $pagination->pageSize : -1, $this->pageSizes,
+                [
+                    'class' => 'form-control',
+                    'style' => 'width:140px;'
+                ]
+            ) .
             Html::endTag('div');
     }
 
