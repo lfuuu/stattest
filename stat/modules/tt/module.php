@@ -2693,6 +2693,10 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function checkTroubleToSend($tId)
     {
+        return;
+
+        // out of use
+
         global $db;
 
         $rs = $db->AllRecords("SELECT user_main,comment  FROM `tt_stages` where trouble_id='".$tId."' order by stage_id desc limit 2");

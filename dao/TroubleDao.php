@@ -11,14 +11,20 @@ use app\models\support\Ticket;
 use app\models\Trouble;
 use app\models\TroubleStage;
 use app\models\User;
-use yii\base\Exception;
 
 /**
+ * Class TroubleDao
+ *
  * @method static TroubleDao me($args = null)
  * @property
  */
 class TroubleDao extends Singleton
 {
+    /**
+     * Получить количество заявок залогиненного пользователя
+     *
+     * @return int
+     */
     public function getMyTroublesCount()
     {
         return
@@ -31,6 +37,12 @@ class TroubleDao extends Singleton
                 ->count();
     }
 
+    /**
+     * Получение ID серверных траблов по ЛС
+     *
+     * @param ClientAccount $client
+     * @return array
+     */
     public function getServerTroublesIDsForClient(ClientAccount $client)
     {
         return
@@ -51,6 +63,17 @@ class TroubleDao extends Singleton
                 )->createCommand()->queryAll();
     }
 
+    /**
+     * Создание траблы для заявки тех.поддержки
+     *
+     * @param integer $clientAccountId
+     * @param string $department
+     * @param string $subject
+     * @param string $description
+     * @param integer $supportTicketId
+     * @param string|bool $author
+     * @throws \Exception
+     */
     public function createTroubleForSupportTicket(
         $clientAccountId,
         $department,
@@ -66,10 +89,11 @@ class TroubleDao extends Singleton
         if ($department) {
             $problem .= 'Отдел: ' . DepartmentEnum::getName($department) . "\n";
         }
+
         $problem .= 'Тема: ' . $subject . "\n";
         $problem .= $description;
 
-        $supportUser = $this->getUserByDepartment($department);
+        $supportUser = $this->_getUserByDepartment($department);
 
         $transaction = Trouble::getDb()->beginTransaction();
         try {
@@ -103,6 +127,11 @@ class TroubleDao extends Singleton
     }
 
 
+    /**
+     * Обновить траблу по заявки тех.поддержке
+     *
+     * @param Ticket $ticket
+     */
     public function updateTroubleBySupportTicket(Ticket $ticket)
     {
         $trouble = Trouble::findOne(['support_ticket_id' => $ticket->id]);
@@ -110,7 +139,7 @@ class TroubleDao extends Singleton
             return;
         }
 
-        $supportUser = $this->getUserByDepartment($ticket->department);
+        $supportUser = $this->_getUserByDepartment($ticket->department);
 
         $oldStage = TroubleStage::findOne($trouble->cur_stage_id);
         Assert::isObject($oldStage);
@@ -133,6 +162,11 @@ class TroubleDao extends Singleton
 
     }
 
+    /**
+     * Обновить заявку тех.поддержке по ID траблы
+     *
+     * @param integer $troubleId
+     */
     public function updateSupportTicketByTrouble($troubleId)
     {
         $trouble = Trouble::findOne($troubleId);
@@ -151,7 +185,13 @@ class TroubleDao extends Singleton
         $ticket->save();
     }
 
-    private function getUserByDepartment($department)
+    /**
+     * Получение пользователя по отделу
+     *
+     * @param string $department
+     * @return string
+     */
+    private function _getUserByDepartment($department)
     {
         if ($department == DepartmentEnum::SALES) {
             return Trouble::DEFAULT_SUPPORT_SALES;
@@ -164,6 +204,16 @@ class TroubleDao extends Singleton
         }
     }
 
+    /**
+     * Добавить этап к заявке
+     *
+     * @param Trouble $trouble
+     * @param integer $newStateId
+     * @param string $comment
+     * @param integer $newUserMainId
+     * @param integer $userEditId
+     * @return TroubleStage
+     */
     public function addStage($trouble, $newStateId, $comment, $newUserMainId = null, $userEditId = null)
     {
         if (!$userEditId) {
@@ -203,18 +253,23 @@ class TroubleDao extends Singleton
         return $stage;
     }
 
+    /**
+     * Список ID закрывающих статусов этапа
+     *
+     * @return array
+     */
     public function getClosedStatesId()
     {
         return [
-            2,  //Закрыт
-            20, //Закрыт
-            21, //Отказ
-            39, //Закрыт
-            40, //Отказ
-            45, //Техотказ
-            46, //Отказ
-            47, //Мусор
-            48, //Включено
+            2,  // Закрыт
+            20, // Закрыт
+            21, // Отказ
+            39, // Закрыт
+            40, // Отказ
+            45, // Техотказ
+            46, // Отказ
+            47, // Мусор
+            48, // Включено
         ];
     }
 }

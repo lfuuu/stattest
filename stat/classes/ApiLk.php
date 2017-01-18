@@ -30,6 +30,8 @@ class ApiLk
 {
 
     const MAX_LK_NOTIFICATION_CONTACTS = 6;
+
+    const DEFAULT_MANAGER = 'ava';
     /**
      * @param $clientId
      * @return ClientAccount
@@ -963,6 +965,13 @@ class ApiLk
         return array('status'=>'error','message'=>'order_error');
     }
 
+    /**
+     * Заказ услуги по телефонии
+     *
+     * @param integer $clientId
+     * @param string $did
+     * @return array
+     */
     public static function orderVoip($clientId, $did)
     {
         try {
@@ -993,47 +1002,53 @@ class ApiLk
             ];
         }
 
-        $model = new UsageVoipEditForm();
-        $model->scenario = 'add';
-        $model->initModel($clientAccount);
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
 
-        $model->tariff_main_id = $mainTariff->id;
-        $model->no_of_lines = 1;
-        $model->did = $number->number;
+            $model = new UsageVoipEditForm();
+            $model->scenario = 'add';
+            $model->initModel($clientAccount);
 
-        $model->prepareAdd();
+            $model->tariff_main_id = $mainTariff->id;
+            $model->no_of_lines = 1;
+            $model->did = $number->number;
 
-        if (!$model->validate()) {
-            Yii::error($model->errors);
+            $model->prepareAdd();
+
+            if (!$model->validate()) {
+                Yii::error($model->errors);
+                throw new LogicException('Model not valid');
+            }
+
+            $model->add();
+            $usageId = $model->id;
+
+            $message = "Заказ услуги IP телефония из Личного кабинета. \n";
+            $message .= 'Клиент: ' . $clientAccount->company . " (Id: " . $clientAccount->id . ")\n";
+            $message .= 'Город: ' . $number->city->name . "\n";
+            $message .= 'Номер: ' . $number->number . "\n";
+            $message .= 'Тарифный план: ' . $mainTariff->name;
+
+
+            if (!self::createTT($message, $clientAccount->client, self::_getUserForTrouble($clientAccount->manager),
+                    'usage_voip', $usageId)
+            ) {
+                throw new LogicException('Creating trouble error in order voip');
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e->getMessage() . PHP_EOL . print_r($e->getTrace(), true));
             return [
                 'status' => 'error',
                 'message' => 'order_error'
             ];
         }
 
-        $model->add();
-        $usageId = $model->id;
-
-        $message = "Заказ услуги IP Телефония из Личного Кабинета. \n";
-        $message .= 'Клиент: ' . $clientAccount->company . " (Id: ".$clientAccount->id.")\n";
-        $message .= 'Город: ' . $number->city->name . "\n";
-        $message .= 'Номер: ' . $number->number . "\n";
-        $message .= 'Тарифный план: ' . $mainTariff->name;
-
-
-        if (self::createTT($message, $clientAccount->client, self::_getUserForTrounble($clientAccount->manager),
-                'usage_voip', $usageId) > 0
-        ) {
-            return [
-                'status' => 'ok',
-                'message' => 'order_ok'
-            ];
-        } else {
-            return [
-                'status' => 'error',
-                'message' => 'order_error'
-            ];
-        }
+        return [
+            'status' => 'ok',
+            'message' => 'order_ok'
+        ];
     }
 
     /**
@@ -1050,16 +1065,24 @@ class ApiLk
         $tariffId = (int)$tariffId;
 
         $account = ClientAccount::findOne(["id" => $clientId]);
+
+        if (!$account) {
+            throw new Exception("data_error");
+        }
+
         if (!$regionId) {
-            if ($account) {
-                $regionId = $account->region;
-            }
+            $regionId = $account->region;
         }
 
         $region = Region::findOne(['id' => $regionId]);
+
+        if (!$region) {
+            throw new Exception("data_error");
+        }
+
         $tariff = TariffVirtpbx::findOne(['id' => $tariffId]);
 
-        if (!$account || !$region || !$tariff) {
+        if (!$tariff) {
             throw new Exception("data_error");
         }
 
@@ -1068,35 +1091,50 @@ class ApiLk
         $message .= 'Регион: ' . $region->name . "\n";
         $message .= 'Тарифный план: ' . $tariff->description;
 
-        $vats = new UsageVirtpbx();
-        $vats->client = $account->client;
-        $vats->actual_from = (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
-        $vats->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
-        $vats->amount = 1;
-        $vats->status = UsageInterface::STATUS_CONNECTING;
-        $vats->region = $regionId;
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        if (!$vats->save()) {
+        try {
+            $vats = new UsageVirtpbx();
+            $vats->client = $account->client;
+            $vats->actual_from = (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
+            $vats->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
+            $vats->amount = 1;
+            $vats->status = UsageInterface::STATUS_CONNECTING;
+            $vats->region = $regionId;
+
+            if (!$vats->save()) {
+                throw new LogicException('Error save new UsageVirtpbx' . PHP_EOL . print_r($vats->errors, true));
+            }
+
+            $logTariff = new LogTarif();
+            $logTariff->service = UsageVirtpbx::tableName();
+            $logTariff->id_service = $vats->id;
+            $logTariff->id_tarif = $tariffId;
+            $logTariff->ts = (new DateTime('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $logTariff->date_activation = (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
+            $logTariff->id_user = self::_getUserLK();
+            $logTariff->save();
+
+            if (!self::createTT($message, $account->client,
+                    self::_getUserForTrouble($account->contract->manager)) > 0
+            ) {
+                throw new LogicException('Ошибка создания заявки на создание ВАТС');
+            }
+        } catch(\Exception $e) {
+            $transaction->rollBack();
+            \Yii::error("[lk order] " . $e->getMessage() . PHP_EOL . print_r($e->getTrace(), true));
             return [
                 'status' => 'error',
                 'message' => 'service_connecting_error'
             ];
         }
 
-        $logTariff = new LogTarif();
-        $logTariff->service = UsageVirtpbx::tableName();
-        $logTariff->id_service = $vats->id;
-        $logTariff->id_tarif = $tariffId;
-        $logTariff->ts = (new DateTime('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        $logTariff->date_activation = (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
-        $logTariff->id_user = self::_getUserLK();
-        $logTariff->save();
+        $transaction->commit();
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0) {
-            return ['status' => 'ok', 'message' => 'order_ok'];
-        } else {
-            return ['status' => 'error', 'message' => 'order_error'];
-        }
+        return [
+            'status' => 'ok',
+            'message' => 'order_ok'
+        ];
     }
 
     public static function orderDomainTarif($client_id, $region_id, $tarif_id)
@@ -1112,7 +1150,7 @@ class ApiLk
         $message .= 'Регион: ' . $region->namename . "\n";
         $message .= 'Тарифный план: ' . $tarif;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1162,7 +1200,7 @@ class ApiLk
         $message .= 'Адрес: ' . $address . "\n";
         $message .= 'Тарифный план: ' . $tarif;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1182,7 +1220,7 @@ class ApiLk
         $message .= 'Адрес: ' . $address . "\n";
         $message .= 'Тарифный план: ' . $tarif;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1206,7 +1244,7 @@ class ApiLk
             $db->QueryUpdate("log_tarif", array("id_service", "service"), array("service" => "usage_voip", "id_service"=>$service_id, "id_tarif" => $tarif_id));
             $message .= "\n\nтариф сменен, т.к. подключения не было";
         }
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1244,7 +1282,7 @@ class ApiLk
 
             $message .= "\n\nтариф изменен из личного кабинета";
 
-            if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+            if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
                 return array('status'=>'ok','message'=>'order_ok');
         }
 
@@ -1265,7 +1303,7 @@ class ApiLk
         $message .= 'Домен: ' . $domain . "\n";
         $message .= 'Тарифный план: ' . $tarif;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1336,7 +1374,7 @@ class ApiLk
         $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Адрес: ' . $address;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1354,7 +1392,7 @@ class ApiLk
         $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Адрес: ' . $address;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1378,7 +1416,7 @@ class ApiLk
             $message .= "\n\nномер удален, т.к. подключения не было";
         }
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -1406,7 +1444,7 @@ class ApiLk
                 $message .= "\n\nВиртуальная АТС отключена автоматически, т.к. подключения не было";
             }
 
-            if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+            if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
                 return array('status'=>'ok','message'=>'order_ok');
         }
 
@@ -1424,7 +1462,7 @@ class ApiLk
         $message .= 'Клиент: ' . $account->contract->contragent->name . " (Id: $client_id)\n";
         $message .= 'Домен: ' . $domain;
 
-        if (self::createTT($message, $account->client, self::_getUserForTrounble($account->contract->manager)) > 0)
+        if (self::createTT($message, $account->client, self::_getUserForTrouble($account->contract->manager)) > 0)
             return array('status'=>'ok','message'=>'order_ok');
         else
             return array('status'=>'error','message'=>'order_error');
@@ -2390,40 +2428,73 @@ class ApiLk
         return $ret;
     }
 
-    public static function createTT($message = '', $client = '', $user = '', $service = '', $service_id = 0)
+    /**
+     * Создание заявки (trouble ticket)
+     *
+     * @param string $message
+     * @param string $client
+     * @param User $user
+     * @param string $service
+     * @param int $service_id
+     * @return int
+     */
+    public static function createTT($message = '', $client = '', User $user = null, $service = '', $service_id = 0)
     {
+        $R = [
+            'trouble_type' => 'task',
+            'trouble_subtype' => 'task',
+            'client' => $client,
+            'time' => '',
+            'date_start' => date('Y-m-d H:i:s'),
+            'date_finish_desired' => date('Y-m-d H:i:s'),
+            'problem' => $message,
+            'is_important' => '0',
+            'bill_no' => null,
+            'service' => $service,
+            'service_id' => $service_id,
+            'user_author' => "AutoLK"
+        ];
+
+        \Yii::info("[lk] Заказ услуги: " . $message);
+        \Yii::info("[lk-trouble]: ". var_export($R, true));
+
+        if ($user && $user->email) {
+            mail($user->email, "[lk] Заказ услуги", $message);
+        }
+
         include_once PATH_TO_ROOT . "modules/tt/module.php";
         $tt = new m_tt();
 
-        $R = array(
-                        'trouble_type' => 'task',
-                        'trouble_subtype' => 'task',
-                        'client' => $client,
-                        'time' => '',
-                        'date_start' => date('Y-m-d H:i:s'),
-                        'date_finish_desired' => date('Y-m-d H:i:s'),
-                        'problem' => $message,
-                        'is_important' => '0' ,
-                        'bill_no' => null ,
-                        'service' => $service,
-                        'service_id' => $service_id,
-                        'user_author' => "AutoLK"
-        );
-
-        if ($user == "ava") {
-            mail("ava@mcn.ru", "[lk] Заказ услуги", $message);
-        }
-
-        return $tt->createTrouble($R, $user);
+        return $tt->createTrouble($R, $user->user);
     }
 
-    private static function _getUserForTrounble($manager)
+    /**
+     * Получение юзера для создания заявки
+     *
+     * @param string $manager
+     * @return User
+     */
+    private static function _getUserForTrouble($manager)
     {
-        $default_manager = "ava";
+        $userUser = null;
 
-        if (defined("API__USER_FOR_TROUBLE")) return API__USER_FOR_TROUBLE;
-        else if (strlen($manager)) return $manager;
-        else return $default_manager;
+        if (defined("API__USER_FOR_TROUBLE")) {
+            $userUser = API__USER_FOR_TROUBLE;
+        }
+
+        if (!$userUser && $manager) {
+            $userUser = $manager;
+        }
+
+        if (!$userUser) {
+            $userUser = self::DEFAULT_MANAGER;
+        }
+
+        if ($user = User::findOne(['user' => $userUser])) {
+            return $user;
+        }
+
+        return User::findOne(['user' => self::DEFAULT_MANAGER]);
     }
 
     private static function _getUserLK()
