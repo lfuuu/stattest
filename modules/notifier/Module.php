@@ -2,10 +2,10 @@
 
 namespace app\modules\notifier;
 
-use Yii;
-use yii\base\ErrorException;
-use yii\base\InvalidConfigException;
 use app\classes\HttpClient;
+use Yii;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 
 /**
  * @property \app\modules\notifier\components\Actions $actions
@@ -13,17 +13,14 @@ use app\classes\HttpClient;
 class Module extends \yii\base\Module
 {
 
-    /** @var HttpClient */
-    protected $client;
-
     /** @var string */
     public $controllerNamespace = 'app\modules\notifier\controllers';
 
-    /** @var array */
-    public $config;
-
     /** @var \yii\httpclient\Request */
     public $request;
+
+    /** @var array */
+    public $config;
 
     /**
      * @throws InvalidConfigException
@@ -32,7 +29,10 @@ class Module extends \yii\base\Module
     {
         parent::init();
 
-        Yii::configure($this, require __DIR__ . '/config.local.php');
+        $localConfigFileName = __DIR__ . '/config.local.php';
+        if (file_exists($localConfigFileName)) {
+            Yii::configure($this, require $localConfigFileName);
+        }
 
         if (!isset($this->config, $this->config['uri'])) {
             throw new InvalidConfigException('Mailer was not configured');
@@ -44,18 +44,10 @@ class Module extends \yii\base\Module
             ],
         ]);
 
-        $this->client = new HttpClient;
-        $this->client->requestConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
-        $this->client->responseConfig = [
-            'format' => HttpClient::FORMAT_JSON,
-        ];
-        $this->client->setTransport(\yii\httpclient\CurlTransport::class);
-
-        $this->request = $this->client
-            ->createRequest()
-            ->setMethod(isset($this->config['request']['method']) ? $this->config['request']['method'] : 'post');
+        $this->request = (new HttpClient)
+            ->createJsonRequest()
+            ->setMethod(isset($this->config['request']['method']) ? $this->config['request']['method'] : 'post')
+            ->auth(isset($config['auth']) ? $config['auth'] : []);
     }
 
     /**
@@ -66,24 +58,17 @@ class Module extends \yii\base\Module
      */
     public function send($requestAction, array $requestData = [])
     {
-        $request = $this->request
-            ->setData($requestData)
-            ->setUrl($this->config['uri'] . $requestAction);
-
-        if (isset($this->config['auth'])) {
-            $this->client->auth($request, $this->config['auth']);
-        }
-
-        /** @var \yii\httpclient\Response $response */
         try {
-            $response = $this->client->send($request);
-        }
-        catch (\Exception $e) {
+            $response = $this->request
+                ->setData($requestData)
+                ->setUrl($this->config['uri'] . $requestAction)
+                ->send();
+        } catch (\Exception $e) {
             throw $e;
         }
 
         if (!$response->getIsOk()) {
-            throw new ErrorException($response->getContent());
+            throw new BadRequestHttpException($response->getContent());
         }
 
         return $response->data;

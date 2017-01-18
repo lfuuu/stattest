@@ -1,11 +1,10 @@
 <?php
 namespace app\models;
 
-use Yii;
-use yii\db\ActiveRecord;
-use app\queries\LkNoticeSettingQuery;
 use app\classes\behaviors\lk\LkNoticeSettings;
 use app\models\important_events\ImportantEventsNames;
+use app\queries\LkNoticeSettingQuery;
+use yii\db\ActiveRecord;
 
 /**
  * Настройки оповещений клиента в ЛК
@@ -69,5 +68,4 @@ class LkNoticeSetting extends ActiveRecord
     {
         return $this->hasOne(ClientContact::className(), ['id' => 'client_contact_id']);
     }
-
 }

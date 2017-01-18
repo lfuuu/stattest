@@ -1,9 +1,11 @@
 <?php
 namespace app\classes;
 
+/**
+ * Class Singleton
+ */
 abstract class Singleton
 {
-
     private static $_instances = [];
 
     /**
@@ -11,7 +13,7 @@ abstract class Singleton
      * @return self
      * @throws \yii\base\Exception
      */
-    public static function me(array $args = null)
+    public static function me($args = null)
     {
         $class = get_called_class();
         if (!isset(self::$_instances[$class])) {
@@ -21,11 +23,16 @@ abstract class Singleton
                 array_shift($args);
 
                 // emulat`ion of ReflectionClass->newInstanceWithoutConstructor
-                $object = unserialize(sprintf('O:%d:"%s":0:{}', strlen($class), $class));
+                $object = unserialize(
+                    sprintf('O:%d:"%s":0:{}', strlen($class), $class)
+                );
 
-                call_user_func_array([$object, '__construct'], $args);
+                call_user_func_array(
+                    [$object, '__construct'],
+                    $args
+                );
             } else {
-                $object = ($args ? new $class($args) : new $class);
+                $object = $args ? new $class($args) : new $class();
             }
 
             Assert::isTrue(
@@ -36,34 +43,32 @@ abstract class Singleton
             self::$_instances[$class] = $object;
         }
 
-        return self::$_instances[$class];
+        $me = self::$_instances[$class];
+        if (method_exists($me, 'init')) {
+            $me->init();
+        }
+
+        return $me;
     }
 
     /**
-     * Do not create more than one
-     *
-     * @inheritdoc
+     * Don't create me
      */
-    protected function __construct()
+    final protected function __construct()
     {
     }
 
     /**
-     * Do not duplicate
-     *
-     * @inheritdoc
+     * Don't clone me
      */
     final private function __clone()
     {
     }
 
     /**
-     * Do not awaken
-     *
-     * @inheritdoc
+     * Don't wake me up
      */
     final private function __wakeup()
     {
     }
-
 }
