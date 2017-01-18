@@ -99,21 +99,21 @@ if (!$numberRange->isNewRecord) {
             <div><?= $numberRange->detail_resolution ?></div>
         </div>
 
-        <?php // Страна ?>
-        <div class="col-sm-3">
-            <label><?= $numberRange->getAttributeLabel('country_prefix') ?></label>
-            <div><?= $numberRange->country ? $numberRange->country->name : '' ?></div>
-        </div>
-
     </div>
     <br/>
 
     <div class="row">
 
         <?php // Исходный регион ?>
-        <div class="col-sm-6">
+        <div class="col-sm-3">
             <label><?= $numberRange->getAttributeLabel('region_source') ?></label>
             <div><?= htmlspecialchars(str_replace('|', ', ', $numberRange->region_source)) ?></div>
+        </div>
+
+        <?php // Страна ?>
+        <div class="col-sm-3">
+            <label><?= $numberRange->getAttributeLabel('country_code') ?></label>
+            <div><?= $numberRange->country ? $numberRange->country->name_rus : '' ?></div>
         </div>
 
         <?php // Исходный оператор ?>

@@ -9,7 +9,7 @@ use yii\helpers\Url;
 /**
  * @property int id
  * @property string name
- * @property int country_prefix
+ * @property int country_code
  * @property int cnt
  */
 class Operator extends ActiveRecord
@@ -20,7 +20,8 @@ class Operator extends ActiveRecord
     const MIN_CNT = 1000;
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -28,13 +29,14 @@ class Operator extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название',
-            'country_prefix' => 'Страна', // префикс
+            'country_code' => 'Страна',
             'cnt' => 'Кол-во номеров',
         ];
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -49,13 +51,14 @@ class Operator extends ActiveRecord
     {
         return [
             [['name'], 'string'],
-            [['country_prefix'], 'integer'],
-            [['name', 'country_prefix'], 'required'],
+            [['country_code'], 'integer'],
+            [['name', 'country_code'], 'required'],
         ];
     }
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()
@@ -80,6 +83,7 @@ class Operator extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)
@@ -89,15 +93,17 @@ class Operator extends ActiveRecord
 
     /**
      * Вернуть список всех доступных моделей
+     *
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
-     * @param int $countryPrefix
-     * @return self[]
+     * @param int $countryCode
+     * @param int $minCnt
+     * @return Operator[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryPrefix = null, $minCnt = self::MIN_CNT)
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryCode = null, $minCnt = self::MIN_CNT)
     {
         $activeQuery = self::find();
-        $countryPrefix && $activeQuery->andWhere(['country_prefix' => $countryPrefix]);
+        $countryCode && $activeQuery->andWhere(['country_code' => $countryCode]);
         $minCnt && $activeQuery->andWhere(['>=', 'cnt', $minCnt]);
         $list = $activeQuery
             ->orderBy(self::getListOrderBy())
@@ -109,6 +115,7 @@ class Operator extends ActiveRecord
 
     /**
      * Обновить столбец cnt
+     *
      * @return int
      */
     public static function updateCnt()

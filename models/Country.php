@@ -1,15 +1,17 @@
 <?php
 namespace app\models;
 
+use app\classes\traits\GridSortTrait;
+use app\dao\CountryDao;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
-use app\dao\CountryDao;
-use app\classes\traits\GridSortTrait;
 
 /**
  * @property int $code
  * @property string $alpha_3
  * @property string $name
+ * @property string $name_rus
+ * @property string $name_rus_full
  * @property int $in_use
  * @property string $lang
  * @property string $currency_id
@@ -28,17 +30,11 @@ class Country extends ActiveRecord
     const AUSTRIA = 40;
     const CZECH = 203;
 
-    const PREFIX_RUSSIA = 7;
-    const PREFIX_HUNGARY = 36;
-    const PREFIX_GERMANY = 49;
-    const PREFIX_SLOVAKIA = 421;
-    const PREFIX_AUSTRIA = 43;
-    const PREFIX_CZECH = 420;
-
     public static $primaryField = 'code';
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -46,7 +42,9 @@ class Country extends ActiveRecord
         return [
             'code' => 'ID',
             'alpha_3' => 'Сокращение',
-            'name' => 'Название',
+            'name' => 'Эндоним',
+            'name_rus' => 'Русское название',
+            'name_rus_full' => 'Полное русское название',
             'in_use' => 'Включен',
             'lang' => 'Язык',
             'currency_id' => 'Валюта',
@@ -61,7 +59,7 @@ class Country extends ActiveRecord
     public function rules()
     {
         return [
-            [['alpha_3', 'name', 'currency_id', 'lang', 'site'], 'string'],
+            [['alpha_3', 'name', 'currency_id', 'lang', 'site', 'name_rus', 'name_rus_full'], 'string'],
             [['code', 'in_use', 'prefix'], 'integer'],
             [['code', 'name', 'in_use', 'lang'], 'required'],
         ];
@@ -93,7 +91,8 @@ class Country extends ActiveRecord
 
     /**
      * @param bool $isWithEmpty
-     * @return self[]
+     * @param string $indexBy
+     * @return Country[]
      */
     public static function getList($isWithEmpty = false, $indexBy = 'code')
     {
@@ -127,6 +126,7 @@ class Country extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)

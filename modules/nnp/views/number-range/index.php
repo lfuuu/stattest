@@ -6,8 +6,6 @@
  * @var NumberRangeFilter $filterModel
  */
 
-use app\classes\grid\column\universal\CityColumn;
-use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\NnpCityColumn;
@@ -15,6 +13,7 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\nnp\column\OperatorColumn;
 use app\modules\nnp\column\PrefixColumn;
@@ -41,9 +40,9 @@ $baseView = $this;
 
 $filterColumns = [
     [
-        'attribute' => 'country_prefix',
+        'attribute' => 'country_code',
         'class' => CountryColumn::className(),
-        'indexBy' => 'prefix',
+        'indexBy' => 'code',
     ],
     [
         'attribute' => 'ndc',
@@ -76,7 +75,7 @@ $columns = [
     [
         'attribute' => 'operator_id',
         'class' => OperatorColumn::className(),
-        'countryPrefix' => $filterModel->country_prefix,
+        'countryCode' => $filterModel->country_code,
     ],
     [
         'attribute' => 'region_source',
@@ -88,13 +87,13 @@ $columns = [
     [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
-        'countryPrefix' => $filterModel->country_prefix,
+        'countryCode' => $filterModel->country_code,
     ],
     [
         'attribute' => 'city_id',
         'class' => NnpCityColumn::className(),
         'isWithNullAndNotNull' => true,
-        'countryPrefix' => $filterModel->country_prefix,
+        'countryCode' => $filterModel->country_code,
     ],
     [
         'attribute' => 'ndc_type_id',

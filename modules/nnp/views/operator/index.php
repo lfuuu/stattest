@@ -6,7 +6,7 @@
  * @var OperatorFilter $filterModel
  */
 
-use app\classes\grid\column\universal\IntegerColumn;
+use app\modules\nnp\column\CountryColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
@@ -30,8 +30,9 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'attribute' => 'country_prefix',
-        'class' => IntegerColumn::className(),
+        'attribute' => 'country_code',
+        'class' => CountryColumn::className(),
+        'indexBy' => 'code',
     ],
     [
         'attribute' => 'name',

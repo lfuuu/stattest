@@ -16,7 +16,7 @@ use yii\db\ActiveQuery;
  */
 class NumberRangeFilter extends NumberRange
 {
-    public $country_prefix = '';
+    public $country_code = '';
     public $ndc = '';
     public $full_number_from = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это full_number
     public $operator_source = '';
@@ -32,24 +32,28 @@ class NumberRangeFilter extends NumberRange
 
     public $prefix_id = '';
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['operator_source', 'region_source', 'full_number_from'], 'string'],
-            [['country_prefix', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
+            [['country_code', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
         ];
     }
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
     {
         return parent::attributeLabels() + [
-            'is_reverse_city_id' => 'Кроме',
-        ];
+                'is_reverse_city_id' => 'Кроме',
+            ];
     }
 
     /**
@@ -65,7 +69,7 @@ class NumberRangeFilter extends NumberRange
             'query' => $query,
         ]);
 
-        $this->country_prefix && $query->andWhere([$numberRangeTableName . '.country_prefix' => $this->country_prefix]);
+        $this->country_code && $query->andWhere([$numberRangeTableName . '.country_code' => $this->country_code]);
         $this->ndc && $query->andWhere([$numberRangeTableName . '.ndc' => $this->ndc]);
 
         $this->is_active !== '' && $query->andWhere([$numberRangeTableName . '.is_active' => (bool)$this->is_active]);
@@ -155,6 +159,8 @@ class NumberRangeFilter extends NumberRange
 
     /**
      * Добавить/удалить отфильтрованные записи в префикс
+     *
+     * @param array $postPrefix
      * @return bool
      */
     public function addOrRemoveFilterModelToPrefix($postPrefix)
@@ -197,7 +203,6 @@ class NumberRangeFilter extends NumberRange
         }
 
         // добавить в префикс
-
         if ($prefixName) {
             // .. в новый
             if ($prefixId) {
@@ -220,6 +225,7 @@ class NumberRangeFilter extends NumberRange
 
     /**
      * Добавить отфильтрованные записи в префикс
+     *
      * @param string $sql
      * @param int $prefixId
      * @return bool
@@ -261,6 +267,7 @@ SQL;
 
     /**
      * Удалить отфильтрованные записи из префикса
+     *
      * @param string $sql
      * @param int $prefixId
      * @return bool

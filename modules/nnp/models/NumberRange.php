@@ -2,7 +2,7 @@
 namespace app\modules\nnp\models;
 
 use app\classes\Connection;
-use app\models\Country;
+use app\modules\nnp\models\Country;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -10,7 +10,7 @@ use yii\helpers\Url;
 
 /**
  * @property int id
- * @property int $country_prefix
+ * @property int $country_code
  * @property int ndc
  * @property int number_from
  * @property int number_to
@@ -49,7 +49,7 @@ class NumberRange extends ActiveRecord
     {
         return [
             'id' => 'ID',
-            'country_prefix' => 'Страна',
+            'country_code' => 'Страна',
             'ndc' => 'NDC',
             'number_from' => 'Номер от',
             'number_to' => 'Номер до',
@@ -156,7 +156,7 @@ class NumberRange extends ActiveRecord
      */
     public function getCountry()
     {
-        return $this->hasOne(Country::className(), ['prefix' => 'country_prefix']);
+        return $this->hasOne(Country::className(), ['code' => 'country_code']);
     }
 
     /**

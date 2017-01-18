@@ -57,6 +57,10 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
+        'attribute' => 'name_rus',
+        'class' => StringColumn::className(),
+    ],
+    [
         'attribute' => 'site',
         'class' => StringColumn::className(),
         'format' => 'html',

@@ -68,10 +68,11 @@ class OperatorController extends Controller
                 if (!isset($operatorSourceToId[$operatorSource])) {
                     $operator = new Operator();
                     $operator->name = $operatorSource;
-                    $operator->country_prefix = $numberRange->country_prefix;
+                    $operator->country_code = $numberRange->country_code;
                     if (!$operator->save()) {
                         throw new InvalidParamException(implode('. ', $operator->getFirstErrors()));
                     }
+
                     $operatorSourceToId[$operatorSource] = ['id' => $operator->id];
                 }
 

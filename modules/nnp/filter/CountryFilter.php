@@ -2,16 +2,17 @@
 
 namespace app\modules\nnp\filter;
 
-use app\modules\nnp\models\City;
+use app\modules\nnp\models\Country;
 use yii\data\ActiveDataProvider;
 
 /**
- * Фильтрация для City
+ * Фильтрация для Country
  */
-class CityFilter extends City
+class CountryFilter extends Country
 {
+    public $code = '';
     public $name = '';
-    public $country_code = '';
+    public $name_rus = '';
 
     /**
      * @return array
@@ -19,8 +20,8 @@ class CityFilter extends City
     public function rules()
     {
         return [
-            [['name'], 'string'],
-            [['country_code'], 'integer'],
+            [['code'], 'integer'],
+            [['name', 'name_rus'], 'string'],
         ];
     }
 
@@ -31,14 +32,15 @@ class CityFilter extends City
      */
     public function search()
     {
-        $query = City::find();
-        $cityTableName = City::tableName();
+        $query = Country::find();
+        $cityTableName = Country::tableName();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
+        $this->code && $query->andWhere([$cityTableName . '.code' => $this->code]);
         $this->name && $query->andWhere(['LIKE', $cityTableName . '.name', $this->name]);
-        $this->country_code && $query->andWhere([$cityTableName . '.country_code' => $this->country_code]);
+        $this->name_rus && $query->andWhere(['LIKE', $cityTableName . '.name_rus', $this->name_rus]);
 
         return $dataProvider;
     }

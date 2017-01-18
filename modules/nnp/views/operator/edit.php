@@ -6,7 +6,7 @@
  * @var Form $formModel
  */
 
-use app\models\Country;
+use app\modules\nnp\models\Country;
 use app\modules\nnp\forms\operator\Form;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
@@ -40,10 +40,10 @@ if (!$operator->isNewRecord) {
 
     <div class="row">
 
-        <?php // Префикс страны ?>
+        <?php // Страна ?>
         <div class="col-sm-2">
-            <?= $form->field($operator, 'country_prefix')->widget(Select2::className(), [
-                'data' => Country::getList(true, 'prefix'),
+            <?= $form->field($operator, 'country_code')->widget(Select2::className(), [
+                'data' => Country::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $indexBy = 'code'),
             ]) ?>
         </div>
 

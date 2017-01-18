@@ -4,7 +4,7 @@ namespace app\modules\nnp\commands;
 use app\classes\Connection;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\InstanceSettings;
-use app\models\Country;
+use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use UnexpectedValueException;
@@ -51,7 +51,7 @@ class ImportController extends Controller
      */
     public function actionRus()
     {
-        $this->import('importRusCallback', Country::PREFIX_RUSSIA);
+        $this->import('importRusCallback', Country::RUSSIA);
     }
 
     /**
@@ -83,8 +83,8 @@ class ImportController extends Controller
                             $ndcTypeId, // ndc_type_id
                             trim($row[4]), // operator_source
                             trim($row[5]), // region_source
-                            Country::PREFIX_RUSSIA . trim($row[0]) . trim($row[1]), // full_number_from
-                            Country::PREFIX_RUSSIA . trim($row[0]) . trim($row[2]), // full_number_to
+                            Country::RUSSIA . trim($row[0]) . trim($row[1]), // full_number_from
+                            Country::RUSSIA . trim($row[0]) . trim($row[2]), // full_number_to
                             null, // date_resolution
                             null, // detail_resolution
                             null, // status_number
@@ -96,99 +96,110 @@ class ImportController extends Controller
 
     /**
      * Импортировать Словакию из Excel. 3 сек. Сначала надо disable-trigger, потом enable-trigger
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionSlovakia()
     {
-        $this->import('importSlovakiaCallback', Country::PREFIX_SLOVAKIA);
+        $this->import('importSlovakiaCallback', Country::SLOVAKIA);
     }
 
     /**
      * Импортировать Словакию из Excel. Callback
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     protected function importSlovakiaCallback()
     {
-        $this->importCallback(self::FILE_ID_SLOVAKIA, Country::PREFIX_SLOVAKIA, self::EXCEL5, 'm-d-y');
+        $this->_importCallback(self::FILE_ID_SLOVAKIA, Country::SLOVAKIA, self::EXCEL5, 'm-d-y');
     }
 
     /**
      * Импортировать Венгрию из Excel. 5 сек. Сначала надо disable-trigger, потом enable-trigger
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionHungary()
     {
-        $this->import('importHungaryCallback', Country::PREFIX_HUNGARY);
+        $this->import('importHungaryCallback', Country::HUNGARY);
     }
 
     /**
      * Импортировать Венгрию из Excel. Callback
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     protected function importHungaryCallback()
     {
-        $this->importCallback(self::FILE_ID_HUNGARY, Country::PREFIX_HUNGARY, self::EXCEL5, 'Y.m.d');
+        $this->_importCallback(self::FILE_ID_HUNGARY, Country::HUNGARY, self::EXCEL5, 'Y.m.d');
     }
 
     /**
      * Импортировать Германию из Excel. 10 минут и 3Гб оперативки. Сначала надо disable-trigger, потом enable-trigger
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionGermany()
     {
-        $this->import('importGermanyCallback', Country::PREFIX_GERMANY);
+        $this->import('importGermanyCallback', Country::GERMANY);
     }
 
     /**
      * Импортировать Германию из Excel. Callback
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     protected function importGermanyCallback()
     {
-        $this->importCallback(self::FILE_ID_GERMANY, Country::PREFIX_GERMANY, self::EXCEL2007, 'd-m-y');
+        $this->_importCallback(self::FILE_ID_GERMANY, Country::GERMANY, self::EXCEL2007, 'd-m-y');
     }
 
     /**
      * Импортировать Австрию из Excel. 5 минут и 1.5Гб оперативки. Сначала надо disable-trigger, потом enable-trigger
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionAustria()
     {
-        $this->import('importAustriaCallback', Country::PREFIX_AUSTRIA);
+        $this->import('importAustriaCallback', Country::AUSTRIA);
     }
 
     /**
      * Импортировать Австрию из Excel. Callback
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     protected function importAustriaCallback()
     {
-        $this->importCallback(self::FILE_ID_AUSTRIA, Country::PREFIX_AUSTRIA, self::EXCEL2007, 'd.m.Y');
+        $this->_importCallback(self::FILE_ID_AUSTRIA, Country::AUSTRIA, self::EXCEL2007, 'd.m.Y');
     }
 
     /**
      * Импортировать Австрию из Excel. Сначала надо disable-trigger, потом enable-trigger
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     public function actionCzech()
     {
-        $this->import('importCzechCallback', Country::PREFIX_CZECH);
+        $this->import('importCzechCallback', Country::CZECH);
     }
 
     /**
      * Импортировать Австрию из Excel. Callback
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
     protected function importCzechCallback()
     {
-        $this->importCallback(self::FILE_ID_CZECH, Country::PREFIX_CZECH, self::EXCEL5, 'd.m.Y');
+        $this->_importCallback(self::FILE_ID_CZECH, Country::CZECH, self::EXCEL5, 'd.m.Y');
     }
 
     /**
      * Импортировать из Excel. Callback
+     *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
-    protected function importCallback($fileId, $countryPrefix, $excelFormat = self::EXCEL2007, $dateFormat = 'd-m-y')
+    private function _importCallback($fileId, $countryCode, $excelFormat = self::EXCEL2007, $dateFormat = 'd-m-y')
     {
         /** @var NdcType[] $ndcTypes */
         $ndcTypes = NdcType::find()
@@ -197,7 +208,7 @@ class ImportController extends Controller
 
         $this->importFromExcel(
             'https://docs.google.com/uc?export=download&id=' . $fileId,
-            function ($row) use (&$ndcTypes, $countryPrefix, $dateFormat) {
+            function ($row) use (&$ndcTypes, $countryCode, $dateFormat) {
                 /**
                  * 0 - Префикс страны
                  * 1 - NDC
@@ -264,8 +275,8 @@ class ImportController extends Controller
                         $ndcTypeId, // ndc_type_id
                         $row[6], // operator_source
                         $row[5], // region_source
-                        $countryPrefix . $ndc . $numberFrom, // full_number_from
-                        $countryPrefix . $ndc . $numberTo, // full_number_to
+                        $countryCode . $ndc . $numberFrom, // full_number_from
+                        $countryCode . $ndc . $numberTo, // full_number_to
                         $dateResolution ?: null, // date_resolution
                         isset($row[8]) ? $row[8] : null, // detail_resolution
                         isset($row[9]) ? $row[9] : null, // status_number
@@ -411,11 +422,12 @@ class ImportController extends Controller
 
     /**
      * Импортировать
+     *
      * @param string $callbackMethod
-     * @param int $countryPrefix
+     * @param int $countryCode
      * @return int
      */
-    protected function import($callbackMethod, $countryPrefix)
+    protected function import($callbackMethod, $countryCode)
     {
         $transaction = $this->db->beginTransaction();
         try {
@@ -424,7 +436,7 @@ class ImportController extends Controller
 
             $this->preImport();
             $this->$callbackMethod();
-            $this->postImport($countryPrefix);
+            $this->postImport($countryCode);
 
             $transaction->commit();
 
@@ -471,10 +483,10 @@ SQL;
      * После импорта
      * Из временной таблицы перенести в постоянную
      *
-     * @param string $countryPrefix
+     * @param string $countryCode
      * @throws \yii\db\Exception
      */
-    protected function postImport($countryPrefix)
+    protected function postImport($countryCode)
     {
         echo PHP_EOL;
 
@@ -484,9 +496,9 @@ SQL;
         $sql = <<<SQL
     UPDATE {$tableName}
     SET is_active = false, date_stop = now()
-    WHERE is_active AND country_prefix = :country_prefix
+    WHERE is_active AND country_code = :country_code
 SQL;
-        $affectedRowsBefore = $this->db->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
+        $affectedRowsBefore = $this->db->createCommand($sql, [':country_code' => $countryCode])->execute();
         printf("They were: %d\n", $affectedRowsBefore);
 
         // обновить и включить
@@ -530,7 +542,7 @@ SQL;
     INSERT INTO
         {$tableName}
     (
-        country_prefix,
+        country_code,
         ndc,
         number_from,
         number_to,
@@ -544,7 +556,7 @@ SQL;
         status_number
     )
     SELECT 
-        :country_prefix as country_prefix, 
+        :country_code as country_code, 
         ndc,
         number_from,
         number_to,
@@ -559,7 +571,7 @@ SQL;
     FROM
         number_range_tmp
 SQL;
-        $affectedRowsAdded = $this->db->createCommand($sql, [':country_prefix' => $countryPrefix])->execute();
+        $affectedRowsAdded = $this->db->createCommand($sql, [':country_code' => $countryCode])->execute();
         printf("Added: %d\n", $affectedRowsAdded);
 
         $affectedRowsTotal = $affectedRowsUpdated + $affectedRowsAdded;

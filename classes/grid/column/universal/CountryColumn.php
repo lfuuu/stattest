@@ -23,6 +23,11 @@ class CountryColumn extends DataColumn
     public $indexBy = 'code';
     public $isWithEmpty = true;
 
+    /**
+     * CountryColumn constructor.
+     *
+     * @param array $config
+     */
     public function __construct($config = [])
     {
         parent::__construct($config);

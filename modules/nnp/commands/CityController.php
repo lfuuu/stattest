@@ -31,7 +31,7 @@ class CityController extends Controller
             ->distinct()
             ->select([
                 'id' => 'city_id',
-                'name' => new Expression('CONCAT(country_prefix, region_source)'),
+                'name' => new Expression('CONCAT(country_code, region_source)'),
             ])
             ->where('city_id IS NOT NULL')
             ->andWhere(['IS NOT', 'region_source', null])
@@ -53,7 +53,7 @@ class CityController extends Controller
                 echo '. ';
             }
 
-            $city_id = $this->findCityByRegionSource($numberRange->country_prefix, $numberRange->region_source);
+            $city_id = $this->_findCityByRegionSource($numberRange->country_code, $numberRange->region_source);
             if (!$city_id) {
                 continue;
             }
@@ -81,28 +81,28 @@ class CityController extends Controller
     /**
      * Найти город
      *
-     * @param string $countryPrefix
+     * @param string $countryCode
      * @param string $regionSource
      * @return int|null
      */
-    protected function findCityByRegionSource($countryPrefix, $regionSource)
+    private function _findCityByRegionSource($countryCode, $regionSource)
     {
         if (!$regionSource) {
             return null;
         }
 
-        if (array_key_exists($countryPrefix . $regionSource, $this->regionSourceToCityId)) {
+        if (array_key_exists($countryCode . $regionSource, $this->regionSourceToCityId)) {
             // уже обрабатывали
-            return $this->regionSourceToCityId[$countryPrefix . $regionSource];
+            return $this->regionSourceToCityId[$countryCode . $regionSource];
         }
 
         // поискать вхождения города в регион
         foreach ($this->cities as $city) {
-            if ($city->country_prefix == $countryPrefix
+            if ($city->country_code == $countryCode
                 && strpos($regionSource, $city->name) !== false // strpos для быстрого поиска
                 && ($regionSource == $city->name || preg_match('/\b' . $city->name . '\b/ui', $regionSource))  // preg_match для детального уточнения, чтобы не спутать "новосибирск" и "новосибирская область"
             ) {
-                return $this->regionSourceToCityId[$countryPrefix . $regionSource] = $city->id;
+                return $this->regionSourceToCityId[$countryCode . $regionSource] = $city->id;
             }
         }
 
@@ -112,11 +112,11 @@ class CityController extends Controller
 
         $city = new City;
         $city->name = $cityName;
-        $city->country_prefix = $countryPrefix;
+        $city->country_code = $countryCode;
         if (!$city->save()) {
             throw new InvalidParamException(implode('. ', $city->getFirstErrors()));
         }
 
-        return $this->regionSourceToCityId[$countryPrefix . $regionSource] = $city->id;
+        return $this->regionSourceToCityId[$countryCode . $regionSource] = $city->id;
     }
 }

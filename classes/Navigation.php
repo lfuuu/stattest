@@ -161,6 +161,7 @@ class Navigation
                 ->setTitle('Национальный номерной план')
                 ->addItem('Диапазон номеров', ['/nnp/number-range/'], ['tarifs.read'])
                 ->addItem('Операторы', ['/nnp/operator/'], ['tarifs.read'])
+                ->addItem('Страны', ['/nnp/country/'], ['tarifs.read'])
                 ->addItem('Регионы', ['/nnp/region/'], ['tarifs.read'])
                 ->addItem('Города', ['/nnp/city/'], ['tarifs.read'])
                 ->addItem('Префиксы', ['/nnp/prefix/'], ['tarifs.read'])

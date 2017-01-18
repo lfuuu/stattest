@@ -70,7 +70,7 @@ class RegionController extends Controller
         $regionSourceToId = Region::find()
             ->select([
                 'id',
-                new Expression('CONCAT(country_prefix, name)'),
+                new Expression('CONCAT(country_code, name)'),
             ])
             ->indexBy('name')
             ->column();
@@ -80,7 +80,7 @@ class RegionController extends Controller
             ->distinct()
             ->select([
                 'id' => 'region_id',
-                'name' => new Expression('CONCAT(country_prefix, region_source)'),
+                'name' => new Expression('CONCAT(country_code, region_source)'),
             ])
             ->where('region_id IS NOT NULL')
             ->andWhere(['IS NOT', 'region_source', null])
@@ -110,17 +110,18 @@ class RegionController extends Controller
             $transaction = Yii::$app->db->beginTransaction();
             try {
 
-                if (!isset($regionSourceToId[$numberRange->country_prefix . $regionSource])) {
+                if (!isset($regionSourceToId[$numberRange->country_code . $regionSource])) {
                     $region = new Region();
                     $region->name = $regionSource;
-                    $region->country_prefix = $numberRange->country_prefix;
+                    $region->country_code = $numberRange->country_code;
                     if (!$region->save()) {
                         throw new InvalidParamException(implode('. ', $region->getFirstErrors()));
                     }
-                    $regionSourceToId[$numberRange->country_prefix . $regionSource] = ['id' => $region->id];
+
+                    $regionSourceToId[$numberRange->country_code . $regionSource] = ['id' => $region->id];
                 }
 
-                $numberRange->region_id = $regionSourceToId[$numberRange->country_prefix . $regionSource]['id'];
+                $numberRange->region_id = $regionSourceToId[$numberRange->country_code . $regionSource]['id'];
                 if (!$numberRange->save()) {
                     throw new InvalidParamException(implode('. ', $numberRange->getFirstErrors()));
                 }
@@ -140,6 +141,7 @@ class RegionController extends Controller
 
     /**
      * Обработать напильником
+     *
      * @param string $value
      * @return string
      */

@@ -20,12 +20,12 @@ class OperatorColumn extends DataColumn
 
     public $filterType = GridView::FILTER_SELECT2;
     public $isAddLink = true;
-    public $countryPrefix = null;
+    public $countryCode = null;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = true, $this->countryPrefix);
+        $this->filter = Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = true, $this->countryCode);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' operator-column';
     }

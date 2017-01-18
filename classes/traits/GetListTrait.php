@@ -20,13 +20,14 @@ trait GetListTrait
      *
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
+     * @param string $indexBy
      * @return array
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false)
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $indexBy = 'id')
     {
         $list = self::find()
             ->orderBy(self::getListOrderBy())
-            ->indexBy('id')
+            ->indexBy($indexBy)
             ->all();
 
         return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;

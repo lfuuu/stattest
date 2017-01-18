@@ -6,7 +6,7 @@
  * @var CityFilter $filterModel
  */
 
-use app\classes\grid\column\universal\CountryColumn;
+use app\modules\nnp\column\CountryColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\modules\nnp\filter\CityFilter;
@@ -29,9 +29,9 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'attribute' => 'country_prefix',
+        'attribute' => 'country_code',
         'class' => CountryColumn::className(),
-        'indexBy' => 'prefix',
+        'indexBy' => 'code',
     ],
     [
         'attribute' => 'name',

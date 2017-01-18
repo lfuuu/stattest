@@ -9,7 +9,7 @@ use yii\helpers\Url;
 /**
  * @property int id
  * @property string name
- * @property int country_prefix
+ * @property int country_code
  */
 class Region extends ActiveRecord
 {
@@ -17,7 +17,8 @@ class Region extends ActiveRecord
     use \app\classes\traits\GetListTrait;
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -25,12 +26,13 @@ class Region extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название',
-            'country_prefix' => 'Страна', // префикс
+            'country_code' => 'Страна',
         ];
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -45,13 +47,14 @@ class Region extends ActiveRecord
     {
         return [
             [['name'], 'string'],
-            [['country_prefix'], 'integer'],
-            [['name', 'country_prefix'], 'required'],
+            [['country_code'], 'integer'],
+            [['name', 'country_code'], 'required'],
         ];
     }
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()
@@ -76,6 +79,7 @@ class Region extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)
@@ -85,15 +89,16 @@ class Region extends ActiveRecord
 
     /**
      * Вернуть список всех доступных моделей
+     *
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
-     * @param int $countryPrefix
+     * @param int $countryCode
      * @return self[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryPrefix = null)
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryCode = null)
     {
         $activeQuery = self::find();
-        $countryPrefix && $activeQuery->andWhere(['country_prefix' => $countryPrefix]);
+        $countryCode && $activeQuery->andWhere(['country_code' => $countryCode]);
         $list = $activeQuery
             ->orderBy(self::getListOrderBy())
             ->indexBy('id')

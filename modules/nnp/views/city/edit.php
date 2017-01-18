@@ -6,8 +6,8 @@
  * @var Form $formModel
  */
 
-use app\models\Country;
 use app\modules\nnp\forms\city\Form;
+use app\modules\nnp\models\Country;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -40,10 +40,10 @@ if (!$city->isNewRecord) {
 
     <div class="row">
 
-        <?php // Префикс страны ?>
+        <?php // Страна ?>
         <div class="col-sm-2">
-            <?= $form->field($city, 'country_prefix')->widget(Select2::className(), [
-                'data' => Country::getList(true, 'prefix'),
+            <?= $form->field($city, 'country_code')->widget(Select2::className(), [
+                'data' => Country::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $indexBy = 'code'),
             ]) ?>
         </div>
 

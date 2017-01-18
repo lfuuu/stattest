@@ -61,47 +61,57 @@ if (!$country->isNewRecord) {
 
     <div class="row">
 
-        <?php // сокращение ?>
-        <div class="col-sm-3">
-            <?= $form->field($country, 'alpha_3')->textInput() ?>
-        </div>
-
-        <?php // название ?>
+        <?php // эндоним ?>
         <div class="col-sm-3">
             <?= $form->field($country, 'name')->textInput() ?>
         </div>
 
-        <?php // префикс ?>
+        <?php // русское название ?>
         <div class="col-sm-3">
-            <?= $form->field($country, 'prefix')->textInput(['type' => 'number']) ?>
+            <?= $form->field($country, 'name_rus')->textInput() ?>
         </div>
 
-        <?php // URL сайта ?>
-        <div class="col-sm-3">
-            <?= $form->field($country, 'site')->textInput() ?>
+        <?php // полное русское название ?>
+        <div class="col-sm-6">
+            <?= $form->field($country, 'name_rus_full')->textInput() ?>
         </div>
 
     </div>
 
     <div class="row">
 
+        <?php // сокращение ?>
+        <div class="col-sm-2">
+            <?= $form->field($country, 'alpha_3')->textInput() ?>
+        </div>
+
         <?php // язык ?>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <?= $form->field($country, 'lang')->dropDownList(Language::getList()) ?>
         </div>
 
         <?php // валюта ?>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <?= $form->field($country, 'currency_id')->widget(Select2::className(), [
                 'data' => Currency::getList($isWithEmpty = $country->isNewRecord),
             ]) ?>
         </div>
 
         <?php // вкл ?>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <?= $form->field($country, 'in_use')->widget(Select2::className(), [
                 'data' => YesNoTraits::getYesNoList($isWithEmpty = false),
             ]) ?>
+        </div>
+
+        <?php // префикс ?>
+        <div class="col-sm-2">
+            <?= $form->field($country, 'prefix')->textInput(['type' => 'number']) ?>
+        </div>
+
+        <?php // URL сайта ?>
+        <div class="col-sm-2">
+            <?= $form->field($country, 'site')->textInput() ?>
         </div>
 
     </div>
