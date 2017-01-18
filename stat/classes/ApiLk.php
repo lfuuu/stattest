@@ -460,7 +460,7 @@ class ApiLk
                     'in_use' => 1,
                     'country_id' => $clientAccount->country_id
                 ])
-                ->orderBy(['connection_point_id' => SORT_DESC])
+                ->orderBy(['order' => SORT_ASC])
                 ->asArray()
                 ->all();
 
