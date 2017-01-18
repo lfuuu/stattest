@@ -401,11 +401,11 @@ class BillDao extends Singleton
                      c.id AS   client_id,
                      (SELECT data_json
                       FROM history_version h2
-                      WHERE h2.model = 'ClientContract' AND h2.date < :billDate AND h1.model_id = h2.model_id
+                      WHERE h2.model = 'app\\\\models\\\\ClientContract' AND h2.date < :billDate AND h1.model_id = h2.model_id
                       ORDER BY date DESC
                       LIMIT 1) h2_json
                    FROM history_version h1, clients c
-                   WHERE h1.model = 'ClientContract' AND h1.date = :billDate AND c.id = :accountId AND h1.model_id = c.contract_id
+                   WHERE h1.model = 'app\\\\models\\\\ClientContract' AND h1.date = :billDate AND c.id = :accountId AND h1.model_id = c.contract_id
                  ) a
             HAVING new_org_id = 11 AND old_org_id = 1
 ESQL;
@@ -444,11 +444,11 @@ ESQL;
                     h1.*,c.id as client_id,
                     (SELECT data_json
                      FROM history_version h2
-                     WHERE h2.model = 'ClientContract' AND h2.date < h1.date AND h1.model_id = h2.model_id
+                     WHERE h2.model = 'app\\\\models\\\\ClientContract' AND h2.date < h1.date AND h1.model_id = h2.model_id
                      ORDER BY date DESC
                      LIMIT 1) h2_json
                     FROM history_version h1, clients c
-                    WHERE h1.model = 'ClientContract' and c.id = :accountId and h1.model_id = c.contract_id
+                    WHERE h1.model = 'app\\\\models\\\\ClientContract' and c.id = :accountId and h1.model_id = c.contract_id
                     ) a
                                             
                 HAVING new_org_id = 11 AND old_org_id = 1
