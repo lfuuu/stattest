@@ -6,6 +6,7 @@ use Yii;
 use app\classes\Html;
 use kartik\select2\Select2;
 use yii\base\InvalidConfigException;
+use yii\db\ActiveRecord;
 use yii\web\JsExpression;
 
 class TagsSelect2 extends Select2
@@ -48,12 +49,13 @@ class TagsSelect2 extends Select2
 
         $this->size = parent::SMALL;
         $this->maintainOrder = true;
+        $primaryKey = $this->model->primaryKey();
 
         $this->options['id'] = $this->getId($autoGenerate = true);
         $this->options = array_merge([
             'multiple' => true,
             'data-tags-resource' => $this->model->formName(),
-            'data-tags-resource-id' => $this->model->getAttribute(reset($this->model->primaryKey())),
+            'data-tags-resource-id' => $this->model->getAttribute(reset($primaryKey)),
             'data-tags-feature' => $this->feature,
         ], $this->options);
 

@@ -15,6 +15,9 @@ use app\models\TroubleStage;
 class TroubleStages extends Behavior
 {
 
+    /**
+     * @return array
+     */
     public function events()
     {
         return [
@@ -24,6 +27,7 @@ class TroubleStages extends Behavior
 
     /**
      * @param ModelEvent $event
+     * @return bool
      * @throws \app\exceptions\FormValidationException
      */
     public function registerAddEvent($event)
@@ -31,8 +35,13 @@ class TroubleStages extends Behavior
         /** @var Trouble $trouble */
         $trouble = Trouble::findOne($event->sender->trouble_id);
 
-        if ($trouble->stage->state_id != $event->sender->state_id && !in_array($event->sender->state_id,
-                TroubleStage::$closedStates, true)
+        if (is_null($trouble->stage)) {
+            return false;
+        }
+
+        if (
+            $trouble->stage->state_id != $event->sender->state_id
+            && !in_array($event->sender->state_id, TroubleStage::$closedStates, true)
         ) {
             ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_STATE_TROUBLE,
                 ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
@@ -62,6 +71,8 @@ class TroubleStages extends Behavior
                     'user_id' => Yii::$app->user->id,
                 ]);
         }
+
+        return true;
     }
 
 }
