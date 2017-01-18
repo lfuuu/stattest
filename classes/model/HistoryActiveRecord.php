@@ -187,12 +187,25 @@ class HistoryActiveRecord extends ActiveRecord
             ->andWhere(['model' => $modelName])
             ->andWhere(['model_id' => $this->primaryKey])
             ->andWhere(['<=', 'date', $date])
-            ->orderBy('date DESC')
+            ->orderBy(['date' => SORT_DESC])
             ->one();
 
         if ($historyModel) {
             $this->fillHistoryDataInModel(json_decode($historyModel['data_json'], true));
             $this->setHistoryVersionStoredDate($historyModel['date']);
+        } else {
+            // если нет истории на вызыванную дату, то берем первое сохранение версии
+            $historyModel = HistoryVersion::find()
+                ->andWhere(['model' => $modelName])
+                ->andWhere(['model_id' => $this->primaryKey])
+                ->andWhere(['>', 'date', $date])
+                ->orderBy(['date' => SORT_ASC])
+                ->one();
+
+            if ($historyModel) {
+                $this->fillHistoryDataInModel(json_decode($historyModel['data_json'], true));
+                $this->setHistoryVersionStoredDate($date);
+            }
         }
 
         $this->setHistoryVersionRequestedDate($date);
