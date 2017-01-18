@@ -3,6 +3,7 @@
 namespace app\controllers\api;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientDocument;
 use app\models\Organization;
@@ -130,7 +131,7 @@ class WizardMcnController extends WizardBaseController
     }
 
     /**
-     * Действие контроллера. ПОлучение договора.
+     * Действие контроллера. Получение текста договора.
      *
      * @return string
      */
@@ -166,6 +167,9 @@ class WizardMcnController extends WizardBaseController
             $this->account->contract->organization_id = $organizationId;
             $this->account->contract->save();
         }
+
+        $this->account->contract->state = ClientContract::STATE_OFFER;
+        $this->account->contract->save();
 
         $contract = new ClientDocument();
         $contract->contract_id = $this->account->contract->id;

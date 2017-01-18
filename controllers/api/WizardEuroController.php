@@ -5,6 +5,7 @@ namespace app\controllers\api;
 use app\forms\lk_wizard\AcceptsForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContact;
+use app\models\ClientContract;
 use app\models\ClientContragent;
 use yii;
 use app\models\document\DocumentTemplate;
@@ -135,6 +136,10 @@ class WizardEuroController extends WizardBaseController
         if ($contract) {
             $contract->erase();
         }
+
+        $this->account->contract->state = ClientContract::STATE_OFFER;
+        $this->account->contract->save();
+
 
         $contract = new ClientDocument();
         $contract->contract_id = $this->account->contract->id;

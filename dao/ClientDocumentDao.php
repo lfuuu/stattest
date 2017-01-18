@@ -571,45 +571,50 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-        $organization = $document->getContract()->getOrganization($contractDate);
+
+        $contract = $document->getContract();
+        $contragent = $contract->getContragent();
+
+        $organization = $contract->getOrganization($contractDate);
         $firm = $organization->getOldModeInfo();
 
         $person = [];
-        if ($document->getContract()->getContragent()->legal_type == ClientContragent::PERSON_TYPE) {
-            $person = $document->getContract()->getContragent()->person;
+        if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
+            $person = $contragent->person;
         }
 
         return [
-            'position' => $document->getContract()->getContragent()->legal_type == ClientContragent::LEGAL_TYPE ?
-                $document->getContract()->getContragent()->position :
+            'position' => $contragent->legal_type == ClientContragent::LEGAL_TYPE ?
+                $contragent->position :
                 '',
-            'fio' => $document->getContract()->getContragent()->legal_type == ClientContragent::LEGAL_TYPE ?
-                $document->getContract()->getContragent()->fio :
-                $document->getContract()->getContragent()->name_full,
-            'name' => $document->getContract()->getContragent()->name,
-            'name_full' => $document->getContract()->getContragent()->name_full,
+            'fio' => $contragent->legal_type == ClientContragent::LEGAL_TYPE ?
+                $contragent->fio :
+                $contragent->name_full,
+            'name' => $contragent->name,
+            'name_full' => $contragent->name_full,
 
             'first_name' => $person ? $person->first_name : '',
             'last_name' => $person ? $person->last_name : '',
             'middle_name' => $person ? $person->middle_name : '',
 
-            'address_jur' => $document->getContract()->getContragent()->address_jur,
+            'address_jur' => $contragent->address_jur,
             'bank_properties' => str_replace("\n", '<br/>', $account->bank_properties),
             'bik' => $account->bik,
             'address_post_real' => $account->address_post_real,
             'address_post' => $account->address_post,
             'corr_acc' => $account->corr_acc,
             'pay_acc' => $account->pay_acc,
-            'inn' => $document->getContract()->getContragent()->inn,
-            'kpp' => $document->getContract()->getContragent()->kpp,
+            'inn' => $contragent->inn,
+            'kpp' => $contragent->kpp,
             'stamp' => $account->stamp,
-            'legal_type' => $account->getContract()->getContragent()->legal_type,
-            'old_legal_type' => $account->getContract()->getContragent()->legal_type != ClientContragent::PERSON_TYPE ? 'org' : 'person',
+            'legal_type' => $contragent->legal_type,
+            'old_legal_type' => $contragent->legal_type != ClientContragent::PERSON_TYPE ? 'org' : 'person',
             'address_connect' => $account->address_connect,
             'account_id' => $account->id,
             'bank_name' => $account->bank_name,
             'credit' => $account->credit,
 
+            'contract_state' => $contract->state,
             'contract_no' => $lastContract['contract_no'],
             'contract_date' => $lastContract['contract_date'],
             'contract_dop_date' => $lastContract['contract_dop_date'],

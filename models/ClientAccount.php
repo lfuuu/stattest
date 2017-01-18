@@ -58,6 +58,9 @@ use yii\helpers\Url;
  * @property string bank_city
  * @property string bank_properties
  * @property int admin_contact_id
+ * @property int stamp
+ * @property string corr_acc
+ * @property string address_connect
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
