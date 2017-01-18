@@ -18,6 +18,7 @@ return [
     'okpo' => 'Код ОКПО',
     'okvd' => 'Код ОКВЭД',
     'country_id' => 'Страна',
+    'lang_code' => 'Язык',
     'last_name' => 'Фамилия',
     'first_name' => 'Имя',
     'middle_name' => 'Отчество',

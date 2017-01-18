@@ -1,18 +1,22 @@
 <?php
 namespace app\forms\client;
 
-use app\classes\DoubleAttributeLabelTrait;
+use Yii;
+use yii\base\Exception;
+use app\classes\Form;
+use app\classes\traits\DoubleAttributeLabelTrait;
 use app\models\ClientContragent;
 use app\models\ClientContragentPerson;
 use app\models\Country;
-use Yii;
-use app\classes\Form;
-use yii\base\Exception;
+use app\models\Language;
 
 class ContragentEditForm extends Form
 {
     use DoubleAttributeLabelTrait;
 
+    /**
+     * @return string
+     */
     protected function getLangCategory()
     {
         return 'contragent';
@@ -41,6 +45,7 @@ class ContragentEditForm extends Form
         $okvd,
         $ogrn,
         $country_id,
+        $lang_code,
         $signer_passport,
         $comment,
         $partner_contract_id,
@@ -60,6 +65,9 @@ class ContragentEditForm extends Form
         $birthday,
         $other_document;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = [
@@ -160,6 +168,7 @@ class ContragentEditForm extends Form
             [['opf_id', 'sale_channel_id'], 'default', 'value' => 0],
             [['tax_regime'], 'default', 'value' => ClientContragent::TAX_REGTIME_UNDEFINED],
             ['country_id', 'default', 'value' => Country::RUSSIA],
+            ['lang_code', 'default', 'value' => Language::LANGUAGE_DEFAULT],
 
             [
                 'legal_type',
@@ -167,11 +176,14 @@ class ContragentEditForm extends Form
                 'range' => [ClientContragent::IP_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::LEGAL_TYPE]
             ],
             [['super_id', 'country_id', 'opf_id', 'partner_contract_id', 'sale_channel_id'], 'integer'],
-
+            ['lang_code', 'string'],
         ];
         return $rules;
     }
 
+    /**
+     * @throws Exception
+     */
     public function init()
     {
         if ($this->id) {
@@ -200,21 +212,26 @@ class ContragentEditForm extends Form
         }
     }
 
+    /**
+     * @return bool
+     */
     public function save()
     {
-        $this->fillContragentNameByLegalType();
-        $this->fillContragent();
+        $this->_fillContragentNameByLegalType();
+        $this->_fillContragent();
         if ($this->contragent && $this->historyVersionStoredDate) {
             $this->contragent->setHistoryVersionStoredDate($this->historyVersionStoredDate);
         }
+
         $contragent = $this->contragent;
         if ($contragent->save()) {
             $this->setAttributes($contragent->getAttributes(), false);
             if ($contragent->legal_type == 'ip' || $contragent->legal_type == 'person') {
-                $this->fillPerson();
+                $this->_fillPerson();
                 if ($this->historyVersionStoredDate) {
                     $this->person->setHistoryVersionStoredDate($this->historyVersionStoredDate);
                 }
+
                 $person = $this->person;
                 if (!$person->contragent_id) {
                     $person->contragent_id = $contragent->id;
@@ -228,6 +245,7 @@ class ContragentEditForm extends Form
                     $contragent->delete();
                 }
             }
+
             return true;
         } else {
             $this->addErrors($contragent->getErrors());
@@ -236,14 +254,19 @@ class ContragentEditForm extends Form
         return false;
     }
 
+    /**
+     * @param string[] $attributeNames
+     * @param bool $clearErrors
+     * @return bool
+     */
     public function validate($attributeNames = null, $clearErrors = false)
     {
-        $this->fillContragent();
+        $this->_fillContragent();
         $contragent = $this->contragent;
         $contragent->validate() || $this->addErrors($contragent->getErrors());
 
         if ($contragent->legal_type == ClientContragent::IP_TYPE || $contragent->legal_type == ClientContragent::PERSON_TYPE) {
-            $this->fillPerson();
+            $this->_fillPerson();
             $person = $this->person;
             $person->validate() || $person->getErrors();
         }
@@ -251,16 +274,23 @@ class ContragentEditForm extends Form
         return parent::validate($attributeNames, $clearErrors);
     }
 
+    /**
+     * @return bool
+     */
     public function getIsNewRecord()
     {
-        return $this->id ? false : true;
+        return !$this->id;
     }
 
+    /**
+     * @return bool
+     */
     public function getPersonId()
     {
         if ($this->person) {
             return $this->person->id;
         }
+
         return false;
     }
 
@@ -272,7 +302,10 @@ class ContragentEditForm extends Form
         return $this->contragent;
     }
 
-    private function fillContragentNameByLegalType()
+    /**
+     * @inheritdoc
+     */
+    private function _fillContragentNameByLegalType()
     {
         switch ($this->legal_type) {
             case ClientContragent::LEGAL_TYPE:
@@ -293,7 +326,10 @@ class ContragentEditForm extends Form
         }
     }
 
-    private function fillContragent()
+    /**
+     * @inheritdoc
+     */
+    private function _fillContragent()
     {
         $contragent = &$this->contragent;
         $contragent->super_id = $this->super_id;
@@ -319,11 +355,15 @@ class ContragentEditForm extends Form
         $contragent->okvd = $this->okvd;
         $contragent->ogrn = $this->ogrn;
         $contragent->country_id = $this->country_id;
+        $contragent->lang_code = $this->lang_code;
         $contragent->sale_channel_id = $this->sale_channel_id;
         $contragent->partner_contract_id = $this->partner_contract_id;
     }
 
-    private function fillPerson()
+    /**
+     * @inheritdoc
+     */
+    private function _fillPerson()
     {
         $person = &$this->person;
         $person->first_name = $this->first_name;
@@ -338,4 +378,5 @@ class ContragentEditForm extends Form
         $person->birthday = $this->birthday;
         $person->mother_maiden_name = $this->mother_maiden_name;
     }
+
 }

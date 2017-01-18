@@ -14,6 +14,12 @@ abstract class Form extends Model
     const PAGE_SIZE = 200;
     const EVENT_AFTER_SAVE = 'afterSave';
 
+    /**
+     * @param ActiveRecord $model
+     * @param bool $runValidation
+     * @param bool $autoSetAttributes
+     * @return bool
+     */
     public function saveModel(ActiveRecord $model, $runValidation = true, $autoSetAttributes = false)
     {
         if ($autoSetAttributes) {
@@ -29,12 +35,16 @@ abstract class Form extends Model
                     $this->addError($attribute, $error);
                 }
             }
+
             return false;
         }
 
         return true;
     }
 
+    /**
+     * @return mixed
+     */
     public function getModel()
     {
         return static::$formModel;
@@ -69,6 +79,9 @@ abstract class Form extends Model
         return $query;
     }
 
+    /**
+     * @param Query $query
+     */
     public function applyFilter(Query $query)
     {
 
@@ -83,6 +96,8 @@ abstract class Form extends Model
     }
 
     /**
+     * @param array $data
+     * @param string $formName
      * @return bool
      */
     public function load($data, $formName = null)

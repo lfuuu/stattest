@@ -1,8 +1,9 @@
 <?php
 
-namespace app\classes;
+namespace app\classes\traits;
 
 use yii\helpers\Inflector;
+use app\classes\Language;
 
 trait DoubleAttributeLabelTrait
 {
@@ -13,7 +14,7 @@ trait DoubleAttributeLabelTrait
      * Основной перевод - язык пользователя
      * Дополнительный перевод - язык контрагента. Через " / ", если он отличается от языка пользователя
      *
-     * @param $name
+     * @param string $name
      * @return string
      */
     public function generateAttributeLabel($name)
@@ -24,18 +25,22 @@ trait DoubleAttributeLabelTrait
         $userLangLabel = \Yii::t($category, $name, [], $userLang);
         $contragentLangLabel = ($formLang == $userLang || !$formLang) ? null : \Yii::t($category, $name, [], $formLang);
 
-        if ($userLangLabel == $name) { //нет перевода
+        if ($userLangLabel == $name) { // нет перевода
             return Inflector::camel2words($name, true);
         } elseif ($contragentLangLabel === null) {
             return $userLangLabel;
-        } elseif ($contragentLangLabel == $name) { //нет перевода
+        } elseif ($contragentLangLabel == $name) { // нет перевода
             return $userLangLabel;
-        } elseif ($userLangLabel == $contragentLangLabel) { //перевод одинаковый
+        } elseif ($userLangLabel == $contragentLangLabel) { // перевод одинаковый
             return $userLangLabel;
         } else {
             return $userLangLabel . ' / ' . $contragentLangLabel;
         }
     }
 
+    /**
+     * @return string
+     */
     abstract protected function getLangCategory();
+
 }

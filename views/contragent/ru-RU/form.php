@@ -7,6 +7,7 @@ use app\models\Country;
 use app\models\SaleChannel;
 use kartik\widgets\Select2;
 use app\models\Business;
+use app\models\Language;
 
 /**
  * @var $f kartik\widgets\ActiveForm
@@ -18,6 +19,9 @@ use app\models\Business;
 <div class="row" style="width: 1100px;">
     <div class="col-sm-6">
         <?= $f->field($model, 'country_id')->dropDownList(Country::getList()); ?>
+    </div>
+    <div class="col-sm-6">
+        <?= $f->field($model, 'lang_code')->dropDownList(Language::getList()); ?>
     </div>
 </div>
 

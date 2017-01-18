@@ -11,9 +11,14 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\UserGroups;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
+use app\classes\Language;
+use app\models\UserGroups;
 
 $language = Language::getLanguageByCountryId($model->country_id ?: \app\models\Country::RUSSIA);
 $model->formLang = $language;
+if ($model->isNewRecord) {
+    $model->lang_code = $model->formLang;
+}
 ?>
 <div class="row">
     <div class="col-sm-12">

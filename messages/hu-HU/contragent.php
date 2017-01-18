@@ -12,6 +12,7 @@ return [
     'ogrn' => 'Cégjegyzékszám',
     'opf_id' => 'Cégforma',
     'country_id' => 'ország',
+    'lang_code' => 'nyelv',
     'last_name' => 'Vezetéknév',
     'first_name' => 'Keresztnév',
     'mother_maiden_name' => 'Anyja leánykori neve',

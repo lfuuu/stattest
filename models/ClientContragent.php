@@ -11,6 +11,7 @@ use app\classes\validators\InnKppValidator;
  * @property int id
  * @property int super_id
  * @property int country_id
+ * @property string lang_code
  * @property string name
  * @property string legal_type
  * @property string name_full
@@ -67,6 +68,7 @@ class ClientContragent extends HistoryActiveRecord
         $attributesProtectedForVersioning = [
             'super_id',
             'country_id',
+            'lang_code',
             'comment',
             'sale_channel_id',
             'partner_contract_id',
@@ -83,7 +85,6 @@ class ClientContragent extends HistoryActiveRecord
         return 'client_contragent';
     }
 
-
     /**
      * Правила
      *
@@ -97,7 +98,6 @@ class ClientContragent extends HistoryActiveRecord
         return $rules;
     }
 
-
     /**
      * Поведение
      *
@@ -110,7 +110,6 @@ class ClientContragent extends HistoryActiveRecord
             'ContragentCountry' => \app\classes\behaviors\ContragentCountry::className(),
         ];
     }
-
 
     /**
      * Название полей
@@ -128,7 +127,6 @@ class ClientContragent extends HistoryActiveRecord
             'legal_type' => 'Юридический тип',
         ];
     }
-
 
     /**
      * Model afterSave
@@ -153,7 +151,6 @@ class ClientContragent extends HistoryActiveRecord
         }
 
     }
-
 
     /**
      * Model BeforeSave
@@ -182,7 +179,6 @@ class ClientContragent extends HistoryActiveRecord
         return true;
     }
 
-
     /**
      * Вернуть ClientAccount
      *
@@ -197,7 +193,6 @@ class ClientContragent extends HistoryActiveRecord
 
         return $result;
     }
-
 
     /**
      * Вернуть ClientContragentPerson
@@ -219,7 +214,6 @@ class ClientContragent extends HistoryActiveRecord
         return $person;
     }
 
-
     /**
      * Вернуть ClientContract
      *
@@ -237,7 +231,6 @@ class ClientContragent extends HistoryActiveRecord
         return $models;
     }
 
-
     /**
      * Вернуть Country
      *
@@ -248,7 +241,6 @@ class ClientContragent extends HistoryActiveRecord
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
 
-
     /**
      * Вернуть ClientSuper
      *
@@ -258,6 +250,5 @@ class ClientContragent extends HistoryActiveRecord
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
-
 
 }

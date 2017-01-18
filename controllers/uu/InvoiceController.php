@@ -66,9 +66,11 @@ class InvoiceController extends BaseController
 
         $invoice = new InvoiceLight($clientAccount);
 
-        if (!is_null($langCode)) {
-            $invoice->setLanguage($langCode);
+        if (is_null($langCode)) {
+            $langCode = $clientAccount->contract->contragent->lang_code;
         }
+
+        $invoice->setLanguage($langCode);
 
         if ($date) {
             $invoice->setDate($date);
