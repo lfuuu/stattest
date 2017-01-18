@@ -2,7 +2,9 @@
 
 namespace app\controllers\user;
 
+use app\classes\Form;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Json;
 use app\classes\Assert;
 use app\classes\BaseController;
@@ -33,12 +35,25 @@ class GroupController extends BaseController
         ];
     }
 
+    /**
+     * Controller /user/group
+     *
+     * @return string
+     */
     public function actionIndex()
     {
         $model = new GroupForm;
         $model->load(Yii::$app->request->getQueryParams());
 
-        $dataProvider = $model->spawnDataProvider();
+        $query = $model->spawnQuery();
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => Form::PAGE_SIZE,
+            ],
+        ]);
+
         $dataProvider->sort = false;
 
         return $this->render('grid', [
@@ -46,6 +61,11 @@ class GroupController extends BaseController
         ]);
     }
 
+    /**
+     * Добавление группы
+     *
+     * @return string|\yii\web\Response
+     */
     public function actionAdd()
     {
         $model = new GroupForm;
@@ -65,6 +85,12 @@ class GroupController extends BaseController
         ]);
     }
 
+    /**
+     * Редактирование группы
+     *
+     * @param integer $id
+     * @return string|\yii\web\Response
+     */
     public function actionEdit($id)
     {
         $group = UserGroups::findOne($id);
@@ -82,6 +108,12 @@ class GroupController extends BaseController
         ]);
     }
 
+    /**
+     * Удаление группы
+     *
+     * @param integer $id
+     * @return \yii\web\Response
+     */
     public function actionDelete($id)
     {
         $group = UserGroups::findOne($id);

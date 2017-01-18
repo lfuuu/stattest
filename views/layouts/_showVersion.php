@@ -8,6 +8,9 @@
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 
+if (!Yii::$app->user->can('logs.history_version')) {
+    return '';
+}
 ?>
 <div class="showVersionDiv" onclick="showVersion(this, <?= HistoryActiveRecord::getHistoryIds($model) ?>)">
     <?= Html::button('∨', ['class' => 'btn btn-default showVersionButton']); ?>
