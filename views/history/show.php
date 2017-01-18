@@ -17,8 +17,8 @@ use app\classes\model\HistoryActiveRecord;
         <th>Дата</th>
         <th>Пользователь</th>
         <th>Поле</th>
-        <th nowrap>Новое значение</th>
         <th nowrap>Старое значение</th>
+        <th nowrap>Новое значение</th>
     </tr>
     <?php foreach ($changes as $k => $change): ?>
         <?php
@@ -62,16 +62,16 @@ use app\classes\model\HistoryActiveRecord;
                 </td>
 
                 <td nowrap>
+                    <?= method_exists($models[$change->model], 'prepareHistoryValue') ?
+                        $models[$change->model]->prepareHistoryValue($field, $oldData[$field]) :
+                        $oldData[$field] ?>
+                </td>
+
+                <td nowrap>
                     <?php $value = isset($newData[$field]) ? $newData[$field] : '' ?>
                     <?= method_exists($models[$change->model], 'prepareHistoryValue') ?
                         $models[$change->model]->prepareHistoryValue($field, $value) :
                         $value ?>
-                </td>
-
-                <td nowrap>
-                    <?= method_exists($models[$change->model], 'prepareHistoryValue') ?
-                        $models[$change->model]->prepareHistoryValue($field, $oldData[$field]) :
-                        $oldData[$field] ?>
                 </td>
 
                 <?php
