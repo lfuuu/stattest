@@ -16,7 +16,8 @@ class SocketWebClient
   stripTags: (html) ->
     tmp = document.createElement("div")
     tmp.innerHTML = html
-    tmp.textContent || tmp.innerText || ""
+    text = tmp.textContent || tmp.innerText || ""
+    text.replace(/\n/g, '<br/>') # nl2br
 
 # отрендерить иконку
   renderIcon: =>

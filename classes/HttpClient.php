@@ -55,5 +55,4 @@ class HttpClient extends Client
             ->createRequest();
     }
 
-
 }

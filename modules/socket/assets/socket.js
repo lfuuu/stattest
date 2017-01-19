@@ -18,10 +18,11 @@
     }
 
     SocketWebClient.prototype.stripTags = function(html) {
-      var tmp;
+      var text, tmp;
       tmp = document.createElement("div");
       tmp.innerHTML = html;
-      return tmp.textContent || tmp.innerText || "";
+      text = tmp.textContent || tmp.innerText || "";
+      return text.replace(/\n/g, '<br/>');
     };
 
     SocketWebClient.prototype.renderIcon = function() {

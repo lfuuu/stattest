@@ -31,7 +31,7 @@ class Socket extends Singleton
     const PARAM_USER_ID_TO = 'userIdTo'; // Логин адресата (user_users.id). Не обязательно. Если указан логин или ID - отправляется этому адресату, иначе всем
     const PARAM_URL = 'url'; // Ссылка. Не обязательно. Можно как абсолютную, так и относительную
 
-    const PARAM_TYPE_DEFAULT = 'warning'; // Значение по умолчанию для self::PARAM_TYPE. Возможные варианты: warning/success/info/danger
+    const PARAM_TYPE_DEFAULT = 'success'; // Значение по умолчанию для self::PARAM_TYPE. Возможные варианты: warning/success/info/danger
 
     protected $module = null;
 
@@ -62,7 +62,7 @@ class Socket extends Singleton
         $baseView = $this->module->module->getView();
 
         $baseView->registerJs(new JsExpression('window.ioUrl = "' . $url . '"'), BaseView::POS_BEGIN); // позиция должна быть выше js-файлов
-        $baseView->registerJsFile($this->module->params['socket']['url'] . '/socket.io/socket.io.js', ['position' => BaseView::POS_END]);
+        $baseView->registerJsFile($this->module->params['url'] . '/socket.io/socket.io.js', ['position' => BaseView::POS_END]);
 
         $assets = dirname(__FILE__) . '/../assets';
         list($serverUrl, $siteUrl) = Yii::$app->assetManager->publish($assets);
@@ -80,6 +80,8 @@ class Socket extends Singleton
      */
     public function emit($params)
     {
+        Yii::info('Emit: ' . print_r($params, true));
+
         $this->module = Config::getModule('socket');
 
         // параметры "рукопожатия"
@@ -110,8 +112,9 @@ class Socket extends Singleton
      */
     private function _getUrl($handshakeData)
     {
-        $url = $this->module->params['socket']['url'];
-        $secretKey = $this->module->params['socket']['secretKey'];
+        $params = $this->module->params;
+        $url = $params['url'];
+        $secretKey = $params['secretKey'];
         if (!$url || !$secretKey) {
             return '';
         }

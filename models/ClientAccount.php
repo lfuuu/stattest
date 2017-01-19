@@ -80,6 +80,7 @@ use yii\helpers\Url;
  * @property ClientCounter billingCountersFastMass
  * @property string company_full
  * @property string address_jur
+ * @property ClientContact[] allContacts
  */
 class ClientAccount extends HistoryActiveRecord
 {
@@ -654,10 +655,10 @@ class ClientAccount extends HistoryActiveRecord
         if ($this->_lastComment === false) {
             $this->_lastComment
                 = ClientContractComment::find()
-                    ->andWhere(['contract_id' => $this->contract_id])
-                    ->andWhere(['is_publish' => 1])
-                    ->orderBy('ts desc')
-                    ->all();
+                ->andWhere(['contract_id' => $this->contract_id])
+                ->andWhere(['is_publish' => 1])
+                ->orderBy('ts desc')
+                ->all();
         }
 
         return $this->_lastComment;
@@ -926,9 +927,9 @@ class ClientAccount extends HistoryActiveRecord
                 = 'Превышен лимит кредита: ' .
                 sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit .
                 (
-                    array_key_exists(self::WARNING_FINANCE, $warnings) ?
-                        ' (на уровне биллинга): ' . (new DateTimeWithUserTimezone($warnings[self::WARNING_FINANCE]->dt, $this->timezone))->format('H:i:s d.m.Y') :
-                        ''
+                array_key_exists(self::WARNING_FINANCE, $warnings) ?
+                    ' (на уровне биллинга): ' . (new DateTimeWithUserTimezone($warnings[self::WARNING_FINANCE]->dt, $this->timezone))->format('H:i:s d.m.Y') :
+                    ''
                 );
         }
 
@@ -1045,5 +1046,39 @@ class ClientAccount extends HistoryActiveRecord
         return (new DateTimeImmutable)
             ->setTimezone($timezone);
 
+    }
+
+    /**
+     * @param string $delimiter
+     * @return string
+     */
+    public function getName($delimiter = ' / ')
+    {
+        return implode($delimiter, [
+            $this->contract->contragent->name,
+            'Договор № ' . $this->contract->number,
+            'ЛС № ' . "<b style=\"font-size:120%;\">{$this->id}</b>"
+        ]);
+    }
+
+    /**
+     * @param string $delimiter
+     * @return string
+     */
+    public function getNameAndContacts($delimiter = ' / ')
+    {
+        $names = [];
+        $names[] = $this->getName($delimiter);
+
+        $allContacts = $this->allContacts;
+        foreach ($allContacts as $contact) {
+            if (!$contact->data || !$contact->is_active) {
+                continue;
+            }
+
+            $names[] = $contact->type . ': ' . $contact->data . ' ' . $contact->comment;
+        }
+
+        return implode($delimiter, $names);
     }
 }

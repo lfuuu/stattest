@@ -83,22 +83,22 @@ if (isset($fixclient_data['id'])) {
             </div>
             <div class="col-sm-6">
                 <div style="padding-top: 15px; text-align: center;">
-                        <div class="menupanel" style="text-align: center">
-                            <a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a>
-                            <ul class="user-menu" style="display: none;">
-                                <li><a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a></li>
-                                <li><a href="/user/profile/">Изменить профайл</a></li>
-                                <li><a href="/user/profile/change-password" data-width="400" data-height="450" onClick="$(this).parents('ul').prev('a').trigger('click'); return showIframePopup(this);">Изменить пароль</a></li>
-                                <li><a href="/site/logout">Выход</a></li>
-                            </ul>
-                            <?php if ($myTroublesCount > 0): ?>
-                                <br>
-                                <br>
-                                <a href="/?module=tt&action=list2&mode=2" style="font-weight: bold; color: #a00000; font-size: 12px;">
-                                    Поручено <?= $myTroublesCount ?> заявок
-                                </a>
-                            <?php endif; ?>
-                        </div>
+                    <div class="menupanel" style="text-align: center">
+                        <a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a>
+                        <ul class="user-menu" style="display: none;">
+                            <li><a href="#" onclick="$('.user-menu').toggle(); $('.user-menu').closest('.menupanel').toggleClass('active-link-client'); return false;"><?= $user->name ?></a></li>
+                            <li><a href="/user/profile/">Изменить профайл</a></li>
+                            <li><a href="/user/profile/change-password" data-width="400" data-height="450" onClick="$(this).parents('ul').prev('a').trigger('click'); return showIframePopup(this);">Изменить пароль</a></li>
+                            <li><a href="/site/logout">Выход</a></li>
+                        </ul>
+                        <?php if ($myTroublesCount > 0): ?>
+                            <br>
+                            <br>
+                            <a href="/?module=tt&action=list2&mode=2" style="font-weight: bold; color: #a00000; font-size: 12px;">
+                                Поручено <?= $myTroublesCount ?> заявок
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -109,16 +109,15 @@ if (isset($fixclient_data['id'])) {
                     <?php if ($activeClient): ?>
                         <div class="col-sm-12">
                             <?php
-                            $str = htmlspecialchars($activeClient->contract->contragent->name .' / Договор
-                            № '. $activeClient->contract->number .' / ЛС № '. $activeClient->id);
+                            $str = htmlspecialchars($activeClient->contract->contragent->name . ' / Договор
+                            № ' . $activeClient->contract->number . ' / ЛС № ' . $activeClient->id);
                             ?>
                             <h2 style="display: inline-block; margin: 0; font-weight: normal; margin-top: 8px;
                                     max-width: 90%;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
                             " class="c-blue-color"
-                                title="<?=$str?>">
+                                title="<?= $str ?>">
                                 <a href="/client/view?id=<?= $activeClient->id ?>#contragent<?= $activeClient->contract->contragent_id ?>">
-                                    <?= $activeClient->contract->contragent->name .' / Договор № '
-                                    . $activeClient->contract->number .' / ЛС № ' . "<b style=\"font-size:120%;\">{$activeClient->id}</b>" ?>
+                                    <?= $activeClient->name ?>
                                 </a>
                             </h2>
                             <a href="/account/unfix" title="Снять" style="vertical-align: text-bottom;"><i class="uncheck"></i> </a>
@@ -147,7 +146,7 @@ $isHideLeftLayout = Yii::$app->session->get('isHideLeftLayout', false);
     <button type="button" class="btn btn-info btn-xs panel-toggle-button <?= $isHideLeftLayout ? '' : 'active' ?>"><?= $isHideLeftLayout ? '›' : '‹' ?></button>
     <script type="text/javascript">
         // перерендерить пришпиленную шапка таблицы
-        window.reflowTableHeader = function() {
+        window.reflowTableHeader = function () {
             var $table = $('.kv-grid-table');
             try {
                 $table.floatThead && $table.floatThead('reflow');
@@ -156,14 +155,14 @@ $isHideLeftLayout = Yii::$app->session->get('isHideLeftLayout', false);
         };
 
         $(function () {
-            $('.panel-toggle-button').on('click', function() {
+            $('.panel-toggle-button').on('click', function () {
                 var $this = $(this);
                 var $layoutLeft = $('.layout_left');
                 var $layoutMain = $('.layout_main');
 
                 if ($this.hasClass('active')) {
                     $layoutLeft.animate({left: '-350px'});
-                    $layoutMain.animate({left: 0}, function() {
+                    $layoutMain.animate({left: 0}, function () {
                         $layoutMain.removeClass('col-sm-10 col-md-push-2').addClass('col-sm-12');
                         window.reflowTableHeader();
                     });
@@ -172,7 +171,7 @@ $isHideLeftLayout = Yii::$app->session->get('isHideLeftLayout', false);
                     $.get('/utils/layout/hide/'); // запомнить
                 } else {
                     $layoutLeft.animate({left: 0});
-                    $layoutMain.animate({left: '16.667%'}, function() {
+                    $layoutMain.animate({left: '16.667%'}, function () {
                         $layoutMain.removeClass('col-sm-12').addClass('col-sm-10 col-md-push-2');
                         window.reflowTableHeader();
                     });
@@ -245,7 +244,7 @@ if ($this->js) {
         $.datepicker.setDefaults(datepicker_ru);
         $('.datepicker').datepicker();
 
-        $('.layout_main , .layout_left, .panel-toggle-button').css('top', $('#top_search').closest('.row').height()+25);
+        $('.layout_main , .layout_left, .panel-toggle-button').css('top', $('#top_search').closest('.row').height() + 25);
     });
 </script>
 

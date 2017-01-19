@@ -37,7 +37,7 @@ class Glpi extends Singleton
      */
     private function _getRequest($action)
     {
-        $params = $this->module->params['glpi'];
+        $params = $this->module->params;
         $url = $params['url'];
         $appToken = $params['appToken'];
         if (!$url || !$appToken) {
@@ -66,7 +66,7 @@ class Glpi extends Singleton
             throw new InvalidCallException('SessionToken is empty');
         }
 
-        $params = $this->module->params['glpi'];
+        $params = $this->module->params;
 
         $response = $this->_getRequest('initSession')
             ->setMethod('get')

@@ -100,6 +100,9 @@ return [
         'socket' => [
             'class' => 'app\modules\socket\Module',
         ],
+        'webhook' => [
+            'class' => 'app\modules\webhook\Module',
+        ],
         'notifier' => [
             'class' => 'app\modules\notifier\Module',
         ],
