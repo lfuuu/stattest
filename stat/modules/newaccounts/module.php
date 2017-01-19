@@ -1631,7 +1631,6 @@ class m_newaccounts extends IModule
                     if ($utDate) {
                         if ($bb["doc_ts"] != $utDate) {
                             $bill->SetDocDate($utDate);
-                            $bb = $bill->GetBill(); // обновляем счет
                         }
                     } else {
                         $toDelDate = true;
@@ -1643,7 +1642,6 @@ class m_newaccounts extends IModule
                 // удалить дату
                 if ($toDelDate) {
                     $bill->SetDocDate(0);
-                    $bb = $bill->GetBill();
                 }
             }
 

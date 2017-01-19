@@ -17,7 +17,7 @@
 {$bill.bill_no}{$inv_no}
 {/if}
 <br><br>
-{if $to_client == "true" && ($bill_client.firma == 'mcn' || $bill_client.firma == 'mcn_telekom' || $bill_client.firma == 'mcm_telekom')}
+{if $to_client == "true" && ($bill_client.firma == 'mcn' || $bill_client.firma == 'mcn_telekom')}
     <b>Обращаем Ваше Внимание!</b> Этот экземпляр Акта, просьба с подписью и печатью направить в наш адрес: {$organization.post_address}, {$organization.name}<br><br>{/if}
 
 <strong>{$organization.name}</strong><br>
@@ -112,7 +112,7 @@
     <br>
     Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет.
     <br>
-    <br>{if $organization.is_simple_tax_system}*НДС не облагается: Упрощенная система налогообложения, ст. 346.11 п.п 2 НК РФ.{/if}
+    <br>{if $organization.is_simple_tax_system}*НДС не облагается: Упрощенная система налогообложения, ст. 346.11 НК РФ.{/if}
     <br>
     <br>
 
