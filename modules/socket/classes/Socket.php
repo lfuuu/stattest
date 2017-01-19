@@ -62,11 +62,11 @@ class Socket extends Singleton
         $baseView = $this->module->module->getView();
 
         $baseView->registerJs(new JsExpression('window.ioUrl = "' . $url . '"'), BaseView::POS_BEGIN); // позиция должна быть выше js-файлов
-        $baseView->registerJsFile($this->module->params['url'] . '/socket.io/socket.io.js', ['position' => BaseView::POS_END]);
 
         $assets = dirname(__FILE__) . '/../assets';
         list($serverUrl, $siteUrl) = Yii::$app->assetManager->publish($assets);
         $baseView->registerCssFile($siteUrl . '/socket.css');
+        $baseView->registerJsFile($siteUrl . '/socket.io.min.js', ['position' => BaseView::POS_END]); // $this->module->params['url'] . '/socket.io/socket.io.js'
         $baseView->registerJsFile($siteUrl . '/socket.js', ['position' => BaseView::POS_END]);
 
         return true;
