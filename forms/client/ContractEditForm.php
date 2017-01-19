@@ -270,10 +270,6 @@ class ContractEditForm extends Form
                 $reward = $model;
             }
 
-            foreach ($contract->getAccounts() as $account) {
-                Event::go(Event::CLIENT_SET_STATUS, $account->id);
-            }
-
             return true;
         } else {
             $this->addErrors($contract->getErrors());
