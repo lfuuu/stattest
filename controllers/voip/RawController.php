@@ -4,6 +4,8 @@ namespace app\controllers\voip;
 
 use app\classes\ReturnFormatted;
 use app\dao\ClientContractDao;
+use app\modules\nnp\models\City;
+use app\modules\nnp\models\Region;
 use Yii;
 use app\models\voip\filter\CallsRawFilter;
 use app\classes\BaseController;
@@ -30,7 +32,7 @@ class RawController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'get-routes', 'get-contracts'],
+                        'actions' => ['index', 'get-routes', 'get-contracts', 'get-regions', 'get-cities'],
                         'roles' => ['voip.access'],
                     ],
                 ],
@@ -67,6 +69,40 @@ class RawController extends BaseController
             ClientContractDao::getListWithType(
                 Yii::$app->request->get()['serverIds'],
                 Yii::$app->request->get()['serviceTrunkId']
+            ),
+            'options'
+        );
+    }
+
+    /**
+     * Получить ННП-регионы с фильтрацией по стране
+     *
+     * @return array
+     */
+    public function actionGetRegions()
+    {
+        ReturnFormatted::me()->returnFormattedValues(
+            Region::getList(
+                null,
+                null,
+                Yii::$app->request->get()['countryCode']
+            ),
+            'options'
+        );
+    }
+
+    /**
+     * Получить ННП-города с фильтрацией по стране
+     *
+     * @return array
+     */
+    public function actionGetCities()
+    {
+        ReturnFormatted::me()->returnFormattedValues(
+            City::getList(
+                null,
+                null,
+                Yii::$app->request->get()['countryCode']
             ),
             'options'
         );

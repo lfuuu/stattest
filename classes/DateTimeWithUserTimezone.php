@@ -92,4 +92,16 @@ class DateTimeWithUserTimezone extends DateTime
         return Yii::$app->formatter->asDatetime($this, $format);
     }
 
+    /**
+     * Вернуть значение секунд в формате минуты:секунды
+     *
+     * @param int $value
+     *
+     * @return string
+     */
+    public static function formatSecondsToMinutesAndSeconds($value)
+    {
+        return $value !== null ? str_pad(round($value / 60), 2, '0', STR_PAD_LEFT) . ':' . str_pad(round($value % 60), 2, '0', STR_PAD_LEFT) : '';
+    }
+
 }

@@ -5,6 +5,7 @@
 
 namespace app\models\voip\filter;
 
+use app\dao\CurrencyRateDao;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\base\Model;
@@ -31,13 +32,15 @@ use yii\db\Query;
  * @property string $dst_number
  * @property array $src_operator_ids
  * @property array $dst_operator_ids
- * @property array $src_region_ids
- * @property array $dst_region_ids
+ * @property array $src_regions_ids
+ * @property array $dst_regions_ids
+ * @property array $src_cities_ids
+ * @property array $dst_cities_ids
  * @property array $src_contracts_ids
  * @property array $dst_contracts_ids
  * @property array $disconnect_causes
- * @property array $src_country_prefixes
- * @property array $dst_country_prefixes
+ * @property array $src_contries_ids
+ * @property array $dst_contries_ids
  *
  * @property string $src_operator_name
  * @property string $dst_operator_name
@@ -65,10 +68,10 @@ class CallsRawFilter extends Model
     ];
 
     public $aggrConst = [
-        'sale_sum' => 'SUM(sale)',
-        'sale_avg' => 'AVG(sale)',
-        'sale_min' => 'MIN(sale)',
-        'sale_max' => 'MAX(sale)',
+        'sale_sum' => 'SUM(@(sale))',
+        'sale_avg' => 'AVG(@(sale))',
+        'sale_min' => 'MIN(@(sale))',
+        'sale_max' => 'MAX(@(sale))',
         'cost_price_sum' => 'SUM(cost_price)',
         'cost_price_avg' => 'AVG(cost_price)',
         'cost_price_min' => 'MIN(cost_price)',
@@ -117,13 +120,15 @@ class CallsRawFilter extends Model
     public $dst_number = null;
     public $src_operator_ids = [];
     public $dst_operator_ids = [];
-    public $src_region_ids = [];
-    public $dst_region_ids = [];
+    public $src_regions_ids = [];
+    public $dst_regions_ids = [];
+    public $src_cities_ids = [];
+    public $dst_cities_ids = [];
     public $src_contracts_ids = [];
     public $dst_contracts_ids = [];
     public $disconnect_causes = [];
-    public $src_country_prefixes = [];
-    public $dst_country_prefixes = [];
+    public $src_contries_ids = [];
+    public $dst_contries_ids = [];
     public $src_destination_ids = [];
     public $dst_destination_ids = [];
 
@@ -131,6 +136,7 @@ class CallsRawFilter extends Model
     public $dst_operator_name = null;
     public $src_region_name = null;
     public $dst_region_name = null;
+    public $session_time = null;
 
     public $group = [];
 
@@ -139,6 +145,9 @@ class CallsRawFilter extends Model
     public $group_period = '';
 
     public $sort = null;
+
+    public $currency = 'RUB';
+    public $currency_rate = 1;
 
     /**
      * Rules set
@@ -153,6 +162,7 @@ class CallsRawFilter extends Model
                     'is_success_calls',
                     'session_time_from',
                     'session_time_to',
+                    'currency_rate',
                 ],
                 'integer'
             ],
@@ -164,6 +174,7 @@ class CallsRawFilter extends Model
                     'src_number',
                     'dst_number',
                     'group_period',
+                    'currency',
                 ],
                 'string'
             ],
@@ -172,11 +183,13 @@ class CallsRawFilter extends Model
                     'server_ids',
                     'src_operator_ids',
                     'dst_operator_ids',
-                    'src_region_ids',
-                    'dst_region_ids',
+                    'src_regions_ids',
+                    'dst_regions_ids',
+                    'src_cities_ids',
+                    'dst_cities_ids',
                     'disconnect_causes',
-                    'src_country_prefixes',
-                    'dst_country_prefixes',
+                    'src_contries_ids',
+                    'dst_contries_ids',
                     'src_destination_ids',
                     'dst_destination_ids',
                     'dst_routes_ids',
@@ -231,6 +244,10 @@ class CallsRawFilter extends Model
             $this->correct_connect_time_to = $dateEnd->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 
+        if (isset($this->currency) && $this->currency != 'RUB') {
+            $this->currency_rate = CurrencyRateDao::findRate($this->currency, date(DateTimeZoneHelper::DATE_FORMAT))->getAttribute('rate');
+        }
+
         if (!is_array($this->group)) {
             $this->group = [];
         }
@@ -242,6 +259,25 @@ class CallsRawFilter extends Model
         return $this->validate();
     }
 
+    /**
+     * Возвращает выражение для пересчета денежных значений из calls_raw в рубли
+     *
+     * @param string $field
+     *
+     * @return string
+     */
+    public static function getMoneyCalculateExpression($field)
+    {
+        return "(CASE 
+                   WHEN
+                     c.currency IS NOT NULL AND c.currency != 'RUB'
+                   THEN
+                     $field / rate.rate
+                   ELSE
+                     $field
+                  END)";
+    }
+    
     /**
      * Проверка на наличие обязательных фильтров
      *
@@ -261,6 +297,9 @@ class CallsRawFilter extends Model
                     'group_period',
                     'connect_time_to',
                     'connect_time_from',
+                    'sort',
+                    'currency',
+                    'currency_rate',
                 ]
             );
             foreach ($attributes as $value) {
@@ -307,8 +346,8 @@ class CallsRawFilter extends Model
                     'o.name src_operator_name',
                     'r.name src_region_name',
                     'st.contract_number || \' (\' || cct.name || \')\' src_contract_name',
-                    'cr.cost sale',
-                    'cr.rate orig_rate'
+                    'sale' => new Expression(self::getMoneyCalculateExpression('@(cr.cost)')),
+                    'orig_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
                 ]
             )
             ->from('calls_raw.calls_raw cr')
@@ -317,6 +356,8 @@ class CallsRawFilter extends Model
             ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id')
             ->leftJoin('nnp.operator o', 'o.id = cr.nnp_operator_id')
             ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
+            ->leftJoin('billing.clients c', 'c.id = cr.account_id')
+            ->leftJoin('billing.currency_rate rate', 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
             ->andWhere('cr.orig')
             ->orderBy('connect_time')
             ->limit(500);
@@ -329,8 +370,8 @@ class CallsRawFilter extends Model
                 'o.name dst_operator_name',
                 'r.name dst_region_name',
                 'st.contract_number || \' (\' || cct.name || \')\' dst_contract_name',
-                'cr.cost cost_price',
-                'cr.rate term_rate'
+                'cost_price' => new Expression(self::getMoneyCalculateExpression('cr.cost')),
+                'term_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
             ]
         )
             ->from('calls_raw.calls_raw cr')
@@ -339,6 +380,8 @@ class CallsRawFilter extends Model
             ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id')
             ->leftJoin('nnp.operator o', 'o.id = cr.nnp_operator_id')
             ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
+            ->leftJoin('billing.clients c', 'c.id = cr.account_id')
+            ->leftJoin('billing.currency_rate rate', 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
             ->andWhere('NOT cr.orig')
             ->orderBy('connect_time')
             ->limit(500);
@@ -416,8 +459,9 @@ class CallsRawFilter extends Model
             || $this->dst_routes_ids
             || $this->dst_contracts_ids
             || $this->dst_operator_ids
-            || $this->dst_region_ids
-            || $this->dst_country_prefixes
+            || $this->dst_regions_ids
+            || $this->dst_cities_ids
+            // || $this->dst_contries_ids
             || $this->dst_number
         ) {
             $query1->limit(-1)->orderBy([]);
@@ -427,8 +471,9 @@ class CallsRawFilter extends Model
         if ($this->src_routes_ids
             || $this->src_contracts_ids
             || $this->src_operator_ids
-            || $this->src_region_ids
-            || $this->src_country_prefixes
+            || $this->src_regions_ids
+            || $this->src_cities_ids
+            // || $this->src_contries_ids
             || $this->src_number
         ) {
             $query2->limit(-1)->orderBy([]);
@@ -474,17 +519,25 @@ class CallsRawFilter extends Model
             ['src_operator_ids' => $this->src_operator_ids]
         );
 
-        $this->src_region_ids
+        $this->src_regions_ids
         && $query1->andWhere(
-            ['IN', 'cr.nnp_region_id', ':src_region_ids'],
-            ['src_region_ids' => $this->src_region_ids]
+            ['IN', 'cr.nnp_region_id', ':src_regions_ids'],
+            ['src_regions_ids' => $this->src_regions_ids]
         );
 
-        $this->src_country_prefixes
+        $this->src_cities_ids
         && $query1->andWhere(
-            ['IN', 'cr.nnp_country_prefix', ':src_country_prefixes'],
-            ['src_country_prefixes' => $this->src_country_prefixes]
+            ['IN', 'cr.nnp_city_id', ':src_cities_ids'],
+            ['src_cities_ids' => $this->src_cities_ids]
         );
+
+        /*
+         * $this->src_contries_ids
+        && $query1->andWhere(
+            ['IN', 'cr.nnp_country_prefix', ':src_contries_ids'],
+            ['src_contries_ids' => $this->src_contries_ids]
+        );
+        */
 
         $this->dst_operator_ids
         && $query2->andWhere(
@@ -492,17 +545,25 @@ class CallsRawFilter extends Model
             ['dst_operator_ids' => $this->dst_operator_ids]
         );
 
-        $this->dst_region_ids
+        $this->dst_regions_ids
         && $query2->andWhere(
-            ['IN', 'cr.nnp_region_id', ':dst_region_ids'],
-            ['dst_region_ids' => $this->dst_region_ids]
+            ['IN', 'cr.nnp_region_id', ':dst_regions_ids'],
+            ['dst_regions_ids' => $this->dst_regions_ids]
         );
 
-        $this->dst_country_prefixes
+        $this->dst_cities_ids
         && $query2->andWhere(
-            ['IN', 'cr.nnp_country_prefix', ':dst_country_prefixes'],
-            ['dst_country_prefixes' => $this->dst_country_prefixes]
+            ['IN', 'cr.nnp_city_id', ':dst_cities_ids'],
+            ['dst_cities_ids' => $this->dst_cities_ids]
         );
+
+        /*
+         * $this->dst_contries_ids
+        && $query2->andWhere(
+            ['IN', 'cr.nnp_country_prefix', ':dst_contries_ids'],
+            ['dst_contries_ids' => $this->dst_contries_ids]
+        );
+        */
 
         $this->is_success_calls
         && $query1->andWhere(

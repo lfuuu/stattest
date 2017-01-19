@@ -131,7 +131,7 @@ HTML;
     public static function separateWidget(array $config = [])
     {
         $config1 = $config2 = $config;
-        unset($config1['columns']);
+        unset($config1['columns'], $config1['exportWidget']);
         $config1['dataProvider'] = new \yii\data\ArrayDataProvider(
             [
                 'allModels' => [],

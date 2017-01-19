@@ -21,12 +21,13 @@ class NnpCityColumn extends DataColumn
     public $filterType = GridView::FILTER_SELECT2;
     public $countryCode = null;
     public $isWithNullAndNotNull = false;
+    public $isWithEmpty = true;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
 
-        $this->filter = $this->filterData = City::getList($isWithEmpty = true, $this->isWithNullAndNotNull, $this->countryCode);
+        $this->filter = $this->filterData = City::getList($this->isWithEmpty, $this->isWithNullAndNotNull, $this->countryCode);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' city-column';
     }
