@@ -66,7 +66,7 @@ class Smser
     private function _send($data)
     {
         return (new HttpClient)
-            ->createJsonRequest()
+            ->createRequest()
             ->setMethod('get')
             ->setData($data)
             ->setUrl($this->_enterPoint)
