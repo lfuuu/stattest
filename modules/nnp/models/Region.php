@@ -92,13 +92,14 @@ class Region extends ActiveRecord
      *
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
-     * @param int $countryCode
-     * @return self[]
+     * @param int|array $countryCodes
+     *
+     * @return array
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryCode = null)
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryCodes = null)
     {
         $activeQuery = self::find();
-        $countryCode && $activeQuery->andWhere(['country_code' => $countryCode]);
+        $countryCodes && $activeQuery->andWhere(['country_code' => $countryCodes]);
         $list = $activeQuery
             ->orderBy(self::getListOrderBy())
             ->indexBy('id')

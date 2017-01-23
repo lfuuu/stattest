@@ -49,37 +49,42 @@ $(function () {
                 });
         });
 
-    $('select[name="CallsRawFilter[src_contries_ids][]"]')
+    $('select[name="CallsRawFilter[src_contries_ids][]"], select[name="CallsRawFilter[src_regions_ids][]"]')
         .on('change', function () {
             var src_contries_ids = $('select[name="CallsRawFilter[src_contries_ids][]"]'),
                 src_regions_ids = $('select[name="CallsRawFilter[src_regions_ids][]"]'),
                 src_cities_ids = $('select[name="CallsRawFilter[src_cities_ids][]"]');
 
-            $.get("/voip/raw/get-regions", {
-                countryCode: src_contries_ids.val()
-            }, function (data) {
-                src_regions_ids.html(data).select2(settings);
-            });
+            if (!$(this).is(src_regions_ids))
+                $.get("/voip/raw/get-regions", {
+                    countryCodes: src_contries_ids.val()
+                }, function (data) {
+                    src_regions_ids.html(data).select2(settings);
+                });
+
             $.get("/voip/raw/get-cities", {
-                countryCode: src_contries_ids.val()
+                countryCodes: src_contries_ids.val(),
+                regionIds: src_regions_ids.val()
             }, function (data) {
                 src_cities_ids.html(data).select2(settings);
             });
         });
 
-    $('select[name="CallsRawFilter[dst_contries_ids][]"]')
+    $('select[name="CallsRawFilter[dst_contries_ids][]"], select[name="CallsRawFilter[dst_regions_ids][]"]')
         .on('change', function () {
             var dst_contries_ids = $('select[name="CallsRawFilter[dst_contries_ids][]"]'),
                 dst_regions_ids = $('select[name="CallsRawFilter[dst_regions_ids][]"]'),
                 dst_cities_ids = $('select[name="CallsRawFilter[dst_cities_ids][]"]');
 
-            $.get("/voip/raw/get-regions", {
-                countryCode: dst_contries_ids.val()
-            }, function (data) {
-                dst_regions_ids.html(data).select2(settings);
-            });
+            if (!$(this).is(dst_regions_ids))
+                $.get("/voip/raw/get-regions", {
+                    countryCodes: dst_contries_ids.val()
+                }, function (data) {
+                    dst_regions_ids.html(data).select2(settings);
+                });
             $.get("/voip/raw/get-cities", {
-                countryCode: dst_contries_ids.val()
+                countryCodes: dst_contries_ids.val(),
+                regionIds: dst_regions_ids.val()
             }, function (data) {
                 dst_cities_ids.html(data).select2(settings);
             });

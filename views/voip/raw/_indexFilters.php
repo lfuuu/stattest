@@ -13,14 +13,14 @@ use app\classes\grid\column\billing\ServiceTrunkColumn;
 use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\ContractColumn;
 use app\classes\grid\column\universal\NnpOperatorColumn;
-use app\classes\grid\column\universal\NnpRegionColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\billing\DisconnectCauseColumn;
 use app\classes\grid\column\universal\ConstructColumn;
 use app\classes\grid\column\universal\WithEmptyFilterColumn;
 use app\modules\nnp\column\CountryColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
-use app\classes\grid\column\universal\NnpCityColumn;
+use app\modules\nnp\column\CityColumn;
+use app\modules\nnp\column\RegionColumn;
 
 return [
     [
@@ -147,22 +147,24 @@ return [
     [
         'attribute' => 'src_regions_ids',
         'label' => 'Регион номера А',
-        'class' => NnpRegionColumn::className(),
+        'class' => RegionColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCode' => $filterModel->src_contries_ids,
+        'countryCodes' => $filterModel->src_contries_ids,
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => false,
     ],
     [
         'attribute' => 'dst_regions_ids',
         'label' => 'Регион номера B',
-        'class' => NnpRegionColumn::className(),
+        'class' => RegionColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCode' => $filterModel->dst_contries_ids,
+        'countryCodes' => $filterModel->dst_contries_ids,
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => false,
     ],
     [
         'attribute' => 'is_success_calls',
@@ -175,21 +177,23 @@ return [
     [
         'attribute' => 'src_cities_ids',
         'label' => 'Город номера А',
-        'class' => NnpCityColumn::className(),
+        'class' => CityColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCode' => $filterModel->src_contries_ids,
+        'countryCodes' => $filterModel->src_contries_ids,
+        'regionIds' => $filterModel->src_regions_ids,
         'isWithEmpty' => false,
     ],
     [
         'attribute' => 'dst_cities_ids',
         'label' => 'Город номера B',
-        'class' => NnpCityColumn::className(),
+        'class' => CityColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCode' => $filterModel->dst_contries_ids,
+        'countryCodes' => $filterModel->dst_contries_ids,
+        'regionIds' => $filterModel->dst_regions_ids,
         'isWithEmpty' => false,
     ],
     [

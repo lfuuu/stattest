@@ -44,14 +44,15 @@ class RawController extends BaseController
      * Получить транки с фильтрацией по
      * ID сервера и ID контракта
      *
-     * @return array
+     * @param array $serverIds
+     * @param array $serviceTrunkIds
      */
-    public function actionGetRoutes()
+    public function actionGetRoutes(array $serverIds = [], array $serviceTrunkIds = [])
     {
         ReturnFormatted::me()->returnFormattedValues(
             ServiceTrunk::getListWithName(
-                Yii::$app->request->get()['serverIds'],
-                Yii::$app->request->get()['serviceTrunkId']
+                array_filter($serverIds),
+                array_filter($serviceTrunkIds)
             ),
             'options'
         );
@@ -61,14 +62,15 @@ class RawController extends BaseController
      * Получить контракты транков с фильтрацией по
      * ID сервера и ID транка
      *
-     * @return array
+     * @param array $serverIds
+     * @param array $serviceTrunkIds
      */
-    public function actionGetContracts()
+    public function actionGetContracts(array $serverIds = [], array $serviceTrunkIds = [])
     {
         ReturnFormatted::me()->returnFormattedValues(
             ClientContractDao::getListWithType(
-                Yii::$app->request->get()['serverIds'],
-                Yii::$app->request->get()['serviceTrunkId']
+                array_filter($serverIds),
+                array_filter($serviceTrunkIds)
             ),
             'options'
         );
@@ -77,15 +79,15 @@ class RawController extends BaseController
     /**
      * Получить ННП-регионы с фильтрацией по стране
      *
-     * @return array
+     * @param array $countryCodes
      */
-    public function actionGetRegions()
+    public function actionGetRegions(array $countryCodes = [])
     {
         ReturnFormatted::me()->returnFormattedValues(
             Region::getList(
-                null,
-                null,
-                Yii::$app->request->get()['countryCode']
+                $isWithEmpty = false,
+                $isWithNullAndNotNull = false,
+                array_filter($countryCodes)
             ),
             'options'
         );
@@ -94,15 +96,17 @@ class RawController extends BaseController
     /**
      * Получить ННП-города с фильтрацией по стране
      *
-     * @return array
+     * @param array $countryCodes
+     * @param array $regionIds
      */
-    public function actionGetCities()
+    public function actionGetCities(array $countryCodes = [], array $regionIds = [])
     {
         ReturnFormatted::me()->returnFormattedValues(
             City::getList(
-                null,
-                null,
-                Yii::$app->request->get()['countryCode']
+                $isWithEmpty = false,
+                $isWithNullAndNotNull = false,
+                array_filter($countryCodes),
+                array_filter($regionIds)
             ),
             'options'
         );

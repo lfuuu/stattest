@@ -1,17 +1,16 @@
 <?php
 
-namespace app\classes\grid\column\universal;
+namespace app\modules\nnp\column;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\modules\nnp\models\Region;
+use app\modules\nnp\models\City;
 use kartik\grid\GridView;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Html;
 
-
-class NnpRegionColumn extends DataColumn
+class CityColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait {
@@ -20,16 +19,18 @@ class NnpRegionColumn extends DataColumn
 
     public $isAddLink = true;
     public $filterType = GridView::FILTER_SELECT2;
-    public $isWithEmpty = true;
+    public $countryCodes = null;
+    public $regionIds = null;
     public $isWithNullAndNotNull = false;
-    public $countryCode = null;
+    public $isWithEmpty = true;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Region::getList($this->isWithEmpty, $this->isWithNullAndNotNull, $this->countryCode);
+
+        $this->filter = $this->filterData = City::getList($this->isWithEmpty, $this->isWithNullAndNotNull, $this->countryCodes, $this->regionIds);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
-        $this->filterOptions['class'] .= ' nnp-region-column';
+        $this->filterOptions['class'] .= ' city-column';
     }
 
     /**
@@ -47,7 +48,7 @@ class NnpRegionColumn extends DataColumn
         if (is_null($value)) {
             return Yii::t('common', '(not set)');
         } elseif ($this->isAddLink) {
-            return Html::a($strValue, Region::getUrlById($value));
+            return Html::a($strValue, City::getUrlById($value));
         } else {
             return $strValue;
         }

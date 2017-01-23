@@ -10,6 +10,7 @@ use yii\helpers\Url;
  * @property int id
  * @property string name
  * @property int country_code
+ * @property int region_id
  */
 class City extends ActiveRecord
 {
@@ -27,6 +28,7 @@ class City extends ActiveRecord
             'id' => 'ID',
             'name' => 'Название',
             'country_code' => 'Страна',
+            'region_id' => 'Регион'
         ];
     }
 
@@ -47,7 +49,7 @@ class City extends ActiveRecord
     {
         return [
             [['name'], 'string'],
-            [['country_code'], 'integer'],
+            [['country_code', 'region_id'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];
     }
@@ -92,13 +94,16 @@ class City extends ActiveRecord
      *
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
-     * @param int $countryCode
-     * @return self[]
+     * @param int|array $countryCodes
+     * @param int|array $regionIds
+     *
+     * @return array
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryCode = null)
+    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryCodes = null, $regionIds = null)
     {
         $activeQuery = self::find();
-        $countryCode && $activeQuery->andWhere(['country_code' => $countryCode]);
+        $countryCodes && $activeQuery->andWhere(['country_code' => $countryCodes]);
+        $regionIds && $activeQuery->andWhere(['region_id' => $regionIds]);
         $list = $activeQuery
             ->orderBy(self::getListOrderBy())
             ->indexBy('id')

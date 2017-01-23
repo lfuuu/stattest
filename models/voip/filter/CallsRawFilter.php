@@ -272,7 +272,7 @@ class CallsRawFilter extends Model
                    WHEN
                      c.currency IS NOT NULL AND c.currency != 'RUB'
                    THEN
-                     $field / rate.rate
+                     $field * rate.rate
                    ELSE
                      $field
                   END)";
