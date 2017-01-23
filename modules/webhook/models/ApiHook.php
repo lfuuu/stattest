@@ -3,6 +3,7 @@
 namespace app\modules\webhook\models;
 
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use yii\base\Model;
 
 /**
@@ -22,10 +23,10 @@ class ApiHook extends Model
 
     public
         $event_type, // тип события
-        $abon, // номер абонента ВАТС, который принимает звонок
-        $did, // номер вызывающего абонента
-        $secret, // секретный token
-        $account_id; // ЛС клиента MCN Telecom
+        $abon, // внутренний номер абонента ВАТС, который принимает/совершает звонок. Только если через ВАТС
+        $did, // номер вызывающего/вызываемого абонента
+        $secret, // секретный token, подтверждающий, что запрос пришел от валидного сервера
+        $account_id; // ID аккаунта MCN Telecom. Это не клиент!
 
     private $_eventTypeToMessage = [
         self::EVENT_TYPE_IN_CALLING_START => 'Входящий звонок',
@@ -68,7 +69,16 @@ class ApiHook extends Model
      */
     public function getClientAccount()
     {
-        return ClientAccount::findOne(['id' => $this->account_id]);
+        /** @var ClientContact $clientContact */
+        $clientContact = ClientContact::find()
+            ->where([
+                'type' => [ClientContact::TYPE_PHONE, ClientContact::TYPE_SMS],
+                'is_active' => 1,
+                'data' => $this->did,
+            ])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+        return $clientContact ? $clientContact->client : null;
     }
 
     /**

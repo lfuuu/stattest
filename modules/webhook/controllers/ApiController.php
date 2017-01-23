@@ -12,7 +12,6 @@ use app\modules\webhook\models\ApiHook;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
-use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\HttpException;
 
@@ -41,7 +40,7 @@ class ApiController extends Controller
         try {
             return [
                 'status' => 'OK',
-                'result' => $this->_receiveHook()
+                'result' => $this->_receiveHook(),
             ];
 
         } catch (\Exception $e) {
@@ -51,10 +50,12 @@ class ApiController extends Controller
                 $code = $e->statusCode;
             }
 
+            Yii::error($e->getMessage());
+
             return [
                 'status' => 'ERROR',
                 'result' => $result,
-                'code' => $code
+                'code' => $code,
             ];
         }
     }
@@ -72,38 +73,39 @@ class ApiController extends Controller
         $content = file_get_contents("php://input");
         Yii::info('Webhook: ' . $content);
         if (!$content) {
-            throw new BadRequestHttpException('Webhook. Не указан raw body');
+            throw new BadRequestHttpException('Webhook error. Не указан raw body');
         }
 
         $params = $this->module->params;
         if (!$params['secretKey']) {
-            throw new InvalidConfigException('Webhook. Не настроен secretKey');
+            throw new InvalidConfigException('Webhook warning. Не настроен secretKey');
         }
 
         $data = json_decode($content, true);
         if (!$data) {
-            throw new BadRequestHttpException('Webhook. Указан неправильный raw body ' . $content);
+            throw new BadRequestHttpException('Webhook error. Указан неправильный raw body ' . $content);
         }
 
         $apiHook = new ApiHook;
         $apiHook->setAttributes($data);
         if (!$apiHook->validate()) {
-            throw new InvalidParamException('Webhook. Указаны неправильные параметры ' . $content . '. ' . implode(' ', $apiHook->getFirstErrors()) . '#' . print_r(get_object_vars($apiHook), true));
+            throw new InvalidParamException('Webhook error. Указаны неправильные параметры ' . $content . '. ' . implode(' ', $apiHook->getFirstErrors()) . '#' . print_r(get_object_vars($apiHook), true));
         }
 
         if ($apiHook->secret != $params['secretKey']) {
-            throw new InvalidParamException('Webhook. Неправильный secretKey ' . $content);
+            throw new InvalidParamException('Webhook error. Неправильный secretKey ' . $content);
         }
 
         if (!$apiHook->abon) {
             // звонок на общий номер - никого уведомлять не надо
+            Yii::info('Webhook info. Абонент не указан ' . $content);
             return 'Абонент не указан';
         }
 
         $user = User::findOne(['phone_work' => $apiHook->abon]);
         if (!$user) {
             // абонент не найден
-            Yii::error('Webhook. Абонент не найден ' . $content);
+            Yii::info('Webhook info. Абонент не найден ' . $content);
             return 'Абонент не найден';
         }
 
@@ -123,9 +125,15 @@ class ApiController extends Controller
             Socket::PARAM_TYPE => $apiHook->getEventTypeStyle(),
             // Socket::PARAM_USER_TO => null,
             Socket::PARAM_USER_ID_TO => $user->id,
-            Socket::PARAM_URL => Url::to(['/client/view', 'id' => $apiHook->account_id]),
+            Socket::PARAM_URL => $clientAccount ? $clientAccount->getUrl() : '',
         ];
         Socket::me()->emit($params);
+
+        if ($clientAccount) {
+            Yii::info('Webhook ok. ' . $content);
+        } else {
+            Yii::info('Webhook info. Клиент не найден. ' . $content);
+        }
 
         return 'Ok';
     }
