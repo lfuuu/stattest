@@ -141,6 +141,7 @@ class Navigation
                 ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'])
                 ->addItem('Настройки платежных документов', ['/dictionary/invoice-settings'])
                 ->addItem('Точка входа', ['/dictionary/entry-point'])
+                ->addItem('Публичные сайты', ['/dictionary/public-site'])
         );
 
         $this->_addBlock(
