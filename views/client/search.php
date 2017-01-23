@@ -21,9 +21,11 @@ use app\classes\Html;
                     'label' => (new $dataProvider->query->modelClass)->attributeLabels()['status'],
                     'format' => 'raw',
                     'value' => function ($data) {
-                        return '<b style="background:' . $data->contract->getBusinessProcessStatus()['color'] . ';">' . $data->contract->getBusinessProcessStatus()['name'] . '</b>';
+                        return '<b style="background:' . $data->contract->businessProcessStatus->color . ';">' . $data->contract->businessProcessStatus->name . '</b>';
                     },
-                    'contentOptions' => function($data){ return ['style' => 'background:' . $data->contract->getBusinessProcessStatus()['color']];}
+                    'contentOptions' => function ($data) {
+                        return ['style' => 'background:' . $data->contract->businessProcessStatus->color];
+                    }
                 ],
                 'companyName' => [
                     'label' => (new $dataProvider->query->modelClass)->attributeLabels()['companyName'],

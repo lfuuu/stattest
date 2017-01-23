@@ -4583,7 +4583,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
     {
         global $design, $db, $user;
         $dateFrom = new DatePickerValues('date_from', 'first');
-        $dateTo = new DatePickerValues('datecom_to', 'last');
+        $dateTo = new DatePickerValues('date_to', 'last');
         $dateFrom->format = 'Y-m-d';
         $dateTo->format = 'Y-m-d';
         $date_from = $dateFrom->getDay();
@@ -4616,6 +4616,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W[] = 'B.sum!=0';
             $W[] = 'P.currency="RUB" OR P.currency IS NULL';
             $W[] = 'biller_version = ' . ClientAccount::VERSION_BILLER_USAGE;
+            $W[] = 'B.client_id = 14410';
 
             if ($organizationId) {
                 $W[] = 'B.organization_id="' . $organizationId . '"';
@@ -4779,7 +4780,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
                     if (is_array($A) && $A['bill']['sum']) {
                         $A['bill']['shipment_ts'] = $p['shipment_ts'];
-                        $A['bill']['contract'] = $c->contract->contractType;
+                        $A['bill']['contract'] = $c->contract->contractType ?: $c->contract->business;
                         $A['bill']['contract_status'] = $c->contract->businessProcessStatus;
                         $A['bill']['payments'] = $p['payments'];
 

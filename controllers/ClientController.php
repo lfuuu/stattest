@@ -251,14 +251,14 @@ class ClientController extends BaseController
                     $res[] = [
                         'url' => Url::toRoute(['client/view', 'id' => $model->id]),
                         'value' => $model->contract->number,
-                        'color' => $model->contract->getBusinessProcessStatus()['color'],
+                        'color' => $model->contract->businessProcessStatus->color,
                         'id' => $model->id,
                     ];
                 } else {
                     $res[] = [
                         'url' => Url::toRoute(['client/view', 'id' => $model->id]),
                         'value' => $model->contract->contragent->name ? $model->contract->contragent->name : $model->contract->contragent->name_full,
-                        'color' => $model->contract->getBusinessProcessStatus()['color'],
+                        'color' => $model->contract->businessProcessStatus->color,
                         'id' => $model->id,
                     ];
                 }
