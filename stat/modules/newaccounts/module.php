@@ -4583,15 +4583,25 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
     {
         global $design, $db, $user;
         $dateFrom = new DatePickerValues('date_from', 'first');
-        $dateTo = new DatePickerValues('date_to', 'last');
+        $dateTo = new DatePickerValues('datecom_to', 'last');
         $dateFrom->format = 'Y-m-d';
         $dateTo->format = 'Y-m-d';
         $date_from = $dateFrom->getDay();
         $date_to = $dateTo->getDay();
         $design->assign('date_from_val', $date_from_val = $dateFrom->getTimestamp());
         $design->assign('date_to_val', $date_to_val = $dateTo->getTimestamp());
-        $design->assign('firma', $firma = get_param_protected('firma', 'mcn_telekom'));
+        $design->assign('organizations', Organization::dao()->getList());
+        $design->assign('organization_id', $organizationId = get_param_protected('organization_id', Organization::MCN_TELEKOM));
         set_time_limit(0);
+
+        $dtFrom = clone $dateFrom->day;
+        $dtFrom->modify("-1 month");
+
+        $dtTo = clone $dateTo->day;
+        $dtTo->modify("+1 month");
+
+        \app\models\Bill::dao()->checkSetBillsOrganization($dtFrom, $dtTo);
+
         $R = array();
         $Rc = 0;
         $S = array(
@@ -4607,9 +4617,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W[] = 'P.currency="RUB" OR P.currency IS NULL';
             $W[] = 'biller_version = ' . ClientAccount::VERSION_BILLER_USAGE;
 
-            if ($firma) {
-                $organization = Organization::findOne(['firma' => $firma]);
-                $W[] = 'cr.organization_id="' . $organization->organization_id . '"';
+            if ($organizationId) {
+                $W[] = 'B.organization_id="' . $organizationId . '"';
             }
 
             $W[] = "cg.legal_type in ('ip', 'legal')";
@@ -4631,7 +4640,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     cg.`inn`,
                     cg.`kpp`,
                     cg.`legal_type` AS type,
-                    P.`payment_no` AS payment_no,
                     GROUP_CONCAT(
                         DISTINCT CONCAT(P.`payment_no`, ';', DATE_FORMAT(P.`payment_date`, '%d.%m.%Y')) ORDER BY P.`payment_date` DESC SEPARATOR ', '
                     ) AS payments,
@@ -4758,25 +4766,26 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         //$this->bb_cache__set($p["bill_no"]."--".$I, $A);
                     }
 
+                    $invDate = $p['shipment_ts'] ?
+                        $A['bill']['shipment_ts'] :
+                        $A['inv_date'];
+
+                    $A['bill']['inv_date'] = $invDate;
+
+                    // get property from history
+                    /** @var \app\models\ClientAccount $c */
+                    $c = ClientAccount::findOne(['id' => $p['client_id']])
+                        ->loadVersionOnDate(date('Y-m-d', $invDate));
+
                     if (is_array($A) && $A['bill']['sum']) {
                         $A['bill']['shipment_ts'] = $p['shipment_ts'];
-                        $A['bill']['contract'] = $p['contract'];
-                        $A['bill']['contract_status'] = $p['contract_status'];
-
-                        $invDate = $A['bill']['shipment_ts'] ?
-                            $A['bill']['shipment_ts'] :
-                            $A['inv_date'];
-
-                        // get property from history
-                        $c = ClientAccount::findOne(['id' => $p['client_id']])
-                            ->loadVersionOnDate(date('Y-m-d', $invDate));
+                        $A['bill']['contract'] = $c->contract->contractType;
+                        $A['bill']['contract_status'] = $c->contract->businessProcessStatus;
+                        $A['bill']['payments'] = $p['payments'];
 
                         $p['company_full'] = trim($c['company_full']);
                         $p['inn'] = $c['inn'];
                         $p['kpp'] = $c['kpp'];
-                        //$p['type'] = $c['type'];
-
-                        $A['bill']['inv_date'] = $invDate;
 
                         $k = date('Y-m-d', $A['inv_date']);
 
@@ -4790,14 +4799,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             } elseif ($p['type'] == 'legal') {
                                 $A['bill']['inn'] = trim($p['inn']);
                                 $A['bill']['kpp'] = trim($p['kpp']);
-                            } else {
+                            } else { // ИП
                                 $A['bill']['inn'] = trim($p['inn']);
                                 $A['bill']['kpp'] = '-----';
                             }
-
-                            $A['bill']['payment_no'] = $p['payment_no'];
-                            $A['bill']['payment_date'] = $p['payment_date'];
-                            $A['bill']['pay_sum'] = $p['pay_sum'];
 
                             $A['bill']['inv_no'] = $A['inv_no'];
 
@@ -4830,7 +4835,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         if (get_param_raw('excel', 0) == 1) {
             $excel = new \app\classes\excel\BalanceSellToExcel;
             $excel->openFile(Yii::getAlias('@app/templates/balance_sell.xls'));
-            $excel->organization = $organization;
+            $excel->organization = Organization::findOne(['id' => $organizationId])->name;
             $excel->dateFrom = Yii::$app->request->get('date_from');
             $excel->dateTo = Yii::$app->request->get('date_to');
             $excel->prepare($R);

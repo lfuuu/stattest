@@ -40,17 +40,9 @@
         От: <input id="date_from" type="text" name="date_from" value="{$date_from}" class="text" />
         До: <input id="date_to" type="text" name="date_to" value="{$date_to}" class="text" /><br />
         Компания:
-            <select class="text" name="firma">
-                <option value="mcn_telekom"{if $firma == "mcn_telekom"} selected="selected"{/if}>ООО "МСН Телеком"</option>
-                <option value="all4geo"{if $firma == "all4geo"} selected="selected"{/if}>ООО "Олфогео"</option>
-                <option value="mcn"{if $firma == "mcn"} selected="selected"{/if}>ООО "Эм Си Эн"</option>
-                <option value="markomnet_new"{if $firma == "markomnet_new"} selected="selected"{/if}>ООО "МАРКОМНЕТ"</option>
-                <option value="markomnet"{if $firma == "markomnet"} selected="selected"{/if}>ООО "МАРКОМНЕТ" (старый)</option>
-                <option value="ooomcn"{if $firma == "ooomcn"} selected="selected"{/if}>ООО "МСН"</option>
-                <option value="all4net"{if $firma == "all4net"} selected="selected"{/if}>ООО "ОЛФОНЕТ"</option>
-                <option value="ooocmc"{if $firma == "ooocmc"} selected="selected"{/if}>ООО "Си Эм Си"</option>
+            <select class="text" name="organization_id">
+                {html_options options=$organizations selected=$organization_id}
             </select>
-
         Полный экран: <input type="checkbox" name="fullscreen" value="1" />&nbsp;
         в Excel: <input type="checkbox" name="excel" value="1" /><br />
         <input type="submit" value="Показать" class="button" name="do" />
@@ -104,7 +96,7 @@
                     <td>{$r.type}</td>
                     <td>{$r.contract}</td>
                     <td>{$r.contract_status}</td>
-                    <td>{if $r.payments}{$r.payments}{else}&nbsp;{/if}</td>
+                    <td>{if isset($r.payments) && $r.payments}{$r.payments}{else}&nbsp;{/if}</td>
                     <td>{$r.sum|round:2|replace:".":","}</td>
                     <td>{$r.sum_without_tax|round:2|replace:".":","}</td>
                     <td>{$r.sum_tax|round:2|replace:".":","}</td>

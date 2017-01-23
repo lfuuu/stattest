@@ -61,6 +61,8 @@ use yii\helpers\Url;
  * @property int stamp
  * @property string corr_acc
  * @property string address_connect
+ * @property int is_with_consignee
+ * @property string consignee
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient

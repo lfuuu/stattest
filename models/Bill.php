@@ -37,6 +37,7 @@ use yii\helpers\Url;
  * @property int $price_include_vat   ??
  * @property int $biller_version
  * @property int $uu_bill_id
+ * @property int $organization_id
  * @property ClientAccount $clientAccount   ??
  * @property BillLine[] $lines   ??
  * @property Transaction[] $transactions   ??
@@ -257,6 +258,21 @@ class Bill extends ActiveRecord
         )->execute();
 
         return parent::beforeDelete();
+    }
+
+    /**
+     * @param bool $isInsert
+     * @return bool
+     */
+    public function beforeSave($isInsert)
+    {
+        // проставляем организацию счета, если не установлена
+        if ($this->bill_date && $this->client_id && !$this->organization_id) {
+            $account = ClientAccount::findOne(['id' => $this->client_id])->loadVersionOnDate($this->bill_date);
+            $this->organization_id = $account->contract->organization_id;
+        }
+
+        return parent::beforeSave($isInsert);
     }
 
 }

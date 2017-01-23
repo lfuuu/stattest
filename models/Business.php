@@ -58,4 +58,12 @@ class Business extends ActiveRecord
     {
         return $this->hasMany(BusinessProcess::className(), ['business_id' => 'id']);
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
 }

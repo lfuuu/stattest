@@ -458,6 +458,29 @@ ESQL;
 SQL;
 
         return \Yii::$app->db->createCommand($sql, [':accountId' => $accountId])->queryScalar();
+    }
 
+    /**
+     * Проверяет, у всех ли счетов, выпущенных в заданном периоде, проставлена организация
+     * Эта функция необходима, до полного перехода на yii'шную модель
+     *
+     * @param \DateTime $dateFrom
+     * @param \DateTime $dateTo
+     */
+    public function checkSetBillsOrganization(\DateTime $dateFrom, \DateTime $dateTo)
+    {
+        $query = Bill::find()
+            ->where([
+                'between',
+                'bill_date',
+                $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)])
+            ->andWhere(['organization_id' => 0]);
+
+        /** @var Bill $bill */
+        foreach ($query->each() as $bill) {
+            $bill->organization_id = $bill->clientAccount->contract->organization_id;
+            $bill->save();
+        }
     }
 }

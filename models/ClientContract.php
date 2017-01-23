@@ -1,6 +1,10 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\ClientContractComments;
+use app\classes\behaviors\ContractContragent;
+use app\classes\behaviors\LkWizardClean;
+use app\classes\behaviors\SetOldStatus;
 use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContractDao;
@@ -9,6 +13,8 @@ use app\helpers\SetFieldTypeHelper;
 use yii\db\ActiveQuery;
 
 /**
+ * Class ClientContract
+ *
  * @property int id
  * @property int super_id
  * @property int contragent_id
@@ -30,6 +36,10 @@ use yii\db\ActiveQuery;
  * @property ClientAccount[] accounts
  * @property Organization $organization
  * @property ClientMedia mediaManager
+ * @property ContractType contractType
+ * @property Business business
+ * @property BusinessProcess businessProcess
+ * @property BusinessProcessStatus businessProcessStatus
  */
 class ClientContract extends HistoryActiveRecord
 {
@@ -133,10 +143,10 @@ class ClientContract extends HistoryActiveRecord
     {
         return [
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            'ContractContragent' => \app\classes\behaviors\ContractContragent::className(),
-            'LkWizardClean' => \app\classes\behaviors\LkWizardClean::className(),
-            'SetOldStatus' => \app\classes\behaviors\SetOldStatus::className(),
-            'ClientContractComments' => \app\classes\behaviors\ClientContractComments::className(),
+            'ContractContragent' => ContractContragent::className(),
+            'LkWizardClean' => LkWizardClean::className(),
+            'SetOldStatus' => SetOldStatus::className(),
+            'ClientContractComments' => ClientContractComments::className(),
             'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::className(),
         ];
     }
@@ -197,29 +207,27 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
-     * @return int|string
-     */
-    public function getBusinessProcess()
-    {
-        $m = $this->hasOne(BusinessProcess::className(), ['id' => 'business_process_id'])->one();
-        return ($m) ? $m->name : $this->business_process_id;
-    }
-
-    /**
-     * @return int|string
+     * @return ActiveQuery
      */
     public function getBusiness()
     {
-        $m = Business::findOne($this->business_id);
-        return $m ? $m->name : $this->business_id;
+        return $this->hasOne(Business::className(), ['id' => 'business_id']);
     }
 
     /**
-     * @return BusinessProcessStatus
+     * @return ActiveQuery
+     */
+    public function getBusinessProcess()
+    {
+        return $this->hasOne(BusinessProcess::className(), ['id' => 'business_process_id']);
+    }
+
+    /**
+     * @return ActiveQuery
      */
     public function getBusinessProcessStatus()
     {
-        return BusinessProcessStatus::findOne($this->business_process_status_id);
+        return $this->hasOne(BusinessProcessStatus::className(), ['id' => 'business_process_status_id']);
     }
 
     /**
@@ -248,6 +256,18 @@ class ClientContract extends HistoryActiveRecord
     public function getSuper()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
+    }
+
+    /**
+     * @return null|ActiveQuery
+     */
+    public function getContractType()
+    {
+        if ($this->business_id != Business::OPERATOR && $this->business_id != Business::PARTNER) {
+            return null;
+        }
+
+        return $this->hasOne(ContractType::className(), ['id' => 'contract_type_id']);
     }
 
     /**

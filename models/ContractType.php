@@ -12,16 +12,35 @@ use yii\helpers\ArrayHelper;
  */
 class ContractType extends ActiveRecord
 {
+    /**
+     * Название таблицы
+     *
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_contract_type';
     }
 
+    /**
+     * Получение списка
+     *
+     * @param integer $businessProcessId
+     * @return array
+     */
     public static function getList($businessProcessId = null)
     {
         $arr = self::find()
             ->andFilterWhere(['business_process_id' => $businessProcessId])
             ->all();
         return array_merge([0 => 'Не задано'], ArrayHelper::map($arr, 'id', 'name'));
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
     }
 }

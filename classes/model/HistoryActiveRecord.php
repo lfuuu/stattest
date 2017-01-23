@@ -191,7 +191,7 @@ class HistoryActiveRecord extends ActiveRecord
             ->one();
 
         if ($historyModel) {
-            $this->fillHistoryDataInModel(json_decode($historyModel['data_json'], true));
+            $this->fillHistoryDataInModel($this->_historyModelJsonDecode($historyModel));
             $this->setHistoryVersionStoredDate($historyModel['date']);
         } else {
             // если нет истории на вызыванную дату, то берем первое сохранение версии
@@ -203,7 +203,7 @@ class HistoryActiveRecord extends ActiveRecord
                 ->one();
 
             if ($historyModel) {
-                $this->fillHistoryDataInModel(json_decode($historyModel['data_json'], true));
+                $this->fillHistoryDataInModel($this->_historyModelJsonDecode($historyModel));
                 $this->setHistoryVersionStoredDate($date);
             }
         }
@@ -211,6 +211,27 @@ class HistoryActiveRecord extends ActiveRecord
         $this->setHistoryVersionRequestedDate($date);
 
         return $this;
+    }
+
+    /**
+     * Декодирует Json и выкидывает ошибку с данными о неверной модели
+     *
+     * @param HistoryVersion $historyModel
+     * @return mixed
+     */
+    private function _historyModelJsonDecode(HistoryVersion $historyModel)
+    {
+        $json = json_decode($historyModel->data_json, true);
+
+        if (!$json) {
+            throw new InvalidParamException(sprintf('Error decode json (%s:%s, %s)',
+                $historyModel->model,
+                $historyModel->model_id,
+                $historyModel->date
+            ));
+        }
+
+        return $json;
     }
 
     /**
