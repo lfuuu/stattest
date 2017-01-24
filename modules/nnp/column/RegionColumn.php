@@ -22,7 +22,7 @@ class RegionColumn extends DataColumn
     public $isAddLink = true;
     public $countryCodes = null;
     public $isWithEmpty = true;
-    public $isWithNullAndNotNull = true;
+    public $isWithNullAndNotNull = false;
 
     public function __construct($config = [])
     {

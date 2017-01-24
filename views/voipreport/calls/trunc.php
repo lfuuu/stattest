@@ -20,9 +20,7 @@ use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
-use app\classes\grid\column\universal\NnpCityColumn;
 use app\classes\grid\column\universal\NnpOperatorColumn;
-use app\classes\grid\column\universal\NnpRegionColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\UsageTrunkColumn;
 use app\classes\grid\GridView;
@@ -30,6 +28,8 @@ use app\models\billing\Calls;
 use app\models\filter\CallsFilter;
 use yii\db\ActiveQuery;
 use yii\widgets\Breadcrumbs;
+use app\modules\nnp\column\CityColumn;
+use app\modules\nnp\column\RegionColumn;
 
 ?>
 
@@ -191,11 +191,11 @@ $columns = [
     ],
     [
         'attribute' => 'nnp_region_id',
-        'class' => NnpRegionColumn::className(),
+        'class' => RegionColumn::className(),
     ],
     [
         'attribute' => 'nnp_city_id',
-        'class' => NnpCityColumn::className(),
+        'class' => CityColumn::className(),
     ],
     [
         'attribute' => 'stats_nnp_package_minute_id',
