@@ -4616,7 +4616,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W[] = 'B.sum!=0';
             $W[] = 'P.currency="RUB" OR P.currency IS NULL';
             $W[] = 'biller_version = ' . ClientAccount::VERSION_BILLER_USAGE;
-            $W[] = 'B.client_id = 14410';
 
             if ($organizationId) {
                 $W[] = 'B.organization_id="' . $organizationId . '"';
@@ -4768,7 +4767,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     }
 
                     $invDate = $p['shipment_ts'] ?
-                        $A['bill']['shipment_ts'] :
+                        $p['shipment_ts'] :
                         $A['inv_date'];
 
                     $A['bill']['inv_date'] = $invDate;
