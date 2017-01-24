@@ -4,18 +4,18 @@
  *
  * @var \yii\web\View $this
  * @var string $date
- * @var [] $invoice
- * @var string $invoiceContent
+ * @var array $bills
  * @var string $langCode
  */
 
 use app\classes\uu\model\AccountEntry;
+use app\forms\templates\uu\InvoiceForm;
 use app\widgets\MonthPicker;
+use kartik\tabs\TabsX;
 use kartik\widgets\Select2;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
-use app\forms\templates\uu\InvoiceForm;
 
 echo Breadcrumbs::widget([
     'links' => [
@@ -58,8 +58,8 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
 
     <div class="col-sm-8">
         <div class="pull-right">
-
             <?php
+
             if ($langCode === InvoiceForm::UNIVERSAL_INVOICE_KEY) {
                 echo $this->render('//layouts/_link', [
                     'text' => 'Стандартная счет-фактура',
@@ -77,7 +77,7 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
                     'url' => Url::toRoute([
                         '/uu/invoice/view',
                         'month' => $month,
-                        'langCode' => InvoiceForm::UNIVERSAL_INVOICE_KEY
+                        'langCode' => InvoiceForm::UNIVERSAL_INVOICE_KEY,
                     ]),
                     'params' => [
                         'class' => 'btn btn-warning',
@@ -85,38 +85,31 @@ $attributeLabels = (new AccountEntry)->attributeLabels();
                 ]);
             }
             ?>
-
-            <?= $this->render('//layouts/_link', [
-                'text' => 'Печать',
-                'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'print', 'month' => $month, 'langCode' => $langCode]),
-                'glyphicon' => 'glyphicon glyphicon-print',
-                'params' => [
-                    'class' => 'btn btn-primary',
-                    'target' => '_blank',
-                ],
-            ]) ?>
-
-            <?= $this->render('//layouts/_link', [
-                'text' => 'Скачать в PDF',
-                'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'pdf', 'month' => $month, 'langCode' => $langCode]),
-                'glyphicon' => 'glyphicon glyphicon-download-alt',
-                'params' => [
-                    'class' => 'btn btn-success',
-                ],
-            ]) ?>
-
-            <?= $this->render('//layouts/_link', [
-                'text' => 'Скачать в Word',
-                'url' => Url::toRoute(['/uu/invoice/view', 'renderMode' => 'mhtml', 'month' => $month, 'langCode' => $langCode]),
-                'glyphicon' => 'glyphicon glyphicon-download-alt',
-                'params' => [
-                    'class' => 'btn btn-success',
-                ],
-            ]) ?>
-
         </div>
     </div>
 </div>
-<br/>
+<br />
 
-<iframe src="/uu/invoice/view?renderMode=print&month=<?= $month ?><?= ($langCode ? '&langCode=' . $langCode : '') ?>" style="width: 100%; height: 780px;" frameborder="0"></iframe>
+<?php
+
+$billTabs = [];
+foreach ($bills as $bill) {
+    $billTabs[] = [
+        'label' => $month . ' #' . $bill['id'],
+        'content' => $this->render('_billTab', [
+            'billId' => $bill['id'],
+            'langCode' => $langCode,
+            'month' => $month,
+        ]),
+        'headerOptions' => [],
+        'options' => ['style' => 'white-space: nowrap;'],
+    ];
+}
+
+echo TabsX::widget([
+    'id' => 'tabs-uu-invoice',
+    'items' => $billTabs,
+    'position' => TabsX::POS_ABOVE,
+    'bordered' => true,
+    'encodeLabels' => false,
+]);

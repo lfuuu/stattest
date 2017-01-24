@@ -15,20 +15,20 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         $summary_vat = 0,
         $summary_with_vat = 0;
 
-    private $language;
+    private $_language;
 
     /**
-     * @param string $billNo
+     * @param string $billId
      * @param string $billDate
      * @param string $language
      */
-    public function __construct($billNo, $billDate, $language)
+    public function __construct($billId, $billDate, $language)
     {
         parent::__construct();
 
-        $this->id = $billNo;
+        $this->id = $billId;
         $this->date = $billDate;
-        $this->language = $language;
+        $this->_language = $language;
     }
 
     /**
@@ -36,7 +36,7 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
      */
     public function getLanguage()
     {
-        return $this->language;
+        return $this->_language;
     }
 
     /**

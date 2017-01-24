@@ -7,13 +7,16 @@ namespace app\controllers\uu;
 
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
+use app\classes\uu\model\Bill;
 use app\models\ClientAccount;
 use app\models\light_models\uu\InvoiceLight;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 
 class InvoiceController extends BaseController
 {
+
     // Вернуть текущего клиента, если он есть
     use AddClientAccountFilterTraits;
 
@@ -30,7 +33,7 @@ class InvoiceController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['view'],
+                        'actions' => ['view', 'get',],
                         'roles' => ['newaccounts_balance.read'],
                     ],
                 ],
@@ -40,12 +43,11 @@ class InvoiceController extends BaseController
 
     /**
      * @param null|int $clientAccountId
-     * @param null|string $renderMode
      * @param null|string $month
      * @param null|string $langCode
      * @return bool|string
      */
-    public function actionView($clientAccountId = null, $renderMode = null, $month = null, $langCode = null)
+    public function actionView($clientAccountId = null, $month = null, $langCode = null)
     {
         // Вернуть текущего клиента, если он есть
         !$clientAccountId && $clientAccountId = $this->getCurrentClientAccountId();
@@ -58,33 +60,56 @@ class InvoiceController extends BaseController
                 ->format('Y-m');
         }
 
-        /** @var ClientAccount $clientAccount */
-        if (($clientAccount = ClientAccount::findOne($clientAccountId)) === null) {
-            Yii::$app->session->setFlash('error', Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
-            return $this->redirect('/');
-        }
-
+        $clientAccount = $this->_checkClientAccount($clientAccountId);
         $invoice = new InvoiceLight($clientAccount);
 
         if (is_null($langCode)) {
             $langCode = $clientAccount->contract->contragent->lang_code;
         }
 
-        $invoice->setLanguage($langCode);
 
         if ($date) {
             $invoice->setDate($date);
         }
 
-        $invoiceData = $invoice->getProperties();
+        return $this->render(
+            'view',
+            [
+                'bills' => $invoice->getBills(),
+                'langCode' => $langCode,
+                'date' => $date,
+            ]
+        );
+    }
+
+    /**
+     * @param int $billId
+     * @param null|string $renderMode
+     * @param null|string $langCode
+     * @return string
+     * @throws InvalidParamException
+     */
+    public function actionGet($billId, $renderMode = null, $langCode = null)
+    {
+        /** @var Bill $bill */
+        if (!($bill = Bill::findOne(['id' => $billId]))) {
+            throw new InvalidParamException;
+        }
+
+        $clientAccount = $this->_checkClientAccount($bill->client_account_id);
+
+        $invoice = (new InvoiceLight($clientAccount))
+            ->setBill($bill);
+
+        if (!is_null($langCode)) {
+            $invoice->setLanguage($langCode);
+        }
 
         switch ($renderMode) {
             case 'pdf': {
                 return $this->renderAsPDF(
                     'print',
-                    [
-                        'invoiceContent' => $invoice->render(),
-                    ],
+                    ['invoiceContent' => $invoice->render(),],
                     [
                         'cssFile' => '@web/css/invoice/invoice.css',
                     ]
@@ -94,31 +119,37 @@ class InvoiceController extends BaseController
             case 'mhtml': {
                 return $this->renderAsMHTML(
                     'print',
-                    [
-                        'invoiceContent' => $invoice->render(),
-                    ]
-                );
-            }
-
-            case 'print': {
-                $this->layout = 'empty';
-                return $this->render(
-                    'print',
-                    [
-                        'invoiceContent' => $invoice->render(),
-                    ]
-                );
-            }
-            default: {
-                return $this->render(
-                    'view',
-                    [
-                        'invoice' => $invoiceData,
-                        'langCode' => $langCode,
-                        'date' => $date,
-                    ]
+                    ['invoiceContent' => $invoice->render(),]
                 );
             }
         }
+
+        $this->layout = 'empty';
+        return $this->render(
+            'print',
+            ['invoiceContent' => $invoice->render(),]
+        );
     }
+
+    /**
+     * @param int $clientAccountId
+     * @return ClientAccount|\yii\web\Response
+     */
+    private function _checkClientAccount($clientAccountId)
+    {
+        /** @var ClientAccount $clientAccount */
+        if (($clientAccount = ClientAccount::findOne($clientAccountId)) === null) {
+            Yii::$app->session->setFlash('error',
+                Yii::t(
+                    'tariff', 'You should {a_start}select a client first{a_finish}',
+                    ['a_start' => '<a href="/">', 'a_finish' => '</a>']
+                )
+            );
+            $this->redirect('/');
+            Yii::$app->end();
+        }
+
+        return $clientAccount;
+    }
+
 }

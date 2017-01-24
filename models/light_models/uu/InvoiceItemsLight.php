@@ -14,31 +14,32 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
     public $items = [];
 
     private
-        $clientAccount = null,
-        $invoiceSetting,
-        $language,
-        $clientContragentEuroINN = false,
-        $isDetailed = true;
+        $_clientAccount,
+        $_invoiceSetting,
+        $_language,
+        $_clientContragentEuroINN = false,
+        $_isDetailed = true;
 
     /**
      * @param ClientAccount $clientAccount
-     * @param AccountEntry[] $items
      * @param InvoiceBillLight $bill
-     * @param $invoiceSetting
+     * @param AccountEntry[] $items
+     * @param InvoiceSettings $invoiceSetting
+     * @param string $language
      */
     public function __construct(ClientAccount $clientAccount, InvoiceBillLight $bill, $items, $invoiceSetting, $language)
     {
         parent::__construct();
 
-        $this->clientAccount = $clientAccount;
-        $this->invoiceSetting = $invoiceSetting;
-        $this->language = $language;
+        $this->_clientAccount = $clientAccount;
+        $this->_invoiceSetting = $invoiceSetting;
+        $this->_language = $language;
         // Взять EU Vat ID у контрагента
-        $this->clientContragentEuroINN = $clientAccount->contragent->inn_euro;
+        $this->_clientContragentEuroINN = $clientAccount->contragent->inn_euro;
         // Язык счета
         $billLanguage = $bill->getLanguage();
         // Установить тип закрывающего документа (Полный / Краткий)
-        $this->isDetailed = (bool)$clientAccount->type_of_bill;
+        $this->_isDetailed = (bool)$clientAccount->type_of_bill;
 
         foreach ($items as $item) {
             // Пересчет НДС если необходимо
@@ -70,13 +71,13 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
      */
     public function getAll()
     {
-        if ($this->isDetailed === ClientAccount::TYPE_OF_BILL_SIMPLE) {
+        if ($this->_isDetailed === ClientAccount::TYPE_OF_BILL_SIMPLE) {
             $billLine = [
                 'title' => Yii::t(
                     'biller',
                     'Communications services contract #{contract_number}',
-                    ['contract_number' => $this->clientAccount->contract->number],
-                    $this->language
+                    ['contract_number' => $this->_clientAccount->contract->number],
+                    $this->_language
                 ),
                 'price_without_vat' => 0,
                 'price_with_vat' => 0,
@@ -97,23 +98,23 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
     }
 
     /**
-     * @param $item
+     * @param AccountEntry $item
      */
     public function relalcVat(&$item)
     {
         $isApplyVatRate = false;
         $vatRate = $item->vat;
 
-        if (!is_null($this->invoiceSetting)) {
-            $vatRate = $this->invoiceSetting->vat_rate;
+        if (!is_null($this->_invoiceSetting)) {
+            $vatRate = $this->_invoiceSetting->vat_rate;
 
             // Применение схемы начисления НДС
-            switch ($this->invoiceSetting->vat_apply_scheme) {
+            switch ($this->_invoiceSetting->vat_apply_scheme) {
 
                 // Схема #1 применение НДС из настроек as is
                 case InvoiceSettings::VAT_SCHEME_FIRST:
-                    if ($this->invoiceSetting->vat_rate != $item->vat_rate) {
-                        $vatRate = $this->invoiceSetting->vat_rate;
+                    if ($this->_invoiceSetting->vat_rate != $item->vat_rate) {
+                        $vatRate = $this->_invoiceSetting->vat_rate;
                         $isApplyVatRate = true;
                     }
                     break;
@@ -129,11 +130,14 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
 
                 // Схема #4 + 0 НДС + EU Vat ID
                 case InvoiceSettings::VAT_SCHEME_FOURTH:
-                    if (!empty($this->clientContragentEuroINN)) {
+                    if (!empty($this->_clientContragentEuroINN)) {
                         $vatRate = 0;
                         $isApplyVatRate = true;
-                    } else if($this->invoiceSetting->vat_rate != $item->vat_rate && is_numeric($this->invoiceSetting->vat_rate)) {
-                        $vatRate = $this->invoiceSetting->vat_rate;
+                    } elseif (
+                        $this->_invoiceSetting->vat_rate != $item->vat_rate
+                        && is_numeric($this->_invoiceSetting->vat_rate)
+                    ) {
+                        $vatRate = $this->_invoiceSetting->vat_rate;
                         $isApplyVatRate = true;
                     }
                     break;

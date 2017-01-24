@@ -1,10 +1,9 @@
 <?php
 namespace app\forms\templates\uu;
 
-use app\classes\Smarty;
-use app\models\light_models\uu\InvoiceLight;
 use Yii;
 use app\classes\Form;
+use app\classes\Smarty;
 use app\models\Language;
 use yii\web\UploadedFile;
 
@@ -15,7 +14,7 @@ class InvoiceForm extends Form
     const TEMPLATE_EXTENSION = 'html';
     const UNIVERSAL_INVOICE_KEY = 'en-EN-universal';
 
-    private $langCode = Language::LANGUAGE_DEFAULT;
+    private $_langCode = Language::LANGUAGE_DEFAULT;
 
     /**
      * @param string $langCode
@@ -24,7 +23,7 @@ class InvoiceForm extends Form
     {
         parent::__construct();
 
-        $this->langCode = $langCode;
+        $this->_langCode = $langCode;
     }
 
     /**
@@ -32,7 +31,7 @@ class InvoiceForm extends Form
      */
     public function getLanguage()
     {
-        return $this->langCode;
+        return $this->_langCode;
     }
 
     /**
@@ -40,7 +39,7 @@ class InvoiceForm extends Form
      */
     public function fileExists()
     {
-        return file_exists(self::getPath() . $this->langCode . '.' . self::TEMPLATE_EXTENSION);
+        return file_exists(self::getPath() . $this->_langCode . '.' . self::TEMPLATE_EXTENSION);
     }
 
     /**
@@ -49,22 +48,23 @@ class InvoiceForm extends Form
     public function getFile()
     {
         if ($this->fileExists()) {
-            return file_get_contents(self::getPath() . $this->langCode . '.' . self::TEMPLATE_EXTENSION);
+            return file_get_contents(self::getPath() . $this->_langCode . '.' . self::TEMPLATE_EXTENSION);
         }
+
         return false;
     }
 
-     /**
+    /**
      * @inheritdoc
      */
     public function save()
     {
         // Сохранение универсального шаблона
-        $this->storeFile(self::UNIVERSAL_INVOICE_KEY);
+        $this->_storeFile(self::UNIVERSAL_INVOICE_KEY);
 
         // Сохранение языковых шаблонов
         foreach (Language::getList() as $languageCode => $languageTitle) {
-            $this->storeFile($languageCode);
+            $this->_storeFile($languageCode);
         }
     }
 
@@ -79,7 +79,7 @@ class InvoiceForm extends Form
     /**
      * @param string $key
      */
-    private function storeFile($key)
+    private function _storeFile($key)
     {
         /** @var UploadedFile $file */
         $file = UploadedFile::getInstance($this, 'filename[' . $key . ']');
