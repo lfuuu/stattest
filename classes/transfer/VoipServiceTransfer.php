@@ -13,7 +13,6 @@ use yii\db\ActiveRecord;
 
 /**
  * Класс переноса услуг типа "Телефония номера"
- * @package app\classes\transfer
  */
 class VoipServiceTransfer extends ServiceTransfer
 {
@@ -26,25 +25,25 @@ class VoipServiceTransfer extends ServiceTransfer
      */
     public function getPossibleToTransfer(ClientAccount $clientAccount)
     {
-        $usages =
-            UsageVoip::find()
-                ->client($clientAccount->client)
-                ->actual()
-                ->andWhere(['next_usage_id' => 0])
-                ->orderBy(['id' => SORT_DESC]);
-
-        $voipNumbers = $clientAccount->voipNumbers;
-        $stopList = [];
-
-        foreach ($voipNumbers as $number => $options) {
-            if ($options['type'] !== 'vpbx' || !$options['stat_product_id']) {
-                continue;
-            }
-            $stopList[] = $number;
-        }
+        $usages = UsageVoip::find()
+            ->client($clientAccount->client)
+            ->actual()
+            ->andWhere(['next_usage_id' => 0])
+            ->orderBy(['id' => SORT_DESC]);
 
         $result = [];
         if ($usages->count()) {
+            $voipNumbers = $clientAccount->voipNumbers;
+            $stopList = [];
+
+            foreach ($voipNumbers as $number => $options) {
+                if ($options['type'] !== 'vpbx' || !$options['stat_product_id']) {
+                    continue;
+                }
+
+                $stopList[] = $number;
+            }
+
             foreach ($usages->each() as $usage) {
                 if (
                     in_array($usage->E164, $stopList)
@@ -56,6 +55,7 @@ class VoipServiceTransfer extends ServiceTransfer
                 ) {
                     continue;
                 }
+
                 $result[] = $usage;
             }
         }
@@ -75,8 +75,8 @@ class VoipServiceTransfer extends ServiceTransfer
 
         LogTarifTransfer::process($this, $targetService->id);
 
-        $this->process7800($targetService);
-        $this->processPackages($targetService);
+        $this->_process7800($targetService);
+        $this->_processPackages($targetService);
 
         return $targetService;
     }
@@ -93,8 +93,8 @@ class VoipServiceTransfer extends ServiceTransfer
 
         parent::fallback();
 
-        $this->fallback7800();
-        $this->fallbackPackages();
+        $this->_fallback7800();
+        $this->_fallbackPackages();
     }
 
     /**
@@ -104,7 +104,7 @@ class VoipServiceTransfer extends ServiceTransfer
      * @throws \Exception
      * @throws \yii\base\Exception
      */
-    private function process7800($targetService)
+    private function _process7800($targetService)
     {
         if (!$targetService->line7800_id) {
             return;
@@ -126,14 +126,13 @@ class VoipServiceTransfer extends ServiceTransfer
      *
      * @param ActiveRecord $targetService
      */
-    private function processPackages($targetService)
+    private function _processPackages($targetService)
     {
-        $packages =
-            UsageVoipPackage::find()
-                ->andWhere(['usage_voip_id' => $this->service->id])
-                ->andWhere(['<=', 'actual_from', $this->getExpireDate()])
-                ->andWhere(['>=', 'actual_to', $this->getExpireDate()])
-                ->all();
+        $packages = UsageVoipPackage::find()
+            ->andWhere(['usage_voip_id' => $this->service->id])
+            ->andWhere(['<=', 'actual_from', $this->getExpireDate()])
+            ->andWhere(['>=', 'actual_to', $this->getExpireDate()])
+            ->all();
 
         if (!count($packages)) {
             return;
@@ -154,7 +153,7 @@ class VoipServiceTransfer extends ServiceTransfer
      * @throws \Exception
      * @throws \yii\db\Exception
      */
-    private function fallback7800()
+    private function _fallback7800()
     {
         if (!$this->service->line7800_id) {
             return;
@@ -172,12 +171,11 @@ class VoipServiceTransfer extends ServiceTransfer
     /**
      * * Процесс отмены переноса связанных с услугой пакетов
      */
-    private function fallbackPackages()
+    private function _fallbackPackages()
     {
-        $packages =
-            UsageVoipPackage::find()
-                ->andWhere(['usage_voip_id' => $this->service->id])
-                ->all();
+        $packages = UsageVoipPackage::find()
+            ->andWhere(['usage_voip_id' => $this->service->id])
+            ->all();
 
         if (!count($packages)) {
             return;

@@ -4,12 +4,12 @@ namespace app\classes\transfer;
 
 use app\exceptions\ModelValidationException;
 use app\models\LogTarif;
+use app\models\ClientAccount;
 use Yii;
 use yii\base\InvalidValueException;
 
 /**
  * Класс переноса тарифов
- * @package app\classes\transfer
  */
 abstract class LogTarifTransfer
 {
@@ -69,14 +69,13 @@ abstract class LogTarifTransfer
      */
     public static function fallback(ServiceTransfer $serviceTransfer)
     {
-        $logTariff =
-            LogTarif::find()
-                ->andWhere([
-                    'service' => $serviceTransfer->service->serviceType,
-                    'id_service' => $serviceTransfer->service->next_usage_id
-                ])
-                ->andWhere('id_tarif != 0')
-                ->one();
+        $logTariff = LogTarif::find()
+            ->andWhere([
+                'service' => $serviceTransfer->service->serviceType,
+                'id_service' => $serviceTransfer->service->next_usage_id
+            ])
+            ->andWhere('id_tarif != 0')
+            ->one();
 
         if (!($logTariff instanceof LogTarif)) {
             throw new InvalidValueException('Услуга не может быть восстановлена, не найден тарифный план');

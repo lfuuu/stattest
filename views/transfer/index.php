@@ -6,7 +6,6 @@ use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use app\classes\Html;
 use app\forms\transfer\ServiceTransferForm;
-use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 
 /** @var ClientAccount $clientAccount */
@@ -188,7 +187,7 @@ jQuery(document).ready(function() {
             }
         })
         .autocomplete({
-            source: '/transfer/account-search?client_id=<?php echo $clientAccount->id ?>',
+            source: '/transfer/account-search?clientAccountId=<?php echo $clientAccount->id ?>',
             minLength: 2,
             focus: function() {
                 return false;

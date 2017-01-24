@@ -4,7 +4,9 @@ namespace app\dao;
 use app\classes\uu\tarificator\RealtimeBalanceTarificator;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
+use app\models\ClientContract;
 use app\models\ClientContractComment;
+use app\models\ClientContragent;
 use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
@@ -16,34 +18,37 @@ use app\models\PaymentOrder;
 use app\models\Saldo;
 use DateTime;
 use DateTimeZone;
+use yii\db\Query;
 
 /**
  * @method static ClientAccountDao me($args = null)
- * @property
  */
 class ClientAccountDao extends Singleton
 {
 
-    private $voipNumbers = null;
+    private $_voipNumbers;
 
+    /**
+     * @param ClientAccount $clientAccount
+     * @return string
+     */
     public function getLastBillDate(ClientAccount $clientAccount)
     {
-        $billDate =
-            ClientAccount::getDb()->createCommand("
-                    select max(b.bill_date)
-                    from newbills b, newbill_lines bl
-                    where 
-                            b.client_id=:clientAccountId 
-                        and day(b.bill_date) = 1 
-                        and b.bill_no=bl.bill_no 
-                        and bl.id_service > 0
-                        and biller_version = :billerVersion
-                ",
-                [
-                    ':clientAccountId' => $clientAccount->id,
-                    ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
-                ]
-            )->queryScalar();
+        $billDate = ClientAccount::getDb()->createCommand('
+                select max(b.bill_date)
+                from newbills b, newbill_lines bl
+                where
+                        b.client_id=:clientAccountId
+                    and day(b.bill_date) = 1
+                    and b.bill_no=bl.bill_no
+                    and bl.id_service > 0
+                    and biller_version = :billerVersion
+            ',
+            [
+                ':clientAccountId' => $clientAccount->id,
+                ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
+            ]
+        )->queryScalar();
 
         if (!$billDate) {
             $billDate = '2000-01-01';
@@ -55,16 +60,20 @@ class ClientAccountDao extends Singleton
         return $billDate->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 
+    /**
+     * @param ClientAccount $clientAccount
+     * @return false|null|string
+     */
     public function getLastPayedBillMonth(ClientAccount $clientAccount)
     {
-        return ClientAccount::getDb()->createCommand("
+        return ClientAccount::getDb()->createCommand('
                 select b.bill_date - interval day(b.bill_date)-1 day
                 from newbills b left join newbill_lines bl on b.bill_no=bl.bill_no
                 where b.client_id=:clientAccountId and b.is_payed=1 and bl.id_service > 0 and biller_version = :billerVersion
                 group by b.bill_date
                 order by b.bill_date desc
                 limit 1
-            ",
+            ',
             [
                 ':clientAccountId' => $clientAccount->id,
                 ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
@@ -72,6 +81,37 @@ class ClientAccountDao extends Singleton
         )->queryScalar();
     }
 
+    /**
+     * @param int $clientAccountId
+     * @param string $search
+     * @return Query
+     */
+    public function clientAccountSearch($clientAccountId, $search)
+    {
+        return (new Query)
+            ->select(['client.id', 'contragent.name'])
+            ->from(['client' => ClientAccount::tableName()])
+            ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
+            ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
+            ->where(['!=', 'client.id', (int)$clientAccountId])
+            ->andWhere([
+                'OR',
+                ['LIKE', 'client.client', $search],
+                ['client.id' => $search],
+                ['LIKE', 'contragent.name', $search],
+            ])
+            ->orderBy([
+                'contragent.name' => SORT_DESC,
+                'client.id' => SORT_DESC,
+            ])
+            ->limit(10);
+    }
+
+    /**
+     * @param int $clientAccountId
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
+     */
     public function updateBalance($clientAccountId)
     {
         if ($clientAccountId instanceof ClientAccount) {
@@ -87,19 +127,17 @@ class ClientAccountDao extends Singleton
             return;
         }
 
-        $saldo = $this->getSaldo($clientAccount);
+        $saldo = $this->_getSaldo($clientAccount);
 
-        $R1 = $this->enumBillsFullSum($clientAccount, $saldo['ts']);
-        $R2 = $this->enumPayments($clientAccount, $saldo['ts']);
+        $R1 = $this->_enumBillsFullSum($clientAccount, $saldo['ts']);
+        $R2 = $this->_enumPayments($clientAccount, $saldo['ts']);
 
         $sum = -$saldo['saldo'];
 
         $balance = 0;
 
         if ($sum > 0) {
-
-            array_unshift($R2, Array
-            (
+            array_unshift($R2, [
                 'id' => '0',
                 'client_id' => $clientAccount->id,
                 'payment_no' => 0,
@@ -111,28 +149,25 @@ class ClientAccountDao extends Singleton
                 'add_date' => $saldo['ts'],
                 'add_user' => 0,
                 'sum' => $sum,
-                "is_billpay" => 0,
-            ));
+                'is_billpay' => 0,
+            ]);
         } elseif ($sum < 0) {
-
-            array_unshift($R1, Array
-                (
-                    'bill_no' => 'saldo',
-                    'is_payed' => 1,
-                    'sum' => -$sum,
-                    'new_is_payed' => 0,
-                )
-            );
+            array_unshift($R1, [
+                'bill_no' => 'saldo',
+                'is_payed' => 1,
+                'sum' => -$sum,
+                'new_is_payed' => 0,
+            ]);
         }
 
-        $paymentsOrders = array();
+        $paymentsOrders = [];
 
         foreach ($R1 as $r) {
             $balance = $balance - $r['sum'];
         }
 
         foreach ($R2 as $r) {
-            if (!$r["is_billpay"]) {
+            if (!$r['is_billpay']) {
                 $balance = $balance + $r['sum'];
             }
         }
@@ -166,14 +201,14 @@ class ClientAccountDao extends Singleton
                 continue;
             }
 
-
             if ($r['bill_no'] == '') {
                 continue;
             }
+
             $bill_no = $r['bill_no'];
 
             if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed'] == 0 || $R1[$bill_no]['new_is_payed'] == 2) && $R1[$bill_no]['sum'] >= 0) {
-                if ($this->sum_more($r['sum'], $R1[$bill_no]['sum'])) {
+                if ($this->_sumMore($r['sum'], $R1[$bill_no]['sum'])) {
                     $sum = round($R1[$bill_no]['sum'], 2);
 
                     $paymentsOrders[] = [
@@ -211,7 +246,6 @@ class ClientAccountDao extends Singleton
                         $R1[$bill_no]['sum'] = 0;
                         $R1[$bill_no]['new_is_payed'] = 1;
                     }
-
                 }
             }
         }
@@ -226,7 +260,7 @@ class ClientAccountDao extends Singleton
             $bill_no = $r['bill_vis_no'];
 
             if (isset($R1[$bill_no]) && ($R1[$bill_no]['new_is_payed'] == 0 || $R1[$bill_no]['new_is_payed'] == 2) && $R1[$bill_no]['sum'] >= 0) {
-                if ($this->sum_more($r['sum'], $R1[$bill_no]['sum'])) {
+                if ($this->_sumMore($r['sum'], $R1[$bill_no]['sum'])) {
                     $sum = round($R1[$bill_no]['sum'], 2);
 
                     if (abs($sum) >= 0.01) {
@@ -286,7 +320,7 @@ class ClientAccountDao extends Singleton
                         continue;
                     }
 
-                    if ($this->sum_more($r['sum'], $rb['sum'])) {
+                    if ($this->_sumMore($r['sum'], $rb['sum'])) {
 
                         $sum = $rb['sum'];
 
@@ -333,13 +367,11 @@ class ClientAccountDao extends Singleton
                 }
             }
 
-
             // Если все счета оплачены и осталась лишняя оплата то в любом случае закидываем ее на последний счет, даже если будет переплата.
-
             $last_payment = null;
             foreach ($R1 as $k => $r) {
 
-                if (($r['new_is_payed'] == 0 || $r['new_is_payed'] == 2) && $this->sum_more(0, $r['sum'], 1)) {
+                if (($r['new_is_payed'] == 0 || $r['new_is_payed'] == 2) && $this->_sumMore(0, $r['sum'], 1)) {
                     $R1[$k]['new_is_payed'] = 1;
                 }
 
@@ -365,13 +397,12 @@ class ClientAccountDao extends Singleton
                     ];
                 }
             }
-
-        } // не магазин
+        }
 
         $transaction = Bill::getDb()->beginTransaction();
 
         foreach ($R1 as $billNo => $v) {
-            if ($v["bill_no"] == "saldo") {
+            if ($v['bill_no'] == 'saldo') {
                 continue;
             }
 
@@ -393,7 +424,7 @@ class ClientAccountDao extends Singleton
 
         foreach ($paymentsOrders as $r) {
 
-            if (!$r["bill_no"]) {
+            if (!$r['bill_no']) {
                 continue;
             }
 
@@ -435,27 +466,35 @@ class ClientAccountDao extends Singleton
         $transaction->commit();
     }
 
-    private function getSaldo(ClientAccount $clientAccount)
+    /**
+     * @param ClientAccount $clientAccount
+     * @return array
+     */
+    private function _getSaldo(ClientAccount $clientAccount)
     {
-        $saldo =
-            Saldo::find()
-                ->andWhere([
-                    'client_id' => $clientAccount->id,
-                    'is_history' => 0,
-                    'currency' => $clientAccount->currency
-                ])
-                ->orderBy('id desc')
-                ->limit(1)
-                ->one();
+        $saldo = Saldo::find()
+            ->andWhere([
+                'client_id' => $clientAccount->id,
+                'is_history' => 0,
+                'currency' => $clientAccount->currency
+            ])
+            ->orderBy('id desc')
+            ->limit(1)
+            ->one();
+
         if ($saldo) {
             return ['ts' => $saldo->ts, 'saldo' => $saldo->saldo];
-        } else {
-            return ['ts' => 0, 'saldo' => 0];
         }
+
+        return ['ts' => 0, 'saldo' => 0];
     }
 
-
-    private function enumBillsFullSum(ClientAccount $clientAccount, $saldoDate)
+    /**
+     * @param ClientAccount $clientAccount
+     * @param string $saldoDate
+     * @return array
+     */
+    private function _enumBillsFullSum(ClientAccount $clientAccount, $saldoDate)
     {
         $sql = '
             SELECT * FROM (
@@ -511,31 +550,35 @@ class ClientAccountDao extends Singleton
             GROUP BY B.bill_no, B.is_payed, B.sum, B.bill_date, B.currency
             ORDER BY bill_date asc, bill_no asc';
 
-        $bills =
-            Bill::getDb()
-                ->createCommand(
-                    $sql,
-                    [
-                        ':clientAccountId' => $clientAccount->id,
-                        ':currency' => $clientAccount->currency,
-                        ':saldoDate' => $saldoDate,
-                        ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
-                    ]
-                )
-                ->queryAll();
+        $bills = Bill::getDb()->createCommand(
+            $sql,
+            [
+                ':clientAccountId' => $clientAccount->id,
+                ':currency' => $clientAccount->currency,
+                ':saldoDate' => $saldoDate,
+                ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
+            ]
+        )
+        ->queryAll();
 
         $result = [];
         foreach ($bills as $bill) {
             if ($bill['currency'] == 'USD' && $bill['currency']) {
 
             }
+
             $result[$bill['bill_no']] = $bill;
         }
 
         return $result;
     }
 
-    private function enumPayments(ClientAccount $clientAccount, $saldoDate)
+    /**
+     * @param ClientAccount $clientAccount
+     * @param string $saldoDate
+     * @return array
+     */
+    private function _enumPayments(ClientAccount $clientAccount, $saldoDate)
     {
         $sql = '
             select P.*, 0 as is_billpay  from newpayments as P
@@ -557,15 +600,15 @@ class ClientAccountDao extends Singleton
                 and B.bill_date >= :saldoDate
             order by payment_date asc
         ';
-        $payments =
-            Bill::getDb()->createCommand(
-                $sql,
-                [
-                    ':clientAccountId' => $clientAccount->id,
-                    ':currency' => $clientAccount->currency,
-                    ':saldoDate' => $saldoDate
-                ]
-            )->queryAll();
+
+        $payments = Bill::getDb()->createCommand(
+            $sql,
+            [
+                ':clientAccountId' => $clientAccount->id,
+                ':currency' => $clientAccount->currency,
+                ':saldoDate' => $saldoDate
+            ]
+        )->queryAll();
 
         $paymentsById = [];
         foreach ($payments as $payment) {
@@ -584,15 +627,15 @@ class ClientAccountDao extends Singleton
                             and C.status NOT IN ('operator', 'distr')
                             and B.biller_version = :billerVersion
         ";
-        $billPayments =
-            Bill::getDb()->createCommand(
-                $sql,
-                [
-                    ':clientAccountId' => $clientAccount->id,
-                    ':saldoDate' => $saldoDate,
-                    ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE,
-                ]
-            )->queryAll();
+
+        $billPayments = Bill::getDb()->createCommand(
+            $sql,
+            [
+                ':clientAccountId' => $clientAccount->id,
+                ':saldoDate' => $saldoDate,
+                ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE,
+            ]
+        )->queryAll();
 
         $paymentsAndChargebacks = [];
         foreach ($paymentsById as $v) {
@@ -623,77 +666,86 @@ class ClientAccountDao extends Singleton
                         'sum' => -$v['sum'],
                         'bill_no' => '',
                         'bill_vis_no' => '',
-                        "is_billpay" => 1
+                        'is_billpay' => 1
                     );
                     $paymentsById[$v['bill_no']] = $pay;
                 }
             }
         }
+
         return $paymentsById;
     }
 
-    private function sum_more($pay, $bill, $diff = 0.01)
+    /**
+     * @param float $pay
+     * @param float $bill
+     * @param float $diff
+     * @return bool
+     */
+    private function _sumMore($pay, $bill, $diff = 0.01)
     {
         return ($pay - $bill > -$diff);
     }
 
+    /**
+     * @param ClientAccount $clientAccount
+     */
     public function updateIsActive(ClientAccount $clientAccount)
     {
         $now = new \DateTime();
 
-        $hasUsage =
-            Yii::$app->db->createCommand("
-                select id
-                from usage_extra u
-                where u.client = :client and u.actual_to >= :date
+        $hasUsage = Yii::$app->db->createCommand('
+            select id
+            from usage_extra u
+            where u.client = :client and u.actual_to >= :date
 
-                union all
+            union all
 
-                select id
-                from usage_welltime u
-                where u.client = :client and u.actual_to >= :date
+            select id
+            from usage_welltime u
+            where u.client = :client and u.actual_to >= :date
 
-                union all
+            union all
 
-                select id
-                from usage_ip_ports u
-                where u.client = :client and u.actual_to >= :date
+            select id
+            from usage_ip_ports u
+            where u.client = :client and u.actual_to >= :date
 
-                union all
+            union all
 
-                select id
-                from usage_sms u
-                where u.client = :client and u.actual_to >= :date
+            select id
+            from usage_sms u
+            where u.client = :client and u.actual_to >= :date
 
-                union all
+            union all
 
-                select id
-                from usage_virtpbx u
-                where u.client = :client and u.actual_to >= :date
+            select id
+            from usage_virtpbx u
+            where u.client = :client and u.actual_to >= :date
 
-                union all
+            union all
 
-                select id
-                from usage_voip u
-                where u.client = :client and u.actual_to >= :date
-                
-                union all
+            select id
+            from usage_voip u
+            where u.client = :client and u.actual_to >= :date
 
-                select id
-                from usage_trunk u
-                where u.client_account_id = :client_account_id and u.actual_to >= :date
-                
-                union all
+            union all
 
-                select id
-                from uu_account_tariff u
-                where u.client_account_id = :client_account_id and tariff_period_id is not null
-            ", [
-                ':client' => $clientAccount->client,
-                ':client_account_id' => $clientAccount->id,
-                ':date' => $now->format(DateTimeZoneHelper::DATE_FORMAT),
-            ])
-                ->queryOne();
+            select id
+            from usage_trunk u
+            where u.client_account_id = :client_account_id and u.actual_to >= :date
+
+            union all
+
+            select id
+            from uu_account_tariff u
+            where u.client_account_id = :client_account_id and tariff_period_id is not null
+        ', [
+            ':client' => $clientAccount->client,
+            ':client_account_id' => $clientAccount->id,
+            ':date' => $now->format(DateTimeZoneHelper::DATE_FORMAT),
+        ])
+            ->queryOne();
 
         $newIsActive = $hasUsage ? 1 : 0;
         if ($clientAccount->is_active != $newIsActive) {
@@ -702,12 +754,17 @@ class ClientAccountDao extends Singleton
         }
     }
 
+    /**
+     * @param ClientAccount $clientAccount
+     * @return array
+     */
     public function getClientVoipNumbers(ClientAccount $clientAccount)
     {
-        if (is_null($this->voipNumbers)) {
-            $this->voipNumbers = ApiPhone::getNumbersInfo($clientAccount);
+        if (is_null($this->_voipNumbers)) {
+            $this->_voipNumbers = ApiPhone::getNumbersInfo($clientAccount);
         }
-        return $this->voipNumbers;
+
+        return $this->_voipNumbers;
     }
 
 }

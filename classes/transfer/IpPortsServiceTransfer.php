@@ -40,8 +40,8 @@ class IpPortsServiceTransfer extends ServiceTransfer
     {
         $targetService = parent::process();
 
-        $this->processRoutes($targetService);
-        $this->processDevices($targetService);
+        $this->_processRoutes($targetService);
+        $this->_processDevices($targetService);
         LogTarifTransfer::process($this, $targetService->id);
 
         return $targetService;
@@ -55,8 +55,8 @@ class IpPortsServiceTransfer extends ServiceTransfer
      */
     public function fallback()
     {
-        $this->fallbackRoutes();
-        $this->fallbackDevices();
+        $this->_fallbackRoutes();
+        $this->_fallbackDevices();
         LogTarifTransfer::fallback($this);
 
         parent::fallback();
@@ -69,14 +69,13 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * @throws \Exception
      * @throws \yii\db\Exception
      */
-    private function processRoutes($targetService)
+    private function _processRoutes($targetService)
     {
-        $routes =
-            UsageIpRoutes::find()
-                ->andWhere(['port_id' => $this->service->id])
-                ->andWhere('actual_from <= :dateFrom', [':dateFrom' => $this->getActualDate()])
-                ->andWhere('actual_to >= :dateFrom', [':dateFrom' => $this->getActualDate()])
-                ->all();
+        $routes = UsageIpRoutes::find()
+            ->andWhere(['port_id' => $this->service->id])
+            ->andWhere('actual_from <= :dateFrom', [':dateFrom' => $this->getActualDate()])
+            ->andWhere('actual_to >= :dateFrom', [':dateFrom' => $this->getActualDate()])
+            ->all();
 
         foreach ($routes as $route) {
             $dbTransaction = Yii::$app->db->beginTransaction();
@@ -110,20 +109,18 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * @throws \Exception
      * @throws \yii\db\Exception
      */
-    private function fallbackRoutes()
+    private function _fallbackRoutes()
     {
-        $routes =
-            UsageIpRoutes::find()
-                ->andWhere(['port_id' => $this->service->id])
-                ->all();
+        $routes = UsageIpRoutes::find()
+            ->andWhere(['port_id' => $this->service->id])
+            ->all();
 
         foreach ($routes as $route) {
             $dbTransaction = Yii::$app->db->beginTransaction();
             try {
-                $movedRoute =
-                    UsageIpRoutes::find()
-                        ->andWhere(['port_id' => $this->service->next_usage_id])
-                        ->one();
+                $movedRoute = UsageIpRoutes::find()
+                    ->andWhere(['port_id' => $this->service->next_usage_id])
+                    ->one();
                 Assert::isObject($movedRoute);
 
                 $route->actual_to = $movedRoute->actual_to;
@@ -145,15 +142,14 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * @throws \Exception
      * @throws \yii\db\Exception
      */
-    private function processDevices($targetService)
+    private function _processDevices($targetService)
     {
-        $devices =
-            UsageTechCpe::find()
-                ->andWhere(['service' => 'usage_ip_ports'])
-                ->andWhere(['id_service' => $this->service->id])
-                ->andWhere('actual_from <= :dateFrom', [':dateFrom' => $this->getActualDate()])
-                ->andWhere('actual_to >= :dateFrom', [':dateFrom' => $this->getActualDate()])
-                ->all();
+        $devices = UsageTechCpe::find()
+            ->andWhere(['service' => 'usage_ip_ports'])
+            ->andWhere(['id_service' => $this->service->id])
+            ->andWhere('actual_from <= :dateFrom', [':dateFrom' => $this->getActualDate()])
+            ->andWhere('actual_to >= :dateFrom', [':dateFrom' => $this->getActualDate()])
+            ->all();
 
         foreach ($devices as $device) {
             $dbTransaction = Yii::$app->db->beginTransaction();
@@ -185,23 +181,21 @@ class IpPortsServiceTransfer extends ServiceTransfer
      * @throws \Exception
      * @throws \yii\db\Exception
      */
-    private function fallbackDevices()
+    private function _fallbackDevices()
     {
-        $devices =
-            UsageTechCpe::find()
-                ->andWhere(['service' => 'usage_ip_ports'])
-                ->andWhere(['id_service' => $this->service->id])
-                ->all();
+        $devices = UsageTechCpe::find()
+            ->andWhere(['service' => 'usage_ip_ports'])
+            ->andWhere(['id_service' => $this->service->id])
+            ->all();
 
         foreach ($devices as $device) {
             $dbTransaction = Yii::$app->db->beginTransaction();
             try {
-                $movedDevice =
-                    UsageTechCpe::find()
-                        ->andWhere(['service' => 'usage_ip_ports'])
-                        ->andWhere(['id_service' => $this->service->next_usage_id])
-                        ->andWhere('actual_from > :date', [':date' => date(DateTimeZoneHelper::DATE_FORMAT)])
-                        ->one();
+                $movedDevice = UsageTechCpe::find()
+                    ->andWhere(['service' => 'usage_ip_ports'])
+                    ->andWhere(['id_service' => $this->service->next_usage_id])
+                    ->andWhere('actual_from > :date', [':date' => date(DateTimeZoneHelper::DATE_FORMAT)])
+                    ->one();
                 Assert::isObject($movedDevice);
 
                 $device->actual_to = $movedDevice->actual_to;

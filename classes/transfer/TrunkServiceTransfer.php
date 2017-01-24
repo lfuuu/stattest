@@ -11,7 +11,6 @@ use yii\db\ActiveRecord;
 
 /**
  * Класс переноса услуги "Телефония транки"
- * @package app\classes\transfer
  */
 class TrunkServiceTransfer extends ServiceTransfer
 {
@@ -69,7 +68,7 @@ class TrunkServiceTransfer extends ServiceTransfer
             throw $e;
         }
 
-        $this->processSettings($targetService);
+        $this->_processSettings($targetService);
 
         return $targetService;
     }
@@ -77,10 +76,11 @@ class TrunkServiceTransfer extends ServiceTransfer
     /**
      * Процесс переноса настроек услуги
      *
+     * @param ActiveRecord $targetService
      * @throws \Exception
      * @throws \yii\db\Exception
      */
-    private function processSettings($targetService)
+    private function _processSettings($targetService)
     {
         foreach ($this->service->settings as $setting) {
             $dbTransaction = Yii::$app->db->beginTransaction();
@@ -109,7 +109,7 @@ class TrunkServiceTransfer extends ServiceTransfer
      */
     public function fallback()
     {
-        $this->fallbackSettings();
+        $this->_fallbackSettings();
 
         parent::fallback();
     }
@@ -117,7 +117,7 @@ class TrunkServiceTransfer extends ServiceTransfer
     /**
      * Процесс отмены переноса настроек услуги
      */
-    private function fallbackSettings()
+    private function _fallbackSettings()
     {
         /*
         $settings =

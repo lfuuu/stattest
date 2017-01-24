@@ -11,7 +11,6 @@ use app\models\UsageTechCpe;
 
 /**
  * Класс переноса устройств
- * @package app\classes\transfer
  */
 class TechCpeTransfer extends ServiceTransfer
 {
