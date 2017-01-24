@@ -7,7 +7,7 @@
  * @var ActiveForm $form
  */
 
-use app\controllers\uu\VoipController;
+use app\classes\ReturnFormatted;
 use app\models\billing\Trunk;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
@@ -44,7 +44,7 @@ if (!$accountTariff->isNewRecord) {
                 $.get(
                     '/uu/voip/get-trunks', {
                         regionId: $(this).val(),
-                        format: '<?= VoipController::FORMAT_OPTIONS ?>'
+                        format: '<?= ReturnFormatted::FORMAT_OPTIONS ?>'
                     }, function (html) {
                         $('#accounttariff-trunk_id')
                             .html(html)
