@@ -7,6 +7,8 @@ use Yii;
 
 /**
  * Class ReturnFormatted
+ *
+ * @method static ReturnFormatted me($args = null)
  */
 class ReturnFormatted extends Singleton
 {
