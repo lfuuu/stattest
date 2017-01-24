@@ -37,8 +37,8 @@ class TrunkController extends BaseController
 
         Assert::isObject($clientAccount);
 
-        if (UsageVoip::dao()->hasService($clientAccount)) {
-            return $this->render('//error', ['error' => 'Транк не совместим с данным ЛС']);
+        if (!UsageTrunk::dao()->isPossibleAddService($clientAccount)) {
+            return $this->render('//error', ['error' => UsageTrunk::dao()->lastErrorMessage]);
         }
 
         $model = new UsageTrunkEditForm();

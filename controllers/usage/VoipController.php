@@ -49,8 +49,8 @@ class VoipController extends BaseController
 
         Assert::isObject($clientAccount);
 
-        if (UsageTrunk::dao()->hasService($clientAccount)) {
-            return $this->render('//error', ['error' => 'Услуга номера не совместима с данным ЛС']);
+        if (!UsageVoip::dao()->isPossibleAddService($clientAccount)) {
+            return $this->render('//error', ['error' => UsageVoip::dao()->lastErrorMessage]);
         }
 
 

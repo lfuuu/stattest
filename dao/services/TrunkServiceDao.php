@@ -2,14 +2,22 @@
 
 namespace app\dao\services;
 
-use Yii;
-use app\classes\Singleton;
+use app\dao\UsageDao;
 use app\models\UsageTrunk;
 use app\models\ClientAccount;
 
-class TrunkServiceDao extends Singleton
+class TrunkServiceDao extends UsageDao
 {
+    public $usageClass = null;
 
+    /**
+     * Инициализация
+     */
+    public function init()
+    {
+        $this->usageClass = UsageTrunk::className();
+        parent::init();
+    }
     /**
      * @param ClientAccount $client
      * @return bool

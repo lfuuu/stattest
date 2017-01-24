@@ -2,14 +2,25 @@
 
 namespace app\dao\services;
 
+use app\dao\UsageDao;
 use Yii;
-use app\classes\Singleton;
 use app\models\TariffVoip;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 
-class VoipServiceDao extends Singleton
+class VoipServiceDao extends UsageDao
 {
+    public $usageClass = null;
+
+    /**
+     * Инициализация
+     */
+    public function init()
+    {
+        $this->usageClass = UsageVoip::className();
+
+        parent::init();
+    }
 
     public function getTariffsList(ClientAccount $client, $region)
     {

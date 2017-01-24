@@ -8,6 +8,7 @@
 
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
+use app\dao\UsageDao;
 use app\models\Business;
 use app\models\ClientAccount;
 use yii\helpers\Url;
@@ -49,26 +50,14 @@ if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) 
         Yii::$app->session->setFlash('error', 'Универсальную услугу можно добавить только ЛС, тарифицируемому универсально.');
         return;
     }
+
     Yii::$app->session->setFlash('error', 'Универсальную услугу можно редактировать только у ЛС, тарифицируемого универсально. Все ваши изменения будут затерты конвертером из старых услуг.');
     $isReadOnly = true;
 }
 
-if ($accountTariff->service_type_id == ServiceType::ID_TRUNK) {
-    if ($accountTariff->isNewRecord && AccountTariff::find()
-            ->where([
-                'client_account_id' => $clientAccount->id,
-                'service_type_id' => $accountTariff->service_type_id,
-            ])
-            ->count()
-    ) {
-        Yii::$app->session->setFlash('error', 'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.');
-        return;
-    }
-
-    if ($clientAccount->contract->business_id != Business::OPERATOR) {
-        Yii::$app->session->setFlash('error', 'Универсальную услугу транка можно добавить только ЛС с договором Межоператорка.');
-        return;
-    }
+if ($accountTariff->isNewRecord && !UsageDao::me()->isPossibleAddService($clientAccount, $accountTariff->service_type_id)) {
+    Yii::$app->session->setFlash('error', UsageDao::me()->lastErrorMessage);
+    return;
 }
 
 ?>
