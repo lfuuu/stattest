@@ -4,7 +4,7 @@ namespace app\models;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
 use ReflectionClass;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use yii\db\ActiveRecord;
 use app\queries\OrganizationQuery;
 use app\classes\DynamicModel;
@@ -232,7 +232,7 @@ class Organization extends ActiveRecord
         );
 
         if ($organizationI18NModel->hasErrors()) {
-            throw new FormValidationException($organizationI18NModel);
+            throw new ModelValidationException($organizationI18NModel);
         }
 
         foreach ($organizationI18NModel->attributes as $attribute => $i18nData) {
@@ -273,7 +273,7 @@ class Organization extends ActiveRecord
         );
 
         if ($organizationSettlementAccountModel->hasErrors()) {
-            throw new FormValidationException($organizationSettlementAccountModel);
+            throw new ModelValidationException($organizationSettlementAccountModel);
         }
 
         $settlementAccountData = [];

@@ -2,9 +2,9 @@
 
 namespace app\classes\transfer;
 
-use Yii;
-use app\models\ClientAccount;
+use app\exceptions\ModelValidationException;
 use app\models\LogTarif;
+use Yii;
 use yii\base\InvalidValueException;
 
 /**
@@ -16,23 +16,25 @@ abstract class LogTarifTransfer
 
     /**
      * Перенос тарифа
+     *
      * @param ServiceTransfer $serviceTransfer - объект переноса услуг
-     * @param $targetServiceId - лицевой счет на который осуществляется перенос услуги
+     * @param int $targetServiceId - лицевой счет на который осуществляется перенос услуги
      * @throws \Exception
-     * @throws \yii\db\Exception
+     * @throws ModelValidationException
+     * @throws \yii\base\InvalidValueException
      */
     public static function process(ServiceTransfer $serviceTransfer, $targetServiceId)
     {
-        $logTariff =
-            LogTarif::find()
-                ->andWhere([
-                    'service' => $serviceTransfer->service->serviceType,
-                    'id_service' => $serviceTransfer->service->id,
-                ])
-                ->andWhere('id_tarif != 0')
-                ->andWhere('date_activation <= :date', ['date' => $serviceTransfer->getActualDate()])
-                ->orderBy('date_activation desc, id desc')
-                ->one();
+        /** @var LogTarif $logTariff */
+        $logTariff = LogTarif::find()
+            ->andWhere([
+                'service' => $serviceTransfer->service->serviceType,
+                'id_service' => $serviceTransfer->service->id,
+            ])
+            ->andWhere('id_tarif != 0')
+            ->andWhere('date_activation <= :date', ['date' => $serviceTransfer->getActualDate()])
+            ->orderBy('date_activation desc, id desc')
+            ->one();
 
         if (!($logTariff instanceof LogTarif)) {
             throw new InvalidValueException('Услуга не может быть перенесена, не найден тарифный план');
@@ -40,6 +42,7 @@ abstract class LogTarifTransfer
 
         $dbTransaction = Yii::$app->db->beginTransaction();
         try {
+            /** @var LogTarif $targetLogTariff */
             $targetLogTariff = new $logTariff;
             $targetLogTariff->setAttributes($logTariff->getAttributes(), false);
             unset($targetLogTariff->id);
@@ -48,7 +51,7 @@ abstract class LogTarifTransfer
             $targetLogTariff->id_service = $targetServiceId;
 
             if (!$targetLogTariff->save()) {
-                throw new \Exception(implode(' ', $targetLogTariff->getFirstErrors()));
+                throw new ModelValidationException($targetLogTariff);
             }
 
             $dbTransaction->commit();

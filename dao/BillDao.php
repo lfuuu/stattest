@@ -5,13 +5,13 @@ use app\classes\Singleton;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\Bill as uuBill;
 use app\classes\uu\model\Period;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\Transaction;
-use LogicException;
 use Yii;
 
 
@@ -218,7 +218,7 @@ class BillDao extends Singleton
         if (!$uuBill->price) {
             // нулевые счета не нужны
             if ($bill && !$bill->delete()) {
-                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+                throw new ModelValidationException($bill);
             }
 
             return false;
@@ -245,12 +245,12 @@ class BillDao extends Singleton
             $bill->biller_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
             $bill->uu_bill_id = $uuBill->id;
             if (!$bill->save()) {
-                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+                throw new ModelValidationException($bill);
             }
         } elseif ($bill->bill_no != $newBillNo) {
             $bill->bill_no = $newBillNo;
             if (!$bill->save()) {
-                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+                throw new ModelValidationException($bill);
             }
         }
 
@@ -276,7 +276,7 @@ class BillDao extends Singleton
 
             // если не осталось строчек счета, то и сам счет не нужен
             if (!count($accountEntries) && !$bill->isNewRecord && !$bill->delete()) {
-                throw new LogicException(implode(' ', $bill->getFirstErrors()));
+                throw new ModelValidationException($bill);
             }
 
             // могла измениться сумма счета - обновить ее
@@ -291,7 +291,7 @@ class BillDao extends Singleton
             if ($billPrice != $bill->sum) {
                 $bill->sum = $bill->sum_with_unapproved = $billPrice;
                 if (!$bill->save()) {
-                    throw new LogicException(implode(' ', $bill->getFirstErrors()));
+                    throw new ModelValidationException($bill);
                 }
             }
         }
@@ -356,7 +356,7 @@ class BillDao extends Singleton
             $line->id_service = $accountEntry->account_tariff_id;
             $line->item_id = $accountEntry->accountTariff->getNonUniversalId();
             if (!$line->save()) {
-                throw new LogicException(implode(' ', $line->getFirstErrors()));
+                throw new ModelValidationException($line);
             }
 
             $toRecalculateBillSum = true;
@@ -368,7 +368,7 @@ class BillDao extends Singleton
 
         $uuBill->is_converted = 1;
         if (!$uuBill->save()) {
-            throw new LogicException(implode(' ', $uuBill->getFirstErrors()));
+            throw new ModelValidationException($uuBill);
         }
     }
 
@@ -474,7 +474,8 @@ SQL;
                 'between',
                 'bill_date',
                 $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-                $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)])
+                $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            ])
             ->andWhere(['organization_id' => 0]);
 
         /** @var Bill $bill */

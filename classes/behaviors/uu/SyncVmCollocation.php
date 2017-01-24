@@ -7,6 +7,7 @@ use app\classes\Utils;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
+use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use yii\base\InvalidParamException;
@@ -23,6 +24,10 @@ class SyncVmCollocation
      *
      * @param int $accountTariffId
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=3508161
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\base\InvalidCallException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
      */
     public function syncVm($accountTariffId)
     {
@@ -43,7 +48,7 @@ class SyncVmCollocation
                 // ... и запомнить
                 $accountTariff->vm_elid_id = null;
                 if (!$accountTariff->save()) {
-                    throw new \LogicException(implode(' ', $accountTariff->getFirstErrors()));
+                    throw new ModelValidationException($accountTariff);
                 }
             }
 
@@ -81,7 +86,7 @@ class SyncVmCollocation
             // ... и запомнить
             $accountTariff->vm_elid_id = $vmElidId;
             if (!$accountTariff->save()) {
-                throw new \LogicException(implode(' ', $accountTariff->getFirstErrors()));
+                throw new ModelValidationException($accountTariff);
             }
         }
     }
@@ -136,6 +141,7 @@ class SyncVmCollocation
      *
      * @param ClientAccount $clientAccount
      * @return int
+     * @throws \app\exceptions\ModelValidationException
      */
     protected function getVmClientId(ClientAccount $clientAccount)
     {
@@ -158,7 +164,7 @@ class SyncVmCollocation
         $clientAccountOptions->option = self::CLIENT_ACCOUNT_OPTION_VM_ELID;
         $clientAccountOptions->value = (string)$vmClientId;
         if (!$clientAccountOptions->save()) {
-            throw new \LogicException(implode(' ', $clientAccountOptions->getFirstErrors()));
+            throw new ModelValidationException($clientAccountOptions);
         }
 
         unset($clientAccountOptions);
@@ -169,7 +175,7 @@ class SyncVmCollocation
         $clientAccountOptions->option = self::CLIENT_ACCOUNT_OPTION_VM_PASSWORD;
         $clientAccountOptions->value = (string)$password;
         if (!$clientAccountOptions->save()) {
-            throw new \LogicException(implode(' ', $clientAccountOptions->getFirstErrors()));
+            throw new ModelValidationException($clientAccountOptions);
         }
 
         unset($clientAccountOptions);

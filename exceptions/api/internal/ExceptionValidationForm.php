@@ -4,7 +4,7 @@ namespace app\exceptions\api\internal;
 use yii\base\Model;
 use app\exceptions\web\BadRequestHttpException;
 
-class ExceptionValidationForm extends \app\exceptions\FormValidationException
+class ExceptionValidationForm extends \app\exceptions\ModelValidationException
 {
 
     const EXCEPTION_PREFIX = 'Validation';
@@ -14,9 +14,9 @@ class ExceptionValidationForm extends \app\exceptions\FormValidationException
         'UsageVoip' => ['number']
     ];
 
-    public function __construct(Model $form)
+    public function __construct(Model $model)
     {
-        $errorKey = reset(array_keys($form->getFirstErrors()));
+        $errorKey = reset(array_keys($model->getFirstErrors()));
 
         foreach ($this->exceptions as $exceptionKey => $fields) {
             if (in_array($errorKey, $fields, true)) {
@@ -24,7 +24,7 @@ class ExceptionValidationForm extends \app\exceptions\FormValidationException
             }
         }
 
-        throw new BadRequestHttpException($form->getFirstError($errorKey));
+        throw new BadRequestHttpException($model->getFirstError($errorKey));
     }
 
 }

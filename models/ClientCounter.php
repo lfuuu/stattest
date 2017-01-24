@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\exceptions\ModelValidationException;
 use app\models\billing\Counter as BillingCounter;
 use Yii;
 use yii\db\ActiveRecord;
@@ -250,6 +251,7 @@ class ClientCounter extends ActiveRecord
     /**
      * @param int $clientAccountId
      * @return ClientCounter
+     * @throws \app\exceptions\ModelValidationException
      * @throws \yii\db\Exception
      */
     private static function _getLocalCounter($clientAccountId)
@@ -267,7 +269,7 @@ class ClientCounter extends ActiveRecord
             $counter->subscription_rt_last_month = 0;
             $counter->subscription_rt = 0;
             if (!$counter->save(true)) {
-                throw new \yii\db\Exception("Can't create local counters for clientAccount #" . $clientAccountId);
+                throw new ModelValidationException($counter);
             }
         }
 

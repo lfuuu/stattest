@@ -14,6 +14,7 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\UsageTrunkSettings;
 use InvalidArgumentException;
@@ -278,8 +279,7 @@ class AccountTariffController extends BaseController
                 if ($accountTariff->isNewRecord) {
                     $accountTariff->tariff_period_id = $tariffPeriodIdNew;
                     if (!$accountTariff->save()) {
-                        $errors = $accountTariff->getFirstErrors();
-                        throw new LogicException(reset($errors));
+                        throw new ModelValidationException($accountTariff);
                     }
                 }
 
@@ -310,7 +310,7 @@ class AccountTariffController extends BaseController
                         $usageTrunkSettings->type = $type;
                         $usageTrunkSettings->order = $maxOrder + 1;
                         if (!$usageTrunkSettings->save()) {
-                            throw new LogicException(implode(' ', $usageTrunkSettings->getFirstErrors()));
+                            throw new ModelValidationException($usageTrunkSettings);
                         }
                     }
                 }
@@ -321,8 +321,7 @@ class AccountTariffController extends BaseController
                 $accountTariffLog->tariff_period_id = $tariffPeriodIdNew;
                 $accountTariffLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT, $actualFromTimestamp);
                 if (!$accountTariffLog->save()) {
-                    $errors = $accountTariffLog->getFirstErrors();
-                    throw new LogicException(reset($errors));
+                    throw new ModelValidationException($accountTariffLog);
                 }
 
                 if (!$tariffPeriodIdNew) {
@@ -337,8 +336,7 @@ class AccountTariffController extends BaseController
                         // изменить услугу
                         $accountTariffPackage->tariff_period_id = null;
                         if (!$accountTariffPackage->save()) {
-                            $errors = $accountTariffPackage->getFirstErrors();
-                            throw new LogicException(reset($errors));
+                            throw new ModelValidationException($accountTariffPackage);
                         }
 
                         // записать в лог тарифа
@@ -347,8 +345,7 @@ class AccountTariffController extends BaseController
                         $accountTariffLogPackage->tariff_period_id = null;
                         $accountTariffLogPackage->actual_from = date(DateTimeZoneHelper::DATE_FORMAT, $actualFromTimestamp);
                         if (!$accountTariffLogPackage->save()) {
-                            $errors = $accountTariffLogPackage->getFirstErrors();
-                            throw new LogicException(reset($errors));
+                            throw new ModelValidationException($accountTariffLogPackage);
                         }
                     }
                 }
@@ -423,16 +420,14 @@ class AccountTariffController extends BaseController
 
                 // отменить (удалить) последний тариф
                 if (!$accountTariffLogCancelled->delete()) {
-                    $errors = $accountTariffLogCancelled->getFirstErrors();
-                    throw new LogicException(reset($errors));
+                    throw new ModelValidationException($accountTariffLogCancelled);
                 }
 
                 if (!count($accountTariffLogs)) {
 
                     // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью
                     if (!$accountTariff->delete()) {
-                        $errors = $accountTariff->getFirstErrors();
-                        throw new LogicException(reset($errors));
+                        throw new ModelValidationException($accountTariff);
                     }
 
                     // редиректить на список, а не карточку
@@ -447,8 +442,7 @@ class AccountTariffController extends BaseController
                     // у услуги сменить кэш тарифа
                     $accountTariff->tariff_period_id = $accountTariffLogActual->tariff_period_id;
                     if (!$accountTariff->save()) {
-                        $errors = $accountTariff->getFirstErrors();
-                        throw new LogicException(reset($errors));
+                        throw new ModelValidationException($accountTariff);
                     }
                 }
             }

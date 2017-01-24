@@ -24,7 +24,7 @@ class ActualNumber extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function ActualNumberAddEvent($event)
     {
@@ -39,7 +39,7 @@ class ActualNumber extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function ActualNumberUpdateEvent($event)
     {
@@ -54,7 +54,7 @@ class ActualNumber extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function ActualNumberDeleteEvent($event)
     {

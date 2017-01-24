@@ -20,7 +20,7 @@ use yii\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\web\JsExpression;
 use app\classes\validators\ArrayValidator;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\grid\GridView;
 use app\widgets\GridViewExport\drivers\CsvDriver;
 
@@ -57,7 +57,7 @@ class GridViewExport extends GridView
     /**
      * @return string
      * @throws BadRequestHttpException
-     * @throws FormValidationException
+     * @throws ModelValidationException
      * @throws \yii\base\ExitException
      * @throws \yii\base\InvalidConfigException
      */
@@ -247,7 +247,7 @@ class GridViewExport extends GridView
         );
 
         if ($input->hasErrors()) {
-            throw new FormValidationException($input);
+            throw new ModelValidationException($input);
         }
 
         /** @var ExportDriver $driver */
@@ -290,7 +290,7 @@ class GridViewExport extends GridView
         );
 
         if ($input->hasErrors()) {
-            throw new FormValidationException($input);
+            throw new ModelValidationException($input);
         }
 
         if (!isset($this->drivers[$input->driver])) {
@@ -337,7 +337,7 @@ class GridViewExport extends GridView
         );
 
         if ($input->hasErrors()) {
-            throw new FormValidationException($input);
+            throw new ModelValidationException($input);
         }
 
         if (!isset($this->drivers[$input->driver])) {

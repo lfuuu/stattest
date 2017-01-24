@@ -1,10 +1,10 @@
 <?php
 namespace app\modules\nnp\commands;
 
+use app\exceptions\ModelValidationException;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use Yii;
-use yii\base\InvalidParamException;
 use yii\console\Controller;
 
 /**
@@ -70,7 +70,7 @@ class OperatorController extends Controller
                     $operator->name = $operatorSource;
                     $operator->country_code = $numberRange->country_code;
                     if (!$operator->save()) {
-                        throw new InvalidParamException(implode('. ', $operator->getFirstErrors()));
+                        throw new ModelValidationException($operator);
                     }
 
                     $operatorSourceToId[$operatorSource] = ['id' => $operator->id];
@@ -78,7 +78,7 @@ class OperatorController extends Controller
 
                 $numberRange->operator_id = $operatorSourceToId[$operatorSource]['id'];
                 if (!$numberRange->save()) {
-                    throw new InvalidParamException(implode('. ', $numberRange->getFirstErrors()));
+                    throw new ModelValidationException($numberRange);
                 }
 
                 $transaction->commit();

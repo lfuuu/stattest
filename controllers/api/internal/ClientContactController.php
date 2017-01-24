@@ -4,7 +4,7 @@ namespace app\controllers\api\internal;
 
 use app\models\LkNoticeSetting;
 use Yii;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
 use app\models\ClientContact;
@@ -95,7 +95,7 @@ class ClientContactController extends ApiInternalController
      * @param int $limit
      * @param bool|null $isActive
      * @return array|\yii\db\ActiveRecord[]
-     * @throws \yii\base\InvalidConfigException|FormValidationException
+     * @throws \yii\base\InvalidConfigException|ModelValidationException
      */
     public function actionGet($clientAccountId, $eventType = '', $isOfficial = null, $limit = 0, $isActive = null)
     {
@@ -127,7 +127,7 @@ class ClientContactController extends ApiInternalController
         );
 
         if ($model->hasErrors()) {
-            throw new FormValidationException($model);
+            throw new ModelValidationException($model);
         }
 
         $result->andWhere(['contacts.client_id' => $model->client_id]);

@@ -1,10 +1,10 @@
 <?php
 namespace app\modules\nnp\commands;
 
+use app\exceptions\ModelValidationException;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\NumberRange;
 use Yii;
-use yii\base\InvalidParamException;
 use yii\console\Controller;
 use yii\db\Expression;
 
@@ -62,7 +62,7 @@ class CityController extends Controller
             try {
                 $numberRange->city_id = $city_id;
                 if (!$numberRange->save()) {
-                    throw new InvalidParamException(implode('. ', $numberRange->getFirstErrors()));
+                    throw new ModelValidationException($numberRange);
                 }
 
                 $transaction->commit();
@@ -84,6 +84,7 @@ class CityController extends Controller
      * @param string $countryCode
      * @param string $regionSource
      * @return int|null
+     * @throws \app\exceptions\ModelValidationException
      */
     private function _findCityByRegionSource($countryCode, $regionSource)
     {
@@ -114,7 +115,7 @@ class CityController extends Controller
         $city->name = $cityName;
         $city->country_code = $countryCode;
         if (!$city->save()) {
-            throw new InvalidParamException(implode('. ', $city->getFirstErrors()));
+            throw new ModelValidationException($city);
         }
 
         return $this->regionSourceToCityId[$countryCode . $regionSource] = $city->id;

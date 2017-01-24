@@ -4,7 +4,7 @@ namespace app\models;
 use Yii;
 use ReflectionClass;
 use yii\db\ActiveRecord;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\validators\ArrayValidator;
 use app\classes\DynamicModel;
 use app\classes\traits\I18NGetTrait;
@@ -109,7 +109,7 @@ class Person extends ActiveRecord
         );
 
         if ($personI18N->hasErrors()) {
-            throw new FormValidationException($personI18N);
+            throw new ModelValidationException($personI18N);
         }
 
         foreach ($personI18N->attributes as $attribute => $i18nData) {

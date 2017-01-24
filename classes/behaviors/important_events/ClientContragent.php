@@ -21,7 +21,7 @@ class ClientContragent extends Behavior
 
     /**
      * @param $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function registerTransferEvent($event)
     {

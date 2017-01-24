@@ -1,11 +1,11 @@
 <?php
 namespace app\models\dictionary;
 
-use yii\base\InvalidParamException;
+use app\classes\validators\ArrayValidator;
+use app\exceptions\ModelValidationException;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
-use app\classes\validators\ArrayValidator;
 
 /**
  * @property int $id
@@ -99,7 +99,7 @@ class PublicSite extends ActiveRecord
                     $countryLinkWithPublicSite->order = (int)$row['order'];
 
                     if (!$countryLinkWithPublicSite->save()) {
-                        throw new InvalidParamException(implode('. ', $countryLinkWithPublicSite->getFirstErrors()));
+                        throw new ModelValidationException($countryLinkWithPublicSite);
                     }
 
                     if (array_key_exists('city_ids', $row)) {
@@ -110,7 +110,7 @@ class PublicSite extends ActiveRecord
                             $cityLinkWithPublicSiteCountry->public_site_country_id = $countryLinkWithPublicSite->id;
                             $cityLinkWithPublicSiteCountry->city_id = $cityId;
                             if (!$cityLinkWithPublicSiteCountry->save()) {
-                                throw new InvalidParamException(implode('. ', $cityLinkWithPublicSiteCountry->getFirstErrors()));
+                                throw new ModelValidationException($cityLinkWithPublicSiteCountry);
                             }
                         }
                     }

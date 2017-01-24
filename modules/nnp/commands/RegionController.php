@@ -1,10 +1,10 @@
 <?php
 namespace app\modules\nnp\commands;
 
+use app\exceptions\ModelValidationException;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Region;
 use Yii;
-use yii\base\InvalidParamException;
 use yii\console\Controller;
 use yii\db\Expression;
 
@@ -115,7 +115,7 @@ class RegionController extends Controller
                     $region->name = $regionSource;
                     $region->country_code = $numberRange->country_code;
                     if (!$region->save()) {
-                        throw new InvalidParamException(implode('. ', $region->getFirstErrors()));
+                        throw new ModelValidationException($region);
                     }
 
                     $regionSourceToId[$numberRange->country_code . $regionSource] = ['id' => $region->id];
@@ -123,7 +123,7 @@ class RegionController extends Controller
 
                 $numberRange->region_id = $regionSourceToId[$numberRange->country_code . $regionSource]['id'];
                 if (!$numberRange->save()) {
-                    throw new InvalidParamException(implode('. ', $numberRange->getFirstErrors()));
+                    throw new ModelValidationException($numberRange);
                 }
 
                 $transaction->commit();

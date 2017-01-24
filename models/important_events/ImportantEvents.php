@@ -9,7 +9,7 @@ use ReflectionClass;
 use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 use yii\helpers\ArrayHelper;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\classes\traits\TagsTrait;
 use app\classes\IpUtils;
@@ -126,7 +126,7 @@ class ImportantEvents extends ActiveRecord
         $event->context = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         if (!($event->validate() && $event->save())) {
-            throw new FormValidationException($event);
+            throw new ModelValidationException($event);
         }
 
         return true;

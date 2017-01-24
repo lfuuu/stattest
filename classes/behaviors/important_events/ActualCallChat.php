@@ -23,7 +23,7 @@ class ActualCallChat extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function ActualClassChatAddEvent($event)
     {
@@ -38,7 +38,7 @@ class ActualCallChat extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function ActualClassChatUpdateEvent($event)
     {
@@ -53,7 +53,7 @@ class ActualCallChat extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function ActualClassChatDeleteEvent($event)
     {

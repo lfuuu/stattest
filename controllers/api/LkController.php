@@ -9,7 +9,7 @@ use app\classes\Assert;
 use app\classes\DynamicModel;
 use app\classes\ApiController;
 use app\classes\validators\AccountIdValidator;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use yii\base\InvalidParamException;
 
@@ -58,7 +58,7 @@ class LkController extends ApiController
         );
 
         if ($form->hasErrors()) {
-            throw new FormValidationException($form);
+            throw new ModelValidationException($form);
         }
 
         $account = ClientAccount::findOne(["id" => $form->account_id]);
@@ -119,7 +119,7 @@ class LkController extends ApiController
         );
 
         if ($form->hasErrors()) {
-            throw new FormValidationException($form);
+            throw new ModelValidationException($form);
         }
 
 
@@ -193,7 +193,7 @@ class LkController extends ApiController
         );
 
         if ($form->hasErrors()) {
-            throw new FormValidationException($form);
+            throw new ModelValidationException($form);
         }
 
         /** @var ClientAccount $account */

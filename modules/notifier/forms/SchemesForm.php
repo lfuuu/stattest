@@ -2,14 +2,15 @@
 
 namespace app\modules\notifier\forms;
 
-use Yii;
-use Exception;
-use yii\data\ActiveDataProvider;
 use app\classes\Form;
 use app\classes\validators\ArrayValidator;
+use app\exceptions\ModelValidationException;
 use app\models\Country;
 use app\models\important_events\ImportantEventsNames;
 use app\modules\notifier\models\Schemes;
+use Exception;
+use Yii;
+use yii\data\ActiveDataProvider;
 
 /**
  * @property array|null $formData
@@ -113,7 +114,7 @@ class SchemesForm extends Form
                     }
 
                     if ($isNotSkipped && !$record->save()) {
-                        throw new \LogicException;
+                        throw new ModelValidationException($record);
                     }
                 }
             }

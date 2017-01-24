@@ -9,10 +9,10 @@ use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
 use app\models\UsageTrunk;
-use app\models\UsageTrunkSettings;
 use InvalidArgumentException;
 use LogicException;
 use Yii;
@@ -118,9 +118,9 @@ abstract class AccountTariffForm extends Form
                     $accountTariff = clone $this->accountTariff;
                     $accountTariff->voip_number = $voipNumber;
                     $accountTariff->id = 0;
-                    if (!$accountTariff->validate() || !$accountTariff->save()) {
+                    if (!$accountTariff->save()) {
                         $this->validateErrors += $accountTariff->getFirstErrors();
-                        throw new InvalidArgumentException('');
+                        throw new ModelValidationException($accountTariff);
                     }
 
                     // лог тарифов
@@ -129,9 +129,9 @@ abstract class AccountTariffForm extends Form
                     $accountTariffLog->account_tariff_id = $accountTariff->id;
                     $accountTariffLog->populateRelation('accountTariff', $accountTariff);
                     $accountTariffLog->id = 0;
-                    if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
+                    if (!$accountTariffLog->save()) {
                         $this->validateErrors += $accountTariffLog->getFirstErrors();
-                        throw new InvalidArgumentException('');
+                        throw new ModelValidationException($accountTariffLog);
                     }
 
                     // пакеты
@@ -145,9 +145,9 @@ abstract class AccountTariffForm extends Form
                         $accountTariffPackage->city_id = $accountTariff->city_id;
                         $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
                         $accountTariffPackage->populateRelation('prevAccountTariff', $accountTariff);
-                        if (!$accountTariffPackage->validate() || !$accountTariffPackage->save()) {
+                        if (!$accountTariffPackage->save()) {
                             $this->validateErrors += $accountTariffPackage->getFirstErrors();
-                            throw new InvalidArgumentException('');
+                            throw new ModelValidationException($accountTariffPackage);
                         }
 
                         // лог тарифов
@@ -157,9 +157,9 @@ abstract class AccountTariffForm extends Form
                         $accountTariffLogPackage->populateRelation('accountTariff', $accountTariffPackage);
                         $accountTariffLogPackage->tariff_period_id = $voipPackageTariffPeriodId;
                         $accountTariffLogPackage->actual_from = $accountTariffLog->actual_from;
-                        if (!$accountTariffLogPackage->validate() || !$accountTariffLogPackage->save()) {
+                        if (!$accountTariffLogPackage->save()) {
                             $this->validateErrors += $accountTariffLogPackage->getFirstErrors();
-                            throw new InvalidArgumentException('');
+                            throw new ModelValidationException($accountTariffLogPackage);
                         }
 
                         Yii::info('AccountTariffForm. After voip $accountTariffLogPackage->save', 'uu');
@@ -198,7 +198,7 @@ abstract class AccountTariffForm extends Form
                         $usageTrunk->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
                         $usageTrunk->status = UsageTrunk::STATUS_CONNECTING;
                         if (!$usageTrunk->save()) {
-                            throw new LogicException(implode(' ', $usageTrunk->getFirstErrors()));
+                            throw new ModelValidationException($usageTrunk);
                         }
                     }
                 } else {

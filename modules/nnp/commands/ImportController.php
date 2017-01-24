@@ -2,6 +2,7 @@
 namespace app\modules\nnp\commands;
 
 use app\classes\Connection;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\InstanceSettings;
 use app\modules\nnp\models\Country;
@@ -32,7 +33,7 @@ class ImportController extends Controller
     const FILE_ID_CZECH = '0B9ds-UaQbaC7VzNPMzljR2VTMms';
 
     /** @var Connection */
-    protected $db = null;
+    private $_db = null;
 
     /**
      * @param string $id the ID of this controller.
@@ -42,11 +43,12 @@ class ImportController extends Controller
     public function __construct($id, $module, $config = [])
     {
         parent::__construct($id, $module, $config);
-        $this->db = Yii::$app->dbPgNnp;
+        $this->_db = Yii::$app->dbPgNnp;
     }
 
     /**
      * Импортировать Россию из Россвязи. 2 минуты. Сначала надо disable-trigger, потом enable-trigger
+     *
      * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
      */
     public function actionRus()
@@ -56,6 +58,7 @@ class ImportController extends Controller
 
     /**
      * Импортировать Россию из Россвязи. Callback
+     *
      * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
      */
     public function importRusCallback()
@@ -63,6 +66,7 @@ class ImportController extends Controller
         /**
          * Ссылки на файлы для скачивания
          * [url => ndc_type_id]
+         *
          * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
          */
         $rusUrls = [
@@ -109,7 +113,7 @@ class ImportController extends Controller
      *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      */
-    protected function importSlovakiaCallback()
+    protected function _importSlovakiaCallback()
     {
         $this->_importCallback(self::FILE_ID_SLOVAKIA, Country::SLOVAKIA, self::EXCEL5, 'm-d-y');
     }
@@ -197,7 +201,12 @@ class ImportController extends Controller
     /**
      * Импортировать из Excel. Callback
      *
+     * @param string $fileId
+     * @param int $countryCode
+     * @param string $excelFormat
+     * @param string $dateFormat
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
      */
     private function _importCallback($fileId, $countryCode, $excelFormat = self::EXCEL2007, $dateFormat = 'd-m-y')
     {
@@ -230,11 +239,13 @@ class ImportController extends Controller
                         $ndcType = new NdcType;
                         $ndcType->name = $ndcTypeName;
                         if (!$ndcType->save()) {
-                            throw new InvalidParamException('Ошибочный ndc_type ' . $ndcTypeName . '. ' . implode('. ', $ndcType->getFirstErrors()));
+                            throw new ModelValidationException($ndcType);
                         }
+
                         $ndcTypes[$ndcTypeName] = $ndcType;
                         unset($ndcType);
                     }
+
                     $ndcTypeId = $ndcTypes[$ndcTypeName]->id;
                 } else {
                     $ndcTypeId = null;
@@ -245,6 +256,7 @@ class ImportController extends Controller
                     $numberFrom = $ndc;
                     $ndc = null;
                 }
+
                 if (!is_numeric($numberFrom)) {
                     throw new InvalidParamException('Ошибочный number_from (' . $numberFrom . ')');
                 }
@@ -253,6 +265,7 @@ class ImportController extends Controller
                 if (!$numberTo) {
                     $numberTo = $numberFrom;
                 }
+
                 if (!is_numeric($numberTo)) {
                     throw new InvalidParamException('Ошибочный number_to (' . $numberTo . ')');
                 }
@@ -288,6 +301,7 @@ class ImportController extends Controller
 
     /**
      * Импортировать из Excel
+     *
      * @param string $filePath
      * @param callable $callbackRow param $row, return ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number']
      * @param string $excelFormat Excel2007 | Excel5
@@ -303,13 +317,14 @@ class ImportController extends Controller
             if (!@copy($filePath, $filePathNew)) {
                 throw new \Exception('Ошибка скачивания файла ' . $filePath);
             }
+
             $filePath = $filePathNew;
             unset($filePathNew);
         }
 
 
         $reader = \PHPExcel_IOFactory::createReader($excelFormat);
-//        $reader->setReadDataOnly(true); // при этом теряется формат даты
+        // $reader->setReadDataOnly(true); // при этом теряется формат даты
         $excel = $reader->load($filePath);
         if (!$excel) {
             return false;
@@ -338,14 +353,13 @@ class ImportController extends Controller
 
                 if (count($insertValues) % 1000 === 0) {
                     echo '. ';
-                    $this->db->createCommand()->batchInsert(
+                    $this->_db->createCommand()->batchInsert(
                         $tableName,
                         ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number'],
                         $insertValues
                     )->execute();
                     $insertValues = [];
                 }
-
             } catch (InvalidParamException $e) {
                 echo $e->getMessage() . PHP_EOL;
             }
@@ -353,7 +367,7 @@ class ImportController extends Controller
 
         if (count($insertValues)) {
             echo '. ';
-            $this->db->createCommand()->batchInsert(
+            $this->_db->createCommand()->batchInsert(
                 $tableName,
                 ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number'],
                 $insertValues
@@ -363,8 +377,10 @@ class ImportController extends Controller
 
     /**
      * Импортировать из txt-файла
-     * @param $filePath
+     *
+     * @param string $filePath
      * @param callable $callbackRow param $row, return ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number']
+     * @throws \yii\db\Exception
      */
     protected function importFromTxt($filePath, $callbackRow)
     {
@@ -382,6 +398,7 @@ class ImportController extends Controller
             if (!$buffer) {
                 continue;
             }
+
             $buffer = iconv("cp1251", "utf-8//TRANSLIT", $buffer);
             $row = explode(';', $buffer);
             if (count($row) < 6) {
@@ -393,7 +410,7 @@ class ImportController extends Controller
 
             if (count($insertValues) % 1000 === 0) {
                 echo '. ';
-                $this->db->createCommand()->batchInsert(
+                $this->_db->createCommand()->batchInsert(
                     $tableName,
                     ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number'],
                     $insertValues
@@ -405,11 +422,12 @@ class ImportController extends Controller
         if (!feof($handle)) {
             throw new UnexpectedValueException('Error fgets ' . $filePath);
         }
+
         fclose($handle);
 
         if (count($insertValues)) {
             echo '. ';
-            $this->db->createCommand()->batchInsert(
+            $this->_db->createCommand()->batchInsert(
                 $tableName,
                 ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number'],
                 $insertValues
@@ -429,7 +447,7 @@ class ImportController extends Controller
      */
     protected function import($callbackMethod, $countryCode)
     {
-        $transaction = $this->db->beginTransaction();
+        $transaction = $this->_db->beginTransaction();
         try {
 
             echo PHP_EOL . 'Импортировать. ' . date(DATE_ATOM) . PHP_EOL;
@@ -476,7 +494,7 @@ CREATE TEMPORARY TABLE number_range_tmp
   status_number character varying(255)
 )
 SQL;
-        $this->db->createCommand($sql)->execute();
+        $this->_db->createCommand($sql)->execute();
     }
 
     /**
@@ -498,7 +516,7 @@ SQL;
     SET is_active = false, date_stop = now()
     WHERE is_active AND country_code = :country_code
 SQL;
-        $affectedRowsBefore = $this->db->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $affectedRowsBefore = $this->_db->createCommand($sql, [':country_code' => $countryCode])->execute();
         printf("They were: %d\n", $affectedRowsBefore);
 
         // обновить и включить
@@ -522,7 +540,7 @@ SQL;
         number_range.full_number_from = number_range_tmp.full_number_from
         AND number_range.number_to = number_range_tmp.number_to
 SQL;
-        $affectedRowsUpdated = $this->db->createCommand($sql)->execute();
+        $affectedRowsUpdated = $this->_db->createCommand($sql)->execute();
         printf("Updated: %d\n", $affectedRowsUpdated);
 
         // удалить из временной таблицы уже обработанное
@@ -535,7 +553,7 @@ SQL;
         number_range.full_number_from = number_range_tmp.full_number_from
         AND number_range.number_to = number_range_tmp.number_to
 SQL;
-        $this->db->createCommand($sql)->execute();
+        $this->_db->createCommand($sql)->execute();
 
         // добавить в основную таблицу всё оставшееся из временной
         $sql = <<<SQL
@@ -571,7 +589,7 @@ SQL;
     FROM
         number_range_tmp
 SQL;
-        $affectedRowsAdded = $this->db->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $affectedRowsAdded = $this->_db->createCommand($sql, [':country_code' => $countryCode])->execute();
         printf("Added: %d\n", $affectedRowsAdded);
 
         $affectedRowsTotal = $affectedRowsUpdated + $affectedRowsAdded;
@@ -581,7 +599,7 @@ SQL;
         $sql = <<<SQL
 DROP TABLE number_range_tmp
 SQL;
-        $this->db->createCommand($sql)->execute();
+        $this->_db->createCommand($sql)->execute();
 
         if ($affectedRowsDelta < self::DELTA_MIN) {
             throw new \LogicException('После обновления осталось ' . $affectedRowsDelta . '% исходных данных. Нужно вручную разобраться в причинах');
@@ -589,34 +607,32 @@ SQL;
     }
 
     /**
-     * выключить триггеры
+     * Выключить триггеры
+     *
+     * @throws \yii\db\Exception
      */
     public function actionDisableTrigger()
     {
-//        $tableName = NumberRange::tableName();
-//        $sql = "ALTER TABLE {$tableName} DISABLE TRIGGER ALL"; // нет прав
-
         $sql = "SELECT nnp.disable_trigger('nnp.number_range','notify')";
-        $this->db->createCommand($sql)->execute();
+        $this->_db->createCommand($sql)->execute();
     }
 
     /**
-     * включить триггеры и синхронизировать данные по региональным серверам
+     * Включить триггеры и синхронизировать данные по региональным серверам
+     *
+     * @throws \yii\db\Exception
      */
     public function actionEnableTrigger()
     {
-//        $tableName = NumberRange::tableName();
-//        $sql = "ALTER TABLE {$tableName} ENABLE TRIGGER ALL"; // нет прав
-
         $sql = "SELECT nnp.enable_trigger('nnp.number_range','notify')";
-        $this->db->createCommand($sql)->execute();
+        $this->_db->createCommand($sql)->execute();
 
         // синхронизировать данные по региональным серверам
         $sql = "select from event.notify(:table_name, 0, :p_server_id)";
         $activeQuery = InstanceSettings::find()
             ->where(['active' => true]);
         foreach ($activeQuery->each() as $instanceSettings) {
-            $this->db->createCommand($sql, [
+            $this->_db->createCommand($sql, [
                 ':table_name' => 'nnp_number_range',
                 ':p_server_id' => $instanceSettings->id,
             ])->execute();

@@ -3,7 +3,7 @@
 namespace app\controllers;
 
 use Yii;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\DynamicModel;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
@@ -65,7 +65,7 @@ class NotificationController extends Controller
             );
 
             if ($input->hasErrors()) {
-                throw new FormValidationException($input);
+                throw new ModelValidationException($input);
             }
 
             if ($input->token !== $token) {

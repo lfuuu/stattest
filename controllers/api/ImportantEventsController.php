@@ -3,7 +3,7 @@
 namespace app\controllers\api;
 
 use Yii;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\DynamicModel;
 use app\classes\ApiInternalController;
 use app\models\important_events\ImportantEvents;
@@ -45,7 +45,7 @@ class ImportantEventsController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws FormValidationException
+     * @throws ModelValidationException
      * @throws \yii\base\InvalidConfigException
      */
     public function actionAdd()
@@ -61,7 +61,7 @@ class ImportantEventsController extends ApiInternalController
         );
 
         if ($model->hasErrors()) {
-            throw new FormValidationException($model);
+            throw new ModelValidationException($model);
         }
 
         if (ImportantEvents::create($model->event, $model->source, (array)$data)) {
@@ -106,7 +106,7 @@ class ImportantEventsController extends ApiInternalController
      */
     /**
      * @return array
-     * @throws FormValidationException
+     * @throws ModelValidationException
      * @throws \yii\base\InvalidConfigException
      */
     public function actionGet()
@@ -129,7 +129,7 @@ class ImportantEventsController extends ApiInternalController
         );
 
         if ($model->hasErrors()) {
-            throw new FormValidationException($model);
+            throw new ModelValidationException($model);
         }
 
         $result = ImportantEvents::find()->orderBy([

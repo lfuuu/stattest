@@ -9,6 +9,7 @@ use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffPeriod;
 use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffVoipCity;
+use app\exceptions\ModelValidationException;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
@@ -142,9 +143,9 @@ abstract class TariffForm extends Form
                     $this->tariff->count_of_validity_period = 0;
                 }
 
-                if (!$this->tariff->validate() || !$this->tariff->save()) {
+                if (!$this->tariff->save()) {
                     $this->validateErrors += $this->tariff->getFirstErrors();
-                    throw new InvalidArgumentException('');
+                    throw new ModelValidationException($this->tariff);
                 }
 
                 $this->id = $this->tariff->id;
@@ -185,9 +186,9 @@ abstract class TariffForm extends Form
 
                         $package->load($post);
                         $package->currency_id = $this->tariff->currency_id;
-                        if (!$package->validate() || !$package->save()) {
+                        if (!$package->save()) {
                             $this->validateErrors += $package->getFirstErrors();
-                            throw new InvalidArgumentException('');
+                            throw new ModelValidationException($package);
                         }
 
                         $packageMinute = new PackageMinute();

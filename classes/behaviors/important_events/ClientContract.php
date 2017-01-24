@@ -26,7 +26,7 @@ class ClientContract extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function registerAddEvent($event)
     {
@@ -53,7 +53,7 @@ class ClientContract extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function registerUpdateEvent($event)
     {

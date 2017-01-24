@@ -2,11 +2,11 @@
 
 namespace app\models;
 
+use app\classes\validators\ArrayValidator;
+use app\exceptions\ModelValidationException;
 use Yii;
-use LogicException;
 use yii\db\ActiveRecord;
 use yii\db\Query;
-use app\classes\validators\ArrayValidator;
 
 /**
  * @property int $tag_id
@@ -40,7 +40,7 @@ class TagsResource extends ActiveRecord
             ['resource_id', 'integer'],
             ['feature', 'string'],
             ['tags', ArrayValidator::className()],
-            [['resource', 'resource_id', ], 'required'],
+            [['resource', 'resource_id',], 'required'],
             ['feature', 'default', 'value' => null],
         ];
     }
@@ -63,11 +63,11 @@ class TagsResource extends ActiveRecord
     public static function getTagList($resource, $indexBy = null, $resourceId = 0, $feature = null)
     {
         $query = (new Query)
-                ->select(['t.id', 't.name'])
-                ->from(['tc' => self::tableName()])
-                ->innerJoin(['t' => Tags::tableName()], 't.id = tc.tag_id')
-                ->andWhere(['tc.resource' => $resource])
-                ->groupBy(['t.id', 't.name']);
+            ->select(['t.id', 't.name'])
+            ->from(['tc' => self::tableName()])
+            ->innerJoin(['t' => Tags::tableName()], 't.id = tc.tag_id')
+            ->andWhere(['tc.resource' => $resource])
+            ->groupBy(['t.id', 't.name']);
 
         if ((int)$resourceId) {
             $query->andWhere(['tc.resource_id' => $resourceId]);
@@ -131,7 +131,7 @@ class TagsResource extends ActiveRecord
                         $tag->name = $tagName;
 
                         if (!$tag->save()) {
-                            throw new LogicException(implode(' ', $tag->getFirstErrors()));
+                            throw new ModelValidationException($tag);
                         }
 
                         $tagId = $tag->id;
@@ -146,14 +146,13 @@ class TagsResource extends ActiveRecord
                     $tagCloudRecord->feature = $this->feature;
                     $tagCloudRecord->tag_id = $tagId;
                     if (!$tagCloudRecord->save()) {
-                        throw new LogicException(implode(' ', $tagCloudRecord->getFirstErrors()));
+                        throw new ModelValidationException($tagCloudRecord);
                     }
                 }
             }
 
             $transaction->commit();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error($e);
             return false;

@@ -11,7 +11,7 @@ use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
 use app\classes\uu\model\TariffResource;
-use app\exceptions\api\internal\ExceptionValidationForm;
+use app\exceptions\ModelValidationException;
 use app\models\TariffVoipPackage;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\Package;
@@ -28,6 +28,7 @@ class UconverterController extends Controller
 
     /**
      * Доконвертировать тарифы и услуги
+     *
      * @return int
      */
     protected function actionIndex()
@@ -121,7 +122,6 @@ class UconverterController extends Controller
             echo PHP_EOL . 'Пакеты телефонии в ННП. ' . date(DATE_ATOM) . PHP_EOL;
 
             // услуг не так много (меньше 100) - можно их все прочитать в модели
-
             /** @var Package[] $nnpPackages */
             $nnpPackages = Package::find()->indexBy('tariff_id')->all();
 
@@ -149,16 +149,15 @@ class UconverterController extends Controller
                     $package = new Package();
                     $package->tariff_id = $tariffPackage->id;
                     if (!$package->save()) {
-                        throw new ExceptionValidationForm($package);
+                        throw new ModelValidationException($package);
                     }
-
                 }
 
                 // обновить минуты/прайс
                 $nonUniversalId = $tariffPackage->id - Tariff::DELTA_VOIP_PACKAGE;
                 $nonUniversalTariff = TariffVoipPackage::findOne(['id' => $nonUniversalId]);
                 if (!$nonUniversalTariff) {
-                    //throw new \LogicException('Не найден старый тариф для ' . $tariffPackage->id);
+                    // throw new \LogicException('Не найден старый тариф для ' . $tariffPackage->id);
                     continue;
                 }
 
@@ -176,7 +175,7 @@ class UconverterController extends Controller
                             $packageMinute->minute = $nonUniversalTariff->minutes_count;
                             $packageMinute->destination_id = $destination->id; // $nonUniversalTariff->destination_id; // направления не совпадают!
                             if (!$packageMinute->save()) {
-                                throw new ExceptionValidationForm($packageMinute);
+                                throw new ModelValidationException($packageMinute);
                             }
                         }
                     } else {
@@ -184,12 +183,13 @@ class UconverterController extends Controller
                         foreach ($packageMinutes as $packageMinute) {
                             $packageMinute->delete();
                         }
+
                         $packageMinute = new PackageMinute();
                         $packageMinute->tariff_id = $package->tariff_id;
                         $packageMinute->minute = $nonUniversalTariff->minutes_count;
                         $packageMinute->destination_id = $destination->id; // $nonUniversalTariff->destination_id; // направления не совпадают!
                         if (!$packageMinute->save()) {
-                            throw new ExceptionValidationForm($packageMinute);
+                            throw new ModelValidationException($packageMinute);
                         }
                     }
 
@@ -197,7 +197,6 @@ class UconverterController extends Controller
                     foreach ($packagePricelists as $packagePricelist) {
                         $packagePricelist->delete();
                     }
-
                 } else {
 
                     // прайс-лист
@@ -208,7 +207,7 @@ class UconverterController extends Controller
                             // Обновить
                             $packagePricelist->pricelist_id = $nonUniversalTariff->pricelist_id;
                             if (!$packagePricelist->save()) {
-                                throw new ExceptionValidationForm($packagePricelist);
+                                throw new ModelValidationException($packagePricelist);
                             }
                         }
                     } else {
@@ -216,11 +215,12 @@ class UconverterController extends Controller
                         foreach ($packagePricelists as $packagePricelist) {
                             $packagePricelist->delete();
                         }
+
                         $packagePricelist = new PackagePricelist();
                         $packagePricelist->tariff_id = $package->tariff_id;
                         $packagePricelist->pricelist_id = $nonUniversalTariff->pricelist_id;
                         if (!$packagePricelist->save()) {
-                            throw new ExceptionValidationForm($packagePricelist);
+                            throw new ModelValidationException($packagePricelist);
                         }
                     }
 
@@ -235,7 +235,6 @@ class UconverterController extends Controller
                 foreach ($packagePrices as $packagePrice) {
                     $packagePrice->delete();
                 }
-
             }
 
             // удалить несуществующие
@@ -257,6 +256,7 @@ class UconverterController extends Controller
 
     /**
      * Удалить кривые ресурсы тарифа
+     *
      * @return int
      */
     protected function actionFixTariffResource()
@@ -313,6 +313,7 @@ SQL;
 
     /**
      * Синхронизировать пакеты в биллер
+     *
      * @return int
      */
     protected function actionSyncAccountTariffLight()
@@ -337,6 +338,7 @@ SQL;
      * Дефрагментировать AccountTariffLog
      * При конвертации логи тарифов удаляются и создаются заново. Так за несколько месяцев допустимые числа закончатся, конвертер перестанет работать.
      * Надо раз в месяц запускать дефрагментацию до тех пор, пока конвертер не выключим
+     *
      * @return int
      */
     protected function actionFixAccountTariffLog()

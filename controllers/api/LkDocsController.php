@@ -5,7 +5,7 @@ namespace app\controllers\api;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
 use app\classes\validators\AccountIdValidator;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\ApiController;
 use app\classes\DynamicModel;
 use app\models\ClientDocument;
@@ -214,7 +214,7 @@ class LkDocsController extends ApiController
         );
 
         if ($form->hasErrors()) {
-            throw new FormValidationException($form);
+            throw new ModelValidationException($form);
         }
 
         $this->accountId = $form->account_id;
@@ -234,7 +234,7 @@ class LkDocsController extends ApiController
 
         if (!$document) {
             $form->addError("id", "Document not ready");
-            throw new FormValidationException($form);
+            throw new ModelValidationException($form);
         }
 
         $result = $document->toArray();

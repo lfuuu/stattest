@@ -2,16 +2,17 @@
 
 namespace app\classes\partners;
 
-use app\models\BillLine;
-use yii\db\Expression;
-use yii\db\Query;
 use app\classes\Assert;
 use app\classes\partners\rewards\Reward;
+use app\exceptions\ModelValidationException;
+use app\models\Bill;
+use app\models\BillLine;
 use app\models\ClientAccount;
+use app\models\ClientContractReward;
 use app\models\PartnerRewards;
 use app\models\Transaction;
-use app\models\ClientContractReward;
-use app\models\Bill;
+use yii\db\Expression;
+use yii\db\Query;
 
 abstract class RewardCalculate
 {
@@ -72,8 +73,7 @@ abstract class RewardCalculate
 
             if (
                 $rewardsSettingsByType['period_type'] === ClientContractReward::PERIOD_MONTH
-                    &&
-                $rewardsSettingsByType['period_month'] < BillLine::find()
+                && $rewardsSettingsByType['period_month'] < BillLine::find()
                     ->where([
                         'service' => $line->service,
                         'id_service' => $line->id_service,
@@ -103,7 +103,7 @@ abstract class RewardCalculate
             }
 
             if (!$reward->save()) {
-                throw new \LogicException(implode('', $reward->getFirstErrors()));
+                throw new ModelValidationException($reward);
             }
         }
     }

@@ -19,13 +19,14 @@ use app\classes\uu\model\TariffResource;
 use app\classes\uu\model\TariffStatus;
 use app\classes\uu\model\TariffVoipCity;
 use app\classes\uu\model\TariffVoipGroup;
-use app\exceptions\api\internal\ExceptionValidationForm;
+use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
+use Exception;
 use InvalidArgumentException;
 use LogicException;
 use Yii;
@@ -34,6 +35,9 @@ class UuController extends ApiInternalController
 {
     use IdNameRecordTrait;
 
+    /**
+     * @throws NotImplementedHttpException
+     */
     public function actionIndex()
     {
         throw new NotImplementedHttpException;
@@ -49,8 +53,7 @@ class UuController extends ApiInternalController
      *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
-     */
-    /**
+     *
      * @return array
      */
     public function actionGetServiceTypes()
@@ -74,8 +77,7 @@ class UuController extends ApiInternalController
      *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
-     */
-    /**
+     *
      * @return array
      */
     public function actionGetResources()
@@ -99,8 +101,7 @@ class UuController extends ApiInternalController
      *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
-     */
-    /**
+     *
      * @return array
      */
     public function actionGetPeriods()
@@ -124,8 +125,7 @@ class UuController extends ApiInternalController
      *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
-     */
-    /**
+     *
      * @return array
      */
     public function actionGetTariffStatuses()
@@ -149,8 +149,7 @@ class UuController extends ApiInternalController
      *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
-     */
-    /**
+     *
      * @return array
      */
     public function actionGetTariffPersons()
@@ -271,6 +270,16 @@ class UuController extends ApiInternalController
      * )
      */
     /**
+     * @param int $id
+     * @param int $parent_id
+     * @param int $service_type_id
+     * @param int $country_id
+     * @param int $currency_id
+     * @param int $is_default
+     * @param int $tariff_status_id
+     * @param int $tariff_person_id
+     * @param int $voip_group_id
+     * @param int $voip_city_id
      * @return array
      */
     public function actionGetTariffs(
@@ -285,6 +294,16 @@ class UuController extends ApiInternalController
         $voip_group_id = null,
         $voip_city_id = null
     ) {
+        $id = (int)$id;
+        $parent_id = (int)$parent_id;
+        $service_type_id = (int)$service_type_id;
+        $country_id = (int)$country_id;
+        $is_default = (int)$is_default;
+        $tariff_status_id = (int)$tariff_status_id;
+        $tariff_person_id = (int)$tariff_person_id;
+        $voip_group_id = (int)$voip_group_id;
+        $voip_city_id = (int)$voip_city_id;
+
         if ($parent_id) {
             // передан родительский тариф (предполагается, что телефонии), надо найти пакеты
             /** @var Tariff $tariff */
@@ -292,6 +311,7 @@ class UuController extends ApiInternalController
             if (!$tariff) {
                 return [];
             }
+
             $service_type_id = ServiceType::ID_VOIP_PACKAGE; // других пакетов пока все равно нет
             !$country_id && $country_id = $tariff->country_id;
             !$currency_id && $currency_id = $tariff->currency_id;
@@ -337,7 +357,7 @@ class UuController extends ApiInternalController
                 $defaultPackageRecords = null;
             }
 
-            $tariffRecord = $this->getTariffRecord($tariff, $tariff->tariffPeriods);
+            $tariffRecord = $this->_getTariffRecord($tariff, $tariff->tariffPeriods);
             $tariffRecord['default_packages'] = $defaultPackageRecords;
             $result[] = $tariffRecord;
         }
@@ -413,40 +433,41 @@ class UuController extends ApiInternalController
      *   )
      * )
      */
+
     /**
+     * @param Tariff $tariff
+     * @param TariffPeriod|TariffPeriod[] $tariffPeriod
      * @return array
-     * @throws \InvalidArgumentException
      */
-    public function actionGetAccountTariffs(
-        $id = null,
-        $service_type_id = null,
-        $client_account_id = null,
-        $region_id = null,
-        $city_id = null,
-        $voip_number = null,
-        $prev_account_tariff_id = null
-    ) {
-        $accountTariffQuery = AccountTariff::find();
-        $accountTariffTableName = AccountTariff::tableName();
-        $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
-        $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
-        $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
-        $region_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.region_id' => (int)$region_id]);
-        $city_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.city_id' => (int)$city_id]);
-        $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
-        $prev_account_tariff_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.prev_account_tariff_id' => $prev_account_tariff_id]);
-
-        if (!$id && !$service_type_id && !$client_account_id) {
-            throw new InvalidArgumentException('Необходимо указать фильтр id, service_type_id или client_account_id');
-        }
-
-        $result = [];
-        foreach ($accountTariffQuery->each() as $accountTariff) {
-            /** @var AccountTariff $accountTariff */
-            $result[] = $this->getAccountTariffRecord($accountTariff);
-        }
-
-        return $result;
+    private function _getTariffRecord(Tariff $tariff, $tariffPeriod)
+    {
+        $package = $tariff->package;
+        return [
+            'id' => $tariff->id,
+            'name' => $tariff->name,
+            'count_of_validity_period' => $tariff->count_of_validity_period,
+            'is_autoprolongation' => $tariff->is_autoprolongation,
+            'is_charge_after_blocking' => $tariff->is_charge_after_blocking,
+            'is_charge_after_period' => $tariff->is_charge_after_period,
+            'is_include_vat' => $tariff->is_include_vat,
+            'is_default' => $tariff->is_default,
+            'currency' => $tariff->currency_id,
+            'service_type' => $this->getIdNameRecord($tariff->serviceType),
+            'country' => $this->getIdNameRecord($tariff->country, 'code'),
+            'tariff_status' => $this->getIdNameRecord($tariff->status),
+            'tariff_person' => $this->getIdNameRecord($tariff->person),
+            'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
+            'tariff_periods' => $this->_getTariffPeriodRecord($tariffPeriod),
+            'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,
+            'tarification_interval_seconds' => $package ? $package->tarification_interval_seconds : null,
+            'tarification_type' => $package ? $package->tarification_type : null,
+            'tarification_min_paid_seconds' => $package ? $package->tarification_min_paid_seconds : null,
+            'voip_group' => $this->getIdNameRecord($tariff->voipGroup),
+            'voip_cities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
+            'voip_package_minute' => $this->_getVoipPackageMinuteRecord($tariff->packageMinutes),
+            'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices),
+            'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
+        ];
     }
 
     /**
@@ -479,30 +500,37 @@ class UuController extends ApiInternalController
      *   )
      * )
      */
+
     /**
-     * @return array
-     * @throws \InvalidArgumentException
+     * @param TariffResource|TariffResource[] $model
+     * @return array|null
      */
-    public function actionGetAccountTariffsVoip(
-        $client_account_id = null
-    ) {
-        $service_type_id = ServiceType::ID_VOIP;
+    private function _getTariffResourceRecord($model)
+    {
+        if (is_array($model)) {
 
-        $accountTariffQuery = AccountTariff::find();
-        $accountTariffTableName = AccountTariff::tableName();
-        $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
-        $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
+            $result = [];
+            foreach ($model as $subModel) {
+                $result[] = $this->_getTariffResourceRecord($subModel);
+            }
 
-        if (!$client_account_id) {
-            throw new InvalidArgumentException('Необходимо указать фильтр client_account_id');
+            return $result;
+
+        } elseif ($model) {
+
+            return [
+                'id' => $model->id,
+                'amount' => $model->amount,
+                'price_per_unit' => $model->price_per_unit,
+                'price_min' => $model->price_min,
+                'resource' => $this->getIdNameRecord($model->resource),
+            ];
+
+        } else {
+
+            return null;
+
         }
-
-        $result = [];
-        foreach ($accountTariffQuery->each() as $accountTariff) {
-            $result[] = $this->getAccountTariffVoipRecord($accountTariff);
-        }
-
-        return $result;
     }
 
     /**
@@ -525,442 +553,20 @@ class UuController extends ApiInternalController
      *   )
      * )
      */
-    /**
-     * @return int
-     * @throws \app\exceptions\api\internal\ExceptionValidationForm
-     */
-    public function actionAddAccountTariff()
-    {
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-            $post = Yii::$app->request->post();
-
-            $accountTariff = new AccountTariff();
-            $accountTariff->setAttributes($post);
-            if (!$accountTariff->validate() || !$accountTariff->save()) {
-                throw new ExceptionValidationForm($accountTariff);
-            }
-
-            // записать в лог тарифа
-            $accountTariffLog = new AccountTariffLog;
-            $accountTariffLog->account_tariff_id = $accountTariff->id;
-            $accountTariffLog->setAttributes($post);
-            if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
-                throw new ExceptionValidationForm($accountTariffLog);
-            }
-
-            $transaction->commit();
-            return $accountTariff->id;
-
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге ЛС", operationId = "Сменить тариф услуге ЛС",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
-     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
-     *
-     *   @SWG\Response(response = 200, description = "Тариф изменен",
-     *     @SWG\Schema(type = "boolean", description = "true - успешно")
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-    /**
-     * @return int
-     * @throws ExceptionValidationForm
-     */
-    public function actionEditAccountTariff(array $account_tariff_ids = [])
-    {
-        $postData = Yii::$app->request->post();
-        return $this->editAccountTariff(
-            $account_tariff_ids,
-            $postData['tariff_period_id'],
-            isset($postData['actual_from']) ? $postData['actual_from'] : null
-        );
-    }
-
-    /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу ЛС", operationId = "Закрыть услугу ЛС",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
-     *
-     *   @SWG\Response(response = 200, description = "Услуга закрыта",
-     *     @SWG\Schema(type = "boolean", description = "true - успешно")
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-    /**
-     * @return int
-     * @throws ExceptionValidationForm
-     */
-    public function actionCloseAccountTariff(array $account_tariff_ids = [])
-    {
-        $postData = Yii::$app->request->post();
-        return $this->editAccountTariff(
-            $account_tariff_ids,
-            null,
-            isset($postData['actual_from']) ? $postData['actual_from'] : null
-        );
-    }
-
-    /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС", operationId = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
-     *
-     *   @SWG\Response(response = 200, description = "Последняя смена тарифа (в т.ч. закрытие) услуги отменена",
-     *     @SWG\Schema(type = "integer", description = "Новый последний tariffPeriodId (идентификатор периода). Если 0 - услуга удалена, ибо больше в логе тарифов ничего нет")
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-    /**
-     * @return int
-     * @throws \InvalidArgumentException
-     * @throws ExceptionValidationForm
-     */
-    public function actionCancelEditAccountTariff(array $account_tariff_ids = [])
-    {
-        if (!$account_tariff_ids) {
-            throw new InvalidArgumentException('Не указан обязательный параметр account_tariff_ids');
-        }
-
-        foreach ($account_tariff_ids as $account_tariff_id) {
-
-            $account_tariff_id = trim($account_tariff_id);
-            $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
-            if (!$accountTariff) {
-                throw new InvalidArgumentException('Услуга с таким идентификатором не найдена');
-            }
-            if (!$accountTariff->isCancelable()) {
-                throw new LogicException('Нельзя отменить уже примененный тариф');
-            }
-
-            // лог тарифов
-            $accountTariffLogs = $accountTariff->accountTariffLogs;
-
-            // отменяемый тариф
-            /** @var AccountTariffLog $accountTariffLogCancelled */
-            $accountTariffLogCancelled = array_shift($accountTariffLogs);
-            if (!$accountTariff->isCancelable()) {
-                throw new LogicException('Нельзя отменить уже примененный тариф');
-            }
-
-            // отменить (удалить) последний тариф
-            if (!$accountTariffLogCancelled->delete()) {
-                throw new ExceptionValidationForm($accountTariffLogCancelled);
-            }
-
-            if (!count($accountTariffLogs)) {
-
-                // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью
-                if (!$accountTariff->delete()) {
-                    throw new ExceptionValidationForm($accountTariff);
-                }
-
-            } else {
-
-                // предпоследний тариф становится текущим
-                /** @var AccountTariffLog $accountTariffLogActual */
-                $accountTariffLogActual = array_shift($accountTariffLogs);
-
-                // у услуги сменить кэш тарифа
-                $accountTariff->tariff_period_id = $accountTariffLogActual->tariff_period_id;
-                if (!$accountTariff->save()) {
-                    throw new ExceptionValidationForm($accountTariff);
-                }
-
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param int[] $account_tariff_ids
-     * @param $tariff_period_id
-     * @param $actual_from
-     * @return int
-     * @throws ExceptionValidationForm
-     */
-    public function editAccountTariff($account_tariff_ids, $tariff_period_id, $actual_from)
-    {
-        if (!$account_tariff_ids) {
-            throw new InvalidArgumentException('Не указан обязательный параметр account_tariff_ids');
-        }
-
-        $transaction = Yii::$app->db->beginTransaction();
-        try {
-
-            foreach ($account_tariff_ids as $account_tariff_id) {
-
-                $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
-                if (!$accountTariff) {
-                    throw new InvalidArgumentException('Услуга с таким идентификатором не найдена ' . $account_tariff_id);
-                }
-
-                // у услуги сменить кэш тарифа
-                $accountTariff->tariff_period_id = $tariff_period_id;
-                if (!$accountTariff->save()) {
-                    throw new ExceptionValidationForm($accountTariff);
-                }
-
-                // записать в лог тарифа
-                $accountTariffLog = new AccountTariffLog;
-                $accountTariffLog->account_tariff_id = $accountTariff->id;
-                $accountTariffLog->tariff_period_id = $tariff_period_id;
-                $accountTariffLog->actual_from = $actual_from;
-                if (!$accountTariffLog->save()) {
-                    throw new ExceptionValidationForm($accountTariffLog);
-                }
-
-            }
-
-            $transaction->commit();
-            return true;
-
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * @param Tariff $tariff
-     * @param TariffPeriod|TariffPeriod[] $tariffPeriod
-     * @return array
-     */
-    private function getTariffRecord(Tariff $tariff, $tariffPeriod)
-    {
-        $package = $tariff->package;
-        return [
-            'id' => $tariff->id,
-            'name' => $tariff->name,
-            'count_of_validity_period' => $tariff->count_of_validity_period,
-            'is_autoprolongation' => $tariff->is_autoprolongation,
-            'is_charge_after_blocking' => $tariff->is_charge_after_blocking,
-            'is_charge_after_period' => $tariff->is_charge_after_period,
-            'is_include_vat' => $tariff->is_include_vat,
-            'is_default' => $tariff->is_default,
-            'currency' => $tariff->currency_id,
-            'service_type' => $this->getIdNameRecord($tariff->serviceType),
-            'country' => $this->getIdNameRecord($tariff->country, 'code'),
-            'tariff_status' => $this->getIdNameRecord($tariff->status),
-            'tariff_person' => $this->getIdNameRecord($tariff->person),
-            'tariff_resources' => $this->getTariffResourceRecord($tariff->tariffResources),
-            'tariff_periods' => $this->getTariffPeriodRecord($tariffPeriod),
-            'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,
-            'tarification_interval_seconds' => $package ? $package->tarification_interval_seconds : null,
-            'tarification_type' => $package ? $package->tarification_type : null,
-            'tarification_min_paid_seconds' => $package ? $package->tarification_min_paid_seconds : null,
-            'voip_group' => $this->getIdNameRecord($tariff->voipGroup),
-            'voip_cities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
-            'voip_package_minute' => $this->getVoipPackageMinuteRecord($tariff->packageMinutes),
-            'voip_package_price' => $this->getVoipPackagePriceRecord($tariff->packagePrices),
-            'voip_package_pricelist' => $this->getVoipPackagePricelistRecord($tariff->packagePricelists),
-        ];
-    }
-
-    /**
-     * @param AccountTariff|AccountTariff[] $accountTariff
-     * @return array
-     */
-    private function getAccountTariffRecord($accountTariff)
-    {
-        if (!$accountTariff) {
-            return null;
-        }
-
-        if (is_array($accountTariff)) {
-
-            $result = [];
-            foreach ($accountTariff as $subAccountTariff) {
-                $result[] = $this->getAccountTariffRecord($subAccountTariff);
-            }
-            return $result;
-
-        }
-
-        return [
-            'id' => $accountTariff->id,
-            'client_account_id' => $accountTariff->client_account_id,
-            'service_type' => $this->getIdNameRecord($accountTariff->serviceType),
-            'region' => $this->getIdNameRecord($accountTariff->region),
-            'city' => $this->getIdNameRecord($accountTariff->city),
-            'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
-            'next_account_tariffs' => $this->getAccountTariffRecord($accountTariff->nextAccountTariffs),
-            'comment' => $accountTariff->comment,
-            'voip_number' => $accountTariff->voip_number,
-            'account_tariff_logs' => $this->getAccountTariffLogRecord($accountTariff->accountTariffLogs),
-            'account_log_setups' => $this->getAccountLogSetupRecord($accountTariff->accountLogSetups),
-            'account_log_periods' => $this->getAccountLogPeriodRecord($accountTariff->accountLogPeriods),
-            'account_log_resources' => $this->getAccountLogResourceRecord($accountTariff->accountLogResources),
-        ];
-    }
-
-    /**
-     * @param PackageMinute|PackageMinute[] $packageMinutes
-     * @return array
-     */
-    private function getVoipPackageMinuteRecord($packageMinutes)
-    {
-        if (!$packageMinutes) {
-            return null;
-        }
-
-        if (is_array($packageMinutes)) {
-
-            $result = [];
-            foreach ($packageMinutes as $packageMinute) {
-                $result[] = $this->getVoipPackageMinuteRecord($packageMinute);
-            }
-            return $result;
-
-        }
-
-        return [
-            'destination' => (string)$packageMinutes->destination,
-            'minute' => $packageMinutes->minute,
-        ];
-    }
-
-    /**
-     * @param PackagePrice|PackagePrice[] $packagePrices
-     * @return array
-     */
-    private function getVoipPackagePriceRecord($packagePrices)
-    {
-        if (!$packagePrices) {
-            return null;
-        }
-
-        if (is_array($packagePrices)) {
-
-            $result = [];
-            foreach ($packagePrices as $packagePrice) {
-                $result[] = $this->getVoipPackagePriceRecord($packagePrice);
-            }
-            return $result;
-
-        }
-
-        return [
-            'destination' => (string)$packagePrices->destination,
-            'price' => $packagePrices->price,
-        ];
-    }
-
-    /**
-     * @param PackagePricelist|PackagePricelist[] $packagePricelists
-     * @return array
-     */
-    private function getVoipPackagePricelistRecord($packagePricelists)
-    {
-        if (!$packagePricelists) {
-            return null;
-        }
-
-        if (is_array($packagePricelists)) {
-
-            $result = [];
-            foreach ($packagePricelists as $packagePricelist) {
-                $result[] = $this->getVoipPackagePricelistRecord($packagePricelist);
-            }
-            return $result;
-
-        }
-
-        return [
-            'pricelist' => (string)$packagePricelists->pricelist,
-        ];
-    }
-
-    /**
-     * Услуги
-     *
-     * @param AccountTariff $accountTariff
-     * @return array
-     */
-    private function getAccountTariffVoipRecord($accountTariff)
-    {
-        $record = [
-            'id' => $accountTariff->id,
-            'voip_number' => $accountTariff->voip_number,
-            'voip_city' => $this->getIdNameRecord($accountTariff->city),
-            'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
-            'is_editable' => (bool)$accountTariff->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
-            'log' => $this->getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
-            'packages' => null,
-        ];
-
-        $packages = $accountTariff->nextAccountTariffs;
-        if ($packages) {
-            $record['packages'] = [];
-            foreach ($packages as $package) {
-                $record['packages'][] = $this->getAccountTariffVoipRecord($package);
-            }
-        }
-
-        return $record;
-    }
-
-    /**
-     * @param TariffResource|TariffResource[] $model
-     * @return array|null
-     */
-    private function getTariffResourceRecord($model)
-    {
-        if (is_array($model)) {
-
-            $result = [];
-            foreach ($model as $subModel) {
-                $result[] = $this->getTariffResourceRecord($subModel);
-            }
-            return $result;
-
-        } elseif ($model) {
-
-            return [
-                'id' => $model->id,
-                'amount' => $model->amount,
-                'price_per_unit' => $model->price_per_unit,
-                'price_min' => $model->price_min,
-                'resource' => $this->getIdNameRecord($model->resource),
-            ];
-
-        } else {
-
-            return null;
-
-        }
-    }
 
     /**
      * @param TariffPeriod|TariffPeriod[] $model
      * @return array|null
      */
-    private function getTariffPeriodRecord($model)
+    private function _getTariffPeriodRecord($model)
     {
         if (is_array($model)) {
 
             $result = [];
             foreach ($model as $subModel) {
-                $result[] = $this->getTariffPeriodRecord($subModel);
+                $result[] = $this->_getTariffPeriodRecord($subModel);
             }
+
             return $result;
 
         } elseif ($model) {
@@ -982,23 +588,237 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге ЛС", operationId = "Сменить тариф услуге ЛС",
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Тариф изменен",
+     *     @SWG\Schema(type = "boolean", description = "true - успешно")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+
+    /**
+     * @param PackageMinute|PackageMinute[] $packageMinutes
+     * @return array
+     */
+    private function _getVoipPackageMinuteRecord($packageMinutes)
+    {
+        if (!$packageMinutes) {
+            return null;
+        }
+
+        if (is_array($packageMinutes)) {
+
+            $result = [];
+            foreach ($packageMinutes as $packageMinute) {
+                $result[] = $this->_getVoipPackageMinuteRecord($packageMinute);
+            }
+
+            return $result;
+
+        }
+
+        return [
+            'destination' => (string)$packageMinutes->destination,
+            'minute' => $packageMinutes->minute,
+        ];
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу ЛС", operationId = "Закрыть услугу ЛС",
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Услуга закрыта",
+     *     @SWG\Schema(type = "boolean", description = "true - успешно")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+
+    /**
+     * @param PackagePrice|PackagePrice[] $packagePrices
+     * @return array
+     */
+    private function _getVoipPackagePriceRecord($packagePrices)
+    {
+        if (!$packagePrices) {
+            return null;
+        }
+
+        if (is_array($packagePrices)) {
+
+            $result = [];
+            foreach ($packagePrices as $packagePrice) {
+                $result[] = $this->_getVoipPackagePriceRecord($packagePrice);
+            }
+
+            return $result;
+
+        }
+
+        return [
+            'destination' => (string)$packagePrices->destination,
+            'price' => $packagePrices->price,
+        ];
+    }
+
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС", operationId = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС",
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Последняя смена тарифа (в т.ч. закрытие) услуги отменена",
+     *     @SWG\Schema(type = "integer", description = "Новый последний tariffPeriodId (идентификатор периода). Если 0 - услуга удалена, ибо больше в логе тарифов ничего нет")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+
+    /**
+     * @param PackagePricelist|PackagePricelist[] $packagePricelists
+     * @return array
+     */
+    private function _getVoipPackagePricelistRecord($packagePricelists)
+    {
+        if (!$packagePricelists) {
+            return null;
+        }
+
+        if (is_array($packagePricelists)) {
+
+            $result = [];
+            foreach ($packagePricelists as $packagePricelist) {
+                $result[] = $this->_getVoipPackagePricelistRecord($packagePricelist);
+            }
+
+            return $result;
+
+        }
+
+        return [
+            'pricelist' => (string)$packagePricelists->pricelist,
+        ];
+    }
+
+    /**
+     * @param int $id
+     * @param int $service_type_id
+     * @param int $client_account_id
+     * @param int $region_id
+     * @param int $city_id
+     * @param int $voip_number
+     * @param int $prev_account_tariff_id
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+    public function actionGetAccountTariffs(
+        $id = null,
+        $service_type_id = null,
+        $client_account_id = null,
+        $region_id = null,
+        $city_id = null,
+        $voip_number = null,
+        $prev_account_tariff_id = null
+    ) {
+        $id = (int)$id;
+        $service_type_id = (int)$service_type_id;
+        $client_account_id = (int)$client_account_id;
+        $region_id = (int)$region_id;
+        $city_id = (int)$city_id;
+        $prev_account_tariff_id = (int)$prev_account_tariff_id;
+
+        $accountTariffQuery = AccountTariff::find();
+        $accountTariffTableName = AccountTariff::tableName();
+        $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
+        $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
+        $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
+        $region_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.region_id' => (int)$region_id]);
+        $city_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.city_id' => (int)$city_id]);
+        $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
+        $prev_account_tariff_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.prev_account_tariff_id' => $prev_account_tariff_id]);
+
+        if (!$id && !$service_type_id && !$client_account_id) {
+            throw new InvalidArgumentException('Необходимо указать фильтр id, service_type_id или client_account_id', AccountTariff::ERROR_CODE_SERVICE_TYPE);
+        }
+
+        $result = [];
+        foreach ($accountTariffQuery->each() as $accountTariff) {
+            /** @var AccountTariff $accountTariff */
+            $result[] = $this->_getAccountTariffRecord($accountTariff);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param AccountTariff|AccountTariff[] $accountTariff
+     * @return array
+     */
+    private function _getAccountTariffRecord($accountTariff)
+    {
+        if (!$accountTariff) {
+            return null;
+        }
+
+        if (is_array($accountTariff)) {
+
+            $result = [];
+            foreach ($accountTariff as $subAccountTariff) {
+                $result[] = $this->_getAccountTariffRecord($subAccountTariff);
+            }
+
+            return $result;
+
+        }
+
+        return [
+            'id' => $accountTariff->id,
+            'client_account_id' => $accountTariff->client_account_id,
+            'service_type' => $this->getIdNameRecord($accountTariff->serviceType),
+            'region' => $this->getIdNameRecord($accountTariff->region),
+            'city' => $this->getIdNameRecord($accountTariff->city),
+            'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
+            'next_account_tariffs' => $this->_getAccountTariffRecord($accountTariff->nextAccountTariffs),
+            'comment' => $accountTariff->comment,
+            'voip_number' => $accountTariff->voip_number,
+            'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs),
+            'account_log_setups' => $this->_getAccountLogSetupRecord($accountTariff->accountLogSetups),
+            'account_log_periods' => $this->_getAccountLogPeriodRecord($accountTariff->accountLogPeriods),
+            'account_log_resources' => $this->_getAccountLogResourceRecord($accountTariff->accountLogResources),
+        ];
+    }
+
+    /**
      * @param AccountTariffLog|AccountTariffLog[] $model
      * @return array|null
      */
-    private function getAccountTariffLogRecord($model)
+    private function _getAccountTariffLogRecord($model)
     {
         if (is_array($model)) {
 
             $result = [];
             foreach ($model as $subModel) {
-                $result[] = $this->getAccountTariffLogRecord($subModel);
+                $result[] = $this->_getAccountTariffLogRecord($subModel);
             }
+
             return $result;
 
         } elseif ($model) {
 
             return [
-                'tariff_period' => $this->getTariffPeriodRecord($model->tariffPeriod),
+                'tariff_period' => $this->_getTariffPeriodRecord($model->tariffPeriod),
                 'actual_from' => $model->actual_from,
             ];
 
@@ -1010,129 +830,18 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @param AccountTariffLog[] $models
-     * @return array
-     */
-    private function getAccountTariffLogLightRecord($models)
-    {
-        $result = [];
-
-        /** @var AccountTariffLog $modelLast */
-        $modelLast = array_shift($models);
-        if (!$modelLast) {
-            return $result;
-        }
-        /** @var AccountTariffLog $modelPrev */
-        $modelPrev = array_shift($models);
-        $isCancelable = $modelLast->actual_from > date(DateTimeZoneHelper::DATE_FORMAT);
-
-
-        if ($modelLast->tariff_period_id) {
-
-            if ($isCancelable) {
-
-                // смена тарифа в будущем
-                if ($modelPrev) {
-                    // текущий тариф
-                    $result[] = [
-                        'tariff' => $this->getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
-                        'activate_past_date' => $modelPrev->actual_from,
-                        'activate_future_date' => null,
-                        'deactivate_past_date' => null,
-                        'deactivate_future_date' => null,
-                    ];
-                }
-                // будущий
-                $result[] = [
-                    'tariff' => $this->getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod),
-                    'activate_past_date' => null,
-                    'activate_future_date' => $modelLast->actual_from,
-                    'deactivate_past_date' => null,
-                    'deactivate_future_date' => null,
-                ];
-
-            } else {
-
-                // смена тарифа в прошлом
-                $result[] = [
-                    'tariff' => $this->getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod),
-                    'activate_past_date' => $modelLast->actual_from,
-                    'activate_future_date' => null,
-                    'deactivate_past_date' => null,
-                    'deactivate_future_date' => null,
-                ];
-
-            }
-
-        } else {
-
-            if ($isCancelable) {
-
-                // закрытие тарифа в будущем
-                $result[] = [
-                    'tariff' => $this->getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
-                    'activate_past_date' => $modelPrev->actual_from,
-                    'activate_future_date' => null,
-                    'deactivate_past_date' => null,
-                    'deactivate_future_date' => $modelLast->actual_from,
-                ];
-
-            } else {
-
-                // закрытие тарифа в прошлом
-                $result[] = [
-                    'tariff' => $this->getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
-                    'activate_past_date' => null,
-                    'activate_future_date' => null,
-                    'deactivate_past_date' => $modelLast->actual_from,
-                    'deactivate_future_date' => null,
-                ];
-
-            }
-
-        }
-
-
-        if ($modelLast->tariff_period_id && $isCancelable) {
-
-            // смена тарифа в будущем
-            if (!$modelPrev) {
-                return $result;
-            }
-            $result[] = [
-                'tariff' => $this->getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
-                'activate_past_date' => $modelPrev->actual_from, // обычная смена тарифа в прошлом,
-                'activate_future_date' => null,
-                'deactivate_past_date' => null,
-                'deactivate_future_date' => null,
-            ];
-        } elseif ($modelLast->tariff_period_id && $isCancelable) {
-
-            // закрытие тарифа в будущем
-            /** @var AccountTariffLog $modelPrev */
-            $modelPrev = array_shift($modelPrevs);
-            if (!$modelPrev) {
-                return $result;
-            }
-            $result[0]['tariff'] = $this->getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod);
-            $result[0]['activate_past_date'] = $modelPrev->actual_from;
-        }
-
-        return $result;
-    }
-
-    /**
      * @param AccountLogSetup|AccountLogSetup[] $model
      * @return array|null
      */
-    private function getAccountLogSetupRecord($model)
+    private function _getAccountLogSetupRecord($model)
     {
         if (is_array($model)) {
 
             $result = [];
             foreach ($model as $subModel) {
-                $result[] = $this->getAccountLogSetupRecord($subModel);
+                $result[] = $this->_getAccountLogSetupRecord($subModel);
             }
+
             return $result;
 
         } elseif ($model) {
@@ -1155,14 +864,15 @@ class UuController extends ApiInternalController
      * @param AccountLogPeriod|AccountLogPeriod[] $model
      * @return array|null
      */
-    private function getAccountLogPeriodRecord($model)
+    private function _getAccountLogPeriodRecord($model)
     {
         if (is_array($model)) {
 
             $result = [];
             foreach ($model as $subModel) {
-                $result[] = $this->getAccountLogPeriodRecord($subModel);
+                $result[] = $this->_getAccountLogPeriodRecord($subModel);
             }
+
             return $result;
 
         } elseif ($model) {
@@ -1188,14 +898,15 @@ class UuController extends ApiInternalController
      * @param AccountLogResource|AccountLogResource[] $model
      * @return array|null
      */
-    private function getAccountLogResourceRecord($model)
+    private function _getAccountLogResourceRecord($model)
     {
         if (is_array($model)) {
 
             $result = [];
             foreach ($model as $subModel) {
-                $result[] = $this->getAccountLogResourceRecord($subModel);
+                $result[] = $this->_getAccountLogResourceRecord($subModel);
             }
+
             return $result;
 
         } elseif ($model) {
@@ -1220,6 +931,355 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @param int $client_account_id
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+    public function actionGetAccountTariffsVoip(
+        $client_account_id = null
+    ) {
+        $client_account_id = (int)$client_account_id;
+        $service_type_id = ServiceType::ID_VOIP;
+
+        $accountTariffQuery = AccountTariff::find();
+        $accountTariffTableName = AccountTariff::tableName();
+        $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
+        $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
+
+        if (!$client_account_id) {
+            throw new InvalidArgumentException('Необходимо указать фильтр client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+        }
+
+        $result = [];
+        foreach ($accountTariffQuery->each() as $accountTariff) {
+            $result[] = $this->_getAccountTariffVoipRecord($accountTariff);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Услуги
+     *
+     * @param AccountTariff $accountTariff
+     * @return array
+     */
+    private function _getAccountTariffVoipRecord($accountTariff)
+    {
+        $record = [
+            'id' => $accountTariff->id,
+            'voip_number' => $accountTariff->voip_number,
+            'voip_city' => $this->getIdNameRecord($accountTariff->city),
+            'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
+            'is_editable' => (bool)$accountTariff->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
+            'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
+            'packages' => null,
+        ];
+
+        $packages = $accountTariff->nextAccountTariffs;
+        if ($packages) {
+            $record['packages'] = [];
+            foreach ($packages as $package) {
+                $record['packages'][] = $this->_getAccountTariffVoipRecord($package);
+            }
+        }
+
+        return $record;
+    }
+
+    /**
+     * @param AccountTariffLog[] $models
+     * @return array
+     */
+    private function _getAccountTariffLogLightRecord($models)
+    {
+        $result = [];
+
+        /** @var AccountTariffLog $modelLast */
+        $modelLast = array_shift($models);
+        if (!$modelLast) {
+            return $result;
+        }
+
+        /** @var AccountTariffLog $modelPrev */
+        $modelPrev = array_shift($models);
+        $isCancelable = $modelLast->actual_from > date(DateTimeZoneHelper::DATE_FORMAT);
+
+
+        if ($modelLast->tariff_period_id) {
+
+            if ($isCancelable) {
+
+                // смена тарифа в будущем
+                if ($modelPrev) {
+                    // текущий тариф
+                    $result[] = [
+                        'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
+                        'activate_past_date' => $modelPrev->actual_from,
+                        'activate_future_date' => null,
+                        'deactivate_past_date' => null,
+                        'deactivate_future_date' => null,
+                    ];
+                }
+
+                // будущий
+                $result[] = [
+                    'tariff' => $this->_getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod),
+                    'activate_past_date' => null,
+                    'activate_future_date' => $modelLast->actual_from,
+                    'deactivate_past_date' => null,
+                    'deactivate_future_date' => null,
+                ];
+
+            } else {
+
+                // смена тарифа в прошлом
+                $result[] = [
+                    'tariff' => $this->_getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod),
+                    'activate_past_date' => $modelLast->actual_from,
+                    'activate_future_date' => null,
+                    'deactivate_past_date' => null,
+                    'deactivate_future_date' => null,
+                ];
+
+            }
+        } else {
+
+            if ($isCancelable) {
+
+                // закрытие тарифа в будущем
+                $result[] = [
+                    'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
+                    'activate_past_date' => $modelPrev->actual_from,
+                    'activate_future_date' => null,
+                    'deactivate_past_date' => null,
+                    'deactivate_future_date' => $modelLast->actual_from,
+                ];
+
+            } else {
+
+                // закрытие тарифа в прошлом
+                $result[] = [
+                    'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
+                    'activate_past_date' => null,
+                    'activate_future_date' => null,
+                    'deactivate_past_date' => $modelLast->actual_from,
+                    'deactivate_future_date' => null,
+                ];
+
+            }
+        }
+
+
+        if ($modelLast->tariff_period_id && $isCancelable) {
+
+            // смена тарифа в будущем
+            if (!$modelPrev) {
+                return $result;
+            }
+
+            $result[] = [
+                'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
+                'activate_past_date' => $modelPrev->actual_from, // обычная смена тарифа в прошлом,
+                'activate_future_date' => null,
+                'deactivate_past_date' => null,
+                'deactivate_future_date' => null,
+            ];
+        } elseif ($modelLast->tariff_period_id && $isCancelable) {
+
+            // закрытие тарифа в будущем
+            /** @var AccountTariffLog $modelPrev */
+            $modelPrev = array_shift($modelPrevs);
+            if (!$modelPrev) {
+                return $result;
+            }
+
+            $result[0]['tariff'] = $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod);
+            $result[0]['activate_past_date'] = $modelPrev->actual_from;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return int
+     * @throws Exception
+     * @throws ModelValidationException
+     */
+    public function actionAddAccountTariff()
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $post = Yii::$app->request->post();
+
+            $accountTariff = new AccountTariff();
+            $accountTariff->setAttributes($post);
+            if (!$accountTariff->save()) {
+                throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+            }
+
+            // записать в лог тарифа
+            $accountTariffLog = new AccountTariffLog;
+            $accountTariffLog->account_tariff_id = $accountTariff->id;
+            $accountTariffLog->setAttributes($post);
+            if (!$accountTariffLog->save()) {
+                throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
+            }
+
+            $transaction->commit();
+            return $accountTariff->id;
+
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * @param array $account_tariff_ids
+     * @return int
+     * @throws Exception
+     */
+    public function actionEditAccountTariff(array $account_tariff_ids = [])
+    {
+        $postData = Yii::$app->request->post();
+        return $this->editAccountTariff(
+            $account_tariff_ids,
+            $postData['tariff_period_id'],
+            isset($postData['actual_from']) ? $postData['actual_from'] : null
+        );
+    }
+
+    /**
+     * @param int[] $account_tariff_ids
+     * @param int $tariff_period_id
+     * @param string $actual_from
+     * @return int
+     * @throws Exception
+     * @throws ModelValidationException
+     */
+    public function editAccountTariff($account_tariff_ids, $tariff_period_id, $actual_from)
+    {
+        if (!$account_tariff_ids) {
+            throw new InvalidArgumentException('Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+
+            foreach ($account_tariff_ids as $account_tariff_id) {
+
+                $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
+                if (!$accountTariff) {
+                    throw new InvalidArgumentException('Услуга с таким идентификатором не найдена ' . $account_tariff_id, AccountTariff::ERROR_CODE_USAGE_EMPTY);
+                }
+
+                // у услуги сменить кэш тарифа
+                $accountTariff->tariff_period_id = $tariff_period_id;
+                if (!$accountTariff->save()) {
+                    throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+                }
+
+                // записать в лог тарифа
+                $accountTariffLog = new AccountTariffLog;
+                $accountTariffLog->account_tariff_id = $accountTariff->id;
+                $accountTariffLog->tariff_period_id = $tariff_period_id;
+                $accountTariffLog->actual_from = $actual_from;
+                if (!$accountTariffLog->save()) {
+                    throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
+                }
+            }
+
+            $transaction->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * @param array $account_tariff_ids
+     * @return int
+     * @throws Exception
+     */
+    public function actionCloseAccountTariff(array $account_tariff_ids = [])
+    {
+        $postData = Yii::$app->request->post();
+        return $this->editAccountTariff(
+            $account_tariff_ids,
+            null,
+            isset($postData['actual_from']) ? $postData['actual_from'] : null
+        );
+    }
+
+    /**
+     * @param array $account_tariff_ids
+     * @return int
+     * @throws \yii\db\StaleObjectException
+     * @throws \Exception
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \InvalidArgumentException
+     * @throws \LogicException
+     */
+    public function actionCancelEditAccountTariff(array $account_tariff_ids = [])
+    {
+        if (!$account_tariff_ids) {
+            throw new InvalidArgumentException('Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
+        }
+
+        foreach ($account_tariff_ids as $account_tariff_id) {
+
+            $account_tariff_id = trim($account_tariff_id);
+            $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
+            if (!$accountTariff) {
+                throw new InvalidArgumentException('Услуга с таким идентификатором не найдена', AccountTariff::ERROR_CODE_USAGE_EMPTY);
+            }
+
+            if (!$accountTariff->isCancelable()) {
+                throw new LogicException('Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
+            }
+
+            // лог тарифов
+            $accountTariffLogs = $accountTariff->accountTariffLogs;
+
+            // отменяемый тариф
+            /** @var AccountTariffLog $accountTariffLogCancelled */
+            $accountTariffLogCancelled = array_shift($accountTariffLogs);
+            if (!$accountTariff->isCancelable()) {
+                throw new LogicException('Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
+            }
+
+            // отменить (удалить) последний тариф
+            if (!$accountTariffLogCancelled->delete()) {
+                throw new ModelValidationException($accountTariffLogCancelled, $accountTariffLogCancelled->errorCode);
+            }
+
+            if (!count($accountTariffLogs)) {
+
+                // услуга еще даже не начинала действовать, текущего тарифа нет - удалить услугу полностью
+                if (!$accountTariff->delete()) {
+                    throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+                }
+            } else {
+
+                // предпоследний тариф становится текущим
+                /** @var AccountTariffLog $accountTariffLogActual */
+                $accountTariffLogActual = array_shift($accountTariffLogs);
+
+                // у услуги сменить кэш тарифа
+                $accountTariff->tariff_period_id = $accountTariffLogActual->tariff_period_id;
+                if (!$accountTariff->save()) {
+                    throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @SWG\Definition(definition = "vmCollocationRecord", type = "object",
      *   @SWG\Property(property="vm_user_id", type="string|null", description="ID юзера в VM manager (обычно не нужен)"),
      *   @SWG\Property(property="vm_user_login", type="string|null", description="Логин юзера в VM manager"),
@@ -1237,15 +1297,21 @@ class UuController extends ApiInternalController
      *   )
      * )
      *
+     * @param int $client_account_id
      * @return array
-     * @throws \InvalidArgumentException
      */
-    public function actionGetVmCollocationInfo($client_account_id)
+    public function actionGetVmCollocationInfo($client_account_id = 0)
     {
+        $client_account_id = (int)$client_account_id;
+        if (!$client_account_id) {
+            throw new InvalidArgumentException('Не указан client_account_id');
+        }
+
         $account = ClientAccount::findOne(['id' => $client_account_id]);
         if (!$account) {
             throw new InvalidArgumentException('Несуществующий client_account_id ' . $client_account_id);
         }
+
         $syncVmCollocation = (new SyncVmCollocation);
         return [
             'vm_user_id' => $vm_user_id = $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_ELID),

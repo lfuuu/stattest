@@ -5,7 +5,7 @@ namespace app\controllers\important_events;
 use Yii;
 use yii\web\Response;
 use ActiveRecord\RecordNotFound;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\DynamicModel;
 use app\classes\BaseController;
 use app\models\important_events\ImportantEvents;
@@ -29,7 +29,7 @@ class ReportController extends BaseController
 
     /**
      * @return array
-     * @throws FormValidationException
+     * @throws ModelValidationException
      * @throws RecordNotFound
      * @throws \yii\base\InvalidConfigException
      */
@@ -44,7 +44,7 @@ class ReportController extends BaseController
         ]);
 
         if ($data->hasErrors()) {
-            throw new FormValidationException($data);
+            throw new ModelValidationException($data);
         }
 
         $event = ImportantEvents::findOne($data->id);

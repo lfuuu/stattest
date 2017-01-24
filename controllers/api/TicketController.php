@@ -7,7 +7,7 @@ use app\classes\validators\AccountIdValidator;
 use app\classes\validators\TicketIdValidator;
 use app\classes\ApiController;
 use app\classes\DynamicModel;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\forms\support\SubmitTicketCommentForm;
 use app\forms\support\SubmitTicketForm;
 use app\forms\support\TicketListForm;
@@ -68,7 +68,7 @@ class TicketController extends ApiController
             }
             return $data;
         } else {
-            throw new FormValidationException($model);
+            throw new ModelValidationException($model);
         }
     }
 
@@ -152,7 +152,7 @@ class TicketController extends ApiController
             }
             return $ticket;
         } else {
-            throw new FormValidationException($model);
+            throw new ModelValidationException($model);
         }
     }
 
@@ -188,7 +188,7 @@ class TicketController extends ApiController
         if ($model->save()) {
             return ['ticket_id' => $model->id];
         } else {
-            throw new FormValidationException($model);
+            throw new ModelValidationException($model);
         }
     }
 
@@ -225,7 +225,7 @@ class TicketController extends ApiController
         if ($model->save()) {
             return ['ticket_id' => $model->ticket_id, 'comment_id' => $model->id];
         } else {
-            throw new FormValidationException($model);
+            throw new ModelValidationException($model);
         }
     }
 
@@ -277,7 +277,7 @@ class TicketController extends ApiController
             }
             return $ticket->toArray();
         } else {
-            throw new FormValidationException($model);
+            throw new ModelValidationException($model);
         }
     }
 

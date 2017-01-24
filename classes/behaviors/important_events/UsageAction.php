@@ -26,7 +26,7 @@ class UsageAction extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function UsageAfterInsert($event)
     {
@@ -41,7 +41,7 @@ class UsageAction extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function UsageAfterUpdate($event)
     {
@@ -61,7 +61,7 @@ class UsageAction extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function UsageAfterDelete($event)
     {
@@ -76,7 +76,7 @@ class UsageAction extends Behavior
 
     /**
      * @param ModelEvent $event
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function UsageTransferEvent($event)
     {

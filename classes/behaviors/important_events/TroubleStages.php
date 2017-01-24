@@ -28,7 +28,7 @@ class TroubleStages extends Behavior
     /**
      * @param ModelEvent $event
      * @return bool
-     * @throws \app\exceptions\FormValidationException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function registerAddEvent($event)
     {

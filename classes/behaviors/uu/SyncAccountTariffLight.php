@@ -5,6 +5,7 @@ namespace app\classes\behaviors\uu;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\AccountTariffLight;
 use DateTimeZone;
@@ -69,7 +70,7 @@ class SyncAccountTariffLight extends Behavior
             $coefficient = $accountLogPeriod->coefficient;
             $deactivateFrom = (new \DateTimeImmutable($accountLogPeriod->date_to, $clientTimezone))
                 ->setTimezone($utcTimezone)
-                ->modify('+1 day') // в AccountLogPeriod указан последний день действия, то есть выключить надо не в этот день, а только после его окончания (на следующий день)
+                ->modify('+1 day')// в AccountLogPeriod указан последний день действия, то есть выключить надо не в этот день, а только после его окончания (на следующий день)
                 ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 
@@ -139,7 +140,7 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->price = $params['price'];
         $accountTariffLight->service_type_id = $params['service_type_id'];
         if (!$accountTariffLight->save()) {
-            throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
+            throw new ModelValidationException($accountTariffLight);
         }
     }
 
@@ -153,7 +154,7 @@ class SyncAccountTariffLight extends Behavior
     {
         $accountTariffLight = AccountTariffLight::findOne(['id' => $params['id']]);
         if ($accountTariffLight && !$accountTariffLight->delete()) {
-            throw new \Exception(implode(' ', $accountTariffLight->getFirstErrors()));
+            throw new ModelValidationException($accountTariffLight);
         }
     }
 }

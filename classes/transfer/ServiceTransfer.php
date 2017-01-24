@@ -3,12 +3,12 @@
 namespace app\classes\transfer;
 
 use app\classes\Assert;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\usages\UsageInterface;
 use DateTime;
 use DateTimeZone;
-use LogicException;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidValueException;
@@ -148,7 +148,7 @@ abstract class ServiceTransfer extends Component
             $this->service->expire_dt = $movedService->expire_dt;
             $this->service->actual_to = $movedService->actual_to;
             if (!$this->service->save()) {
-                throw new LogicException(implode(' ', $this->service->getFirstErrors()));
+                throw new ModelValidationException($this->service);
             }
 
             $movedService->delete();

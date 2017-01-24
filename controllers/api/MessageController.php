@@ -4,7 +4,7 @@ namespace app\controllers\api;
 
 use Yii;
 use yii\web\BadRequestHttpException;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\validators\AccountIdValidator;
 use app\classes\DynamicModel;
 use app\classes\ApiController;
@@ -59,7 +59,7 @@ class MessageController extends ApiController
      */
     /**
      * @return array
-     * @throws FormValidationException
+     * @throws ModelValidationException
      * @throws \yii\base\InvalidConfigException
      */
     public function actionList()
@@ -87,7 +87,7 @@ class MessageController extends ApiController
 
             return $listMessages;
         } else {
-            throw new FormValidationException($form);
+            throw new ModelValidationException($form);
         }
     }
 
@@ -128,7 +128,7 @@ class MessageController extends ApiController
      */
     /**
      * @return array|null
-     * @throws FormValidationException
+     * @throws ModelValidationException
      * @throws \Exception
      * @throws \yii\base\InvalidConfigException
      */
@@ -158,7 +158,7 @@ class MessageController extends ApiController
                 throw new \Exception('Message not found');
             }
         } else {
-            throw new FormValidationException($form);
+            throw new ModelValidationException($form);
         }
     }
 
@@ -188,7 +188,7 @@ class MessageController extends ApiController
      */
     /**
      * @return array
-     * @throws FormValidationException
+     * @throws ModelValidationException
      * @throws \Exception
      * @throws \yii\base\InvalidConfigException
      */
@@ -217,7 +217,7 @@ class MessageController extends ApiController
                 throw new \Exception('Message not found');
             }
         } else {
-            throw new FormValidationException($form);
+            throw new ModelValidationException($form);
         }
     }
 

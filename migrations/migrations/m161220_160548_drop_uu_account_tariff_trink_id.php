@@ -1,6 +1,7 @@
 <?php
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
 use app\models\UsageTrunk;
@@ -41,7 +42,7 @@ class m161220_160548_drop_uu_account_tariff_trink_id extends \app\classes\Migrat
             $usageTrunk->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
             $usageTrunk->status = UsageTrunk::STATUS_CONNECTING;
             if (!$usageTrunk->save()) {
-                throw new LogicException(implode(' ', $usageTrunk->getFirstErrors()));
+                throw new ModelValidationException($usageTrunk);
             }
         }
 

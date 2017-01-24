@@ -2,6 +2,7 @@
 
 namespace app\classes\model;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\HistoryVersion;
 use app\models\User;
@@ -134,6 +135,7 @@ class HistoryActiveRecord extends ActiveRecord
 
     /**
      * @inheritdoc
+     * @throws \app\exceptions\ModelValidationException
      */
     private function _createHistoryVersion()
     {
@@ -163,7 +165,7 @@ class HistoryActiveRecord extends ActiveRecord
 
         $model->data_json = json_encode($this->toArray(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_FORCE_OBJECT);
         if (!$model->save()) {
-            throw new InvalidParamException(implode('. ', $model->getFirstErrors()));
+            throw new ModelValidationException($model);
         }
     }
 

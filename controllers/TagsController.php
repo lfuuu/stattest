@@ -5,7 +5,7 @@ namespace app\controllers;
 use Yii;
 use yii\web\Response;
 use yii\web\BadRequestHttpException;
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use app\classes\BaseController;
 use app\models\TagsResource;
 
@@ -15,7 +15,7 @@ class TagsController extends BaseController
     /**
      * @return array
      * @throws BadRequestHttpException
-     * @throws FormValidationException
+     * @throws ModelValidationException
      */
     public function actionApply()
     {

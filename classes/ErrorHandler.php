@@ -1,12 +1,19 @@
 <?php
 namespace app\classes;
 
-use app\exceptions\FormValidationException;
+use app\exceptions\ModelValidationException;
 use Yii;
 use yii\base\ErrorException;
 
 class ErrorHandler extends \yii\web\ErrorHandler
 {
+    /**
+     * @param int $code
+     * @param string $message
+     * @param string $file
+     * @param int $line
+     * @return bool
+     */
     public function handleError($code, $message, $file, $line)
     {
         if (/*!YII_DEBUG && */
@@ -14,7 +21,7 @@ class ErrorHandler extends \yii\web\ErrorHandler
         ) {
 
             if (!class_exists('yii\\base\\ErrorException', false)) {
-                require_once(YII2_PATH . '/base/ErrorException.php');
+                require_once YII2_PATH . '/base/ErrorException.php';
             }
 
             $exception = new ErrorException($message, $code, $code, $file, $line);
@@ -28,11 +35,15 @@ class ErrorHandler extends \yii\web\ErrorHandler
         return parent::handleError($code, $message, $file, $line);
     }
 
+    /**
+     * @param \Exception $exception
+     * @return array
+     */
     protected function convertExceptionToArray($exception)
     {
         $array = parent::convertExceptionToArray($exception);
 
-        if ($exception instanceof FormValidationException) {
+        if ($exception instanceof ModelValidationException) {
             $array['errors'] = $exception->getErrors();
         }
 

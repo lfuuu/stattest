@@ -42,6 +42,9 @@ class AccountTariffLog extends ActiveRecord
 
     protected $countLogs = null;
 
+    /** @var array Код ошибки для АПИ */
+    public $errorCode = null;
+
     /**
      * @return string
      */
@@ -149,6 +152,7 @@ class AccountTariffLog extends ActiveRecord
         $clientAccount = $this->accountTariff->clientAccount;
         if (!$clientAccount) {
             $this->addError($attribute, 'ЛС не указан.');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_EMPTY;
             return;
         }
 
@@ -162,6 +166,7 @@ class AccountTariffLog extends ActiveRecord
 
         if ($this->actual_from < $currentDateTimeUtc) {
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
+            $this->errorCode = AccountTariff::ERROR_CODE_DATE_PREV;
         }
 
         if (
@@ -172,6 +177,7 @@ class AccountTariffLog extends ActiveRecord
                 ->count()
         ) {
             $this->addError($attribute, 'Сегодня тариф уже меняли. Теперь можно сменить его не ранее завтрашнего дня.');
+            $this->errorCode = AccountTariff::ERROR_CODE_DATE_TODAY;
         }
 
         if (self::find()
@@ -180,6 +186,7 @@ class AccountTariffLog extends ActiveRecord
             ->count()
         ) {
             $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.');
+            $this->errorCode = AccountTariff::ERROR_CODE_DATE_FUTURE;
         }
 
         Yii::info('AccountTariffLog. After validatorFuture', 'uu');
@@ -197,6 +204,7 @@ class AccountTariffLog extends ActiveRecord
 
         if (!$this->tariff_period_id && !$this->getCountLogs()) {
             $this->addError($attribute, 'Не указан тариф/период.');
+            $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
         }
 
         Yii::info('AccountTariffLog. After validatorCreateNotClose', 'uu');
@@ -245,27 +253,28 @@ class AccountTariffLog extends ActiveRecord
         $accountTariff = $this->accountTariff;
         if (!$accountTariff) {
             $this->addError($attribute, 'Услуга не указана.');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_EMPTY;
             return;
         }
 
         $clientAccount = $accountTariff->clientAccount;
         if (!$clientAccount) {
             $this->addError($attribute, 'ЛС не указан.');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_EMPTY;
             return;
         }
 
         if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
             $this->addError($attribute, 'Универсальную услугу можно добавить только ЛС, тарифицируемому универсально.');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_IS_NOT_UU;
             // а конвертация из неуниверсальных услуг идет с помощью SQL и сюда не попадает
             return;
         }
 
         $tariffPeriod = $this->tariffPeriod;
         if ($tariffPeriod && $tariffPeriod->tariff->currency_id != $clientAccount->currency) {
-            $this->addError(
-                $attribute,
-                sprintf('Валюта акаунта %s и тарифа %s не совпадают.', $clientAccount->currency, $tariffPeriod->tariff->currency_id)
-            );
+            $this->addError($attribute, sprintf('Валюта акаунта %s и тарифа %s не совпадают.', $clientAccount->currency, $tariffPeriod->tariff->currency_id));
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_CURRENCY;
         }
 
         $credit = $clientAccount->credit; // кредитный лимит
@@ -282,6 +291,7 @@ class AccountTariffLog extends ActiveRecord
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, 'Не указан тариф/период.');
+                $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
             }
         }
 
@@ -293,6 +303,7 @@ class AccountTariffLog extends ActiveRecord
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, $error);
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_PERMANENT;
             }
 
             return;
@@ -306,6 +317,7 @@ class AccountTariffLog extends ActiveRecord
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, $error);
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_TEMPORARY;
             }
 
             return;
@@ -319,6 +331,7 @@ class AccountTariffLog extends ActiveRecord
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, $error);
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_FINANCE;
             }
 
             return;
@@ -366,6 +379,7 @@ class AccountTariffLog extends ActiveRecord
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, $error);
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
             }
 
             return;
@@ -419,6 +433,7 @@ class AccountTariffLog extends ActiveRecord
         $prevAccountTariff = $accountTariff->prevAccountTariff;
         if (!$prevAccountTariff) {
             $this->addError($attribute, 'Не указана основная услуга телефонии для пакета телефонии');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_MAIN;
             return;
         }
 
@@ -431,6 +446,7 @@ class AccountTariffLog extends ActiveRecord
         $prevAccountTariffLog = reset($prevAccountTariffLogs);
         if ($prevAccountTariffLog->actual_from > $this->actual_from) {
             $this->addError($attribute, sprintf('Пакет телефонии может начать действовать (%s) только после начала действия (%s) основной услуги телефонии', $this->actual_from, $prevAccountTariffLog->actual_from));
+            $this->errorCode = AccountTariff::ERROR_CODE_DATE_TARIFF;
             return;
         }
 
@@ -522,6 +538,7 @@ class AccountTariffLog extends ActiveRecord
             ->count()
         ) {
             $this->addError($attribute, 'Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
             return;
         }
 
@@ -546,6 +563,7 @@ class AccountTariffLog extends ActiveRecord
             ->count()
         ) {
             $this->addError($attribute, 'Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла.');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_FUTURE;
             return;
         }
     }

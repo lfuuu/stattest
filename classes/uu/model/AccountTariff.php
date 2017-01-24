@@ -80,6 +80,37 @@ class AccountTariff extends HistoryActiveRecord
 
     const DELTA = 100000;
 
+    // Ошибки ЛС
+    const ERROR_CODE_ACCOUNT_EMPTY = 1; // ЛС не указан
+    const ERROR_CODE_ACCOUNT_BLOCKED_PERMANENT = 2; // ЛС заблокирован
+    const ERROR_CODE_ACCOUNT_BLOCKED_TEMPORARY = 3; // ЛС заблокирован из-за превышения лимитов
+    const ERROR_CODE_ACCOUNT_BLOCKED_FINANCE = 4; // ЛС в финансовой блокировке
+    const ERROR_CODE_ACCOUNT_IS_NOT_UU = 5; // Универсальную услугу можно добавить только ЛС, тарифицируемому универсально
+    const ERROR_CODE_ACCOUNT_IS_UU = 6; // Неуниверсальную услугу можно добавить только ЛС, тарифицируемому неуниверсально
+    const ERROR_CODE_ACCOUNT_CURRENCY = 7; // Валюта акаунта и тарифа не совпадают
+    const ERROR_CODE_ACCOUNT_MONEY = 8; // На ЛС даже с учетом кредита меньше первичного платежа по тарифу
+    const ERROR_CODE_ACCOUNT_TRUNK = 9; // Универсальную услугу транка можно добавить только ЛС с договором Межоператорка
+    const ERROR_CODE_ACCOUNT_TRUNK_SINGLE = 10; // Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.
+
+    // Ошибки даты
+    const ERROR_CODE_DATE_PREV = 21; // Нельзя менять тариф задним числом
+    const ERROR_CODE_DATE_TODAY = 22; // Сегодня тариф уже меняли. Теперь можно сменить его не ранее завтрашнего дня
+    const ERROR_CODE_DATE_FUTURE = 23; // Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену
+    const ERROR_CODE_DATE_TARIFF = 24; // Пакет телефонии может начать действовать только после начала действия основной услуги телефонии
+
+    // Ошибки тарифа
+    const ERROR_CODE_SERVICE_TYPE = 31; // Нельзя менять тип услуги
+    const ERROR_CODE_TARIFF_EMPTY = 32; // Не указан тариф/период
+    const ERROR_CODE_TARIFF_WRONG = 33; // Неправильный тариф/период
+    const ERROR_CODE_TARIFF_SERVICE_TYPE = 34; // Тариф/период не соответствует типу услуги
+
+    // Ошибки услуги
+    const ERROR_CODE_USAGE_EMPTY = 41; // Услуга не указана
+    const ERROR_CODE_USAGE_MAIN = 42; // Не указана основная услуга телефонии для пакета телефонии
+    const ERROR_CODE_USAGE_DOUBLE_PREV = 43; // Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.
+    const ERROR_CODE_USAGE_DOUBLE_FUTURE = 44; // Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла
+    const ERROR_CODE_USAGE_CANCELABLE = 45; // Нельзя отменить уже примененный тариф
+
     public $serviceIdToDelta = [
         ServiceType::ID_VPBX => self::DELTA_VPBX,
         ServiceType::ID_VOIP => self::DELTA_VOIP,
@@ -133,6 +164,9 @@ class AccountTariff extends HistoryActiveRecord
 
         ServiceType::ID_CALL_CHAT => '/usage/call-chat/edit?id=%d',
     ];
+
+    /** @var array Код ошибки для АПИ */
+    public $errorCode = null;
 
     /** @var int */
     protected $serviceTypeIdOld = null;
@@ -857,7 +891,8 @@ class AccountTariff extends HistoryActiveRecord
     public function validatorServiceType($attribute, $params)
     {
         if (!$this->isNewRecord && $this->serviceTypeIdOld != $this->service_type_id) {
-            $this->addError($attribute, 'Нельзя менять service_type_id');
+            $this->addError($attribute, 'Нельзя менять тип услуги');
+            $this->errorCode = AccountTariff::ERROR_CODE_SERVICE_TYPE;
             return;
         }
     }
@@ -886,11 +921,13 @@ class AccountTariff extends HistoryActiveRecord
                 ->count()
         ) {
             $this->addError($attribute, 'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_TRUNK_SINGLE;
             return;
         }
 
         if ($this->clientAccount->contract->business_id != Business::OPERATOR) {
             $this->addError($attribute, 'Универсальную услугу транка можно добавить только ЛС с договором Межоператорка.');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_TRUNK;
             return;
         }
     }
@@ -909,12 +946,14 @@ class AccountTariff extends HistoryActiveRecord
 
         $tariffPeriod = $this->tariffPeriod;
         if (!$tariffPeriod) {
-            $this->addError($attribute, 'Неправильный tariff_period_id ' . $this->tariff_period_id);
+            $this->addError($attribute, 'Неправильный тариф/период ' . $this->tariff_period_id);
+            $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_WRONG;
             return;
         }
 
         if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
-            $this->addError($attribute, 'Tariff_period_id ' . $tariffPeriod->tariff->service_type_id . ' не соответствует service_type_id ' . $this->service_type_id);
+            $this->addError($attribute, 'тариф/период ' . $tariffPeriod->tariff->service_type_id . ' не соответствует типу услуги ' . $this->service_type_id);
+            $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SERVICE_TYPE;
             return;
         }
     }

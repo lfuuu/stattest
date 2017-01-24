@@ -164,6 +164,7 @@
 
         <!-- Не требовать include вместо require -->
         <exclude name="PEAR.Files.IncludingFile.UseInclude"/>
+        <exclude name="PEAR.Files.IncludingFile.UseIncludeOnce"/>
 
     </rule>
 
