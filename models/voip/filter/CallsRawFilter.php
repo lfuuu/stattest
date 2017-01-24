@@ -39,13 +39,17 @@ use yii\db\Query;
  * @property array $src_contracts_ids
  * @property array $dst_contracts_ids
  * @property array $disconnect_causes
- * @property array $src_contries_ids
- * @property array $dst_contries_ids
+ * @property array $src_countries_ids
+ * @property array $dst_countries_ids
  *
  * @property string $src_operator_name
  * @property string $dst_operator_name
  * @property string $src_region_name
  * @property string $dst_region_name
+ * @property string $src_country_name
+ * @property string $dst_country_name
+ * @property string $src_city_name
+ * @property string $dst_city_name
  *
  * @property array $group
  * @property array $aggr
@@ -63,8 +67,12 @@ class CallsRawFilter extends Model
         'dst_number' => 'Номер В',
         'src_operator_name' => 'Оператор номера А',
         'dst_operator_name' => 'Оператор номера В',
+        'src_country_name' => 'Страна номера А',
+        'dst_country_name' => 'Страна номера В',
         'src_region_name' => 'Регион номера А',
         'dst_region_name' => 'Регион номера В',
+        'src_city_name' => 'Город номера А',
+        'dst_city_name' => 'Город номера В',
     ];
 
     public $aggrConst = [
@@ -127,8 +135,8 @@ class CallsRawFilter extends Model
     public $src_contracts_ids = [];
     public $dst_contracts_ids = [];
     public $disconnect_causes = [];
-    public $src_contries_ids = [];
-    public $dst_contries_ids = [];
+    public $src_countries_ids = [];
+    public $dst_countries_ids = [];
     public $src_destination_ids = [];
     public $dst_destination_ids = [];
 
@@ -136,6 +144,10 @@ class CallsRawFilter extends Model
     public $dst_operator_name = null;
     public $src_region_name = null;
     public $dst_region_name = null;
+    public $src_country_name = null;
+    public $dst_country_name = null;
+    public $src_city_name = null;
+    public $dst_city_name = null;
     public $session_time = null;
 
     public $group = [];
@@ -188,8 +200,8 @@ class CallsRawFilter extends Model
                     'src_cities_ids',
                     'dst_cities_ids',
                     'disconnect_causes',
-                    'src_contries_ids',
-                    'dst_contries_ids',
+                    'src_countries_ids',
+                    'dst_countries_ids',
                     'src_destination_ids',
                     'dst_destination_ids',
                     'dst_routes_ids',
@@ -344,7 +356,9 @@ class CallsRawFilter extends Model
                     'dst_number' => new Expression('cr.dst_number::varchar'),
                     'cr.pdd',
                     'o.name src_operator_name',
+                    'nc.name_rus src_country_name',
                     'r.name src_region_name',
+                    'ci.name src_city_name',
                     'st.contract_number || \' (\' || cct.name || \')\' src_contract_name',
                     'sale' => new Expression(self::getMoneyCalculateExpression('@(cr.cost)')),
                     'orig_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
@@ -355,7 +369,9 @@ class CallsRawFilter extends Model
             ->leftJoin('billing.service_trunk st', 'st.id = cr.trunk_service_id')
             ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id')
             ->leftJoin('nnp.operator o', 'o.id = cr.nnp_operator_id')
+            ->leftJoin('nnp.country nc', 'nc.code = cr.nnp_country_code')
             ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
+            ->leftJoin('nnp.city ci', 'ci.id = cr.nnp_city_id')
             ->leftJoin('billing.clients c', 'c.id = cr.account_id')
             ->leftJoin('billing.currency_rate rate', 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
             ->andWhere('cr.orig')
@@ -368,7 +384,9 @@ class CallsRawFilter extends Model
                 'cr.billed_time session_time',
                 't.name dst_route',
                 'o.name dst_operator_name',
+                'nc.name_rus dst_country_name',
                 'r.name dst_region_name',
+                'ci.name dst_city_name',
                 'st.contract_number || \' (\' || cct.name || \')\' dst_contract_name',
                 'cost_price' => new Expression(self::getMoneyCalculateExpression('cr.cost')),
                 'term_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
@@ -379,7 +397,9 @@ class CallsRawFilter extends Model
             ->leftJoin('billing.service_trunk st', 'st.id = cr.trunk_service_id')
             ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id')
             ->leftJoin('nnp.operator o', 'o.id = cr.nnp_operator_id')
+            ->leftJoin('nnp.country nc', 'nc.code = cr.nnp_country_code')
             ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
+            ->leftJoin('nnp.city ci', 'ci.id = cr.nnp_city_id')
             ->leftJoin('billing.clients c', 'c.id = cr.account_id')
             ->leftJoin('billing.currency_rate rate', 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
             ->andWhere('NOT cr.orig')
@@ -398,7 +418,9 @@ class CallsRawFilter extends Model
                 'dst_number',
                 'pdd' => $null,
                 'src_operator_name' => $null,
+                'src_country_name' => $null,
                 'src_region_name' => $null,
+                'src_city_name' => $null,
                 'src_contract_name' => $null,
                 'sale' => $null,
                 'orig_rate' => $null,
@@ -406,7 +428,9 @@ class CallsRawFilter extends Model
                 'session_time' => $null,
                 'dst_route',
                 'dst_operator_name' => $null,
+                'dst_country_name' => $null,
                 'dst_region_name' => $null,
+                'dst_city_name' => $null,
                 'dst_contract_name' => $null,
                 'cost_price' => $null,
                 'term_rate' => $null,
@@ -461,7 +485,7 @@ class CallsRawFilter extends Model
             || $this->dst_operator_ids
             || $this->dst_regions_ids
             || $this->dst_cities_ids
-            // || $this->dst_contries_ids
+            || $this->dst_countries_ids
             || $this->dst_number
         ) {
             $query1->limit(-1)->orderBy([]);
@@ -473,7 +497,7 @@ class CallsRawFilter extends Model
             || $this->src_operator_ids
             || $this->src_regions_ids
             || $this->src_cities_ids
-            // || $this->src_contries_ids
+            || $this->src_countries_ids
             || $this->src_number
         ) {
             $query2->limit(-1)->orderBy([]);
@@ -531,13 +555,11 @@ class CallsRawFilter extends Model
             ['src_cities_ids' => $this->src_cities_ids]
         );
 
-        /*
-         * $this->src_contries_ids
+        $this->src_countries_ids
         && $query1->andWhere(
-            ['IN', 'cr.nnp_country_prefix', ':src_contries_ids'],
-            ['src_contries_ids' => $this->src_contries_ids]
+            ['IN', 'cr.nnp_country_code', ':src_countries_ids'],
+            ['src_countries_ids' => $this->src_countries_ids]
         );
-        */
 
         $this->dst_operator_ids
         && $query2->andWhere(
@@ -557,13 +579,11 @@ class CallsRawFilter extends Model
             ['dst_cities_ids' => $this->dst_cities_ids]
         );
 
-        /*
-         * $this->dst_contries_ids
+        $this->dst_countries_ids
         && $query2->andWhere(
-            ['IN', 'cr.nnp_country_prefix', ':dst_contries_ids'],
-            ['dst_contries_ids' => $this->dst_contries_ids]
+            ['IN', 'cr.nnp_country_code', ':dst_countries_ids'],
+            ['dst_countries_ids' => $this->dst_countries_ids]
         );
-        */
 
         $this->is_success_calls
         && $query1->andWhere(
@@ -642,10 +662,14 @@ class CallsRawFilter extends Model
                 'disconnect_cause',
                 'src_number',
                 'src_operator_name',
+                'src_country_name',
                 'src_region_name',
+                'src_city_name',
                 'dst_number',
                 'dst_operator_name',
+                'dst_country_name',
                 'dst_region_name',
+                'dst_city_name',
                 'src_route',
                 'src_contract_name',
                 'dst_route',

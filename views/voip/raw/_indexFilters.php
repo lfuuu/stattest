@@ -108,7 +108,7 @@ return [
         ],
     ],
     [
-        'attribute' => 'src_contries_ids',
+        'attribute' => 'src_countries_ids',
         'label' => 'Страна номера А',
         'class' => CountryColumn::className(),
         'filterInputOptions' => [
@@ -117,7 +117,7 @@ return [
         'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'dst_contries_ids',
+        'attribute' => 'dst_countries_ids',
         'label' => 'Страна номера B',
         'class' => CountryColumn::className(),
         'filterInputOptions' => [
@@ -151,7 +151,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => $filterModel->src_contries_ids,
+        'countryCodes' => $filterModel->src_countries_ids,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => false,
     ],
@@ -162,7 +162,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => $filterModel->dst_contries_ids,
+        'countryCodes' => $filterModel->dst_countries_ids,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => false,
     ],
@@ -181,7 +181,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => $filterModel->src_contries_ids,
+        'countryCodes' => $filterModel->src_countries_ids,
         'regionIds' => $filterModel->src_regions_ids,
         'isWithEmpty' => false,
     ],
@@ -192,7 +192,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => $filterModel->dst_contries_ids,
+        'countryCodes' => $filterModel->dst_countries_ids,
         'regionIds' => $filterModel->dst_regions_ids,
         'isWithEmpty' => false,
     ],

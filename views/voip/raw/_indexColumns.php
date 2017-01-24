@@ -35,8 +35,16 @@ return [
         'attribute' => 'src_operator_name',
     ],
     [
+        'label' => 'Страна А',
+        'attribute' => 'src_country_name',
+    ],
+    [
         'label' => 'Регион А',
         'attribute' => 'src_region_name',
+    ],
+    [
+        'label' => 'Город А',
+        'attribute' => 'src_city_name',
     ],
     [
         'label' => 'Номер В',
@@ -47,8 +55,16 @@ return [
         'attribute' => 'dst_operator_name',
     ],
     [
+        'label' => 'Страна В',
+        'attribute' => 'dst_country_name',
+    ],
+    [
         'label' => 'Регион В',
         'attribute' => 'dst_region_name',
+    ],
+    [
+        'label' => 'Город В',
+        'attribute' => 'dst_city_name',
     ],
     [
         'label' => 'Транк-оригинатор',

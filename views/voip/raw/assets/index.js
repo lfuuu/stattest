@@ -49,41 +49,41 @@ $(function () {
                 });
         });
 
-    $('select[name="CallsRawFilter[src_contries_ids][]"], select[name="CallsRawFilter[src_regions_ids][]"]')
+    $('select[name="CallsRawFilter[src_countries_ids][]"], select[name="CallsRawFilter[src_regions_ids][]"]')
         .on('change', function () {
-            var src_contries_ids = $('select[name="CallsRawFilter[src_contries_ids][]"]'),
+            var src_countries_ids = $('select[name="CallsRawFilter[src_countries_ids][]"]'),
                 src_regions_ids = $('select[name="CallsRawFilter[src_regions_ids][]"]'),
                 src_cities_ids = $('select[name="CallsRawFilter[src_cities_ids][]"]');
 
             if (!$(this).is(src_regions_ids))
                 $.get("/voip/raw/get-regions", {
-                    countryCodes: src_contries_ids.val()
+                    countryCodes: src_countries_ids.val()
                 }, function (data) {
                     src_regions_ids.html(data).select2(settings);
                 });
 
             $.get("/voip/raw/get-cities", {
-                countryCodes: src_contries_ids.val(),
+                countryCodes: src_countries_ids.val(),
                 regionIds: src_regions_ids.val()
             }, function (data) {
                 src_cities_ids.html(data).select2(settings);
             });
         });
 
-    $('select[name="CallsRawFilter[dst_contries_ids][]"], select[name="CallsRawFilter[dst_regions_ids][]"]')
+    $('select[name="CallsRawFilter[dst_countries_ids][]"], select[name="CallsRawFilter[dst_regions_ids][]"]')
         .on('change', function () {
-            var dst_contries_ids = $('select[name="CallsRawFilter[dst_contries_ids][]"]'),
+            var dst_countries_ids = $('select[name="CallsRawFilter[dst_countries_ids][]"]'),
                 dst_regions_ids = $('select[name="CallsRawFilter[dst_regions_ids][]"]'),
                 dst_cities_ids = $('select[name="CallsRawFilter[dst_cities_ids][]"]');
 
             if (!$(this).is(dst_regions_ids))
                 $.get("/voip/raw/get-regions", {
-                    countryCodes: dst_contries_ids.val()
+                    countryCodes: dst_countries_ids.val()
                 }, function (data) {
                     dst_regions_ids.html(data).select2(settings);
                 });
             $.get("/voip/raw/get-cities", {
-                countryCodes: dst_contries_ids.val(),
+                countryCodes: dst_countries_ids.val(),
                 regionIds: dst_regions_ids.val()
             }, function (data) {
                 dst_cities_ids.html(data).select2(settings);
