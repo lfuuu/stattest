@@ -191,8 +191,8 @@ function doEvents()
 
                 case Event::LK_SETTINGS_TO_MAILER: {
                     /** @var \app\modules\notifier\Module $notifier */
-                    $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applyPersonalLkSchemeForClientAccount($param['client_account_id']);
+                    // $notifier = Yii::$app->getModule('notifier');
+                    // $notifier->actions->applyPersonalLkSchemeForClientAccount($param['client_account_id']);
                     break;
                 }
 
@@ -215,8 +215,8 @@ function doEvents()
                     $isCoreServer && SyncCore::addAccount($param, true);
 
                     /** @var \app\modules\notifier\Module $notifier */
-                    $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applySchemeForClientAccount($param);
+                    // $notifier = Yii::$app->getModule('notifier');
+                    // $notifier->actions->applySchemeForClientAccount($param);
                     break;
 
                 case Event::CLIENT_SET_STATUS:
@@ -294,8 +294,8 @@ function doEvents()
 
                 case Event::PUBLISH_NOTIFICATION_SCHEME: {
                     /** @var \app\modules\notifier\Module $notifier */
-                    $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applySchemeForCountry($param['country'], $param['user_id']);
+                    // $notifier = Yii::$app->getModule('notifier');
+                    // $notifier->actions->applySchemeForCountry($param['country'], $param['user_id']);
                     break;
                 }
             }
