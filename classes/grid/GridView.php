@@ -346,11 +346,6 @@ HTML;
             return '';
         }
 
-        if (!$this->dataProvider->getTotalCount()) {
-            // не показывать кнопку "все", если нет данных
-            return '';
-        }
-
         $view = $this->getView();
         $view->registerJs(
             new JsExpression(
@@ -363,6 +358,11 @@ HTML;
                 });'
             )
         );
+
+        if (!$this->dataProvider->getTotalCount()) {
+            // не показывать кнопку "все", если нет данных
+            return '';
+        }
 
         $pagination = $this->dataProvider->getPagination();
 

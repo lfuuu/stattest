@@ -21,6 +21,7 @@ use app\modules\nnp\column\CountryColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
 use app\modules\nnp\column\CityColumn;
 use app\modules\nnp\column\RegionColumn;
+use app\modules\nnp\column\DestinationColumn;
 
 return [
     [
@@ -206,10 +207,22 @@ return [
         'class' => WithEmptyFilterColumn::className(),
     ],
     [
-        'class' => WithEmptyFilterColumn::className(),
+        'attribute' => 'src_destinations_ids',
+        'label' => 'Направление номера А',
+        'class' => DestinationColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
-        'class' => WithEmptyFilterColumn::className(),
+        'attribute' => 'dst_destinations_ids',
+        'label' => 'Направление номера В',
+        'class' => DestinationColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
     ],
     [
         'attribute' => 'group_period',

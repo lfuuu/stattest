@@ -41,6 +41,8 @@ use yii\db\Query;
  * @property array $disconnect_causes
  * @property array $src_countries_ids
  * @property array $dst_countries_ids
+ * @property array $src_destinations_ids
+ * @property array $dst_destinations_ids
  *
  * @property string $src_operator_name
  * @property string $dst_operator_name
@@ -137,8 +139,8 @@ class CallsRawFilter extends Model
     public $disconnect_causes = [];
     public $src_countries_ids = [];
     public $dst_countries_ids = [];
-    public $src_destination_ids = [];
-    public $dst_destination_ids = [];
+    public $src_destinations_ids = [];
+    public $dst_destinations_ids = [];
 
     public $src_operator_name = null;
     public $dst_operator_name = null;
@@ -202,8 +204,8 @@ class CallsRawFilter extends Model
                     'disconnect_causes',
                     'src_countries_ids',
                     'dst_countries_ids',
-                    'src_destination_ids',
-                    'dst_destination_ids',
+                    'src_destinations_ids',
+                    'dst_destinations_ids',
                     'dst_routes_ids',
                     'src_routes_ids',
                     'src_contracts_ids',
@@ -486,6 +488,7 @@ class CallsRawFilter extends Model
             || $this->dst_regions_ids
             || $this->dst_cities_ids
             || $this->dst_countries_ids
+            || $this->dst_destinations_ids
             || $this->dst_number
         ) {
             $query1->limit(-1)->orderBy([]);
@@ -498,6 +501,7 @@ class CallsRawFilter extends Model
             || $this->src_regions_ids
             || $this->src_cities_ids
             || $this->src_countries_ids
+            || $this->src_destinations_ids
             || $this->src_number
         ) {
             $query2->limit(-1)->orderBy([]);
@@ -561,6 +565,14 @@ class CallsRawFilter extends Model
             ['src_countries_ids' => $this->src_countries_ids]
         );
 
+        $this->src_destinations_ids
+        && $query1
+            ->leftJoin('nnp.number_range_destination nrd', 'cr.nnp_number_range_id = nrd.number_range_id')
+            ->andWhere(
+                ['IN', 'nrd.destination_id', ':src_destinations_ids'],
+                ['src_destinations_ids' => $this->src_destinations_ids]
+            );
+
         $this->dst_operator_ids
         && $query2->andWhere(
             ['IN', 'cr.nnp_operator_id', ':dst_operator_ids'],
@@ -584,6 +596,14 @@ class CallsRawFilter extends Model
             ['IN', 'cr.nnp_country_code', ':dst_countries_ids'],
             ['dst_countries_ids' => $this->dst_countries_ids]
         );
+
+        $this->dst_destinations_ids
+        && $query1
+            ->leftJoin('nnp.number_range_destination nrd', 'cr.nnp_number_range_id = nrd.number_range_id')
+            ->andWhere(
+                ['IN', 'nrd.destination_id', ':dst_destinations_ids'],
+                ['dst_destinations_ids' => $this->dst_destinations_ids]
+            );
 
         $this->is_success_calls
         && $query1->andWhere(
