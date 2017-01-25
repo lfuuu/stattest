@@ -8,7 +8,7 @@
 
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
-use app\classes\grid\column\universal\NnpCityColumn;
+use app\modules\nnp\column\CityColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
@@ -87,13 +87,13 @@ $columns = [
     [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
-        'countryCode' => $filterModel->country_code,
+        'countryCodes' => $filterModel->country_code,
     ],
     [
         'attribute' => 'city_id',
-        'class' => NnpCityColumn::className(),
+        'class' => CityColumn::className(),
         'isWithNullAndNotNull' => true,
-        'countryCode' => $filterModel->country_code,
+        'countryCodes' => $filterModel->country_code,
     ],
     [
         'attribute' => 'ndc_type_id',
