@@ -157,8 +157,8 @@ $dataProvider = new ArrayDataProvider([
             'label' => $emptyDocument->getAttributeLabel('ts'),
         ],
     ],
+    'floatHeader' => false,
     'panel' => [
-        'heading' => 'Договор',
         'footer' => false,
         'before' => $this->render('add', [
             'contract' => $contract,

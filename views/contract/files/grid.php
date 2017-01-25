@@ -82,8 +82,8 @@ $baseView = $this;
             'hAlign' => GridView::ALIGN_CENTER,
         ],
     ],
+    'floatHeader' => false,
     'panel' => [
-        'heading' => 'Файлы',
         'footer' => false,
         'before' => $baseView->render('add', [
             'contract' => $contract,
