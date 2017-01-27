@@ -630,7 +630,7 @@ SQL;
     public function actionDisableTrigger()
     {
         foreach ($this->_triggerTables as $triggerTable) {
-            $sql = sprintf("SELECT nnp.disable_trigger('nnp.%s','notify')", $triggerTable);
+            $sql = sprintf("SELECT nnp.disable_trigger('%s','notify')", $triggerTable);
             $this->_db
                 ->createCommand($sql)
                 ->execute();
@@ -645,7 +645,7 @@ SQL;
     public function actionEnableTrigger()
     {
         foreach ($this->_triggerTables as $triggerTable) {
-            $sql = sprintf("SELECT nnp.enable_trigger('nnp.%s','notify')", $triggerTable);
+            $sql = sprintf("SELECT nnp.enable_trigger('%s','notify')", $triggerTable);
             $this->_db
                 ->createCommand($sql)
                 ->execute();
