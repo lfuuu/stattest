@@ -95,6 +95,9 @@ class CallsRawFilter extends Model
         'session_time_min' => 'MIN(session_time)',
         'session_time_max' => 'MAX(session_time)',
         'calls_count' => 'COUNT(connect_time)',
+        'nonzero_calls_count' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))',
+        'asd' => 'SUM(session_time) / SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))',
+        'asr' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))::real / COUNT(connect_time)::real'
     ];
 
     public $aggrLabels = [
@@ -115,6 +118,9 @@ class CallsRawFilter extends Model
         'session_time_min' => 'Длительность: минимальная',
         'session_time_max' => 'Длительность: максимальная',
         'calls_count' => 'Количество звонков',
+        'nonzero_calls_count' => 'Количество ненулевых звонков',
+        'asd' => 'ASD',
+        'asr' => 'ASR',
     ];
 
     public $server_ids = [];

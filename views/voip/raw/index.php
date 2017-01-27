@@ -63,7 +63,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             'label' => $filterModel->aggrLabels[$value],
             'attribute' => $value,
         ];
-        if (strpos($value, 'session_time') !== false) {
+        if (strpos($value, 'session_time') !== false || $value == 'asd') {
             $columns[$key + $c]['value'] = function ($model) use ($value) {
                 return DateTimeWithUserTimezone::formatSecondsToMinutesAndSeconds($model[$value]);
             };
@@ -77,6 +77,10 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
 
         if (isset($aggrDigitCount[$value])) {
             $columns[$key + $c]['format'] = ['decimal', $aggrDigitCount[$value]];
+        }
+
+        if ($value == 'asr') {
+            $columns[$key + $c]['format'] = 'percent';
         }
     }
 } else {
@@ -102,14 +106,6 @@ try {
             'emptyText' => isset($emptyText) ? $emptyText : ($filterModel->isFilteringPossible() ?
                 Yii::t('yii', 'No results found.') :
                 'Выберите время начала разговора и хотя бы еще одно поле'),
-            'exportWidget' => \app\widgets\GridViewExport\GridViewExport::widget(
-                [
-                    'dataProvider' => $filterModel->getReport(),
-                    'filterModel' => $filterModel,
-                    'columns' => $columns,
-                    'batchSize' => 5000,
-                ]
-            ),
         ]
     );
 } catch (yii\db\Exception $e) {
