@@ -77,6 +77,7 @@ class PersonalSchemeForm extends Form
         foreach ($response as $record) {
             $result[] = [
                 'event' => $record['event_code'],
+                'group_id' => $record['group_id'],
                 'do_email_monitoring' => $record['do_email_monitoring'],
                 'do_email_operator' => $record['do_email_operator'],
                 'do_email' => $record['do_email'],
