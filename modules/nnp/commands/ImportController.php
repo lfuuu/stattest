@@ -35,6 +35,22 @@ class ImportController extends Controller
     /** @var Connection */
     private $_db = null;
 
+    private $_triggerTables = [
+        // 'nnp.account_tariff_light',
+        'nnp.country',
+        'nnp.destination',
+        'nnp.number_range',
+        'nnp.number_range_prefix',
+        'nnp.operator',
+        // 'nnp.package',
+        // 'nnp.package_minute',
+        // 'nnp.package_price',
+        // 'nnp.package_pricelist',
+        'nnp.prefix',
+        'nnp.prefix_destination',
+        'nnp.region',
+    ];
+
     /**
      * @param string $id the ID of this controller.
      * @param Module $module the module that this controller belongs to.
@@ -613,8 +629,12 @@ SQL;
      */
     public function actionDisableTrigger()
     {
-        $sql = "SELECT nnp.disable_trigger('nnp.number_range','notify')";
-        $this->_db->createCommand($sql)->execute();
+        foreach ($this->_triggerTables as $triggerTable) {
+            $sql = sprintf("SELECT nnp.disable_trigger('nnp.%s','notify')", $triggerTable);
+            $this->_db
+                ->createCommand($sql)
+                ->execute();
+        }
     }
 
     /**
@@ -624,16 +644,19 @@ SQL;
      */
     public function actionEnableTrigger()
     {
-        $sql = "SELECT nnp.enable_trigger('nnp.number_range','notify')";
-        $this->_db->createCommand($sql)->execute();
+        foreach ($this->_triggerTables as $triggerTable) {
+            $sql = sprintf("SELECT nnp.enable_trigger('nnp.%s','notify')", $triggerTable);
+            $this->_db
+                ->createCommand($sql)
+                ->execute();
+        }
 
         // синхронизировать данные по региональным серверам
-        $sql = "select from event.notify(:table_name, 0, :p_server_id)";
+        $sql = "select from event.notify_nnp_all(:p_server_id)";
         $activeQuery = InstanceSettings::find()
             ->where(['active' => true]);
         foreach ($activeQuery->each() as $instanceSettings) {
             $this->_db->createCommand($sql, [
-                ':table_name' => 'nnp_number_range',
                 ':p_server_id' => $instanceSettings->id,
             ])->execute();
         }
