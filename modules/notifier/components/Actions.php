@@ -23,8 +23,8 @@ use app\modules\notifier\models\Logger;
 class Actions extends Component
 {
 
-    const MAILER_EVENTS_READ = '/site/events';
-    const MAILER_EVENTS_UPDATE = '/site/events-set';
+    const MAILER_EVENTS_READ = '/site/get-personal-scheme';
+    const MAILER_EVENTS_UPDATE = '/site/apply-personal-scheme';
     const MAILER_WHITELIST_READ = '/site/white-list';
     const MAILER_WHITELIST_UPDATE = '/site/white-list-set';
     const MAILER_SCHEME_APPLY = '/site/apply-scheme';
@@ -61,7 +61,7 @@ class Actions extends Component
     {
         $log = new Logger;
         $log->user_id = \Yii::$app->user->getId() ?: User::SYSTEM_USER_ID;
-        $log->action = Logger::APPLY_WHITELIST_ACTION;
+        $log->action = Logger::ACTION_APPLY_WHITELIST;
         $log->created_at = date(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if ($log->save()) {
@@ -87,9 +87,8 @@ class Actions extends Component
 
         foreach ($scheme as $record) {
             foreach (Schemes::$types as $type) {
-                $requestData[] = [
+                $requestData[$record->event] = [
                     $type => $record->{$type},
-                    'event_code' => $record->event,
                 ];
             }
         }
@@ -143,10 +142,7 @@ class Actions extends Component
                 ->one();
 
             foreach ($settings as $name => $value) {
-                $requestData[] = [
-                    'do_' . $type . '_personal' => $value,
-                    'event_code' => $name,
-                ];
+                $requestData[$name]['do_' . $type . '_personal'] = $value;
             }
         }
 
@@ -186,14 +182,14 @@ class Actions extends Component
         if (count($requestScheme) && count($requestData['clients'])) {
             $log = new Logger;
             $log->user_id = $userId;
-            $log->action = Logger::APPLY_SCHEME_ACTION;
+            $log->action = Logger::ACTION_APPLY_SCHEME;
             $log->value = $countryCode;
             $log->created_at = date(DateTimeZoneHelper::DATETIME_FORMAT);
 
             if ($log->save()) {
                 /** @var Notifier $notifier */
                 $notifier = Notifier::getInstance();
-                return $notifier->send(self::MAILER_SCHEME_APPLY, $requestData);
+                return $notifier->send(self::MAILER_SCHEME_APPLY . '?countryCode=' . $countryCode, $requestData);
             }
         }
 

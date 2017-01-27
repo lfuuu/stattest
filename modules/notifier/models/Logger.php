@@ -11,12 +11,14 @@ use yii\db\ActiveRecord;
  * @property string $action
  * @property string $value
  * @property string $created_at
+ * @property string $result
+ * @property string $updated_at
  */
 class Logger extends ActiveRecord
 {
 
-    const APPLY_SCHEME_ACTION = 'apply_scheme';
-    const APPLY_WHITELIST_ACTION = 'apply_whitelist';
+    const ACTION_APPLY_SCHEME = 'applyGlobalScheme';
+    const ACTION_APPLY_WHITELIST = 'applyWhitelist';
 
     /**
      * @return string

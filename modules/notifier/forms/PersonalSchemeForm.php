@@ -77,7 +77,6 @@ class PersonalSchemeForm extends Form
         foreach ($response as $record) {
             $result[] = [
                 'event' => $record['event_code'],
-                'group_id' => $record['group_id'],
                 'do_email_monitoring' => $record['do_email_monitoring'],
                 'do_email_operator' => $record['do_email_operator'],
                 'do_email' => $record['do_email'],
@@ -112,16 +111,8 @@ class PersonalSchemeForm extends Form
             ->setValue($this->language)
             ->save($deleteExisting = true);
 
-        $requestData = [];
-
-        foreach ($this->events as $eventName => $eventData) {
-            $row = $eventData;
-            $row['event_code'] = $eventName;
-            $requestData[] = $row;
-        }
-
         try {
-            $response = $notifier->actions->applyPersonalSchemeForClientAccount($this->clientAccountId, $requestData);
+            $response = $notifier->actions->applyPersonalSchemeForClientAccount($this->clientAccountId, $this->events);
         } catch (ErrorException $e) {
             Yii::$app->session->addFlash(
                 'error',
@@ -136,12 +127,12 @@ class PersonalSchemeForm extends Form
             return false;
         }
 
-        if (!is_array($response) || empty($response['count'])) {
+        if (!is_array($response) || empty($response['updated'])) {
             Yii::$app->session->addFlash('error', 'Ошибка формата данных MAILER');
             return false;
         }
 
-        Yii::$app->session->addFlash('success', 'Данные успешно обновлены (' . $response['count'] . ' позиций)');
+        Yii::$app->session->addFlash('success', 'Данные успешно обновлены (' . $response['updated'] . ' позиций)');
         return true;
     }
 

@@ -160,7 +160,7 @@ class ControlForm extends Form
     {
         return Logger::find()
             ->where([
-                'action' => Logger::APPLY_SCHEME_ACTION,
+                'action' => Logger::ACTION_APPLY_SCHEME,
                 'value' => $countryCode,
             ])
             ->orderBy(['created_at' => SORT_DESC])
@@ -174,7 +174,7 @@ class ControlForm extends Form
     {
         return Logger::find()
             ->where([
-                'action' => Logger::APPLY_WHITELIST_ACTION,
+                'action' => Logger::ACTION_APPLY_WHITELIST,
             ])
             ->orderBy(['created_at' => SORT_DESC])
             ->one();
