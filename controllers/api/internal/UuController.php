@@ -839,14 +839,14 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "activate_future_date", type = "string", description = "Дата, с которой этот тариф будет включен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "deactivate_past_date", type = "string", description = "Дата, с которой этот тариф был выключен, и сейчас не действует. Всегда в прошлом. Если null - не был выключен. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "deactivate_future_date", type = "string", description = "Дата, с которой этот тариф будет выключен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа?"),
+     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      * ),
      *
      * @SWG\Definition(definition = "accountTariffVoipRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID услуги"),
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа?"),
-     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
      *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffVoipRecord"))),
      * ),
@@ -902,8 +902,6 @@ class UuController extends ApiInternalController
             'id' => $accountTariff->id,
             'voip_number' => $accountTariff->voip_number,
             'voip_city' => $this->getIdNameRecord($accountTariff->city),
-            'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
-            'is_editable' => (bool)$accountTariff->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
             'packages' => null,
         ];
@@ -937,7 +935,6 @@ class UuController extends ApiInternalController
         $modelPrev = array_shift($models);
         $isCancelable = $modelLast->actual_from > date(DateTimeZoneHelper::DATE_FORMAT);
 
-
         if ($modelLast->tariff_period_id) {
 
             if ($isCancelable) {
@@ -951,6 +948,8 @@ class UuController extends ApiInternalController
                         'activate_future_date' => null,
                         'deactivate_past_date' => null,
                         'deactivate_future_date' => null,
+                        'is_cancelable' => false, // Можно ли отменить смену тарифа?
+                        'is_editable' => false, // Можно ли сменить тариф или отключить услугу?
                     ];
                 }
 
@@ -961,6 +960,8 @@ class UuController extends ApiInternalController
                     'activate_future_date' => $modelLast->actual_from,
                     'deactivate_past_date' => null,
                     'deactivate_future_date' => null,
+                    'is_cancelable' => true, // Можно ли отменить смену тарифа?
+                    'is_editable' => false, // Можно ли сменить тариф или отключить услугу?
                 ];
 
             } else {
@@ -972,6 +973,8 @@ class UuController extends ApiInternalController
                     'activate_future_date' => null,
                     'deactivate_past_date' => null,
                     'deactivate_future_date' => null,
+                    'is_cancelable' => false, // Можно ли отменить смену тарифа?
+                    'is_editable' => true, // Можно ли сменить тариф или отключить услугу?
                 ];
 
             }
@@ -986,6 +989,8 @@ class UuController extends ApiInternalController
                     'activate_future_date' => null,
                     'deactivate_past_date' => null,
                     'deactivate_future_date' => $modelLast->actual_from,
+                    'is_cancelable' => true, // Можно ли отменить смену тарифа?
+                    'is_editable' => false, // Можно ли сменить тариф или отключить услугу?
                 ];
 
             } else {
@@ -997,37 +1002,11 @@ class UuController extends ApiInternalController
                     'activate_future_date' => null,
                     'deactivate_past_date' => $modelLast->actual_from,
                     'deactivate_future_date' => null,
+                    'is_cancelable' => false, // Можно ли отменить смену тарифа?
+                    'is_editable' => true, // Можно ли сменить тариф или отключить услугу?
                 ];
 
             }
-        }
-
-
-        if ($modelLast->tariff_period_id && $isCancelable) {
-
-            // смена тарифа в будущем
-            if (!$modelPrev) {
-                return $result;
-            }
-
-            $result[] = [
-                'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
-                'activate_past_date' => $modelPrev->actual_from, // обычная смена тарифа в прошлом,
-                'activate_future_date' => null,
-                'deactivate_past_date' => null,
-                'deactivate_future_date' => null,
-            ];
-        } elseif ($modelLast->tariff_period_id && $isCancelable) {
-
-            // закрытие тарифа в будущем
-            /** @var AccountTariffLog $modelPrev */
-            $modelPrev = array_shift($modelPrevs);
-            if (!$modelPrev) {
-                return $result;
-            }
-
-            $result[0]['tariff'] = $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod);
-            $result[0]['activate_past_date'] = $modelPrev->actual_from;
         }
 
         return $result;

@@ -48,6 +48,8 @@ $this->beginPage();
 
                     // фикс бага с нераскрыванием описания метода по клику на него
                     $('div.content').each(function(key, value) { value = $(value); value.attr('id', decodeURI(value.attr('id'))); });
+                    $('a.collapseResource').parent().detach();
+                    $('a.expandResource').parent().detach();
                 },
                 onFailure: function(data) {
                     log('Unable to Load SwaggerUI');
