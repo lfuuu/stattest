@@ -63,6 +63,14 @@ class ClientContractDao extends Singleton
             ->andWhere(['<=', 'contract_date', $date->format(DateTimeZoneHelper::DATETIME_FORMAT)])
             ->last();
 
+        if (!$contractDoc) {
+            $contractDoc = ClientDocument::find()
+                ->contract()
+                ->andWhere(['contract_id' => $contract->id])
+                ->andWhere(['<=', 'contract_date', $date->format(DateTimeZoneHelper::DATETIME_FORMAT)])
+                ->last();
+        }
+
         return $contractDoc;
     }
 }

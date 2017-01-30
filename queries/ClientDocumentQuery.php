@@ -40,11 +40,17 @@ class ClientDocumentQuery extends ActiveQuery
     }
 
     /**
+     * Получаем последний "бумажный" договор
+     *
      * @return ClientDocument
      */
     public function last()
     {
-        return $this->orderBy("contract_date desc, contract_dop_date desc, id desc")->one();
+        return $this->orderBy([
+            "contract_date" => SORT_DESC,
+            "contract_dop_date" => SORT_DESC,
+            "id" => SORT_DESC
+        ])->one();
     }
 
     /**
