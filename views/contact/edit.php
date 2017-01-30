@@ -35,7 +35,11 @@ use yii\widgets\Breadcrumbs;
     $clientContactAttributeLabels = (new ClientContact)->attributeLabels();
     if (!$contacts) {
         // нет моделей, но виджет для рендеринга их обязательно требует
-        $contacts = [new ClientContact];
+        $contact = new ClientContact;
+        // Проинциализировать дефолтные значения из rules.
+        // Наверняка, будет ошибка валидации (ибо какие-то поля не заполнены), но это не важно
+        $contact->validate();
+        $contacts = [$contact];
     }
     ?>
     <?= TabularInput::widget([
@@ -122,6 +126,7 @@ use yii\widgets\Breadcrumbs;
     <?php // псевдо-запрет редактирование ?> pointer-events: none;
     }
 
+    .row-inactive .list-cell__button,
     .row-inactive .list-cell__is_active input {
     <?php // псевдо-разрешение редактирование ?> pointer-events: auto;
     }
