@@ -15,7 +15,7 @@ use yii\helpers\Url;
 ?>
 
 <br/>
-<div class="well contacts-view">
+<div id="contacts-view">
 
     <h2><a href="<?= Url::toRoute(['contact/edit', 'id' => $account->id]) ?>" title="Редактировать контакты"><img class="icon" src="/images/icons/edit.gif"> Контакты</a></h2>
 
@@ -46,3 +46,14 @@ use yii\helpers\Url;
         <?php endforeach ?>
     </table>
 </div>
+
+<style>
+    #contacts-view td {
+        padding: 0 5px;
+    }
+
+    #contacts-view h2 {
+        margin-top: -10px;
+        margin-bottom: 0;
+    }
+</style>

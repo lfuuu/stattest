@@ -9,7 +9,6 @@
 
 use app\models\ClientContact;
 use app\widgets\TabularInput\TabularInput;
-use kartik\editable\Editable;
 use kartik\form\ActiveForm;
 use unclead\widgets\TabularColumn;
 use yii\helpers\Url;
@@ -24,7 +23,7 @@ use yii\widgets\Breadcrumbs;
     ],
 ]) ?>
 
-<div class="contacts-edit">
+<div id="contacts-edit">
     <?php $f = ActiveForm::begin() ?>
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
@@ -50,7 +49,7 @@ use yii\widgets\Breadcrumbs;
 
                 /** @var ClientContact $clientContact */
                 if ($clientContact) {
-                    $options['class'] = '';
+                    $options['class'] = 'form-group-sm';
                     $options['class'] .= ($clientContact->is_validate ? ($clientContact->isEmail() ? ' info' : ' warning') : ' danger');
                     if (!$clientContact->is_active) {
                         $options['class'] .= ' row-inactive'; // input-sm
@@ -75,10 +74,8 @@ use yii\widgets\Breadcrumbs;
                 [
                     'name' => 'type',
                     'title' => $clientContactAttributeLabels['type'],
-                    'type' => Editable::INPUT_SELECT2,
-                    'options' => [
-                        'data' => ClientContact::$types,
-                    ],
+                    'type' => TabularColumn::TYPE_DROPDOWN,
+                    'items' => ClientContact::$types,
                 ],
                 [
                     'name' => 'data',
@@ -131,8 +128,12 @@ use yii\widgets\Breadcrumbs;
     <?php // псевдо-разрешение редактирование ?> pointer-events: auto;
     }
 
-    .contacts-edit .list-cell__is_official,
-    .contacts-edit .list-cell__is_active {
+    #contacts-edit .list-cell__is_official,
+    #contacts-edit .list-cell__is_active {
         text-align: center;
+    }
+
+    #contacts-edit td {
+        padding: 0 5px;
     }
 </style>
