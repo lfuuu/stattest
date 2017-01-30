@@ -22,8 +22,8 @@ class ClientContactDao extends Singleton
         $phone = preg_replace('/ +(\d)/', '$1', $phone); // удалить пробелы перед цифрой. Другие пробелы оставить!
         $e164Phones = [];
 
-        // найти DNC на случай следующего телефона без NDC
-        if (preg_match('/\((\d{3,})\)/', $phone, $matches)) {
+        // найти NDC на случай следующего телефона без NDC
+        if (preg_match('/\((\d{3,4})\)/', $phone, $matches)) {
             $ndc = $matches[1];
         } else {
             $ndc = $ndcDefault;

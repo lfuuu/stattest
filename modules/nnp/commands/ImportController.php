@@ -237,7 +237,7 @@ class ImportController extends Controller
                 /**
                  * 0 - Префикс страны
                  * 1 - NDC
-                 * 2 - Тип DNC
+                 * 2 - Тип NDC
                  * 3 - Диапазон с
                  * 4 - Диапазон по
                  * 5 - Регион
