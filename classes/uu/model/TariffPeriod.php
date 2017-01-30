@@ -227,7 +227,6 @@ class TariffPeriod extends HistoryActiveRecord
             return true;
         }
 
-        throw new \LogicException('Одноразовый тариф не продлевается, не имеет абонентки, имеет плату за подключение');
-
+        return false;
     }
 }

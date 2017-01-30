@@ -32,7 +32,7 @@ class ClientContractReward extends ActiveRecord
     ];
 
     public static $period = [
-        self::PERIOD_MONTH => 'Кол-во периодов списания',
+        self::PERIOD_MONTH => 'Кол-во периодов продления',
         self::PERIOD_ALWAYS => 'Всегда',
     ];
 
