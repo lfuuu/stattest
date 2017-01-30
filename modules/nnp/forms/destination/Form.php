@@ -21,16 +21,13 @@ abstract class Form extends \app\classes\Form
     /** @var Destination */
     public $destination;
 
-    /** @var string[] */
-    public $validateErrors = [];
-
     /**
      * @return Destination
      */
     abstract public function getDestinationModel();
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {
@@ -76,11 +73,11 @@ abstract class Form extends \app\classes\Form
 
                 // префиксы (+)
                 $prefixDestination->is_addition = true;
-                $additionPrefixDestinations = self::crudMultipleSelect2($this->destination->additionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'AdditionPrefixDestination');
+                $additionPrefixDestinations = $this->crudMultipleSelect2($this->destination->additionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'AdditionPrefixDestination');
 
                 // префиксы (-)
                 $prefixDestination->is_addition = false;
-                $subtractionPrefixDestinations = self::crudMultipleSelect2($this->destination->subtractionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'SubtractionPrefixDestination');
+                $subtractionPrefixDestinations = $this->crudMultipleSelect2($this->destination->subtractionPrefixDestinations, $post, $prefixDestination, $fieldName = 'prefix_id', $formName = 'SubtractionPrefixDestination');
 
                 $prefixDestinationsIntersect = array_intersect_key($additionPrefixDestinations, $subtractionPrefixDestinations);
                 if (count($prefixDestinationsIntersect)) {

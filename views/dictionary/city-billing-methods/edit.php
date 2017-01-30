@@ -42,12 +42,9 @@ echo Breadcrumbs::widget([
 
     </div>
 
-    <div class="form-group">
-        <?= $this->render('//layouts/_submitButton' . ($record->isNewRecord ? 'Create' : 'Save')) ?>
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?php if (!$record->isNewRecord) : ?>
-            <?= $this->render('//layouts/_submitButtonDrop') ?>
-        <?php endif ?>
+        <?= $this->render('//layouts/_submitButton' . ($record->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

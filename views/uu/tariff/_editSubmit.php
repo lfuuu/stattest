@@ -16,12 +16,9 @@ $tariff = $formModel->tariff;
 
 <?php if ($editableType != TariffController::EDITABLE_NONE) : ?>
 
-    <div class="form-group">
-        <?= $this->render('//layouts/_submitButton' . ($tariff->isNewRecord ? 'Create' : 'Save')) ?>
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['uu/tariff', 'serviceTypeId' => $formModel->tariff->service_type_id])]) ?>
-        <?php if (!$tariff->isNewRecord && $editableType == TariffController::EDITABLE_FULL) : ?>
-            <?= $this->render('//layouts/_submitButtonDrop') ?>
-        <?php endif ?>
+        <?= $this->render('//layouts/_submitButton' . ($tariff->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
 
 <?php endif ?>

@@ -30,56 +30,6 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'attribute' => 'name',
-        'class' => StringColumn::className(),
-    ],
-
-    [
-        'label' => 'Направления (+)',
-        'attribute' => 'addition_prefix_destination',
-        'class' => DestinationColumn::className(),
-        'isAddLink' => false,
-        'format' => 'html',
-        'value' => function (Prefix $prefix) {
-            $htmlArray = [];
-            foreach ($prefix->additionPrefixDestinations as $prefixDestination) {
-                $destination = $prefixDestination->destination;
-                $htmlArray[] = Html::a($destination->name, $destination->getUrl());
-            }
-            return implode('<br />', $htmlArray);
-        }
-    ],
-
-    [
-        'label' => 'Направления (-)',
-        'attribute' => 'subtraction_prefix_destination',
-        'class' => DestinationColumn::className(),
-        'isAddLink' => false,
-        'format' => 'html',
-        'value' => function (Prefix $prefix) {
-            $htmlArray = [];
-            foreach ($prefix->subtractionPrefixDestinations as $prefixDestination) {
-                $destination = $prefixDestination->destination;
-                $htmlArray[] = Html::a($destination->name, $destination->getUrl());
-            }
-            return implode('<br />', $htmlArray);
-        }
-    ],
-
-    [
-        'label' => 'Диапазон номеров',
-        'format' => 'html',
-        'value' => function (Prefix $prefix) use ($baseView) {
-            return $baseView->render('//layouts/_link', [
-                    'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[prefix_id]' => $prefix->id]),
-                    'text' => Yii::t('common', 'Show'),
-                    'glyphicon' => 'glyphicon-list-alt',
-                ]
-            );
-        }
-    ],
-
-    [
         'class' => ActionColumn::className(),
         'template' => '{update} {delete}',
         'buttons' => [
@@ -97,6 +47,58 @@ $columns = [
             },
         ],
         'hAlign' => GridView::ALIGN_CENTER,
+    ],
+
+    [
+        'attribute' => 'name',
+        'class' => StringColumn::className(),
+    ],
+
+    [
+        'label' => 'Направления (+)',
+        'attribute' => 'addition_prefix_destination',
+        'class' => DestinationColumn::className(),
+        'isAddLink' => false,
+        'format' => 'html',
+        'value' => function (Prefix $prefix) {
+            $htmlArray = [];
+            foreach ($prefix->additionPrefixDestinations as $prefixDestination) {
+                $destination = $prefixDestination->destination;
+                $htmlArray[] = Html::a($destination->name, $destination->getUrl());
+            }
+
+            return implode('<br />', $htmlArray);
+        }
+    ],
+
+    [
+        'label' => 'Направления (-)',
+        'attribute' => 'subtraction_prefix_destination',
+        'class' => DestinationColumn::className(),
+        'isAddLink' => false,
+        'format' => 'html',
+        'value' => function (Prefix $prefix) {
+            $htmlArray = [];
+            foreach ($prefix->subtractionPrefixDestinations as $prefixDestination) {
+                $destination = $prefixDestination->destination;
+                $htmlArray[] = Html::a($destination->name, $destination->getUrl());
+            }
+
+            return implode('<br />', $htmlArray);
+        }
+    ],
+
+    [
+        'label' => 'Диапазон номеров',
+        'format' => 'html',
+        'value' => function (Prefix $prefix) use ($baseView) {
+            return $baseView->render('//layouts/_link', [
+                    'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[prefix_id]' => $prefix->id]),
+                    'text' => Yii::t('common', 'Show'),
+                    'glyphicon' => 'glyphicon-list-alt',
+                ]
+            );
+        }
     ],
 ];
 

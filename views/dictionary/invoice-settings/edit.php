@@ -70,9 +70,9 @@ echo Breadcrumbs::widget([
 
     </fieldset>
 
-    <div class="form-group">
-        <?= $this->render('//layouts/_submitButton' . ($city->isNewRecord ? 'Create' : 'Save')) ?>
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+        <?= $this->render('//layouts/_submitButton' . ($city->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
 
     <?php ActiveForm::end() ?>

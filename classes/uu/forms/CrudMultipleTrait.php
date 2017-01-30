@@ -11,8 +11,11 @@ use yii\db\IntegrityException;
  */
 trait CrudMultipleTrait
 {
+    /** @var string[] */
+    public $validateErrors = [];
+
     /**
-     * аналог model::loadMultiple, но
+     * Аналог model::loadMultiple, но
      * 1. не только update, а также insert и delete
      * 2. виджет multiple-input переиндексирует массив. Был id, стал autoincrement
      * 3. возвращает данные, а не параметр по ссылке
@@ -20,6 +23,7 @@ trait CrudMultipleTrait
      * @param ActiveRecord[] $models
      * @param [] $data
      * @param ActiveRecord $originalModel
+     * @return ActiveRecord[]
      */
     protected function crudMultiple($models, $data, ActiveRecord $originalModel)
     {
@@ -41,7 +45,7 @@ trait CrudMultipleTrait
                 }
 
                 $model->load($dataParam, '');
-                if ($model->validate() && $model->save()) {
+                if ($model->save()) {
                     $returnModels[$model->id] = $model;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
@@ -64,13 +68,14 @@ trait CrudMultipleTrait
     }
 
     /**
-     * аналог crudMultiple, но для мульти-select2
+     * Аналог crudMultiple, но для мульти-select2
      *
      * @param ActiveRecord[] $models
      * @param [] $data
      * @param ActiveRecord $originalModel
      * @param string $fieldName
      * @param string $formName
+     * @return ActiveRecord[]
      */
     protected function crudMultipleSelect2($models, $data, ActiveRecord $originalModel, $fieldName, $formName = null)
     {

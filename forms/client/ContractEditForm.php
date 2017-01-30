@@ -99,14 +99,18 @@ class ContractEditForm extends Form
             ],
             [['federal_district', 'financial_type'], 'default', 'value' => ''],
             ['state', 'validateState'],
-            [
-                ['business_process_id', 'business_process_status_id'],
-                function ($attribute) {
-                    if (!Yii::$app->user->can('clients.restatus') && $this->$attribute !== $this->getModel()->$attribute) {
-                        $this->addError('state', 'Вы не можете менять бизнес процесс');
+
+            /*
+                [
+                    ['business_process_id', 'business_process_status_id'],
+                    function ($attribute) {
+                        if (!Yii::$app->user->can('clients.restatus') && $this->$attribute !== $this->getModel()->$attribute) {
+                            $this->addError('state', 'Вы не можете менять бизнес процесс');
+                        }
                     }
-                }
-            ],
+                ],
+            */
+
             [
                 'business_id',
                 function ($attribute) {

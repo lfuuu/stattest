@@ -206,6 +206,10 @@ foreach ($resources as $resource) {
         'value' => function (Tariff $tariff) use ($resource) {
             /** @var TariffResource $tariffResource */
             $tariffResource = $tariff->getTariffResource($resource->id)->one();
+            if (!$tariffResource) {
+                return '';
+            }
+
             if ($resource->isNumber()) {
                 return strpos($tariffResource->amount, '.') !== false ?
                     sprintf('%.2f', $tariffResource->amount) :

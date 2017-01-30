@@ -166,6 +166,9 @@
         <exclude name="PEAR.Files.IncludingFile.UseInclude"/>
         <exclude name="PEAR.Files.IncludingFile.UseIncludeOnce"/>
 
+        <!-- Не требовать PHP-выражения на разных строчках -->
+        <exclude name="Generic.Formatting.DisallowMultipleStatements.SameLine"/>
+
     </rule>
 
 

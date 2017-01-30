@@ -1,45 +1,59 @@
 <?php
-
-/** @var $this \app\classes\BaseView */
+/**
+ * @var \app\classes\BaseView $this
+ * @var AccountEditForm $model
+ * @var ClientPayAcc $addAccModel
+ * @var ClientInn $addInnModel
+ */
 
 use app\assets\AppAsset;
 use app\classes\Html;
 use app\classes\Language;
 use app\dao\ClientDocumentDao;
+use app\forms\client\AccountEditForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientDocument;
-use app\models\UserGroups;
+use app\models\ClientInn;
+use app\models\ClientPayAcc;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\DatePicker;
 use yii\helpers\Json;
 use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 $this->registerJsFile('@web/js/behaviors/find-bik.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::className()]]);
 
 $language = Language::getLanguageByCountryId($model->getModel()->contragent->country_id);
+$id = $model->clientM->id;
 ?>
+
+<?= Breadcrumbs::widget([
+    'links' => [
+        ['label' => 'Аккаунт', 'url' => Url::to(['client/view', 'id' => $id])],
+        ['label' => $this->title = ($model->isNewRecord ? 'Создание' : 'Редактирование') . ' ЛС', 'url' => Url::to(['account/edit', 'id' => $id])],
+    ],
+]) ?>
+
 <div class="row">
     <div class="col-sm-12">
-        <h2><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> лицевого счета</h2>
-
         <?php $f = ActiveForm::begin(); ?>
 
         <?= $this->render($this->getFormPath('account', $language), ['model' => $model, 'f' => $f]); ?>
 
-        <div class="row" style="width: 1100px;">
+        <div class="row" style="max-width: 1100px;">
 
             <div class="row">
                 <div class="col-sm-4">
-                    <div class="col-sm-12" type="textInput">
+                    <div class="col-sm-12">
                         <label class="control-label" for="historyVersionStoredDate">Сохранить на</label>
                         <?= Html::dropDownList('AccountEditForm[historyVersionStoredDate]', null, $model->getModel()->getDateList(),
                             ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'id' => 'historyVersionStoredDate']); ?>
                     </div>
                 </div>
                 <div class="col-sm-4">
-                    <div class="col-sm-12" type="textInput">
+                    <div class="col-sm-12">
                         <label class="control-label" for="deferred-date-input">Выберите дату</label>
                         <?= DatePicker::widget(
                             [
@@ -59,7 +73,7 @@ $language = Language::getLanguageByCountryId($model->getModel()->contragent->cou
             </div>
 
             <div class="col-sm-12 form-group">
-                <?= Html::button('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave']); ?>
+                <?= $this->render('//layouts/_submitButtonSave') ?>
             </div>
 
             <?php if (!$model->isNewRecord) : ?>

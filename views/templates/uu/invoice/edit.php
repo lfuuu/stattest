@@ -70,7 +70,7 @@ echo Breadcrumbs::widget([
 
     <br />
 
-    <div class="form-group">
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_submitButtonSave') ?>
     </div>
 

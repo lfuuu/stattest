@@ -63,9 +63,9 @@ echo Breadcrumbs::widget([
         </div>
     <?php endif; ?>
 
-    <div class="form-group">
-        <?= $this->render('//layouts/_submitButtonSave') ?>
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['important_events/names'])]) ?>
+        <?= $this->render('//layouts/_submitButtonSave') ?>
     </div>
 
     <?php ActiveForm::end() ?>

@@ -6,9 +6,9 @@
  * @var RegionFilter $filterModel
  */
 
-use app\modules\nnp\column\CountryColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
+use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\filter\RegionFilter;
 use app\modules\nnp\models\Region;
 use kartik\grid\ActionColumn;
@@ -29,6 +29,25 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, Region $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, Region $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
+    [
         'attribute' => 'country_code',
         'class' => CountryColumn::className(),
         'indexBy' => 'code',
@@ -48,25 +67,6 @@ $columns = [
                 ]
             );
         }
-    ],
-    [
-        'class' => ActionColumn::className(),
-        'template' => '{update} {delete}',
-        'buttons' => [
-            'update' => function ($url, Region $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, Region $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

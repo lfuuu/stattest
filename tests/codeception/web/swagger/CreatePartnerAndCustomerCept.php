@@ -9,7 +9,7 @@ $I = new _WebTester($scenario);
 $I->wantTo('Swagger. Add partner and customer');
 
 $I->haveHttpHeader("Content-Type", "application/json");
-$I->amBearerAuthenticated("|H;\\9P$.N4/Y\$V\\9A$#l");
+$I->amBearerAuthenticated(Yii::$app->params['API_SECURE_KEY']);
 $I->seeResponseIsJson();
 
 

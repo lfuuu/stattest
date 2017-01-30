@@ -12,6 +12,7 @@ use app\controllers\uu\TariffController;
 use app\models\billing\Pricelist;
 use app\modules\nnp\models\PackagePricelist;
 use kartik\editable\Editable;
+use unclead\widgets\TabularColumn;
 use unclead\widgets\TabularInput;
 
 $packagePricelist = new PackagePricelist;
@@ -75,9 +76,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 ],
                 [
                     'name' => 'id', // чтобы идентифицировать модель
-                    'options' => [
-                        'class' => 'hidden',
-                    ],
+                    'type' => TabularColumn::TYPE_HIDDEN_INPUT,
                 ],
             ],
         ]

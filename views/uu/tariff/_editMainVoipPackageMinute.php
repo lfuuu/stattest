@@ -12,6 +12,7 @@ use app\controllers\uu\TariffController;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PackageMinute;
 use kartik\editable\Editable;
+use unclead\widgets\TabularColumn;
 use unclead\widgets\TabularInput;
 
 $packageMinute = new PackageMinute;
@@ -69,9 +70,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 ],
                 [
                     'name' => 'id', // чтобы идентифицировать модель
-                    'options' => [
-                        'class' => 'hidden',
-                    ],
+                    'type' => TabularColumn::TYPE_HIDDEN_INPUT,
                 ],
             ],
         ]

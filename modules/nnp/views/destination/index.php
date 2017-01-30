@@ -29,43 +29,6 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'attribute' => 'name',
-        'class' => StringColumn::className(),
-    ],
-
-    [
-        'label' => 'Префиксы (+)',
-        'attribute' => 'addition_prefix_destination',
-        'class' => PrefixColumn::className(),
-        'isAddLink' => false,
-        'format' => 'html',
-        'value' => function (Destination $destination) {
-            $htmlArray = [];
-            foreach ($destination->additionPrefixDestinations as $prefixDestination) {
-                $prefix = $prefixDestination->prefix;
-                $htmlArray[] = Html::a($prefix->name, $prefix->getUrl());
-            }
-            return implode('<br />', $htmlArray);
-        },
-    ],
-
-    [
-        'label' => 'Префиксы (-)',
-        'attribute' => 'subtraction_prefix_destination',
-        'class' => PrefixColumn::className(),
-        'isAddLink' => false,
-        'format' => 'html',
-        'value' => function (Destination $destination) {
-            $htmlArray = [];
-            foreach ($destination->subtractionPrefixDestinations as $prefixDestination) {
-                $prefix = $prefixDestination->prefix;
-                $htmlArray[] = Html::a($prefix->name, $prefix->getUrl());
-            }
-            return implode('<br />', $htmlArray);
-        },
-    ],
-
-    [
         'class' => ActionColumn::className(),
         'template' => '{update} {delete}',
         'buttons' => [
@@ -83,6 +46,45 @@ $columns = [
             },
         ],
         'hAlign' => GridView::ALIGN_CENTER,
+    ],
+
+    [
+        'attribute' => 'name',
+        'class' => StringColumn::className(),
+    ],
+
+    [
+        'label' => 'Префиксы (+)',
+        'attribute' => 'addition_prefix_destination',
+        'class' => PrefixColumn::className(),
+        'isAddLink' => false,
+        'format' => 'html',
+        'value' => function (Destination $destination) {
+            $htmlArray = [];
+            foreach ($destination->additionPrefixDestinations as $prefixDestination) {
+                $prefix = $prefixDestination->prefix;
+                $htmlArray[] = Html::a($prefix->name, $prefix->getUrl());
+            }
+
+            return implode('<br />', $htmlArray);
+        },
+    ],
+
+    [
+        'label' => 'Префиксы (-)',
+        'attribute' => 'subtraction_prefix_destination',
+        'class' => PrefixColumn::className(),
+        'isAddLink' => false,
+        'format' => 'html',
+        'value' => function (Destination $destination) {
+            $htmlArray = [];
+            foreach ($destination->subtractionPrefixDestinations as $prefixDestination) {
+                $prefix = $prefixDestination->prefix;
+                $htmlArray[] = Html::a($prefix->name, $prefix->getUrl());
+            }
+
+            return implode('<br />', $htmlArray);
+        },
     ],
 ];
 

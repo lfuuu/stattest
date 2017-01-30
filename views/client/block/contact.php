@@ -1,120 +1,48 @@
 <?php
-use yii\helpers\Url;
-use app\classes\Html;
-use kartik\widgets\ActiveForm;
-use app\helpers\DateTimeZoneHelper;
-use app\models\ClientContact;
+/**
+ * Просмотр контактов
+ *
+ * @var \yii\web\View $this
+ * @var ClientAccount $account
+ * @var ClientContact[] $contacts
+ */
 
-$contacts = $account->allContacts;
-$contactsArr = [];
-foreach ($contacts as $contact) {
-    if ($contact->data && $contact->is_active)
-        $contactsArr[$contact->type][] = $contact;
-}
+use app\classes\Html;
+use app\models\ClientAccount;
+use app\models\ClientContact;
+use yii\helpers\Url;
+
 ?>
 
-<div class="data-block row data-contacts">
-    <?php $f = ActiveForm::begin(['action' => Url::toRoute(['contact/create', 'clientId' => $account->id])]) ?>
-    <div class="row">
-        <div class="col-sm-2 showFullTable" style="cursor: pointer;">
-            <a><img class="icon" src="/images/icons/monitoring.gif" alt="Посмотреть"></a>Контакты
-        </div>
-        <div class="col-sm-10">
-            <?php foreach ($contactsArr as $contactType => $contactsInType): ?>
-                <div class="row">
-                    <div class="col-sm-2"><?= ClientContact::$types[$contactType] ?></div>
-                    <div class="col-sm-10">
-                        <?php foreach ($contactsInType as $contact) {
-                            if ($contactType == 'email') {
-                                echo "<a style=\"" . ($contact->is_official ? 'font-weight:bold' : '') . "\" target=\"_blank\"
-                                       href=\"http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to={$contact->data}\">
-                                       {$contact->data}
-                                       </a>
-                                        <a style=\"" . ($contact->is_official ? 'font-weight:bold' : '') . "\" href=\"mailto:{$contact->data}\">(@)</a>" . ($contact->comment ? '&nbsp-&nbsp' . $contact->comment : '') . "; &nbsp;";
-                            } else {
-                                echo $contact->data . ($contact->comment ? '&nbsp-&nbsp' . $contact->comment : '') . ";&nbsp";
-                            }
-                        } ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <div class="col-sm-12 fullTable collapse">
-            <div class="row head3">
-                <div class="col-sm-1"></div>
-                <div class="col-sm-2">Тип</div>
-                <div class="col-sm-4">Контакт</div>
-                <div class="col-sm-2">Кто добавил</div>
-                <div class="col-sm-2">Когда</div>
-                <div class="col-sm-1"></div>
-            </div>
-            <?php foreach ($contacts as $contact) : ?>
-                <div class="row"
-                     style="<?= ($contact->is_official) ? 'font-weight:bold;' : '' ?><?= ($contact->is_active) ? 'color:black;' : 'color:#909090;' ?>">
-                    <div class="col-sm-1">
-                        &nbsp;
-                    </div>
-                    <div class="col-sm-2"><?= ClientContact::$types[$contact->type] ?></div>
-                    <div class="col-sm-4">
-                        <?= htmlspecialchars($contact->data) ?><br />
-                        <?= htmlspecialchars($contact->comment) ?>
-                    </div>
-                    <div class="col-sm-2"><?= $contact->user ? $contact->user->name : '' ?></div>
-                    <div class="col-sm-2"><?= DateTimeZoneHelper::getDateTime($contact->ts) ?></div>
-                    <div class="col-sm-1 text-center">
-                        <?php if ($contact->user && $contact->user->user === 'AutoLK') : ?>
-                            <a href="<?= Url::toRoute(['contact/lk-activate', 'id' => $contact->id]) ?>">
-                                <img style="margin-left:-2px;margin-top:-3px" class="icon"
-                                     src="/images/icons/<?= $contact->is_active ? 'action_check_off.gif' : 'action_check.gif' ?>"
-                                     alt="Активность">
-                            </a>
-                        <?php else: ?>
-                            <a href="<?= Url::toRoute(['contact/activate', 'id' => $contact->id]) ?>">
-                                <img style="margin-left:-2px;margin-top:-3px" class="icon"
-                                     src="/images/icons/<?= $contact->is_active ? 'delete.gif' : 'add.gif' ?>"
-                                     alt="Активность">
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-            <div class="row">
-                <div class="col-sm-2">
-                    &nbsp;
-                </div>
-                <div class="col-sm-2">
-                    <select name="type" id="contact-type" class="form-control" style="font-size:10px">
-                        <?php foreach (ClientContact::$types as $typeKey => $typeName) :?>
-                            <option value="<?= $typeKey; ?>"><?= $typeName; ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-sm-2 field-clientcontact-data">
-                    <?php
-                    $f->beginField((new ClientContact), 'data');
-                        echo Html::activeInput('text', (new ClientContact), 'data', [
-                            'placeholder' => 'Контактные данные',
-                            'name' => 'data',
-                            'id' => 'clientcontact-data',
-                            'class' => 'form-control'
-                        ]);
-                    $f->endField();
-                    ?>
-                </div>
-                <div class="col-sm-2">
-                    <input class="form-control" type="text" placeholder="Комментарий" name="comment">
-                </div>
-                <input type="hidden" name="user_id" value="<?= Yii::$app->user->id ?>">
+<br/>
+<div class="well contacts-view">
 
-                <div class="col-sm-2">
-                    <input type="checkbox" name="is_official" value="1" title="официальный?"/>
-                    Официальный
-                </div>
-                <div class="col-sm-2">
-                    <button type="submit" class="btn btn-primary col-sm-12">Добавить</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php ActiveForm::end(); ?>
+    <h2><a href="<?= Url::toRoute(['contact/edit', 'id' => $account->id]) ?>" title="Редактировать контакты"><img class="icon" src="/images/icons/edit.gif"> Контакты</a></h2>
+
+    <table class="table table-striped">
+        <?php foreach ($contacts as $contact): ?>
+            <?php
+            if (!$contact->is_active) {
+                continue;
+            }
+            ?>
+            <tr class="<?= $contact->is_official ? 'bold' : '' ?> <?= $contact->is_validate ? '' : 'danger' ?>">
+                <td><?= ClientContact::$types[$contact->type] ?></td>
+                <td>
+                    <?php
+                    if ($contact->isEmail()) {
+                        printf(
+                            '%s (%s)',
+                            Html::a($contact->data, 'http://thiamis.mcn.ru/welltime/?module=com_agent_panel&frame=new_msg&nav=mail.none.none&message=none&trunk=5&to=' . $contact->data),
+                            Html::a('@', 'mailto:' . $contact->data)
+                        );
+                    } else {
+                        echo $contact->data;
+                    }
+                    ?>
+                </td>
+                <td><?= $contact->comment ?></td>
+            </tr>
+        <?php endforeach ?>
+    </table>
 </div>

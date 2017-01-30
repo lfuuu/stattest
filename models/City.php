@@ -29,6 +29,7 @@ class City extends ActiveRecord
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()

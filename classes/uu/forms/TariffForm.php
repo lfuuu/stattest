@@ -38,9 +38,6 @@ abstract class TariffForm extends Form
     /** @var TariffVoipCity[] */
     public $tariffVoipCities;
 
-    /** @var string[] */
-    public $validateErrors = [];
-
     /**
      * @return TariffResource[]
      */
@@ -154,13 +151,13 @@ abstract class TariffForm extends Form
                 $tariffPeriod = new TariffPeriod();
                 $tariffPeriod->tariff_id = $this->id;
                 if (isset($post['TariffPeriod'])) {
-                    $this->tariffPeriods = self::crudMultiple($this->tariffPeriods, $post, $tariffPeriod);
+                    $this->tariffPeriods = $this->crudMultiple($this->tariffPeriods, $post, $tariffPeriod);
                 }
 
                 $tariffResource = new TariffResource();
                 $tariffResource->tariff_id = $this->id;
                 if (isset($post['TariffResource'])) {
-                    $this->tariffResources = self::crudMultiple($this->tariffResources, $post, $tariffResource);
+                    $this->tariffResources = $this->crudMultiple($this->tariffResources, $post, $tariffResource);
                 }
 
                 switch ($this->tariff->service_type_id) {
@@ -193,20 +190,20 @@ abstract class TariffForm extends Form
 
                         $packageMinute = new PackageMinute();
                         $packageMinute->tariff_id = $this->id;
-                        self::crudMultiple($this->tariff->packageMinutes, $post, $packageMinute);
+                        $this->crudMultiple($this->tariff->packageMinutes, $post, $packageMinute);
 
                         $packagePrice = new PackagePrice();
                         $packagePrice->tariff_id = $this->id;
-                        self::crudMultiple($this->tariff->packagePrices, $post, $packagePrice);
+                        $this->crudMultiple($this->tariff->packagePrices, $post, $packagePrice);
 
                         $packagePricelist = new PackagePricelist();
                         $packagePricelist->tariff_id = $this->id;
-                        self::crudMultiple($this->tariff->packagePricelists, $post, $packagePricelist);
+                        $this->crudMultiple($this->tariff->packagePricelists, $post, $packagePricelist);
 
                         if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE) {
                             $tariffVoipCity = new TariffVoipCity();
                             $tariffVoipCity->tariff_id = $this->id;
-                            $this->tariffVoipCities = self::crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+                            $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
                         }
                         break;
 
@@ -214,7 +211,7 @@ abstract class TariffForm extends Form
                         // только для телефонии
                         $tariffVoipCity = new TariffVoipCity();
                         $tariffVoipCity->tariff_id = $this->id;
-                        $this->tariffVoipCities = self::crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+                        $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
                         break;
                 }
             }

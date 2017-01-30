@@ -8,11 +8,11 @@
 
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
-use app\modules\nnp\column\CityColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\nnp\column\CityColumn;
 use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\nnp\column\OperatorColumn;
@@ -59,6 +59,19 @@ $filterColumns = [
 ];
 
 $columns = [
+    [
+        'class' => ActionColumn::className(),
+        'template' => '{update}',
+        'buttons' => [
+            'update' => function ($url, NumberRange $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
     [
         'label' => 'Диапазон номеров',
         'attribute' => 'full_number_from',
@@ -114,21 +127,9 @@ $columns = [
                 $prefix = $numberRangePrefixes->prefix;
                 $htmlArray[] = Html::a($prefix->name, $prefix->getUrl());
             }
+
             return implode('<br/>', $htmlArray);
         }
-    ],
-    [
-        'class' => ActionColumn::className(),
-        'template' => '{update}',
-        'buttons' => [
-            'update' => function ($url, NumberRange $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

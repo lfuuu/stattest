@@ -4,6 +4,7 @@ namespace app\forms\client;
 use app\classes\Form;
 use app\classes\StatModule;
 use app\classes\validators\FormFieldValidator;
+use app\exceptions\ModelValidationException;
 use app\forms\comment\ClientContractCommentForm;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
@@ -179,27 +180,6 @@ class ClientCreateExternalForm extends Form
     }
 
     /**
-     * Поиск клиента по email'у
-     *
-     * @return bool
-     */
-    public function findByEmail()
-    {
-        $c = ClientContact::findOne(['data' => $this->email, 'type' => 'email']);
-
-        if ($c) {
-            $this->account_id = $c->client->id;
-            $this->contract_id = $c->client->contract->id;
-            $this->contragent_id = $c->client->contragent->id;
-            $this->super_id = $c->client->superClient->id;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Сохранение формы. Сохранения реализовано другими функциями
      */
     public function save()
@@ -262,20 +242,49 @@ class ClientCreateExternalForm extends Form
     }
 
     /**
+     * Поиск клиента по email'у
+     *
+     * @return bool
+     */
+    public function findByEmail()
+    {
+        $c = ClientContact::findOne(['data' => $this->email, 'type' => 'email']);
+
+        if ($c) {
+            $this->account_id = $c->client->id;
+            $this->contract_id = $c->client->contract->id;
+            $this->contragent_id = $c->client->contragent->id;
+            $this->super_id = $c->client->superClient->id;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Создание структуры клиента
+     *
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\base\InvalidParamException
      */
     private function _createClientStruct()
     {
         $super = new ClientSuper();
         $super->name = $this->company;
         $super->validate();
-        $super->save();
+        if (!$super->save()) {
+            throw new ModelValidationException($super);
+        }
+
         Yii::info($super);
         $this->super_id = $super->id;
 
         if ($this->entryPoint) {
             $super->name = $this->entryPoint->super_client_prefix . $super->id;
-            $super->save();
+            if (!$super->save()) {
+                throw new ModelValidationException($super);
+            }
         }
 
         $contragent = new ContragentEditForm(['super_id' => $super->id]);
@@ -291,8 +300,10 @@ class ClientCreateExternalForm extends Form
             $contragent->country_id = $this->entryPoint->country_id;
         }
 
-        $contragent->validate();
-        $contragent->save();
+        if (!$contragent->validate() || !$contragent->save()) {
+            throw new ModelValidationException($contragent);
+        }
+
         $this->contragent_id = $contragent->id;
         Yii::info($contragent);
 
@@ -310,8 +321,10 @@ class ClientCreateExternalForm extends Form
             $contract->organization_id = Organization::MCN_TELEKOM;
         }
 
-        $contract->validate();
-        $contract->save();
+        if (!$contract->validate() || !$contract->save()) {
+            throw new ModelValidationException($contract);
+        }
+
         $this->contract_id = $contract->id;
         Yii::info($contract);
 
@@ -340,13 +353,16 @@ class ClientCreateExternalForm extends Form
                 $comment = new ClientContractCommentForm();
                 $comment->contract_id = $this->contract_id;
                 $comment->comment = $this->entryPoint->name;
-                $comment->save();
+                if (!$comment->save()) {
+                    throw new ModelValidationException($comment);
+                }
             }
         }
 
-        $account->validate();
+        if (!$account->validate() || !$account->save()) {
+            throw new ModelValidationException($account);
+        }
 
-        $account->save();
         $this->account_id = $account->id;
 
         Yii::info($account);
@@ -382,6 +398,38 @@ class ClientCreateExternalForm extends Form
             'comment' => $this->fio,
             'is_official' => 1
         ]);
+    }
+
+    /**
+     * Добавление контакта
+     *
+     * @param array $attrs
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\base\InvalidParamException
+     */
+    private function _addContact($attrs = [])
+    {
+        $clientContact = new ClientContact();
+        $clientContact->setAttributes(array_merge([
+                'client_id' => $this->account_id,
+                'user_id' => User::CLIENT_USER_ID,
+                'is_active' => 1,
+                'is_official' => 0
+            ],
+                $attrs)
+        );
+
+        if (!$clientContact->validate()) {
+            // не распознано. Ошибку нельзя давать, надо по-любому сохранить
+            $clientContact->is_validate = 0;
+            if (!$clientContact->data) {
+                $clientContact->data = '.'; // хоть что-нибудь, чтобы не падало
+            }
+        }
+
+        if (!$clientContact->save()) {
+            throw new ModelValidationException($clientContact);
+        }
     }
 
     /**
@@ -440,7 +488,9 @@ class ClientCreateExternalForm extends Form
                 $vats->amount = 1;
                 $vats->status = 'connecting';
                 $vats->region = $this->connect_region;
-                $vats->save();
+                if (!$vats->save()) {
+                    throw new ModelValidationException($vats);
+                }
 
                 $logTariff = new LogTarif;
                 $logTariff->service = 'usage_virtpbx';
@@ -449,7 +499,9 @@ class ClientCreateExternalForm extends Form
                 $logTariff->ts = (new DateTime())->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 $logTariff->date_activation = date(DateTimeZoneHelper::DATE_FORMAT);
                 $logTariff->id_user = User::LK_USER_ID;
-                $logTariff->save();
+                if (!$logTariff->save()) {
+                    throw new ModelValidationException($logTariff);
+                }
 
                 $result['status'] = 'ok';
                 $result['info'][] = 'created';
@@ -518,24 +570,5 @@ class ClientCreateExternalForm extends Form
         $result['info'] = implode(':', $result['info']);
 
         return $result;
-    }
-
-    /**
-     * Добавление контакта
-     *
-     * @param array $attrs
-     */
-    private function _addContact($attrs = [])
-    {
-        $c = new ClientContact();
-        $c->setAttributes(array_merge([
-                'client_id' => $this->account_id,
-                'user_id' => User::CLIENT_USER_ID,
-                'is_active' => 1,
-                'is_official' => 0
-            ],
-                $attrs)
-        );
-        $c->save();
     }
 }

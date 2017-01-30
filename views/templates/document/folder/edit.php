@@ -54,9 +54,9 @@ $form = ActiveForm::begin([]);
 </div>
 
 <?php // кнопки ?>
-<div class="form-group">
-    <?= $this->render('//layouts/_submitButtonSave') ?>
+<div class="form-group text-right">
     <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+    <?= $this->render('//layouts/_submitButtonSave') ?>
 </div>
 
 <?php

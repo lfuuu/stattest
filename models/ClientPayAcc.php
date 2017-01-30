@@ -4,13 +4,24 @@ namespace app\models;
 use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 
+/**
+ * Class ClientPayAcc
+ *
+ * @method static ClientPayAcc findOne($condition)
+ */
 class ClientPayAcc extends ActiveRecord
 {
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_pay_acc';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -23,6 +34,9 @@ class ClientPayAcc extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -32,6 +46,9 @@ class ClientPayAcc extends ActiveRecord
         ];
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'who']);

@@ -1,17 +1,13 @@
 <?php
 namespace app\controllers;
 
-use Yii;
-use yii\base\Exception;
-use yii\filters\AccessControl;
-use yii\helpers\Url;
-use yii\web\Response;
 use app\classes\Assert;
 use app\classes\BaseController;
 use app\classes\grid\GridFactory;
-use app\classes\uu\filter\AccountTariffFilter;
-use app\classes\uu\model\ServiceType;
 use app\classes\traits\AddClientAccountFilterTraits;
+use app\classes\uu\filter\AccountTariffFilter;
+use app\classes\uu\forms\CrudMultipleTrait;
+use app\classes\uu\model\ServiceType;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
@@ -19,21 +15,25 @@ use app\models\ClientAccount;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Number;
-use app\models\UsageCallChat;
-use app\models\UsageTechCpe;
+use app\models\Saldo;
 use app\models\Trouble;
+use app\models\UsageCallChat;
 use app\models\UsageExtra;
 use app\models\UsageIpPorts;
 use app\models\UsageSms;
+use app\models\UsageTechCpe;
 use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
-use app\models\Saldo;
+use Yii;
+use yii\base\Exception;
+use yii\filters\AccessControl;
+use yii\helpers\Url;
+use yii\web\Response;
 
 class ClientController extends BaseController
 {
-
     use AddClientAccountFilterTraits;
 
     /**
@@ -62,6 +62,7 @@ class ClientController extends BaseController
     /**
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      * @throws Exception
      */
     public function actionView($id)
@@ -90,55 +91,55 @@ class ClientController extends BaseController
         $services = [];
 
         $services['voip'] = UsageVoip::find()
-                ->where(['client' => $account->client])
-                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client' => $account->client])
+            ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $services['device'] = UsageTechCpe::find()
-                ->where(['client' => $account->client])
-                ->hideNotLinked()
-                ->orderBy(['actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client' => $account->client])
+            ->hideNotLinked()
+            ->orderBy(['actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $services['welltime'] = UsageWelltime::find()
-                ->where(['client' => $account->client])
-                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client' => $account->client])
+            ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $services['extra'] = UsageExtra::find()
-                ->where(['client' => $account->client])
-                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client' => $account->client])
+            ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $services['virtpbx'] = UsageVirtpbx::find()
-                ->where(['client' => $account->client])
-                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client' => $account->client])
+            ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $services['sms'] = UsageSms::find()
-                ->where(['client' => $account->client])
-                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client' => $account->client])
+            ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $services['ipport'] = UsageIpPorts::find()
-                ->where(['client' => $account->client])
-                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client' => $account->client])
+            ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $services['voip_reserve'] = Number::find()
-                ->where(['status' => Number::STATUS_NOTACTIVE_RESERVED])
-                ->andWhere(['client_id' => $account->id])
-                ->all();
+            ->where(['status' => Number::STATUS_NOTACTIVE_RESERVED])
+            ->andWhere(['client_id' => $account->id])
+            ->all();
 
         $services['trunk'] = UsageTrunk::find()
-                ->where(['client_account_id' => $account->id])
-                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client_account_id' => $account->id])
+            ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $services['call_chat'] = UsageCallChat::find()
-                ->where(['client' => $account->client])
-                ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
-                ->all();
+            ->where(['client' => $account->client])
+            ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
+            ->all();
 
         $uuFilterModel = null;
         if ($account->account_version === ClientAccount::VERSION_BILLER_UNIVERSAL) {
@@ -156,13 +157,15 @@ class ClientController extends BaseController
                     'troubles' => $troubles,
                     'serverTroubles' => $serverTroubles,
                     'services' => $services,
-                    'uuFilterModel' => $uuFilterModel
+                    'uuFilterModel' => $uuFilterModel,
+                    'contacts' => $account->allContacts
                 ]
             );
     }
 
     /**
      * @return string|Response
+     * @throws \yii\base\InvalidParamException
      * @throws \yii\db\Exception
      */
     public function actionCreate()
@@ -219,6 +222,7 @@ class ClientController extends BaseController
      * @param int $businessProcessId
      * @param null $folderId
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionGrid($businessProcessId, $folderId = null)
     {
@@ -238,6 +242,7 @@ class ClientController extends BaseController
 
     /**
      * @return array|string|Response
+     * @throws \yii\base\InvalidParamException
      */
     public function actionSearch()
     {

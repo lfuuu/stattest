@@ -2,24 +2,27 @@
 
 namespace app\controllers;
 
+use app\classes\Assert;
+use app\classes\BaseController;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ClientEditForm;
-use app\models\Country;
+use app\models\ClientAccount;
 use app\models\ClientInn;
 use app\models\ClientPayAcc;
+use app\models\ClientSuper;
+use app\models\Country;
+use app\models\LkWizardState;
 use Yii;
-use app\classes\BaseController;
-use app\classes\Assert;
-use yii\web\Response;
 use yii\base\Exception;
 use yii\filters\AccessControl;
-use app\models\LkWizardState;
-use app\models\ClientAccount;
-use app\models\ClientSuper;
+use yii\web\Response;
 
 
 class AccountController extends BaseController
 {
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -45,6 +48,12 @@ class AccountController extends BaseController
         ];
     }
 
+    /**
+     * @param int $id
+     * @param string $state
+     * @return Response
+     * @throws \Exception
+     */
     public function actionChangeWizardState($id, $state)
     {
         $accountId = $id;
@@ -55,14 +64,14 @@ class AccountController extends BaseController
         if (!$account || !LkWizardState::isBPStatusAllow($account->contract->business_process_status_id,
                 $account->contract->id)
         ) {
-            throw new \Exception("Wizard не доступен на данном статусе бизнес процесса");
+            throw new \LogicException("Wizard не доступен на данном статусе бизнес процесса");
         }
 
         $wizard = LkWizardState::findOne(['contract_id' => $account->contract->id]);
 
         if (in_array($state, ['on', 'off', 'review', 'rejected', 'approve', 'first', 'next'])) {
 
-            if ($state == "on") {
+            if ($state === "on") {
 
                 if ($wizard) {
                     $wizard->is_on = 1;
@@ -80,12 +89,12 @@ class AccountController extends BaseController
 
                 Assert::isObject($wizard);
 
-                if ($state == "off") {
+                if ($state === "off") {
                     $wizard->is_on = 0;
                     $wizard->save();
                 } else {
-                    if ($state == "first" || $state == "next") {
-                        $wizard->step = ($state == "first" ? 1 : ($wizard->step < 4 ? $wizard->step + 1 : 4));
+                    if ($state === "first" || $state === "next") {
+                        $wizard->step = ($state === "first" ? 1 : ($wizard->step < 4 ? $wizard->step + 1 : 4));
                         if ($wizard->step == 4) {
                             $state = "review";
                         } else {
@@ -102,6 +111,11 @@ class AccountController extends BaseController
         return $this->redirect(['client/view', 'id' => $id]);
     }
 
+    /**
+     * @param int $parentId
+     * @return string|Response
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionCreate($parentId)
     {
         $model = new AccountEditForm(['contract_id' => $parentId]);
@@ -115,11 +129,18 @@ class AccountController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @param string $date
+     * @return string|Response
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionEdit($id, $date = null)
     {
         $model = new AccountEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
+        $post = Yii::$app->request->post();
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        if ($post && $model->load($post) && $model->validate() && $model->save()) {
             return $this->redirect([
                 'account/edit',
                 'id' => $id,
@@ -142,6 +163,12 @@ class AccountController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @param int $childId
+     * @return string|Response
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionSuperClientEdit($id, $childId)
     {
         $model = new ClientEditForm(['id' => $id]);
@@ -163,18 +190,21 @@ class AccountController extends BaseController
         ]);
     }
 
+    /**
+     * @param string $query
+     * @return array
+     */
     public function actionSuperClientSearch($query)
     {
         if (!Yii::$app->request->isAjax) {
-            return;
+            return [];
         }
 
-        $result =
-            ClientSuper::find()
-                ->where('name LIKE "%' . preg_replace('#[\'"\-~!@\#$%\^&\*()_=\+\[\]{};:\s]#u', '%', $query) . '%"')
-                ->orWhere(['id' => preg_replace('#\D#', '', $query)])
-                ->limit(20)
-                ->all();
+        $result = ClientSuper::find()
+            ->where('name LIKE "%' . preg_replace('#[\'"\-~!@\#$%\^&\*()_=\+\[\]{};:\s]#u', '%', $query) . '%"')
+            ->orWhere(['id' => preg_replace('#\D#', '', $query)])
+            ->limit(20)
+            ->all();
         $output = [];
 
         foreach ($result as $client) {
@@ -188,15 +218,22 @@ class AccountController extends BaseController
         return $output;
     }
 
+    /**
+     * @return Response
+     */
     public function actionUnfix()
     {
-        //Для старого стата, для старых модулей
+        // Для старого стата, для старых модулей
         Yii::$app->session->set('clients_client', 0);
         Yii::$app->user->identity->restriction_client_id = 0;
         return $this->redirect(Yii::$app->request->referrer);
-        //return $this->goHome();
     }
 
+    /**
+     * @param int $id
+     * @return Response
+     * @throws Exception
+     */
     public function actionSetBlock($id)
     {
         $model = ClientAccount::findOne($id);
@@ -210,17 +247,28 @@ class AccountController extends BaseController
         return $this->redirect(['client/view', 'id' => $id]);
     }
 
+    /**
+     * @param int $id
+     * @return Response
+     * @throws Exception
+     */
     public function actionSetVoipDisable($id)
     {
         $model = ClientAccount::findOne($id);
         if (!$model) {
             throw new Exception('ЛС не найден');
         }
+
         $model->voip_disabled = !$model->voip_disabled;
         $model->save();
         return $this->redirect(['client/view', 'id' => $id]);
     }
 
+    /**
+     * @param int $accountId
+     * @return Response
+     * @throws Exception
+     */
     public function actionAdditionalInnCreate($accountId)
     {
         $account = ClientAccount::findOne($accountId);
@@ -236,18 +284,29 @@ class AccountController extends BaseController
         return $this->redirect(['account/edit', 'id' => $accountId]);
     }
 
+    /**
+     * @param int $id
+     * @return Response
+     * @throws Exception
+     */
     public function actionAdditionalInnDelete($id)
     {
         $model = ClientInn::findOne($id);
         if (!$model) {
             throw new Exception('Inn does not exist');
         }
+
         $model->is_active = 0;
         $model->save();
 
         return $this->redirect(['account/edit', 'id' => $model->client_id]);
     }
 
+    /**
+     * @param int $accountId
+     * @return Response
+     * @throws Exception
+     */
     public function actionAdditionalPayAccCreate($accountId)
     {
         $account = ClientAccount::findOne($accountId);
@@ -263,12 +322,18 @@ class AccountController extends BaseController
         return $this->redirect(['account/edit', 'id' => $accountId]);
     }
 
+    /**
+     * @param int $id
+     * @return Response
+     * @throws Exception
+     */
     public function actionAdditionalPayAccDelete($id)
     {
         $model = ClientPayAcc::findOne($id);
         if (!$model) {
             throw new Exception('Pay does not exist');
         }
+
         $model->delete();
 
         return $this->redirect(['account/edit', 'id' => $model->client_id]);

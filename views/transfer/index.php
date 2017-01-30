@@ -140,12 +140,12 @@ echo Breadcrumbs::widget([
         }
         ?>
 
+        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
         <?= $this->render('//layouts/_submitButton', [
             'text' => 'Начать перенос',
             'glyphicon' => 'glyphicon-transfer',
             'params' => $submitBtnParams,
         ]) ?>
-        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
     </div>
 
     <?php ActiveForm::end() ?>

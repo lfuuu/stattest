@@ -65,9 +65,9 @@ echo Breadcrumbs::widget([
         </div>
     </div>
 
-    <div class="form-group">
-        <?= $this->render('//layouts/_submitButton' . (!$model->id ? 'Create' : 'Save')) ?>
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+        <?= $this->render('//layouts/_submitButton' . (!$model->id ? 'Create' : 'Save')) ?>
     </div>
 
     <?php

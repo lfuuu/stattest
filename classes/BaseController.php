@@ -1,20 +1,23 @@
 <?php
 namespace app\classes;
 
+use app\controllers\CompatibilityController;
+use app\models\Bill;
+use app\models\ClientAccount;
+use app\models\Region;
+use app\models\Trouble;
+use kartik\mpdf\Pdf;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use app\controllers\CompatibilityController;
-use app\models\Bill;
-use app\models\ClientAccount;
-use app\models\Trouble;
-use app\models\Region;
-use kartik\mpdf\Pdf;
 
 class BaseController extends Controller
 {
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -30,18 +33,50 @@ class BaseController extends Controller
         ];
     }
 
+    /**
+     * Инициализация
+     */
     public function init()
     {
         parent::init();
         Language::setCurrentLanguage();
     }
 
+    /**
+     * @param \yii\base\Action $action
+     * @return bool
+     */
     public function beforeAction($action)
     {
         if (!($this instanceof CompatibilityController)) {
             $this->applyFixClient();
         }
+
         return \yii\base\Controller::beforeAction($action);
+    }
+
+    /**
+     * @param bool $clientToFix
+     */
+    protected function applyFixClient($clientToFix = false)
+    {
+        global $fixclient, $fixclient_data;
+
+        $fixclient = $clientToFix;
+        if (!$fixclient) {
+            Yii::$app->session->open();
+            $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
+        }
+
+        $param = (is_numeric($fixclient)) ? $fixclient : ['client' => $fixclient];
+
+        $fixclient_data = ClientAccount::findOne($param);
+
+        if ($fixclient_data) {
+            $fixclient = $fixclient_data->id;
+        } else {
+            $fixclient_data = [];
+        }
     }
 
     /**
@@ -52,16 +87,22 @@ class BaseController extends Controller
         return Navigation::create()->getBlocks();
     }
 
+    /**
+     * @return int
+     */
     public function getMyTroublesCount()
     {
         return Trouble::dao()->getMyTroublesCount();
     }
 
+    /**
+     * @return array
+     */
     public function getSearchData()
     {
         return [
-            'filter' => $this->getSearchDataFilter(),
-            'regions' => $this->getSearchDataRegions(),
+            'filter' => $this->_getSearchDataFilter(),
+            'regions' => $this->_getSearchDataRegions(),
             'currentFilter' => isset($_SESSION['letter']) ? $_SESSION['letter'] : false,
             'currentRegion' => isset($_SESSION['letter_region']) ? $_SESSION['letter_region'] : false,
             'clients_my' => isset($_SESSION['clients_my']) ? $_SESSION['clients_my'] : false,
@@ -71,7 +112,42 @@ class BaseController extends Controller
     }
 
     /**
-     * @param $id
+     * @return array
+     */
+    private function _getSearchDataFilter()
+    {
+        return [
+            '' => '***нет***',
+            '*' => '*',
+            '@' => '@',
+            '!' => 'Клиенты ItPark',
+            '+' => 'Тип: Дистрибютор',
+            '-' => 'Тип: Оператор',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function _getSearchDataRegions()
+    {
+        $result = [
+            'any' => '***Любой***',
+            '99' => 'Москва',
+        ];
+        $regions = Region::find()
+            ->select('id, name')
+            ->asArray()
+            ->all();
+        foreach ($regions as $region) {
+            $result[$region['id']] = $region['name'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int $id
      * @return Bill
      * @throws BadRequestHttpException
      * @throws NotFoundHttpException
@@ -91,69 +167,26 @@ class BaseController extends Controller
         return $result;
     }
 
-    private function getSearchDataFilter()
-    {
-        return [
-            '' => '***нет***',
-            '*' => '*',
-            '@' => '@',
-            '!' => 'Клиенты ItPark',
-            '+' => 'Тип: Дистрибютор',
-            '-' => 'Тип: Оператор',
-        ];
-    }
-
-    private function getSearchDataRegions()
-    {
-        $result = [
-            'any' => '***Любой***',
-            '99' => 'Москва',
-        ];
-        $regions =
-            Region::find()
-                ->select('id, name')
-                ->asArray()
-                ->all();
-        foreach ($regions as $region) {
-            $result[$region['id']] = $region['name'];
-        }
-
-        return $result;
-    }
-
-    protected function applyFixClient($clientToFix = false)
-    {
-        global $fixclient, $fixclient_data;
-
-        $fixclient = $clientToFix;
-        if (!$fixclient) {
-            Yii::$app->session->open();
-            $fixclient = isset($_SESSION['clients_client']) ? $_SESSION['clients_client'] : '';
-        }
-        $param = (is_numeric($fixclient)) ? $fixclient : ['client' => $fixclient];
-
-        $fixclient_data = ClientAccount::findOne($param);
-
-        if ($fixclient_data) {
-            $fixclient = $fixclient_data->id;
-        } else {
-            $fixclient_data = [];
-        }
-    }
-
+    /**
+     * @return ClientAccount
+     */
     public function getFixClient()
     {
         global $fixclient_data;
-        if ($fixclient_data['id']) {
+        if (isset($fixclient_data['id']) && $fixclient_data['id']) {
             $accountId = $fixclient_data['id'];
-        } elseif ($_SESSION["clients_client"]) {
+        } elseif (isset($_SESSION["clients_client"]) && $_SESSION["clients_client"]) {
             $accountId = $_SESSION["clients_client"];
         } elseif (Yii::$app->user->identity->restriction_client_id) {
             $accountId = Yii::$app->user->identity->restriction_client_id;
+        } else {
+            $accountId = null;
         }
+
         if ($accountId) {
             return ClientAccount::findOne($accountId);
         }
+
         return null;
     }
 
@@ -163,6 +196,7 @@ class BaseController extends Controller
      * @param string $view
      * @param [] $params
      * @param [] $pdfParams
+     * @return mixed
      */
     public function renderAsPDF($view, $params = [], $pdfParams = [])
     {
@@ -182,8 +216,8 @@ class BaseController extends Controller
             'content' => $content,
             // call mPDF methods on the fly
             'methods' => [
-                //'SetHeader'=>[''],
-                //'SetFooter'=>['{PAGENO}'],
+                // 'SetHeader'=>[''],
+                // 'SetFooter'=>['{PAGENO}'],
             ]
         ];
 
@@ -197,6 +231,8 @@ class BaseController extends Controller
      *
      * @param string $view
      * @param [] $params
+     * @return bool
+     * @throws \Exception
      */
     public function renderAsMHTML($view, $params = [])
     {
@@ -212,8 +248,7 @@ class BaseController extends Controller
                 }
             )
             ->addImages(function ($imageSrc) {
-                $filePath =
-                $fileName = '';
+                $filePath = $fileName = '';
 
                 if (preg_match('#\/[a-z]+(?![\.a-z]+)\?.+?#i', $imageSrc)) {
                     $fileName = 'host_img_' . mt_rand(0, 50);

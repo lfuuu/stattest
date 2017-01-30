@@ -12,7 +12,7 @@ use kartik\widgets\ActiveForm;
 /** @var \app\forms\client\AccountEditForm $model */
 ?>
 
-<div class="row col-sm-12" style="width: 1100px;">
+<div style="width: 1100px;">
     <div class="row">
         <div class="col-sm-3">
             <?= $f->field($model, 'region')->dropDownList(Region::getList(), ['class' => 'select2']) ?>

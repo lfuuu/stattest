@@ -175,9 +175,9 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
 
     </fieldset>
 
-    <div class="form-group">
-        <?= $this->render('//layouts/_submitButton' . ($model->id ? 'Save' : 'Create')) ?>
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+        <?= $this->render('//layouts/_submitButton' . ($model->id ? 'Save' : 'Create')) ?>
     </div>
 
     <?php ActiveForm::end() ?>

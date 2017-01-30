@@ -159,9 +159,9 @@ if (!$serviceType) {
     }
     ?>
 
-    <div class="form-group">
-        <?= $this->render('//layouts/_submitButton' . ($accountTariff->isNewRecord ? 'Create' : 'Save')) ?>
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $serviceType->id])]) ?>
+        <?= $this->render('//layouts/_submitButton' . ($accountTariff->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

@@ -130,9 +130,6 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_LIMIT_DAY = 'lock.limit_day'; // Превышен дневной лимит
     const WARNING_LIMIT_MONTH = 'lock.limit_month'; // Превышен месячный лимит
     const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
-
-    public $client_orig = '';
-
     public static $statuses = [
         'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
         'testing' => ['name' => 'тестируемый', 'color' => '#6DCFF6'],
@@ -155,42 +152,30 @@ class ClientAccount extends HistoryActiveRecord
         'distr' => ['name' => 'Поставщик', 'color' => 'yellow'],
         'operator' => ['name' => 'Оператор', 'color' => 'lightblue']
     ];
-
     public static $formTypes = [
         'manual' => 'ручное',
         'bill' => 'при выставлении счета',
         'payment' => 'при внесении платежа',
     ];
-
     public static $nalTypes = [
         'beznal' => 'безнал',
         'nal' => 'нал',
         'prov' => 'пров'
     ];
-
     public static $balanceViewMode = [
         'old' => 'Старый',
         'new' => 'Новый',
     ];
-
     public static $versions = [
         self::VERSION_BILLER_USAGE => 'Старый',
         self::VERSION_BILLER_UNIVERSAL => 'Универсальный',
     ];
-
     public static $shopIds = [14050, 18042];
-
+    public $client_orig = '';
     /**
      * Virtual variables
      */
     public $payment_info;
-    /**
-     * /Virtual variables
-     */
-
-    private $_lastComment = false;
-
-    // Свойства модели которые должны обновляться версионно
     public
         $attributesAllowedForVersioning = [
         'address_post',
@@ -206,6 +191,13 @@ class ClientAccount extends HistoryActiveRecord
         'bank_city',
     ];
 
+    // Свойства модели которые должны обновляться версионно
+    /**
+     * /Virtual variables
+     */
+
+    private $_lastComment = false;
+
     /**
      * Название таблицы
      *
@@ -214,6 +206,14 @@ class ClientAccount extends HistoryActiveRecord
     public static function tableName()
     {
         return 'clients';
+    }
+
+    /**
+     * @return ClientAccountQuery
+     */
+    public static function find()
+    {
+        return new ClientAccountQuery(get_called_class());
     }
 
     /**
@@ -323,25 +323,6 @@ class ClientAccount extends HistoryActiveRecord
             'timezone_offset' => 'Таймзона, часы',
         ];
     }
-
-    /**
-     * DAO
-     *
-     * @return ClientAccountDao
-     */
-    public static function dao()
-    {
-        return ClientAccountDao::me();
-    }
-
-    /**
-     * @return ClientAccountQuery
-     */
-    public static function find()
-    {
-        return new ClientAccountQuery(get_called_class());
-    }
-
 
     /**
      * @return ActiveQuery
@@ -535,29 +516,12 @@ class ClientAccount extends HistoryActiveRecord
         return $this->contract->contragent->okvd;
     }
 
-
     /**
      * @return string
      */
     public function getChannelName()
     {
         return $this->sale_channel ? SaleChannelOld::getList()[$this->sale_channel] : '';
-    }
-
-    /**
-     * @param string $date
-     * @return ClientContract
-     */
-    public function getContract($date = null)
-    {
-        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
-
-        $contract = ClientContract::findOne($this->contract_id);
-        if ($contract && $date) {
-            $contract->loadVersionOnDate($date);
-        }
-
-        return $contract;
     }
 
     /**
@@ -634,6 +598,22 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * @param string $date
+     * @return ClientContract
+     */
+    public function getContract($date = null)
+    {
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
+
+        $contract = ClientContract::findOne($this->contract_id);
+        if ($contract && $date) {
+            $contract->loadVersionOnDate($date);
+        }
+
+        return $contract;
+    }
+
+    /**
      * @return string
      */
     public function getStatusName()
@@ -675,20 +655,15 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @param string $date
-     * @return Organization
-     */
-    public function getOrganization($date = '')
-    {
-        return $this->getContract($date)->getOrganization($date);
-    }
-
-    /**
      * @return ActiveQuery
      */
     public function getAllContacts()
     {
-        return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
+        return $this->hasMany(ClientContact::className(), ['client_id' => 'id'])
+            ->orderBy([
+                'type' => SORT_ASC,
+                'id' => SORT_ASC,
+            ]);
     }
 
     /**
@@ -731,32 +706,12 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
-     * @return int
-     */
-    public function getTaxRate()
-    {
-        $organization = $this->getOrganization();
-        Assert::isObject($organization, 'Organization not found');
-
-        return $organization->vat_rate;
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getOptions()
-    {
-        return $this->hasMany(ClientAccountOptions::className(), ['client_account_id' => 'id']);
-    }
-
-    /**
      * @return \yii\db\ActiveQuery
      */
     public function getLkClientSettings()
     {
         return $this->hasOne(LkClientSettings::className(), ['client_id' => 'id']);
     }
-
 
     /**
      * @return \yii\db\ActiveQuery
@@ -774,6 +729,14 @@ class ClientAccount extends HistoryActiveRecord
     {
         $option = $this->getOptions()->where(['option' => $name])->all();
         return $option !== null ? ArrayHelper::getColumn($option, 'value') : false;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getOptions()
+    {
+        return $this->hasMany(ClientAccountOptions::className(), ['client_account_id' => 'id']);
     }
 
     /**
@@ -798,6 +761,38 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         return [$sum, $sum_without_tax, $sum_tax];
+    }
+
+    /**
+     * @return int
+     */
+    public function getTaxRate()
+    {
+        $organization = $this->getOrganization();
+        Assert::isObject($organization, 'Organization not found');
+
+        return $organization->vat_rate;
+    }
+
+    /**
+     * @param string $date
+     * @return Organization
+     */
+    public function getOrganization($date = '')
+    {
+        return $this->getContract($date)->getOrganization($date);
+    }
+
+    /**
+     * AfterSave
+     *
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        $this->sync1C();
+        parent::afterSave($insert, $changedAttributes);
     }
 
     /**
@@ -828,18 +823,6 @@ class ClientAccount extends HistoryActiveRecord
         } catch (\Sync1CException $e) {
             $e->triggerError();
         }
-    }
-
-    /**
-     * AfterSave
-     *
-     * @param bool $insert
-     * @param array $changedAttributes
-     */
-    public function afterSave($insert, $changedAttributes)
-    {
-        $this->sync1C();
-        parent::afterSave($insert, $changedAttributes);
     }
 
     /**
@@ -947,6 +930,16 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * DAO
+     *
+     * @return ClientAccountDao
+     */
+    public static function dao()
+    {
+        return ClientAccountDao::me();
+    }
+
+    /**
      * @return bool
      */
     public function getHasVoip()
@@ -1022,20 +1015,20 @@ class ClientAccount extends HistoryActiveRecord
     /**
      * @return string
      */
-    public function getUrl()
-    {
-        return Url::to(['/client/view', 'id' => $this->id]);
-    }
-
-    /**
-     * @return string
-     */
     public function getLink()
     {
         return Html::a(
             Html::encode($this->client),
             $this->getUrl()
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return Url::to(['/client/view', 'id' => $this->id]);
     }
 
     /**
@@ -1048,19 +1041,6 @@ class ClientAccount extends HistoryActiveRecord
         return (new DateTimeImmutable)
             ->setTimezone($timezone);
 
-    }
-
-    /**
-     * @param string $delimiter
-     * @return string
-     */
-    public function getName($delimiter = ' / ')
-    {
-        return implode($delimiter, [
-            $this->contract->contragent->name,
-            'Договор № ' . $this->contract->number,
-            'ЛС № ' . "<b style=\"font-size:120%;\">{$this->id}</b>"
-        ]);
     }
 
     /**
@@ -1082,5 +1062,18 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         return implode($delimiter, $names);
+    }
+
+    /**
+     * @param string $delimiter
+     * @return string
+     */
+    public function getName($delimiter = ' / ')
+    {
+        return implode($delimiter, [
+            $this->contract->contragent->name,
+            'Договор № ' . $this->contract->number,
+            'ЛС № ' . "<b style=\"font-size:120%;\">{$this->id}</b>"
+        ]);
     }
 }

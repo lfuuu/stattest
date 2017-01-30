@@ -14,7 +14,7 @@ use app\classes\Html;
     'params' => [
         'name' => 'dropButton',
         'value' => 1,
-        'class' => 'btn btn-danger pull-right',
+        'class' => 'btn btn-danger pull-left',
         'aria-hidden' => 'true',
         'onClick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
     ],

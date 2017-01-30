@@ -45,12 +45,9 @@ if (!$prefix->isNewRecord) {
     </div>
 
     <?php // кнопки ?>
-    <div class="form-group">
-        <?= $this->render('//layouts/_submitButton' . ($prefix->isNewRecord ? 'Create' : 'Save')) ?>
+    <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?php if (!$prefix->isNewRecord) : ?>
-            <?= $this->render('//layouts/_submitButtonDrop') ?>
-        <?php endif ?>
+        <?= $this->render('//layouts/_submitButton' . ($prefix->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

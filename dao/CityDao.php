@@ -10,7 +10,6 @@ use app\models\Number;
 
 /**
  * @method static CityDao me($args = null)
- * @property
  */
 class CityDao extends Singleton
 {

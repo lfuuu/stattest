@@ -5,13 +5,24 @@ use app\classes\validators\InnValidator;
 use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 
+/**
+ * Class ClientInn
+ *
+ * @method static ClientInn findOne($condition)
+ */
 class ClientInn extends ActiveRecord
 {
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_inn';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -26,6 +37,9 @@ class ClientInn extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -36,6 +50,9 @@ class ClientInn extends ActiveRecord
         ];
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);

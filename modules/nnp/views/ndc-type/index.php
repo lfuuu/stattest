@@ -29,6 +29,25 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
+        'class' => ActionColumn::className(),
+        'template' => '{update} {delete}',
+        'buttons' => [
+            'update' => function ($url, NdcType $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionEdit', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+            'delete' => function ($url, NdcType $model, $key) use ($baseView) {
+                return $baseView->render('//layouts/_actionDrop', [
+                        'url' => $model->getUrl(),
+                    ]
+                );
+            },
+        ],
+        'hAlign' => GridView::ALIGN_CENTER,
+    ],
+    [
         'attribute' => 'id',
         'class' => IntegerColumn::className(),
     ],
@@ -47,25 +66,6 @@ $columns = [
                 ]
             );
         }
-    ],
-    [
-        'class' => ActionColumn::className(),
-        'template' => '{update} {delete}',
-        'buttons' => [
-            'update' => function ($url, NdcType $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, NdcType $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
     ],
 ];
 

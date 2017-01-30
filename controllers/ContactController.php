@@ -2,16 +2,23 @@
 namespace app\controllers;
 
 use app\classes\BaseController;
-use app\models\ClientAccount;
+use app\classes\uu\forms\CrudMultipleTrait;
 use app\models\ClientContact;
 use app\models\LkNoticeSetting;
-use app\models\LkWizardState;
-use \Yii;
+use kartik\widgets\ActiveForm;
+use Yii;
 use yii\base\Exception;
+use yii\base\Model;
 use yii\filters\AccessControl;
+use yii\web\Response;
 
 class ContactController extends BaseController
 {
+    use CrudMultipleTrait;
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -27,29 +34,56 @@ class ContactController extends BaseController
         ];
     }
 
-    public function actionCreate($clientId)
+    /**
+     * @param int $id
+     * @return string|Response
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionEdit($id)
     {
-        $data = Yii::$app->request->post();
+        $contacts = ClientContact::find()
+            ->where(['client_id' => $id])
+            ->orderBy([
+                'type' => SORT_ASC,
+                'id' => SORT_ASC,
+            ])
+            ->indexBy('id')
+            ->all();
 
-        if (!empty($data['data'])) {
-            $model = new ClientContact(["client_id" => $clientId]);
-            $model->setAttributes($data, false);
-            $model->save();
+        $post = Yii::$app->request->post();
+
+        if (isset($post['ClientContact']) && Yii::$app->request->isAjax) {
+            // ajax-валидация
+            $models = [];
+            $modelIds = array_keys($post['ClientContact']);
+            foreach ($modelIds as $modelId) {
+                $models[$modelId] = new ClientContact();
+            }
+
+            Model::loadMultiple($models, $post);
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validateMultiple($models);
         }
 
-        $this->redirect(Yii::$app->request->referrer);
-    }
+        // заготовка новой модели
+        $clientContactNew = new ClientContact();
+        $clientContactNew->client_id = $id;
 
-    public function actionActivate($id)
-    {
-        $model = ClientContact::findOne($id);
-        if (!$model) {
-            throw new Exception('Contact not found');
+        // создать/отредактировать модели
+        if (isset($post['ClientContact'])) {
+            $contacts = $this->crudMultiple($contacts, $post, $clientContactNew);
+
+            if ($this->validateErrors) {
+                Yii::$app->session->setFlash('error', implode('. ', $this->validateErrors));
+            } else {
+                Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
+            }
         }
 
-        $model->is_active = (int)!$model->is_active;
-        $model->save(false);
-        $this->redirect(Yii::$app->request->referrer);
+        return $this->render('edit', [
+            'id' => $id,
+            'contacts' => $contacts,
+        ]);
     }
 
     /**

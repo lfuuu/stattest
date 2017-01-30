@@ -12,6 +12,7 @@ use app\classes\uu\model\Period;
 use app\classes\uu\model\TariffPeriod;
 use app\controllers\uu\TariffController;
 use kartik\editable\Editable;
+use unclead\widgets\TabularColumn;
 use unclead\widgets\TabularInput;
 
 $tariff = $formModel->tariff;
@@ -73,9 +74,7 @@ if (!$tariff->isNewRecord) {
                 ],
                 [
                     'name' => 'id', // чтобы идентифицировать модель
-                    'options' => [
-                        'class' => 'hidden',
-                    ],
+                    'type' => TabularColumn::TYPE_HIDDEN_INPUT,
                 ],
             ],
         ]

@@ -69,10 +69,18 @@ class ApiHook extends Model
      */
     public function getClientAccount()
     {
+        if ($this->did && $this->did[0] != '+') {
+            $this->did = ClientContact::dao()->getE164($this->did);
+        }
+
+        if (!$this->did) {
+            return null;
+        }
+
         /** @var ClientContact $clientContact */
         $clientContact = ClientContact::find()
             ->where([
-                'type' => [ClientContact::TYPE_PHONE, ClientContact::TYPE_SMS],
+                'type' => ClientContact::$phoneTypes,
                 'is_active' => 1,
                 'data' => $this->did,
             ])
