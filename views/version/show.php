@@ -67,9 +67,7 @@ $links = [
 </table>
 
 <script>
-    $('#history-dialog')
-        .off('click', '.btn-delete-version')
-        .on('click', '.btn-delete-version', function () {
+    $('.btn-delete-version').on('click', function () {
             if (confirm('Удалить версию?')) {
                 var t = $(this);
                 var params = {
@@ -77,9 +75,13 @@ $links = [
                     modelId: t.data('model-id'),
                     date: t.data('date')
                 };
+
                 $.getJSON('/version/delete', params, function (data) {
-                    if (data['status'] == 'ok')
-                        t.closest('.row').remove();
+                    if (data['status'] == 'ok') {
+                        window.location.reload(true);
+                    } else {
+                        alert('Ошибка удаления версии');
+                    }
                 })
             }
         })

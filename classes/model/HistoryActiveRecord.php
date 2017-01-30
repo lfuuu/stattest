@@ -97,14 +97,17 @@ class HistoryActiveRecord extends ActiveRecord
             'ноября',
             'декабря'
         ];
-        return
-            ($this->_historyVersionStoredDate ? [$this->_historyVersionStoredDate => $this->_historyVersionStoredDate] : []) +
+
+        $prevMonth = strtotime('first day of previous month');
+        $nextMonth = strtotime('first day of next month');
+
+        return ($this->_historyVersionStoredDate ? [$this->_historyVersionStoredDate => $this->_historyVersionStoredDate] : []) +
             [
                 date(DateTimeZoneHelper::DATE_FORMAT) => 'Текущую дату',
-                date('Y-m-01', strtotime('- 1 month')) => 'С 1го ' . $months[date('m', strtotime('- 1 month')) - 1],
-                date('Y-m-01') => 'С 1го ' . $months[date('m') - 1],
-                date('Y-m-01', strtotime('+ 1 month')) => 'С 1го ' . $months[date('m', strtotime('+ 1 month')) - 1],
-                '' => 'Выбраную дату'
+                date('Y-m-01', $prevMonth) => 'С 1го ' . $months[date('m', $prevMonth) - 1],
+                date('Y-m-01')             => 'С 1го ' . $months[date('m') - 1],
+                date('Y-m-01', $nextMonth) => 'С 1го ' . $months[date('m', $nextMonth) - 1],
+                '' => 'выбраную дату'
             ];
     }
 
