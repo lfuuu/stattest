@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var string $documentationPath
+ * @var string $apiKey
+ */
 
 use app\classes\Html;
 use app\assets\SwaggerUiAsset;
@@ -11,7 +15,6 @@ $this->beginPage();
 <html lang="<?= Yii::$app->language ?>">
     <head>
         <meta charset="<?= Yii::$app->charset ?>"/>
-        <base href="/" />
         <?= Html::csrfMetaTags() ?>
         <title><?= Html::encode($this->title) ?></title>
         <?php $this->head() ?>
@@ -37,15 +40,14 @@ $this->beginPage();
                 dom_id: 'swagger-ui-container',
                 supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
                 onComplete: function(swaggerApi, swaggerUi) {
-                    $('li.operation').on('click', function(e) {
-                        e.preventDefault();
-                    });
-
                     if(window.SwaggerTranslator) {
                         window.SwaggerTranslator.translate();
                     }
 
                     window.swaggerUi.api.clientAuthorizations.add('api_key', new SwaggerClient.ApiKeyAuthorization('Authorization', "Bearer <?= addslashes($apiKey); ?>", 'header'));
+
+                    // фикс бага с нераскрыванием описания метода по клику на него
+                    $('div.content').each(function(key, value) { value = $(value); value.attr('id', decodeURI(value.attr('id'))); });
                 },
                 onFailure: function(data) {
                     log('Unable to Load SwaggerUI');

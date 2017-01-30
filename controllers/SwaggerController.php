@@ -2,18 +2,20 @@
 
 namespace app\controllers;
 
-use Yii;
-use yii\web\Response;
 use app\classes\BaseController;
+use Yii;
+use yii\helpers\Json;
+use yii\web\Response;
 
 define('API_HOST', Yii::$app->request->serverName);
 
 class SwaggerController extends BaseController
 {
-
     /**
      * Базовый Swagger UI
+     *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
     {
@@ -26,10 +28,15 @@ class SwaggerController extends BaseController
 
     /**
      * JSON список доступной документации
+     *
      * @throws \yii\base\ExitException
      */
     public function actionDocumentation()
     {
+        $response = Yii::$app->getResponse();
+        $response->headers->set('Content-Type', 'application/json; charset=UTF-8');
+        $response->format = Response::FORMAT_JSON;
+
         $swagger = \Swagger\scan([
             Yii::$app->basePath . '/classes/ApiController.php',
             Yii::$app->controllerPath . '/api',
@@ -37,13 +44,9 @@ class SwaggerController extends BaseController
 
         $swagger->schemes = [];
 
-        $response = Yii::$app->getResponse();
-        $response->headers->set('Content-Type', 'application/json');
-        $response->format = Response::FORMAT_JSON;
-
-        print $swagger;
-
-        Yii::$app->end();
+        // чтобы использовать Response, необходимо возвращать (не echo!) массив
+        // а swagger возвращает не массив, а уже json-строку.  Приходится из нее обратно делать массив
+        return Json::decode((string)$swagger);
     }
 
 }

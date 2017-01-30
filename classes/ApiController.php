@@ -8,38 +8,12 @@ use yii\filters\ContentNegotiator;
 use yii\web\Controller;
 
 /**
- * @SWG\Info(
- *   title="Внутреннее СТАТа",
- *   version="2016-02-11",
- *   description="Этот документ описывает методы внутреннего API СТАТа"
- * ),
- * consumes={"application/x-www-form-urlencoded"},
- * produces={"application/json"},
- * @SWG\Swagger(
- *   schemes={"https"},
- *   host=API_HOST,
- *   basePath="/api"
- * ),
- * @SWG\Definition(
- *   definition="error_result",
- *   type="object",
- *   required={"status","result","code"},
- *   @SWG\Property(
- *     property="status",
- *     type="string",
- *     default="ERROR",
- *     description="Произошла ошибка"
- *   ),
- *   @SWG\Property(
- *     property="result",
- *     type="string",
- *     description="Сообщение об ошибке"
- *   ),
- *   @SWG\Property(
- *     property="code",
- *     type="integer",
- *     description="Код ошибки"
- *   )
+ * @SWG\Info(title="Внутренний СТАТ", version="2017-01-30", description="Этот документ описывает методы внутреннего API СТАТа"), consumes={"application/x-www-form-urlencoded"}, produces={"application/json"},
+ * @SWG\Swagger(schemes={"https"}, host=API_HOST, basePath="/api"),
+ * @SWG\Definition(definition="error_result", type="object", required={"status","result","code"},
+ *   @SWG\Property(property="status", type="string", default="ERROR", description="Произошла ошибка"),
+ *   @SWG\Property(property="result", type="string", description="Сообщение об ошибке"),
+ *   @SWG\Property(property="code", type="integer", description="Код ошибки")
  * )
  */
 class ApiController extends Controller
@@ -48,6 +22,9 @@ class ApiController extends Controller
 
     public $enableCsrfValidation = false;
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -63,12 +40,21 @@ class ApiController extends Controller
         ];
     }
 
+    /**
+     * @param \yii\base\Action $action
+     * @param string $result
+     * @return string
+     */
     public function afterAction($action, $result)
     {
         $result = parent::afterAction($action, $result);
         return $this->serializeData($result);
     }
 
+    /**
+     * @param mixed $data
+     * @return string
+     */
     protected function serializeData($data)
     {
         return Yii::createObject($this->serializer)->serialize($data);

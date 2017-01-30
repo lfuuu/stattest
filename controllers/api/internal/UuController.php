@@ -366,6 +366,187 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @param Tariff $tariff
+     * @param TariffPeriod|TariffPeriod[] $tariffPeriod
+     * @return array
+     */
+    private function _getTariffRecord(Tariff $tariff, $tariffPeriod)
+    {
+        $package = $tariff->package;
+        return [
+            'id' => $tariff->id,
+            'name' => $tariff->name,
+            'count_of_validity_period' => $tariff->count_of_validity_period,
+            'is_autoprolongation' => $tariff->is_autoprolongation,
+            'is_charge_after_blocking' => $tariff->is_charge_after_blocking,
+            'is_charge_after_period' => $tariff->is_charge_after_period,
+            'is_include_vat' => $tariff->is_include_vat,
+            'is_default' => $tariff->is_default,
+            'currency' => $tariff->currency_id,
+            'service_type' => $this->getIdNameRecord($tariff->serviceType),
+            'country' => $this->getIdNameRecord($tariff->country, 'code'),
+            'tariff_status' => $this->getIdNameRecord($tariff->status),
+            'tariff_person' => $this->getIdNameRecord($tariff->person),
+            'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
+            'tariff_periods' => $this->_getTariffPeriodRecord($tariffPeriod),
+            'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,
+            'tarification_interval_seconds' => $package ? $package->tarification_interval_seconds : null,
+            'tarification_type' => $package ? $package->tarification_type : null,
+            'tarification_min_paid_seconds' => $package ? $package->tarification_min_paid_seconds : null,
+            'voip_group' => $this->getIdNameRecord($tariff->voipGroup),
+            'voip_cities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
+            'voip_package_minute' => $this->_getVoipPackageMinuteRecord($tariff->packageMinutes),
+            'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices),
+            'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
+        ];
+    }
+
+    /**
+     * @param TariffResource|TariffResource[] $model
+     * @return array|null
+     */
+    private function _getTariffResourceRecord($model)
+    {
+        if (is_array($model)) {
+
+            $result = [];
+            foreach ($model as $subModel) {
+                $result[] = $this->_getTariffResourceRecord($subModel);
+            }
+
+            return $result;
+
+        } elseif ($model) {
+
+            return [
+                'id' => $model->id,
+                'amount' => $model->amount,
+                'price_per_unit' => $model->price_per_unit,
+                'price_min' => $model->price_min,
+                'resource' => $this->getIdNameRecord($model->resource),
+            ];
+
+        } else {
+
+            return null;
+
+        }
+    }
+
+    /**
+     * @param TariffPeriod|TariffPeriod[] $model
+     * @return array|null
+     */
+    private function _getTariffPeriodRecord($model)
+    {
+        if (is_array($model)) {
+
+            $result = [];
+            foreach ($model as $subModel) {
+                $result[] = $this->_getTariffPeriodRecord($subModel);
+            }
+
+            return $result;
+
+        } elseif ($model) {
+
+            return [
+                'id' => $model->id,
+                'price_setup' => $model->price_setup,
+                'price_per_period' => $model->price_per_period,
+                'price_min' => $model->price_min,
+                'period' => $this->getIdNameRecord($model->period),
+                'charge_period' => $this->getIdNameRecord($model->chargePeriod),
+            ];
+
+        } else {
+
+            return null;
+
+        }
+    }
+
+    /**
+     * @param PackageMinute|PackageMinute[] $packageMinutes
+     * @return array
+     */
+    private function _getVoipPackageMinuteRecord($packageMinutes)
+    {
+        if (!$packageMinutes) {
+            return null;
+        }
+
+        if (is_array($packageMinutes)) {
+
+            $result = [];
+            foreach ($packageMinutes as $packageMinute) {
+                $result[] = $this->_getVoipPackageMinuteRecord($packageMinute);
+            }
+
+            return $result;
+
+        }
+
+        return [
+            'destination' => (string)$packageMinutes->destination,
+            'minute' => $packageMinutes->minute,
+        ];
+    }
+
+    /**
+     * @param PackagePrice|PackagePrice[] $packagePrices
+     * @return array
+     */
+    private function _getVoipPackagePriceRecord($packagePrices)
+    {
+        if (!$packagePrices) {
+            return null;
+        }
+
+        if (is_array($packagePrices)) {
+
+            $result = [];
+            foreach ($packagePrices as $packagePrice) {
+                $result[] = $this->_getVoipPackagePriceRecord($packagePrice);
+            }
+
+            return $result;
+
+        }
+
+        return [
+            'destination' => (string)$packagePrices->destination,
+            'price' => $packagePrices->price,
+        ];
+    }
+
+    /**
+     * @param PackagePricelist|PackagePricelist[] $packagePricelists
+     * @return array
+     */
+    private function _getVoipPackagePricelistRecord($packagePricelists)
+    {
+        if (!$packagePricelists) {
+            return null;
+        }
+
+        if (is_array($packagePricelists)) {
+
+            $result = [];
+            foreach ($packagePricelists as $packagePricelist) {
+                $result[] = $this->_getVoipPackagePricelistRecord($packagePricelist);
+            }
+
+            return $result;
+
+        }
+
+        return [
+            'pricelist' => (string)$packagePricelists->pricelist,
+        ];
+    }
+
+    /**
      * @SWG\Definition(definition = "accountTariffLogRecord", type = "object",
      *   @SWG\Property(property = "tariff_period", type = "object", description = "Тариф/период. Если закрыто, то null", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
      *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД"),
@@ -433,285 +614,6 @@ class UuController extends ApiInternalController
      *   )
      * )
      */
-
-    /**
-     * @param Tariff $tariff
-     * @param TariffPeriod|TariffPeriod[] $tariffPeriod
-     * @return array
-     */
-    private function _getTariffRecord(Tariff $tariff, $tariffPeriod)
-    {
-        $package = $tariff->package;
-        return [
-            'id' => $tariff->id,
-            'name' => $tariff->name,
-            'count_of_validity_period' => $tariff->count_of_validity_period,
-            'is_autoprolongation' => $tariff->is_autoprolongation,
-            'is_charge_after_blocking' => $tariff->is_charge_after_blocking,
-            'is_charge_after_period' => $tariff->is_charge_after_period,
-            'is_include_vat' => $tariff->is_include_vat,
-            'is_default' => $tariff->is_default,
-            'currency' => $tariff->currency_id,
-            'service_type' => $this->getIdNameRecord($tariff->serviceType),
-            'country' => $this->getIdNameRecord($tariff->country, 'code'),
-            'tariff_status' => $this->getIdNameRecord($tariff->status),
-            'tariff_person' => $this->getIdNameRecord($tariff->person),
-            'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
-            'tariff_periods' => $this->_getTariffPeriodRecord($tariffPeriod),
-            'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,
-            'tarification_interval_seconds' => $package ? $package->tarification_interval_seconds : null,
-            'tarification_type' => $package ? $package->tarification_type : null,
-            'tarification_min_paid_seconds' => $package ? $package->tarification_min_paid_seconds : null,
-            'voip_group' => $this->getIdNameRecord($tariff->voipGroup),
-            'voip_cities' => $this->getIdNameRecord($tariff->voipCities, 'city_id'),
-            'voip_package_minute' => $this->_getVoipPackageMinuteRecord($tariff->packageMinutes),
-            'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices),
-            'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),
-        ];
-    }
-
-    /**
-     * @SWG\Definition(definition = "accountTariffLogLightRecord", type = "object",
-     *   @SWG\Property(property = "tariff", type = "object", description = "Тариф/период", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
-     *   @SWG\Property(property = "activate_past_date", type = "string", description = "Дата, с которой этот тариф был включен и сейчас действует. Всегда в прошлом. Если null - еще не включен (тогда см. activate_future_date) или уже выключен (deactivate_past_date). ГГГГ-ММ-ДД"),
-     *   @SWG\Property(property = "activate_future_date", type = "string", description = "Дата, с которой этот тариф будет включен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
-     *   @SWG\Property(property = "deactivate_past_date", type = "string", description = "Дата, с которой этот тариф был выключен, и сейчас не действует. Всегда в прошлом. Если null - не был выключен. ГГГГ-ММ-ДД"),
-     *   @SWG\Property(property = "deactivate_future_date", type = "string", description = "Дата, с которой этот тариф будет выключен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
-     * ),
-     *
-     * @SWG\Definition(definition = "accountTariffVoipRecord", type = "object",
-     *   @SWG\Property(property = "id", type = "integer", description = "ID услуги"),
-     *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
-     *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа?"),
-     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
-     *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
-     *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffVoipRecord"))),
-     * ),
-     *
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-account-tariffs-voip", summary = "Услуги телефонии у ЛС", operationId = "Услуги телефонии у ЛС",
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
-     *
-     *   @SWG\Response(response = 200, description = "Услуги телефонии у ЛС",
-     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/accountTariffVoipRecord"))
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-
-    /**
-     * @param TariffResource|TariffResource[] $model
-     * @return array|null
-     */
-    private function _getTariffResourceRecord($model)
-    {
-        if (is_array($model)) {
-
-            $result = [];
-            foreach ($model as $subModel) {
-                $result[] = $this->_getTariffResourceRecord($subModel);
-            }
-
-            return $result;
-
-        } elseif ($model) {
-
-            return [
-                'id' => $model->id,
-                'amount' => $model->amount,
-                'price_per_unit' => $model->price_per_unit,
-                'price_min' => $model->price_min,
-                'resource' => $this->getIdNameRecord($model->resource),
-            ];
-
-        } else {
-
-            return null;
-
-        }
-    }
-
-    /**
-     * @SWG\Put(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/add-account-tariff", summary = "Добавить услугу ЛС", operationId = "Добавить услугу ЛС",
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указан, то с сегодня. Если с сегодня, то отменить нельзя - можно только закрыть с завтра", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона (кроме телефонии)", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "comment", type = "string", description = "Комментарий", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги ЛС. Если добавляется услуга пакета телефонии, то необходимо здесь указать ID услуги телефонии", in = "formData", default = ""),
-     *
-     *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
-     *     @SWG\Schema(type = "integer", description = "ID")
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-
-    /**
-     * @param TariffPeriod|TariffPeriod[] $model
-     * @return array|null
-     */
-    private function _getTariffPeriodRecord($model)
-    {
-        if (is_array($model)) {
-
-            $result = [];
-            foreach ($model as $subModel) {
-                $result[] = $this->_getTariffPeriodRecord($subModel);
-            }
-
-            return $result;
-
-        } elseif ($model) {
-
-            return [
-                'id' => $model->id,
-                'price_setup' => $model->price_setup,
-                'price_per_period' => $model->price_per_period,
-                'price_min' => $model->price_min,
-                'period' => $this->getIdNameRecord($model->period),
-                'charge_period' => $this->getIdNameRecord($model->chargePeriod),
-            ];
-
-        } else {
-
-            return null;
-
-        }
-    }
-
-    /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге ЛС", operationId = "Сменить тариф услуге ЛС",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
-     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
-     *
-     *   @SWG\Response(response = 200, description = "Тариф изменен",
-     *     @SWG\Schema(type = "boolean", description = "true - успешно")
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-
-    /**
-     * @param PackageMinute|PackageMinute[] $packageMinutes
-     * @return array
-     */
-    private function _getVoipPackageMinuteRecord($packageMinutes)
-    {
-        if (!$packageMinutes) {
-            return null;
-        }
-
-        if (is_array($packageMinutes)) {
-
-            $result = [];
-            foreach ($packageMinutes as $packageMinute) {
-                $result[] = $this->_getVoipPackageMinuteRecord($packageMinute);
-            }
-
-            return $result;
-
-        }
-
-        return [
-            'destination' => (string)$packageMinutes->destination,
-            'minute' => $packageMinutes->minute,
-        ];
-    }
-
-    /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу ЛС", operationId = "Закрыть услугу ЛС",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
-     *
-     *   @SWG\Response(response = 200, description = "Услуга закрыта",
-     *     @SWG\Schema(type = "boolean", description = "true - успешно")
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-
-    /**
-     * @param PackagePrice|PackagePrice[] $packagePrices
-     * @return array
-     */
-    private function _getVoipPackagePriceRecord($packagePrices)
-    {
-        if (!$packagePrices) {
-            return null;
-        }
-
-        if (is_array($packagePrices)) {
-
-            $result = [];
-            foreach ($packagePrices as $packagePrice) {
-                $result[] = $this->_getVoipPackagePriceRecord($packagePrice);
-            }
-
-            return $result;
-
-        }
-
-        return [
-            'destination' => (string)$packagePrices->destination,
-            'price' => $packagePrices->price,
-        ];
-    }
-
-    /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС", operationId = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
-     *
-     *   @SWG\Response(response = 200, description = "Последняя смена тарифа (в т.ч. закрытие) услуги отменена",
-     *     @SWG\Schema(type = "integer", description = "Новый последний tariffPeriodId (идентификатор периода). Если 0 - услуга удалена, ибо больше в логе тарифов ничего нет")
-     *   ),
-     *   @SWG\Response(response = "default", description = "Ошибки",
-     *     @SWG\Schema(ref = "#/definitions/error_result")
-     *   )
-     * )
-     */
-
-    /**
-     * @param PackagePricelist|PackagePricelist[] $packagePricelists
-     * @return array
-     */
-    private function _getVoipPackagePricelistRecord($packagePricelists)
-    {
-        if (!$packagePricelists) {
-            return null;
-        }
-
-        if (is_array($packagePricelists)) {
-
-            $result = [];
-            foreach ($packagePricelists as $packagePricelist) {
-                $result[] = $this->_getVoipPackagePricelistRecord($packagePricelist);
-            }
-
-            return $result;
-
-        }
-
-        return [
-            'pricelist' => (string)$packagePricelists->pricelist,
-        ];
-    }
-
     /**
      * @param int $id
      * @param int $service_type_id
@@ -931,6 +833,36 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Definition(definition = "accountTariffLogLightRecord", type = "object",
+     *   @SWG\Property(property = "tariff", type = "object", description = "Тариф/период", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
+     *   @SWG\Property(property = "activate_past_date", type = "string", description = "Дата, с которой этот тариф был включен и сейчас действует. Всегда в прошлом. Если null - еще не включен (тогда см. activate_future_date) или уже выключен (deactivate_past_date). ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "activate_future_date", type = "string", description = "Дата, с которой этот тариф будет включен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "deactivate_past_date", type = "string", description = "Дата, с которой этот тариф был выключен, и сейчас не действует. Всегда в прошлом. Если null - не был выключен. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "deactivate_future_date", type = "string", description = "Дата, с которой этот тариф будет выключен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
+     * ),
+     *
+     * @SWG\Definition(definition = "accountTariffVoipRecord", type = "object",
+     *   @SWG\Property(property = "id", type = "integer", description = "ID услуги"),
+     *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
+     *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа?"),
+     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
+     *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
+     *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffVoipRecord"))),
+     * ),
+     *
+     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-account-tariffs-voip", summary = "Услуги телефонии у ЛС", operationId = "Услуги телефонии у ЛС",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Услуги телефонии у ЛС",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/accountTariffVoipRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
      * @param int $client_account_id
      * @return array
      * @throws \InvalidArgumentException
@@ -1102,6 +1034,26 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Put(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/add-account-tariff", summary = "Добавить услугу ЛС", operationId = "Добавить услугу ЛС",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указан, то с сегодня. Если с сегодня, то отменить нельзя - можно только закрыть с завтра", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона (кроме телефонии)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "comment", type = "string", description = "Комментарий", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги ЛС. Если добавляется услуга пакета телефонии, то необходимо здесь указать ID услуги телефонии", in = "formData", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
+     *     @SWG\Schema(type = "integer", description = "ID")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
      * @return int
      * @throws Exception
      * @throws ModelValidationException
@@ -1135,6 +1087,21 @@ class UuController extends ApiInternalController
         }
     }
 
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге ЛС", operationId = "Сменить тариф услуге ЛС",
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Тариф изменен",
+     *     @SWG\Schema(type = "boolean", description = "true - успешно")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
     /**
      * @param array $account_tariff_ids
      * @return int
@@ -1200,6 +1167,20 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу ЛС", operationId = "Закрыть услугу ЛС",
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Услуга закрыта",
+     *     @SWG\Schema(type = "boolean", description = "true - успешно")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
      * @param array $account_tariff_ids
      * @return int
      * @throws Exception
@@ -1214,6 +1195,19 @@ class UuController extends ApiInternalController
         );
     }
 
+    /**
+     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС", operationId = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС",
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Последняя смена тарифа (в т.ч. закрытие) услуги отменена",
+     *     @SWG\Schema(type = "integer", description = "Новый последний tariffPeriodId (идентификатор периода). Если 0 - услуга удалена, ибо больше в логе тарифов ничего нет")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
     /**
      * @param array $account_tariff_ids
      * @return int
