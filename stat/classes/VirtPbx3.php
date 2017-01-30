@@ -99,9 +99,26 @@ class VirtPbx3Checker
             $query->bindValue(':version_biller_universal', ClientAccount::VERSION_BILLER_UNIVERSAL);
         }
 
+        $usageIds = [];
+
+        if ($usageId) {
+            $usageIds[$usageId] = 1;
+            $usage = UsageVirtpbx::findOne(['id' => $usageId]);
+            if ($usage) {
+                if ($usage->prev_usage_id) {
+                    $usageIds[$usage->prev_usage_id] = 1;
+                }
+
+                if ($usage->next_usage_id) {
+                    $usageIds[$usage->next_usage_id] = 1;
+                }
+            }
+        }
+
         foreach ($query->query() as $l) {
-            if (!$usageId || $usageId == $l["usage_id"]) {
+            if (!$usageIds || isset($usageIds[$l["usage_id"]])) {
                 $d[$l["usage_id"]] = $l;
+
             }
         }
 
@@ -135,7 +152,7 @@ class VirtPbx3Checker
         if ($d["added"] && $d["deleted"]) {
             foreach ($d["added"] as $addId => $add) {
                 if ($add["prev_usage_id"] && isset($d["deleted"][$add["prev_usage_id"]])) {
-                    $d["changed_client"][$addId] = $add;
+                    $d["changed_client"][$addId] = ['action' => 'changed_client'] + $add;
                     unset($d["added"][$addId], $d["deleted"][$add["prev_usage_id"]]);
                 }
             }
@@ -149,8 +166,7 @@ class VirtPbx3Checker
                     ||
                     $saved[$usageId]["region_id"] != $l["region_id"]
                 ) {
-                    $d["changed_data"][$usageId] =
-                        ['action' => 'change'] + $l + [
+                    $d["changed_data"][$usageId] = ['action' => 'changed_data'] + $l + [
                             "prev_tarif_id" => $saved[$usageId]["tarif_id"],
                             "prev_region_id" => $saved[$usageId]["region_id"],
                         ];
@@ -319,6 +335,19 @@ class VirtPbx3Action
             return null;
         }
 
+        $usage = UsageVirtpbx::findOne(['id' => $l['usage_id']]);
+        if (!$usage) {
+            return null;
+        }
+
+        if ($usage->isTransfered(true)) {
+            $msg = 'Создается переносимая ВАТС';
+
+            l::ll(__CLASS__, __FUNCTION__, $msg);
+            Yii::error($msg . PHP_EOL . print_r($l, true));
+            throw new LogicException($msg);
+        }
+
         if (ApiVpbx::isAvailable()) {
             $exceptionProduct = null;
             try {
@@ -364,6 +393,18 @@ class VirtPbx3Action
 
         if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX || !ApiVpbx::isAvailable()) {
             return null;
+        }
+
+        $usage = UsageVirtpbx::findOne(['id' => $l['usage_id']]);
+        if (!$usage) {
+            return null;
+        }
+
+        if ($usage->isTransfered(false)) {
+            $msg = 'Удаляется переносимая ВАТС';
+            l::ll(__CLASS__, __FUNCTION__, $msg);
+            Yii::error($msg . PHP_EOL . print_r($l, true));
+            throw new LogicException($msg);
         }
 
         try {

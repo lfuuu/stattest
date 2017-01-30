@@ -9,7 +9,6 @@ use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
 use app\classes\partners\RewardCalculate;
-use app\modules\notifier\classes\NotifierActions;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');

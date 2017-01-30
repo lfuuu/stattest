@@ -3,6 +3,7 @@
 namespace app\classes;
 
 use app\classes\api\ApiCore;
+use app\exceptions\ModelValidationException;
 use app\models\ProductState;
 use Exception;
 use yii\base\InvalidConfigException;
@@ -15,30 +16,45 @@ use app\models\UsageCallChat;
 class ActaulizerCallChatUsage extends Singleton
 {
 
+    /**
+     * Проверка и генерация событий на изменения
+     */
     public function actualizeUsages()
     {
-        if (($diff = $this->checkDiff(
+        if (($diff = $this->_checkDiff(
             ActualCallChatDao::me()->loadSaved(),
             ActualCallChatDao::me()->collectFromUsages()
         ))
         ) {
-            $this->makeEventFromDiff($diff);
+            $this->_makeEventFromDiff($diff);
         }
     }
 
+    /**
+     * Актализация отдельной услуги
+     *
+     * @param int $usageId
+     */
     public function actualizeUsage($usageId)
     {
-        $diff = $this->checkDiff(
+        $diff = $this->_checkDiff(
             ActualCallChatDao::me()->loadSaved($usageId),
             ActualCallChatDao::me()->collectFromUsages($usageId)
         );
 
         if ($diff) {
-            $this->applyDiff($diff);
+            $this->_applyDiff($diff);
         }
     }
 
-    private function checkDiff($saved, $actual)
+    /**
+     * Поиск изменений между актуальными услугами и сохраненными на платформе
+     *
+     * @param array $saved
+     * @param array $actual
+     * @return array
+     */
+    private function _checkDiff($saved, $actual)
     {
         $diff = [];
 
@@ -46,6 +62,7 @@ class ActaulizerCallChatUsage extends Singleton
             if (!isset($diff['add'])) {
                 $diff['add'] = [];
             }
+
             $diff['add'][] = $actual[$l];
         }
 
@@ -53,6 +70,7 @@ class ActaulizerCallChatUsage extends Singleton
             if (!isset($diff['del'])) {
                 $diff['del'] = [];
             }
+
             $diff['del'][] = $saved[$l];
         }
 
@@ -71,7 +89,12 @@ class ActaulizerCallChatUsage extends Singleton
         return $diff;
     }
 
-    private function makeEventFromDiff($diff)
+    /**
+     * Генерация событий на изменения на основе diff'а
+     *
+     * @param array $diff
+     */
+    private function _makeEventFromDiff($diff)
     {
         if (isset($diff['add'])) {
             foreach ($diff['add'] as $row) {
@@ -92,28 +115,39 @@ class ActaulizerCallChatUsage extends Singleton
         }
     }
 
-    private function applyDiff($diff)
+    /**
+     * Применение изменений на основе diff'а
+     *
+     * @param array $diff
+     */
+    private function _applyDiff($diff)
     {
         if (isset($diff['add'])) {
             foreach ($diff['add'] as $row) {
-                $this->applyAdd($row);
+                $this->_applyAdd($row);
             }
         }
 
         if (isset($diff['change'])) {
             foreach ($diff['change'] as $row) {
-                $this->applyUpdate($row);
+                $this->_applyUpdate($row);
             }
         }
 
         if (isset($diff['del'])) {
             foreach ($diff['del'] as $row) {
-                $this->applyDel($row);
+                $this->_applyDel($row);
             }
         }
     }
 
-    private function applyAdd($row)
+    /**
+     * Добавление новой услуги
+     *
+     * @param array $row
+     * @throws Exception
+     */
+    private function _applyAdd($row)
     {
         $transaction = ActualCallChat::getDb()->beginTransaction();
         try {
@@ -121,18 +155,26 @@ class ActaulizerCallChatUsage extends Singleton
             $callChatRow->client_id = $row['client_id'];
             $callChatRow->usage_id = $row['usage_id'];
             $callChatRow->tarif_id = $row['tarif_id'];
-            $callChatRow->save();
+            if (!$callChatRow->save()) {
+                throw new ModelValidationException($callChatRow);
+            }
 
-            $this->sendAddEvent($callChatRow);
-            $this->checkProductToAdd($callChatRow);
+            $this->_sendAddEvent($callChatRow);
+            $this->_checkProductToAdd($callChatRow);
             $transaction->commit();
         } catch (\Exception $e) {
-            $transaction->rollback();
+            $transaction->rollBack();
             throw $e;
         }
     }
 
-    private function applyUpdate($row)
+    /**
+     * Обновление услуги. В данный момент только тариф.
+     *
+     * @param array $row
+     * @throws Exception
+     */
+    private function _applyUpdate($row)
     {
         $transaction = ActualCallChat::getDb()->beginTransaction();
         try {
@@ -142,17 +184,27 @@ class ActaulizerCallChatUsage extends Singleton
             ]);
 
             if (!is_null($callChatRow)) {
-                $this->sendUpdateEvent($callChatRow);
+                $callChatRow->tarif_id = $row['tarif_id'];
+                if (!$callChatRow->save()) {
+                    throw new ModelValidationException($callChatRow);
+                }
+
+                $this->_sendUpdateEvent($callChatRow);
                 $transaction->commit();
             }
-
         } catch (\Exception $e) {
-            $transaction->rollback();
+            $transaction->rollBack();
             throw $e;
         }
     }
 
-    private function applyDel($row)
+    /**
+     * Удаление услуги
+     *
+     * @param array $row
+     * @throws Exception
+     */
+    private function _applyDel($row)
     {
         $transaction = ActualCallChat::getDb()->beginTransaction();
 
@@ -162,19 +214,26 @@ class ActaulizerCallChatUsage extends Singleton
                 'usage_id' => $row['usage_id']
             ]);
 
-            $this->sendDelEvent($callChatRow);
+            $this->_sendDelEvent($callChatRow);
             $callChatRow->delete();
 
-            $this->checkProductToDel($callChatRow);
+            $this->_checkProductToDel($callChatRow);
 
             $transaction->commit();
         } catch (\Exception $e) {
-            $transaction->rollback();
+            $transaction->rollBack();
             throw $e;
         }
     }
 
-    private function sendAddEvent(ActualCallChat $callChatRow)
+    /**
+     * Отправка комманды на создание услуги
+     *
+     * @param ActualCallChat $callChatRow
+     * @return bool|mixed
+     * @throws Exception
+     */
+    private function _sendAddEvent(ActualCallChat $callChatRow)
     {
         if ($usage = UsageCallChat::findOne(['id' => $callChatRow->usage_id])) {
             try {
@@ -185,17 +244,25 @@ class ActaulizerCallChatUsage extends Singleton
                 throw $e;
             }
         }
+
         return true;
     }
 
-    private function sendUpdateEvent(ActualCallChat $callChatRow)
+    /**
+     * Отправка комманды на обновление услуги
+     *
+     * @param ActualCallChat $callChatRow
+     * @return bool|mixed
+     * @throws Exception
+     */
+    private function _sendUpdateEvent(ActualCallChat $callChatRow)
     {
         /**
          * В данный момент разные тарифы не поддерживаются продуктом.
          * Ранее применялась для синхронизации названия чата. Названия изменяется внутри самого продукта.
          * На данный момент функция API ждет названия, которого нет.
          * Будет включена в будущем.
-         **/
+         */
 
         return true;
 
@@ -211,7 +278,14 @@ class ActaulizerCallChatUsage extends Singleton
         return true;
     }
 
-    private function sendDelEvent(ActualCallChat $callChatRow)
+    /**
+     * Отправка комманды на удаление услуги
+     *
+     * @param ActualCallChat $callChatRow
+     * @return bool|mixed
+     * @throws Exception
+     */
+    private function _sendDelEvent(ActualCallChat $callChatRow)
     {
         try {
             return ApiFeedback::removeChat($callChatRow->client_id, $callChatRow->usage_id);
@@ -223,7 +297,14 @@ class ActaulizerCallChatUsage extends Singleton
 
     }
 
-    private function checkProductToAdd(ActualCallChat $callChatRow)
+    /**
+     * Проверка необходимости создания "продукта" услуги
+     *
+     * @param ActualCallChat $callChatRow
+     * @return bool
+     * @throws Exception
+     */
+    private function _checkProductToAdd(ActualCallChat $callChatRow)
     {
         $usage = ProductState::findOne([
             'client_id' => $callChatRow->client_id,
@@ -231,31 +312,36 @@ class ActaulizerCallChatUsage extends Singleton
         ]);
 
         if (!$usage) {
-
             try {
                 ApiCore::addProduct('feedback', $callChatRow->client_id);
                 $state = new ProductState;
                 $state->client_id = $callChatRow->client_id;
                 $state->product = ProductState::FEEDBACK;
                 $state->save();
-
             } catch (InvalidConfigException $e) {
                 return true;
             } catch (Exception $e) {
                 throw $e;
             }
         }
+
         return true;
     }
 
-    private function checkProductToDel(ActualCallChat $callChatRow)
+    /**
+     * Проверка необходимости удаления "продукта" услуги
+     *
+     * @param ActualCallChat $callChatRow
+     * @return bool
+     * @throws Exception
+     */
+    private function _checkProductToDel(ActualCallChat $callChatRow)
     {
         if ($usage = ProductState::findOne([
             'client_id' => $callChatRow->client_id,
             'product' => ProductState::FEEDBACK
         ])
         ) {
-
             try {
                 ApiCore::remoteProduct('feedback', $callChatRow->client_id);
                 $usage->delete();
@@ -265,7 +351,7 @@ class ActaulizerCallChatUsage extends Singleton
                 throw $e;
             }
         }
+
         return true;
     }
 }
-

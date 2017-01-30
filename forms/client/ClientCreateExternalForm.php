@@ -41,6 +41,9 @@ use yii\helpers\Json;
  */
 class ClientCreateExternalForm extends Form
 {
+    private $_semaforId = 777;
+    private $_semaforResource = null;
+
     public
         $super_id = 0,
         $contragent_id = 0,
@@ -75,6 +78,31 @@ class ClientCreateExternalForm extends Form
     /** @var EntryPoint */
     public $entryPoint = null;
 
+    /**
+     * ClientCreateExternalForm constructor.
+     *
+     * @param array $config
+     */
+    public function __construct($config = [])
+    {
+        $this->_semaforResource = sem_get($this->_semaforId);
+
+        if ($this->_semaforResource) {
+            sem_acquire($this->_semaforResource);
+        }
+
+        parent::__construct($config);
+    }
+
+    /**
+     * ClientCreateExternalForm destructor.
+     */
+    public function __destruct()
+    {
+        if ($this->_semaforResource) {
+            sem_release($this->_semaforResource);
+        }
+    }
 
     /**
      * Правила модели
