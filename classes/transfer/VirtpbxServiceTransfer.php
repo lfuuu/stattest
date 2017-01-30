@@ -41,53 +41,8 @@ class VirtpbxServiceTransfer extends ServiceTransfer
     {
         $targetService = parent::process();
 
-        $this->_processVoipNumbers($targetService);
         LogTarifTransfer::process($this, $targetService->id);
 
         return $targetService;
     }
-
-    /**
-     * Перенос связанных с ВАТС номеров
-     *
-     * @param ActiveRecord $targetService
-     * @throws \Exception
-     * @throws \yii\db\Exception
-     */
-    private function _processVoipNumbers($targetService)
-    {
-        foreach ($this->service->clientAccount->voipNumbers as $number => $options) {
-            if ($options['type'] !== 'vpbx' || $options['stat_product_id'] != $this->service->id) {
-                continue;
-            }
-
-            if (
-                (
-                $usage = UsageVoip::find()
-                        ->where([
-                            'E164' => $number,
-                            'client' => $this->service->clientAccount->client,
-                            'next_usage_id' => 0,
-                            'type_id' => 'number',
-                        ])
-                        ->actual()
-                        ->one()
-                ) instanceof UsageInterface
-            ) {
-                $dbTransaction = Yii::$app->db->beginTransaction();
-                try {
-                    $usage::getTransferHelper($usage)
-                        ->setTargetAccount($targetService->clientAccount)
-                        ->setActivationDate($targetService->actual_from)
-                        ->process();
-
-                    $dbTransaction->commit();
-                } catch (\Exception $e) {
-                    $dbTransaction->rollBack();
-                    throw $e;
-                }
-            }
-        }
-    }
-
 }

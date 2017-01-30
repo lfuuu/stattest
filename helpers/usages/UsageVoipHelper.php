@@ -15,11 +15,14 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
 
     use UsageHelperTrait;
 
-    private $usage;
+    private $_usage;
 
+    /**
+     * @param UsageInterface $usage
+     */
     public function __construct(UsageInterface $usage)
     {
-        $this->usage = $usage;
+        $this->_usage = $usage;
         parent::__construct();
     }
 
@@ -36,19 +39,18 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
      */
     public function getDescription()
     {
-        $value = $this->usage->E164 . ' (линий ' . $this->usage->no_of_lines . ')';
+        $value = $this->_usage->E164 . ' (линий ' . $this->_usage->no_of_lines . ')';
         $description = '';
         $checkboxOptions = [];
 
-        if ($this->usage->type_id === Tariff::NUMBER_TYPE_7800) {
-            $line = UsageVoip::findOne(['id' => $this->usage->line7800_id]);
+        if ($this->_usage->type_id === Tariff::NUMBER_TYPE_7800) {
+            $line = UsageVoip::findOne(['id' => $this->_usage->line7800_id]);
             if ($line instanceof UsageVoip) {
-                $description =
-                    Html::tag(
-                        'div',
-                        Html::tag('small', $line->id) . ': ' . reset($line->helper->description),
-                        ['style' => 'margin-left: 10px;']
-                    );
+                $description = Html::tag(
+                    'div',
+                    Html::tag('small', $line->id) . ': ' . reset($line->helper->description),
+                    ['style' => 'margin-left: 10px;']
+                );
             }
         }
 
@@ -60,15 +62,7 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
      */
     public function getHelp()
     {
-        return Html::tag(
-            'div',
-            'Заблокированные номера подключены на ВАТС,<br >' .
-            'перенос возможен только совместно с ВАТС.<br />' .
-            'Отключить номер от ВАТС можно в ЛК',
-            [
-                'style' => 'background-color: #F9F0DF; font-size: 11px; font-weight: bold; padding: 5px; margin-top: 10px; white-space: nowrap;',
-            ]
-        );
+        return '';
     }
 
     /**
@@ -76,7 +70,7 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/usage/voip/edit', 'id' => $this->usage->id]);
+        return Url::toRoute(['/usage/voip/edit', 'id' => $this->_usage->id]);
     }
 
     /**
@@ -84,7 +78,7 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
      */
     public function getTransferedFrom()
     {
-        return UsageVoip::findOne($this->usage->prev_usage_id);
+        return UsageVoip::findOne($this->_usage->prev_usage_id);
     }
 
 }

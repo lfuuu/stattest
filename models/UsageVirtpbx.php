@@ -115,7 +115,7 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
     }
 
     /**
-     * @param $usage
+     * @param UsageInterface $usage
      * @return VirtpbxServiceTransfer
      */
     public static function getTransferHelper($usage = null)

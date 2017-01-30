@@ -26,10 +26,10 @@ class VoipServiceTransfer extends ServiceTransfer
     public function getPossibleToTransfer(ClientAccount $clientAccount)
     {
         $usages = UsageVoip::find()
-            ->client($clientAccount->client)
-            ->actual()
-            ->andWhere(['next_usage_id' => 0])
-            ->orderBy(['id' => SORT_DESC]);
+                ->client($clientAccount->client)
+                ->actual()
+                ->andWhere(['next_usage_id' => 0])
+                ->orderBy(['id' => SORT_DESC]);
 
         $result = [];
         if ($usages->count()) {
@@ -46,12 +46,8 @@ class VoipServiceTransfer extends ServiceTransfer
 
             foreach ($usages->each() as $usage) {
                 if (
-                    in_array($usage->E164, $stopList)
-                        ||
-                    (
-                        $usage->type_id === Tariff::NUMBER_TYPE_LINE &&
-                        UsageVoip::find()->where(['line7800_id' => $usage->id])->count()
-                    )
+                    $usage->type_id === Tariff::NUMBER_TYPE_LINE
+                    && UsageVoip::find()->where(['line7800_id' => $usage->id])->count()
                 ) {
                     continue;
                 }
@@ -129,10 +125,10 @@ class VoipServiceTransfer extends ServiceTransfer
     private function _processPackages($targetService)
     {
         $packages = UsageVoipPackage::find()
-            ->andWhere(['usage_voip_id' => $this->service->id])
-            ->andWhere(['<=', 'actual_from', $this->getExpireDate()])
-            ->andWhere(['>=', 'actual_to', $this->getExpireDate()])
-            ->all();
+                ->andWhere(['usage_voip_id' => $this->service->id])
+                ->andWhere(['<=', 'actual_from', $this->getExpireDate()])
+                ->andWhere(['>=', 'actual_to', $this->getExpireDate()])
+                ->all();
 
         if (!count($packages)) {
             return;
@@ -174,8 +170,8 @@ class VoipServiceTransfer extends ServiceTransfer
     private function _fallbackPackages()
     {
         $packages = UsageVoipPackage::find()
-            ->andWhere(['usage_voip_id' => $this->service->id])
-            ->all();
+                ->andWhere(['usage_voip_id' => $this->service->id])
+                ->all();
 
         if (!count($packages)) {
             return;

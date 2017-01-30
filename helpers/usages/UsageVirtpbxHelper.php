@@ -15,14 +15,14 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
 
     use UsageHelperTrait;
 
-    private $usage;
+    private $_usage;
 
     /**
      * @param UsageInterface $usage
      */
     public function __construct(UsageInterface $usage)
     {
-        $this->usage = $usage;
+        $this->_usage = $usage;
         parent::__construct();
     }
 
@@ -39,35 +39,9 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
      */
     public function getDescription()
     {
-        $value = $this->usage->tariff ? $this->usage->tariff->description : 'Описание';
+        $value = $this->_usage->tariff ? $this->_usage->tariff->description : 'Описание';
         $description = [];
         $checkboxOptions = [];
-
-        $numbers = $this->usage->clientAccount->voipNumbers;
-        $enabledNumbers = [];
-
-        foreach ($numbers as $number => $options) {
-            if ($options['type'] !== 'vpbx' || $options['stat_product_id'] != $this->usage->id) {
-                continue;
-            }
-
-            $enabledNumbers[] = $number;
-        }
-
-        $usages = UsageVoip::find()
-            ->where(['IN', 'E164', $enabledNumbers])
-            ->andWhere(['client' => $this->usage->clientAccount->client])
-            ->actual();
-
-        if ($usages->count()) {
-            foreach ($usages->each() as $usage) {
-                $description[] = Html::tag(
-                    'div',
-                    Html::tag('small', $usage->id) . ': ' . reset($usage->helper->description),
-                    ['style' => 'margin-left: 10px;']
-                );
-            }
-        }
 
         return [$value, implode('', $description), $checkboxOptions];
     }
@@ -77,14 +51,7 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
      */
     public function getHelp()
     {
-        return Html::tag(
-            'div',
-            'ВАТС переносится только с подключенными номерами.
-            Отключить номера можно в настройках ВАТС',
-            [
-                'style' => 'background-color: #F9F0DF; font-size: 11px; font-weight: bold; padding: 5px; margin-top: 10px;',
-            ]
-        );
+        return '';
     }
 
     /**
@@ -92,7 +59,7 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/pop_services.php', 'table' => UsageVirtpbx::tableName(), 'id' => $this->usage->id]);
+        return Url::toRoute(['/pop_services.php', 'table' => UsageVirtpbx::tableName(), 'id' => $this->_usage->id]);
     }
 
     /**
@@ -100,7 +67,7 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
      */
     public function getTransferedFrom()
     {
-        return UsageVirtpbx::findOne($this->usage->prev_usage_id);
+        return UsageVirtpbx::findOne($this->_usage->prev_usage_id);
     }
 
 }
