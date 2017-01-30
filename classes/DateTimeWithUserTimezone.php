@@ -97,11 +97,12 @@ class DateTimeWithUserTimezone extends DateTime
      *
      * @param int $value
      *
-     * @return string
+     * @return string|null - важно чтобы возвращался если $value == null,
+     * потому что в гриде пустая строка и null отображаются по разному
      */
     public static function formatSecondsToMinutesAndSeconds($value)
     {
-        return $value !== null ? str_pad(round($value / 60), 2, '0', STR_PAD_LEFT) . ':' . str_pad(round($value % 60), 2, '0', STR_PAD_LEFT) : '';
+        return $value !== null ? str_pad(floor($value / 60), 2, '0', STR_PAD_LEFT) . ':' . str_pad($value % 60, 2, '0', STR_PAD_LEFT) : null;
     }
 
 }

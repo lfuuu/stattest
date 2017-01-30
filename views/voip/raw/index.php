@@ -63,7 +63,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             'label' => $filterModel->aggrLabels[$value],
             'attribute' => $value,
         ];
-        if (strpos($value, 'session_time') !== false || $value == 'asd') {
+        if (strpos($value, 'session_time') !== false || $value == 'acd') {
             $columns[$key + $c]['value'] = function ($model) use ($value) {
                 return DateTimeWithUserTimezone::formatSecondsToMinutesAndSeconds($model[$value]);
             };

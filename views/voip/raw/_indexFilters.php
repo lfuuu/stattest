@@ -22,6 +22,7 @@ use app\classes\grid\column\universal\CurrencyColumn;
 use app\modules\nnp\column\CityColumn;
 use app\modules\nnp\column\RegionColumn;
 use app\modules\nnp\column\DestinationColumn;
+use app\modules\nnp\column\NdcTypeColumn;
 
 return [
     [
@@ -198,10 +199,7 @@ return [
         'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'currency',
-        'label' => 'Валюта расчетов',
-        'class' => CurrencyColumn::className(),
-        'isWithEmpty' => false,
+        'class' => WithEmptyFilterColumn::className(),
     ],
     [
         'class' => WithEmptyFilterColumn::className(),
@@ -223,6 +221,35 @@ return [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
+    ],
+    [
+        'attribute' => 'currency',
+        'label' => 'Валюта расчетов',
+        'class' => CurrencyColumn::className(),
+        'isWithEmpty' => false,
+    ],
+    [
+        'class' => WithEmptyFilterColumn::className(),
+    ],
+    [
+        'attribute' => 'src_number_type_ids',
+        'label' => 'Тип номера А',
+        'class' => NdcTypeColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => false,
+    ],
+    [
+        'attribute' => 'dst_number_type_ids',
+        'label' => 'Тип номера В',
+        'class' => NdcTypeColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => false,
     ],
     [
         'attribute' => 'group_period',

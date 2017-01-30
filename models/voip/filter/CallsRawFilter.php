@@ -43,6 +43,8 @@ use yii\db\Query;
  * @property array $dst_countries_ids
  * @property array $src_destinations_ids
  * @property array $dst_destinations_ids
+ * @property array $src_number_type_ids
+ * @property array $dst_number_type_ids
  *
  * @property string $src_operator_name
  * @property string $dst_operator_name
@@ -96,7 +98,7 @@ class CallsRawFilter extends Model
         'session_time_max' => 'MAX(session_time)',
         'calls_count' => 'COUNT(connect_time)',
         'nonzero_calls_count' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))',
-        'asd' => 'SUM(session_time) / SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))',
+        'acd' => 'SUM(session_time) / SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))',
         'asr' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))::real / COUNT(connect_time)::real'
     ];
 
@@ -119,7 +121,7 @@ class CallsRawFilter extends Model
         'session_time_max' => 'Длительность: максимальная',
         'calls_count' => 'Количество звонков',
         'nonzero_calls_count' => 'Количество ненулевых звонков',
-        'asd' => 'ASD',
+        'acd' => 'ACD',
         'asr' => 'ASR',
     ];
 
@@ -147,6 +149,8 @@ class CallsRawFilter extends Model
     public $dst_countries_ids = [];
     public $src_destinations_ids = [];
     public $dst_destinations_ids = [];
+    public $src_number_type_ids = [];
+    public $dst_number_type_ids = [];
 
     public $src_operator_name = null;
     public $dst_operator_name = null;
@@ -216,6 +220,8 @@ class CallsRawFilter extends Model
                     'src_routes_ids',
                     'src_contracts_ids',
                     'dst_contracts_ids',
+                    'src_number_type_ids',
+                    'dst_number_type_ids'
                 ],
                 'each',
                 'rule' => ['integer']
@@ -320,6 +326,7 @@ class CallsRawFilter extends Model
                     'sort',
                     'currency',
                     'currency_rate',
+                    'correct_connect_time_to',
                 ]
             );
             foreach ($attributes as $value) {
@@ -334,7 +341,7 @@ class CallsRawFilter extends Model
     }
 
     /**
-     * Отчет по calls_raw (живет по адресу /voip/cdr)
+     * Отчет по calls_raw (живет по адресу /voip/raw)
      *
      * @return ActiveDataProvider|ArrayDataProvider
      */
@@ -456,35 +463,27 @@ class CallsRawFilter extends Model
         )->from('cr1')
             ->join('JOIN', 'cr2', 'cr1.cdr_id = cr2.cdr_id');
 
-        $this->server_ids
-        && $query1->andWhere(['IN', 'cr.server_id', ':server_ids'], ['server_ids' => $this->server_ids])
-        && $query2->andWhere(['IN', 'cr.server_id', ':server_ids'], ['server_ids' => $this->server_ids])
-        && $query3
-        && $query3->andWhere(['IN', 'server_id', ':server_ids'], ['server_ids' => $this->server_ids]);
+        if ($this->server_ids) {
+            $condition = ['cr.server_id' => $this->server_ids];
+            $query1->andWhere($condition)
+            && $query2->andWhere($condition)
+            && $query3
+            && $query3->andWhere(['server_id' => $this->server_ids]);
+        }
 
-        ($this->connect_time_from || $this->correct_connect_time_to)
-        && $query1->andWhere(
-            'cr.connect_time BETWEEN :connect_time_from AND :connect_time_to',
-            [
-                'connect_time_from' => $this->connect_time_from ? $this->connect_time_from : new Expression('to_timestamp(0)'),
-                'connect_time_to' => $this->correct_connect_time_to ? $this->correct_connect_time_to : new Expression('now()')
-            ]
-        )
-        && $query2->andWhere(
-            'cr.connect_time BETWEEN :connect_time_from AND :connect_time_to',
-            [
-                'connect_time_from' => $this->connect_time_from ? $this->connect_time_from : new Expression('to_timestamp(0)'),
-                'connect_time_to' => $this->correct_connect_time_to ? $this->correct_connect_time_to : new Expression('now()')
-            ]
-        )
-        && $query3
-        && $query3->andWhere(
-            'setup_time BETWEEN :connect_time_from AND :connect_time_to',
-            [
-                'connect_time_from' => $this->connect_time_from ? $this->connect_time_from : new Expression('to_timestamp(0)'),
-                'connect_time_to' => $this->correct_connect_time_to ? $this->correct_connect_time_to : new Expression('now()')
-            ]
-        );
+        if ($this->connect_time_from || $this->correct_connect_time_to) {
+            $condition = function ($field) {
+                return [
+                    'BETWEEN',
+                    $field,
+                    $this->connect_time_from ? $this->connect_time_from : new Expression('to_timestamp(0)'),
+                    $this->correct_connect_time_to ? $this->correct_connect_time_to : new Expression('now()'),
+                ];
+            };
+            $query1->andWhere($condition('cr.connect_time'));
+            $query2->andWhere($condition('cr.connect_time'));
+            $query3 && $query3->andWhere($condition('setup_time'));
+        }
 
         if ($this->session_time_from
             || $this->session_time_to
@@ -495,6 +494,7 @@ class CallsRawFilter extends Model
             || $this->dst_cities_ids
             || $this->dst_countries_ids
             || $this->dst_destinations_ids
+            || $this->dst_number_type_ids
             || $this->dst_number
         ) {
             $query1->limit(-1)->orderBy([]);
@@ -508,6 +508,7 @@ class CallsRawFilter extends Model
             || $this->src_cities_ids
             || $this->src_countries_ids
             || $this->src_destinations_ids
+            || $this->src_number_type_ids
             || $this->src_number
         ) {
             $query2->limit(-1)->orderBy([]);
@@ -516,10 +517,11 @@ class CallsRawFilter extends Model
 
         ($this->session_time_from || $this->session_time_to)
         && $query2->andWhere(
-            'cr.billed_time BETWEEN :session_time_from AND :session_time_to',
             [
-                'session_time_from' => $this->session_time_from ? (int) $this->session_time_from : 0,
-                'session_time_to' => $this->session_time_to ? (int) $this->session_time_to : self::UNATTAINABLE_SESSION_TIME
+                'BETWEEN',
+                'cr.billed_time',
+                $this->session_time_from ? (int) $this->session_time_from : 0,
+                $this->session_time_to ? (int) $this->session_time_to : self::UNATTAINABLE_SESSION_TIME
             ]
         );
 
@@ -533,119 +535,106 @@ class CallsRawFilter extends Model
             }
 
             if ($this->src_routes_ids || $this->src_contracts_ids) {
-                $query1->andWhere(['IN', 'cr.trunk_service_id', ':src_routes_ids'], ['src_routes_ids' => $src_filter]);
-                $query3 && $query3->leftJoin('auth.trunk t', 'cu.src_route = t.name')
-                    ->leftJoin('billing.service_trunk st', 'st.trunk_id = ct.id')
-                    ->andWhere('st.id = :src_routes_ids', ['src_routes_ids' => $src_filter]);
+                $query1->andWhere(['cr.trunk_service_id' => $src_filter]);
+                $query3 = null;
             }
 
             if ($this->dst_routes_ids || $this->dst_contracts_ids) {
-                $query2->andWhere(['IN', 'cr.trunk_service_id', ':dst_routes_ids'], ['dst_routes_ids' => $dst_filter]);
-                $query3 && $query3->leftJoin('auth.trunk t', 'cu.dst_route = t.name')
-                    ->leftJoin('billing.service_trunk st', 'st.trunk_id = ct.id')
-                    ->andWhere('st.id = :dst_routes_ids', ['dst_routes_ids' => $dst_filter]);
+                $query2->andWhere(['cr.trunk_service_id' => $dst_filter]);
+                $query3 = null;
             }
         }
 
         $this->src_operator_ids
-        && $query1->andWhere(
-            ['IN', 'cr.nnp_operator_id', ':src_operator_ids'],
-            ['src_operator_ids' => $this->src_operator_ids]
-        );
+        && $query1->andWhere(['cr.nnp_operator_id' => $this->src_operator_ids]);
 
         $this->src_regions_ids
-        && $query1->andWhere(
-            ['IN', 'cr.nnp_region_id', ':src_regions_ids'],
-            ['src_regions_ids' => $this->src_regions_ids]
-        );
+        && $query1->andWhere(['cr.nnp_region_id' => $this->src_regions_ids]);
 
         $this->src_cities_ids
-        && $query1->andWhere(
-            ['IN', 'cr.nnp_city_id', ':src_cities_ids'],
-            ['src_cities_ids' => $this->src_cities_ids]
-        );
+        && $query1->andWhere(['cr.nnp_city_id' => $this->src_cities_ids]);
 
         $this->src_countries_ids
-        && $query1->andWhere(
-            ['IN', 'cr.nnp_country_code', ':src_countries_ids'],
-            ['src_countries_ids' => $this->src_countries_ids]
-        );
+        && $query1->andWhere(['cr.nnp_country_code' => $this->src_countries_ids]);
 
-        $this->src_destinations_ids
-        && $query1
-            ->leftJoin('nnp.number_range_destination nrd', 'cr.nnp_number_range_id = nrd.number_range_id')
-            ->andWhere(
-                ['IN', 'nrd.destination_id', ':src_destinations_ids'],
-                ['src_destinations_ids' => $this->src_destinations_ids]
-            );
+        if ($this->src_destinations_ids || $this->src_number_type_ids) {
+            $condition = [];
+
+            $this->src_destinations_ids
+            && $query1->andWhere(['nrd.destination_id' => $this->src_destinations_ids])
+            && $condition[] = ['nrd.destination_id' => $this->src_destinations_ids];
+
+            $this->src_number_type_ids
+            && $query1->andWhere(['nrd.ndc_type_id' => $this->src_number_type_ids])
+            && $condition[] = ['nrd.ndc_type_id' => $this->src_number_type_ids];
+
+            $condition = count($condition) == 2 ? ['AND', $condition[0], $condition[1]] : $condition[0];
+            $query5 = new Query();
+            $query5->from('nnp.number_range_destination nrd')
+                ->andWhere(['AND', 'cr.nnp_number_range_id = nrd.number_range_id', $condition])
+                ->limit(1);
+            $query1->join('LEFT JOIN LATERAL', ['nrd' => $query5], 'cr.nnp_number_range_id = nrd.number_range_id');
+        }
 
         $this->dst_operator_ids
-        && $query2->andWhere(
-            ['IN', 'cr.nnp_operator_id', ':dst_operator_ids'],
-            ['dst_operator_ids' => $this->dst_operator_ids]
-        );
+        && $query2->andWhere(['cr.nnp_operator_id' => $this->dst_operator_ids]);
 
         $this->dst_regions_ids
-        && $query2->andWhere(
-            ['IN', 'cr.nnp_region_id', ':dst_regions_ids'],
-            ['dst_regions_ids' => $this->dst_regions_ids]
-        );
+        && $query2->andWhere(['cr.nnp_region_id' => $this->dst_regions_ids]);
 
         $this->dst_cities_ids
-        && $query2->andWhere(
-            ['IN', 'cr.nnp_city_id', ':dst_cities_ids'],
-            ['dst_cities_ids' => $this->dst_cities_ids]
-        );
+        && $query2->andWhere(['cr.nnp_city_id' => $this->dst_cities_ids]);
 
         $this->dst_countries_ids
-        && $query2->andWhere(
-            ['IN', 'cr.nnp_country_code', ':dst_countries_ids'],
-            ['dst_countries_ids' => $this->dst_countries_ids]
-        );
+        && $query2->andWhere(['cr.nnp_country_code', $this->dst_countries_ids]);
 
-        $this->dst_destinations_ids
-        && $query1
-            ->leftJoin('nnp.number_range_destination nrd', 'cr.nnp_number_range_id = nrd.number_range_id')
-            ->andWhere(
-                ['IN', 'nrd.destination_id', ':dst_destinations_ids'],
-                ['dst_destinations_ids' => $this->dst_destinations_ids]
-            );
+        if ($this->dst_destinations_ids || $this->dst_number_type_ids) {
+            $condition = [];
 
-        $this->is_success_calls
-        && $query1->andWhere(
-            ['or', 'billed_time > 0', ['IN', 'disconnect_cause', ':success_cause']],
-            ['success_cause' => DisconnectCause::$successCodes]
-        )
-        && $query2->andWhere(
-            ['or', 'billed_time > 0', ['IN', 'disconnect_cause', ':success_cause']],
-            ['success_cause' => DisconnectCause::$successCodes]
-        )
-        && $query3 = null;
+            $this->dst_destinations_ids
+            && $query2->andWhere(['nrd.destination_id' => $this->dst_destinations_ids])
+            && $condition[] = ['nrd.destination_id' => $this->dst_destinations_ids];
 
-        $this->dst_number
-        && $query2->andWhere('cr.dst_number::varchar LIKE :dst_number || \'%\'', ['dst_number' => $this->dst_number])
-        && $query3
-        && $query3->andWhere('dst_number::varchar LIKE :dst_number || \'%\'', ['dst_number' => $this->dst_number]);
+            $this->dst_number_type_ids
+            && $query2->andWhere(['nrd.ndc_type_id' => $this->dst_number_type_ids])
+            && $condition[] = ['nrd.ndc_type_id' => $this->dst_number_type_ids];
 
-        $this->src_number
-        && $query1->andWhere('cr.src_number LIKE :src_number || \'%\'', ['src_number' => $this->src_number])
-        && $query3
-        && $query3->andWhere('src_number::varchar LIKE :src_number || \'%\'', ['src_number' => $this->src_number]);
+            $condition = count($condition) == 2 ? ['AND', $condition[0], $condition[1]] : $condition[0];
+            $query5 = new Query();
+            $query5->from('nnp.number_range_destination nrd')
+                ->andWhere(['AND', 'cr.nnp_number_range_id = nrd.number_range_id', $condition])
+                ->limit(1);
+            $query2->join('LEFT JOIN LATERAL', ['nrd' => $query5], 'cr.nnp_number_range_id = nrd.number_range_id');
+        }
 
-        $this->disconnect_causes
-        && $query1->andWhere(
-            ['IN', 'cr.disconnect_cause', ':disconnect_causes'],
-            ['disconnect_causes' => $this->disconnect_causes]
-        )
-        && $query2->andWhere(
-            ['IN', 'cr.disconnect_cause', ':disconnect_causes'],
-            ['disconnect_causes' => $this->disconnect_causes]
-        )
-        && $query3
-        && $query3->andWhere(
-            ['IN', 'disconnect_cause', ':disconnect_causes'],
-            ['disconnect_causes' => $this->disconnect_causes]
-        );
+        if ($this->is_success_calls) {
+            $condition = ['or', 'billed_time > 0', ['disconnect_cause', DisconnectCause::$successCodes]];
+            $query1->andWhere($condition)
+            && $query2->andWhere($condition)
+            && $query3 = null;
+        }
+
+        if ($this->dst_number) {
+            $condition = ['LIKE', 'cr.dst_number::varchar', $this->dst_number];
+            $query2->andWhere($condition)
+            && $query3
+            && $query3->andWhere($condition);
+        }
+
+        if ($this->src_number) {
+            $condition = ['LIKE', 'src_number', $this->src_number];
+            $query1->andWhere($condition)
+            && $query3
+            && $query3->andWhere($condition);
+        }
+
+        if ($this->disconnect_causes) {
+            $condition = ['cr.disconnect_cause' => $this->disconnect_causes];
+            $query1->andWhere($condition)
+            && $query2->andWhere($condition)
+            && $query3
+            && $query3->andWhere($condition);
+        }
 
         $query3 && $query4 = (new CTEQuery())->from(['cr' => $query4->union($query3)]);
 
@@ -716,7 +705,8 @@ class CallsRawFilter extends Model
             $query4->orderBy([])->limit(-1);
         }
 
-        $query4->addLinkQueries(['cr1' => $query1, 'cr2' => $query2]);
+        $query4->addWith(['cr1' => $query1]);
+        $query4->addWith(['cr2' => $query2]);
 
         return new ActiveDataProvider(
             [
