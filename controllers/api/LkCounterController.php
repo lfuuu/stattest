@@ -13,8 +13,8 @@ class LkCounterController extends ApiController
      * @SWG\Post(
      *   tags={"Работа с лицевыми счетами"},
      *   path="/lk-counter/read/",
-     *   summary="Получение информации о тиакетах и непрочитанных сообщениях",
-     *   operationId="Получение информации о тиакетах и непрочитанных сообщениях",
+     *   summary="Получение информации о тикетах и непрочитанных сообщениях",
+     *   operationId="Получение информации о тикетах и непрочитанных сообщениях",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
      *   @SWG\Response(
      *     response=200,
