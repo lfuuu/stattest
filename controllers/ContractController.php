@@ -143,7 +143,7 @@ class ContractController extends BaseController
         $model = new ContractRewardsEditForm(['contract_id' => $contractId, 'usage_type' => $usageType]);
 
         if (!($model->load(Yii::$app->request->post(), 'ClientContractReward') && $model->validate() && $model->save())) {
-            Yii::$app->session->setFlash('error', $model->getFirstErrors());
+            Yii::$app->session->setFlash('error', $model->getErrorsAsString());
         }
 
         $this->redirect(['contract/edit', 'id' => $contractId, '#' => 'rewards']);

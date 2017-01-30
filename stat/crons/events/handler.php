@@ -214,9 +214,7 @@ function doEvents()
                 case Event::ADD_ACCOUNT:
                     $isCoreServer && SyncCore::addAccount($param, true);
 
-                    /** @var \app\modules\notifier\Module $notifier */
-                    $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applySchemeForClientAccount($param);
+                    Event::go(Event::PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT, $param);
                     break;
 
                 case Event::CLIENT_SET_STATUS:
@@ -289,6 +287,13 @@ function doEvents()
 
                 case Event::PARTNER_REWARD: {
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
+                    break;
+                }
+
+                case Event::PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT: {
+                    /** @var \app\modules\notifier\Module $notifier */
+                    $notifier = Yii::$app->getModule('notifier');
+                    $notifier->actions->applySchemeForClientAccount($clientAccountId = $param);
                     break;
                 }
 

@@ -129,4 +129,12 @@ abstract class Form extends Model
 
     }
 
+    /**
+     * @return string
+     */
+    public function getErrorsAsString()
+    {
+        return implode('<br />' . PHP_EOL, $this->getFirstErrors());
+    }
+
 }

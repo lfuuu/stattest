@@ -125,4 +125,17 @@ class HttpRequest extends \yii\httpclient\Request
         $debugInfo .= sprintf('method = %d', print_r($this->getMethod(), true)) . PHP_EOL;
         return $debugInfo;
     }
+
+    /**
+     * Sets the data fields, which composes message content.
+     *
+     * @param mixed $data content data fields.
+     * @return $this self reference.
+     */
+    public function setData($data)
+    {
+        $this->setContent(null);
+        return parent::setData($data);
+    }
+
 }

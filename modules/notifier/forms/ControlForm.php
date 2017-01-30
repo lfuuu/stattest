@@ -25,7 +25,7 @@ class ControlForm extends Form
 {
 
     /** @var int */
-    public $country_code;
+    public $countryCode;
     /** @var array */
     public $whitelist;
 
@@ -35,7 +35,7 @@ class ControlForm extends Form
     public function rules()
     {
         return [
-            ['country_code', 'string'],
+            ['countryCode', 'string'],
             ['whitelist', ArrayValidator::className()],
         ];
     }
@@ -48,7 +48,7 @@ class ControlForm extends Form
         return Event::go(
             Event::PUBLISH_NOTIFICATION_SCHEME,
             [
-                'country' => $this->country_code,
+                'country' => $this->countryCode,
                 'user_id' => \Yii::$app->user->getId() ?: User::SYSTEM_USER_ID,
             ]
         ) ? true : false;

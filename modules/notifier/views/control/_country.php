@@ -8,13 +8,9 @@ use kartik\widgets\ActiveForm;
  * @var int $countryCode
  */
 
-$form = ActiveForm::begin();
-echo $form
-    ->field($dataForm, 'country_code')
-    ->hiddenInput([
-        'value' => $countryCode
-    ])
-    ->label(false);
+$form = ActiveForm::begin([
+    'action' => ['/notifier/control/apply-scheme', 'countryCode' => $countryCode,],
+]);
 
 $schemePublishData = $dataForm->getSchemeLastPublishData($countryCode);
 ?>

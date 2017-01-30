@@ -79,7 +79,7 @@ class VoipPackageController extends BaseController
             );
 
             if ($filter->hasErrors()) {
-                Yii::$app->session->setFlash('error', $filter->getFirstErrors());
+                Yii::$app->session->setFlash('error', implode('<br />' . PHP_EOL, $filter->getFirstErrors()));
             } else {
                 /** @var UsageVoip $usage */
                 $usage = UsageVoip::findOne($filter->number);

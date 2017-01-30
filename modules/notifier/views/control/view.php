@@ -47,7 +47,9 @@ echo Breadcrumbs::widget([
 </div>
 
 <?php
-$form = ActiveForm::begin();
+$form = ActiveForm::begin([
+    'action' => '/notifier/control/apply-white-list'
+]);
 
 echo GridView::widget([
     'dataProvider' => $dataForm->getAvailableEvents(),
