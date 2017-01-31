@@ -29,7 +29,7 @@ use yii\helpers\Url;
             }
 
             ?>
-            <div class="col-sm-3 <?= $contact->is_official ? 'bold' : '' ?> <?= $contact->is_validate ? '' : 'danger' ?>">
+            <div class="col-sm-3 <?= $contact->is_official ? 'bold' : '' ?> <?= $contact->is_validate ? '' : 'bg-danger' ?>">
                 <div class="contacts-view-data">
                     <?php
                     if ($contact->isEmail()) {
