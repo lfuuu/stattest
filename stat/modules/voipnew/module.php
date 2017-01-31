@@ -5,8 +5,10 @@ include_once 'network.php';
 include_once 'trunks.php';
 
 use app\classes\voip\DefInfo;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\PricelistFile;
 use app\models\billing\NetworkFile;
+use app\models\Param;
 
 class m_voipnew extends IModule
 {
@@ -806,6 +808,13 @@ class m_voipnew extends IModule
 
         $tasks = $pg_db->AllRecords("select region_id, max(id) as id, max(task) as task, max(status) as status, max(created) as created from billing.tasks where task in ('recalc_current_month','recalc_last_month') group by region_id", 'region_id');
         $design->assign('tasks', $tasks);
+
+        $isNotificationsOn = false;
+        $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);
+        if ($switchOffParam) {
+            $isNotificationsOn = DateTimeZoneHelper::getDateTime($switchOffParam->value);
+        }
+        $design->assign('is_notifications_on', $isNotificationsOn);
 
         $design->AddMain('voipnew/calls_recalc.html');
     }

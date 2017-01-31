@@ -95,3 +95,12 @@ use app\models\Region;
         </form>
     </fieldset>
 </div>
+
+<div class="well text-center" style="width: 500px;">
+    <? if (!$isNotificationsOn) : ?>
+        <a class="btn btn-primary" href="/monitoring/notification-off" role="button">Отключить оповещения</a>
+    <?php else: ?>
+        <a class="btn btn-info" href="/monitoring/notification-on" role="button">Включить оповещения</a>
+        <h6>Отключено: <?= $isNotificationsOn ?></h6>
+    <?php endif; ?>
+</div>

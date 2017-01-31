@@ -3,8 +3,10 @@ namespace app\commands;
 
 use app\classes\api\ApiCore;
 use app\classes\notification\Notification;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientSuper;
+use app\models\Param;
 use Yii;
 use yii\console\Controller;
 
@@ -15,6 +17,22 @@ class LkController extends Controller
      */
     public function actionCheckNotification()
     {
+        $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);
+        if ($switchOffParam) {
+            $now = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
+
+            $switchOffDate = $switchOffOrigDate = new \DateTime($switchOffParam->value, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
+            $switchOffDate->modify(Param::NOTIFICATIONS_PERIOD_OFF_MODIFY);
+
+            if ($now > $switchOffDate) {
+                Yii::info('[lk/check-notification][-] Оповещения включены ' . $now->format(DateTimeZoneHelper::DATETIME_FORMAT));
+                $switchOffParam->delete();
+            } else {
+                Yii::info('[lk/check-notification][+] Оповещения отключены ' . $switchOffOrigDate->format(DateTimeZoneHelper::DATETIME_FORMAT));
+                return Controller::EXIT_CODE_NORMAL;
+            }
+        }
+
         (new Notification)->checkForNotification();
     }
 

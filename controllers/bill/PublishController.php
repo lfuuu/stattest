@@ -1,7 +1,9 @@
 <?php
 namespace app\controllers\bill;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\Organization;
+use app\models\Param;
 use app\models\Region;
 use Yii;
 use yii\filters\AccessControl;
@@ -27,9 +29,16 @@ class PublishController extends BaseController
 
     public function actionIndex($organizationId = Organization::MCN_TELEKOM, $regionId = Region::HUNGARY)
     {
+        $isNotificationsOn = false;
+        $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);
+        if ($switchOffParam) {
+            $isNotificationsOn = DateTimeZoneHelper::getDateTime($switchOffParam->value);
+        }
+
         return $this->render('index', [
             'organizationId' => $organizationId,
-            'regionId' => $regionId
+            'regionId' => $regionId,
+            'isNotificationsOn' => $isNotificationsOn,
         ]);
     }
 

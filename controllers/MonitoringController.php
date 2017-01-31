@@ -2,6 +2,9 @@
 
 namespace app\controllers;
 
+use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
+use app\models\Param;
 use Yii;
 use yii\db\Expression;
 use app\classes\BaseController;
@@ -16,6 +19,8 @@ class MonitoringController extends BaseController
 {
 
     /**
+     * Index
+     *
      * @param string $monitor
      * @return string
      */
@@ -28,6 +33,8 @@ class MonitoringController extends BaseController
     }
 
     /**
+     * Перенос услуг
+     *
      * @param bool $isCurrentOnly
      * @return string
      * @throws \yii\base\Exception
@@ -52,6 +59,7 @@ class MonitoringController extends BaseController
 
     /**
      * Очередь событий
+     *
      * @return string
      */
     public function actionEventQueue()
@@ -70,6 +78,7 @@ class MonitoringController extends BaseController
                 ]
             );
         }
+
         $filterModel = new EventQueueFilter();
         $filterModel->load($get);
 
@@ -78,4 +87,40 @@ class MonitoringController extends BaseController
         ]);
     }
 
+    /**
+     * Включение оповещений
+     */
+    public function actionNotificationOn()
+    {
+        $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);
+
+        if ($switchOffParam) {
+            if (!$switchOffParam->delete()) {
+                throw new ModelValidationException($switchOffParam);
+            }
+        }
+
+        return $this->redirect(\Yii::$app->request->referrer ?: "/");
+    }
+
+    /**
+     * Отключение оповещений
+     */
+    public function actionNotificationOff()
+    {
+        $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);
+
+        if (!$switchOffParam) {
+            $switchOffParam = new Param();
+            $switchOffParam->param = Param::NOTIFICATIONS_SWITCH_OFF_DATE;
+        }
+
+        $switchOffParam->value = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        if (!$switchOffParam->save()) {
+            throw new ModelValidationException($switchOffParam);
+        }
+
+        return $this->redirect(\Yii::$app->request->referrer ?: "/");
+    }
 }
