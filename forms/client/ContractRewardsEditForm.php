@@ -47,16 +47,18 @@ class ContractRewardsEditForm extends Form
         $now = (new DateTime('first day of this month'))->setTime(0, 0, 0);
         $actualFrom = (new DateTime($this->actual_from))->setTime(0, 0, 0);
 
-        if ($actualFrom <= $now) {
+        if ($actualFrom < $now) {
             $this->addError('actual_from', 'Нельзя управлять вознаграждением в прошлом');
             return false;
         }
 
-        $reward = ClientContractReward::find()->where([
-            'contract_id' => $this->contract_id,
-            'usage_type' => $this->usage_type,
-            'actual_from' => $actualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-        ])->one();
+        $reward = ClientContractReward::find()
+            ->where([
+                'contract_id' => $this->contract_id,
+                'usage_type' => $this->usage_type,
+                'actual_from' => $actualFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+            ])
+            ->one();
 
         if (!$reward) {
             $reward = new ClientContractReward;
@@ -64,9 +66,8 @@ class ContractRewardsEditForm extends Form
 
         $reward->setAttributes($this->getAttributes());
         $reward->user_id = Yii::$app->user->id;
-        $reward->insert_time =
-            (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $reward->insert_time = (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         return $reward->save();
     }
