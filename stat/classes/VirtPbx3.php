@@ -449,8 +449,7 @@ class VirtPbx3Action
 
             if (ApiVpbx::isAvailable()) {
 
-                $numInfo = ApiPhone::getNumbersInfo($fromUsage->clientAccount);
-
+                // $numInfo = ApiPhone::getNumbersInfo($fromUsage->clientAccount);
                 ApiVpbx::transferVpbxOnly(
                     $fromUsage->clientAccount->id,
                     $fromUsage->id,
@@ -470,11 +469,13 @@ class VirtPbx3Action
                 $row->save();
             }
 
+            /*
             foreach ($numInfo as $number => $info) {
                 if ($info["stat_product_id"] == $fromUsage->id) {
                     ActaulizerVoipNumbers::transferNumberWithVpbx($number, $toUsage->clientAccount->id);
                 }
             }
+            */
 
             Event::go(Event::UPDATE_PRODUCTS, ["account_id" => $toUsage->clientAccount->id]);
             Event::go(Event::UPDATE_PRODUCTS, ["account_id" => $fromUsage->clientAccount->id]);
