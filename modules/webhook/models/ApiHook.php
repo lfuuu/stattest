@@ -70,7 +70,7 @@ class ApiHook extends Model
     public function getClientAccount()
     {
         if ($this->did && $this->did[0] != '+') {
-            $this->did = ClientContact::dao()->getE164($this->did);
+            list($phoneRemain, $this->did) = ClientContact::dao()->getE164($this->did);
         }
 
         if (!$this->did) {

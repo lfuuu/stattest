@@ -430,4 +430,5 @@ a.nohover:hover {
 
 .showHistoryDiv, .showVersionDiv {
     cursor: pointer;
+    display: inline-block;
 }

@@ -28,7 +28,7 @@ class ContactController extends Controller
         /** @var ClientContact $clientContact */
         foreach ($clientContactQuery->each() as $clientContact) {
 
-            $e164Phones = ClientContact::dao()->getE164(
+            list($phoneRemain, $e164Phones) = ClientContact::dao()->getE164(
                 $clientContact->data,
                 ($clientContact->client && $clientContact->client->region == Region::MOSCOW) ? '495' : ''
             );
@@ -36,7 +36,7 @@ class ContactController extends Controller
             $countE164Phones = count($e164Phones);
             switch ($countE164Phones) {
                 case 0:
-                    // не распознан телефон
+                    // не распознан телефон - выключить
                     echo '- ';
                     $clientContact->is_validate = 0;
                     if (!$clientContact->data) {
@@ -48,21 +48,36 @@ class ContactController extends Controller
                     }
                     break;
 
-                default:
-                    if ($countE164Phones == 1 && $clientContact->data == reset($e164Phones)) {
+                case 1:
+                    // распознан 1 телефон - обновить
+                    $e164Phone = reset($e164Phones);
+                    if ($clientContact->data == $e164Phone) {
                         echo '. ';
                         // ничего не изменилось
                         break;
                     }
 
-                    // распознаны один или несколько телефонов - создать новые
+                    echo '+ ';
+                    $clientContact->is_validate = 1;
+                    $clientContact->data = $e164Phone;
+                    if ($phoneRemain) {
+                        $clientContact->comment = ' ' . $phoneRemain; // нераспознанный остаток перенести в комментарий
+                    }
+
+                    if (!$clientContact->save()) {
+                        throw new ModelValidationException($clientContact);
+                    }
+                    break;
+
+                default:
+                    // распознаны несколько телефонов - создать новые
                     $clientContact->is_validate = 0;
                     if (!$clientContact->save()) {
                         throw new ModelValidationException($clientContact);
                     }
 
                     foreach ($e164Phones as $e164Phone) {
-                        echo '+ ';
+                        echo '++ ';
                         $clientContactNew = new ClientContact;
                         $clientContactNew->client_id = $clientContact->client_id;
                         $clientContactNew->type = $clientContact->type;

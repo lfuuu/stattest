@@ -13,7 +13,7 @@ class ClientContactDao extends Singleton
      *
      * @param string $phone
      * @param string $ndcDefault
-     * @return \string[] $phones Возможно, что получилось несколько телефонов
+     * @return array [string остаток отисходного номер, string[] найденные телефоны]
      */
     public function getE164($phone, $ndcDefault = '')
     {
@@ -95,6 +95,8 @@ class ClientContactDao extends Singleton
             }
         }
 
-        return $e164Phones;
+        $phone = trim($phone);
+
+        return [$phone, $e164Phones];
     }
 }

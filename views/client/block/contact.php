@@ -14,21 +14,23 @@ use yii\helpers\Url;
 
 ?>
 
-<br/>
-<div id="contacts-view">
+<div id="contacts-view" class="well">
 
-    <h2><a href="<?= Url::toRoute(['contact/edit', 'id' => $account->id]) ?>" title="Редактировать контакты"><img class="icon" src="/images/icons/edit.gif"> Контакты</a></h2>
+    <div class="row">
 
-    <table class="table table-striped">
+        <div class="col-sm-3">
+            <h2><a href="<?= Url::toRoute(['contact/edit', 'id' => $account->id]) ?>" title="Редактировать контакты"><img class="icon" src="/images/icons/edit.gif"> Контакты</a></h2>
+        </div>
+
         <?php foreach ($contacts as $contact): ?>
             <?php
             if (!$contact->is_active) {
                 continue;
             }
+
             ?>
-            <tr class="<?= $contact->is_official ? 'bold' : '' ?> <?= $contact->is_validate ? '' : 'danger' ?>">
-                <td><?= ClientContact::$types[$contact->type] ?></td>
-                <td>
+            <div class="col-sm-3 <?= $contact->is_official ? 'bold' : '' ?> <?= $contact->is_validate ? '' : 'danger' ?>">
+                <div class="contacts-view-data">
                     <?php
                     if ($contact->isEmail()) {
                         printf(
@@ -40,20 +42,28 @@ use yii\helpers\Url;
                         echo $contact->data;
                     }
                     ?>
-                </td>
-                <td><?= $contact->comment ?></td>
-            </tr>
+                </div>
+                <div class="contacts-view-comment">
+                    <?= $contact->comment ?>
+                </div>
+            </div>
         <?php endforeach ?>
-    </table>
+    </div>
 </div>
 
 <style>
-    #contacts-view td {
-        padding: 0 5px;
+    #contacts-view {
+        margin: 10px 0 0 0;
+        padding: 10px 10px 0 10px;
     }
 
     #contacts-view h2 {
-        margin-top: -10px;
-        margin-bottom: 0;
+        margin: 0;
+    }
+
+    .contacts-view-comment {
+        font-weight: normal;
+        margin-bottom: 10px;
+        color: #888;
     }
 </style>

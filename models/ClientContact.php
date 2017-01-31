@@ -217,14 +217,14 @@ class ClientContact extends HistoryActiveRecord
      */
     public function validatePhone($attribute, $params)
     {
-        $e164Phones = ClientContact::dao()->getE164($this->data);
+        list($phoneRemain, $e164Phones) = ClientContact::dao()->getE164($this->data);
         $countE164Phones = count($e164Phones);
 
         if ($countE164Phones == 1) {
             $e164Phone = reset($e164Phones);
             if ($this->data !== $e164Phone) {
-                // Не в том формате. Автоматически привести к нужному. Старое значение - в коммент
-                $this->comment .= ' ' . $this->data;
+                // Не в том формате. Автоматически привести к нужному. Нераспознанный остаток перенести в комментарий
+                $this->comment .= ' ' . $phoneRemain;
                 $this->data = $e164Phone;
             }
 
