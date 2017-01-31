@@ -451,7 +451,7 @@ class VirtPbx3Action
 
                 $numInfo = ApiPhone::getNumbersInfo($fromUsage->clientAccount);
 
-                ApiVpbx::transfer(
+                ApiVpbx::transferVpbxOnly(
                     $fromUsage->clientAccount->id,
                     $fromUsage->id,
                     $toUsage->clientAccount->id,
