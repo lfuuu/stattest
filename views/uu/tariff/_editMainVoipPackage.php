@@ -34,27 +34,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
     <div class="well">
 
-        <div class="row">
-            <div class="col-sm-3">
-                <?= $form->field($package, 'tarification_free_seconds')->textInput($options) ?>
-            </div>
-
-            <div class="col-sm-3">
-                <?= $form->field($package, 'tarification_min_paid_seconds')->textInput($options) ?>
-            </div>
-
-            <div class="col-sm-3">
-                <?= $form->field($package, 'tarification_interval_seconds')->textInput($options) ?>
-            </div>
-
-            <div class="col-sm-3">
-                <?= $form->field($package, 'tarification_type')
-                    ->widget(Select2::className(), [
-                        'data' => [Package::TARIFICATION_TYPE_CEIL => 'В большую сторону (ceil)', Package::TARIFICATION_TYPE_ROUND => 'Математическое округление (round)'],
-                        'options' => $options,
-                    ]) ?>
-            </div>
-        </div>
+        <?= $this->render('_editMainTarification', ['form' => $form, 'package' => $package, 'options' => $options]) ?>
 
         <div class="row">
             <div class="col-sm-3">

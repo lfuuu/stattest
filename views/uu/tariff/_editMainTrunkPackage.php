@@ -9,8 +9,14 @@
  */
 
 use app\controllers\uu\TariffController;
+use app\modules\nnp\models\Package;
 
 $tariff = $formModel->tariff;
+$package = $tariff->package;
+if (!$package) {
+    $package = new Package;
+}
+
 $viewParams = [
     'formModel' => $formModel,
     'form' => $form,
@@ -23,6 +29,10 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
     $options = [];
 }
 ?>
+
+    <div class="well">
+        <?= $this->render('_editMainTarification', ['form' => $form, 'package' => $package, 'options' => $options]) ?>
+    </div>
 
 <?= $this->render('_editMainVoipPackageMinute', $viewParams) ?>
 <?= $this->render('_editMainVoipPackagePrice', $viewParams) ?>
