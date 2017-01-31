@@ -902,6 +902,8 @@ class UuController extends ApiInternalController
             'id' => $accountTariff->id,
             'voip_number' => $accountTariff->voip_number,
             'voip_city' => $this->getIdNameRecord($accountTariff->city),
+            'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
+            'is_editable' => (bool)$accountTariff->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
             'packages' => null,
         ];
