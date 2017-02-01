@@ -63,7 +63,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             'label' => $filterModel->aggrLabels[$value],
             'attribute' => $value,
         ];
-        if (strpos($value, 'session_time') !== false || $value == 'acd') {
+        if (strpos($value, 'session_time') !== false || strpos($value, 'acd') !== false) {
             $columns[$key + $c]['value'] = function ($model) use ($value) {
                 return DateTimeWithUserTimezone::formatSecondsToMinutesAndSeconds($model[$value]);
             };
@@ -79,7 +79,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
             $columns[$key + $c]['format'] = ['decimal', $aggrDigitCount[$value]];
         }
 
-        if ($value == 'asr') {
+        if (strpos($value, 'asr') !== false) {
             $columns[$key + $c]['format'] = 'percent';
         }
     }

@@ -60,7 +60,7 @@ class DisconnectCause extends ActiveRecord
         self::NO_USER_RESPONSE,
         self::NO_ANSWER,
         self::SUBSCRIBER_ABSENT,
-        self::NORMAL_UNSPECIFIED
+        self::NORMAL_UNSPECIFIED,
     ];
 
     /**

@@ -28,7 +28,7 @@ if (!$accountTariff->isNewRecord) {
             [
                 'id' => 'accounttariff-trunk_id',
                 'name' => 'trunkId',
-                'data' => Trunk::dao()->getList($accountTariff->region_id, $isWithEmpty = true),
+                'data' => Trunk::dao()->getList(['serverIds' => $accountTariff->region_id], $isWithEmpty = true),
             ]
         ) ?>
         <div class="help-block"></div>

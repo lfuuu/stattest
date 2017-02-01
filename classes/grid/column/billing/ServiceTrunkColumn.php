@@ -12,8 +12,9 @@ class ServiceTrunkColumn extends DataColumn
     use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
-    public $filterByServerId = '';
-    public $filterByServiceTrunkId = '';
+    public $filterByServerIds = null;
+    public $filterByContractIds = null;
+    public $filterByTrunkIds = null;
 
     public function __construct($config = [])
     {
@@ -22,8 +23,11 @@ class ServiceTrunkColumn extends DataColumn
         $this->filterOptions['class'] .= ' trunk-column';
 
         $this->filter = ServiceTrunk::getListWithName(
-            $this->filterByServerId,
-            $this->filterByServiceTrunkId
+            [
+                'serverIds' => $this->filterByServerIds,
+                'contractIds' => $this->filterByContractIds,
+                'trunkIds' => $this->filterByTrunkIds,
+            ]
         );
     }
 

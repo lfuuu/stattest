@@ -3,49 +3,75 @@
  */
 
 $(function () {
-    var settings = {"theme":"krajee","width":"100%","language":"ru-RU"};
-
-    $('select[name="CallsRawFilter[server_ids][]"], select[name="CallsRawFilter[src_routes_ids][]"], select[name="CallsRawFilter[src_contracts_ids][]"]')
+    $('select[name="CallsRawFilter[server_ids][]"], ' +
+        'select[name="CallsRawFilter[src_logical_trunks_ids][]"], ' +
+        'select[name="CallsRawFilter[src_contracts_ids][]"], ' +
+        'select[name="CallsRawFilter[src_physical_trunks_ids][]"]')
         .on('change', function () {
             var server_ids = $('select[name="CallsRawFilter[server_ids][]"]'),
                 src_contracts_ids = $('select[name="CallsRawFilter[src_contracts_ids][]"]'),
-                src_routes_ids = $('select[name="CallsRawFilter[src_routes_ids][]"]');
+                src_logical_trunks_ids = $('select[name="CallsRawFilter[src_logical_trunks_ids][]"]'),
+                src_physical_trunks_ids = $('select[name="CallsRawFilter[src_physical_trunks_ids][]"]');
 
-            if (!$(this).is(src_routes_ids))
-                $.get("/voip/raw/get-routes", {
+            if (!$(this).is(src_logical_trunks_ids))
+                $.get("/voip/raw/get-logical-trunks", {
                     serverIds: server_ids.val(),
-                    serviceTrunkId: src_contracts_ids.val()
+                    contractIds: src_contracts_ids.val(),
+                    trunkIds: src_physical_trunks_ids.val()
                 }, function (data) {
-                    src_routes_ids.html(data).select2(settings);
+                    src_logical_trunks_ids.html(data).trigger('change.select2');
                 });
             if (!$(this).is(src_contracts_ids))
                 $.get("/voip/raw/get-contracts", {
                     serverIds: server_ids.val(),
-                    serviceTrunkId: src_routes_ids.val()
+                    serviceTrunkIds: src_logical_trunks_ids.val(),
+                    trunkIds: src_physical_trunks_ids.val()
                 }, function (data) {
-                    src_contracts_ids.html(data).select2(settings);
+                    src_contracts_ids.html(data).trigger('change.select2');
+                });
+            if (!$(this).is(src_physical_trunks_ids))
+                $.get("/voip/raw/get-physical-trunks", {
+                    serverIds: server_ids.val(),
+                    serviceTrunkIds: src_logical_trunks_ids.val(),
+                    contractIds: src_contracts_ids.val()
+                }, function (data) {
+                    src_physical_trunks_ids.html(data).trigger('change.select2');
                 });
         });
 
-    $('select[name="CallsRawFilter[server_ids][]"], select[name="CallsRawFilter[dst_routes_ids][]"], select[name="CallsRawFilter[dst_contracts_ids][]"]')
+    $('select[name="CallsRawFilter[server_ids][]"], ' +
+        'select[name="CallsRawFilter[dst_routes_ids][]"], ' +
+        'select[name="CallsRawFilter[dst_contracts_ids][]"], ' +
+        'select[name="CallsRawFilter[dst_physical_trunks_ids][]"]')
         .on('change', function () {
             var server_ids = $('select[name="CallsRawFilter[server_ids][]"]'),
                 dst_contracts_ids = $('select[name="CallsRawFilter[dst_contracts_ids][]"]'),
-                dst_routes_ids = $('select[name="CallsRawFilter[dst_routes_ids][]"]');
+                dst_logical_trunks_ids = $('select[name="CallsRawFilter[dst_logical_trunks_ids][]"]'),
+                dst_physical_trunks_ids = $('select[name="CallsRawFilter[dst_physical_trunks_ids][]"]');
 
-            if (!$(this).is(dst_routes_ids))
-                $.get("/voip/raw/get-routes", {
+            if (!$(this).is(dst_logical_trunks_ids))
+                $.get("/voip/raw/get-logical-trunks", {
                     serverIds: server_ids.val(),
-                    serviceTrunkId: dst_contracts_ids.val()
+                    contractIds: dst_contracts_ids.val(),
+                    trunkIds: dst_physical_trunks_ids.val()
                 }, function (data) {
-                    dst_routes_ids.html(data).select2(settings);
+                    dst_logical_trunks_ids.html(data).trigger('change.select2');
                 });
             if (!$(this).is(dst_contracts_ids))
                 $.get("/voip/raw/get-contracts", {
                     serverIds: server_ids.val(),
-                    serviceTrunkId: dst_routes_ids.val()
+                    serviceTrunkIds: dst_logical_trunks_ids.val(),
+                    trunkIds: dst_physical_trunks_ids.val()
                 }, function (data) {
-                    dst_contracts_ids.html(data).select2(settings);
+                    dst_contracts_ids.html(data).trigger('change.select2');
+                });
+            if (!$(this).is(dst_physical_trunks_ids))
+                $.get("/voip/raw/get-physical-trunks", {
+                    serverIds: server_ids.val(),
+                    serviceTrunkIds: dst_logical_trunks_ids.val(),
+                    contractIds: dst_contracts_ids.val()
+                }, function (data) {
+                    dst_physical_trunks_ids.html(data).trigger('change.select2');
                 });
         });
 
@@ -59,14 +85,14 @@ $(function () {
                 $.get("/voip/raw/get-regions", {
                     countryCodes: src_countries_ids.val()
                 }, function (data) {
-                    src_regions_ids.html(data).select2(settings);
+                    src_regions_ids.html(data).trigger('change.select2');
                 });
 
             $.get("/voip/raw/get-cities", {
                 countryCodes: src_countries_ids.val(),
                 regionIds: src_regions_ids.val()
             }, function (data) {
-                src_cities_ids.html(data).select2(settings);
+                src_cities_ids.html(data).trigger('change.select2');
             });
         });
 
@@ -80,13 +106,13 @@ $(function () {
                 $.get("/voip/raw/get-regions", {
                     countryCodes: dst_countries_ids.val()
                 }, function (data) {
-                    dst_regions_ids.html(data).select2(settings);
+                    dst_regions_ids.html(data).trigger('change.select2');
                 });
             $.get("/voip/raw/get-cities", {
                 countryCodes: dst_countries_ids.val(),
                 regionIds: dst_regions_ids.val()
             }, function (data) {
-                dst_cities_ids.html(data).select2(settings);
+                dst_cities_ids.html(data).trigger('change.select2');
             });
         });
 

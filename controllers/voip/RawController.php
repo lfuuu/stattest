@@ -3,6 +3,7 @@
 namespace app\controllers\voip;
 
 use app\classes\ReturnFormatted;
+use app\dao\billing\TrunkDao;
 use app\dao\ClientContractDao;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\Region;
@@ -32,7 +33,7 @@ class RawController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'get-routes', 'get-contracts', 'get-regions', 'get-cities'],
+                        'actions' => ['index', 'get-logical-trunks', 'get-physical-trunks', 'get-contracts', 'get-regions', 'get-cities'],
                         'roles' => ['voip.access'],
                     ],
                 ],
@@ -45,14 +46,18 @@ class RawController extends BaseController
      * ID сервера и ID контракта
      *
      * @param array $serverIds
-     * @param array $serviceTrunkIds
+     * @param array $contractIds
+     * @param array $trunkIds
      */
-    public function actionGetRoutes(array $serverIds = [], array $serviceTrunkIds = [])
+    public function actionGetLogicalTrunks(array $serverIds = [], array $contractIds = [], array $trunkIds = [])
     {
         ReturnFormatted::me()->returnFormattedValues(
             ServiceTrunk::getListWithName(
-                array_filter($serverIds),
-                array_filter($serviceTrunkIds)
+                [
+                    'serverIds' => array_filter($serverIds),
+                    'contractIds' => array_filter($contractIds),
+                    'trunkIds' => array_filter($trunkIds),
+                ]
             ),
             'options'
         );
@@ -64,13 +69,39 @@ class RawController extends BaseController
      *
      * @param array $serverIds
      * @param array $serviceTrunkIds
+     * @param array $trunkIds
      */
-    public function actionGetContracts(array $serverIds = [], array $serviceTrunkIds = [])
+    public function actionGetContracts(array $serverIds = [], array $serviceTrunkIds = [], array $trunkIds = [])
     {
         ReturnFormatted::me()->returnFormattedValues(
             ClientContractDao::getListWithType(
-                array_filter($serverIds),
-                array_filter($serviceTrunkIds)
+                [
+                    'serverIds' => array_filter($serverIds),
+                    'serviceTrunkIds' => array_filter($serviceTrunkIds),
+                    'trunkIds' => array_filter($trunkIds),
+                ]
+            ),
+            'options'
+        );
+    }
+
+    /**
+     * Получить список физических транков с именами в качестве ключей
+     *
+     * @param array $serverIds
+     * @param array $serviceTrunkIds
+     * @param array $contractIds
+     */
+    public function actionGetPhysicalTrunks(array $serverIds = [], array $serviceTrunkIds = [], array $contractIds = [])
+    {
+        ReturnFormatted::me()->returnFormattedValues(
+            TrunkDao::me()->getList(
+                [
+                    'serverIds' => array_filter($serverIds),
+                    'serviceTrunkIds' => array_filter($serviceTrunkIds),
+                    'contractIds' => array_filter($contractIds),
+                    'showInStat' => false,
+                ]
             ),
             'options'
         );

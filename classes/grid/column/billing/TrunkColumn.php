@@ -14,7 +14,11 @@ class TrunkColumn extends DataColumn
 
     public $filterType = GridView::FILTER_SELECT2;
     public $filterByIds = [];
-    public $filterByServerId = '';
+    public $filterByServerIds = null;
+    public $filterByServiceTrunkIds = null;
+    public $filterByContractIds = null;
+    public $isWithEmpty = true;
+    public $filterByShowInStat = true;
 
     public function __construct($config = [])
     {
@@ -22,7 +26,15 @@ class TrunkColumn extends DataColumn
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' trunk-column';
 
-        $this->filter = Trunk::dao()->getList($this->filterByServerId, true);
+        $this->filter = Trunk::dao()->getList(
+            [
+                'serverIds' => $this->filterByServerIds,
+                'serviceTrunkIds' => $this->filterByServiceTrunkIds,
+                'contractIds' => $this->filterByContractIds,
+                'showInStat' => $this->filterByShowInStat,
+            ],
+            $this->isWithEmpty
+        );
 
         // если выбран оператор, то в списке показать только его транки
         if ($this->filterByIds) {

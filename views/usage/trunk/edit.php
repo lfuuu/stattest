@@ -29,7 +29,7 @@ $this->registerJsFile('@web/js/behaviors/usage-trunk-pricelist-link.js', ['depen
 
 $trunk = Trunk::findOne($usage->trunk_id);
 
-$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($usage->connection_point_id);
+$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList(['serverIds' => $usage->connection_point_id]);
 
 $srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
 $dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);

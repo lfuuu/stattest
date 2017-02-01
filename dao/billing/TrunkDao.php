@@ -8,6 +8,7 @@ use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\UsageTrunk;
 use yii\db\Query;
+use Yii;
 
 /**
  * @method static TrunkDao me($args = null)
@@ -19,17 +20,38 @@ class TrunkDao extends Singleton
     /**
      * Вернуть список всех доступных моделей
      *
-     * @param int $serverId
+     * @param array $params
      * @param bool $isWithEmpty
      * @return Trunk[]
      */
-    public function getList($serverId = null, $isWithEmpty = false)
+    public function getList(array $params = [], $isWithEmpty = false)
     {
         $query = Trunk::find();
-        $serverId && $query->where(['server_id' => $serverId]);
+
+        if (isset($params['serverIds']) && $params['serverIds']) {
+            $query->andWhere(['t.server_id' => $params['serverIds']]);
+        }
+
+        if (((isset($params['serviceTrunkIds']) && $params['serviceTrunkIds']) || (isset($params['contractIds']) && $params['contractIds']))) {
+            $query->leftJoin(['st' => 'billing.service_trunk'], 'st.trunk_id = t.id');
+        }
+
+        if (isset($params['serviceTrunkIds']) && $params['serviceTrunkIds']) {
+            $query->andWhere(['st.id' => $params['serviceTrunkIds']]);
+        }
+
+        if (isset($params['contractIds']) && $params['contractIds']) {
+            $query->andWhere(['st.contract_id' => $params['contractIds']]);
+        }
+
+        if (!isset($params['showInStat']) || (isset($params['showInStat']) && $params['showInStat'])) {
+            $query->andWhere(['show_in_stat' => true]);
+        }
+
         $list = $query
-            ->andWhere(['show_in_stat' => true])
-            ->orderBy(['name' => SORT_ASC])
+            ->select('t.*')
+            ->from('auth.trunk t')
+            ->orderBy(['t.name' => SORT_ASC])
             ->indexBy('id')
             ->all();
 

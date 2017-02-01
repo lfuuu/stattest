@@ -52,21 +52,29 @@ class ServiceTrunk extends ActiveRecord
     /**
      * Получить список транков с идентификатором логического транка
      *
-     * @param int $serverId - фильтр по серверу
-     * @param int $serviceTrunkId - фильтр по контракту
+     * @param array $params
      * @param bool $isWithEmpty
      *
      * @return array
      */
-    public static function getListWithName($serverId = null, $serviceTrunkId = null, $isWithEmpty = false)
+    public static function getListWithName(array $params = [], $isWithEmpty = false)
     {
         $query = self::find()
             ->select(["COALESCE('(' || st.id || ') ' || t.name, t.name) AS name", 'st.id'])
             ->from('billing.service_trunk st')
             ->joinWith('trunk t', true, 'JOIN');
 
-        $serverId && $query->andWhere(['st.server_id' => $serverId]);
-        $serviceTrunkId && $query->andWhere(['st.contract_id' => $serviceTrunkId]);
+        if (isset($params['serverIds']) && $params['serverIds']) {
+            $query->andWhere(['st.server_id' => $params['serverIds']]);
+        }
+
+        if (isset($params['contractIds']) && $params['contractIds']) {
+            $query->andWhere(['st.contract_id' => $params['contractIds']]);
+        }
+        
+        if (isset($params['trunkIds']) && $params['trunkIds']) {
+            $query->andWhere(['st.trunk_id' => $params['trunkIds']]);
+        }
 
         $list = $query
             ->indexBy('id')

@@ -26,8 +26,10 @@ use yii\db\Query;
  * @property string $session_time_from
  * @property string $session_time_to
  * @property bool $is_success_calls
- * @property array $src_routes_ids
- * @property array $dst_routes_ids
+ * @property array $src_logical_trunks_ids
+ * @property array $dst_logical_trunks_ids
+ * @property array $src_physical_trunks_ids
+ * @property array $dst_physical_trunks_ids
  * @property string $src_number
  * @property string $dst_number
  * @property array $src_operator_ids
@@ -98,8 +100,10 @@ class CallsRawFilter extends Model
         'session_time_max' => 'MAX(session_time)',
         'calls_count' => 'COUNT(connect_time)',
         'nonzero_calls_count' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))',
-        'acd' => 'SUM(session_time) / SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))',
-        'asr' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))::real / COUNT(connect_time)::real'
+        'acd' => 'SUM(session_time) / NULLIF(SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END)), 0)',
+        'asr' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))::real / NULLIF(COUNT(connect_time)::real, 0)',
+        'acd_u' => 'SUM(session_time) / NULLIF(SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END)), 0)',
+        'asr_u' => 'SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END))::real / NULLIF(COUNT(connect_time)::real, 0)',
     ];
 
     public $aggrLabels = [
@@ -123,6 +127,8 @@ class CallsRawFilter extends Model
         'nonzero_calls_count' => 'Количество ненулевых звонков',
         'acd' => 'ACD',
         'asr' => 'ASR',
+        'acd_u' => 'ACD с кодами (16,17,18,19,21,31)',
+        'asr_u' => 'ASR с кодами (16,17,18,19,21,31)',
     ];
 
     public $server_ids = [];
@@ -132,8 +138,10 @@ class CallsRawFilter extends Model
     public $session_time_from = null;
     public $session_time_to = null;
     public $is_success_calls = null;
-    public $src_routes_ids = [];
-    public $dst_routes_ids = [];
+    public $src_logical_trunks_ids = [];
+    public $dst_logical_trunks_ids = [];
+    public $src_physical_trunks_ids = [];
+    public $dst_physical_trunks_ids = [];
     public $src_number = null;
     public $dst_number = null;
     public $src_operator_ids = [];
@@ -216,8 +224,10 @@ class CallsRawFilter extends Model
                     'dst_countries_ids',
                     'src_destinations_ids',
                     'dst_destinations_ids',
-                    'dst_routes_ids',
-                    'src_routes_ids',
+                    'dst_logical_trunks_ids',
+                    'src_logical_trunks_ids',
+                    'dst_physical_trunks_ids',
+                    'src_physical_trunks_ids',
                     'src_contracts_ids',
                     'dst_contracts_ids',
                     'src_number_type_ids',
@@ -425,7 +435,7 @@ class CallsRawFilter extends Model
 
         $query3->select(
             [
-                'cdr_id' => 'id',
+                'cdr_id' => 'cu.id',
                 'date_trunc(\'second\', setup_time) connect_time',
                 'disconnect_cause',
                 'src_route',
@@ -451,7 +461,7 @@ class CallsRawFilter extends Model
                 'term_rate' => $null,
                 'margin' => $null,
             ]
-        )->from('calls_cdr.cdr_unfinished')
+        )->from('calls_cdr.cdr_unfinished cu')
             ->orderBy('setup_time')
             ->limit(500);
 
@@ -468,7 +478,7 @@ class CallsRawFilter extends Model
             $query1->andWhere($condition)
             && $query2->andWhere($condition)
             && $query3
-            && $query3->andWhere(['server_id' => $this->server_ids]);
+            && $query3->andWhere(['cu.server_id' => $this->server_ids]);
         }
 
         if ($this->connect_time_from || $this->correct_connect_time_to) {
@@ -487,7 +497,7 @@ class CallsRawFilter extends Model
 
         if ($this->session_time_from
             || $this->session_time_to
-            || $this->dst_routes_ids
+            || $this->dst_logical_trunks_ids
             || $this->dst_contracts_ids
             || $this->dst_operator_ids
             || $this->dst_regions_ids
@@ -501,7 +511,7 @@ class CallsRawFilter extends Model
             $query3 = null;
         }
 
-        if ($this->src_routes_ids
+        if ($this->src_logical_trunks_ids
             || $this->src_contracts_ids
             || $this->src_operator_ids
             || $this->src_regions_ids
@@ -525,25 +535,37 @@ class CallsRawFilter extends Model
             ]
         );
 
-        if ($this->src_routes_ids || $this->src_contracts_ids || $this->dst_routes_ids || $this->dst_contracts_ids) {
-            if (!is_array($src_filter = $this->src_routes_ids ? $this->src_routes_ids : $this->src_contracts_ids)) {
-                $src_filter = [];
-            }
-
-            if (!is_array($dst_filter = $this->dst_routes_ids ? $this->dst_routes_ids : $this->dst_contracts_ids)) {
-                $dst_filter = [];
-            }
-
-            if ($this->src_routes_ids || $this->src_contracts_ids) {
-                $query1->andWhere(['cr.trunk_service_id' => $src_filter]);
-                $query3 = null;
-            }
-
-            if ($this->dst_routes_ids || $this->dst_contracts_ids) {
-                $query2->andWhere(['cr.trunk_service_id' => $dst_filter]);
-                $query3 = null;
-            }
+        if ($this->src_physical_trunks_ids) {
+            $query1->andWhere(['cr.trunk_id' => $this->src_physical_trunks_ids])
+            && $query3
+            && $query3
+                ->leftJoin('auth.trunk t1', 'src_route = t1.trunk_name')
+                ->andWhere(['t1.id' => $this->src_physical_trunks_ids]);
         }
+
+        if ($this->dst_physical_trunks_ids) {
+            $query2->andWhere(['cr.trunk_id' => $this->dst_physical_trunks_ids])
+            && $query3
+            && $query3
+                ->leftJoin('auth.trunk t2', 'dst_route = t2.trunk_name')
+                ->andWhere(['t2.id' => $this->dst_physical_trunks_ids]);
+        }
+
+        $this->src_logical_trunks_ids
+        && $query1->andWhere(['cr.trunk_service_id' => $this->src_logical_trunks_ids])
+        && $query3 = null;
+
+        $this->dst_logical_trunks_ids
+        && $query2->andWhere(['cr.trunk_service_id' => $this->dst_logical_trunks_ids]);
+            $query3 = null;
+
+        $this->src_contracts_ids
+        && $query1->andWhere(['st.contract_id' => $this->src_contracts_ids])
+        && $query3 = null;
+
+        $this->dst_contracts_ids
+        && $query2->andWhere(['st.contract_id' => $this->dst_contracts_ids ]) 
+        && $query3 = null;
 
         $this->src_operator_ids
         && $query1->andWhere(['cr.nnp_operator_id' => $this->src_operator_ids]);

@@ -14,27 +14,35 @@ class ClientContractDao extends Singleton
     /**
      * Получить транковые контракты с типом контракта в скобках
      *
-     * @param int $serverId - фильтр по серверу
-     * @param string $serviceTrunkId - фильтр по транку
+     * @param array $params
      * @param bool $isWithEmpty
      *
      * @return string[]
      */
-    public static function getListWithType($serverId = null, $serviceTrunkId = null, $isWithEmpty = false)
+    public static function getListWithType(array $params = [], $isWithEmpty = false)
     {
         $query = (new Query)
             ->select(
                 [
                     'name' => "COALESCE(st.contract_number || ' (' || cct.name || ')', st.contract_number)",
-                    'id' => 'st.id',
+                    'id' => 'st.contract_id',
                 ]
             )
             ->from('billing.service_trunk AS st')
             ->leftJoin('stat.client_contract_type AS cct', 'cct.id = st.contract_type_id')
             ->orderBy('name DESC');
 
-        $serverId && $query->andWhere(['st.server_id' => $serverId]);
-        $serviceTrunkId && $query->andWhere(['st.id' => $serviceTrunkId]);
+        if (isset($params['serverIds']) && $params['serverIds']) {
+            $query->andWhere(['st.server_id' => $params['serverIds']]);
+        }
+
+        if (isset($params['serviceTrunkIds']) && $params['serviceTrunkIds']) {
+            $query->andWhere(['st.id' => $params['serviceTrunkIds']]);
+        }
+
+        if (isset($params['trunkIds']) && $params['trunkIds']) {
+            $query->andWhere(['st.trunk_id' => $params['trunkIds']]);
+        }
 
         $list = $query->indexBy('id')->column(Yii::$app->dbPgSlave);
 

@@ -12,7 +12,7 @@ use app\models\billing\Trunk;
 /** @var \app\forms\usage\UsageTrunkEditForm $model */
 /** @var \app\models\UsageTrunk $usage */
 
-$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList($model->connection_point_id);
+$trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList(['serverIds' => $model->connection_point_id]);
 
 echo Html::formLabel('Добавление транка');
 echo Breadcrumbs::widget([
