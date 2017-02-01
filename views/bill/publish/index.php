@@ -97,11 +97,14 @@ use app\models\Region;
 </div>
 
 <div class="well text-center" style="width: 500px;">
-    <? if (!$isNotificationsOn) : ?>
-        <a class="btn btn-primary" href="/monitoring/notification-off" role="button">Отключить оповещения</a>
+    <?php if (!$isNotificationsOn) : ?>
+        <a class="btn <?=($isNotificationsRunning ? 'btn-warning' : 'btn-primary')?>" href="/monitoring/notification-off" role="button">Отключить оповещения</a>
     <?php else: ?>
-        <a class="btn btn-info" href="/monitoring/notification-on" role="button">Включить оповещения</a>
+        <a class="btn <?=($isNotificationsRunning ? 'btn-danger' : 'btn-info')?>" href="/monitoring/notification-on" role="button">Включить оповещения</a>
         <h6>Отключено: <?= $isNotificationsOn ?></h6>
+    <?php endif; ?>
+    <?php if ($isNotificationsRunning) : ?>
+        <div><code>Скрипт работает</code></div>
     <?php endif; ?>
 </div>
 

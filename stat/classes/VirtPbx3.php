@@ -4,6 +4,7 @@ use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\ActaulizerVoipNumbers;
+use app\classes\uu\model\AccountTariff;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;
 use app\models\UsageVirtpbx;
@@ -337,10 +338,13 @@ class VirtPbx3Action
 
         $usage = UsageVirtpbx::findOne(['id' => $l['usage_id']]);
         if (!$usage) {
-            return null;
+            $uuUsage = AccountTariff::findOne(['id' => $l['usage_id']]);
+            if (!$uuUsage) {
+                return null;
+            }
         }
 
-        if ($usage->isTransfered(true)) {
+        if ($usage && $usage->isTransfered(true)) {
             $msg = 'Создается переносимая ВАТС';
 
             l::ll(__CLASS__, __FUNCTION__, $msg);
@@ -397,10 +401,13 @@ class VirtPbx3Action
 
         $usage = UsageVirtpbx::findOne(['id' => $l['usage_id']]);
         if (!$usage) {
-            return null;
+            $uuUsage = AccountTariff::findOne(['id' => $l['usage_id']]);
+            if (!$uuUsage) {
+                return null;
+            }
         }
 
-        if ($usage->isTransfered(false)) {
+        if ($usage && $usage->isTransfered(false)) {
             $msg = 'Удаляется переносимая ВАТС';
             l::ll(__CLASS__, __FUNCTION__, $msg);
             Yii::error($msg . PHP_EOL . print_r($l, true));

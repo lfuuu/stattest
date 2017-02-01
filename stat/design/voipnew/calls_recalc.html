@@ -25,10 +25,12 @@
 
 <div class="well text-center" style="width: 300px;">
     {if !$is_notifications_on}
-        <a class="btn btn-primary" href="/monitoring/notification-off" role="button">Отключить оповещения</a>
+        <a class="btn {if $is_notifications_running}btn-warning{else}btn-primary{/if}" href="/monitoring/notification-off" role="button">Отключить оповещения</a>
     {else}
-        <a class="btn btn-info" href="/monitoring/notification-on" role="button">Включить оповещения</a> <h6>Отключено: {$is_notifications_on}</h6>
+        <a class="btn {if $is_notifications_running}btn-danger{else}btn-info{/if}" href="/monitoring/notification-on" role="button">Включить оповещения</a>
+        <h6>Отключено: {$is_notifications_on}</h6>
     {/if}
+    {if $is_notifications_running}<div><code>Скрипт работает</code></div>{/if}
 </div>
 
 <div id="confirm-dialog">

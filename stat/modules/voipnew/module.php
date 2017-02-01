@@ -4,6 +4,7 @@ include_once 'prices_parser.php';
 include_once 'network.php';
 include_once 'trunks.php';
 
+use app\classes\Utils;
 use app\classes\voip\DefInfo;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\PricelistFile;
@@ -815,6 +816,7 @@ class m_voipnew extends IModule
             $isNotificationsOn = DateTimeZoneHelper::getDateTime($switchOffParam->value);
         }
         $design->assign('is_notifications_on', $isNotificationsOn);
+        $design->assign('is_notifications_running', Utils::isFileLocked(Param::NOTIFICATIONS_LOCK_FILEPATH));
 
         $design->AddMain('voipnew/calls_recalc.html');
     }

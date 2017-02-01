@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers\bill;
 
+use app\classes\Utils;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Organization;
 use app\models\Param;
@@ -41,7 +42,8 @@ class PublishController extends BaseController
             'organizationId' => $organizationId,
             'regionId' => $regionId,
             'isNotificationsOn' => $isNotificationsOn,
-            'isEnabledRecalcWhenEditBill' => $isEnabledRecalcWhenEditBill
+            'isNotificationsRunning' => Utils::isFileLocked(Param::NOTIFICATIONS_LOCK_FILEPATH),
+            'isEnabledRecalcWhenEditBill' => $isEnabledRecalcWhenEditBill,
         ]);
     }
 
