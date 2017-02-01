@@ -56,9 +56,9 @@ class NewBill extends ActiveRecord\Model
 
     public static function setLkShowForAll()
     {
-        foreach(self::find('all', array("conditions" => array('is_lk_show' => 0))) as $b)
+        foreach(self::find('all', array("conditions" => array('is_show_in_lk' => 0))) as $b)
         {
-            $b->is_lk_show = 1;
+            $b->is_show_in_lk = 1;
             $b->save();
         }
     }

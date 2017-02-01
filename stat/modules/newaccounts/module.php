@@ -1345,7 +1345,7 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_publish($fixclient)
     {
-        $rowsUpdated = \app\models\Bill::updateAll(['is_lk_show' => 1], ['and', ['is_lk_show' => 0], ['like', 'bill_no', date("Ym").'%', false]]);
+        $rowsUpdated = \app\models\Bill::updateAll(['is_show_in_lk' => 1], ['and', ['is_show_in_lk' => 0], ['like', 'bill_no', date("Ym").'%', false]]);
 
         trigger_error2("Опубликованно счетов: " . $rowsUpdated);
 

@@ -29,7 +29,7 @@ use yii\helpers\Url;
  * @property string $is_rollback    1 - счет на возврат. 0 - обычный
  * @property string $payed_ya       ??
  * @property string $editor         ??  значения: stat, admin
- * @property int $is_lk_show     ??
+ * @property int $is_show_in_lk     ??
  * @property string $doc_date       ??
  * @property int $is_user_prepay ??
  * @property string $bill_no_ext        ??

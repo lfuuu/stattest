@@ -13,6 +13,7 @@ use app\classes\traits\GridSortTrait;
  * @property int $connection_point_id
  * @property string $voip_number_format
  * @property int $in_use
+ * @property int $is_show_in_lk
  * @property int $order
  *
  * @property Country $country
@@ -40,7 +41,8 @@ class City extends ActiveRecord
             'country_id' => 'Страна',
             'connection_point_id' => 'Точка подключения',
             'voip_number_format' => 'Формат номеров',
-            'in_use' => 'Используется',
+            'in_use' => 'Есть номера',
+            'is_show_in_lk' => 'Показывать в ЛК',
             'billing_method_id' => 'Метод биллингования',
         ];
     }
@@ -60,7 +62,7 @@ class City extends ActiveRecord
     {
         return [
             [['name', 'voip_number_format'], 'string'],
-            [['id', 'country_id', 'connection_point_id', 'billing_method_id'], 'integer'],
+            [['id', 'country_id', 'connection_point_id', 'billing_method_id', 'is_show_in_lk'], 'integer'],
             [['name', 'voip_number_format', 'country_id', 'connection_point_id', 'id'], 'required'],
         ];
     }

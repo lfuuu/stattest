@@ -40,7 +40,7 @@ class Bill {
             ->loadVersionOnDate($date);
     }
 
-    public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isLkShow=true, $isUserPrepay=false) {
+    public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isShowInLk=true, $isUserPrepay=false) {
         global $db;
         if ($bill_no){
             $this->bill_no=$bill_no;
@@ -101,7 +101,7 @@ class Bill {
             $bill->bill_no = $this->bill_no;
             $bill->bill_date = $this->bill_date;
             $bill->nal = $this->client_data["nal"];
-            $bill->is_lk_show = $isLkShow ? 1 : 0;
+            $bill->is_show_in_lk = $isShowInLk ? 1 : 0;
             $bill->is_user_prepay = $isUserPrepay ? 1 : 0;
             $bill->is_approved = 1;
             $bill->price_include_vat = $this->client_data['price_include_vat'];

@@ -16,6 +16,7 @@ class CityFilter extends City
     public $connection_point_id = '';
     public $voip_number_format = '';
     public $in_use = '';
+    public $is_show_in_lk = '';
     public $billing_method_id = '';
 
     public function rules()
@@ -26,7 +27,7 @@ class CityFilter extends City
             [['country_id'], 'integer'],
             [['connection_point_id'], 'integer'],
             [['voip_number_format'], 'string'],
-            [['in_use'], 'integer'],
+            [['in_use','is_show_in_lk'], 'integer'],
             [['billing_method_id'], 'integer'],
         ];
     }

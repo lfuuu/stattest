@@ -98,7 +98,7 @@ class ApiLk
                     "sum" => $p["sum"]
                 ];
             }
-            if ($b["is_lk_show"] == '1') {
+            if ($b["is_show_in_lk"] == '1') {
                 $bills[] = $bill;
             }
         }
@@ -249,7 +249,7 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
-        $b = NewBill::first(["conditions" => ["client_id" => $clientId, "bill_no" => $billNo, "is_lk_show" => "1"]]);
+        $b = NewBill::first(["conditions" => ["client_id" => $clientId, "bill_no" => $billNo, "is_show_in_lk" => "1"]]);
         if (!$b) {
             throw new Exception("bill_not_found");
         }
@@ -475,6 +475,7 @@ class ApiLk
                 ->select(['id', 'name'])
                 ->where([
                     'in_use' => 1,
+                    'is_show_in_lk' => 1,
                     'country_id' => $clientAccount->country_id
                 ])
                 ->orderBy(['order' => SORT_ASC])

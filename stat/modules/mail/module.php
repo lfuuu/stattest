@@ -490,7 +490,7 @@ class m_mail{
                 clients c,
                 newbills b
             set 
-                is_lk_show = 1
+                is_show_in_lk = 1
             where 
                 cc.manager in (
                     select 
@@ -508,7 +508,7 @@ class m_mail{
                         bill_no like '".date("Ym")."%'
                     or  bill_no like '".date("Ym", strtotime("-1 month"))."%'
                 )
-                and is_lk_show =0
+                and is_show_in_lk =0
                 ");
     }
 

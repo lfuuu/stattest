@@ -114,7 +114,7 @@ class BillFactory
                 $bill->client_id = $this->clientAccount->id;
                 $bill->currency = $this->clientAccount->currency;
                 $bill->nal = $this->clientAccount->nal;
-                $bill->is_lk_show = 0;
+                $bill->is_show_in_lk = 0;
                 $bill->is_user_prepay = 0;
                 $bill->is_approved = 1;
                 $bill->bill_date = $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT);

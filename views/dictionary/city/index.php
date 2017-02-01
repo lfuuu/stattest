@@ -79,6 +79,10 @@ $columns = [
         'attribute' => 'in_use',
         'class' => YesNoColumn::className(),
     ],
+    [
+        'attribute' => 'is_show_in_lk',
+        'class' => YesNoColumn::className(),
+    ],
 ];
 
 echo GridViewSequence::widget([

@@ -60,10 +60,10 @@ class PublishController extends BaseController
                 UPDATE `newbills` nb 
                   LEFT JOIN `clients` c ON c.`id` = nb.`client_id`
                 SET
-                    nb.`is_lk_show` = 1
+                    nb.`is_show_in_lk` = 1
                 WHERE
                     nb.`bill_no` LIKE :bill_no
-                    AND nb.`is_lk_show` = 0
+                    AND nb.`is_show_in_lk` = 0
                     AND c.`region` = :region',
                 [
                     ':bill_no' => date('Ym') . '-%',
@@ -87,11 +87,11 @@ class PublishController extends BaseController
                 UPDATE newbills b
                   LEFT JOIN `clients` c ON c.`id` = b.`client_id`
                   LEFT JOIN `client_contract` cc ON cc.`id` = c.contract_id
-                SET b.is_lk_show = 1
+                SET b.is_show_in_lk = 1
                 WHERE
                   b.bill_no LIKE :bill_mask
                   AND cc.organization_id = :organizationId
-                  AND b.is_lk_show = 0",
+                  AND b.is_show_in_lk = 0",
             [
                 ':bill_mask' => date('Ym') . '-%',
                 ':organizationId' => $organizationId

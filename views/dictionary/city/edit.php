@@ -91,6 +91,14 @@ if (!$city->isNewRecord) {
                 ]) ?>
         </div>
 
+        <?php // Показывать в ЛК
+        if ($city->in_use) : ?>
+        <div class="col-sm-2">
+            <br />
+            <?= $form->field($city, 'is_show_in_lk')->checkbox() ?>
+        </div>
+        <?php endif; ?>
+
     </div>
 
     <?php // кнопки ?>
