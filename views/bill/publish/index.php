@@ -104,3 +104,11 @@ use app\models\Region;
         <h6>Отключено: <?= $isNotificationsOn ?></h6>
     <?php endif; ?>
 </div>
+
+<div class="well text-center" style="width: 500px;">
+    <? if ($isEnabledRecalcWhenEditBill) : ?>
+        <a class="btn btn-primary" href="/monitoring/recalculation-balance-when-bill-edit-off" role="button">Отключить пересчет при редактировании счета</a>
+    <?php else: ?>
+        <a class="btn btn-info" href="/monitoring/recalculation-balance-when-bill-edit-on" role="button">Включить пересчет при редактировании счета</a>
+    <?php endif; ?>
+</div>

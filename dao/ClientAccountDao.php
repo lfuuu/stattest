@@ -7,6 +7,7 @@ use app\models\Business;
 use app\models\ClientContract;
 use app\models\ClientContractComment;
 use app\models\ClientContragent;
+use app\models\Param;
 use Yii;
 use app\classes\Assert;
 use app\classes\Singleton;
@@ -108,12 +109,17 @@ class ClientAccountDao extends Singleton
     }
 
     /**
+     * Обновление баланса ЛС
+     *
      * @param int $clientAccountId
-     * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
+     * @param bool $isForce
      */
-    public function updateBalance($clientAccountId)
+    public function updateBalance($clientAccountId, $isForce = true)
     {
+        if (!$isForce && Param::findOne(Param::DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL)) {
+            return;
+        }
+
         if ($clientAccountId instanceof ClientAccount) {
             $clientAccount = $clientAccountId;
         } else {

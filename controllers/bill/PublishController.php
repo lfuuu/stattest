@@ -35,10 +35,13 @@ class PublishController extends BaseController
             $isNotificationsOn = DateTimeZoneHelper::getDateTime($switchOffParam->value);
         }
 
+        $isEnabledRecalcWhenEditBill = !((bool)Param::findOne(Param::DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL));
+
         return $this->render('index', [
             'organizationId' => $organizationId,
             'regionId' => $regionId,
             'isNotificationsOn' => $isNotificationsOn,
+            'isEnabledRecalcWhenEditBill' => $isEnabledRecalcWhenEditBill
         ]);
     }
 

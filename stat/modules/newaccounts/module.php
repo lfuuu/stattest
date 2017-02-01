@@ -915,7 +915,7 @@ class m_newaccounts extends IModule
         $bill->sum = $bill->is_approved ? $bill->sum_with_unapproved : 0;
         $bill->save();
         $bill->dao()->recalcBill($bill);
-        ClientAccount::dao()->updateBalance($bill->client_id);
+        ClientAccount::dao()->updateBalance($bill->client_id, false);
 
         header('Location: index.php?module=newaccounts&action=bill_view&bill=' . $bill_no);
         exit();
@@ -1101,7 +1101,7 @@ class m_newaccounts extends IModule
         }
         $bill->Save();
         */
-        ClientAccount::dao()->updateBalance($bill->Client('id'));
+        ClientAccount::dao()->updateBalance($bill->Client('id'), false);
         unset($bill);
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: ?module=newaccounts&action=bill_view&bill=" . $bill_no);
@@ -1251,7 +1251,7 @@ class m_newaccounts extends IModule
         }
         $bill->Save();
         $client = $bill->Client('client');
-        ClientAccount::dao()->updateBalance($bill->Client('id'));
+        ClientAccount::dao()->updateBalance($bill->Client('id'), false);
         unset($bill);
 
         if (!$err && $design->ProcessEx('errors.tpl')) {
@@ -1872,7 +1872,7 @@ class m_newaccounts extends IModule
         $bill->Save(0, 0);
 
         $client = $bill->Client();
-        ClientAccount::dao()->updateBalance($client['id']);
+        ClientAccount::dao()->updateBalance($client['id'], false);
 
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_view&bill=" . $bill_no);
@@ -1921,7 +1921,7 @@ class m_newaccounts extends IModule
         $clientAccountId = $bill->client_id;
         $bill->delete();
 
-        ClientAccount::dao()->updateBalance($clientAccountId);
+        ClientAccount::dao()->updateBalance($clientAccountId, false);
 
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_list");

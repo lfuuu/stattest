@@ -123,4 +123,30 @@ class MonitoringController extends BaseController
 
         return $this->redirect(\Yii::$app->request->referrer ?: "/");
     }
+
+    /**
+     * Отключение пересчета баланса при редактировании счета
+     */
+    public function actionRecalculationBalanceWhenBillEditOff()
+    {
+        Param::setParam(Param::DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL, 1);
+
+        return $this->redirect(\Yii::$app->request->referrer ?: "/");
+    }
+
+    /**
+     * Включение пересчета баланса при редактировании счета
+     */
+    public function actionRecalculationBalanceWhenBillEditOn()
+    {
+        $param = Param::findOne(Param::DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL);
+
+        if ($param) {
+            if (!$param->delete()) {
+                throw new ModelValidationException($param);
+            }
+        }
+
+        return $this->redirect(\Yii::$app->request->referrer ?: "/");
+    }
 }
