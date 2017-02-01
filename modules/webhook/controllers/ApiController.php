@@ -96,6 +96,11 @@ class ApiController extends Controller
             throw new InvalidParamException('Webhook error. Неправильный secretKey ' . $content);
         }
 
+        if (!$apiHook->getIsNotify()) {
+            Yii::info('Webhook info. Уведомление не требуется ' . $content);
+            return 'Уведомление не требуется';
+        }
+
         if (!$apiHook->abon) {
             // звонок на общий номер - никого уведомлять не надо
             Yii::info('Webhook info. Абонент не указан ' . $content);

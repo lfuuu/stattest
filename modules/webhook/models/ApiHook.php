@@ -42,14 +42,14 @@ class ApiHook extends Model
 
     private $_eventTypeToStyle = [
         self::EVENT_TYPE_IN_CALLING_START => 'success',
-        self::EVENT_TYPE_IN_CALLING_END => 'warning',
+        self::EVENT_TYPE_IN_CALLING_END => '',
         self::EVENT_TYPE_IN_CALLING_MISSED => 'danger',
 
         self::EVENT_TYPE_OUT_CALLING_START => 'info',
-        self::EVENT_TYPE_OUT_CALLING_END => 'warning',
+        self::EVENT_TYPE_OUT_CALLING_END => '',
 
         self::EVENT_TYPE_INBOUND_CALL_START => 'success',
-        self::EVENT_TYPE_INBOUND_CALL_END => 'warning',
+        self::EVENT_TYPE_INBOUND_CALL_END => '',
     ];
 
     /**
@@ -111,5 +111,13 @@ class ApiHook extends Model
         return isset($this->_eventTypeToStyle[$this->event_type]) ?
             $this->_eventTypeToStyle[$this->event_type] :
             '';
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsNotify()
+    {
+        return (bool)$this->getEventTypeStyle();
     }
 }
