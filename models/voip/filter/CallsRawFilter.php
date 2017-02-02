@@ -666,11 +666,11 @@ class CallsRawFilter extends Model
             $fields = $groups = [];
             if ($this->group_period) {
                 $query4->rightJoin(
-                    'generate_series (:connect_time_from::timestamp ,:connect_time_to::timestamp,\'1' . $this->group_period . '\'::interval) gs',
-                    'cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval \'1' . $this->group_period .'\''
+                    "generate_series ('" . $this->connect_time_from . "'::timestamp, '" . $this->correct_connect_time_to . "'::timestamp, '1 " . $this->group_period . "'::interval) gs",
+                    "cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval '1 " . $this->group_period ."'"
                 );
-                $fields['interval'] = '"gs"."gs" || \' - \' || "gs"."gs" + interval \'1' . $this->group_period . '\'';
-                $groups[] = '"gs"."gs"';
+                $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 " . $this->group_period . "'";
+                $groups[] = 'gs.gs';
             }
 
             $fields = array_merge($fields, $this->group, array_intersect_key($this->aggrConst, array_flip($this->aggr)));
