@@ -637,14 +637,14 @@ class CallsRawFilter extends Model
         }
 
         if ($this->dst_number) {
-            $condition = ['LIKE', 'cr.dst_number::varchar', $this->dst_number];
+            $condition = ['LIKE', 'CAST(cr.dst_number AS varchar)', $this->dst_number];
             $query2->andWhere($condition)
             && $query3
             && $query3->andWhere($condition);
         }
 
         if ($this->src_number) {
-            $condition = ['LIKE', 'src_number', $this->src_number];
+            $condition = ['LIKE', 'CAST(cr.src_number AS varchar)', $this->src_number];
             $query1->andWhere($condition)
             && $query3
             && $query3->andWhere($condition);
