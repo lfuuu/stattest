@@ -41,7 +41,10 @@ class VoipServiceDao extends UsageDao
 
     public function hasService(ClientAccount $client)
     {
-        return UsageVoip::find()->client($client->client)->count() > 0;
+        return UsageVoip::find()
+            ->client($client->client)
+            ->actual()
+            ->count() > 0;
     }
 
 }

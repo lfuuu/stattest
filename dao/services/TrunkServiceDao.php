@@ -24,6 +24,11 @@ class TrunkServiceDao extends UsageDao
      */
     public function hasService(ClientAccount $client)
     {
-        return UsageTrunk::find()->where(['client_account_id' => $client->id])->count() > 0;
+        return UsageTrunk::find()
+            ->where([
+                'client_account_id' => $client->id
+            ])
+            ->actual()
+            ->count() > 0;
     }
 }

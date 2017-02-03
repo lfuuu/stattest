@@ -8,6 +8,7 @@ use app\dao\services\TrunkServiceDao;
 use app\helpers\usages\UsageVoipTrunkHelper;
 use app\models\billing\Trunk;
 use app\models\usages\UsageInterface;
+use app\queries\UsageQuery;
 use DateTime;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -61,6 +62,14 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     public static function dao()
     {
         return TrunkServiceDao::me();
+    }
+
+    /**
+     * @return UsageQuery
+     */
+    public static function find()
+    {
+        return new UsageQuery(get_called_class());
     }
 
     /**
