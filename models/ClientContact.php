@@ -217,6 +217,10 @@ class ClientContact extends HistoryActiveRecord
      */
     public function validatePhone($attribute, $params)
     {
+        if ($this->data == '.') {
+            return;
+        }
+        
         list($phoneRemain, $e164Phones) = ClientContact::dao()->getE164($this->data);
         $countE164Phones = count($e164Phones);
 
