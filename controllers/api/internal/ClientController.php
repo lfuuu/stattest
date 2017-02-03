@@ -7,6 +7,7 @@ use app\exceptions\api\internal\PartnerNotFoundException;
 use app\exceptions\web\BadRequestHttpException;
 use app\forms\client\ClientCreateExternalForm;
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\Locks;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\ClientContract;
@@ -225,6 +226,9 @@ class ClientController extends ApiInternalController
      * @SWG\Definition(definition="get-full-client-struct-account", type="object", required={"id","is_disabled","version","applications"},
      *   @SWG\Property(property="id", type="integer", description="Идентификатор ЛС"),
      *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
+     *   @SWG\Property(property="is_blocked", type="boolean", description="ЛС заблокирован полностью"),
+     *   @SWG\Property(property="is_finance_block", type="boolean", description="Финансовая блокировка"),
+     *   @SWG\Property(property="is_overran_block", type="boolean", description="Блокировка по превышению дневных лимитов"),
      *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
      *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-full-client-struct-applications"))
      * ),
@@ -283,6 +287,7 @@ class ClientController extends ApiInternalController
             $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
 
             $resultContragents = [];
+            $accountIdxs = [];
 
             /** @var ClientContragent $contragent */
             foreach ($super->contragents as $contragent) {
@@ -295,10 +300,19 @@ class ClientController extends ApiInternalController
                         $resultAccounts[] = [
                             'id' => $account->id,
                             'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                            'is_blocked' => (bool)$account->is_blocked,
+                            'is_finance_block' => false,
+                            'is_overran_block' => false,
                             'version' => $account->account_version,
                             'applications' => $this->_getPlatformaServicesCleaned($account->client)
                         ];
                         $timezone = $account->timezone_name;
+
+                        $accountIdxs[$account->id] = [
+                            'idx_account' => count($resultAccounts) - 1,
+                            'idx_contragent' => count($resultContragents),
+                            'idx_contract' => count($resultContracts)
+                            ];
                     }
 
                     if ($resultAccounts) {
@@ -326,6 +340,30 @@ class ClientController extends ApiInternalController
             }
 
             if ($resultContragents) {
+
+                if ($accountIdxs) {
+                    /** @var Locks $lock */
+                    foreach (Locks::find()
+                                 ->where(['client_id' => array_keys($accountIdxs)])
+                                 ->indexBy('client_id')
+                                 ->all() as $accountId => $lock) {
+
+                        if (isset($accountIdxs[$accountId])) {
+                            $idxContragent = $accountIdxs[$accountId]['idx_contragent'];
+                            $idxContract = $accountIdxs[$accountId]['idx_contract'];
+                            $idxAccount = $accountIdxs[$accountId]['idx_account'];
+
+                            if ($lock->is_finance_block) {
+                                $resultContragents[$idxContragent]['contracts'][$idxContract]['accounts'][$idxAccount]['is_finance_block'] = true;
+                            }
+
+                            if ($lock->is_overran || $lock->is_mn_overran) {
+                                $resultContragents[$idxContragent]['contracts'][$idxContract]['accounts'][$idxAccount]['is_overran_block'] = true;
+                            }
+                        }
+                    }
+                }
+
                 $fullResult[$super->id] = [
                     'id' => $super->id,
                     'timezone' => $timezone,
