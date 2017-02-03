@@ -227,21 +227,30 @@ class MailJob {
             if($b_sf[6]) $T .="\nСчет-фактура ".$r['bill_no']."-5: ".$this->get_object_link('invoice',$r['bill_no'],6);
             */
 
-            if ($organization->is_simple_tax_system) {
-                if ($b_akt[1]) {
-                    $T .= "\nАкт " . $r['bill_no'] . "-1: " . $this->get_object_link('akt', $r['bill_no'], 1);
-                }
-                if ($b_akt[2]) {
-                    $T .= "\nАкт " . $r['bill_no'] . "-2: " . $this->get_object_link('akt', $r['bill_no'], 2);
-                }
-                //if($b_akt[3]) $T .="\nАкт ".$r['bill_no']."-3: ".$this->get_object_link('akt',$r['bill_no'],3);
-            } else {
-                if ($b_upd[1]) {
-                    $T .= "\nУПД " . $r['bill_no'] . "-1: " . $this->get_object_link('upd', $r['bill_no'], 1);
-                }
-                if ($b_upd[2]) {
-                    $T .= "\nУПД " . $r['bill_no'] . "-2: " . $this->get_object_link('upd', $r['bill_no'], 2);
-                }
+            if ($b_sf[1]) {
+                $T .= "\nСчет-фактура " . $r['bill_no'] . "-1: " . $this->get_object_link('invoice', $r['bill_no'], 1);
+            }
+
+            if ($b_sf[2]) {
+                $T .= "\nСчет-фактура " . $r['bill_no'] . "-2: " . $this->get_object_link('invoice', $r['bill_no'], 2);
+            }
+
+            if ($b_akt[1]) {
+                $T .= "\nАкт " . $r['bill_no'] . "-1: " . $this->get_object_link('akt', $r['bill_no'], 1);
+            }
+
+            if ($b_akt[2]) {
+                $T .= "\nАкт " . $r['bill_no'] . "-2: " . $this->get_object_link('akt', $r['bill_no'], 2);
+            }
+
+            //if($b_akt[3]) $T .="\nАкт ".$r['bill_no']."-3: ".$this->get_object_link('akt',$r['bill_no'],3);
+
+            if ($b_upd[1]) {
+                $T .= "\nУПД " . $r['bill_no'] . "-1: " . $this->get_object_link('upd', $r['bill_no'], 1);
+            }
+
+            if ($b_upd[2]) {
+                $T .= "\nУПД " . $r['bill_no'] . "-2: " . $this->get_object_link('upd', $r['bill_no'], 2);
             }
 
 
