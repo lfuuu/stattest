@@ -145,7 +145,26 @@ class OperatorOnlime extends Operators
 
     public function modeCloseModify(Query $query, $dao)
     {
-        $query->leftJoin('tt_stages s', 's.trouble_id = t.id');
+        // какие заявки участвуют в выборке
+        $query1 = new Query;
+        $query1->select('s.trouble_id');
+        $query1->distinct();
+        $query1->from(['s' => 'tt_stages']);
+        $query1->where(['between', 's.date_start', $dao->dateFrom, $dao->dateTo]);
+
+        // находим первый раз переведенные стадии
+        $query2 = new Query;
+        $query2->select(['min_stage_id' => 'min(stage_id)']);
+        $query2->from(['s' => 'tt_stages', 'a' => $query1]);
+        $query2->where('s.trouble_id = a.trouble_id');
+        $query2->groupBy(['s.trouble_id', 'state_id']);
+
+        // выбираем эти стадии заявки
+        $query3 = new Query;
+        $query3->from(['s' => 'tt_stages', 'a' => $query2]);
+        $query3->where('s.stage_id = a.min_stage_id');
+
+        $query->leftJoin(['s' => $query3], 's.trouble_id = t.id');
 
         $query->andWhere(['is_rollback' => 0]);
         $query->andWhere(['in', 'state_id', [2, 20]]);
