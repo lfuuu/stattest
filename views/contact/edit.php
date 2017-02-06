@@ -43,7 +43,6 @@ use yii\widgets\Breadcrumbs;
     ?>
     <?= TabularInput::widget([
             'models' => array_values($contacts), // ключ должен быть автоинкрементный
-            'min' => count($contacts), // уже созданные удалить нельзя. Можно только выключить
             'rowOptions' => function ($clientContact = null) {
                 $options = [];
 
@@ -118,15 +117,6 @@ use yii\widgets\Breadcrumbs;
 <style>
     .row-inactive, .row-inactive .select2-selection__rendered, .row-inactive input {
         color: #aaa !important;
-    }
-
-    .row-active, .row-active .select2-selection__rendered, .row-active input {
-    <?php // псевдо-запрет редактирование ?> pointer-events: none;
-    }
-
-    .row-inactive .list-cell__button,
-    .row-inactive .list-cell__is_active input {
-    //<?php // псевдо-разрешение редактирование ?> pointer-events: auto;
     }
 
     #contacts-edit .list-cell__is_official,
