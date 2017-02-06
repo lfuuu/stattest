@@ -51,9 +51,7 @@ use yii\widgets\Breadcrumbs;
                 if ($clientContact) {
                     $options['class'] = 'form-group-sm';
                     $options['class'] .= ($clientContact->is_validate ? ($clientContact->isEmail() ? ' info' : ' warning') : ' danger');
-                    if (!$clientContact->is_active) {
-                        $options['class'] .= ' row-inactive'; // input-sm
-                    }
+                    $options['class'] .= $clientContact->is_active ? ' row-active' : ' row-inactive'; // input-sm
                 }
 
                 return $options;
@@ -119,13 +117,16 @@ use yii\widgets\Breadcrumbs;
 
 <style>
     .row-inactive, .row-inactive .select2-selection__rendered, .row-inactive input {
-        color: #ccc !important;
+        color: #aaa !important;
+    }
+
+    .row-active, .row-active .select2-selection__rendered, .row-active input {
     <?php // псевдо-запрет редактирование ?> pointer-events: none;
     }
 
     .row-inactive .list-cell__button,
     .row-inactive .list-cell__is_active input {
-    <?php // псевдо-разрешение редактирование ?> pointer-events: auto;
+    //<?php // псевдо-разрешение редактирование ?> pointer-events: auto;
     }
 
     #contacts-edit .list-cell__is_official,
