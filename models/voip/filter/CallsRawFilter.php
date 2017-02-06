@@ -181,6 +181,16 @@ class CallsRawFilter extends Model
     public $currency = 'RUB';
     public $currency_rate = 1;
 
+    public $sale = null;
+
+    public $cost_price = null;
+
+    public $margin = null;
+
+    public $orig_rate = null;
+
+    public $term_rate = null;
+
     /**
      * Rules set
      *
@@ -365,9 +375,9 @@ class CallsRawFilter extends Model
             );
         }
 
-        $query1 = new Query();
-        $query2 = new Query();
-        $query3 = new Query();
+        $query1 = new CTEQuery();
+        $query2 = new CTEQuery();
+        $query3 = new CTEQuery();
         $query4 = new CTEQuery();
 
         $query1
@@ -462,7 +472,7 @@ class CallsRawFilter extends Model
                 'margin' => $null,
             ]
         )->from('calls_cdr.cdr_unfinished cu')
-            ->orderBy('setup_time')
+            ->orderBy('connect_time')
             ->limit(500);
 
         $query4->select(
@@ -666,10 +676,10 @@ class CallsRawFilter extends Model
             $fields = $groups = [];
             if ($this->group_period) {
                 $query4->rightJoin(
-                    "generate_series ('" . $this->connect_time_from . "'::timestamp, '" . $this->correct_connect_time_to . "'::timestamp, '1 " . $this->group_period . "'::interval) gs",
-                    "cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval '1 " . $this->group_period ."'"
+                    "generate_series ('{$this->connect_time_from}'::timestamp, '{$this->correct_connect_time_to}'::timestamp, '1 {$this->group_period}'::interval) gs",
+                    "cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval '1 {$this->group_period}'"
                 );
-                $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 " . $this->group_period . "'";
+                $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 {$this->group_period}'";
                 $groups[] = 'gs.gs';
             }
 
@@ -720,7 +730,7 @@ class CallsRawFilter extends Model
             ];
         }
 
-        if ($this->sort) {
+        if ($this->sort && $this->sort != 'connect_time') {
             $query1->orderBy([])->limit(-1);
             $query2->orderBy([])->limit(-1);
             $query3 && $query3->orderBy([])->limit(-1);
@@ -729,13 +739,28 @@ class CallsRawFilter extends Model
 
         $query4->addWith(['cr1' => $query1]);
         $query4->addWith(['cr2' => $query2]);
+        
+        $count1 = $query1->liteRowCount();
+        $count2 = $query2->liteRowCount();
+        $count3 = $query3 ? $query3->liteRowCount() : 0;
+        $count4 = $query4->liteRowCount();
+
+        $count = min(min($count1, $count2) + $count3, $count4);
+
+        /**
+         * Метод получения количества записей на основе статистики неточен.
+         * Посему не следуют его использовать если его неточность может повлить на вычислени количества страниц.
+         */
+        if ($count < 5000) {
+            $count = $query4->rowCount();
+        }
 
         return new ActiveDataProvider(
             [
                 'db' => 'dbPgSlave',
                 'query' => $query4,
                 'pagination' => [],
-                'totalCount' => $query4->rowCount(),
+                'totalCount' => $count,
                 'sort' => [
                     'attributes' => $sort,
                 ],

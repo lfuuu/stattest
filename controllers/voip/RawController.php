@@ -153,12 +153,20 @@ class RawController extends BaseController
         $model = new CallsRawFilter();
         $model->load(Yii::$app->request->get());
 
-        return $this->render(
+        if (!isset(Yii::$app->request->get()['_pjax'])) {
+            return $this->render(
+                'index',
+                [
+                    'filterModel' => $model
+                ]
+            );
+        }
+
+        return $this->renderPartial(
             'index',
             [
                 'filterModel' => $model
-            ]
-        );
+            ]);
     }
 
 }

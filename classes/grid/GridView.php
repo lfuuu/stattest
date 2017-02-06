@@ -29,7 +29,7 @@ class GridView extends \kartik\grid\GridView
      * @var array the panel settings
      */
     public $panel = [
-        'type' => '', //  шапка без фона
+        'type' => '', // шапка без фона
     ];
 
     // заголовок всегда отображать при скроллинге
@@ -60,12 +60,14 @@ HTML;
 
     /**
      * Юзерские кнопки
+     *
      * @var string
      */
     public $extraButtons = '';
 
     /**
      * Показывать ли кнопки фильтрации
+     *
      * @var bool
      */
     public $isFilterButton = true;
@@ -131,31 +133,31 @@ HTML;
     public static function separateWidget(array $config = [])
     {
         $config1 = $config2 = $config;
-        unset($config1['columns'], $config1['exportWidget']);
+        unset($config1['columns'], $config1['exportWidget'], $config2['beforeHeader']);
         $config1['dataProvider'] = new \yii\data\ArrayDataProvider(
             [
                 'allModels' => [],
             ]
         );
-        echo self::widget(
-            [
-                'pjax' => true,
-                'showTableBody' => false,
-                'showFooter' => false,
-                'panelHeadingTemplate' => '',
-                'panelTemplate' => '
+        if (!isset(Yii::$app->request->get()['_pjax'])) {
+            echo self::widget(
+                [
+                    'showTableBody' => false,
+                    'showFooter' => false,
+                    'panelHeadingTemplate' => '',
+                    'panelTemplate' => '
                 <div class="{prefix}{type}">
                     {panelHeading}
                     {panelBefore}
                     {items}
                 </div>',
-            ] + $config1
-        );
+                ] + $config1
+            );
+        }
 
-        unset($config2['beforeHeader']);
         echo self::widget(
             [
-                'pjax' => true,
+                'pjax' => true
             ] + $config2
         );
     }
@@ -295,7 +297,7 @@ HTML;
                 // отменить onchange на фильтре
                 $(document).off("change.yiiGridView", "' . $clientOptions['filterSelector'] . '");
                 // эмулировать submit по кнопке фильтрации
-                $("#submitButtonFilter").on("click", function() {
+                $(document).on("click", "#submitButtonFilter", function() {
                     var e = $.Event("keydown");
                     e.keyCode = 13; // enter
                     $("' . $clientOptions['filterSelector'] . '").first().trigger(e);
