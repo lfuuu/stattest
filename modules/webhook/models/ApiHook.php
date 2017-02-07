@@ -21,6 +21,8 @@ class ApiHook extends Model
     const EVENT_TYPE_INBOUND_CALL_START = 'InboundCallStart'; // начало входящего звонка
     const EVENT_TYPE_INBOUND_CALL_END = 'InboundCallEnd'; // конец входящего звонка
 
+    const TIMEOUT = 60000; // время (в миллисекундах) автоскрывания уведомления
+
     public
         $event_type, // тип события
         $abon, // внутренний номер абонента ВАТС, который принимает/совершает звонок. Только если через ВАТС
@@ -42,14 +44,20 @@ class ApiHook extends Model
 
     private $_eventTypeToStyle = [
         self::EVENT_TYPE_IN_CALLING_START => 'success',
-        self::EVENT_TYPE_IN_CALLING_END => '',
         self::EVENT_TYPE_IN_CALLING_MISSED => 'danger',
 
         self::EVENT_TYPE_OUT_CALLING_START => 'info',
-        self::EVENT_TYPE_OUT_CALLING_END => '',
 
         self::EVENT_TYPE_INBOUND_CALL_START => 'success',
-        self::EVENT_TYPE_INBOUND_CALL_END => '',
+    ];
+
+    private $_eventTypeToTimeout = [
+        self::EVENT_TYPE_IN_CALLING_START => self::TIMEOUT,
+        self::EVENT_TYPE_IN_CALLING_MISSED => 0, // никогда не скрывать
+
+        self::EVENT_TYPE_OUT_CALLING_START => self::TIMEOUT,
+
+        self::EVENT_TYPE_INBOUND_CALL_START => self::TIMEOUT,
     ];
 
     /**
@@ -102,7 +110,7 @@ class ApiHook extends Model
     }
 
     /**
-     * Вернуть стиль тип
+     * Вернуть стиль в зависимости от типа
      *
      * @return string
      */
@@ -111,6 +119,18 @@ class ApiHook extends Model
         return isset($this->_eventTypeToStyle[$this->event_type]) ?
             $this->_eventTypeToStyle[$this->event_type] :
             '';
+    }
+
+    /**
+     * Вернуть автокрывание в миллисекундах в зависимости от типа
+     *
+     * @return int
+     */
+    public function getEventTypeTimeout()
+    {
+        return isset($this->_eventTypeToTimeout[$this->event_type]) ?
+            $this->_eventTypeToTimeout[$this->event_type] :
+            0;
     }
 
     /**

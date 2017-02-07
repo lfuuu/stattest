@@ -7,11 +7,13 @@ use yii\console\Controller;
 
 class ElephantController extends Controller
 {
+    public $title = '';
     public $message = '';
     public $type = Socket::PARAM_TYPE_DEFAULT;
     public $userTo = null;
     public $userIdTo = null;
     public $url = null;
+    public $timeout = 0;
 
     /**
      * Список возможных параметров при вызове метода
@@ -21,7 +23,7 @@ class ElephantController extends Controller
      */
     public function options($actionID)
     {
-        return [Socket::PARAM_MESSAGE, Socket::PARAM_TYPE, Socket::PARAM_USER_TO, Socket::PARAM_USER_ID_TO, Socket::PARAM_URL];
+        return [Socket::PARAM_TITLE, Socket::PARAM_MESSAGE, Socket::PARAM_TYPE, Socket::PARAM_USER_TO, Socket::PARAM_USER_ID_TO, Socket::PARAM_URL, Socket::PARAM_TIMEOUT];
     }
 
     /**
@@ -33,11 +35,13 @@ class ElephantController extends Controller
     public function actionIndex()
     {
         $params = [
+            Socket::PARAM_TITLE => $this->title,
             Socket::PARAM_MESSAGE => $this->message,
             Socket::PARAM_TYPE => $this->type,
             Socket::PARAM_USER_TO => $this->userTo,
             Socket::PARAM_USER_ID_TO => $this->userIdTo,
             Socket::PARAM_URL => $this->url,
+            Socket::PARAM_TIMEOUT => $this->timeout,
         ];
 
         try {

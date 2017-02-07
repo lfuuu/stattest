@@ -116,7 +116,6 @@ class ApiController extends Controller
 
         // отправить уведомление менеджеру
         $messages = [];
-        $messages[] = $apiHook->getEventTypeMessage();
         $messages[] = $apiHook->did . ' -> ' . $apiHook->abon;
         if ($clientAccount = $apiHook->clientAccount) {
             $messages[] = '';
@@ -126,11 +125,13 @@ class ApiController extends Controller
         $message = implode(PHP_EOL, $messages);
 
         $params = [
+            Socket::PARAM_TITLE => $apiHook->getEventTypeMessage(),
             Socket::PARAM_MESSAGE => $message,
             Socket::PARAM_TYPE => $apiHook->getEventTypeStyle(),
             // Socket::PARAM_USER_TO => null,
             Socket::PARAM_USER_ID_TO => $user->id,
             Socket::PARAM_URL => $clientAccount ? $clientAccount->getUrl() : '',
+            Socket::PARAM_TIMEOUT => $apiHook->getEventTypeTimeout(),
         ];
         Socket::me()->emit($params);
 

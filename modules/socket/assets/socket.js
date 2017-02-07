@@ -4,6 +4,12 @@
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   SocketWebClient = (function() {
+    SocketWebClient.prototype.NOTIFICATION_PERMISSION_GRANTED = 'granted';
+
+    SocketWebClient.prototype.NOTIFICATION_PERMISSION_DENIED = 'denied';
+
+    SocketWebClient.prototype.NOTIFICATION_PERMISSION_DEFAULT = 'default';
+
     function SocketWebClient() {
       this.socketOnMessage = bind(this.socketOnMessage, this);
       this.socketOnDisconnect = bind(this.socketOnDisconnect, this);
@@ -12,6 +18,10 @@
       this.renderIcon = bind(this.renderIcon, this);
       if (!window.io || !window.ioUrl) {
         return;
+      }
+      this.notificationPermission = Notification ? Notification.permission.toLowerCase() : this.NOTIFICATION_PERMISSION_DENIED;
+      if (this.notificationPermission === this.NOTIFICATION_PERMISSION_DEFAULT) {
+        Notification.requestPermission();
       }
       this.renderIcon();
       this.connect();
@@ -62,14 +72,19 @@
     SocketWebClient.prototype.socketOnMessage = function() {
       return this.socket.on('message', (function(_this) {
         return function(json) {
-          var $newContent, date, dateHours, dateMinutes, message;
-          message = json['message'];
-          message = _this.stripTags(message);
+          var $newContent, date, dateHours, dateMinutes, message, messageHtml, messageTxt, notification, title, titleHtml, titleTxt;
+          titleHtml = json['title'];
+          titleTxt = _this.stripTags(titleHtml);
+          title = titleTxt;
+          title = $('<span>').append(title + ' ');
+          messageHtml = json['message'];
+          messageTxt = _this.stripTags(messageHtml);
+          message = messageTxt;
           if (json['url']) {
             message = $('<a>').attr('href', json['url']).append(message);
           }
           message = $('<span>').append(message);
-          message.prepend($('<b>').append(json['userFrom'] + ': '));
+          message.prepend($('<b>').append(title)).prepend($('<span>').append(json['userFrom'] + ': '));
           date = new Date();
           dateHours = date.getHours();
           if (dateHours < 10) {
@@ -81,7 +96,26 @@
           }
           message.prepend('[' + dateHours + ':' + dateMinutes + '] ');
           $newContent = $('<div>').addClass('alert alert-' + (json['type'] ? json['type'] : 'warning') + ' alert-dismissible fade in').attr('role', 'alert').append('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>').append(message);
-          return _this.socketDiv.append($newContent).show();
+          if (json['timeout']) {
+            setTimeout(function() {
+              return $newContent.find('button').click();
+            }, json['timeout']);
+          }
+          _this.socketDiv.append($newContent).show();
+          if (_this.notificationPermission === _this.NOTIFICATION_PERMISSION_DEFAULT) {
+            _this.notificationPermission = Notification ? Notification.permission.toLowerCase() : _this.NOTIFICATION_PERMISSION_DENIED;
+          }
+          if (_this.notificationPermission === _this.NOTIFICATION_PERMISSION_GRANTED) {
+            notification = new Notification(titleTxt, {
+              body: messageTxt,
+              icon: '/images/logo2.gif'
+            });
+            if (json['url']) {
+              return notification.onclick = function() {
+                return window.open(json['url']);
+              };
+            }
+          }
         };
       })(this));
     };

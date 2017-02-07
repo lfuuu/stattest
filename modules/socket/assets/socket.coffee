@@ -1,10 +1,26 @@
 class SocketWebClient
 
-  # конструктор
+  # разрешены ли нотификации
+  NOTIFICATION_PERMISSION_GRANTED: 'granted' # да
+  NOTIFICATION_PERMISSION_DENIED: 'denied' # нет
+  NOTIFICATION_PERMISSION_DEFAULT: 'default' # по запросу
+
+# конструктор
   constructor: () ->
     if not window.io or not window.ioUrl
 # сокет-сервер упал
       return
+
+
+    # разрешены ли нотификации
+    @notificationPermission = if Notification then Notification.permission.toLowerCase() else @NOTIFICATION_PERMISSION_DENIED
+    if @notificationPermission == @NOTIFICATION_PERMISSION_DEFAULT
+# "по запросу" - запросить разрешение на уведомление
+      Notification.requestPermission() # https://habrahabr.ru/post/183630/
+
+    # @link https://notifyjs.com/
+    # Но ссылки нельзя указывать :-(
+    # $.notify('Комментарий добавлен', {className: 'success', autoHideDelay: 3000});
 
     # отрендерить иконку
     @renderIcon()
@@ -66,8 +82,15 @@ class SocketWebClient
 # при получении события
   socketOnMessage: =>
     @socket.on('message', (json) =>
-      message = json['message']
-      message = @stripTags(message) # защита от js-инъекций
+      titleHtml = json['title']
+      titleTxt = @stripTags(titleHtml) # защита от js-инъекций
+      title = titleTxt
+      title = $('<span>')
+        .append(title + ' ')
+
+      messageHtml = json['message']
+      messageTxt = @stripTags(messageHtml) # защита от js-инъекций
+      message = messageTxt
 
       if (json['url'])
 # добавить ссылку
@@ -75,10 +98,13 @@ class SocketWebClient
           .attr('href', json['url'])
           .append(message)
 
-      message = $('<span>').append(message)
+      message = $('<span>')
+        .append(message)
 
       # добавить отправителя
-      message.prepend($('<b>').append(json['userFrom'] + ': '))
+      message
+        .prepend($('<b>').append(title))
+        .prepend($('<span>').append(json['userFrom'] + ': '))
 
       # добавить дату
       date = new Date()
@@ -97,9 +123,35 @@ class SocketWebClient
         .append('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>')
         .append(message)
 
+      # автоскрыть всплывашку
+      if json['timeout']
+        setTimeout(
+          ->
+            $newContent.find('button').click()
+          json['timeout']
+        )
+
       @socketDiv
         .append($newContent)
         .show()
+
+      # кроме уведомления во вкладку браузера попытаемся сделать системное уведомление
+      if @notificationPermission == @NOTIFICATION_PERMISSION_DEFAULT
+# "по запросу" - обновить статус, ибо юзер уже мог разрешить или запретить
+        @notificationPermission = if Notification then Notification.permission.toLowerCase() else @NOTIFICATION_PERMISSION_DENIED
+
+      if @notificationPermission == @NOTIFICATION_PERMISSION_GRANTED
+# "разрешено" - отправить уведомление
+        notification = new Notification(titleTxt,
+#tag : '',
+          body: messageTxt,
+          icon: '/images/logo2.gif'
+        )
+
+        # Обработчик клика
+        if (json['url'])
+          notification.onclick = ->
+            window.open(json['url'])
     )
 
 new SocketWebClient()

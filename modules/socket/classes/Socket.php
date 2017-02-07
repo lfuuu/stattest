@@ -23,13 +23,15 @@ class Socket extends Singleton
     const HANDSHAKE_USER_ID = 'userId'; // ID отправителя (user_users.id). Обязательно
     const HANDSHAKE_SIG = 'sig'; // Сигнатура с помощью секретного ключа. Добавляется автоматически
 
-    const PARAM_MESSAGE = 'message'; // Текст сообщения. Обязательное поле
+    const PARAM_TITLE = 'title'; // Заголовок. Обязательное поле
+    const PARAM_MESSAGE = 'message'; // Текст сообщения
     const PARAM_TYPE = 'type'; // Тип стиля: warning/success/info/danger. По умолчанию self::PARAM_TYPE_DEFAUL.
     const PARAM_USER_FROM = 'userFrom'; // Логин отправителя (user_users.user). Добавляется автоматически
     const PARAM_USER_ID_FROM = 'userIdFrom'; // ID отправителя (user_users.id). Добавляется автоматически
     const PARAM_USER_TO = 'userTo'; // Логин адресата (user_users.user). Не обязательно. Если указан логин или ID - отправляется этому адресату, иначе всем
     const PARAM_USER_ID_TO = 'userIdTo'; // Логин адресата (user_users.id). Не обязательно. Если указан логин или ID - отправляется этому адресату, иначе всем
     const PARAM_URL = 'url'; // Ссылка. Не обязательно. Можно как абсолютную, так и относительную
+    const PARAM_TIMEOUT = 'timeout'; // Через сколько миллисекунд скрыть. Если не указано или 0 - не скрывать
 
     const PARAM_TYPE_DEFAULT = 'success'; // Значение по умолчанию для self::PARAM_TYPE. Возможные варианты: warning/success/info/danger
 
