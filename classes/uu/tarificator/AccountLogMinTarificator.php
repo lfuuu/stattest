@@ -5,7 +5,6 @@ namespace app\classes\uu\tarificator;
 use app\classes\uu\model\AccountLogMin;
 use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogResource;
-use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\TariffPeriod;
 use Yii;
 
@@ -17,7 +16,9 @@ class AccountLogMinTarificator implements TarificatorI
     /**
      * Предварительное списание (транзакции) минимальной платы за ресурсы
      * Если указана услуга - только для нее, иначе для всех
+     *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @throws \yii\db\Exception
      */
     public function tarificate($accountTariffId = null)
     {
@@ -35,6 +36,7 @@ class AccountLogMinTarificator implements TarificatorI
         } else {
             $truncateSQL = "TRUNCATE TABLE {$accountLogMinTableName}";
         }
+
         $db->createCommand($truncateSQL)
             ->execute();
         unset($truncateSQL);
@@ -76,6 +78,7 @@ SQL;
         if ($accountTariffId) {
             $insertSql .= " AND account_log_period.account_tariff_id = {$accountTariffId}";
         }
+
         $db->createCommand($insertSql)
             ->execute();
         unset($insertSql);
@@ -104,6 +107,7 @@ SQL;
         if ($accountTariffId) {
             $updateSql .= " AND account_log_min.account_tariff_id = {$accountTariffId}";
         }
+
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);
@@ -117,6 +121,7 @@ SQL;
         if ($accountTariffId) {
             $updateSql .= " WHERE account_tariff_id = {$accountTariffId}";
         }
+
         $db->createCommand($updateSql)
             ->execute();
         unset($updateSql);

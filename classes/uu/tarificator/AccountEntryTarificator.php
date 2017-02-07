@@ -112,6 +112,7 @@ class AccountEntryTarificator implements TarificatorI
      * @param string $dateFieldNameTo
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @param int $isDefault
+     * @throws \yii\db\Exception
      */
     private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isDefault)
     {
@@ -128,10 +129,15 @@ class AccountEntryTarificator implements TarificatorI
             $sqlParams[':account_tariff_id'] = $accountTariffId;
         }
 
+        if ($accountLogTableName == AccountLogMin::tableName()) {
+            // минималку в проводку/счет включаем только после истечения периода. Но транзакцию делаем сразу, потом ее корректируем
+            $sqlAndWhere .= ' AND account_log.date_to < DATE_FORMAT(NOW(), "%Y-%m-%d")';
+        }
+
         // создать пустые проводки
         // проводки за подключение датируются своей датой
-        //      за абонентку - если есть проводки за подключение, то своей датой. Иначе 01
-        //      за ресурсы и минималку - 01
+        // ... за абонентку - если есть проводки за подключение, то своей датой. Иначе 01
+        // ... за ресурсы и минималку - 01
         echo '. ';
         $insertSQL = <<<SQL
             INSERT INTO {$accountEntryTableName}
@@ -252,6 +258,7 @@ SQL;
      * Проще через ClientAccount->getOrganization()->vat_rate, но это слишком долго. Поэтому хардкор
      *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @throws \yii\db\Exception
      */
     private function _tarificateVat($accountTariffId)
     {
