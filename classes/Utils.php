@@ -130,7 +130,7 @@ class Utils
      */
     public static function isFileLocked($filePath)
     {
-        $result = false;
+        $result = true;
 
         if (!file_exists($filePath)) {
             return null;
@@ -140,7 +140,7 @@ class Utils
 
         if (flock($fp, LOCK_EX | LOCK_NB)) {
             flock($fp, LOCK_UN);
-            $result = true;
+            $result = false;
         }
 
         fclose($fp);
