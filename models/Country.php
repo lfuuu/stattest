@@ -17,6 +17,8 @@ use yii\helpers\Url;
  * @property string $currency_id
  * @property integer $prefix
  * @property integer $order
+ *
+ * @property Currency $currency
  */
 class Country extends ActiveRecord
 {
@@ -79,6 +81,14 @@ class Country extends ActiveRecord
     public static function primaryKey()
     {
         return ['code'];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrency()
+    {
+        return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
     }
 
     /**

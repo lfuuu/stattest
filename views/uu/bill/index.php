@@ -30,7 +30,6 @@ use yii\widgets\Breadcrumbs;
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'extraButtons' =>
-//        $this->render('//uu/bill/_ico', ['clientAccountId' => $filterModel->client_account_id]) . ' ' .
         $this->render('//uu/invoice/_ico', ['clientAccountId' => $filterModel->client_account_id]) . ' ' .
         $this->render('//uu/balance/_ico', ['clientAccountId' => $filterModel->client_account_id]),
     'columns' => [
@@ -79,14 +78,9 @@ use yii\widgets\Breadcrumbs;
                 $accountEntries = $bill->accountEntries;
                 array_walk($accountEntries, function (&$accountEntry) {
                     /** @var AccountEntry $accountEntry */
-                    $accountEntry =
-
+                    $accountEntry
                         // Например, "Номер 74956387777. Абонентская плата. Тариф «Москва Базовый»"
-                        $accountEntry->getFullName() . '. ' .
-
-                        // Например, "25 марта" или "1-31 окт."
-                        (($accountEntry->date_from != $accountEntry->date_to) ? Yii::$app->formatter->asDate($accountEntry->date_from, 'php:j') . '-' : '') .
-                        Yii::$app->formatter->asDate($accountEntry->date_to, 'php:j M') . ': ' .
+                        = $accountEntry->getFullName() . ' ' .
 
                         // Например, "249.00"
                         Html::a(
@@ -99,4 +93,4 @@ use yii\widgets\Breadcrumbs;
             }
         ],
     ],
-]) ?>
+]);

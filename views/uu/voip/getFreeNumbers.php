@@ -5,7 +5,6 @@
  * @var \yii\web\View $this
  * @var \yii\db\ActiveQuery $numberActiveQuery
  * @var int $rowClass
- * @var \app\models\Currency $currency
  * @var \app\models\Number[] $numbers
  */
 
@@ -26,7 +25,7 @@ use app\classes\Html;
             ]) ?>
             <?php
             $price = $number->price;
-            $currency = $number->city->country->currency_id;
+            $currency = $number->city->country->currency;
             ?>
             <?= is_null($price) ?
                 'Договорная' :

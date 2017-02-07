@@ -642,7 +642,7 @@ class m_monitoring {
 					
 					$graph->xaxis->SetTickLabels($xaxis);
 					$colors = array('#0000CD','#B0C4DE','#8B008B', '#000000');
-					$legends = array('abons'=>'Абоненская плата', 'overruns'=>'Превышение', 'goods'=>'Товары', 'diff'=>'Остальное');
+					$legends = array('abons'=>'Абонентская плата', 'overruns'=>'Превышение', 'goods'=>'Товары', 'diff'=>'Остальное');
 					$bplots = array();
 					$i=0;
 					foreach ($data as $k=>$v)

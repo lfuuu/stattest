@@ -199,6 +199,7 @@ class AccountEntry extends ActiveRecord
      *
      * @param string $langCode
      * @return string
+     * @throws \yii\base\InvalidConfigException
      */
     public function getFullName($langCode = Language::LANGUAGE_DEFAULT)
     {
@@ -220,6 +221,10 @@ class AccountEntry extends ActiveRecord
         // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
         $tariffPeriod = $this->tariffPeriod;
         $names[] = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariffPeriod->tariff->name], $langCode);
+
+        // Например, "25 марта" или "1-31 окт."
+        $names[] = (($this->date_from != $this->date_to) ? Yii::$app->formatter->asDate($this->date_from, 'php:j') . '-' : '') .
+            Yii::$app->formatter->asDate($this->date_to, 'php:j M');
 
         return implode('. ', $names);
     }

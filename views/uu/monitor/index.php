@@ -132,9 +132,9 @@ if ($monthDateTime) {
                 <?php // абонентка ?>
                 <?php if ($accountLogPeriod) : ?>
                     <span class="label label-<?= ($accountLogPeriod === 2) ? 'success' : 'warning' ?>"
-                          title="Абоненская плата посчитана <?= ($accountLogPeriod === 2) ? 'и учтена' : ', но не учтена' ?> в проводке">+</span>
+                          title="Абонентская плата посчитана <?= ($accountLogPeriod === 2) ? 'и учтена' : ', но не учтена' ?> в проводке">+</span>
                 <?php elseif ($isNeedCalculate): ?>
-                    <span class="label label-danger" title="Абоненская плата не посчитана">-</span>
+                    <span class="label label-danger" title="Абонентская плата не посчитана">-</span>
                 <?php endif ?>
                 <br/>
 
