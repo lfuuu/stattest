@@ -2,11 +2,11 @@
 
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\LocksLog;
 use app\models\ClientAccount;
-use yii\helpers\Url;
-use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
+use yii\helpers\Url;
 
 /** @var \app\models\ClientSuper $client */
 /** @var \app\models\ClientAccount $account */
@@ -16,13 +16,13 @@ use app\models\ClientContract;
 
     <div class="row">
         <div class="col-sm-8">
-            <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $client->id ?>&childId=<?=$account->id?>"><?= $client->name ?></a></h2>
+            <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $client->id ?>&childId=<?= $account->id ?>"><?= $client->name ?></a></h2>
         </div>
         <div class="col-sm-2" class="c-blue-color">
-            <?php if (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER'] && $client->isShowLkLink()):?>
-            <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
-                Переход в ЛК
-            </a>
+            <?php if (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER'] && $client->isShowLkLink()) : ?>
+                <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
+                    Переход в ЛК
+                </a>
             <?php endif; ?>
         </div>
         <div class="col-sm-2" class="c-blue-color">
@@ -35,7 +35,7 @@ use app\models\ClientContract;
         <div class="col-sm-12">
             <?php $contragents = $client->contragents;
             foreach ($contragents as $k => $contragent): ?>
-                <div class="row contragent-wrap" id="contragent<?=$contragent->id?>"
+                <div class="row contragent-wrap" id="contragent<?= $contragent->id ?>"
                      style="padding-top: 10px; border-top: solid #43657d 1px;padding-bottom: 10px;">
                     <div class="col-sm-5">
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">
@@ -72,7 +72,8 @@ use app\models\ClientContract;
                                 <div class="col-sm-3">
                                     <?php $bps = $contract->businessProcessStatus; ?>
                                     <span><?= $contract->business ?></span>&nbsp;
-                                    <?php /*/&nbsp;<?= $contract->businessProcess ?></span>&nbsp;*/?>
+                                    <?php /*/&nbsp;<?= $contract->businessProcess ?></span>&nbsp;*/
+                                    ?>
                                     /&nbsp;<b style="background:<?= isset($bps['color']) ? $bps['color'] : '' ?>;"><?= isset($bps['name']) ? $bps['name'] : '' ?></b>
                                 </div>
                                 <div class="col-sm-4">
@@ -88,13 +89,14 @@ use app\models\ClientContract;
                                     <?php endif; ?>
                                 </div>
                                 <div class="col-sm-12">
-                                    <?php foreach ($contract->comments as $comment)
-                                        if ($comment->is_publish): ?>
+                                    <?php foreach ($contract->comments as $comment) {
+                                        if ($comment->is_publish) : ?>
                                             <div class="col-sm-12">
                                                 <b><?= $comment->user ?> <?= DateTimeZoneHelper::getDateTime($comment->ts) ?>
                                                     : </b><?= $comment->comment ?>
                                             </div>
-                                        <?php endif; ?>
+                                        <?php endif;
+                                    } ?>
                                 </div>
                                 <div class="col-sm-12">
                                     <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
@@ -109,28 +111,26 @@ use app\models\ClientContract;
                                             <a href="/account/edit?id=<?= $contractAccount->id ?>"><img src="/images/icons/edit.gif"></a>
                                         </div>
                                         <div
-                                            style="position: relative;<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
-                                            onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
-                                            class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? 'active-client-mcm' : 'active-client') : ''; ?>">
+                                                style="position: relative;<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
+                                                onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
+                                                class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? 'active-client-mcm' : 'active-client') : ''; ?>">
                                             <span class="col-sm-2" style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
-                                                ЛС № <?= $contractAccount->id ?>
+                                                <?= $contractAccount->getAccountTypeAndId() ?>
                                             </span>
                                             <span class="col-sm-2" style="font-weight: bold; color:red;">
                                                 <?php
                                                 $lastLock = false;
 
                                                 if ($contractAccount->is_blocked) {
-                                                    $lastLock =
-                                                        LocksLog::find()
-                                                            ->where(['client_id' => $account->id, 'is_blocked' => true])
-                                                            ->orderBy(['dt' => SORT_DESC])
-                                                            ->one();
+                                                    $lastLock = LocksLog::find()
+                                                        ->where(['client_id' => $account->id, 'is_blocked' => true])
+                                                        ->orderBy(['dt' => SORT_DESC])
+                                                        ->one();
 
                                                     $contractBlockers[] = 'Заблокирован' .
-                                                        (
-                                                            $lastLock
-                                                                ? ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y')
-                                                                : ''
+                                                        ($lastLock ?
+                                                            ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y') :
+                                                            ''
                                                         );
                                                 }
 
@@ -140,9 +140,9 @@ use app\models\ClientContract;
                                                     $contractBlockers[] = Html::tag('abbr',
                                                         'Блок превышение' .
                                                         (
-                                                            $lastLock
-                                                                ? ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y')
-                                                                : ''
+                                                        $lastLock ?
+                                                            ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y') :
+                                                            ''
                                                         ),
                                                         [
                                                             'title' => 'ЛС заблокирован по превышению лимитов. Возможно, его взломали'
@@ -156,9 +156,9 @@ use app\models\ClientContract;
                                                     $contractBlockers[] = Html::tag('abbr',
                                                         'Блок превышение МН' .
                                                         (
-                                                            $lastLock
-                                                                ? ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y')
-                                                                : ''
+                                                        $lastLock ?
+                                                            ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y') :
+                                                            ''
                                                         ),
                                                         [
                                                             'title' => 'ЛС заблокирован по превышению лимитов (МН). Возможно, его взломали'
@@ -182,43 +182,43 @@ use app\models\ClientContract;
                                             </span>
                                             <span class="col-sm-2 text-right">
                                                 <abbr
-                                                    title="Текущий баланс лицевого счета"
-                                                    class="text-nowrap"
-                                                    style="color:<?= ($lockByCredit ? 'red' : 'green'); ?>;"
+                                                        title="Текущий баланс лицевого счета"
+                                                        class="text-nowrap"
+                                                        style="color:<?= ($lockByCredit ? 'red' : 'green'); ?>;"
                                                 >
                                                     <?= sprintf('%0.2f', $contractAccount->billingCounters->realtimeBalance) ?>
                                                     <?= $contractAccount->currency ?>
                                                 </abbr>
-                                                <br />
+                                                <br/>
                                                 <abbr title="Размер кредита" class="text-nowrap">
-                                                    <?= $contractAccount->credit >= 0 ? 'Кредит: ' . $contractAccount->credit: '' ?>
+                                                    <?= $contractAccount->credit >= 0 ? 'Кредит: ' . $contractAccount->credit : '' ?>
                                                 </abbr>
                                             </span>
                                             <span class="col-sm-2 text-right" style="text-align: right;">
                                                 <?php if ($contract->business_id == \app\models\Business::OPERATOR) : ?>
                                                     <abbr
-                                                        title="Реалтаймовый счетчик стоимости всех входящих звонков по ЛС" class="text-nowrap"
-                                                        style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
+                                                            title="Реалтаймовый счетчик стоимости всех входящих звонков по ЛС" class="text-nowrap"
+                                                            style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
                                                     >
                                                         Ориг.: <?= abs($contractAccount->interopCounter->income_sum); ?> <?= $contractAccount->currency; ?>
                                                     </abbr>
-                                                    <br />
+                                                    <br/>
                                                     <abbr
-                                                        title="Реалтаймовое счетчик стоимости всех исходящих звонков по ЛС" class="text-nowrap"
-                                                        style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
+                                                            title="Реалтаймовое счетчик стоимости всех исходящих звонков по ЛС" class="text-nowrap"
+                                                            style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
                                                     >
                                                         Терм.: <?= abs($contractAccount->interopCounter->outcome_sum); ?> <?= $contractAccount->currency; ?>
                                                     </abbr>
 
-                                                    <?php else:  ?>
+                                                <?php else: ?>
                                                     <abbr
-                                                        title="Суточный расход" class="text-nowrap"
-                                                        style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
+                                                            title="Суточный расход" class="text-nowrap"
+                                                            style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
                                                     >
                                                         <?= abs($contractAccount->billingCounters->daySummary); ?>
                                                         <?= $contractAccount->currency; ?>
                                                     </abbr>
-                                                    <br />
+                                                    <br/>
                                                     <abbr title="Дневной лимит" class="text-nowrap">
                                                         <?php
                                                         echo ($contractAccount->voip_is_day_calc === 1 ? 'Авто лим. ' : 'Сут.лим. ') . ': ';
@@ -228,30 +228,30 @@ use app\models\ClientContract;
                                                 <?php endif; ?>
                                             </span>
                                             <div class="btn-group" style="float: right; padding-top: 12px;">
-                                                <?php if($contractAccount->hasVoip): ?>
-                                                    <?php if ($contractAccount->voip_disabled): ?>
+                                                <?php if ($contractAccount->hasVoip) : ?>
+                                                    <?php if ($contractAccount->voip_disabled) : ?>
                                                         <button
-                                                            type="button" class="btn btn-sm set-voip-disabled <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
-                                                            style="width: 120px;padding: 3px 10px;"
-                                                            data-id="<?= $contractAccount->id ?>"
-                                                            title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>"
+                                                                type="button" class="btn btn-sm set-voip-disabled <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
+                                                                style="width: 120px;padding: 3px 10px;"
+                                                                data-id="<?= $contractAccount->id ?>"
+                                                                title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>"
                                                         >
                                                             <?= $contractAccount->voip_disabled ? 'Лок. разблок.' : 'Лок. блок.' ?>
                                                         </button>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
                                                 <button
-                                                    type="button" class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
-                                                    style="width: 120px;padding: 3px 10px;"
-                                                    data-id="<?= $contractAccount->id ?>"
+                                                        type="button" class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
+                                                        style="width: 120px;padding: 3px 10px;"
+                                                        data-id="<?= $contractAccount->id ?>"
                                                 >
                                                     <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
                                                 </button>
                                             </div>
-                                            <?php if ($warnings): ?>
+                                            <?php if ($warnings) : ?>
                                                 <div class="col-sm-12">
-                                                    <?php foreach($warnings as $warningCode => $warningText): ?>
-                                                        <?php if (is_string($warningText)): ?>
+                                                    <?php foreach ($warnings as $warningCode => $warningText): ?>
+                                                        <?php if (is_string($warningText)) : ?>
                                                             <span class="label label-danger"><?= $warningText; ?></span>
                                                         <?php endif; ?>
                                                     <?php endforeach; ?>

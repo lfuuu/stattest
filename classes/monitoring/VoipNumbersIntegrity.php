@@ -2,13 +2,13 @@
 
 namespace app\classes\monitoring;
 
-use yii\db\Query;
+use app\classes\Html;
+use app\models\Number;
+use app\models\UsageVoip;
 use yii\base\Component;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
-use app\classes\Html;
-use app\models\UsageVoip;
-use app\models\Number;
+use yii\db\Query;
 
 class VoipNumbersIntegrity extends Component implements MonitoringInterface
 {
@@ -57,12 +57,13 @@ class VoipNumbersIntegrity extends Component implements MonitoringInterface
                             Html::a(
                                 $usage->clientAccount->contract->contragent->name .
                                 ' / Договор № ' . $usage->clientAccount->contract->number .
-                                ' / ЛС № ' . $usage->clientAccount->id,
+                                ' / ' . $usage->clientAccount->getAccountTypeAndId(),
                                 ['/client/view', 'id' => $usage->clientAccount->id],
                                 ['target' => '_blank']
 
                             );
                     }
+
                     if (!$data['usage_id']) {
                         return Html::tag('span', 'Нет услуги', ['style' => 'color: blue;']);
                     }

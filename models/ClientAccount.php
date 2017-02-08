@@ -1073,7 +1073,23 @@ class ClientAccount extends HistoryActiveRecord
         return implode($delimiter, [
             $this->contract->contragent->name,
             'Договор № ' . $this->contract->number,
-            'ЛС № ' . "<b style=\"font-size:120%;\">{$this->id}</b>"
+            $this->getAccountType() . ' № ' . "<b style=\"font-size:120%;\">{$this->id}</b>"
         ]);
+    }
+
+    /**
+     * @return string "ЛС" или "УЛС"
+     */
+    public function getAccountType()
+    {
+        return ($this->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) ? 'УЛС' : 'ЛС';
+    }
+
+    /**
+     * @return string "*ЛС № 12345"
+     */
+    public function getAccountTypeAndId()
+    {
+        return $this->getAccountType() . ' № ' . $this->id;
     }
 }

@@ -204,7 +204,7 @@ abstract class MonitorGridColumns
                 return Html::a(
                     $data->clientAccount->contract->contragent->name .
                     ' / Договор № ' . $data->clientAccount->contract->number .
-                    ' / ЛС № ' . $data->clientAccount->id,
+                    ' / ' . $data->clientAccount->getAccountTypeAndId(),
                     ['/client/view', 'id' => $data->clientAccount->id],
                     [
                         'target' => '_blank',

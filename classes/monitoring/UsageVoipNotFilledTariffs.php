@@ -71,7 +71,7 @@ class UsageVoipNotFilledTariffs extends Component implements MonitoringInterface
                         Html::a(
                             $usage->clientAccount->contract->contragent->name .
                             ' / Договор № ' . $usage->clientAccount->contract->number .
-                            ' / ЛС № ' . $usage->clientAccount->id,
+                            ' / ' . $usage->clientAccount->getAccountTypeAndId(),
                             ['/client/view', 'id' => $usage->clientAccount->id],
                             ['target' => '_blank']
                         );

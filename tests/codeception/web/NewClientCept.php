@@ -12,7 +12,7 @@ $I->seeLink("Новый клиент");
 
 $cl = NewClientPage::openBy($I);
 
-$adminEmail = md5(microtime(true)) . '@mcb.ru.test';
+$adminEmail = md5(microtime(true)) . '@mcn.ru.test';
 $data = [
     'ContragentEditForm' => [
         'country_id' => Country::RUSSIA,

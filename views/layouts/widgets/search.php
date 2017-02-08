@@ -4,12 +4,7 @@ use yii\helpers\Url;
 kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView());
 $request = Yii::$app->request->get();
 ?>
-<style>
-    .tt-dropdown-menu{
-        max-width: 700px;
-        width: auto;
-    }
-</style>
+
 <div>
     <form action="<?= Url::toRoute(['search/index', 'search' => isset($request['search']) ? $request['search'] : '']) ?>"
           id="search-form">
@@ -20,7 +15,7 @@ $request = Yii::$app->request->get();
             <div class="input-group">
                 <input id="search" type="text" class="form-control input-sm" placeholder="Search ..." name="search"
                        value="<?= (isset($request['search'])) ? $request['search'] : '' ?>">
-            <span class="input-group-btn" title="Submit">
+                <span class="input-group-btn" title="Submit">
                 <button type="submit" class="btn btn-default btn-sm"><i class="glyphicon glyphicon-search"></i></button>
             </span>
             </div>
@@ -66,7 +61,7 @@ $request = Yii::$app->request->get();
     </form>
     <script>
         var setInput = function () {
-            el = $('#btn-options .btn-primary');
+            var el = $('#btn-options .btn-primary');
             $('#search').attr('placeholder', 'Поиск по ' + el.data('placeholder'));
             $('#search-type').val(el.data('search'));
         };
@@ -99,8 +94,8 @@ $request = Yii::$app->request->get();
                     display: 'value',
                     source: substringMatcher,
                     templates: {
-                        suggestion: function(obj){
-                            if(obj['type'] == 'bill'){
+                        suggestion: function (obj) {
+                            if (obj['type'] == 'bill') {
                                 return '<div style="overflow: hidden; width: 98%;">'
                                     + '<a href="' + obj['url'] + '" title="Счет № ' + obj['value'] + '">'
                                     + ' Счет № ' + obj['value']
@@ -108,9 +103,9 @@ $request = Yii::$app->request->get();
                             }
                             else {
                                 return '<div style="overflow: hidden; width: 98%;">'
-                                    + '<a href="' + obj['url'] + '" title=" ЛС № ' + obj['value'] + '">'
+                                    + '<a href="' + obj['url'] + '" title="' + obj['value'] + '">'
                                     + '<div style="background:' + obj['color'] + '; width: 16px;height: 16px;display: inline-block;"></div>'
-                                    + ' ЛС № ' + obj['id']
+                                    + ' ' + obj['accountType'] + ' № ' + obj['id']
                                     + ' ' + obj['value']
                                     + '</a></div>';
                             }
@@ -118,13 +113,6 @@ $request = Yii::$app->request->get();
                     }
                 });
         });
-
-        /*
-        $('#btn-options .btn-link').on('click', function (e) {
-            e.preventDefault();
-            $(this).parent().children(':not(.btn-link)').toggle();
-            $('.layout_main , .layout_left ').css('top', $('#top_search').closest('.row').height()+25);
-        });*/
 
         $('#btn-options .btn:not(.btn-link)').on('click', function (e) {
             e.preventDefault();

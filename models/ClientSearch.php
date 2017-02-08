@@ -40,7 +40,7 @@ class ClientSearch extends ClientAccount
     {
         return parent::attributeLabels() +
         [
-            'id' => '# ЛС',
+            'id' => '#',
             'companyName' => 'Название компании',
             'inn' => 'ИНН',
             'managerName' => 'Менеджер',

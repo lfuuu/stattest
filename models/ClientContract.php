@@ -32,6 +32,7 @@ use yii\db\ActiveQuery;
  * @property string is_external
  * @property int is_lk_access
  * @property int is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
+ *
  * @property ClientContragent contragent
  * @property ClientAccount[] accounts
  * @property Organization $organization
@@ -40,6 +41,8 @@ use yii\db\ActiveQuery;
  * @property Business business
  * @property BusinessProcess businessProcess
  * @property BusinessProcessStatus businessProcessStatus
+ * @property string managerName
+ * @property string accountManagerName
  */
 class ClientContract extends HistoryActiveRecord
 {

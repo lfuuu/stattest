@@ -91,7 +91,7 @@ if (isset($fixclient_data['id'])) {
                             <li><a href="/user/profile/change-password" data-width="400" data-height="450" onClick="$(this).parents('ul').prev('a').trigger('click'); return showIframePopup(this);">Изменить пароль</a></li>
                             <li><a href="/site/logout">Выход</a></li>
                         </ul>
-                        <?php if ($myTroublesCount > 0): ?>
+                        <?php if ($myTroublesCount > 0) : ?>
                             <br>
                             <br>
                             <a href="/?module=tt&action=list2&mode=2" style="font-weight: bold; color: #a00000; font-size: 12px;">
@@ -103,14 +103,14 @@ if (isset($fixclient_data['id'])) {
             </div>
         </div>
         <div id="top_search" style="margin-top: 15px; height: 40px; padding-left: 360px;">
-            <?php if (Yii::$app->user->can('clients.read')): ?>
+            <?php if (Yii::$app->user->can('clients.read')) : ?>
                 <div class="row">
                     <?= $this->render('widgets/search') ?>
-                    <?php if ($activeClient): ?>
+                    <?php if ($activeClient) : ?>
                         <div class="col-sm-12">
                             <?php
                             $str = htmlspecialchars($activeClient->contract->contragent->name . ' / Договор
-                            № ' . $activeClient->contract->number . ' / ЛС № ' . $activeClient->id);
+                            № ' . $activeClient->contract->number . ' / ' . $activeClient->getAccountTypeAndId());
                             ?>
                             <h2 style="display: inline-block; margin: 0; font-weight: normal; margin-top: 8px;
                                     max-width: 90%;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;
@@ -193,7 +193,7 @@ $isHideLeftLayout = Yii::$app->session->get('isHideLeftLayout', false);
             <div style="padding: 15px; margin-top: 100px" class="col-sm-12">
                 <a href="http://www.mcn.ru/"><img height="16" src="images/logo_msn_s.gif" width="58"
                                                   border="0/"></a><br>
-                <span style="color: #666">©2014 MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
+                <span style="color: #666">©2017 MCN. тел. (495) 105–9999 (отдел продаж), (495) 105–9995 (техподдержка)</span>
             </div>
         </div>
     </div>
@@ -210,8 +210,10 @@ if ($this->js) {
             $script = preg_replace('/jQuery\.when\((.*?)\)\.done/', 'jQuery.when(  setTimeout(function(){$1},10)  ).done', $script);
             $script = preg_replace('/jQuery\([^\)]+?\)\.yiiGridView\([^\)]+?\);/', 'setTimeout(function(){$0},100);', $script);
         }
+
         unset($script);
     }
+
     unset($scripts);
 }
 ?>

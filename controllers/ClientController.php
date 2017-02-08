@@ -6,7 +6,6 @@ use app\classes\BaseController;
 use app\classes\grid\GridFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\filter\AccountTariffFilter;
-use app\classes\uu\forms\CrudMultipleTrait;
 use app\classes\uu\model\ServiceType;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
@@ -251,6 +250,7 @@ class ClientController extends BaseController
 
         if (Yii::$app->request->isAjax) {
             $res = [];
+            /** @var ClientAccount $model */
             foreach ($dataProvider->models as $model) {
                 if (isset(Yii::$app->request->queryParams['contractNo'])) {
                     $res[] = [
@@ -262,9 +262,10 @@ class ClientController extends BaseController
                 } else {
                     $res[] = [
                         'url' => Url::toRoute(['client/view', 'id' => $model->id]),
-                        'value' => $model->contract->contragent->name ? $model->contract->contragent->name : $model->contract->contragent->name_full,
+                        'value' => htmlspecialchars($model->contract->contragent->name ?: $model->contract->contragent->name_full),
                         'color' => $model->contract->businessProcessStatus->color,
                         'id' => $model->id,
+                        'accountType' => $model->getAccountType(),
                     ];
                 }
             }
