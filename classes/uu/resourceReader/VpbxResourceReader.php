@@ -12,32 +12,6 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
 {
     protected $fieldName = '';
 
-    /** @var [] кэш данных */
-    protected $usageToDateToValue = [];
-    protected $clientToDateToValue = [];
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $minLogDatetime = AccountTariff::getMinLogDatetime();
-        $virtpbxStatQuery = VirtpbxStat::find()
-            ->where(['>=', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
-
-        /** @var VirtpbxStat $virtpbxStat */
-        foreach ($virtpbxStatQuery->each() as $virtpbxStat) {
-            $accountTariffId = $virtpbxStat->usage_id;
-            $clientId = $virtpbxStat->client_id;
-            $date = $virtpbxStat->date;
-
-            !isset($this->usageToDateToValue[$accountTariffId]) && ($this->usageToDateToValue[$accountTariffId] = []);
-            !isset($this->clientToDateToValue[$clientId]) && ($this->clientToDateToValue[$clientId] = []);
-
-            // записать сразу в два кэша (по услуге и клиенту), потому что в таблице virtpbx_stat все сделано костыльно
-            $this->clientToDateToValue[$clientId][$date] = $this->usageToDateToValue[$accountTariffId][$date] = $virtpbxStat->{$this->fieldName};
-        }
-    }
-
     /**
      * Вернуть количество потраченного ресурса
      *
@@ -47,25 +21,26 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
-        $clientId = $accountTariff->client_account_id;
-        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
-        return
-            // по-новому (через услугу)
-            isset($this->usageToDateToValue[$accountTariffId][$date]) ?
-                $this->usageToDateToValue[$accountTariffId][$date] :
-                (
-                    // по-старому (через клиента)
-                isset($this->clientToDateToValue[$clientId][$date]) ?
-                    $this->clientToDateToValue[$clientId][$date] :
-                    null
-                );
+        $virtpbxStat = VirtpbxStat::findOne(
+            [
+                'AND',
+                'date' => $dateTime->format(DateTimeZoneHelper::DATE_FORMAT),
+                [
+                    // по услуге и клиенту, потому что в таблице virtpbx_stat все сделано костыльно
+                    'OR',
+                    'usage_id' => $accountTariff->id,
+                    'client_id' => $accountTariff->client_account_id,
+                ]
+            ]
+        );
+        return $virtpbxStat ? $virtpbxStat->{$this->fieldName} : null;
     }
 
     /**
      * Как считать PricePerUnit - указана за месяц или за день
      * true - за месяц (при ежедневном расчете надо разделить на кол-во дней в месяце)
      * false - за день (при ежедневном расчете так и оставить)
+     *
      * @return bool
      */
     public function getIsMonthPricePerUnit()

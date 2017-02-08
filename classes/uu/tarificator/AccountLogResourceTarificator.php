@@ -23,7 +23,9 @@ class AccountLogResourceTarificator implements TarificatorI
 
     /**
      * Рассчитать плату всех услуг
+     *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @throws \Exception
      */
     public function tarificate($accountTariffId = null)
     {
@@ -69,6 +71,7 @@ class AccountLogResourceTarificator implements TarificatorI
 
     /**
      * Рассчитать плату по конкретной услуге
+     *
      * @param AccountTariff $accountTariff
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
@@ -108,7 +111,10 @@ class AccountLogResourceTarificator implements TarificatorI
                 $reader = $this->resourceIdToReader[$resourceId];
                 $amountUse = $reader->read($accountTariff, $date);
                 if ($amountUse === null) {
+                    echo '- ';
                     continue; // нет данных. Пропустить
+                } else {
+                    echo '+ ';
                 }
 
                 $accountLogResource = new AccountLogResource();
