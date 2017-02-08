@@ -111,7 +111,7 @@ class AccountLogResourceTarificator implements TarificatorI
                 $reader = $this->resourceIdToReader[$resourceId];
                 $amountUse = $reader->read($accountTariff, $date);
                 if ($amountUse === null) {
-                    echo '- ';
+                    echo '-' . $resourceId . ' ';
                     continue; // нет данных. Пропустить
                 } else {
                     echo '+ ';
