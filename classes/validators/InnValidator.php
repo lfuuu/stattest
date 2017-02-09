@@ -6,37 +6,64 @@ use yii\validators\Validator;
 class InnValidator extends Validator
 {
 
+    /**
+     * Init
+     */
     public function init()
     {
         parent::init();
         $this->message = 'Неправильный ИНН';
     }
 
+    /**
+     * Проверка значения
+     *
+     * @param string $value
+     * @return array|null
+     */
     public function validateValue($value)
     {
-        if (!$this->checkInn($value)) {
+        if (!$this->_checkInn($value)) {
             return [$this->message];
         }
+
         return null;
     }
 
-    private function checkInn($inn)
+    /**
+     * Проверка ИНН
+     *
+     * @param string $inn
+     * @return bool
+     */
+    private function _checkInn($inn)
     {
-        if (strlen($inn) == 10) {
-            return $this->checkInn10($inn);
-        } else {
-            if (strlen($inn) == 12) {
-                return $this->checkInn12($inn);
-            } else {
-                if (strlen($inn) == 13) {
-                    return $this->checkInnHU($inn);
-                }
+        switch (strlen($inn)) {
+            case 10: {
+                return $this->_checkInn10($inn);
+            }
+
+            case 12: {
+                return $this->_checkInn12($inn);
+            }
+
+            case 13: {
+                return $this->_checkInnHU($inn);
+            }
+
+            default: {
+                return false;
             }
         }
-        return false;
     }
 
-    private function checkInn10($inn)
+    /**
+     * Проверка 10-ти значного ИНН
+     *
+     * @param string $inn
+     * @return bool
+     */
+    private function _checkInn10($inn)
     {
         $f1 = [2, 4, 10, 3, 5, 9, 4, 6, 8];
         $n10 = 0;
@@ -45,14 +72,19 @@ class InnValidator extends Validator
             $n10 += $inn[$k] * $v;
         }
 
-
         $n10 %= 11;
         $n10 %= 10;
 
         return $inn[9] == $n10;
     }
 
-    private function checkInn12($inn)
+    /**
+     * Проверка 12-ти значного ИНН
+     *
+     * @param string $inn
+     * @return bool
+     */
+    private function _checkInn12($inn)
     {
         $f1 = [7, 2, 4, 10, 3, 5, 9, 4, 6, 8];
         $f2 = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8];
@@ -76,7 +108,13 @@ class InnValidator extends Validator
         return $inn[10] == $n11 && $inn[11] == $n12;
     }
 
-    private function checkInnHU($inn)
+    /**
+     * Проверка венгерского ИНН
+     *
+     * @param string $inn
+     * @return bool
+     */
+    private function _checkInnHU($inn)
     {
         return boolval(preg_match('/^\d{8}-\d{1}-\d{2}$/', $inn));
     }

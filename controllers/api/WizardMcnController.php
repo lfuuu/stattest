@@ -2,6 +2,7 @@
 
 namespace app\controllers\api;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
 use app\models\ClientContragent;
@@ -99,6 +100,7 @@ class WizardMcnController extends WizardBaseController
                     );
                 }
             }
+
         } else { // error
             return $result;
         }
@@ -291,11 +293,19 @@ class WizardMcnController extends WizardBaseController
 
         $form->load($stepData, "");
 
-        if (!$form->validate()) {
-            return $this->getFormErrors($form);
-        } else {
+        try {
+            if (!$form->validate()) {
+                throw new ModelValidationException($form);
+            }
+
             return $form->saveInContragent($this->account);
+        } catch (ModelValidationException $e) {
+            return $this->getFormErrors($e->getModel());
+        } catch (\Exception $e) {
+            \Yii::error($e);
         }
+
+        return ["validation_errors" => [['field' => 'name', 'error' => 'Save error']]];
     }
 
     /**

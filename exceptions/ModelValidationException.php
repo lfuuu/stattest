@@ -8,6 +8,8 @@ class ModelValidationException extends HttpException
 {
     private $_errors = [];
 
+    private $_model = null;
+
     /**
      * @param Model $model
      * @param int $errorCode код ошибки для API
@@ -15,6 +17,7 @@ class ModelValidationException extends HttpException
      */
     public function __construct(Model $model, $errorCode = 0, $statusCode = 400)
     {
+        $this->_model = $model;
         $this->_errors = $model->getErrors();
         parent::__construct($statusCode, implode('. ', $model->getFirstErrors()), $errorCode);
     }
@@ -25,5 +28,15 @@ class ModelValidationException extends HttpException
     public function getErrors()
     {
         return $this->_errors;
+    }
+
+    /**
+     * Получение модели
+     *
+     * @return Model
+     */
+    public function getModel()
+    {
+        return $this->_model;
     }
 }

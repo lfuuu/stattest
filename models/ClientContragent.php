@@ -50,7 +50,8 @@ class ClientContragent extends HistoryActiveRecord
 
     public $cPerson = null;
     public $historyVersionDate = null;
-    public $hasChecked;
+    public $hasChecked = false;
+    public $isSimpleValidation = false; // валидация для wizarda
 
     public static $taxRegtimeTypes = [
         self::TAX_REGTIME_UNDEFINED => 'Не определен',

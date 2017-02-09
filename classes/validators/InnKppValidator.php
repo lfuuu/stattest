@@ -2,7 +2,6 @@
 namespace app\classes\validators;
 
 use app\models\ClientContract;
-use app\models\Business;
 use app\models\ClientContragent;
 use app\models\Country;
 use yii\validators\Validator;
@@ -12,6 +11,9 @@ class InnKppValidator extends Validator
 
     protected $attrValidator = [];
 
+    /**
+     * Init
+     */
     public function init()
     {
         parent::init();
@@ -21,6 +23,10 @@ class InnKppValidator extends Validator
         ];
     }
 
+    /**
+     * @param ClientContragent $model
+     * @param null $attributes
+     */
     public function validateAttributes($model, $attributes = null)
     {
         $attributes = [];
@@ -32,7 +38,7 @@ class InnKppValidator extends Validator
             $attributes[] = 'kpp';
         }
 
-        $hasCheckedContracts = $model->hasChecked || $this->hasCheckedContract($model);
+        $hasCheckedContracts = $model->hasChecked || $this->_hasCheckedContract($model);
 
         if ($attributes) {
             $isValidated = false;
@@ -44,13 +50,20 @@ class InnKppValidator extends Validator
                         $attribute)->validateAttribute($model, $attribute);
                 }
             }
+
             if ($isValidated && $hasCheckedContracts) {
-                $this->checkUnique($model, $attributes);
+                $this->_checkUnique($model, $attributes);
             }
         }
     }
 
-    private function hasCheckedContract($model)
+    /**
+     * Есть ли проверенные договора у контрагента
+     *
+     * @param ClientContragent $model
+     * @return bool
+     */
+    private function _hasCheckedContract($model)
     {
         return (bool) ClientContract::find()
             ->andWhere(['contragent_id' => $model->id])
@@ -58,7 +71,13 @@ class InnKppValidator extends Validator
             ->count();
     }
 
-    protected function checkUnique($model, $attributes)
+    /**
+     * Проверка на уникальность
+     *
+     * @param ClientContragent $model
+     * @param array $attributes
+     */
+    private function _checkUnique($model, $attributes)
     {
         $query = $model::find();
 
@@ -67,13 +86,20 @@ class InnKppValidator extends Validator
             $labels[] = $model->getAttributeLabel($attribute);
             $query->andWhere([$attribute => $model->$attribute]);
         }
+
         $query->andWhere(['!=', 'id', $model->id]);
         /** @var ClientContragent $notUniqueContragent */
         $notUniqueContragent = $query->one();
 
         if ($notUniqueContragent) {
+            $errorStr = '{attrs} должен быть уникальный (контрагент #{contragentId}, {contragentName}, ЛС: {accountId})';
+            if ($model->isSimpleValidation) {
+                $errorStr = 'Компания с данным ИНН и КПП уже зарегистриорована';
+            }
+
             foreach ($attributes as $attribute) {
-                $this->addError($model, $attribute, '{attrs} должен быть уникальный (контрагент #{contragentId}, {contragentName}, ЛС: {accountId})', [
+                $this->addError($model, $attribute,
+                    $errorStr, [
                     'attrs' => implode(', ', $labels),
                     'contragentId' => $notUniqueContragent->id,
                     'contragentName' => $notUniqueContragent->name,

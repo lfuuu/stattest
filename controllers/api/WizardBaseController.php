@@ -13,6 +13,7 @@ use app\models\BusinessProcessStatus;
 use app\models\TroubleState;
 use app\models\User;
 use yii\base\InvalidParamException;
+use yii\base\Model;
 
 
 /**
@@ -302,7 +303,7 @@ abstract class WizardBaseController extends ApiController
     {
         $errors = [];
 
-        if ($error instanceof Form) {
+        if ($error instanceof Form || $error instanceof Model) {
             $error = $error->getErrors();
         }
 
@@ -310,7 +311,7 @@ abstract class WizardBaseController extends ApiController
             $errors[] = ["field" => $field, "error" => $messages[0]];
         }
 
-        return ["errors" => $errors];
+        return ["validation_errors" => $errors];
     }
 
     /**
