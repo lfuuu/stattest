@@ -4,6 +4,10 @@ return [
     'API_SECURE_KEY' => '',
     'CORE_SERVER' => 'vpbxphoneapi.mcn.loc',
     'PHONE_SERVER' => 'vpbxphoneapi.mcn.loc',
+    'VPBX_API_AUTHORIZATION' => [
+        'method' => 'bearer',
+        'token' => '',
+    ],
     'LK_PATH' => 'https://vpbxphoneapi.mcn.loc/lk/',
     'FEEDBACK_SERVER' => false,
     'FEEDBACK_API_KEY' => '',
