@@ -280,21 +280,26 @@ class ApiVpbx
     }
 
     /**
-     * @param int $clientAccountId
-     * @param int $usageVpbxId
+     * @param ClientAccount $clientAccount
+     * @param int $did
      * @param \DateTimeImmutable $date
      * @return array. int_number_amount=>... или errors=>...
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function getResourceVoipLines($clientAccountId, $usageVpbxId, \DateTimeImmutable $date)
+    public static function getResourceVoipLines(ClientAccount $clientAccount, $did, \DateTimeImmutable $date)
     {
-        return ApiVpbx::exec('get_int_number_usage', [
-            'client_id' => $clientAccountId,
-            'stat_product_id' => $usageVpbxId,
-            'date' => $date->format(DateTimeZoneHelper::DATE_FORMAT),
-        ]);
+        return ApiVpbx::exec(
+            'get_did_client_lines',
+            [
+                'timezone' => $clientAccount->timezone_name,
+                'date_log' => $date->format(DateTimeZoneHelper::DATE_FORMAT),
+                'account_id' => $clientAccount->id,
+                'did' => $did,
+            ],
+            $toServer = 'phone'
+        );
     }
 
     /**

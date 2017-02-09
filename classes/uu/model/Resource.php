@@ -42,6 +42,8 @@ class Resource extends \yii\db\ActiveRecord
     const ID_VPBX_EXT_DID = 3; // ВАТС. Подключение номера другого оператора
     const ID_VPBX_RECORD = 4; // ВАТС. Запись звонков с сайта
     const ID_VPBX_FAX = 6; // ВАТС. Факс
+    const ID_VPBX_MIN_ROUTE = 19; // ВАТС. Маршрутизация по минимальной цене
+    const ID_VPBX_GEO_ROUTE = 20; // ВАТС. Маршрутизация по географии
 
     const ID_VOIP_LINE = 7; // Телефония. Линия
     const ID_VOIP_CALLS = 8; // Телефония. Звонки
@@ -59,9 +61,6 @@ class Resource extends \yii\db\ActiveRecord
     const ID_VM_COLLOCATION_RAM = 17; // VM collocation. Оперативная память
 
     const ID_ONE_TIME = 18; // Разовая услуга
-
-    const ID_VPBX_MIN_ROUTE = 19; // ВАТС. Маршрутизация по минимальной цене
-    const ID_VPBX_GEO_ROUTE = 20; // ВАТС. Маршрутизация по географии
 
     const ID_TRUNK_CALLS = 21; // Транк. Звонки
 

@@ -4,9 +4,11 @@ namespace app\classes\uu\resourceReader;
 
 use app\classes\api\ApiVpbx;
 use app\classes\uu\model\AccountTariff;
+use app\exceptions\web\BadRequestHttpException;
 use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 use Yii;
+use yii\base\InvalidCallException;
 use yii\base\Object;
 
 class VoipLinesResourceReader extends Object implements ResourceReaderInterface
@@ -26,7 +28,7 @@ class VoipLinesResourceReader extends Object implements ResourceReaderInterface
 
     /**
      * Вернуть количество потраченного ресурса
-     * https://vpbx.mcn.ru/core/swagger/index.html , vpbx, /get_int_number_usage
+     * https://vpbx.mcn.ru/core/swagger/index.html , voip, /get_did_client_lines
      *
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
@@ -41,16 +43,15 @@ class VoipLinesResourceReader extends Object implements ResourceReaderInterface
         }
 
         try {
-            $result = ApiVpbx::getResourceVoipLines($accountTariff->client_account_id, $accountTariff->id, $dateTime);
-            if (isset($result['int_number_amount'])) {
-                return (int)$result['int_number_amount'];
+            $result = ApiVpbx::getResourceVoipLines($accountTariff->clientAccount, $accountTariff->voip_number, $dateTime);
+            if (isset($result['result']['lc'])) {
+                return (int)$result['result']['lc'];
             }
 
-            throw new \Exception(isset($result['errors']) ? $result['errors'] : 'Неправильный ответ get_int_number_usage');
+            throw new BadRequestHttpException(isset($result['errors']) ? $result['errors'] : 'Неправильный ответ. Нет lc');
         } catch (\Exception $e) {
             $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
-            Yii::error(sprintf('VoipLinesResourceReader. Нет данных по ресурсу. AccountTariffId = %d, дата = %s.', $accountTariff->id, $date));
-            Yii::error($e);
+            Yii::error(sprintf('VoipLinesResourceReader. Нет данных по ресурсу. AccountTariffId = %d, дата = %s. %s', $accountTariff->id, $date, $e->getMessage()));
             return null;
         }
     }
