@@ -120,9 +120,12 @@ class HttpRequest extends \yii\httpclient\Request
     {
         $debugInfo = '';
         $debugInfo .= sprintf('url = %s', $this->getUrl()) . PHP_EOL;
+        $debugInfo .= sprintf('method = %s', print_r($this->getMethod(), true)) . PHP_EOL;
         $debugInfo .= sprintf('data = %s', print_r($this->getData(), true)) . PHP_EOL;
         $debugInfo .= sprintf('options = %s', print_r($this->getOptions(), true)) . PHP_EOL;
-        $debugInfo .= sprintf('method = %d', print_r($this->getMethod(), true)) . PHP_EOL;
+        $debugInfo .= sprintf('headers = %s', print_r($this->getHeaders()->toArray(), true)) . PHP_EOL;
+        $debugInfo .= sprintf('requestConfig = %s', print_r($this->client->requestConfig, true)) . PHP_EOL;
+        $debugInfo .= sprintf('responseConfig = %s', print_r($this->client->responseConfig, true)) . PHP_EOL;
         return $debugInfo;
     }
 
