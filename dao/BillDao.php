@@ -354,7 +354,7 @@ class BillDao extends Singleton
             $line->uu_account_entry_id = $accountEntry->id;
             $line->service = 'uu_account_tariff';
             $line->id_service = $accountEntry->account_tariff_id;
-            $line->item_id = $accountEntry->accountTariff->getNonUniversalId();
+            $line->item_id = null;
             if (!$line->save()) {
                 throw new ModelValidationException($line);
             }

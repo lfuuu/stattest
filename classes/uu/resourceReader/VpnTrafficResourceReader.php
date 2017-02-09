@@ -6,6 +6,7 @@ use app\classes\uu\model\AccountTariff;
 use app\helpers\DateTimeZoneHelper;
 use app\models\UsageTechCpe;
 use DateTimeImmutable;
+use Yii;
 use yii\base\Object;
 
 class VpnTrafficResourceReader extends Object implements ResourceReaderInterface
@@ -13,6 +14,11 @@ class VpnTrafficResourceReader extends Object implements ResourceReaderInterface
     /** @var [] кэш данных */
     protected $usageToDateToValue = [];
 
+    /**
+     * VpnTrafficResourceReader constructor.
+     *
+     * @throws \yii\db\Exception
+     */
     public function __construct()
     {
         parent::__construct();
@@ -59,18 +65,21 @@ SQL;
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
         $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
-        return
-            isset($this->usageToDateToValue[$accountTariffId][$date]) ?
-                $this->usageToDateToValue[$accountTariffId][$date] :
-                null;
+
+        if (!isset($this->usageToDateToValue[$accountTariff->id][$date])) {
+            Yii::error(sprintf('VpnTrafficResourceReader. Нет данных по ресурсу. AccountTariffId = %d, дата = %s.', $accountTariff->id, $date));
+            return null;
+        }
+
+        return $this->usageToDateToValue[$accountTariff->id][$date];
     }
 
     /**
      * Как считать PricePerUnit - указана за месяц или за день
      * true - за месяц (при ежедневном расчете надо разделить на кол-во дней в месяце)
      * false - за день (при ежедневном расчете так и оставить)
+     *
      * @return bool
      */
     public function getIsMonthPricePerUnit()

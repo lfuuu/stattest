@@ -6,6 +6,7 @@ use app\classes\uu\model\AccountTariff;
 use app\helpers\DateTimeZoneHelper;
 use app\models\VirtpbxStat;
 use DateTimeImmutable;
+use Yii;
 use yii\base\Object;
 
 abstract class VpbxResourceReader extends Object implements ResourceReaderInterface
@@ -21,19 +22,24 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $virtpbxStat = VirtpbxStat::findOne(
+        $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
+        $virtpbxStat = VirtpbxStat::findOne([
+            'AND',
+            'date' => $date,
             [
-                'AND',
-                'date' => $dateTime->format(DateTimeZoneHelper::DATE_FORMAT),
-                [
-                    // по услуге и клиенту, потому что в таблице virtpbx_stat все сделано костыльно
-                    'OR',
-                    'usage_id' => $accountTariff->id,
-                    'client_id' => $accountTariff->client_account_id,
-                ]
+                // по услуге и клиенту, потому что в таблице virtpbx_stat все сделано костыльно
+                'OR',
+                'usage_id' => $accountTariff->id,
+                'client_id' => $accountTariff->client_account_id,
             ]
-        );
-        return $virtpbxStat ? $virtpbxStat->{$this->fieldName} : null;
+        ]);
+
+        if (!$virtpbxStat) {
+            Yii::error(sprintf('VpbxResourceReader. Нет данных по ресурсу %s. AccountTariffId = %d, дата = %s.', $this->fieldName, $accountTariff->id, $date));
+            return null;
+        }
+
+        return $virtpbxStat->{$this->fieldName};
     }
 
     /**

@@ -78,13 +78,6 @@ $attributes = [
             Yii::t('common', '(not set)'),
     ],
 
-    [
-        // неуниверсальная услуга
-        'label' => Yii::t('tariff', 'Non-universal service'),
-        'format' => 'html',
-        'value' => $accountTariff->getNonUniversalUrl(),
-    ],
-
 ];
 
 switch ($formModel->serviceTypeId) {

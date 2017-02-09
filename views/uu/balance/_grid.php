@@ -224,7 +224,6 @@ foreach ($result as $monthKey => $month):
                     <?php endif; ?>
                     <td>
                         <?php if (isset($monthUuItems[$i])): ?>
-                            <abbr title="ID не универсальной услуги"><?= $monthUuItems[$i]->accountTariff->getNonUniversalId() ?></abbr>:
                             <?php
                             switch ($monthUuItems[$i]->type_id) {
                                 case AccountEntry::TYPE_ID_PERIOD:

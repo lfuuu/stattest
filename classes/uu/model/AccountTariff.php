@@ -52,32 +52,6 @@ class AccountTariff extends HistoryActiveRecord
     // Методы для полей insert_time, insert_user_id, update_time, update_user_id
     use \app\classes\traits\InsertUpdateUserTrait;
 
-    // на сколько сдвинуть id при конвертации
-    const DELTA_VPBX = 0;
-    const DELTA_VOIP = 10000;
-    const DELTA_VOIP_PACKAGE = 50000;
-
-    const DELTA_INTERNET = 51000;
-    const DELTA_COLLOCATION = 51000;
-    const DELTA_VPN = 51000;
-
-    const DELTA_IT_PARK = 70000;
-    const DELTA_DOMAIN = 70000;
-    const DELTA_MAILSERVER = 70000;
-    const DELTA_ATS = 70000;
-    const DELTA_SITE = 70000;
-    const DELTA_USPD = 70000;
-    const DELTA_WELLSYSTEM = 70000;
-    const DELTA_WELLTIME_PRODUCT = 70000;
-    const DELTA_EXTRA = 70000;
-    const DELTA_SMS_GATE = 70000;
-
-    const DELTA_SMS = 80000;
-
-    const DELTA_WELLTIME_SAAS = 90000;
-
-    const DELTA_CALL_CHAT = 95000;
-
     const DELTA = 100000;
 
     // Ошибки ЛС
@@ -110,60 +84,6 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_USAGE_DOUBLE_PREV = 43; // Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.
     const ERROR_CODE_USAGE_DOUBLE_FUTURE = 44; // Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла
     const ERROR_CODE_USAGE_CANCELABLE = 45; // Нельзя отменить уже примененный тариф
-
-    public $serviceIdToDelta = [
-        ServiceType::ID_VPBX => self::DELTA_VPBX,
-        ServiceType::ID_VOIP => self::DELTA_VOIP,
-        ServiceType::ID_VOIP_PACKAGE => self::DELTA_VOIP_PACKAGE,
-
-        ServiceType::ID_INTERNET => self::DELTA_INTERNET,
-        ServiceType::ID_COLLOCATION => self::DELTA_COLLOCATION,
-        ServiceType::ID_VPN => self::DELTA_VPN,
-
-        ServiceType::ID_IT_PARK => self::DELTA_IT_PARK,
-        ServiceType::ID_DOMAIN => self::DELTA_DOMAIN,
-        ServiceType::ID_MAILSERVER => self::DELTA_MAILSERVER,
-        ServiceType::ID_ATS => self::DELTA_ATS,
-        ServiceType::ID_SITE => self::DELTA_SITE,
-        ServiceType::ID_USPD => self::DELTA_USPD,
-        ServiceType::ID_WELLSYSTEM => self::DELTA_WELLSYSTEM,
-        ServiceType::ID_WELLTIME_PRODUCT => self::DELTA_WELLTIME_PRODUCT,
-        ServiceType::ID_EXTRA => self::DELTA_EXTRA,
-        ServiceType::ID_SMS_GATE => self::DELTA_SMS_GATE,
-
-        ServiceType::ID_SMS => self::DELTA_SMS,
-
-        ServiceType::ID_WELLTIME_SAAS => self::DELTA_WELLTIME_SAAS,
-
-        ServiceType::ID_CALL_CHAT => self::DELTA_CALL_CHAT,
-    ];
-
-    public $serviceIdToUrl = [
-        ServiceType::ID_VPBX => '/pop_services.php?table=usage_virtpbx&id=%d',
-        ServiceType::ID_VOIP => '/usage/voip/edit?id=%d',
-        ServiceType::ID_VOIP_PACKAGE => '',
-
-        ServiceType::ID_INTERNET => '/pop_services.php?table=usage_ip_ports&id=%d',
-        ServiceType::ID_COLLOCATION => '/pop_services.php?table=usage_ip_ports&id=%d',
-        ServiceType::ID_VPN => '/pop_services.php?table=usage_ip_ports&id=%d',
-
-        ServiceType::ID_IT_PARK => '/pop_services.php?table=usage_extra&id=%d',
-        ServiceType::ID_DOMAIN => '/pop_services.php?table=usage_extra&id=%d', // /pop_services.php?id=%d&table=domains
-        ServiceType::ID_MAILSERVER => '/pop_services.php?table=usage_extra&id=%d',
-        ServiceType::ID_ATS => '/pop_services.php?table=usage_extra&id=%d',
-        ServiceType::ID_SITE => '/pop_services.php?table=usage_extra&id=%d',
-        ServiceType::ID_USPD => '/pop_services.php?table=usage_extra&id=%d',
-        ServiceType::ID_WELLSYSTEM => '/pop_services.php?table=usage_extra&id=%d',
-        ServiceType::ID_WELLTIME_PRODUCT => '/pop_services.php?table=usage_extra&id=%d',
-        ServiceType::ID_EXTRA => '/pop_services.php?table=usage_extra&id=%d',
-        ServiceType::ID_SMS_GATE => '/pop_services.php?table=usage_extra&id=%d',
-
-        ServiceType::ID_SMS => '/pop_services.php?table=usage_sms&id=%d',
-
-        ServiceType::ID_WELLTIME_SAAS => '/pop_services.php?table=usage_welltime&id=%d',
-
-        ServiceType::ID_CALL_CHAT => '/usage/call-chat/edit?id=%d',
-    ];
 
     /** @var array Код ошибки для АПИ */
     public $errorCode = null;
@@ -721,40 +641,6 @@ class AccountTariff extends HistoryActiveRecord
         }
 
         return $untarificatedPeriodss;
-    }
-
-    /**
-     * Вернуть ID неуниверсальной услуги
-     *
-     * @return int
-     */
-    public function getNonUniversalId()
-    {
-        if ($this->id && $this->id < self::DELTA && isset($this->serviceIdToDelta[$this->service_type_id])) {
-            return ($this->id - $this->serviceIdToDelta[$this->service_type_id]);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Вернуть html-ссылку на неуниверсальную услугу
-     *
-     * @return string
-     */
-    public function getNonUniversalUrl()
-    {
-        $id = $this->getNonUniversalId();
-        if (!$id) {
-            return '';
-        }
-
-        $url = $this->serviceIdToUrl[$this->service_type_id];
-        if (!$url) {
-            return $id;
-        }
-
-        return Html::a($id, sprintf($url, $id));
     }
 
     /**

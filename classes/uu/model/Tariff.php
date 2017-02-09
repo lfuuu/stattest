@@ -67,92 +67,11 @@ class Tariff extends HistoryActiveRecord
     // Методы для полей insert_time, insert_user_id, update_time, update_user_id
     use \app\classes\traits\InsertUpdateUserTrait;
 
-    // на сколько сдвинуть id при конвертации
-    const DELTA_VPBX = 0;
-    const DELTA_VOIP = 1000;
-    const DELTA_VOIP_PACKAGE = 2000;
-
-    const DELTA_INTERNET = 3000;
-    const DELTA_COLLOCATION = 3000;
-    const DELTA_VPN = 3000;
-
-    const DELTA_IT_PARK = 4000;
-    const DELTA_DOMAIN = 4000;
-    const DELTA_MAILSERVER = 4000;
-    const DELTA_ATS = 4000;
-    const DELTA_SITE = 4000;
-    const DELTA_SMS_GATE = 4000;
-    const DELTA_USPD = 4000;
-    const DELTA_WELLSYSTEM = 4000;
-    const DELTA_WELLTIME_PRODUCT = 4000;
-    const DELTA_EXTRA = 4000;
-
-    const DELTA_SMS = 5000;
-
-    const DELTA_WELLTIME_SAAS = 6000;
-
-    const DELTA_CALL_CHAT = 7000;
-
     const DELTA = 10000;
 
     const NUMBER_TYPE_NUMBER = 'number';
     const NUMBER_TYPE_7800 = '7800';
     const NUMBER_TYPE_LINE = 'line';
-
-
-    public $serviceIdToDelta = [
-        ServiceType::ID_VPBX => self::DELTA_VPBX,
-        ServiceType::ID_VOIP => self::DELTA_VOIP,
-        ServiceType::ID_VOIP_PACKAGE => self::DELTA_VOIP_PACKAGE,
-
-        ServiceType::ID_INTERNET => self::DELTA_INTERNET,
-        ServiceType::ID_COLLOCATION => self::DELTA_COLLOCATION,
-        ServiceType::ID_VPN => self::DELTA_VPN,
-
-        ServiceType::ID_IT_PARK => self::DELTA_IT_PARK,
-        ServiceType::ID_DOMAIN => self::DELTA_DOMAIN,
-        ServiceType::ID_MAILSERVER => self::DELTA_MAILSERVER,
-        ServiceType::ID_ATS => self::DELTA_ATS,
-        ServiceType::ID_SITE => self::DELTA_SITE,
-        ServiceType::ID_SMS_GATE => self::DELTA_SMS_GATE,
-        ServiceType::ID_USPD => self::DELTA_USPD,
-        ServiceType::ID_WELLSYSTEM => self::DELTA_WELLSYSTEM,
-        ServiceType::ID_WELLTIME_PRODUCT => self::DELTA_WELLTIME_PRODUCT,
-        ServiceType::ID_EXTRA => self::DELTA_EXTRA,
-
-        ServiceType::ID_SMS => self::DELTA_SMS,
-
-        ServiceType::ID_WELLTIME_SAAS => self::DELTA_WELLTIME_SAAS,
-
-        ServiceType::ID_CALL_CHAT => self::DELTA_CALL_CHAT,
-    ];
-
-    public $serviceIdToUrl = [
-        ServiceType::ID_VPBX => '/?module=tarifs&action=edit&m=virtpbx&id=%d',
-        ServiceType::ID_VOIP => '/tariff/voip/edit?id=%d',
-        ServiceType::ID_VOIP_PACKAGE => '/tariff/voip-package/edit?id=%d',
-
-        ServiceType::ID_INTERNET => '/?module=tarifs&action=edit&m=internet&id=%d',
-        ServiceType::ID_COLLOCATION => '/?module=tarifs&action=edit&m=internet&id=%d',
-        ServiceType::ID_VPN => '/?module=tarifs&action=edit&m=internet&id=%d',
-
-        ServiceType::ID_IT_PARK => '/?module=tarifs&action=edit&m=itpark&id=%d',
-        ServiceType::ID_DOMAIN => '/?module=tarifs&action=edit&m=extra&id=%d',
-        ServiceType::ID_MAILSERVER => '/?module=tarifs&action=edit&m=extra&id=%d',
-        ServiceType::ID_ATS => '/?module=tarifs&action=edit&m=extra&id=%d',
-        ServiceType::ID_SITE => '/?module=tarifs&action=edit&m=extra&id=%d',
-        ServiceType::ID_SMS_GATE => '/?module=tarifs&action=edit&m=extra&id=%d',
-        ServiceType::ID_USPD => '/?module=tarifs&action=edit&m=extra&id=%d',
-        ServiceType::ID_WELLSYSTEM => '/?module=tarifs&action=edit&m=wellsystem&id=%d',
-        ServiceType::ID_WELLTIME_PRODUCT => '/?module=tarifs&action=edit&m=welltime&id=%d',
-        ServiceType::ID_EXTRA => '/?module=tarifs&action=edit&m=extra&id=%d',
-
-        ServiceType::ID_SMS => '/?module=tarifs&action=edit&m=sms&id=%d',
-
-        ServiceType::ID_WELLTIME_SAAS => '/?module=tarifs&action=edit&m=welltime&id=%d',
-
-        ServiceType::ID_CALL_CHAT => '/tariff/call-chat/edit?id=%d',
-    ];
 
     /**
      * @return array
@@ -372,40 +291,6 @@ class Tariff extends HistoryActiveRecord
         }
 
         return false;
-    }
-
-    /**
-     * Вернуть ID неуниверсальной услуги
-     *
-     * @return int|null
-     */
-    public function getNonUniversalId()
-    {
-        if ($this->id && $this->id < self::DELTA && isset($this->serviceIdToDelta[$this->service_type_id])) {
-            return ($this->id - $this->serviceIdToDelta[$this->service_type_id]);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Вернуть html-ссылку на неуниверсальную услугу
-     *
-     * @return string
-     */
-    public function getNonUniversalUrl()
-    {
-        $id = $this->getNonUniversalId();
-        if (!$id) {
-            return '';
-        }
-
-        $url = $this->serviceIdToUrl[$this->service_type_id];
-        if (!$url) {
-            return $id;
-        }
-
-        return Html::a($id, sprintf($url, $id));
     }
 
     /**

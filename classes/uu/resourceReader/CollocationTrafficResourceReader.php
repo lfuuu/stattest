@@ -4,8 +4,8 @@ namespace app\classes\uu\resourceReader;
 
 use app\classes\uu\model\AccountTariff;
 use app\helpers\DateTimeZoneHelper;
-use app\models\UsageIpPorts;
 use DateTimeImmutable;
+use Yii;
 use yii\base\Object;
 
 class CollocationTrafficResourceReader extends Object implements ResourceReaderInterface
@@ -26,14 +26,15 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $accountTariffId = $accountTariff->getNonUniversalId() ?: $accountTariff->id;
-        $this->createCache($accountTariffId);
+        $this->createCache($accountTariff->id);
         $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
 
-        return
-            isset($this->dateToValue[$date]) ?
-                (int)$this->dateToValue[$date][$this->fieldNameIn] + (int)$this->dateToValue[$date][$this->fieldNameOut] :
-                null;
+        if (!isset($this->dateToValue[$date])) {
+            Yii::error(sprintf('CollocationTrafficResourceReader. Нет данных по ресурсу. AccountTariffId = %d, дата = %s.', $accountTariff->id, $date));
+            return null;
+        }
+
+        return (int)$this->dateToValue[$date][$this->fieldNameIn] + (int)$this->dateToValue[$date][$this->fieldNameOut];
     }
 
     /**
@@ -106,18 +107,17 @@ class CollocationTrafficResourceReader extends Object implements ResourceReaderI
                 DATE(traf_flows_1d.time)
 SQL;
 
-        // Если эти данные будут использованы - надо перевести на новые трафиковые таблицы
-
         /*
-        $db = UsageIpPorts::getDb();
-        $dataReader = $db->createCommand($sql, [
-            ':date' => AccountTariff::getMinLogDatetime()->format(DateTimeZoneHelper::DATE_FORMAT),
-            ':account_tariff_id' => $accountTariffId,
-        ])
-            ->query();
-        foreach ($dataReader as $row) {
-            $this->dateToValue[$row['date']] = $row;
-        }
+            // Если эти данные будут использованы - надо перевести на новые трафиковые таблицы
+            $db = UsageIpPorts::getDb();
+            $dataReader = $db->createCommand($sql, [
+                ':date' => AccountTariff::getMinLogDatetime()->format(DateTimeZoneHelper::DATE_FORMAT),
+                ':account_tariff_id' => $accountTariffId,
+            ])
+                ->query();
+            foreach ($dataReader as $row) {
+                $this->dateToValue[$row['date']] = $row;
+            }
         */
 
     }
@@ -126,6 +126,7 @@ SQL;
      * Как считать PricePerUnit - указана за месяц или за день
      * true - за месяц (при ежедневном расчете надо разделить на кол-во дней в месяце)
      * false - за день (при ежедневном расчете так и оставить)
+     *
      * @return bool
      */
     public function getIsMonthPricePerUnit()

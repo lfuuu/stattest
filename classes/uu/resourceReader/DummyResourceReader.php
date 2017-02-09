@@ -24,6 +24,7 @@ class DummyResourceReader extends Object implements ResourceReaderInterface
      * Как считать PricePerUnit - указана за месяц или за день
      * true - за месяц (при ежедневном расчете надо разделить на кол-во дней в месяце)
      * false - за день (при ежедневном расчете так и оставить)
+     *
      * @return bool
      */
     public function getIsMonthPricePerUnit()

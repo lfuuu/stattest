@@ -94,10 +94,7 @@ abstract class TariffForm extends Form
     protected function loadFromInput()
     {
         $post = \Yii::$app->request->post();
-        if ($this->tariff->getNonUniversalId()) {
-            // Этот тариф автоматически сконвертирован из старого. Если надо отредактировать его - редактируйте исходный тариф.
-            $post = [];
-        } elseif ($this->tariff->isHasAccountTariff()) {
+        if ($this->tariff->isHasAccountTariff()) {
             // На этом тарифе есть услуги. Редактировать можно только некоторые свойства.
             if (isset($post['Tariff']['name'])) {
                 // checkbox передаются даже disabled, потому что они в паре с hidden. Надо все лишнее убрать

@@ -6,6 +6,7 @@ use app\classes\uu\model\AccountTariff;
 use app\helpers\DateTimeZoneHelper;
 use app\models\SmsStat;
 use DateTimeImmutable;
+use Yii;
 use yii\base\Object;
 
 class SmsResourceReader extends Object implements ResourceReaderInterface
@@ -13,6 +14,9 @@ class SmsResourceReader extends Object implements ResourceReaderInterface
     /** @var [] кэш данных */
     protected $clientToDateToValue = [];
 
+    /**
+     * SmsResourceReader constructor.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -42,16 +46,20 @@ class SmsResourceReader extends Object implements ResourceReaderInterface
     {
         $clientId = $accountTariff->client_account_id;
         $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
-        return
-            isset($this->clientToDateToValue[$clientId][$date]) ?
-                $this->clientToDateToValue[$clientId][$date] :
-                null;
+
+        if (!isset($this->clientToDateToValue[$clientId][$date])) {
+            Yii::error(sprintf('SmsResourceReader. Нет данных по ресурсу. AccountTariffId = %d, дата = %s.', $accountTariff->id, $date));
+            return null;
+        }
+
+        return $this->clientToDateToValue[$clientId][$date];
     }
 
     /**
      * Как считать PricePerUnit - указана за месяц или за день
      * true - за месяц (при ежедневном расчете надо разделить на кол-во дней в месяце)
      * false - за день (при ежедневном расчете так и оставить)
+     *
      * @return bool
      */
     public function getIsMonthPricePerUnit()

@@ -70,7 +70,7 @@ if (!$serviceType) {
             </div>
 
             <?php // когда редактировал ?>
-            <div class="col-sm-2">
+            <div class="col-sm-3">
                 <label><?= $accountTariff->getAttributeLabel('update_time') ?></label>
                 <div><?= ($accountTariff->update_time && $accountTariff->update_time[0] != '0') ?
                         (new DateTimeWithUserTimezone($accountTariff->update_time))->getDateTime() :
@@ -78,15 +78,9 @@ if (!$serviceType) {
             </div>
 
             <?php // ЛС ?>
-            <div class="col-sm-2">
+            <div class="col-sm-3">
                 <label><?= $accountTariff->getAttributeLabel('client_account_id') ?></label>
                 <div><?= $accountTariff->clientAccount->getLink() ?></div>
-            </div>
-
-            <?php // неуниверсальная услуга ?>
-            <div class="col-sm-2">
-                <label><?= Yii::t('tariff', 'Non-universal service') ?></label>
-                <div><?= $accountTariff->getNonUniversalUrl() ?></div>
             </div>
 
         </div>

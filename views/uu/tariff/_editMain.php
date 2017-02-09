@@ -63,11 +63,6 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                         Yii::t('common', '(not set)') ?></div>
             </div>
 
-            <div class="col-sm-2">
-                <label><?= Yii::t('tariff', 'Non-universal tariff') ?></label>
-                <div><?= $tariff->getNonUniversalUrl() ?></div>
-            </div>
-
         </div>
         <br/>
         <?php
