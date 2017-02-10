@@ -2,7 +2,9 @@
 namespace app\classes\api;
 
 use app\classes\HttpClient;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use Yii;
 use yii\base\InvalidConfigException;
 
 class ApiPhone
@@ -12,7 +14,7 @@ class ApiPhone
      */
     public static function isAvailable()
     {
-        return isset(\Yii::$app->params['PHONE_SERVER']) && \Yii::$app->params['PHONE_SERVER'];
+        return isset(Yii::$app->params['PHONE_SERVER']) && Yii::$app->params['PHONE_SERVER'];
     }
 
     /**
@@ -20,7 +22,15 @@ class ApiPhone
      */
     public static function getApiUrl()
     {
-        return self::isAvailable() ? 'https://' . \Yii::$app->params['PHONE_SERVER'] . '/phone/api/' : false;
+        return self::isAvailable() ? 'https://' . Yii::$app->params['PHONE_SERVER'] . '/phone/api/' : false;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getApiAuthorization()
+    {
+        return isset(Yii::$app->params['VPBX_API_AUTHORIZATION']) ? Yii::$app->params['VPBX_API_AUTHORIZATION'] : [];
     }
 
     /**
@@ -59,6 +69,7 @@ class ApiPhone
             ->setMethod('post')
             ->setData($data)
             ->setUrl(self::getApiUrl() . $action)
+            ->auth(self::getApiAuthorization())
             ->getResponseDataWithCheck();
     }
 
@@ -72,6 +83,28 @@ class ApiPhone
     public static function getNumbersInfo(ClientAccount $client)
     {
         return self::exec('numbers_info', ['account_id' => $client->id]);
+    }
+
+    /**
+     * @param ClientAccount $clientAccount
+     * @param int $did
+     * @param \DateTimeImmutable $date
+     * @return array. int_number_amount=>... или errors=>...
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\InvalidCallException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function getResourceVoipLines(ClientAccount $clientAccount, $did, \DateTimeImmutable $date)
+    {
+        return self::exec(
+            'get_did_client_lines',
+            [
+                'timezone' => $clientAccount->timezone_name,
+                'date_log' => $date->format(DateTimeZoneHelper::DATE_FORMAT),
+                'account_id' => $clientAccount->id,
+                'did' => $did,
+            ]
+        );
     }
 
 }

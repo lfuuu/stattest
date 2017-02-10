@@ -3,6 +3,7 @@ namespace app\classes\api;
 
 use app\classes\HttpClient;
 use app\models\important_events\ImportantEventsNames;
+use Yii;
 use yii\base\InvalidConfigException;
 
 /**
@@ -17,7 +18,7 @@ class ApiCore
      */
     public static function isAvailable()
     {
-        return isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER'];
+        return isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER'];
     }
 
     /**
@@ -25,7 +26,15 @@ class ApiCore
      */
     public static function getApiUrl()
     {
-        return self::isAvailable() ? 'https://' . \Yii::$app->params['CORE_SERVER'] . '/core/api/' : false;
+        return self::isAvailable() ? 'https://' . Yii::$app->params['CORE_SERVER'] . '/core/api/' : false;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getApiAuthorization()
+    {
+        return isset(Yii::$app->params['VPBX_API_AUTHORIZATION']) ? Yii::$app->params['VPBX_API_AUTHORIZATION'] : [];
     }
 
     /**
@@ -48,6 +57,7 @@ class ApiCore
             ->setMethod($isPostJSON ? 'post' : 'get')
             ->setData($data)
             ->setUrl(self::getApiUrl() . $action)
+            ->auth(self::getApiAuthorization())
             ->getResponseDataWithCheck();
     }
 

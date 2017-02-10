@@ -23,27 +23,35 @@ class ApiVpbx
     }
 
     /**
-     * @return bool
+     * @return string|bool
      */
     public static function getPhoneHost()
     {
-        return isset(\Yii::$app->params['PHONE_SERVER']) ? \Yii::$app->params['PHONE_SERVER'] : false;
+        return isset(Yii::$app->params['PHONE_SERVER']) ? Yii::$app->params['PHONE_SERVER'] : false;
     }
 
     /**
-     * @return bool
+     * @return string|bool
      */
     public static function getVpbxHost()
     {
-        return isset(\Yii::$app->params['VPBX_SERVER']) ? \Yii::$app->params['VPBX_SERVER'] : false;
+        return isset(Yii::$app->params['VPBX_SERVER']) ? Yii::$app->params['VPBX_SERVER'] : false;
     }
 
     /**
-     * @return bool
+     * @return string|bool
      */
     public static function getApiUrl()
     {
-        return isset(\Yii::$app->params['VIRTPBX_URL']) && \Yii::$app->params['VIRTPBX_URL'] ? \Yii::$app->params['VIRTPBX_URL'] : false;
+        return isset(Yii::$app->params['VIRTPBX_URL']) ? Yii::$app->params['VIRTPBX_URL'] : false;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getApiAuthorization()
+    {
+        return isset(Yii::$app->params['VPBX_API_AUTHORIZATION']) ? Yii::$app->params['VPBX_API_AUTHORIZATION'] : [];
     }
 
     /**
@@ -61,23 +69,27 @@ class ApiVpbx
         $url = self::getApiUrl();
         $host = null;
 
-        if ($toServer == 'phone') {
-            $host = self::getPhoneHost();
-        } elseif ($toServer == 'vpbx') {
-            $host = self::getVpbxHost();
+        switch ($toServer) {
+            case 'phone':
+                $host = self::getPhoneHost();
+                break;
+            case 'vpbx':
+                $host = self::getVpbxHost();
+                break;
         }
 
         if (!$url || !$host) {
             throw new InvalidConfigException('API Vpbx was not configured');
         }
 
-        $url = strtr($url, ["[address]" => $host, "[action]" => $action]);
+        $url = strtr($url, ['[address]' => $host, '[action]' => $action]);
 
         return (new HttpClient)
             ->createJsonRequest()
             ->setMethod($isSendPost ? 'post' : 'get')
             ->setData($data)
             ->setUrl($url)
+            ->auth(self::getApiAuthorization())
             ->getResponseDataWithCheck();
     }
 
@@ -111,7 +123,7 @@ class ApiVpbx
             throw new \Exception('bad tariff');
         }
 
-        ApiVpbx::exec(
+        self::exec(
             'create',
             [
                 "client_id" => (int)$clientId,
@@ -152,7 +164,7 @@ class ApiVpbx
             'to_stat_product_id' => $toUsageId
         ];
 
-        ApiVpbx::exec('transfer', $query);
+        self::exec('transfer', $query);
     }
 
     /**
@@ -179,7 +191,7 @@ class ApiVpbx
             'to_stat_product_id' => $toUsageId
         ];
 
-        ApiVpbx::exec('transfer_vpbx_only', $query);
+        self::exec('transfer_vpbx_only', $query);
     }
 
     /**
@@ -191,7 +203,7 @@ class ApiVpbx
      */
     public static function stop($clientId, $usageId)
     {
-        ApiVpbx::exec(
+        self::exec(
             'delete',
             [
                 "client_id" => (int)$clientId,
@@ -224,7 +236,7 @@ class ApiVpbx
             throw new \Exception('bad tariff');
         }
 
-        ApiVpbx::exec(
+        self::exec(
             'update',
             [
                 "client_id" => (int)$clientId,
@@ -276,30 +288,7 @@ class ApiVpbx
      */
     public static function getResourceStatistics(\DateTime $date)
     {
-        return ApiVpbx::exec('get_resource_usage_per_day', ['date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)]);
-    }
-
-    /**
-     * @param ClientAccount $clientAccount
-     * @param int $did
-     * @param \DateTimeImmutable $date
-     * @return array. int_number_amount=>... или errors=>...
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
-     */
-    public static function getResourceVoipLines(ClientAccount $clientAccount, $did, \DateTimeImmutable $date)
-    {
-        return ApiVpbx::exec(
-            'get_did_client_lines',
-            [
-                'timezone' => $clientAccount->timezone_name,
-                'date_log' => $date->format(DateTimeZoneHelper::DATE_FORMAT),
-                'account_id' => $clientAccount->id,
-                'did' => $did,
-            ],
-            $toServer = 'phone'
-        );
+        return self::exec('get_resource_usage_per_day', ['date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)]);
     }
 
     /**

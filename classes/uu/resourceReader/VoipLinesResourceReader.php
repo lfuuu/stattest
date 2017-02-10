@@ -2,13 +2,13 @@
 
 namespace app\classes\uu\resourceReader;
 
+use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\uu\model\AccountTariff;
 use app\exceptions\web\BadRequestHttpException;
 use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 use Yii;
-use yii\base\InvalidCallException;
 use yii\base\Object;
 
 class VoipLinesResourceReader extends Object implements ResourceReaderInterface
@@ -43,9 +43,9 @@ class VoipLinesResourceReader extends Object implements ResourceReaderInterface
         }
 
         try {
-            $result = ApiVpbx::getResourceVoipLines($accountTariff->clientAccount, $accountTariff->voip_number, $dateTime);
-            if (isset($result['result']['lc'])) {
-                return (int)$result['result']['lc'];
+            $result = ApiPhone::getResourceVoipLines($accountTariff->clientAccount, $accountTariff->voip_number, $dateTime);
+            if (isset($result['result'][0]['cl'])) {
+                return (int)$result['result'][0]['cl'];
             }
 
             throw new BadRequestHttpException(isset($result['errors']) ? $result['errors'] : 'Неправильный ответ. Нет lc');
