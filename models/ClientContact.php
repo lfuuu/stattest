@@ -43,7 +43,7 @@ class ClientContact extends HistoryActiveRecord
 
         self::TYPE_EMAIL => 'Email',
         self::TYPE_EMAIL_INVOICE => 'Email (invoice)',
-        self::TYPE_EMAIL_RATE => 'Email (sate)',
+        self::TYPE_EMAIL_RATE => 'Email (rate)',
         self::TYPE_EMAIL_SUPPORT => 'Email (support)',
     ];
 
