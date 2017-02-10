@@ -53,11 +53,17 @@ return [
         'attribute' => 'src_number',
         'label' => 'Маска номера А',
         'class' => StringColumn::className(),
+        'filterOptions' => [
+            'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)'
+        ],
     ],
     [
         'attribute' => 'dst_number',
         'label' => 'Маска номера В',
         'class' => StringColumn::className(),
+        'filterOptions' => [
+            'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)'
+        ],
     ],
     [
         'attribute' => 'connect_time',

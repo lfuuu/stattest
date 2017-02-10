@@ -647,17 +647,15 @@ class CallsRawFilter extends Model
         }
 
         if ($this->dst_number) {
-            $condition = ['LIKE', 'CAST(cr.dst_number AS varchar)', new Expression("'" . str_replace('*', '%', $this->dst_number) . "'")];
-            $query2->andWhere($condition)
+            $query2->andWhere('CAST(cr.src_number AS varchar) LIKE :dst_number', [':dst_number' => strtr($this->dst_number, ['.' => '_', '*' => '%'])])
             && $query3
-            && $query3->andWhere($condition);
+            && $query3->andWhere('CAST(cu.cr.src_number AS varchar) LIKE :dst_number', [':dst_number' => strtr($this->dst_number, ['.' => '_', '*' => '%'])]);
         }
 
         if ($this->src_number) {
-            $condition = ['LIKE', 'CAST(cr.src_number AS varchar)', new Expression("'" . str_replace('*', '%', $this->src_number) . "'")];
-            $query1->andWhere($condition)
+            $query1->andWhere('CAST(cr.src_number AS varchar) LIKE :src_number', [':src_number' => strtr($this->src_number, ['.' => '_', '*' => '%'])])
             && $query3
-            && $query3->andWhere($condition);
+            && $query3->andWhere('CAST(cr.src_number AS varchar) LIKE :src_number', [':src_number' => strtr($this->src_number, ['.' => '_', '*' => '%'])]);
         }
 
         if ($this->disconnect_causes) {
