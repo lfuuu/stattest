@@ -2,7 +2,6 @@
 namespace app\commands\stat;
 
 use app\helpers\DateTimeZoneHelper;
-use app\models\ActualVirtpbx;
 use app\models\Virtpbx;
 use DateTime;
 use Yii;
@@ -13,27 +12,29 @@ use yii\helpers\Console;
 class VatsController extends Controller
 {
 
-    private
-        $actualVirtpbx = [],
-        $startPeriods = [
+    private $_startPeriods = [
         'today' => ['now', 'now'],
         'yesterday' => ['-1 day', '-1 day'],
         'month' => ['first day of this month', 'now'],
         'prevmonth' => ['first day of previous month', 'last day of previous month'],
     ];
 
+    /**
+     * @param \yii\base\Action $action
+     * @return bool
+     */
     public function beforeAction($action)
     {
         if ($this->action->id != 'index') {
             require_once Yii::$app->basePath . '/stat/conf.php';
-
-            $this->actualVirtpbx = ArrayHelper::map(ActualVirtpbx::find()->select(['client_id', 'usage_id'])->all(),
-                'usage_id', 'client_id');
         }
 
         return parent::beforeAction($this->action);
     }
 
+    /**
+     * Index
+     */
     public function actionIndex()
     {
         $scriptName = basename(Yii::$app->request->scriptFile);
@@ -61,70 +62,57 @@ class VatsController extends Controller
         $this->stdout("\n");
     }
 
+    /**
+     * @param string $period
+     */
     public function actionGet($period = 'today')
     {
-        if (array_key_exists($period, $this->startPeriods)) {
-            list($periodStart, $periodEnd) = $this->startPeriods[$period];
+        if (array_key_exists($period, $this->_startPeriods)) {
+            list($periodStart, $periodEnd) = $this->_startPeriods[$period];
             $periodStart = (new DateTime($periodStart))->setTime('00', '00', '00');
             $periodEnd = (new DateTime($periodEnd))->setTime('00', '00', '00');
         } else {
             try {
                 $periodStart = $periodEnd = (new DateTime($period))->setTime('00', '00', '00');
             } catch (\Exception $e) {
-                $this->throwError($e->getMessage());
+                $this->_throwError($e->getMessage());
+                return;
             }
         }
 
         $this->stdout('Скрипт сбора статистики по ВАТС.', Console::BOLD);
         $this->stdout("\n\n");
 
-        $day = clone $periodStart;
-        while ($day <= $periodEnd) {
-            $this->setDayStatistic($this->getDayStatistic($day), $day);
-            $day->modify('+1 day');
+        while ($periodStart <= $periodEnd) {
+            $this->_setDayStatistic($this->_getDayStatistic($periodStart), $periodStart);
+            $periodStart->modify('+1 day');
         }
     }
 
     /**
      * @param \DateTime $date
-     * @return null
-     */
-    private function getDayStatistic(DateTime $date)
-    {
-        $result = null;
-
-        try {
-            $result = \app\classes\api\ApiVpbx::getResourceStatistics($date);
-        } catch (\Exception $e) {
-            if ($e->getCode() != 540) {
-                $this->throwError($e->getMessage());
-            }
-        }
-
-        return $this->filterDayStatistic($result);
-    }
-
-    /**
-     * @param array $list
      * @return array
      */
-    private function filterDayStatistic($list)
+    private function _getDayStatistic(DateTime $date)
     {
-        foreach ($list as &$record) {
-            if (!array_key_exists($record['vpbx_id'], $this->actualVirtpbx)) {
-                unset($record);
-                continue;
-            }
-        }
+        try {
 
-        return $list;
+            return \app\classes\api\ApiVpbx::getResourceStatistics($date);
+
+        } catch (\Exception $e) {
+            if ($e->getCode() != 540) {
+                $this->_throwError($e->getMessage());
+            }
+
+            return [];
+        }
     }
 
     /**
      * @param array $list
      * @param DateTime $date
      */
-    private function setDayStatistic($list, $date)
+    private function _setDayStatistic($list, $date)
     {
         $day = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         $insert = [];
@@ -134,7 +122,7 @@ class VatsController extends Controller
                 continue;
             }
 
-            $insert[] = [
+            $insert[$record['stat_product_id']] = [
                 $day,
                 $record['account_id'],
                 $record['stat_product_id'],
@@ -145,10 +133,7 @@ class VatsController extends Controller
                 ($record['faxes_enabled'] ? 1 : 0),
             ];
 
-            $this->stdout(
-                'AccountID: ' . $record['account_id'] . ',' .
-                'VirtPBXID: ' . $record['stat_product_id'] . ',' .
-                'Date: ' . $day . "\n" .
+            $this->stdout('AccountID: ' . $record['account_id'] . ', VirtPBXID: ' . $record['stat_product_id'] . ', Date: ' . $day . "\n" .
                 $this->ansiFormat(' space:' . $record['disk_space_bytes'], Console::FG_GREY) .
                 $this->ansiFormat(' ports:' . $record['int_number_count'], Console::FG_GREY) .
                 $this->ansiFormat(' ext DID counts:' . $record['ext_did_count'], Console::FG_GREY) .
@@ -187,15 +172,16 @@ class VatsController extends Controller
             }
         } catch (\Exception $e) {
             $transaction->rollBack();
-            $this->throwError($e->getMessage());
+            $this->_throwError($e->getMessage());
         }
+
         $transaction->commit();
     }
 
     /**
      * @param string $message
      */
-    private function throwError($message)
+    private function _throwError($message)
     {
         $this->stdout('Скрипт сбора статистики по ВАТС.', Console::BOLD);
         $this->stdout("\n\n");
