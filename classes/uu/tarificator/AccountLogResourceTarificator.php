@@ -8,6 +8,7 @@ use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\TariffResource;
+use app\classes\uu\resourceReader\DummyResourceReader;
 use app\classes\uu\resourceReader\ResourceReaderInterface;
 use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
@@ -93,8 +94,8 @@ class AccountLogResourceTarificator implements TarificatorI
             /** @var AccountLogFromToTariff $untarificatedPeriod */
             foreach ($untarificatedPeriods as $resourceId => $untarificatedPeriod) {
 
-                /** @var DateTimeImmutable $date */
-                $date = $untarificatedPeriod->dateFrom;
+                /** @var DateTimeImmutable $dateTime */
+                $dateTime = $untarificatedPeriod->dateFrom;
                 $tariffPeriod = $untarificatedPeriod->tariffPeriod;
 
                 $tariffResource = TariffResource::findOne([
@@ -109,23 +110,26 @@ class AccountLogResourceTarificator implements TarificatorI
 
                 /** @var ResourceReaderInterface $reader */
                 $reader = $this->resourceIdToReader[$resourceId];
-                $amountUse = $reader->read($accountTariff, $date);
+                $amountUse = $reader->read($accountTariff, $dateTime);
                 if ($amountUse === null) {
-                    echo '-' . $resourceId . ' ';
+                    if (!($reader instanceof DummyResourceReader)) {
+                        echo PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- ' . $resourceId . PHP_EOL;
+                    }
+
                     continue; // нет данных. Пропустить
                 } else {
                     echo '+ ';
                 }
 
                 $accountLogResource = new AccountLogResource();
-                $accountLogResource->date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
+                $accountLogResource->date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
                 $accountLogResource->tariff_period_id = $tariffPeriod->id;
                 $accountLogResource->account_tariff_id = $accountTariff->id;
                 $accountLogResource->tariff_resource_id = $tariffResource->id;
                 $accountLogResource->amount_use = $amountUse;
                 $accountLogResource->amount_free = $tariffResource->amount;
                 $accountLogResource->price_per_unit = $reader->getIsMonthPricePerUnit() ?
-                    $tariffResource->price_per_unit / $date->format('t') : // это "цена за месяц", а надо перевести в "цену за день"
+                    $tariffResource->price_per_unit / $dateTime->format('t') : // это "цена за месяц", а надо перевести в "цену за день"
                     $tariffResource->price_per_unit; // это "цена за день", так и оставить
                 $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
