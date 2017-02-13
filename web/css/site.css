@@ -348,6 +348,9 @@ a.nohover:hover {
     background: white url('/images/ajax-loader.gif') center no-repeat;
     min-width: 55px;
     min-height: 55px;
+    position: relative;
+    margin: 0 auto;
+    top: 30%;
 }
 
 .small_grey,
@@ -431,4 +434,33 @@ a.nohover:hover {
 .showHistoryDiv, .showVersionDiv {
     cursor: pointer;
     display: inline-block;
+}
+
+.fullScreenOverlay {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #F0F0F0;
+    background-color: rgba(0,0,0, 0.9);
+    overflow-x: hidden;
+    transition: 0.5s;
+    z-index: 99998;
+    opacity: 0.8;
+    display: none;
+}
+
+.fullScreenOverlayContent {
+    position: relative;
+    top: 25%;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    opacity: 1;
+    margin: 0 auto;
+    background-color: #FFF;
+    vertical-align: middle;
+    border: 1px solid #000;
+    border-radius: 15px;
 }

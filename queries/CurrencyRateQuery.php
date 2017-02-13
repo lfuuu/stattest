@@ -1,24 +1,34 @@
 <?php
 namespace app\queries;
 
-use app\models\CurrencyRate;
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveQuery;
-use yii\db\Expression;
 
-/**
- * @method CurrencyRate[] all($db = null)
- * @property
- */
 class CurrencyRateQuery extends ActiveQuery
 {
 
     /**
      * @param int $currencyId
-     * @return null|\yii\db\ActiveRecord
+     * @return $this
      */
     public function currency($currencyId)
     {
-        return $this->andWhere(['currency' => $currencyId])->orderBy(['date' => SORT_DESC])->one();
+        return $this->andWhere(['currency' => $currencyId])->orderBy(['date' => SORT_DESC]);
+    }
+
+    /**
+     * @param string|\DateTime $date
+     * @return $this
+     */
+    public function onDate($date = null)
+    {
+        if ($date instanceof \DateTime) {
+            $this->andWhere(['date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)]);
+        } elseif (is_string($date) && !empty($date)) {
+            $this->andWhere(['date' => (new \DateTime($date))->format(DateTimeZoneHelper::DATE_FORMAT)]);
+        }
+
+        return $this;
     }
 
 }

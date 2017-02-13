@@ -1,17 +1,16 @@
 <?php
 namespace app\controllers;
 
-use app\classes\Assert;
-use app\forms\buh\PaymentAddForm;
-use app\models\ClientAccount;
-use app\models\Currency;
+use app\classes\BaseController;
 use app\models\CurrencyRate;
 use Yii;
-use app\classes\BaseController;
-
 
 class CurrencyController extends BaseController
 {
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -25,25 +24,17 @@ class CurrencyController extends BaseController
         return $behaviors;
     }
 
+    /**
+     * @param string $from
+     * @param string $to
+     * @return float
+     */
     public function actionGetRate($from, $to)
     {
         if ($from == $to) {
             return 1;
         }
 
-        $rate = CurrencyRate::dao()->getRate($from, $to, new \DateTime());
-
-        if (!$rate && $from != 'RUB') {
-            $rate = CurrencyRate::dao()->getRate($to, $from, new \DateTime());
-            if ($rate) {
-                $rate = 1 / $rate;
-            }
-        }
-
-        if ($rate) {
-            $rate = round($rate, 8);
-        }
-
-        return $rate;
+        return CurrencyRate::dao()->crossRate($from, $to);
     }
 }

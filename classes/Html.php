@@ -4,6 +4,12 @@ namespace app\classes;
 class Html extends \yii\helpers\Html
 {
 
+    /**
+     * @param string $src
+     * @param array $options
+     * @param bool|string $mimeType
+     * @return string
+     */
     public static function inlineImg($src, $options = [], $mimeType = false)
     {
         if (strpos($src, '://') === false) {
@@ -27,6 +33,11 @@ class Html extends \yii\helpers\Html
         return static::tag('img', '', $options);
     }
 
+    /**
+     * @param string $text
+     * @param array $options
+     * @return string
+     */
     public static function formLabel($text, $options = [])
     {
         return parent::tag('legend', $text, $options);

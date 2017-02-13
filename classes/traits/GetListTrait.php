@@ -26,7 +26,7 @@ trait GetListTrait
     public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $indexBy = 'id')
     {
         $list = self::find()
-            ->orderBy(self::getListOrderBy())
+            ->orderBy(static::getListOrderBy())
             ->indexBy($indexBy)
             ->all();
 
@@ -36,7 +36,7 @@ trait GetListTrait
     /**
      * Вернуть пустой список без конкретных моделей
      *
-     * @param bool $isWithEmpty
+     * @param bool|string $isWithEmpty
      * @param bool $isWithNullAndNotNull
      * @return string[]
      */
@@ -52,7 +52,7 @@ trait GetListTrait
         }
 
         if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
+            $list = ['' => is_string($isWithEmpty) ? $isWithEmpty : '----'] + $list;
         }
 
         return $list;

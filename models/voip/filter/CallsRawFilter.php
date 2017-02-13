@@ -5,15 +5,16 @@
 
 namespace app\models\voip\filter;
 
-use app\dao\CurrencyRateDao;
+use app\classes\yii\CTEQuery;
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\DisconnectCause;
+use app\models\Currency;
+use app\models\CurrencyRate;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Expression;
-use app\models\billing\DisconnectCause;
-use app\classes\yii\CTEQuery;
 use yii\db\Query;
 
 /**
@@ -178,7 +179,7 @@ class CallsRawFilter extends Model
 
     public $sort = null;
 
-    public $currency = 'RUB';
+    public $currency = Currency::RUB;
     public $currency_rate = 1;
 
     public $sale = null;
@@ -290,8 +291,8 @@ class CallsRawFilter extends Model
             $this->correct_connect_time_to = $dateEnd->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 
-        if (isset($this->currency) && $this->currency != 'RUB') {
-            $this->currency_rate = CurrencyRateDao::findRate($this->currency, date(DateTimeZoneHelper::DATE_FORMAT))->getAttribute('rate');
+        if (isset($this->currency)) {
+            $this->currency_rate = CurrencyRate::dao()->getRate($this->currency, date(DateTimeZoneHelper::DATE_FORMAT));
         }
 
         if (!is_array($this->group)) {
