@@ -83,15 +83,15 @@ class CallsRawFilter extends Model
 
     public $aggrConst = [
         'sale_sum' => 'SUM(@(sale))',
-        'sale_avg' => 'AVG(@(sale))',
+        'sale_avg' => 'AVG(@(NULLIF(sale, 0)))',
         'sale_min' => 'MIN(@(sale))',
         'sale_max' => 'MAX(@(sale))',
         'cost_price_sum' => 'SUM(cost_price)',
-        'cost_price_avg' => 'AVG(cost_price)',
+        'cost_price_avg' => 'AVG(NULLIF(cost_price, 0))',
         'cost_price_min' => 'MIN(cost_price)',
         'cost_price_max' => 'MAX(cost_price)',
         'margin_sum' => 'SUM((@(sale)) - cost_price)',
-        'margin_avg' => 'AVG((@(sale)) - cost_price)',
+        'margin_avg' => 'AVG(NULLIF((@(sale)) - cost_price, 0))',
         'margin_min' => 'MIN((@(sale)) - cost_price)',
         'margin_max' => 'MAX((@(sale)) - cost_price)',
         'session_time_sum' => 'SUM(session_time)',
@@ -640,24 +640,22 @@ class CallsRawFilter extends Model
         }
 
         if ($this->is_success_calls) {
-            $condition = ['or', 'billed_time > 0', ['disconnect_cause', DisconnectCause::$successCodes]];
+            $condition = ['or', 'billed_time > 0', ['disconnect_cause' => DisconnectCause::$successCodes]];
             $query1->andWhere($condition)
             && $query2->andWhere($condition)
             && $query3 = null;
         }
 
         if ($this->dst_number) {
-            $condition = ['LIKE', 'CAST(cr.dst_number AS varchar)', $this->dst_number];
-            $query2->andWhere($condition)
+            $query2->andWhere('CAST(cr.src_number AS varchar) LIKE :dst_number', [':dst_number' => strtr($this->dst_number, ['.' => '_', '*' => '%'])])
             && $query3
-            && $query3->andWhere($condition);
+            && $query3->andWhere('CAST(cu.cr.src_number AS varchar) LIKE :dst_number', [':dst_number' => strtr($this->dst_number, ['.' => '_', '*' => '%'])]);
         }
 
         if ($this->src_number) {
-            $condition = ['LIKE', 'CAST(cr.src_number AS varchar)', $this->src_number];
-            $query1->andWhere($condition)
+            $query1->andWhere('CAST(cr.src_number AS varchar) LIKE :src_number', [':src_number' => strtr($this->src_number, ['.' => '_', '*' => '%'])])
             && $query3
-            && $query3->andWhere($condition);
+            && $query3->andWhere('CAST(cr.src_number AS varchar) LIKE :src_number', [':src_number' => strtr($this->src_number, ['.' => '_', '*' => '%'])]);
         }
 
         if ($this->disconnect_causes) {
