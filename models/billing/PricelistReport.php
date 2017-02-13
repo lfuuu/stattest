@@ -101,11 +101,7 @@ class PricelistReport extends ActiveRecord
      */
     public function getPricelistsIds()
     {
-        if (($pricelists = $this->_parseFieldValue($this->pricelist_ids)) === false) {
-            return [];
-        }
-
-        return $pricelists;
+        return $this->_parseFieldValue($this->pricelist_ids) ?: [];
     }
 
     /**
@@ -113,11 +109,7 @@ class PricelistReport extends ActiveRecord
      */
     public function getDatesArray()
     {
-        if (($dates = $this->_parseFieldValue($this->dates)) === false) {
-            return [];
-        }
-
-        return $dates;
+        return $this->_parseFieldValue($this->dates) ?: [];
     }
 
     /**
