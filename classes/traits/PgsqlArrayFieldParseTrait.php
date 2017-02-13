@@ -6,6 +6,9 @@ trait PgsqlArrayFieldParseTrait
 {
 
     /**
+     * Convert PGSQL array field from string to array
+     * PGSQL PDO string example: {152,455,46,153,80}
+     *
      * @param string $value
      * @return array|bool
      */

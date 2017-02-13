@@ -91,9 +91,16 @@ $columns = [
         'format' => 'raw',
         'value' => function (PricelistReport $row) use ($pricelists) {
             return implode(Html::tag('br'), array_map(function ($pricelistId, $date) use ($pricelists) {
-                return Html::tag('div', (array_key_exists($pricelistId, $pricelists) ? $pricelists[$pricelistId]->name : ''), ['class' => 'col-sm-8'])
-                . Html::tag('div', $date ?: 'Текущая дата', ['class' => 'col-sm-4']);
-            }, PricelistReport::getPricelists($row->getPricelistsIds()), $row->getDates()));
+                return
+                    Html::tag(
+                        'div',
+                        (array_key_exists($pricelistId, $pricelists) ? $pricelists[$pricelistId]->name : ''),
+                        ['class' => 'col-sm-8']
+                    )
+                    . Html::tag('div', $date ?: 'Текущая дата', ['class' => 'col-sm-4']);
+                },
+                PricelistReport::getPricelists($row->getPricelistsIds())
+            ));
         },
         'width' => '50%',
     ],

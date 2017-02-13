@@ -7,7 +7,7 @@ class Html extends \yii\helpers\Html
     /**
      * @param string $src
      * @param array $options
-     * @param bool $mimeType
+     * @param bool|string $mimeType
      * @return string
      */
     public static function inlineImg($src, $options = [], $mimeType = false)

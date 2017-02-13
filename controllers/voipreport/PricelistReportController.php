@@ -111,7 +111,7 @@ class PricelistReportController extends BaseController
                 $prices[$position] = $price;
             }
 
-            if (count($orders) > 0) {
+            if (count($orders) > 1) {
                 $row['best_price_1'] = $prices[$orders[0]];
                 $row['best_price_2'] = $prices[$orders[1]];
             } else {
@@ -135,6 +135,8 @@ class PricelistReportController extends BaseController
      */
     public function actionGetPricelistExport($reportId)
     {
+        $memorySize = 5 * 1024 * 1024;
+
         /** @var PricelistReport $pricelistReport */
         $pricelistReport = PricelistReport::findOne($reportId);
         $exportData = Json::decode(Yii::$app->request->post('data'));
@@ -150,12 +152,12 @@ class PricelistReportController extends BaseController
             $firstRow[] = $pricelist->name;
         }
 
-        foreach ($pricelistReport->getDates() as $date) {
+        foreach ($pricelistReport->getDatesArray() as $date) {
             $secondRow[] = $date;
         }
 
-        $csv = fopen('php://temp/maxmemory:'. (5 * 1024 * 1024), 'r+');
-        //add BOM to fix UTF-8 in Excel
+        $csv = fopen('php://temp/maxmemory:'. $memorySize, 'r+');
+        // Append BOM to fix UTF-8 in Excel
         fwrite($csv, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
         fputcsv($csv, $firstRow, ';');
         fputcsv($csv, $secondRow, ';');
@@ -170,7 +172,7 @@ class PricelistReportController extends BaseController
                 array_key_exists('modify_result', $row) ? $row['modify_result'] : 0
             ];
 
-            foreach ($pricelistReport->getDates() as $index => $date) {
+            foreach ($pricelistReport->getDatesArray() as $index => $date) {
                 $csvRow[] = $row['price_' . $index];
             }
 

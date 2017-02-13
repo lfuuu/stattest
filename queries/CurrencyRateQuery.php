@@ -17,7 +17,7 @@ class CurrencyRateQuery extends ActiveQuery
     }
 
     /**
-     * @param string $date
+     * @param string|\DateTime $date
      * @return $this
      */
     public function onDate($date = null)

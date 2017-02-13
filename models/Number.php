@@ -185,12 +185,12 @@ class Number extends ActiveRecord
         }
 
         if (!is_null($currency) && $this->didGroup->country->currency_id != $currency) {
-            if (($tariffCurrencyRate = CurrencyRate::find()->currency($this->didGroup->country->currency_id)) !== null) {
-                $price *= $tariffCurrencyRate->rate;
+            if (($tariffCurrencyRate = CurrencyRate::dao()->getRate($this->didGroup->country->currency_id))) {
+                $price *= $tariffCurrencyRate;
             }
 
-            if (($currencyRate = CurrencyRate::find()->currency($currency)) !== null) {
-                $price /= $currencyRate->rate;
+            if (($currencyRate = CurrencyRate::dao()->getRate($currency))) {
+                $price /= $currencyRate;
             }
         }
 

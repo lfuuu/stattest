@@ -6,7 +6,6 @@ use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Currency;
 use app\models\CurrencyRate;
-use app\queries\CurrencyRateQuery;
 
 /**
  * @method static CurrencyRateDao me($args = null)
@@ -34,7 +33,7 @@ class CurrencyRateDao extends Singleton
         $currencyRate = $currencyQuery->one();
         Assert::isObject($currencyRate);
 
-        return $currencyRate->getAttribute('rate');
+        return $currencyRate->rate;
     }
 
     /**

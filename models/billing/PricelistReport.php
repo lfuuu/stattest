@@ -1,6 +1,7 @@
 <?php
 namespace app\models\billing;
 
+use app\classes\Assert;
 use app\classes\traits\PgsqlArrayFieldParseTrait;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -13,8 +14,8 @@ use yii\db\Query;
  * @property int $report_type_id
  * @property string $name
  * @property int $instance_id
- * @property int[] $pricelist_ids
- * @property string[] $dates
+ * @property string $pricelist_ids
+ * @property string $dates
  * @property string $created_at
  * @property string $generated_at
  * @property int $volume_calc_task_id
@@ -75,7 +76,7 @@ class PricelistReport extends ActiveRecord
     public function prepareData()
     {
         $pricelistIds = $this->getPricelistsIds();
-        $dates = $this->getDates();
+        $dates = $this->getDatesArray();
 
         $pricelists = self::getPricelists($pricelistIds);
 
@@ -110,7 +111,7 @@ class PricelistReport extends ActiveRecord
     /**
      * @return array
      */
-    public function getDates()
+    public function getDatesArray()
     {
         if (($dates = $this->_parseFieldValue($this->dates)) === false) {
             return [];
@@ -155,8 +156,10 @@ class PricelistReport extends ActiveRecord
      * @param int[] $pricelistIds
      * @return \yii\db\ActiveRecord[]
      */
-    public static function getPricelists(array $pricelistIds = [])
+    public static function getPricelists(array $pricelistIds)
     {
+        Assert::isArray($pricelistIds);
+
         return Pricelist::find()
             ->where(['IN', 'id', $pricelistIds])
             ->indexBy('id')

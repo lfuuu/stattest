@@ -145,7 +145,7 @@ foreach ($clients as $clientId => $data) {
     }
 
     if (!isset($currencyRateStore[$data['currency']])) {
-        $currencyRateStore[$data['currency']] = CurrencyRate::find()->currency($data['currency']);
+        $currencyRateStore[$data['currency']] = CurrencyRate::dao()->getRate($data['currency']);
     }
     $currencyRate = $currencyRateStore[$data['currency']];
 

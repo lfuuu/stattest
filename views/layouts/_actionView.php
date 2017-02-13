@@ -7,13 +7,11 @@
  */
 use app\classes\Html;
 
-?>
-
-<?= Html::a(
+echo Html::a(
     Html::tag('i', '', ['class' => 'glyphicon glyphicon-eye-open']),
     $url,
     [
         'title' => 'Просмотр',
         'class' => 'btn btn-link btn-xs'
     ]
-) ?>
+);
