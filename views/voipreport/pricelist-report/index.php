@@ -90,16 +90,18 @@ $columns = [
         'attribute' => 'pricelists',
         'format' => 'raw',
         'value' => function (PricelistReport $row) use ($pricelists) {
-            return implode(Html::tag('br'), array_map(function ($pricelistId, $date) use ($pricelists) {
+            $row->prepareData();
+
+            return implode(Html::tag('br'), array_map(function ($row) use ($pricelists) {
                 return
                     Html::tag(
                         'div',
-                        (array_key_exists($pricelistId, $pricelists) ? $pricelists[$pricelistId]->name : ''),
+                        (array_key_exists($row['pricelist']->id, $pricelists) ? $pricelists[$row['pricelist']->id]->name : ''),
                         ['class' => 'col-sm-8']
                     )
-                    . Html::tag('div', $date ?: 'Текущая дата', ['class' => 'col-sm-4']);
+                    . Html::tag('div', $row['date'] ?: 'Текущая дата', ['class' => 'col-sm-4']);
                 },
-                PricelistReport::getPricelists($row->getPricelistsIds())
+                $row->getData()
             ));
         },
         'width' => '50%',
