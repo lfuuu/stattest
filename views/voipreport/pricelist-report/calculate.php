@@ -87,6 +87,20 @@ echo Breadcrumbs::widget([
                     'name' => 'region_id',
                     'data' => $regions,
                 ]) ?>
+
+                <label></label>
+                <div class="btn-group center-block" data-toggle="buttons">
+                    <label class="btn btn-default active">
+                        <input type="radio" name="is_mobile" value="-1" checked="checked" /> Все
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="is_mobile" value="0" /> Мобильные
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="is_mobile" value="1" /> Стационарные
+                    </label>
+                </div>
+
             </form>
         </div>
 
@@ -107,11 +121,11 @@ echo Breadcrumbs::widget([
 
                 <div class="pull-right">
                     <div class="btn-group center-block" data-toggle="buttons">
-                        <label class="btn btn-default active">
-                            <input type="radio" name="best_price" value="best_price_1" checked="checked" /> Лучшая цена #1
-                        </label>
                         <label class="btn btn-default">
-                            <input type="radio" name="best_price" value="best_price_2" /> Лучшая цена #2
+                            <input type="radio" name="best_price" value="best_price_1" /> Лучшая цена #1
+                        </label>
+                        <label class="btn btn-default active">
+                            <input type="radio" name="best_price" value="best_price_2" checked="checked" /> Лучшая цена #2
                         </label>
                     </div>
                 </div>
@@ -272,18 +286,19 @@ jQuery(document).ready(function () {
             return false;
         },
         filterCountry = function (data, countryId) {
-            data = $.grep(sourceData, function (row) {
+            return $.grep(data, function (row) {
                 return row.country == countryId;
             });
-
-            return data;
         },
         filterRegion = function (data, regionId) {
-            data = $.grep(sourceData, function (row) {
+            return $.grep(data, function (row) {
                 return row.region == regionId;
             });
-
-            return data;
+        },
+        filterIsMobile = function (data, isMobile) {
+            return $.grep(data, function (row) {
+                return row.mob == isMobile;
+            });
         };
 
     $reportTable.bootstrapTable({
@@ -307,6 +322,7 @@ jQuery(document).ready(function () {
         var
             countryId = $filterForm.find('select[name="country_id"]').val(),
             regionId = $filterForm.find('select[name="region_id"]').val(),
+            isMobile = $filterForm.find('input[name="is_mobile"]:checked').val(),
             data = sourceData;
 
         $loadingOverlay.toggle(200, function () {
@@ -316,6 +332,10 @@ jQuery(document).ready(function () {
 
             if (regionId) {
                 data = filterRegion(data, regionId);
+            }
+
+            if (isMobile >= 0) {
+                data = filterIsMobile(data, isMobile);
             }
 
             $reportTable.bootstrapTable('load', data);
@@ -329,6 +349,7 @@ jQuery(document).ready(function () {
         var
             countryId = $filterForm.find('select[name="country_id"]').val(),
             regionId = $filterForm.find('select[name="region_id"]').val(),
+            isMobile = $filterForm.find('input[name="is_mobile"]:checked').val(),
             $elements = $modifyForm.find('.multiple-input').find('tr.multiple-input-list__item'),
             priceType = $modifyForm.find('input[name="best_price"]:checked').val(),
             modifiers = [],
@@ -375,6 +396,10 @@ jQuery(document).ready(function () {
                 data = filterRegion(data, regionId);
             }
 
+            if (isMobile >= 0) {
+                data = filterIsMobile(data, isMobile);
+            }
+
             $.map(data, function (row) {
                 var price = parseFloat(row[priceType]);
 
@@ -384,7 +409,7 @@ jQuery(document).ready(function () {
 
                         if (this.profit.summary && !this.profit.value) {
                             row.modify_result = this.profit.summary;
-                        } else if (this.profit.value) {
+                        } else {
                             switch (this.profit.variant) {
                                 case 'money':
                                     row.modify_result = (price + this.profit.value).toFixed(4);
