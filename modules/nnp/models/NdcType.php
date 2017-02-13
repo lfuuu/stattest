@@ -15,11 +15,17 @@ class NdcType extends ActiveRecord
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
-    const ID_ABC = 1;
-    const ID_DEF = 2;
+    const ID_GEOGRAPHIC = 1;
+    const ID_MOBILE = 2;
+    const ID_NOMADIC = 3;
+    const ID_FREEPHONE = 4;
+    const ID_PREMIUM = 5;
+    const ID_SHORT_CODE = 6;
+    const ID_REST = 7;
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -31,7 +37,8 @@ class NdcType extends ActiveRecord
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -51,6 +58,7 @@ class NdcType extends ActiveRecord
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()
@@ -75,6 +83,7 @@ class NdcType extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)

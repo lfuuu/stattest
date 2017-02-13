@@ -49,7 +49,17 @@ use kartik\select2\Select2;
                 ],
             ]) ?>
 
-            <?= $this->render('//layouts/_submitButtonDrop') ?>
+            <?= $this->render('//layouts/_submitButton', [
+                'text' => Yii::t('common', 'Drop'),
+                'glyphicon' => 'glyphicon-trash',
+                'params' => [
+                    'name' => 'dropButton',
+                    'value' => 1,
+                    'class' => 'btn btn-danger',
+                    'aria-hidden' => 'true',
+                    'onClick' => sprintf('return confirm("%s");', Yii::t('common', "Are you sure? It's irreversibly.")),
+                ],
+            ]) ?>
         </div>
     </div>
 

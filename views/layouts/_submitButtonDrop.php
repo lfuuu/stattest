@@ -4,7 +4,6 @@
  *
  * @var app\classes\BaseView $this
  */
-use app\classes\Html;
 
 ?>
 
