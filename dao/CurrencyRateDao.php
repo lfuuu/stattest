@@ -1,37 +1,85 @@
 <?php
 namespace app\dao;
 
+use app\classes\Assert;
 use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Currency;
 use app\models\CurrencyRate;
-use yii\db\Exception;
+use app\queries\CurrencyRateQuery;
 
 /**
  * @method static CurrencyRateDao me($args = null)
- * @property
  */
 class CurrencyRateDao extends Singleton
 {
+
+    private static $_rates = [];
+
     /**
-     * @return CurrencyRate
+     * @param string $currency
+     * @param string $date
+     * @return float
      */
-    public static function findRate($currency, $date)
+    public static function getRate($currency, $date = '')
     {
-        return CurrencyRate::findOne(['currency' => $currency, 'date' => $date]);
+        if ($currency === Currency::RUB) {
+            return 1;
+        }
+
+        $currencyQuery = CurrencyRate::find()
+            ->currency($currency)
+            ->onDate($date);
+
+        $currencyRate = $currencyQuery->one();
+        Assert::isObject($currencyRate);
+
+        return $currencyRate->getAttribute('rate');
     }
 
     /**
+     * @param string $fromCurrencyId
+     * @param string $toCurrencyId
+     * @param string|\DateTime $date
      * @return float
      */
-    public static function getRate($fromCurrencyId, $toCurrencyId, \DateTime $datetime)
+    public static function crossRate($fromCurrencyId, $toCurrencyId, $date = null)
     {
-        // TODO Сделать конвертацию кросскурсов
-        $rate =
-            CurrencyRate::find()
-                ->andWhere(['currency' => $toCurrencyId])
-                ->andWhere('date <= :date', [':date' => $datetime->format(DateTimeZoneHelper::DATE_FORMAT)])
-                ->orderBy('date desc')
-                ->one();
-        return $rate === null ? null : $rate->rate;
+        $dateString = '';
+        if ($date instanceof \DateTime) {
+            $dateString = $date->format(DateTimeZoneHelper::DATE_FORMAT);
+        } elseif (is_string($date) && !empty($date)) {
+            $dateString = $date;
+        }
+
+        $fromCurrencyCacheKey = $fromCurrencyId . $dateString;
+        $toCurrencyCacheKey = $toCurrencyId . $dateString;
+
+        if (!array_key_exists($fromCurrencyCacheKey, self::$_rates)) {
+            self::$_rates[$fromCurrencyCacheKey] = CurrencyRateDao::getRate($fromCurrencyId, $date);
+        }
+
+        if (!array_key_exists($toCurrencyCacheKey, self::$_rates)) {
+            self::$_rates[$toCurrencyCacheKey] = CurrencyRateDao::getRate($toCurrencyId, $date);
+        }
+
+        if (!self::$_rates[$fromCurrencyCacheKey]) {
+            \Yii::error(
+                'Unknown currency rate for "' . $fromCurrencyId . '"' .
+                (!is_null($date) ? 'on date "' . $dateString . '"' : '')
+            );
+            return null;
+        }
+
+        if (!self::$_rates[$toCurrencyCacheKey]) {
+            \Yii::error(
+                'Unknown currency rate for "' . $toCurrencyId . '"' .
+                (!is_null($date) ? 'on date "' . $dateString . '"' : '')
+            );
+            return null;
+        }
+
+        return self::$_rates[$fromCurrencyCacheKey] / self::$_rates[$toCurrencyCacheKey];
     }
+
 }
