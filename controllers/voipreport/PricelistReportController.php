@@ -86,6 +86,8 @@ class PricelistReportController extends BaseController
                 'region' => $dataRow['region'],
                 'zone' => $dataRow['zone'],
                 'mob' => $dataRow['mob'],
+                'best_price_1' => null,
+                'best_price_2' => null,
             ];
 
             $orders = $this->_parseFieldValue($dataRow['orders']) ?: [];
@@ -111,11 +113,11 @@ class PricelistReportController extends BaseController
                 $prices[$position] = $price;
             }
 
-            if (count($orders) > 1) {
-                $row['best_price_1'] = $prices[$orders[0]];
-                $row['best_price_2'] = $prices[$orders[1]];
-            } else {
-                $row['best_price_1'] = $row['best_price_2'] = 0;
+            if (count($prices) > 1) {
+                $bestPrices = $prices;
+                sort($bestPrices, SORT_NUMERIC);
+                list($row['best_price_1'], $row['best_price_2']) = $bestPrices;
+                unset($bestPrices);
             }
 
             foreach ($prices as $index => $price) {
