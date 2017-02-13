@@ -11,6 +11,8 @@ use yii\helpers\Url;
  * @property string name
  * @property string name_rus
  * @property int prefix
+ *
+ * @link https://ru.wikipedia.org/wiki/%D0%9E%D0%B1%D1%89%D0%B5%D1%80%D0%BE%D1%81%D1%81%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B9_%D0%BA%D0%BB%D0%B0%D1%81%D1%81%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80_%D1%81%D1%82%D1%80%D0%B0%D0%BD_%D0%BC%D0%B8%D1%80%D0%B0
  */
 class Country extends ActiveRecord
 {
@@ -23,6 +25,9 @@ class Country extends ActiveRecord
     const SLOVAKIA = 703;
     const AUSTRIA = 40;
     const CZECH = 203;
+    const ROMANIA = 642;
+    const CROATIA = 191;
+    const SERBIA = 688;
 
     public static $primaryField = 'code';
 

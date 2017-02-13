@@ -2,7 +2,6 @@
 namespace app\modules\nnp\commands;
 
 use app\classes\Connection;
-use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\InstanceSettings;
 use app\modules\nnp\models\Country;
@@ -26,11 +25,14 @@ class ImportController extends Controller
     const EXCEL5 = 'Excel5';
 
     /** @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629 */
-    const FILE_ID_HUNGARY = '0B9ds-UaQbaC7UjJvc25jSXNyY3M';
+    const FILE_ID_HUNGARY = '0B9ds-UaQbaC7Tm45Q2l2czhrWHM';
     const FILE_ID_SLOVAKIA = '0B9ds-UaQbaC7SHJHY0JnNHpRN00';
     const FILE_ID_AUSTRIA = '0B9ds-UaQbaC7UHo2M3VfM3I5d2M';
     const FILE_ID_GERMANY = '0B9ds-UaQbaC7MDRNLTl5WVN2Y0k';
     const FILE_ID_CZECH = '0B9ds-UaQbaC7VzNPMzljR2VTMms';
+    const FILE_ID_ROMANIA = '0B9ds-UaQbaC7Ynpwb1ZhZTFUV3M';
+    const FILE_ID_CROATIA = '0B9ds-UaQbaC7UERUWmpVeEZ4THM';
+    const FILE_ID_SERBIA = '0B9ds-UaQbaC7N1p6Zm5sNWhmMWs';
 
     /** @var Connection */
     private $_db = null;
@@ -66,152 +68,176 @@ class ImportController extends Controller
      * Импортировать Россию из Россвязи. 2 минуты. Сначала надо disable-trigger, потом enable-trigger
      *
      * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
+     * @throws \yii\db\Exception
      */
     public function actionRus()
     {
-        $this->import('importRusCallback', Country::RUSSIA);
-    }
-
-    /**
-     * Импортировать Россию из Россвязи. Callback
-     *
-     * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
-     */
-    public function importRusCallback()
-    {
-        /**
-         * Ссылки на файлы для скачивания
-         * [url => ndc_type_id]
-         *
-         * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
-         */
-        $rusUrls = [
-            'http://www.rossvyaz.ru/docs/articles/Kody_ABC-3kh.csv' => NdcType::ID_ABC,
-            'http://www.rossvyaz.ru/docs/articles/Kody_ABC-4kh.csv' => NdcType::ID_ABC,
-            'http://www.rossvyaz.ru/docs/articles/Kody_ABC-8kh.csv' => NdcType::ID_ABC,
-            'http://www.rossvyaz.ru/docs/articles/Kody_DEF-9kh.csv' => NdcType::ID_DEF,
-        ];
-        foreach ($rusUrls as $url => $ndcTypeId) {
-            $this->importFromTxt(
-                $url,
-                function ($row) use ($ndcTypeId) {
-                    return
-                        [
-                            (int)$row[0], // ndc
-                            (int)$row[1], // number_from
-                            (int)$row[2], // number_to
-                            $ndcTypeId, // ndc_type_id
-                            trim($row[4]), // operator_source
-                            trim($row[5]), // region_source
-                            Country::RUSSIA . trim($row[0]) . trim($row[1]), // full_number_from
-                            Country::RUSSIA . trim($row[0]) . trim($row[2]), // full_number_to
-                            null, // date_resolution
-                            null, // detail_resolution
-                            null, // status_number
-                        ];
+        $this->_import(
+            function () {
+                /**
+                 * Ссылки на файлы для скачивания
+                 * [url => ndc_type_id]
+                 *
+                 * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
+                 */
+                $rusUrls = [
+                    'http://www.rossvyaz.ru/docs/articles/Kody_ABC-3kh.csv' => NdcType::ID_GEOGRAPHIC,
+                    'http://www.rossvyaz.ru/docs/articles/Kody_ABC-4kh.csv' => NdcType::ID_GEOGRAPHIC,
+                    'http://www.rossvyaz.ru/docs/articles/Kody_ABC-8kh.csv' => NdcType::ID_FREEPHONE,
+                    'http://www.rossvyaz.ru/docs/articles/Kody_DEF-9kh.csv' => NdcType::ID_MOBILE,
+                ];
+                foreach ($rusUrls as $url => $ndcTypeId) {
+                    $this->_importFromTxt(
+                        $url,
+                        function ($row) use ($ndcTypeId) {
+                            return
+                                [
+                                    (int)$row[0], // ndc
+                                    (int)$row[1], // number_from
+                                    (int)$row[2], // number_to
+                                    $ndcTypeId, // ndc_type_id
+                                    trim($row[4]), // operator_source
+                                    trim($row[5]), // region_source
+                                    Country::RUSSIA . trim($row[0]) . trim($row[1]), // full_number_from
+                                    Country::RUSSIA . trim($row[0]) . trim($row[2]), // full_number_to
+                                    null, // date_resolution
+                                    null, // detail_resolution
+                                    null, // status_number
+                                ];
+                        }
+                    );
                 }
-            );
-        }
+
+            },
+            Country::RUSSIA);
     }
 
     /**
      * Импортировать Словакию из Excel. 3 сек. Сначала надо disable-trigger, потом enable-trigger
      *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
      */
     public function actionSlovakia()
     {
-        $this->import('importSlovakiaCallback', Country::SLOVAKIA);
-    }
-
-    /**
-     * Импортировать Словакию из Excel. Callback
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     */
-    protected function _importSlovakiaCallback()
-    {
-        $this->_importCallback(self::FILE_ID_SLOVAKIA, Country::SLOVAKIA, self::EXCEL5, 'm-d-y');
+        $this->_import(
+            function () {
+                $this->_importCallback(self::FILE_ID_SLOVAKIA, Country::SLOVAKIA, self::EXCEL5, 'm-d-y');
+            },
+            Country::SLOVAKIA
+        );
     }
 
     /**
      * Импортировать Венгрию из Excel. 5 сек. Сначала надо disable-trigger, потом enable-trigger
      *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
      */
     public function actionHungary()
     {
-        $this->import('importHungaryCallback', Country::HUNGARY);
-    }
-
-    /**
-     * Импортировать Венгрию из Excel. Callback
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     */
-    protected function importHungaryCallback()
-    {
-        $this->_importCallback(self::FILE_ID_HUNGARY, Country::HUNGARY, self::EXCEL5, 'Y.m.d');
+        $this->_import(
+            function () {
+                $this->_importCallback(self::FILE_ID_HUNGARY, Country::HUNGARY, self::EXCEL5, 'Y.m.d');
+            },
+            Country::HUNGARY
+        );
     }
 
     /**
      * Импортировать Германию из Excel. 10 минут и 3Гб оперативки. Сначала надо disable-trigger, потом enable-trigger
      *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
      */
     public function actionGermany()
     {
-        $this->import('importGermanyCallback', Country::GERMANY);
-    }
-
-    /**
-     * Импортировать Германию из Excel. Callback
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     */
-    protected function importGermanyCallback()
-    {
-        $this->_importCallback(self::FILE_ID_GERMANY, Country::GERMANY, self::EXCEL2007, 'd-m-y');
+        $this->_import(
+            function () {
+                $this->_importCallback(self::FILE_ID_GERMANY, Country::GERMANY, self::EXCEL2007, 'd-m-y');
+            },
+            Country::GERMANY
+        );
     }
 
     /**
      * Импортировать Австрию из Excel. 5 минут и 1.5Гб оперативки. Сначала надо disable-trigger, потом enable-trigger
      *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
      */
     public function actionAustria()
     {
-        $this->import('importAustriaCallback', Country::AUSTRIA);
+        $this->_import(
+            function () {
+                $this->_importCallback(self::FILE_ID_AUSTRIA, Country::AUSTRIA, self::EXCEL2007, 'd.m.Y');
+            },
+            Country::AUSTRIA
+        );
     }
 
     /**
-     * Импортировать Австрию из Excel. Callback
+     * Импортировать Чехию из Excel. Сначала надо disable-trigger, потом enable-trigger
      *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     */
-    protected function importAustriaCallback()
-    {
-        $this->_importCallback(self::FILE_ID_AUSTRIA, Country::AUSTRIA, self::EXCEL2007, 'd.m.Y');
-    }
-
-    /**
-     * Импортировать Австрию из Excel. Сначала надо disable-trigger, потом enable-trigger
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
      */
     public function actionCzech()
     {
-        $this->import('importCzechCallback', Country::CZECH);
+        $this->_import(
+            function () {
+                $this->_importCallback(self::FILE_ID_CZECH, Country::CZECH, self::EXCEL5, 'd.m.Y');
+            },
+            Country::CZECH
+        );
     }
 
     /**
-     * Импортировать Австрию из Excel. Callback
+     * Импортировать Румынию из Excel. Сначала надо disable-trigger, потом enable-trigger
      *
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
      */
-    protected function importCzechCallback()
+    public function actionRomania()
     {
-        $this->_importCallback(self::FILE_ID_CZECH, Country::CZECH, self::EXCEL5, 'd.m.Y');
+        $this->_import(
+            function () {
+                $this->_importCallback(self::FILE_ID_ROMANIA, Country::ROMANIA, self::EXCEL2007, 'm-d-y');
+            },
+            Country::ROMANIA
+        );
+    }
+
+    /**
+     * Импортировать Хорватию из Excel. Сначала надо disable-trigger, потом enable-trigger
+     *
+     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
+     */
+    public function actionCroatia()
+    {
+        $this->_import(
+            function () {
+                $this->_importCallback(self::FILE_ID_CROATIA, Country::CROATIA, self::EXCEL5, 'm-d-y');
+            },
+            Country::CROATIA
+        );
+    }
+
+    /**
+     * Импортировать Сербию из Excel. Сначала надо disable-trigger, потом enable-trigger
+     *
+     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @throws \Exception
+     */
+    public function actionSerbia()
+    {
+        $this->_import(
+            function () {
+                $this->_importCallback(self::FILE_ID_SERBIA, Country::SERBIA, self::EXCEL2007, 'm-d-y');
+            },
+            Country::SERBIA
+        );
     }
 
     /**
@@ -231,43 +257,28 @@ class ImportController extends Controller
             ->indexBy('name')
             ->all();
 
-        $this->importFromExcel(
+        $this->_importFromExcel(
             'https://docs.google.com/uc?export=download&id=' . $fileId,
             function ($row) use (&$ndcTypes, $countryCode, $dateFormat) {
                 /**
                  * 0 - Префикс страны
                  * 1 - NDC
-                 * 2 - Тип NDC
-                 * 3 - Диапазон с
-                 * 4 - Диапазон по
-                 * 5 - Регион
-                 * 6 - Оператор
-                 * 7 - Дата принятия решения о выделении диапазона. Не всегда указано
-                 * 8 - Номер решения о выделении диапазона. Не всегда указано
-                 * 9 - Статус номера. Не всегда указано
+                 * 2 - Исходный тип NDC текстом
+                 * 3 - Нормализованный тип NDC числом
+                 * 4 - Диапазон с
+                 * 5 - Диапазон по
+                 * 6 - Регион
+                 * 7 - Оператор
+                 * 8 - Дата принятия решения о выделении диапазона. Не всегда указано
+                 * 9 - Номер решения о выделении диапазона. Не всегда указано
+                 * 10 - Статус номера. Не всегда указано
                  */
 
                 $ndc = $row[1];
 
-                $ndcTypeName = $row[2];
-                if ($ndcTypeName) {
-                    if (!isset($ndcTypes[$ndcTypeName])) {
-                        $ndcType = new NdcType;
-                        $ndcType->name = $ndcTypeName;
-                        if (!$ndcType->save()) {
-                            throw new ModelValidationException($ndcType);
-                        }
+                $ndcTypeId = $row[3];
 
-                        $ndcTypes[$ndcTypeName] = $ndcType;
-                        unset($ndcType);
-                    }
-
-                    $ndcTypeId = $ndcTypes[$ndcTypeName]->id;
-                } else {
-                    $ndcTypeId = null;
-                }
-
-                $numberFrom = str_replace(' ', '', $row[3]); // number_from
+                $numberFrom = str_replace(' ', '', $row[4]); // number_from
                 if (!$numberFrom) {
                     $numberFrom = $ndc;
                     $ndc = null;
@@ -277,7 +288,7 @@ class ImportController extends Controller
                     throw new InvalidParamException('Ошибочный number_from (' . $numberFrom . ')');
                 }
 
-                $numberTo = str_replace(' ', '', $row[4]); // number_to
+                $numberTo = str_replace(' ', '', $row[5]); // number_to
                 if (!$numberTo) {
                     $numberTo = $numberFrom;
                 }
@@ -286,7 +297,7 @@ class ImportController extends Controller
                     throw new InvalidParamException('Ошибочный number_to (' . $numberTo . ')');
                 }
 
-                $dateResolution = isset($row[7]) ? $row[7] : null;
+                $dateResolution = isset($row[8]) ? $row[8] : null;
                 if ($dateResolution) {
                     $dateResolutionDateTime = \DateTimeImmutable::createFromFormat($dateFormat, $dateResolution);
                     if ($dateResolutionDateTime) {
@@ -302,13 +313,13 @@ class ImportController extends Controller
                         $numberFrom, // number_from
                         $numberTo, // number_to
                         $ndcTypeId, // ndc_type_id
-                        $row[6], // operator_source
-                        $row[5], // region_source
+                        $row[7], // operator_source
+                        $row[6], // region_source
                         $countryCode . $ndc . $numberFrom, // full_number_from
                         $countryCode . $ndc . $numberTo, // full_number_to
                         $dateResolution ?: null, // date_resolution
-                        isset($row[8]) ? $row[8] : null, // detail_resolution
-                        isset($row[9]) ? $row[9] : null, // status_number
+                        isset($row[9]) ? $row[9] : null, // detail_resolution
+                        isset($row[10]) ? $row[10] : null, // status_number
                     ];
             },
             $excelFormat
@@ -324,7 +335,7 @@ class ImportController extends Controller
      * @return bool
      * @throws \Exception
      */
-    protected function importFromExcel($filePath, $callbackRow, $excelFormat = self::EXCEL2007)
+    private function _importFromExcel($filePath, $callbackRow, $excelFormat = self::EXCEL2007)
     {
         if (strpos($filePath, 'http') === 0) {
             // Reader требует локальный файл
@@ -398,7 +409,7 @@ class ImportController extends Controller
      * @param callable $callbackRow param $row, return ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number']
      * @throws \yii\db\Exception
      */
-    protected function importFromTxt($filePath, $callbackRow)
+    private function _importFromTxt($filePath, $callbackRow)
     {
         $handle = fopen($filePath, "r");
         if (!$handle) {
@@ -457,20 +468,20 @@ class ImportController extends Controller
     /**
      * Импортировать
      *
-     * @param string $callbackMethod
+     * @param \Closure $callbackMethod
      * @param int $countryCode
      * @return int
      */
-    protected function import($callbackMethod, $countryCode)
+    private function _import($callbackMethod, $countryCode)
     {
         $transaction = $this->_db->beginTransaction();
         try {
 
             echo PHP_EOL . 'Импортировать. ' . date(DATE_ATOM) . PHP_EOL;
 
-            $this->preImport();
-            $this->$callbackMethod();
-            $this->postImport($countryCode);
+            $this->_preImport();
+            $callbackMethod();
+            $this->_postImport($countryCode);
 
             $transaction->commit();
 
@@ -492,7 +503,7 @@ class ImportController extends Controller
      *
      * @throws \yii\db\Exception
      */
-    protected function preImport()
+    private function _preImport()
     {
         $sql = <<<SQL
 CREATE TEMPORARY TABLE number_range_tmp
@@ -520,7 +531,7 @@ SQL;
      * @param string $countryCode
      * @throws \yii\db\Exception
      */
-    protected function postImport($countryCode)
+    private function _postImport($countryCode)
     {
         echo PHP_EOL;
 
