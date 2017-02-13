@@ -71,6 +71,8 @@ class PricelistReport extends ActiveRecord
     }
 
     /**
+     * Создание структуры соответствия (ID прайс-листа - даты действия прайс-листа - данных о прайс-листе)
+     *
      * @inheritdoc
      */
     public function prepareData()

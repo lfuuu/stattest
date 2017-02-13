@@ -37,6 +37,8 @@ class CurrencyRateDao extends Singleton
     }
 
     /**
+     * Получение кросс курса валюты через рубль
+     *
      * @param string $fromCurrencyId
      * @param string $toCurrencyId
      * @param string|\DateTime $date
