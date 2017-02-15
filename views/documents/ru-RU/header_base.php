@@ -5,7 +5,6 @@ use yii\helpers\ArrayHelper;
 $contacts = ClientContact::find()->andWhere([
     'client_id' => $payer_company->id,
     'is_official' => 1,
-    'is_active' => 1,
     'type' => ClientContact::TYPE_FAX,
 ])->indexBy('id')->all() ?: [];
 
