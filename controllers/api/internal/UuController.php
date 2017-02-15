@@ -191,6 +191,7 @@ class UuController extends ApiInternalController
     /**
      * @SWG\Definition(definition = "tariffResourceRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID"),
+     *   @SWG\Property(property = "is_number", type = "integer", description = "0 - отображается checkbox (amount=0 - выключен; amount=1 - включен), 1 - отображается float (значение amount)"),
      *   @SWG\Property(property = "amount", type = "number", description = "Включено, ед."),
      *   @SWG\Property(property = "price_per_unit", type = "number", description = "Цена за превышение, ¤/ед."),
      *   @SWG\Property(property = "price_min", type = "number", description = "Мин. стоимость за месяц, ¤"),
@@ -420,6 +421,7 @@ class UuController extends ApiInternalController
 
             return [
                 'id' => $model->id,
+                'is_number' => (int) $model->resource->isNumber(),
                 'amount' => $model->amount,
                 'price_per_unit' => $model->price_per_unit,
                 'price_min' => $model->price_min,
@@ -567,18 +569,6 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "price", type = "number", description = "Стоимость"),
      *   @SWG\Property(property = "tariff_id", type = "integer", description = "ID тарифа"),
      *   @SWG\Property(property = "tariff_period_id", type = "integer", description = "ID периода тарифа"),
-     * ),
-     *
-     * @SWG\Definition(definition = "accountLogResourcesRecord", type = "object",
-     *   @SWG\Property(property = "date", type = "string", description = "Дата списания. ГГГГ-ММ-ДД"),
-     *   @SWG\Property(property = "amount_use", type = "number", description = "Потрачено ресурса"),
-     *   @SWG\Property(property = "amount_free", type = "number", description = "Доступно ресурса бесплатно"),
-     *   @SWG\Property(property = "amount_overhead", type = "number", description = "Платное превышение ресурса"),
-     *   @SWG\Property(property = "price_per_unit", type = "number", description = "Цена единицы ресурса"),
-     *   @SWG\Property(property = "price", type = "number", description = "Стоимость"),
-     *   @SWG\Property(property = "tariff_id", type = "integer", description = "ID тарифа"),
-     *   @SWG\Property(property = "tariff_period_id", type = "integer", description = "ID периода тарифа"),
-     *   @SWG\Property(property = "resource", type = "object", description = "Ресурс (дисковое пространство, абоненты, линии и пр.)", ref = "#/definitions/idNameRecord"),
      * ),
      *
      * @SWG\Definition(definition = "accountTariffRecord", type = "object",
@@ -781,42 +771,6 @@ class UuController extends ApiInternalController
                 'price' => $model->price,
                 'tariff_id' => $model->tariff_period_id ? $model->tariffPeriod->tariff_id : null,
                 'tariff_period_id' => $model->tariff_period_id,
-            ];
-
-        } else {
-
-            return null;
-
-        }
-    }
-
-    /**
-     * @param AccountLogResource|AccountLogResource[] $model
-     * @return array|null
-     */
-    private function _getAccountLogResourceRecord($model)
-    {
-        if (is_array($model)) {
-
-            $result = [];
-            foreach ($model as $subModel) {
-                $result[] = $this->_getAccountLogResourceRecord($subModel);
-            }
-
-            return $result;
-
-        } elseif ($model) {
-
-            return [
-                'date' => $model->date,
-                'amount_use' => $model->amount_use,
-                'amount_free' => $model->amount_free,
-                'amount_overhead' => $model->amount_overhead,
-                'price_per_unit' => $model->price_per_unit,
-                'price' => $model->price,
-                'tariff_id' => $model->tariff_period_id ? $model->tariffPeriod->tariff_id : null,
-                'tariff_period_id' => $model->tariff_period_id,
-                'resource' => $this->getIdNameRecord($model->tariffResource->resource),
             ];
 
         } else {

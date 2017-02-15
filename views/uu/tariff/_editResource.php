@@ -38,6 +38,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         </div>
 
         <?php
+        /** @var TariffResource $tariffResource */
         foreach ($tariffResources as $i => $tariffResource) {
             $tariffResource->id = $tariffResource->isNewRecord ? $i : $tariffResource->id;
             $resource = $tariffResource->resource;
