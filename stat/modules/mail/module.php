@@ -348,7 +348,7 @@ class m_mail{
 		$f_regions = array_chunk($f_regions, round(count($f_regions)/4), true);
 		$design->assign('f_regions', $f_regions);
 		$design->assign('f_tarifs', $f_tarifs);
-		$J[] = 'LEFT JOIN client_contacts as M ON M.type="email" AND M.client_id=C.id AND M.is_active=1 AND M.is_official=1';
+		$J[] = 'LEFT JOIN client_contacts as M ON M.type="email" AND M.client_id=C.id AND M.is_official=1';
 		$ack = get_param_raw('ack',0);
 		$C = array();
 		$R = $db->AllRecords('

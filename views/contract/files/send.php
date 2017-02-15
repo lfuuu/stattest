@@ -15,7 +15,7 @@ use app\models\ClientContact;
                 <select id="client-email" class="form-control" name="to">
                     <?php /** @var ClientContact $contact */ ?>
                     <?php foreach ($contract->accounts[0]->allContacts as $contact) : ?>
-                        <?php if ($contact->is_active && $contact->isEmail()) : ?>
+                        <?php if ($contact->isEmail()) : ?>
                             <option value="<?= $contact->data ?>"><?= $contact->data ?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>

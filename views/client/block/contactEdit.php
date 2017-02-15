@@ -3,32 +3,20 @@
  * Редактирование контактов
  *
  * @var \yii\web\View $this
- * @var int $id
+ * @var ClientAccount $account
  * @var ClientContact[] $contacts
  */
 
+use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\widgets\TabularInput\TabularInput;
 use kartik\form\ActiveForm;
 use unclead\widgets\TabularColumn;
-use yii\helpers\Url;
-use yii\widgets\Breadcrumbs;
 
 ?>
 
-<?= Breadcrumbs::widget([
-    'links' => [
-        ['label' => 'Аккаунт', 'url' => $cancelUrl = Url::to(['client/view', 'id' => $id])],
-        ['label' => $this->title = 'Контакты', 'url' => Url::to(['contact/edit', 'id' => $id])],
-    ],
-]) ?>
-
 <div id="contacts-edit">
     <?php $f = ActiveForm::begin() ?>
-    <div class="form-group text-right">
-        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?= $this->render('//layouts/_submitButtonSave') ?>
-    </div>
 
     <?php
     $clientContactAttributeLabels = (new ClientContact)->attributeLabels();
@@ -50,7 +38,6 @@ use yii\widgets\Breadcrumbs;
                 if ($clientContact) {
                     $options['class'] = 'form-group-sm';
                     $options['class'] .= ($clientContact->is_validate ? ($clientContact->isEmail() ? ' info' : ' warning') : ' danger');
-                    $options['class'] .= $clientContact->is_active ? ' row-active' : ' row-inactive'; // input-sm
                 }
 
                 return $options;
@@ -96,31 +83,24 @@ use yii\widgets\Breadcrumbs;
                     'name' => 'id', // чтобы идентифицировать модель
                     'type' => TabularColumn::TYPE_HIDDEN_INPUT,
                 ],
-                [
-                    'name' => 'is_active',
-                    'title' => $clientContactAttributeLabels['is_active'],
-                    'type' => TabularColumn::TYPE_CHECKBOX,
-                ],
             ],
         ]
     )
     ?>
     <div class="form-group text-right">
-        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
         <?= $this->render('//layouts/_submitButtonSave') ?>
     </div>
     <?php ActiveForm::end(); ?>
 </div>
 
-<?= $this->render('//layouts/_showHistory', ['model' => $contacts, 'deleteModel' => [new ClientContact(), 'client_id', $id]]) ?>
+<?= $this->render('//layouts/_showHistory', ['model' => $contacts, 'deleteModel' => [new ClientContact(), 'client_id', $account->id]]) ?>
 
 <style>
     .row-inactive, .row-inactive .select2-selection__rendered, .row-inactive input {
         color: #aaa !important;
     }
 
-    #contacts-edit .list-cell__is_official,
-    #contacts-edit .list-cell__is_active {
+    #contacts-edit .list-cell__is_official {
         text-align: center;
     }
 

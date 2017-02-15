@@ -36,7 +36,7 @@ class MinDayLimitNotificationProcessorTest extends \yii\codeception\TestCase
         $c->client_id = $account->id;
         $c->type = 'email';
         $c->data = 'test' . $account->id . '@mcn.ru.loc';
-        $c->setActiveAndOfficial();
+        $c->is_official = 1;
         $c->user_id = 0;
         $c->save();
 

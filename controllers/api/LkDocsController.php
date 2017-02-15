@@ -150,10 +150,6 @@ class LkDocsController extends ApiController
             $officialEmails = [];
 
             foreach ($a->allContacts as $contact) {
-                if (!$contact->is_active) {
-                    continue;
-                }
-
                 if ($contact->type == "email") {
                     $email = trim($contact->data);
                     $allEmail[$email] = 1;

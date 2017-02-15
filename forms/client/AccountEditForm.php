@@ -349,7 +349,7 @@ class AccountEditForm extends Form
             if ($this->admin_email) {
                 $contact = new ClientContact(["client_id" => $client->id]);
                 $contact->addEmail($this->admin_email);
-                $contact->setActiveAndOfficial();
+                $contact->is_official = 1;
 
                 if ($contact->validate()) {
                     $contact->save();

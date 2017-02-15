@@ -47,7 +47,6 @@ class Sync1CServerHandler
             $contactEmail->type = 'email';
             $contactEmail->client_id = $client->id;
             $contactEmail->data = $data->ЭлектроннаяПочта;
-            $contactEmail->is_active = 1;
             $contactEmail->is_official = 1;
             $contactEmail->save();
         }
@@ -57,7 +56,6 @@ class Sync1CServerHandler
             $contactPhone->type = 'phone';
             $contactPhone->client_id = $client->id;
             $contactPhone->data = $data->ТелефонОрганизации;
-            $contactPhone->is_active = 1;
             $contactPhone->is_official = 1;
             $contactPhone->save();
         }

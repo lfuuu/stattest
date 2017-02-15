@@ -89,7 +89,6 @@ class ApiHook extends Model
         $clientContact = ClientContact::find()
             ->where([
                 'type' => ClientContact::$phoneTypes,
-                'is_active' => 1,
                 'data' => $this->did,
             ])
             ->orderBy(['id' => SORT_DESC])

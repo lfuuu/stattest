@@ -64,7 +64,6 @@ class ZeroBalanceNotificationProcessor extends NotificationProcessor
     {
         return $this->client->getAllContacts()->andWhere([
             'is_official' => 1,
-            'is_active' => 1,
             'type' => 'email'
         ])->all();
     }

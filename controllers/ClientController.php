@@ -6,11 +6,13 @@ use app\classes\BaseController;
 use app\classes\grid\GridFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\filter\AccountTariffFilter;
+use app\classes\uu\forms\CrudMultipleTrait;
 use app\classes\uu\model\ServiceType;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
 use app\models\Number;
@@ -25,8 +27,10 @@ use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
+use kartik\widgets\ActiveForm;
 use Yii;
 use yii\base\Exception;
+use yii\base\Model;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
 use yii\web\Response;
@@ -34,6 +38,7 @@ use yii\web\Response;
 class ClientController extends BaseController
 {
     use AddClientAccountFilterTraits;
+    use CrudMultipleTrait;
 
     /**
      * @return array
@@ -146,6 +151,39 @@ class ClientController extends BaseController
             $this->addClientAccountFilter($uuFilterModel);
         }
 
+        // редактирование контактов
+        $contacts = $account->allContacts;
+        $post = Yii::$app->request->post();
+        if (isset($post['ClientContact'])) {
+
+            if (Yii::$app->request->isAjax) {
+                // ajax-валидация
+                $models = [];
+                $modelIds = array_keys($post['ClientContact']);
+                foreach ($modelIds as $modelId) {
+                    $models[$modelId] = new ClientContact();
+                }
+
+                Model::loadMultiple($models, $post);
+                Yii::$app->response->format = Response::FORMAT_JSON;
+                return ActiveForm::validateMultiple($models);
+            }
+
+            // создать/отредактировать контакты
+            //
+            // заготовка новой модели
+            $clientContactNew = new ClientContact();
+            $clientContactNew->client_id = $id;
+
+            $contacts = $this->crudMultiple($contacts, $post, $clientContactNew);
+
+            if ($this->validateErrors) {
+                Yii::$app->session->setFlash('error', implode('. ', $this->validateErrors));
+            } else {
+                Yii::$app->session->setFlash('success', 'Данные успешно сохранены');
+            }
+        }
+
         return
             $this->render(
                 'view',
@@ -157,7 +195,7 @@ class ClientController extends BaseController
                     'serverTroubles' => $serverTroubles,
                     'services' => $services,
                     'uuFilterModel' => $uuFilterModel,
-                    'contacts' => $account->allContacts
+                    'contacts' => $contacts,
                 ]
             );
     }

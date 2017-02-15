@@ -441,7 +441,6 @@ class ClientCreateExternalForm extends Form
         $clientContact->setAttributes(array_merge([
                 'client_id' => $this->account_id,
                 'user_id' => User::CLIENT_USER_ID,
-                'is_active' => 1,
                 'is_official' => 0
             ],
                 $attrs)

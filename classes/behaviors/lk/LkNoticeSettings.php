@@ -35,7 +35,6 @@ class LkNoticeSettings extends Behavior
     public function runner(AfterSaveEvent $event)
     {
         $this->setToMailer($event);
-        $this->linkStatus($event);
     }
 
     /**
@@ -49,24 +48,4 @@ class LkNoticeSettings extends Behavior
             'client_account_id' => $event->sender->client_id,
         ]);
     }
-
-    /**
-     * Установка зависимого статуса в контакте
-     *
-     * @param AfterSaveEvent $event
-     */
-    public function linkStatus(AfterSaveEvent $event)
-    {
-        $contact = ClientContact::findOne(['id' => $event->sender->client_contact_id]);
-
-        if (!$contact) {
-            return;
-        }
-
-        /** @var LkNoticeSetting $lkNotice */
-        $lkNotice = $event->sender;
-        $contact->is_active = $lkNotice->status && $lkNotice->status === LkNoticeSetting::STATUS_WORK ? 1 : 0;
-        $contact->save();
-    }
-
 }

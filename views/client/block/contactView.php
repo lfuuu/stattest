@@ -10,7 +10,6 @@
 use app\classes\Html;
 use app\models\ClientAccount;
 use app\models\ClientContact;
-use yii\helpers\Url;
 
 ?>
 
@@ -19,16 +18,10 @@ use yii\helpers\Url;
     <div class="row">
 
         <div class="col-sm-3">
-            <h2><a href="<?= Url::toRoute(['contact/edit', 'id' => $account->id]) ?>" title="Редактировать контакты"><img class="icon" src="/images/icons/edit.gif"> Контакты</a></h2>
+            <h2><a id="contacts-edit-link" class="pointer" title="Редактировать контакты"><img class="icon" src="/images/icons/edit.gif"> Контакты</a></h2>
         </div>
 
         <?php foreach ($contacts as $contact): ?>
-            <?php
-            if (!$contact->is_active) {
-                continue;
-            }
-
-            ?>
             <div class="col-sm-3 <?= $contact->is_official ? 'bold' : '' ?> <?= $contact->is_validate ? '' : 'bg-danger' ?>">
                 <div class="contacts-view-data">
                     <?php
@@ -51,6 +44,17 @@ use yii\helpers\Url;
     </div>
 </div>
 
+<?= $this->render('contactEdit', ['account' => $account, 'contacts' => $contacts]); ?>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#contacts-edit-link').on('click', function () {
+            $('#contacts-view').slideUp();
+            $('#contacts-edit').slideDown();
+        });
+    });
+</script>
+
 <style>
     #contacts-view {
         margin: 10px 0 0 0;
@@ -65,5 +69,9 @@ use yii\helpers\Url;
         font-weight: normal;
         margin-bottom: 10px;
         color: #888;
+    }
+
+    #contacts-edit {
+        display: none;
     }
 </style>

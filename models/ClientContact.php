@@ -16,7 +16,6 @@ use yii\db\ActiveQuery;
  * @property int user_id
  * @property string ts
  * @property string comment
- * @property int is_active
  * @property int is_official
  * @property int is_validate
  *
@@ -35,6 +34,9 @@ class ClientContact extends HistoryActiveRecord
     const TYPE_EMAIL_INVOICE = 'email_invoice';
     const TYPE_EMAIL_RATE = 'email_rate';
     const TYPE_EMAIL_SUPPORT = 'email_support';
+
+    // Не используется, но оставлено для совместимости, если где-то забыл выпилить обращение
+    public $is_active = true;
 
     public static $types = [
         self::TYPE_PHONE => 'Телефон',
@@ -83,7 +85,6 @@ class ClientContact extends HistoryActiveRecord
             'user_id' => 'Кто создал',
             'ts' => 'Когда создал',
             'comment' => 'Комментарий',
-            'is_active' => 'Вкл',
             'is_official' => 'Официальный',
             'is_validate' => 'Формат проверен',
         ];
@@ -107,7 +108,6 @@ class ClientContact extends HistoryActiveRecord
     {
         return [
             ['type', 'in', 'range' => array_keys(self::$types)],
-            ['is_active', 'default', 'value' => 1],
             ['is_official', 'default', 'value' => 0],
             ['is_validate', 'default', 'value' => 1],
             ['data', 'required'],
@@ -116,21 +116,21 @@ class ClientContact extends HistoryActiveRecord
                 'data',
                 'email',
                 'when' => function (ClientContact $model) {
-                    return $model->is_active && $model->isEmail();
+                    return $model->isEmail();
                 },
             ],
             [
                 'data',
                 'validatePhone',
                 'when' => function (ClientContact $model) {
-                    return $model->is_active && $model->is_validate && $model->isPhone();
+                    return $model->is_validate && $model->isPhone();
                 },
             ],
             [['comment'], 'default', 'value' => ''],
             ['comment', 'string'],
             ['ts', 'default', 'value' => date(DateTimeZoneHelper::DATETIME_FORMAT)],
             ['user_id', 'default', 'value' => \Yii::$app->user->id],
-            [['client_id', 'user_id', 'is_active', 'is_official'], 'integer', 'integerOnly' => true]
+            [['client_id', 'user_id', 'is_official', 'is_validate'], 'integer', 'integerOnly' => true]
         ];
     }
 
@@ -174,15 +174,6 @@ class ClientContact extends HistoryActiveRecord
     {
         $this->type = $type;
         $this->data = $data;
-    }
-
-    /**
-     * Установить "активный" и "официальный"
-     */
-    public function setActiveAndOfficial()
-    {
-        $this->is_active = 1;
-        $this->is_official = 1;
     }
 
     /**

@@ -40,7 +40,7 @@ ID <?= $account->id; ?><br />
 
 <br />Телефон:
 <?php foreach ($account->allContacts as $contact):
-    if ($contact->type != 'phone' || !$contact->is_active || !$contact->data):
+    if ($contact->type != 'phone' || !$contact->data):
         continue;
     endif;
     echo $contact->data . ($contact->comment ? '&nbsp-&nbsp'. $contact->comment : '') . '; &nbsp;';

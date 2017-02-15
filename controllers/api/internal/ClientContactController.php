@@ -26,7 +26,6 @@ class ClientContactController extends ApiInternalController
      *   @SWG\Parameter(name="eventType",type="integer",description="Тип контакта (email / phone / fax / sms / email_invoice / email_rate / email_support etc))",in="query"),
      *   @SWG\Parameter(name="isOfficial",type="boolean",description="Официальный контакт (вкл. / выкл.), по-умолчанию - все",in="query"),
      *   @SWG\Parameter(name="limit",type="integer",description="Кол-во контактов, по-умолчанию - все",in="query"),
-     *   @SWG\Parameter(name="isActive",type="boolean",description="Активный контакт (вкл. / выкл.), по-умолчанию - все",in="query"),
      *   @SWG\Response(
      *     response=200,
      *     description="результат работы метода",
@@ -93,16 +92,16 @@ class ClientContactController extends ApiInternalController
      * @param string $eventType
      * @param bool|null $isOfficial
      * @param int $limit
-     * @param bool|null $isActive
      * @return array|\yii\db\ActiveRecord[]
      * @throws \yii\base\InvalidConfigException|ModelValidationException
      */
-    public function actionGet($clientAccountId, $eventType = '', $isOfficial = null, $limit = 0, $isActive = null)
+    public function actionGet($clientAccountId, $eventType = '', $isOfficial = null, $limit = 0)
     {
         $result
             = (new Query)
                 ->select([
                     'contacts.*',
+                    '1 AS is_active', // для совместимости с API
                     'lk_settings.min_balance',
                     'lk_settings.min_day_limit',
                     'lk_settings.add_pay_notif',
@@ -115,12 +114,11 @@ class ClientContactController extends ApiInternalController
                 'type' => $eventType,
                 'is_official' => $isOfficial,
                 'limit' => $limit,
-                'is_active' => $isActive,
             ],
             [
                 [['client_id', 'limit'], 'integer'],
                 ['type', 'string'],
-                [['is_official', 'is_active'], 'boolean'],
+                [['is_official'], 'boolean'],
                 ['client_id', 'required'],
                 ['type', 'in', 'range' => array_keys(ClientContact::$types)],
             ]
@@ -133,10 +131,6 @@ class ClientContactController extends ApiInternalController
         $result->andWhere(['contacts.client_id' => $model->client_id]);
         if (!is_null($model->is_official)) {
             $result->andWhere(['contacts.is_official' => $model->is_official]);
-        }
-
-        if (!is_null($model->is_active)) {
-            $result->andWhere(['contacts.is_active' => $model->is_active]);
         }
 
         if ($model->type) {

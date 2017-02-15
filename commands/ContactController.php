@@ -23,7 +23,6 @@ class ContactController extends Controller
         $clientContactQuery = ClientContact::find()
             ->where([
                 'type' => ClientContact::$phoneTypes,
-                'is_active' => 1,
             ]);
         /** @var ClientContact $clientContact */
         foreach ($clientContactQuery->each() as $clientContact) {
@@ -83,7 +82,6 @@ class ContactController extends Controller
                         $clientContactNew->type = $clientContact->type;
                         $clientContactNew->is_official = $clientContact->is_official;
                         $clientContactNew->comment = $clientContact->comment;
-                        $clientContactNew->is_active = 1;
                         $clientContactNew->is_validate = 1;
                         $clientContactNew->data = $e164Phone;
                         if (!$clientContactNew->save()) {

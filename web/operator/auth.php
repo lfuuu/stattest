@@ -14,7 +14,7 @@
     $u = $db->GetRow($q="select * from clients where client='".$login."' and md5(password) = '".$pwd."'");
     if($u)
     {
-        $e = $db->GetRow("select data from client_contacts where client_id = '".$u["id"]."' and type='email' order by  is_active desc, is_official desc, id desc limit 1");
+        $e = $db->GetRow("select data from client_contacts where client_id = '".$u["id"]."' and type='email' order by is_official desc, id desc limit 1");
     echo $u["id"]."|||".$u["company"]."|||".($e?$e["data"]: "");
     exit();
     }

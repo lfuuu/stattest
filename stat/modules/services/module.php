@@ -568,7 +568,7 @@ class m_services extends IModule
         $sendmail = get_param_raw('sendmail', 0);
         if ($sendmail) {
             $msg = $design->fetch('../store/acts/' . $suffix . '_act.tpl');
-            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`id`=' . $fixclient;
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" where `cl`.`id`=' . $fixclient;
             $db->Query($query);
             $mails = $db->NextRecord(MYSQL_ASSOC);
             $mails = $mails['mails'];
@@ -629,7 +629,7 @@ class m_services extends IModule
         $sendmail = get_param_raw('sendmail', 0);
         if ($sendmail) {
             $msg = $design->fetch('../store/acts/' . $suffix . '_act_pon.tpl');
-            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`id`=' . $fixclient;
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" where `cl`.`id`=' . $fixclient;
             $db->Query($query);
             $mails = $db->NextRecord(MYSQL_ASSOC);
             $mails = $mails['mails'];
@@ -1319,7 +1319,6 @@ class m_services extends IModule
         foreach ($db->AllRecords("SELECT data as email
                     FROM `client_contacts` cc, clients c
                     where c.id = $fixclient and client_id = c.id and cc.type = 'email'
-                    and cc.is_active
                     order by data") as $l) {
             $emails[$l["email"]] = $l["email"];
         }
@@ -1458,7 +1457,7 @@ class m_services extends IModule
         $sendmail = get_param_raw('sendmail', 0);
         if ($sendmail) {
             $msg = $design->fetch('../store/acts/voip_act.tpl');
-            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`id`=' . $fixclient;
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" where `cl`.`id`=' . $fixclient;
             $db->Query($query);
             $mails = $db->NextRecord(MYSQL_ASSOC);
             $mails = $mails['mails'];
@@ -2629,7 +2628,7 @@ class m_services extends IModule
         $sendmail = get_param_raw('sendmail', 0);
         if ($sendmail) {
             $msg = $design->fetch('../store/acts/virtpbx_act.tpl');
-            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" and `cc`.`is_active`=1 where `cl`.`client`="' . addcslashes($fixclient,
+            $query = 'select group_concat(`cc`.`data`) `mails` from `clients` `cl` left join `client_contacts` `cc` on `cc`.`client_id`=`cl`.`id` and `cc`.`type`="email" where `cl`.`client`="' . addcslashes($fixclient,
                     '\\"') . '"';
             $db->Query($query);
             $mails = $db->NextRecord(MYSQL_ASSOC);

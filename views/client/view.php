@@ -35,7 +35,7 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
         <div class="row">
             <div class="col-sm-10">
                 <?= $this->render('block/status', ['account' => $account, 'contractForm' => $contractForm]); ?>
-                <?= $this->render('block/contact', ['account' => $account, 'contacts' => $contacts]); ?>
+                <?= $this->render('block/contactView', ['account' => $account, 'contacts' => $contacts]); ?>
             </div>
             <div class="col-sm-2">
                 <?= $this->render('block/rightmenu', ['account' => $account]); ?>

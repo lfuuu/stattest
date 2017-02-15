@@ -673,7 +673,7 @@ class ClientAccount extends HistoryActiveRecord
     {
         $contacts = ClientContact::find()
             ->select(['type', 'data'])
-            ->andWhere(['client_id' => $this->id, 'is_official' => 1, 'is_active' => 1])
+            ->andWhere(['client_id' => $this->id, 'is_official' => 1])
             ->groupBy(['type', 'data'])
             ->orderBy('id')
             ->asArray()
@@ -693,8 +693,9 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getAdditionalInn($isActive = true)
     {
-        return $this->hasMany(ClientInn::className(),
-            ['client_id' => 'id'])->andWhere(['is_active' => (int)$isActive])->all();
+        return $this->hasMany(ClientInn::className(), ['client_id' => 'id'])
+            ->andWhere(['is_active' => (int)$isActive])
+            ->all();
     }
 
     /**
@@ -1054,7 +1055,7 @@ class ClientAccount extends HistoryActiveRecord
 
         $allContacts = $this->allContacts;
         foreach ($allContacts as $contact) {
-            if (!$contact->data || !$contact->is_active) {
+            if (!$contact->data) {
                 continue;
             }
 
