@@ -48,7 +48,9 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 <div class="col-sm-2">
                     <label for="resourcetariff-<?= $i ?>-amount"><?= Html::encode($resource->name) ?></label>
                     <?php if (!$tariffResource->isNewRecord) : ?>
-                        <?= $this->render('//layouts/_showHistory', ['model' => $tariffResource]) ?>
+                        <div>
+                            <?= $this->render('//layouts/_showHistory', ['model' => $tariffResource]) ?>
+                        </div>
                     <?php endif; ?>
                 </div>
 
