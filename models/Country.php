@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\traits\GridSortTrait;
 use app\dao\CountryDao;
+use app\models\dictionary\PublicSiteCountry;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
@@ -19,6 +20,7 @@ use yii\helpers\Url;
  * @property integer $order
  *
  * @property Currency $currency
+ * @property PublicSiteCountry[] $publicSiteCountries
  */
 class Country extends ActiveRecord
 {
@@ -89,6 +91,14 @@ class Country extends ActiveRecord
     public function getCurrency()
     {
         return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPublicSiteCountries()
+    {
+        return $this->hasOne(PublicSiteCountry::className(), ['country_code' => 'code']);
     }
 
     /**

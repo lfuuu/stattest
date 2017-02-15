@@ -7,6 +7,7 @@ use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\models\City;
 use app\models\Country;
+use app\models\dictionary\PublicSite;
 use app\models\filter\FreeNumberFilter;
 use app\models\Region;
 
@@ -105,14 +106,14 @@ class CountriesController extends ApiInternalController
             throw new BadRequestHttpException;
         }
 
-        $countries = Country::find()
-            ->where(['site' => $domain])
-            ->orderBy(['order' => SORT_ASC]);
-        $result = [];
+        $publicSite = PublicSite::findOne(['domain' => $domain]);
+        if (!$publicSite) {
+            throw new BadRequestHttpException;
+        }
 
-        foreach ($countries->each() as $country) {
-            /** @var Country $country */
-            $result[] = $this->_countryInfo($country);
+        $result = [];
+        foreach ($publicSite->publicSiteCountries as $publicSiteCountry) {
+            $result[] = $this->_countryInfo($publicSiteCountry->country);
         }
 
         return $result;

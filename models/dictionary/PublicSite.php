@@ -11,7 +11,8 @@ use yii\helpers\Url;
  * @property int $id
  * @property int $title
  * @property int $domain
- * @property PublicSiteCountry[] $counties
+ *
+ * @property PublicSiteCountry[] $publicSiteCountries
  */
 class PublicSite extends ActiveRecord
 {
@@ -53,9 +54,10 @@ class PublicSite extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getCountries()
+    public function getPublicSiteCountries()
     {
-        return $this->hasMany(PublicSiteCountry::className(), ['site_id' => 'id'])->orderBy(['order' => SORT_DESC]);
+        return $this->hasMany(PublicSiteCountry::className(), ['site_id' => 'id'])
+            ->orderBy(['order' => SORT_DESC]);
     }
 
     /**

@@ -44,6 +44,7 @@ class City extends ActiveRecord
             'in_use' => 'Есть номера',
             'is_show_in_lk' => 'Показывать в ЛК',
             'billing_method_id' => 'Метод биллингования',
+            'order' => 'Порядок сортировки',
         ];
     }
 
