@@ -592,9 +592,6 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "comment", type = "string", description = "Комментарий"),
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона"),
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
-     *   @SWG\Property(property = "account_log_setups", type = "array", description = "Транзакции за подключение", @SWG\Items(ref = "#/definitions/accountLogSetupRecord")),
-     *   @SWG\Property(property = "account_log_periods", type = "array", description = "Транзакции за абонентскую плату", @SWG\Items(ref = "#/definitions/accountLogPeriodRecord")),
-     *   @SWG\Property(property = "account_log_resources", type = "array", description = "Транзакции за ресурсы", @SWG\Items(ref = "#/definitions/accountLogResourcesRecord")),
      * ),
      *
      * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-account-tariffs", summary = "Список услуг у ЛС", operationId = "Список услуг у ЛС",
@@ -696,9 +693,6 @@ class UuController extends ApiInternalController
             'comment' => $accountTariff->comment,
             'voip_number' => $accountTariff->voip_number,
             'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs),
-            'account_log_setups' => $this->_getAccountLogSetupRecord($accountTariff->accountLogSetups),
-            'account_log_periods' => $this->_getAccountLogPeriodRecord($accountTariff->accountLogPeriods),
-            'account_log_resources' => $this->_getAccountLogResourceRecord($accountTariff->accountLogResources),
         ];
     }
 
