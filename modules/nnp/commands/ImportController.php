@@ -83,7 +83,7 @@ class ImportController extends Controller
                 $rusUrls = [
                     'http://www.rossvyaz.ru/docs/articles/Kody_ABC-3kh.csv' => NdcType::ID_GEOGRAPHIC,
                     'http://www.rossvyaz.ru/docs/articles/Kody_ABC-4kh.csv' => NdcType::ID_GEOGRAPHIC,
-                    'http://www.rossvyaz.ru/docs/articles/Kody_ABC-8kh.csv' => NdcType::ID_FREEPHONE,
+                    'http://www.rossvyaz.ru/docs/articles/Kody_ABC-8kh.csv' => NdcType::ID_GEOGRAPHIC,
                     'http://www.rossvyaz.ru/docs/articles/Kody_DEF-9kh.csv' => NdcType::ID_MOBILE,
                 ];
                 foreach ($rusUrls as $url => $ndcTypeId) {
@@ -95,7 +95,7 @@ class ImportController extends Controller
                                     (int)$row[0], // ndc
                                     (int)$row[1], // number_from
                                     (int)$row[2], // number_to
-                                    $ndcTypeId, // ndc_type_id
+                                    ($row[0] == 800) ? NdcType::ID_FREEPHONE : $ndcTypeId, // ndc_type_id
                                     trim($row[4]), // operator_source
                                     trim($row[5]), // region_source
                                     Country::RUSSIA_PREFIX . trim($row[0]) . trim($row[1]), // full_number_from
