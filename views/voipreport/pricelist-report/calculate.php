@@ -94,10 +94,10 @@ echo Breadcrumbs::widget([
                         <input type="radio" name="is_mobile" value="-1" checked="checked" /> Все
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="is_mobile" value="0" /> Мобильные
+                        <input type="radio" name="is_mobile" value="1" /> Мобильные
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="is_mobile" value="1" /> Стационарные
+                        <input type="radio" name="is_mobile" value="0" /> Стационарные
                     </label>
                 </div>
 
@@ -206,7 +206,7 @@ echo Breadcrumbs::widget([
             <th rowspan="2" data-field="destination">Назначение</th>
             <th rowspan="2" data-field="best_price_1">Лучшая цена #1</th>
             <th rowspan="2" data-field="best_price_2">Лучшая цена #2</th>
-            <th rowspan="2" data-field="modify_result">Результат</th>
+            <th rowspan="2" data-field="modify_result" data-cell-style="resultCellStyle">Результат</th>
             <?php
             foreach ($pricelistReportData as $row) {
                 if (!$row['pricelist']) {
@@ -250,7 +250,13 @@ jQuery(document).ready(function () {
         $exportBtn = $('#export-btn'),
         $loadingOverlay = $('.fullScreenOverlay'),
         sourceUrl = '<?= Url::toRoute(['/voipreport/pricelist-report/get-pricelist-data', 'reportId' => $pricelistReportId]) ?>',
+        delay = $.Deferred();
         sourceData = [],
+        resultCellStyle = function (value, row, index, field) {
+            return {
+                classes: 'result-cell'
+            };
+        },
         loadData = function () {
             $.ajax({
                 url: sourceUrl + '&currency=' + $currencyForm.find('select[name="currency"]').val(),
@@ -325,22 +331,28 @@ jQuery(document).ready(function () {
             isMobile = $filterForm.find('input[name="is_mobile"]:checked').val(),
             data = sourceData;
 
-        $loadingOverlay.toggle(200, function () {
-            if (countryId) {
-                data = filterCountry(data, countryId);
-            }
+        $loadingOverlay.show();
+        setTimeout(function() { delay.resolve(); }, 100);
+        delay
+            .promise()
+            .then(function () {
+                if (countryId) {
+                    data = filterCountry(data, countryId);
+                }
 
-            if (regionId) {
-                data = filterRegion(data, regionId);
-            }
+                if (regionId) {
+                    data = filterRegion(data, regionId);
+                }
 
-            if (isMobile >= 0) {
-                data = filterIsMobile(data, isMobile);
-            }
+                if (isMobile >= 0) {
+                    data = filterIsMobile(data, isMobile);
+                }
 
-            $reportTable.bootstrapTable('load', data);
-            $loadingOverlay.hide();
-        });
+                $reportTable.bootstrapTable('load', data);
+            })
+            .done(function () {
+                $loadingOverlay.hide();
+            });
 
         return false;
     });
@@ -353,6 +365,7 @@ jQuery(document).ready(function () {
             $elements = $modifyForm.find('.multiple-input').find('tr.multiple-input-list__item'),
             priceType = $modifyForm.find('input[name="best_price"]:checked').val(),
             modifiers = [],
+            totalModified = 0,
             data = sourceData;
 
         $elements.each(function () {
@@ -385,51 +398,55 @@ jQuery(document).ready(function () {
             modifiers.push(modifier);
         });
 
-        $loadingOverlay.toggle(200, function () {
-            var totalModified = 0;
+        $loadingOverlay.show();
+        setTimeout(function() { delay.resolve(); }, 100);
+        delay
+            .promise()
+            .then(function () {
+                if (countryId) {
+                    data = filterCountry(data, countryId);
+                }
 
-            if (countryId) {
-                data = filterCountry(data, countryId);
-            }
+                if (regionId) {
+                    data = filterRegion(data, regionId);
+                }
 
-            if (regionId) {
-                data = filterRegion(data, regionId);
-            }
+                if (isMobile >= 0) {
+                    data = filterIsMobile(data, isMobile);
+                }
 
-            if (isMobile >= 0) {
-                data = filterIsMobile(data, isMobile);
-            }
+                $.map(data, function (row) {
+                    var price = parseFloat(row[priceType]);
 
-            $.map(data, function (row) {
-                var price = parseFloat(row[priceType]);
+                    $.each(modifiers, function () {
+                        if (inRange(parseFloat(this.range[0]), parseFloat(this.range[1]), price)) {
+                            totalModified++;
 
-                $.each(modifiers, function () {
-                    if (inRange(parseFloat(this.range[0]), parseFloat(this.range[1]), price)) {
-                        totalModified++;
-
-                        if (this.profit.summary && !this.profit.value) {
-                            row.modify_result = this.profit.summary;
-                        } else {
-                            switch (this.profit.variant) {
-                                case 'money':
-                                    row.modify_result = (price + this.profit.value).toFixed(4);
-                                    break;
-                                case 'percent':
-                                    row.modify_result = (price + ((price * this.profit.value) / 100)).toFixed(4);
-                                    break;
+                            if (this.profit.summary && !this.profit.value) {
+                                row.modify_result = this.profit.summary;
+                            } else {
+                                switch (this.profit.variant) {
+                                    case 'money':
+                                        row.modify_result = (price + this.profit.value).toFixed(4);
+                                        break;
+                                    case 'percent':
+                                        row.modify_result = (price + ((price * this.profit.value) / 100)).toFixed(4);
+                                        break;
+                                }
                             }
                         }
-                    }
+                    });
+
+                    return row;
                 });
 
-                return row;
+                $filterForm.find('button').trigger('click');
+            })
+            .done(function () {
+                $loadingOverlay.hide();
+
+                $.notify('Изменено ' + totalModified + ' значений', 'success');
             });
-
-            $filterForm.find('button').trigger('click');
-            $loadingOverlay.hide();
-
-            $.notify('Изменено ' + totalModified + ' значений', 'success');
-        });
 
         return false;
     });
@@ -449,5 +466,9 @@ th.pricelist-column {
 th.pricelist-column .th-inner {
     width: 100px;
     font-size: 10px;
+}
+td.result-cell {
+    background-color: #F0F0F0;
+    color: #000066;
 }
 </style>
