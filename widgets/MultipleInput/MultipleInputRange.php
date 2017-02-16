@@ -27,6 +27,8 @@ class MultipleInputRange extends MultipleInput
     public function init()
     {
         parent::init();
+
+        $this->options['id'] = false;
     }
 
     /**
