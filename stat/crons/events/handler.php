@@ -87,7 +87,7 @@ function doEvents()
 
                 case Event::ADD_PAYMENT: {
                     EventHandler::updateBalance($param[1]);
-                    (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
+                    // (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
 
                     break;
                 }
