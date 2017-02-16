@@ -19,15 +19,32 @@ class Country extends ActiveRecord
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
-    const RUSSIA = 643;
-    const HUNGARY = 348;
-    const GERMANY = 276;
-    const SLOVAKIA = 703;
-    const AUSTRIA = 40;
-    const CZECH = 203;
-    const ROMANIA = 642;
-    const CROATIA = 191;
-    const SERBIA = 688;
+    const RUSSIA_CODE = 643;
+    const RUSSIA_PREFIX = 7;
+
+    const HUNGARY_CODE = 348;
+    const HUNGARY_PREFIX = 36;
+
+    const GERMANY_CODE = 276;
+    const GERMANY_PREFIX = 49;
+
+    const SLOVAKIA_CODE = 703;
+    const SLOVAKIA_PREFIX = 421;
+
+    const AUSTRIA_CODE = 40;
+    const AUSTRIA_PREFIX = 43;
+
+    const CZECH_CODE = 203;
+    const CZECH_PREFIX = 420;
+
+    const ROMANIA_CODE = 642;
+    const ROMANIA_PREFIX = 40;
+
+    const CROATIA_CODE = 191;
+    const CROATIA_PREFIX = 385;
+
+    const SERBIA_CODE = 688;
+    const SERBIA_PREFIX = 381;
 
     public static $primaryField = 'code';
 
