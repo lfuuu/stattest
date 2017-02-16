@@ -346,13 +346,13 @@ class UuController extends ApiInternalController
                     $id_tmp = null,
                     $parent_id_tmp = $tariff->id,
                     $service_type_id_tmp = ServiceType::ID_VOIP_PACKAGE,
-                    $country_id_tmp = null,
-                    $currency_id_tmp = null,
+                    $country_id_tmp = $country_id,
+                    $currency_id_tmp = $currency_id,
                     $is_default_tmp = 1,
-                    $tariff_status_id_tmp = null,
-                    $tariff_person_id_tmp = null,
-                    $voip_group_id_tmp = null,
-                    $voip_city_id_tmp = null
+                    $tariff_status_id_tmp = $tariff_status_id,
+                    $tariff_person_id_tmp = $tariff_person_id,
+                    $voip_group_id_tmp = $voip_group_id,
+                    $voip_city_id_tmp = $voip_city_id
                 );
             } else {
                 $defaultPackageRecords = null;
