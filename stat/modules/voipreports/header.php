@@ -38,7 +38,11 @@ class m_voipreports_head extends IModuleHead
     public function __construct()
     {
         $this->menu = array(
-            array('Анализ прайс-листов', 'pricelist_report_analyze_list'),
+            array('Анализ прайс-листов',
+                function () {
+                    return '/voipreport/pricelist-report';
+                }
+            ),
             //array('Сравнение операторов', 'pricelist_report_operator_list'),
             array('По маршрутизации', 'pricelist_report_routing_list'),
             array('Себестоимость (устарело)', 'cost_report'),

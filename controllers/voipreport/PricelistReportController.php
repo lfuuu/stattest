@@ -169,13 +169,13 @@ class PricelistReportController extends BaseController
                 $row['prefix'],
                 $row['zone'],
                 $row['destination'],
-                $row['best_price_1'],
-                $row['best_price_2'],
-                array_key_exists('modify_result', $row) ? $row['modify_result'] : 0
+                $this->_numberValueForExcel($row['best_price_1']),
+                $this->_numberValueForExcel($row['best_price_2']),
+                array_key_exists('modify_result', $row) ? $this->_numberValueForExcel($row['modify_result']) : 0
             ];
 
             foreach ($pricelistReport->getDatesArray() as $index => $date) {
-                $csvRow[] = $row['price_' . $index];
+                $csvRow[] = $this->_numberValueForExcel($row['price_' . $index]);
             }
 
             fputcsv($csv, $csvRow, ';');
@@ -187,6 +187,17 @@ class PricelistReportController extends BaseController
             stream_get_contents($csv),
             'analize-pricelist-' . date(DateTimeZoneHelper::DATETIME_FORMAT) . '.csv'
         );
+    }
+
+    /**
+     * For Excel need to convert "." to "," for fields of decimal type
+     *
+     * @param string $value
+     * @return string
+     */
+    private function _numberValueForExcel($value)
+    {
+        return str_replace('.', ',', $value);
     }
 
 }
