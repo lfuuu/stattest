@@ -8,6 +8,7 @@ use app\exceptions\ModelValidationException;
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
 use app\models\ClientContact;
+use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -101,7 +102,7 @@ class ClientContactController extends ApiInternalController
             = (new Query)
                 ->select([
                     'contacts.*',
-                    '1 AS is_active', // для совместимости с API
+                    'is_active' => new Expression('1'), // для совместимости с API
                     'lk_settings.min_balance',
                     'lk_settings.min_day_limit',
                     'lk_settings.add_pay_notif',
