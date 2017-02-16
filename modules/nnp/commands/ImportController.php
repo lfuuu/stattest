@@ -98,8 +98,8 @@ class ImportController extends Controller
                                     $ndcTypeId, // ndc_type_id
                                     trim($row[4]), // operator_source
                                     trim($row[5]), // region_source
-                                    Country::RUSSIA . trim($row[0]) . trim($row[1]), // full_number_from
-                                    Country::RUSSIA . trim($row[0]) . trim($row[2]), // full_number_to
+                                    Country::RUSSIA_PREFIX . trim($row[0]) . trim($row[1]), // full_number_from
+                                    Country::RUSSIA_PREFIX . trim($row[0]) . trim($row[2]), // full_number_to
                                     null, // date_resolution
                                     null, // detail_resolution
                                     null, // status_number
@@ -109,7 +109,7 @@ class ImportController extends Controller
                 }
 
             },
-            Country::RUSSIA);
+            Country::RUSSIA_CODE);
     }
 
     /**
@@ -122,9 +122,9 @@ class ImportController extends Controller
     {
         $this->_import(
             function () {
-                $this->_importCallback(self::FILE_ID_SLOVAKIA, Country::SLOVAKIA, self::EXCEL5, 'm-d-y');
+                $this->_importCallback(self::FILE_ID_SLOVAKIA, Country::SLOVAKIA_PREFIX, self::EXCEL5, 'm-d-y');
             },
-            Country::SLOVAKIA
+            Country::SLOVAKIA_CODE
         );
     }
 
@@ -138,9 +138,9 @@ class ImportController extends Controller
     {
         $this->_import(
             function () {
-                $this->_importCallback(self::FILE_ID_HUNGARY, Country::HUNGARY, self::EXCEL5, 'Y.m.d');
+                $this->_importCallback(self::FILE_ID_HUNGARY, Country::HUNGARY_PREFIX, self::EXCEL5, 'Y.m.d');
             },
-            Country::HUNGARY
+            Country::HUNGARY_CODE
         );
     }
 
@@ -154,9 +154,9 @@ class ImportController extends Controller
     {
         $this->_import(
             function () {
-                $this->_importCallback(self::FILE_ID_GERMANY, Country::GERMANY, self::EXCEL2007, 'd-m-y');
+                $this->_importCallback(self::FILE_ID_GERMANY, Country::GERMANY_PREFIX, self::EXCEL2007, 'd-m-y');
             },
-            Country::GERMANY
+            Country::GERMANY_CODE
         );
     }
 
@@ -170,9 +170,9 @@ class ImportController extends Controller
     {
         $this->_import(
             function () {
-                $this->_importCallback(self::FILE_ID_AUSTRIA, Country::AUSTRIA, self::EXCEL2007, 'd.m.Y');
+                $this->_importCallback(self::FILE_ID_AUSTRIA, Country::AUSTRIA_PREFIX, self::EXCEL2007, 'd.m.Y');
             },
-            Country::AUSTRIA
+            Country::AUSTRIA_CODE
         );
     }
 
@@ -186,9 +186,9 @@ class ImportController extends Controller
     {
         $this->_import(
             function () {
-                $this->_importCallback(self::FILE_ID_CZECH, Country::CZECH, self::EXCEL5, 'd.m.Y');
+                $this->_importCallback(self::FILE_ID_CZECH, Country::CZECH_PREFIX, self::EXCEL5, 'd.m.Y');
             },
-            Country::CZECH
+            Country::CZECH_CODE
         );
     }
 
@@ -202,9 +202,9 @@ class ImportController extends Controller
     {
         $this->_import(
             function () {
-                $this->_importCallback(self::FILE_ID_ROMANIA, Country::ROMANIA, self::EXCEL2007, 'm-d-y');
+                $this->_importCallback(self::FILE_ID_ROMANIA, Country::ROMANIA_PREFIX, self::EXCEL2007, 'm-d-y');
             },
-            Country::ROMANIA
+            Country::ROMANIA_CODE
         );
     }
 
@@ -218,9 +218,9 @@ class ImportController extends Controller
     {
         $this->_import(
             function () {
-                $this->_importCallback(self::FILE_ID_CROATIA, Country::CROATIA, self::EXCEL5, 'm-d-y');
+                $this->_importCallback(self::FILE_ID_CROATIA, Country::CROATIA_PREFIX, self::EXCEL5, 'm-d-y');
             },
-            Country::CROATIA
+            Country::CROATIA_CODE
         );
     }
 
@@ -234,9 +234,9 @@ class ImportController extends Controller
     {
         $this->_import(
             function () {
-                $this->_importCallback(self::FILE_ID_SERBIA, Country::SERBIA, self::EXCEL2007, 'm-d-y');
+                $this->_importCallback(self::FILE_ID_SERBIA, Country::SERBIA_PREFIX, self::EXCEL2007, 'm-d-y');
             },
-            Country::SERBIA
+            Country::SERBIA_CODE
         );
     }
 
@@ -244,13 +244,13 @@ class ImportController extends Controller
      * Импортировать из Excel. Callback
      *
      * @param string $fileId
-     * @param int $countryCode
+     * @param int $countryPrefix
      * @param string $excelFormat
      * @param string $dateFormat
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      * @throws \Exception
      */
-    private function _importCallback($fileId, $countryCode, $excelFormat = self::EXCEL2007, $dateFormat = 'd-m-y')
+    private function _importCallback($fileId, $countryPrefix, $excelFormat = self::EXCEL2007, $dateFormat = 'd-m-y')
     {
         /** @var NdcType[] $ndcTypes */
         $ndcTypes = NdcType::find()
@@ -259,7 +259,7 @@ class ImportController extends Controller
 
         $this->_importFromExcel(
             'https://docs.google.com/uc?export=download&id=' . $fileId,
-            function ($row) use (&$ndcTypes, $countryCode, $dateFormat) {
+            function ($row) use (&$ndcTypes, $countryPrefix, $dateFormat) {
                 /**
                  * 0 - Префикс страны
                  * 1 - NDC
@@ -315,8 +315,8 @@ class ImportController extends Controller
                         $ndcTypeId, // ndc_type_id
                         $row[7], // operator_source
                         $row[6], // region_source
-                        $countryCode . $ndc . $numberFrom, // full_number_from
-                        $countryCode . $ndc . $numberTo, // full_number_to
+                        $countryPrefix . $ndc . $numberFrom, // full_number_from
+                        $countryPrefix . $ndc . $numberTo, // full_number_to
                         $dateResolution ?: null, // date_resolution
                         isset($row[9]) ? $row[9] : null, // detail_resolution
                         isset($row[10]) ? $row[10] : null, // status_number
