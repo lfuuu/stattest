@@ -2,18 +2,15 @@
 
 namespace app\controllers\api\internal;
 
-use app\models\LkNoticeSetting;
-use Yii;
-use app\exceptions\ModelValidationException;
 use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
+use app\exceptions\ModelValidationException;
 use app\models\ClientContact;
+use app\models\LkNoticeSetting;
+use Yii;
 use yii\db\Expression;
 use yii\db\Query;
 
-/**
- * Class ClientContactController
- */
 class ClientContactController extends ApiInternalController
 {
 
@@ -23,60 +20,24 @@ class ClientContactController extends ApiInternalController
      *   path="/internal/client-contact/get/",
      *   summary="Получение списка контактов лицевого счета",
      *   operationId="Получение списка контактов лицевого счета",
-     *   @SWG\Parameter(name="clientAccountId",type="integer",description="ID лицевого счета",in="query",required=true),
-     *   @SWG\Parameter(name="eventType",type="integer",description="Тип контакта (email / phone / fax / sms / email_invoice / email_rate / email_support etc))",in="query"),
-     *   @SWG\Parameter(name="isOfficial",type="boolean",description="Официальный контакт (вкл. / выкл.), по-умолчанию - все",in="query"),
-     *   @SWG\Parameter(name="limit",type="integer",description="Кол-во контактов, по-умолчанию - все",in="query"),
+     *   @SWG\Parameter(name="clientAccountId",type="integer",description="ID лицевого счета",in="query",required=true,default=""),
+     *   @SWG\Parameter(name="eventType",type="integer",description="Тип контакта (email / phone / fax / sms / email_invoice / email_rate / email_support etc))",in="query",default=""),
+     *   @SWG\Parameter(name="isOfficial",type="boolean",description="Официальный контакт (вкл. / выкл.), по-умолчанию - все",in="query",default=""),
+     *   @SWG\Parameter(name="limit",type="integer",description="Кол-во контактов, по-умолчанию - все",in="query",default=""),
      *   @SWG\Response(
      *     response=200,
      *     description="результат работы метода",
      *     @SWG\Definition(
      *       type="object",
-     *       @SWG\Property(
-     *          property="id",
-     *          type="integer",
-     *          description="ID контакта"
-     *       ),
-     *       @SWG\Property(
-     *          property="client_id",
-     *          type="integer",
-     *          description="ID лицевого счета"
-     *       ),
-     *       @SWG\Property(
-     *          property="type",
-     *          type="string",
-     *          description="Тип контакта"
-     *       ),
-     *       @SWG\Property(
-     *          property="data",
-     *          type="string",
-     *          description="Контакт"
-     *       ),
-     *       @SWG\Property(
-     *          property="user_id",
-     *          type="integer",
-     *          description="ID пользователя, добавшего контакт"
-     *       ),
-     *       @SWG\Property(
-     *          property="ts",
-     *          type="integer",
-     *          description="Дата создания контакта"
-     *       ),
-     *       @SWG\Property(
-     *          property="comment",
-     *          type="string",
-     *          description="Описание контакта"
-     *       ),
-     *       @SWG\Property(
-     *          property="is_active",
-     *          type="boolean",
-     *          description="Активность контакта"
-     *       ),
-     *       @SWG\Property(
-     *          property="is_official",
-     *          type="boolean",
-     *          description="Официальность контакта"
-     *       ),
+     *       @SWG\Property(property="id", type="integer", description="ID контакта"),
+     *       @SWG\Property(property="client_id", type="integer", description="ID лицевого счета"),
+     *       @SWG\Property(property="type", type="string", description="Тип контакта"),
+     *       @SWG\Property(property="data", type="string", description="Контакт"),
+     *       @SWG\Property(property="user_id", type="integer", description="ID пользователя, добавшего контакт"),
+     *       @SWG\Property(property="ts", type="integer", description="Дата создания контакта"),
+     *       @SWG\Property(property="comment", type="string", description="Описание контакта"),
+     *       @SWG\Property(property="is_active", type="boolean", description="Активность контакта"),
+     *       @SWG\Property(property="is_official", type="boolean", description="Официальность контакта"),
      *     )
      *   ),
      *   @SWG\Response(
@@ -91,23 +52,24 @@ class ClientContactController extends ApiInternalController
     /**
      * @param int $clientAccountId
      * @param string $eventType
-     * @param bool|null $isOfficial
+     * @param int|null $isOfficial
      * @param int $limit
      * @return array|\yii\db\ActiveRecord[]
      * @throws \yii\base\InvalidConfigException|ModelValidationException
      */
     public function actionGet($clientAccountId, $eventType = '', $isOfficial = null, $limit = 0)
     {
-        $result
-            = (new Query)
-                ->select([
-                    'contacts.*',
-                    'is_active' => new Expression('1'), // для совместимости с API
-                    'lk_settings.min_balance',
-                    'lk_settings.min_day_limit',
-                    'lk_settings.add_pay_notif',
-                ])
-                ->from(['contacts' => ClientContact::tableName()]);
+        Yii::info('Called "/internal/client-contact/get/"');
+
+        $result = (new Query)
+            ->select([
+                'contacts.*',
+                'is_active' => new Expression('1'), // для совместимости с API
+                'lk_settings.min_balance',
+                'lk_settings.min_day_limit',
+                'lk_settings.add_pay_notif',
+            ])
+            ->from(['contacts' => ClientContact::tableName()]);
 
         $model = DynamicModel::validateData(
             [
@@ -117,9 +79,8 @@ class ClientContactController extends ApiInternalController
                 'limit' => $limit,
             ],
             [
-                [['client_id', 'limit'], 'integer'],
+                [['client_id', 'limit', 'is_official'], 'integer'],
                 ['type', 'string'],
-                [['is_official'], 'boolean'],
                 ['client_id', 'required'],
                 ['type', 'in', 'range' => array_keys(ClientContact::$types)],
             ]
