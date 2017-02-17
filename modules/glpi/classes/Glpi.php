@@ -45,8 +45,7 @@ class Glpi extends Singleton
         }
 
         return (new HttpClient)
-            // ->addRequestFormatJson()
-            ->addResponseFormatJson()
+            ->setResponseFormat(HttpClient::FORMAT_JSON)
             ->createRequest()
             ->addHeaders(['Content-Type' => 'application/json'])
             ->addHeaders(['App-Token' => $appToken])

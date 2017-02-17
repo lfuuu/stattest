@@ -27,20 +27,22 @@ class HttpClient extends Client
     }
 
     /**
+     * @param string $format
      * @return $this
      */
-    public function addRequestFormatJson()
+    public function setRequestFormat($format)
     {
-        $this->requestConfig['format'] = HttpClient::FORMAT_JSON;
+        $this->requestConfig['format'] = $format;
         return $this;
     }
 
     /**
+     * @param string $format
      * @return $this
      */
-    public function addResponseFormatJson()
+    public function setResponseFormat($format)
     {
-        $this->responseConfig['format'] = HttpClient::FORMAT_JSON;
+        $this->responseConfig['format'] = $format;
         return $this;
     }
 
@@ -50,8 +52,8 @@ class HttpClient extends Client
     public function createJsonRequest()
     {
         return $this
-            ->addRequestFormatJson()
-            ->addResponseFormatJson()
+            ->setRequestFormat(HttpClient::FORMAT_JSON)
+            ->setResponseFormat(HttpClient::FORMAT_JSON)
             ->createRequest();
     }
 
