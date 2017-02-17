@@ -349,7 +349,7 @@ class UuController extends ApiInternalController
                     $country_id_tmp = $country_id,
                     $currency_id_tmp = $currency_id,
                     $is_default_tmp = 1,
-                    $tariff_status_id_tmp = $tariff_status_id,
+                    $tariff_status_id_tmp = null,
                     $tariff_person_id_tmp = $tariff_person_id,
                     $voip_group_id_tmp = $voip_group_id,
                     $voip_city_id_tmp = $voip_city_id
