@@ -49,7 +49,6 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
                 [
                     'filterModel' => $uuFilterModel,
                     'isShowAddButton' => false,
-                    'packageServiceTypeIds' => [ServiceType::ID_VOIP_PACKAGE],
                 ]
             );
         }

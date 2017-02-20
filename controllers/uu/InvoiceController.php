@@ -50,7 +50,7 @@ class InvoiceController extends BaseController
     public function actionView($clientAccountId = null, $month = null, $langCode = null)
     {
         // Вернуть текущего клиента, если он есть
-        !$clientAccountId && $clientAccountId = $this->getCurrentClientAccountId();
+        !$clientAccountId && $clientAccountId = $this->_getCurrentClientAccountId();
 
         if ($month) {
             $date = $month;

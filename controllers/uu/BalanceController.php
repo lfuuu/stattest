@@ -47,7 +47,7 @@ class BalanceController extends BaseController
     public function actionView($clientAccountId = null)
     {
         // Вернуть текущего клиента, если он есть
-        !$clientAccountId && $clientAccountId = $this->getCurrentClientAccountId();
+        !$clientAccountId && $clientAccountId = $this->_getCurrentClientAccountId();
 
         if ($clientAccountId) {
             $accountTariffTableName = AccountTariff::tableName();

@@ -42,7 +42,7 @@ class AccountEntryController extends BaseController
     public function actionIndex()
     {
         $filterModel = new AccountEntryFilter();
-        $this->addClientAccountFilter($filterModel);
+        $this->_addClientAccountFilter($filterModel);
 
         return $this->render(
             'index',

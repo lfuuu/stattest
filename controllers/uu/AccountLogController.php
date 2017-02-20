@@ -45,7 +45,7 @@ class AccountLogController extends BaseController
     public function actionSetup()
     {
         $filterModel = new AccountLogSetupFilter();
-        $this->addClientAccountFilter($filterModel);
+        $this->_addClientAccountFilter($filterModel);
 
         return $this->render(
             'setup',
@@ -61,7 +61,7 @@ class AccountLogController extends BaseController
     public function actionPeriod()
     {
         $filterModel = new AccountLogPeriodFilter();
-        $this->addClientAccountFilter($filterModel);
+        $this->_addClientAccountFilter($filterModel);
 
         return $this->render(
             'period',
@@ -77,7 +77,7 @@ class AccountLogController extends BaseController
     public function actionResource()
     {
         $filterModel = new AccountLogResourceFilter();
-        $this->addClientAccountFilter($filterModel);
+        $this->_addClientAccountFilter($filterModel);
 
         return $this->render(
             'resource',
@@ -93,7 +93,7 @@ class AccountLogController extends BaseController
     public function actionMin()
     {
         $filterModel = new AccountLogMinFilter();
-        $this->addClientAccountFilter($filterModel);
+        $this->_addClientAccountFilter($filterModel);
 
         return $this->render(
             'min',

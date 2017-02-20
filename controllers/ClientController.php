@@ -147,8 +147,8 @@ class ClientController extends BaseController
 
         $uuFilterModel = null;
         if ($account->account_version === ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            $uuFilterModel = new AccountTariffFilter(ServiceType::ID_VOIP);
-            $this->addClientAccountFilter($uuFilterModel);
+            $uuFilterModel = new AccountTariffFilter('');
+            $this->_addClientAccountFilter($uuFilterModel);
         }
 
         // редактирование контактов

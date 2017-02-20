@@ -67,7 +67,7 @@ class NumberController extends BaseController
         !isset($get[$className]['country_id']) && $get[$className]['country_id'] = Country::RUSSIA;
 //        !isset($get[$className]['number_type']) && $get[$className]['number_type'] = NumberType::ID_GEO_DID;
 
-        $this->addClientAccountFilter($filterModel, $get);
+        $this->_addClientAccountFilter($filterModel, $get);
 
         $post = Yii::$app->request->post();
         if (isset($post['Number'])) {
@@ -76,7 +76,7 @@ class NumberController extends BaseController
 
         return $this->render('index', [
             'filterModel' => $filterModel,
-            'currentClientAccountId' => $this->getCurrentClientAccountId(),
+            'currentClientAccountId' => $this->_getCurrentClientAccountId(),
         ]);
     }
 

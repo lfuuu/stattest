@@ -42,7 +42,7 @@ class MonitorController extends BaseController
     public function actionIndex()
     {
         $filterModel = new AccountLogMonitorFilter();
-        $this->addClientAccountFilter($filterModel);
+        $this->_addClientAccountFilter($filterModel);
 
         return $this->render(
             'index',

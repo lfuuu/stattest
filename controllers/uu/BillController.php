@@ -42,7 +42,7 @@ class BillController extends BaseController
     public function actionIndex()
     {
         $filterModel = new BillFilter();
-        $this->addClientAccountFilter($filterModel);
+        $this->_addClientAccountFilter($filterModel);
 
         return $this->render(
             'index',

@@ -66,7 +66,7 @@ class AccountTariffController extends BaseController
         $this->_checkNonPackage($serviceTypeId);
 
         $filterModel = new AccountTariffFilter($serviceTypeId);
-        $this->addClientAccountFilter($filterModel);
+        $this->_addClientAccountFilter($filterModel);
 
         return $this->render(
             'index',

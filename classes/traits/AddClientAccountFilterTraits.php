@@ -11,18 +11,21 @@ trait AddClientAccountFilterTraits
 {
     /**
      * Установить юзерские фильтры + добавить фильтр по клиенту, если он есть
+     *
      * @param ActiveRecord $filterModel
+     * @param array $get
      */
-    private function addClientAccountFilter(ActiveRecord &$filterModel, $get = [])
+    private function _addClientAccountFilter(ActiveRecord &$filterModel, $get = [])
     {
         if (!$get) {
             $get = Yii::$app->request->get();
         }
+
         $clientAccountField = $this->getClientAccountField();
 
         $className = $filterModel->formName();
         if (
-            ($clientAccountId = $this->getCurrentClientAccountId()) &&
+            ($clientAccountId = $this->_getCurrentClientAccountId()) &&
             !isset($get[$className][$clientAccountField])
         ) {
             $get[$className][$clientAccountField] = $clientAccountId;
@@ -33,9 +36,10 @@ trait AddClientAccountFilterTraits
 
     /**
      * Вернуть текущего клиента, если он есть
+     *
      * @return int|null
      */
-    private function getCurrentClientAccountId()
+    private function _getCurrentClientAccountId()
     {
         global $fixclient_data;
         if (isset($fixclient_data['id']) && $fixclient_data['id'] > 0) {
@@ -47,6 +51,7 @@ trait AddClientAccountFilterTraits
 
     /**
      * Вернуть имя колонки, в которую надо установить фильтр по клиенту
+     *
      * @return string
      */
     protected function getClientAccountField()

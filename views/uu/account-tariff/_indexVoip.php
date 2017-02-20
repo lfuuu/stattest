@@ -1,12 +1,12 @@
 <?php
 /**
  * Список универсальных услуг Телефонии
+ *
  * @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=10715249
  *
  * @var \yii\web\View $this
  * @var AccountTariffFilter $filterModel
  * @var bool $isShowAddButton
- * @var int[] $packageServiceTypeIds
  */
 
 use app\classes\Html;
@@ -34,14 +34,33 @@ $rows = AccountTariff::getGroupedObjects($query);
 
 <?php foreach ($rows as $row) : ?>
 
+    <?php
+    /** @var AccountTariff $accountTariffFirst */
+    $accountTariffFirst = reset($row);
+    if (in_array($accountTariffFirst->service_type_id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
+        // пакеты отдельно не выводим. Только в комплекте с базовой услугой
+        continue;
+    }
+
+    switch ($accountTariffFirst->service_type_id) {
+        case ServiceType::ID_VOIP:
+            $packageServiceTypeIds = [ServiceType::ID_VOIP_PACKAGE];
+            break;
+        case ServiceType::ID_TRUNK:
+            $packageServiceTypeIds = [ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM];
+            break;
+        default:
+            $packageServiceTypeIds = [];
+            break;
+    }
+
+    ?>
     <?php $form = ActiveForm::begin(['action' => 'uu/account-tariff/save-voip']); ?>
     <?= Html::hiddenInput('serviceTypeId', $serviceType->id) ?>
 
     <div class="panel panel-info account-tariff-voip">
         <div class="panel-heading">
             <?php
-            /** @var AccountTariff $accountTariffFirst */
-            $accountTariffFirst = reset($row);
             $formModel = new AccountTariffEditForm([
                 'id' => $accountTariffFirst->id,
             ]);
@@ -50,7 +69,8 @@ $rows = AccountTariff::getGroupedObjects($query);
             <h2 class="panel-title">
                 <?= Html::checkbox(null, $checked = true, ['class' => 'check-all', 'style' => 'display: none;', 'title' => 'Отметить всё']) ?>
 
-                <?= $accountTariffFirst->city ? $accountTariffFirst->city->name : Yii::t('common', '(not set)') ?>
+                <?= $accountTariffFirst->serviceType ? $accountTariffFirst->serviceType->name : '' ?>
+                <?= $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
             </h2>
 
         </div>
@@ -125,8 +145,8 @@ $rows = AccountTariff::getGroupedObjects($query);
                                         Html::tag('i', '', [
                                             'class' => 'glyphicon glyphicon-edit',
                                             'aria-hidden' => 'true',
-                                        ]) . ' ' .
-                                        'Сменить',
+                                        ]) .
+                                        ' Сменить',
                                         [
                                             'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
                                             'title' => 'Сменить тариф или отключить услугу',
@@ -139,12 +159,6 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                             </div>
 
-                            <?php
-//                            if (!$isCancelable) {
-//                                // этот и последующие отменить нельзя
-//                                break;
-//                            }
-                            ?>
                         <?php endforeach; ?>
 
                         <?php // пакеты ?>
@@ -195,8 +209,8 @@ $rows = AccountTariff::getGroupedObjects($query);
                                                     Html::tag('i', '', [
                                                         'class' => 'glyphicon glyphicon-edit',
                                                         'aria-hidden' => 'true',
-                                                    ]) . ' ' .
-                                                    'Сменить',
+                                                    ]) .
+                                                    ' Сменить',
                                                     [
                                                         'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
                                                         'title' => 'Сменить тариф или отключить услугу для пакета',
@@ -209,12 +223,6 @@ $rows = AccountTariff::getGroupedObjects($query);
 
                                         </div>
 
-                                        <?php
-//                                    if (!$isPackageCancelable) {
-//                                        // этот и последующие отменить нельзя
-//                                        break;
-//                                    }
-                                        ?>
                                     <?php endforeach; ?>
 
                                 </div>
@@ -244,8 +252,8 @@ $rows = AccountTariff::getGroupedObjects($query);
                                 Html::tag('i', '', [
                                     'class' => 'glyphicon glyphicon-plus',
                                     'aria-hidden' => 'true',
-                                ]) . ' ' .
-                                'Добавить пакет',
+                                ]) .
+                                ' Добавить пакет',
                                 [
                                     'class' => 'btn btn-success account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
                                     'title' => 'Добавить пакет',
