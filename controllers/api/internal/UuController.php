@@ -706,7 +706,9 @@ class UuController extends ApiInternalController
         } elseif ($model) {
 
             return [
-                'tariff' => $this->_getTariffRecord($model->tariffPeriod->tariff, $model->tariffPeriod),
+                'tariff' => $model->tariffPeriod ?
+                    $this->_getTariffRecord($model->tariffPeriod->tariff, $model->tariffPeriod) :
+                    null,
                 'actual_from' => $model->actual_from,
             ];
 
