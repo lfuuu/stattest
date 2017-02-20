@@ -5,7 +5,6 @@ namespace app\controllers\api\internal;
 use app\classes\ApiInternalController;
 use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\uu\model\AccountLogPeriod;
-use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
@@ -191,8 +190,9 @@ class UuController extends ApiInternalController
     /**
      * @SWG\Definition(definition = "tariffResourceRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID"),
-     *   @SWG\Property(property = "is_number", type = "integer", description = "0 - отображается checkbox (amount=0 - выключен; amount=1 - включен), 1 - отображается float (значение amount)"),
-     *   @SWG\Property(property = "amount", type = "number", description = "Включено, ед."),
+     *   @SWG\Property(property = "is_checkable", type = "boolean", description = "false - отобразить число amount, true - отобразить галочку is_checked"),
+     *   @SWG\Property(property = "is_checked", type = "boolean", description = "Включена или выключена галочка. Имеет смысл только при is_checkable=true"),
+     *   @SWG\Property(property = "amount", type = "number", description = "Включено, ед. Имеет смысл только при is_checkable=false"),
      *   @SWG\Property(property = "price_per_unit", type = "number", description = "Цена за превышение, ¤/ед."),
      *   @SWG\Property(property = "price_min", type = "number", description = "Мин. стоимость за месяц, ¤"),
      *   @SWG\Property(property = "resource", type = "object", description = "Ресурс (дисковое пространство, абоненты, линии и пр.)", ref = "#/definitions/idNameRecord"),
@@ -419,10 +419,12 @@ class UuController extends ApiInternalController
 
         } elseif ($model) {
 
+            $isCheckable = !$model->resource->isNumber();
             return [
                 'id' => $model->id,
-                'is_number' => (int) $model->resource->isNumber(),
-                'amount' => $model->amount,
+                'is_checkable' => $isCheckable,
+                'is_checked' => $isCheckable ? (bool)$model->amount : null,
+                'amount' => $isCheckable ? null : $model->amount,
                 'price_per_unit' => $model->price_per_unit,
                 'price_min' => $model->price_min,
                 'resource' => $this->getIdNameRecord($model->resource),
