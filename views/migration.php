@@ -7,6 +7,7 @@ echo "<?php\n";
 
 /**
  * Class <?= $className ?>
+
  */
 class <?= $className ?> extends \app\classes\Migration
 {

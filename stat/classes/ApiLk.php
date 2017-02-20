@@ -802,6 +802,7 @@ class ApiLk
                 `regions`
             WHERE 
                 country_id = '" . $account->country_id . "'
+                AND is_active = 1
             ORDER BY
                 id>97 DESC, `name`
             ") as $service) {
