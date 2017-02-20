@@ -2,6 +2,7 @@
 
 namespace app\classes\documents;
 
+use app\models\ClientAccount;
 use Yii;
 use yii\base\Object;
 use yii\db\ActiveRecord;
@@ -46,7 +47,7 @@ abstract class DocumentReport extends Object
     }
 
     /**
-     * @return array
+     * @return ClientAccount
      */
     public function getPayer()
     {

@@ -16,7 +16,6 @@ class WizardContragentMcnForm extends Form
 {
     public $legal_type,
         $name,
-        $name_full,
         $address_jur,
         $inn = "",
         $kpp = "",
@@ -112,7 +111,7 @@ class WizardContragentMcnForm extends Form
             $contragent = $account->contragent;
             $contragent->legal_type = $this->legal_type;
             $contragent->name = $this->name;
-            $contragent->name_full = $this->name_full;
+            $contragent->name_full = $this->name;
             $contragent->address_jur = $this->address_jur;
             $contragent->inn = $this->inn;
             $contragent->kpp = $this->kpp;
@@ -124,10 +123,6 @@ class WizardContragentMcnForm extends Form
             $contragent->hasChecked = true;
 
             if ($contragent->legal_type == ClientContragent::LEGAL_TYPE) {
-                if (trim($contragent->name_full) == "") {
-                    $contragent->name_full = $contragent->name;
-                }
-
                 $contragent->tax_regime = $this->tax_regime;
             }
 

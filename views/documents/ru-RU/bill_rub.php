@@ -96,7 +96,7 @@ $payerCompany = $document->getPayer();
         <hr />
         <br />
         <p>
-            <b>Плательщик: <?= ($payerCompany['head_company'] ? $payerCompany['head_company'] . ', ' : '') . $payerCompany['company_full']; ?></b>
+            <b>Плательщик: <?= ($payerCompany['head_company'] ? $payerCompany['head_company'] . ', ' : '') . $payerCompany->company_full; ?></b>
         </p>
 
         <table border="1" width="100%" cellspacing="0" cellpadding="2" style="font-size: 15px;">
