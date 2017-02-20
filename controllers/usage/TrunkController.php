@@ -2,20 +2,23 @@
 namespace app\controllers\usage;
 
 use app\classes\Assert;
-use app\forms\usage\UsageTrunkSettingsAddForm;
-use app\forms\usage\UsageTrunkSettingsEditForm;
-use app\models\UsageTrunkSettings;
-use app\models\UsageVoip;
-use Yii;
+use app\classes\BaseController;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\forms\usage\UsageTrunkEditForm;
+use app\forms\usage\UsageTrunkSettingsAddForm;
+use app\forms\usage\UsageTrunkSettingsEditForm;
 use app\models\ClientAccount;
 use app\models\UsageTrunk;
+use app\models\UsageTrunkSettings;
+use Yii;
 use yii\filters\AccessControl;
-use app\classes\BaseController;
 
 class TrunkController extends BaseController
 {
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -31,6 +34,13 @@ class TrunkController extends BaseController
         ];
     }
 
+    /**
+     * @param int $clientAccountId
+     * @return string|\yii\web\Response
+     * @throws \Exception
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionAdd($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
@@ -62,11 +72,49 @@ class TrunkController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @return string|\yii\web\Response
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidParamException
+     * @throws \Exception
+     */
     public function actionEdit($id)
     {
         $usage = UsageTrunk::findOne($id);
-        $clientAccount = $usage->clientAccount;
+        Assert::isObject($usage);
+        return $this->_editUsageTrunk($usage);
+    }
 
+    /**
+     * @param int $clientAccountId
+     * @param int $trunkId
+     * @return string|\yii\web\Response
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidParamException
+     * @throws \Exception
+     */
+    public function actionEditBy($clientAccountId, $trunkId)
+    {
+        $usage = UsageTrunk::find()
+            ->where([
+                'client_account_id' => $clientAccountId,
+                'trunk_id' => $trunkId,
+            ])
+            ->one();
+        Assert::isObject($usage);
+        return $this->_editUsageTrunk($usage);
+    }
+
+    /**
+     * @param UsageTrunk $usage
+     * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidParamException
+     * @throws \Exception
+     */
+    private function _editUsageTrunk(UsageTrunk $usage)
+    {
+        $clientAccount = $usage->clientAccount;
 
         $model = new UsageTrunkEditForm();
         $model->scenario = Yii::$app->request->post('scenario', 'default');
