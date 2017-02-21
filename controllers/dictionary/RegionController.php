@@ -1,17 +1,17 @@
 <?php
 /**
- * Страны
+ * Регионы
  */
 
 namespace app\controllers\dictionary;
 
 use app\classes\BaseController;
-use app\classes\dictionary\forms\CityFormEdit;
-use app\classes\dictionary\forms\CityFormNew;
-use app\models\filter\CityFilter;
+use app\classes\dictionary\forms\RegionFormEdit;
+use app\classes\dictionary\forms\RegionFormNew;
+use app\models\filter\RegionFilter;
 use Yii;
 
-class CityController extends BaseController
+class RegionController extends BaseController
 {
     /**
      * Список
@@ -21,7 +21,7 @@ class CityController extends BaseController
      */
     public function actionIndex()
     {
-        $filterModel = new CityFilter();
+        $filterModel = new RegionFilter();
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', [
@@ -37,8 +37,8 @@ class CityController extends BaseController
      */
     public function actionNew()
     {
-        /** @var CityFormNew $form */
-        $form = new CityFormNew();
+        /** @var RegionFormNew $form */
+        $form = new RegionFormNew();
 
         if ($form->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
@@ -59,8 +59,8 @@ class CityController extends BaseController
      */
     public function actionEdit($id)
     {
-        /** @var CityFormEdit $form */
-        $form = new CityFormEdit([
+        /** @var RegionFormEdit $form */
+        $form = new RegionFormEdit([
             'id' => $id
         ]);
 

@@ -10,9 +10,11 @@ use app\models\Country;
 use app\models\dictionary\PublicSite;
 use app\models\filter\FreeNumberFilter;
 use app\models\Region;
+use yii\db\Expression;
 
 class CountriesController extends ApiInternalController
 {
+    use IdNameRecordTrait;
 
     /**
      * @throws NotImplementedHttpException
@@ -163,6 +165,53 @@ class CountriesController extends ApiInternalController
             'country_weight' => $country->order,
             'regions' => $regions,
         ];
+    }
+
+    /**
+     * @SWG\Definition(definition="regionRecord", type="object",
+     *   @SWG\Property(property="id", type="integer", description="Идентификатор"),
+     *   @SWG\Property(property="key", type="string", description="Ключ для перевода"),
+     *   @SWG\Property(property="name", type="string", description="Название"),
+     *   @SWG\Property(property="short_name", type="string", description="Короткое название"),
+     *   @SWG\Property(property="code", type="integer", description="Код"),
+     *   @SWG\Property(property="timezone_name", type="string", description="Таймзона"),
+     *   @SWG\Property(property="country", type="object", description="Страна", ref = "#/definitions/idNameRecord")),
+     * ),
+     *
+     * @SWG\Post(tags={"Справочники"}, path="/internal/countries/get-regions", summary="Получение списка регионов (точек подключения)", operationId="Получение списка регионов (точек подключения)",
+     *
+     *   @SWG\Response(response=200, description="Список регионов", @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/regionRecord"))),
+     *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
+     * )
+     *
+     * @return array
+     * @throws BadRequestHttpException
+     */
+    public function actionGetRegions()
+    {
+        $regions = Region::find()
+            ->where(['is_active' => 1])
+            ->orderBy([
+                new Expression('id > 97 DESC'),
+                'name' => SORT_ASC,
+            ]);
+        $result = [];
+
+        /** @var Region $region */
+        foreach ($regions->each() as $region) {
+            /** @var Country $country */
+            $result[] = [
+                'id' => $region->id,
+                'key' => 'operator_region_' . $region->id,
+                'name' => $region->name,
+                'short_name' => $region->short_name,
+                'code' => $region->code,
+                'timezone_name' => $region->timezone_name,
+                'country' => $this->_getIdNameRecord($region->country, 'code'),
+            ];
+        }
+
+        return $result;
     }
 
 }

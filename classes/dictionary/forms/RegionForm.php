@@ -3,11 +3,11 @@
 namespace app\classes\dictionary\forms;
 
 use app\classes\Form;
-use app\models\City;
+use app\models\Region;
 use InvalidArgumentException;
 use Yii;
 
-abstract class CityForm extends Form
+abstract class RegionForm extends Form
 {
     /** @var int ID сохраненный модели */
     public $id;
@@ -15,23 +15,23 @@ abstract class CityForm extends Form
     /** @var bool */
     public $isSaved = false;
 
-    /** @var City */
-    public $city;
+    /** @var Region */
+    public $region;
 
     /** @var string[] */
     public $validateErrors = [];
 
     /**
-     * @return City
+     * @return Region
      */
-    abstract public function getCityModel();
+    abstract public function getRegionModel();
 
     /**
      * Конструктор
      */
     public function init()
     {
-        $this->city = $this->getCityModel();
+        $this->region = $this->getRegionModel();
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
@@ -51,19 +51,19 @@ abstract class CityForm extends Form
             if (isset($post['dropButton'])) {
 
                 // удалить
-                $this->city->delete();
+                $this->region->delete();
                 $this->id = null;
                 $this->isSaved = true;
 
-            } elseif ($this->city->load($post)) {
+            } elseif ($this->region->load($post)) {
 
                 // создать/редактировать
-                if ($this->city->validate() && $this->city->save()) {
-                    $this->id = $this->city->id;
+                if ($this->region->validate() && $this->region->save()) {
+                    $this->id = $this->region->id;
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
-                    $this->validateErrors += $this->city->getFirstErrors();
+                    $this->validateErrors += $this->region->getFirstErrors();
                 }
             }
 

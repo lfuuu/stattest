@@ -138,6 +138,7 @@ class Navigation
                 ->addItem('Источники событий', ['/important_events/sources'])
                 ->addItem('Страны', ['/dictionary/country/'])
                 ->addItem('Города', ['/dictionary/city/'])
+                ->addItem('Регионы (точки подключения)', ['/dictionary/region/'])
                 ->addItem('Методы биллингования', ['/dictionary/city-billing-methods/'])
                 ->addItem('Настройки платежных документов', ['/dictionary/invoice-settings'])
                 ->addItem('Точка входа', ['/dictionary/entry-point'])

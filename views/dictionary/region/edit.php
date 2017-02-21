@@ -1,0 +1,100 @@
+<?php
+/**
+ * Создание/редактирование региона
+ *
+ * @var \yii\web\View $this
+ * @var RegionForm $formModel
+ */
+
+use app\classes\dictionary\forms\RegionForm;
+use app\models\Country;
+use kartik\select2\Select2;
+use yii\widgets\ActiveForm;
+use yii\widgets\Breadcrumbs;
+
+$region = $formModel->region;
+
+if (!$region->isNewRecord) {
+    $this->title = $region->name;
+} else {
+    $this->title = Yii::t('common', 'Create');
+}
+?>
+
+<?= Breadcrumbs::widget([
+    'links' => [
+        'Справочник',
+        ['label' => 'Регионы (точки подключения)', 'url' => $cancelUrl = '/dictionary/region'],
+        $this->title
+    ],
+]) ?>
+
+<div class="well">
+    <?php
+    $form = ActiveForm::begin();
+    $viewParams = [
+        'formModel' => $formModel,
+        'form' => $form,
+    ];
+    ?>
+
+    <?php
+    // сообщение об ошибке
+    if ($formModel->validateErrors) {
+        Yii::$app->session->setFlash('error', $formModel->validateErrors);
+    }
+    ?>
+
+    <div class="row">
+
+        <?php // Название ?>
+        <div class="col-sm-4">
+            <?= $form->field($region, 'name')->textInput() ?>
+        </div>
+
+        <?php // Короткое название ?>
+        <div class="col-sm-4">
+            <?= $form->field($region, 'short_name')->textInput() ?>
+        </div>
+
+        <?php // Часовой пояс ?>
+        <div class="col-sm-4">
+            <?= $form->field($region, 'timezone_name')->textInput() ?>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <?php // ID ?>
+        <div class="col-sm-3">
+            <?= $form->field($region, 'id')->textInput() ?>
+        </div>
+
+        <?php // Код ?>
+        <div class="col-sm-3">
+            <?= $form->field($region, 'code')->textInput() ?>
+        </div>
+
+        <?php // Страна ?>
+        <div class="col-sm-3">
+            <?= $form->field($region, 'country_id')
+                ->widget(Select2::className(), [
+                    'data' => Country::getList($isWithEmpty = $region->isNewRecord),
+                ]) ?>
+        </div>
+
+        <div class="col-sm-3">
+            <?= $form->field($region, 'is_active')->checkbox() ?>
+        </div>
+
+    </div>
+
+    <?php // кнопки ?>
+    <div class="form-group text-right">
+        <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
+        <?= $this->render('//layouts/_submitButton' . ($region->isNewRecord ? 'Create' : 'Save')) ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+</div>

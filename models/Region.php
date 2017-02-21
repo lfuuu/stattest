@@ -4,6 +4,7 @@ namespace app\models;
 use app\dao\RegionDao;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 /**
  * @property int $id
@@ -12,7 +13,10 @@ use yii\helpers\ArrayHelper;
  * @property int $code
  * @property string $timezone_name
  * @property int $country_id
+ * @property int $is_active
+ *
  * @property Datacenter $datacenter
+ * @property Country $country
  */
 class Region extends ActiveRecord
 {
@@ -29,6 +33,35 @@ class Region extends ActiveRecord
     public static function tableName()
     {
         return 'regions';
+    }
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [['id', 'country_id', 'code', 'country_id', 'is_active'], 'integer'],
+            [['name', 'short_name', 'timezone_name'], 'string'],
+        ];
+    }
+
+    /**
+     * Вернуть имена полей
+     *
+     * @return array [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'name' => 'Название',
+            'short_name' => 'Короткое название',
+            'code' => 'Код',
+            'timezone_name' => 'Часовой пояс',
+            'country_id' => 'Страна',
+            'is_active' => 'Вкл/выкл',
+        ];
     }
 
     /**
@@ -57,6 +90,14 @@ class Region extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+    }
+
+    /**
      * Вернуть список всех доступных моделей
      *
      * @param bool $isWithEmpty
@@ -75,4 +116,20 @@ class Region extends ActiveRecord
         return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
     }
 
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/dictionary/region/edit', 'id' => $id]);
+    }
 }

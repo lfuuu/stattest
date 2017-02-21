@@ -2,9 +2,9 @@
 
 namespace app\classes\dictionary\forms;
 
-use app\models\City;
+use app\models\Region;
 
-class CityFormEdit extends CityForm
+class RegionFormEdit extends RegionForm
 {
     /**
      * Конструктор
@@ -21,10 +21,10 @@ class CityFormEdit extends CityForm
     }
 
     /**
-     * @return City
+     * @return Region
      */
-    public function getCityModel()
+    public function getRegionModel()
     {
-        return City::findOne($this->id);
+        return Region::findOne($this->id);
     }
 }

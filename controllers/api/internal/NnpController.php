@@ -38,7 +38,7 @@ class NnpController extends ApiInternalController
         $query = Operator::find();
         $result = [];
         foreach ($query->each() as $model) {
-            $result[] = $this->getIdNameRecord($model);
+            $result[] = $this->_getIdNameRecord($model);
         }
 
         return $result;
@@ -63,7 +63,7 @@ class NnpController extends ApiInternalController
         $query = Region::find();
         $result = [];
         foreach ($query->each() as $model) {
-            $result[] = $this->getIdNameRecord($model);
+            $result[] = $this->_getIdNameRecord($model);
         }
 
         return $result;
@@ -191,15 +191,15 @@ class NnpController extends ApiInternalController
     {
         return [
             'id' => $numberRange->id,
-            'country' => $this->getIdNameRecord($numberRange->country, 'code'),
+            'country' => $this->_getIdNameRecord($numberRange->country, 'code'),
             'ndc' => $numberRange->ndc,
             'number_from' => $numberRange->number_from,
             'number_to' => $numberRange->number_to,
             'operator_source' => $numberRange->operator_source,
-            'operator' => $this->getIdNameRecord($numberRange->operator),
+            'operator' => $this->_getIdNameRecord($numberRange->operator),
             'region_source' => $numberRange->region_source,
-            'region' => $this->getIdNameRecord($numberRange->region),
-            'city' => $this->getIdNameRecord($numberRange->city),
+            'region' => $this->_getIdNameRecord($numberRange->region),
+            'city' => $this->_getIdNameRecord($numberRange->city),
             'is_mob' => (int)$numberRange->is_mob,
             'is_active' => (int)$numberRange->is_active,
         ];

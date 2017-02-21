@@ -16,16 +16,18 @@ trait IdNameRecordTrait
 
     /**
      * @param ActiveRecord|ActiveRecord[] $model
+     * @param string $idFieldName
      * @return array
      */
-    private function getIdNameRecord($model, $idFieldName = 'id')
+    private function _getIdNameRecord($model, $idFieldName = 'id')
     {
         if (is_array($model)) {
 
             $result = [];
             foreach ($model as $subModel) {
-                $result[] = $this->getIdNameRecord($subModel, $idFieldName);
+                $result[] = $this->_getIdNameRecord($subModel, $idFieldName);
             }
+
             return $result;
 
         } elseif ($model) {
