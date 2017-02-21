@@ -64,7 +64,7 @@ class Organization extends ActiveRecord
     private $langCode = Language::LANGUAGE_DEFAULT;
 
     // Виртуальные поля для локализации
-    private $virtualPropertiesI18N = [
+    private static $_virtualPropertiesI18N = [
         'name', 'legal_address', 'full_name', 'post_address',
     ];
 
@@ -84,35 +84,37 @@ class Organization extends ActiveRecord
     public function beforeSave($insert)
     {
         if (!(int)$this->organization_id) {
-            $this->organization_id = $this->find()->max('organization_id') + 1;
+            $this->organization_id = self::find()->max('organization_id') + 1;
         }
 
-        $this->getDb()
-            ->createCommand(
-                "
-                UPDATE `organization` SET
-                    `actual_to` = :actual_to
+        self::getDb()
+            ->createCommand('
+                UPDATE organization SET
+                    actual_to = :actual_to
                 WHERE
-                    `organization_id` = :id AND
-                    `actual_from` < :date
-                ORDER BY `actual_from` DESC
+                    organization_id = :id AND
+                    actual_from < :date
+                ORDER BY actual_from DESC
                 LIMIT 1
-                ", [
-                    ':id' => $this->organization_id,
-                    ':date' => $this->actual_from,
-                    ':actual_to' => (new \DateTime($this->actual_from))->modify('-1 day')->format(DateTimeZoneHelper::DATE_FORMAT)
-                ]
-            )
+            ', [
+                ':id' => $this->organization_id,
+                ':date' => $this->actual_from,
+                ':actual_to' => (new \DateTime($this->actual_from))
+                    ->modify('-1 day')
+                    ->format(DateTimeZoneHelper::DATE_FORMAT)
+            ])
             ->execute();
 
-        $next_record = $this
-            ->find()
+        $next_record = self::find()
             ->where(['organization_id' => $this->organization_id])
             ->andWhere(['>', 'actual_from', $this->actual_from])
             ->orderBy('actual_from asc')
             ->one();
+
         if ($next_record instanceof Organization) {
-            $this->actual_to = (new \DateTime($next_record->actual_from))->modify('-1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
+            $this->actual_to = (new \DateTime($next_record->actual_from))
+                ->modify('-1 day')
+                ->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         return parent::beforeSave($insert);
@@ -120,6 +122,7 @@ class Organization extends ActiveRecord
 
     /**
      * @return OrganizationDao
+     * @throws \yii\base\Exception
      */
     public static function dao()
     {
@@ -227,7 +230,7 @@ class Organization extends ActiveRecord
         $organizationI18NModel = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
             [
-                [$this->virtualPropertiesI18N, ArrayValidator::className()],
+                [self::$_virtualPropertiesI18N, ArrayValidator::className()],
             ]
         );
 
@@ -376,6 +379,9 @@ class Organization extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public function getOldModeDetail()
     {
         return

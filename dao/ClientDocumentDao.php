@@ -575,7 +575,6 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
-
         $contract = $document->getContract();
         $contragent = $contract->getContragent();
 
@@ -629,8 +628,8 @@ class ClientDocumentDao extends Singleton
             'faxes' => implode('; ', $officialContacts['fax']),
 
             'organization_firma' => $firm['firma'],
-            'organization_director_post' => $firm['director_post'],
-            'organization_director' => $firm['director'],
+            'organization_director_post' => $firm['director_post_'], // В родительском падеже
+            'organization_director' => $firm['director'], // В именительном падеже
             'organization_name' => $firm['name'],
             'organization_address' => $firm['address'],
             'organization_inn' => $firm['inn'],

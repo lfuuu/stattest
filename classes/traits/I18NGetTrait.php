@@ -14,6 +14,7 @@ trait I18NGetTrait
     /**
      * @param string $name
      * @return string
+     * @throws UnknownPropertyException
      */
     public function __get($name)
     {

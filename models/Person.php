@@ -1,13 +1,13 @@
 <?php
 namespace app\models;
 
-use Yii;
-use ReflectionClass;
-use yii\db\ActiveRecord;
-use app\exceptions\ModelValidationException;
-use app\classes\validators\ArrayValidator;
 use app\classes\DynamicModel;
 use app\classes\traits\I18NGetTrait;
+use app\classes\validators\ArrayValidator;
+use app\exceptions\ModelValidationException;
+use ReflectionClass;
+use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * @property int $id
@@ -27,7 +27,7 @@ class Person extends ActiveRecord
     private $langCode = Language::LANGUAGE_DEFAULT;
 
     // Виртуальные поля для локализации
-    private $virtualPropertiesI18N = [
+    private static $_virtualPropertiesI18N = [
         'name_nominative', 'name_genitive', 'post_nominative', 'post_genitive',
     ];
 
@@ -39,6 +39,9 @@ class Person extends ActiveRecord
         return 'person';
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -93,7 +96,7 @@ class Person extends ActiveRecord
 
     /**
      * @param bool|true $runValidation
-     * @param null|[] $attributesName
+     * @param string[] $attributesName
      * @return bool
      * @throws \Exception
      */
@@ -104,7 +107,7 @@ class Person extends ActiveRecord
         $personI18N = DynamicModel::validateData(
             Yii::$app->request->post((new ReflectionClass($this))->getShortName()),
             [
-                [$this->virtualPropertiesI18N, ArrayValidator::className()],
+                [self::$_virtualPropertiesI18N, ArrayValidator::className()],
             ]
         );
 
