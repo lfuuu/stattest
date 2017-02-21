@@ -60,6 +60,14 @@ class ZeroBalanceNotificationProcessor extends NotificationProcessor
     /**
      * @inheritdoc
      */
+    protected function isOldNotification()
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getContactsForSend()
     {
         return $this->client->getAllContacts()->andWhere([
