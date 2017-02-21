@@ -45,7 +45,7 @@ class ContragentEditForm extends Form
         $okvd,
         $ogrn,
         $country_id,
-        $lang_code,
+        $lang_code = Language::LANGUAGE_DEFAULT,
         $signer_passport,
         $comment,
         $partner_contract_id,

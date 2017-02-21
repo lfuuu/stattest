@@ -1,7 +1,6 @@
 <?php
 namespace app\classes\validators;
 
-use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Country;
 use yii\validators\Validator;
@@ -27,7 +26,7 @@ class InnKppValidator extends Validator
      * @param ClientContragent $model
      * @param null $attributes
      */
-    public function validateAttributes($model, $attributes = null)
+    public function validateAttributes(ClientContragent $model, $attributes = null)
     {
         $attributes = [];
         if (in_array($model->legal_type, ['ip', 'legal'])) {
@@ -37,8 +36,6 @@ class InnKppValidator extends Validator
         if ($model->legal_type == 'legal' && $model->country_id == Country::RUSSIA) {
             $attributes[] = 'kpp';
         }
-
-        $hasCheckedContracts = $model->hasChecked || $this->_hasCheckedContract($model);
 
         if ($attributes) {
             $isValidated = false;
@@ -51,24 +48,10 @@ class InnKppValidator extends Validator
                 }
             }
 
-            if ($isValidated && $hasCheckedContracts) {
+            if ($isValidated) {
                 $this->_checkUnique($model, $attributes);
             }
         }
-    }
-
-    /**
-     * Есть ли проверенные договора у контрагента
-     *
-     * @param ClientContragent $model
-     * @return bool
-     */
-    private function _hasCheckedContract($model)
-    {
-        return (bool) ClientContract::find()
-            ->andWhere(['contragent_id' => $model->id])
-            ->andWhere(['!=', 'state', ClientContract::STATE_UNCHECKED])
-            ->count();
     }
 
     /**
@@ -77,21 +60,45 @@ class InnKppValidator extends Validator
      * @param ClientContragent $model
      * @param array $attributes
      */
-    private function _checkUnique($model, $attributes)
+    private function _checkUnique(ClientContragent $model, $attributes)
     {
         $query = $model::find();
 
         $labels = [];
+
         foreach ($attributes as $attribute) {
             $labels[] = $model->getAttributeLabel($attribute);
-            $query->andWhere([$attribute => $model->$attribute]);
         }
 
-        $query->andWhere(['!=', 'id', $model->id]);
-        /** @var ClientContragent $notUniqueContragent */
-        $notUniqueContragent = $query->one();
+        if (!$model->isNewRecord) {
+            $query->andWhere(['!=', 'id', $model->id]);
+        }
 
-        if ($notUniqueContragent) {
+        $isNotUniqueContragent = false;
+
+        if (in_array('inn', $attributes)) {
+            $query->andWhere(['inn' => $model->inn]);
+            /** @var ClientContragent $contragent */
+            foreach ($query->each() as $contragent) {
+                $isNotUniqueContragent = $contragent;
+
+                // допускается один ИНН, и разные КПП в рамках одного (супер)клиента
+                if (
+                    in_array('kpp', $attributes) &&
+                    $model->kpp &&
+                    $model->super_id == $contragent->super_id &&
+                    $model->kpp != $contragent->kpp
+                ) {
+                    $isNotUniqueContragent = false;
+                }
+
+                if ($isNotUniqueContragent) {
+                    break;
+                }
+            }
+        }
+
+        if ($isNotUniqueContragent) {
             $errorStr = '{attrs} должен быть уникальный (контрагент #{contragentId}, {contragentName}, ЛС: {accountId})';
             if ($model->isSimpleValidation) {
                 $errorStr = 'Компания с данным ИНН и КПП уже зарегистриорована';
@@ -101,9 +108,9 @@ class InnKppValidator extends Validator
                 $this->addError($model, $attribute,
                     $errorStr, [
                     'attrs' => implode(', ', $labels),
-                    'contragentId' => $notUniqueContragent->id,
-                    'contragentName' => $notUniqueContragent->name,
-                    'accountId' => $notUniqueContragent->getAccounts()[0]->id
+                    'contragentId' => $isNotUniqueContragent->id,
+                    'contragentName' => $isNotUniqueContragent->name,
+                    'accountId' => $isNotUniqueContragent->getAccounts()[0]->id
                 ]);
             }
         }

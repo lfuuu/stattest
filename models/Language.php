@@ -12,6 +12,7 @@ class Language extends ActiveRecord
     const LANGUAGE_ENGLISH = 'en-EN';
     const LANGUAGE_MAGYAR = 'hu-HU';
     const LANGUAGE_GERMANY = 'de-DE';
+    const LANGUAGE_SLOVAK = 'sk-SK';
 
     const LANGUAGE_DEFAULT = self::LANGUAGE_RUSSIAN;
 
@@ -29,7 +30,7 @@ class Language extends ActiveRecord
      */
     public static function getList($isWithEmpty = false)
     {
-        $list = self::find()->orderBy(['code' => SORT_DESC])->indexBy('code')->all();
+        $list = self::find()->orderBy(['order' => SORT_ASC])->indexBy('code')->all();
 
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;
