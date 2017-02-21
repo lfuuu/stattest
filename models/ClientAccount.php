@@ -660,6 +660,7 @@ class ClientAccount extends HistoryActiveRecord
     public function getAllContacts()
     {
         return $this->hasMany(ClientContact::className(), ['client_id' => 'id'])
+            ->indexBy('id')
             ->orderBy([
                 'type' => SORT_ASC,
                 'id' => SORT_ASC,
