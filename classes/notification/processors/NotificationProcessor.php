@@ -78,16 +78,6 @@ abstract class NotificationProcessor
     }
 
     /**
-     * Надо ли отправлять оповещение напрямую
-     *
-     * @return bool
-     */
-    protected function isOldNotification()
-    {
-        return true;
-    }
-
-    /**
      * Тип сравнения
      * Больше/меньше или больше/меньше-и-равно
      *
@@ -107,6 +97,16 @@ abstract class NotificationProcessor
     protected function checkLimitToSkip()
     {
         return false;
+    }
+
+    /**
+     * Надо ли отправлять оповещение напрямую
+     *
+     * @return bool
+     */
+    public function isOldNotification()
+    {
+        return true;
     }
 
     /**

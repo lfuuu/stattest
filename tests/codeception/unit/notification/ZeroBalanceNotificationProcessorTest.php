@@ -83,7 +83,7 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
 
         $mockObj = $this->getMock('\app\classes\notification\processors\ZeroBalanceNotificationProcessor', [
             'getValue',
-            'getLimit'
+            'getLimit',
         ]);
         $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(-1000));
         $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(0));
@@ -106,19 +106,21 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEnterEvent()]);
         $this->assertNotNull($event);
 
-        /** @var \app\models\LkNotificationLog $lkNoticeLog */
-        $lkNoticeLog = LkNotificationLog::findOne([
-            'client_id' => $this->account->id,
-            'event' => $mockObj->getEnterEvent(),
-            'is_set' => 1
-        ]);
-        $this->assertNotNull($lkNoticeLog);
-        $this->assertGreaterThan(0, $lkNoticeLog->contact_id);
+        if ($mockObj->isOldNotification()) {
+            /** @var \app\models\LkNotificationLog $lkNoticeLog */
+            $lkNoticeLog = LkNotificationLog::findOne([
+                'client_id' => $this->account->id,
+                'event' => $mockObj->getEnterEvent(),
+                'is_set' => 1
+            ]);
+            $this->assertNotNull($lkNoticeLog, 'aaasasa');
+            $this->assertGreaterThan(0, $lkNoticeLog->contact_id);
 
-        $this->assertNotNull(ClientContact::findOne([
-            'client_id' => $this->account->id,
-            'id' => $lkNoticeLog->contact_id
-        ]));
+            $this->assertNotNull(ClientContact::findOne([
+                'client_id' => $this->account->id,
+                'id' => $lkNoticeLog->contact_id
+            ]));
+        }
 
         $this->end();
     }
@@ -139,7 +141,7 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
 
         $mockObj = $this->getMock('\app\classes\notification\processors\ZeroBalanceNotificationProcessor', [
             'getValue',
-            'getLimit'
+            'getLimit',
         ]);
         $mockObj->expects($this->any())->method('getValue')->will($this->returnValue(1000));
         $mockObj->expects($this->any())->method('getLimit')->will($this->returnValue(0));
@@ -159,14 +161,16 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
 
         $this->assertEquals($mockObj->getEnterEvent(), $this->event);
 
-        /** @var \app\models\LkNotificationLog $lkNoticeLog */
-        $lkNoticeLog = LkNotificationLog::findOne([
-            'client_id' => $this->account->id,
-            'event' => $mockObj->getEnterEvent(),
-            'is_set' => 0
-        ]);
-        $this->assertNotNull($lkNoticeLog);
-        $this->assertEquals($lkNoticeLog->contact_id, 0);
+        if ($mockObj->isOldNotification()) {
+            /** @var \app\models\LkNotificationLog $lkNoticeLog */
+            $lkNoticeLog = LkNotificationLog::findOne([
+                'client_id' => $this->account->id,
+                'event' => $mockObj->getEnterEvent(),
+                'is_set' => 0
+            ]);
+            $this->assertNotNull($lkNoticeLog);
+            $this->assertEquals($lkNoticeLog->contact_id, 0);
+        }
 
         $this->end();
     }

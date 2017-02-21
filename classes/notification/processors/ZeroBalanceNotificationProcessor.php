@@ -60,7 +60,7 @@ class ZeroBalanceNotificationProcessor extends NotificationProcessor
     /**
      * @inheritdoc
      */
-    protected function isOldNotification()
+    public function isOldNotification()
     {
         return false;
     }
