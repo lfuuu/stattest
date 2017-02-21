@@ -3,13 +3,16 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\classes\uu\model\AccountTariff;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\models\City;
+use app\models\ClientAccount;
 use app\models\Country;
 use app\models\dictionary\PublicSite;
 use app\models\filter\FreeNumberFilter;
 use app\models\Region;
+use InvalidArgumentException;
 use yii\db\Expression;
 
 class CountriesController extends ApiInternalController
@@ -122,7 +125,7 @@ class CountriesController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags={"Справочники"}, path="/internal/countries/get-countries", summary="Получение списка стран", operationId="Получение списка стран",
+     * @SWG\Get(tags={"Справочники"}, path="/internal/countries/get-countries", summary="Получение списка стран", operationId="Получение списка стран",
      *
      *   @SWG\Response(response=200, description="Список стран", @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/countryRecord"))),
      *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
@@ -178,23 +181,42 @@ class CountriesController extends ApiInternalController
      *   @SWG\Property(property="country", type="object", description="Страна", ref = "#/definitions/idNameRecord")),
      * ),
      *
-     * @SWG\Post(tags={"Справочники"}, path="/internal/countries/get-regions", summary="Получение списка регионов (точек подключения)", operationId="Получение списка регионов (точек подключения)",
+     * @SWG\Get(tags={"Справочники"}, path="/internal/countries/get-regions", summary="Получение списка регионов (точек подключения)", operationId="Получение списка регионов (точек подключения)",
+     *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны", in = "query", default = ""),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны)", in = "query", default = ""),
      *
      *   @SWG\Response(response=200, description="Список регионов", @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/regionRecord"))),
      *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
      *
+     * @param int $country_id
+     * @param int $client_account_id
      * @return array
-     * @throws BadRequestHttpException
+     * @throws \InvalidArgumentException
      */
-    public function actionGetRegions()
-    {
+    public function actionGetRegions(
+        $country_id = null,
+        $client_account_id = null
+    ) {
         $regions = Region::find()
             ->where(['is_active' => 1])
             ->orderBy([
                 new Expression('id > 97 DESC'),
                 'name' => SORT_ASC,
             ]);
+
+        if ($client_account_id) {
+            // взять страну от ЛС
+            $clientAccount = ClientAccount::findOne(['id' => $client_account_id]);
+            if (!$clientAccount) {
+                throw new InvalidArgumentException('Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+            }
+
+            $country_id = $clientAccount->country_id;
+        }
+
+        $country_id && $regions->andWhere(['country_id' => (int)$country_id]);
+
         $result = [];
 
         /** @var Region $region */

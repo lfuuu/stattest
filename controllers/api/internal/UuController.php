@@ -257,6 +257,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "is_default", type = "integer", description = "По умолчанию (0 / 1)", in = "query", default = ""),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны", in = "query", default = ""),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_group_id", type = "integer", description = "ID группы телефонии (местные, междугородние, международные и пр.)", in = "query", default = ""),
@@ -275,6 +276,7 @@ class UuController extends ApiInternalController
      * @param int $parent_id
      * @param int $service_type_id
      * @param int $country_id
+     * @param int $client_account_id
      * @param int $currency_id
      * @param int $is_default
      * @param int $tariff_status_id
@@ -288,6 +290,7 @@ class UuController extends ApiInternalController
         $parent_id = null,
         $service_type_id = null,
         $country_id = null,
+        $client_account_id = null,
         $currency_id = null,
         $is_default = null,
         $tariff_status_id = null,
@@ -299,10 +302,22 @@ class UuController extends ApiInternalController
         $parent_id = (int)$parent_id;
         $service_type_id = (int)$service_type_id;
         $country_id = (int)$country_id;
+        $client_account_id = (int)$client_account_id;
         $tariff_status_id = (int)$tariff_status_id;
         $tariff_person_id = (int)$tariff_person_id;
         $voip_group_id = (int)$voip_group_id;
         $voip_city_id = (int)$voip_city_id;
+
+        if ($client_account_id) {
+            // взять страну от ЛС
+            $clientAccount = ClientAccount::findOne(['id' => $client_account_id]);
+            if (!$clientAccount) {
+                throw new InvalidArgumentException('Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+            }
+
+            $country_id = $clientAccount->country_id;
+            $currency_id = $clientAccount->country->currency_id;
+        }
 
         if ($parent_id) {
             // передан родительский тариф (предполагается, что телефонии), надо найти пакеты
@@ -797,6 +812,7 @@ class UuController extends ApiInternalController
      * @SWG\Definition(definition = "accountTariffVoipRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID услуги"),
      *   @SWG\Property(property = "service_type", type = "object", description = "Тип услуги", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "region", type = "object", description = "Регион", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
@@ -853,6 +869,7 @@ class UuController extends ApiInternalController
         $record = [
             'id' => $accountTariff->id,
             'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
+            'region' => $this->_getIdNameRecord($accountTariff->region),
             'voip_number' => $accountTariff->voip_number,
             'voip_city' => $this->_getIdNameRecord($accountTariff->city),
             'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
