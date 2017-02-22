@@ -43,7 +43,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-service-types", summary = "Список типов услуг", operationId = "Список типов услуг",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-service-types", summary = "Список типов услуг", operationId = "GetServiceTypes",
      *
      *   @SWG\Response(response = 200, description = "Список типов услуг (ВАТС, телефония, интернет и пр.)",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
@@ -67,7 +67,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-resources", summary = "Список ресурсов", operationId = "Список ресурсов",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-resources", summary = "Список ресурсов", operationId = "GetResources",
      *
      *   @SWG\Response(response = 200, description = "Список ресурсов (дисковое пространство, абоненты, линии и пр.)",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
@@ -91,7 +91,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-periods", summary = "Список периодов", operationId = "Список периодов",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-periods", summary = "Список периодов", operationId = "GetPeriods",
      *
      *   @SWG\Response(response = 200, description = "Список периодов (день, месяц, год и пр.)",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
@@ -115,7 +115,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-tariff-statuses", summary = "Список статусов тарифа", operationId = "Список статусов тарифа",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-tariff-statuses", summary = "Список статусов тарифа", operationId = "GetTariffStatuses",
      *
      *   @SWG\Response(response = 200, description = "Список статусов тарифа (публичный, специальный, архивный и пр.)",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
@@ -139,7 +139,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-tariff-persons", summary = "Список для кого действует тариф", operationId = "Список для кого действует тариф",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-tariff-persons", summary = "Список для кого действует тариф", operationId = "GetTariffPersons",
      *
      *   @SWG\Response(response = 200, description = "Список для кого действует тариф (для всех, физиков, юриков)",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
@@ -163,7 +163,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-tariff-voip-groups", summary = "Список групп телефонии", operationId = "Список групп телефонии",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-tariff-voip-groups", summary = "Список групп телефонии", operationId = "GetTariffVoipGroups",
      *
      *   @SWG\Response(response = 200, description = "Список групп телефонии (местные, междугородние, международные и пр.)",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
@@ -250,7 +250,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "default_packages", type = "array", description = "Дефолтные пакеты в тарифе", @SWG\Items(ref = "#/definitions/tariffRecord")),
      * ),
      *
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-tariffs", summary = "Список тарифов", operationId = "Список тарифов",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-tariffs", summary = "Список тарифов", operationId = "GetTariffs",
      *   @SWG\Parameter(name = "id", type = "integer", description = "ID", in = "query", default = ""),
      *   @SWG\Parameter(name = "parent_id", type = "integer", description = "ID родителя. Нужен для поиска совместимых пакетов", in = "query", default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query", required = true, default = ""),
@@ -600,7 +600,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
      * ),
      *
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-account-tariffs", summary = "Расширенный список услуг у ЛС", operationId = "Расширенный список услуг у ЛС",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-account-tariffs", summary = "Список услуг у ЛС", operationId = "GetAccountTariffs",
      *   @SWG\Parameter(name = "id", type = "integer", description = "ID", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query", default = ""),
@@ -809,22 +809,22 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      * ),
      *
-     * @SWG\Definition(definition = "accountTariffVoipRecord", type = "object",
+     * @SWG\Definition(definition = "accountTariffWithPackagesRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID услуги"),
      *   @SWG\Property(property = "service_type", type = "object", description = "Тип услуги", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "region", type = "object", description = "Регион", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
-     *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffVoipRecord"))),
+     *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffWithPackagesRecord"))),
      * ),
      *
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-account-tariffs-voip", summary = "Упрощенный список услуг у ЛС", operationId = "Упрощенный список услуг у ЛС",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-account-tariffs-with-packages", summary = "Список услуг у ЛС с пакетами", operationId = "GetAccountTariffsWithPackages",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "Тип услуги", in = "query", default = ""),
      *
-     *   @SWG\Response(response = 200, description = "Услуги телефонии у ЛС",
-     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/accountTariffVoipRecord"))
+     *   @SWG\Response(response = 200, description = "Список услуг у ЛС с пакетами",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/accountTariffWithPackagesRecord"))
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",
      *     @SWG\Schema(ref = "#/definitions/error_result")
@@ -837,7 +837,7 @@ class UuController extends ApiInternalController
      * @return array
      * @throws \InvalidArgumentException
      */
-    public function actionGetAccountTariffsVoip(
+    public function actionGetAccountTariffsWithPackages(
         $client_account_id = null,
         $service_type_id = null
     ) {
@@ -852,7 +852,7 @@ class UuController extends ApiInternalController
 
         $result = [];
         foreach ($accountTariffQuery->each() as $accountTariff) {
-            $result[] = $this->_getAccountTariffVoipRecord($accountTariff);
+            $result[] = $this->_getAccountTariffWithPackagesRecord($accountTariff);
         }
 
         return $result;
@@ -864,7 +864,7 @@ class UuController extends ApiInternalController
      * @param AccountTariff $accountTariff
      * @return array
      */
-    private function _getAccountTariffVoipRecord($accountTariff)
+    private function _getAccountTariffWithPackagesRecord($accountTariff)
     {
         $record = [
             'id' => $accountTariff->id,
@@ -875,14 +875,14 @@ class UuController extends ApiInternalController
             'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
             'is_editable' => (bool)$accountTariff->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
-            'packages' => null,
+            'packages' => [],
         ];
 
         $packages = $accountTariff->nextAccountTariffs;
         if ($packages) {
             $record['packages'] = [];
             foreach ($packages as $package) {
-                $record['packages'][] = $this->_getAccountTariffVoipRecord($package);
+                $record['packages'][] = $this->_getAccountTariffWithPackagesRecord($package);
             }
         }
 
@@ -985,7 +985,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Put(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/add-account-tariff", summary = "Добавить услугу ЛС", operationId = "Добавить услугу ЛС",
+     * @SWG\Put(tags = {"UniversalTariffs"}, path = "/internal/uu/add-account-tariff", summary = "Добавить услугу ЛС", operationId = "AddAccountTariff",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
@@ -1039,7 +1039,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге ЛС", operationId = "Сменить тариф услуге ЛС",
+     * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге ЛС", operationId = "EditAccountTariff",
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
@@ -1118,7 +1118,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу ЛС", operationId = "Закрыть услугу ЛС",
+     * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу ЛС", operationId = "CloseAccountTariff",
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
      *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
@@ -1147,7 +1147,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС", operationId = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС",
+     * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС", operationId = "CancelEditAccountTariff",
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
      *
@@ -1231,7 +1231,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property="vm_user_password", type="string|null", description="Постоянный пароль юзера в VM manager (обычно не нужен)"),
      * ),
      *
-     * @SWG\Get(tags = {"Универсальные тарифы и услуги"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VM collocation ЛС", operationId = "Информация о VM collocation ЛС",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VM collocation ЛС", operationId = "GetVmCollocationInfo",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Информация о VM collocation ЛС",
