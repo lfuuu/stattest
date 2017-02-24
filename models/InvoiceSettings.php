@@ -4,25 +4,23 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * @property int $customer_country_code
- * @property int $doer_country_code
- * @property int $settlement_account_type_id
- * @property int $vat_rate
- * @property int $contragent_type
+ * @property int doer_organization_id
+ * @property int customer_country_code
+ * @property int vat_apply_scheme
+ * @property int settlement_account_type_id
+ * @property int vat_rate
  */
 class InvoiceSettings extends ActiveRecord
 {
 
-    const VAT_SCHEME_FIRST = 1;
-    const VAT_SCHEME_SECOND = 2;
-    const VAT_SCHEME_THIRD = 3;
-    const VAT_SCHEME_FOURTH = 4;
+    const VAT_SCHEME_ANY = 1;
+    const VAT_SCHEME_NONVAT = 2;
+    const VAT_SCHEME_VAT = 3;
 
     public static $vatApplySchemes = [
-        self::VAT_SCHEME_FIRST => 'НДС',
-        self::VAT_SCHEME_SECOND => 'Упрощенная схема налогооблажения',
-        self::VAT_SCHEME_THIRD => '+ 0 НДС (МН)',
-        self::VAT_SCHEME_FOURTH => '+ 0 НДС + EU Vat ID',
+        self::VAT_SCHEME_ANY => 'Любой',
+        self::VAT_SCHEME_NONVAT => 'УСН (NonVAT)',
+        self::VAT_SCHEME_VAT => 'ОСН (VAT)',
     ];
 
     /**
@@ -51,7 +49,7 @@ class InvoiceSettings extends ActiveRecord
                 ['doer_organization_id', 'customer_country_code', 'settlement_account_type_id', 'vat_rate', 'vat_apply_scheme',],
                 'integer'
             ],
-            [['doer_organization_id', 'customer_country_code', 'settlement_account_type_id'], 'required'],
+            [['doer_organization_id', 'settlement_account_type_id'], 'required'],
         ];
     }
 

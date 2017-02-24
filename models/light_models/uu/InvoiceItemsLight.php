@@ -112,24 +112,21 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
             switch ($this->_invoiceSetting->vat_apply_scheme) {
 
                 // Схема #1 применение НДС из настроек as is
-                case InvoiceSettings::VAT_SCHEME_FIRST:
+                case InvoiceSettings::VAT_SCHEME_ANY:
                     if ($this->_invoiceSetting->vat_rate != $item->vat_rate) {
                         $vatRate = $this->_invoiceSetting->vat_rate;
                         $isApplyVatRate = true;
                     }
                     break;
 
-                // Схема #3 + 0 НДС (Международная)
-                case InvoiceSettings::VAT_SCHEME_THIRD:
-
                 // Схема #2 упрощенная система налогообложения
-                case InvoiceSettings::VAT_SCHEME_SECOND:
+                case InvoiceSettings::VAT_SCHEME_NONVAT:
                     $vatRate = 0;
                     $isApplyVatRate = true;
                     break;
 
-                // Схема #4 + 0 НДС + EU Vat ID
-                case InvoiceSettings::VAT_SCHEME_FOURTH:
+                // Схема #3 + 0 НДС + EU Vat ID
+                case InvoiceSettings::VAT_SCHEME_VAT:
                     if (!empty($this->_clientContragentEuroINN)) {
                         $vatRate = 0;
                         $isApplyVatRate = true;

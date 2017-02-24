@@ -85,9 +85,9 @@ class InvoiceSettingsController extends BaseController
      */
     public function actionEdit(
         $doerOrganizationId,
-        $customerCountryCode,
         $settlementAccountTypeId,
-        $vatApplyScheme
+        $vatApplyScheme,
+        $customerCountryCode = null
     )
     {
         /** @var InvoiceSettings $model */

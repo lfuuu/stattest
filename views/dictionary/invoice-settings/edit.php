@@ -37,9 +37,14 @@ echo Breadcrumbs::widget([
                 ?>
             </div>
             <div class="col-sm-6">
+                <?php if ($model->isNewRecord) {
+                    $countryList = Country::getList() + [null => 'Прочие страны'];
+                } else {
+                    $countryList = [null => 'Прочие страны'] + Country::getList();
+                } ?>
                 <?= $form
                     ->field($model, 'customer_country_code')
-                    ->dropDownList(Country::getList(), [
+                    ->dropDownList($countryList, [
                         'disabled' => !$model->isNewRecord,
                     ])
                 ?>
