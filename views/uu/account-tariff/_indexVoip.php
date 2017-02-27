@@ -1,17 +1,23 @@
 <?php
 /**
- * Список универсальных услуг с пакетами
+ * Список универсальных услуг Телефонии
  *
  * @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=10715249
  *
  * @var \yii\web\View $this
  * @var AccountTariffFilter $filterModel
+ * @var bool $isShowAddButton
  */
 
+use app\classes\Html;
 use app\classes\uu\filter\AccountTariffFilter;
+use app\classes\uu\forms\AccountTariffEditForm;
 use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\ServiceType;
 use yii\db\ActiveQuery;
+use yii\helpers\Url;
+use yii\widgets\ActiveForm;
 
 $serviceType = $filterModel->getServiceType();
 
@@ -23,19 +29,18 @@ $rows = AccountTariff::getGroupedObjects($query);
 ?>
 
 <p>
-    <?= ($serviceType ? $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]) : '') ?>
+    <?= ($isShowAddButton ? $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]) : "") ?>
 </p>
 
-<?php
-foreach ($rows as $row) {
+<?php foreach ($rows as $row) : ?>
+
+    <?php
     /** @var AccountTariff $accountTariffFirst */
     $accountTariffFirst = reset($row);
-    if (in_array($accountTariffFirst->service_type_id, ServiceType::PACKAGES)) {
+    if (in_array($accountTariffFirst->service_type_id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
         // пакеты отдельно не выводим. Только в комплекте с базовой услугой
         continue;
     }
-
-    $serviceType = $accountTariffFirst->serviceType;
 
     switch ($accountTariffFirst->service_type_id) {
         case ServiceType::ID_VOIP:
@@ -49,26 +54,226 @@ foreach ($rows as $row) {
             break;
     }
 
-    // сгруппировать пакеты по типу
-    $packagesList = [];
-    foreach ($packageServiceTypeIds as $packageServiceTypeId) {
-        foreach ($accountTariffFirst->nextAccountTariffs as $accountTariffPackage) {
-            $isPackageDefault = $accountTariffPackage->tariff_period_id && $accountTariffPackage->tariffPeriod->tariff->is_default;
-            $packagesList[$isPackageDefault ? 0 : $packageServiceTypeId][] = $accountTariffPackage;
-        }
-    }
+    ?>
+    <?php $form = ActiveForm::begin(['action' => 'uu/account-tariff/save-voip']); ?>
+    <?= Html::hiddenInput('serviceTypeId', $serviceType->id) ?>
 
-    // форма
-    echo $this->render('_indexVoipForm', [
-        'accountTariffFirst' => $accountTariffFirst,
-        'packageServiceTypeIds' => $packageServiceTypeIds,
-        'row' => $row,
-        'serviceType' => $serviceType,
-        'packagesList' => $packagesList,
-    ]);
+    <div class="panel panel-info account-tariff-voip">
+        <div class="panel-heading">
+            <?php
+            $formModel = new AccountTariffEditForm([
+                'id' => $accountTariffFirst->id,
+            ]);
+            ?>
+            <?php // город ?>
+            <h2 class="panel-title">
+                <?= Html::checkbox(null, $checked = true, ['class' => 'check-all', 'style' => 'display: none;', 'title' => 'Отметить всё']) ?>
 
-}
-?>
+                <?= $accountTariffFirst->serviceType ? $accountTariffFirst->serviceType->name : '' ?>
+                <?= $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
+            </h2>
+
+        </div>
+
+        <div class="panel-body">
+
+            <div class="row">
+
+                <div class="col-sm-2 account-tariff-voip-numbers">
+
+                    <?php /** @var AccountTariff $accountTariff */ ?>
+                    <?php foreach ($row as $accountTariff) : ?>
+                        <?php // номера ?>
+                        <div>
+                            <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'style' => 'display: none;']) ?>
+
+                            <?php if ($accountTariff->service_type_id == ServiceType::ID_TRUNK) : ?>
+                                <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
+                            <?php else : ?>
+                                <?= Html::a(
+                                    $accountTariff->voip_number ?: Yii::t('common', '(not set)'),
+                                    $accountTariff->getUrl()
+                                ) ?>
+                            <?php endif ?>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <?php $accountTariffLogs = $accountTariffFirst->accountTariffLogs ?>
+                    <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate(end($accountTariffLogs)->actual_from, 'medium') ?></span>
+                </div>
+
+                <div class="col-sm-10">
+
+                    <?php // тариф ?>
+                    <div class="well">
+
+                        <?php
+                        $i = 0;
+                        $isEditable = $accountTariffFirst->tariff_period_id;
+                        $isDefault = $accountTariffFirst->tariff_period_id && $accountTariffFirst->tariffPeriod->tariff->is_default;
+                        $isCancelable = $accountTariffFirst->isCancelable();
+                        $isShowAddPackage = $isEditable || $isCancelable;
+                        $packages = [];
+
+                        /** @var AccountTariffLog $accountTariffLog */
+                        ?>
+                        <?php foreach ($accountTariffFirst->accountTariffLogs as $accountTariffLog) : ?>
+                            <div>
+                                <b>
+                                    <?= $accountTariffLog->getTariffPeriodLink() ?>
+                                </b>
+                                <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'medium') ?></span>
+
+                                <?php $i++ && $isCancelable = $isEditable = false ?>
+
+                                <?= $isCancelable ?
+                                    Html::a(
+                                        Html::tag('i', '', [
+                                            'class' => 'glyphicon glyphicon-erase',
+                                            'aria-hidden' => 'true',
+                                        ]) . ' ' .
+                                        Yii::t('common', 'Cancel'),
+                                        Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'accountTariffHash' => $accountTariffFirst->getHash()]),
+                                        [
+                                            'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
+                                            'title' => 'Отменить смену тарифа',
+                                        ]
+                                    ) : '' ?>
+
+                                <?= (!$isCancelable && $isEditable && !$isDefault) ?
+                                    Html::button(
+                                        Html::tag('i', '', [
+                                            'class' => 'glyphicon glyphicon-edit',
+                                            'aria-hidden' => 'true',
+                                        ]) .
+                                        ' Сменить',
+                                        [
+                                            'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
+                                            'title' => 'Сменить тариф или отключить услугу',
+                                            'data-id' => $accountTariffFirst->id,
+                                            'data-city_id' => (int)$accountTariff->city_id,
+                                            'data-service_type_id' => (int)$serviceType->id,
+                                        ]
+                                    ) : ''
+                                ?>
+
+                            </div>
+
+                        <?php endforeach; ?>
+
+                        <?php // пакеты ?>
+                        <?php foreach ($packageServiceTypeIds as $packageServiceTypeId) : ?>
+                            <?php foreach ($accountTariffFirst->nextAccountTariffs as $accountTariffPackage) : ?>
+
+                                <?php
+                                if ($accountTariffPackage->service_type_id != $packageServiceTypeId) {
+                                    // только пакеты определенного типа
+                                    continue;
+                                }
+                                ?>
+
+                                <?php ob_start() ?>
+                                <div class="well">
+
+                                    <?php
+                                    $i = 0;
+                                    // дефолтный пакет нельзя редактировать
+                                    $isPackageEditable = $accountTariffPackage->tariff_period_id;
+                                    $isPackageDefault = $accountTariffPackage->tariff_period_id && $accountTariffPackage->tariffPeriod->tariff->is_default;
+                                    $isPackageCancelable = $accountTariffPackage->isCancelable();
+                                    /** @var AccountTariffLog $accountTariffLog */
+                                    ?>
+                                    <?php foreach ($accountTariffPackage->accountTariffLogs as $accountTariffLog) : ?>
+                                        <div>
+                                            <?= $accountTariffLog->getTariffPeriodLink() ?>
+                                            <span class="account-tariff-log-actual-from">с <?= Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'medium') ?></span>
+
+                                            <?php $i++ && $isPackageCancelable = $isPackageEditable = false ?>
+
+                                            <?= $isPackageCancelable ?
+                                                Html::a(
+                                                    Html::tag('i', '', [
+                                                        'class' => 'glyphicon glyphicon-erase',
+                                                        'aria-hidden' => 'true',
+                                                    ]) . ' ' .
+                                                    Yii::t('common', 'Cancel'),
+                                                    Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'accountTariffHash' => $accountTariffPackage->getHash()]),
+                                                    [
+                                                        'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
+                                                        'title' => 'Отменить смену тарифа для пакета',
+                                                    ]
+                                                ) : '' ?>
+
+                                            <?= (!$isPackageCancelable && $isPackageEditable && !$isPackageDefault) ?
+                                                Html::button(
+                                                    Html::tag('i', '', [
+                                                        'class' => 'glyphicon glyphicon-edit',
+                                                        'aria-hidden' => 'true',
+                                                    ]) .
+                                                    ' Сменить',
+                                                    [
+                                                        'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
+                                                        'title' => 'Сменить тариф или отключить услугу для пакета',
+                                                        'data-id' => $accountTariffPackage->id,
+                                                        'data-city_id' => (int)$accountTariffPackage->city_id,
+                                                        'data-service_type_id' => (int)$packageServiceTypeId,
+                                                    ]
+                                                ) : ''
+                                            ?>
+
+                                        </div>
+
+                                    <?php endforeach; ?>
+
+                                </div>
+                                <?php
+                                if ($isPackageDefault) {
+                                    ob_end_flush(); // вывести на экран
+                                } else {
+                                    $packages[$packageServiceTypeId][] = ob_get_clean(); // запомнить вывод
+                                }
+                                ?>
+                            <?php endforeach ?>
+                        <?php endforeach ?>
+
+                    </div>
+                    <br/>
+
+                    <?php foreach ($packageServiceTypeIds as $packageServiceTypeId) : ?>
+                        <h2><?= ServiceType::findOne(['id' => $packageServiceTypeId])->name ?></h2>
+                        <?php
+                        if (isset($packages[$packageServiceTypeId])) {
+                            echo implode('', $packages[$packageServiceTypeId]);
+                        }
+                        ?>
+
+                        <?= $isShowAddPackage ?
+                            Html::button(
+                                Html::tag('i', '', [
+                                    'class' => 'glyphicon glyphicon-plus',
+                                    'aria-hidden' => 'true',
+                                ]) .
+                                ' Добавить пакет',
+                                [
+                                    'class' => 'btn btn-success account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
+                                    'title' => 'Добавить пакет',
+                                    'data-id' => 0,
+                                    'data-city_id' => (int)$accountTariffFirst->city_id,
+                                    'data-service_type_id' => (int)$packageServiceTypeId,
+                                ]
+                            ) : ''
+                        ?>
+                    <?php endforeach ?>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+<?php endforeach; ?>
 
 <script type='text/javascript'>
     $(function () {

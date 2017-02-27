@@ -160,7 +160,7 @@ if (!$serviceType) {
 
     <?php ActiveForm::end(); ?>
 
-    <?php if (!$accountTariff->isNewRecord) : ?>
+    <?php if (!$tariff->isNewRecord) : ?>
         <?= $this->render('//layouts/_showHistory', ['model' => $accountTariff]) ?>
     <?php endif; ?>
 

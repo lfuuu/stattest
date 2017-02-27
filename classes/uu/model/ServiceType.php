@@ -2,6 +2,7 @@
 
 namespace app\classes\uu\model;
 
+use Yii;
 use yii\db\ActiveQuery;
 
 /**
@@ -48,12 +49,6 @@ class ServiceType extends \yii\db\ActiveRecord
     const ID_TRUNK = 22; // транк
     const ID_TRUNK_PACKAGE_ORIG = 23; // пакет терм-транк
     const ID_TRUNK_PACKAGE_TERM = 24; // пакет ориг-транк
-
-    const PACKAGES = [
-        self::ID_VOIP_PACKAGE,
-        self::ID_TRUNK_PACKAGE_ORIG,
-        self::ID_TRUNK_PACKAGE_TERM,
-    ];
 
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

@@ -60,7 +60,6 @@ class AccountTariffController extends BaseController
      *
      * @param int $serviceTypeId
      * @return string
-     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex($serviceTypeId = null)
     {
@@ -82,7 +81,6 @@ class AccountTariffController extends BaseController
      *
      * @param int $serviceTypeId
      * @return string|Response
-     * @throws \yii\base\InvalidParamException
      */
     public function actionNew($serviceTypeId)
     {
@@ -132,7 +130,6 @@ class AccountTariffController extends BaseController
      *
      * @param int $id
      * @return string|Response
-     * @throws \yii\base\InvalidParamException
      */
     public function actionEdit($id)
     {
@@ -152,6 +149,8 @@ class AccountTariffController extends BaseController
                 ]
             );
         }
+
+        $this->_checkNonPackage($formModel->serviceTypeId);
 
         if ($formModel->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
@@ -178,7 +177,6 @@ class AccountTariffController extends BaseController
      * @param int $cityId
      * @param int $serviceTypeId
      * @return string
-     * @throws \yii\base\InvalidParamException
      */
     public function actionEditVoip($id = null, $cityId = null, $serviceTypeId = null)
     {
@@ -187,17 +185,17 @@ class AccountTariffController extends BaseController
         try {
             $formModel = $id ?
                 // редактировать телефонию или пакет телефонии
-                new AccountTariffEditForm(
+                (new AccountTariffEditForm(
                     [
                         'id' => $id,
                     ]
-                ) :
+                )) :
                 // добавить пакет телефонии
-                new AccountTariffAddForm(
+                (new AccountTariffAddForm(
                     [
                         'serviceTypeId' => $serviceTypeId,
                     ]
-                );
+                ));
 
             $cityId = (int)$cityId;
             if ($cityId && !$formModel->accountTariff->city_id) {
@@ -550,7 +548,7 @@ class AccountTariffController extends BaseController
      */
     private function _checkNonPackage($serviceTypeId)
     {
-        if (in_array($serviceTypeId, ServiceType::PACKAGES)) {
+        if (in_array($serviceTypeId, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
             // для пакетов услуги подключаются через базовую услугу
             throw new InvalidArgumentException('Пакеты надо подключать через базовую услугу');
         }

@@ -31,10 +31,14 @@ use yii\db\ActiveRecord;
 class AccountTariffLog extends ActiveRecord
 {
     // Перевод названий полей модели
-    use \app\classes\traits\AttributeLabelsTraits;
+    use \app\classes\traits\AttributeLabelsTraits {
+        attributeLabels as attributeLabelsFromTrait;
+    }
 
     // Методы для полей insert_time, insert_user_id
     use \app\classes\traits\InsertUserTrait;
+
+    public $tariffPeriodFieldName = '';
 
     protected $countLogs = null;
 
@@ -64,6 +68,18 @@ class AccountTariffLog extends ActiveRecord
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorDoublePackage'],
         ];
+    }
+
+    /**
+     * Вернуть имена полей
+     *
+     * @return array [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        $attributeLabels = $this->attributeLabelsFromTrait();
+        $this->tariffPeriodFieldName && $attributeLabels['tariff_period_id'] = $this->tariffPeriodFieldName;
+        return $attributeLabels;
     }
 
     /**

@@ -321,7 +321,7 @@ class Navigation
                 'serviceTypeId' => $serviceType->id,
             ]), ['tarifs.read']);
 
-            if (in_array($serviceType->id, ServiceType::PACKAGES)) {
+            if (in_array($serviceType->id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
                 // для пакетов услуги подключаются через базовую услугу
                 continue;
             }

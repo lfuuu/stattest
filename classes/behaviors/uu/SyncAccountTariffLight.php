@@ -45,7 +45,7 @@ class SyncAccountTariffLight extends Behavior
         /** @var AccountLogPeriod $accountLogPeriod */
         $accountLogPeriod = $event->sender;
         $accountTariff = $accountLogPeriod->accountTariff;
-        if (!in_array($accountTariff->service_type_id, ServiceType::PACKAGES)) {
+        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
             // только для пакетов
             return;
         }
@@ -104,7 +104,7 @@ class SyncAccountTariffLight extends Behavior
         /** @var AccountLogPeriod $accountLogPeriod */
         $accountLogPeriod = $event->sender;
         $accountTariff = $accountLogPeriod->accountTariff;
-        if (!in_array($accountTariff->service_type_id, ServiceType::PACKAGES)) {
+        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
             // только для пакетов
             return;
         }

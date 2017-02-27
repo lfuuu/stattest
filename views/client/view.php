@@ -48,6 +48,7 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
             echo $this->render('//uu/account-tariff/_indexVoip',
                 [
                     'filterModel' => $uuFilterModel,
+                    'isShowAddButton' => false,
                 ]
             );
         }
