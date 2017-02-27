@@ -2555,7 +2555,7 @@ class m_newaccounts extends IModule
         return $R;
     }
 
-    function do_print_prepare(Bill &$bill, $obj, $source = 1, $curr, $do_assign = 1, $isSellBook = false)
+    function do_print_prepare(\Bill &$bill, $obj, $source = 1, $curr, $do_assign = 1, $isSellBook = false)
     {
         global $design, $db, $user;
 
