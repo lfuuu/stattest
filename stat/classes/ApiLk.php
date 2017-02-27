@@ -141,6 +141,8 @@ class ApiLk
 
         /* !!! проверка поличества созданных счетов */
 
+        $bill = \app\models\Bill::dao()->createBillOnSum($clientId, $sum);
+
 
         $bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
 

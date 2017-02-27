@@ -1,6 +1,8 @@
 <?php
 namespace app\models;
 
+use app\classes\model\HistoryActiveRecord;
+use app\classes\Utils;
 use Yii;
 use app\dao\BillDao;
 use yii\db\ActiveRecord;
@@ -42,7 +44,7 @@ use yii\helpers\Url;
  * @property BillLine[] $lines   ??
  * @property Transaction[] $transactions   ??
  */
-class Bill extends ActiveRecord
+class Bill extends HistoryActiveRecord
 {
     const MINIMUM_BILL_DATE = '2000-01-01';
 
@@ -55,6 +57,11 @@ class Bill extends ActiveRecord
         self::STATUS_IS_PAID => 'Оплачен',
         self::STATUS_PAID_IN_PART => 'Оплачен частично',
     ];
+
+    public $creatorId = null;
+    public $logMessage = null;
+
+    public $isHistoryVersioning = false;
 
     /**
      * @return string
@@ -80,8 +87,9 @@ class Bill extends ActiveRecord
     public function behaviors()
     {
         return [
-            \app\classes\behaviors\HistoryChanges::className(),
-            \app\classes\behaviors\PartnerRewards::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'PartnerRewards' => \app\classes\behaviors\PartnerRewards::className(),
+            'BillChangeLog' => \app\classes\behaviors\BillChangeLog::className(),
         ];
     }
 
@@ -275,4 +283,37 @@ class Bill extends ActiveRecord
         return parent::beforeSave($isInsert);
     }
 
+    /**
+     * Добавление строчки в счет
+     *
+     * @param string $item
+     * @param float $amount
+     * @param float $price
+     * @param string $type
+     * @return BillLine
+     */
+    public function addLine($item, $amount, $price,  $type = BillLine::LINE_TYPE_SERVICE)
+    {
+        $dateFrom = Utils::dateBeginOfPreviousMonth($this->bill_date);
+        $dateTo = Utils::dateBeginOfPreviousMonth($this->bill_date);
+
+        $line = new BillLine();
+        $line->bill_no = $this->bill_no;
+        $line->sort = ((int)BillLine::find()
+                ->where(['bill_no' => $this->bill_no])
+                ->max('sort')) + 1;
+        $line->item = $item;
+        $line->amount = $amount;
+        $line->type = $type;
+        $line->date_from = $dateFrom;
+        $line->date_to = $dateTo;
+        $line->tax_rate = $this->clientAccount->getTaxRate();
+        $line->price = $price;
+        // $line->service = $service;
+        // $line->id_service = $id_service;
+        $line->calculateSum($this->price_include_vat);
+        $line->save();
+
+        return $line;
+    }
 }

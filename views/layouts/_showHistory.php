@@ -10,16 +10,25 @@
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 
+if (!Yii::$app->user->can('logs.history_changes')) {
+    return '';
+}
+
 if (!isset($deleteModel)) {
     $deleteModel = [];
 }
 
-if (!Yii::$app->user->can('logs.history_changes')) {
-    return '';
+if (!isset($idField)) {
+    $idField = 'id';
 }
+
+if (!isset($title)) {
+    $title = 'История изменений';
+}
+
 ?>
 <div class="showHistoryDiv"
-     onclick="showHistory(this, <?= HistoryActiveRecord::getHistoryIds($model, $deleteModel) ?>)">
+     onclick="showHistory(this, <?= HistoryActiveRecord::getHistoryIds($model, $deleteModel, $idField) ?>)">
     <?= Html::button('∨', ['class' => 'btn btn-default showHistoryButton']); ?>
-    <a>История изменений</a>
+    <a><?= $title ?></a>
 </div>

@@ -38,5 +38,6 @@ return [
 
     '{n, plural, one{# entry was edited} other{# entries were edited}}' => '{n, plural, one{# запись отредактирована} many{# записей отредактированы} other{# записи отредактированы}}',
     '{n, plural, one{# entry} other{# entries}}' => '{n, plural, one{# запись} many{# записей} other{# записи}}',
+    'Published {n, plural, one{# bill} other{# bills}}' => 'Опубликованно {n, plural, one{# счет} many{# счетов} other{# счета}}',
 
 ];

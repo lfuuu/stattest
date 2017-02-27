@@ -4,6 +4,7 @@ use app\classes\Encrypt;
 use app\classes\StatModule;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
+use app\models\Bill;
 use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\CurrencyRate;
@@ -644,11 +645,9 @@ class m_newaccounts extends IModule
             return;
         }
         $currency = get_param_raw('currency');
-        $bill = new Bill(null, $fixclient_data, time(), 0, $currency);
+        $bill = new \Bill(null, $fixclient_data, time(), 0, $currency);
         $no = $bill->GetNo();
         unset($bill);
-        $db->QueryInsert("log_newbills",
-            array('bill_no' => $no, 'ts' => array('NOW()'), 'user_id' => $user->Get('id'), 'comment' => 'Счет создан'));
 
         if ($design->ProcessEx('errors.tpl')) {
             header("Location: " . $design->LINK_START . "module=newaccounts&action=bill_view&bill=" . $no);
@@ -666,7 +665,7 @@ class m_newaccounts extends IModule
             //set doers
             if (isset($_POST['select_doer'])) {
                 $d = (int)$_POST['doer'];
-                $bill = \app\models\Bill::findOne(['bill_no' => $_POST['bill_no']]);
+                $bill = Bill::findOne(['bill_no' => $_POST['bill_no']]);
                 if ($bill) {
                     $bill->courier_id = $d;
                     $bill->save();
@@ -677,7 +676,7 @@ class m_newaccounts extends IModule
             $design->assign('1c_bill_flag', true);
             if (isset($_POST['select_doer'])) {
                 $d = (int)$_POST['doer'];
-                $bill = \app\models\Bill::findOne(['bill_no' => $_POST['bill_no']]);
+                $bill = Bill::findOne(['bill_no' => $_POST['bill_no']]);
                 if ($bill) {
                     $bill->courier_id = $d;
                     $bill->save();
@@ -717,8 +716,8 @@ class m_newaccounts extends IModule
         if (!$bill_no) {
             return;
         }
-        $bill = new Bill($bill_no);
-        $newbill = \app\models\Bill::findOne(['bill_no' => $bill_no]);
+        $bill = new \Bill($bill_no);
+        $newbill = Bill::findOne(['bill_no' => $bill_no]);
         if (get_param_raw('err') == 1) {
             trigger_error2('Невозможно добавить строки из-за несовпадния валют');
         }
@@ -737,12 +736,12 @@ class m_newaccounts extends IModule
 
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_extends_info', $newbill->extendsInfo);
-        $design->assign('bill_manager', getUserName(\app\models\Bill::dao()->getManager($bill->GetNo())));
+        $design->assign('bill_manager', getUserName(Bill::dao()->getManager($bill->GetNo())));
         $design->assign('bill_comment', $bill->GetStaticComment());
         $design->assign('bill_courier', $bill->GetCourier());
         $design->assign('bill_lines', $L = $bill->GetLines());
         $design->assign('bill_bonus', $this->getBillBonus($bill->GetNo()));
-        $design->assign('bill_is_new_company', \app\models\Bill::dao()->isBillNewCompany($newbill));
+        $design->assign('bill_is_new_company', Bill::dao()->isBillNewCompany($newbill));
 
         /*
            счет-фактура(1)-абонен.плата
@@ -849,6 +848,17 @@ class m_newaccounts extends IModule
             $design->assign('listOfInvoices', $listOfInvoices);
         }
 
+        $design->assign("_showHistoryBill", Yii::$app->view->render('//layouts/_showHistory', [
+            'model' => $newbill,
+            'title' => 'История изменений счета'
+        ]));
+        $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', [
+            'model' => $newbill->lines,
+            'deleteModel' => [new \app\models\BillLine(), 'bill_no', $newbill->bill_no],
+            'idField' => 'pk',
+            'title' => 'История изменений позиций счета'
+        ]));
+
         $design->AddMain('newaccounts/bill_view.tpl');
 
         $tt = $db->GetRow("SELECT * FROM tt_troubles WHERE bill_no='" . $bill_no . "'");
@@ -860,12 +870,12 @@ class m_newaccounts extends IModule
         }
     }
 
-    function get_bill_docs(Bill &$bill, $L = null)
+    function get_bill_docs(\Bill &$bill, $L = null)
     {
         return self::get_bill_docs_static($bill, $L);
     }
 
-    static function get_bill_docs_static(Bill &$bill, $L = null)
+    static function get_bill_docs_static(\Bill &$bill, $L = null)
     {
         $bill_akts = $bill_invoices = $bill_upd = array();
 
@@ -909,7 +919,7 @@ class m_newaccounts extends IModule
     {
 
         $bill_no = $_POST['bill_no'];
-        $bill = \app\models\Bill::findOne(['bill_no' => $bill_no]);
+        $bill = Bill::findOne(['bill_no' => $bill_no]);
 
         $bill->is_approved = $bill->is_approved ? 0 : 1;
         $bill->sum = $bill->is_approved ? $bill->sum_with_unapproved : 0;
@@ -935,7 +945,7 @@ class m_newaccounts extends IModule
         }
 
 
-        $bill = new Bill($bill_no);
+        $bill = new \Bill($bill_no);
         if ($bill->IsClosed()) {
             header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();
@@ -962,7 +972,7 @@ class m_newaccounts extends IModule
     {
         $billNo = get_param_protected("bill");
 
-        $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
+        $bill = Bill::findOne(['bill_no' => $billNo]);
         $bill->comment = nl2br(strip_tags(get_param_raw("comment")));
         $bill->save();
 
@@ -974,7 +984,7 @@ class m_newaccounts extends IModule
     {
         $billNo = get_param_protected("bill");
 
-        $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
+        $bill = Bill::findOne(['bill_no' => $billNo]);
         $bill->nal = get_param_raw("nal");
         $bill->save();
 
@@ -998,7 +1008,7 @@ class m_newaccounts extends IModule
         $isImport = get_param_raw("from", "") == "import";
 
         foreach ($bills as $bill_no) {
-            $bill = \app\models\Bill::findOne(['bill_no' => $bill_no]);
+            $bill = Bill::findOne(['bill_no' => $bill_no]);
             if ($bill) {
                 $bill->postreg = $option ? '' : date('Y-m-d');
                 $bill->save();
@@ -1045,7 +1055,7 @@ class m_newaccounts extends IModule
         $dateFrom = new DatePickerValues('bill_no_ext_date', 'today');
         $bill_no_ext_date = $dateFrom->getSqlDay();
 
-        $bill = new Bill($bill_no);
+        $bill = new \Bill($bill_no);
         if (!$bill->CheckForAdmin()) {
             return;
         }
@@ -1120,7 +1130,7 @@ class m_newaccounts extends IModule
         if (!$obj) {
             return;
         }
-        $bill = new Bill($bill_no);
+        $bill = new \Bill($bill_no);
         if (!$bill->CheckForAdmin()) {
             return;
         }
@@ -1172,7 +1182,7 @@ class m_newaccounts extends IModule
                     $connectingServices[] = ['type' => $transaction->service_type, 'id' => $transaction->service_id];
                 }
 
-                $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+                $b = Bill::findOne(['bill_no' => $bill->GetNo()]);
                 $b->dao()->recalcBill($b);
                 BillDocument::dao()->updateByBillNo($bill->GetNo());
 
@@ -1228,7 +1238,7 @@ class m_newaccounts extends IModule
                         $transaction->service_type, $transaction->service_id, $period_from, $period_to);
                 }
 
-                $b = \app\models\Bill::findOne(['bill_no' => $bill->GetNo()]);
+                $b = Bill::findOne(['bill_no' => $bill->GetNo()]);
                 $b->dao()->recalcBill($b);
 
             } else {
@@ -1345,9 +1355,19 @@ class m_newaccounts extends IModule
 
     function newaccounts_bill_publish($fixclient)
     {
-        $rowsUpdated = \app\models\Bill::updateAll(['is_show_in_lk' => 1], ['and', ['is_show_in_lk' => 0], ['like', 'bill_no', date("Ym").'%', false]]);
+        $count = 0;
 
-        trigger_error2("Опубликованно счетов: " . $rowsUpdated);
+        $query = Bill::find()
+            ->where(['is_show_in_lk' => 0])
+            ->andWhere(['like', 'bill_no', date("Ym").'%', false]);
+
+        foreach ($query->each() as $bill) {
+            $bill->is_show_in_lk = 1;
+            $bill->save();
+            $count++;
+        }
+
+        Yii::$app->session->addFlash('success', 'Опубликовано ' . $count . ' счетов');
 
         return;
     }
@@ -1360,7 +1380,7 @@ class m_newaccounts extends IModule
         if (!$bill_no) {
             return;
         }
-        $bill = new Bill($bill_no);
+        $bill = new \Bill($bill_no);
         $is_pdf = get_param_raw('is_pdf', 0);
 
         $template = 'Уважаемые господа!<br>Отправляем Вам следующие документы:<br>';
@@ -1611,7 +1631,7 @@ class m_newaccounts extends IModule
         $idxs = array();
 
         foreach ($bills as $bill_no) {
-            $bill = new Bill($bill_no);
+            $bill = new \Bill($bill_no);
 
             $bb = $bill->GetBill();
 
@@ -1803,7 +1823,7 @@ class m_newaccounts extends IModule
         $R = [];
 
         foreach ($bills as $billNo) {
-            $bill = \app\models\Bill::findOne(['bill_no' => $billNo]);
+            $bill = Bill::findOne(['bill_no' => $billNo]);
 
             if (!$bill) {
                 continue;
@@ -1859,7 +1879,7 @@ class m_newaccounts extends IModule
         if (!$bill_no) {
             return;
         }
-        $bill = new Bill($bill_no);
+        $bill = new \Bill($bill_no);
         if ($bill->IsClosed()) {
             header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
             exit();
@@ -1867,7 +1887,10 @@ class m_newaccounts extends IModule
         if (!$bill->CheckForAdmin()) {
             return;
         }
-        $db->Query('delete from newbill_lines where bill_no="' . $bill_no . '"');
+
+        foreach (\app\models\BillLine::find()->where(['bill_no' => $bill_no])->all() as $line) {
+            $line->delete();
+        }
 
         $bill->Save(0, 0);
 
@@ -1887,7 +1910,7 @@ class m_newaccounts extends IModule
         if (!$bill_no) {
             return;
         }
-        $bill = new Bill($bill_no);
+        $bill = new \Bill($bill_no);
         if (!$bill->CheckForAdmin()) {
             return;
         }
@@ -1910,8 +1933,8 @@ class m_newaccounts extends IModule
             return;
         }
 
-        /** @var \app\models\Bill $bill */
-        $bill = \app\models\Bill::find()->andWhere(['bill_no' => $bill_no])->one();
+        /** @var Bill $bill */
+        $bill = Bill::find()->andWhere(['bill_no' => $bill_no])->one();
 
         if ($bill->isClosed()) {
             header("Location: ./?module=newaccounts&action=bill_view&bill=" . $bill_no);
@@ -1987,7 +2010,7 @@ class m_newaccounts extends IModule
         $design->assign("to_client", $to_client);
 
 
-        $bill = new Bill($bill_no);
+        $bill = new \Bill($bill_no);
         $bb = $bill->GetBill();
 
         $design->assign('without_date_date', $bill->getShipmentDate());
@@ -3397,7 +3420,7 @@ where cg.inn = '" . $inn . "'";
 
         foreach ($d as $p) {
             if (isset($p["imported"]) && $p["imported"] && $p["bill_no"] && substr($p["bill_no"], 6, 1) == "-") {
-                $bill = new Bill($p["bill_no"]);
+                $bill = new \Bill($p["bill_no"]);
 
                 if (/*substr($bill->Get("bill_date"), 7,3) == "-01" && */
                     $bill->Get("postreg") == "0000-00-00" && !$bill->isOneZadatok()
@@ -4011,15 +4034,13 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             $s_billNo = get_param_protected("bill_no");
 
             if ($s_obj && ($s_value || $s_value == 0) && $s_billNo) {
-                $oBill = new Bill($s_billNo);
-                if ($dBill = $oBill->GetBill()) {
+                $oBill = Bill::findOne(['bill_no' => $s_billNo]);
+                if ($oBill) {
                     if ($s_obj == "nal" && in_array($s_value, array("nal", "beznal", "prov"))) {
-                        $oBill->SetNal($s_value);
-                        $db->QueryUpdate("newbills", "bill_no", array("bill_no" => $s_billNo, "nal" => $s_value));
+                        $oBill->nal = $s_value;
+
                     } elseif ($s_obj == "courier") {
-                        $oBill->SetCourier($s_value);
-                        $db->QueryUpdate("newbills", "bill_no",
-                            array("bill_no" => $s_billNo, "courier_id" => $s_value));
+                        $oBill->courier_id = $s_value;
                     } elseif ($s_obj == "comment") {
                         $v = array(
                             "bill_no" => $s_billNo,
@@ -4034,6 +4055,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                             $db->QueryInsert("log_newbills_static", $v);
                         }
                     }
+                    $oBill->save();
                 }
             }
         }
@@ -4433,7 +4455,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $S_zalog = 0;
 
         foreach ($P as &$p) {
-            $bill = new Bill($p['bill_no']);
+            $bill = new \Bill($p['bill_no']);
             $A1 = null;
             for ($I = 1; $I <= 4; $I++) {
                 $A = $this->do_print_prepare($bill, $I == 4 ? 'lading' : 'akt', $I == 4 ? null : $I, 'RUB', 0);
@@ -4600,7 +4622,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $dtTo = clone $dateTo->day;
         $dtTo->modify("+1 month");
 
-        \app\models\Bill::dao()->checkSetBillsOrganization($dtFrom, $dtTo);
+        Bill::dao()->checkSetBillsOrganization($dtFrom, $dtTo);
 
         $R = array();
         $Rc = 0;
@@ -4756,7 +4778,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             foreach ($AA as $p) {
                 //while(($p = mysql_fetch_assoc($res))!==false){
 
-                $bill = new Bill($p['bill_no']);
+                $bill = new \Bill($p['bill_no']);
                 for ($I = 1; $I <= 3; $I++) {
 
                     $A = false;//$this->bb_cache__get($p["bill_no"]."--".$I);
@@ -5257,28 +5279,19 @@ SELECT cr.manager, cr.account_manager FROM clients c
                     break;
                 }
 
-                $query = "
-                    UPDATE
-                        newbill_lines
-                    SET
-                        date_from = '" . $date_from . "',
-                        date_to = '" . $date_to . "'
-                    where
-                        bill_no='" . addcslashes($_REQUEST['bill_no'], "\\\\'") . "'
-                    and
-                        sort = " . ((int)$_REQUEST['sort_number']) . "
-                ";
-                ob_start();
-                $db->Query($query);
+                /** @var \app\models\BillLine $line */
+                if ($line = \app\models\BillLine::find()->where([
+                    'bill_no' => $_REQUEST['bill_no'],
+                    'sort' => (int)$_REQUEST['sort_number']
+                ])->one()) {
+                    $line->date_from = $date_from;
+                    $line->date_to = $date_to;
+                    $line->save();
+                }
 
                 //Обновление списка документов
                 BillDocument::dao()->updateByBillNo($_REQUEST['bill_no']);
 
-                ob_end_clean();
-                if (mysql_errno()) {
-                    echo 'MySQLErr';
-                    break;
-                }
                 echo 'Ok';
                 break;
             }
@@ -5303,7 +5316,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
         //устанавливаем клиента
         if ($bill_no) {
-            $bill = new Bill($bill_no);
+            $bill = new \Bill($bill_no);
             if (!$bill) {
                 return false;
             }
@@ -5571,7 +5584,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 $bill_no = $ret->{\_1c\tr('Номер')};
 
                 if (!$bill) {
-                    $bill = new Bill($bill_no);
+                    $bill = new \Bill($bill_no);
                 }
 
 
@@ -5582,7 +5595,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 if ($ttt = $db->GetRow("select * from tt_troubles where bill_no='" . $bill_no . "'")) {
                     if ($ttt['state_id'] == 15 && $bill) {
                         global $user;
-                        \app\models\Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
+                        Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
                     }
                     if (!$positions['comment']) {
                         $comment = $add_info['ПроисхождениеЗаказа'] . "<br />
@@ -5612,7 +5625,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                 }
 
                 if (!$ttt && $bill) {
-                    \app\models\Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
+                    Bill::dao()->setManager($bill->GetNo(), $user->Get("id"));
                 }
 
                 trigger_error2("Счет #" . $bill_no . " успешно " . ($_POST["order_bill_no"] == $bill_no ? "сохранен" : "создан") . "!");
@@ -5631,7 +5644,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         }
         $design->assign("managers", $userSelect);
         if ($bill) {
-            $design->assign("bill_manager", \app\models\Bill::dao()->getManager($bill->GetNo()));
+            $design->assign("bill_manager", Bill::dao()->getManager($bill->GetNo()));
         }
 
         $design->assign('show_adds',
@@ -5938,7 +5951,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
             if ($qrcode && $qr) {
                 $billNo = $qr["number"];
-                $clientId = NewBill::find_by_bill_no($billNo)->client_id;
+                $clientId = Bill::find()->where(['bill_no' => $billNo])->select('client_id')->scalar();
                 $type = $qr["type"]["code"];
 
                 $id = $db->QueryInsert("qr_code", array(
@@ -6044,7 +6057,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
 
         if ($qr) {
             $billNo = $qr["number"];
-            $clientId = NewBill::find_by_bill_no($billNo)->client_id;
+            $clientId = Bill::find()->where(['bill_no' => $billNo])->select('client_id')->scalar();
             $type = $qr["type"]["code"];
         }
 
@@ -6138,4 +6151,3 @@ SELECT cr.manager, cr.account_manager FROM clients c
     }
 }
 
-?>

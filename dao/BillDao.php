@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\classes\Language;
 use app\classes\Singleton;
 use app\classes\uu\model\AccountEntry;
 use app\classes\uu\model\Bill as uuBill;
@@ -11,6 +12,7 @@ use app\models\Bill;
 use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
+use app\models\LogBill;
 use app\models\Transaction;
 use Yii;
 
@@ -483,5 +485,162 @@ SQL;
             $bill->organization_id = $bill->clientAccount->contract->organization_id;
             $bill->save();
         }
+    }
+
+    /**
+     * Получение счета на предоплату для ЛК
+     *
+     * @param int   $accountId
+     * @param float $sum
+     * @return Bill
+     */
+    public function getPrepayedBillOnSum($accountId, $sum)
+    {
+        $billNo = $this->getPrepayedBillNoOnSumFromDB($accountId, $sum);
+
+        if ($billNo) {
+            return Bill::findOne(['bill_no' => $billNo]);
+        }
+
+        return $this->createBillOnSum($accountId, $sum);
+    }
+
+    /**
+     * Получение счета на предоплату для Лк из базы
+     *
+     * @param int   $accountId
+     * @param float $sum
+     * @return null|Bill
+     */
+    public function getPrepayedBillNoOnSumFromDB($accountId, $sum)
+    {
+        return \Yii::$app->db->createCommand(
+            "SELECT
+                bill_no
+             FROM (
+                SELECT
+                    b.bill_no,
+                    p.payment_no
+                FROM (
+                        SELECT
+                            b.bill_no,
+                            b.client_id,
+                            bill_date,
+                            COUNT(1) AS count_lines,
+                            SUM(l.sum) AS l_sum
+                        FROM
+                            newbills b, newbill_lines l
+                        WHERE
+                                b.client_id = :accountId
+                            AND l.bill_no = b.bill_no
+                            AND is_user_prepay
+                            AND biller_version = :biller_version
+                        GROUP BY
+                            bill_no
+                        HAVING
+                                count_lines = 1
+                            AND l_sum = :sum
+                ) b
+                LEFT JOIN newpayments p ON (p.client_id = b.client_id and (b.bill_no = p.bill_no OR b.bill_no = p.bill_vis_no))
+                HAVING
+                    p.payment_no IS NULL
+                ORDER BY
+                    bill_date DESC
+                LIMIT 1
+             )a", [
+                    ':biller_version' => ClientAccount::VERSION_BILLER_USAGE,
+                    ':accountId' => $accountId,
+                     'sum' => $sum
+        ])->queryScalar();
+
+    }
+
+    /**
+     * Создает счет на основе суммы платежа
+     *
+     * @param int $accountId
+     * @param float $sum
+     * @return Bill
+     * @throws \Exception
+     * @internal param bool|false $createAutoLkLog
+     */
+    public function createBillOnSum($accountId, $sum)
+    {
+        $clientAccount = ClientAccount::findOne(['id' => $accountId]);
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+
+            $bill = self::me()->createBill($clientAccount);
+
+            $bill->is_user_prepay = 1;
+            $bill->save();
+
+            $bill->addLine(
+                Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->country->lang)),
+                1,
+                $sum,
+                BillLine::LINE_TYPE_ZADATOK
+            );
+
+            LogBill::dao()->log($bill->bill_no, 'Создание счета');
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return $bill;
+    }
+
+    /**
+     * Создание пустого счета
+     *
+     * @param ClientAccount $clientAccount
+     * @param \DateTime|null $date
+     * @return Bill
+     */
+    public function createBill(ClientAccount $clientAccount, \DateTime $date = null)
+    {
+        if (!$date) {
+            $date = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
+        }
+
+        $bill = new Bill();
+        $bill->client_id = $clientAccount->id;
+        $bill->currency = $clientAccount->currency;
+        $bill->bill_no = $this->_getNextBill($date);
+        $bill->bill_date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
+        $bill->nal = $clientAccount->nal;
+        $bill->is_approved = 1;
+        $bill->price_include_vat = $clientAccount->price_include_vat;
+        $bill->biller_version = $clientAccount->account_version;
+        $bill->save();
+
+        $bill->refresh();
+
+        return $bill;
+    }
+
+    /**
+     * Получение следующего номера счета
+     *
+     * @param \DateTime $billDate
+     * @return string
+     */
+    private function _getNextBill(\DateTime $billDate)
+    {
+        $prefix = $billDate->format('Ym');
+
+        $lastBillNo = Bill::find()
+            ->select('bill_no')
+            ->where(['like', 'bill_no', $prefix."-%", false])
+            ->orderBy(['bill_no' => SORT_DESC])
+            ->scalar();
+
+        $suffix = 1 + intval(substr($lastBillNo, 7));
+
+        return sprintf("%s-%04d", $prefix, $suffix);
     }
 }

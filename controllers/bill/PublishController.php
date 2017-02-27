@@ -3,6 +3,9 @@ namespace app\controllers\bill;
 
 use app\classes\Utils;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
+use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\models\Organization;
 use app\models\Param;
 use app\models\Region;
@@ -13,6 +16,9 @@ use app\classes\BaseController;
 class PublishController extends BaseController
 {
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -28,6 +34,11 @@ class PublishController extends BaseController
         ];
     }
 
+    /**
+     * @param int $organizationId
+     * @param int $regionId
+     * @return string
+     */
     public function actionIndex($organizationId = Organization::MCN_TELEKOM, $regionId = Region::HUNGARY)
     {
         $isNotificationsOn = false;
@@ -50,28 +61,30 @@ class PublishController extends BaseController
     /**
      * Публикация счетов в регионе
      *
-     * @param $regionId
+     * @param int $regionId
      * @return \yii\web\Response
      */
     public function actionRegion($regionId)
     {
-        $result =
-            Yii::$app->db->createCommand('
-                UPDATE `newbills` nb 
-                  LEFT JOIN `clients` c ON c.`id` = nb.`client_id`
-                SET
-                    nb.`is_show_in_lk` = 1
-                WHERE
-                    nb.`bill_no` LIKE :bill_no
-                    AND nb.`is_show_in_lk` = 0
-                    AND c.`region` = :region',
-                [
-                    ':bill_no' => date('Ym') . '-%',
-                    ':region' => $regionId,
-                ]
-            )->execute();
+        $query = Bill::find()
+            ->from(['b' => Bill::tableName()])
+            ->innerJoin(['c' => ClientAccount::tableName()], 'c.id = b.client_id')
+            ->where([
+                'c.region' => $regionId,
+                'b.is_show_in_lk' => 0
+            ])
+            ->andWhere(['like', 'b.bill_no', date('Ym') . '-%', false]);
 
-        Yii::$app->session->addFlash('success', 'Опубликовано ' . $result . ' счетов');
+        $count = 0;
+
+        /** @var \app\models\Bill $bill */
+        foreach ($query->each() as $bill) {
+            $bill->is_show_in_lk = 1;
+            $bill->save();
+            $count++;
+        }
+
+        Yii::$app->session->addFlash('success', 'Опубликовано ' . $count . ' счетов');
 
         return $this->redirect(['/bill/publish/index', 'regionId' => $regionId]);
     }
@@ -80,24 +93,30 @@ class PublishController extends BaseController
      * Публикация счетов по организации
      *
      * @param int $organizationId
+     * @return \yii\web\Response
      */
     public function actionOrganization($organizationId)
     {
-        $result = Yii::$app->db->createCommand("
-                UPDATE newbills b
-                  LEFT JOIN `clients` c ON c.`id` = b.`client_id`
-                  LEFT JOIN `client_contract` cc ON cc.`id` = c.contract_id
-                SET b.is_show_in_lk = 1
-                WHERE
-                  b.bill_no LIKE :bill_mask
-                  AND cc.organization_id = :organizationId
-                  AND b.is_show_in_lk = 0",
-            [
-                ':bill_mask' => date('Ym') . '-%',
-                ':organizationId' => $organizationId
-            ])->execute();
+        $query = Bill::find()
+            ->from(['b' => Bill::tableName()])
+            ->innerJoin(['c' => ClientAccount::tableName()], 'c.id = b.client_id')
+            ->innerJoin(['cc' => ClientContract::tableName()], 'cc.id = c.contract_id')
+            ->where([
+                'cc.organization_id' => $organizationId,
+                'b.is_show_in_lk' => 0
+            ])
+            ->andWhere(['like', 'b.bill_no',  date('Ym') . '-%', false]);
 
-        Yii::$app->session->addFlash('success', 'Опубликовано ' . $result . ' счетов');
+        $count = 0;
+
+        /** @var Bill $bill */
+        foreach ($query->each() as $bill) {
+            $bill->is_show_in_lk = 1;
+            $bill->save();
+            $count++;
+        }
+
+        Yii::$app->session->addFlash('success', Yii::t('common', 'Published {n, plural, one{# bill} other{# bills}}', ['n' => $count]));
 
         return $this->redirect(['/bill/publish/index', 'organizationId' => $organizationId]);
     }

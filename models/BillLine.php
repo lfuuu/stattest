@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\model\HistoryActiveRecord;
 use yii\db\ActiveRecord;
 
 /**
@@ -32,7 +33,7 @@ use yii\db\ActiveRecord;
  * @property int $tax_rate       Значение ставки налога
  * @property int $uu_account_entry_id
  */
-class BillLine extends ActiveRecord
+class BillLine extends HistoryActiveRecord
 {
 
     const LINE_TYPE_SERVICE = 'service';
@@ -41,12 +42,24 @@ class BillLine extends ActiveRecord
     const LINE_TYPE_GOOD = 'good';
     const LINE_TYPE_ALL4NET = 'all4net';
 
+    public $isHistoryVersioning = false;
+
     /**
      * @return string
      */
     public static function tableName()
     {
         return 'newbill_lines';
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+        ];
     }
 
     /**

@@ -10,6 +10,8 @@ use yii\db\ActiveRecord;
 use Yii;
 
 /**
+ * Class Payment
+ *
  * @property int $id             идентификатор платежа
  * @property int $client_id      идентификатор лицевого счета
  * @property string $payment_no     номер платежа по данным внешней системы или банка

@@ -10,12 +10,21 @@ use app\models\LogBill;
 use app\models\User;
 
 /**
+ * Class LogBillDao
+ *
  * @method static LogBillDao me($args = null)
  * @property
  */
 class LogBillDao extends Singleton
 {
-    public function log($billOrBillNo, $message)
+    /**
+     * Логирование счета
+     *
+     * @param Bill|string $billOrBillNo
+     * @param string $message
+     * @param integer|null $userId
+     */
+    public function log($billOrBillNo, $message, $userId = null)
     {
         $log = new LogBill();
 
@@ -27,8 +36,14 @@ class LogBillDao extends Singleton
             Assert::isUnreachable();
         }
 
+        if (!$userId) {
+            $userId = Yii::$app->has('user') && Yii::$app->user->getId() ?
+                Yii::$app->user->getId() :
+                User::SYSTEM_USER_ID;
+        }
+
         $log->ts = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        $log->user_id = Yii::$app->has('user') && Yii::$app->user->getId() ? Yii::$app->user->getId() : User::SYSTEM_USER_ID;
+        $log->user_id = $userId;
         $log->comment = $message;
         $log->save();
     }

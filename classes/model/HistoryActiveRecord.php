@@ -17,6 +17,7 @@ use yii\db\ActiveRecord;
  */
 class HistoryActiveRecord extends ActiveRecord
 {
+    public $isHistoryVersioning = true;
 
     private
         $_historyVersionStoredDate = null,
@@ -71,7 +72,7 @@ class HistoryActiveRecord extends ActiveRecord
             parent::save($runValidation, $attributeNames) :
             true;
 
-        if ($result) {
+        if ($this->isHistoryVersioning && $result) {
             $this->_createHistoryVersion();
         }
 
@@ -254,9 +255,10 @@ class HistoryActiveRecord extends ActiveRecord
      *
      * @param HistoryActiveRecord|HistoryActiveRecord[] $models Одна или массив моделей, которые надо искать
      * @param array $deleteModel Исходная модель (можно свежесозданную и несохраненную), поле и значение, которые надо искать среди удаленных моделей
+     * @param string $idField
      * @return string
      */
-    public static function getHistoryIds($models, $deleteModel = [])
+    public static function getHistoryIds($models, $deleteModel = [], $idField = 'id')
     {
         if (!is_array($models)) {
             $models = [$models];
@@ -268,7 +270,7 @@ class HistoryActiveRecord extends ActiveRecord
                 continue;
             }
 
-            $historyIdPhp[] = [$model->getClassName(), $model->id];
+            $historyIdPhp[] = [$model->getClassName(), $model->{$idField}];
         }
 
         if (count($deleteModel) === 3) {

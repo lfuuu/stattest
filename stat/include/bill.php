@@ -242,8 +242,8 @@ class Bill {
             $line->calculateSum($this->bill['price_include_vat']);
             $line->save();
         }
-
     }
+
     public function RemoveLine($sort) {
         $this->changed = 1;
 
@@ -267,10 +267,15 @@ class Bill {
         if ($hasLines || !$remove_empty) {
             $bSave = $this->bill;
             unset($bSave["doc_ts"]);
+            if (!$bSave["bill_no_ext_date"]) {
+                unset($bSave["bill_no_ext_date"]);
+            }
 
             $bill = \app\models\Bill::findOne(['bill_no' => $this->bill_no]);
             $bill->setAttributes($bSave, false);
+            $bill->detachBehavior('BillChangeLog');
             $bill->save();
+            $bill->attachBehavior('BillChangeLog', \app\classes\behaviors\BillChangeLog::className());
             $bill->dao()->recalcBill($bill);
             $this->bill_ts = unix_timestamp($this->Get('bill_date'));
             BillDocument::dao()->updateByBillNo($this->bill_no);

@@ -71,6 +71,8 @@ class HistoryController extends BaseController
                             'OR', // LIKE по json-строке - это извращение, но ничего лучше не придумал
                             ['LIKE', 'data_json', sprintf('"%s":%d,', $fieldName, $fieldValue)], // insert удаленных
                             ['LIKE', 'prev_data_json', sprintf('"%s":%d,', $fieldName, $fieldValue)], // delete
+                            ['LIKE', 'data_json', sprintf('"%s":"%s",', $fieldName, $fieldValue)], // insert удаленных, строковые значения
+                            ['LIKE', 'prev_data_json', sprintf('"%s":"%s",', $fieldName, $fieldValue)], // delete, строковые значения
                         ]
                     ]);
                     break;
