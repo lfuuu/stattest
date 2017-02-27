@@ -1,6 +1,8 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\ContragentCountry;
+use app\classes\behaviors\EffectiveVATRate;
 use Yii;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\validators\InnKppValidator;
@@ -108,7 +110,8 @@ class ClientContragent extends HistoryActiveRecord
     {
         return [
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            'ContragentCountry' => \app\classes\behaviors\ContragentCountry::className(),
+            'ContragentCountry' => ContragentCountry::className(),
+            'EffectiveVATRate' => EffectiveVATRate::className(),
         ];
     }
 

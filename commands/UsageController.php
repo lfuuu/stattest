@@ -3,6 +3,7 @@ namespace app\commands;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\BusinessProcessStatus;
+use app\models\ClientContract;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use app\models\LogTarif;
@@ -227,5 +228,13 @@ class UsageController extends Controller
         }
 
         return Controller::EXIT_CODE_NORMAL;
+    }
+
+    /**
+     * Заполнение поля с эффективной ставкой НДС.
+     */
+    public function actionResetEffectiveVatRate()
+    {
+        ClientContract::dao()->resetAllEffectiveVATRate();
     }
 }

@@ -91,7 +91,16 @@ echo GridView::widget([
             'hAlign' => 'left',
         ]
     ],
-    'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/dictionary/invoice-settings/add/']),
+    'extraButtons' =>
+        $this->render('//layouts/_buttonCreate', ['url' => '/dictionary/invoice-settings/add/']) .
+        $this->render('//layouts/_link', [
+            'text' => 'Пересчитaть ставку НДС',
+            'url' => '/dictionary/invoice-settings/recalculate/',
+            'glyphicon' => 'glyphicon-save',
+            'params' => [
+                'class' => 'btn btn-primary',
+                'title' => 'Пересчитать эффективную ставку НДС по данным этой таблицы (пересчет может занять несколько минут)',
+            ]]),
     'isFilterButton' => false,
     'floatHeader' => false,
 ]);

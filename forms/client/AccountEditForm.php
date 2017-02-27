@@ -77,8 +77,8 @@ class AccountEditForm extends Form
         $site_name,
         $account_version,
         $is_postpaid,
-        $is_calc_with_tax,
-        $type_of_bill;
+        $type_of_bill,
+        $effective_vat_rate = 0;
 
     /**
      * Правила
@@ -127,8 +127,7 @@ class AccountEditForm extends Form
                     'bank_name',
                     'bank_city',
                     'bank_properties',
-                    'admin_email',
-                    'is_calc_with_tax'
+                    'admin_email'
 
                 ],
                 'default',
@@ -274,6 +273,7 @@ class AccountEditForm extends Form
         }
 
         $this->is_agent = ($this->is_agent == 'Y') ? 1 : 0;
+        $this->effective_vat_rate .= "%";
 
         $options = [];
         foreach ($this->clientM->options as $element) {
@@ -313,8 +313,6 @@ class AccountEditForm extends Form
         if ($client && $this->historyVersionStoredDate) {
             $client->setHistoryVersionStoredDate($this->historyVersionStoredDate);
         }
-
-        $client->is_calc_with_tax = $this->is_calc_with_tax === '' ? null : (int)$this->is_calc_with_tax;
 
         $contract = ClientContract::findOne($client->contract_id);
         $contragent = ClientContragent::findOne($contract->contragent_id);

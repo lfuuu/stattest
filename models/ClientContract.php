@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\behaviors\ClientContractComments;
 use app\classes\behaviors\ContractContragent;
+use app\classes\behaviors\EffectiveVATRate;
 use app\classes\behaviors\LkWizardClean;
 use app\classes\behaviors\SetOldStatus;
 use app\classes\media\ClientMedia;
@@ -151,15 +152,66 @@ class ClientContract extends HistoryActiveRecord
             'SetOldStatus' => SetOldStatus::className(),
             'ClientContractComments' => ClientContractComments::className(),
             'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::className(),
+            'EffectiveVATRate' => EffectiveVATRate::className(),
         ];
     }
 
     /**
      * @return \app\dao\ClientContractDao
      */
-    public function dao()
+    public static function dao()
     {
         return ClientContractDao::me();
+    }
+
+    /**
+     * @param bool $runValidation
+     * @param string[] $attributeNames
+     * @return bool
+     */
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        if (is_array($this->federal_district)) {
+            $this->federal_district = SetFieldTypeHelper::generateFieldValue($this, 'federal_district',
+                $this->federal_district, false);
+        }
+
+        return parent::save($runValidation, $attributeNames);
+    }
+
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     * @throws \yii\base\Exception
+     */
+    public function afterSave($insert, $changedAttributes)
+    {
+        parent::afterSave($insert, $changedAttributes);
+        if ($insert) {
+            $contragent = ClientContragent::findOne($this->contragent_id);
+            $client = new ClientAccount();
+            $client->contract_id = $this->id;
+            $client->super_id = $this->super_id;
+            $client->country_id = $contragent->country_id;
+            $client->currency = Currency::defaultCurrencyByCountryId($contragent->country_id);
+            $client->is_active = 0;
+            $client->client = '';
+            $client->sale_channel = 0;
+            $client->consignee = '';
+            $client->validate();
+            $client->save();
+
+            $client->client = 'id' . $client->id;
+            $client->save();
+
+            $this->newClient = $client;
+            $this->number = (string)$client->id;
+            $this->save();
+        }
+
+        foreach ($this->getAccounts() as $account) {
+            $account->sync1C();
+        }
     }
 
     /**
@@ -369,56 +421,6 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
-     * @param bool $runValidation
-     * @param string[] $attributeNames
-     * @return bool
-     */
-    public function save($runValidation = true, $attributeNames = null)
-    {
-        if (is_array($this->federal_district)) {
-            $this->federal_district = SetFieldTypeHelper::generateFieldValue($this, 'federal_district',
-                $this->federal_district, false);
-        }
-
-        return parent::save($runValidation, $attributeNames);
-    }
-
-    /**
-     * @param bool $insert
-     * @param array $changedAttributes
-     * @throws \yii\base\Exception
-     */
-    public function afterSave($insert, $changedAttributes)
-    {
-        parent::afterSave($insert, $changedAttributes);
-        if ($insert) {
-            $contragent = ClientContragent::findOne($this->contragent_id);
-            $client = new ClientAccount();
-            $client->contract_id = $this->id;
-            $client->super_id = $this->super_id;
-            $client->country_id = $contragent->country_id;
-            $client->currency = Currency::defaultCurrencyByCountryId($contragent->country_id);
-            $client->is_active = 0;
-            $client->client = '';
-            $client->sale_channel = 0;
-            $client->consignee = '';
-            $client->validate();
-            $client->save();
-
-            $client->client = 'id' . $client->id;
-            $client->save();
-
-            $this->newClient = $client;
-            $this->number = (string)$client->id;
-            $this->save();
-        }
-
-        foreach ($this->getAccounts() as $account) {
-            $account->sync1C();
-        }
-    }
-
-    /**
      * @return array
      */
     public function statusesForChange()
@@ -463,6 +465,17 @@ class ClientContract extends HistoryActiveRecord
     public function isPartnerAgent()
     {
         return $this->contragent->partner_contract_id;
+    }
+
+    /**
+     * Расчитывает эффективную ставку НДС для данного договора
+     *
+     * @param bool $isWithTrace
+     * @return int
+     */
+    public function resetEffectiveVATRate($isWithTrace = true)
+    {
+        return self::dao()->resetEffectiveVATRate($this, $isWithTrace);
     }
 
 }

@@ -35,7 +35,9 @@ use kartik\widgets\ActiveForm;
             <?= $f->field($model, 'price_type')->dropDownList(PriceType::getList()) ?>
         </div>
         <div class="col-sm-3">
-            <?= $f->field($model, 'is_calc_with_tax')->dropDownList(['' => '-- по организации --'] + \app\classes\traits\YesNoTraits::getYesNoList()) ?>
+            <?= $f->field($model, 'effective_vat_rate')->textInput([
+                'disabled' => 'disabled',
+            ]) ?>
         </div>
     </div>
 

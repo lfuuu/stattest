@@ -4,11 +4,11 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * @property int doer_organization_id
- * @property int customer_country_code
- * @property int vat_apply_scheme
- * @property int settlement_account_type_id
- * @property int vat_rate
+ * @property int $doer_organization_id
+ * @property int $customer_country_code
+ * @property int $vat_apply_scheme
+ * @property int $settlement_account_type_id
+ * @property int $vat_rate
  */
 class InvoiceSettings extends ActiveRecord
 {

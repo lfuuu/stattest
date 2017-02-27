@@ -2,6 +2,7 @@
 
 namespace app\controllers\dictionary;
 
+use app\models\ClientContract;
 use Yii;
 use app\classes\Assert;
 use app\classes\BaseController;
@@ -28,7 +29,7 @@ class InvoiceSettingsController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['add', 'edit', 'delete'],
+                        'actions' => ['add', 'edit', 'delete', 'recalculate'],
                         'roles' => ['organization.edit'],
                     ],
                 ],
@@ -77,9 +78,9 @@ class InvoiceSettingsController extends BaseController
 
     /**
      * @param int $doerOrganizationId
-     * @param int $customerCountryCode
      * @param int $settlementAccountTypeId
      * @param int $vatApplyScheme
+     * @param int $customerCountryCode
      * @return string
      * @throws \yii\base\Exception
      */
@@ -88,8 +89,7 @@ class InvoiceSettingsController extends BaseController
         $settlementAccountTypeId,
         $vatApplyScheme,
         $customerCountryCode = null
-    )
-    {
+    ) {
         /** @var InvoiceSettings $model */
         $model = InvoiceSettings::findOne([
             'doer_organization_id' => $doerOrganizationId,
@@ -110,23 +110,40 @@ class InvoiceSettingsController extends BaseController
 
     /**
      * @param int $doerOrganizationId
-     * @param int $customerCountryCode
      * @param int $settlementAccountTypeId
      * @param int $vatApplyScheme
+     * @param int $customerCountryCode
      */
     public function actionDelete(
         $doerOrganizationId,
-        $customerCountryCode,
         $settlementAccountTypeId,
-        $vatApplyScheme
-    )
-    {
+        $vatApplyScheme,
+        $customerCountryCode = null
+    ) {
         InvoiceSettings::deleteAll([
             'doer_organization_id' => $doerOrganizationId,
             'customer_country_code' => $customerCountryCode,
             'settlement_account_type_id' => $settlementAccountTypeId,
             'vat_apply_scheme' => $vatApplyScheme,
         ]);
+
+        $this->redirect('/dictionary/invoice-settings');
+    }
+
+    /**
+     * Пересчитать эффективную ставку НДС по данным справочника Настройки платежных документов
+     *
+     * @throws \Exception
+     */
+    public function actionRecalculate()
+    {
+        set_time_limit(0);
+
+        ob_start();
+        $info = ClientContract::dao()->resetAllEffectiveVATRate();
+        ob_clean();
+
+        Yii::$app->session->addFlash('success', sprintf('Из %d ЛС установлена новая ставка НДС на %d ЛС, из них, с НДС не из справочника %d', $info['countAll'], $info['countSet'], $info['countFromOrganization']));
 
         $this->redirect('/dictionary/invoice-settings');
     }

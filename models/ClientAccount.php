@@ -51,7 +51,6 @@ use yii\helpers\Url;
  * @property int $account_version
  * @property int $is_postpaid
  * @property bool $type_of_bill
- * @property bool $is_calc_with_tax
  * @property string pay_acc
  * @property string bik
  * @property string bank_name
@@ -63,6 +62,7 @@ use yii\helpers\Url;
  * @property string address_connect
  * @property int is_with_consignee
  * @property string consignee
+ * @property int effective_vat_rate
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -309,7 +309,6 @@ class ClientAccount extends HistoryActiveRecord
             'anti_fraud_disabled' => 'Отключен анти-фрод',
             'is_postpaid' => 'Постоплата',
             'type_of_bill' => 'Закрывающий документ (Полный)',
-            'is_calc_with_tax' => 'Расчет с НДС (для н/у биллинга)',
             'status' => 'Статус',
             'is_active' => 'Вкл.',
             'previous_reincarnation' => 'Предыдущий аккаунт',
@@ -321,6 +320,7 @@ class ClientAccount extends HistoryActiveRecord
             'mail_print' => 'Печатать письма',
             'nds_calc_method' => 'Тип расчета НДС',
             'timezone_offset' => 'Таймзона, часы',
+            'effective_vat_rate' => 'Эффективная ставка НДС',
         ];
     }
 
