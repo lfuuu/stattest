@@ -27,6 +27,5 @@ $serviceType = $filterModel->getServiceType();
     ($serviceType && $filterModel->client_account_id) ? '_indexVoip' : '_indexMain',
     [
         'filterModel' => $filterModel,
-        'isShowAddButton' => true,
     ]
 );

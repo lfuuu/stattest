@@ -367,6 +367,32 @@ function showVersion(clickObj, obj) {
     return showHistoryOrVersion(clickObj, obj, '.showVersionButton', '/version/show');
 }
 
+function toggleButton(clickObj, divSelector) {
+    var btnSelector = '.toggleButton';
+    var el = $(clickObj);
+
+    var btn;
+    if (el.is(btnSelector)) {
+        btn = el;
+    } else {
+        btn = el.find(btnSelector);
+    }
+
+    if (btn.data('sh') !== false) {
+        //  показать
+        $(divSelector).slideDown();
+        btn.text('∧');
+        btn.data('sh', false);
+    }
+    else {
+        // повторный клик - скрыть
+        $(divSelector).slideUp();
+        btn.text('∨');
+        btn.data('sh', true);
+    }
+    return false;
+}
+
 function showIframePopup(element) {
     var width = (
             $(element).data('width') > 0

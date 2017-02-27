@@ -33,8 +33,8 @@ ob_end_clean(); // форма уже есть на странице, а здес
                     Html::tag('i', '', [
                         'class' => 'glyphicon glyphicon-edit',
                         'aria-hidden' => 'true',
-                    ]) . ' ' .
-                    'Добавить пакет',
+                    ]) .
+                    ' Добавить пакет',
                     [
                         'class' => 'btn btn-primary',
                         'data-old-tariff-period-id' => $formModel->accountTariff->tariff_period_id,
@@ -42,7 +42,7 @@ ob_end_clean(); // форма уже есть на странице, а здес
                 ) ?>
             <?php endif ?>
 
-            <?= $this->render('//layouts/_buttonCancel', ['url' => '#']) ?>
+            <?php // $this->render('//layouts/_buttonCancel', ['url' => '#']) ?>
 
         </div>
     </div>
