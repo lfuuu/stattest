@@ -1045,8 +1045,8 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге ЛС", operationId = "EditAccountTariff",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
      *
@@ -1059,13 +1059,13 @@ class UuController extends ApiInternalController
      * )
      */
     /**
-     * @param array $account_tariff_ids
      * @return int
      * @throws Exception
      */
-    public function actionEditAccountTariff(array $account_tariff_ids = [])
+    public function actionEditAccountTariff()
     {
         $postData = Yii::$app->request->post();
+        $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
         return $this->editAccountTariff(
             $account_tariff_ids,
             $postData['tariff_period_id'],
@@ -1124,8 +1124,8 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу ЛС", operationId = "CloseAccountTariff",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
      *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Услуга закрыта",
@@ -1137,13 +1137,13 @@ class UuController extends ApiInternalController
      * )
      */
     /**
-     * @param array $account_tariff_ids
      * @return int
      * @throws Exception
      */
-    public function actionCloseAccountTariff(array $account_tariff_ids = [])
+    public function actionCloseAccountTariff()
     {
         $postData = Yii::$app->request->post();
+        $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
         return $this->editAccountTariff(
             $account_tariff_ids,
             null,
@@ -1153,8 +1153,8 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС", operationId = "CancelEditAccountTariff",
-     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "query", required = true, default = ""),
-     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "query", default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Последняя смена тарифа (в т.ч. закрытие) услуги отменена",
      *     @SWG\Schema(type = "integer", description = "Новый последний tariffPeriodId (идентификатор периода). Если 0 - услуга удалена, ибо больше в логе тарифов ничего нет")
@@ -1165,7 +1165,6 @@ class UuController extends ApiInternalController
      * )
      */
     /**
-     * @param array $account_tariff_ids
      * @return int
      * @throws \yii\db\StaleObjectException
      * @throws \Exception
@@ -1173,8 +1172,11 @@ class UuController extends ApiInternalController
      * @throws \InvalidArgumentException
      * @throws \LogicException
      */
-    public function actionCancelEditAccountTariff(array $account_tariff_ids = [])
+    public function actionCancelEditAccountTariff()
     {
+        $postData = Yii::$app->request->post();
+        $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
+
         if (!$account_tariff_ids) {
             throw new InvalidArgumentException('Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
         }
