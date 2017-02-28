@@ -9,6 +9,7 @@ return [
     'is_include_vat' => 'Is include VAT',
     'is_charge_after_period' => 'Is change after period',
     'is_default' => 'Is default',
+    'is_postpaid' => 'Is postpaid',
     'count_of_validity_period' => 'Count of validity period',
     'tariff_status_id' => 'Status',
     'currency_id' => 'Currency',

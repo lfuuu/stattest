@@ -30,6 +30,7 @@ use yii\helpers\Url;
  * @property integer $is_charge_after_period @todo
  * @property integer $is_include_vat
  * @property integer $is_default
+ * @property integer $is_postpaid
  *
  * @property Currency $currency
  * @property TariffResource[] $tariffResources
@@ -109,6 +110,7 @@ class Tariff extends HistoryActiveRecord
                     'is_charge_after_blocking',
                     'is_charge_after_period',
                     'is_default',
+                    'is_postpaid',
                     'country_id',
                     'vm_id',
                 ],
@@ -330,7 +332,7 @@ class Tariff extends HistoryActiveRecord
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
      * @param int $serviceTypeId
-     * @return self[]
+     * @return self[]|string[]
      */
     public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $serviceTypeId = null)
     {
@@ -340,7 +342,7 @@ class Tariff extends HistoryActiveRecord
         $serviceTypeId && $query->where(['service_type_id' => $serviceTypeId]);
         $list = $query->all();
 
-        return (self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list);
+        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
     }
 
     /**

@@ -65,12 +65,14 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_ACCOUNT_MONEY = 8; // На ЛС даже с учетом кредита меньше первичного платежа по тарифу
     const ERROR_CODE_ACCOUNT_TRUNK = 9; // Универсальную услугу транка можно добавить только ЛС с договором Межоператорка
     const ERROR_CODE_ACCOUNT_TRUNK_SINGLE = 10; // Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.
+    const ERROR_CODE_ACCOUNT_POSTPAID = 11; // ЛС и тариф должны быть либо оба предоплатные, либо оба постоплатные
 
     // Ошибки даты
     const ERROR_CODE_DATE_PREV = 21; // Нельзя менять тариф задним числом
     const ERROR_CODE_DATE_TODAY = 22; // Сегодня тариф уже меняли. Теперь можно сменить его не ранее завтрашнего дня
     const ERROR_CODE_DATE_FUTURE = 23; // Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену
     const ERROR_CODE_DATE_TARIFF = 24; // Пакет телефонии может начать действовать только после начала действия основной услуги телефонии
+    const ERROR_CODE_DATE_PAID = 25; // Нельзя закрыть услугу раньше уже оплаченного периода
 
     // Ошибки тарифа
     const ERROR_CODE_SERVICE_TYPE = 31; // Нельзя менять тип услуги
@@ -288,7 +290,8 @@ class AccountTariff extends HistoryActiveRecord
     public function getAccountLogSetups()
     {
         return $this->hasMany(AccountLogSetup::className(), ['account_tariff_id' => 'id'])
-            ->indexBy('id');
+            ->indexBy('id')
+            ->orderBy(['id' => SORT_ASC]);
     }
 
     /**
@@ -297,7 +300,8 @@ class AccountTariff extends HistoryActiveRecord
     public function getAccountLogPeriods()
     {
         return $this->hasMany(AccountLogPeriod::className(), ['account_tariff_id' => 'id'])
-            ->indexBy('id');
+            ->indexBy('id')
+            ->orderBy(['id' => SORT_ASC]);
     }
 
     /**
@@ -306,7 +310,8 @@ class AccountTariff extends HistoryActiveRecord
     public function getAccountLogResources()
     {
         return $this->hasMany(AccountLogResource::className(), ['account_tariff_id' => 'id'])
-            ->indexBy('id');
+            ->indexBy('id')
+            ->orderBy(['id' => SORT_ASC]);
     }
 
     /**

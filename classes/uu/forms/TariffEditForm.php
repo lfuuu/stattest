@@ -10,7 +10,7 @@ use app\classes\uu\model\TariffVoipCity;
 class TariffEditForm extends TariffForm
 {
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {
@@ -36,6 +36,7 @@ class TariffEditForm extends TariffForm
         if (!$tariff) {
             throw new \InvalidArgumentException(\Yii::t('common', 'Wrong ID'));
         }
+
         return $tariff;
     }
 

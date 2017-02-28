@@ -31,14 +31,10 @@ use yii\db\ActiveRecord;
 class AccountTariffLog extends ActiveRecord
 {
     // Перевод названий полей модели
-    use \app\classes\traits\AttributeLabelsTraits {
-        attributeLabels as attributeLabelsFromTrait;
-    }
+    use \app\classes\traits\AttributeLabelsTraits;
 
     // Методы для полей insert_time, insert_user_id
     use \app\classes\traits\InsertUserTrait;
-
-    public $tariffPeriodFieldName = '';
 
     protected $countLogs = null;
 
@@ -68,18 +64,6 @@ class AccountTariffLog extends ActiveRecord
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorDoublePackage'],
         ];
-    }
-
-    /**
-     * Вернуть имена полей
-     *
-     * @return array [полеВТаблице => Перевод]
-     */
-    public function attributeLabels()
-    {
-        $attributeLabels = $this->attributeLabelsFromTrait();
-        $this->tariffPeriodFieldName && $attributeLabels['tariff_period_id'] = $this->tariffPeriodFieldName;
-        return $attributeLabels;
     }
 
     /**
@@ -267,14 +251,31 @@ class AccountTariffLog extends ActiveRecord
         if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
             $this->addError($attribute, 'Универсальную услугу можно добавить только ЛС, тарифицируемому универсально.');
             $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_IS_NOT_UU;
-            // а конвертация из неуниверсальных услуг идет с помощью SQL и сюда не попадает
             return;
         }
 
         $tariffPeriod = $this->tariffPeriod;
-        if ($tariffPeriod && $tariffPeriod->tariff->currency_id != $clientAccount->currency) {
-            $this->addError($attribute, sprintf('Валюта акаунта %s и тарифа %s не совпадают.', $clientAccount->currency, $tariffPeriod->tariff->currency_id));
-            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_CURRENCY;
+        if ($tariffPeriod) {
+            $tariff = $tariffPeriod->tariff;
+            if ($tariff->currency_id != $clientAccount->currency) {
+                $this->addError($attribute, sprintf('Валюта акаунта %s и тарифа %s не совпадают.', $clientAccount->currency, $tariffPeriod->tariff->currency_id));
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_CURRENCY;
+                return;
+            }
+
+            if ($clientAccount->is_postpaid != $tariff->is_postpaid) {
+                $this->addError($attribute, 'ЛС и тариф должны быть либо оба предоплатные, либо оба постоплатные.');
+                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_POSTPAID;
+                return;
+            }
+        }
+
+        /** @var AccountLogPeriod $accountLogPeriod */
+        $accountLogPeriods = $accountTariff->accountLogPeriods;
+        if (count($accountLogPeriods) && ($accountLogPeriod = end($accountLogPeriods)) && $accountLogPeriod->date_to >= $this->actual_from) {
+            $this->addError($attribute, sprintf('Услуга уже оплачена до %s. Закрыть можно только после этой даты.', $accountLogPeriod->date_to));
+            $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
+            return;
         }
 
         $credit = $clientAccount->credit; // кредитный лимит
@@ -292,6 +293,7 @@ class AccountTariffLog extends ActiveRecord
                 // подключение новой услуги
                 $this->addError($attribute, 'Не указан тариф/период.');
                 $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
+                return;
             }
         }
 
@@ -393,6 +395,7 @@ class AccountTariffLog extends ActiveRecord
 
     /**
      * Сдвинуть actual_from на завтра
+     *
      * @param string $error
      */
     protected function shiftActualFrom($error)

@@ -18,7 +18,7 @@ class TariffAddForm extends TariffForm
     public $countryId;
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

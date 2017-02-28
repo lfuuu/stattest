@@ -142,8 +142,9 @@
         <!-- Не запрещать inline-if -->
         <exclude name="Squiz.PHP.DisallowInlineIf.Found"/>
 
-        <!-- Не запрещать пустую строку в начале if -->
+        <!-- Не запрещать пустую строку в начале/конце if -->
         <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen"/>
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose"/>
 
         <!-- Не запрещать < ?= -->
         <exclude name="Generic.PHP.DisallowShortOpenTag.EchoFound"/>

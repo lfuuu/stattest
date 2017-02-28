@@ -16,6 +16,7 @@ return [
     'Non-universal tariff' => 'Неуниверсальный тариф',
     'Non-universal service' => 'Неуниверсальная услуга',
     'Packages' => 'Пакеты',
+    'Service types' => 'Типы услуг',
 
     'You should enter usage type' => 'Для создания тарифа обязательно нужно указать тип услуги',
     'You should enter tariff' => 'Не указан тариф',

@@ -7,7 +7,7 @@ use app\models\DidGroup;
 class DidGroupFormEdit extends DidGroupForm
 {
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

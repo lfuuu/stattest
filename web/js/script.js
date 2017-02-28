@@ -327,34 +327,34 @@ function form_cpe_load() {
 }
 
 function showHistoryOrVersion(clickObj, obj, btnSelector, url) {
-    var el = $(clickObj);
+    var $el = $(clickObj);
 
-    var btn;
-    if (el.is(btnSelector)) {
-        btn = el;
+    var $btn;
+    if ($el.is(btnSelector)) {
+        $btn = $el;
     } else {
-        btn = el.find(btnSelector);
+        $btn = $el.find(btnSelector);
     }
 
-    if (btn.data('sh') !== false) {
+    if ($btn.data('sh') !== false) {
         //  показать
         $.get(url, {params: obj}, function (data) {
             $("<div>")
                 .hide()
                 .append(data)
-                .insertAfter(el)
+                .insertAfter($el)
                 .slideDown();
-            btn.text('∧');
-            btn.data('sh', false);
+            $btn.text('∧');
+            $btn.data('sh', false);
         }, 'html');
     }
     else {
         // повторный клик - скрыть
-        btn.text('∨');
-        el.next().slideUp(function () {
+        $btn.text('∨');
+        $el.next().slideUp(function () {
             $(this).remove();
         });
-        btn.data('sh', true);
+        $btn.data('sh', true);
     }
     return false;
 }
@@ -365,6 +365,32 @@ function showHistory(clickObj, obj) {
 
 function showVersion(clickObj, obj) {
     return showHistoryOrVersion(clickObj, obj, '.showVersionButton', '/version/show');
+}
+
+function toggleButton(clickObj, divSelector) {
+    var btnSelector = '.toggleButton';
+    var $el = $(clickObj);
+
+    var $btn;
+    if ($el.is(btnSelector)) {
+        $btn = $el;
+    } else {
+        $btn = $el.find(btnSelector);
+    }
+
+    if ($btn.data('sh') !== false) {
+        //  показать
+        $(divSelector).slideDown();
+        $btn.text('∧');
+        $btn.data('sh', false);
+    }
+    else {
+        // повторный клик - скрыть
+        $(divSelector).slideUp();
+        $btn.text('∨');
+        $btn.data('sh', true);
+    }
+    return false;
 }
 
 function showIframePopup(element) {

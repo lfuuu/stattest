@@ -39,13 +39,14 @@ class SyncAccountTariffLight extends Behavior
      * Триггер при изменении (добавлении/редактировании) списания абонентки
      *
      * @param Event $event
+     * @throws \LogicException
      */
     public function accountLogPeriodChange(Event $event)
     {
         /** @var AccountLogPeriod $accountLogPeriod */
         $accountLogPeriod = $event->sender;
         $accountTariff = $accountLogPeriod->accountTariff;
-        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
+        if (!in_array($accountTariff->service_type_id, ServiceType::$packages)) {
             // только для пакетов
             return;
         }
@@ -62,17 +63,12 @@ class SyncAccountTariffLight extends Behavior
             ->setTimezone($utcTimezone)
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        if ($accountLogPeriod->tariffPeriod->getIsOneTime()) {
-            // Одноразовый не продлевается, не имеет абонентки, имеет плату за подключение. В качестве бонуса нет лимита по времени
-            $coefficient = 1;
-            $deactivateFrom = null;
-        } else {
-            $coefficient = $accountLogPeriod->coefficient;
-            $deactivateFrom = (new \DateTimeImmutable($accountLogPeriod->date_to, $clientTimezone))
-                ->setTimezone($utcTimezone)
-                ->modify('+1 day')// в AccountLogPeriod указан последний день действия, то есть выключить надо не в этот день, а только после его окончания (на следующий день)
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        }
+        $coefficient = $accountLogPeriod->coefficient;
+
+        $deactivateFrom = (new \DateTimeImmutable($accountLogPeriod->date_to, $clientTimezone))
+            ->setTimezone($utcTimezone)
+            ->modify('+1 day')// в AccountLogPeriod указан последний день действия, то есть выключить надо не в этот день, а только после его окончания (на следующий день)
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if (!$accountTariff->prev_account_tariff_id) {
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
@@ -104,7 +100,7 @@ class SyncAccountTariffLight extends Behavior
         /** @var AccountLogPeriod $accountLogPeriod */
         $accountLogPeriod = $event->sender;
         $accountTariff = $accountLogPeriod->accountTariff;
-        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
+        if (!in_array($accountTariff->service_type_id, ServiceType::$packages)) {
             // только для пакетов
             return;
         }

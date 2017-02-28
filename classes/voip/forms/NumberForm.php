@@ -26,7 +26,7 @@ abstract class NumberForm extends Form
     abstract public function getNumberModel();
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

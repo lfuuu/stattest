@@ -27,6 +27,7 @@ class TariffFilter extends Tariff
     public $is_charge_after_blocking = '';
     public $is_include_vat = '';
     public $is_default = '';
+    public $is_postpaid = '';
 
     /**
      * @param int $serviceTypeId
@@ -74,6 +75,7 @@ class TariffFilter extends Tariff
         $this->is_charge_after_blocking !== '' && $query->andWhere([$tariffTableName . '.is_charge_after_blocking' => (int)$this->is_charge_after_blocking]);
         $this->is_include_vat !== '' && $query->andWhere([$tariffTableName . '.is_include_vat' => (int)$this->is_include_vat]);
         $this->is_default !== '' && $query->andWhere([$tariffTableName . '.is_default' => (int)$this->is_default]);
+        $this->is_postpaid !== '' && $query->andWhere([$tariffTableName . '.is_postpaid' => (int)$this->is_postpaid]);
         $this->voip_group_id !== '' && $query->andWhere([$tariffTableName . '.voip_group_id' => $this->voip_group_id]);
 
         if ($this->voip_city_id !== '') {

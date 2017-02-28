@@ -2,8 +2,8 @@
 
 namespace app\classes\uu\model;
 
-use Yii;
 use yii\db\ActiveQuery;
+use yii\helpers\Url;
 
 /**
  * Тип услуги (ВАТС, телефония, интернет и пр.)
@@ -11,6 +11,7 @@ use yii\db\ActiveQuery;
  * @property int $id
  * @property string $name
  * @property int $parent_id
+ * @property int $close_after_days
  *
  * @property ServiceType $parent
  * @property Resource[] $resources
@@ -47,8 +48,14 @@ class ServiceType extends \yii\db\ActiveRecord
     const ID_ONE_TIME = 21; // Разовая услуга
 
     const ID_TRUNK = 22; // транк
-    const ID_TRUNK_PACKAGE_ORIG = 23; // пакет терм-транк
-    const ID_TRUNK_PACKAGE_TERM = 24; // пакет ориг-транк
+    const ID_TRUNK_PACKAGE_ORIG = 23; // пакет ориг-транк
+    const ID_TRUNK_PACKAGE_TERM = 24; // пакет терм-транк
+
+    public static $packages = [
+        self::ID_VOIP_PACKAGE,
+        self::ID_TRUNK_PACKAGE_ORIG,
+        self::ID_TRUNK_PACKAGE_TERM,
+    ];
 
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -98,7 +105,7 @@ class ServiceType extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'parent_id'], 'integer'],
+            [['id', 'parent_id', 'close_after_days'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
         ];
@@ -128,5 +135,24 @@ class ServiceType extends \yii\db\ActiveRecord
     public static function getListOrderBy()
     {
         return ['id' => SORT_ASC];
+    }
+
+    /**
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/uu/service-type/edit', 'id' => $id]);
     }
 }

@@ -91,11 +91,11 @@ class AccountLogPeriodTarificator implements TarificatorI
      * @param AccountTariff $accountTariff
      * @param AccountLogFromToTariff $accountLogFromToTariff
      * @return AccountLogPeriod
+     * @throws \RangeException
      */
     public function getAccountLogPeriod(AccountTariff $accountTariff, AccountLogFromToTariff $accountLogFromToTariff)
     {
         $tariffPeriod = $accountLogFromToTariff->tariffPeriod;
-        $period = $tariffPeriod->period;
 
         $accountLogPeriod = new AccountLogPeriod();
         $accountLogPeriod->date_from = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
@@ -112,14 +112,13 @@ class AccountLogPeriodTarificator implements TarificatorI
         $accountLogPeriod->coefficient = 1 + $accountLogFromToTariff->dateTo
                 ->diff($accountLogFromToTariff->dateFrom)
                 ->days; // кол-во потраченных дней
-        if ($period->monthscount) {
-            // разделить на кол-во дней в периоде
-            $days = $accountLogFromToTariff->dateFrom
-                ->modify($period->getModify())
-                ->diff($accountLogFromToTariff->dateFrom)
-                ->days;
-            $accountLogPeriod->coefficient /= $days;
-        }
+
+        // разделить на кол-во дней в месяце
+        $days = $accountLogFromToTariff->dateFrom
+            ->modify('+1 month')
+            ->diff($accountLogFromToTariff->dateFrom)
+            ->days;
+        $accountLogPeriod->coefficient /= $days;
 
         if ($tariffPeriod->tariff->getIsTest()) {
             // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.

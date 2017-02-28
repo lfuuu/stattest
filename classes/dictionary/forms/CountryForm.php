@@ -27,7 +27,7 @@ abstract class CountryForm extends Form
     abstract public function getCountryModel();
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

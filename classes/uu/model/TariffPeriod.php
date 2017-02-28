@@ -14,10 +14,8 @@ use yii\db\ActiveQuery;
  * @property float $price_setup
  * @property float $price_min
  * @property int $tariff_id
- * @property int $period_id
  * @property int $charge_period_id
  *
- * @property Period $period
  * @property Period $chargePeriod
  * @property Tariff $tariff
  * @property AccountTariff[] $accountTariffs
@@ -57,9 +55,8 @@ class TariffPeriod extends HistoryActiveRecord
         return [
             [['price_per_period', 'price_min', 'price_setup'], 'required'],
             [['charge_period_id'], 'required'],
-            [['period_id'], 'required'],
             [['price_per_period', 'price_min', 'price_setup'], 'number'],
-            ['tariff_id', 'getIsOneTime'], // не важно, что он вернет. Важно, чтобы проверки прошли, и не было exception
+            ['charge_period_id', 'validatorPeriod'],
         ];
     }
 
@@ -70,13 +67,10 @@ class TariffPeriod extends HistoryActiveRecord
     {
         $tariff = $this->tariff;
         return sprintf(
-            '%s %d+%d %s %s/%s',
+            '%s %d %s',
             $tariff->name,
-            $this->price_setup,
             $this->price_per_period,
-            $tariff->currency_id,
-            $this->period->name,
-            $this->chargePeriod->name
+            $tariff->currency->symbol
         );
     }
 
@@ -94,14 +88,6 @@ class TariffPeriod extends HistoryActiveRecord
     public function __toString()
     {
         return $this->getName();
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getPeriod()
-    {
-        return $this->hasOne(Period::className(), ['id' => 'period_id']);
     }
 
     /**
@@ -133,10 +119,11 @@ class TariffPeriod extends HistoryActiveRecord
      * @param int $defaultTariffPeriodId
      * @param int $serviceTypeId
      * @param int $currency
-     * @param null $cityId
+     * @param int $cityId
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
      * @param int $statusId
+     * @param bool $isPostpaid
      * @return array
      */
     public static function getList(
@@ -146,7 +133,8 @@ class TariffPeriod extends HistoryActiveRecord
         $cityId = null,
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
-        $statusId = null
+        $statusId = null,
+        $isPostpaid = null
     ) {
         $defaultTariffPeriodId = null;
 
@@ -157,6 +145,10 @@ class TariffPeriod extends HistoryActiveRecord
 
         if ($currency) {
             $activeQuery->andWhere(['tariff.currency_id' => $currency]);
+        }
+
+        if (!is_null($isPostpaid)) {
+            $activeQuery->andWhere(['tariff.is_postpaid' => $isPostpaid]);
         }
 
         if ($statusId) {
@@ -198,35 +190,20 @@ class TariffPeriod extends HistoryActiveRecord
     }
 
     /**
-     * Одноразовый ли? Относится только к пакетам
-     * Одноразовый не продлевается, не имеет абонентки, имеет плату за подключение. В качестве бонуса нет лимита по времени
+     * У постоплаты и пакетов может быть только помесячное списание
      *
-     * @return bool
+     * @param string $attribute
+     * @param [] $params
      */
-    public function getIsOneTime()
+    public function validatorPeriod($attribute, $params)
     {
         $tariff = $this->tariff;
-
-        if ($tariff->service_type_id != ServiceType::ID_VOIP_PACKAGE) {
-            // не пакет
-            return false;
+        if (
+            ($tariff->is_postpaid || in_array($tariff->service_type_id, ServiceType::$packages))
+            && $this->charge_period_id != Period::ID_MONTH
+        ) {
+            $this->addError($attribute, 'У постоплаты и пакетов может быть только помесячное списание');
+            return;
         }
-
-        if ($tariff->getIsTest()) {
-            // к тестовому неприменимо
-            return false;
-        }
-
-        if ($tariff->is_autoprolongation) {
-            // не одноразовый
-            return false;
-        }
-
-        if ($this->price_setup && !$this->price_per_period && !$this->price_min && !$tariff->count_of_validity_period) {
-            // одноразовый
-            return true;
-        }
-
-        return false;
     }
 }

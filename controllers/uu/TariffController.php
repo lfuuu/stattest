@@ -51,6 +51,7 @@ class TariffController extends BaseController
      *
      * @param int $serviceTypeId
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex($serviceTypeId = ServiceType::ID_VPBX)
     {
@@ -71,6 +72,7 @@ class TariffController extends BaseController
      * @param int $serviceTypeId
      * @param int $countryId
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionNew($serviceTypeId, $countryId = null)
     {
@@ -105,6 +107,7 @@ class TariffController extends BaseController
      *
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionEdit($id)
     {
@@ -149,7 +152,6 @@ class TariffController extends BaseController
                 );
 
             }
-
         }
 
         return $this->render(

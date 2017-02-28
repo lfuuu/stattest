@@ -115,6 +115,10 @@ $columns = [
         'attribute' => 'is_default',
         'class' => YesNoColumn::className(),
     ],
+    [
+        'attribute' => 'is_postpaid',
+        'class' => YesNoColumn::className(),
+    ],
 ];
 
 // столбцы для конкретной услуги

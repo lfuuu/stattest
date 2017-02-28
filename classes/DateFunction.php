@@ -2,8 +2,15 @@
 
 namespace app\classes;
 
+use Yii;
+
 class DateFunction
 {
+    /**
+     * @param string $string
+     * @param int $nMonth
+     * @return string
+     */
     public static function dateReplaceMonth($string, $nMonth)
     {
         $p = array(
@@ -21,6 +28,7 @@ class DateFunction
             'декабря'
         );
         $string = str_replace('месяца', $p[$nMonth - 1], $string);
+
         $p = array(
             'январе',
             'феврале',
@@ -36,6 +44,7 @@ class DateFunction
             'декабре'
         );
         $string = str_replace('месяце', $p[$nMonth - 1], $string);
+
         $p = array(
             'Январь',
             'Февраль',
@@ -51,6 +60,7 @@ class DateFunction
             'Декабрь'
         );
         $string = str_replace('Месяц', $p[$nMonth - 1], $string);
+
         $p = array(
             'январь',
             'февраль',
@@ -66,9 +76,15 @@ class DateFunction
             'декабрь'
         );
         $string = str_replace('месяц', $p[$nMonth - 1], $string);
+
         return $string;
     }
 
+    /**
+     * @param int|string $ts
+     * @param string $format
+     * @return string
+     */
     public static function mdate($ts, $format)
     {
         if (!is_numeric($ts)) {
@@ -80,6 +96,7 @@ class DateFunction
         } else {
             $s = date($format);
         }
+
         if ($ts) {
             $d = getdate($ts);
         } else {
@@ -87,5 +104,53 @@ class DateFunction
         }
 
         return self::dateReplaceMonth($s, $d['mon']);
+    }
+
+    /**
+     * @param integer|string|\DateTime|\DateTimeImmutable $dateFrom
+     * @param integer|string|\DateTime|\DateTimeImmutable $dateTo
+     * @return string
+     */
+    public static function getDateRange($dateFrom, $dateTo)
+    {
+        $dateFrom = self::convertToDateTime($dateFrom);
+        $dateTo = self::convertToDateTime($dateTo);
+
+        if ($dateFrom->format('Y') === $dateTo->format('Y')) {
+            if ($dateFrom->format('m') === $dateTo->format('m')) {
+                $format = 'd';
+            } else {
+                $format = 'd MMM';
+            }
+        } else {
+            $format = 'medium';
+        }
+
+        return sprintf('%s - %s',
+            Yii::$app->formatter->asDate($dateFrom, $format),
+            Yii::$app->formatter->asDate($dateTo, 'medium')
+        );
+    }
+
+    /**
+     * @param integer|string|\DateTime|\DateTimeImmutable $date
+     * @return \DateTime
+     */
+    public static function convertToDateTime($date)
+    {
+        if (is_numeric($date)) {
+            // unix timestamp
+            $dateTime = new \DateTime();
+            $dateTime->setTimestamp($date);
+            return $dateTime;
+        }
+
+        if (is_string($date)) {
+            // строка
+            return new \DateTime($date);
+        }
+
+        return $date;
+
     }
 }

@@ -6,10 +6,8 @@
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  */
 
-use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
 use app\dao\UsageDao;
-use app\models\Business;
 use app\models\ClientAccount;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -39,27 +37,21 @@ if (!$accountTariff->isNewRecord) {
 ]) ?>
 
 <?php
-$clientAccount = $formModel->getAccountTariffModel()->clientAccount;
-if ($formModel->IsNeedToSelectClient || !$clientAccount) {
+$clientAccount = $accountTariff->clientAccount;
+if ($formModel->getIsNeedToSelectClient() || !$clientAccount) {
     Yii::$app->session->setFlash('error', Yii::t('tariff', 'You should {a_start}select a client first{a_finish}', ['a_start' => '<a href="/">', 'a_finish' => '</a>']));
     return;
 }
 
 if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
-    if ($accountTariff->isNewRecord) {
-        Yii::$app->session->setFlash('error', 'Универсальную услугу можно добавить только ЛС, тарифицируемому универсально.');
-        return;
-    }
-
-    Yii::$app->session->setFlash('error', 'Универсальную услугу можно редактировать только у ЛС, тарифицируемого универсально. Все ваши изменения будут затерты конвертером из старых услуг.');
-    $isReadOnly = true;
+    Yii::$app->session->setFlash('error', 'Универсальную услугу можно добавить только ЛС, тарифицируемому универсально.');
+    return;
 }
 
 if ($accountTariff->isNewRecord && !UsageDao::me()->isPossibleAddService($clientAccount, $accountTariff->service_type_id)) {
     Yii::$app->session->setFlash('error', UsageDao::me()->lastErrorMessage);
     return;
 }
-
 ?>
 
 <?php

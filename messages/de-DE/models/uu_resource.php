@@ -27,6 +27,7 @@ return [
     'Resource #18' => 'One-time service',
     'Resource #19' => 'Minimum price routing',
     'Resource #20' => 'Geo routing',
+    'Resource #21' => 'Anrufe',
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
 ];

@@ -7,7 +7,7 @@ use app\modules\nnp\models\Prefix;
 class FormEdit extends Form
 {
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

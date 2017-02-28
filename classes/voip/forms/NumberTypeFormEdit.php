@@ -7,7 +7,7 @@ use app\models\NumberType;
 class NumberTypeFormEdit extends NumberTypeForm
 {
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

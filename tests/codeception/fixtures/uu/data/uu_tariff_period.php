@@ -11,7 +11,6 @@ return [
         'price_setup' => 112,
         'price_min' => 113,
         'tariff_id' => Tariff::DELTA + 1,
-        'period_id' => Period::ID_MONTH,
         'charge_period_id' => Period::ID_DAY,
     ],
     [
@@ -20,7 +19,6 @@ return [
         'price_setup' => 212,
         'price_min' => 213,
         'tariff_id' => Tariff::DELTA + 1,
-        'period_id' => Period::ID_MONTH,
         'charge_period_id' => Period::ID_MONTH,
     ],
     [
@@ -29,7 +27,6 @@ return [
         'price_setup' => 312,
         'price_min' => 313,
         'tariff_id' => Tariff::DELTA + 1,
-        'period_id' => Period::ID_MONTH,
         'charge_period_id' => Period::ID_YEAR,
     ],
 
@@ -40,7 +37,6 @@ return [
         'price_setup' => 412,
         'price_min' => 413,
         'tariff_id' => Tariff::DELTA + 2,
-        'period_id' => Period::ID_MONTH,
         'charge_period_id' => Period::ID_DAY,
     ],
     [
@@ -49,7 +45,6 @@ return [
         'price_setup' => 512,
         'price_min' => 513,
         'tariff_id' => Tariff::DELTA + 3,
-        'period_id' => Period::ID_MONTH,
         'charge_period_id' => Period::ID_DAY,
     ],
 ];

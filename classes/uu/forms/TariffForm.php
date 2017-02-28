@@ -76,11 +76,12 @@ abstract class TariffForm extends Form
      */
     public function getNewTariffPeriods()
     {
-        $period = Period::find()->where('monthscount = :monthscount', [':monthscount' => 1])->one();
+        /** @var Period $period */
+        $period = Period::find()->where(['monthscount' => 1])->one();
 
         $tariffPeriod = new TariffPeriod();
         if ($period) {
-            $tariffPeriod->period_id = $tariffPeriod->charge_period_id = $period->id;
+            $tariffPeriod->charge_period_id = $period->id;
         }
 
         $tariffPeriod->price_setup = 0;

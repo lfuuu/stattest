@@ -1,5 +1,10 @@
 <?php
 return [
+    'id' => 'ID',
+    'name' => 'Name',
+    'parent_id' => 'Parent',
+    'close_after_days' => 'Close after N days of failing',
+
     'Type #1' => 'VPBX',
     'Type #2' => 'Telefonszolgáltatás',
     'Type #3' => 'Telefonszolgáltatás. Csomagok',
@@ -18,4 +23,10 @@ return [
     'Type #16' => 'SMS Gate',
     'Type #17' => 'SMS',
     'Type #18' => 'Welltime',
+    'Type #19' => 'Call-chat',
+    'Type #20' => 'VM collocation',
+    'Type #21' => 'One time',
+    'Type #22' => 'Trunk',
+    'Type #23' => 'Orig trunk package',
+    'Type #24' => 'Term trunk package',
 ];

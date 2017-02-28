@@ -7,7 +7,7 @@ use app\models\Country;
 class CountryFormEdit extends CountryForm
 {
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

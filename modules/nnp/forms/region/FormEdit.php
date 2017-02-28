@@ -7,7 +7,7 @@ use app\modules\nnp\models\Region;
 class FormEdit extends Form
 {
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

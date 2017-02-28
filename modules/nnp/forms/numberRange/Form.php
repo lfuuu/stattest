@@ -26,7 +26,7 @@ abstract class Form extends \app\classes\Form
     abstract public function getNumberRangeModel();
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

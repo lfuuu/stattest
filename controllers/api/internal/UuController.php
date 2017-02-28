@@ -201,10 +201,9 @@ class UuController extends ApiInternalController
      * @SWG\Definition(definition = "tariffPeriodRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID. Именно его надо указывать при создании услуги"),
      *   @SWG\Property(property = "price_setup", type = "number", description = "Цена подключения, ¤"),
-     *   @SWG\Property(property = "price_per_period", type = "number", description = "Цена за период, ¤"),
-     *   @SWG\Property(property = "price_min", type = "number", description = "Мин. стоимость ресурсов за период, ¤"),
-     *   @SWG\Property(property = "period", type = "object", description = "Период абонентки (посуточно, помесячно)", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "charge_period", type = "object", description = "Период списания (посуточно, помесячно)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "price_per_period", type = "number", description = "Цена за месяц, ¤"),
+     *   @SWG\Property(property = "price_min", type = "number", description = "Мин. стоимость ресурсов за месяц, ¤"),
+     *   @SWG\Property(property = "charge_period", type = "object", description = "Период списания (день, месяц, год)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff", type = "object", description = "Тариф", ref = "#/definitions/idNameRecord"),
      * ),
      *
@@ -230,7 +229,8 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_charge_after_blocking", type = "integer", description = "Списывать после блокировки"),
      *   @SWG\Property(property = "is_charge_after_period", type = "integer", description = "Списывать в конце периода"),
      *   @SWG\Property(property = "is_include_vat", type = "integer", description = "Включая НДС"),
-     *   @SWG\Property(property = "is_default", type = "integer", description = "По умолчанию. Если не указано, то 0"),
+     *   @SWG\Property(property = "is_default", type = "integer", description = "0 - только не по умолчанию, 1 - только по умолчанию, не указано - все"),
+     *   @SWG\Property(property = "is_postpaid", type = "integer", description = "0 - только предоплата, 1 - только постоплата, не указано - все"),
      *   @SWG\Property(property = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)"),
      *   @SWG\Property(property = "serviceType", type = "object", description = "Тип услуги (ВАТС, телефония, интернет и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "country", type = "object", description = "Страна", ref = "#/definitions/idNameRecord"),
@@ -255,6 +255,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "parent_id", type = "integer", description = "ID родителя. Нужен для поиска совместимых пакетов", in = "query", default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "is_default", type = "integer", description = "По умолчанию (0 / 1)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "is_postpaid", type = "integer", description = "0 - предоплата, 1 - постоплата", in = "query", default = ""),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны)", in = "query", default = ""),
@@ -279,6 +280,7 @@ class UuController extends ApiInternalController
      * @param int $client_account_id
      * @param int $currency_id
      * @param int $is_default
+     * @param int $is_postpaid
      * @param int $tariff_status_id
      * @param int $tariff_person_id
      * @param int $voip_group_id
@@ -293,6 +295,7 @@ class UuController extends ApiInternalController
         $client_account_id = null,
         $currency_id = null,
         $is_default = null,
+        $is_postpaid = null,
         $tariff_status_id = null,
         $tariff_person_id = null,
         $voip_group_id = null,
@@ -341,6 +344,7 @@ class UuController extends ApiInternalController
         $country_id && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$country_id]);
         $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
         !is_null($is_default) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
+        !is_null($is_postpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$is_postpaid]);
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int)$tariff_person_id]);
         $voip_group_id && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int)$voip_group_id]);
@@ -352,24 +356,25 @@ class UuController extends ApiInternalController
         }
 
         $result = [];
+        /** @var Tariff $tariff */
         foreach ($tariffQuery->each() as $tariff) {
-            /** @var Tariff $tariff */
 
             if ($tariff->service_type_id == ServiceType::ID_VOIP) {
                 $defaultPackageRecords = $this->actionGetTariffs(
                     $id_tmp = null,
                     $parent_id_tmp = $tariff->id,
-                    $service_type_id_tmp = ServiceType::ID_VOIP_PACKAGE,
-                    $country_id_tmp = $country_id,
-                    $currency_id_tmp = $currency_id,
+                    ServiceType::ID_VOIP_PACKAGE,
+                    $country_id,
+                    $currency_id,
                     $is_default_tmp = 1,
+                    $is_postpaid,
                     $tariff_status_id_tmp = null,
-                    $tariff_person_id_tmp = $tariff_person_id,
-                    $voip_group_id_tmp = $voip_group_id,
-                    $voip_city_id_tmp = $voip_city_id
+                    $tariff_person_id,
+                    $voip_group_id,
+                    $voip_city_id
                 );
             } else {
-                $defaultPackageRecords = null;
+                $defaultPackageRecords = [];
             }
 
             $tariffRecord = $this->_getTariffRecord($tariff, $tariff->tariffPeriods);
@@ -397,6 +402,7 @@ class UuController extends ApiInternalController
             'is_charge_after_period' => $tariff->is_charge_after_period,
             'is_include_vat' => $tariff->is_include_vat,
             'is_default' => $tariff->is_default,
+            'is_postpaid' => $tariff->is_postpaid,
             'currency' => $tariff->currency_id,
             'service_type' => $this->_getIdNameRecord($tariff->serviceType),
             'country' => $this->_getIdNameRecord($tariff->country, 'code'),
@@ -473,7 +479,6 @@ class UuController extends ApiInternalController
                 'price_setup' => $model->price_setup,
                 'price_per_period' => $model->price_per_period,
                 'price_min' => $model->price_min,
-                'period' => $this->_getIdNameRecord($model->period),
                 'charge_period' => $this->_getIdNameRecord($model->chargePeriod),
             ];
 

@@ -19,6 +19,8 @@ class Navigation
 
     /**
      * Navigation constructor.
+     *
+     * @throws \yii\base\InvalidParamException
      */
     private function __construct()
     {
@@ -301,6 +303,8 @@ class Navigation
 
     /**
      * Добавить меню универсальных услуг (тарифы, услуги, мониторинг)
+     *
+     * @throws \yii\base\InvalidParamException
      */
     private function _addBlockUniversalUsage()
     {
@@ -321,7 +325,7 @@ class Navigation
                 'serviceTypeId' => $serviceType->id,
             ]), ['tarifs.read']);
 
-            if (in_array($serviceType->id, [ServiceType::ID_VOIP_PACKAGE, ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM])) {
+            if (in_array($serviceType->id, ServiceType::$packages)) {
                 // для пакетов услуги подключаются через базовую услугу
                 continue;
             }
@@ -341,6 +345,7 @@ class Navigation
         $this->_addBlock(
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
+                ->addItem(Yii::t('tariff', 'Service types'), ['/uu/service-type'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Setup tariffication'), ['/uu/account-log/setup'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Period tariffication'), ['/uu/account-log/period'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Resource tariffication'), ['/uu/account-log/resource'], ['newaccounts_balance.read'])

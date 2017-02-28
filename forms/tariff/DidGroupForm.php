@@ -27,7 +27,7 @@ abstract class DidGroupForm extends Form
     abstract public function getDidGroupModel();
 
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

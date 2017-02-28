@@ -225,7 +225,7 @@ abstract class AccountTariffForm extends Form
                 }
 
                 Yii::info('AccountTariffForm. Before accountTariffLog->save', 'uu');
-                if ($this->accountTariffLog->validate(null, false) && $this->accountTariffLog->save()) {
+                if ($this->accountTariffLog->save()) {
                     $this->isSaved = true;
                 } else {
                     // продолжить выполнение, чтобы показать юзеру массив с недозаполненными данными вместо эталонных
@@ -370,6 +370,7 @@ abstract class AccountTariffForm extends Form
      * @param int $serviceTypeId
      * @param int $cityId
      * @param bool $isWithNullAndNotNull
+     * @param bool $isPostpaid
      * @return array
      */
     public function getAvailableTariffPeriods(
@@ -377,10 +378,19 @@ abstract class AccountTariffForm extends Form
         $isWithEmpty = false,
         $serviceTypeId = null,
         $cityId = null,
-        $isWithNullAndNotNull = false
+        $isWithNullAndNotNull = false,
+        $isPostpaid = null
     ) {
-        return TariffPeriod::getList($defaultTariffPeriodId, $serviceTypeId ?: $this->serviceTypeId,
-            $this->accountTariff->clientAccount->currency, $cityId, $isWithEmpty, $isWithNullAndNotNull);
+        return TariffPeriod::getList(
+            $defaultTariffPeriodId,
+            $serviceTypeId ?: $this->serviceTypeId,
+            $this->accountTariff->clientAccount->currency,
+            $cityId,
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $statusId = null,
+            $isPostpaid
+        );
     }
 
 }

@@ -7,7 +7,7 @@ use app\modules\nnp\models\Destination;
 class FormEdit extends Form
 {
     /**
-     * конструктор
+     * Конструктор
      */
     public function init()
     {

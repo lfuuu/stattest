@@ -83,7 +83,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 </div>
 
 <?php // фильтры списка номеров ?>
-<div class="row" id="voipNumbersListFilter" style="display: none;">
+<div class="row collapse" id="voipNumbersListFilter">
 
     <div class="col-sm-2">
         <?php // кол-во столбцов ?>
@@ -140,7 +140,6 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
         <?= $this->render('//layouts/_helpMysqlLike'); ?>
         <?= $form->field($accountTariffVoip, 'voip_numbers_list_mask')
             ->input('string', [
-//                'disabled' => true,
                 'id' => 'voipNumbersListMask',
             ]) ?>
     </div>
@@ -149,7 +148,6 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
         <?php // лимит ?>
         <?= $form->field($accountTariffVoip, 'voip_numbers_list_limit')
             ->input('integer', [
-//                'disabled' => true,
                 'id' => 'voipNumbersListLimit',
             ]) ?>
     </div>
@@ -157,7 +155,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 </div>
 
 <?php // чекбокс "выбрать все" ?>
-<div id="voipNumbersListSelectAll" style="display: none;">
+<div id="voipNumbersListSelectAll" class="collapse">
     <?= Html::checkbox('voipNumbersListSelectAll', false, [
         'label' => Yii::t('common', 'Select all'),
     ]) ?>
@@ -170,7 +168,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 
 <br/>
 <?php // тариф и пакеты ?>
-<div id="voipTariffDiv" style="display: none;">
+<div id="voipTariffDiv" class="collapse">
 
     <?= $this->render('_editLogInput', [
         'formModel' => $formModel,

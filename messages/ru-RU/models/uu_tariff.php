@@ -9,6 +9,7 @@ return [
     'is_include_vat' => 'Включая НДС',
     'is_charge_after_period' => 'Списывать в конце периода',
     'is_default' => 'По умолчанию',
+    'is_postpaid' => 'Постоплата',
     'count_of_validity_period' => 'Кол-во периодов продления',
     'tariff_status_id' => 'Статус',
     'currency_id' => 'Валюта',
