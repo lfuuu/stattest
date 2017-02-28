@@ -825,7 +825,8 @@ class UuController extends ApiInternalController
      * ),
      *
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-account-tariffs-with-packages", summary = "Список услуг у ЛС с пакетами", operationId = "GetAccountTariffsWithPackages",
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "id", type = "integer", description = "ID услуги", in = "query", default = ""),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "Тип услуги", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список услуг у ЛС с пакетами",
@@ -837,23 +838,27 @@ class UuController extends ApiInternalController
      * )
      */
     /**
+     * @param int $id
      * @param int $client_account_id
      * @param int $service_type_id
      * @return array
      * @throws \InvalidArgumentException
      */
     public function actionGetAccountTariffsWithPackages(
+        $id = null,
         $client_account_id = null,
         $service_type_id = null
     ) {
-        $accountTariffQuery = AccountTariff::find();
-        $accountTariffTableName = AccountTariff::tableName();
-        $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
-        $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
-
-        if (!$client_account_id) {
-            throw new InvalidArgumentException('Необходимо указать фильтр client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+        if (!$id && !$client_account_id) {
+            throw new InvalidArgumentException('Необходимо указать фильтр id или client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }
+
+        $accountTariffTableName = AccountTariff::tableName();
+
+        $accountTariffQuery = AccountTariff::find();
+        $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
+        $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
+        $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
 
         $result = [];
         foreach ($accountTariffQuery->each() as $accountTariff) {
