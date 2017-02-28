@@ -43,4 +43,12 @@ class MinBalanceNotificationProcessor extends NotificationProcessor
         return $this->client->lkClientSettings->min_balance;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function isOldNotification()
+    {
+        return false;
+    }
+
 }

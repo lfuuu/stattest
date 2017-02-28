@@ -132,19 +132,21 @@ class MinDayLimitNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($event);
         $this->assertNotNull($event->id);
 
-        /** @var \app\models\LkNotificationLog $lkNoticeLog */
-        $lkNoticeLog = LkNotificationLog::findOne([
-            'client_id' => $this->account->id,
-            'event' => $mockObj->getEnterEvent(),
-            'is_set' => 1
-        ]);
-        $this->assertNotNull($lkNoticeLog);
-        $this->assertGreaterThan(0, $lkNoticeLog->contact_id);
+        if ($mockObj->isOldNotification()) {
+            /** @var \app\models\LkNotificationLog $lkNoticeLog */
+            $lkNoticeLog = LkNotificationLog::findOne([
+                'client_id' => $this->account->id,
+                'event' => $mockObj->getEnterEvent(),
+                'is_set' => 1
+            ]);
+            $this->assertNotNull($lkNoticeLog);
+            $this->assertGreaterThan(0, $lkNoticeLog->contact_id);
 
-        /** @var \app\models\ClientContact $contact */
-        $contact = ClientContact::findOne(['client_id' => $this->account->id, 'id' => $lkNoticeLog->contact_id]);
-        $this->assertNotNull($contact);
-        $this->assertNotNull($contact->id);
+            /** @var \app\models\ClientContact $contact */
+            $contact = ClientContact::findOne(['client_id' => $this->account->id, 'id' => $lkNoticeLog->contact_id]);
+            $this->assertNotNull($contact);
+            $this->assertNotNull($contact->id);
+        }
 
         $this->end();
     }
@@ -168,7 +170,6 @@ class MinDayLimitNotificationProcessorTest extends \yii\codeception\TestCase
         //$mockObj = new DayLimitNotificationProcessor;
         $mockObj->compareAndNotificationClient($this->account);
 
-
         $this->assertEquals($mockObj->getValue(), 1300);
         $this->assertEquals($mockObj->getLimit(), 1000);
 
@@ -182,13 +183,15 @@ class MinDayLimitNotificationProcessorTest extends \yii\codeception\TestCase
         $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEnterEvent()]);
         $this->assertNull($event);
 
-        /** @var \app\models\LkNotificationLog $lkNoticeLog */
-        $lkNoticeLog = LkNotificationLog::findOne([
-            'client_id' => $this->account->id,
-            'event' => $mockObj->getEnterEvent(),
-            'is_set' => 1
-        ]);
-        $this->assertNull($lkNoticeLog);
+        if ($mockObj->isOldNotification()) {
+            /** @var \app\models\LkNotificationLog $lkNoticeLog */
+            $lkNoticeLog = LkNotificationLog::findOne([
+                'client_id' => $this->account->id,
+                'event' => $mockObj->getEnterEvent(),
+                'is_set' => 1
+            ]);
+            $this->assertNull($lkNoticeLog);
+        }
 
         $this->end();
     }
@@ -245,14 +248,16 @@ class MinDayLimitNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($findObj);
         $this->assertEquals($findObj->value, 0);
 
-        /** @var \app\models\LkNotificationLog $lkNoticeLog */
-        $lkNoticeLog = LkNotificationLog::findOne([
-            'client_id' => $this->account->id,
-            'event' => $mockObj->getEnterEvent(),
-            'is_set' => 0
-        ]);
-        $this->assertNotNull($lkNoticeLog);
-        $this->assertEquals($lkNoticeLog->contact_id, 0);
+        if ($mockObj->isOldNotification()) {
+            /** @var \app\models\LkNotificationLog $lkNoticeLog */
+            $lkNoticeLog = LkNotificationLog::findOne([
+                'client_id' => $this->account->id,
+                'event' => $mockObj->getEnterEvent(),
+                'is_set' => 0
+            ]);
+            $this->assertNotNull($lkNoticeLog);
+            $this->assertEquals($lkNoticeLog->contact_id, 0);
+        }
 
         $this->end();
     }

@@ -50,4 +50,13 @@ class MinDayLimitNotificationProcessor extends NotificationProcessor
     {
         return false;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function isOldNotification()
+    {
+        return false;
+    }
+
 }
