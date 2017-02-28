@@ -229,6 +229,8 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="is_blocked", type="boolean", description="ЛС заблокирован полностью"),
      *   @SWG\Property(property="is_finance_block", type="boolean", description="Финансовая блокировка"),
      *   @SWG\Property(property="is_overran_block", type="boolean", description="Блокировка по превышению дневных лимитов"),
+     *   @SWG\Property(property="is_postpaid", type="boolean", description="Постоплата"),
+     *   @SWG\Property(property="credit", type="integer", description="Лимит кредита"),
      *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
      *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-full-client-struct-applications"))
      * ),
@@ -303,6 +305,8 @@ class ClientController extends ApiInternalController
                             'is_blocked' => (bool)$account->is_blocked,
                             'is_finance_block' => false,
                             'is_overran_block' => false,
+                            'is_postpaid' => (bool)$account->is_postpaid,
+                            'credit' => (int)$account->credit,
                             'version' => $account->account_version,
                             'applications' => $this->_getPlatformaServicesCleaned($account->client)
                         ];
