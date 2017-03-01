@@ -48,8 +48,6 @@ class MailJob {
 			where
 				client_id='.$this->client['id'].'
 			AND
-				is_active=1
-			AND
 				is_official=1
 			AND
 				type="email"
