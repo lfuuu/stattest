@@ -1052,8 +1052,8 @@ class UuController extends ApiInternalController
      * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/edit-account-tariff", summary = "Сменить тариф услуге ЛС", operationId = "EditAccountTariff",
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID нового периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с сегодня", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Тариф изменен",
      *     @SWG\Schema(type = "boolean", description = "true - успешно")
@@ -1071,6 +1071,11 @@ class UuController extends ApiInternalController
     {
         $postData = Yii::$app->request->post();
         $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
+
+        if (!isset($postData['tariff_period_id']) || !$postData['tariff_period_id']) {
+            throw new InvalidArgumentException('Не указан обязательный параметр tariff_period_id', AccountTariff::ERROR_CODE_TARIFF_EMPTY);
+        }
+
         return $this->editAccountTariff(
             $account_tariff_ids,
             $postData['tariff_period_id'],
