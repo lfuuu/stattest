@@ -13,9 +13,12 @@ use app\classes\notification\processors\DayMnLimitNotificationProcessor;
 
 class Notification extends Object
 {
+    /**
+     * Проверка необходимости оповещения
+     */
     public function checkForNotification()
     {
-        foreach ($this->getNotificationProcessors() as $processor) {
+        foreach ($this->_getNotificationProcessors() as $processor) {
             $processor->filterClients()->checkAndMakeNotifications();
         }
     }
@@ -23,10 +26,10 @@ class Notification extends Object
     /**
      * @return NotificationProcessor[]
      */
-    private function getNotificationProcessors()
+    private function _getNotificationProcessors()
     {
         return [
-            new ZeroBalanceNotificationProcessor(),
+            // new ZeroBalanceNotificationProcessor(),
             new MinBalanceNotificationProcessor(),
             new MinDayLimitNotificationProcessor(),
             new DayLimitNotificationProcessor(),
