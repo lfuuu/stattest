@@ -135,6 +135,13 @@ class AccountTariff extends HistoryActiveRecord
             ['service_type_id', 'validatorServiceType'],
             ['client_account_id', 'validatorTrunk', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorTariffPeriod'],
+            [
+                ['city_id', 'voip_number'],
+                'required',
+                'when' => function (AccountTariff $accountTariff) {
+                    return $accountTariff->service_type_id == ServiceType::ID_VOIP;
+                }
+            ],
         ];
     }
 
@@ -816,7 +823,7 @@ class AccountTariff extends HistoryActiveRecord
             return;
         }
 
-        if (!in_array($this->clientAccount->contract->business_id,  [Business::OPERATOR, Business::OTT])) {
+        if (!in_array($this->clientAccount->contract->business_id, [Business::OPERATOR, Business::OTT])) {
             $this->addError($attribute, 'Универсальную услугу транка можно добавить только ЛС с договором Межоператорка или ОТТ.');
             $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_TRUNK;
             return;
