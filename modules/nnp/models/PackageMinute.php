@@ -22,7 +22,8 @@ use yii\db\ActiveRecord;
 class PackageMinute extends ActiveRecord
 {
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -35,7 +36,8 @@ class PackageMinute extends ActiveRecord
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -56,6 +58,7 @@ class PackageMinute extends ActiveRecord
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()
@@ -71,7 +74,7 @@ class PackageMinute extends ActiveRecord
         return $this->hasOne(Tariff::className(), ['id' => 'tariff_id']);
     }
 
-   /**
+    /**
      * @return ActiveQuery
      */
     public function getPackage()

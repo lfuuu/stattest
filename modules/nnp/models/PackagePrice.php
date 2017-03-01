@@ -23,7 +23,8 @@ use yii\db\ActiveRecord;
 class PackagePrice extends ActiveRecord
 {
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -37,7 +38,8 @@ class PackagePrice extends ActiveRecord
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -59,6 +61,7 @@ class PackagePrice extends ActiveRecord
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()

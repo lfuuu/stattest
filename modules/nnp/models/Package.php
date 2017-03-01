@@ -18,6 +18,7 @@ use yii\helpers\Url;
  * @property int tarification_type
  * @property int tarification_min_paid_seconds
  * @property int currency_id
+ * @property bool is_include_vat
  *
  * @property Tariff tariff  FK нет, ибо в таблица в другой БД
  * @property PackageMinute[] packageMinutes
@@ -30,7 +31,8 @@ class Package extends ActiveRecord
     const TARIFICATION_TYPE_CEIL = 2;
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -43,11 +45,13 @@ class Package extends ActiveRecord
             'tarification_type' => 'Тип округления',
             'tarification_min_paid_seconds' => 'Минимальная плата, сек.',
             'currency_id' => 'Валюта',
+            'is_include_vat' => 'Включая НДС', // дубль из Tariff
         ];
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -62,6 +66,7 @@ class Package extends ActiveRecord
     {
         return [
             [['tariff_id'], 'required'],
+            [['is_include_vat'], 'boolean'],
             [
                 [
                     'tariff_id',
@@ -77,6 +82,7 @@ class Package extends ActiveRecord
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()
@@ -136,6 +142,7 @@ class Package extends ActiveRecord
     }
 
     /**
+     * @param int $tariffId
      * @return string
      */
     public static function getUrlById($tariffId)

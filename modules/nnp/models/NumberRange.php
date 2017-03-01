@@ -42,7 +42,8 @@ class NumberRange extends ActiveRecord
     use \app\classes\traits\InsertUpdateUserTrait;
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -76,7 +77,8 @@ class NumberRange extends ActiveRecord
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -96,6 +98,7 @@ class NumberRange extends ActiveRecord
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()
@@ -112,6 +115,7 @@ class NumberRange extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)

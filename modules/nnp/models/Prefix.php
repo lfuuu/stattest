@@ -15,7 +15,7 @@ use yii\helpers\Url;
  * @property string name
  *
  * @property NumberRangePrefix[] numberRangePrefixes
- * 
+ *
  * @property PrefixDestination[] prefixDestinations
  * @property PrefixDestination[] additionPrefixDestinations
  * @property PrefixDestination[] subtractionPrefixDestinations
@@ -26,7 +26,8 @@ class Prefix extends ActiveRecord
     use \app\classes\traits\GetListTrait;
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -38,7 +39,7 @@ class Prefix extends ActiveRecord
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
      * @return string
      */
     public static function tableName()
@@ -58,6 +59,7 @@ class Prefix extends ActiveRecord
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()
@@ -82,6 +84,7 @@ class Prefix extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)

@@ -25,7 +25,8 @@ class AccountTariffLight extends ActiveRecord
     use \app\classes\traits\GetListTrait;
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -44,7 +45,8 @@ class AccountTariffLight extends ActiveRecord
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -54,6 +56,7 @@ class AccountTariffLight extends ActiveRecord
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()

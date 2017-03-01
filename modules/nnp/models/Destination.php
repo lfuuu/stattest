@@ -24,7 +24,8 @@ class Destination extends ActiveRecord
     use \app\classes\traits\GetListTrait;
 
     /**
-     * имена полей
+     * Имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -36,7 +37,8 @@ class Destination extends ActiveRecord
     }
 
     /**
-     * имя таблицы
+     * Имя таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -56,6 +58,7 @@ class Destination extends ActiveRecord
 
     /**
      * Returns the database connection
+     *
      * @return Connection
      */
     public static function getDb()
@@ -80,6 +83,7 @@ class Destination extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)
