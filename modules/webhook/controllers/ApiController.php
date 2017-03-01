@@ -46,9 +46,6 @@ class ApiController extends Controller
         } catch (\Exception $e) {
             $result = $e->getMessage();
             $code = $e->getCode();
-            if ($e instanceof HttpException) {
-                $code = $e->statusCode;
-            }
 
             Yii::error($e->getMessage());
 

@@ -79,6 +79,7 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_TARIFF_EMPTY = 32; // Не указан тариф/период
     const ERROR_CODE_TARIFF_WRONG = 33; // Неправильный тариф/период
     const ERROR_CODE_TARIFF_SERVICE_TYPE = 34; // Тариф/период не соответствует типу услуги
+    const ERROR_CODE_TARIFF_SAME = 35; // Нет смысла менять период/тариф на тот же самый. Выберите другой период/тариф
 
     // Ошибки услуги
     const ERROR_CODE_USAGE_EMPTY = 41; // Услуга не указана
@@ -850,7 +851,7 @@ class AccountTariff extends HistoryActiveRecord
         }
 
         if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
-            $this->addError($attribute, 'тариф/период ' . $tariffPeriod->tariff->service_type_id . ' не соответствует типу услуги ' . $this->service_type_id);
+            $this->addError($attribute, 'Тариф/период ' . $tariffPeriod->tariff->service_type_id . ' не соответствует типу услуги ' . $this->service_type_id);
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SERVICE_TYPE;
             return;
         }

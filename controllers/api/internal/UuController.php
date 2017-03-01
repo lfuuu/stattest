@@ -26,9 +26,8 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use Exception;
-use InvalidArgumentException;
-use LogicException;
 use Yii;
+use yii\web\HttpException;
 
 class UuController extends ApiInternalController
 {
@@ -286,6 +285,7 @@ class UuController extends ApiInternalController
      * @param int $voip_group_id
      * @param int $voip_city_id
      * @return array
+     * @throws HttpException
      */
     public function actionGetTariffs(
         $id = null,
@@ -315,7 +315,7 @@ class UuController extends ApiInternalController
             // взять страну от ЛС
             $clientAccount = ClientAccount::findOne(['id' => $client_account_id]);
             if (!$clientAccount) {
-                throw new InvalidArgumentException('Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
             }
 
             $country_id = $clientAccount->country_id;
@@ -631,7 +631,7 @@ class UuController extends ApiInternalController
      * @param int $voip_number
      * @param int $prev_account_tariff_id
      * @return array
-     * @throws \InvalidArgumentException
+     * @throws HttpException
      */
     public function actionGetAccountTariffs(
         $id = null,
@@ -660,7 +660,7 @@ class UuController extends ApiInternalController
         $prev_account_tariff_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.prev_account_tariff_id' => $prev_account_tariff_id]);
 
         if (!$id && !$service_type_id && !$client_account_id) {
-            throw new InvalidArgumentException('Необходимо указать фильтр id, service_type_id или client_account_id', AccountTariff::ERROR_CODE_SERVICE_TYPE);
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id, service_type_id или client_account_id', AccountTariff::ERROR_CODE_SERVICE_TYPE);
         }
 
         $result = [];
@@ -842,7 +842,7 @@ class UuController extends ApiInternalController
      * @param int $client_account_id
      * @param int $service_type_id
      * @return array
-     * @throws \InvalidArgumentException
+     * @throws HttpException
      */
     public function actionGetAccountTariffsWithPackages(
         $id = null,
@@ -850,7 +850,7 @@ class UuController extends ApiInternalController
         $service_type_id = null
     ) {
         if (!$id && !$client_account_id) {
-            throw new InvalidArgumentException('Необходимо указать фильтр id или client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }
 
         $accountTariffTableName = AccountTariff::tableName();
@@ -999,7 +999,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указан, то с сегодня. Если с сегодня, то отменить нельзя - можно только закрыть с завтра", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указан, то с сегодня", in = "formData", default = ""),
      *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона (кроме телефонии)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "formData", default = ""),
@@ -1035,6 +1035,10 @@ class UuController extends ApiInternalController
             $accountTariffLog = new AccountTariffLog;
             $accountTariffLog->account_tariff_id = $accountTariff->id;
             $accountTariffLog->setAttributes($post);
+            if (!$accountTariffLog->actual_from_utc) {
+                $accountTariffLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+            }
+
             if (!$accountTariffLog->save()) {
                 throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
             }
@@ -1053,7 +1057,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID нового периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с сегодня", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Тариф изменен",
      *     @SWG\Schema(type = "boolean", description = "true - успешно")
@@ -1072,14 +1076,14 @@ class UuController extends ApiInternalController
         $postData = Yii::$app->request->post();
         $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
 
-        if (!isset($postData['tariff_period_id']) || !$postData['tariff_period_id']) {
-            throw new InvalidArgumentException('Не указан обязательный параметр tariff_period_id', AccountTariff::ERROR_CODE_TARIFF_EMPTY);
+        if (!$account_tariff_ids) {
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр tariff_period_id', AccountTariff::ERROR_CODE_TARIFF_EMPTY);
         }
 
         return $this->editAccountTariff(
             $account_tariff_ids,
             $postData['tariff_period_id'],
-            isset($postData['actual_from']) ? $postData['actual_from'] : null
+            (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null
         );
     }
 
@@ -1088,13 +1092,14 @@ class UuController extends ApiInternalController
      * @param int $tariff_period_id
      * @param string $actual_from
      * @return int
+     * @throws HttpException
      * @throws Exception
      * @throws ModelValidationException
      */
     public function editAccountTariff($account_tariff_ids, $tariff_period_id, $actual_from)
     {
         if (!$account_tariff_ids) {
-            throw new InvalidArgumentException('Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
         }
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -1104,13 +1109,17 @@ class UuController extends ApiInternalController
 
                 $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
                 if (!$accountTariff) {
-                    throw new InvalidArgumentException('Услуга с таким идентификатором не найдена ' . $account_tariff_id, AccountTariff::ERROR_CODE_USAGE_EMPTY);
+                    throw new HttpException(ModelValidationException::STATUS_CODE, 'Услуга с таким идентификатором не найдена ' . $account_tariff_id, AccountTariff::ERROR_CODE_USAGE_EMPTY);
                 }
 
                 // у услуги сменить кэш тарифа
                 $accountTariff->tariff_period_id = $tariff_period_id;
                 if (!$accountTariff->save()) {
                     throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
+                }
+
+                if (!$actual_from) {
+                    $actual_from = (new \DateTime())->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
                 }
 
                 // записать в лог тарифа
@@ -1157,7 +1166,7 @@ class UuController extends ApiInternalController
         return $this->editAccountTariff(
             $account_tariff_ids,
             null,
-            isset($postData['actual_from']) ? $postData['actual_from'] : null
+            (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null
         );
     }
 
@@ -1176,11 +1185,10 @@ class UuController extends ApiInternalController
      */
     /**
      * @return int
+     * @throws HttpException
      * @throws \yii\db\StaleObjectException
      * @throws \Exception
      * @throws \app\exceptions\ModelValidationException
-     * @throws \InvalidArgumentException
-     * @throws \LogicException
      */
     public function actionCancelEditAccountTariff()
     {
@@ -1188,7 +1196,7 @@ class UuController extends ApiInternalController
         $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
 
         if (!$account_tariff_ids) {
-            throw new InvalidArgumentException('Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
         }
 
         foreach ($account_tariff_ids as $account_tariff_id) {
@@ -1196,11 +1204,11 @@ class UuController extends ApiInternalController
             $account_tariff_id = trim($account_tariff_id);
             $accountTariff = AccountTariff::findOne(['id' => (int)$account_tariff_id]);
             if (!$accountTariff) {
-                throw new InvalidArgumentException('Услуга с таким идентификатором не найдена', AccountTariff::ERROR_CODE_USAGE_EMPTY);
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Услуга с таким идентификатором не найдена', AccountTariff::ERROR_CODE_USAGE_EMPTY);
             }
 
             if (!$accountTariff->isCancelable()) {
-                throw new LogicException('Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
             }
 
             // лог тарифов
@@ -1210,7 +1218,7 @@ class UuController extends ApiInternalController
             /** @var AccountTariffLog $accountTariffLogCancelled */
             $accountTariffLogCancelled = array_shift($accountTariffLogs);
             if (!$accountTariff->isCancelable()) {
-                throw new LogicException('Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
             }
 
             // отменить (удалить) последний тариф
@@ -1261,17 +1269,18 @@ class UuController extends ApiInternalController
      *
      * @param int $client_account_id
      * @return array
+     * @throws HttpException
      */
     public function actionGetVmCollocationInfo($client_account_id = 0)
     {
         $client_account_id = (int)$client_account_id;
         if (!$client_account_id) {
-            throw new InvalidArgumentException('Не указан client_account_id');
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан client_account_id');
         }
 
         $account = ClientAccount::findOne(['id' => $client_account_id]);
         if (!$account) {
-            throw new InvalidArgumentException('Несуществующий client_account_id ' . $client_account_id);
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Несуществующий client_account_id ' . $client_account_id);
         }
 
         $syncVmCollocation = (new SyncVmCollocation);

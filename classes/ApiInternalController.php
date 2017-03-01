@@ -41,10 +41,6 @@ class ApiInternalController extends ApiController
             $result = $e->getMessage();
             $code = $e->getCode();
 
-            if ($e instanceof HttpException) {
-                $code = $e->statusCode;
-            }
-
             return [
                 'status' => 'ERROR',
                 'result' => $result,

@@ -56,7 +56,7 @@ class AccountTariffLog extends ActiveRecord
     {
         return [
             [['account_tariff_id', 'tariff_period_id'], 'integer'],
-            [['account_tariff_id'], 'required'],
+            [['account_tariff_id', 'actual_from_utc'], 'required'],
             ['actual_from', 'date', 'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT],
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
             ['actual_from', 'validatorPackage', 'skipOnEmpty' => false],
@@ -189,6 +189,13 @@ class AccountTariffLog extends ActiveRecord
         if (!$this->tariff_period_id && !$this->getCountLogs()) {
             $this->addError($attribute, 'Не указан тариф/период.');
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
+            return;
+        }
+
+        if ($this->tariff_period_id == $this->accountTariff->tariff_period_id) {
+            $this->addError($attribute, 'Нет смысла менять период/тариф на тот же самый. Выберите другой период/тариф.');
+            $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SAME;
+            return;
         }
 
         Yii::info('AccountTariffLog. After validatorCreateNotClose', 'uu');
@@ -479,6 +486,10 @@ class AccountTariffLog extends ActiveRecord
      */
     public function getActual_from()
     {
+        if (!$this->actual_from_utc) {
+            return null;
+        }
+
         return (new DateTime($this->actual_from_utc, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
             ->setTimezone($this->getClientTimeZone())
             ->format(DateTimeZoneHelper::DATE_FORMAT);

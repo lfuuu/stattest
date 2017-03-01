@@ -6,6 +6,8 @@ use yii\web\HttpException;
 
 class ModelValidationException extends HttpException
 {
+    const STATUS_CODE = 400;
+
     private $_errors = [];
 
     private $_model = null;
@@ -15,7 +17,7 @@ class ModelValidationException extends HttpException
      * @param int $errorCode код ошибки для API
      * @param int $statusCode http-код для браузера
      */
-    public function __construct(Model $model, $errorCode = 0, $statusCode = 400)
+    public function __construct(Model $model, $errorCode = 0, $statusCode = ModelValidationException::STATUS_CODE)
     {
         $this->_model = $model;
         $this->_errors = $model->getErrors();
