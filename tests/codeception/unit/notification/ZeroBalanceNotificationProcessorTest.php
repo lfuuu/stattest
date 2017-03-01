@@ -106,7 +106,7 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEnterEvent()]);
         $this->assertNotNull($event);
 
-        if ($mockObj->isOldNotification()) {
+        if ($mockObj->isLocalSeviceNotification()) {
             /** @var \app\models\LkNotificationLog $lkNoticeLog */
             $lkNoticeLog = LkNotificationLog::findOne([
                 'client_id' => $this->account->id,
@@ -161,7 +161,7 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
 
         $this->assertEquals($mockObj->getEnterEvent(), $this->event);
 
-        if ($mockObj->isOldNotification()) {
+        if ($mockObj->isLocalSeviceNotification()) {
             /** @var \app\models\LkNotificationLog $lkNoticeLog */
             $lkNoticeLog = LkNotificationLog::findOne([
                 'client_id' => $this->account->id,

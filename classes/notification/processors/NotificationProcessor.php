@@ -104,7 +104,7 @@ abstract class NotificationProcessor
      *
      * @return bool
      */
-    public function isOldNotification()
+    public function isLocalSeviceNotification()
     {
         return true;
     }
@@ -183,7 +183,7 @@ abstract class NotificationProcessor
             if ($isSet) {
                 echo "\n" . date('r') . ': (+)' . $client->id . ", " . $this->getEnterEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
                 $this->createImportantEventSet($client, true, $this->getEnterEvent());
-                if ($this->isOldNotification()) {
+                if ($this->isLocalSeviceNotification()) {
                     $this->oldSetupSendAndSaveLog();
                 }
             }
@@ -191,7 +191,7 @@ abstract class NotificationProcessor
             if ($isUnSet) {
                 echo "\n" . date('r') . ': (-)' . $client->id . ", " . $this->getEnterEvent() . ', balance: ' . $client->billingCounters->realtimeBalance . ', day: ' . $client->billingCounters->daySummary . ', limit: ' . $this->getLimit() . ', value: ' . $this->getValue();
                 $this->createImportantEventSet($client, false, $this->getLeaveEvent());
-                if ($this->isOldNotification()) {
+                if ($this->isLocalSeviceNotification()) {
                     $this->oldUnsetSaveLog();
                 }
             }

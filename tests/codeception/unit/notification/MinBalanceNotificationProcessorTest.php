@@ -132,7 +132,7 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($event);
         $this->assertNotNull($event->id);
 
-        if ($mockObj->isOldNotification()) {
+        if ($mockObj->isLocalSeviceNotification()) {
             /** @var \app\models\LkNotificationLog $lkNoticeLog */
             $lkNoticeLog = LkNotificationLog::findOne([
                 'client_id' => $this->account->id,
@@ -181,7 +181,7 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $event = ImportantEvents::findOne(['client_id' => $this->account->id, 'event' => $mockObj->getEnterEvent()]);
         $this->assertNull($event);
 
-        if ($mockObj->isOldNotification()) {
+        if ($mockObj->isLocalSeviceNotification()) {
             /** @var \app\models\LkNotificationLog $lkNoticeLog */
             $lkNoticeLog = LkNotificationLog::findOne([
                 'client_id' => $this->account->id,
@@ -244,7 +244,7 @@ class MinBalanceNotificationProcessorTest extends \yii\codeception\TestCase
         $this->assertNotNull($findObj);
         $this->assertEquals($findObj->value, 0);
 
-        if ($mockObj->isOldNotification()) {
+        if ($mockObj->isLocalSeviceNotification()) {
             /** @var \app\models\LkNotificationLog $lkNoticeLog */
             $lkNoticeLog = LkNotificationLog::findOne([
                 'client_id' => $this->account->id,

@@ -67,7 +67,7 @@ class DayMnLimitNotificationProcessor extends NotificationProcessor
     /**
      * @inheritdoc
      */
-    public function isOldNotification()
+    public function isLocalSeviceNotification()
     {
         return false;
     }
