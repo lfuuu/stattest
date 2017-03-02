@@ -40,11 +40,6 @@ class UbillerController extends Controller
         $this->actionResource();
         $this->actionMin();
 
-        // Не списывать абонентку и минималку при финансовой блокировке
-        // Ибо ЛС все равно не может пользоваться услугами
-        // Обязательно после транзакций и до проводок
-        $this->actionFreePeriodInFinanceBlock();
-
         // проводки
         $this->actionEntry();
 
@@ -193,15 +188,6 @@ class UbillerController extends Controller
     public function actionAutoCloseAccountTariff()
     {
         $this->_tarificate('AutoCloseAccountTariffTarificator', 'Автоматически закрыть услугу по истечению тестового периода');
-    }
-
-    /**
-     * Не списывать абонентку и минималку при финансовой блокировке. 1 секунда
-     * Ибо ЛС все равно не может пользоваться услугами
-     */
-    public function actionFreePeriodInFinanceBlock()
-    {
-        $this->_tarificate('FreePeriodInFinanceBlockTarificator', 'Не списывать абонентку и минималку при финансовой блокировке');
     }
 
     /**
