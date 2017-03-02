@@ -128,6 +128,11 @@ class ApiCore
      */
     public static function isEmailExists($email)
     {
+        // для тестов
+        if (defined("YII_ENV") && YII_ENV == "test") {
+            return false;
+        }
+
         $result = self::exec('is_email_exists', ['email' => $email]);
 
         if (isset($result['exists'])) {

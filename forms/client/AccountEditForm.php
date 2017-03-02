@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\client;
 
+use app\classes\api\ApiCore;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\ClientContact;
@@ -174,6 +175,7 @@ class AccountEditForm extends Form
             [['voip_credit_limit_day'], 'default', 'value' => ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
             [['voip_limit_mn_day'], 'default', 'value' => ClientAccount::DEFAULT_VOIP_MN_LIMIT_DAY],
             ['admin_email', 'email'],
+            ['admin_email', 'checkEmailInCore'],
             ['credit', 'integer', 'min' => 0],
             ['voip_is_day_calc', 'default', 'value' => ClientAccount::DEFAULT_VOIP_IS_DAY_CALC],
             ['voip_is_mn_day_calc', 'default', 'value' => ClientAccount::DEFAULT_VOIP_IS_MN_DAY_CALC],
@@ -284,6 +286,18 @@ class AccountEditForm extends Form
         }
 
         $this->options = ArrayHelper::merge($this->options, $options);
+    }
+
+    /**
+     * Проверка существтвания email'а на платформе
+     *
+     * @param string $attribute
+     */
+    public function checkEmailInCore($attribute)
+    {
+        if (ApiCore::isEmailExists($this->admin_email)) {
+            $this->addError($attribute, 'E-mail уже присутствует на платформе как администратор');
+        }
     }
 
     /**
