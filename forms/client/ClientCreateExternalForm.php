@@ -25,6 +25,7 @@ use app\models\Number;
 use app\models\Organization;
 use app\models\Region;
 use app\models\TariffVirtpbx;
+use app\models\Trouble;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
@@ -74,7 +75,9 @@ class ClientCreateExternalForm extends Form
         $connect_region = Region::MOSCOW,
         $account_version = "",
 
-        $entry_point_id = "";
+        $entry_point_id = "",
+
+        $troubleId = null;
     /** @var EntryPoint */
     public $entryPoint = null;
 
@@ -477,12 +480,12 @@ class ClientCreateExternalForm extends Form
             'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : '')
         ];
 
-        $troubleId = StatModule::tt()->createTrouble($R, "system");
+        $this->troubleId = StatModule::tt()->createTrouble($R, "system");
 
         if ($this->entryPoint) {
-            LkWizardState::create($this->contract_id, $troubleId, $this->entryPoint->wizard_type);
+            LkWizardState::create($this->contract_id, $this->troubleId, $this->entryPoint->wizard_type);
         } else {
-            LkWizardState::create($this->contract_id, $troubleId);
+            LkWizardState::create($this->contract_id, $this->troubleId);
         }
 
         return true;
@@ -499,12 +502,13 @@ class ClientCreateExternalForm extends Form
         $result = ['status' => 'error'];
 
         $client = ClientAccount::findOne(['id' => $this->account_id]);
-        $tariff = TariffVirtpbx::findOne([['id' => $this->vats_tariff_id], ['!=', 'status', 'archive']]);
+        $tariff = TariffVirtpbx::findOne(['id' => $this->vats_tariff_id]);
+        $testTariff = TariffVirtpbx::findOne(['status' => TariffVirtpbx::STATUS_TEST]);
 
         $vats = UsageVirtpbx::findOne(['client' => $client->client]);
 
         if (!$vats) {
-            if ($client && $tariff) {
+            if ($client && $testTariff && $tariff) {
                 $actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
                 $actual_to = UsageInterface::MAX_POSSIBLE_DATE;
 
@@ -522,7 +526,7 @@ class ClientCreateExternalForm extends Form
                 $logTariff = new LogTarif;
                 $logTariff->service = 'usage_virtpbx';
                 $logTariff->id_service = $vats->id;
-                $logTariff->id_tarif = $tariff->id;
+                $logTariff->id_tarif = $testTariff->id;
                 $logTariff->ts = (new DateTime())->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT))->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 $logTariff->date_activation = date(DateTimeZoneHelper::DATE_FORMAT);
                 $logTariff->id_user = User::LK_USER_ID;
@@ -533,62 +537,14 @@ class ClientCreateExternalForm extends Form
                 $result['status'] = 'ok';
                 $result['info'][] = 'created';
 
-                if ($tariff->id == TariffVirtpbx::TEST_TARIFF_ID) {
-                    $usage = UsageVoip::findOne(['client' => $client->client]);
-
-                    if (!($usage instanceof UsageVoip)) {
-                        $result['info'][] = 'voip';
-
-                        $transaction = Yii::$app->db->beginTransaction();
-                        try {
-                            $form = new UsageVoipEditForm;
-                            $form->scenario = 'add';
-                            $form->initModel($client);
-                            if ($this->connect_region == Region::HUNGARY) { // в венгрии подключаем только линии без номера
-                                $form->type_id = 'line';
-                                $form->city_id = City::DEFAULT_USER_CITY_ID;
-                            } else {
-                                $freeNumber
-                                    = (new FreeNumberFilter)
-                                    ->getNumbers()
-                                    ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
-                                    ->randomOne();
-
-                                if (!($freeNumber instanceof Number)) {
-                                    throw new Exception('Not found free number into 499 DID group', 500);
-                                }
-
-                                $form->did = $freeNumber->number;
-                            }
-
-                            $form->prepareAdd();
-                            $form->tariff_main_id = VoipReserveNumber::getDefaultTariffId(
-                                $client->region,
-                                $client->currency
-                            );
-                            $form->create_params = Json::encode([
-                                'vpbx_stat_product_id' => $vats->id,
-                            ]);
-
-                            if (!$form->validate() || !$form->add()) {
-                                if ($form->errors) {
-                                    \Yii::error($form);
-                                    $errorKeys = array_keys($form->errors);
-                                    throw new Exception($form->errors[$errorKeys[0]][0], 500);
-                                } else {
-                                    throw new Exception('Unknown error', 500);
-                                }
-                            }
-
-                            $transaction->commit();
-                            $result['info'][] = 'added';
-                        } catch (\Exception $e) {
-                            $result['info'][] = 'failed';
-                            $transaction->rollBack();
-                            throw $e;
-                        }
+                if ($this->troubleId && ($trouble = Trouble::findOne(['id' => $this->troubleId]))) {
+                    $trouble->problem .= " Тариф ВАТС: " . $tariff->description . " (id:" . $tariff->id . ")";
+                    if (!$trouble->save()) {
+                        throw new ModelValidationException($trouble);
                     }
                 }
+
+                $this->_addUsageVoip($client, $vats, $result);
             } else {
                 $result['info'][] = 'not_found_tariff';
             }
@@ -597,5 +553,67 @@ class ClientCreateExternalForm extends Form
         $result['info'] = implode(':', $result['info']);
 
         return $result;
+    }
+
+    /**
+     * Добавление случайного номера в ВАТС
+     *
+     * @param ClientAccount $client
+     * @param UsageVirtpbx $vats
+     * @param array $result
+     * @throws Exception
+     */
+    private function _addUsageVoip(ClientAccount $client, UsageVirtpbx $vats, &$result)
+    {
+        $usage = UsageVoip::findOne(['client' => $client->client]);
+
+        if ($usage) {
+            return;
+        }
+
+        $result['info'][] = 'voip';
+
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $form = new UsageVoipEditForm;
+            $form->scenario = 'add';
+            $form->initModel($client);
+            if ($this->connect_region == Region::HUNGARY) { // в венгрии подключаем только линии без номера
+                $form->type_id = 'line';
+                $form->city_id = City::DEFAULT_USER_CITY_ID;
+            } else {
+                $freeNumber
+                    = (new FreeNumberFilter)
+                    ->getNumbers()
+                    ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
+                    ->randomOne();
+
+                if (!$freeNumber) {
+                    throw new \LogicException('Not found free number into 499 DID group', 500);
+                }
+
+                $form->did = $freeNumber->number;
+            }
+
+            $form->prepareAdd();
+            $form->tariff_main_id = VoipReserveNumber::getDefaultTariffId(
+                $client->region,
+                $client->currency
+            );
+            $form->create_params = Json::encode([
+                'vpbx_stat_product_id' => $vats->id,
+            ]);
+
+            if (!$form->validate() || !$form->add()) {
+                throw new ModelValidationException($form, 500);
+            }
+
+            $transaction->commit();
+            $result['info'][] = 'added';
+        } catch (\Exception $e) {
+            $result['info'][] = 'failed';
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 }

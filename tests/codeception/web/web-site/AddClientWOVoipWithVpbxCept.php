@@ -4,6 +4,8 @@
  * Добавление клиента с ВАТС без номера, если у клиента нет номеров
  */
 
+use app\models\TariffVirtpbx;
+
 $query = http_build_query([
     'test' => 1,
     'action' => 'add_client',
@@ -37,7 +39,7 @@ $query = http_build_query([
     'fio' => 'fio',
     'phone_connect' => '',
     'is_lk_access' => 1,
-    'vats_tariff_id' => 42,
+    'vats_tariff_id' => TariffVirtpbx::TEST_TARIFF_ID,
 ]);
 
 $I = new _WebTester($scenario);

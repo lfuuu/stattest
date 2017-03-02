@@ -5816,7 +5816,7 @@ CREATE TABLE `tarifs_virtpbx` (
 
 LOCK TABLES `tarifs_virtpbx` WRITE;
 /*!40000 ALTER TABLE `tarifs_virtpbx` DISABLE KEYS */;
-INSERT INTO `tarifs_virtpbx` VALUES (42,'public','Тестовый','month','RUB',0.0000,8,100.0000,50,100.0000,0,0.0000,1,0,1,60,'2015-08-20 11:11:59',1);
+INSERT INTO `tarifs_virtpbx` VALUES (71,'test','Тестовый','month','RUB',0.0000,8,100.0000,50,100.0000,0,0.0000,1,0,1,60,'2015-08-20 11:11:59',1);
 /*!40000 ALTER TABLE `tarifs_virtpbx` ENABLE KEYS */;
 UNLOCK TABLES;
 

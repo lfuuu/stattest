@@ -100,7 +100,7 @@ $I->assertEquals($uVoip->E164, $number);
 
 // rus, vpbx, without number
 $emailRussia = 'one_query_create_' . mt_rand(0, 1000) . '@mcn.ru';
-$ip = "1.1.1.1";
+$ip = rand(1, 255) . "." . rand(1, 255) . "." . rand(1, 255). "." . rand(1,255);
 $query = http_build_query([
     'test' => 1,
     'action' => 'add_client',
