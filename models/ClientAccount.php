@@ -33,7 +33,6 @@ use yii\helpers\Url;
  * @property string $nal
  * @property int $balance
  * @property int $credit
- * @property int $voip_credit_limit
  * @property int $voip_credit_limit_day
  * @property int $voip_limit_mn_day
  * @property int $voip_disabled
@@ -128,7 +127,6 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_OVERRAN = 'lock.is_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали
     const WARNING_MN_OVERRAN = 'lock.is_mn_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали (МН)
     const WARNING_LIMIT_DAY = 'lock.limit_day'; // Превышен дневной лимит
-    const WARNING_LIMIT_MONTH = 'lock.limit_month'; // Превышен месячный лимит
     const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
     public static $statuses = [
         'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
@@ -283,7 +281,6 @@ class ClientAccount extends HistoryActiveRecord
             'bank_name' => 'Название банка',
             'bank_city' => 'Город банка',
             'price_type' => 'Тип цены для интернет-магазина',
-            'voip_credit_limit' => 'Телефония, лимит использования (месяц)',
             'voip_disabled' => 'Выключить телефонию (МГ, МН, Местные мобильные)',
             'voip_credit_limit_day' => 'Телефония, лимит использования (день)',
             'voip_limit_mn_day' => 'Телефония (МН), лимит использования (день)',
@@ -898,15 +895,10 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         $need_lock_limit_day = ($this->voip_credit_limit_day != 0 && -$counters->daySummary > $this->voip_credit_limit_day);
-        $need_lock_limit_month = ($this->voip_credit_limit != 0 && -$counters->monthSummary > $this->voip_credit_limit);
         $need_lock_credit = ($this->credit >= 0 && $counters->realtimeBalance + $this->credit < 0);
 
         if ($need_lock_limit_day) {
             $warnings[self::WARNING_LIMIT_DAY] = 'Превышен дневной лимит: ' . (-$counters->daySummary) . ' > ' . $this->voip_credit_limit_day;
-        }
-
-        if ($need_lock_limit_month) {
-            $warnings[self::WARNING_LIMIT_MONTH] = 'Превышен месячный лимит: ' . (-$counters->monthSummary) . ' > ' . $this->voip_credit_limit;
         }
 
         if ($need_lock_credit || array_key_exists(self::WARNING_FINANCE, $warnings)) {

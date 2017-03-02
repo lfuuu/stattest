@@ -45,7 +45,9 @@ use kartik\widgets\ActiveForm;
         <div class="col-sm-3">
             <?= $f->field($model, 'credit', ['options' => ['id' => 'credit-size']]) ?>
         </div>
-        <div class="col-sm-3"></div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'anti_fraud_disabled')->checkbox()->label('') ?>
+        </div>
         <div class="col-sm-3">
             <?= $f->field($model, 'lk_balance_view_mode')->dropDownList(ClientAccount::$balanceViewMode) ?>
         </div>
@@ -76,12 +78,6 @@ use kartik\widgets\ActiveForm;
             echo $f->field($model, 'voip_is_day_calc')->checkbox()->label('');
             echo implode(Html::tag('br'), $result);
             ?>
-        </div>
-        <div class="col-sm-3">
-            <?= $f->field($model, 'voip_credit_limit') ?>
-        </div>
-        <div class="col-sm-3">
-            <?= $f->field($model, 'anti_fraud_disabled')->checkbox()->label('') ?>
         </div>
     </div>
 

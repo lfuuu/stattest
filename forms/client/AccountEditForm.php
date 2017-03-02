@@ -46,7 +46,6 @@ class AccountEditForm extends Form
         $phone_connect,
         $form_type,
         $price_type,
-        $voip_credit_limit,
         $voip_disabled,
         $voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY,
         $voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC,
@@ -141,7 +140,6 @@ class AccountEditForm extends Form
                     'contract_id',
                     'stamp',
                     'credit',
-                    'voip_credit_limit',
                     'voip_disabled',
                     'voip_credit_limit_day',
                     'voip_is_day_calc',
@@ -163,7 +161,6 @@ class AccountEditForm extends Form
                 [
                     'stamp',
                     'credit',
-                    'voip_credit_limit',
                     'is_agent',
                     'voip_disabled',
                     'is_with_consignee',

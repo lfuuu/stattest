@@ -53,7 +53,6 @@ $data = [
         'currency' => 'RUB',
         'price_type' => '739a53ba-8389-11df-9af5-001517456eb1',
         'credit' => '0',
-        'voip_credit_limit' => '',
         'voip_credit_limit_day' => '1000',
         'voip_is_day_calc' => '1',
         'is_with_consignee' => '0',
