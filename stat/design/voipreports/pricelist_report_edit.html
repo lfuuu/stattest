@@ -36,8 +36,20 @@
         var pricelist = '<input type=hidden name="pricelist_ids[]" value="' + conf.pricelist_id + '"/>';
         tr.append($('<td class="header" style="cursor: pointer">'+option.val()+'</td>'));
         tr.append($('<td>' + name + pricelist + '</td>'));
-        var date;var btncl;
-        date = $('<input readonly type=text name="dates[]" value="" placeholder="Текущая дата"/>').datepicker(datepicker_ru).datepicker('setDate', conf.date);
+        var btncl;
+        var date = $('<input />')
+                .attr('readonly', 'readonly')
+                .attr('type', 'test')
+                .attr('name', 'dates[]')
+                .attr('placeholder', 'Текущая дата')
+                .data('date', conf.date)
+                .val('')
+                .datepicker(datepicker_ru)
+                .datepicker('setDate', conf.date)
+                .on('click', function () {
+                    $(this).datepicker('show'); // Костыль для FF и динамической инициализации DatePicker Widget
+                });
+
         btncl = $('<a href="#" onclick="this.date.datepicker(\'setDate\',\'\');return false">[x]</a>')
         btncl[0].date = date;
         tr[0]._conf.datepicker = date;
@@ -48,6 +60,7 @@
         tr.append($('<td>').append(btndel));
         $('#selprices tbody').append(tr);
     }
+
     $(document).ready(function(){
         var data = JSON.parse($('#data')[0].value);
         for(var i = 0; i < data.pricelists.length;i++){

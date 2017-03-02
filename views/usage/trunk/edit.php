@@ -126,7 +126,11 @@ echo Breadcrumbs::widget([
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'actual_to')
-                    ->widget(DateControl::className(), ['autoWidget' => false, 'readonly' => true])
+                    ->widget(DateControl::className(), [
+                        'pluginOptions' => [
+                            'startDate' => 'today',
+                        ],
+                    ])
                 ?>
             </div>
         </div>

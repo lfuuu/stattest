@@ -43,9 +43,6 @@ class UsageTrunkEditForm extends UsageTrunkForm
     public function add()
     {
         $actualFrom = new DateTime($this->actual_from, $this->timezone);
-        $activationDt = clone $actualFrom;
-        $activationDt->setTimezone(new DateTimeZone('UTC'));
-
         $actualTo = new DateTime(UsageInterface::MAX_POSSIBLE_DATE, $this->timezone);
 
         if ($actualFrom < $this->today) {
@@ -53,7 +50,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
             return false;
         }
 
-        $usage = new UsageTrunk();
+        $usage = new UsageTrunk;
         $usage->client_account_id = $this->clientAccount->id;
         $usage->connection_point_id = $this->connection_point_id;
         $usage->actual_from = $actualFrom->format(DateTimeZoneHelper::DATE_FORMAT);
@@ -92,12 +89,20 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage = $this->usage;
         Assert::isTrue($usage->isActive());
 
+        $actualTo = new DateTime($this->actual_to, $this->timezone);
+
+        if ($actualTo < $this->today) {
+            $this->addError('actual_to', 'Дата отключения не может быть в прошлом');
+            return false;
+        }
+
         $usage->trunk_id = $this->trunk_id;
         $usage->orig_enabled = $this->orig_enabled;
         $usage->term_enabled = $this->term_enabled;
         $usage->orig_min_payment = $this->orig_enabled ? $this->orig_min_payment : 0;
         $usage->term_min_payment = $this->term_enabled ? $this->term_min_payment : 0;
         $usage->description = $this->description;
+        $usage->actual_to = $actualTo->format(DateTimeZoneHelper::DATE_FORMAT);
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
