@@ -24,6 +24,15 @@ class FreePeriodInFinanceBlockTarificator implements TarificatorI
      */
     public function tarificate($accountTariffId = null)
     {
+        // Закрыто до лучших времен
+        // Иначе возникает ситуация:
+        // - списали абонентку в минус
+        // - клиент ушел в финансовую блокировку
+        // - отменили абонентку
+        // - клиент вышел из финансовой блокировку
+        // - дальше либо сказка про белого бычка, либо клиент пользуется услугой бесплатно
+        return;
+
         $db = Yii::$app->db;
         $clientAccountTableName = ClientAccount::tableName();
         $accountTariffTableName = AccountTariff::tableName();
