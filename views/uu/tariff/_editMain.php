@@ -63,11 +63,6 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                         Yii::t('common', '(not set)') ?></div>
             </div>
 
-            <div class="col-sm-4">
-                <?= $form->field($tariff, 'is_charge_after_blocking')->checkbox($options) ?>
-                <?= $form->field($tariff, 'is_include_vat')->checkbox($options) ?>
-            </div>
-
         </div>
         <?php
     }
@@ -89,9 +84,16 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         <div class="col-sm-4"><?= $form->field($tariff, 'name')->textInput(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?></div>
 
         <div class="col-sm-2">
+            <?= $form->field($tariff, 'is_include_vat')->checkbox($options) ?>
+            <?php // $form->field($tariff, 'is_charge_after_period')->checkbox($options) ?>
+            <?= $form->field($tariff, 'is_autoprolongation')->checkbox($options) ?>
+        </div>
+
+        <div class="col-sm-2">
             <?= $form->field($tariff, 'is_default')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
             <?= $form->field($tariff, 'is_postpaid')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
         </div>
+
     </div>
 
     <div class="row">
@@ -107,11 +109,9 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
         <div class="col-sm-4"><?= $form->field($tariff, 'count_of_validity_period')->textInput($options) ?></div>
 
-        <div class="col-sm-2">
-            <?php // $form->field($tariff, 'is_charge_after_period')->checkbox($options) ?>
-            <?= $form->field($tariff, 'is_autoprolongation')->checkbox($options) ?>
+        <div class="col-sm-4">
+            <?= $form->field($tariff, 'is_charge_after_blocking')->checkbox($options) ?>
         </div>
-        <div class="col-sm-2"></div>
     </div>
 
     <?php if (!$tariff->isNewRecord) : ?>
