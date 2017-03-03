@@ -22,7 +22,8 @@
                             <input type="radio" name="pay[{$pay.no}][client]" data-pay-no="{$pay.no}" data-client-account-id="{$client.id}" value="{$client.client}"{if (isset($pay.imported) && $pay.imported) || (isset($pay.to_check_bill_only) && $pay.to_check_bill_only)} disabled="disabled"{/if} />
                             <a href="./?module=newaccounts&action=bill_list&clients_client={$client.id}">
                                 {$client.id} <small>({$client.client})</small> <font style="color:green;"> ({$client.currency})</font>
-                            </a> - <span style="font-size:85%">{$client.full_name} ({$client.manager})</span>
+                            </a> - <span style="font-size:85%">{$client.full_name} ({$client.manager})
+                                <small>{if $client.organization_name}{$client.organization_name}{/if}</small></span>
                         </div>
                     {/foreach}
                 {/if}

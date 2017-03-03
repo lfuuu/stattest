@@ -5,6 +5,8 @@ use app\classes\StatModule;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
 use app\models\Bill;
+use app\models\ClientContract;
+use app\models\ClientContragent;
 use app\models\Courier;
 use app\models\ClientAccount;
 use app\models\CurrencyRate;
@@ -91,7 +93,7 @@ class m_newaccounts extends IModule
             ->where(['not', ['status' => ['closed', 'trash', 'once', 'tech_deny', 'double', 'deny']]]);
 
         if (($organizationId = get_param_integer('organizationId'))) {
-            $clientAccounts->leftJoin(['cc' => \app\models\ClientContract::tableName()], 'cc.id = '.ClientAccount::tableName().'.contract_id');
+            $clientAccounts->leftJoin(['cc' => ClientContract::tableName()], 'cc.id = '.ClientAccount::tableName().'.contract_id');
             $clientAccounts->andWhere(['cc.organization_id' => $organizationId]);
         }
 
@@ -3481,18 +3483,25 @@ where cg.inn = '" . $inn . "'";
             $clientIds = array($clientIds);
         }
 
-        $v = array();
+        $clients = (new \yii\db\Query())
+            ->select(['c.id','c.client', 'cg.name', 'full_name' => 'cg.name_full', 'cr.manager', 'c.currency', 'cr.organization_id'])
+            ->from(['c' => ClientAccount::tableName()])
+            ->innerJoin(['cr' => ClientContract::tableName()], 'cr.id=c.contract_id')
+            ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id=cr.contragent_id')
+            ->where(['c.id' => $clientIds])
+            ->all();
 
-        foreach ($db->AllRecords(
-            "select c.id,c.client, cg.name, cg.name_full as full_name, cr.manager, c.currency
-                    from clients c
-                     INNER JOIN `client_contract` cr ON cr.id=c.contract_id
-                     INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-                    where c.id in ('" . implode("','", $clientIds) . "')") as $c) {
-            $v[] = $c;
+        $organizationStore = [];
+        foreach ($clients as &$client) {
+            if (!array_key_exists($client['organization_id'], $organizationStore)) {
+                $organizationStore[$client['organization_id']] = Organization::find()->byId($client['organization_id'])->actual()->one();
+            }
+
+            $client['organization_name'] = $organizationStore[$client['organization_id']] ?
+                $organizationStore[$client['organization_id']]->name->value : '';
         }
 
-        return $v;
+        return $clients;
     }
 
     function getClientBills($clientIds, $billNo)
