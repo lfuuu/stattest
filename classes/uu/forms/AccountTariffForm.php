@@ -56,6 +56,8 @@ abstract class AccountTariffForm extends Form
 
     /**
      * Конструктор
+     *
+     * @throws \InvalidArgumentException
      */
     public function init()
     {
@@ -67,11 +69,8 @@ abstract class AccountTariffForm extends Form
 
         $this->accountTariffLog = new AccountTariffLog();
         $this->accountTariffLog->account_tariff_id = $this->accountTariff->id;
+        $this->accountTariffLog->actual_from = $this->accountTariff->getDefaultActualFrom();
         $this->accountTariffLog->populateRelation('accountTariff', $this->accountTariff);
-        $this->accountTariffLog->actual_from = $this->accountTariffLog
-            ->getClientDateTime()
-            // ->modify($this->serviceTypeId == ServiceType::ID_ONE_TIME ? '+0 day' : '+1 day')
-            ->format(DateTimeZoneHelper::DATE_FORMAT);
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();

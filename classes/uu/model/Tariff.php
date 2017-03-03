@@ -27,7 +27,6 @@ use yii\helpers\Url;
  *
  * @property integer $is_autoprolongation
  * @property integer $is_charge_after_blocking
- * @property integer $is_charge_after_period @todo
  * @property integer $is_include_vat
  * @property integer $is_default
  * @property integer $is_postpaid
@@ -108,7 +107,6 @@ class Tariff extends HistoryActiveRecord
                     'is_autoprolongation',
                     'is_include_vat',
                     'is_charge_after_blocking',
-                    'is_charge_after_period',
                     'is_default',
                     'is_postpaid',
                     'country_id',

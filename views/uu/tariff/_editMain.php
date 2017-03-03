@@ -85,13 +85,12 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
         <div class="col-sm-2">
             <?= $form->field($tariff, 'is_include_vat')->checkbox($options) ?>
-            <?php // $form->field($tariff, 'is_charge_after_period')->checkbox($options) ?>
             <?= $form->field($tariff, 'is_autoprolongation')->checkbox($options) ?>
         </div>
 
         <div class="col-sm-2">
             <?= $form->field($tariff, 'is_default')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
-            <?= $form->field($tariff, 'is_postpaid')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
+            <?= $form->field($tariff, 'is_postpaid')->checkbox($options) ?>
         </div>
 
     </div>

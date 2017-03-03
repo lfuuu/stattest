@@ -68,7 +68,7 @@ $clientAccount = $accountTariff->clientAccount;
                     'todayHighlight' => true,
                 ],
                 'options' => [
-                    'style' => 'width: 100px;',
+                    'style' => 'width: 110px;',
                 ],
             ])
             ->label(false) // $accountTariffLog->getAttributeLabel('actual_from_utc')

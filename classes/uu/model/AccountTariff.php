@@ -885,4 +885,26 @@ class AccountTariff extends HistoryActiveRecord
 
         return false;
     }
+
+    /**
+     * Дата по умолчанию для подключить/сменить/закрыть
+     *
+     * Подключить и закрыть - строго после этой даты.
+     * Сменить тариф - с любой даты, но эта по умолчанию.
+     *
+     * @return string
+     */
+    public function getDefaultActualFrom()
+    {
+        if (!$this->isNewRecord && count($accountLogPeriods = $this->accountLogPeriods)) {
+            // следующий после завершения оплаченного
+            $accountLogPeriod = end($accountLogPeriods);
+            return (new DateTime($accountLogPeriod->date_to))
+                ->modify('+1 day')
+                ->format(DateTimeZoneHelper::DATE_FORMAT);
+        }
+
+        // ничего не оплачено - хоть с сегодня
+        return date(DateTimeZoneHelper::DATE_FORMAT);
+    }
 }

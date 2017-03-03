@@ -39,7 +39,10 @@ use app\classes\uu\model\ServiceType;
     $accountTariffLogs = $accountTariffFirst->accountTariffLogs;
     $firstAccountTariffLog = reset($accountTariffLogs);
     if (!$firstAccountTariffLog->tariff_period_id) {
-        echo \app\classes\DateFunction::getDateRange(end($accountTariffLogs)->actual_from, $firstAccountTariffLog->actual_from);
+        echo \app\classes\DateFunction::getDateRange(
+            end($accountTariffLogs)->actual_from,
+            (new DateTime($firstAccountTariffLog->actual_from))->modify('-1 day')
+        );
     } else {
         echo 'с ' . Yii::$app->formatter->asDate(end($accountTariffLogs)->actual_from, 'medium');
     }

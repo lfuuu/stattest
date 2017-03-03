@@ -17,6 +17,7 @@
  * @var string $actualFromNext
  */
 
+use app\classes\DateFunction;
 use app\classes\Html;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
@@ -39,7 +40,10 @@ use yii\helpers\Url;
 
     <?php
     if ($actualFromNext) {
-        echo \app\classes\DateFunction::getDateRange($accountTariffLog->actual_from, $actualFromNext);
+        echo DateFunction::getDateRange(
+            $accountTariffLog->actual_from,
+            (new DateTime($actualFromNext))->modify('-1 day')
+        );
     } else {
         echo 'с ' . Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'medium');
     }

@@ -198,11 +198,17 @@ class TariffPeriod extends HistoryActiveRecord
     public function validatorPeriod($attribute, $params)
     {
         $tariff = $this->tariff;
+
         if (
             ($tariff->is_postpaid || in_array($tariff->service_type_id, ServiceType::$packages))
             && $this->charge_period_id != Period::ID_MONTH
         ) {
             $this->addError($attribute, 'У постоплаты и пакетов может быть только помесячное списание');
+            return;
+        }
+
+        if ($tariff->isTest && $this->charge_period_id != Period::ID_DAY) {
+            $this->addError($attribute, 'У тестовых тарифов может быть только посуточное списание');
             return;
         }
     }

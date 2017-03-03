@@ -226,7 +226,6 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "count_of_validity_period", type = "integer", description = "Кол-во периодов продления"),
      *   @SWG\Property(property = "is_autoprolongation", type = "integer", description = "Автопролонгация"),
      *   @SWG\Property(property = "is_charge_after_blocking", type = "integer", description = "Списывать после блокировки"),
-     *   @SWG\Property(property = "is_charge_after_period", type = "integer", description = "Списывать в конце периода"),
      *   @SWG\Property(property = "is_include_vat", type = "integer", description = "Включая НДС"),
      *   @SWG\Property(property = "is_default", type = "integer", description = "0 - только не по умолчанию, 1 - только по умолчанию, не указано - все"),
      *   @SWG\Property(property = "is_postpaid", type = "integer", description = "0 - только предоплата, 1 - только постоплата, не указано - все"),
@@ -399,7 +398,6 @@ class UuController extends ApiInternalController
             'count_of_validity_period' => $tariff->count_of_validity_period,
             'is_autoprolongation' => $tariff->is_autoprolongation,
             'is_charge_after_blocking' => $tariff->is_charge_after_blocking,
-            'is_charge_after_period' => $tariff->is_charge_after_period,
             'is_include_vat' => $tariff->is_include_vat,
             'is_default' => $tariff->is_default,
             'is_postpaid' => $tariff->is_postpaid,
@@ -602,6 +600,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "next_account_tariffs", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(ref = "#/definitions/accountTariffRecord")),
      *   @SWG\Property(property = "comment", type = "string", description = "Комментарий"),
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона"),
+     *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие"),
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
      * ),
      *
@@ -703,6 +702,7 @@ class UuController extends ApiInternalController
             'next_account_tariffs' => $this->_getAccountTariffRecord($accountTariff->nextAccountTariffs),
             'comment' => $accountTariff->comment,
             'voip_number' => $accountTariff->voip_number,
+            'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs),
         ];
     }
@@ -821,6 +821,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
+     *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие"),
      *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffWithPackagesRecord"))),
      * ),
      *
@@ -885,6 +886,7 @@ class UuController extends ApiInternalController
             'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
             'is_editable' => (bool)$accountTariff->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
+            'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'packages' => [],
         ];
 
@@ -999,7 +1001,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указан, то с сегодня", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф будет действовать. ГГГГ-ММ-ДД. Если не указан, то с сегодня", in = "formData", default = ""),
      *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона (кроме телефонии)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "formData", default = ""),
      *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "formData", default = ""),
@@ -1057,7 +1059,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID нового периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой новый тариф будет действовать. ГГГГ-ММ-ДД. Если не указано - с начала следующего периода (точную дату см. в get-account-tariff/default_actual_from)", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Тариф изменен",
      *     @SWG\Schema(type = "boolean", description = "true - успешно")
@@ -1145,7 +1147,7 @@ class UuController extends ApiInternalController
      * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/close-account-tariff", summary = "Закрыть услугу ЛС", operationId = "CloseAccountTariff",
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
-     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с завтра", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с начала следующего периода (точную дату см. в get-account-tariff/default_actual_from)", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Услуга закрыта",
      *     @SWG\Schema(type = "boolean", description = "true - успешно")

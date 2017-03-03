@@ -133,7 +133,8 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        $clientAccount = $this->accountTariff->clientAccount;
+        $accountTariff = $this->accountTariff;
+        $clientAccount = $accountTariff->clientAccount;
         if (!$clientAccount) {
             $this->addError($attribute, 'ЛС не указан.');
             $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_EMPTY;
@@ -151,6 +152,7 @@ class AccountTariffLog extends ActiveRecord
         if ($this->actual_from < $currentDateTimeUtc) {
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PREV;
+            return;
         }
 
         if (
@@ -162,6 +164,7 @@ class AccountTariffLog extends ActiveRecord
         ) {
             $this->addError($attribute, 'Сегодня тариф уже меняли. Теперь можно сменить его не ранее завтрашнего дня.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_TODAY;
+            return;
         }
 
         if (self::find()
@@ -171,6 +174,13 @@ class AccountTariffLog extends ActiveRecord
         ) {
             $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_FUTURE;
+            return;
+        }
+
+        if (!$this->tariff_period_id && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())) {
+            $this->addError($attribute, 'Закрыть можно только начиная с ' . $minEditDate);
+            $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
+            return;
         }
 
         Yii::info('AccountTariffLog. After validatorFuture', 'uu');
@@ -281,14 +291,6 @@ class AccountTariffLog extends ActiveRecord
                 $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_POSTPAID;
                 return;
             }
-        }
-
-        /** @var AccountLogPeriod $accountLogPeriod */
-        $accountLogPeriods = $accountTariff->accountLogPeriods;
-        if (count($accountLogPeriods) && ($accountLogPeriod = end($accountLogPeriods)) && $accountLogPeriod->date_to >= $this->actual_from) {
-            $this->addError($attribute, sprintf('Услуга уже оплачена до %s. Закрыть можно только после этой даты.', $accountLogPeriod->date_to));
-            $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
-            return;
         }
 
         $credit = $clientAccount->credit; // кредитный лимит
