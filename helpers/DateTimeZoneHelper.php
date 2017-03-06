@@ -13,6 +13,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
 
     const DATETIME_FORMAT = 'Y-m-d H:i:s';
     const DATE_FORMAT = 'Y-m-d';
+    const HUMAN_DATE_FORMAT = 'd MMM y';
 
     const TIMEZONE_UTC = 'UTC';
     const TIMEZONE_MOSCOW = 'Europe/Moscow';

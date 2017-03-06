@@ -716,7 +716,7 @@ class AccountTariff extends HistoryActiveRecord
             return false;
         }
 
-        if (!$this->tariffPeriod->tariff->is_default) {
+        if ($this->tariffPeriod->tariff->is_default) {
             // дефолтный нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
             return false;
         }

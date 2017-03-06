@@ -21,6 +21,7 @@ use app\classes\DateFunction;
 use app\classes\Html;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
+use app\helpers\DateTimeZoneHelper;
 use yii\helpers\Url;
 
 ?>
@@ -45,7 +46,7 @@ use yii\helpers\Url;
             (new DateTime($actualFromNext))->modify('-1 day')
         );
     } else {
-        echo 'с ' . Yii::$app->formatter->asDate($accountTariffLog->actual_from, 'medium');
+        echo 'с ' . Yii::$app->formatter->asDate($accountTariffLog->actual_from, DateTimeZoneHelper::HUMAN_DATE_FORMAT);
     }
     ?>
 </span>

@@ -22,6 +22,7 @@ class DateTimeWithUserTimezone extends DateTime
 
     /**
      * Вернуть TimeZone юзера строкой
+     *
      * @return string
      */
     public function getUserTimeZoneString()
@@ -33,6 +34,7 @@ class DateTimeWithUserTimezone extends DateTime
 
     /**
      * Вернуть TimeZone юзера
+     *
      * @return DateTimeZone
      */
     public function getUserTimeZone()
@@ -42,6 +44,7 @@ class DateTimeWithUserTimezone extends DateTime
 
     /**
      * Вернуть дату для БД в таймзоне UTC
+     *
      * @return string
      */
     public function getDbDate()
@@ -55,6 +58,7 @@ class DateTimeWithUserTimezone extends DateTime
 
     /**
      * Определяем дата находится ли в "бесконечности"
+     *
      * @return bool
      */
     public function isInfinity()
@@ -64,6 +68,7 @@ class DateTimeWithUserTimezone extends DateTime
 
     /**
      * Отображение даты в заданном формате или "бесконечности"
+     *
      * @param string $format
      * @return string
      */
@@ -74,6 +79,7 @@ class DateTimeWithUserTimezone extends DateTime
 
     /**
      * Вернуть дату
+     *
      * @param string $format "short", "medium", "long", or "full"
      * @return string
      */
@@ -84,6 +90,7 @@ class DateTimeWithUserTimezone extends DateTime
 
     /**
      * Вернуть дату и время
+     *
      * @param string $format "short", "medium", "long", or "full"
      * @return string
      */

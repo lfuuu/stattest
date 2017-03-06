@@ -2,6 +2,7 @@
 
 namespace app\classes;
 
+use app\helpers\DateTimeZoneHelper;
 use Yii;
 
 class DateFunction
@@ -110,6 +111,8 @@ class DateFunction
      * @param integer|string|\DateTime|\DateTimeImmutable $dateFrom
      * @param integer|string|\DateTime|\DateTimeImmutable $dateTo
      * @return string
+     * @throws \yii\base\InvalidParamException
+     * @throws \yii\base\InvalidConfigException
      */
     public static function getDateRange($dateFrom, $dateTo)
     {
@@ -123,12 +126,12 @@ class DateFunction
                 $format = 'd MMM';
             }
         } else {
-            $format = 'd MMM y';
+            $format = DateTimeZoneHelper::HUMAN_DATE_FORMAT;
         }
 
         return sprintf('%s - %s',
             Yii::$app->formatter->asDate($dateFrom, $format),
-            Yii::$app->formatter->asDate($dateTo, 'd MMM y')
+            Yii::$app->formatter->asDate($dateTo, DateTimeZoneHelper::HUMAN_DATE_FORMAT)
         );
     }
 
