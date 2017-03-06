@@ -19,7 +19,7 @@ use yii\widgets\ActiveForm;
 
 $form = ActiveForm::begin(['action' => 'uu/account-tariff/save-voip']);
 
-$isEditable = $accountTariffFirst->tariff_period_id;
+$isEditable = $accountTariffFirst->isEditable();
 $isCancelable = $accountTariffFirst->isCancelable();
 $isShowAddPackage = $isEditable || $isCancelable;
 

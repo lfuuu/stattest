@@ -153,9 +153,9 @@ echo \yii\widgets\Breadcrumbs::widget([
                                     case NumberLog::ACTION_UNHOLD:
                                         ?><b>убран из отстойника</b><?php break;
                                     case NumberLog::ACTION_NOTSALE:
-                                        ?><b>Номер не продется</b><?php break;
+                                        ?><b>Номер не продается</b><?php break;
                                     case NumberLog::ACTION_SALE:
-                                        ?><b>Номер продется</b><?php break;
+                                        ?><b>Номер продается</b><?php break;
                                     case NumberLog::ACTION_INVERTRESERVED:
                                         if ($log['addition'] == 'Y') {
                                             ?><b>Зарезервирован.</b><?php

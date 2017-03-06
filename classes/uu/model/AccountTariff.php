@@ -684,6 +684,16 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function isCancelable()
     {
+        if (!$this->tariff_period_id) {
+            // уже закрытый
+            return false;
+        }
+
+        if (!$this->tariffPeriod->tariff->is_default) {
+            // дефолтный нельзя отменять. Он должен отмениться автоматически при отмене базового тарифа
+            return false;
+        }
+
         $accountTariffLogs = $this->accountTariffLogs;
         $accountTariffLog = reset($accountTariffLogs);
         if (!$accountTariffLog) {
@@ -692,6 +702,26 @@ class AccountTariff extends HistoryActiveRecord
 
         $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
         return $accountTariffLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT);
+    }
+
+    /**
+     * Можно ли сменить тариф или закрыть услугу
+     *
+     * @return bool
+     */
+    public function isEditable()
+    {
+        if (!$this->tariff_period_id) {
+            // уже закрытый
+            return false;
+        }
+
+        if (!$this->tariffPeriod->tariff->is_default) {
+            // дефолтный нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
+            return false;
+        }
+
+        return true;
     }
 
     /**

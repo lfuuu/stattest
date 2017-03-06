@@ -13,7 +13,7 @@ use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
 $accountTariff = $formModel->accountTariff;
-$isReadOnly = !($accountTariff->isNewRecord || $accountTariff->tariff_period_id);
+$isReadOnly = !($accountTariff->isNewRecord || $accountTariff->isEditable());
 
 $serviceType = $formModel->getServiceType();
 if (!$serviceType) {

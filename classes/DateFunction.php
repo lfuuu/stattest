@@ -123,12 +123,12 @@ class DateFunction
                 $format = 'd MMM';
             }
         } else {
-            $format = 'medium';
+            $format = 'd MMM y';
         }
 
         return sprintf('%s - %s',
             Yii::$app->formatter->asDate($dateFrom, $format),
-            Yii::$app->formatter->asDate($dateTo, 'medium')
+            Yii::$app->formatter->asDate($dateTo, 'd MMM y')
         );
     }
 

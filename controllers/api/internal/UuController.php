@@ -276,7 +276,7 @@ class UuController extends ApiInternalController
      * @param int $service_type_id
      * @param int $country_id
      * @param int $client_account_id
-     * @param int $currency_id
+     * @param string $currency_id
      * @param int $is_default
      * @param int $is_postpaid
      * @param int $tariff_status_id
@@ -329,7 +329,7 @@ class UuController extends ApiInternalController
                 return [];
             }
 
-            $service_type_id = ServiceType::ID_VOIP_PACKAGE; // других пакетов пока все равно нет
+            $service_type_id = ServiceType::ID_VOIP_PACKAGE;
             !$country_id && $country_id = $tariff->country_id;
             !$currency_id && $currency_id = $tariff->currency_id;
             !$voip_city_id && $voip_city_id = array_keys($tariff->voipCities);
@@ -364,6 +364,7 @@ class UuController extends ApiInternalController
                     $parent_id_tmp = $tariff->id,
                     ServiceType::ID_VOIP_PACKAGE,
                     $country_id,
+                    $client_account_id,
                     $currency_id,
                     $is_default_tmp = 1,
                     $is_postpaid,
@@ -810,7 +811,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "activate_future_date", type = "string", description = "Дата, с которой этот тариф будет включен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "deactivate_past_date", type = "string", description = "Дата, с которой этот тариф был выключен, и сейчас не действует. Всегда в прошлом. Если null - не был выключен. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "deactivate_future_date", type = "string", description = "Дата, с которой этот тариф будет выключен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
-     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа?"),
+     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа или закрытие? Если в будущем назначена смена тарифа или закрытие"),
      *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      * ),
      *
@@ -884,7 +885,7 @@ class UuController extends ApiInternalController
             'voip_number' => $accountTariff->voip_number,
             'voip_city' => $this->_getIdNameRecord($accountTariff->city),
             'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
-            'is_editable' => (bool)$accountTariff->tariff_period_id, // Можно ли сменить тариф или отключить услугу?
+            'is_editable' => $accountTariff->isEditable(), // Можно ли сменить тариф или отключить услугу?
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'packages' => [],

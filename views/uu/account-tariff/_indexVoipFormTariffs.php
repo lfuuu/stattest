@@ -20,7 +20,7 @@ use app\classes\uu\model\ServiceType;
 <div class="well">
 
     <?php
-    $isEditable = $accountTariffFirst->tariff_period_id;
+    $isEditable = $accountTariffFirst->isEditable();
     $isDefault = $accountTariffFirst->tariff_period_id && $accountTariffFirst->tariffPeriod->tariff->is_default;
     $isCancelable = $accountTariffFirst->isCancelable();
     $actualFromNext = '';
