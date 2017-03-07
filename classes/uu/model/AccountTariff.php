@@ -87,6 +87,7 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_USAGE_DOUBLE_PREV = 43; // Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.
     const ERROR_CODE_USAGE_DOUBLE_FUTURE = 44; // Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла
     const ERROR_CODE_USAGE_CANCELABLE = 45; // Нельзя отменить уже примененный тариф
+    const ERROR_CODE_USAGE_DEFAULT = 46; // Нельзя подключить второй базовый пакет на ту же услугу.
 
     /** @var array Код ошибки для АПИ */
     public $errorCode = null;
@@ -689,7 +690,7 @@ class AccountTariff extends HistoryActiveRecord
             return false;
         }
 
-        if (!$this->tariffPeriod->tariff->is_default) {
+        if ($this->tariffPeriod->tariff->is_default) {
             // дефолтный нельзя отменять. Он должен отмениться автоматически при отмене базового тарифа
             return false;
         }

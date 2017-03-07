@@ -922,6 +922,7 @@ class UuController extends ApiInternalController
 
         if ($modelLast->tariff_period_id) {
 
+            // действующий
             if ($isCancelable) {
 
                 // смена тарифа в будущем
@@ -965,6 +966,7 @@ class UuController extends ApiInternalController
             }
         } else {
 
+            // закрытый
             if ($isCancelable) {
 
                 // закрытие тарифа в будущем
@@ -988,7 +990,7 @@ class UuController extends ApiInternalController
                     'deactivate_past_date' => $modelLast->actual_from,
                     'deactivate_future_date' => null,
                     'is_cancelable' => false, // Можно ли отменить смену тарифа?
-                    'is_editable' => true, // Можно ли сменить тариф или отключить услугу?
+                    'is_editable' => false, // Можно ли сменить тариф или отключить услугу?
                 ];
 
             }
@@ -1115,21 +1117,11 @@ class UuController extends ApiInternalController
                     throw new HttpException(ModelValidationException::STATUS_CODE, 'Услуга с таким идентификатором не найдена ' . $account_tariff_id, AccountTariff::ERROR_CODE_USAGE_EMPTY);
                 }
 
-                // у услуги сменить кэш тарифа
-                $accountTariff->tariff_period_id = $tariff_period_id;
-                if (!$accountTariff->save()) {
-                    throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
-                }
-
-                if (!$actual_from) {
-                    $actual_from = (new \DateTime())->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
-                }
-
                 // записать в лог тарифа
                 $accountTariffLog = new AccountTariffLog;
                 $accountTariffLog->account_tariff_id = $accountTariff->id;
                 $accountTariffLog->tariff_period_id = $tariff_period_id;
-                $accountTariffLog->actual_from = $actual_from;
+                $accountTariffLog->actual_from = $actual_from ?: $accountTariff->getDefaultActualFrom();
                 if (!$accountTariffLog->save()) {
                     throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
                 }

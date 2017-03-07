@@ -63,6 +63,7 @@ class AccountTariffLog extends ActiveRecord
             ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorDoublePackage'],
+            ['tariff_period_id', 'validatorDefaultPackage'],
         ];
     }
 
@@ -587,6 +588,50 @@ class AccountTariffLog extends ActiveRecord
             $this->addError($attribute, 'Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла.');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_FUTURE;
             return;
+        }
+    }
+
+    /**
+     * Валидировать, что базовый пакет только один
+     *
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorDefaultPackage($attribute, $params)
+    {
+        if (!$this->tariff_period_id) {
+            // закрытие услуги всегда можно
+            return;
+        }
+
+        if (!$this->tariffPeriod->tariff->is_default) {
+            // не дефолтный
+            return;
+        }
+
+        $accountTariff = $this->accountTariff;
+
+        // базовая услуга
+        $baseAccountTariff = $accountTariff->prevAccountTariff;
+        if (!$baseAccountTariff) {
+            // не пакет
+            return;
+        }
+
+        // все пакеты
+        $nextAccountTariffs = $baseAccountTariff->nextAccountTariffs;
+        foreach ($nextAccountTariffs as $nextAccountTariff) {
+
+            if ($accountTariff->id == $nextAccountTariff->id) {
+                // с собой не сравниваем
+                continue;
+            }
+
+            if ($nextAccountTariff->tariffPeriod->tariff->is_default) {
+                $this->addError($attribute, 'Нельзя подключить второй базовый пакет на ту же услугу.');
+                $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
+                return;
+            }
         }
     }
 }
