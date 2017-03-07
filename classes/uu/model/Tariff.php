@@ -2,7 +2,6 @@
 
 namespace app\classes\uu\model;
 
-use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\models\Country;
 use app\models\Currency;
@@ -119,6 +118,7 @@ class Tariff extends HistoryActiveRecord
             [['currency_id'], 'string', 'max' => 3],
             [['name'], 'required'],
             ['vm_id', 'validatorVm', 'skipOnEmpty' => false],
+            ['count_of_validity_period', 'validatorTest', 'skipOnEmpty' => false],
         ];
     }
 
@@ -365,6 +365,20 @@ class Tariff extends HistoryActiveRecord
     {
         if ($this->service_type_id == ServiceType::ID_VM_COLLOCATION && !$this->vm_id) {
             $this->addError($attribute, 'Необходимо указать тариф VM collocation');
+            return;
+        }
+    }
+
+    /**
+     * Тестовый тариф должен быть без автопролонгации
+     *
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorTest($attribute, $params)
+    {
+        if ($this->getIsTest() && ($this->is_autoprolongation || !$this->count_of_validity_period)) {
+            $this->addError($attribute, 'У тестового тарифа должно быть явно указано количество дней и не должно быть автопролонгации.');
             return;
         }
     }

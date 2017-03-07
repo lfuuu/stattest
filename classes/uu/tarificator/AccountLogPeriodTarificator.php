@@ -17,12 +17,15 @@ class AccountLogPeriodTarificator implements TarificatorI
 {
     /**
      * Рассчитать плату всех услуг
+     *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @param bool $isWithTransaction
+     * @throws \Exception
      */
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
+
         // в целях оптимизации удалить старые данные
         AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
 
@@ -64,6 +67,7 @@ class AccountLogPeriodTarificator implements TarificatorI
 
     /**
      * Рассчитать плату по конкретной услуге
+     *
      * @param AccountTariff $accountTariff
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)

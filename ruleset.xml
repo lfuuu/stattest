@@ -170,6 +170,9 @@
         <!-- Не требовать PHP-выражения на разных строчках -->
         <exclude name="Generic.Formatting.DisallowMultipleStatements.SameLine"/>
 
+        <!-- Не требовать заглавной буквы в блочных комментариях (закомментированном PHP-коде) -->
+        <exclude name="Squiz.Commenting.BlockComment.NoCapital"/>
+
     </rule>
 
 

@@ -5,6 +5,7 @@ namespace app\classes\uu\model;
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\uu\forms\AccountLogFromToTariff;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
 use app\models\City;
@@ -560,6 +561,8 @@ class AccountTariff extends HistoryActiveRecord
      *
      * @param AccountLogPeriod[] $accountLogs уже обработанные
      * @return AccountLogFromToTariff[]
+     * @throws \LogicException
+     * @throws ModelValidationException
      */
     public function getUntarificatedPeriodPeriods($accountLogs)
     {
@@ -594,9 +597,16 @@ class AccountTariff extends HistoryActiveRecord
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
-            // Решили пока игнорировать
             printf(PHP_EOL . 'Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+
+            /*
+                foreach ($accountLogs as $accountLog) {
+                    if (!$accountLog->delete()) {
+                        throw new ModelValidationException($accountLog);
+                    };
+                }
+            */
+
         }
 
         return $untarificatedPeriods;
@@ -647,8 +657,6 @@ class AccountTariff extends HistoryActiveRecord
                     }
 
                     // остался неизвестный период, который уже рассчитан
-                    // Иногда менеджеры меняются тариф задним числом. Почему - это другой вопрос. Надо решить, как это билинговать
-                    // Решили пока игнорировать
                     printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
                 }
             }
