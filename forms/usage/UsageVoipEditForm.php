@@ -502,6 +502,10 @@ class UsageVoipEditForm extends UsageVoipForm
         $this->tomorrow = new DateTime('tomorrow', $this->timezone);
         $this->tomorrow->setTime(0, 0, 0);
 
+        if (!$this->country_id) {
+            $this->country_id = $this->clientAccount->country_id;
+        }
+
         // Если услуга известна (scenario = edit)
         if ($usage) {
             $this->usage = $usage;

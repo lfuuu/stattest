@@ -767,10 +767,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getTaxRate()
     {
-        $organization = $this->getOrganization();
-        Assert::isObject($organization, 'Organization not found');
-
-        return $organization->vat_rate;
+        return $this->effective_vat_rate;
     }
 
     /**

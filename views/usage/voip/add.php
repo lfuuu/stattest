@@ -2,6 +2,7 @@
 
 use app\classes\Html;
 use app\models\City;
+use app\models\Country;
 use app\models\DidGroup;
 use app\models\TariffVoip;
 use app\widgets\DateControl as CustomDateControl;
@@ -62,16 +63,8 @@ echo Breadcrumbs::widget([
         'columns' => 4,
         'attributes' => [
             'type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $types, 'options' => ['class' => 'select2 form-reload']],
-            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getList($isWithEmpty = true, $clientAccount->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false), 'options' => ['class' => 'select2 form-reload',]],
-            [
-                'type' => Form::INPUT_RAW,
-                'value' => '
-                <div class="form-group">
-                    <label class="control-label">Страна</label>
-                    <input type="text" class="form-control" value="' . $clientAccount->country->name . '" readonly>
-                </div>
-            '
-            ],
+            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getList($isWithEmpty = true, $model->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false), 'options' => ['class' => 'select2 form-reload',]],
+            'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Country::getList($isWithEmpty = false), 'options' => ['class' => 'select2 form-reload',]],
             [
                 'type' => Form::INPUT_RAW,
                 'value' => '

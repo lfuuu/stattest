@@ -10,6 +10,7 @@ class UsageVoipForm extends Form
     public $id;
     public $client_account_id;
     public $city_id;
+    public $country_id;
     public $connection_point_id;
     public $type_id;
     public $status;
@@ -54,6 +55,7 @@ class UsageVoipForm extends Form
                     'id',
                     'client_account_id',
                     'city_id',
+                    'country_id',
                     'connection_point_id',
                     'did_group_id',
                     'line7800_id',
@@ -97,6 +99,7 @@ class UsageVoipForm extends Form
     {
         return [
             'city_id' => 'Город',
+            'country_id' => 'Страна',
             'connection_point_id' => 'Точка присоединения',
             'type_id' => 'Тип',
             'did_group_id' => 'DID группа',
