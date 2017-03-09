@@ -22,6 +22,7 @@ use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\ClientContragent;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -66,10 +67,19 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Definition(definition = "idResourceRecord", type = "object",
+     *   @SWG\Property(property = "id", type = "integer", description = "ID"),
+     *   @SWG\Property(property = "name", type = "string", description = "Название"),
+     *   @SWG\Property(property = "unit", type = "string", description = "Ед. изм."),
+     *   @SWG\Property(property = "min_value", type = "string", description = "Минимум, ед."),
+     *   @SWG\Property(property = "max_value", type = "string", description = "Максимум, ед."),
+     *   @SWG\Property(property = "service_type", type = "object", description = "Тип услуги", ref = "#/definitions/idNameRecord"),
+     * ),
+     *
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-resources", summary = "Список ресурсов", operationId = "GetResources",
      *
      *   @SWG\Response(response = 200, description = "Список ресурсов (дисковое пространство, абоненты, линии и пр.)",
-     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idResourceRecord"))
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",
      *     @SWG\Schema(ref = "#/definitions/error_result")
@@ -82,8 +92,16 @@ class UuController extends ApiInternalController
     {
         $query = Resource::find();
         $result = [];
+        /** @var \app\classes\uu\model\Resource $model */
         foreach ($query->each() as $model) {
-            $result[] = $this->_getIdNameRecord($model);
+            $result[] = [
+                'id' => $model->id,
+                'name' => $model->name,
+                'unit' => $model->unit,
+                'min_value' => $model->min_value,
+                'max_value' => $model->max_value,
+                'service_type' => $this->_getIdNameRecord($model->serviceType),
+            ];
         }
 
         return $result;
@@ -319,6 +337,10 @@ class UuController extends ApiInternalController
 
             $country_id = $clientAccount->country_id;
             $currency_id = $clientAccount->country->currency_id;
+            $is_postpaid = $clientAccount->is_postpaid;
+            $tariff_person_id = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
+                TariffPerson::ID_NATURAL_PERSON :
+                TariffPerson::ID_LEGAL_PERSON;
         }
 
         if ($parent_id) {
@@ -338,7 +360,7 @@ class UuController extends ApiInternalController
 
         $tariffQuery = Tariff::find();
         $tariffTableName = Tariff::tableName();
-        $id && $tariffQuery->andWhere([$tariffTableName . '.id' => (int)$id]);
+        $id && $tariffQuery->andWhere([$tariffTableName . '.id' => $id]);
         $service_type_id && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$service_type_id]);
         $country_id && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$country_id]);
         $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
