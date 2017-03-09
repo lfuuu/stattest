@@ -53,7 +53,8 @@ class BlockBillPayOverdueFolder extends AccountGridFolder
             ->innerJoin(['contracts' => ClientContract::tableName()], 'clients.contract_id = contracts.id')
             ->andWhere(['contracts.business_id' => $this->grid->getBusiness()])
             ->andWhere(['contracts.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK])
-            ->andWhere(['clients.is_bill_pay_overdue' => 1]);
+            ->andWhere(['clients.is_bill_pay_overdue' => 1])
+            ->andWhere(['clients.is_active' => 1]);
 
         $query->where(['IN', 'c.id', $statQuery]);
     }

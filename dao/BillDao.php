@@ -140,19 +140,19 @@ class BillDao extends Singleton
     {
         if (preg_match("/\d{2}-\d{8}/", $bill_no)) {
 
-            return ['type' => 'incomegood'];
+            return ['type' => Bill::DOC_TYPE_INCOMEGOOD];
 
         } elseif (preg_match("/20\d{4}\/\d{4}/", $bill_no)) {
 
-            return ['type' => 'bill', 'bill_type' => '1c'];
+            return ['type' => Bill::DOC_TYPE_BILL, 'bill_type' => Bill::TYPE_1C];
 
         } elseif (preg_match("/20\d{4}-\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)) {
 
             // mcn telekom || all4net
-            return ['type' => 'bill', 'bill_type' => 'stat'];
+            return ['type' => Bill::DOC_TYPE_BILL, 'bill_type' => Bill::TYPE_STAT];
         }
 
-        return ['type' => 'unknown'];
+        return ['type' => Bill::DOC_TYPE_UNKNOWN];
     }
 
     /**

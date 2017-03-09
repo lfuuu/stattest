@@ -1,7 +1,11 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\CheckBillPaymentOverdue;
+use app\classes\behaviors\HistoryChanges;
+use app\classes\behaviors\PartnerRewards;
+use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use Yii;
@@ -56,6 +60,13 @@ class Bill extends HistoryActiveRecord
     const STATUS_IS_PAID = 1;
     const STATUS_PAID_IN_PART = 2;
 
+    const DOC_TYPE_INCOMEGOOD = 'incomegood';
+    const DOC_TYPE_BILL = 'bill';
+    const DOC_TYPE_UNKNOWN = 'unknown';
+
+    const TYPE_1C = '1c';
+    const TYPE_STAT = 'stat';
+
     const TRIGGER_CHECK_OVERDUE = 'trigger_check_overdue';
 
     public static $paidStatuses = [
@@ -68,6 +79,8 @@ class Bill extends HistoryActiveRecord
     public $logMessage = null;
 
     public $isHistoryVersioning = false;
+
+    public $isSetPayOverdue = null;
 
     /**
      * @return string
@@ -93,10 +106,11 @@ class Bill extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'PartnerRewards' => \app\classes\behaviors\PartnerRewards::className(),
+            'PartnerRewards' => PartnerRewards::className(),
+            'SetBillPaymentOverdue' => SetBillPaymentOverdue::className(),
             'CheckBillPaymentOverdue' => CheckBillPaymentOverdue::className(),
-            'BillChangeLog' => \app\classes\behaviors\BillChangeLog::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'BillChangeLog' => BillChangeLog::className(),
+            'HistoryChanges' => HistoryChanges::className(),
         ];
     }
 

@@ -1,6 +1,7 @@
 <?php
 namespace app\commands;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BusinessProcessStatus;
@@ -266,6 +267,8 @@ class UsageController extends Controller
      */
     public function actionCheckBillOverdue()
     {
+        echo PHP_EOL . date('r') . ": start";
+
         $dateTo = new DateTime();
         $dateTo->modify('-1 day');
 
@@ -280,15 +283,26 @@ class UsageController extends Controller
                 $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
             ]);
 
+        $count = 0;
+
         /** @var Bill $bill */
         foreach ($billQuery->each() as $bill) {
-            echo PHP_EOL . $bill->bill_no;
+            $count++;
             try {
                 $bill->trigger(Bill::TRIGGER_CHECK_OVERDUE);
+                if ($bill->isSetPayOverdue !== null) {
+                    if (!$bill->save()) {
+                        throw new ModelValidationException($bill);
+                    }
+
+                    echo PHP_EOL . date('r') . ": " . $bill->bill_no . " " . ($bill->isSetPayOverdue ? "(+)" : "(-)");
+                }
             }catch (\Exception $e) {
                 Yii::error($e);
-                echo " " . $e->getMessage();
+                echo PHP_EOL . $bill->bill_no . " " . $e->getMessage();
             }
         }
+
+        echo PHP_EOL . date('r') . ": end. Count: " . $count;
     }
 }

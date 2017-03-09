@@ -7,6 +7,7 @@ use app\models\Bill;
 use app\models\billing\Locks;
 use app\models\ClientAccount;
 use yii\base\Behavior;
+use yii\base\Event;
 use yii\db\ActiveRecord;
 
 
@@ -20,19 +21,19 @@ class CheckBillPaymentOverdue extends Behavior
         return [
             ActiveRecord::EVENT_BEFORE_INSERT => "checkOverdue",
             ActiveRecord::EVENT_BEFORE_UPDATE => "checkOverdue",
-            Bill::TRIGGER_CHECK_OVERDUE => "checkOverdue"
+            Bill::TRIGGER_CHECK_OVERDUE => "checkOverdue" // необходимо сохранить модель, если тригер её изменил
         ];
     }
 
     /**
      * Проверяет необходимость установки/снятия флага просрочки платежа и блокировки ЛС
      *
-     * @throws ModelValidationException
+     * @param Event $event
      */
-    public function checkOverdue()
+    public function checkOverdue(Event $event)
     {
         /** @var Bill $bill */
-        $bill = &$this->owner;
+        $bill = $this->owner;
 
         $tz = new \DateTimeZone($bill->clientAccount->timezone_name);
 
@@ -40,11 +41,19 @@ class CheckBillPaymentOverdue extends Behavior
 
         $payUntilDate = new \DateTime($bill->pay_bill_until, $tz);
 
-        $isOverdue = (int)($payUntilDate < $now && $bill->is_payed != Bill::STATUS_IS_PAID);
+        $billType = Bill::dao()->getDocumentType($bill->bill_no);
+
+        $isOverdue = (int)(
+            $billType['type'] == Bill::DOC_TYPE_BILL &&
+            $billType['bill_type'] == Bill::TYPE_STAT && // статовский счет
+            $bill->is_payed == Bill::STATUS_NOT_PAID && // полностью не оплачен счет (красный)
+            $payUntilDate < $now
+        );
 
         if ($isOverdue != $bill->is_pay_overdue) {
 
             $bill->is_pay_overdue = $isOverdue;
+            $bill->isSetPayOverdue = $isOverdue;
 
             $this->_checkClientAccount($bill->clientAccount, $isOverdue);
         }
