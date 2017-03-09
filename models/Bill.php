@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\CheckBillPaymentOverdue;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use Yii;
@@ -40,6 +41,9 @@ use yii\helpers\Url;
  * @property int $biller_version
  * @property int $uu_bill_id
  * @property int $organization_id
+ * @property string $pay_bill_until
+ * @property int $is_pay_overdue
+ *
  * @property ClientAccount $clientAccount   ??
  * @property BillLine[] $lines   ??
  * @property Transaction[] $transactions   ??
@@ -51,6 +55,8 @@ class Bill extends HistoryActiveRecord
     const STATUS_NOT_PAID = 0;
     const STATUS_IS_PAID = 1;
     const STATUS_PAID_IN_PART = 2;
+
+    const TRIGGER_CHECK_OVERDUE = 'trigger_check_overdue';
 
     public static $paidStatuses = [
         self::STATUS_NOT_PAID => 'Не оплачен',
@@ -87,9 +93,10 @@ class Bill extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'PartnerRewards' => \app\classes\behaviors\PartnerRewards::className(),
+            'CheckBillPaymentOverdue' => CheckBillPaymentOverdue::className(),
             'BillChangeLog' => \app\classes\behaviors\BillChangeLog::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
     }
 
@@ -124,6 +131,9 @@ class Bill extends HistoryActiveRecord
             'bill_no_ext_date' => 'Дата внешнего счета',
             'bill_no_ext' => 'Внешний номер',
             'nal' => 'Предпологаемый тип платежа',
+            'is_pay' => 'Счет оплачен',
+            'pay_bill_until' => 'Оплатить счет до',
+            'is_pay_overdue' => 'Просрочена оплата счета'
         ];
     }
 

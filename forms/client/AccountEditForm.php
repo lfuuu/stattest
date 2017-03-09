@@ -78,7 +78,8 @@ class AccountEditForm extends Form
         $account_version,
         $is_postpaid,
         $type_of_bill,
-        $effective_vat_rate = 0;
+        $effective_vat_rate = 0,
+        $pay_bill_until_days = 30;
 
     /**
      * Правила
@@ -194,7 +195,8 @@ class AccountEditForm extends Form
             ],
             [['options',], ArrayValidator::className()],
             ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE],
-            ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED]
+            ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED],
+            ['pay_bill_until_days', 'integer', 'min' => 20, 'max' => 1000]
         ];
         return $rules;
     }

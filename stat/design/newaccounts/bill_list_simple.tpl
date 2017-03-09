@@ -132,7 +132,7 @@
         {/if}
         <tr class="{$class}">
             {if isset($op.bill) && $op.bill}
-                <td rowspan="{$rowspan}" style="{if $op.bill.postreg!="0000-00-00"}background-color:#FFFFD0;{/if}{if $op.isCanceled==1}text-decoration: line-through;{/if}">{$op.bill.bill_date}</td>
+                <td rowspan="{$rowspan}" style="{if $op.bill.postreg!="0000-00-00"}background-color:#FFFFD0;{/if}{if $op.isCanceled==1}text-decoration: line-through;{/if}{if $op.bill.is_pay_overdue}color: #c40000;{/if}">{$op.bill.bill_date}</td>
                 <td rowspan="{$rowspan}" class="pay{$op.bill.is_payed}"{if $op.isCanceled==1} style="text-decoration: line-through;"{/if}>
                     <a href="{$LINK_START}module=newaccounts&action=bill_view&bill={$op.bill.bill_no}">{$op.bill.bill_no}</a>
                 </td>

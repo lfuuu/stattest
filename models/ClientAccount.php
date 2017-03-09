@@ -52,18 +52,20 @@ use yii\helpers\Url;
  * @property int $account_version
  * @property int $is_postpaid
  * @property bool $type_of_bill
- * @property string pay_acc
- * @property string bik
- * @property string bank_name
- * @property string bank_city
- * @property string bank_properties
- * @property int admin_contact_id
- * @property int stamp
- * @property string corr_acc
- * @property string address_connect
- * @property int is_with_consignee
- * @property string consignee
- * @property int effective_vat_rate
+ * @property string $pay_acc
+ * @property string $bik
+ * @property string $bank_name
+ * @property string $bank_city
+ * @property string $bank_properties
+ * @property int $admin_contact_id
+ * @property int $stamp
+ * @property string $corr_acc
+ * @property string $address_connect
+ * @property int $is_with_consignee
+ * @property string $consignee
+ * @property int $effective_vat_rate
+ * @property int $pay_bill_until_days
+ * @property int $is_bill_pay_overdue
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -131,6 +133,9 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_MN_OVERRAN = 'lock.is_mn_overran'; // Превышение лимитов низкоуровневого биллинга. Возможно, взломали (МН)
     const WARNING_LIMIT_DAY = 'lock.limit_day'; // Превышен дневной лимит
     const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
+    const WARNING_BILL_PAY_OVERDUE = 'lock.bill_pay_overdue'; // Просрочка оплаты счета
+
+
     public static $statuses = [
         'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
         'testing' => ['name' => 'тестируемый', 'color' => '#6DCFF6'],
@@ -244,7 +249,6 @@ class ClientAccount extends HistoryActiveRecord
     {
         return [
             'AccountPriceIncludeVat' => AccountPriceIncludeVat::className(),
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'SetOldStatus' => SetOldStatus::className(),
             'ActualizeClientVoip' => ActualizeClientVoip::className(),
             'ClientAccountComments' => ClientAccountComments::className(),
@@ -253,7 +257,8 @@ class ClientAccount extends HistoryActiveRecord
             'EventQueueAddEvent' => [
                 'class' => EventQueueAddEvent::className(),
                 'insertEvent' => Event::ADD_ACCOUNT
-            ]
+            ],
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(), // Логирование изменений всегда в конце
         ];
     }
 
@@ -325,6 +330,8 @@ class ClientAccount extends HistoryActiveRecord
             'nds_calc_method' => 'Тип расчета НДС',
             'timezone_offset' => 'Таймзона, часы',
             'effective_vat_rate' => 'Эффективная ставка НДС',
+            'pay_bill_until_days' => 'Срок оплаты счетов (в днях)',
+            'is_bill_pay_overdue' => 'Блокировка по неоплате счета',
         ];
     }
 
@@ -922,6 +929,10 @@ class ClientAccount extends HistoryActiveRecord
                     ' (на уровне биллинга): ' . (new DateTimeWithUserTimezone($warnings[self::WARNING_FINANCE]->dt, $this->timezone))->format('H:i:s d.m.Y') :
                     ''
                 );
+        }
+
+        if ($this->is_bill_pay_overdue) {
+            $warnings[self::WARNING_BILL_PAY_OVERDUE] = 'Блокировка по неоплате счета';
         }
 
         return $warnings;

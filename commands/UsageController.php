@@ -2,6 +2,7 @@
 namespace app\commands;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContract;
 use app\models\usages\UsageInterface;
@@ -11,6 +12,7 @@ use app\models\TariffVoip;
 use Yii;
 use DateTime;
 use app\models\ClientAccount;
+use yii\base\Exception;
 use yii\console\Controller;
 use app\forms\usage\UsageVoipEditForm;
 use yii\db\Expression;
@@ -257,5 +259,36 @@ class UsageController extends Controller
     public function actionResetEffectiveVatRate()
     {
         ClientContract::dao()->resetAllEffectiveVATRate();
+    }
+
+    /**
+     * Устанавливает блокировку по неоплате счета
+     */
+    public function actionCheckBillOverdue()
+    {
+        $dateTo = new DateTime();
+        $dateTo->modify('-1 day');
+
+        $dateFrom = new DateTime();
+        $dateFrom->modify('-3 day');
+
+        $billQuery = Bill::find()
+            ->where([
+                'between',
+                'pay_bill_until',
+                $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                $dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            ]);
+
+        /** @var Bill $bill */
+        foreach ($billQuery->each() as $bill) {
+            echo PHP_EOL . $bill->bill_no;
+            try {
+                $bill->trigger(Bill::TRIGGER_CHECK_OVERDUE);
+            }catch (\Exception $e) {
+                Yii::error($e);
+                echo " " . $e->getMessage();
+            }
+        }
     }
 }

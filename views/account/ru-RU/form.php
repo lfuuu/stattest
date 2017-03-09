@@ -20,8 +20,10 @@ use kartik\widgets\ActiveForm;
         <div class="col-sm-3">
             <?= $f->field($model, 'timezone_name')->dropDownList(Region::getTimezoneList()) ?>
         </div>
-        <div class="col-sm-3"></div>
         <div class="col-sm-3"><?= $f->field($model, 'is_postpaid')->checkbox()->label('') ?></div>
+        <div class="col-sm-3"><?= $f->field($model, 'effective_vat_rate')->textInput([
+                'disabled' => 'disabled',
+            ]) ?></div>
     </div>
 
     <div class="row">
@@ -35,9 +37,7 @@ use kartik\widgets\ActiveForm;
             <?= $f->field($model, 'price_type')->dropDownList(PriceType::getList()) ?>
         </div>
         <div class="col-sm-3">
-            <?= $f->field($model, 'effective_vat_rate')->textInput([
-                'disabled' => 'disabled',
-            ]) ?>
+            <?= $f->field($model, 'pay_bill_until_days') ?>
         </div>
     </div>
 

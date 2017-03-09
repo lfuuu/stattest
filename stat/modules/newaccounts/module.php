@@ -376,7 +376,7 @@ class m_newaccounts extends IModule
         $R1 = $db->AllRecords($q = '
                 select * from (
             select
-                "bill" as type, bill_no, "" as bill_id, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,
+                "bill" as type, bill_no, "" as bill_id, bill_no_ext, bill_date, client_id, currency, sum, is_payed, P.comment, postreg, nal, IF(state_id is null or (state_id is not null and state_id !=21), 0,1) as is_canceled,is_pay_overdue,
                 ' . (
             $sum[$fixclient_data['currency']]['ts']
                 ? 'IF(bill_date >= "' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)'
@@ -961,6 +961,7 @@ class m_newaccounts extends IModule
         $design->assign('show_bill_no_ext', in_array($fixclient_data['status'], array('distr', 'operator')));
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
+        $design->assign('pay_bill_until', date('d-m-Y', strtotime($bill->get("pay_bill_until"))));
         $design->assign('l_couriers', Courier::dao()->getList(true));
         $lines = $bill->GetLines();
         $lines[$bill->GetMaxSort() + 1] = array();
@@ -1063,6 +1064,8 @@ class m_newaccounts extends IModule
         }
         $bill_date = new DatePickerValues('bill_date', $bill->Get('bill_date'));
         $bill->Set('bill_date', $bill_date->getSqlDay());
+        $billPayBillUntil = new DatePickerValues('pay_bill_until', $bill->Get('pay_bill_until'));
+        $bill->Set('pay_bill_until', $billPayBillUntil->getSqlDay());
         $bill->SetCourier($billCourier);
         $bill->SetNal($bill_nal);
         $bill->SetExtNo($bill_no_ext);

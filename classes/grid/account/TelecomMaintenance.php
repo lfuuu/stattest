@@ -5,6 +5,7 @@ use app\classes\grid\account\telecom\maintenance\AutoBlockFolder;
 use app\classes\grid\account\telecom\maintenance\AutoBlockCreditFolder;
 use app\classes\grid\account\telecom\maintenance\AutoBlockDayLimitFolder;
 use app\classes\grid\account\telecom\maintenance\AutoBlock800Folder;
+use app\classes\grid\account\telecom\maintenance\BlockBillPayOverdueFolder;
 use app\classes\grid\account\telecom\maintenance\ConnectingFolder;
 use app\classes\grid\account\telecom\maintenance\DisconnectedDebtFolder;
 use app\classes\grid\account\telecom\maintenance\DisconnectedFolder;
@@ -43,6 +44,7 @@ class TelecomMaintenance extends AccountGrid
             //AutoBlockFolder::create($this),
             AutoBlockCreditFolder::create($this),
             AutoBlockDayLimitFolder::create($this),
+            BlockBillPayOverdueFolder::create($this),
             AutoBlock800Folder::create($this),
             TrashFolder::create($this),
             TechFailureFolder::create($this),

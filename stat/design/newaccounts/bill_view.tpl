@@ -126,9 +126,11 @@
     {/if}
     Дата проводки: <b>{$bill.bill_date}</b>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Оплатить счет до: <b{if ($bill.is_pay_overdue)} class="text-danger"{/if}>{$bill.pay_bill_until}</b>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     Валюта проводки: <b{if $bill.currency=='RUB'} style='color:blue'{/if}>{$bill.currency}</b>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    Исполнитель:{if $bill.courier_id != 0}<i style="color: green">{$bill_courier}</i>{else}{$bill_courier|replace:"-":""}{/if}
+    {if $bill.courier_id != 0}Исполнитель: <i style="color: green">{$bill_courier}</i>{else}{$bill_courier|replace:"-":""}{/if}
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     Предполагаемый тип платежа: <i{if $bill.nal != "beznal"} style="background-color: {if $bill.nal=="nal"}#ffc0c0{else}#c0c0ff{/if}"{/if}>{$bill.nal}</i>
 </div>

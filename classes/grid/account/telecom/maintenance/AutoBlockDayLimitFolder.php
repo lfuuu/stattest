@@ -15,11 +15,17 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
 {
     public $block_date;
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return 'Сут./МН. Блок';
     }
 
+    /**
+     * @return array
+     */
     public function getColumns()
     {
         return [
@@ -34,12 +40,14 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
         ];
     }
 
+    /**
+     * @param Query $query
+     */
     public function queryParams(Query $query)
     {
         parent::queryParams($query);
 
-        $billingQuery =
-            (new Query)
+        $billingQuery = (new Query)
                 ->select('clients.id')
                 ->from(['clients' => Clients::tableName()])
                 ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
@@ -59,8 +67,7 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
 
         $clientsIDs = (array)$billingQuery->column(Clients::getDb());
 
-        $statBillingQuery =
-            (new Query)
+        $statBillingQuery = (new Query)
                 ->select('clients.id')
                 ->from(['clients' => ClientAccount::tableName()])
                 ->innerJoin(['contracts' => ClientContract::tableName()], 'clients.contract_id = contracts.id')
@@ -68,14 +75,14 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
                 ->andWhere(['contracts.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK])
                 ->andWhere(['IN', 'clients.id', $clientsIDs]);
 
-        $statQuery =
-            (new Query)
+        $statQuery = (new Query)
                 ->select('clients.id')
                 ->from(['clients' => ClientAccount::tableName()])
                 ->innerJoin(['contracts' => ClientContract::tableName()], 'clients.contract_id = contracts.id')
                 ->andWhere(['contracts.business_id' => $this->grid->getBusiness()])
                 ->andWhere(['contracts.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK])
-                ->andWhere(['clients.voip_disabled' => 1]);
+                ->andWhere(['clients.voip_disabled' => 1])
+                ->andWhere(['clients.is_bill_pay_overdue' => 0]);
 
         $resultIDs = array_merge($statBillingQuery->column(), $statQuery->column());
 

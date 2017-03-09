@@ -1,8 +1,20 @@
-{literal}
-<script type="text/javascript">
 
-</script>
-{/literal}
+<ul class="breadcrumb">
+	<li>
+		<a href="/">Главная</a>
+	</li>
+	<li>
+		<a href="/client/view?id={$bill.client_id}">Аккаунт: {$bill.client_id}</a>
+	</li>
+	<li>
+		<a href="/?module=newaccounts&action=bill_view&bill={$bill.bill_no}">Счет №{$bill.bill_no}</a>
+	</li>
+	<li>
+		<a href="?module=newaccounts&action=bill_edit&bill={$bill.bill_no}">Редактирование</a>
+	</li>
+
+</ul>
+
 <h2>Бухгалтерия {$fixclient}</h2>
 <H3>Редактирование проводки</H3>
 <form action="?" method=post id=form name=form>
@@ -11,22 +23,93 @@
 	<input type=hidden name=action value=bill_apply>
 	<input type=hidden name=client_id value={$bill.client_id}>
 
-	Дата проводки: <input type=text id=bill_date_from name=bill_date value="{$bill_date}">
-	Валюта проводки: <b style='color:blue'>{$bill.currency}</b><br>
-	Исполнитель: {html_options name='courier' options=$l_couriers selected=$bill.courier_id}<br>
-	Предпологаемый тип платежа:
-	<select name="nal">
-		<option value="beznal"{if $bill.nal=="beznal"} selected{/if}>безнал</option>
-		<option value="nal"{if $bill.nal=="nal"} selected{/if}>нал</option>
-		<option value="prov"{if $bill.nal=="prov"} selected{/if}>пров</option>
-	</select><br>
-	{if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
-		Внешний счет: <input type=text name=bill_no_ext value="{$bill.bill_no_ext}"><br>
-		Дата внешнего счета: <input {if !$bill.bill_no_ext_date} disabled="disabled"{/if} id=date_from  type=text name=bill_no_ext_date value="{if $bill.bill_no_ext_date}{"d-m-Y"|date:$bill.bill_no_ext_date}{/if}">
-		<input type="checkbox" value="Y" name="date_from_active" {if $bill.bill_no_ext_date} checked{/if} onchange="activateDatePicker(this);"><br/>
-	{/if}
-	<label>Цена включает НДС <input type="checkbox" value="Y" name="price_include_vat" {if $bill.price_include_vat > 0} checked{/if}></label><br/>
-	<br/>
+    <div class="well">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>Дата проводки:</label>
+                    <input class="form-control input-sm" type=text id=bill_date_from name=bill_date
+                           value="{$bill_date}">
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>Валюта проводки: </label>
+                    <input class="form-control input-sm" type=text value="{$bill.currency}" readonly>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>Предполагаемый тип платежа: </label>
+                    <select name="nal" class="form-control">
+                        <option value="beznal"{if $bill.nal=="beznal"} selected{/if}>безнал</option>
+                        <option value="nal"{if $bill.nal=="nal"} selected{/if}>нал</option>
+                        <option value="prov"{if $bill.nal=="prov"} selected{/if}>пров</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>Дата оплаты счета:</label>
+                    <input class="form-control input-sm" type=text id=pay_bill_until name=pay_bill_until
+                           value="{$pay_bill_until}">
+                </div>
+            </div>
+
+            {if $show_bill_no_ext || access('newaccounts_bills', 'edit_ext')}
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label>Внешний счет: </label>
+                        <input class="form-control input-sm" type=text name=bill_no_ext value="{$bill.bill_no_ext}">
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label>Дата внешнего счета: <input type="checkbox" value="Y"
+                                                           name="date_from_active" {if $bill.bill_no_ext_date} checked{/if}
+                                                           onchange="activateDatePicker(this);"> </label>
+                        <div class="form-group ">
+                            <input class="form-control input-sm" {if !$bill.bill_no_ext_date} disabled="disabled"{/if}
+                                   id=date_from type=text name=bill_no_ext_date
+                                   value="{if $bill.bill_no_ext_date}{"d-m-Y"|date:$bill.bill_no_ext_date}{/if}">
+
+                        </div>
+                    </div>
+                </div>
+            {else}
+                <div class="col-sm-8">&nbsp;</div>
+            {/if}
+        </div>
+
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="form-group">
+                    <label>Исполнитель:</label>
+                    {html_options name='courier' options=$l_couriers selected=$bill.courier_id}
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="form-group">
+                    <label>
+                        Цена включает НДС
+                        <input type="checkbox" value="Y"
+                               name="price_include_vat" {if $bill.price_include_vat > 0} checked{/if}>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-11"></div>
+            <div class="col-sm-1">
+                <input id='submit' class='btn btn-primary' type='submit' value="Сохранить">
+            </div>
+        </div>
+    </div>
 
 	<table class="table table-condensed table-striped">
 		<tr>
@@ -59,15 +142,29 @@
 		{/foreach}
 	</table>
 	<div style="text-align: center">
-		<input id='submit' class='button' type='submit' value="Изменить">
+		<input id='submit' class='btn btn-primary' type='submit' value="Сохранить">
 	</div>
 </form>
 
 <script>
 	{literal}
 
-	optools.DatePickerInit();
-	optools.DatePickerInit('bill_');
+    $('#bill_date_from').datepicker({
+        dateFormat: 'dd-mm-yy',
+        maxDate: $('#pay_bill_until').val(),
+        onClose: function (selectedDate) {
+            $('#pay_bill_until').datepicker('option', 'minDate', selectedDate);
+        }
+    });
+
+    $('#pay_bill_until').datepicker({
+        dateFormat: 'dd-mm-yy',
+        minDate: $('#bill_date_from').val(),
+        onClose: function (selectedDate) {
+            $('#bill_date_from').datepicker('option', 'maxDate', selectedDate);
+        }
+    });
+
 
 	function activateDatePicker(elm)
 	{
@@ -79,7 +176,6 @@
 			$('input.mark_del').attr('checked','checked');
 		else
 			$('input.mark_del').removeAttr('checked');
-
 	}
 
 	{/literal}
