@@ -16,12 +16,15 @@ use app\classes\Html;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
 
-?>
-<?php foreach ($packageServiceTypeIds as $packageServiceTypeId) : ?>
+$i = 0;
+foreach ($packageServiceTypeIds as $packageServiceTypeId) {
 
-    <b><?= ServiceType::findOne(['id' => $packageServiceTypeId])->name ?></b>
+    if ($i++) {
+        echo Html::tag('h3');
+    }
 
-    <?php
+    echo Html::tag('b', ServiceType::findOne(['id' => $packageServiceTypeId])->name);
+
     if (isset($packagesList[$packageServiceTypeId])) {
         foreach ($packagesList[$packageServiceTypeId] as $accountTariffPackage) {
             // пакеты
@@ -30,15 +33,14 @@ use app\classes\uu\model\ServiceType;
                 'packageServiceTypeIds' => $packageServiceTypeIds,
                 'row' => $row,
                 'serviceType' => $serviceType,
-                'packagesList' => $packagesList,
+                'packagesList' => [],
                 'isShowAddPackage' => $isShowAddPackage,
             ]);
         }
     }
-    ?>
 
-    <?= $isShowAddPackage ?
-        Html::button(
+    if ($isShowAddPackage) {
+        echo Html::button(
             Html::tag('i', '', [
                 'class' => 'glyphicon glyphicon-plus',
                 'aria-hidden' => 'true',
@@ -51,6 +53,6 @@ use app\classes\uu\model\ServiceType;
                 'data-city_id' => (int)$accountTariffFirst->city_id,
                 'data-service_type_id' => (int)$packageServiceTypeId,
             ]
-        ) : ''
-    ?>
-<?php endforeach ?>
+        );
+    }
+}

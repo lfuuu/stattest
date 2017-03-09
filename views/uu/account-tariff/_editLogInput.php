@@ -38,7 +38,8 @@ $clientAccount = $accountTariff->clientAccount;
     ?>
     <?php
     $isPackage = in_array($accountTariff->service_type_id, ServiceType::$packages);
-    if ($accountTariff->isNewRecord || !$isPackage) :
+    $isShowTariffPeriodList = $accountTariff->isNewRecord || !$isPackage;
+    if ($isShowTariffPeriodList) :
         ?>
         <div class="col-sm-6">
             <?= $form->field($accountTariffLog, 'tariff_period_id')
@@ -49,11 +50,11 @@ $clientAccount = $accountTariff->clientAccount;
                         'class' => 'accountTariffTariffPeriod',
                     ],
                 ])
-                ->label(false) // ($isPackage ? 'Пакет' : 'Тариф') . '/период'
+                ->label(($isPackage ? 'Пакет' : 'Тариф') . '/период');
             ?>
         </div>
     <?php else : ?>
-        <?= $form->field($accountTariffLog, 'tariff_period_id')->hiddenInput() ?>
+        <?= $form->field($accountTariffLog, 'tariff_period_id')->hiddenInput()->label(false) ?>
     <?php endif; ?>
 
 
@@ -71,7 +72,7 @@ $clientAccount = $accountTariff->clientAccount;
                     'style' => 'width: 110px;',
                 ],
             ])
-            ->label(false) // $accountTariffLog->getAttributeLabel('actual_from_utc')
+            ->label($isShowTariffPeriodList ? $accountTariffLog->getAttributeLabel('actual_from_utc') : false)
         // <div class="text-danger">Если сегодня, то отменить нельзя!</div>
         ?>
     </div>

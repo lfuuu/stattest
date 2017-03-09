@@ -83,7 +83,7 @@ class UsageDao extends Singleton
         ) {
             return $this->_returnValue(
                 !$this->_hasService(ServiceType::ID_TRUNK),
-                "'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов."
+                'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.'
             );
         }
 
@@ -93,7 +93,7 @@ class UsageDao extends Singleton
                 if ($serviceTypeId == ServiceType::ID_TRUNK) {
                     return $this->_returnValue(
                         !$this->_hasService(ServiceType::ID_TRUNK),
-                        "для ЛС с подразделением ОТТ можно добавить только один транк"
+                        'Для ЛС с подразделением ОТТ можно добавить только один транк'
                     );
                 }
 
@@ -103,7 +103,7 @@ class UsageDao extends Singleton
             case Business::OPERATOR: {
                 return $this->_returnValue(
                     $serviceTypeId == ServiceType::ID_TRUNK,
-                    "для ЛС с подразделением Межоператорка можно добавить только транки"
+                    'Для ЛС с подразделением Межоператорка можно добавить только транки'
                 );
             }
 
