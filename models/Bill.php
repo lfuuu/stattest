@@ -3,7 +3,6 @@ namespace app\models;
 
 use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\CheckBillPaymentOverdue;
-use app\classes\behaviors\HistoryChanges;
 use app\classes\behaviors\PartnerRewards;
 use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\HistoryActiveRecord;
@@ -110,7 +109,7 @@ class Bill extends HistoryActiveRecord
             'SetBillPaymentOverdue' => SetBillPaymentOverdue::className(),
             'CheckBillPaymentOverdue' => CheckBillPaymentOverdue::className(),
             'BillChangeLog' => BillChangeLog::className(),
-            'HistoryChanges' => HistoryChanges::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
     }
 
