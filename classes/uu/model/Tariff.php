@@ -382,4 +382,33 @@ class Tariff extends HistoryActiveRecord
             return;
         }
     }
+
+    /**
+     * Найти и вернуть дефолтный пакет
+     *
+     * @param int $cityId
+     * @return Tariff
+     */
+    public function findDefaultPackage($cityId)
+    {
+        if ($this->service_type_id != ServiceType::ID_VOIP) {
+            return null;
+        }
+
+        $tariffTableName = Tariff::tableName();
+        /** @var Tariff $tariff */
+        $tariff = Tariff::find()
+            ->joinWith('voipCities')
+            ->where([
+                $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE,
+                $tariffTableName . '.currency_id' => $this->currency_id,
+                $tariffTableName . '.is_postpaid' => $this->is_postpaid,
+                $tariffTableName . '.tariff_status_id' => TariffStatus::ID_PUBLIC,
+                $tariffTableName . '.is_default' => 1,
+                TariffVoipCity::tableName() . '.city_id' => $cityId,
+            ])
+            ->one();
+        return $tariff;
+
+    }
 }

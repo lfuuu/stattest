@@ -9,6 +9,7 @@ use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
 use app\classes\partners\RewardCalculate;
+use app\classes\uu\model\AccountTariff;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -242,6 +243,10 @@ function doEvents()
                 case Event::UU_ACCOUNT_TARIFF_VOIP:
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
                     $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
+
+                    // Если эта услуга активна - подключить базовый пакет. Если неактивна - закрыть все пакеты.
+                    AccountTariff::findOne(['id' => $param['account_tariff_id']])
+                        ->addOrCloseDefaultPackage();
                     break;
 
                 case Event::ACTUALIZE_NUMBER:

@@ -90,7 +90,10 @@ abstract class NumberTypeForm extends Form
             $transaction->rollBack();
             Yii::error($e);
             $this->isSaved = false;
-            $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error');
+
+            if (!count($this->validateErrors)) {
+                $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error');
+            }
         }
     }
 }

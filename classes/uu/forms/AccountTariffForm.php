@@ -132,37 +132,6 @@ abstract class AccountTariffForm extends Form
                         $this->validateErrors += $accountTariffLog->getFirstErrors();
                         throw new ModelValidationException($accountTariffLog);
                     }
-
-                    // пакеты
-                    foreach ($accountTariffVoip->voip_package_tariff_period_ids as $voipPackageTariffPeriodId) {
-                        // услуга
-                        Yii::info('AccountTariffForm. Before voip $accountTariffPackage->save', 'uu');
-                        $accountTariffPackage = new AccountTariff;
-                        $accountTariffPackage->client_account_id = $accountTariff->client_account_id;
-                        $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
-                        $accountTariffPackage->region_id = $accountTariff->region_id;
-                        $accountTariffPackage->city_id = $accountTariff->city_id;
-                        $accountTariffPackage->prev_account_tariff_id = $accountTariff->id;
-                        $accountTariffPackage->populateRelation('prevAccountTariff', $accountTariff);
-                        if (!$accountTariffPackage->save()) {
-                            $this->validateErrors += $accountTariffPackage->getFirstErrors();
-                            throw new ModelValidationException($accountTariffPackage);
-                        }
-
-                        // лог тарифов
-                        Yii::info('AccountTariffForm. Before voip $accountTariffLogPackage->save', 'uu');
-                        $accountTariffLogPackage = new AccountTariffLog;
-                        $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
-                        $accountTariffLogPackage->populateRelation('accountTariff', $accountTariffPackage);
-                        $accountTariffLogPackage->tariff_period_id = $voipPackageTariffPeriodId;
-                        $accountTariffLogPackage->actual_from = $accountTariffLog->actual_from;
-                        if (!$accountTariffLogPackage->save()) {
-                            $this->validateErrors += $accountTariffLogPackage->getFirstErrors();
-                            throw new ModelValidationException($accountTariffLogPackage);
-                        }
-
-                        Yii::info('AccountTariffForm. After voip $accountTariffLogPackage->save', 'uu');
-                    }
                 }
 
                 $this->isSaved = true;
@@ -232,27 +201,6 @@ abstract class AccountTariffForm extends Form
                 }
 
                 Yii::info('AccountTariffForm. After accountTariffLog->save', 'uu');
-
-                if (isset($post['closeTariff'])) {
-                    // если закрывается услуга, то надо закрыть и все пакеты
-                    foreach ($this->accountTariff->nextAccountTariffs as $accountTariffPackage) {
-
-                        if (!$accountTariffPackage->tariff_period_id) {
-                            // эта услуга и так закрыта
-                            continue;
-                        }
-
-                        // записать в лог тарифа
-                        $accountTariffLogPackage = new AccountTariffLog;
-                        $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
-                        $accountTariffLogPackage->populateRelation('accountTariff', $accountTariffPackage);
-                        $accountTariffLogPackage->tariff_period_id = null;
-                        $accountTariffLogPackage->actual_from = $this->accountTariffLog->actual_from;
-                        if (!$accountTariffLogPackage->save()) {
-                            $this->validateErrors += $accountTariffLogPackage->getFirstErrors();
-                        }
-                    }
-                }
             }
 
             Yii::info('AccountTariffForm. Before разовая услуга', 'uu');
@@ -332,7 +280,11 @@ abstract class AccountTariffForm extends Form
             $transaction->rollBack();
             Yii::error($e);
             $this->isSaved = false;
-            $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error');
+
+            if (!count($this->validateErrors)) {
+                $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error');
+            }
+
             if ($isNewRecord) {
                 $this->id = $this->accountTariff->id = null;
                 $this->accountTariff->setIsNewRecord(true);

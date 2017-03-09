@@ -145,6 +145,7 @@ SQL;
      *
      * @param AccountTariff $accountTariff
      * @return bool
+     * @throws \LogicException
      */
     protected function checkBalance(AccountTariff $accountTariff)
     {

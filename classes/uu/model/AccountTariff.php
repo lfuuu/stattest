@@ -946,4 +946,139 @@ class AccountTariff extends HistoryActiveRecord
         // ничего не оплачено - хоть с сегодня
         return date(DateTimeZoneHelper::DATE_FORMAT);
     }
+
+    /**
+     * Если эта услуга активна - подключить базовый пакет. Если неактивна - закрыть все пакеты.
+     *
+     * @throws \Exception
+     */
+    public function addOrCloseDefaultPackage()
+    {
+        if ($this->service_type_id != ServiceType::ID_VOIP) {
+            return;
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+
+            if ($this->tariff_period_id) {
+                // подключить базовый пакет
+                $this->_addDefaultPackage();
+            } else {
+                // выключить все пакеты
+                $this->_closeAllPackages();
+            }
+
+            $transaction->commit();
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+            throw $e;
+        }
+
+    }
+
+    /**
+     * Подключить базовый пакет.
+     *
+     * @throws \app\exceptions\ModelValidationException
+     */
+    private function _addDefaultPackage()
+    {
+        if ($this->_hasDefaultPackage()) {
+            // базовый пакет уже подключен
+            return;
+        }
+
+        $defaultPackage = $this->tariffPeriod->tariff->findDefaultPackage($this->city_id);
+        if (!$defaultPackage) {
+            Yii::error('Не найден базовый пакет для услуги ' . $this->id, 'uu');
+            return;
+        }
+
+        $tariffPeriods = $defaultPackage->tariffPeriods;
+        $tariffPeriod = reset($tariffPeriods);
+
+        $accountTariffLogs = $this->accountTariffLogs;
+        $accountTariffLog = end($accountTariffLogs); // базовый пакет должен быть подключен с самого начала (конца desc-списка)
+
+        // подключить базовый пакет
+        $accountTariffPackage = new AccountTariff();
+        $accountTariffPackage->client_account_id = $this->client_account_id;
+        $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
+        $accountTariffPackage->region_id = $this->region_id;
+        $accountTariffPackage->city_id = $this->city_id;
+        $accountTariffPackage->prev_account_tariff_id = $this->id;
+        if (!$accountTariffPackage->save()) {
+            throw new ModelValidationException($accountTariffPackage);
+        }
+
+        $accountTariffPackageLog = new AccountTariffLog();
+        $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
+        $accountTariffPackageLog->tariff_period_id = $tariffPeriod->id;
+        $accountTariffPackageLog->actual_from_utc = $accountTariffLog->actual_from_utc;
+        $accountTariffPackageLog->insert_time = $accountTariffLog->actual_from_utc; // чтобы не было лишнего списания
+        if (!$accountTariffPackageLog->save()) {
+            throw new ModelValidationException($accountTariffPackageLog);
+        }
+    }
+
+    /**
+     * Вернуть существующий базовый пакет.
+     *
+     * @return bool
+     */
+    private function _hasDefaultPackage()
+    {
+        $nextAccountTariffs = $this->nextAccountTariffs;
+        foreach ($nextAccountTariffs as $nextAccountTariff) {
+
+            if (!$nextAccountTariff->tariff_period_id) {
+                // закрытый
+                continue;
+            }
+
+            if ($nextAccountTariff->tariffPeriod->tariff->is_default) {
+                return true;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Закрыть все пакеты.
+     *
+     * @throws \app\exceptions\ModelValidationException
+     */
+    private function _closeAllPackages()
+    {
+        $accountTariffLogs = $this->accountTariffLogs;
+        $accountTariffLog = reset($accountTariffLogs); // пакет должен быть закрыт с даты закрытия самого тарифа (то есть начала desc-списка)
+        if ($accountTariffLog->tariff_period_id) {
+            Yii::error('Услуга ' . $this->id . ' закрыта, хотя не должна', 'uu');
+            return;
+        }
+
+        // закрыть все пакеты
+        $nextAccountTariffs = $this->nextAccountTariffs;
+        foreach ($nextAccountTariffs as $nextAccountTariff) {
+
+            if (!$nextAccountTariff->tariff_period_id) {
+                // уже закрыт
+                continue;
+            }
+
+            // закрыть
+            $nextAccountTariffLog = new AccountTariffLog();
+            $nextAccountTariffLog->account_tariff_id = $nextAccountTariff->id;
+            $nextAccountTariffLog->tariff_period_id = null;
+            $nextAccountTariffLog->actual_from_utc = $accountTariffLog->actual_from_utc;
+            $nextAccountTariffLog->insert_time = $accountTariffLog->actual_from_utc; // чтобы не было лишнего списания
+            if (!$nextAccountTariffLog->save()) {
+                throw new ModelValidationException($nextAccountTariffLog);
+            }
+        }
+    }
 }

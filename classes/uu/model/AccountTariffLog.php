@@ -209,7 +209,7 @@ class AccountTariffLog extends ActiveRecord
 
         $accountTariffLogs = $this->accountTariff->accountTariffLogs;
         $accountTariffLog = reset($accountTariffLogs);
-        if ($this->tariff_period_id == $accountTariffLog->tariff_period_id) {
+        if ($accountTariffLog && $this->tariff_period_id == $accountTariffLog->tariff_period_id) {
             $this->addError($attribute, 'Нет смысла менять период/тариф на тот же самый. Выберите другой период/тариф.');
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SAME;
             return;

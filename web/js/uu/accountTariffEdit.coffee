@@ -18,12 +18,10 @@ class AccountTariffEdit
 
   tariffDiv: null
   tariffPeriod: null
-  packageTariffPeriod: null
-  packageTariffPeriodStatus: null
 
   voipServiceTypeIdVal: null
-  voipPackageServiceTypeIdVal: null
   currencyVal: null
+  isPostpaid: null
 
   errorClassName: 'alert-danger'
   successClassName: 'alert-success'
@@ -49,12 +47,10 @@ class AccountTariffEdit
       @numbersListLimit = $('#voipNumbersListLimit').on('change', @showNumbersList)
 
       @tariffPeriod = $('.accountTariffTariffPeriod').on('change', @onTariffPeriodChange)
-      @packageTariffPeriod = $('#accountTariffPackageTariffPeriod')
-      @packageTariffPeriodStatus = $('#accountTariffPackageTariffPeriodStatus').on('change', @onPackageTariffPeriodStatusChange)
 
       @voipServiceTypeIdVal = $('#voipServiceTypeId').val()
-      @voipPackageServiceTypeIdVal = $('#voipPackageServiceTypeId').val()
       @currencyVal = $('#voipCurrency').val()
+      @isPostpaid = $('#isPostpaid').val()
 
       $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
 
@@ -125,7 +121,6 @@ class AccountTariffEdit
     if cityVal
 # заранее подготовить список тарифов и пакетов
       @reloadTariffList()
-      @reloadPackageList()
 
     if cityVal && numberTypeVal == 'number'
       $.get '/uu/voip/get-did-groups', {cityId: cityVal, isWithEmpty: true, format: 'options'}, (html) =>
@@ -198,23 +193,12 @@ class AccountTariffEdit
     else
       @tariffPeriod.parent().parent().addClass(@errorClassName)
 
-# при изменении статуса пакета
-  onPackageTariffPeriodStatusChange: =>
-    @reloadTariffList()
-
 # перегрузить список тарифов
   reloadTariffList: =>
     cityVal = @city.val()
-    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 1, format: 'options', status: @packageTariffPeriodStatus.val()}, (html) =>
+    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid}, (html) =>
       @tariffPeriod.val('').html(html) # обновить значения
       @tariffPeriod.trigger('change')
-
-# перегрузить список пакетов
-  reloadPackageList: =>
-    cityVal = @city.val()
-    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipPackageServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 0, format: 'options', status: ''}, (html) =>
-      @packageTariffPeriod.html(html) # обновить значения
-      @packageTariffPeriod.trigger('change')
 
 # при сабмите формы
   onFormSubmit: (e) =>
@@ -222,7 +206,5 @@ class AccountTariffEdit
     if not @tariffPeriod.val()
       e.stopPropagation()
       e.preventDefault()
-    else
-      @packageTariffPeriod.removeAttr('disabled')
 
 new AccountTariffEdit()

@@ -86,6 +86,7 @@ class VoipController extends BaseController
      * @param int $limit
      * @param string $numberType
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionGetFreeNumbers(
         $cityId = null,
@@ -159,10 +160,11 @@ class VoipController extends BaseController
      * @param int $isWithEmpty
      * @param string $format
      * @param int $statusId
+     * @param int $isPostpaid
      *
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
-    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $statusId = null)
+    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $statusId = null, $isPostpaid = null)
     {
         if (!$cityId) {
             throw new \InvalidArgumentException('Wrong cityId');
@@ -175,7 +177,8 @@ class VoipController extends BaseController
             $cityId,
             $isWithEmpty,
             $isWithNullAndNotNull = false,
-            $statusId
+            $statusId,
+            $isPostpaid
         );
 
         ReturnFormatted::me()->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);

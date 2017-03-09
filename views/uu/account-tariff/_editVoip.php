@@ -7,11 +7,9 @@
  */
 
 use app\classes\Html;
-use app\classes\uu\model\AccountTariffLog;
 use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\Tariff;
-use app\classes\uu\model\TariffStatus;
 use app\models\City;
 use app\models\Country;
 use app\models\Number;
@@ -19,8 +17,9 @@ use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 use yii\helpers\Url;
 
+$clientAccount = $formModel->accountTariff->clientAccount;
 $accountTariffVoip = new AccountTariffVoip();
-$accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->country_id;
+$accountTariffVoip->voip_country_id = $clientAccount->country_id;
 
 ?>
 
@@ -30,9 +29,9 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 
 <div class="row">
 
-    <?= Html::hiddenInput('', ServiceType::ID_VOIP, ['id' => 'voipServiceTypeId']) // телефония                  ?>
-    <?= Html::hiddenInput('', ServiceType::ID_VOIP_PACKAGE, ['id' => 'voipPackageServiceTypeId']) // телефония. Пакеты                  ?>
-    <?= Html::hiddenInput('', $formModel->accountTariff->clientAccount->currency, ['id' => 'voipCurrency']) // валюта                   ?>
+    <?= Html::hiddenInput('', ServiceType::ID_VOIP, ['id' => 'voipServiceTypeId']) ?>
+    <?= Html::hiddenInput('', $formModel->accountTariff->clientAccount->currency, ['id' => 'voipCurrency']) ?>
+    <?= Html::hiddenInput('', $clientAccount->is_postpaid, ['id' => 'isPostpaid']) ?>
 
     <div class="col-sm-2" title="Страна берётся от страны клиента">
         <?php // страна ?>
@@ -98,7 +97,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
                     1 => 12,
                 ],
                 'options' => [
-//                    'disabled' => true,
+                    // 'disabled' => true,
                     'id' => 'voipNumbersListClass',
                 ],
             ]) ?>
@@ -114,7 +113,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
                     'beauty_level' => $number->getAttributeLabel('beauty_level'),
                 ],
                 'options' => [
-//                    'disabled' => true,
+                    // 'disabled' => true,
                     'id' => 'voipNumbersListOrderByField',
                 ],
             ]) ?>
@@ -129,7 +128,7 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
                     SORT_DESC => Yii::t('common', 'Descending'),
                 ],
                 'options' => [
-//                    'disabled' => true,
+                    // 'disabled' => true,
                     'id' => 'voipNumbersListOrderByType',
                 ],
             ]) ?>
@@ -167,45 +166,18 @@ $accountTariffVoip->voip_country_id = $formModel->accountTariff->clientAccount->
 
 
 <br/>
-<?php // тариф и пакеты ?>
+<?php // тариф ?>
 <div id="voipTariffDiv" class="collapse">
-
     <?= $this->render('_editLogInput', [
         'formModel' => $formModel,
         'form' => $form,
     ]) ?>
+</div>
 
-    <div class="row">
-        <div class="col-sm-2">
-            <?php // фильтрация по статусу тарифа и пакета ?>
-            <label for="accounttarifflog-tariff_period_id" class="control-label">Статус</label>
-            <?= Select2::widget([
-                'id' => 'accountTariffPackageTariffPeriodStatus',
-                'name' => 'accountTariffPackageTariffPeriodStatus',
-                'data' => TariffStatus::getList(null, true),
-            ]);
-            ?>
-        </div>
-        <div class="col-sm-10">
-            <?php // пакет. Фактически тот же тариф, но с другим serviceTypeId ?>
-            <?= $form->field(new AccountTariffLog(), 'tariff_period_id')
-                ->label('Пакеты')
-                ->widget(Select2::className(), [
-                    'data' => [],
-                    'options' => [
-                        'id' => 'accountTariffPackageTariffPeriod',
-                        'name' => 'AccountTariffVoip[voip_package_tariff_period_ids][]',
-                        'multiple' => true,
-                        'disabled' => 'disabled',
-                    ],
-                ]) ?>
-        </div>
-    </div>
-
-    <div class="form-group text-right">
-        <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $formModel->serviceTypeId])]) ?>
-        <?= $this->render('//layouts/_submitButtonCreate') ?>
-    </div>
+<div class="form-group text-right">
+    <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['uu/account-tariff', 'serviceTypeId' => $formModel->serviceTypeId])]) ?>
+    <?= $this->render('//layouts/_submitButtonCreate') ?>
+</div>
 
 </div>
 
