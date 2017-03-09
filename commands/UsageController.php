@@ -13,6 +13,8 @@ use DateTime;
 use app\models\ClientAccount;
 use yii\console\Controller;
 use app\forms\usage\UsageVoipEditForm;
+use yii\db\Expression;
+use yii\db\Query;
 
 
 class UsageController extends Controller
@@ -201,27 +203,46 @@ class UsageController extends Controller
         $now = new DateTime('now');
         echo PHP_EOL . 'start ' . $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        $ress = Yii::$app->dbPgSlave->createCommand('
-            SELECT cc.client_id
-            FROM
-                billing.clients c
-            LEFT JOIN billing.counters cc ON c.id=cc.client_id
-            LEFT JOIN billing.locks cl ON c.id=cl.client_id
-            WHERE
-                cl.is_overran
-                AND NOT c.voip_disabled
-                AND (
-                    (voip_limit_day != 0 AND amount_day_sum < -voip_limit_day) OR
-                    (voip_limit_mn_day != 0 AND amount_mn_day_sum < -voip_limit_mn_day) OR
-                    (voip_limit_month != 0 AND amount_month_sum > voip_limit_month)
-                )
-        ')->queryAll();
+        $isDayBlockExp = new Expression('voip_limit_day != 0 AND amount_day_sum < -voip_limit_day');
+        $isMNBlockExp = new Expression('voip_limit_mn_day != 0 AND amount_mn_day_sum < -voip_limit_mn_day');
 
-        foreach ($ress as $res) {
-            $client = ClientAccount::findOne($res['client_id']);
+        $lockQuery = (new Query())
+            ->select(['cc.client_id', 'voip_limit_day', 'amount_day_sum','voip_limit_mn_day', 'amount_mn_day_sum','is_overran', 'is_mn_overran'])
+            ->addSelect([
+                'is_block_day' => $isDayBlockExp,
+                'is_block_mn' => $isMNBlockExp
+            ])
+            ->from(['c' => 'billing.clients'])
+            ->innerJoin(['cc' => 'billing.counters'], 'c.id=cc.client_id')
+            ->innerJoin(['cl' => 'billing.locks'], 'c.id=cl.client_id')
+            ->where([
+                'AND',
+                ['OR', ['cl.is_overran' => true],['cl.is_mn_overran' => true]], // стоит флаг превышения лимита (is_overran - дневной общий, is_mn_overran - дневной МН)
+                ['OR', $isDayBlockExp, $isMNBlockExp], // или вычисляем сами блокировку под дневному и/или МН
+                ['c.voip_disabled' => false] // телефония не выключена
+            ]);
 
-            if ($client->voip_disabled == 0) {
-                echo PHP_EOL . '...' . $res['client_id'];
+        foreach ($lockQuery->each(100, Yii::$app->dbPgSlave) as $lock) {
+            $client = ClientAccount::findOne($lock['client_id']);
+
+            if (!$client->voip_disabled) {
+                echo PHP_EOL . '...';
+                $info = 'ЛС: ' . $lock['client_id'] . '; ';
+                if ($lock['is_overran']) {
+                    $info .= 'flag day limit block: limit:' . $lock['voip_limit_day'] . ' / value: ' . abs($lock['amount_day_sum']);
+                } elseif ($lock['is_mn_overran']) {
+                    $info .= 'flag MN limit block: limit:' . $lock['voip_limit_mn_day'] . ' / value: ' . abs($lock['amount_mn_day_sum']);
+                } else {
+                    $info .= 'no flag found (voip_limit_day: ' . $lock['voip_limit_day'] .
+                        ' / amount_day_sum: ' . $lock['amount_day_sum'] .
+                        ' / voip_limit_mn_day: ' . $lock['voip_limit_mn_day'] .
+                        ' / amount_mn_day_sum: ' . $lock['amount_mn_day_sum'] .
+                        ' / is_overran: ' . $lock['is_overran'] .
+                        ' / is_mn_overran: ' . $lock['is_mn_overran'];
+                }
+
+                echo $info;
+                Yii::info('[usage/check-voip-day-disable] ' . $info);
                 $client->voip_disabled = 1;
                 $client->save();
             }
