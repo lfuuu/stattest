@@ -1051,6 +1051,7 @@ class AccountTariff extends HistoryActiveRecord
      * Закрыть все пакеты.
      *
      * @throws \app\exceptions\ModelValidationException
+     * @throws \Exception
      */
     private function _closeAllPackages()
     {
@@ -1070,13 +1071,32 @@ class AccountTariff extends HistoryActiveRecord
                 continue;
             }
 
+            $nextAccountTariffLogs = $nextAccountTariff->accountTariffLogs;
+            $nextAccountTariffLog = reset($nextAccountTariffLogs);  // последняя смена тарифа (в начале desc-списка)
+            if ($nextAccountTariffLog->actual_from_utc > $accountTariffLog->actual_from_utc) {
+                // что-то есть в будущем - отменить и закрыть
+                if (!$nextAccountTariffLog->delete()) {
+                    throw new ModelValidationException($nextAccountTariffLog);
+                }
+            } elseif ($nextAccountTariffLog->actual_from_utc == $accountTariffLog->actual_from_utc) {
+                if (!$nextAccountTariffLog->tariff_period_id) {
+                    // и так должно быть закрытие. Ничего не делаем
+                    continue;
+                }
+
+                // что?! смена на другой тариф?! отменить и закрыть
+                if (!$nextAccountTariffLog->delete()) {
+                    throw new ModelValidationException($nextAccountTariffLog);
+                }
+            }
+
             // закрыть
             $nextAccountTariffLog = new AccountTariffLog();
             $nextAccountTariffLog->account_tariff_id = $nextAccountTariff->id;
             $nextAccountTariffLog->tariff_period_id = null;
             $nextAccountTariffLog->actual_from_utc = $accountTariffLog->actual_from_utc;
             $nextAccountTariffLog->insert_time = $accountTariffLog->actual_from_utc; // чтобы не было лишнего списания
-            if (!$nextAccountTariffLog->save()) {
+            if (!$nextAccountTariffLog->save($runValidation = false)) { // пакет не может работать без основной услуги. Поэтому закрыть и точка, что бы там проверки не говорили "уже оплачено" и прочее!
                 throw new ModelValidationException($nextAccountTariffLog);
             }
         }
