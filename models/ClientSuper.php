@@ -2,6 +2,8 @@
 namespace app\models;
 
 use app\classes\api\ApiCore;
+use app\classes\behaviors\EventQueueAddEvent;
+use app\classes\Event;
 use yii\db\ActiveRecord;
 
 /**
@@ -12,14 +14,22 @@ use yii\db\ActiveRecord;
  * @property int $financial_manager_id
  * @property bool $is_lk_exists
  * @property ClientContragent[] $contragents
+ * @property ClientContract[] $contracts
+ * @property ClientAccount[] $accounts
  */
 class ClientSuper extends ActiveRecord
 {
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'client_super';
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -28,16 +38,44 @@ class ClientSuper extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'EventQueueAddEvent' => [
+                'class' => EventQueueAddEvent::className(),
+                'insertEvent' => Event::ADD_SUPER_CLIENT
+            ],
+
+            'CheckCreateCoreAdmin' => [
+                'class' => EventQueueAddEvent::className(),
+                'insertEvent' => Event::CHECK_CREATE_CORE_ADMIN,
+                'isWithIndicator' => true
+            ]
+        ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getContragents()
     {
         return $this->hasMany(ClientContragent::className(), ['super_id' => 'id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getContracts()
     {
         return $this->hasMany(ClientContract::className(), ['super_id' => 'id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getAccounts()
     {
         return $this->hasMany(ClientAccount::className(), ['super_id' => 'id']);
@@ -70,4 +108,42 @@ class ClientSuper extends ActiveRecord
         }
     }
 
+    /**
+     * Получение первого ЛС у клиента
+     *
+     * @return ClientAccount
+     */
+    public function getFirstAccount()
+    {
+        return $this
+            ->getAccounts()
+            ->orderBy([
+                'id' => SORT_ASC
+            ])
+            ->one();
+
+    }
+
+    /**
+     * Получение списка емайлов для установки администратором в ЛК
+     */
+    public function getAdminEmails()
+    {
+        $account = $this->getFirstAccount();
+
+        if (!$account) {
+            return;
+        }
+
+        return $account
+            ->getContacts()
+            ->where([
+                'type' => ClientContact::TYPE_EMAIL,
+                'is_official' => 1,
+                'is_validate' => 1
+            ])
+            ->indexBy('id')
+            ->select(['id', 'data'])
+            ->all();
+    }
 }

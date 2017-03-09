@@ -6,9 +6,11 @@ use app\classes\behaviors\AccountPriceIncludeVat;
 use app\classes\behaviors\ActualizeClientVoip;
 use app\classes\behaviors\ClientAccountComments;
 use app\classes\behaviors\ClientAccountSyncEvent;
+use app\classes\behaviors\EventQueueAddEvent;
 use app\classes\behaviors\SetOldStatus;
 use app\classes\BillContract;
 use app\classes\DateTimeWithUserTimezone;
+use app\classes\Event;
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
@@ -71,7 +73,7 @@ use yii\helpers\Url;
  * @property DateTimeZone $timezone
  * @property LkClientSettings $lkClientSettings
  * @property LkNoticeSetting $lkNoticeSetting
- * @property ClientContact $contact
+ * @property ClientContact[] $contacts
  * @property ClientContract $contract
  * @property ClientContragent $contragent
  * @property Organization organization
@@ -82,6 +84,7 @@ use yii\helpers\Url;
  * @property string company_full
  * @property string address_jur
  * @property ClientContact[] allContacts
+ * @property integer businessId
  */
 class ClientAccount extends HistoryActiveRecord
 {
@@ -247,6 +250,10 @@ class ClientAccount extends HistoryActiveRecord
             'ClientAccountComments' => ClientAccountComments::className(),
             'ClientAccountEvent' => \app\classes\behaviors\important_events\ClientAccount::className(),
             'ClientAccountSyncEvent' => ClientAccountSyncEvent::className(),
+            'EventQueueAddEvent' => [
+                'class' => EventQueueAddEvent::className(),
+                'insertEvent' => Event::ADD_ACCOUNT
+            ]
         ];
     }
 
@@ -683,6 +690,14 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         return $result;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getContacts()
+    {
+        return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
     }
 
     /**

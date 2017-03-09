@@ -353,15 +353,6 @@ class VirtPbx3Action
         }
 
         if (ApiVpbx::isAvailable()) {
-            $exceptionProduct = null;
-            try {
-
-                ApiCore::addProduct('vpbx', $l["client_id"], $l["usage_id"]);
-
-            } catch (Exception $e) {
-                $exceptionProduct = $e;
-            }
-
             $exceptionVpbx = null;
             try {
 
@@ -369,10 +360,6 @@ class VirtPbx3Action
 
             } catch (Exception $e) {
                 $exceptionVpbx = $e;
-            }
-
-            if ($exceptionProduct) {
-                throw $exceptionProduct;
             }
 
             if ($exceptionVpbx) {
@@ -417,7 +404,6 @@ class VirtPbx3Action
         try {
 
             ApiVpbx::stop($l["client_id"], $l["usage_id"]);
-            ApiCore::remoteProduct('vpbx', $l["client_id"], $l["usage_id"]);
 
         } catch (Exception $e) {
             if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS) {
@@ -483,12 +469,6 @@ class VirtPbx3Action
                 }
             }
             */
-
-            Event::go(Event::UPDATE_PRODUCTS, ["account_id" => $toUsage->clientAccount->id]);
-            Event::go(Event::UPDATE_PRODUCTS, ["account_id" => $fromUsage->clientAccount->id]);
-
-            ApiCore::addProduct('vpbx', $toUsage->clientAccount->id, $toUsage->id);
-            ApiCore::remoteProduct('vpbx', $fromUsage->clientAccount->id, $fromUsage->id);
 
             $dbTransaction->commit();
 

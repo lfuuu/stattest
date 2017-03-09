@@ -2,6 +2,7 @@
 
 use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
+use app\classes\api\ApiCore;
 use app\classes\api\ApiVpbx;
 use app\classes\behaviors\uu\AccountTariffBiller;
 use app\classes\behaviors\uu\SyncAccountTariffLight;
@@ -48,6 +49,8 @@ function doEvents()
 {
     /** @var \EventQueue $event */
     foreach ((EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents()) as $event) {
+
+        $info = "";
 
         try {
             echo PHP_EOL . date('r') . ': event: ' . $event->event . ', ' . $event->param;
@@ -211,14 +214,16 @@ function doEvents()
                     AccountTariffBiller::recalc($param);
                     break;
 
-                case Event::ADD_ACCOUNT:
-                    $isCoreServer && SyncCore::addAccount($param, true);
-
-                    Event::go(Event::PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT, $param);
+                case Event::CHECK_CREATE_CORE_ADMIN:
+                    $isCoreServer && ApiCore::checkCreateCoreAdmin($param);
                     break;
 
-                case Event::CLIENT_SET_STATUS:
-                    $isCoreServer && SyncCore::addAccount($param, false);
+                case Event::CORE_CREATE_ADMIN:
+                    $isCoreServer && ($info = ApiCore::syncCoreAdmin($param));
+                    break;
+
+                case Event::ADD_ACCOUNT:
+                    Event::go(Event::PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT, $param);
                     break;
 
                 case Event::USAGE_VIRTPBX__INSERT:
@@ -258,17 +263,12 @@ function doEvents()
                     $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByClientId($param['client_id']);
                     break;
 
-                case Event::UPDATE_PRODUCTS:
-                    $isCoreServer && SyncCore::checkProductState('phone', $param['account_id']);
-                    break;
-
                 case Event::CHECK__VOIP_NUMBERS:
                     $isCoreServer && ActaulizerVoipNumbers::me()->actualizeAll();
                     break;
 
                 case Event::ATS3__SYNC:
                     $isCoreServer && ActaulizerVoipNumbers::me()->sync($param['number']);
-                    $isCoreServer && SyncCore::checkProductState('phone', $param['client_id']);
                     break;
 
                 case Event::CALL_CHAT__ADD:
@@ -309,12 +309,17 @@ function doEvents()
                 }
             }
 
-            $event->setOk();
-
-        } catch (Exception $e) {
+            $event->setOk($info);
+        } catch (yii\base\InvalidCallException $e) { // для ошибок вызова внешней системы: Повторяем
             echo PHP_EOL . '--------------' . PHP_EOL;
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' +' . $e->getLine();
             $event->setError($e);
+        } catch (Exception $e) { // Для всех остальных ошибок: завершаем выполнение задачи
+            echo PHP_EOL . '--------------' . PHP_EOL;
+            echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' +' . $e->getLine();
+            $event->setError($e);
+            $event->status = \app\models\EventQueue::STATUS_STOP;
+            $event->save();
         }
     }
 }

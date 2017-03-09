@@ -89,7 +89,7 @@ class HttpRequest extends \yii\httpclient\Request
         $responseData = $response->data;
 
         if (!$responseData) {
-            throw new BadRequestHttpException($this->_getDebugInfo());
+            throw new InvalidCallException($this->_getDebugInfo());
         }
 
         if (isset($responseData['errors']) && $responseData['errors']) {

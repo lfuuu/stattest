@@ -1,9 +1,18 @@
 <?php
 namespace app\classes\api;
 
+use app\classes\Assert;
+use app\classes\Event;
 use app\classes\HttpClient;
+use app\exceptions\ModelValidationException;
+use app\models\Business;
+use app\models\ClientContact;
+use app\models\ClientSuper;
+use app\models\CoreSyncIds;
+use app\models\EventQueueIndicator;
 use app\models\important_events\ImportantEventsNames;
 use Yii;
+use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -62,44 +71,6 @@ class ApiCore
     }
 
     /**
-     * @param string $product
-     * @param int $clientId
-     * @param int $productId
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\web\BadRequestHttpException
-     */
-    public static function addProduct($product, $clientId, $productId = 0)
-    {
-        $newState = ["mnemonic" => $product];
-
-        if ($productId) {
-            $newState["stat_product_id"] = $productId;
-        }
-
-        ApiCore::exec('add_products_from_stat', \SyncCoreHelper::getAddProductStruct($clientId, $newState));
-    }
-
-    /**
-     * @param string $product
-     * @param int $clientId
-     * @param int $productId
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
-     */
-    public static function remoteProduct($product, $clientId, $productId = 0)
-    {
-        $state = \SyncCoreHelper::getRemoveProductStruct($clientId, $product);
-
-        if ($productId) {
-            $state["stat_product_id"] = $productId;
-        }
-
-        ApiCore::exec('remove_product', $state);
-    }
-
-    /**
      * @param int $contragentId
      * @param int $fromClientId
      * @param int $toClientId
@@ -117,7 +88,7 @@ class ApiCore
     }
 
     /**
-     * Проверяем, заведен ли емайл как главный в каком-либо клиенте ЛК
+     * Вызов API функции. Заведен ли емайл как главный в каком-либо клиенте ЛК
      *
      * @param string $email
      * @return bool
@@ -143,7 +114,7 @@ class ApiCore
     }
 
     /**
-     * Проверяем, создан ли ЛК для клиента
+     * Вызов API функции. Создан ли ЛК для клиента
      *
      * @param int $clientSuperId
      * @return boolean
@@ -158,5 +129,102 @@ class ApiCore
         }
 
         throw new \Exception('[core/client/is_lk_exists] Ответ не найден!');
+    }
+
+    /**
+     * Проверка необходимости создания админа на платформе
+     *
+     * @param int $superId
+     * @throws ModelValidationException
+     */
+    public static function checkCreateCoreAdmin($superId)
+    {
+        EventQueueIndicator::deleteAll([
+            'object' => ClientSuper::tableName(),
+            'object_id' => $superId,
+        ]);
+
+        if (!self::isAvailable()) {
+            return;
+        }
+
+        $super = ClientSuper::findOne(['id' => $superId]);
+        Assert::isObject($super);
+
+        $account = $super->getFirstAccount();
+        Assert::isObject($account);
+
+        // заказ Интернет-магазина
+        if ($account->contract->business_id == Business::INTERNET_SHOP) {
+            return;
+        }
+
+        if (CoreSyncIds::findOne([
+            "id" => $account->super_id,
+            "type" => CoreSyncIds::TYPE_SUPER_CLIENT])
+        ) {
+            // Уже синхронизированно
+            return;
+        }
+
+        /** @var ClientContact $adminEmail */
+        $adminEmail = $account->getContacts()->andWhere([
+            'type' => ClientContact::TYPE_EMAIL,
+            'is_official' => 1
+        ])->one();
+
+        if (!$adminEmail) {
+            return;
+        }
+
+        Event::goWithIndicator(
+            Event::CORE_CREATE_ADMIN,
+            ['id' => $superId, 'email' => $adminEmail->data],
+            \app\models\ClientSuper::tableName(),
+            $superId);
+    }
+
+    /**
+     * Создание админа на платформе
+     *
+     * @param array $params
+     * @return string
+     * @throws ModelValidationException
+     */
+    public function syncCoreAdmin($params)
+    {
+        $accountSync = new CoreSyncIds;
+        $accountSync->id = $params['id'];
+        $accountSync->type = CoreSyncIds::TYPE_SUPER_CLIENT;
+
+        $info = self::createCoreAdmin($params['id'], $params['email']);
+
+        $accountSync->external_id = $info['user_id'];
+
+        if (!$accountSync->save()) {
+            throw new ModelValidationException($accountSync);
+        }
+
+        return 'Создан администратор ЛК с emailом: ' . $params['email'];
+    }
+
+    /**
+     * Вызов API функции. Создание админа в ЛК
+     *
+     * @param int $superClientId
+     * @param string $email
+     */
+    public static function createCoreAdmin($superClientId, $email)
+    {
+        $result = ApiCore::exec('create_core_admin', [
+            'id' => $superClientId,
+            'email' => $email
+        ]);
+
+        if (isset($result['data'])) {
+            return $result['data'];
+        }
+
+        throw new InvalidCallException('[core/create_core_admin]', 'Непонятный ответ платформы');
     }
 }

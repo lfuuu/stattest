@@ -3,6 +3,7 @@ namespace app\controllers;
 
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\classes\Event;
 use app\classes\grid\GridFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\uu\filter\AccountTariffFilter;
@@ -350,6 +351,36 @@ class ClientController extends BaseController
         }
 
         return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    /**
+     * Создание админа ЛК из карточки ЛС.
+     *
+     * @param int $account_id
+     * @param int $admin_email_id
+     * @return Response
+     */
+    public function actionAddAdminLk($account_id, $admin_email_id)
+    {
+        $account = ClientAccount::findOne(['id' => $account_id]);
+
+        Assert::isObject($account);
+
+        /** @var ClientContact $contact */
+        $contact = ClientContact::find()
+            ->where([
+                'id' => $admin_email_id,
+            ])->one();
+
+        Assert::isObject($contact);
+
+        Event::goWithIndicator(
+            Event::CORE_CREATE_ADMIN,
+            ['id' => $account->super_id, 'email' => $contact->data],
+            ClientSuper::tableName(),
+            $account->super_id);
+
+        return $this->redirect(Url::to(['/client/view', 'id' => $account->id]));
     }
 
 }

@@ -4,16 +4,18 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * @property int id
- * @property string date timestamp
- * @property string event
- * @property string param
- * @property string status enum('plan','ok','error','stop')
- * @property int iteration
- * @property string next_start timestamp
- * @property string log_error
- * @property string code
- * @property string insert_time
+ * Class EventQueue
+ *
+ * @property int $id
+ * @property string $timestamp
+ * @property string $event
+ * @property string $param
+ * @property string $status
+ * @property int $iteration
+ * @property string $next_start
+ * @property string $log_error
+ * @property string $code
+ * @property string $insert_time
  */
 class EventQueue extends ActiveRecord
 {
@@ -23,14 +25,17 @@ class EventQueue extends ActiveRecord
     const STATUS_STOP = 'stop';
 
     public static $statuses = [
-        self::STATUS_PLAN => 'Запланирована',
-        self::STATUS_OK => 'Выполнена',
+        self::STATUS_PLAN => 'Запланировано',
+        self::STATUS_OK => 'Выполнено',
         self::STATUS_ERROR => 'Временная ошибка',
         self::STATUS_STOP => 'Постоянная ошибка',
     ];
 
     const ITERATION_MAX_VALUE = 20;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'event_queue';
@@ -38,6 +43,7 @@ class EventQueue extends ActiveRecord
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице = Перевод]
      */
     public function attributeLabels()
@@ -55,5 +61,4 @@ class EventQueue extends ActiveRecord
             'code' => 'Код',
         ];
     }
-
 }

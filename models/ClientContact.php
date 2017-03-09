@@ -9,15 +9,15 @@ use yii\db\ActiveQuery;
 /**
  * Class ClientContact
  *
- * @property int id
- * @property int client_id
- * @property string type
- * @property string data
- * @property int user_id
- * @property string ts
- * @property string comment
- * @property int is_official
- * @property int is_validate
+ * @property int $id
+ * @property int $client_id
+ * @property string $type
+ * @property string $data
+ * @property int $user_id
+ * @property string $ts
+ * @property string $comment
+ * @property int $is_official
+ * @property int $is_validate
  *
  * @property User user
  * @property ClientAccount client

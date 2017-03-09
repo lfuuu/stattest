@@ -1,28 +1,37 @@
 <?php
 
+use app\classes\api\ApiCore;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\LocksLog;
 use app\models\ClientAccount;
 use app\models\ClientContract;
+use app\models\ClientSuper;
+use app\models\EventQueueIndicator;
 use yii\helpers\Url;
 
-/** @var \app\models\ClientSuper $client */
+/** @var ClientSuper $client */
 /** @var \app\models\ClientAccount $account */
 ?>
 
 <div class="main-client">
 
     <div class="row">
-        <div class="col-sm-8">
+        <div class="col-sm-6">
             <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $client->id ?>&childId=<?= $account->id ?>"><?= $client->name ?></a></h2>
         </div>
-        <div class="col-sm-2" class="c-blue-color">
-            <?php if (isset(Yii::$app->params['CORE_SERVER']) && Yii::$app->params['CORE_SERVER'] && $client->isShowLkLink()) : ?>
-                <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
-                    Переход в ЛК
-                </a>
+        <div class="col-sm-4" class="c-blue-color">
+            <?php if (ApiCore::isAvailable()) : ?>
+                <?php if ($client->isShowLkLink()) :?>
+                    <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
+                        Переход в ЛК
+                    </a>
+                <?php elseif ($indicator = EventQueueIndicator::findOne(['object' => ClientSuper::tableName(), 'object_id' => $account->super_id])) : ?>
+                    <?= $this->render('//layouts/_eventIndicator', ['indicator' => $indicator])?>
+                <?php elseif ($adminEmails = $client->getAdminEmails()) : ?>
+                    <?= $this->render("add_admin_email", ['emails' => $adminEmails, 'account' => $account])?>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
         <div class="col-sm-2" class="c-blue-color">

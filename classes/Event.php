@@ -6,11 +6,15 @@ use app\classes\behaviors\uu\SyncAccountTariffLight;
 use app\helpers\DateTimeZoneHelper;
 use app\classes\behaviors\uu\SyncVmCollocation;
 use app\models\EventQueue;
+use app\models\EventQueueIndicator;
 
 class Event
 {
     const ACTUALIZE_CLIENT = 'actualize_client';
     const ACTUALIZE_NUMBER = 'actualize_number';
+    const ADD_SUPER_CLIENT = 'add_super_client';
+    const CHECK_CREATE_CORE_ADMIN = 'check_create_core_admin';
+    const SYNC_CORE_ADMIN = 'sync_core_admin';
     const ADD_ACCOUNT = 'add_account';
     const ADD_PAYMENT = 'add_payment';
     const ATS2_NUMBERS_CHECK = 'ats2_numbers_check';
@@ -21,6 +25,7 @@ class Event
     const CALL_CHAT__ADD = 'call_chat__add';
     const CALL_CHAT__DEL = 'call_chat__del';
     const CALL_CHAT__UPDATE = 'call_chat__update';
+    const CORE_CREATE_ADMIN = 'core_create_admin';
     const CHECK__CALL_CHAT = 'check__call_chat';
     const CHECK__USAGES = 'check__usages';
     const CHECK__VIRTPBX3 = 'check__virtpbx3';
@@ -61,6 +66,9 @@ class Event
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
         self::ACTUALIZE_NUMBER => 'Актуализировать номер',
+        self::ADD_SUPER_CLIENT => 'Добавлен (супер)клиент',
+        self::CHECK_CREATE_CORE_ADMIN => 'Проверяеть необходимость создания администратора в ЛК',
+        self::SYNC_CORE_ADMIN => 'Создание администратора в ЛК',
         self::ADD_ACCOUNT => 'Добавлен ЛС',
         self::ADD_PAYMENT => 'Платеж добавлен',
         self::YANDEX_PAYMENT => 'Платеж из Яндекс.Деньги',
@@ -72,6 +80,7 @@ class Event
         self::CALL_CHAT__ADD => 'Услуга звонок-чат добавлена',
         self::CALL_CHAT__DEL => 'Услуга звонок-чат удалена',
         self::CALL_CHAT__UPDATE => 'Услуга звонок-чат изменена',
+        self::CORE_CREATE_ADMIN => 'Создание админа в ЛК',
         self::CHECK__CALL_CHAT => 'Проверить услугу звонок-чат',
         self::CHECK__USAGES => 'Проверить "старые" услуги',
         self::CHECK__VIRTPBX3 => 'Проверить услуги ВАТС',
@@ -152,5 +161,44 @@ class Event
         $eventQueue->save();
 
         return $eventQueue;
+    }
+
+    /**
+     * Создание задачи с привязкой индикатора
+     *
+     * @param string $event
+     * @param mixed $eventParam
+     * @param string $object
+     * @param integer $objectId
+     */
+    public static function goWithIndicator($event, $eventParam, $object, $objectId = 0)
+    {
+        $indicator = null;
+
+        if ($object && $objectId) {
+            $indicator = EventQueueIndicator::findOne([
+                    'object' => $object,
+                    'object_id' => $objectId
+                ]);
+
+            // удаляем задачу из очереди, если она не выполнена
+            if ($indicator &&
+                $indicator->event &&
+                in_array($indicator->event->status, [EventQueue::STATUS_PLAN, EventQueue::STATUS_ERROR])
+            ) {
+                $indicator->event->delete();
+            }
+        }
+
+        $eventQueue = self::go($event, $eventParam);
+
+        if (!$indicator) {
+            $indicator = new EventQueueIndicator;
+            $indicator->object = $object;
+            $indicator->object_id = $objectId;
+        }
+
+        $indicator->event_queue_id = $eventQueue->id;
+        $indicator->save();
     }
 }
