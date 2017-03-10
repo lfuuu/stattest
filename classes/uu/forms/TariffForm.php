@@ -248,7 +248,24 @@ abstract class TariffForm extends Form
      */
     private function _cloneTariff()
     {
-        // клонировать основной тариф
+        $tariffCloned = $this->_cloneTariffTariff();
+        $this->_cloneTariffVoipCity($tariffCloned);
+        $this->_cloneTariffPeriod($tariffCloned);
+        $this->_cloneTariffResource($tariffCloned);
+        $this->_cloneTariffPackagePrice($tariffCloned);
+        $this->_cloneTariffPackagePricelist($tariffCloned);
+        $this->_cloneTariffPackageMinute($tariffCloned);
+        return $tariffCloned;
+    }
+
+    /**
+     * Клонировать тариф. Tariff
+     *
+     * @return Tariff
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffTariff()
+    {
         $tariffCloned = new Tariff();
         $fieldNames = [
             'name',
@@ -275,9 +292,17 @@ abstract class TariffForm extends Form
             throw new ModelValidationException($tariffCloned);
         }
 
-        unset($fieldNames);
+        return $tariffCloned;
+    }
 
-        // клонировать города
+    /**
+     * Клонировать тариф. TariffVoipCity
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffVoipCity(Tariff $tariffCloned)
+    {
         $voipCities = $this->tariff->voipCities;
         $fieldNames = [
             'city_id',
@@ -294,10 +319,16 @@ abstract class TariffForm extends Form
                 throw new ModelValidationException($voipCityCloned);
             }
         }
+    }
 
-        unset($voipCities, $voipCity, $voipCityCloned, $fieldNames);
-
-        // клонировать периоды
+    /**
+     * Клонировать тариф. TariffPeriod
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffPeriod(Tariff $tariffCloned)
+    {
         $tariffPeriods = $this->tariff->tariffPeriods;
         $fieldNames = [
             'price_per_period',
@@ -317,10 +348,16 @@ abstract class TariffForm extends Form
                 throw new ModelValidationException($tariffPeriodCloned);
             }
         }
+    }
 
-        unset($tariffPeriods, $tariffPeriod, $tariffPeriodCloned, $fieldNames);
-
-        // клонировать ресурсы
+    /**
+     * Клонировать тариф. TariffResource
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffResource(Tariff $tariffCloned)
+    {
         $tariffResources = $this->tariff->tariffResources;
         $fieldNames = [
             'amount',
@@ -340,9 +377,87 @@ abstract class TariffForm extends Form
                 throw new ModelValidationException($tariffResourceCloned);
             }
         }
+    }
 
-        unset($tariffResources, $tariffResource, $tariffResourceCloned, $fieldNames);
+    /**
+     * Клонировать тариф. PackagePrice
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffPackagePrice(Tariff $tariffCloned)
+    {
+        $packagePrices = $this->tariff->packagePrices;
+        $fieldNames = [
+            'destination_id',
+            'price',
+            'interconnect_price',
+        ];
+        foreach ($packagePrices as $packagePrice) {
+            $packagePriceCloned = new PackagePrice();
+            $packagePriceCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $packagePriceCloned->$fieldName = $packagePrice->$fieldName;
+            }
 
-        return $tariffCloned;
+            if (!$packagePriceCloned->save()) {
+                $this->validateErrors += $packagePriceCloned->getFirstErrors();
+                throw new ModelValidationException($packagePriceCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. PackagePricelist
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffPackagePricelist(Tariff $tariffCloned)
+    {
+        $packagePricelists = $this->tariff->packagePricelists;
+        $fieldNames = [
+            'pricelist_id',
+        ];
+        foreach ($packagePricelists as $packagePricelist) {
+            $packagePricelistCloned = new PackagePricelist();
+            $packagePricelistCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $packagePricelistCloned->$fieldName = $packagePricelist->$fieldName;
+            }
+
+            if (!$packagePricelistCloned->save()) {
+                $this->validateErrors += $packagePricelistCloned->getFirstErrors();
+                throw new ModelValidationException($packagePricelistCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. PackageMinute
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffPackageMinute(Tariff $tariffCloned)
+    {
+        $packageMinutes = $this->tariff->packageMinutes;
+        $fieldNames = [
+            'destination_id',
+            'price',
+            'interconnect_price',
+        ];
+        foreach ($packageMinutes as $packageMinute) {
+            $packageMinuteCloned = new PackageMinute();
+            $packageMinuteCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $packageMinuteCloned->$fieldName = $packageMinute->$fieldName;
+            }
+
+            if (!$packageMinuteCloned->save()) {
+                $this->validateErrors += $packageMinuteCloned->getFirstErrors();
+                throw new ModelValidationException($packageMinuteCloned);
+            }
+        }
     }
 }
