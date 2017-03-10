@@ -219,6 +219,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "id", type = "integer", description = "ID. Именно его надо указывать при создании услуги"),
      *   @SWG\Property(property = "price_setup", type = "number", description = "Цена подключения, ¤"),
      *   @SWG\Property(property = "price_per_period", type = "number", description = "Цена за месяц, ¤"),
+     *   @SWG\Property(property = "price_per_charge_period", type = "number", description = "Примерная цена за период списания, ¤"),
      *   @SWG\Property(property = "price_min", type = "number", description = "Мин. стоимость ресурсов за месяц, ¤"),
      *   @SWG\Property(property = "charge_period", type = "object", description = "Период списания (день, месяц, год)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff", type = "object", description = "Тариф", ref = "#/definitions/idNameRecord"),
@@ -499,6 +500,7 @@ class UuController extends ApiInternalController
                 'id' => $model->id,
                 'price_setup' => $model->price_setup,
                 'price_per_period' => $model->price_per_period,
+                'price_per_charge_period' => $model->price_per_period * ($model->chargePeriod->monthscount ?: 1) / ($model->chargePeriod->dayscount ?: 1),
                 'price_min' => $model->price_min,
                 'charge_period' => $this->_getIdNameRecord($model->chargePeriod),
             ];
