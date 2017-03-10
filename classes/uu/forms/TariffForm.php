@@ -125,7 +125,14 @@ abstract class TariffForm extends Form
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
         try {
-            if (isset($post['dropButton'])) {
+            if (isset($post['cloneButton'])) {
+
+                // клонировать тариф
+                $tariffCloned = $this->_cloneTariff();
+                $this->id = $tariffCloned->id;
+                $this->isSaved = true;
+
+            } elseif (isset($post['dropButton'])) {
 
                 // удалить
                 $this->tariff->delete();
@@ -177,7 +184,7 @@ abstract class TariffForm extends Form
                             $package = new Package();
                             $package->tariff_id = $this->id;
                             $package->service_type_id = $this->tariff->service_type_id;
-                            $package->is_include_vat = (bool) $this->tariff->is_include_vat;
+                            $package->is_include_vat = (bool)$this->tariff->is_include_vat;
                         }
 
                         $package->load($post);
@@ -231,5 +238,111 @@ abstract class TariffForm extends Form
             $this->isSaved = false;
             $this->validateErrors[] = YII_DEBUG ? $e->getMessage() : \Yii::t('common', 'Internal error');
         }
+    }
+
+    /**
+     * Клонировать тариф
+     *
+     * @return Tariff
+     * @throws ModelValidationException
+     */
+    private function _cloneTariff()
+    {
+        // клонировать основной тариф
+        $tariffCloned = new Tariff();
+        $fieldNames = [
+            'name',
+            'service_type_id',
+            'tariff_status_id',
+            'currency_id',
+            'count_of_validity_period',
+            'country_id',
+            'tariff_person_id',
+            'is_autoprolongation',
+            'is_charge_after_blocking',
+            'is_include_vat',
+            'is_default',
+            'is_postpaid',
+            'voip_group_id',
+            'vm_id',
+        ];
+        foreach ($fieldNames as $fieldName) {
+            $tariffCloned->$fieldName = $this->tariff->$fieldName;
+        }
+
+        if (!$tariffCloned->save()) {
+            $this->validateErrors += $tariffCloned->getFirstErrors();
+            throw new ModelValidationException($tariffCloned);
+        }
+
+        unset($fieldNames);
+
+        // клонировать города
+        $voipCities = $this->tariff->voipCities;
+        $fieldNames = [
+            'city_id',
+        ];
+        foreach ($voipCities as $voipCity) {
+            $voipCityCloned = new TariffVoipCity();
+            $voipCityCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $voipCityCloned->$fieldName = $voipCity->$fieldName;
+            }
+
+            if (!$voipCityCloned->save()) {
+                $this->validateErrors += $voipCityCloned->getFirstErrors();
+                throw new ModelValidationException($voipCityCloned);
+            }
+        }
+
+        unset($voipCities, $voipCity, $voipCityCloned, $fieldNames);
+
+        // клонировать периоды
+        $tariffPeriods = $this->tariff->tariffPeriods;
+        $fieldNames = [
+            'price_per_period',
+            'price_setup',
+            'price_min',
+            'charge_period_id',
+        ];
+        foreach ($tariffPeriods as $tariffPeriod) {
+            $tariffPeriodCloned = new TariffPeriod();
+            $tariffPeriodCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $tariffPeriodCloned->$fieldName = $tariffPeriod->$fieldName;
+            }
+
+            if (!$tariffPeriodCloned->save()) {
+                $this->validateErrors += $tariffPeriodCloned->getFirstErrors();
+                throw new ModelValidationException($tariffPeriodCloned);
+            }
+        }
+
+        unset($tariffPeriods, $tariffPeriod, $tariffPeriodCloned, $fieldNames);
+
+        // клонировать ресурсы
+        $tariffResources = $this->tariff->tariffResources;
+        $fieldNames = [
+            'amount',
+            'price_per_unit',
+            'price_min',
+            'resource_id',
+        ];
+        foreach ($tariffResources as $tariffResource) {
+            $tariffResourceCloned = new TariffResource();
+            $tariffResourceCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $tariffResourceCloned->$fieldName = $tariffResource->$fieldName;
+            }
+
+            if (!$tariffResourceCloned->save()) {
+                $this->validateErrors += $tariffResourceCloned->getFirstErrors();
+                throw new ModelValidationException($tariffResourceCloned);
+            }
+        }
+
+        unset($tariffResources, $tariffResource, $tariffResourceCloned, $fieldNames);
+
+        return $tariffCloned;
     }
 }
