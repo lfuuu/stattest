@@ -55,10 +55,10 @@ class AutoBlockCreditFolder extends AccountGridFolder
         $tzOffset = $tz->getOffset($now);
 
         $blockDateQuery = (new Query())
-            ->select(new Expression('MAX(date) '.($tzOffset > 0 ? "+" : "-").' INTERVAL ' . abs($tzOffset) . ' SECOND'))
+            ->select(new Expression('MAX(l.date) ' . ($tzOffset > 0 ? "+" : "-") . ' INTERVAL ' . abs($tzOffset) . ' SECOND'))
             ->from(['l' => ImportantEvents::tableName()])
             ->where('l.client_id = c.id')
-            ->andWhere(['event' => ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE])
+            ->andWhere(['l.event' => ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE])
             ->groupBy(['l.client_id']);
 
         $query->addSelect(['block_date' => $blockDateQuery]);
@@ -67,13 +67,13 @@ class AutoBlockCreditFolder extends AccountGridFolder
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
         $query->andWhere(['c.is_blocked' => 0]);
 
-        $billingQuery = (new Query)
-            ->select('clients.id')
-            ->from(['clients' => Clients::tableName()])
-            ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
-            ->andWhere(new Expression('clients.credit < -clients.balance'));
 
-        $clientsIDs = $billingQuery->column(Clients::getDb());
+        $clientsIDs = Clients::find()
+            ->select([Clients::tableName() . '.id'])
+            ->joinWith('counter', true, 'INNER JOIN')
+            ->andWhere(new Expression('clients.credit < -clients.balance'))
+            ->column();
+
         if (count($clientsIDs)) {
             $query->andWhere(['IN', 'c.id', $clientsIDs]);
         } else {
