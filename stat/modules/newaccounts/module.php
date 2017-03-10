@@ -408,7 +408,8 @@ class m_newaccounts extends IModule
                     "0000-00-00" postreg ,
                     "" nal,
                     0,
-                    1 in_sum
+                    1 in_sum,
+                    0 as is_pay_overdue
 
                     FROM `g_income_order` g
                         LEFT JOIN tt_troubles t ON (g.id = t.bill_id)
