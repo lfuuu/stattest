@@ -53,6 +53,7 @@ class Organization extends ActiveRecord
     const MCM_TELEKOM = 11;
     const TEL2TEL_KFT = 10;
     const TEL2TEL_LTD = 16;
+    const AB_SERVICE_MARCOMNET = 14;
 
     public static $ourLegalEntities = [
         self::MCN_TELEKOM => 'ООО "МСН Телеком"',

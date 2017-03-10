@@ -1,20 +1,25 @@
 <?php
 
-use kartik\widgets\ActiveForm;
 use app\classes\Html;
-use kartik\widgets\Select2;
 use app\forms\client\ContractEditForm;
-use app\models\ClientContract;
-use app\models\ContractType;
-use app\models\ClientContractReward;
 use app\models\Business;
 use app\models\BusinessProcess;
 use app\models\BusinessProcessStatus;
+use app\models\ClientContract;
+use app\models\ClientContractReward;
+use app\models\ContractType;
+use app\models\Organization;
+use kartik\widgets\ActiveForm;
+use kartik\widgets\Select2;
 
 /** @var ActiveForm $f */
 /** @var ContractEditForm $model */
 
 $model->federal_district = $model->getModel()->getFederalDistrictAsArray();
+
+if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) {
+    $model->organization_id = Organization::AB_SERVICE_MARCOMNET;
+}
 ?>
 
 <div class="row" style="width: 1100px;">
