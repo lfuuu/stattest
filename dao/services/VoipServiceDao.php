@@ -8,6 +8,9 @@ use app\models\TariffVoip;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 
+/**
+ * Class VoipServiceDao
+ */
 class VoipServiceDao extends UsageDao
 {
     public $usageClass = null;
@@ -22,6 +25,13 @@ class VoipServiceDao extends UsageDao
         parent::init();
     }
 
+    /**
+     * Список тарифов
+     *
+     * @param ClientAccount $client
+     * @param integer $region
+     * @return array|\yii\db\ActiveRecord[]
+     */
     public function getTariffsList(ClientAccount $client, $region)
     {
         return
@@ -32,6 +42,11 @@ class VoipServiceDao extends UsageDao
                 ->all();
     }
 
+    /**
+     * Получение следующего номера линии-без-номера
+     *
+     * @return string
+     */
     public function getNextLineNumber()
     {
         return Yii::$app->db->createCommand("
@@ -39,6 +54,12 @@ class VoipServiceDao extends UsageDao
             ")->queryScalar() ?: "1000";
     }
 
+    /**
+     * Есть ли услуги телефонии у ЛС
+     *
+     * @param ClientAccount $client
+     * @return bool
+     */
     public function hasService(ClientAccount $client)
     {
         return UsageVoip::find()

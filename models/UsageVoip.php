@@ -21,32 +21,37 @@ use app\classes\behaviors\UsageVoipActualToDependencyPackage;
 use yii\helpers\Url;
 
 /**
- * @property int id
- * @property int region
- * @property string actual_from
- * @property string actual_to
- * @property string client
- * @property string type_id
- * @property string activation_dt
- * @property string expire_dt
- * @property string E164
- * @property int no_of_lines
- * @property string status
- * @property string address
- * @property int address_from_datacenter_id
- * @property int edit_user_id
- * @property int is_trunk
- * @property string created
- * @property int one_sip
- * @property int line7800_id
- * @property string create_params
- * @property int prev_usage_id
- * @property int next_usage_id
+ * Class UsageVoip
  *
- * @property TariffVoip tariff
- * @property Region $connectionPoint
+ * @property int $id
+ * @property int $region
+ * @property string $actual_from
+ * @property string $actual_to
+ * @property string $client
+ * @property string $type_id
+ * @property string $activation_dt
+ * @property string $expire_dt
+ * @property string $E164
+ * @property int $no_of_lines
+ * @property string $status
+ * @property string $address
+ * @property int $address_from_datacenter_id
+ * @property int $edit_user_id
+ * @property int $is_trunk
+ * @property string $created
+ * @property int $one_sip
+ * @property int $line7800_id
+ * @property string $create_params
+ * @property int $prev_usage_id
+ * @property int $next_usage_id
+ *
+ * @property TariffVoip $tariff
  * @property ClientAccount $clientAccount
+ * @property Region $connectionPoint
+ * @property Region $regionName
  * @property Number $voipNumber
+ * @property Datacenter $datacenter
+ * @property UsageVoip $line7800
  * @property UsageVoipPackage $packages
  * @property UsageVoipHelper $helper
  */
@@ -95,7 +100,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \app\dao\services\VoipServiceDao;
+     * @return \app\dao\services\VoipServiceDao
      */
     public static function dao()
     {
@@ -135,7 +140,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return ClientAccount
+     * @return \yii\db\ActiveQuery
      */
     public function getClientAccount()
     {
@@ -143,7 +148,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return Region
+     * @return \yii\db\ActiveQuery
      */
     public function getConnectionPoint()
     {
@@ -167,7 +172,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return Number
+     * @return \yii\db\ActiveQuery
      */
     public function getVoipNumber()
     {
@@ -175,7 +180,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return Datacenter
+     * @return \yii\db\ActiveQuery
      */
     public function getDatacenter()
     {
@@ -183,7 +188,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return Region
+     * @return \yii\db\ActiveQuery
      */
     public function getRegionName()
     {
@@ -191,7 +196,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return self
+     * @return \yii\db\ActiveQuery
      */
     public function getLine7800()
     {
@@ -199,7 +204,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return UsageVoipPackage
+     * @return \yii\db\ActiveQuery
      */
     public function getPackages()
     {

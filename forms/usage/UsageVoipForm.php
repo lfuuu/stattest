@@ -5,6 +5,9 @@ use app\classes\Form;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 
+/**
+ * Class UsageVoipForm
+ */
 class UsageVoipForm extends Form
 {
     public $id;
@@ -47,6 +50,9 @@ class UsageVoipForm extends Form
         $tariffGroupRussiaPrice,
         $tariffGroupInternPrice;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -95,6 +101,9 @@ class UsageVoipForm extends Form
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -128,6 +137,9 @@ class UsageVoipForm extends Form
         ];
     }
 
+    /**
+     * Проверка даты выключения
+     */
     public function validateDate()
     {
         $expireDt = new \DateTime($this->usage->actual_to . ' 23:59:59');
@@ -139,16 +151,18 @@ class UsageVoipForm extends Form
         }
     }
 
+    /**
+     * Проверка изменения даты
+     */
     public function validateUsageDate()
     {
         $from = $this->connecting_date;
         $to = $this->disconnecting_date ?: UsageInterface::MAX_POSSIBLE_DATE;
 
-        $queryVoip =
-            UsageVoip::find()
-                ->andWhere('(actual_from between :from and :to) or (actual_to between :from and :to)',
-                    [':from' => $from, ':to' => $to])
-                ->andWhere(['E164' => $this->did]);
+        $queryVoip = UsageVoip::find()
+            ->andWhere('(actual_from between :from and :to) or (actual_to between :from and :to)',
+                [':from' => $from, ':to' => $to])
+            ->andWhere(['E164' => $this->did]);
         if ($this->id) {
             $queryVoip->andWhere('id != :id', [':id' => $this->id]);
         }
@@ -159,6 +173,11 @@ class UsageVoipForm extends Form
         }
     }
 
+    /**
+     * Проверка подключенных пакетов
+     *
+     * @param string $attr
+     */
     public function validateDependPackagesDate($attr)
     {
         if ($this->disconnecting_date != UsageInterface::MAX_POSSIBLE_DATE) {

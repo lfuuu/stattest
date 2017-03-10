@@ -8,20 +8,18 @@ use app\models\LogTarif;
 
 /**
  * Class LogTariffTrait
- * @package app\helpers\usages
- * @property  LogTarif $logTariff
+ *
+ * @property LogTarif $logTariff
  */
 trait LogTariffTrait
 {
-
     /**
      * @param string|null $date
      * @return null|LogTarif
      */
     public function getLogTariff($date = 'now')
     {
-        $result =
-            LogTarif::find()
+        $result = LogTarif::find()
                 ->andWhere(['service' => self::tableName()])
                 ->andWhere(['id_service' => $this->id])
                 ->andWhere('id_tarif!=0')

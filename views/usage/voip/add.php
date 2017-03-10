@@ -85,7 +85,7 @@ echo Breadcrumbs::widget([
             'attributes' => [
                 'did_group_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => DidGroup::dao()->getList(true, $model->city_id),
+                    'items' => DidGroup::dao()->getList(true, $model->city_id, $model->country_id),
                     'options' => ['class' => 'select2 form-reload'],
                 ],
                 'did' => ['type' => Form::INPUT_TEXT],

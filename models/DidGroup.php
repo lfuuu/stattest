@@ -39,6 +39,7 @@ class DidGroup extends ActiveRecord
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -69,6 +70,9 @@ class DidGroup extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'did_group';
@@ -115,6 +119,7 @@ class DidGroup extends ActiveRecord
     }
 
     /**
+     * @param integer $id
      * @return string
      */
     public static function getUrlById($id)

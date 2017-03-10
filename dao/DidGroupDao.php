@@ -7,52 +7,52 @@ use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
+ * Class DidGroupDao
  */
 class DidGroupDao extends Singleton
 {
     /**
      * Вернуть список
+     *
      * @param bool $isWithEmpty
      * @param int $cityId
-     * @return string[]
+     * @param null $countryId
+     * @return \string[]
      */
-    public function getList($isWithEmpty = false, $cityId = null)
-    {
-        $list = self::getDidGroupMapByCityId($cityId, 'id', 'name');
-
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-        return $list;
-    }
-
-    public function getDidGroupMapByCityId($cityId = null, $keyField = 'beauty_level', $valueField = 'id')
+    public function getList($isWithEmpty = false, $cityId = null, $countryId = null)
     {
         $query = DidGroup::find();
 
         if ($cityId) {
-            $query->andWhere(['city_id' => $cityId]);
+            if ($countryId) {
+                $query->andWhere([
+                    'country_code' => $countryId
+                ]);
+                $query->andWhere([
+                    'OR',
+                    ['city_id' => $cityId],
+                    ['city_id' => null]
+                ]);
+            } else {
+                $query->andWhere(['city_id' => $cityId]);
+            }
         }
 
-        return
-            ArrayHelper::map(
-                (array)$query
-                    ->select([
-                        $keyField,
-                        $valueField
-                    ])
-                    ->orderBy([
-                        $valueField => SORT_ASC,
-                    ])
-                    ->asArray()
-                    ->all(),
-                $keyField,
-                $valueField
-            );
+        $list = $query->select(['name', 'id'])
+            ->orderBy(['name' => SORT_ASC,])
+            ->indexBy('id')
+            ->column();
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+
+        return $list;
     }
 
     /**
      * Вернуть список красивостей
+     *
      * @param bool $isWithEmpty
      * @return string[]
      */
@@ -63,6 +63,7 @@ class DidGroupDao extends Singleton
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;
         }
+
         return $list;
     }
 }
