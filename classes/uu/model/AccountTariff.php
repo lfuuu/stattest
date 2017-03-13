@@ -936,18 +936,22 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function getDefaultActualFrom()
     {
-        $curDate = date(DateTimeZoneHelper::DATE_FORMAT);
-
-        if (!$this->isNewRecord && count($accountLogPeriods = $this->accountLogPeriods)) {
-            // следующий после завершения оплаченного
-            $accountLogPeriod = end($accountLogPeriods);
-            return (new DateTime(max($accountLogPeriod->date_to, $curDate)))
-                ->modify('+1 day')
-                ->format(DateTimeZoneHelper::DATE_FORMAT);
+        $date = date(DateTimeZoneHelper::DATE_FORMAT);
+        if ($this->isNewRecord) {
+            // подключение с сегодня
+            return $date;
         }
 
-        // ничего не оплачено - хоть с сегодня
-        return $curDate;
+        if (count($accountLogPeriods = $this->accountLogPeriods)) {
+            // после завершения оплаченного
+            $accountLogPeriod = end($accountLogPeriods);
+            $date = max($accountLogPeriod->date_to, $date);
+        }
+
+        // смена/закрытие с завтра или следующего периода
+        return (new DateTime($date))
+            ->modify('+1 day')
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
     }
 
     /**
