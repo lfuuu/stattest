@@ -21,7 +21,7 @@ class ModelValidationException extends HttpException
     {
         $this->_model = $model;
         $this->_errors = $model->getErrors();
-        parent::__construct($statusCode, implode('. ', $model->getFirstErrors()), $errorCode);
+        parent::__construct($statusCode, implode(' ', $model->getFirstErrors()), $errorCode);
     }
 
     /**

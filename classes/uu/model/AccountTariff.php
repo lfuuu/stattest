@@ -89,6 +89,7 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_USAGE_DOUBLE_FUTURE = 44; // Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла
     const ERROR_CODE_USAGE_CANCELABLE = 45; // Нельзя отменить уже примененный тариф
     const ERROR_CODE_USAGE_DEFAULT = 46; // Нельзя подключить второй базовый пакет на ту же услугу.
+    const ERROR_CODE_USAGE_NOT_EDITABLE = 47; // Услуга нередактируемая
 
     /** @var array Код ошибки для АПИ */
     public $errorCode = null;
@@ -935,16 +936,18 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function getDefaultActualFrom()
     {
+        $curDate = date(DateTimeZoneHelper::DATE_FORMAT);
+
         if (!$this->isNewRecord && count($accountLogPeriods = $this->accountLogPeriods)) {
             // следующий после завершения оплаченного
             $accountLogPeriod = end($accountLogPeriods);
-            return (new DateTime($accountLogPeriod->date_to))
+            return (new DateTime(max($accountLogPeriod->date_to, $curDate)))
                 ->modify('+1 day')
                 ->format(DateTimeZoneHelper::DATE_FORMAT);
         }
 
         // ничего не оплачено - хоть с сегодня
-        return date(DateTimeZoneHelper::DATE_FORMAT);
+        return $curDate;
     }
 
     /**

@@ -148,9 +148,7 @@ class AccountTariffLog extends ActiveRecord
             ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        !$this->actual_from && $this->actual_from = $currentDateTimeUtc;
-
-        if ($this->actual_from < $currentDateTimeUtc) {
+        if ($this->actual_from_utc < $currentDateTimeUtc) {
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PREV;
             return;
@@ -204,6 +202,12 @@ class AccountTariffLog extends ActiveRecord
         }
 
         if (!$this->isNewRecord) {
+            return;
+        }
+
+        if ($this->getCountLogs() && !$this->accountTariff->isEditable()) {
+            $this->addError($attribute, 'Услуга нередактируемая.');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NOT_EDITABLE;
             return;
         }
 
