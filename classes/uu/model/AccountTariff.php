@@ -13,6 +13,7 @@ use app\models\ClientAccount;
 use app\models\Region;
 use DateTime;
 use DateTimeImmutable;
+use DateTimeZone;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -731,6 +732,28 @@ class AccountTariff extends HistoryActiveRecord
             return false;
         }
 
+        $clientAccount = $this->clientAccount;
+        if (!$clientAccount) {
+            // не указан ЛС
+            return false;
+        }
+
+        $currentDateTimeUtc = $clientAccount
+            ->getDatetimeWithTimezone()
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        if (AccountTariffLog::find()
+            ->where(['account_tariff_id' => $this->id])
+            ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
+            ->count()
+        ) {
+            // Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.
+            return false;
+        }
+
+        // таки можно
         return true;
     }
 
