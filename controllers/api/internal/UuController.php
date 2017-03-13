@@ -500,7 +500,7 @@ class UuController extends ApiInternalController
                 'id' => $model->id,
                 'price_setup' => $model->price_setup,
                 'price_per_period' => $model->price_per_period,
-                'price_per_charge_period' => $model->price_per_period * ($model->chargePeriod->monthscount ?: 1) / ($model->chargePeriod->dayscount ?: 1),
+                'price_per_charge_period' => round($model->price_per_period * ($model->chargePeriod->monthscount ?: 1 / 30), 2),
                 'price_min' => $model->price_min,
                 'charge_period' => $this->_getIdNameRecord($model->chargePeriod),
             ];
