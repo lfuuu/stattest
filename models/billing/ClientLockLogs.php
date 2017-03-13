@@ -6,6 +6,8 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
+ * Class ClientLockLogs
+ *
  * @property $dt
  * @property int $client_id
  * @property int $region_id

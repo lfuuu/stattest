@@ -7,10 +7,13 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
+ * Class Locks
+ *
+ * @property boolean $client_id
  * @property boolean $voip_auto_disabled - не используется
  * @property boolean $voip_auto_disabled_local - не используется
- * @property boolean $is_overran - суточная / месячная блокировка
- * @property boolean $is_mn_overran - суточная / месячная блокировка (МН)
+ * @property boolean $is_overran - суточная блокировка
+ * @property boolean $is_mn_overran - суточная МН блокировка
  * @property boolean $is_finance_block - финансовая блокировка
  */
 class Locks extends ActiveRecord
@@ -33,8 +36,10 @@ class Locks extends ActiveRecord
     }
 
     /**
-     * @param string|true $field
-     * @return ActiveQuery
+     * Получение последней блокировки
+     *
+     * @param bool|string $field
+     * @return ClientLockLogs
      */
     public function getLastLock($field = true)
     {
@@ -47,5 +52,4 @@ class Locks extends ActiveRecord
                 ->orderBy(['dt' => SORT_DESC])
                 ->one();
     }
-
 }

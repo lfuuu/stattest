@@ -925,7 +925,7 @@ class ClientAccount extends HistoryActiveRecord
                 = 'Превышен лимит кредита: ' .
                 sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit .
                 (
-                array_key_exists(self::WARNING_FINANCE, $warnings) ?
+                isset($warnings[self::WARNING_FINANCE]) ?
                     ' (на уровне биллинга): ' . (new DateTimeWithUserTimezone($warnings[self::WARNING_FINANCE]->dt, $this->timezone))->format('H:i:s d.m.Y') :
                     ''
                 );
