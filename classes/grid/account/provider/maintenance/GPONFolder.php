@@ -11,7 +11,7 @@ class GPONFolder extends AccountGridFolder
 {
     public function getName()
     {
-        return 'GPON';
+        return 'Shop MCNTele.com';
     }
 
     public function getColumns()
@@ -33,6 +33,6 @@ class GPONFolder extends AccountGridFolder
         parent::queryParams($query);
 
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_GPON]);
+        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::PROVIDER_MAINTENANCE_TELESHOP]);
     }
 }

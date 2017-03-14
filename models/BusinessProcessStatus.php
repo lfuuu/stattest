@@ -47,7 +47,7 @@ class BusinessProcessStatus extends ActiveRecord
     // Поставщик
     const PROVIDER_ORDERS_ACTING = 32; // Заказы - Действущий
     const PROVIDER_ORDERS_NEGOTIATION_STAGE = 36; // Заказы - В стадии переговоров
-    const PROVIDER_MAINTENANCE_GPON = 108; // Сопровождение - GPON
+    const PROVIDER_MAINTENANCE_TELESHOP = 108; // Сопровождение - Shop MCNTele.com
     const PROVIDER_MAINTENANCE_VOLS = 109; // Сопровождение - ВОЛС
     const PROVIDER_MAINTENANCE_SERVICE = 110; // Сопровождение - Сервисный
     const PROVIDER_MAINTENANCE_ACTING = 15; // Сопровождение - Действущий
