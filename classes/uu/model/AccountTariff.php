@@ -695,7 +695,7 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function isCancelable()
     {
-        if (!$this->tariff_period_id) {
+        if (!$this->isActive()) {
             // уже закрытый
             return false;
         }
@@ -722,7 +722,7 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function isEditable()
     {
-        if (!$this->tariff_period_id) {
+        if (!$this->isActive()) {
             // уже закрытый
             return false;
         }
@@ -764,7 +764,7 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function isPackageAddable()
     {
-        if (!$this->tariff_period_id) {
+        if (!$this->isActive()) {
             // уже закрытый
             return false;
         }
@@ -776,6 +776,16 @@ class AccountTariff extends HistoryActiveRecord
 
         // таки можно
         return true;
+    }
+
+    /**
+     * Действует ли
+     *
+     * @return bool
+     */
+    public function isActive()
+    {
+        return (bool) $this->tariff_period_id;
     }
 
     /**

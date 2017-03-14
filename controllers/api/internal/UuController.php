@@ -846,9 +846,10 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
-     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа или закрытие? Если в будущем назначена смена тарифа или закрытие"),
-     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
+     *   @SWG\Property(property = "is_active", type = "boolean", description = "Действует ли?"),
      *   @SWG\Property(property = "is_package_addable", type = "boolean", description = "Можно ли подключить пакет?"),
+     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
+     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа или закрытие? Если в будущем назначена смена тарифа или закрытие"),
      *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие"),
      *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffWithPackagesRecord"))),
      * ),
@@ -911,9 +912,10 @@ class UuController extends ApiInternalController
             'region' => $this->_getIdNameRecord($accountTariff->region),
             'voip_number' => $accountTariff->voip_number,
             'voip_city' => $this->_getIdNameRecord($accountTariff->city),
-            'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
-            'is_editable' => $accountTariff->isEditable(), // Можно ли сменить тариф или отключить услугу?
+            'is_active' => $accountTariff->isActive(), // Действует ли?
             'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
+            'is_editable' => $accountTariff->isEditable(), // Можно ли сменить тариф или отключить услугу?
+            'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'packages' => [],
