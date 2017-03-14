@@ -758,6 +758,27 @@ class AccountTariff extends HistoryActiveRecord
     }
 
     /**
+     * Можно ли подключить пакет
+     *
+     * @return bool
+     */
+    public function isPackageAddable()
+    {
+        if (!$this->tariff_period_id) {
+            // уже закрытый
+            return false;
+        }
+
+        if ($this->tariffPeriod->tariff->is_default) {
+            // дефолтный нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
+            return false;
+        }
+
+        // таки можно
+        return true;
+    }
+
+    /**
      * Сгруппировать одинаковые город-тариф-пакеты по строчкам
      *
      * @param ActiveQuery $query
