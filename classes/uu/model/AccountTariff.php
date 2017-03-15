@@ -10,6 +10,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
 use app\models\City;
 use app\models\ClientAccount;
+use app\models\Number;
 use app\models\Region;
 use DateTime;
 use DateTimeImmutable;
@@ -91,6 +92,7 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_USAGE_CANCELABLE = 45; // Нельзя отменить уже примененный тариф
     const ERROR_CODE_USAGE_DEFAULT = 46; // Нельзя подключить второй базовый пакет на ту же услугу.
     const ERROR_CODE_USAGE_NOT_EDITABLE = 47; // Услуга нередактируемая
+    const ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK = 48; // Этот телефонный номер нельзя подключить
 
     /** @var array Код ошибки для АПИ */
     public $errorCode = null;
@@ -140,6 +142,7 @@ class AccountTariff extends HistoryActiveRecord
             ['service_type_id', 'validatorServiceType'],
             ['client_account_id', 'validatorTrunk', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorTariffPeriod'],
+            ['voip_number', 'validatorVoipNumber', 'skipOnEmpty' => true],
             [
                 ['city_id', 'voip_number'],
                 'required',
@@ -947,6 +950,25 @@ class AccountTariff extends HistoryActiveRecord
         if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
             $this->addError($attribute, 'Тариф/период ' . $tariffPeriod->tariff->service_type_id . ' не соответствует типу услуги ' . $this->service_type_id);
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SERVICE_TYPE;
+            return;
+        }
+    }
+
+    /**
+     * Валидировать, что номер свободный
+     *
+     * @param string $attribute
+     * @param [] $params
+     */
+    public function validatorVoipNumber($attribute, $params)
+    {
+        if (!$this->voip_number) {
+            return;
+        }
+
+        if (!$this->number->status != Number::STATUS_INSTOCK) {
+            $this->addError($attribute, 'Этот телефонный номер нельзя подключить');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK;
             return;
         }
     }

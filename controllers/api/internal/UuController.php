@@ -1109,15 +1109,10 @@ class UuController extends ApiInternalController
     public function actionEditAccountTariff()
     {
         $postData = Yii::$app->request->post();
-        $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
-
-        if (!$account_tariff_ids) {
-            throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр tariff_period_id', AccountTariff::ERROR_CODE_TARIFF_EMPTY);
-        }
 
         return $this->editAccountTariff(
-            $account_tariff_ids,
-            $postData['tariff_period_id'],
+            isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [],
+            isset($postData['tariff_period_id']) ? $postData['tariff_period_id'] : null,
             (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null
         );
     }
@@ -1133,7 +1128,7 @@ class UuController extends ApiInternalController
      */
     public function editAccountTariff($account_tariff_ids, $tariff_period_id, $actual_from)
     {
-        if (!$account_tariff_ids) {
+        if (!$account_tariff_ids || !is_array($account_tariff_ids)) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
         }
 
@@ -1187,9 +1182,8 @@ class UuController extends ApiInternalController
     public function actionCloseAccountTariff()
     {
         $postData = Yii::$app->request->post();
-        $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
         return $this->editAccountTariff(
-            $account_tariff_ids,
+            isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [],
             null,
             (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null
         );
@@ -1220,7 +1214,7 @@ class UuController extends ApiInternalController
         $postData = Yii::$app->request->post();
         $account_tariff_ids = isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [];
 
-        if (!$account_tariff_ids) {
+        if (!$account_tariff_ids || !is_array($account_tariff_ids)) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
         }
 
