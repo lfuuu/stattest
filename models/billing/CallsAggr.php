@@ -28,16 +28,27 @@ use yii\db\ActiveRecord;
  */
 class CallsAggr extends ActiveRecord
 {
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'calls_aggr.calls_aggr';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPg;
     }
 
+    /**
+     * @return CallsAggrDao
+     */
     public static function dao()
     {
         return CallsAggrDao::me();
@@ -45,6 +56,7 @@ class CallsAggr extends ActiveRecord
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()

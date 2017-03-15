@@ -1,10 +1,11 @@
 <?php
 namespace app\models;
 
+use app\classes\traits\GridSortTrait;
 use app\dao\CityDao;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\helpers\Url;
-use app\classes\traits\GridSortTrait;
 
 /**
  * @property int $id
@@ -23,6 +24,11 @@ class City extends ActiveRecord
 {
 
     use GridSortTrait;
+
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const DEFAULT_USER_CITY_ID = 7495; // Moscow
 
@@ -101,11 +107,35 @@ class City extends ActiveRecord
     }
 
     /**
-     * @return string
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param int $countryId
+     * @param bool $isWithNullAndNotNull
+     * @param bool $isUsedOnly
+     * @return string[]
      */
-    public function __toString()
-    {
-        return $this->name;
+    public static function getList(
+        $isWithEmpty = false,
+        $countryId = null,
+        $isWithNullAndNotNull = false,
+        $isUsedOnly = true
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = [
+                'order' => SORT_ASC,
+                'name' => SORT_ASC,
+            ],
+            $where = [
+                'AND',
+                $countryId ? ['country_id' => $countryId] : [],
+                $isUsedOnly ? ['in_use' => 1] : []
+            ]
+        );
     }
 
     /**

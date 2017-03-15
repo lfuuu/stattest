@@ -40,7 +40,7 @@ echo Breadcrumbs::widget([
             'name' => ['type' => Form::INPUT_TEXT],
             'connection_point_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => Region::dao()->getList(true),
+                'items' => Region::getList($isWithEmpty = true),
                 'options' => ['disabled' => true]
             ],
             'currency_id' => [
@@ -74,7 +74,7 @@ echo Breadcrumbs::widget([
                 ],
                 'local_network_config_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => ['' => '-- Выберите --'] + NetworkConfig::dao()->getList(),
+                    'items' => ['' => '-- Выберите --'] + NetworkConfig::getList(),
                     'options' => ['class' => 'select2']
                 ],
             ],
@@ -101,7 +101,7 @@ echo Breadcrumbs::widget([
                 'initiate_zona_cost' => ['type' => Form::INPUT_TEXT],
                 'local_network_config_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => ['' => '-- Выберите --'] + NetworkConfig::dao()->getList(),
+                    'items' => ['' => '-- Выберите --'] + NetworkConfig::getList(),
                     'options' => ['class' => 'select2']
                 ],
                 'is_global' => ['type' => Form::INPUT_CHECKBOX],

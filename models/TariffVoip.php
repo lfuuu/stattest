@@ -1,11 +1,10 @@
 <?php
 namespace app\models;
 
-use yii\db\ActiveRecord;
-use app\dao\TariffVoipDao;
+use app\helpers\tariffs\TariffVoipHelper;
 use app\models\billing\Pricelist;
 use app\models\tariffs\TariffInterface;
-use app\helpers\tariffs\TariffVoipHelper;
+use yii\db\ActiveRecord;
 
 /**
  * Class TariffVoip
@@ -46,6 +45,11 @@ use app\helpers\tariffs\TariffVoipHelper;
  */
 class TariffVoip extends ActiveRecord implements TariffInterface
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
+
     const STATUS_TRANSIT = 'transit';
     const STATUS_OPERATOR = 'operator';
     const STATUS_7800 = '7800';
@@ -89,11 +93,6 @@ class TariffVoip extends ActiveRecord implements TariffInterface
         return parent::beforeSave($query);
     }
 
-    public static function dao()
-    {
-        return TariffVoipDao::me();
-    }
-
     public function getCountry()
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
@@ -121,9 +120,9 @@ class TariffVoip extends ActiveRecord implements TariffInterface
 
     /**
      * Тестовй ли тариф
-     *
      * По основному алгоритму, тестовый тариф - это тот который, в статусе "test".
      * Но для номеров 7800, отдельная папка.
+     *
      * @return bool
      */
     public function isTest()
@@ -131,4 +130,42 @@ class TariffVoip extends ActiveRecord implements TariffInterface
         return $this->status == self::STATUS_TEST || $this->status == self::STATUS_7800_TEST;
     }
 
+    /**
+     * Вернуть список всех доступных значений
+     *
+     * @param int $dest
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param int $connectingPointId
+     * @param string $currencyId
+     * @param int $status
+     * @return string[]
+     */
+    public static function getList(
+        $dest,
+        $isWithEmpty = false,
+        $connectingPointId = null,
+        $currencyId = null,
+        $status = null
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['status' => SORT_ASC, 'month_min_payment' => SORT_ASC],
+            $where = [
+                'AND',
+                ['dest' => $dest],
+                [
+                    'AND',
+                    $status ? ['status' => $status] : [],
+                    [
+                        'AND',
+                        $connectingPointId ? ['connection_point_id' => $connectingPointId] : [],
+                        $currencyId ? ['currency_id' => $currencyId] : []
+                    ]
+                ]
+            ]
+        );
+    }
 }

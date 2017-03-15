@@ -6,13 +6,20 @@ use yii\helpers\ArrayHelper;
 
 class SaleChannelOld extends ActiveRecord
 {
-    private static $list;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'sale_channels_old';
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -25,6 +32,9 @@ class SaleChannelOld extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -35,20 +45,15 @@ class SaleChannelOld extends ActiveRecord
         ];
     }
 
-    public static function getList()
-    {
-        if (self::$list === null) {
-            $arr = self::find()->all();
-            self::$list = ArrayHelper::map($arr, 'id', 'name');
-        }
-        return self::$list;
-    }
-
+    /**
+     * @return string
+     */
     public function getCourierName()
     {
         if (!$this->courier_id) {
             return '';
         }
+
         $courier = Courier::findOne($this->courier_id);
         return ($courier) ? $courier->name : '';
     }

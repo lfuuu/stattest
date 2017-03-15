@@ -16,11 +16,19 @@ use yii\db\ActiveRecord;
 class TraffFlow1h extends ActiveRecord
 {
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'flows.traf_flow_1h';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return \Yii::$app->dbPgNfDump;

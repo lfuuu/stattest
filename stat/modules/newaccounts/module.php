@@ -963,7 +963,7 @@ class m_newaccounts extends IModule
         $design->assign('bill', $bill->GetBill());
         $design->assign('bill_date', date('d-m-Y', $bill->GetTs()));
         $design->assign('pay_bill_until', date('d-m-Y', strtotime($bill->get("pay_bill_until"))));
-        $design->assign('l_couriers', Courier::dao()->getList(true));
+        $design->assign('l_couriers', Courier::getList($isWithEmpty = true));
         $lines = $bill->GetLines();
         $lines[$bill->GetMaxSort() + 1] = array();
         $lines[$bill->GetMaxSort() + 2] = array();
@@ -4024,7 +4024,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         global $design, $db;
 
         $design->assign("l_couriers",
-            array("all" => "--- Все ---", "checked" => "--- Установленные --") + Courier::dao()->getList(false));
+            array("all" => "--- Все ---", "checked" => "--- Установленные --") + Courier::getList($isWithEmpty = false));
         $design->assign("l_metro", array("all" => "--- Все ---") + \app\models\Metro::getList());
         $design->assign('courier', $courier = get_param_protected('courier', "all"));
         $design->assign('metro', $metro = get_param_protected('metro', "all"));
@@ -5932,7 +5932,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $dir = SCAN_DOC_DIR;
 
         if (!is_dir($dir)) {
-            throw new Exception("Директория с отсканированными документами задана не верно (" . SCAN_DOC_DIR . ")");
+            throw new Exception("Директория с отсканированными документами задана неверно (" . SCAN_DOC_DIR . ")");
         }
 
         if (!is_readable($dir)) {
@@ -5992,7 +5992,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $dirPath = STORE_PATH . "documents/unrecognized/";
 
         if (!is_dir($dirPath)) {
-            throw new Exception("Директория с нераспознаными документами задана не верно (" . $dirPath . ")");
+            throw new Exception("Директория с нераспознаными документами задана неверно (" . $dirPath . ")");
         }
 
         if (!is_readable($dirPath)) {

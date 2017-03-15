@@ -1,15 +1,14 @@
 <?php
 namespace app\controllers\report;
 
+use app\classes\BaseController;
 use app\classes\report\LostCalls;
-use app\dao\VoipDestinationDao;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\GeoCountry;
 use app\models\billing\GeoRegion;
 use app\models\billing\Server;
 use app\models\billing\Trunk;
-use Yii;
-use app\classes\BaseController;
+use app\models\voip\Destination;
 use yii\data\ActiveDataProvider;
 use yii\data\SqlDataProvider;
 use yii\db\Query;
@@ -110,7 +109,7 @@ class VoipController extends BaseController
 
                 'trunkModel' => Trunk::find()->where(['show_in_stat' => true])->all(),
                 'regionModel' => GeoRegion::find()->all(),
-                'destination' => VoipDestinationDao::me()->getList(),
+                'destination' => Destination::getList(),
                 'trunk' => Trunk::find()->all(),
                 'server' => Server::find()->all(),
                 'geoCountry' => GeoCountry::find()->all(),

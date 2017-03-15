@@ -14,6 +14,7 @@ use app\models\Language;
  * @var $model \app\forms\client\ContragentEditForm
  */
 
+$codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
 ?>
 
 <div class="row" style="width: 1100px;">
@@ -74,7 +75,7 @@ use app\models\Language;
             'ogrn' => [],
             'opf_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => \app\models\CodeOpf::getList(),
+                'items' => $codeOpfList,
             ],
             'okpo' => [],
         ],
@@ -162,7 +163,7 @@ use app\models\Language;
             'ogrn' => [],
             'opf_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => \app\models\CodeOpf::getList(),
+                'items' => $codeOpfList,
             ],
             'okpo' => [],
         ],

@@ -16,8 +16,10 @@ use yii\helpers\Url;
  */
 class Country extends ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const RUSSIA_CODE = 643;
     const RUSSIA_PREFIX = 7;
@@ -76,7 +78,7 @@ class Country extends ActiveRecord
     /**
      * Returns the database connection
      *
-     * @return Connection
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {
@@ -84,21 +86,24 @@ class Country extends ActiveRecord
     }
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->name_rus;
-    }
-
-    /**
-     * По какому полю сортировать для getList()
+     * Вернуть список всех доступных значений
      *
-     * @return array
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getListOrderBy()
-    {
-        return ['name_rus' => SORT_ASC];
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'code',
+            $select = 'name_rus',
+            $orderBy = ['name_rus' => SORT_ASC],
+            $where = []
+        );
     }
 
     /**

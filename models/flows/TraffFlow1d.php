@@ -46,9 +46,9 @@ class TraffFlow1d extends ActiveRecord
     }
 
     /**
-     * Подключение для работы с таблицей
+     * Returns the database connection
      *
-     * @return mixed
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {

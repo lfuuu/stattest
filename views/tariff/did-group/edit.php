@@ -68,7 +68,7 @@ if (!$didGroup->isNewRecord) {
         <div class="col-sm-3">
             <?= $form->field($didGroup, 'city_id')
                 ->widget(Select2::className(), [
-                    'data' => City::dao()->getList($isWithEmpty = true, $didGroup->country_code),
+                    'data' => City::getList($isWithEmpty = true, $didGroup->country_code),
                 ]) ?>
         </div>
 

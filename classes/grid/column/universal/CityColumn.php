@@ -25,18 +25,23 @@ class CityColumn extends DataColumn
     public $isWithNullAndNotNull = false;
     public $reverseCheckboxAttribute = ''; // имя bool/int - поля, из которого брать галочку "кроме". Не забудьте добавить в МодельFilter соответствующее инвертирующее условие
 
+    /**
+     * CityColumn constructor.
+     *
+     * @param array $config
+     * @throws \Exception
+     */
     public function __construct($config = [])
     {
         parent::__construct($config);
 
-        $this->filter = $this->filterData = City::dao()->getList($isWithEmpty = true, $this->country_id, $this->isWithNullAndNotNull);
+        $this->filter = $this->filterData = City::getList($isWithEmpty = true, $this->country_id, $this->isWithNullAndNotNull);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' city-column';
 
         if ($this->reverseCheckboxAttribute) {
             $this->filterType = '';
-            $this->filter =
-                Html::activeCheckbox($this->grid->filterModel, $this->reverseCheckboxAttribute) .
+            $this->filter = Html::activeCheckbox($this->grid->filterModel, $this->reverseCheckboxAttribute) .
 
                 ' ' .
 

@@ -1,7 +1,6 @@
 <?php
 namespace app\models\billing;
 
-use app\dao\billing\NetworkConfigDao;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -14,21 +13,30 @@ use yii\db\ActiveRecord;
  */
 class NetworkConfig extends ActiveRecord
 {
+    // Определяет getList (список для selectbox) и __toString
+    use \app\classes\traits\GetListTrait;
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'voip.network_config';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPg;
     }
 
-    public static function dao()
-    {
-        return NetworkConfigDao::me();
-    }
-
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getPricelist()
     {
         return $this->hasOne(Pricelist::className(), ['id' => 'pricelist_id']);

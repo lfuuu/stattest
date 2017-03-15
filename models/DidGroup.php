@@ -21,6 +21,11 @@ use yii\helpers\Url;
  */
 class DidGroup extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
+
     const MOSCOW_STANDART_GROUP_ID = 2;
 
     const BEAUTY_LEVEL_STANDART = 0;
@@ -103,11 +108,44 @@ class DidGroup extends ActiveRecord
     }
 
     /**
-     * @return string
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param int $cityId
+     * @param int $countryId
+     * @return string[]
      */
-    public function __toString()
-    {
-        return $this->name;
+    public static function getList(
+        $isWithEmpty = false,
+        $cityId = null,
+        $countryId = null
+    ) {
+
+        $where = [];
+        if ($cityId) {
+            if ($countryId) {
+                $where = [
+                    'AND',
+                    ['country_code' => $countryId],
+                    [
+                        'OR',
+                        ['city_id' => $cityId],
+                        ['city_id' => null]
+                    ]
+                ];
+            } else {
+                $where = ['city_id' => $cityId];
+            }
+        }
+
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['name' => SORT_ASC],
+            $where
+        );
     }
 
     /**

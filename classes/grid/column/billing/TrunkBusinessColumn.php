@@ -2,12 +2,11 @@
 
 namespace app\classes\grid\column\billing;
 
-use app\models\Business;
-use app\models\BusinessProcess;
-use yii\helpers\ArrayHelper;
-use kartik\grid\GridView;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
+use app\models\Business;
+use app\models\BusinessProcess;
+use kartik\grid\GridView;
 
 class TrunkBusinessColumn extends DataColumn
 {
@@ -25,11 +24,7 @@ class TrunkBusinessColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $query =
-            BusinessProcess::find()
-                ->where(['business_id' => Business::OPERATOR]);
-
-        $this->filter += ArrayHelper::map($query->all(), 'id', 'name');
+        $this->filter += BusinessProcess::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $businessId = Business::OPERATOR);
     }
 
 }

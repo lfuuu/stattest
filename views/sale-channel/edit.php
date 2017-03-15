@@ -34,7 +34,7 @@ echo Breadcrumbs::widget([
                 'dealer_id' => [],
                 'is_agent' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => [0 => 'Нет', 1 => 'Да']],
                 'interest' => [],
-                'courier_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => \app\models\Courier::dao()->getList(false, true)],
+                'courier_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => \app\models\Courier::getList($isWithEmpty = false, $depart = true)],
             ],
         ]);
 

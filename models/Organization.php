@@ -1,16 +1,16 @@
 <?php
 namespace app\models;
 
-use app\helpers\DateTimeZoneHelper;
-use Yii;
-use ReflectionClass;
-use app\exceptions\ModelValidationException;
-use yii\db\ActiveRecord;
-use app\queries\OrganizationQuery;
 use app\classes\DynamicModel;
 use app\classes\traits\I18NGetTrait;
 use app\classes\validators\ArrayValidator;
 use app\dao\OrganizationDao;
+use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
+use app\queries\OrganizationQuery;
+use ReflectionClass;
+use Yii;
+use yii\db\ActiveRecord;
 
 
 /**
@@ -46,6 +46,8 @@ use app\dao\OrganizationDao;
  */
 class Organization extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait;
 
     use I18NGetTrait;
 
@@ -66,7 +68,10 @@ class Organization extends ActiveRecord
 
     // Виртуальные поля для локализации
     private static $_virtualPropertiesI18N = [
-        'name', 'legal_address', 'full_name', 'post_address',
+        'name',
+        'legal_address',
+        'full_name',
+        'post_address',
     ];
 
     /**

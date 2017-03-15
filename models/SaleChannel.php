@@ -2,15 +2,23 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 class SaleChannel extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait;
+
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'sale_channel';
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -18,15 +26,13 @@ class SaleChannel extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['name'], 'string'],
         ];
-    }
-
-    public static function getList()
-    {
-        return ArrayHelper::map(static::find()->all(), 'id', 'name');
     }
 }

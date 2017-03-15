@@ -354,8 +354,7 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'tariff_main_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getMainList(false, $model->connection_point_id, $clientAccount->currency,
-                    $model->tariff_main_status),
+                'items' => TariffVoip::getList(TariffVoip::DEST_LOCAL_FIXED, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency, $model->tariff_main_status),
                 'options' => ['class' => 'select2'],
                 'hint' => !$model->tariff_main_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
                     ['class' => 'alert-danger']) : '',
@@ -369,7 +368,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_local_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getLocalMobList(false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(TariffVoip::DEST_LOCAL_MOBILE, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
                 'options' => [
                     'class' => 'select2 form-reload2',
                 ],
@@ -391,8 +390,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_russia_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id,
-                    $clientAccount->currency),
+                'items' => TariffVoip::getList(TariffVoip::DEST_RUSSIA, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
                 'options' => [
                     'class' => 'select2 form-reload2'
                 ],
@@ -414,7 +412,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_russia_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(TariffVoip::DEST_RUSSIA, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
                 'options' => ['class' => 'select2'],
                 'hint' => !$model->tariff_russia_mob_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
                     ['class' => 'alert-danger']) : '',
@@ -424,8 +422,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_intern_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id,
-                    $clientAccount->currency),
+                'items' => TariffVoip::getList(TariffVoip::DEST_INTERNATIONAL, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
                 'options' => [
                     'class' => 'select2 form-reload2'
                 ],

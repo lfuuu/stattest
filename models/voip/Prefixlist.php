@@ -16,11 +16,11 @@ use yii\db\ActiveRecord;
  * @property int city_id
  * @property int exclude_operators
  * @property string operators
- *
- * @package app\models\voip
  */
 class Prefixlist extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait;
 
     const TYPE_MANUAL = 1;
     const TYPE_ROSLINK = 3;
@@ -40,11 +40,17 @@ class Prefixlist extends ActiveRecord
         self::TYPE_ROSLINK_MOBILE => 'Мобильные',
     ];
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'voip_prefixlist';
     }
 
+    /**
+     * После поднятия модели
+     */
     public function afterFind()
     {
         $this->prefixes = explode(',', $this->prefixes);
@@ -53,6 +59,10 @@ class Prefixlist extends ActiveRecord
         parent::afterFind();
     }
 
+    /**
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         $this->prefixes = implode(',', $this->prefixes);

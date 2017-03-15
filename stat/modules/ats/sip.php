@@ -405,14 +405,14 @@ class sip
         if($od["atype"] == "number" && $od["id"] == 0)
         {
             checker::isEmpty($data["number"], "Номер не задан!");
-            checker::isDigits($data["number"], "Номер задан не верно!");
+            checker::isDigits($data["number"], "Номер задан неверно!");
             checker::isUsed($data["number"], "number", "v_sip", $data["id"], "Данный номер уже используется");
         }
 
         if($od["atype"] == "number" && $od["type"] == "cpe")
         {
-            checker::isDigits($data["lines"], "Количество линий задано не верно!");
-            checker::number_isBetween($data["lines"], 1,100, "Количество линий задано не верно!");
+            checker::isDigits($data["lines"], "Количество линий задано неверно!");
+            checker::number_isBetween($data["lines"], 1,100, "Количество линий задано неверно!");
         }
 
         if($od["atype"] == "number" && $od["id"] == 0)
@@ -428,12 +428,12 @@ class sip
             if($data["host_type"] == "static")
             {
                 checker::isEmpty($data["host_static"], "Не задан статический host!");
-                checker::isValideIp($data["host_static"], "Статический host задан не верно!");
+                checker::isValideIp($data["host_static"], "Статический host задан неверно!");
 
                 if($data["atype"] == "line")
                 {
-                    checker::isDigits($data["host_port_static"], "Статический порт задан не верно!");
-                    checker::number_isBetween($data["host_port_static"], 1, 65536, "Статический порт задан не верно!");
+                    checker::isDigits($data["host_port_static"], "Статический порт задан неверно!");
+                    checker::number_isBetween($data["host_port_static"], 1, 65536, "Статический порт задан неверно!");
                 }
 
                 if($od["id"] == 0 && $data["permit_on"] == "yes")

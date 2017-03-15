@@ -72,8 +72,8 @@ class PricelistController extends BaseController
 
         return $this->render('list', [
             'connectionPointId' => $connectionPointId,
-            'connectionPoints' => Region::dao()->getList(),
-            'networkConfigs' => NetworkConfig::dao()->getList(),
+            'connectionPoints' => Region::getList(),
+            'networkConfigs' => NetworkConfig::getList(),
             'orig' => (int)$orig,
             'type' => $type,
             'dataProvider' => $dataProvider,

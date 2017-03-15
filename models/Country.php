@@ -24,8 +24,12 @@ use yii\helpers\Url;
  */
 class Country extends ActiveRecord
 {
-
     use GridSortTrait;
+
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const RUSSIA = 643;
     const HUNGARY = 348;
@@ -110,31 +114,24 @@ class Country extends ActiveRecord
     }
 
     /**
-     * @param bool $isWithEmpty
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param string $indexBy
-     * @return Country[]
+     * @return string[]
      */
-    public static function getList($isWithEmpty = false, $indexBy = 'code')
-    {
-        $list = self::find()
-            ->where(['in_use' => 1])
-            ->orderBy(['order' => SORT_ASC])
-            ->indexBy($indexBy)
-            ->all();
-
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-
-        return $list;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->name;
+    public static function getList(
+        $isWithEmpty = false,
+        $indexBy = 'code'
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $indexBy,
+            $select = 'name',
+            $orderBy = ['order' => SORT_ASC],
+            $where = ['in_use' => 1]
+        );
     }
 
     /**

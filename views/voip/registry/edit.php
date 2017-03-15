@@ -1,30 +1,22 @@
 <?php
 
 /** @var \app\forms\voip\RegistryForm $model */
+use app\classes\Html;
+use app\models\City;
+use app\models\Country;
 use app\models\Number;
 use app\models\voip\Registry;
-use yii\helpers\Url;
-use app\classes\Html;
-use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 
-$countryList = \app\models\Country::getList();
-$cityLabelList = $cityList = \app\models\City::dao()->getList(
-    false,
-    $model->country_id,
-    $isWithNullAndNotNull = false,
-    $isUsedOnly = false
-);
+$countryList = Country::getList();
+$cityLabelList = $cityList = City::getList($isWithEmpty = false, $model->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false);
 
 if ($model->registry && $model->country_id != $model->registry->country_id) {
-    $cityLabelList = \app\models\City::dao()->getList(
-        false,
-        $model->registry->country_id,
-        $isWithNullAndNotNull = false,
-        $isUsedOnly = false
-    );
+    $cityLabelList = City::getList($isWithEmpty = false, $model->registry->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false);
 }
 
 
@@ -153,10 +145,10 @@ echo Breadcrumbs::widget([
                 'check-number' => [
                     'type' => Form::INPUT_RAW,
                     'value' => ($model->id ? Html::submitButton('Проверить номера', [
-                        'class' => 'btn btn-info',
-                        'name' => 'check-numbers',
-                        'value' => 'Проверить номера'
-                    ])
+                            'class' => 'btn btn-info',
+                            'name' => 'check-numbers',
+                            'value' => 'Проверить номера'
+                        ])
                         . (in_array($model->registry->status, [Registry::STATUS_PARTLY, Registry::STATUS_EMPTY]) ?
                             ' ' . Html::submitButton('Залить номера', [
                                 'class' => 'btn btn-success',
@@ -164,7 +156,7 @@ echo Breadcrumbs::widget([
                                 'value' => 'Залить номера'
                             ])
                             : '')
-                        . ($statusInfo && isset($statusInfo[Number::STATUS_NOTSALE]) && $statusInfo[Number::STATUS_NOTSALE]?
+                        . ($statusInfo && isset($statusInfo[Number::STATUS_NOTSALE]) && $statusInfo[Number::STATUS_NOTSALE] ?
                             ' ' . Html::submitButton('Передать в продажу номера (' . $statusInfo[Number::STATUS_NOTSALE] . ' шт.)', [
                                 'class' => 'btn btn-warning',
                                 'name' => 'to-sale',

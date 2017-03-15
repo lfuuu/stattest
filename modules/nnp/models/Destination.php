@@ -59,7 +59,7 @@ class Destination extends ActiveRecord
     /**
      * Returns the database connection
      *
-     * @return Connection
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {

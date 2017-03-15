@@ -2,10 +2,10 @@
 
 namespace app\classes\grid\column\billing;
 
-use app\models\ContractType;
-use yii\db\ActiveRecord;
-use kartik\grid\GridView;
 use app\classes\grid\column\DataColumn;
+use app\models\ContractType;
+use kartik\grid\GridView;
+use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 
 class TrunkContractTypeColumn extends DataColumn
@@ -24,13 +24,10 @@ class TrunkContractTypeColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $query = ContractType::find();
-
-        $this->contractTypes = ArrayHelper::map($query->all(), 'id', 'name');
+        $this->contractTypes = ContractType::getList();
 
         if ((int)$this->filterByBusinessProcessId) {
-            $query->where(['business_process_id' => $this->filterByBusinessProcessId]);
-            $this->filter += ArrayHelper::map($query->all(), 'id', 'name');
+            $this->filter += ContractType::getList($this->filterByBusinessProcessId);
         }
     }
 
@@ -45,9 +42,6 @@ class TrunkContractTypeColumn extends DataColumn
     protected function renderDataCellContent($model, $key, $index)
     {
         $value = $this->getDataCellValue($model, $key, $index);
-        return
-            isset($this->contractTypes[$value])
-                ? $this->contractTypes[$value]
-                : '';
+        return isset($this->contractTypes[$value]) ? $this->contractTypes[$value] : '';
     }
 }

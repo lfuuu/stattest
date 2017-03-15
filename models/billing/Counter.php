@@ -15,16 +15,27 @@ use yii\db\ActiveRecord;
 class Counter extends ActiveRecord
 {
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'billing.counters';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPgSlave;
     }
 
+    /**
+     * @return $this
+     */
     public static function find()
     {
         $query = parent::find();

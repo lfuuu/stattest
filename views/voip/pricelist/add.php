@@ -36,7 +36,7 @@ echo Breadcrumbs::widget([
         'columns' => 4,
         'attributes' => [
             'name' => ['type' => Form::INPUT_TEXT],
-            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true), 'options' => ['class' => 'select2']],
+            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::getList($isWithEmpty = true), 'options' => ['class' => 'select2']],
             'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['class' => 'select2']],
             'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=>['' => '----'] + Pricelist::$states, 'options' => ['class' => 'select2']],
         ],
@@ -54,7 +54,7 @@ echo Breadcrumbs::widget([
             'type' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => ['client' => 'Клиент', 'operator' => 'Оператор', 'network_prices' => 'Местные'], 'options' => ['disabled' => true]],
             'tariffication_full_first_minute' => ['type' => Form::INPUT_CHECKBOX],
             'initiate_zona_cost' => ['type' => Form::INPUT_TEXT],
-            'local_network_config_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '----'] + NetworkConfig::dao()->getList(), 'options' => ['class' => 'select2']],
+            'local_network_config_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '----'] + NetworkConfig::getList(), 'options' => ['class' => 'select2']],
             'is_global' => ['type' => Form::INPUT_CHECKBOX],
         ],
     ]);

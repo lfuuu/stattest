@@ -147,16 +147,27 @@ class Calls extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'calls_raw.calls_raw';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPgSlave;
     }
 
+    /**
+     * @return CallsDao
+     */
     public static function dao()
     {
         return CallsDao::me();

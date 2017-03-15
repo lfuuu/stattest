@@ -90,6 +90,11 @@ use yii\helpers\Url;
  */
 class ClientAccount extends HistoryActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
+
     const STATUS_INCOME = 'income';
     const STATUS_NEGOTIATIONS = 'negotiations';
     const STATUS_TESTING = 'testing';
@@ -1108,5 +1113,26 @@ class ClientAccount extends HistoryActiveRecord
     public function getAccountTypeAndId()
     {
         return $this->getAccountType() . ' № ' . $this->id;
+    }
+
+    /**
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
+     */
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'client',
+            $orderBy = ['id' => SORT_ASC],
+            $where = []
+        );
     }
 }

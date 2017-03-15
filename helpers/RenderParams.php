@@ -21,6 +21,7 @@ class RenderParams extends Singleton
         foreach (Yii::$app->params['mail_map_names'] as $key => $data) {
             $result[$key] = isset($data['descr']) ? $data['descr'] : 'Описание не найдено';
         }
+
         return $result;
     }
 

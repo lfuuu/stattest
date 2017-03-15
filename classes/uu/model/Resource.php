@@ -19,6 +19,7 @@ use app\classes\uu\resourceReader\ZeroResourceReader;
 use app\models\Language;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Ресурс (дисковое пространство, абоненты, линии и пр.)
@@ -172,7 +173,7 @@ class Resource extends \yii\db\ActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
      * @param int $serviceTypeId
      * @param bool $isWithEmpty
@@ -181,6 +182,7 @@ class Resource extends \yii\db\ActiveRecord
     public static function getList($serviceTypeId, $isWithEmpty = false)
     {
         $query = self::find()
+            ->where($serviceTypeId ? ['service_type_id' => $serviceTypeId] : [])
             ->indexBy('id')
             ->orderBy(
                 [
@@ -188,7 +190,7 @@ class Resource extends \yii\db\ActiveRecord
                     'name' => SORT_ASC,
                 ]
             );
-        $serviceTypeId && $query->where(['service_type_id' => $serviceTypeId]);
+
         $list = $query->all();
 
         if (!$serviceTypeId) {

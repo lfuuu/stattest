@@ -3,7 +3,6 @@ namespace app\models\billing;
 
 use Yii;
 use yii\db\ActiveRecord;
-use app\dao\billing\GeoCountryDao;
 
 /**
  * @property int $id
@@ -11,6 +10,7 @@ use app\dao\billing\GeoCountryDao;
  */
 class GeoCountry extends ActiveRecord
 {
+    // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
     /**
@@ -22,16 +22,12 @@ class GeoCountry extends ActiveRecord
     }
 
     /**
-     * @return array
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {
         return Yii::$app->dbPgSlave;
     }
-
-    public static function dao()
-    {
-        return GeoCountryDao::me();
-    }
-
 }

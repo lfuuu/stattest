@@ -16,7 +16,7 @@ class RegionColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = Region::dao()->getList(true);
+        $this->filter = Region::getList($isWithEmpty = true);
         parent::__construct($config);
     }
 }

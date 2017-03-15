@@ -27,9 +27,9 @@ echo Breadcrumbs::widget([
         'columns' => 2,
         'attributes' => [
             'name' => ['type' => Form::INPUT_TEXT],
-            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::dao()->getList(true), 'options' => ['class' => 'select2', 'disabled' => true]],
-            'geo_city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '-- Город --'] + GeoCity::dao()->getList(), 'options' => ['class' => 'select2']],
-            'geo_operator_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '-- Оператор --'] + GeoOperator::dao()->getList(), 'options' => ['class' => 'select2']],
+            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::getList($isWithEmpty = true), 'options' => ['class' => 'select2', 'disabled' => true]],
+            'geo_city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '-- Город --'] + GeoCity::getList(), 'options' => ['class' => 'select2']],
+            'geo_operator_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> ['' => '-- Оператор --'] + GeoOperator::getList(), 'options' => ['class' => 'select2']],
         ],
     ]);
 

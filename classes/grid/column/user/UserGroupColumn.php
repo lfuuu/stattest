@@ -15,7 +15,7 @@ class UserGroupColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = UserGroups::dao()->getList(true);
+        $this->filter = UserGroups::getList($isWithEmpty = true);
         parent::__construct($config);
     }
 }

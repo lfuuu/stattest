@@ -1,20 +1,24 @@
 <?php
 namespace app\models;
 
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 /**
  * Class BusinessProcess
  *
  * @property integer id
  * @property integer business_id
- * @property string  name
+ * @property string name
  * @property integer show_as_status
  * @property integer sort
  */
 class BusinessProcess extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const TELECOM_SUPPORT = 1;
 
@@ -56,36 +60,40 @@ class BusinessProcess extends ActiveRecord
     }
 
     /**
-     * Получить список бизнес процессов
+     * Вернуть список всех доступных значений
      *
-     * @return array
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @param int $businessId
+     * @return string[]
      */
-    public static function getList()
-    {
-        $arr = self::find()
-            ->andWhere(['show_as_status' => '1'])
-            ->orderBy('sort')
-            ->all();
-        return ArrayHelper::map($arr, 'id', 'name');
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false,
+        $businessId = null
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['sort' => SORT_ASC],
+            $where = [
+                'AND',
+                ['show_as_status' => '1'],
+                $businessId ? ['business_id' => $businessId] : []
+            ]
+        );
     }
 
     /**
      * Связка со статусами
      *
-     * @return $this
+     * @return ActiveQuery
      */
     public function getBusinessProcessStatuses()
     {
-        return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id'])->orderBy('sort');
-    }
-
-    /**
-     * Приведение модели к строке
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->name;
+        return $this->hasMany(BusinessProcessStatus::className(), ['business_process_id' => 'id'])
+            ->orderBy('sort');
     }
 }

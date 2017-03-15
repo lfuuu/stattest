@@ -59,7 +59,7 @@ class CountriesController extends ApiInternalController
         }
 
         $result = [];
-        $cities = City::dao()->getList(false, $countryId);
+        $cities = City::getList($isWithEmpty = false, $countryId);
 
         foreach ($cities as $cityId => $city) {
 

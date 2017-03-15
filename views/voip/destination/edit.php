@@ -8,7 +8,7 @@ use kartik\widgets\ActiveForm;
 use kartik\builder\Form;
 use app\models\voip\Prefixlist;
 
-$prefixes = ArrayHelper::map(Prefixlist::find()->all(), 'id', 'name');
+$prefixes = Prefixlist::getList();
 
 echo Html::formLabel($model->name ? 'Редактирование направления' : 'Новое направление');
 echo Breadcrumbs::widget([

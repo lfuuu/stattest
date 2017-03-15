@@ -59,7 +59,7 @@ $accountTariffVoip->voip_country_id = $clientAccount->country_id;
         <?php // регион (город) ?>
         <?= $form->field($accountTariffVoip, 'city_id')
             ->widget(Select2::className(), [
-                'data' => City::dao()->getList(true, $accountTariffVoip->voip_country_id), // страна выбрана от клиента
+                'data' => City::getList($isWithEmpty = true, $accountTariffVoip->voip_country_id), // страна выбрана от клиента
                 'options' => [
                     'disabled' => true,
                     'id' => 'voipRegions',

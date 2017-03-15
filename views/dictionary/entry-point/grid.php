@@ -27,6 +27,31 @@ echo Breadcrumbs::widget([
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
+        'actions' => [
+            'class' => 'kartik\grid\ActionColumn',
+            'template' => Html::tag('div', '{update} {delete}', ['class' => 'text-center']),
+            'buttons' => [
+                'update' => function ($url, $model, $key) use ($baseView) {
+                    return $baseView->render('//layouts/_actionEdit', [
+                            'url' => Url::toRoute([
+                                '/dictionary/entry-point/edit',
+                                'id' => $model->id,
+                            ]),
+                        ]
+                    );
+                },
+                'delete' => function ($url, $model, $key) use ($baseView) {
+                    return $baseView->render('//layouts/_actionDrop', [
+                            'url' => Url::toRoute([
+                                '/dictionary/entry-point/delete',
+                                'id' => $model->id,
+                            ]),
+                        ]
+                    );
+                },
+            ],
+            'hAlign' => 'left',
+        ],
         [
             'attribute' => 'code',
         ],
@@ -69,32 +94,6 @@ echo GridView::widget([
             'attribute' => 'is_default',
             'class' => YesNoColumn::class,
         ],
-
-        'actions' => [
-            'class' => 'kartik\grid\ActionColumn',
-            'template' => Html::tag('div', '{update} {delete}', ['class' => 'text-center']),
-            'buttons' => [
-                'update' => function ($url, $model, $key) use ($baseView) {
-                    return $baseView->render('//layouts/_actionEdit', [
-                            'url' => Url::toRoute([
-                                '/dictionary/entry-point/edit',
-                                'id' => $model->id,
-                            ]),
-                        ]
-                    );
-                },
-                'delete' => function ($url, $model, $key) use ($baseView) {
-                    return $baseView->render('//layouts/_actionDrop', [
-                            'url' => Url::toRoute([
-                                '/dictionary/entry-point/delete',
-                                'id' => $model->id,
-                            ]),
-                        ]
-                    );
-                },
-            ],
-            'hAlign' => 'left',
-        ]
     ],
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/dictionary/entry-point/add']),
     'isFilterButton' => false,

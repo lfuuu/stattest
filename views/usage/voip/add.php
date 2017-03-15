@@ -63,7 +63,7 @@ echo Breadcrumbs::widget([
         'columns' => 4,
         'attributes' => [
             'type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $types, 'options' => ['class' => 'select2 form-reload']],
-            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::dao()->getList($isWithEmpty = true, $model->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false), 'options' => ['class' => 'select2 form-reload',]],
+            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::getList($isWithEmpty = true, $model->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false), 'options' => ['class' => 'select2 form-reload',]],
             'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Country::getList($isWithEmpty = false), 'options' => ['class' => 'select2 form-reload',]],
             [
                 'type' => Form::INPUT_RAW,
@@ -85,7 +85,7 @@ echo Breadcrumbs::widget([
             'attributes' => [
                 'did_group_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => DidGroup::dao()->getList(true, $model->city_id, $model->country_id),
+                    'items' => DidGroup::getList($isWithEmpty = true, $model->city_id, $model->country_id),
                     'options' => ['class' => 'select2 form-reload'],
                 ],
                 'did' => ['type' => Form::INPUT_TEXT],
@@ -160,8 +160,7 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'tariff_main_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getMainList(false, $model->connection_point_id, $clientAccount->currency,
-                    $model->tariff_main_status),
+                'items' => TariffVoip::getList(TariffVoip::DEST_LOCAL_FIXED, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency, $model->tariff_main_status),
                 'options' => ['class' => 'select2']
             ],
             'tariff_main_status' => [
@@ -173,7 +172,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_local_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getLocalMobList(false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(TariffVoip::DEST_LOCAL_MOBILE, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
                 'options' => [
                     'class' => 'select2 form-reload'
                 ]
@@ -193,7 +192,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_russia_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(TariffVoip::DEST_RUSSIA, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
                 'options' => [
                     'class' => 'select2 form-reload'
                 ]
@@ -213,8 +212,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_russia_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getRussiaList(false, $model->connection_point_id,
-                    $clientAccount->currency),
+                'items' => TariffVoip::getList(TariffVoip::DEST_RUSSIA, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
                 'options' => ['class' => 'select2']
             ],
             ['type' => Form::INPUT_RAW],
@@ -222,7 +220,7 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_intern_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::dao()->getInternList(false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(TariffVoip::DEST_INTERNATIONAL, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
                 'options' => [
                     'class' => 'select2 form-reload'
                 ]

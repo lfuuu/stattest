@@ -22,31 +22,51 @@ use yii\db\ActiveRecord;
  */
 class PricelistFile extends ActiveRecord
 {
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'voip.raw_file';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPg;
     }
 
+    /**
+     * @return PricelistFileDao
+     */
     public static function dao()
     {
         return PricelistFileDao::me();
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getPricelist()
     {
         return $this->hasOne(Pricelist::className(), ['id' => 'pricelist_id']);
     }
 
+    /**
+     * @return string
+     */
     public function getStorageDir()
     {
         return Yii::$app->params['STORE_PATH'] . 'voip_pricelist_uploads';
     }
 
+    /**
+     * @return string
+     */
     public function getStorageFilePath()
     {
         return $this->getStorageDir() . '/' . $this->store_filename;

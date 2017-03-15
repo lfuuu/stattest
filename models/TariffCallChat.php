@@ -2,14 +2,17 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use app\dao\TariffCallChatDao;
 
 /**
  * @property int $id
- * @property
  */
 class TariffCallChat extends ActiveRecord
 {
+
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const CALL_CHAT_TARIFF_STATUS_PUBLIC = 'public';
     const CALL_CHAT_TARIFF_STATUS_SPECIAL = 'special';
@@ -24,19 +27,31 @@ class TariffCallChat extends ActiveRecord
     }
 
     /**
-     * @return TariffCallChatDao
-     */
-    public static function dao()
-    {
-        return TariffCallChatDao::me();
-    }
-
-    /**
-     * @return Currency
+     * @return \yii\db\ActiveQuery
      */
     public function getCurrency()
     {
         return $this->hasOne(Currency::className(), ['id' => 'currency_id']);
     }
 
+    /**
+     * Вернуть список всех доступных значений
+     *
+     * @param string $currencyId
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @return string[]
+     */
+    public static function getList(
+        $currencyId,
+        $isWithEmpty = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $indexBy = 'id',
+            $select = 'description',
+            $orderBy = ['description' => SORT_ASC],
+            $where = ['currency_id' => $currencyId]
+        );
+    }
 }

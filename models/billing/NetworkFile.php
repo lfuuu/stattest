@@ -24,31 +24,51 @@ use yii\db\ActiveRecord;
  */
 class NetworkFile extends ActiveRecord
 {
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'voip.network_file';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPg;
     }
 
+    /**
+     * @return NetworkFileDao
+     */
     public static function dao()
     {
         return NetworkFileDao::me();
     }
 
+    /**
+     * @return string
+     */
     public function getStorageDir()
     {
         return Yii::$app->params['STORE_PATH'] . 'voip_pricelist_uploads';
     }
 
+    /**
+     * @return string
+     */
     public function getStorageFilePath()
     {
         return $this->getStorageDir() . '/' . $this->store_filename;
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getConfig()
     {
         return $this->hasOne(NetworkConfig::className(), ['id' => 'network_config_id']);

@@ -1,24 +1,24 @@
 <?php
 
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
-use kartik\file\FileInput;
 use app\classes\Html;
-use yii\widgets\Breadcrumbs;
-use yii\helpers\Url;
 use app\helpers\MediaFileHelper;
-use app\models\Language;
 use app\models\City;
 use app\models\Courier;
+use app\models\Language;
 use app\models\User;
 use app\models\UserDeparts;
 use app\models\UserGroups;
+use kartik\builder\Form;
+use kartik\file\FileInput;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var User $model */
 
 $cities = ['' => '-- Выберите город --'];
 foreach (City::find()->orderBy('country_id desc')->all() as $city) {
-    $cities[ $city->id ] = $city->country->name . ' / ' . $city->name;
+    $cities[$city->id] = $city->country->name . ' / ' . $city->name;
 }
 
 $photoPreview = [];
@@ -42,13 +42,13 @@ echo Breadcrumbs::widget([
 ]);
 ?>
 
-<link href="/css/behaviors/media-manager.css" rel="stylesheet" />
+<link href="/css/behaviors/media-manager.css" rel="stylesheet"/>
 
 <div class="well">
     <?php
     $form = ActiveForm::begin([
         'type' => ActiveForm::TYPE_VERTICAL,
-        'options' => ['enctype'=>'multipart/form-data'],
+        'options' => ['enctype' => 'multipart/form-data'],
     ]);
 
     echo Form::widget([
@@ -94,22 +94,22 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'depart_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => UserDeparts::dao()->getList(true),
+                'items' => UserDeparts::getList($isWithEmpty = true),
             ],
             'usergroup' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => UserGroups::dao()->getList(true),
+                'items' => UserGroups::getList($isWithEmpty = true),
             ],
             'trouble_redirect' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => User::dao()->getList(true),
+                'items' => User::getList($isWithEmpty = true),
                 'options' => [
                     'class' => 'select2',
                 ],
             ],
             'courier_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => Courier::dao()->getList(true, $model->depart_id),
+                'items' => Courier::getList($isWithEmpty = true, $model->depart_id),
                 'options' => [
                     'class' => 'select2',
                 ],
@@ -136,7 +136,7 @@ echo Breadcrumbs::widget([
                         'showUpload' => false,
                         'browseClass' => 'btn btn-default btn-block',
                         'browseIcon' => '<i></i> ',
-                        'browseLabel' =>  'Выбрать файл',
+                        'browseLabel' => 'Выбрать файл',
                         'initialPreview' => $photoPreview,
                     ],
                 ],
@@ -155,13 +155,13 @@ echo Breadcrumbs::widget([
                 'type' => Form::INPUT_RAW,
                 'value' =>
                     '<div class="col-md-12" style="text-align: center; padding-top: 40px;">' .
-                        Html::button('Изменить пароль', [
-                            'class' => 'btn btn-info',
-                            'data-width' => 400,
-                            'data-height' => 450,
-                            'href' => '/user/control/change-password?id=' . $model->id,
-                            'onClick' => 'return showIframePopup(this);',
-                        ]) .
+                    Html::button('Изменить пароль', [
+                        'class' => 'btn btn-info',
+                        'data-width' => 400,
+                        'data-height' => 450,
+                        'href' => '/user/control/change-password?id=' . $model->id,
+                        'onClick' => 'return showIframePopup(this);',
+                    ]) .
                     '</div>'
 
             ],
@@ -171,7 +171,7 @@ echo Breadcrumbs::widget([
     echo $this->render('rights', ['model' => $model]);
 
     ?>
-    <br />
+    <br/>
 
     <?php
     echo Form::widget([

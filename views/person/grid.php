@@ -1,22 +1,23 @@
 <?php
 
-use yii\data\ActiveDataProvider;
-use kartik\grid\GridView;
-use app\forms\person\PersonForm;
 use app\classes\Html;
+use app\forms\person\PersonForm;
+use kartik\grid\GridView;
+use yii\data\ActiveDataProvider;
 
 /** @var $dataProvider ActiveDataProvider */
 /** @var $model PersonForm */
 
 $recordBtns = [
-    'delete' => function($url, $model, $key) {
-        if ($model->canDelete !== true)
+    'delete' => function ($url, $model, $key) {
+        if ($model->canDelete !== true) {
             return Html::tag('span', '', [
-                'title' => 'Данная персона указана в организациях',
-                'class' => 'glyphicon glyphicon-trash',
-                'style' => 'opacity: 0.5;'
-            ]) .
-            Html::tag('span', 'Удаление', ['style' => 'margin-left: 4px;']);
+                    'title' => 'Данная персона указана в организациях',
+                    'class' => 'glyphicon glyphicon-trash',
+                    'style' => 'opacity: 0.5;'
+                ]) .
+                Html::tag('span', 'Удаление', ['style' => 'margin-left: 4px;']);
+        }
 
         return Html::a(
             '<span class="glyphicon glyphicon-trash"></span> Удаление',
@@ -36,6 +37,12 @@ echo GridView::widget([
     'id' => 'PersonList',
     'dataProvider' => $dataProvider,
     'columns' => [
+        'actions' => [
+            'class' => 'kartik\grid\ActionColumn',
+            'template' => '<div style="text-align: center;">{delete}</div>',
+            'buttons' => $recordBtns,
+            'hAlign' => 'left',
+        ],
         'name_nominative' => [
             'class' => 'app\classes\grid\column\NameColumn',
             'attribute' => 'name_nominative',
@@ -55,15 +62,9 @@ echo GridView::widget([
             'class' => 'app\classes\grid\column\SignatureColumn',
             'width' => '10%',
         ],
-        'actions' => [
-            'class' => 'kartik\grid\ActionColumn',
-            'template' => '<div style="text-align: center;">{delete}</div>',
-            'buttons' => $recordBtns,
-            'hAlign' => 'left',
-        ]
     ],
     'pjax' => true,
-    'toolbar'=> [
+    'toolbar' => [
         [
             'content' =>
                 Html::a(
@@ -80,7 +81,7 @@ echo GridView::widget([
     'striped' => true,
     'condensed' => true,
     'hover' => true,
-    'panel'=>[
+    'panel' => [
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);

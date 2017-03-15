@@ -60,8 +60,10 @@ class ServiceType extends \yii\db\ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     // какие id конвертировать из старых
     public static $ids = [
@@ -128,13 +130,24 @@ class ServiceType extends \yii\db\ActiveRecord
     }
 
     /**
-     * По какому полю сортировать для getList()
+     * Вернуть список всех доступных значений
      *
-     * @return array
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getListOrderBy()
-    {
-        return ['id' => SORT_ASC];
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['id' => SORT_ASC],
+            $where = []
+        );
     }
 
     /**

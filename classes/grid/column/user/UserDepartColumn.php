@@ -15,7 +15,7 @@ class UserDepartColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = UserDeparts::dao()->getList(true);
+        $this->filter = UserDeparts::getList($isWithEmpty = true);
         parent::__construct($config);
     }
 }

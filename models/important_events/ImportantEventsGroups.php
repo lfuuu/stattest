@@ -3,7 +3,6 @@
 namespace app\models\important_events;
 
 use yii\db\ActiveRecord;
-use \app\classes\traits\GetListTrait;
 
 /**
  * @property string $title
@@ -11,8 +10,10 @@ use \app\classes\traits\GetListTrait;
  */
 class ImportantEventsGroups extends ActiveRecord
 {
-
-    use GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     /**
      * @return string
@@ -34,6 +35,27 @@ class ImportantEventsGroups extends ActiveRecord
     }
 
     /**
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
+     */
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'title',
+            $orderBy = ['id' => SORT_ASC],
+            $where = []
+        );
+    }
+
+    /**
      * @return array
      */
     public function attributeLabels()
@@ -42,23 +64,4 @@ class ImportantEventsGroups extends ActiveRecord
             'title' => 'Название',
         ];
     }
-
-    /**
-     * По какому полю сортировать для getList()
-     * @return array
-     */
-    public static function getListOrderBy()
-    {
-        return ['id' => SORT_ASC];
-    }
-
-    /**
-     * Преобразовать объект в строку
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->title;
-    }
-
 }

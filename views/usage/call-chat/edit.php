@@ -87,7 +87,7 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'tarif_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffCallChat::dao()->getList($model->clientAccount->currency, true),
+                'items' => TariffCallChat::getList($model->clientAccount->currency, $isWithEmpty = true),
                 'columnOptions' => [
                     'colspan' => 3
                 ]

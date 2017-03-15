@@ -6,8 +6,10 @@ use yii\db\ActiveRecord;
 
 class DisconnectCause extends ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const UNALLOCATED = 1;
     const NO_ROUTE_TRANSIT_NET = 2;
@@ -72,7 +74,9 @@ class DisconnectCause extends ActiveRecord
     }
 
     /**
-     * @return array
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {
@@ -80,37 +84,23 @@ class DisconnectCause extends ActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
-     * @param bool $isWithEmpty
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
-     * @return self[]
+     * @return string[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false)
-    {
-        $list = self::find()
-            ->orderBy(self::getListOrderBy())
-            ->indexBy('cause_id')
-            ->all();
-
-        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'cause_id',
+            $select = 'value',
+            $orderBy = ['cause_id' => SORT_ASC],
+            $where = []
+        );
     }
-
-    /**
-     * По какому полю сортировать для getList()
-     * @return array
-     */
-    public static function getListOrderBy()
-    {
-        return ['cause_id' => SORT_ASC];
-    }
-
-    /**
-     * Преобразовать объект в строку
-     * @return string
-     */
-    public function __toString()
-    {
-        return (string)$this->value;
-    }
-
 }

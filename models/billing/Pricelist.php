@@ -1,7 +1,6 @@
 <?php
 namespace app\models\billing;
 
-use app\dao\billing\PricelistDao;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -16,8 +15,10 @@ use yii\helpers\Url;
  */
 class Pricelist extends ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const TYPE_CLIENT = 'client';
     const TYPE_OPERATOR = 'operator';
@@ -35,31 +36,43 @@ class Pricelist extends ActiveRecord
         self::STATE_UNIVERSAL => 'Универсальный',
     ];
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'voip.pricelist';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPg;
     }
 
-    public static function dao()
-    {
-        return PricelistDao::me();
-    }
-
+    /**
+     * @return bool
+     */
     public function isClient()
     {
         return $this->type == self::TYPE_CLIENT;
     }
 
+    /**
+     * @return bool
+     */
     public function isOperator()
     {
         return $this->type == self::TYPE_OPERATOR;
     }
 
+    /**
+     * @return bool
+     */
     public function isLocal()
     {
         return $this->type == self::TYPE_LOCAL;
@@ -74,6 +87,7 @@ class Pricelist extends ActiveRecord
     }
 
     /**
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)
@@ -82,22 +96,37 @@ class Pricelist extends ActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
-     * @param bool $isWithEmpty
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
-     * @param int $serviceTypeId
-     * @return self[]
+     * @param string $type
+     * @param bool $orig
+     * @param bool $priceIncludeVat
+     * @return \string[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = null, $orig = null)
-    {
-        $query = self::find()
-            ->orderBy(self::getListOrderBy())
-            ->indexBy('id');
-        !is_null($type) && $query->andWhere(['type' => $type]);
-        !is_null($orig) && $query->andWhere(['orig' => $orig]);
-        $list = $query->all();
-
-        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false,
+        $type = null,
+        $orig = null,
+        $priceIncludeVat = null
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['name' => SORT_ASC],
+            $where = [
+                'AND',
+                !is_null($priceIncludeVat) ? ['price_include_vat' => $priceIncludeVat] : [],
+                [
+                    'AND',
+                    !is_null($type) ? ['type' => $type] : [],
+                    !is_null($orig) ? ['orig' => $orig] : []
+                ]
+            ]
+        );
     }
-
 }

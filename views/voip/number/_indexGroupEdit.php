@@ -54,7 +54,7 @@ $viewParams = [
         <?= $city_id ?
             $form->field($number, 'did_group_id')
                 ->widget(Select2::className(), [
-                    'data' => DidGroup::dao()->getList($isWithEmpty = true, $city_id),
+                    'data' => DidGroup::getList($isWithEmpty = true, $city_id),
                 ]) :
             'DID-группу можно установить только для конкретного города' ?>
     </div>

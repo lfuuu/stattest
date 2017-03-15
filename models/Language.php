@@ -1,12 +1,14 @@
 <?php
 namespace app\models;
 
-use Yii;
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 class Language extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const LANGUAGE_RUSSIAN = 'ru-RU';
     const LANGUAGE_ENGLISH = 'en-EN';
@@ -25,26 +27,23 @@ class Language extends ActiveRecord
     }
 
     /**
-     * @param bool|false $isWithEmpty
-     * @return array
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getList($isWithEmpty = false)
-    {
-        $list = self::find()->orderBy(['order' => SORT_ASC])->indexBy('code')->all();
-
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-
-        return $list;
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'code',
+            $select = 'name',
+            $orderBy = ['order' => SORT_ASC],
+            $where = []
+        );
     }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return (string) $this->name;
-    }
-
 }

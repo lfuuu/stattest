@@ -41,7 +41,9 @@ class PricelistReport extends ActiveRecord
     }
 
     /**
-     * @return array
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {

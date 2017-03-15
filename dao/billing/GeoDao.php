@@ -10,6 +10,9 @@ use app\models\billing\Geo;
 class GeoDao extends Singleton
 {
 
+    /**
+     * @return Geo[]
+     */
     public function getRegionList()
     {
         return
@@ -22,6 +25,9 @@ class GeoDao extends Singleton
                 ->all();
     }
 
+    /**
+     * @return Geo[]
+     */
     public function getCitiesList()
     {
         return

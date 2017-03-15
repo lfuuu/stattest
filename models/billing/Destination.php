@@ -3,6 +3,8 @@ namespace app\models\billing;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * @property int id serial NOT NULL
@@ -12,8 +14,14 @@ use yii\db\ActiveRecord;
  */
 class Destination extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
+
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -26,51 +34,53 @@ class Destination extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'auth.destination';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPg;
     }
 
     /**
-     * По какому полю сортировать для getList()
-     * @return array
-     */
-    public static function getListOrderBy()
-    {
-        return [
-            'server_id' => SORT_ASC,
-            'name' => SORT_ASC,
-        ];
-    }
-
-    /**
-     * Вернуть список всех доступных моделей
-     * @param bool $isWithEmpty
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param int $serverId
-     * @return self[]
+     * @return string[]
      */
-    public static function getList($isWithEmpty = false, $serverId = null)
-    {
-        $query = self::find();
-        $serverId && $query->where(['IN', 'server_id', [$serverId, 0]]);
-        $list = $query->orderBy(self::getListOrderBy())
-            ->indexBy('id')
-            ->all();
-
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-
-        return $list;
+    public static function getList(
+        $isWithEmpty = false,
+        $serverId = null
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = [
+                'server_id' => SORT_ASC,
+                'name' => SORT_ASC,
+            ],
+            $where = $serverId ?
+                ['IN', 'server_id', [$serverId, 0]] :
+                []
+        );
     }
 
     /**
      * Преобразовать объект в строку
+     *
      * @return string
      */
     public function __toString()

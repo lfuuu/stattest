@@ -14,7 +14,14 @@
             <div class="col-sm-2">
                 <?= \kartik\widgets\Select2::widget([
                     'name' => 'to_user_id',
-                    'data' => [0 => 'Всем'] + \yii\helpers\ArrayHelper::map(\app\models\User::find()->where(['enabled' => 'yes'])->all(), 'id', 'name'),
+                    'data' => [0 => 'Всем'] + \app\models\User::getListTrait(
+                            $isWithEmpty = false,
+                            $isWithNullAndNotNull = false,
+                            $indexBy = 'id',
+                            $select = 'CONCAT(name, " (", user, ")")',
+                            $orderBy = ['name' => SORT_ASC],
+                            $where = ['enabled' => 'yes']
+                        ),
                     'value' => 0,
                     'options' => ['placeholder' => 'Начните вводить фамилию'],
                     'pluginOptions' => [

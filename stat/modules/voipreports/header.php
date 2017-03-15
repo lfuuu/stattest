@@ -65,7 +65,7 @@ class m_voipreports_head extends IModuleHead
             array('На кого ушли звонки', 'by_dest_operator'),
             array('От кого пришли звонки', 'by_source_operator'),
             array('Отчет по операторскому трафику voip', 'operators_traf'),
-            array('Не распознанные вызовы', 'unrecognized'),
+            array('Нераспознанные вызовы', 'unrecognized'),
         );
         parent::__construct();
     }

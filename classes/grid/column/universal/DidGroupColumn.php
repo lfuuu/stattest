@@ -19,7 +19,7 @@ class DidGroupColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = DidGroup::dao()->getList(true);
+        $this->filter = DidGroup::getList($isWithEmpty = true);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' did-group-column';
     }

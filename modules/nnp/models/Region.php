@@ -4,6 +4,7 @@ namespace app\modules\nnp\models;
 use app\classes\Connection;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -13,8 +14,10 @@ use yii\helpers\Url;
  */
 class Region extends ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     /**
      * Имена полей
@@ -55,7 +58,7 @@ class Region extends ActiveRecord
     /**
      * Returns the database connection
      *
-     * @return Connection
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {
@@ -88,23 +91,25 @@ class Region extends ActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
-     * @param bool $isWithEmpty
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
-     * @param int|array $countryCodes
-     *
-     * @return array
+     * @param int|int[] $countryCodes
+     * @return string[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryCodes = null)
-    {
-        $activeQuery = self::find();
-        $countryCodes && $activeQuery->andWhere(['country_code' => $countryCodes]);
-        $list = $activeQuery
-            ->orderBy(self::getListOrderBy())
-            ->indexBy('id')
-            ->all();
-
-        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false,
+        $countryCodes = null
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['name' => SORT_ASC],
+            $where = ($countryCodes ? ['country_code' => $countryCodes] : [])
+        );
     }
 }

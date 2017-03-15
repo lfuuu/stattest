@@ -30,7 +30,7 @@ foreach ($connectionPoints as $connectionPoint) {
 }
 $connectionPoints = ['' => '-- Точка подключения --'] + ArrayHelper::map($connectionPoints, 'id', 'name');
 
-$destinations = Destination::dao()->getList(true);
+$destinations = Destination::getList($isWithEmpty = true);
 $currencies = Currency::getList($isWithEmpty = true);
 
 $priceLists =

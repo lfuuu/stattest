@@ -40,7 +40,7 @@ $form = ActiveForm::begin([
                 'user' => ['type' => Form::INPUT_TEXT],
                 'usergroup' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => UserGroups::dao()->getList(true),
+                    'items' => UserGroups::getList($isWithEmpty = true),
                     'options' => [
                         'class' => 'select2',
                     ],

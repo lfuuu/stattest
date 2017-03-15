@@ -16,7 +16,7 @@ class ServiceTypeColumn extends DataColumn
 
     public function __construct($config = [])
     {
-        $this->filter = ServiceType::dao()->getList(true);
+        $this->filter = ServiceType::getList($isWithEmpty = true);
         parent::__construct($config);
     }
 }

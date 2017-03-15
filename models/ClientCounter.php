@@ -200,15 +200,13 @@ class ClientCounter extends ActiveRecord
                 'client_id'
             );
 
-            static::$_localCacheFastMassLastAccountDate = ArrayHelper::map(
-                (new Query())
-                    ->select(['id', 'last_account_date'])
-                    ->from(ClientAccount::tableName())
-                    ->createCommand()
-                    ->queryAll(),
-                'id',
-                'last_account_date'
-            );
+            static::$_localCacheFastMassLastAccountDate = ClientAccount::getListTrait(
+                $isWithEmpty = false,
+                $isWithNullAndNotNull = false,
+                $indexBy = 'id',
+                $select = 'last_account_date',
+                $orderBy = [],
+                $where = []);
         }
 
         if (

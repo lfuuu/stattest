@@ -31,11 +31,19 @@ class ServiceTrunk extends ActiveRecord
 {
     use \app\classes\traits\GetListTrait;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'billing.service_trunk';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPg;

@@ -1,7 +1,7 @@
 <?php
-use yii\helpers\Url;
-use kartik\grid\GridView;
 use app\classes\Html;
+use kartik\grid\GridView;
+use yii\helpers\Url;
 
 echo Html::formLabel('Местные Префиксы');
 
@@ -9,10 +9,30 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
+            'class' => 'kartik\grid\ActionColumn',
+            'template' => '<div style="text-align: center;">{delete}</div>',
+            'header' => '',
+            'buttons' => [
+                'delete' => function ($url, $model, $key) {
+                    return Html::a(
+                        '<span class="glyphicon glyphicon-trash"></span> Удаление',
+                        '/voip/network-config/delete/?id=' . $model->id,
+                        [
+                            'title' => Yii::t('kvgrid', 'Delete'),
+                            'data-pjax' => 0,
+                            'onClick' => 'return confirm("Вы уверены, что хотите удалить запись?")',
+                        ]
+                    );
+                },
+            ],
+            'hAlign' => 'center',
+            'width' => '7%',
+        ],
+        [
             'label' => 'Точка присоединения',
             'format' => 'raw',
             'value' => function ($data) use ($connectionPoints) {
-                return $connectionPoints[ $data->instance_id ];
+                return $connectionPoints[$data->instance_id];
             },
         ],
         [
@@ -36,28 +56,8 @@ echo GridView::widget([
                 return Html::a('файлы', Url::toRoute(['voip/network-config/files', 'networkConfigId' => $data->id]));
             },
         ],
-        [
-            'class' => 'kartik\grid\ActionColumn',
-            'template' => '<div style="text-align: center;">{delete}</div>',
-            'header' => '',
-            'buttons' => [
-                'delete' => function($url, $model, $key) {
-                    return Html::a(
-                        '<span class="glyphicon glyphicon-trash"></span> Удаление',
-                        '/voip/network-config/delete/?id=' . $model->id,
-                        [
-                            'title' => Yii::t('kvgrid', 'Delete'),
-                            'data-pjax' => 0,
-                            'onClick' => 'return confirm("Вы уверены, что хотите удалить запись?")',
-                        ]
-                    );
-                },
-            ],
-            'hAlign' => 'center',
-            'width' => '7%',
-        ]
     ],
-    'toolbar'=> [
+    'toolbar' => [
         [
             'content' =>
                 Html::a(
@@ -70,7 +70,7 @@ echo GridView::widget([
                 ),
         ]
     ],
-    'panel'=>[
+    'panel' => [
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);

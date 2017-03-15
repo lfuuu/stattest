@@ -165,7 +165,7 @@ abstract class MonitorGridColumns
                 Html::dropDownList(
                     'region',
                     Yii::$app->request->get('region'),
-                    Region::dao()->getList(true),
+                    Region::getList($isWithEmpty = true),
                     ['class' => 'form-control select2']
                 ),
         ];

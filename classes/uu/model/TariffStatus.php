@@ -3,6 +3,7 @@
 namespace app\classes\uu\model;
 
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Статусы тарифа (публичный, специальный, архивный и пр.)
@@ -18,8 +19,10 @@ class TariffStatus extends \yii\db\ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListServiceTypeTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const ID_PUBLIC = 1;
     const ID_SPECIAL = 2;
@@ -55,13 +58,32 @@ class TariffStatus extends \yii\db\ActiveRecord
     }
 
     /**
-     * По какому полю сортировать для getList()
+     * Вернуть список всех доступных значений
      *
-     * @return array
+     * @param int $serviceTypeId
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getListOrderBy()
-    {
-        return ['id' => SORT_ASC];
+    public static function getList(
+        $serviceTypeId = null,
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['id' => SORT_ASC],
+            $where = $serviceTypeId ?
+                [
+                    'OR',
+                    ['IS', 'service_type_id', null],
+                    ['service_type_id' => $serviceTypeId]
+                ] :
+                []
+        );
     }
 
     /**

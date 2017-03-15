@@ -25,7 +25,9 @@ class LocksLog extends ActiveRecord
     }
 
     /**
-     * @return mixed
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {

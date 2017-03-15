@@ -20,7 +20,7 @@ $accountTariff = $formModel->accountTariff;
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'city_id')
             ->widget(Select2::className(), [
-                'data' => City::dao()->getList(true, $formModel->accountTariff->clientAccount->country_id),
+                'data' => City::getList($isWithEmpty = true, $formModel->accountTariff->clientAccount->country_id),
             ]) ?>
     </div>
 

@@ -20,6 +20,7 @@ class Server extends ActiveRecord
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -31,16 +32,27 @@ class Server extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'public.server';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPgSlave;
     }
 
+    /**
+     * @return string
+     */
     public function getApiUrl()
     {
         return 'http://' . $this->hostname . ':' . self::API_PORT;

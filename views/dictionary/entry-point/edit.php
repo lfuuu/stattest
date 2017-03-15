@@ -99,7 +99,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'region_id')
-                    ->dropDownList(Region::dao()->getList(false, $model->country_id))
+                    ->dropDownList(Region::getList($isWithEmpty = false, $model->country_id))
                 ?>
             </div>
         </div>

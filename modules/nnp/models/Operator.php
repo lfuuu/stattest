@@ -4,6 +4,7 @@ namespace app\modules\nnp\models;
 use app\classes\Connection;
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -14,8 +15,10 @@ use yii\helpers\Url;
  */
 class Operator extends ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const MIN_CNT = 1000;
 
@@ -59,7 +62,7 @@ class Operator extends ActiveRecord
     /**
      * Returns the database connection
      *
-     * @return Connection
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {
@@ -92,25 +95,32 @@ class Operator extends ActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
-     * @param bool $isWithEmpty
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
-     * @param int $countryCode
+     * @param int|int[] $countryCode
      * @param int $minCnt
-     * @return Operator[]
+     * @return \string[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $countryCode = null, $minCnt = self::MIN_CNT)
-    {
-        $activeQuery = self::find();
-        $countryCode && $activeQuery->andWhere(['country_code' => $countryCode]);
-        $minCnt && $activeQuery->andWhere(['>=', 'cnt', $minCnt]);
-        $list = $activeQuery
-            ->orderBy(self::getListOrderBy())
-            ->indexBy('id')
-            ->all();
-
-        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false,
+        $countryCode = null,
+        $minCnt = self::MIN_CNT
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['name' => SORT_ASC],
+            $where = [
+                'AND',
+                $countryCode ? ['country_code' => $countryCode] : [],
+                $minCnt ? ['>=', 'cnt', $minCnt] : []
+            ]
+        );
     }
 
     /**

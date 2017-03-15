@@ -48,7 +48,9 @@ class Trunk extends ActiveRecord
     }
 
     /**
-     * @return Connection
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {

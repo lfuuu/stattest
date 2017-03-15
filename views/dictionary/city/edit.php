@@ -71,7 +71,7 @@ if (!$city->isNewRecord) {
         <div class="col-sm-3">
             <?= $form->field($city, 'connection_point_id')
                 ->widget(Select2::className(), [
-                    'data' => Region::dao()->getList($isWithEmpty = $city->isNewRecord),
+                    'data' => Region::getList($isWithEmpty = $city->isNewRecord),
                 ]) ?>
         </div>
 

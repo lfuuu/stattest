@@ -10,6 +10,7 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -60,8 +61,10 @@ class Tariff extends HistoryActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     // Методы для полей insert_time, insert_user_id, update_time, update_user_id
     use \app\classes\traits\InsertUpdateUserTrait;
@@ -325,22 +328,26 @@ class Tariff extends HistoryActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
-     * @param bool $isWithEmpty
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
      * @param int $serviceTypeId
-     * @return self[]|string[]
+     * @return string[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $serviceTypeId = null)
-    {
-        $query = self::find()
-            ->orderBy(self::getListOrderBy())
-            ->indexBy('id');
-        $serviceTypeId && $query->where(['service_type_id' => $serviceTypeId]);
-        $list = $query->all();
-
-        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false,
+        $serviceTypeId = null
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['name' => SORT_ASC],
+            $where = ($serviceTypeId ? ['service_type_id' => $serviceTypeId] : [])
+        );
     }
 
     /**

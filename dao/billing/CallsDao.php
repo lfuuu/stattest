@@ -12,6 +12,9 @@ use app\models\UsageVoip;
 use app\models\billing\Calls;
 use yii\helpers\ArrayHelper;
 
+/**
+ * @method static CallsDao me($args = null)
+ */
 class CallsDao extends Singleton
 {
 

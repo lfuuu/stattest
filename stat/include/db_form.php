@@ -694,7 +694,7 @@ class DbFormUsageVoip extends DbForm {
                 die("<font style='color:red'><b>Номер начинается на 8-ку!</b></font>");
             }elseif(strlen($this->dbform["E164"]) > 5 && strlen($this->dbform["E164"]) != 11 && strlen($this->dbform["E164"]) != 10) // if not line_without_number
             {
-                die("<font style='color:red'><b>Номер задан не верно!</b></font>");
+                die("<font style='color:red'><b>Номер задан неверно!</b></font>");
             }else
             if ($b)
             {

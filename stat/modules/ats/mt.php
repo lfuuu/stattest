@@ -321,7 +321,7 @@ class MT
         if($data["host_type"] == "static")
         {
             checker::isEmpty($data["host_static"], "Не задан статический host!");
-            checker::isValideIp($data["host_static"], "Статический host задан не верно!");
+            checker::isValideIp($data["host_static"], "Статический host задан неверно!");
 
             if($id == 0 && $data["permit_on"] == "yes")
             {

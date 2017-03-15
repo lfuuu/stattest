@@ -196,7 +196,7 @@ class ContractEditForm extends Form
         }
 
         $organizations = Organization::find()
-            ->andWhere(['<=', 'actual_from', $date])
+            ->andWhere(['<=', 'actual_from', $date]) // between
             ->andWhere(['>=', 'actual_to', $date])
             ->all();
         return ArrayHelper::map($organizations, 'organization_id', 'name');

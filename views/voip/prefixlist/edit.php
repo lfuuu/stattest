@@ -17,7 +17,7 @@ $this->registerJsFile('@web/js/behaviors/prefixlist.js', ['depends' => [AppAsset
 
 $optionDisabled = $creatingMode ? [] : ['disabled' => 'disabled'];
 
-$countries = ['0' => '-- Страна --'] + GeoCountry::dao()->getList(true);
+$countries = ['0' => '-- Страна --'] + GeoCountry::getList($isWithEmpty = true);
 
 $regions = Geo::dao()->getRegionList();
 $regionsOptions = [];
@@ -38,7 +38,7 @@ foreach ($cities as $city) {
 }
 $cities = ['0' => '-- Город --'] + ArrayHelper::map($cities, 'city', 'city_name');
 
-$operators = GeoOperator::dao()->getList();
+$operators = GeoOperator::getList();
 
 $model->exclude_operators = $creatingMode ? 0 : $model->exclude_operators;
 $model->type_id = $creatingMode ? 1 : $model->type_id;

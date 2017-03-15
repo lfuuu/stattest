@@ -2,26 +2,31 @@
 namespace app\models\voip;
 
 use yii\db\ActiveRecord;
-use app\dao\VoipDestinationDao;
 
 class Destination extends ActiveRecord
 {
+    // Определяет getList (список для selectbox) и __toString
+    use \app\classes\traits\GetListTrait;
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'voip_destination';
     }
 
-    public static function dao()
-    {
-        return VoipDestinationDao::me();
-    }
-
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getDestinationPrefixes()
     {
         return $this->hasMany(DestinationPrefixes::className(), ['destination_id' => 'id']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getPrefixes()
     {
         return $this->hasMany(Prefixlist::className(), ['id' => 'prefixlist_id'])->via('destinationPrefixes');

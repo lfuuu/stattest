@@ -12,13 +12,12 @@ use Yii;
 
 /**
  * @method static TrunkDao me($args = null)
- * @property
  */
 class TrunkDao extends Singleton
 {
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
      * @param array $params
      * @param bool $isWithEmpty

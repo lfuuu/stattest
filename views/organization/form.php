@@ -1,19 +1,18 @@
 <?php
 
 use app\assets\AppAsset;
+use app\classes\Html;
+use app\forms\organization\OrganizationForm;
+use app\helpers\MediaFileHelper;
+use app\models\Country;
 use app\models\Language;
-use kartik\tabs\TabsX;
-use kartik\widgets\ActiveForm;
+use app\models\Person;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
-use yii\helpers\ArrayHelper;
-use app\helpers\MediaFileHelper;
-use app\classes\Html;
-use yii\widgets\Breadcrumbs;
+use kartik\tabs\TabsX;
+use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
-use app\forms\organization\OrganizationForm;
-use app\models\Country;
-use app\models\Person;
+use yii\widgets\Breadcrumbs;
 
 /** @var OrganizationForm $model */
 /** @var \app\models\Organization $history */
@@ -37,7 +36,7 @@ if (!empty($title)) {
 }
 ?>
 
-<div class="container<?= (!empty($title) ? ' well' : '')?>" style="width: 100%; padding-top: 20px;">
+<div class="container<?= (!empty($title) ? ' well' : '') ?>" style="width: 100%; padding-top: 20px;">
     <?php
     $formOptions = [
         'type' => ActiveForm::TYPE_VERTICAL,
@@ -49,9 +48,9 @@ if (!empty($title)) {
     $form = ActiveForm::begin($formOptions);
 
     $languagesTabs = [];
-    foreach(Language::getList() as $languageCode => $languageTitle) {
+    foreach (Language::getList() as $languageCode => $languageTitle) {
         $language =
-            !is_file(__DIR__  . DIRECTORY_SEPARATOR . 'i18n' . DIRECTORY_SEPARATOR . $languageCode . '.php')
+            !is_file(__DIR__ . DIRECTORY_SEPARATOR . 'i18n' . DIRECTORY_SEPARATOR . $languageCode . '.php')
                 ? Language::LANGUAGE_DEFAULT
                 : $languageCode;
 
@@ -77,10 +76,10 @@ if (!empty($title)) {
             <div class="col-sm-3">
                 <div class="col-sm-12">
                     <?= $form->field($model, 'firma')
-                            ->textInput([
-                                'readonly' => $mode === 'duplicate',
-                            ])
-                            ->label('Код организации ("mcn", "ooomcn" etc)');
+                        ->textInput([
+                            'readonly' => $mode === 'duplicate',
+                        ])
+                        ->label('Код организации ("mcn", "ooomcn" etc)');
                     ?>
                 </div>
             </div>
@@ -89,11 +88,7 @@ if (!empty($title)) {
                 <div class="col-sm-12">
                     <?= $form->field($model, 'country_id')
                         ->dropDownList(
-                            ArrayHelper::map(
-                                Country::find()->where(['in_use' => 1])->orderBy('code desc')->all(),
-                                'code',
-                                'name'
-                            ),
+                            Country::getList(),
                             [
                                 'prompt' => 'Выберите страну',
                                 'id' => 'Country',
@@ -109,10 +104,13 @@ if (!empty($title)) {
                 <div class="col-sm-12">
                     <?= $form->field($model, 'lang_code')
                         ->dropDownList(
-                            ArrayHelper::map(
-                                Country::find()->select('lang')->distinct()->where(['in_use' => 1])->orderBy('lang desc')->all(),
-                                'lang',
-                                'lang'
+                            Country::getListTrait(
+                                $isWithEmpty = false,
+                                $isWithNullAndNotNull = false,
+                                $indexBy = 'lang',
+                                $select = new \yii\db\Expression('DISTINCT lang'),
+                                $orderBy = ['lang' => SORT_DESC],
+                                $where = ['in_use' => 1]
                             ),
                             [
                                 'readonly' => $mode === 'duplicate',
@@ -134,7 +132,7 @@ if (!empty($title)) {
                                 'pluginOptions' => [
                                     'autoclose' => true,
                                     'orientation' => 'bottom left',
-                                    'startDate' =>  'today',
+                                    'startDate' => 'today',
                                 ]
                             ]
                         ])
@@ -166,7 +164,7 @@ if (!empty($title)) {
                 <?= $form
                     ->field($model, 'director_id')
                     ->dropDownList(
-                        Person::find()->indexBy('id')->all(),[
+                        Person::find()->indexBy('id')->all(), [
                             'prompt' => 'Выберите директора',
                             'style' => 'width: 80%;',
                         ]

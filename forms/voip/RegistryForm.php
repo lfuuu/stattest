@@ -64,7 +64,7 @@ class RegistryForm extends Form
 
     public function validateCity()
     {
-        if (!array_key_exists($this->city_id, City::dao()->getList(false, $this->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false))){
+        if (!array_key_exists($this->city_id, City::getList($isWithEmpty = false, $this->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false))){
             $this->addError('city_id', 'Значение "Город" неверно');
         }
     }
@@ -101,7 +101,7 @@ class RegistryForm extends Form
         if ($this->country_id && $this->city_id) {
             $city = City::findOne(['id' => $this->city_id]);
             if ($city && $city->country_id != $this->country_id) {
-                $cities = City::dao()->getList(false, $this->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false);
+                $cities = City::getList($isWithEmpty = false, $this->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false);
                 $this->city_id = array_keys($cities)[0];
             }
         }

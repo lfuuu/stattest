@@ -10,8 +10,10 @@ namespace app\classes\uu\model;
  */
 class TariffVoipGroup extends \yii\db\ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const ID_DEFAULT = 1;
 
@@ -49,12 +51,23 @@ class TariffVoipGroup extends \yii\db\ActiveRecord
     }
 
     /**
-     * По какому полю сортировать для getList()
+     * Вернуть список всех доступных значений
      *
-     * @return array
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getListOrderBy()
-    {
-        return ['id' => SORT_ASC];
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['id' => SORT_ASC],
+            $where = []
+        );
     }
 }

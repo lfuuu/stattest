@@ -1,7 +1,7 @@
 <?php
-use app\models\billing\Pricelist;
-use app\classes\Html;
 use app\classes\grid\GridView;
+use app\classes\Html;
+use app\models\billing\Pricelist;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 
@@ -36,14 +36,33 @@ if ($orig == 1) {
             break;
     }
 }
-
 $columns = [
+    [
+        'class' => 'kartik\grid\ActionColumn',
+        'template' => '<div style="text-align: center;">{delete}</div>',
+        'header' => '',
+        'buttons' => [
+            'delete' => function ($url, $model, $key) {
+                return Html::a(
+                    '<span class="glyphicon glyphicon-trash"></span> Удаление',
+                    '/voip/pricelist/delete/?id=' . $model->id,
+                    [
+                        'title' => Yii::t('kvgrid', 'Delete'),
+                        'data-pjax' => 0,
+                        'onClick' => 'return confirm("Вы уверены, что хотите удалить запись?")',
+                    ]
+                );
+            },
+        ],
+        'hAlign' => 'center',
+        'width' => '7%',
+    ],
     [
         'class' => \app\classes\grid\column\RegionColumn::className(),
         'attribute' => 'connection_point_id',
         'label' => 'Точка присоединения',
         'value' => function ($data) use ($connectionPoints) {
-            return $connectionPoints[ $data->region ];
+            return $connectionPoints[$data->region];
         },
     ],
     [
@@ -76,12 +95,11 @@ if ($type == Pricelist::TYPE_OPERATOR && $orig == 0) {
         'label' => 'Метод тарификации',
         'format' => 'raw',
         'value' => function ($data) {
-            $result = $data->tariffication_by_minutes
-                ? 'поминутная'
-                : 'посекундная';
+            $result = $data->tariffication_by_minutes ? 'поминутная' : 'посекундная';
             if ($data->tariffication_full_first_minute) {
                 $result .= ' со второй минуты';
             }
+
             return $result;
         },
     ];
@@ -115,7 +133,7 @@ if ($type == Pricelist::TYPE_LOCAL) {
         'label' => 'Местные префиксы',
         'format' => 'raw',
         'value' => function ($data) use ($networkConfigs) {
-            return $networkConfigs[ $data->local_network_config_id ];
+            return $networkConfigs[$data->local_network_config_id];
         },
     ];
 }
@@ -139,27 +157,6 @@ $columns[] = [
     'value' => function ($data) {
         return Html::a('цены', Url::toRoute(['/index.php', 'module' => 'voipnew', 'action' => 'defs', 'pricelist' => $data->id]));
     },
-];
-
-$columns[] = [
-    'class' => 'kartik\grid\ActionColumn',
-    'template' => '<div style="text-align: center;">{delete}</div>',
-    'header' => '',
-    'buttons' => [
-        'delete' => function($url, $model, $key) {
-            return Html::a(
-                '<span class="glyphicon glyphicon-trash"></span> Удаление',
-                '/voip/pricelist/delete/?id=' . $model->id,
-                [
-                    'title' => Yii::t('kvgrid', 'Delete'),
-                    'data-pjax' => 0,
-                    'onClick' => 'return confirm("Вы уверены, что хотите удалить запись?")',
-                ]
-            );
-        },
-    ],
-    'hAlign' => 'center',
-    'width' => '7%',
 ];
 
 echo GridView::widget([

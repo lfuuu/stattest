@@ -38,11 +38,11 @@ class OnlimeCheckOrders
         try{
             $isPossibleSave = false;
             CheckFormat::isEmpty($order["id"], "ID не задан");
-            CheckFormat::isNotInt($order["id"], "ID имеет неправльный формат (".$order["id"].")");
+            CheckFormat::isNotInt($order["id"], "ID имеет неправильный формат (".$order["id"].")");
             CheckFormat::isZero($order["id"], "ID не задан");
             $isPossibleSave = true;
 
-            CheckFormat::isDateDB($order["date"], "Дата задана не верно (".$order["date"].")");
+            CheckFormat::isDateDB($order["date"], "Дата задана неверно (".$order["date"].")");
             CheckFormat::isEq($order["date"], "0000-00-00 00:00:00", "Задана пустая дата");
 
             CheckFormat::isEmpty($order["fio"], "ФИО не задано");
@@ -51,16 +51,16 @@ class OnlimeCheckOrders
 
             CheckFormat::isEmpty($order["address"], "Адрес не задан");
 
-            CheckFormat::isDate($order["delivery"]["date"], "Дата доставки задана не верно");
+            CheckFormat::isDate($order["delivery"]["date"], "Дата доставки задана неверно");
             CheckFormat::isEq($order["delivery"]["date"], "0000-00-00", "Не задана дата доставки");
 
             CheckFormat::isEmpty($order["delivery"]["time"]["from"], "Время доставки не задано");
-            CheckFormat::isTime($order["delivery"]["time"]["from"], "Не верно задано время доставки");
-            CheckFormat::isEq($order["delivery"]["time"]["from"], "00:00", "Не верно задано время доставки");
+            CheckFormat::isTime($order["delivery"]["time"]["from"], "Неверно задано время доставки");
+            CheckFormat::isEq($order["delivery"]["time"]["from"], "00:00", "Неверно задано время доставки");
 
             CheckFormat::isEmpty($order["delivery"]["time"]["to"], "Время доставки не задано");
-            CheckFormat::isTime($order["delivery"]["time"]["to"], "Не верно задано время доставки");
-            CheckFormat::isEq($order["delivery"]["time"]["to"], "00:00", "Не верно задано время доставки");
+            CheckFormat::isTime($order["delivery"]["time"]["to"], "Неверно задано время доставки");
+            CheckFormat::isEq($order["delivery"]["time"]["to"], "00:00", "Неверно задано время доставки");
 
             CheckFormat::isEmpty($order["products"], "Продукты заказа не найдены");
 

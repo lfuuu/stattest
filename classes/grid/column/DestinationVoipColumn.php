@@ -14,9 +14,14 @@ class DestinationVoipColumn extends DataColumn
     public $label = 'Направление';
     public $filterType = GridView::FILTER_SELECT2;
 
+    /**
+     * DestinationVoipColumn constructor.
+     *
+     * @param array $config
+     */
     public function __construct($config = [])
     {
-        $this->filter = Destination::dao()->getList(true);
+        $this->filter = Destination::getList($isWithEmpty = true);
         parent::__construct($config);
     }
 }

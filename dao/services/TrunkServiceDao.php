@@ -6,6 +6,10 @@ use app\dao\UsageDao;
 use app\models\UsageTrunk;
 use app\models\ClientAccount;
 
+/**
+ * @method static TrunkServiceDao me($args = null)
+ */
+
 class TrunkServiceDao extends UsageDao
 {
     public $usageClass = null;

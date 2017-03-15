@@ -31,8 +31,8 @@ $trunk = Trunk::findOne($usage->trunk_id);
 
 $trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList(['serverIds' => $usage->connection_point_id]);
 
-$srcNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_SRC, $usage->connection_point_id);
-$dstNumbers = ['' => '-- Любой номер -- '] + Number::dao()->getList(Number::TYPE_DST, $usage->connection_point_id);
+$srcNumbers = ['' => '-- Любой номер -- '] + Number::getList(Number::TYPE_SRC, $usage->connection_point_id);
+$dstNumbers = ['' => '-- Любой номер -- '] + Number::getList(Number::TYPE_DST, $usage->connection_point_id);
 
 $termPackages = ['' => '-- Пакет -- '];
 $origPackages = ['' => '-- Пакет -- '];
@@ -63,8 +63,11 @@ if ($isUu) {
     $termPricelists = [];
     $origPricelists = [];
 } else {
-    $termPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_LOCAL, false) + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR, false, false);
-    $origPricelists = ['' => '-- Прайслист -- '] + Pricelist::dao()->getList(Pricelist::TYPE_OPERATOR, true, false);
+    $termPricelists = ['' => '-- Прайслист -- '] +
+        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_LOCAL, $orig = false) +
+        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_OPERATOR, $orig = false, $priceIncludeVat = false);
+    $origPricelists = ['' => '-- Прайслист -- '] +
+        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_OPERATOR, $orig = true, $priceIncludeVat = false);
 }
 
 echo Html::formLabel('Редактирование транка');

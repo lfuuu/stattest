@@ -1,13 +1,12 @@
 <?php
 
+use app\classes\Html;
+use app\models\important_events\ImportantEventsGroups;
+use app\models\important_events\ImportantEventsNames;
 use app\widgets\TagsSelect2\TagsSelect2;
 use kartik\widgets\ActiveForm;
-use yii\widgets\Breadcrumbs;
 use yii\helpers\Url;
-use yii\helpers\ArrayHelper;
-use app\classes\Html;
-use app\models\important_events\ImportantEventsNames;
-use app\models\important_events\ImportantEventsGroups;
+use yii\widgets\Breadcrumbs;
 
 /** @var ImportantEventsNames $model */
 
@@ -42,7 +41,7 @@ echo Breadcrumbs::widget([
             <?= $form
                 ->field($model, 'group_id')
                 ->dropDownList(
-                    ['' => '- Выбрать -'] + ArrayHelper::map(ImportantEventsGroups::find()->all(), 'id', 'title'),
+                    ImportantEventsGroups::getList($isWithEmpty = true),
                     ['class' => 'select2']
                 )
             ?>
@@ -55,7 +54,7 @@ echo Breadcrumbs::widget([
                 <?= TagsSelect2::widget([
                     'model' => $model,
                     'attribute' => 'tags',
-                ])?>
+                ]) ?>
             </div>
             <div class="col-sm-6">
                 <?= $form->field($model, 'comment') ?>

@@ -193,7 +193,7 @@ class ImportantEvents extends ActiveRecord
     public function getTagList()
     {
         return ArrayHelper::map(
-            TagsResource::getTagList((new ReflectionClass(ImportantEventsNames::className()))->getShortName(), 'id'),
+            TagsResource::getTagList((new ImportantEventsNames)->formName(), 'id'),
             'id',
             'name'
         );

@@ -39,11 +39,13 @@ class OrganizationController extends BaseController
 
     /**
      * @return string
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
     {
         return $this->render('list', [
-            'organizations' => Organization::dao()->getCompleteList()
+            'organizations' => Organization::dao()->getList($isWithEmpty = false)
         ]);
     }
 

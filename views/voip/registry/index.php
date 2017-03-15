@@ -32,29 +32,36 @@ use yii\widgets\Breadcrumbs;
 <?php
 
 $recordBtns = [
-    'delete' => function($url, $model, $key) {
+    'delete' => function ($url, $model, $key) {
         return
-        Html::beginForm('/voip/registry/delete').
-            Html::hiddenInput('id', $model->id).
+            Html::beginForm('/voip/registry/delete') .
+            Html::hiddenInput('id', $model->id) .
             Html::submitButton(
-            '<span class="glyphicon glyphicon-trash"></span> Удаление',
-            [
-                'title' => Yii::t('kvgrid', 'Delete'),
-                'onClick' => 'return confirm("Вы уверены, что хотите удалить запись?")',
-                'class' => 'btn btn-link btn-xs'
-            ]
-        ).
-        Html::endForm();
+                '<span class="glyphicon glyphicon-trash"></span> Удаление',
+                [
+                    'title' => Yii::t('kvgrid', 'Delete'),
+                    'onClick' => 'return confirm("Вы уверены, что хотите удалить запись?")',
+                    'class' => 'btn btn-link btn-xs'
+                ]
+            ) .
+            Html::endForm();
     },
 ];
 
 $registryRow = new Registry();
 
 $columns = [
+    'actions' => [
+        'class' => 'kartik\grid\ActionColumn',
+        'template' => '<div style="text-align: center;">{delete}</div>',
+        'buttons' => $recordBtns,
+        'hAlign' => 'center',
+        'width' => '100px',
+    ],
     [
         'attribute' => 'id',
         'format' => 'html',
-        'value' => function($model) {
+        'value' => function ($model) {
             return Html::a(' ' . $model->id . ' ', ['/voip/registry/edit', 'id' => $model->id]);
         },
     ],
@@ -85,7 +92,7 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
-        'value' => function($model) {
+        'value' => function ($model) {
             return Registry::$names[$model->status];
         },
         'label' => 'Заполнение'
@@ -94,20 +101,13 @@ $columns = [
         'attribute' => 'account_id',
         'class' => IntegerColumn::className(),
         'format' => 'html',
-        'value' => function($model) {
+        'value' => function ($model) {
             return Html::a('ЛС ' . $model['account_id'], ['/client/view', 'id' => $model['account_id']]);
         },
     ],
     [
         'attribute' => 'created_at',
     ],
-    'actions' => [
-        'class' => 'kartik\grid\ActionColumn',
-        'template' => '<div style="text-align: center;">{delete}</div>',
-        'buttons' => $recordBtns,
-        'hAlign' => 'center',
-        'width' => '100px',
-    ]
 ];
 
 echo GridView::widget([
@@ -115,7 +115,7 @@ echo GridView::widget([
     'filterModel' => $filterModel,
     'columns' => $columns,
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/voip/registry/add']),
-    'rowOptions' => function($model){
+    'rowOptions' => function ($model) {
         $status = $model->status;
         return ['class' => ($status == Registry::STATUS_EMPTY ? 'danger' : ($status == Registry::STATUS_FULL ? 'success' : 'warning'))];
     }

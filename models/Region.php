@@ -1,7 +1,6 @@
 <?php
 namespace app\models;
 
-use app\dao\RegionDao;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
@@ -20,8 +19,10 @@ use yii\helpers\Url;
  */
 class Region extends ActiveRecord
 {
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const MOSCOW = 99;
     const HUNGARY = 81;
@@ -65,20 +66,18 @@ class Region extends ActiveRecord
     }
 
     /**
-     * @return RegionDao
-     */
-    public static function dao()
-    {
-        return RegionDao::me();
-    }
-
-    /**
      * @return array
      */
     public static function getTimezoneList()
     {
-        $arr = self::find()->select(['timezone_name'])->groupBy(['timezone_name'])->all();
-        return ArrayHelper::map($arr, 'timezone_name', 'timezone_name');
+        return self::getListTrait(
+            $isWithEmpty = false,
+            $isWithNullAndNotNull = false,
+            $indexBy = 'timezone_name',
+            $select = new \yii\db\Expression('DISTINCT timezone_name'),
+            $orderBy = [],
+            $where = []
+        );
     }
 
     /**
@@ -98,22 +97,28 @@ class Region extends ActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
-     * @param bool $isWithEmpty
-     * @param bool $isWithNullAndNotNull
-     * @param string $indexBy
-     * @return array
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param int $countryId
+     * @return string[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $indexBy = 'id')
-    {
-        $list = self::find()
-            ->where(['is_active' => 1])
-            ->orderBy(static::getListOrderBy())
-            ->indexBy($indexBy)
-            ->all();
-
-        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    public static function getList(
+        $isWithEmpty = false,
+        $countryId = null
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['name' => SORT_ASC],
+            $where = [
+                'AND',
+                ['is_active' => 1],
+                $countryId ? ['country_id' => $countryId] : []
+            ]
+        );
     }
 
     /**

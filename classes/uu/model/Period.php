@@ -1,7 +1,6 @@
 <?php
 
 namespace app\classes\uu\model;
-
 use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 use LogicException;
@@ -19,6 +18,11 @@ class Period extends \yii\db\ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
+
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const ID_DAY = 1;
     const ID_MONTH = 2;
@@ -47,26 +51,24 @@ class Period extends \yii\db\ActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
-     * @return self[]
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getList()
-    {
-        return self::find()
-            ->orderBy(['monthscount' => SORT_ASC])
-            ->indexBy('id')
-            ->all();
-    }
-
-    /**
-     * Преобразовать объект в строку
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->name;
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['monthscount' => SORT_ASC],
+            $where = []
+        );
     }
 
     /**

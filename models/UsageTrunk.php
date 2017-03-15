@@ -36,6 +36,11 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
 {
     use TagsTrait;
 
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
+
     /**
      * @return array
      */
@@ -205,25 +210,26 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
      * @param int $trunkId
-     * @param bool $isWithEmpty
-     * @return self[]
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getList($trunkId = null, $isWithEmpty = false)
-    {
-        $query = self::find();
-        $trunkId && $query->where(['trunk_id' => $trunkId]);
-        $list = $query->orderBy(['description' => SORT_ASC])
-            ->indexBy('id')
-            ->all();
-
-        if ($isWithEmpty) {
-            $list = ['' => '----'] + $list;
-        }
-
-        return $list;
+    public static function getList(
+        $trunkId = null,
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'CONCAT(description, " (", id, ")")',
+            $orderBy = ['description' => SORT_ASC],
+            $where = ($trunkId ? ['trunk_id' => $trunkId] : [])
+        );
     }
 
     /**

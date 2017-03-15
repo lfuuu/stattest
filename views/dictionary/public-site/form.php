@@ -5,14 +5,14 @@
  * @var PublicSite $model
  */
 
-use kartik\editable\Editable;
-use app\widgets\MultipleInput\MultipleInput;
-use yii\widgets\ActiveForm;
-use yii\widgets\Breadcrumbs;
 use app\classes\Html;
+use app\models\City;
 use app\models\Country;
 use app\models\dictionary\PublicSite;
-use app\dao\CityDao;
+use app\widgets\MultipleInput\MultipleInput;
+use kartik\editable\Editable;
+use yii\widgets\ActiveForm;
+use yii\widgets\Breadcrumbs;
 
 if (!$model->isNewRecord) {
     $this->title = $city->name;
@@ -50,43 +50,43 @@ if (!$model->isNewRecord) {
     <div class="row">
         <div class="col-sm-12">
             <?= $form->field($model, 'data')->widget(MultipleInput::className(), [
-                'allowEmptyList' => false,
-                'enableGuessTitle' => true,
-                'addButtonPosition' => MultipleInput::POS_HEADER,
-                'colgroup' => [
-                    '5%',
-                    '25%',
-                    '70%',
-                ],
-                'columns' => [
-                    [
-                        'name' => 'order',
-                        'title' => 'Позиция',
-                        'type' => Editable::INPUT_TEXT,
+                    'allowEmptyList' => false,
+                    'enableGuessTitle' => true,
+                    'addButtonPosition' => MultipleInput::POS_HEADER,
+                    'colgroup' => [
+                        '5%',
+                        '25%',
+                        '70%',
                     ],
-                    [
-                        'name' => 'country_code',
-                        'title' => 'Страна',
-                        'type' => Editable::INPUT_SELECT2,
-                        'options' => [
-                            'data' => Country::getList(),
+                    'columns' => [
+                        [
+                            'name' => 'order',
+                            'title' => 'Позиция',
+                            'type' => Editable::INPUT_TEXT,
                         ],
-                    ],
-                    [
-                        'name' => 'city_ids',
-                        'title' => 'Города',
-                        'type' => Editable::INPUT_SELECT2,
-                        'options' => [
-                            'data' => CityDao::me()->getList(),
+                        [
+                            'name' => 'country_code',
+                            'title' => 'Страна',
+                            'type' => Editable::INPUT_SELECT2,
                             'options' => [
-                                'multiple' => true,
+                                'data' => Country::getList(),
+                            ],
+                        ],
+                        [
+                            'name' => 'city_ids',
+                            'title' => 'Города',
+                            'type' => Editable::INPUT_SELECT2,
+                            'options' => [
+                                'data' => City::getList(),
+                                'options' => [
+                                    'multiple' => true,
+                                ],
                             ],
                         ],
                     ],
-                ],
-            ]
-        );
-        ?>
+                ]
+            );
+            ?>
         </div>
     </div>
 

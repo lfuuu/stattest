@@ -2,7 +2,6 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 /**
  * Class Business
@@ -15,9 +14,10 @@ use yii\helpers\ArrayHelper;
  */
 class Business extends ActiveRecord
 {
-
-    // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const TELEKOM = 2;
     const OPERATOR = 3;
@@ -40,13 +40,24 @@ class Business extends ActiveRecord
     }
 
     /**
-     * По какому полю сортировать для getList()
+     * Вернуть список всех доступных значений
      *
-     * @return array
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getListOrderBy()
-    {
-        return ['sort' => SORT_ASC];
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['sort' => SORT_ASC],
+            $where = []
+        );
     }
 
     /**
@@ -57,13 +68,5 @@ class Business extends ActiveRecord
     public function getBusinessProcesses()
     {
         return $this->hasMany(BusinessProcess::className(), ['business_id' => 'id']);
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->name;
     }
 }

@@ -1,11 +1,10 @@
 <?php
 namespace app\models\document;
 
-use Yii;
-use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 use app\classes\Smarty;
 use app\models\ClientDocument;
+use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * @property int id
@@ -14,14 +13,14 @@ use app\models\ClientDocument;
  * @property string content
  * @property string type
  * @property int sort
- *
- * Class DocumentTemplate
- * @package app\models\document
  */
 class DocumentTemplate extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait;
+
     const ZAKAZ_USLUG = 13;
-    const DC_telefonia = 41;
+    const DC_TELEFONIA = 41;
 
     const DEFAULT_WIZARD_MCN = 102;
     const DEFAULT_WIZARD_EURO_LEGAL = 133;
@@ -57,7 +56,7 @@ class DocumentTemplate extends ActiveRecord
         return [
             [['name', 'content'], 'string'],
             [['folder_id', 'sort',], 'integer'],
-            [['name', 'folder_id', ], 'required'],
+            [['name', 'folder_id',], 'required'],
             ['type', 'in', 'range' => array_keys(ClientDocument::$types)],
         ];
     }
@@ -86,18 +85,6 @@ class DocumentTemplate extends ActiveRecord
     }
 
     /**
-     * @return array
-     */
-    public static function getList()
-    {
-        return ArrayHelper::map(
-            self::find()->select(["id", "name"])->orderBy("name")->asArray()->all(),
-            'id',
-            'name'
-        );
-    }
-
-    /**
      * @return string|false
      */
     public function getIcon()
@@ -105,12 +92,14 @@ class DocumentTemplate extends ActiveRecord
         if (array_key_exists($this->type, self::$documentIcons)) {
             return self::$documentIcons[$this->type];
         }
+
         return false;
     }
 
     /**
      * @param bool|true $runValidation
      * @param null $attributeNames
+     * @return bool
      */
     public function save($runValidation = true, $attributeNames = null)
     {
@@ -131,15 +120,6 @@ class DocumentTemplate extends ActiveRecord
             Yii::$app->session->setFlash('error', 'Ошибка преобразования шаблона<br />' . $e->getMessage());
         }
 
-        parent::save();
+        return parent::save();
     }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return (string)$this->name;
-    }
-
 }

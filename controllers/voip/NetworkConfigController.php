@@ -46,7 +46,7 @@ class NetworkConfigController extends BaseController
         $dataProvider = new ActiveDataProvider([
             'query' => NetworkConfig::find()->orderBy('instance_id desc, name asc'),
         ]);
-        $connectionPoints = Region::dao()->getList();
+        $connectionPoints = Region::getList();
 
         return $this->render("list", [
             'dataProvider' => $dataProvider,

@@ -3,6 +3,7 @@ namespace app\models\billing;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\Connection;
 
 /**
  * @property string $prefix
@@ -16,11 +17,19 @@ use yii\db\ActiveRecord;
  */
 class Prefix extends ActiveRecord
 {
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'geo.prefix';
     }
 
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
     public static function getDb()
     {
         return Yii::$app->dbPgSlave;
@@ -35,9 +44,11 @@ class Prefix extends ActiveRecord
     }
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
+     *
      * @param bool $isWithEmpty
-     * @return string[]
+     * @param int $maxIdLength
+     * @return \string[]
      */
     public static function getList($isWithEmpty = false, $maxIdLength = 6)
     {
@@ -52,6 +63,7 @@ class Prefix extends ActiveRecord
         if ($isWithEmpty) {
             $list[''] = '----';
         }
+
         foreach ($query->all(self::getDb()) as $row) {
             $list[$row['prefix']] = $row['name'];
         }
@@ -61,6 +73,7 @@ class Prefix extends ActiveRecord
 
     /**
      * Преобразовать объект в строку
+     *
      * @return string
      */
     public function __toString()

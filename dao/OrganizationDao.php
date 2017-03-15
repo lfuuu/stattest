@@ -8,56 +8,34 @@ class OrganizationDao extends Singleton
 {
 
     /**
-     * @param bool|false $isWithEmpty
-     * @return array|\yii\db\ActiveRecord[]
+     * @param bool $isWithEmpty
+     * @return string[]|Organization[]
      */
     public function getList($isWithEmpty = false)
     {
-        $list =
-            Organization::find()
-                ->select('organization_id')
-                ->groupBy('organization_id')
-                ->orderBy(['actual_from' => SORT_ASC])
-                ->all();
-
         $result = [];
         if ($isWithEmpty) {
             $result = ['' => '----'];
         }
 
-        foreach ($list as $organization) {
+        /** @var Organization[] $organizations */
+        $organizations = Organization::find()
+            ->select('organization_id')
+            ->groupBy('organization_id')
+            ->orderBy(['actual_from' => SORT_ASC])
+            ->all();
+        foreach ($organizations as $organization) {
+
+            /** @var Organization $actual */
             $actual = Organization::find()->byId($organization->organization_id)->actual()->one();
-            $result[$actual->organization_id] = $actual->name;
-        }
 
-        return $result;
-    }
-
-
-    /**
-     * @return array
-     */
-    public function getCompleteList()
-    {
-        $result = [];
-
-        $records =
-            Organization::find()
-                ->select('organization_id')
-                ->groupBy('organization_id')
-                ->orderBy(['actual_from' => SORT_ASC])
-                ->all();
-
-        foreach ($records as $record) {
-            $actual = Organization::find()->byId($record->organization_id)->actual()->one();
             if ($actual instanceof Organization) {
-                $result[] = $actual;
+                $result[$actual->organization_id] = $actual;
             } else {
-                $result[] = $record;
+                $result[$organization->organization_id] = $organization;
             }
         }
 
         return $result;
     }
-
 }

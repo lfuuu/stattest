@@ -87,7 +87,9 @@ if (!$country->isNewRecord) {
 
         <?php // язык ?>
         <div class="col-sm-2">
-            <?= $form->field($country, 'lang')->dropDownList(Language::getList()) ?>
+            <?= $form->field($country, 'lang')->widget(Select2::className(), [
+                'data' => Language::getList(),
+            ]) ?>
         </div>
 
         <?php // валюта ?>

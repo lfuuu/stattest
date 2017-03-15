@@ -52,7 +52,7 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $numberTypes = City::dao()->getList($isWithEmpty, $countryId);
+        $numberTypes = City::getList($isWithEmpty, $countryId);
         ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
     }
 
@@ -70,7 +70,7 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $numberTypes = DidGroup::dao()->getList($isWithEmpty, $cityId);
+        $numberTypes = DidGroup::getList($isWithEmpty, $cityId);
         ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
     }
 

@@ -22,6 +22,20 @@ echo Breadcrumbs::widget([
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
+        'actions' => [
+            'class' => 'kartik\grid\ActionColumn',
+            'template' => '{delete}',
+            'buttons' => [
+                'delete' => function ($url, $model, $key) use ($baseView) {
+                    return $baseView->render('//layouts/_actionDrop',
+                        [
+                            'url' => Url::toRoute(['/notifier/email-templates/delete', 'id' => $model->id]),
+                        ]
+                    );
+                },
+            ],
+            'hAlign' => GridView::ALIGN_CENTER,
+        ],
         [
             'attribute' => 'name',
             'label' => 'Название',
@@ -44,20 +58,6 @@ echo GridView::widget([
             },
             'width' => '40%',
         ],
-        'actions' => [
-            'class' => 'kartik\grid\ActionColumn',
-            'template' => '{delete}',
-            'buttons' => [
-                'delete' => function ($url, $model, $key) use ($baseView) {
-                    return $baseView->render('//layouts/_actionDrop',
-                        [
-                            'url' => Url::toRoute(['/notifier/email-templates/delete', 'id' => $model->id]),
-                        ]
-                    );
-                },
-            ],
-            'hAlign' => GridView::ALIGN_CENTER,
-        ]
     ],
     'isFilterButton' => false,
     'exportWidget' => false,

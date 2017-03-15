@@ -1,11 +1,11 @@
 <?php
 
-use kartik\grid\GridView;
 use app\classes\Html;
 use app\models\voip\Prefixlist;
+use kartik\grid\GridView;
 
 $recordBtns = [
-    'delete' => function($url, $model, $key) {
+    'delete' => function ($url, $model, $key) {
         return Html::a(
             '<span class="glyphicon glyphicon-trash"></span> Удаление',
             '/voip/prefixlist/delete/?id=' . $model->id,
@@ -24,6 +24,14 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
         [
+            'class' => 'kartik\grid\ActionColumn',
+            'template' => '<div style="text-align: center;">{delete}</div>',
+            'header' => '',
+            'buttons' => $recordBtns,
+            'hAlign' => 'center',
+            'width' => '7%',
+        ],
+        [
             'class' => 'app\classes\grid\column\NameColumn',
         ],
         [
@@ -33,17 +41,9 @@ echo GridView::widget([
             'label' => 'Тип',
             'width' => '20%',
         ],
-        [
-            'class' => 'kartik\grid\ActionColumn',
-            'template' => '<div style="text-align: center;">{delete}</div>',
-            'header' => '',
-            'buttons' => $recordBtns,
-            'hAlign' => 'center',
-            'width' => '7%',
-        ]
     ],
     'pjax' => true,
-    'toolbar'=> [
+    'toolbar' => [
         [
             'content' =>
                 Html::a(
@@ -60,7 +60,7 @@ echo GridView::widget([
     'striped' => true,
     'condensed' => true,
     'hover' => true,
-    'panel'=>[
+    'panel' => [
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);

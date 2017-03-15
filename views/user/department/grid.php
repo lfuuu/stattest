@@ -1,13 +1,13 @@
 <?php
 
-use kartik\grid\GridView;
 use app\classes\Html;
 use app\forms\user\DepartmentForm;
+use kartik\grid\GridView;
 
 /** @var DepartmentForm $dataProvider */
 
 $recordBtns = [
-    'delete' => function($url, $model, $key) {
+    'delete' => function ($url, $model, $key) {
         return Html::a(
             '<span class="glyphicon glyphicon-trash"></span> Удаление',
             ['delete', 'id' => $model->id],
@@ -25,6 +25,13 @@ echo Html::formLabel('Отделы');
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'columns' => [
+        'actions' => [
+            'class' => 'kartik\grid\ActionColumn',
+            'template' => '<div style="text-align: center;">{delete}</div>',
+            'buttons' => $recordBtns,
+            'hAlign' => 'center',
+            'width' => '90px',
+        ],
         [
             'attribute' => 'name',
             'label' => 'Отдел',
@@ -34,16 +41,9 @@ echo GridView::widget([
             'label' => 'Кол-во пользователей',
             'width' => '20%',
         ],
-        'actions' => [
-            'class' => 'kartik\grid\ActionColumn',
-            'template' => '<div style="text-align: center;">{delete}</div>',
-            'buttons' => $recordBtns,
-            'hAlign' => 'center',
-            'width' => '90px',
-        ]
     ],
     'pjax' => true,
-    'toolbar'=> [
+    'toolbar' => [
         [
             'content' =>
                 Html::a(
@@ -63,7 +63,7 @@ echo GridView::widget([
     'striped' => true,
     'condensed' => true,
     'hover' => true,
-    'panel'=>[
+    'panel' => [
         'type' => GridView::TYPE_DEFAULT,
     ],
 ]);

@@ -16,27 +16,38 @@ trait GetListTrait
     public static $isNotNull = -2;
 
     /**
-     * Вернуть список всех доступных моделей
+     * Вернуть список всех доступных значений
      *
-     * @param bool $isWithEmpty
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
-     * @param string $indexBy
-     * @return array
+     * @param string $indexBy поле-ключ
+     * @param string $select поле-значение
+     * @param array $orderBy
+     * @param array $where
+     * @return string[]
      */
-    public static function getList($isWithEmpty = false, $isWithNullAndNotNull = false, $indexBy = 'id')
-    {
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false,
+        $indexBy = 'id',
+        $select = 'name',
+        $orderBy = ['name' => SORT_ASC],
+        $where = []
+    ) {
         $list = self::find()
-            ->orderBy(static::getListOrderBy())
+            ->select([$select, $indexBy])
+            ->where($where)
+            ->orderBy($orderBy)
             ->indexBy($indexBy)
-            ->all();
+            ->column();
 
         return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
     }
 
     /**
-     * Вернуть пустой список без конкретных моделей
+     * Вернуть список с универсальными фильтрами без конкретных значений
      *
-     * @param bool|string $isWithEmpty
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
      * @return string[]
      */
@@ -56,16 +67,6 @@ trait GetListTrait
         }
 
         return $list;
-    }
-
-    /**
-     * По какому полю сортировать для getList()
-     *
-     * @return array
-     */
-    public static function getListOrderBy()
-    {
-        return ['name' => SORT_ASC];
     }
 
     /**

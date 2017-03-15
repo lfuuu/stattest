@@ -3,7 +3,6 @@
 namespace app\models\billing;
 
 use Yii;
-use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -28,7 +27,9 @@ class Locks extends ActiveRecord
     }
 
     /**
-     * @return mixed
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
      */
     public static function getDb()
     {
@@ -43,13 +44,14 @@ class Locks extends ActiveRecord
      */
     public function getLastLock($field = true)
     {
-        return
-            ClientLockLogs::find()
-                ->where([
-                    'client_id' => $this->client_id,
-                    $field => true
-                ])
-                ->orderBy(['dt' => SORT_DESC])
-                ->one();
+        /** @var ClientLockLogs $clientLockLogs */
+        $clientLockLogs = ClientLockLogs::find()
+            ->where([
+                'client_id' => $this->client_id,
+                $field => true
+            ])
+            ->orderBy(['dt' => SORT_DESC])
+            ->one();
+        return $clientLockLogs;
     }
 }

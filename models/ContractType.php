@@ -2,16 +2,20 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 /**
  * @property int $id
  * @property string $name
- * @property int $sort
- * @property
+ * @property string $code
  */
 class ContractType extends ActiveRecord
 {
+
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
+
     /**
      * Название таблицы
      *
@@ -23,24 +27,20 @@ class ContractType extends ActiveRecord
     }
 
     /**
-     * Получение списка
+     * Вернуть список всех доступных значений
      *
-     * @param integer $businessProcessId
-     * @return array
+     * @param int $businessProcessId
+     * @return \string[]
      */
     public static function getList($businessProcessId = null)
     {
-        $arr = self::find()
-            ->andFilterWhere(['business_process_id' => $businessProcessId])
-            ->all();
-        return array_merge([0 => 'Не задано'], ArrayHelper::map($arr, 'id', 'name'));
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->name;
+        return self::getListTrait(
+            $isWithEmpty = false,
+            $isWithNullAndNotNull = false,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['name' => SORT_ASC],
+            $where = ['business_process_id' => $businessProcessId]
+        );
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
 use app\classes\Html;
-use app\models\LkWizardState;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
-use yii\helpers\Url;
 use app\helpers\DateTimeZoneHelper;
+use app\models\LkWizardState;
+use kartik\builder\Form;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
 
 $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($contractForm->business_process_status_id);
 ?>
@@ -16,7 +16,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
             'contract/edit',
             'id' => $contractForm->id,
             'childId' => $account->id,
-            'returnTo' => Url::toRoute(['client/view', 'id'=>$account->id, 'childId'=>$contractForm->id]),
+            'returnTo' => Url::toRoute(['client/view', 'id' => $account->id, 'childId' => $contractForm->id]),
         ])
     ]);
     ?>
@@ -36,11 +36,11 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
                     [
                     <a href="/account/change-wizard-state/?id=<?= $account->id ?>&state=off">выключить</a>
 
-                    <?php if ($account->lkWizardState->step == 3 ): ?>
+                    <?php if ($account->lkWizardState->step == 3): ?>
 
                         <? if ($account->lkWizardState->step != 'rejected'): ?>
                             | <a
-                                href="/account/change-wizard-state/?id=<?= $account->id ?>&state=rejected">отклонить</a>
+                                    href="/account/change-wizard-state/?id=<?= $account->id ?>&state=rejected">отклонить</a>
                         <?php endif; ?>
 
                         <? if ($account->lkWizardState->step != 'approve'): ?>
@@ -49,7 +49,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
 
                         <? if ($account->lkWizardState->step != 'review'): ?>
                             | <a
-                                href="/account/change-wizard-state/?id=<?= $account->id ?>&state=review">рассмотрение</a>
+                                    href="/account/change-wizard-state/?id=<?= $account->id ?>&state=review">рассмотрение</a>
                         <?php endif; ?>
 
                     <?php endif; ?>
@@ -153,7 +153,7 @@ $currentBusinessProcessStatus = \app\models\BusinessProcessStatus::findOne($cont
 
     $(function () {
         document.cookie = "openedBlock=;";
-        <?php if(!isset($_COOKIE['openedBlock']) || $_COOKIE['openedBlock']!='statuses'):?>
+        <?php if(!isset($_COOKIE['openedBlock']) || $_COOKIE['openedBlock'] != 'statuses'):?>
         $('.status-block-toggle').click();
         <?php endif; ?>
 

@@ -2,20 +2,23 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 
 /**
  * Class BusinessProcessStatus
  *
- * @property int    id
- * @property int    business_process_id
+ * @property int id
+ * @property int business_process_id
  * @property string name
- * @property int    sort
+ * @property int sort
  * @property string oldstatus
  * @property string color
  */
 class BusinessProcessStatus extends ActiveRecord
 {
+    // Определяет getList (список для selectbox)
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     // Общие
     const STATE_NEGOTIATIONS = 11; // Переговоры
@@ -145,14 +148,24 @@ class BusinessProcessStatus extends ActiveRecord
     }
 
     /**
-     * Получение ассоциативного списка
+     * Вернуть список всех доступных значений
      *
-     * @return array
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
      */
-    public static function getList()
-    {
-        $arr = self::find()->orderBy(['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC])->all();
-        return ArrayHelper::map($arr, 'id', 'name');
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['business_process_id' => SORT_ASC, 'sort' => SORT_ASC, 'id' => SORT_ASC],
+            $where = []
+        );
     }
 
     /**
@@ -210,15 +223,5 @@ class BusinessProcessStatus extends ActiveRecord
             "processes" => $processes,
             "statuses" => $statuses
         ];
-    }
-
-    /**
-     * Приведение модели к строке
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->name;
     }
 }
