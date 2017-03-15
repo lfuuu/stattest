@@ -221,7 +221,7 @@ class ClientContractDao extends Singleton
             return $countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT];
         } elseif ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_OCH_VAT18 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_VAT])) {
             return $countrySettings[InvoiceSettings::VAT_SCHEME_VAT];
-        } elseif ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_UNDEFINED && isset($countrySettings[InvoiceSettings::VAT_SCHEME_ANY])) {
+        } elseif (isset($countrySettings[InvoiceSettings::VAT_SCHEME_ANY])) {
             return $countrySettings[InvoiceSettings::VAT_SCHEME_ANY];
         }
 
