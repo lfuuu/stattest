@@ -81,6 +81,9 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name="cities[1]", type="integer", description="ID города", in="query", default=""),
      *   @SWG\Parameter(name="similar", type="string", description="Значение для подсчета схожести", in="query", default=""),
      *   @SWG\Parameter(name="ndc", type="integer", description="NDC", in="query", default=""),
+     *   @SWG\Parameter(name="excludeNdcs[0]", type="integer", description="Кроме NDC", in="query", default=""),
+     *   @SWG\Parameter(name="excludeNdcs[1]", type="integer", description="Кроме NDC", in="query", default=""),
+     *
      *   @SWG\Response(response=200, description="Выбрать список свободных номеров", @SWG\Items(ref = "#/definitions/freeNumberRecord")),
      *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
@@ -99,6 +102,7 @@ final class OpenController extends Controller
      * @param array $cities
      * @param string $similar
      * @param int $ndc
+     * @param int|int[] $excludeNdcs
      * @return array
      */
     public function actionGetFreeNumbersByFilter(
@@ -115,7 +119,8 @@ final class OpenController extends Controller
         $countryCode = 0,
         array $cities = [],
         $similar = null,
-        $ndc = null
+        $ndc = null,
+        array $excludeNdcs = []
     ) {
         $numbers = (new FreeNumberFilter)
             ->setRegions($regions)
@@ -128,6 +133,7 @@ final class OpenController extends Controller
             ->setNumberMask($mask)
             ->setSimilar($similar)
             ->setNdc($ndc)
+            ->setExcludeNdcs($excludeNdcs)
             ->orderBy(['number' => SORT_ASC]);
 
         if ((int)$offset) {

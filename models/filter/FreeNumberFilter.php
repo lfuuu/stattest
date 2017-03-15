@@ -274,6 +274,19 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @param int|int[] $excludeNdcs
+     * @return $this
+     */
+    public function setExcludeNdcs($excludeNdcs = [])
+    {
+        if ($excludeNdcs) {
+            $this->_query->andWhere(['NOT', [parent::tableName() . '.ndc' => $excludeNdcs]]);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param mixed $columns
      * @return $this
      */
