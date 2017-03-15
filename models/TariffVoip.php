@@ -151,7 +151,7 @@ class TariffVoip extends ActiveRecord implements TariffInterface
             $isWithEmpty,
             $isWithNullAndNotNull = false,
             $indexBy = 'id',
-            $select = 'name',
+            $select = 'CONCAT(name, " (", month_number, " - ", month_line, ")")',
             $orderBy = ['status' => SORT_ASC, 'month_min_payment' => SORT_ASC],
             $where = [
                 'AND',

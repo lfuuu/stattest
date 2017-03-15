@@ -13,7 +13,9 @@ use yii\db\ActiveRecord;
 class Currency extends ActiveRecord
 {
     // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const RUB = 'RUB';
     const USD = 'USD';
@@ -125,5 +127,27 @@ class Currency extends ActiveRecord
     {
         $fmt = new NumberFormatter(Yii::$app->language, NumberFormatter::CURRENCY);
         return $fmt->formatCurrency($value, $currency);
+    }
+
+
+    /**
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @return string[]
+     */
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'id',
+            $orderBy = ['id' => SORT_ASC],
+            $where = []
+        );
     }
 }

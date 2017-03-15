@@ -39,7 +39,6 @@ class Courier extends ActiveRecord
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $depart
      * @return string[]
-     * @internal param bool $isWithNullAndNotNull
      */
     public static function getList(
         $isWithEmpty = false,
