@@ -24,7 +24,8 @@ class FreeNumberFilter extends Number
         $_query,
         $_offset = 0,
         $_mask = null,
-        $_similar = null;
+        $_similar = null,
+        $_totalCount = 0;
 
     /**
      * При клонировании
@@ -287,6 +288,14 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @return int
+     */
+    public function getTotalCount()
+    {
+        return $this->_totalCount;
+    }
+
+    /**
      * @param mixed $columns
      * @return $this
      */
@@ -312,6 +321,7 @@ class FreeNumberFilter extends Number
             $result = $this->_applyLevenshtein($result, $this->_similar);
         }
 
+        $this->_totalCount = count($result);
         if (!is_null($limit)) {
             $result = array_slice($result, (int)$this->_offset, $limit);
         }

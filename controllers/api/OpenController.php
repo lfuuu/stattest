@@ -50,6 +50,11 @@ final class OpenController extends Controller
     }
 
     /**
+     * @SWG\Definition(definition="freeNumberRecords", type="object",
+     *   @SWG\Property(property="total", type="int", description="Всего номеров, удовлетворяющих условиям запроса без limit/offset"),
+     *   @SWG\Property(property="numbers", type="array", description="Номер", @SWG\Items(ref = "#/definitions/freeNumberRecord")),
+     * ),
+     *
      * @SWG\Definition(definition="freeNumberRecord", type="object",
      *   @SWG\Property(property="number", type="string", description="Номер"),
      *   @SWG\Property(property="beauty_level", type="integer", description="Уровень красоты"),
@@ -84,7 +89,7 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name="excludeNdcs[0]", type="integer", description="Кроме NDC", in="query", default=""),
      *   @SWG\Parameter(name="excludeNdcs[1]", type="integer", description="Кроме NDC", in="query", default=""),
      *
-     *   @SWG\Response(response=200, description="Выбрать список свободных номеров", @SWG\Items(ref = "#/definitions/freeNumberRecord")),
+     *   @SWG\Response(response=200, description="Выбрать список свободных номеров", @SWG\Definition(ref = "#/definitions/freeNumberRecords")),
      *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
      * )
      *
@@ -144,13 +149,16 @@ final class OpenController extends Controller
             $numbers->setType((int)$numberType);
         }
 
-        $response = [];
+        $responseNumbers = [];
 
         foreach ($numbers->result($limit) as $freeNumberFilter) {
-            $response[] = $numbers->formattedNumber($freeNumberFilter, $currency);
+            $responseNumbers[] = $numbers->formattedNumber($freeNumberFilter, $currency);
         }
 
-        return $response;
+        return [
+            'total' => $numbers->getTotalCount(),
+            'numbers' => $responseNumbers,
+        ];
     }
 
     /**
