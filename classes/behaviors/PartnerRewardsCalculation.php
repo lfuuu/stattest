@@ -9,7 +9,7 @@ use app\classes\Event as OwnEvent;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 
-class PartnerRewards extends Behavior
+class PartnerRewardsCalculation extends Behavior
 {
 
     /**

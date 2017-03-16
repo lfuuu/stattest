@@ -3,14 +3,13 @@ namespace app\models;
 
 use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\CheckBillPaymentOverdue;
-use app\classes\behaviors\PartnerRewards;
+use app\classes\behaviors\PartnerRewardsCalculation;
 use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
-use Yii;
 use app\dao\BillDao;
-use yii\db\ActiveRecord;
 use app\queries\BillQuery;
+use Yii;
 use yii\helpers\Url;
 
 /**
@@ -105,7 +104,7 @@ class Bill extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'PartnerRewards' => PartnerRewards::className(),
+            'PartnerRewardsCalculate' => PartnerRewardsCalculation::className(),
             'SetBillPaymentOverdue' => SetBillPaymentOverdue::className(),
             'CheckBillPaymentOverdue' => CheckBillPaymentOverdue::className(),
             'BillChangeLog' => BillChangeLog::className(),
