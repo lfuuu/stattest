@@ -1,57 +1,87 @@
-+function ($) {
++function ($, businessTree, contractTypes) {
     'use strict';
 
     $(function () {
-        var $s1 = $('#contracteditform-business_id'),
-            $s2 = $('#contracteditform-business_process_id'),
-            $s3 = $('#contracteditform-business_process_status_id'),
-            $s4 = $('#contracteditform-contract_type_id'),
-            vals2 = $s2.val(),
-            vals3 = $s3.val(),
-            vals4 = $s4.val();
+        var $businessList = $('#contracteditform-business_id'), // s1
+            $businessProcessList = $('#contracteditform-business_process_id'), // s2
+            $businessProcessStatusList = $('#contracteditform-business_process_status_id'), // s3
+            $contractTypeList = $('#contracteditform-contract_type_id'); // s4
 
-        $s2.empty();
-        $(frontendVariables.contractRuRUForm.statuses.processes).each(function (k, v) {
-            if ($s1.val() == v['up_id']) {
-                $s2.append('<option ' + (v['id'] == vals2 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
+        var businessProcess = $businessProcessList.val(), // s2
+            businessProcessStatus = $businessProcessStatusList.val(), // s3
+            contractType = $contractTypeList.val(); // s4
+
+        $businessProcessList.empty();
+        $(businessTree.processes).each(function () {
+            if ($businessList.val() == this.up_id) {
+                $businessProcessList.append(
+                    $('<option />')
+                        .val(this.id)
+                        .prop('selected', this.id == businessProcess)
+                        .text(this.name)
+                );
             }
         });
 
-        $s3.empty();
-        $(frontendVariables.contractRuRUForm.statuses).each(function (k, v) {
-            if ($s2.val() == v['up_id']) {
-                $s3.append('<option ' + (v['id'] == vals3 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
+        $businessProcessStatusList.empty();
+        $(businessTree.statuses).each(function () {
+            if ($businessProcessList.val() == this.up_id) {
+                $businessProcessStatusList.append(
+                    $('<option />')
+                        .val(this.id)
+                        .prop('selected', this.id == businessProcessStatus)
+                        .text(this.name)
+                );
             }
         });
 
-        if ($s4) {
-            $s4.empty();
-            $s4.append('<option value="0">Не задано</option>');
-            $(frontendVariables.contractRuRUForm.contractTypes).each(function (k, v) {
-                if ($s2.val() == v['business_process_id']) {
-                    $s4.append('<option value="' + v['id'] + '" ' + (v['id'] == vals4 ? 'selected' : '') + '>' + v['name'] + '</option>');
+        if ($contractTypeList.length) {
+            $contractTypeList.empty();
+            $contractTypeList.append($('<option />').val('0').text('Не задано'));
+
+            $(contractTypes).each(function () {
+                if ($businessProcessList.val() == this.business_process_id) {
+                    $contractTypeList.append(
+                        $('<option />')
+                            .val(this.id)
+                            .prop('selected', this.id == contractType)
+                            .text(this.name)
+                    );
                 }
             });
         }
 
-        $s1.on('change', function () {
+        $businessList.on('change', function () {
             var $form = $(this).closest('form');
             $('<input type="hidden" name="notSave" value="1" />').appendTo($form);
             $form.submit();
         });
 
-        $s2.on('change', function () {
-            $s3.empty();
-            $(frontendVariables.contractRuRUForm.statuses).each(function (k, v) {
-                if ($s2.val() == v['up_id']) {
-                    $s3.append('<option value="' + v['id'] + '" ' + (v['id'] == vals3 ? 'selected' : '') + '>' + v['name'] + '</option>');
+        $businessProcessList.on('change', function () {
+            $businessProcessStatusList.empty();
+
+            $(businessTree.statuses).each(function () {
+                if ($businessProcessList.val() == this.up_id) {
+                    $businessProcessStatusList.append(
+                        $('<option />')
+                            .val(this.id)
+                            .prop('selected', this.id == businessProcessStatus)
+                            .text(this.name)
+                    );
                 }
             });
-            if ($s4) {
-                $s4.empty();
-                $(frontendVariables.contractRuRUForm.contractTypes).each(function (k, v) {
-                    if ($s2.val() == v['business_process_id']) {
-                        $s4.append('<option value="' + v['id'] + '" ' + (v['id'] == vals4 ? 'selected' : '') + '>' + v['name'] + '</option>');
+
+            if ($contractTypeList.length) {
+                $contractTypeList.empty();
+
+                $(contractTypes).each(function () {
+                    if ($businessProcessList.val() == this.business_process_id) {
+                        $contractTypeList.append(
+                            $('<option />')
+                                .val(this.id)
+                                .prop('selected', this.id == contractType)
+                                .text(this.name)
+                        );
                     }
                 });
             }
@@ -63,12 +93,9 @@
 
         $('.period-type').on('change', function () {
             var month = $(this).parent().parent().next();
-            if ($(this).val() == 'month') {
-                month.show();
-            } else {
-                month.hide();
-            }
-        })
+
+            $(this).val() == 'month' ? month.show() : month.hide();
+        });
     })
 
 }(
