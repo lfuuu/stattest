@@ -1,12 +1,12 @@
 <?php
 
+use app\classes\BaseView;
 use app\classes\Html;
 use app\forms\client\ContractEditForm;
 use app\models\Business;
 use app\models\BusinessProcess;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContract;
-use app\models\ClientContractReward;
 use app\models\ContractType;
 use app\models\Organization;
 use kartik\widgets\ActiveForm;
@@ -14,6 +14,12 @@ use kartik\widgets\Select2;
 
 /** @var ActiveForm $f */
 /** @var ContractEditForm $model */
+/** @var BaseView $this */
+
+$this->registerJsVariables([
+    'statuses' => BusinessProcessStatus::getTree(),
+    'contractTypes' => ContractType::find()->asArray()->all(),
+]);
 
 $model->federal_district = $model->getModel()->getFederalDistrictAsArray();
 
@@ -22,7 +28,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 }
 ?>
 
-<div class="row" style="width: 1100px;">
+<div class="row max-screen">
     <div class="col-sm-12">
         <div class="row">
             <div class="col-sm-4">
@@ -166,8 +172,8 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                         echo $f
                             ->field($model, 'federal_district')
                             ->checkboxButtonGroup(ClientContract::$districts, [
-                                'style' => 'width:100%;',
                                 'class' =>
+                                    'percent100 ' .
                                     !$model->getIsNewRecord()
                                     && $model->state != ClientContract::STATE_UNCHECKED
                                     && !Yii::$app->user->can('clients.client_type_change') ?
@@ -191,72 +197,3 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
         </div>
     </div>
 </div>
-
-<script>
-    $(function () {
-        var statuses = <?= json_encode(\app\models\BusinessProcessStatus::getTree()) ?>;
-        var contractTypes = <?= json_encode(\app\models\ContractType::find()->asArray()->all()) ?>;
-        var s1 = $('#contracteditform-business_id');
-        var s2 = $('#contracteditform-business_process_id');
-        var s3 = $('#contracteditform-business_process_status_id');
-        var s4 = $('#contracteditform-contract_type_id');
-
-        var vals2 = s2.val();
-        s2.empty();
-        $(statuses.processes).each(function (k, v) {
-            if (s1.val() == v['up_id'])
-                s2.append('<option ' + (v['id'] == vals2 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
-        });
-
-        var vals3 = s3.val();
-        s3.empty();
-        $(statuses.statuses).each(function (k, v) {
-            if (s2.val() == v['up_id'])
-                s3.append('<option ' + (v['id'] == vals3 ? 'selected' : '') + ' value="' + v['id'] + '">' + v['name'] + '</option>');
-        });
-
-        var vals4 = s4.val();
-        if (s4) {
-            s4.empty();
-            s4.append('<option value="0"><?= Yii::t('contract', 'notDefined') ?></option>');
-            $(contractTypes).each(function (k, v) {
-                if (s2.val() == v['business_process_id'])
-                    s4.append('<option value="' + v['id'] + '" ' + (v['id'] == vals4 ? 'selected' : '') + '>' + v['name'] + '</option>');
-            });
-        }
-
-        s1.on('change', function () {
-            var form = $(this).closest('form');
-            $('<input type="hidden" name="notSave" value="1">').appendTo(form);
-            form.submit();
-        });
-
-        s2.on('change', function () {
-            s3.empty();
-            $(statuses.statuses).each(function (k, v) {
-                if (s2.val() == v['up_id'])
-                    s3.append('<option value="' + v['id'] + '" ' + (v['id'] == vals3 ? 'selected' : '') + '>' + v['name'] + '</option>');
-            });
-            if (s4) {
-                s4.empty();
-                $(contractTypes).each(function (k, v) {
-                    if (s2.val() == v['business_process_id'])
-                        s4.append('<option value="' + v['id'] + '" ' + (v['id'] == vals4 ? 'selected' : '') + '>' + v['name'] + '</option>');
-                });
-            }
-        });
-
-        $('.btn-disabled').on('click', function (e) {
-            return false;
-        });
-
-        $('.period-type').on('change', function () {
-            var month = $(this).parent().parent().next();
-            if ($(this).val() == '<?= ClientContractReward::PERIOD_MONTH ?>') {
-                month.show();
-            } else {
-                month.hide();
-            }
-        })
-    });
-</script>

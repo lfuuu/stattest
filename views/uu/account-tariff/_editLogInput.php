@@ -2,7 +2,7 @@
 /**
  * Строчка
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  * @var ActiveForm $form
  */
@@ -34,6 +34,11 @@ $clientAccount = $accountTariff->clientAccount;
     !$accountTariffLog->tariff_period_id && $defaultTariffPeriodId && $accountTariffLog->tariff_period_id = $defaultTariffPeriodId; // иначе (при создании) дефолтный
 
     $id = mt_rand(0, 1000000); // чтобы на одной странице можно было несколько объектов показывать
+
+    $this->registerJsVariables([
+        'rndId' => $id,
+        'confirmText' => Html::encode(Yii::t('tariff', 'Are you sure you want to close this tariff?'))
+    ]);
 
     ?>
     <?php
@@ -112,27 +117,6 @@ $clientAccount = $accountTariff->clientAccount;
                 ]
             ) ?>
         </div>
-        <script type='text/javascript'>
-            $(function () {
-                $("#changeTariffButton<?= $id ?>").on("click", function (e, item) {
-                    // @todo еще надо отлавливать сабмит формы enter, но не путать с closeTariffButton. Можно и не делать здесь - достаточно в контроллере
-                    if ($("#accountTariffTariffPeriod<?= $id ?>").val() == $(this).data('old-tariff-period-id')) {
-                        alert("Нет смысла менять тариф на тот же самый. Выберите другой тариф.");
-                        return false;
-                    }
-                });
-                $("#closeTariffButton<?= $id ?>").on("click", function (e, item) {
-                    return confirm("<?= Html::encode(Yii::t('tariff', 'Are you sure you want to close this tariff?')) ?>");
-                });
-            });
-        </script>
     <?php endif ?>
 
 </div>
-
-<style>
-    table.editLogInput td {
-        vertical-align: top;
-        padding: 0 5px;
-    }
-</style>

@@ -13,7 +13,6 @@
 
 use app\assets\AppAsset;
 use app\classes\uu\filter\AccountTariffFilter;
-use app\classes\uu\model\ServiceType;
 use app\forms\client\ContractEditForm;
 use app\models\ClientAccount;
 use yii\db\ActiveRecord;
@@ -56,11 +55,5 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
     </div>
 
     <?= $this->render('block/style'); ?>
-
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('.select2').select2();
-        });
-    </script>
 </div>
 

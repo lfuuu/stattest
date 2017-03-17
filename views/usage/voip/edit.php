@@ -1,23 +1,23 @@
 <?php
 
-use app\assets\AppAsset;
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
-use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
-use kartik\datecontrol\DateControl;
-use yii\helpers\Url;
-use app\models\User;
+use app\models\Number;
 use app\models\TariffVoip;
 use app\models\TariffVoipPackage;
-use app\models\Number;
+use app\models\User;
 use app\widgets\DateControl as CustomDateControl;
-use app\classes\DateTimeWithUserTimezone;
+use kartik\builder\Form;
+use kartik\datecontrol\DateControl;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $usage \app\models\UsageVoip */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
+/** @var \app\classes\BaseView $this */
 
 $types = \app\classes\uu\model\Tariff::getVoipTypesByCountryId();
 
@@ -57,10 +57,6 @@ $model->tariff_group_russia_price == $model->tariffGroupRussiaPrice && $model->t
 $model->tariff_group_local_mob_price == $model->tariffGroupLocalMobPrice && $model->tariff_group_local_mob_price  = null;
 $model->tariff_group_intern_price == $model->tariffGroupInternPrice && $model->tariff_group_intern_price = null;
 
-
-
-
-
 echo Html::formLabel('Редактирование номера');
 echo Breadcrumbs::widget([
     'links' => [
@@ -77,6 +73,8 @@ echo Breadcrumbs::widget([
 <div class="well">
     <?php
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+
+    $this->registerJsVariable('editFormId', $form->getId(), 'usage');
 
     echo Form::widget([
         'model' => $model,
@@ -234,16 +232,6 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 
-    <script>
-        function submitForm(scenario) {
-            $('#scenario').val(scenario);
-            $('#<?=$form->getId()?>')[0].submit();
-            $('.form-reload').change(function() {
-                submitForm('default');
-            });
-        }
-    </script>
-
     <h2>История тарифов:</h2>
     <table class="table table-condensed table-striped table-bordered">
         <thead>
@@ -332,8 +320,9 @@ echo Breadcrumbs::widget([
 
     <h2>Изменить тариф:</h2>
     <?php
-
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+
+    $this->registerJsVariable('tariffEditFormId', $form->getId(), 'usage');
 
     echo Form::widget([
         'model' => $model,
@@ -492,17 +481,6 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 </div>
-
-<script>
-    function submitForm2(scenario) {
-        $('#scenario2').val(scenario);
-        $('#<?=$form->getId()?>')[0].submit();
-    }
-    $('.form-reload2').change(function(e) {
-        submitForm2('default');
-    });
-</script>
-
 
 <h2>Подключенные пакеты:</h2>
 <table class="table table-condensed table-striped table-bordered">

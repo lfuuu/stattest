@@ -1,0 +1,11 @@
+.ui-autocomplete-loading {
+    background: white url('/images/ajax-loader-small.gif') right center no-repeat;
+}
+.ui-autocomplete {
+    max-height: 145px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.ui-menu-item {
+    white-space: nowrap;
+}

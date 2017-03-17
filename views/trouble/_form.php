@@ -152,6 +152,7 @@ if ($curtype) {
     <?= Html::endForm() ?>
 </div>
 
+<!-- Из-за способа подключения данной view в старом коде, на данный момент нет возможности выкинуть отсюда JS -->
 <script>
     $('select[name="timing"]').on('change', function () {
         var div = $('#timing-' + $(this).val());

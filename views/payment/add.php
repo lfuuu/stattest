@@ -1,4 +1,8 @@
 <?php
+
+/** @var $client ClientAccount */
+/** @var $model PaymentForm */
+
 use app\classes\Html;
 use yii\widgets\Breadcrumbs;
 use kartik\widgets\ActiveForm;
@@ -7,9 +11,6 @@ use app\models\ClientAccount;
 use app\forms\buh\PaymentForm;
 use app\models\Currency;
 use app\models\Payment;
-use kartik\widgets\DatePicker;
-/** @var $client ClientAccount */
-/** @var $model PaymentForm */
 
 echo Html::formLabel('Новый платеж');
 echo Breadcrumbs::widget([
@@ -94,49 +95,3 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 </div>
-<script>
-    $('#payment_original_currency').on('change', function(){
-        var originalCurrency = $('#payment_original_currency').val();
-        var currency = $('#payment_currency').val();
-        $.get('/currency/get-rate', {from:originalCurrency,to:currency}, function(data) {
-            $('#payment_rate').val(data);
-            $('#payment_rate').trigger('change');
-        })
-    });
-    $('#payment_original_sum').on('change', function(){
-        var originalSum = $('#payment_original_sum').val();
-        var paymentRate = $('#payment_rate').val();
-        var sum = originalSum / paymentRate;
-        $('#payment_sum').val(sum.toFixed(2));
-    });
-    $('#payment_sum').on('change', function(){
-        var originalSum = $('#payment_original_sum').val();
-        var sum = $('#payment_sum').val();
-        var paymentRate = originalSum / sum;
-        $('#payment_rate').val(paymentRate.toFixed(4));
-    });
-    $('#payment_rate').on('change', function(){
-        var originalSum = $('#payment_original_sum').val();
-        var paymentRate = $('#payment_rate').val();
-        var sum = originalSum / paymentRate;
-        $('#payment_sum').val(sum.toFixed(2));
-    });
-    $('#payment_type').on('change', function(){
-        var type = $('#payment_type').val();
-
-        if (type == 'bank') {
-            $('#payment_bank').removeAttr('disabled');
-        } else {
-            $('#payment_bank').attr('disabled','disabled');
-        }
-
-        if (type == 'ecash') {
-            $('#payment_ecash').removeAttr('disabled');
-        } else {
-            $('#payment_ecash').attr('disabled','disabled');
-        }
-    });
-
-    $('#payment_original_currency').trigger('change');
-    $('#payment_type').trigger('change');
-</script>

@@ -12,7 +12,7 @@ use kartik\widgets\ActiveForm;
 /** @var \app\forms\client\AccountEditForm $model */
 ?>
 
-<div style="width: 1100px;">
+<div class="max-screen">
     <div class="row">
         <div class="col-sm-3">
             <?= $f->field($model, 'region')->dropDownList(Region::getList(), ['class' => 'select2']) ?>
@@ -20,10 +20,16 @@ use kartik\widgets\ActiveForm;
         <div class="col-sm-3">
             <?= $f->field($model, 'timezone_name')->dropDownList(Region::getTimezoneList()) ?>
         </div>
-        <div class="col-sm-3"><?= $f->field($model, 'is_postpaid')->checkbox()->label('') ?></div>
-        <div class="col-sm-3"><?= $f->field($model, 'effective_vat_rate')->textInput([
-                'disabled' => 'disabled',
-            ]) ?></div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'is_postpaid')->checkbox()->label('') ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'effective_vat_rate')
+                ->textInput([
+                    'disabled' => 'disabled',
+                ])
+            ?>
+        </div>
     </div>
 
     <div class="row">

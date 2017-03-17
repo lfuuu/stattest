@@ -1,15 +1,16 @@
 <?php
 
+use app\assets\TinymceAsset;
+use app\classes\Html;
 use app\models\document\DocumentFolder;
+use app\models\document\DocumentTemplate;
+use app\widgets\JQTree\JQTreeInput;
+use kartik\widgets\ActiveForm;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
-use app\widgets\JQTree\JQTreeInput;
-use yii\data\ActiveDataProvider;
-use app\classes\Html;
-use app\models\document\DocumentTemplate;
 
-\app\assets\TinymceAsset::register(Yii::$app->view);
+TinymceAsset::register(Yii::$app->view);
 
 $cancelUrl = Url::toRoute(['/templates/document/template']);
 
@@ -307,18 +308,3 @@ $f["name"] . "<br/> Юридический адрес: " . $f["address"] .
         </td>
     </tr>
 </table>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        tinymce.init({
-            selector: "textarea",
-            relative_urls: false,
-            plugins: [
-                "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen",
-                "insertdatetime media table contextmenu paste"
-            ],
-            toolbar: "insertfile undo redo | styleselect fontsizeselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
-        });
-    });
-</script>

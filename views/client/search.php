@@ -1,7 +1,6 @@
 <?php
 use app\classes\grid\GridView;
 use app\models\ClientAccount;
-
 ?>
 
 <div class="row">
@@ -48,17 +47,5 @@ use app\models\ClientAccount;
             ],
         ]);
         ?>
-
-        <script type="application/javascript">
-            $('body').on('click', '.grid-view tbody tr', function () {
-                location.href = '/client/view?id=' + $(this).data('key');
-            });
-        </script>
-
-        <style>
-            .grid-view tbody tr {
-                cursor: pointer;
-            }
-        </style>
     </div>
 </div>

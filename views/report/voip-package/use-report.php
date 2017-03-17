@@ -2,7 +2,6 @@
 
 use app\helpers\DateTimeZoneHelper;
 use yii\widgets\Breadcrumbs;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use kartik\daterange\DateRangePicker;
 use kartik\widgets\Select2;
@@ -12,6 +11,7 @@ use app\models\UsageVoipPackage;
 
 /** @var UsageVoipPackage[] $packages */
 /** @var DynamicModel $filter */
+/** @var \app\classes\BaseView $this */
 
 echo Html::formLabel('Отчет по использованию Телефония Пакеты');
 
@@ -34,6 +34,11 @@ foreach ($packages as $package) {
             (new DateTime($package->actual_to))->format(DateTimeZoneHelper::DATE_FORMAT),
     ];
 }
+
+$this->registerJsVariables([
+    'packageList' => $packagesList,
+    'packageSelected' => (isset($filter->packages) ? $filter->packages : -1),
+]);
 ?>
 
 <?php if($clientAccount): ?>
@@ -122,7 +127,7 @@ foreach ($packages as $package) {
 
             </div>
             <div class="col-sm-12 text-center">
-                <div class="alert alert-danger" style="display:none;">На номере отсутствуют пакеты</div>
+                <div class="alert alert-danger collapse">На номере отсутствуют пакеты</div>
                 <?php
                 echo Html::submitButton('Сформировать', ['class' => 'btn btn-primary build-report', 'disabled' => true]);
                 ?>
@@ -140,61 +145,3 @@ foreach ($packages as $package) {
     }
     ?>
 <?php endif; ?>
-
-<script type="text/javascript">
-var
-    packageList = <?= json_encode($packagesList); ?>,
-    packageSelected = <?= (isset($filter->packages) ? $filter->packages : -1); ?>;
-
-jQuery(document).ready(function() {
-    $('select[name="filter[number]"]')
-        .on('change', function() {
-            var
-                current = $(this).find('option:selected').val(),
-                packages = $('select[name="filter[packages]"]'),
-                mode = $('select[name="filter[mode]"]').val(),
-                $buildBtn = $('button.build-report');
-
-            packages.find('option:gt(0)').remove();
-
-            if (current) {
-                if (packageList[current]) {
-                    $.each(packageList[current], function () {
-                        $('<option />')
-                            .text(this.packageTitle)
-                            .val(this.packageId)
-                            .prop('selected', this.packageId == packageSelected)
-                            .appendTo(packages);
-                    });
-                }
-
-                if (packages.find('option').length > 1) {
-                    $buildBtn
-                        .prop('disabled', false)
-                        .prev('div')
-                        .hide();
-                }
-                else {
-                    $buildBtn
-                        .prop('disabled', true)
-                        .prev('div')
-                        .show();
-                }
-            }
-        })
-        .trigger('change');
-
-    $('select[name="filter[mode]"]')
-        .on('change', function() {
-            var current = $(this).find('option:selected').val(),
-                packages = $('select[name="filter[packages]"]');
-
-            packages.find('option:eq(0)').prop('disabled', (current == 'by_package_calls' ? true : false));
-
-            if (!packageSelected) {
-                packages.find('option:gt(0)').prop('selected', true);
-            }
-        })
-        .trigger('change');
-});
-</script>

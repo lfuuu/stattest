@@ -299,17 +299,3 @@ foreach ($result as $monthKey => $month):
         </tbody>
     </table>
 <?php endforeach; ?>
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    $('a.bill-info')
-        .hover(
-            function() {
-                $('div[data-bill="' + $(this).data('bill') + '"]').css('background-color', '#D0D0D0');
-            },
-            function() {
-                $('div[data-bill="' + $(this).data('bill') + '"]').css('background-color', 'inherit');
-            }
-        )
-});
-</script>

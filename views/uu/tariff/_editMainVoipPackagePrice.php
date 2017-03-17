@@ -23,16 +23,6 @@ if (!$packagePrices) {
     // нет моделей, но виджет для рендеринга их обязательно требует
     // поэтому рендерим дефолтную модель и сразу ж ее удаляем
     $packagePrices = [$packagePrice];
-    ?>
-    <script type='text/javascript'>
-        $(function () {
-            $(".package-price .multiple-input")
-                .on("afterInit", function () {
-                    $(this).multipleInput('remove');
-                });
-        });
-    </script>
-    <?php
 }
 $destinationList = Destination::getList(true);
 

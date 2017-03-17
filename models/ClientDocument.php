@@ -58,6 +58,7 @@ class ClientDocument extends ActiveRecord
             'contract_no' => '№',
             'contract_date' => 'Дата',
             'comment' => 'Комментарий',
+            'content' => 'Содержание',
             'user' => 'Кто добавил',
             'ts' => 'Когда',
             'is_external' => 'Внут/Внеш',

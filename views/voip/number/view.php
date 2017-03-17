@@ -1,12 +1,14 @@
 <?php
+
+/** @var $number app\models\Number */
+/** @var \app\classes\BaseView $this */
+
+use app\classes\Html;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\Number;
 use app\models\NumberLog;
 use kartik\widgets\ActiveForm;
-use app\classes\Html;
-use app\helpers\DateTimeZoneHelper;
-/** @var $number app\models\Number */
-
 
 echo app\classes\Html::formLabel($this->title = 'Номер '. $number->number);
 
@@ -65,6 +67,9 @@ echo \yii\widgets\Breadcrumbs::widget([
 
             <?php
             $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+
+            $this->registerJsVariable('numberFormId', $form->getId());
+
             echo Html::activeHiddenInput($actionForm, 'scenario', ['id' => 'scenario']);
             echo Html::activeHiddenInput($actionForm, 'did');
             echo Html::activeHiddenInput($actionForm, 'client_account_id');
@@ -200,23 +205,3 @@ echo \yii\widgets\Breadcrumbs::widget([
         </td>
     </tr>
 </table>
-
-
-
-<script>
-    function numberSubmitForm(scenario) {
-        $('#scenario').val(scenario);
-        $('#<?=$form->getId()?>').submit();
-    }
-
-    function saveTechNumber() {
-        $('#scenario').val('setTechNumber');
-        $('#<?=$form->getId()?>').submit();
-    }
-
-    function numberHoldSubmitForm(hold_month) {
-        $('#scenario').val("startHold");
-        $('#hold_month').val(hold_month);
-        $('#<?=$form->getId()?>').submit();
-    }
-</script>

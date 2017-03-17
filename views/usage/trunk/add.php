@@ -1,16 +1,18 @@
 <?php
+use app\classes\BaseView;
 use app\classes\Html;
-use yii\widgets\Breadcrumbs;
-use yii\helpers\Url;
-use kartik\widgets\ActiveForm;
+use app\models\billing\Trunk;
+use app\models\Region;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
-use app\models\Region;
-use app\models\billing\Trunk;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var \app\models\ClientAccount $clientAccount */
 /** @var \app\forms\usage\UsageTrunkEditForm $model */
 /** @var \app\models\UsageTrunk $usage */
+/** @var BaseView $this */
 
 $trunks = ['' => '-- Выберите Транк -- '] + Trunk::dao()->getList(['serverIds' => $model->connection_point_id]);
 
@@ -30,6 +32,11 @@ echo Breadcrumbs::widget([
 <div class="well">
     <?php
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+
+    $this->registerJsVariables([
+        'editFormI' => $form->getId(),
+        'tariffEditFormId' => '',
+    ], 'usage');
     ?>
 
     <div class="row">
@@ -114,12 +121,3 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 </div>
-<script>
-    function submitForm(scenario) {
-        $('#scenario').val(scenario);
-        $('#<?=$form->getId()?>')[0].submit();
-    }
-    $('.form-reload').change(function() {
-        submitForm('default');
-    });
-</script>

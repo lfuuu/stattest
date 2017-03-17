@@ -1,0 +1,11 @@
+th.pricelist-column {
+    width: 100px;
+}
+th.pricelist-column .th-inner {
+    width: 100px;
+    font-size: 10px;
+}
+td.result-cell {
+    background-color: #F0F0F0;
+    color: #000066;
+}

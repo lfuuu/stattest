@@ -8,7 +8,7 @@ $I = new _WebTester($scenario);
 $I->wantTo('create new LC');
 
 $loginPage = LoginPage::loginAsAdmin($I);
-$I->seeLink("Новый клиент");
+$I->seeLink('Новый клиент');
 
 $cl = NewClientPage::openBy($I);
 
@@ -75,10 +75,9 @@ $data = [
     ]
 ];
 
-
 $cl->createClient($data);
-$I->seeInCurrentUrl("view");
+$I->seeInCurrentUrl('view');
 $I->see($adminEmail);
 //$I->see("Заказ услуг");
 $lastAccount = app\models\ClientAccount::find()->select('max(id)')->scalar();
-$I->seeLink("Договор № " . $lastAccount);
+$I->seeLink('Договор № ' . $lastAccount);

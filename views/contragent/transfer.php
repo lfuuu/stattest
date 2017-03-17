@@ -1,5 +1,6 @@
 <?php
 
+use app\classes\Html;
 use app\forms\contragent\ContragentTransferForm;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
@@ -22,7 +23,7 @@ $form = ActiveForm::begin([
     <tr>
         <th>
             <h2>Контрагент - <?= $contragent->name; ?></h2>
-            <hr size="1" style="margin: 5px;"/>
+            <hr size="1" />
         </th>
     </tr>
     </thead>
@@ -30,10 +31,10 @@ $form = ActiveForm::begin([
     <tr>
         <td valign="middle">
 
-            <div style="overflow-y: scroll; height: 230px; max-height: 230px; background-color: #F0F0F0;">
+            <div class="transfer-block">
                 <div class="col-sm-12">
 
-                    <div class="row contragent-wrap" style="padding-top: 10px; padding-bottom: 10px;">
+                    <div class="row contragent-wrap">
 
                         <table border="0" align="center" width="95%">
                             <colgroup>
@@ -48,10 +49,10 @@ $form = ActiveForm::begin([
                                     <td>
                                         <input type="hidden" name="<?= $model->formName(); ?>[contracts][]" value="<?= $contract->id; ?>"/>
                                         <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>" target="_blank">
-                                                    <span class="c-blue-color">
-                                                        Договор № <?= ($contract->number ? $contract->number : 'Без номера'); ?>
-                                                        (<?= $contract->organization->name; ?>)
-                                                    </span>
+                                            <span class="c-blue-color">
+                                                Договор № <?= ($contract->number ?: 'Без номера'); ?>
+                                                (<?= $contract->organization->name; ?>)
+                                            </span>
                                         </a>
                                     </td>
                                     <td>
@@ -59,14 +60,14 @@ $form = ActiveForm::begin([
                                     </td>
                                     <td>
                                         <?php if ($contract->managerName) : ?>
-                                            <span style="float:left;background: <?= $contract->managerColor ?>;">
-                                                        М: <?= $contract->managerName ?>
-                                                    </span>
+                                            <span class="pull-left" style="background-color: <?= $contract->managerColor ?>;">
+                                                М: <?= $contract->managerName ?>
+                                            </span>
                                         <?php endif; ?>
                                         <?php if ($contract->accountManagerName) : ?>
-                                            <span style="float:right;background: <?= $contract->accountManagerColor ?>;">
-                                                        Ак.М: <?= $contract->accountManagerName ?>
-                                                    </span>
+                                            <span class="pull-right" style="background-color: <?= $contract->accountManagerColor ?>;">
+                                                Ак.М: <?= $contract->accountManagerName ?>
+                                            </span>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -74,10 +75,10 @@ $form = ActiveForm::begin([
                                     <td colspan="3">
                                         <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
                                             <div class="row row-ls">
-                                                        <span class="col-sm-2" style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
-                                                            <input type="hidden" name="<?= $model->formName(); ?>[clients][]" value="<?= $contractAccount->id; ?>"/>
-                                                            <a href="/client/view?id=<?= $contractAccount->id; ?>" target="_blank"><?= $contractAccount->getAccountTypeAndId(); ?></a>
-                                                        </span>
+                                                <span class="col-sm-2 account<?= ($contractAccount->is_active) ? ' active' : '' ?>">
+                                                    <input type="hidden" name="<?= $model->formName(); ?>[clients][]" value="<?= $contractAccount->id; ?>"/>
+                                                    <?= Html::a($contractAccount->getAccountTypeAndId(), ['/client/view', 'id' => $contractAccount->id], ['target' => '_blank']) ?>
+                                                </span>
                                             </div>
                                         <?php endforeach; ?>
                                     </td>
@@ -118,26 +119,16 @@ $form = ActiveForm::begin([
 </table>
 
 <?php if ($model->hasErrors('transfer-error')): ?>
-    <div class="alert alert-danger" style="position: fixed; bottom: 0; left: 20px; margin-bottom: 0px; width: 50%;">
+    <div class="alert alert-danger">
         <?php foreach ($model->getErrors('transfer-error') as $error): ?>
             <b><?= $error; ?></b>
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
 
-<div style="position: fixed; bottom: 8px; right: 15px;">
-    <button type="button" id="dialog-close" style="width: 100px; margin-right: 15px;" class="btn btn-link">Отмена</button>
-    <button type="submit" style="width: 100px;" class="btn btn-primary">OK</button>
+<div class="buttons-block">
+    <button type="button" id="dialog-close" class="btn btn-link">Отмена</button>
+    <button type="submit" class="btn btn-primary">OK</button>
 </div>
 
-<?php
-ActiveForm::end();
-?>
-
-<script type="text/javascript">
-    jQuery(document).ready(function () {
-        $('#dialog-close').click(function () {
-            window.parent.$dialog.dialog('close');
-        });
-    });
-</script>
+<?php ActiveForm::end();

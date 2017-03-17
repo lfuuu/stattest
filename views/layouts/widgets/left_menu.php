@@ -5,17 +5,23 @@ global $module;
 $blocks = $this->context->getNavigationBlocks();
 ?>
 
-<div style="text-align: right">
-    <a href="#" onclick="openAllNavigationBlocks(); $('.btn-toogle-nav-blocks').toggle(); return false;" class="btn-toogle-nav-blocks" style="display: block">Открыть все блоки</a>
-    <a href="#" onclick="closeAllNavigationBlocks(); $('.btn-toogle-nav-blocks').toggle(); return false;" class="btn-toogle-nav-blocks" style="display: none">Закрыть все блоки</a>
+<div class="text-right">
+    <a href="#" class="btn-toogle-nav-blocks" data-action="open">
+        Открыть все блоки
+    </a>
+    <a href="#" class="btn-toogle-nav-blocks collapse" data-action="close">
+        Закрыть все блоки
+    </a>
 </div>
 
 <?php foreach ($blocks as $block): ?>
 
-    <?php if (empty($block->items)) continue; ?>
+    <?php if (!count($block->items)) {
+        continue;
+    } ?>
 
-    <div id="navigation-block-<?=$block->id?>" class="menupanel">
-        <div class="title" onclick="toggleNavigationBlock('navigation-block-<?=$block->id?>')">
+    <div id="navigation-block-<?=$block->id?>" class="menupanel navigation-block">
+        <div class="title">
             <span class="title">
                 <?=$block->title?>
                 <span class="arrow-open">&nbsp;»&nbsp;</span>
@@ -32,8 +38,5 @@ $blocks = $this->context->getNavigationBlocks();
             <?php endforeach; ?>
         </div>
     </div>
-    <?php if (false && $block->id == $module):?>
-        <script>openNavigationBlock('navigation-block-<?=$block->id?>')</script>
-    <?php endif; ?>
+
 <?php endforeach; ?>
-<script>initNavigationBlocks()</script>

@@ -23,10 +23,12 @@ class LoginPage extends BasePage
         $this->actor->click('Войти');
     }
 
+    /**
+     * @param _WebTester $I
+     */
     public static function loginAsAdmin($I)
     {
         $loginPage = LoginPage::openBy($I);
-        $I->see('Введите логин и пароль');
         $loginPage->login('admin', '111');
         $I->seeLink('Выход');
     }

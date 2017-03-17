@@ -18,12 +18,13 @@ use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
-/** @var $clientAccount \app\models\ClientAccount */
-/** @var $usage \app\models\UsageTrunk */
-/** @var $model \app\forms\usage\UsageTrunkEditForm */
-/** @var $origination UsageTrunkSettings[] */
-/** @var $termination UsageTrunkSettings[] */
-/** @var $destination UsageTrunkSettings[] */
+/** @var \app\models\ClientAccount $clientAccount */
+/** @var \app\models\UsageTrunk $usage */
+/** @var \app\forms\usage\UsageTrunkEditForm $model */
+/** @var UsageTrunkSettings[] $origination */
+/** @var UsageTrunkSettings[] $termination */
+/** @var UsageTrunkSettings[] $destination */
+/** @var \app\classes\BaseView $this */
 
 $this->registerJsFile('@web/js/behaviors/usage-trunk-pricelist-link.js', ['depends' => [AppAsset::className()]]);
 
@@ -87,6 +88,11 @@ echo Breadcrumbs::widget([
     <?php
     /** @var ActiveForm $form */
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+
+    $this->registerJsVariables([
+        'editFormId' => $form->getId(),
+        'tariffEditFormId' => '',
+    ], 'usage');
     ?>
 
     <div class="row">
@@ -191,15 +197,6 @@ echo Breadcrumbs::widget([
     echo Html::hiddenInput('scenario', 'default', ['id' => 'scenario']);
     ActiveForm::end();
     ?>
-    <script>
-        function submitForm(scenario) {
-            $('#scenario').val(scenario);
-            $('#<?=$form->getId()?>')[0].submit();
-        }
-        $('.form-reload').change(function () {
-            submitForm('default');
-        });
-    </script>
 
     <?php if ($usage->orig_enabled) : ?>
         <div class="row">

@@ -24,6 +24,7 @@ $this->registerJsFile('@web/js/behaviors/managers_by_contract_type.js', ['depend
 $this->registerJsFile('@web/js/behaviors/organization_by_legal_type.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/show-last-changes.js', ['depends' => [AppAsset::className()]]);
 $this->registerJsFile('@web/js/behaviors/change-doc-template.js', ['depends' => [AppAsset::className()]]);
+$this->registerJsFile('@web/js/behaviors/history-version.js', ['depends' => [AppAsset::className()]]);
 
 $contragents = ClientContragent::find()->andWhere(['super_id' => $model->getModel()->getContragent()->super_id])->all();
 $contragentsOptions = [];
@@ -51,17 +52,17 @@ $docs = $model->model->allDocuments;
 
         <?= $this->render($this->getFormPath('contract', $language), ['model' => $model, 'f' => $f, 'contragents' => $contragents, 'contragentsOptions' => $contragentsOptions]); ?>
 
-        <div class="row" style="width: 1100px;">
+        <div class="row max-screen">
             <div class="row">
                 <div class="col-sm-4">
-                    <div class="col-sm-12" type="textInput">
+                    <div class="col-sm-12">
                         <label class="control-label" for="historyVersionStoredDate">Сохранить на</label>
                         <?= Html::dropDownList('ContractEditForm[historyVersionStoredDate]', null, $model->getModel()->getDateList(),
                             ['class' => 'form-control', 'style' => 'margin-bottom: 20px;', 'id' => 'historyVersionStoredDate']); ?>
                     </div>
                 </div>
                 <div class="col-sm-4">
-                    <div class="col-sm-12" type="textInput">
+                    <div class="col-sm-12">
                         <label class="control-label" for="deferred-date-input">Выберите дату</label>
                         <?= DatePicker::widget(
                             [
@@ -92,30 +93,6 @@ $docs = $model->model->allDocuments;
             <?php endif; ?>
         </div>
         <?php ActiveForm::end(); ?>
-
-        <script>
-            $(function () {
-                $('#deferred-date-input').parent().parent().hide();
-            });
-
-            $('#buttonSave').closest('form').on('submit', function (e) {
-                if ($("#historyVersionStoredDate option:selected").val() == '')
-                    $('#historyVersionStoredDate option:selected').val($('#deferred-date-input').val()).select();
-                return true;
-            });
-
-            $('#historyVersionStoredDate').on('change', function () {
-                console.log(this);
-                var datepicker = $('#deferred-date-input');
-                if ($("option:selected", this).val() == '') {
-                    console.log('picker show');
-                    datepicker.parent().parent().show();
-                }
-                else {
-                    datepicker.parent().parent().hide();
-                }
-            });
-        </script>
     </div>
 
     <?= $this->render('contract/grid', [
@@ -134,8 +111,8 @@ $docs = $model->model->allDocuments;
 
     <?php if ($model->business_id == \app\models\Business::PARTNER) : ?>
         <a name="rewards"></a>
-        <div class="col-sm-12">
-            <div class="row" style="padding:5px 0; color: white; background: black; font-weight: bold; margin-top: 10px; text-align: center;">
+        <div class="col-sm-12 extend-block">
+            <div class="row title">
                 <div class="col-sm-12">Параметры вознаграждения</div>
             </div>
 
@@ -159,73 +136,7 @@ $docs = $model->model->allDocuments;
 </div>
 
 <script type="text/javascript">
-    var
-        documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
-        documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
-
-    jQuery(document).ready(function () {
-        var $businessIdField = $('#contracteditform-business_id'),
-            $changeExternal = $('#change-external');
-
-        var $businessIdField = $('#contracteditform-business_id'),
-            $changeExternal = $('#change-external');
-
-        if ($businessIdField.val() == 3) {
-            $changeExternal.val('external');
-        } else {
-            $changeExternal.val('internal');
-        }
-
-        $businessIdField.on('change', function () {
-            if ($businessIdField.val() == 3) {
-                $changeExternal.val('external');
-            } else {
-                $changeExternal.val('internal');
-            }
-
-            $changeExternal.trigger('change');
-        });
-
-        $changeExternal.on('change', function () {
-            var fields = $('.tmpl-group[data-type="contract"], .tmpl[data-type="contract"], #agreement-block');
-
-            if ($(this).val() == 'internal') {
-                fields.show();
-            } else {
-                fields.hide();
-            }
-        }).trigger('change');
-
-        $('a.show-all').on('click', function () {
-            $(this).parents('table').find('tbody > tr.show-all').toggleClass('hidden');
-            $(this).toggleClass('label-success');
-            return false;
-        });
-
-        $('tr.editable').find('a').on('click', function () {
-            var $fields = $(this).parents('tr').find('td[data-field]')
-            $form = $(this).parents('form');
-
-            $fields.each(function () {
-                var $field = $form.find('[name*="' + $(this).data('field') + '"]'),
-                    $value = $(this).data('value') ? $(this).data('value') : $(this).text();
-
-                $field.val($value).trigger('change');
-            });
-            $form.find('input:eq(2)').trigger('focus');
-
-            return false;
-        });
-
-        $('select[name*="period_type"]').on('change', function () {
-            var $nextInput = $(this).parents('td').next().find('input');
-            if ($(this).val() == 'month') {
-                $nextInput.show();
-            } else {
-                $nextInput.hide();
-            }
-        });
-
-    });
-
+var
+    documentFolders = <?= Json::encode(ClientDocumentDao::getFoldersByDocumentType([ClientDocument::DOCUMENT_AGREEMENT_TYPE])) ?>,
+    documentTemplates = <?= Json::encode(ClientDocumentDao::getTemplates()) ?>;
 </script>

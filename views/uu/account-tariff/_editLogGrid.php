@@ -86,16 +86,4 @@ if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->acco
             }
         ],
     ],
-]) ?>
-
-
-<script type='text/javascript'>
-    $(function () {
-
-        $(".account-tariff-button-cancel")
-            .on("click", function (e, item) {
-                return confirm("Отменить смену тарифа?");
-            });
-
-    });
-</script>
+]);

@@ -1,10 +1,11 @@
 <?php
 
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
 use app\classes\Html;
-use yii\helpers\Json;
 use app\models\UserGroups;
+use kartik\builder\Form;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Json;
+use yii\helpers\Url;
 
 echo Html::formLabel('Создание оператора');
 
@@ -19,10 +20,10 @@ $form = ActiveForm::begin([
         <?php
         $data = Json::decode(Yii::$app->session->get('user_created'));
         ?>
-        <div style="text-align: center;" class="alert alert-success">
-            <div style="font-weight: bold;">
+        <div class="alert alert-success text-center">
+            <div>
                 Оператор
-                <a href="/user/control/edit/?id=<?= $data['id']; ?>" onClick="window.parent.location.href = this.href; return false;">
+                <a href="<?= Url::toRoute(['/user/control/edit', 'id' => $data['id']]) ?>" onClick="window.parent.location.href = this.href; return false;">
                     <?= $data['name']; ?> (<?= $data['user']; ?>)
                 </a><br /><br />
                 успешно создан<br />
@@ -51,7 +52,7 @@ $form = ActiveForm::begin([
         ?>
     <?php endif; ?>
 
-    <div style="position: fixed; bottom: 0; right: 0;">
+    <div class="buttons-block">
         <?php
         echo Form::widget([
             'model' => $model,
@@ -61,27 +62,24 @@ $form = ActiveForm::begin([
                 'actions' => [
                     'type' => Form::INPUT_RAW,
                     'value' =>
-                        '<div class="col-md-12" style="text-align: right; padding-right: 0px;">' .
+                        Html::beginTag('div', ['class' => 'col-md-12 text-right no-right-indent']) .
                         (
                         Yii::$app->session->hasFlash('success')
                             ?
                             Html::button('Ок', [
-                                'class' => 'btn btn-primary',
+                                'class' => 'btn btn-primary save',
                                 'id' => 'dialog-close',
-                                'style' => 'width: 100px;',
                             ])
                             :
                             Html::button('Отмена', [
-                                'class' => 'btn btn-link',
+                                'class' => 'btn btn-link cancel',
                                 'id' => 'dialog-close',
-                                'style' => 'width: 100px; margin-right: 15px;',
                             ]) .
                             Html::submitButton('OK', [
-                                'class' => 'btn btn-primary',
-                                'style' => 'width: 100px;',
+                                'class' => 'btn btn-primary save',
                             ])
                         ) .
-                        '</div>'
+                        Html::endTag('div')
                 ],
             ],
         ]);
@@ -89,15 +87,4 @@ $form = ActiveForm::begin([
     </div>
 </div>
 
-<?php
-ActiveForm::end();
-?>
-
-<script type="text/javascript">
-    jQuery(document).ready(function() {
-        $('#dialog-close').click(function() {
-            window.parent.$dialog.dialog('close');
-            window.parent.location.reload(true);
-        });
-    });
-</script>
+<?php ActiveForm::end();

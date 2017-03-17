@@ -43,4 +43,5 @@ return [
     '{n, plural, one{# entry} other{# entries}}' => '{n, plural, one{# запись} many{# записей} other{# записи}}',
     'Published {n, plural, one{# bill} other{# bills}}' => 'Опубликованно {n, plural, one{# счет} many{# счетов} other{# счета}}',
 
+    'Tasks {count, plural, one{# entry} other{# entries}}' => 'Поручено {count, plural, one{# заявка} many{# заявок} other{# заявки}}',
 ];

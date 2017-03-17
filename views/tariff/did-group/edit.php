@@ -2,7 +2,7 @@
 /**
  * Создание/редактирование DID-группы
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var DidGroupForm $formModel
  */
 
@@ -36,6 +36,9 @@ if (!$didGroup->isNewRecord) {
 <div class="well">
     <?php
     $form = ActiveForm::begin();
+
+    $this->registerJsVariable('formId', $form->getId());
+
     $viewParams = [
         'formModel' => $formModel,
         'form' => $form,
@@ -122,12 +125,3 @@ if (!$didGroup->isNewRecord) {
 
     <?php ActiveForm::end(); ?>
 </div>
-
-<script>
-    jQuery(document).ready(function () {
-        $('.formReload').on('change', function () {
-            $('#isFake').val(1);
-            document.getElementById('<?= $form->getId()?>').submit();
-        });
-    });
-</script>

@@ -1,0 +1,7 @@
+.grid-view tbody tr {
+    cursor: pointer;
+}
+
+.tr-mouseover{
+    background: #CCC !important;
+}

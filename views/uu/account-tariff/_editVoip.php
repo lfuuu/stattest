@@ -6,6 +6,7 @@
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  */
 
+use app\assets\AppAsset;
 use app\classes\Html;
 use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
@@ -21,6 +22,7 @@ $clientAccount = $formModel->accountTariff->clientAccount;
 $accountTariffVoip = new AccountTariffVoip();
 $accountTariffVoip->voip_country_id = $clientAccount->country_id;
 
+$this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset::className()]]);
 ?>
 
 <?php $form = ActiveForm::begin([
@@ -182,6 +184,4 @@ $accountTariffVoip->voip_country_id = $clientAccount->country_id;
 </div>
 
 
-<?php ActiveForm::end(); ?>
-
-<script type="text/javascript" src="/js/uu/accountTariffEdit.js"></script>
+<?php ActiveForm::end();

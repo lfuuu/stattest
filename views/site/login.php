@@ -1,7 +1,6 @@
 <?php
 use app\classes\Html;
 use app\assets\AppAsset;
-use \yii\widgets\ActiveForm;
 
 /* @var $this app\classes\BaseView */
 /* @var $content string */
@@ -10,68 +9,70 @@ AppAsset::register($this);
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>">
-<head>
-    <meta charset="<?= Yii::$app->charset ?>"/>
-    <base href="/" />
-    <?= Html::csrfMetaTags() ?>
-    <title><?= Html::encode($this->title) ?></title>
-    <?php $this->head() ?>
-</head>
-<body>
-<?php $this->beginBody() ?>
+    <head>
+        <meta charset="<?= Yii::$app->charset ?>"/>
+        <base href="/" />
+        <?= Html::csrfMetaTags() ?>
+        <title><?= Html::encode($this->title) ?></title>
+        <?php $this->head() ?>
+    </head>
+    <body>
+    <?php $this->beginBody() ?>
 
-<div style="width: 350px; margin: 0 auto; padding-top: 50px">
-    <div style="text-align: center">
-        <div class="site_caption" style="float: none; display: inline">
-            <a href="/" class="logo"></a>
-            <div class="message">Сервер статистики</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-md-4 col-md-offset-4">
+                <div class="account-wall">
+                    <div class="text-center site_caption">
+                        <a href="/" class="logo"></a>
+                        <div class="message">Сервер статистики</div>
+                    </div>
+
+                    <?php
+                    if ($model->hasErrors()) : ?>
+                        <?php $errors = $model->getErrors(); ?>
+                        <div class="alert alert-danger text-center error-block">
+                            <?php foreach ($errors as $errorGroup) : ?>
+                                <?php foreach ($errorGroup as $error) : ?>
+                                    <?= $error; ?><br />
+                                <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php
+                    echo Html::beginForm('', '', ['class' => 'form-signin']);
+
+                    echo Html::activeTextInput(
+                        $model, 'username', [
+                            'id' => 'username',
+                            'class' => 'form-control',
+                            'placeholder' => 'Логин',
+                            'autofocus' => 'true',
+                        ]
+                    );
+                    echo Html::activePasswordInput(
+                        $model, 'password', [
+                            'class' => 'form-control',
+                            'placeholder' => 'Пароль',
+                        ]
+                    );
+                    echo Html::submitButton(
+                        'Войти', [
+                            'class' => 'btn btn-primary btn-block'
+                        ]
+                    );
+
+                    echo Html::endForm();
+                    ?>
+
+                </div>
+            </div>
         </div>
     </div>
 
-    <?= Html::beginForm() ?>
-    <div style="width: 350px; text-align: center">
-        <h2>Operator login</h2>
-        <table cellSpacing=4 cellPadding=2 width="100%" border=0 style="border: 1px solid #E0E0E0; background-color: #F7F7F7;">
-            <tr>
-                <td colspan="2">
-                    <?php
-                    foreach ($model->getErrors() as $errorGroup) {
-                        foreach ($errorGroup as $error) {
-                            echo "<b style='color:red'>" . $error . '</b><br/>';
-                        }
-                    }
-                    ?>
-                    <h3>Введите логин и пароль:</h3>
-                </td>
-            </tr>
-            <tr>
-                <td width="30%">Логин:</td>
-                <td width="70%">
-                    <?= Html::activeTextInput($model, 'username', ['id'=>'username']) ?>
-                </td>
-            </tr>
-            <tr>
-                <td width="30%">Пароль:</td>
-                <td width="70%">
-                    <?= Html::activePasswordInput($model, 'password') ?>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" align=right>
-                    <input type=submit value='Войти' style="margin-right: 35px;">
-                </td>
-            </tr>
-        </table>
-    </div>
-    <?= Html::endForm() ?>
-</div>
-
-<script>
-    document.getElementById("username").focus();
-</script>
-
-<?php $this->endBody() ?>
-</body>
+    <?php $this->endBody() ?>
+    </body>
 </html>
 <?php $this->endPage() ?>
 

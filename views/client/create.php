@@ -1,6 +1,7 @@
 <?php
 
 /** @var $this \app\classes\BaseView */
+/** @var \app\models\ClientContragent $contragent */
 
 use app\assets\AppAsset;
 use app\classes\Html;
@@ -20,34 +21,25 @@ $contragent->formLang = $language;
 
         <?php $f = ActiveForm::begin(); ?>
 
-        <div class="row" style="width: 1100px;">
+        <div class="row max-screen">
             <div class="col-sm-6">
                 <?= $f->field($account, 'admin_email', ['options' => ['style' => 'width: 100%']]); ?>
             </div>
         </div>
-<?php
 
-foreach (['contragent', 'contract', 'account'] as $formName) {
-    echo $this->render($this->getFormPath($formName, $language), ['model' => $$formName, 'f' => $f]);
-}
+        <?php
+        foreach (['contragent', 'contract', 'account'] as $formName) {
+            $formModel = $$formName;
+            echo $this->render($this->getFormPath($formName, $language), ['model' => $formModel, 'f' => $f]);
+        }
+        ?>
 
-?>
-        <div class="row" style="width: 1100px;">
+        <div class="row max-screen">
             <div class="col-sm-12 form-group">
                 <?= Html::button('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'name' => 'save']); ?>
             </div>
         </div>
 
         <?php ActiveForm::end(); ?>
-
-
-        <script>
-            $('#buttonSave').closest('form').on('submit', function (e) {
-                $('#type-select .btn').not('.btn-primary').each(function () {
-                    $($(this).data('tab')).remove();
-                });
-                return true;
-            });
-        </script>
     </div>
 </div>

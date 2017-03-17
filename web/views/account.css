@@ -1,0 +1,26 @@
+#historyVersionStoredDate {
+    margin-bottom: 20px;
+}
+
+div.extend-block .title {
+    padding: 5px 0;
+    color: white;
+    background: black;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+}
+
+div.extend-block .record {
+    padding: 5px 0;
+    border-top: 1px solid black;
+}
+
+div.extend-block .record.active {
+    color: #CCC;
+}
+
+div.extend-block .record a img.left-top-indent {
+    margin-left: -2px;
+    margin-top: -3px
+}

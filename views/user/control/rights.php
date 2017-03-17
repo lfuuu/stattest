@@ -1,14 +1,17 @@
 <?php
 
-use yii\helpers\ArrayHelper;
+/** @var UserForm $model */
+/** @var \app\classes\BaseView $this */
+
 use app\forms\user\UserForm;
 use app\models\UserRight;
-
-/** @var UserForm $model */
+use yii\helpers\ArrayHelper;
 
 $groupRights = ArrayHelper::map($model->initModel->groupRights, 'resource', 'access');
 $userRights = ArrayHelper::map($model->initModel->userRights, 'resource', 'access');
 $realRights = ArrayHelper::merge($groupRights, $userRights);
+
+$this->registerJsVariable('groupRights', $groupRights);
 ?>
 
 <legend>
@@ -23,13 +26,13 @@ $realRights = ArrayHelper::merge($groupRights, $userRights);
                 <col width="60%" />
             </colgroup>
             <?php foreach ($group as $groupItemKey => $item): ?>
-                <tr><td colspan="2" style="padding-top: 20px;"></td></tr>
-                <tr style="border-bottom: 1px solid #E5E5E5;">
+                <tr><td colspan="2" class="group-indent"></td></tr>
+                <tr class="group">
                     <td valign="top">
-                        <span style="font-weight: bold; font-size: 14px; padding-left: 15px;"><?= $item['comment'] . ' (' . $groupItemKey . ')'; ?></span>
+                        <span class="title"><?= $item['comment'] . ' (' . $groupItemKey . ')'; ?></span>
                     </td>
                     <td valign="top">
-                        <div style="margin-bottom: 10px;">
+                        <div class="rights-indent">
                             <input
                                 name="rights_radio[<?= $groupItemKey; ?>]"
                                 type="radio"
@@ -37,7 +40,7 @@ $realRights = ArrayHelper::merge($groupRights, $userRights);
                                 value="default"
                                 data-group="<?= $groupItemKey; ?>"
                                 <?= (!isset($userRights[$groupItemKey]) ? ' checked="checked"' : ''); ?> />
-                            <label style="font-size: 9px;vertical-align: top; line-height: 18px;">Стандартный</label>
+                            <label>Стандартный</label>
                             <input
                                 name="rights_radio[<?= $groupItemKey; ?>]"
                                 type="radio"
@@ -45,7 +48,7 @@ $realRights = ArrayHelper::merge($groupRights, $userRights);
                                 class="rights_mode"
                                 data-group="<?= $groupItemKey; ?>"
                                 <?= (isset($userRights[$groupItemKey]) ? ' checked="checked"' : ''); ?> />
-                            <label style="font-size: 9px;vertical-align: top; line-height: 18px;">Особый</label>
+                            <label>Особый</label>
                         </div>
                         <?php foreach ($item['values'] as $num => $value): ?>
                             <?php
@@ -73,40 +76,3 @@ $realRights = ArrayHelper::merge($groupRights, $userRights);
         </table>
     <?php endforeach; ?>
 </div>
-
-<style type="text/css">
-.disabled-label {
-    color: #CCCCCC;
-}
-</style>
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    var $groupRights = $.parseJSON('<?= json_encode($groupRights); ?>');
-
-    $('.rights_mode')
-        .on('click', function() {
-            var mode = $(this).val(),
-                group = $(this).data('group'),
-                inputs = $('input[id^="' + group + '"]'),
-                labels = $('label[for^="' + group + '"]');
-
-            if (mode == 'custom') {
-                inputs.prop('disabled', false);
-                labels.toggleClass('disabled-label');
-            }
-            else {
-                inputs
-                    .prop('checked', false)
-                    .prop('disabled', true);
-                labels.toggleClass('disabled-label');
-
-                if ($groupRights[group]) {
-                    var values = $groupRights[group].split(',');
-                    for (var i=0,s=values.length; i<s; i++) {
-                        inputs.filter('[value="' + values[i] + '"]').prop('checked', true);
-                    }
-                }
-            }
-        });
-});
-</script>

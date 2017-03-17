@@ -2,10 +2,14 @@
 
 namespace app\classes;
 
+use app\assets\AppAsset;
 use app\models\Language as LanguageModel;
 use app\classes\Language as LanguageClasses;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
+use yii\helpers\Json;
 use yii\web\AssetBundle;
 use yii\web\View;
 
@@ -15,6 +19,46 @@ use yii\web\View;
  */
 class BaseView extends View
 {
+
+    const ASSET_FRONTEND_DIR = '/views';
+
+    private $_viewFile;
+    private $_jsVariables = [];
+
+    /**
+     * @return string
+     */
+    protected function renderHeadHtml()
+    {
+        // Регистрация frontend переменных
+        if (count($this->_jsVariables)) {
+            $this->registerJs('var frontendVariables = ' . Json::encode($this->_jsVariables), self::POS_HEAD);
+        }
+
+        return parent::renderHeadHtml();
+    }
+
+    /**
+     * @param string $view
+     * @param array $params
+     * @param string $context
+     * @return string
+     * @throws InvalidParamException
+     */
+    public function render($view, $params = [], $context = null)
+    {
+        $viewFile = $this->findViewFile($view, $context);
+
+        // Убрать путь до каталога с views и последний разделитель каталогов
+        $this->_viewFile = ltrim(str_replace(Yii::$app->getViewPath(), '', $viewFile), DIRECTORY_SEPARATOR);
+        // Убрать расширение PHP скриптов
+        $this->_viewFile = str_replace('.' . $this->defaultExtension, '', $this->_viewFile);
+
+        // Регистрация frontend файлов
+        $this->_loadFrontend();
+
+        return $this->renderFile($viewFile, $params, $context);
+    }
 
     /**
      * добавлен только 'basePath' => '@webroot'
@@ -64,6 +108,28 @@ class BaseView extends View
     }
 
     /**
+     * @param string $name
+     * @param mixed $value
+     * @param string $viewJsKey
+     * @throws InvalidParamException
+     */
+    public function registerJsVariable($name, $value, $viewJsKey = '')
+    {
+        $sectionKey = empty($viewJsKey) ? $this->_getViewJsKey() : $viewJsKey;
+        $this->_jsVariables[$sectionKey][$name] = $value;
+    }
+
+    /**
+     * @param array $variables
+     * @param string $viewJsKey
+     */
+    public function registerJsVariables(array $variables, $viewJsKey = '')
+    {
+        $sectionKey = empty($viewJsKey) ? $this->_getViewJsKey() : $viewJsKey;
+        $this->_jsVariables[$sectionKey] = array_merge((array)$this->_jsVariables[$sectionKey], $variables);
+    }
+
+    /**
      * Возвращаем путь к view-файлу формы, в зависимости от языка
      *
      * @param string $formName
@@ -74,25 +140,25 @@ class BaseView extends View
     {
         $formLanguage = LanguageModel::LANGUAGE_DEFAULT;
 
-        return $this->getRealFormPath($formName, $formLanguage);
+        return $this->_getRealFormPath($formName, $formLanguage);
         // когда у нас появятся формы на разных языках, в разных странах, этот код понадобится
         /*
         $formLanguage = $language;
 
-        $viewPath = $this->getRealFormPath($formName, $formLanguage);
-        if ($this->isFormExists($viewPath)) {
+        $viewPath = $this->_getRealFormPath($formName, $formLanguage);
+        if ($this->_isFormExists($viewPath)) {
             return $viewPath;
         }
 
         $formLanguage = LanguageClasses::getCurrentLanguage();
-        $viewPath = $this->getRealFormPath($formName, $formLanguage);
-        if ($this->isFormExists($viewPath)) {
+        $viewPath = $this->_getRealFormPath($formName, $formLanguage);
+        if ($this->_isFormExists($viewPath)) {
             return $viewPath;
         }
 
         $formLanguage = LanguageModel::LANGUAGE_DEFAULT;
 
-        return $this->getRealFormPath($formName, $formLanguage);
+        return $this->_getRealFormPath($formName, $formLanguage);
         */
     }
 
@@ -102,7 +168,7 @@ class BaseView extends View
      * @param $path
      * @return bool
      */
-    private function isFormExists($path)
+    private function _isFormExists($path)
     {
         return file_exists(Yii::getAlias($path . '.php'));
     }
@@ -114,9 +180,40 @@ class BaseView extends View
      * @param $language
      * @return string
      */
-    private function getRealFormPath($formName, $language)
+    private function _getRealFormPath($formName, $language)
     {
         return '@app/views/' . $formName . '/' . $language . '/form';
+    }
+
+    /**
+     * @return string
+     */
+    private function _getViewJsKey()
+    {
+        return Inflector::variablize($this->_viewFile);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    private function _loadFrontend()
+    {
+        if (!empty($this->_viewFile)) {
+            $assetViewFile = self::ASSET_FRONTEND_DIR . DIRECTORY_SEPARATOR . $this->_viewFile;
+
+            do {
+                if (file_exists(Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . ($assetJsView = $assetViewFile . '.js'))) {
+                    $this->registerJsFile($assetJsView, ['depends' => [AppAsset::className(),]]);
+                }
+                if (file_exists(Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . ($assetCssView = $assetViewFile . '.css'))) {
+                    $this->registerCssFile($assetCssView, ['depends' => [AppAsset::className(),]]);
+                }
+
+                $parts = explode(DIRECTORY_SEPARATOR, trim($assetViewFile, DIRECTORY_SEPARATOR));
+                $parts = array_slice($parts, 0, count($parts) - 1);
+                $assetViewFile = implode(DIRECTORY_SEPARATOR, $parts);
+            } while (count($parts));
+        }
     }
 
 }

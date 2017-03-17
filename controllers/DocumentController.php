@@ -1,19 +1,24 @@
 <?php
 namespace app\controllers;
 
+use app\classes\Assert;
+use app\classes\BaseController;
+use app\classes\documents\DocumentReportFactory;
+use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientDocument;
 use Yii;
-use app\classes\BaseController;
 use yii\base\Exception;
+use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
-use app\models\Bill;
-use app\classes\documents\DocumentReportFactory;
-use app\classes\Assert;
 
 class DocumentController extends BaseController
 {
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -34,6 +39,10 @@ class DocumentController extends BaseController
         ];
     }
 
+    /**
+     * @param int $id
+     * @throws Exception
+     */
     public function actionActivate($id)
     {
         $model = ClientDocument::findOne($id);
@@ -47,6 +56,9 @@ class DocumentController extends BaseController
         $this->redirect(Yii::$app->request->referrer);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function actionCreate()
     {
         $clientDocument = new ClientDocument();
@@ -56,6 +68,12 @@ class DocumentController extends BaseController
         $this->redirect(Yii::$app->request->referrer);
     }
 
+    /**
+     * @param int $id
+     * @return string
+     * @throws Exception
+     * @throws InvalidParamException
+     */
     public function actionEdit($id)
     {
         $model = ClientDocument::findOne($id);
@@ -72,6 +90,10 @@ class DocumentController extends BaseController
         return $this->render('edit', ['model' => $model]);
     }
 
+    /**
+     * @param int $id
+     * @throws Exception
+     */
     public function actionSend($id)
     {
         $document = ClientDocument::findOne($id);
@@ -116,7 +138,9 @@ class DocumentController extends BaseController
     /**
      * @param string $billNo
      * @param string $docType
-     * @throws Exception
+     * @return string
+     * @throws \Exception
+     * @throws InvalidParamException
      */
     public function actionGetMhtml($billNo, $docType = 'bill')
     {
@@ -133,7 +157,7 @@ class DocumentController extends BaseController
     }
 
     /**
-     * @param $code
+     * @param string $code
      * @throws Exception
      */
     public function actionPrintByCode($code)
@@ -153,6 +177,7 @@ class DocumentController extends BaseController
      * @param int $clientId
      * @return string
      * @throws Exception
+     * @throws InvalidParamException
      */
     public function actionPrintEnvelope($clientId)
     {

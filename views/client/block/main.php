@@ -19,7 +19,9 @@ use yii\helpers\Url;
 
     <div class="row">
         <div class="col-sm-6">
-            <h2 class="c-blue-color" style="margin:0;"><a href="/account/super-client-edit?id=<?= $client->id ?>&childId=<?= $account->id ?>"><?= $client->name ?></a></h2>
+            <h2 class="c-blue-color no-margin">
+                <?= Html::a($client->name, ['/account/super-client-edit', 'id' => $client->id, 'childId' => $account->id ]) ?>
+            </h2>
         </div>
         <div class="col-sm-4" class="c-blue-color">
             <?php if (ApiCore::isAvailable()) : ?>
@@ -30,11 +32,11 @@ use yii\helpers\Url;
                 <?php elseif ($indicator = EventQueueIndicator::findOne(['object' => ClientSuper::tableName(), 'object_id' => $account->super_id])) : ?>
                     <?= $this->render('//layouts/_eventIndicator', ['indicator' => $indicator])?>
                 <?php elseif ($adminEmails = $client->getAdminEmails()) : ?>
-                    <?= $this->render("add_admin_email", ['emails' => $adminEmails, 'account' => $account])?>
+                    <?= $this->render('add_admin_email', ['emails' => $adminEmails, 'account' => $account])?>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
-        <div class="col-sm-2" class="c-blue-color">
+        <div class="col-sm-2 c-blue-color">
             <a href="<?= Url::toRoute(['contragent/create', 'parentId' => $client->id, 'childId' => $account->id]) ?>">
                 <span class="c-blue-color">
                     <i class="glyphicon glyphicon-plus"></i> Новый контрагент
@@ -44,18 +46,21 @@ use yii\helpers\Url;
         <div class="col-sm-12">
             <?php $contragents = $client->contragents;
             foreach ($contragents as $k => $contragent): ?>
-                <div class="row contragent-wrap" id="contragent<?= $contragent->id ?>"
-                     style="padding-top: 10px; border-top: solid #43657d 1px;padding-bottom: 10px;">
-                    <div class="col-sm-5">
+                <div class="row contragent-wrap" id="contragent<?= $contragent->id ?>">
+                    <div class="col-sm-5 title">
                         <a href="<?= Url::toRoute(['contragent/edit', 'id' => $contragent->id, 'childId' => $account->id]) ?>">
-                            <span style="font-size: 18px;" class="c-blue-color"><?= trim($contragent->name) ? $contragent->name : '<i>Не задано</i>' ?></span></a>
+                            <span class="c-blue-color">
+                                <?= trim($contragent->name) ? $contragent->name : '<i>Не задано</i>' ?>
+                            </span>
+                        </a>
                     </div>
-                    <div class="col-sm-5" style="  overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
-                        <span><?= $contragent->address_jur ? $contragent->address_jur : '...' ?></span>
+                    <div class="col-sm-5 address">
+                        <span><?= $contragent->address_jur ?: '...' ?></span>
                     </div>
                     <div class="col-sm-2">
                         <a href="<?= Url::toRoute(['contract/create', 'parentId' => $contragent->id, 'childId' => $account->id]) ?>">
-                            <span class="c-blue-color"><i class="glyphicon glyphicon-plus"></i> Новый договор
+                            <span class="c-blue-color">
+                                <i class="glyphicon glyphicon-plus"></i> Новый договор
                             </span>
                         </a>
                     </div>
@@ -63,11 +68,11 @@ use yii\helpers\Url;
                         <?php $contracts = $contragent->contracts;
                         foreach ($contracts as $contract):
                             ?>
-                            <div class="row contract-block" style="margin-left: 0px;">
+                            <div class="row contract-block">
                                 <div class="col-sm-5">
                                     <a href="<?= Url::toRoute(['contract/edit', 'id' => $contract->id, 'childId' => $account->id]) ?>">
                                         <span class="c-blue-color">
-                                            Договор № <?= $contract->number ? $contract->number : 'Без номера' ?>
+                                            Договор № <?= $contract->number ?: 'Без номера' ?>
                                             (<?= $contract->organization->name ?>)
                                         </span>
                                         &nbsp;
@@ -87,12 +92,12 @@ use yii\helpers\Url;
                                 </div>
                                 <div class="col-sm-4">
                                     <?php if ($contract->managerName) : ?>
-                                        <span style="float:left;background: <?= $contract->managerColor ?>;">
+                                        <span class="pull-left" style="background-color: <?= $contract->managerColor ?>;">
                                             М: <?= $contract->managerName ?>
                                         </span>
                                     <?php endif; ?>
                                     <?php if ($contract->accountManagerName) : ?>
-                                        <span style="float:right;background: <?= $contract->accountManagerColor ?>;">
+                                        <span class="pull-right" style="background-color: <?= $contract->accountManagerColor ?>;">
                                             Ак.М: <?= $contract->accountManagerName ?>
                                         </span>
                                     <?php endif; ?>
@@ -108,7 +113,7 @@ use yii\helpers\Url;
                                     } ?>
                                 </div>
                                 <div class="col-sm-12">
-                                    <?php foreach ($contract->accounts as $ck => $contractAccount): ?>
+                                    <?php foreach ($contract->accounts as $index => $contractAccount): ?>
                                         <?php
                                         $warnings = $contractAccount->voipWarnings;
                                         $contractBlockers = [];
@@ -116,17 +121,19 @@ use yii\helpers\Url;
                                         $lockByCredit = isset($warnings[ClientAccount::WARNING_CREDIT]) || isset($warnings[ClientAccount::WARNING_FINANCE]);
                                         $lockByDayLimit = isset($warnings[ClientAccount::WARNING_LIMIT_DAY]);
                                         ?>
-                                        <div style="position: relative; float: left; top: 5px; left: 5px;<?= ($ck) ? 'margin-top: 10px;' : '' ?>">
-                                            <a href="/account/edit?id=<?= $contractAccount->id ?>"><img src="/images/icons/edit.gif"></a>
+                                        <div class="edit-lnk<?= $index ? ' indent' : '' ?>">
+                                            <a href="<?= Url::toRoute(['/account/edit', 'id' => $contractAccount->id]) ?>">
+                                                <img src="/images/icons/edit.gif" />
+                                            </a>
                                         </div>
                                         <div
-                                                style="position: relative;<?= ($ck) ? 'margin-top: 10px;' : '' ?>"
-                                                onclick="location.href='/client/view?id=<?= $contractAccount->id ?>'"
-                                                class="row row-ls  <?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? 'active-client-mcm' : 'active-client') : ''; ?>">
-                                            <span class="col-sm-2" style="font-weight: bold; color:<?= ($contractAccount->is_active) ? 'green' : 'black' ?>;">
+                                            data-contract-id="<?= $contractAccount->id ?>"
+                                            class="row row-ls<?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? ' active-client-mcm' : ' active-client') : ''; ?><?= $index ? ' indent' : '' ?>"
+                                        >
+                                            <span class="col-sm-2 account-type<?= ($contractAccount->is_active) ? ' active' : '' ?>">
                                                 <?= $contractAccount->getAccountTypeAndId() ?>
                                             </span>
-                                            <span class="col-sm-2" style="font-weight: bold; color:red;">
+                                            <span class="col-sm-2 locks">
                                                 <?php
                                                 $lastLock = false;
 
@@ -186,7 +193,7 @@ use yii\helpers\Url;
                                                 echo implode(' / ', $contractBlockers);
                                                 ?>
                                             </span>
-                                            <span class="col-sm-1" style="text-align: right;">
+                                            <span class="col-sm-1 text-right">
                                                 <?= $contractAccount->regionName ?>
                                             </span>
                                             <span class="col-sm-2 text-right">
@@ -203,7 +210,7 @@ use yii\helpers\Url;
                                                     <?= $contractAccount->credit >= 0 ? 'Кредит: ' . $contractAccount->credit : '' ?>
                                                 </abbr>
                                             </span>
-                                            <span class="col-sm-2 text-right" style="text-align: right;">
+                                            <span class="col-sm-2 text-right">
                                                 <?php if ($contract->business_id == \app\models\Business::OPERATOR) : ?>
                                                     <abbr
                                                             title="Реалтаймовый счетчик стоимости всех входящих звонков по ЛС" class="text-nowrap"
@@ -236,7 +243,7 @@ use yii\helpers\Url;
                                                     </abbr>
                                                 <?php endif; ?>
                                             </span>
-                                            <div class="btn-group" style="float: right; padding-top: 12px;">
+                                            <div class="btn-group pull-right">
                                                 <?php if ($contractAccount->hasVoip) : ?>
                                                     <?php if ($contractAccount->voip_disabled && !isset($warnings[ClientAccount::WARNING_BILL_PAY_OVERDUE])) : ?>
                                                         <button
@@ -250,9 +257,8 @@ use yii\helpers\Url;
                                                     <?php endif; ?>
                                                 <?php endif; ?>
                                                 <button
-                                                        type="button" class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
-                                                        style="width: 120px;padding: 3px 10px;"
-                                                        data-id="<?= $contractAccount->id ?>"
+                                                    type="button" class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
+                                                    data-id="<?= $contractAccount->id ?>"
                                                 >
                                                     <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
                                                 </button>
@@ -277,41 +283,3 @@ use yii\helpers\Url;
         </div>
     </div>
 </div>
-
-<script>
-    $(function () {
-
-        $('.active-client').closest('.contragent-wrap').addClass('active-contragent');
-        $('.active-client-mcm').closest('.contragent-wrap').addClass('active-contragent-mcm');
-
-        $('.set-block').click(function (e) {
-            e.stopPropagation();
-            var id = $(this).data('id');
-            t = $(this);
-            if (confirm('Вы уверены, что хотите ' + t.text().toLowerCase().trim() + ' ЛС № ' + id + '?')) {
-                if (t.hasClass('btn-danger')) {
-                    t.addClass('btn-success').removeClass('btn-danger').text('Заблокировать');
-                } else {
-                    t.addClass('btn-danger').removeClass('btn-success').text('Разблокировать');
-                }
-
-                location.href = '/account/set-block?id=' + id;
-            }
-        });
-
-        $('.set-voip-disabled').click(function (e) {
-            e.stopPropagation();
-            var id = $(this).data('id');
-            t = $(this);
-            if (confirm(t.hasClass('btn-danger') ? 'Выключить локальную блокировку' : 'Включить локальную блокировку')) {
-                if (t.hasClass('btn-danger')) {
-                    t.addClass('btn-success').removeClass('btn-danger').text('Лок. блок.').attr('title', 'Включить локальную блокировку');
-                } else {
-                    t.addClass('btn-danger').removeClass('btn-success').text('Лок. разблок.').attr('title', 'Выключить локальную блокировку');
-                }
-
-                location.href = '/account/set-voip-disable?id=' + id;
-            }
-        });
-    })
-</script>

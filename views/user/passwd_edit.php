@@ -1,8 +1,8 @@
 <?php
 
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
 use app\classes\Html;
+use kartik\builder\Form;
+use kartik\widgets\ActiveForm;
 use yii\helpers\Json;
 
 $session = Yii::$app->session;
@@ -20,13 +20,13 @@ $form = ActiveForm::begin([
 
 <div class="well">
     <?php if ($session->hasFlash('success')): ?>
-        <div style="text-align: center;" class="alert alert-success">
-            <div style="font-weight: bold;">
+        <div class="alert alert-success text-center">
+            <div>
                  Письмо с уведомлением отправлено на <?= $userData['email']; ?>
             </div>
         </div>
-        <div style="text-align: center;" class="alert alert-info">
-            <div style="font-weight: bold;">
+        <div class="alert alert-info text-center">
+            <div>
                 В случае возникновения проблем обращайтесь в службу поддержки
             </div>
         </div>
@@ -45,7 +45,7 @@ $form = ActiveForm::begin([
         ?>
     <?php endif; ?>
 
-    <div style="position: fixed; bottom: 0; right: 0;">
+    <div class="buttons-block">
         <?php
         echo Form::widget([
             'model' => $model,
@@ -55,27 +55,24 @@ $form = ActiveForm::begin([
                 'actions' => [
                     'type' => Form::INPUT_RAW,
                     'value' =>
-                        '<div class="col-md-12" style="text-align: right; padding-right: 0px;">' .
+                        Html::beginTag('div', ['class' => 'col-md-12 text-right no-right-indent']) .
                         (
                             Yii::$app->session->hasFlash('success')
                                 ?
                                     Html::button('Ок', [
-                                        'class' => 'btn btn-primary',
+                                        'class' => 'btn btn-primary save',
                                         'id' => 'dialog-close',
-                                        'style' => 'width: 100px;',
                                     ])
                                 :
                                     Html::button('Отмена', [
-                                        'class' => 'btn btn-link',
+                                        'class' => 'btn btn-link cancel',
                                         'id' => 'dialog-close',
-                                        'style' => 'width: 100px; margin-right: 15px;',
                                     ]) .
                                     Html::submitButton('OK', [
-                                        'class' => 'btn btn-primary',
-                                        'style' => 'width: 100px;',
+                                        'class' => 'btn btn-primary save',
                                     ])
                         ) .
-                        '</div>'
+                        Html::endTag('div')
                 ],
             ],
         ]);
@@ -83,14 +80,4 @@ $form = ActiveForm::begin([
     </div>
 </div>
 
-<?php
-ActiveForm::end();
-?>
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    $('#dialog-close').click(function() {
-        window.parent.$dialog.dialog('close');
-    });
-});
-</script>
+<?php ActiveForm::end();

@@ -1,0 +1,9 @@
+.buttons_block {
+    position: fixed;
+    bottom: 0;
+    right: 15px;
+}
+
+.buttons_block button {
+    width: 100px;
+}

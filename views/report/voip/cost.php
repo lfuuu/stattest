@@ -1,61 +1,8 @@
-<style type="text/css">
-    * {
-        outline: none !important;
-    }
-
-    .fit-container {
-        width: 100%;
-    }
-</style>
-
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#server').change(function (event) {
-            event.preventDefault();
-            ajaxTrunkUpdate();
-        });
-
-        $('#operator').change(function (event) {
-            event.preventDefault();
-            ajaxTrunkUpdate();
-        });
-
-        function ajaxTrunkUpdate()
-        {
-            $.post(
-                '/report/voip/cost-report',
-                {
-                    'operation': 'update_trunks',
-                    'server_id': $('#server').val(),
-                    'operator_id': $('#operator').val()
-                },
-                function(r) {
-                    if (r.status == 'success') {
-                        $('#trunk option').remove();
-
-                        $.each(r.data, function(index, value) {
-                            $('#trunk').append('<option value="' + value.id + '">' + value.text + '</option>');
-                        });
-                        //$('#trunk').select2('data', r.data);
-                    }
-                },
-                'json'
-            );
-        }
-    });
-
-</script>
-
 <?php
-/**
- * Created by PhpStorm.
- * User: alex
- * Date: 12/28/15
- * Time: 1:45 PM
- */
-use app\classes\Html;
 
 /** @var $trunkModel app\models\billing\Trunk */
+
+use app\classes\Html;
 ?>
 
 <div class="filter-head">

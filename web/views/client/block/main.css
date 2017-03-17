@@ -1,0 +1,57 @@
+.contragent-wrap {
+    padding-top: 10px;
+    border-top: 1px solid #43657d;
+    padding-bottom: 10px;
+}
+
+.contragent-wrap .title {
+    font-size: 18px;
+}
+
+.contragent-wrap .address {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.contragent-wrap .contract-block {
+    margin-left: 0;
+}
+
+.contragent-wrap .edit-lnk {
+    position: relative;
+    float: left;
+    top: 5px;
+    left: 5px;
+}
+
+.contragent-wrap .indent {
+    margin-top: 10px;
+}
+
+.contragent-wrap .row-ls {
+    position: relative;
+}
+
+.contragent-wrap .row-ls .account-type {
+    font-weight: bold;
+    color: #000;
+}
+
+.contragent-wrap .row-ls .account-type.active {
+    color: green;
+}
+
+.contragent-wrap .row-ls .locks {
+    font-weight: bold;
+    color:red;
+}
+
+.contragent-wrap .row-ls .btn-group {
+    padding-top: 12px;
+}
+
+.contragent-wrap .row-ls .btn-group button {
+    width: 120px;
+    padding: 3px 10px;
+}

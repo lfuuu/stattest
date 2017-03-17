@@ -1,0 +1,36 @@
+.block-user .menu {
+    position: absolute;
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 0;
+    border-radius: 4px;
+    margin: 0;
+    left: 15px;
+    right: 15px;
+    list-style: none;
+    overflow: hidden;
+    top: 10px;
+    z-index: 9999;
+}
+
+.block-user .menu li {
+    padding: 5px 0;
+}
+
+.block-user .menu li:hover {
+    background: rgb(102, 192, 255);
+}
+
+.block-user .menu li:first-child {
+    border-bottom: rgb(102, 192, 255) 1px solid;
+}
+
+.block-user .menu li:last-child {
+    border-top: rgb(102, 192, 255) 1px solid;
+}
+
+.block-user a.troubles {
+    font-weight: bold;
+    color: #a00000;
+    font-size: 12px;
+}

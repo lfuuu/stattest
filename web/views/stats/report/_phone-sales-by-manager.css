@@ -1,0 +1,39 @@
+.details-link {
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.details-link:hover {
+    text-shadow: 0 0 3px #ccca95;
+    text-decoration: none;
+}
+
+.details-table { width: 100%; }
+
+.details-table td,
+.details-table th {
+    padding: 4px;
+    text-align: center;
+    border-bottom: 1px dotted #ddd;
+}
+
+.details-table tr:nth-child(even) {
+    background-color: #eee;
+}
+
+.sale-report th{
+    text-align: center;
+}
+
+.sale-report td, .sale-report th{
+    padding: 5px;
+}
+
+.sale-report tbody tr:nth-child(2n){
+    background: #e5e5e5;
+}
+
+.sale-report thead, .sale-report tfoot{
+    background: #FFFEBE;
+}

@@ -1,0 +1,8 @@
+div.extend-block .title {
+    padding: 5px 0;
+    color: white;
+    background: black;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+}

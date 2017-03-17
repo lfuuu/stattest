@@ -150,11 +150,3 @@ echo GridView::widget([
     'columns' => $columns,
     'extraButtons' => $extraButtons,
 ]);
-
-?>
-<script type='text/javascript'>
-    $(function () {
-        var $popovers = $('[data-toggle="popover"]');
-        $popovers.length && $popovers.popover();
-    })
-</script>

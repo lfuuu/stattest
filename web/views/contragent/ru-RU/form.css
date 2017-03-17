@@ -1,0 +1,23 @@
+.bottom-indent {
+    margin-bottom: 20px;
+}
+
+.partner-block {
+    width: 100%;
+}
+
+.partner-block .bottom-indent {
+    padding-bottom: 15px;
+}
+
+.partner-block .right-indent {
+    padding-right: 30px;
+}
+
+.block-right-indent {
+    padding-right: 15px;
+}
+
+.block-left-indent {
+    padding-left: 15px;
+}

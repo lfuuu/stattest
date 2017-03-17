@@ -1,7 +1,8 @@
 <?php
+use kartik\typeahead\TypeaheadAsset;
 use yii\helpers\Url;
 
-kartik\typeahead\TypeaheadAsset::register(Yii::$app->getView());
+TypeaheadAsset::register(Yii::$app->getView());
 $request = Yii::$app->request->get();
 ?>
 
@@ -59,75 +60,4 @@ $request = Yii::$app->request->get();
             </div>
         </div>
     </form>
-    <script>
-        var setInput = function () {
-            var el = $('#btn-options .btn-primary');
-            $('#search').attr('placeholder', 'Поиск по ' + el.data('placeholder'));
-            $('#search-type').val(el.data('search'));
-        };
-
-        $(function () {
-            if ($('#search-type').val()) {
-                $('#btn-options .btn:not(.btn-link)').addClass('btn-default').removeClass('btn-primary');
-                $('.btn[data-search="' + $('#search-type').val() + '"]').removeClass('btn-default').addClass('btn-primary');
-                //$('#btn-options .btn-link').click();
-            }
-            setInput();
-
-            var substringMatcher = new Bloodhound({
-                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-                queryTokenizer: Bloodhound.tokenizers.whitespace,
-                remote: {
-                    url: '/search/index?search=%QUERY&searchType=' + $("#search-type").val(),
-                    wildcard: '%QUERY'
-                }
-            });
-
-            $('#search').typeahead({
-                    hint: true,
-                    highlight: true,
-                    minLength: 3,
-                    async: true
-                },
-                {
-                    name: 'search',
-                    display: 'value',
-                    source: substringMatcher,
-                    templates: {
-                        suggestion: function (obj) {
-                            if (obj['type'] == 'bill') {
-                                return '<div style="overflow: hidden; width: 98%;">'
-                                    + '<a href="' + obj['url'] + '" title="Счет № ' + obj['value'] + '">'
-                                    + ' Счет № ' + obj['value']
-                                    + '</a></div>';
-                            }
-                            else {
-                                return '<div style="overflow: hidden; width: 98%;">'
-                                    + '<a href="' + obj['url'] + '" title="' + obj['value'] + '">'
-                                    + '<div style="background:' + obj['color'] + '; width: 16px;height: 16px;display: inline-block;"></div>'
-                                    + ' ' + obj['accountType'] + ' № ' + obj['id']
-                                    + ' ' + obj['value']
-                                    + '</a></div>';
-                            }
-                        }
-                    }
-                });
-        });
-
-        $('#btn-options .btn:not(.btn-link)').on('click', function (e) {
-            e.preventDefault();
-            $('#btn-options .btn:not(.btn-link)').addClass('btn-default').removeClass('btn-primary');
-            $(this).addClass('btn-primary');
-            setInput();
-            $(this).parents('form').trigger('submit');
-        });
-
-        $('#search-form').on('submit', function (e) {
-            if ($('#search').val() == '') {
-                e.preventDefault();
-                return false;
-            }
-        });
-
-    </script>
 </div>

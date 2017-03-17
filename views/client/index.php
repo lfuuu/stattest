@@ -42,7 +42,9 @@ echo Breadcrumbs::widget([
                 </li>
             <?php endforeach; ?>
         </ul>
-        <div style="height: 1px;background-color: #e7e7e7; margin: 5px 0px;"></div>
+
+        <hr size="1" />
+
         <?php
         echo GridView::widget([
                 'dataProvider' => $dataProvider,
@@ -57,65 +59,3 @@ echo Breadcrumbs::widget([
         ?>
     </div>
 </div>
-
-<script>
-    $(function () {
-        var substringMatcherC = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            remote: {
-                url: '/search/index?search=%QUERY&searchType=clients',
-                wildcard: '%QUERY'
-            }
-        });
-
-        $('#searchByCompany').typeahead({
-                hint: true,
-                highlight: true,
-                minLength: 3,
-                async: true
-            },
-            {
-                name: 'states',
-                display: 'value',
-                source: substringMatcherC,
-                templates: {
-                    suggestion: function (obj) {
-                        return '<div>'
-                            + ' ЛС № ' + obj['id']
-                            + ' ' + obj['value']
-                            + '</div>';
-
-                    }
-                }
-            });
-    });
-    $(function () {
-        var substringMatcherC = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            remote: {
-                url: '/search/index?search=%QUERY&searchType=contractNo',
-                wildcard: '%QUERY'
-            }
-        });
-
-        $('#searchByContractNo').typeahead({
-                hint: true,
-                highlight: true,
-                minLength: 3,
-                async: true
-            },
-            {
-                name: 'states',
-                display: 'value',
-                source: substringMatcherC,
-                templates: {
-                    suggestion: function (obj) {
-                        return '<div>' + obj['value'] + '</div>';
-
-                    }
-                }
-            });
-    });
-</script>

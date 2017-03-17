@@ -1,15 +1,16 @@
 <?php
 
-use yii\helpers\Url;
-use yii\widgets\Breadcrumbs;
-use kartik\widgets\ActiveForm;
-use kartik\widgets\DatePicker;
 use app\classes\Html;
 use app\forms\transfer\ServiceTransferForm;
 use app\models\ClientAccount;
+use kartik\widgets\ActiveForm;
+use kartik\widgets\DatePicker;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var ClientAccount $clientAccount */
 /** @var $model ServiceTransferForm */
+/** @var \app\classes\BaseView $this */
 
 echo Html::formLabel('Перенос услуг');
 echo Breadcrumbs::widget([
@@ -26,6 +27,13 @@ echo Breadcrumbs::widget([
     $form = ActiveForm::begin([
         'type' => ActiveForm::TYPE_VERTICAL,
     ]);
+
+    $this->registerJsVariables([
+        'formId' => $form->getId(),
+        'formName' => $model->formName(),
+        'clientAccountId' => $clientAccount->id,
+    ]);
+
     echo Html::activeHiddenInput($model, 'source_account_id');
     echo Html::activeHiddenInput($model, 'target_account_id_custom');
     ?>
@@ -150,73 +158,3 @@ echo Breadcrumbs::widget([
 
     <?php ActiveForm::end() ?>
 </div>
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    var
-        $form = $('#<?= $form->id ?>');
-        formName = '<?= $model->formName() ?>';
-
-    $('a#transfer-select-all').on('click', function() {
-        var $usages = $form.find('input[type="checkbox"]');
-        $usages.prop('checked', !$usages.prop('checked'));
-        $(this).toggleClass('label-success');
-        return false;
-    });
-
-    $('input[name="' + formName + '[actual_custom]"]').on('focus', function() {
-        $(this).prev('input').prop('checked', true);
-    });
-
-    $('input[name="target_account_search"]')
-        .on('keydown', function(e) {
-            if (e.keyCode === $.ui.keyCode.TAB && $(this).autocomplete('instance').menu.active) {
-                e.preventDefault();
-            }
-            if (e.keyCode === $.ui.keyCode.ENTER) {
-                $(this).blur();
-            }
-        })
-        .on('focus', function() {
-            $(this).prev('input').prop('checked', true);
-        })
-        .on('blur', function() {
-            var value = $(this).val();
-            if (value.length && value.test(/^[0-9]+$/)) {
-                $('input[name="<?= $model->formName() ?>[target_account_id_custom]"]').val(value);
-            }
-        })
-        .autocomplete({
-            source: '/transfer/account-search?clientAccountId=<?php echo $clientAccount->id ?>',
-            minLength: 2,
-            focus: function() {
-                return false;
-            },
-            select: function(event, ui) {
-                $('input[name="<?= $model->formName() ?>[target_account_id_custom]"]').val(ui.item.value);
-                $(this).val(ui.item.label);
-                return false;
-            }
-        })
-        .data('autocomplete')._renderItem = function(ul, item) {
-            return $('<li />')
-                .data('item.autocomplete', item)
-                .append('<a title="' + item.full + '">' + item.label + '</a>')
-                .appendTo(ul);
-        };
-});
-</script>
-
-<style type="text/css">
-.ui-autocomplete-loading {
-    background: white url('images/ajax-loader-small.gif') right center no-repeat;
-}
-.ui-autocomplete {
-    max-height: 145px;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-.ui-menu-item {
-    white-space: nowrap;
-}
-</style>

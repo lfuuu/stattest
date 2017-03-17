@@ -1,0 +1,27 @@
+.group-indent {
+    padding-top: 20px;
+}
+
+.group {
+    border-bottom: 1px solid #E5E5E5;
+}
+
+.group .title {
+    font-weight: bold;
+    font-size: 14px;
+    padding-left: 15px;
+}
+
+.group .rights-indent {
+    margin-bottom: 10px;
+}
+
+.group label {
+    font-size: 9px;
+    vertical-align: top;
+    line-height: 18px;
+}
+
+.disabled-label {
+    color: #CCCCCC;
+}

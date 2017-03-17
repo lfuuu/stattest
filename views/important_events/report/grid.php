@@ -1,15 +1,15 @@
 <?php
 
-use yii\data\ActiveDataProvider;
-use app\helpers\DateTimeZoneHelper;
-use app\classes\Html;
-use app\classes\grid\GridView;
-use app\classes\important_events\ImportantEventsDetailsFactory;
 use app\classes\grid\column\important_events\ClientColumn;
 use app\classes\grid\column\important_events\EventNameColumn;
 use app\classes\grid\column\important_events\SourceColumn;
 use app\classes\grid\column\universal\TagsColumn;
+use app\classes\grid\GridView;
+use app\classes\Html;
+use app\classes\important_events\ImportantEventsDetailsFactory;
+use app\helpers\DateTimeZoneHelper;
 use app\models\important_events\ImportantEvents;
+use yii\data\ActiveDataProvider;
 
 /** @var ActiveDataProvider $dataProvider */
 /** @var ImportantEvents $filterModel */
@@ -27,10 +27,10 @@ echo GridView::widget([
         [
             'class' => 'kartik\grid\ExpandRowColumn',
             'width' => '50px',
-            'value' => function ($model, $key, $index, $column) {
+            'value' => function () {
                 return GridView::ROW_COLLAPSED;
             },
-            'detail' => function ($model, $key, $index, $column) {
+            'detail' => function ($model) {
                 return $this->render('details', ['model' => $model]);
             },
             'headerOptions' => ['class' => 'kartik-sheet-style'],
@@ -59,7 +59,7 @@ echo GridView::widget([
                     'style' => 'font-size: 12px; height: 30px;',
                 ],
             ]),
-            'value' => function ($model, $key, $index, $column) {
+            'value' => function ($model) {
                 return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('date.formatted');
             },
         ],
@@ -74,7 +74,7 @@ echo GridView::widget([
         [
             'attribute' => 'ip',
             'format' => 'raw',
-            'value' => function ($model, $key, $index, $column) {
+            'value' => function ($model) {
                 return ImportantEventsDetailsFactory::get($model->event, $model)->getProperty('ip');
             },
             'width' => '10%',
@@ -86,28 +86,3 @@ echo GridView::widget([
         ]
     ],
 ]);
-?>
-
-<script type="text/javascript">
-jQuery(document).ready(function() {
-    $('button[data-important-event-id]').on('click', function(e) {
-        e.preventDefault();
-
-        var eventId = $(this).data('important-event-id');
-        $.ajax({
-            url: '/important_events/report/set-comment/',
-            data: {
-                'id': eventId,
-                'comment': $('input[data-important-event-id="' + eventId + '"]').val()
-            },
-            method: 'POST',
-            success: function() {
-                $.notify('Комментарий добавлен', 'success');
-            },
-            error: function() {
-                $.notify('Комментарий не может быть добавлен', 'error');
-            }
-        });
-    });
-})
-</script>

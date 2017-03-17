@@ -10,7 +10,6 @@
 use app\classes\Html;
 use app\models\ClientAccount;
 use app\models\ClientContact;
-
 ?>
 
 <div id="contacts-view" class="well">
@@ -45,33 +44,3 @@ use app\models\ClientContact;
 </div>
 
 <?= $this->render('contactEdit', ['account' => $account, 'contacts' => $contacts]); ?>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        $('#contacts-edit-link').on('click', function () {
-            $('#contacts-view').slideUp();
-            $('#contacts-edit').slideDown();
-        });
-    });
-</script>
-
-<style>
-    #contacts-view {
-        margin: 10px 0 0 0;
-        padding: 10px 10px 0 10px;
-    }
-
-    #contacts-view h2 {
-        margin: 0;
-    }
-
-    .contacts-view-comment {
-        font-weight: normal;
-        margin-bottom: 10px;
-        color: #888;
-    }
-
-    #contacts-edit {
-        display: none;
-    }
-</style>

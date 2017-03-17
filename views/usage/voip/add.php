@@ -14,6 +14,7 @@ use yii\widgets\Breadcrumbs;
 
 /** @var $clientAccount \app\models\ClientAccount */
 /** @var $model \app\forms\usage\UsageVoipEditForm */
+/** @var \app\classes\BaseView $this */
 
 if (\app\classes\uu\model\AccountTariff::isUuAccount()) {
     return [];
@@ -56,6 +57,11 @@ echo Breadcrumbs::widget([
 <div class="well">
     <?php
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
+
+    $this->registerJsVariables([
+        'editFormId' => $form->getId(),
+        'tariffEditFormId' => '',
+    ], 'usage');
 
     echo Form::widget([
         'model' => $model,
@@ -297,15 +303,3 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 </div>
-
-<script type="text/javascript">
-    function submitForm(scenario) {
-        $('#scenario').val(scenario);
-        $('#<?=$form->getId()?>')[0].submit();
-    }
-    jQuery(document).ready(function () {
-        $('.form-reload').change(function (e) {
-            submitForm('default');
-        });
-    });
-</script>

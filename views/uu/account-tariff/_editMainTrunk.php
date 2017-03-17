@@ -2,7 +2,7 @@
 /**
  * свойства услуги для транка
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  * @var ActiveForm $form
  */
@@ -12,6 +12,9 @@ use app\models\billing\Trunk;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 
+// при смене точки подключение обновить список транков
+$this->registerJsVariable('format', ReturnFormatted::FORMAT_OPTIONS);
+
 $accountTariff = $formModel->accountTariff;
 if (!$accountTariff->isNewRecord) {
     // Здесь нечего делать. Можно только отредактировать "логический транк" в другом интерфейсе
@@ -20,7 +23,7 @@ if (!$accountTariff->isNewRecord) {
 ?>
 
 <div class="row">
-
+sss
     <?php // транк ?>
     <div class="col-sm-2">
         <label class="control-label" for="accounttariff-trunk_id">Транк</label>
@@ -35,23 +38,3 @@ if (!$accountTariff->isNewRecord) {
     </div>
 
 </div>
-
-<?php // при смене точки подключение обновить список транков ?>
-<script type='text/javascript'>
-    $(function () {
-        $("#accounttariff-region_id")
-            .on("change", function () {
-                $.get(
-                    '/uu/voip/get-trunks', {
-                        regionId: $(this).val(),
-                        format: '<?= ReturnFormatted::FORMAT_OPTIONS ?>'
-                    }, function (html) {
-                        $('#accounttariff-trunk_id')
-                            .html(html)
-                            .trigger('change');
-                    }
-                );
-            });
-    });
-</script>
-

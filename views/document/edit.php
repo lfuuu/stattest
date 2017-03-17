@@ -1,9 +1,12 @@
 <?php
-use \kartik\widgets\ActiveForm;
-use \app\models\ClientDocument;
-use \kartik\builder\Form;
 
-\app\assets\TinymceAsset::register(Yii::$app->view);
+/** @var ClientDocument $model */
+
+use app\assets\TinymceAsset;
+use app\models\ClientDocument;
+use kartik\widgets\ActiveForm;
+
+TinymceAsset::register(Yii::$app->view);
 ?>
 
 <h2><?= ClientDocument::$types[$model->type] ?></h2>
@@ -14,7 +17,7 @@ use \kartik\builder\Form;
     <div class="col-sm-4">
         <div class="row">
             <div class="col-sm-12">
-                <?= $f->field($model, 'comment')->input() ?>
+                <?= $f->field($model, 'comment')->textInput() ?>
             </div>
         </div>
     </div>
@@ -33,18 +36,3 @@ use \kartik\builder\Form;
     </div>
 </div>
 <?php ActiveForm::end(); ?>
-
-<script type="text/javascript">
-    $(document).ready(function () {
-        tinymce.init({
-            selector: "textarea",
-            relative_urls: false,
-            plugins: [
-                "advlist autolink lists link image charmap print preview anchor",
-                "searchreplace visualblocks code fullscreen",
-                "insertdatetime media table contextmenu paste"
-            ],
-            toolbar: "insertfile undo redo | styleselect fontsizeselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
-        });
-    });
-</script>

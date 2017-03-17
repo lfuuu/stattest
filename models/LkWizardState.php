@@ -28,8 +28,8 @@ class LkWizardState extends ActiveRecord
     const TYPE_EURO = 'euro';
 
     public static $name = [
-        self::TYPE_MCN => "Российский",
-        self::TYPE_EURO => "Европейский",
+        self::TYPE_MCN => 'Российский',
+        self::TYPE_EURO => 'Европейский',
         ];
 
     const STATE_PROCESS = 'process';

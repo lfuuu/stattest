@@ -23,16 +23,6 @@ if (!$packageMinutes) {
     // нет моделей, но виджет для рендеринга их обязательно требует
     // поэтому рендерим дефолтную модель и сразу ж ее удаляем
     $packageMinutes = [$packageMinute];
-    ?>
-    <script type='text/javascript'>
-        $(function () {
-            $(".package-minute .multiple-input")
-                .on("afterInit", function () {
-                    $(this).multipleInput('remove');
-                });
-        });
-    </script>
-    <?php
 }
 $destinationList = Destination::getList(true);
 

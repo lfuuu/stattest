@@ -12,9 +12,6 @@ use app\models\DidGroup;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 
-?>
-
-<?php
 $number = new \app\models\Number;
 $form = ActiveForm::begin([
     'id' => 'group-form',
@@ -22,6 +19,12 @@ $form = ActiveForm::begin([
 $viewParams = [
     'form' => $form,
 ];
+
+$this->registerJsVariables([
+    'clientAccountId' => $currentClientAccountId,
+    'groupEditStatus' => \app\models\Number::STATUS_NOTACTIVE_RESERVED,
+    'groupEditIsNull' => GetListTrait::$isNull,
+]);
 ?>
 
 <div class="row">
@@ -65,29 +68,4 @@ $viewParams = [
     </div>
 </div>
 
-<?php ActiveForm::end(); ?>
-
-<script type='text/javascript'>
-    $(function () {
-
-        // не form.submit, потому что на форму навешаны обработчики онлайн-валидации, начинается дубрирование событий и другие глюки
-        $(".group-submit-button")
-            .on("click", function (e, item) {
-                return confirm("Установить всем отфильтрованным записям новые значения? Это необратимо.");
-            });
-
-        <? if ($currentClientAccountId) : ?>
-        $("#number-status")
-            .on("change", function (e, item) {
-                var clientAccountId = '';
-                if ($(this).val() == '<?= \app\models\Number::STATUS_NOTACTIVE_RESERVED ?>') {
-                    clientAccountId = <?= $currentClientAccountId ?>;
-                } else {
-                    clientAccountId = <?= GetListTrait::$isNull ?>;
-                }
-                $('#number-client_id').val(clientAccountId);
-            });
-        <?php endif ?>
-
-    });
-</script>
+<?php ActiveForm::end();
