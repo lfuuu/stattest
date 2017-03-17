@@ -2,6 +2,7 @@
 namespace app\dao;
 
 use app\classes\uu\tarificator\RealtimeBalanceTarificator;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
 use app\models\ClientContract;
@@ -407,6 +408,8 @@ class ClientAccountDao extends Singleton
 
         $transaction = Bill::getDb()->beginTransaction();
 
+        $savedBills = [];
+
         foreach ($R1 as $billNo => $v) {
             if ($v['bill_no'] == 'saldo') {
                 continue;
@@ -415,9 +418,15 @@ class ClientAccountDao extends Singleton
             if ($v['is_payed'] != $v['new_is_payed']) {
                 $documentType = Bill::dao()->getDocumentType($billNo);
                 if ($documentType['type'] == 'bill') {
+                    /** @var Bill $bill */
                     $bill = Bill::findOne(['bill_no' => $billNo]);
-                    $bill->is_payed = $v['new_is_payed'];
-                    $bill->save();
+                    if ($bill->is_payed != $v['new_is_payed']) {
+                        $bill->is_payed = $v['new_is_payed'];
+                        $savedBills[$bill->bill_no] = 1;
+                        if (!$bill->save()) {
+                            throw new ModelValidationException($bill);
+                        }
+                    }
                 } elseif ($documentType['type'] == 'incomegood') {
                     $order = GoodsIncomeOrder::findOne(['number' => $billNo]);
                     $order->is_payed = $v['new_is_payed'];
@@ -426,27 +435,61 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        PaymentOrder::deleteAll(['client_id' => $clientAccount->id]);
+        // проверяем изменение оплаты счета
+        $savedPaymentOrders = PaymentOrder::find()
+            ->select(['sum', 'bill_no'])
+            ->where(['client_id' => $clientAccount->id])
+            ->indexBy('bill_no')
+            ->column();
 
-        foreach ($paymentsOrders as $r) {
-
-            if (!$r['bill_no']) {
+        $resortPaymentOrders = [];
+        foreach ($paymentsOrders as $order) {
+            if (!isset($order['bill_no']) || !$order['bill_no']) {
                 continue;
             }
 
-            PaymentOrder::getDb()
-                ->createCommand('
-                    INSERT INTO newpayments_orders (payment_id, bill_no, client_id, `sum`)
-                    VALUES (:paymentId, :billNo, :clientAccountId, :sum)
-                    ON DUPLICATE KEY UPDATE `sum` = `sum` + :sum
-                    ', [
-                        ':paymentId' => $r['payment_id'],
-                        ':billNo' => $r['bill_no'],
-                        ':clientAccountId' => $clientAccount->id,
-                        ':sum' => $r['sum']
-                    ]
-                )
-                ->execute();
+            if (!isset($resortPaymentOrders[$order['bill_no']])) {
+                $resortPaymentOrders[$order['bill_no']] = $order;
+            } else {
+                $resortPaymentOrders[$order['bill_no']]['sum'] += $order['sum'];
+            }
+        }
+
+        $batchInsertPaymentOrders = array_map(function ($order) use ($clientAccount) {
+            return [$order['payment_id'], $order['bill_no'], $clientAccount->id, $order['sum']];
+        }, $resortPaymentOrders);
+
+
+        // пересохранение PaymentOrder
+        PaymentOrder::deleteAll(['client_id' => $clientAccount->id]);
+        Yii::$app->db->createCommand()
+            ->batchInsert(
+                PaymentOrder::tableName(),
+                ['payment_id', 'bill_no', 'client_id', 'sum'],
+                $batchInsertPaymentOrders
+            )->execute();
+
+
+        // проверка изменения частичной оплаты счета
+        foreach (array_intersect(array_keys($savedPaymentOrders), array_keys($resortPaymentOrders)) as $billNo) {
+            if (isset($savedBills[$billNo])) {
+                continue;
+            }
+
+            if ($savedPaymentOrders[$billNo] == $resortPaymentOrders[$billNo]['sum']) {
+                continue;
+            }
+
+            $bill = Bill::findOne(['bill_no' => $billNo]);
+
+            if ($bill) {
+                $bill->trigger(Bill::TRIGGER_CHECK_OVERDUE);
+                if ($bill->isSetPayOverdue !== null) {
+                    if (!$bill->save()) {
+                        throw new ModelValidationException($bill);
+                    }
+                }
+            }
         }
 
         $lastBillDate = ClientAccount::dao()->getLastBillDate($clientAccount);

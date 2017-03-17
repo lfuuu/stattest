@@ -67,11 +67,14 @@ class Bill extends HistoryActiveRecord
 
     const TRIGGER_CHECK_OVERDUE = 'trigger_check_overdue';
 
+    const PERCENT_PAYMENT_PAY = 95; // сколько процентов оплаты считать, что счет оплачен полностью
+
     public static $paidStatuses = [
         self::STATUS_NOT_PAID => 'Не оплачен',
         self::STATUS_IS_PAID => 'Оплачен',
         self::STATUS_PAID_IN_PART => 'Оплачен частично',
     ];
+
 
     public $creatorId = null;
     public $logMessage = null;

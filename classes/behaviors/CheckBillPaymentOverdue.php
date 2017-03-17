@@ -6,6 +6,7 @@ use app\exceptions\ModelValidationException;
 use app\models\Bill;
 use app\models\billing\Locks;
 use app\models\ClientAccount;
+use app\models\PaymentOrder;
 use yii\base\Behavior;
 use yii\base\Event;
 use yii\db\ActiveRecord;
@@ -43,11 +44,23 @@ class CheckBillPaymentOverdue extends Behavior
 
         $billType = Bill::dao()->getDocumentType($bill->bill_no);
 
+        $isStatBill = ($billType['type'] == Bill::DOC_TYPE_BILL && $billType['bill_type'] == Bill::TYPE_STAT);
+
+        if ($isStatBill && $bill->is_payed == Bill::STATUS_PAID_IN_PART) {
+            $payment = PaymentOrder::find()
+                ->select(['sum'])
+                ->where(['bill_no' => $bill->bill_no])
+                ->scalar() ?: 0;
+            $paymentPercent = $bill->sum ? ($payment * 100 / $bill->sum) : 100;
+        }
+
         $isOverdue = (int)(
-            $billType['type'] == Bill::DOC_TYPE_BILL &&
-            $billType['bill_type'] == Bill::TYPE_STAT && // статовский счет
-            $bill->is_payed == Bill::STATUS_NOT_PAID && // полностью не оплачен счет (красный)
-            $payUntilDate < $now
+            $isStatBill &&
+            $payUntilDate < $now &&
+            (
+                $bill->is_payed == Bill::STATUS_NOT_PAID || // полностью не оплачен счет (красный)
+                ($bill->is_payed == Bill::STATUS_PAID_IN_PART && $paymentPercent < Bill::PERCENT_PAYMENT_PAY) // меньше 95%
+            )
         );
 
         if ($isOverdue != $bill->is_pay_overdue) {
