@@ -62,6 +62,9 @@ class Event
     const PARTNER_REWARD = 'partner_reward';
     const PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT = 'publish_notification_scheme_for_client_account';
     const PUBLISH_NOTIFICATION_SCHEME = 'publish_notification_scheme';
+    const VPBX_BLOCKED = 'vpbx_blocked';
+    const VPBX_UNBLOCKED = 'vpbx_unblocked';
+
 
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
@@ -118,6 +121,8 @@ class Event
         SyncVmCollocation::EVENT_SYNC => 'API VM manager',
         self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',
         self::PUBLISH_NOTIFICATION_SCHEME => 'Публикация схемы уведомлений',
+        self::VPBX_BLOCKED => 'Блокировка ВАТС',
+        self::VPBX_UNBLOCKED => 'Разблокировка ВАТС'
     ];
 
     /**
@@ -170,15 +175,18 @@ class Event
      * @param mixed $eventParam
      * @param string $object
      * @param integer $objectId
+     * @param string|null $section
      */
-    public static function goWithIndicator($event, $eventParam, $object, $objectId = 0)
+    public static function goWithIndicator($event, $eventParam, $object, $objectId = 0, $section = null)
     {
         $indicator = null;
 
         if ($object && $objectId) {
+            /** @var EventQueueIndicator $indicator */
             $indicator = EventQueueIndicator::findOne([
                     'object' => $object,
-                    'object_id' => $objectId
+                    'object_id' => $objectId,
+                    'section' => $section
                 ]);
 
             // удаляем задачу из очереди, если она не выполнена
@@ -196,6 +204,7 @@ class Event
             $indicator = new EventQueueIndicator;
             $indicator->object = $object;
             $indicator->object_id = $objectId;
+            $indicator->section = $section;
         }
 
         $indicator->event_queue_id = $eventQueue->id;

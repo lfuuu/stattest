@@ -261,6 +261,12 @@ use yii\helpers\Url;
                                                     data-id="<?= $contractAccount->id ?>"
                                                 >
                                                     <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
+
+                                                    <?= $this->render('//layouts/_eventIndicator', [
+                                                        'object' => ClientAccount::tableName(),
+                                                        'objectId' => $contractAccount->id,
+                                                        'section' => EventQueueIndicator::SECTION_ACCOUNT_BLOCK
+                                                    ])?>
                                                 </button>
                                             </div>
                                             <?php if ($warnings) : ?>

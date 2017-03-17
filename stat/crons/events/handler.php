@@ -11,6 +11,8 @@ use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
 use app\classes\partners\RewardCalculate;
 use app\classes\uu\model\AccountTariff;
+use app\models\ClientAccount;
+use app\models\EventQueueIndicator;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -280,13 +282,33 @@ function doEvents()
                     break;
 
                 case Event::ACCOUNT_BLOCKED:
-                    $isVpbxServer && ApiVpbx::lockAccount($param['account_id']); // Синхронизировать в Vpbx
+                    $isVpbxServer && Event::goWithIndicator(
+                        Event::VPBX_BLOCKED,
+                        $param['account_id'],
+                        ClientAccount::tableName(),
+                        $param['account_id'],
+                        EventQueueIndicator::SECTION_ACCOUNT_BLOCK
+                    );
                     (new SyncVmCollocation)->disableAccount($param['account_id']); // Синхронизировать в VM manager
                     break;
 
                 case Event::ACCOUNT_UNBLOCKED:
-                    $isVpbxServer && ApiVpbx::unlockAccount($param['account_id']); // Синхронизировать в Vpbx
+                    $isVpbxServer && Event::goWithIndicator(
+                        Event::VPBX_UNBLOCKED,
+                        $param['account_id'],
+                        ClientAccount::tableName(),
+                        $param['account_id'],
+                        EventQueueIndicator::SECTION_ACCOUNT_BLOCK
+                    );
                     (new SyncVmCollocation)->enableAccount($param['account_id']); // Синхронизировать в VM manager
+                    break;
+
+                case Event::VPBX_BLOCKED:
+                    $isVpbxServer && ApiVpbx::lockAccount($param); // Синхронизировать в Vpbx. Блокировка
+                    break;
+
+                case Event::VPBX_UNBLOCKED:
+                    $isVpbxServer && ApiVpbx::unlockAccount($param); // Синхронизировать в Vpbx. Разблокировка
                     break;
 
                 case Event::PARTNER_REWARD: {

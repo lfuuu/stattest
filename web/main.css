@@ -407,3 +407,24 @@ table.table_style tr.title{
 .package_taken_none {
 	color: gray;
 }
+
+div.indicator {
+	height: 1rem;
+	width: 1rem;
+	border-radius: 50%;
+	border: 1px solid white;
+	border-style: dotted;
+	display: inline-block;
+}
+
+div.indicator-warning {
+	background-color: #f0ad4e;
+}
+
+div.indicator-success {
+	background-color: #5cb85c;
+}
+
+div.indicator-danger {
+	background-color: #d9534f;
+}

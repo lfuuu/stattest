@@ -11,11 +11,13 @@ use yii\db\ActiveRecord;
  * @property string $object
  * @property int $object_id
  * @property int $event_queue_id
+ * @property string $section
  *
  * @property EventQueue $event
  */
 class EventQueueIndicator extends ActiveRecord
 {
+    const SECTION_ACCOUNT_BLOCK = 'account_block';
     /**
      * Название таблицы
      *
