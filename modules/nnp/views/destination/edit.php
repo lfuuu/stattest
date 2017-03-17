@@ -7,7 +7,9 @@
  */
 
 use app\modules\nnp\forms\destination\Form;
+use app\modules\nnp\models\Land;
 use app\modules\nnp\models\Prefix;
+use app\modules\nnp\models\Status;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -47,8 +49,26 @@ if (!$destination->isNewRecord) {
             <?= $form->field($destination, 'name')->textInput() ?>
         </div>
 
-        <?php // префиксы (сложение) ?>
+        <?php // Территория ?>
         <div class="col-sm-4">
+            <?= $form->field($destination, 'land_id')->widget(Select2::className(), [
+                'data' => Land::getList($isWithEmpty = true),
+            ]) ?>
+        </div>
+
+        <?php // Статус ?>
+        <div class="col-sm-4">
+            <?= $form->field($destination, 'status_id')->widget(Select2::className(), [
+                'data' => Status::getList($isWithEmpty = true),
+            ]) ?>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <?php // префиксы (сложение) ?>
+        <div class="col-sm-6">
             <label>Префиксы (+)</label>
             <?= Select2::widget([
                 'name' => 'AdditionPrefixDestination[]',
@@ -61,7 +81,7 @@ if (!$destination->isNewRecord) {
         </div>
 
         <?php // префиксы (вычитание) ?>
-        <div class="col-sm-4">
+        <div class="col-sm-6">
             <label>Префиксы (-)</label>
             <?= Select2::widget([
                 'name' => 'SubtractionPrefixDestination[]',

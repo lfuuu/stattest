@@ -14,6 +14,8 @@ use yii\helpers\Url;
  * @property int id
  * @property string name
  *
+ * @property Land land
+ * @property Status status
  * @property PrefixDestination[] prefixDestinations
  * @property PrefixDestination[] additionPrefixDestinations
  * @property PrefixDestination[] subtractionPrefixDestinations
@@ -33,6 +35,8 @@ class Destination extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название',
+            'land_id' => 'Территория',
+            'status_id' => 'Статус',
         ];
     }
 
@@ -53,6 +57,7 @@ class Destination extends ActiveRecord
     {
         return [
             [['name'], 'string'],
+            [['land_id', 'status_id'], 'integer'],
         ];
     }
 
@@ -64,14 +69,6 @@ class Destination extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgNnp;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->name;
     }
 
     /**
@@ -116,5 +113,21 @@ class Destination extends ActiveRecord
     {
         return $this->getPrefixDestinations()
             ->where([PrefixDestination::tableName() . '.is_addition' => false]);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getLand()
+    {
+        return $this->hasOne(Land::className(), ['id' => 'land_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getStatus()
+    {
+        return $this->hasOne(Land::className(), ['id' => 'status_id']);
     }
 }

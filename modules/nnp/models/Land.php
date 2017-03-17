@@ -10,18 +10,10 @@ use yii\helpers\Url;
  * @property int id
  * @property string name
  */
-class NdcType extends ActiveRecord
+class Land extends ActiveRecord
 {
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
-
-    const ID_GEOGRAPHIC = 1;
-    const ID_MOBILE = 2;
-    const ID_NOMADIC = 3;
-    const ID_FREEPHONE = 4;
-    const ID_PREMIUM = 5;
-    const ID_SHORT_CODE = 6;
-    const ID_REST = 7;
 
     /**
      * Имена полей
@@ -43,7 +35,7 @@ class NdcType extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'nnp.ndc_type';
+        return 'nnp.land';
     }
 
     /**
@@ -80,6 +72,6 @@ class NdcType extends ActiveRecord
      */
     public static function getUrlById($id)
     {
-        return Url::to(['/nnp/ndc-type/edit', 'id' => $id]);
+        return Url::to(['/nnp/land/edit', 'id' => $id]);
     }
 }
