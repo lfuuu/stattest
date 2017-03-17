@@ -15,7 +15,7 @@
             var id = $(this).data('id'),
                 $that = $(this);
 
-            if (confirm('Вы уверены, что хотите ' + t.text().toLowerCase().trim() + ' ЛС № ' + id + '?')) {
+            if (confirm('Вы уверены, что хотите ' + $that.text().toLowerCase().trim() + ' ЛС № ' + id + '?')) {
                 if ($that.hasClass('btn-danger')) {
                     $that
                         .addClass('btn-success')
