@@ -1,9 +1,20 @@
 <?php
 namespace app\classes\grid\account;
 
+use app\helpers\DateTimeZoneHelper;
+use app\models\Currency;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
+use app\models\Region;
+use app\models\SaleChannelOld;
+use app\models\User;
+use kartik\daterange\DateRangePicker;
+use kartik\grid\GridView;
+use kartik\widgets\Select2;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 use yii\db\Query;
 use app\classes\Form;
 use app\classes\Html;
@@ -12,7 +23,6 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ContractType;
 use app\models\Organization;
-use yii\helpers\ArrayHelper;
 
 abstract class AccountGridFolder extends Model
 {
@@ -37,18 +47,27 @@ abstract class AccountGridFolder extends Model
     public $contract_created;
     public $legal_entity;
 
-    private $organizationList = [];
+    private $_organizationList = [];
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return '';
     }
 
+    /**
+     * @return array
+     */
     public function getColumns()
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -75,6 +94,9 @@ abstract class AccountGridFolder extends Model
     }
 
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return array_merge(
@@ -110,27 +132,42 @@ abstract class AccountGridFolder extends Model
             ]);
     }
 
+    /**
+     * @param AccountGrid $grid
+     * @return static
+     */
     public static function create(AccountGrid $grid)
     {
         return new static($grid);
     }
 
+    /**
+     * AccountGridFolder constructor.
+     *
+     * @param null $grid
+     */
     public function __construct($grid = null)
     {
         if ($grid && $grid instanceof AccountGrid) {
             $this->grid = $grid;
         }
 
-        $this->organizationList = Organization::dao()->getList();
+        $this->_organizationList = Organization::dao()->getList();
 
         parent::__construct();
     }
 
+    /**
+     * @return string
+     */
     public function getId()
     {
         return md5(get_called_class());
     }
 
+    /**
+     * @param Query $query
+     */
     public function queryParams(Query $query)
     {
         $query->from(['clients c']);
@@ -171,11 +208,17 @@ abstract class AccountGridFolder extends Model
         $query->groupBy('c.id');
     }
 
+    /**
+     * @return array
+     */
     public function queryOrderBy()
     {
         return ['created' => SORT_DESC];
     }
 
+    /**
+     * @return ActiveDataProvider
+     */
     public function spawnDataProvider()
     {
         $query = new Query();
@@ -207,6 +250,7 @@ abstract class AccountGridFolder extends Model
             $query->andWhere(SetFieldTypeHelper::generateCondition(new ClientContract(), 'federal_district',
                 $this->federal_district));
         }
+
         $query->andFilterWhere(['cr.contract_type_id' => $this->contract_type]);
 
         if ($this->currency) {
@@ -230,7 +274,7 @@ abstract class AccountGridFolder extends Model
 
         if (isset($this->block_date) && !empty($this->block_date)) {
             $blockDates = preg_split('/[\s+]\-[\s+]/', $this->block_date);
-            $query->andWhere(['between', 'ab.block_date', $blockDates[0], $blockDates[1]]);
+            $query->andHaving(['between', 'block_date', $blockDates[0], $blockDates[1]]);
         }
 
         if (isset($this->legal_entity) && !empty($this->legal_entity)) {
@@ -240,6 +284,11 @@ abstract class AccountGridFolder extends Model
         return $dataProvider;
     }
 
+    /**
+     * Получение кол-ва строк результата выборки
+     *
+     * @return int
+     */
     public function getCount()
     {
         $query = new Query();
@@ -248,6 +297,9 @@ abstract class AccountGridFolder extends Model
         return $query->count();
     }
 
+    /**
+     * @return array
+     */
     public function getPreparedColumns()
     {
         $columns = [];
@@ -255,20 +307,39 @@ abstract class AccountGridFolder extends Model
             $columns[$column] = $this->getDefaultColumns()[$column];
             $columns[$column]['label'] = $this->getAttributeLabel($column);
 
-            $callback =
-                !is_array($columns[$column]['filter'])
-                    ? $columns[$column]['filter']
-                    : array_pop($columns[$column]['filter']);
+            $callback = !is_array($columns[$column]['filter']) ? $columns[$column]['filter'] : array_pop($columns[$column]['filter']);
 
             if ($callback instanceof \Closure) {
                 $columns[$column]['filter'] = $callback();
             }
-
         }
 
         return $columns;
     }
 
+    /**
+     * Подзапрос получения даты блокировки
+     *
+     * @return Query
+     */
+    protected function getBlockDateQuery()
+    {
+        $now = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
+
+        $tz = new \DateTimeZone(Yii::$app->user->identity->timezone_name);
+        $tzOffset = $tz->getOffset($now);
+
+        return (new Query())
+            ->select(new Expression('MAX(l.date) ' . ($tzOffset > 0 ? "+" : "-") . ' INTERVAL ' . abs($tzOffset) . ' SECOND'))
+            ->from(['l' => ImportantEvents::tableName()])
+            ->where('l.client_id = c.id')
+            ->andWhere(['l.event' => ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE])
+            ->groupBy(['l.client_id']);
+    }
+
+    /**
+     * @return array
+     */
     protected function getDefaultColumns()
     {
         return [
@@ -278,7 +349,7 @@ abstract class AccountGridFolder extends Model
                 'value' => function ($data) {
                     return '<span class="btn btn-grid" style="background:' . ClientAccount::$statuses[$data['status']]['color'] . '" title="' . ClientAccount::$statuses[$data['status']]['name'] . '">&nbsp;</span>';
                 },
-                'filterType' => \kartik\grid\GridView::FILTER_COLOR
+                'filterType' => GridView::FILTER_COLOR
             ],
             'id' => [
                 'attribute' => 'id',
@@ -322,7 +393,7 @@ abstract class AccountGridFolder extends Model
                     return $data['created'];
                 },
                 'filter' => function () {
-                    return \kartik\daterange\DateRangePicker::widget([
+                    return DateRangePicker::widget([
                         'name' => 'createdDate',
                         'presetDropdown' => true,
                         'hideInput' => true,
@@ -346,7 +417,7 @@ abstract class AccountGridFolder extends Model
                     return $data['contract_created'];
                 },
                 'filter' => function () {
-                    return \kartik\daterange\DateRangePicker::widget([
+                    return DateRangePicker::widget([
                         'name' => 'contract_created',
                         'value' => Yii::$app->request->get('contract_created'),
                         'presetDropdown' => true,
@@ -375,7 +446,7 @@ abstract class AccountGridFolder extends Model
                     return $data['block_date'];
                 },
                 'filter' => function () {
-                    return \kartik\daterange\DateRangePicker::widget([
+                    return DateRangePicker::widget([
                         'name' => 'block_date',
                         'presetDropdown' => true,
                         'hideInput' => true,
@@ -424,9 +495,11 @@ abstract class AccountGridFolder extends Model
                     if ($data['usage_voip'] > 0) {
                         $usages[] = 'Телефония';
                     }
+
                     if ($data['usage_virtpbx'] > 0) {
                         $usages[] = 'ВАТС';
                     }
+
                     return implode(', ', $usages);
                 },
                 'filter' => function () {
@@ -503,7 +576,7 @@ abstract class AccountGridFolder extends Model
                     return $data['bill_date'];
                 },
                 'filter' => function () {
-                    return \kartik\daterange\DateRangePicker::widget([
+                    return DateRangePicker::widget([
                         'name' => 'bill_date',
                         'presetDropdown' => true,
                         'hideInput' => true,
@@ -527,9 +600,9 @@ abstract class AccountGridFolder extends Model
                     return $data['manager_name'];
                 },
                 'filter' => function () {
-                    return \kartik\widgets\Select2::widget([
+                    return Select2::widget([
                         'name' => 'manager',
-                        'data' => \app\models\User::getManagerList(),
+                        'data' => User::getManagerList(),
                         'value' => Yii::$app->request->get('manager'),
                         'options' => [
                             'placeholder' => 'Начните вводить фамилию',
@@ -549,10 +622,10 @@ abstract class AccountGridFolder extends Model
                     return $data['account_manager_name'];
                 },
                 'filter' => function () {
-                    return \kartik\widgets\Select2::widget([
+                    return Select2::widget([
                         'name' => 'account_manager',
                         'value' => Yii::$app->request->get('account_manager'),
-                        'data' => \app\models\User::getAccountManagerList(),
+                        'data' => User::getAccountManagerList(),
                         'options' => [
                             'placeholder' => 'Начните вводить фамилию',
                             'style' => 'width: 150px;',
@@ -573,7 +646,7 @@ abstract class AccountGridFolder extends Model
                     return Html::dropDownList(
                         'currency',
                         Yii::$app->request->get('currency'),
-                        \app\models\Currency::map(),
+                        Currency::map(),
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'max-width:50px;']
                     );
                 },
@@ -585,9 +658,9 @@ abstract class AccountGridFolder extends Model
                     return '<a href="/sale-channel/edit?id=' . $data['sale_channel'] . '">' . $data['sale_channel_name'] . '</a>';
                 },
                 'filter' => function () {
-                    return \kartik\widgets\Select2::widget([
+                    return Select2::widget([
                         'name' => 'account_manager',
-                        'data' => \app\models\SaleChannelOld::getList(),
+                        'data' => SaleChannelOld::getList(),
                         'value' => Yii::$app->request->get('sale_channel'),
                         'options' => ['placeholder' => 'Начните вводить название', 'style' => 'width:100%;',],
                         'pluginOptions' => [
@@ -606,7 +679,7 @@ abstract class AccountGridFolder extends Model
                     return Html::dropDownList(
                         'regionId',
                         Yii::$app->request->get('regionId'),
-                        \app\models\Region::getList(),
+                        Region::getList(),
                         ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'width: 180px;']
                     );
                 },
@@ -665,9 +738,9 @@ abstract class AccountGridFolder extends Model
                 'format' => 'raw',
                 'value' => function ($data) {
                     return
-                        isset($this->organizationList[$data['organization_id']])
-                            ? $this->organizationList[$data['organization_id']]
-                            : '';
+                        isset($this->_organizationList[$data['organization_id']]) ?
+                            $this->_organizationList[$data['organization_id']] :
+                            '';
                 },
                 'filter' => function () {
                     return Html::dropDownList(
@@ -680,5 +753,4 @@ abstract class AccountGridFolder extends Model
             ]
         ];
     }
-
 }

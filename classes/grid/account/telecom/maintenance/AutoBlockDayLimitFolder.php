@@ -72,7 +72,7 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
                 ->from(['clients' => ClientAccount::tableName()])
                 ->innerJoin(['contracts' => ClientContract::tableName()], 'clients.contract_id = contracts.id')
                 ->andWhere(['contracts.business_id' => $this->grid->getBusiness()])
-                ->andWhere(['contracts.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK])
+                ->andWhere(['contracts.business_process_status_id' => $this->getBusinessProcessStatus()])
                 ->andWhere(['IN', 'clients.id', $clientsIDs]);
 
         $statQuery = (new Query)
@@ -80,25 +80,28 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
                 ->from(['clients' => ClientAccount::tableName()])
                 ->innerJoin(['contracts' => ClientContract::tableName()], 'clients.contract_id = contracts.id')
                 ->andWhere(['contracts.business_id' => $this->grid->getBusiness()])
-                ->andWhere(['contracts.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK])
+                ->andWhere(['contracts.business_process_status_id' => $this->getBusinessProcessStatus()])
                 ->andWhere(['clients.voip_disabled' => 1])
                 ->andWhere(['clients.is_bill_pay_overdue' => 0]);
 
         $resultIDs = array_merge($statBillingQuery->column(), $statQuery->column());
 
         if (count($resultIDs)) {
-            $query->addSelect('ab.block_date');
-            $query->leftJoin(
-                '(
-                    SELECT `client_id`, MAX(`date`) AS block_date
-                    FROM `lk_notice_log`
-                    WHERE `event` = "day_limit"
-                    GROUP BY `client_id`
-                ) AS ab',
-                'ab.`client_id` = c.`id`');
+            $query->addSelect(['block_date' => $this->getBlockDateQuery()]);
+
             $query->where(['IN', 'c.id', $resultIDs]);
         } else {
             $query->andWhere(new Expression('false'));
         }
+    }
+
+    /**
+     * Получение статуса бизнес процесса
+     *
+     * @return int
+     */
+    protected function getBusinessProcessStatus()
+    {
+        return BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK;
     }
 }

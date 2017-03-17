@@ -20,7 +20,6 @@ class DisconnectedDebtFolder extends AccountGridFolder
             'status',
             'id',
             'company',
-            //'block_date',
             'currency',
             'manager',
             'region',

@@ -1,7 +1,9 @@
 <?php
 namespace app\classes\grid\account\telecom\maintenance;
 
+use app\models\Bill;
 use Yii;
+use yii\console\Exception;
 use yii\db\Expression;
 use yii\db\Query;
 use app\classes\grid\account\AccountGridFolder;
@@ -46,6 +48,14 @@ class BlockBillPayOverdueFolder extends AccountGridFolder
     public function queryParams(Query $query)
     {
         parent::queryParams($query);
+
+        $queryBlockDate = (new Query())
+            ->select(new Expression('MIN(b.pay_bill_until)'))
+            ->from(['b' => Bill::tableName()])
+            ->where('c.id = b.client_id')
+            ->andWhere(['b.is_pay_overdue' => 1]);
+
+        $query->addSelect(['block_date' => $queryBlockDate]);
 
         $statQuery = (new Query)
             ->select('clients.id')

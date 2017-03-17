@@ -15,11 +15,17 @@ class AutoBlock800Folder extends AccountGridFolder
 {
     public $block_date;
 
+    /**
+     * @return string
+     */
     public function getName()
     {
         return '800-Блок';
     }
 
+    /**
+     * @return array
+     */
     public function getColumns()
     {
         return [
@@ -34,40 +40,44 @@ class AutoBlock800Folder extends AccountGridFolder
         ];
     }
 
+    /**
+     * @param Query $query
+     */
     public function queryParams(Query $query)
     {
         parent::queryParams($query);
 
-        $query->addSelect('ab.block_date');
-        $query->leftJoin(
-            '(
-                SELECT `client_id`, MAX(`date`) AS block_date
-                FROM `lk_notice_log`
-                WHERE `event` = "zero_balance"
-                GROUP BY `client_id`
-            ) AS ab',
-            'ab.`client_id` = c.`id`');
+        $query->addSelect(['block_date' => $this->getBlockDateQuery()]);
+
         $query->leftJoin(['uv' => UsageVoip::tableName()], 'uv.client = c.client AND CAST(NOW() AS DATE) BETWEEN uv.actual_from AND uv.actual_to');
         $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
+        $query->andWhere(['cr.business_process_status_id' => $this->getBusinessProcessStatus()]);
         $query->andWhere(['c.is_blocked' => 0]);
         $query->andWhere('uv.line7800_id');
 
-        $billingQuery =
-            (new Query)
-                ->select('clients.id')
-                ->from(['clients' => Clients::tableName()])
-                ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
-                ->leftJoin(['lock' => Locks::tableName()], 'lock.client_id = clients.id')
-                ->where(new Expression('TRUE IN (lock.voip_auto_disabled, lock.voip_auto_disabled_local)'));
+        $billingQuery = (new Query)
+            ->select('clients.id')
+            ->from(['clients' => Clients::tableName()])
+            ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
+            ->leftJoin(['lock' => Locks::tableName()], 'lock.client_id = clients.id')
+            ->where(new Expression('TRUE IN (lock.voip_auto_disabled, lock.voip_auto_disabled_local)'));
 
         $clientsIDs = $billingQuery->column(Clients::getDb());
+
         if (count($clientsIDs)) {
             $query->andWhere(['IN', 'c.id', $clientsIDs]);
-        }
-        else {
+        } else {
             $query->andWhere(new Expression('false'));
         }
+    }
 
+    /**
+     * Получение статуса бизнес процесса
+     *
+     * @return int
+     */
+    protected function getBusinessProcessStatus()
+    {
+        return BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK;
     }
 }
