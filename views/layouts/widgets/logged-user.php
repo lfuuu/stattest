@@ -38,7 +38,7 @@ use yii\helpers\Url;
             <br />
             <a href="<?= Url::toRoute(['/', 'module' => 'tt', 'action' => 'list2', 'mode' => 2]) ?>" class="troubles">
                 <?= Yii::t('common', 'Tasks {count, plural, one{# entry} other{# entries}}', [
-                    'count' => 2,
+                    'count' => $troublesCount,
                 ]) ?>
             </a>
         <?php endif; ?>
