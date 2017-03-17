@@ -169,6 +169,8 @@ class Navigation
                 ->addItem('Префиксы', ['/nnp/prefix/'], ['tarifs.read'])
                 ->addItem('Типы NDC', ['/nnp/ndc-type/'], ['tarifs.read'])
                 ->addItem('Направления', ['/nnp/destination/'], ['tarifs.read'])
+                ->addItem('Территории направлений', ['/nnp/land/'], ['tarifs.read'])
+                ->addItem('Статусы направлений', ['/nnp/status/'], ['tarifs.read'])
                 ->addItem('Пакеты', Url::to(['/uu/tariff', 'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE]), ['tarifs.read'])
         );
 

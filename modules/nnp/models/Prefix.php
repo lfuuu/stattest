@@ -70,14 +70,6 @@ class Prefix extends ActiveRecord
     /**
      * @return string
      */
-    public function __toString()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @return string
-     */
     public function getUrl()
     {
         return self::getUrlById($this->id);

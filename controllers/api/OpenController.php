@@ -156,7 +156,7 @@ final class OpenController extends Controller
         }
 
         return [
-            'total' => $numbers->getTotalCount(),
+            'total' => $numbers->count(),
             'numbers' => $responseNumbers,
         ];
     }

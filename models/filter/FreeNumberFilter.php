@@ -20,12 +20,19 @@ class FreeNumberFilter extends Number
     const FREE_NUMBERS_LIMIT = 12;
 
     /** @var \yii\db\ActiveQuery */
-    private
-        $_query,
-        $_offset = 0,
-        $_mask = null,
-        $_similar = null,
-        $_totalCount = 0;
+    private $_query;
+
+    /** @var int */
+    private $_offset = 0;
+
+    /** @var string */
+    private $_mask = null;
+
+    /** @var string */
+    private $_similar = null;
+
+    /** @var int */
+    private $_totalCount = 0;
 
     /**
      * При клонировании
@@ -288,14 +295,6 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @return int
-     */
-    public function getTotalCount()
-    {
-        return $this->_totalCount;
-    }
-
-    /**
      * @param mixed $columns
      * @return $this
      */
@@ -357,7 +356,8 @@ class FreeNumberFilter extends Number
      */
     public function count()
     {
-        return $this->_query->count();
+        return $this->_totalCount;
+        // return $this->_query->count();
     }
 
     /**

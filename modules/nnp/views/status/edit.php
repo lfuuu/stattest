@@ -1,21 +1,19 @@
 <?php
 /**
- * Создание/редактирование города
+ * Создание/редактирование статусов
  *
  * @var \yii\web\View $this
  * @var Form $formModel
  */
 
-use app\modules\nnp\forms\city\Form;
-use app\modules\nnp\models\Country;
-use kartik\select2\Select2;
+use app\modules\nnp\forms\status\Form;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
-$city = $formModel->city;
+$status = $formModel->status;
 
-if (!$city->isNewRecord) {
-    $this->title = $city->name;
+if (!$status->isNewRecord) {
+    $this->title = $status->name;
 } else {
     $this->title = Yii::t('common', 'Create');
 }
@@ -24,7 +22,7 @@ if (!$city->isNewRecord) {
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
-        ['label' => 'Города', 'url' => $cancelUrl = '/nnp/city/'],
+        ['label' => 'Статусы направлений', 'url' => $cancelUrl = '/nnp/status/'],
         $this->title
     ],
 ]) ?>
@@ -40,24 +38,16 @@ if (!$city->isNewRecord) {
 
     <div class="row">
 
-        <?php // Страна ?>
-        <div class="col-sm-2">
-            <?= $form->field($city, 'country_code')->widget(Select2::className(), [
-                'data' => Country::getList($isWithEmpty = true),
-            ]) ?>
-        </div>
-
         <?php // Название ?>
         <div class="col-sm-6">
-            <?= $form->field($city, 'name')->textInput() ?>
+            <?= $form->field($status, 'name')->textInput() ?>
         </div>
-
     </div>
 
     <?php // кнопки ?>
     <div class="form-group text-right">
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
-        <?= $this->render('//layouts/_submitButton' . ($city->isNewRecord ? 'Create' : 'Save')) ?>
+        <?= $this->render('//layouts/_submitButton' . ($status->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

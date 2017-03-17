@@ -9,7 +9,9 @@
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\nnp\column\LandColumn;
 use app\modules\nnp\column\PrefixColumn;
+use app\modules\nnp\column\StatusColumn;
 use app\modules\nnp\filter\DestinationFilter;
 use app\modules\nnp\models\Destination;
 use kartik\grid\ActionColumn;
@@ -51,6 +53,16 @@ $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
+    ],
+
+    [
+        'attribute' => 'land_id',
+        'class' => LandColumn::className(),
+    ],
+
+    [
+        'attribute' => 'status_id',
+        'class' => StatusColumn::className(),
     ],
 
     [
