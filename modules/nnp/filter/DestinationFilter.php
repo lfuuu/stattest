@@ -51,7 +51,7 @@ class DestinationFilter extends Destination
                 $query->andWhere([$destinationTableName . '.land_id' => null]);
                 break;
             case GetListTrait::$isNotNull:
-                $query->andWhere($destinationTableName . '.land_id IS NOT NULL');
+                $query->andWhere(['IS NOT', $destinationTableName . '.land_id', null]);
                 break;
             default:
                 $query->andWhere([$destinationTableName . '.land_id' => $this->land_id]);
@@ -65,7 +65,8 @@ class DestinationFilter extends Destination
                 $query->andWhere([$destinationTableName . '.status_id' => null]);
                 break;
             case GetListTrait::$isNotNull:
-                $query->andWhere($destinationTableName . '.status_id IS NOT NULL');
+                $query->andWhere($destinationTableName . '. IS NOT NULL');
+                $query->andWhere(['IS NOT', $destinationTableName . '.status_id', null]);
                 break;
             default:
                 $query->andWhere([$destinationTableName . '.status_id' => $this->status_id]);
