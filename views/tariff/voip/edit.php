@@ -33,12 +33,18 @@ $destinations = ['0' => '-- Направление --'] + TariffVoip::$destinati
 $currencies = Currency::getList($isWithEmpty = true);
 $statuses = TariffVoip::$statuses;
 
-$priceLists =
-    Pricelist::find()
-        ->select(['id', 'name', 'price_include_vat'])
-        ->andWhere(['orig' => 1, 'local' => 0])
-        ->orderBy('region desc, name asc')
-        ->all();
+$priceLists = Pricelist::find()
+    ->select(['id', 'name', 'price_include_vat'])
+    ->andWhere([
+        'orig' => 1,
+        'local' => 0,
+        'price_include_vat' => $model->price_include_vat
+    ])
+    ->orderBy([
+        'region' => SORT_DESC,
+        'name' => SORT_ASC
+    ])
+    ->all();
 $priceListsOptions = [];
 foreach ($priceLists as $priceList) {
     $priceListsOptions[$priceList->id] = [
@@ -66,7 +72,11 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 3,
         'attributes' => [
-            'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $countries, 'options' => ['class' => 'select2'] + $optionDisabled],
+            'country_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $countries,
+                'options' => ['class' => 'select2'] + $optionDisabled
+            ],
             'connection_point_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $connectionPoints,
@@ -76,9 +86,21 @@ echo Breadcrumbs::widget([
                         'options' => $connectionPointsOptions,
                     ] + $optionDisabled
             ],
-            'dest' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $destinations, 'options' => ['class' => 'select2'] + $optionDisabled],
-            'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $currencies, 'options' => ['class' => 'select2'] + $optionDisabled],
-            'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $statuses, 'options' => ['class' => 'select2']],
+            'dest' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $destinations,
+                'options' => ['class' => 'select2'] + $optionDisabled
+            ],
+            'currency_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $currencies,
+                'options' => ['class' => 'select2'] + $optionDisabled
+            ],
+            'status' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $statuses,
+                'options' => ['class' => 'select2']
+            ],
             'pricelist_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $priceLists,

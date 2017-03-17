@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\behaviors\ContragentCountry;
 use app\classes\behaviors\EffectiveVATRate;
+use app\classes\behaviors\SetTaxVoip;
 use Yii;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\validators\InnKppValidator;
@@ -109,9 +110,10 @@ class ClientContragent extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'ContragentCountry' => ContragentCountry::className(),
             'EffectiveVATRate' => EffectiveVATRate::className(),
+            'SetTaxVoip' => SetTaxVoip::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
     }
 

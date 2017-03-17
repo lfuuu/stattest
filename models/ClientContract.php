@@ -6,6 +6,7 @@ use app\classes\behaviors\ContractContragent;
 use app\classes\behaviors\EffectiveVATRate;
 use app\classes\behaviors\LkWizardClean;
 use app\classes\behaviors\SetOldStatus;
+use app\classes\behaviors\SetTaxVoip;
 use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContractDao;
@@ -16,34 +17,35 @@ use yii\db\ActiveQuery;
 /**
  * Class ClientContract
  *
- * @property int id
- * @property int super_id
- * @property int contragent_id
- * @property string number
- * @property int organization_id
- * @property string manager
- * @property string account_manager
- * @property int business_id
- * @property int business_process_id
- * @property int business_process_status_id
- * @property int contract_type_id
- * @property string state
- * @property string financial_type
- * @property string federal_district
- * @property string is_external
- * @property int is_lk_access
- * @property int is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
+ * @property int $id
+ * @property int $super_id
+ * @property int $contragent_id
+ * @property string $number
+ * @property int $organization_id
+ * @property string $manager
+ * @property string $account_manager
+ * @property int $business_id
+ * @property int $business_process_id
+ * @property int $business_process_status_id
+ * @property int $contract_type_id
+ * @property string $state
+ * @property string $financial_type
+ * @property string $federal_district
+ * @property string $is_external
+ * @property int $is_lk_access
+ * @property int $is_voip_with_tax
+ * @property int $is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
  *
- * @property ClientContragent contragent
- * @property ClientAccount[] accounts
+ * @property ClientContragent $contragent
+ * @property ClientAccount[] $accounts
  * @property Organization $organization
- * @property ClientMedia mediaManager
- * @property ContractType contractType
- * @property Business business
- * @property BusinessProcess businessProcess
- * @property BusinessProcessStatus businessProcessStatus
- * @property string managerName
- * @property string accountManagerName
+ * @property ClientMedia $mediaManager
+ * @property ContractType $contractType
+ * @property Business $business
+ * @property BusinessProcess $businessProcess
+ * @property BusinessProcessStatus $businessProcessStatus
+ * @property string $managerName
+ * @property string $accountManagerName
  */
 class ClientContract extends HistoryActiveRecord
 {
@@ -63,7 +65,11 @@ class ClientContract extends HistoryActiveRecord
     const IS_LK_ACCESS_YES = 1;
     const IS_LK_ACCESS_NO = 0;
 
+    const TRIGGER_RESET_TAX_VOIP = 'trigger_reset_tax_voip';
+
     public $newClient = null;
+
+    public $isSetVoipWithTax = null;
 
     public static $states = [
         self::STATE_UNCHECKED => 'Не проверено',
@@ -137,6 +143,7 @@ class ClientContract extends HistoryActiveRecord
             'is_external' => 'Внешний договор',
             'is_lk_access' => 'Доступ к ЛК',
             'is_partner_login_allow' => 'Доступ партнеру в ЛК',
+            'is_voip_with_tax' => 'Тарифы телефонии с НДС',
         ];
     }
 
@@ -146,13 +153,14 @@ class ClientContract extends HistoryActiveRecord
     public function behaviors()
     {
         return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'ContractContragent' => ContractContragent::className(),
             'LkWizardClean' => LkWizardClean::className(),
             'SetOldStatus' => SetOldStatus::className(),
             'ClientContractComments' => ClientContractComments::className(),
-            'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::className(),
             'EffectiveVATRate' => EffectiveVATRate::className(),
+            'SetTaxVoip' => SetTaxVoip::className(),
+            'ImportantEvents' => \app\classes\behaviors\important_events\ClientContract::className(),
+            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
         ];
     }
 
@@ -468,7 +476,7 @@ class ClientContract extends HistoryActiveRecord
     }
 
     /**
-     * Расчитывает эффективную ставку НДС для данного договора
+     * Рассчитывает эффективную ставку НДС для данного договора
      *
      * @param bool $isWithTrace
      * @return int
@@ -476,6 +484,16 @@ class ClientContract extends HistoryActiveRecord
     public function resetEffectiveVATRate($isWithTrace = true)
     {
         return self::dao()->resetEffectiveVATRate($this, $isWithTrace);
+    }
+
+    /**
+     * Рассчитывает необходимость использования тарифов с НДС или без НДС
+     *
+     * @param ClientContragent $contragent
+     */
+    public function resetTaxVoip(ClientContragent $contragent)
+    {
+        self::dao()->resetTaxVoip($this, $contragent);
     }
 
 }

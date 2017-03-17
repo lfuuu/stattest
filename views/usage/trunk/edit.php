@@ -65,10 +65,10 @@ if ($isUu) {
     $origPricelists = [];
 } else {
     $termPricelists = ['' => '-- Прайслист -- '] +
-        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_LOCAL, $orig = false) +
-        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_OPERATOR, $orig = false, $priceIncludeVat = false);
+        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_LOCAL, $orig = false, $priceIncludeVat = $usage->clientAccount->is_voip_with_tax) +
+        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_OPERATOR, $orig = false, $priceIncludeVat = $usage->clientAccount->is_voip_with_tax);
     $origPricelists = ['' => '-- Прайслист -- '] +
-        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_OPERATOR, $orig = true, $priceIncludeVat = false);
+        Pricelist::getList($isWithEmpty = false, $isWithNullAndNotNull = false, $type = Pricelist::TYPE_OPERATOR, $orig = true, $priceIncludeVat = $usage->clientAccount->is_voip_with_tax);
 }
 
 echo Html::formLabel('Редактирование транка');

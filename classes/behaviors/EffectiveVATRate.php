@@ -26,23 +26,26 @@ class EffectiveVATRate extends Behavior
 
 
     /**
-     * Расчитывает эффективную ставку НДС
+     * Рассчитывает эффективную ставку НДС
      *
      * @param AfterSaveEvent $event
      * @throws \Exception
      */
     public function setEffectiveVATRate($event)
     {
-        if (!($event->sender instanceof ClientContragent || $event->sender instanceof ClientContract)) {
+        $model = $event->sender;
+
+        $isClientContragent = $model instanceof ClientContragent;
+        $isClientContract = $model instanceof ClientContract;
+
+        if (!($isClientContragent || $isClientContract)) {
             throw new \LogicException('Не поддерживаемая модель в поведении');
         }
 
         $contracts = [];
-        if ($event->sender instanceof ClientContragent &&
-            (isset($event->changedAttributes['country_id']) || isset($event->changedAttributes['tax_regime']))
-        ) {
+        if ($isClientContragent && ($model->isAttributeChanged('country_id') || $model->isAttributeChanged('tax_regime'))) {
             $contracts = $event->sender->contracts;
-        } else if ($event->sender instanceof ClientContract && $event->changedAttributes['organization_id']) {
+        } elseif ($isClientContract && $model->isAttributeChanged('organization_id')) {
             $contracts = [$event->sender];
         }
 

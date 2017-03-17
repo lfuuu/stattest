@@ -134,6 +134,7 @@ class TariffVoip extends ActiveRecord implements TariffInterface
      * Вернуть список всех доступных значений
      *
      * @param int $dest
+     * @param bool $priceIncludeVat
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param int $connectingPointId
      * @param string $currencyId
@@ -142,6 +143,7 @@ class TariffVoip extends ActiveRecord implements TariffInterface
      */
     public static function getList(
         $dest,
+        $priceIncludeVat,
         $isWithEmpty = false,
         $connectingPointId = null,
         $currencyId = null,
@@ -155,7 +157,10 @@ class TariffVoip extends ActiveRecord implements TariffInterface
             $orderBy = ['status' => SORT_ASC, 'month_min_payment' => SORT_ASC],
             $where = [
                 'AND',
-                ['dest' => $dest],
+                [
+                    'dest' => $dest,
+                    'price_include_vat' => $priceIncludeVat,
+                ],
                 [
                     'AND',
                     $status ? ['status' => $status] : [],

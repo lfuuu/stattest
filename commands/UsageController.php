@@ -1,9 +1,11 @@
 <?php
 namespace app\commands;
 
+use app\classes\behaviors\SetTaxVoip;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\Business;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContract;
 use app\models\usages\UsageInterface;
@@ -260,6 +262,54 @@ class UsageController extends Controller
     public function actionResetEffectiveVatRate()
     {
         ClientContract::dao()->resetAllEffectiveVATRate();
+    }
+
+    /**
+     * Устанавливает начальные значения. Тарифы телефонии с НДС или без НДС
+     */
+    public function actionResetContractsVoipTax()
+    {
+        $contractsQuery = ClientContract::find();
+
+        $count = 0;
+        /** @var ClientContract $contract */
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            foreach ($contractsQuery->each() as $contract) {
+
+                if (++$count % 100 == 0) {
+                    $transaction->commit();
+                    echo PHP_EOL;
+                    $transaction = Yii::$app->db->beginTransaction();
+                }
+
+                // нужен только расчет нужного поля
+                $contract->detachBehaviors();
+                $contract->attachBehavior('SetTaxVoip', SetTaxVoip::className());
+                $contract->isHistoryVersioning = false;
+
+                $contract->trigger(ClientContract::TRIGGER_RESET_TAX_VOIP);
+
+                if ($contract->isSetVoipWithTax === null) {
+                    echo ".";
+                    continue;
+                }
+
+                if (!$contract->save()) {
+                    throw new ModelValidationException($contract);
+                }
+
+                echo $contract->isSetVoipWithTax ? '+' : '-';
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+            return Controller::EXIT_CODE_ERROR;
+        }
+
+        return Controller::EXIT_CODE_NORMAL;
     }
 
     /**

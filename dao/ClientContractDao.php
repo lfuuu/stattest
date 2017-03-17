@@ -9,6 +9,7 @@ use app\models\ClientContragent;
 use app\models\ClientDocument;
 use app\models\InvoiceSettings;
 use app\models\Organization;
+use app\models\TaxVoipSettings;
 use yii\db\Query;
 use Yii;
 
@@ -133,6 +134,47 @@ class ClientContractDao extends Singleton
     }
 
     /**
+     * Рассчитывает необходимость использования тарифов с НДС или без НДС
+     *
+     * @param ClientContract $contract
+     * @param ClientContragent $contragent
+     */
+    public function resetTaxVoip(ClientContract $contract, ClientContragent $contragent)
+    {
+        $isVoipWithTax = $this->getVoipWithTax($contract, $contragent);
+
+        if ($contract->is_voip_with_tax != $isVoipWithTax) {
+            $contract->is_voip_with_tax = $isVoipWithTax;
+            $contract->isSetVoipWithTax = $isVoipWithTax;
+        }
+
+        // no save
+    }
+
+    /**
+     * @param ClientContract $contract
+     * @param ClientContragent $contragent
+     * @return int
+     */
+    public function getVoipWithTax(ClientContract $contract, ClientContragent $contragent)
+    {
+        static $cache = [];
+
+        if (!$cache) {
+            /** @var TaxVoipSettings $item */
+            foreach (TaxVoipSettings::find()->all() as $item) {
+                $cache[$item->business_id][$item->country_id] = $item->is_with_tax;
+            }
+        }
+
+        if (isset($cache[$contract->business_id][$contragent->country_id])) {
+            return $cache[$contract->business_id][$contragent->country_id];
+        }
+
+        return 0;
+    }
+
+    /**
      * Устанавливаем эффективную ставку НДС на подчиненные ЛС
      *
      * @param ClientContract $contract
@@ -185,7 +227,7 @@ class ClientContractDao extends Singleton
     }
 
     /**
-     * Расчитывает эффективную ставку НДС для данного договора
+     * Рассчитывает эффективную ставку НДС для данного договора
      *
      * @param ClientContract $contract
      * @param bool $isOrganizationValue

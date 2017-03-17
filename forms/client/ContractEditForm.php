@@ -45,6 +45,7 @@ class ContractEditForm extends Form
         $is_external,
         $is_lk_access,
         $is_partner_login_allow,
+        $is_voip_with_tax,
 
         $save_comment_stage = false,
         $public_comment = [],

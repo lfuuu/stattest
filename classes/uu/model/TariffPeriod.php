@@ -124,6 +124,7 @@ class TariffPeriod extends HistoryActiveRecord
      * @param bool $isWithNullAndNotNull
      * @param int $statusId
      * @param bool $isPostpaid
+     * @param bool $isIncludeVat
      * @return array
      */
     public static function getList(
@@ -134,7 +135,8 @@ class TariffPeriod extends HistoryActiveRecord
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
         $statusId = null,
-        $isPostpaid = null
+        $isPostpaid = null,
+        $isIncludeVat = null
     ) {
         $defaultTariffPeriodId = null;
 
@@ -153,6 +155,10 @@ class TariffPeriod extends HistoryActiveRecord
 
         if ($statusId) {
             $activeQuery->andWhere(['tariff.tariff_status_id' => $statusId]);
+        }
+
+        if ($isIncludeVat) {
+            $activeQuery->andWhere(['tariff.is_include_vat' => $isIncludeVat]);
         }
 
         if ($cityId && ($serviceTypeId == ServiceType::ID_VOIP || $serviceTypeId == ServiceType::ID_VOIP_PACKAGE)) {

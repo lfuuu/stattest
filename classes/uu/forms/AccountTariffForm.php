@@ -340,7 +340,8 @@ abstract class AccountTariffForm extends Form
             $isWithEmpty,
             $isWithNullAndNotNull,
             $statusId = null,
-            $isPostpaid
+            $isPostpaid,
+            $this->accountTariff->clientAccount->is_voip_with_tax
         );
     }
 

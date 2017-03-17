@@ -42,7 +42,6 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                     ])
                 ?>
             </div>
-            <div class="col-sm-4"></div>
             <div class="col-sm-4">
                 <?php
                 if ($model->business_id === Business::PARTNER) {
@@ -52,6 +51,13 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                 }
                 ?>
             </div>
+            <div class="col-sm-4"><?= $f
+                    ->field($model, 'is_voip_with_tax')
+                    ->textInput([
+                        'disabled' => true,
+                        'value' => ($model->is_voip_with_tax ? 'Да' : 'Нет')
+                    ])
+                ?></div>
         </div>
 
         <div class="row">

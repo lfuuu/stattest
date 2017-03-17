@@ -66,6 +66,7 @@ use yii\helpers\Url;
  * @property int $effective_vat_rate
  * @property int $pay_bill_until_days
  * @property int $is_bill_pay_overdue
+ * @property int $is_voip_with_tax
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
