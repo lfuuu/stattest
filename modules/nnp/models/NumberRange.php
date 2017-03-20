@@ -9,32 +9,32 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
- * @property int id
+ * @property int $id
  * @property int $country_code
- * @property int ndc
- * @property int number_from
- * @property int number_to
- * @property int full_number_from bigint
- * @property int full_number_to bigint
- * @property string operator_source
- * @property int operator_id
- * @property string region_source
- * @property int region_id
- * @property int city_id // индекса и FK нет, потому что таблица городов в другой БД
- * @property bool is_active
- * @property string ndc_type_source
- * @property int ndc_type_id
- * @property string date_stop date
- * @property string date_resolution date
- * @property string detail_resolution
- * @property string status_number
+ * @property int $ndc
+ * @property int $number_from
+ * @property int $number_to
+ * @property int $full_number_from bigint
+ * @property int $full_number_to bigint
+ * @property string $operator_source
+ * @property int $operator_id
+ * @property string $region_source
+ * @property int $region_id
+ * @property int $city_id // индекса и FK нет, потому что таблица городов в другой БД
+ * @property bool $is_active
+ * @property string $ndc_type_source
+ * @property int $ndc_type_id
+ * @property string $date_stop date
+ * @property string $date_resolution date
+ * @property string $detail_resolution
+ * @property string $status_number
  *
- * @property City city
- * @property Operator operator
- * @property Region region
- * @property NumberRangePrefix[] numberRangePrefixes
- * @property NdcType ndcType
- * @property Country country
+ * @property City $city
+ * @property Operator $operator
+ * @property Region $region
+ * @property NumberRangePrefix[] $numberRangePrefixes
+ * @property NdcType $ndcType
+ * @property Country $country
  */
 class NumberRange extends ActiveRecord
 {

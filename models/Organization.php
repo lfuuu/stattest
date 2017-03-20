@@ -15,33 +15,33 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
- * @property int organization_id                ID организации
- * @property string actual_from                 Дата с которой фирма начинает действовать
- * @property string actual_to                   Дата до которой фирма действует
- * @property int firma                          Ключ для связи с clients*
- * @property string name                        Наименование (виртуальное свойство, зависит от I18N)
- * @property string full_name                   Полное наименование (виртуальное свойство, зависит от I18N)
- * @property string legal_address               Юр. адрес (виртуальное свойство, зависит от I18N)
- * @property string post_address                Почтовый адрес (виртуальное свойство, зависит от I18N)
- * @property int country_id                     Код страны
- * @property string lang_code                   Код языка
- * @property int is_simple_tax_system           Упрощенная схема налогооблажения (1 - Да)
- * @property int vat_rate                       Ставка налога
- * @property string registration_id             Регистрационный номер (ОГРН)
- * @property string tax_registration_id         Идентификационный номер налогоплательщика (ИНН)
- * @property string tax_registration_reason     Код причины постановки (КПП)
- * @property string contact_phone               Телефон
- * @property string contact_fax                 Факс
- * @property string contact_email               E-mail
- * @property string contact_site                URL сайта
- * @property string logo_file_name              Название файла с логотипом
- * @property string stamp_file_name             Название файла с печатью
- * @property int director_id                    ID записи персон на должность директора
- * @property int accountant_id                  ID записи персон на должность бухгалтера
+ * @property int $organization_id                ID организации
+ * @property string $actual_from                 Дата с которой фирма начинает действовать
+ * @property string $actual_to                   Дата до которой фирма действует
+ * @property int $firma                          Ключ для связи с clients*
+ * @property string $name                        Наименование (виртуальное свойство, зависит от I18N)
+ * @property string $full_name                   Полное наименование (виртуальное свойство, зависит от I18N)
+ * @property string $legal_address               Юр. адрес (виртуальное свойство, зависит от I18N)
+ * @property string $post_address                Почтовый адрес (виртуальное свойство, зависит от I18N)
+ * @property int $country_id                     Код страны
+ * @property string $lang_code                   Код языка
+ * @property int $is_simple_tax_system           Упрощенная схема налогооблажения (1 - Да)
+ * @property int $vat_rate                       Ставка налога
+ * @property string $registration_id             Регистрационный номер (ОГРН)
+ * @property string $tax_registration_id         Идентификационный номер налогоплательщика (ИНН)
+ * @property string $tax_registration_reason     Код причины постановки (КПП)
+ * @property string $contact_phone               Телефон
+ * @property string $contact_fax                 Факс
+ * @property string $contact_email               E-mail
+ * @property string $contact_site                URL сайта
+ * @property string $logo_file_name              Название файла с логотипом
+ * @property string $stamp_file_name             Название файла с печатью
+ * @property int $director_id                    ID записи персон на должность директора
+ * @property int $accountant_id                  ID записи персон на должность бухгалтера
  *
- * @property Person director
- * @property Person accountant
- * @property OrganizationSettlementAccount settlementAccount
+ * @property Person $director
+ * @property Person $accountant
+ * @property OrganizationSettlementAccount $settlementAccount
  * @property
  */
 class Organization extends ActiveRecord

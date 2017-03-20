@@ -6,11 +6,11 @@ use yii\db\ActiveRecord;
 /**
  * Class Business
  *
- * @property int id
- * @property string name
- * @property int sort
+ * @property int $id
+ * @property string $name
+ * @property int $sort
  *
- * @property BusinessProcess BusinessProcesses
+ * @property BusinessProcess $BusinessProcesses
  */
 class Business extends ActiveRecord
 {

@@ -31,7 +31,7 @@ use yii\helpers\Url;
  * @property int $tariff_period_id   Если null, то закрыто. Кэш AccountTariffLog->TariffPeriod
  * @property string $comment
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
- * @property int vm_elid_id ID VM collocation
+ * @property int $vm_elid_id ID VM collocation
  *
  * @property ClientAccount $clientAccount
  * @property ServiceType $serviceType

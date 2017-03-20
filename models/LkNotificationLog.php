@@ -9,15 +9,15 @@ use yii\db\ActiveRecord;
  * Лог оповещений клиента
  *
  * @property
- * @property int id
- * @property string date
- * @property int client_id
- * @property int contact_id
- * @property string event
- * @property int is_set
- * @property float balance
- * @property int limit
- * @property float value
+ * @property int $id
+ * @property string $date
+ * @property int $client_id
+ * @property int $contact_id
+ * @property string $event
+ * @property int $is_set
+ * @property float $balance
+ * @property int $limit
+ * @property float $value
  *
  * @package app\models
  */

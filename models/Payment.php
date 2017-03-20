@@ -32,7 +32,7 @@ use Yii;
  * @property float $bank           банк
  *
  * @property Bill $bill счёт
- * @property ClientAccount client
+ * @property ClientAccount $client
  */
 class Payment extends ActiveRecord
 {

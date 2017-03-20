@@ -9,15 +9,15 @@ use yii\db\ActiveRecord;
  * Универсальные услуги для низкоуровневого биллинга
  * Копия \app\classes\uu\model\AccountTariff
  *
- * @property int id
- * @property int account_client_id
- * @property int tariff_id
- * @property int activate_from
- * @property int deactivate_from
- * @property float coefficient
- * @property int account_tariff_id
- * @property float price
- * @property int service_type_id
+ * @property int $id
+ * @property int $account_client_id
+ * @property int $tariff_id
+ * @property int $activate_from
+ * @property int $deactivate_from
+ * @property float $coefficient
+ * @property int $account_tariff_id
+ * @property float $price
+ * @property int $service_type_id
  */
 class AccountTariffLight extends ActiveRecord
 {

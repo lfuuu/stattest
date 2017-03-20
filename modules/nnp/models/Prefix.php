@@ -11,14 +11,14 @@ use yii\helpers\Url;
  * Префикс
  * Группировка диапазонов номеров
  *
- * @property int id
- * @property string name
+ * @property int $id
+ * @property string $name
  *
- * @property NumberRangePrefix[] numberRangePrefixes
+ * @property NumberRangePrefix[] $numberRangePrefixes
  *
- * @property PrefixDestination[] prefixDestinations
- * @property PrefixDestination[] additionPrefixDestinations
- * @property PrefixDestination[] subtractionPrefixDestinations
+ * @property PrefixDestination[] $prefixDestinations
+ * @property PrefixDestination[] $additionPrefixDestinations
+ * @property PrefixDestination[] $subtractionPrefixDestinations
  */
 class Prefix extends ActiveRecord
 {

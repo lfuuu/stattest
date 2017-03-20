@@ -11,13 +11,13 @@ use yii\db\ActiveRecord;
 /**
  * Пакеты. Прайслист с МГП (минимальный гарантированный платеж)
  *
- * @property int id
- * @property int tariff_id
- * @property int pricelist_id
+ * @property int $id
+ * @property int $tariff_id
+ * @property int $pricelist_id
  *
- * @property Tariff tariff  FK нет, ибо в таблица в другой БД
- * @property Package package
- * @property Pricelist pricelist  FK нет, ибо в таблица в другой БД
+ * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property Package $package
+ * @property Pricelist $pricelist  FK нет, ибо в таблица в другой БД
  */
 class PackagePricelist extends ActiveRecord
 {

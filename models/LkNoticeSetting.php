@@ -9,14 +9,14 @@ use yii\db\ActiveRecord;
 /**
  * Настройки оповещений клиента в ЛК
  *
- * @property ClientContact contact
- * @property int client_contact_id
- * @property int client_id
- * @property int min_balance
- * @property int min_day_limit
- * @property int add_pay_notif
- * @property string status
- * @property string activate_code
+ * @property ClientContact $contact
+ * @property int $client_contact_id
+ * @property int $client_id
+ * @property int $min_balance
+ * @property int $min_day_limit
+ * @property int $add_pay_notif
+ * @property string $status
+ * @property string $activate_code
  */
 class LkNoticeSetting extends ActiveRecord
 {

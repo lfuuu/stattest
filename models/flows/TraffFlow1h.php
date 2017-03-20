@@ -5,12 +5,12 @@ use yii\db\ActiveRecord;
 
 /**
  * Class TraffFlow1h
- * @property  string datetime
- * @property  string router_ip
- * @property  string ip_addr
- * @property  integer in_bytes
- * @property  integer out_bytes
- * @property  integer type
+ * @property  string $datetime
+ * @property  string $router_ip
+ * @property  string $ip_addr
+ * @property  integer $in_bytes
+ * @property  integer $out_bytes
+ * @property  integer $type
  * @package app\models\flows
  */
 class TraffFlow1h extends ActiveRecord

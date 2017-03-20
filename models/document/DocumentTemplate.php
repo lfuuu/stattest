@@ -7,12 +7,12 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
- * @property int id
- * @property string name
- * @property int folder_id
- * @property string content
- * @property string type
- * @property int sort
+ * @property int $id
+ * @property string $name
+ * @property int $folder_id
+ * @property string $content
+ * @property string $type
+ * @property int $sort
  */
 class DocumentTemplate extends ActiveRecord
 {

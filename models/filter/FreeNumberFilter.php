@@ -11,8 +11,8 @@ use yii\db\Expression;
 /**
  * Фильтрация для свободных номеров
  *
- * @property FreeNumberFilter numbers
- * @property FreeNumberFilter numbers7800
+ * @property FreeNumberFilter $numbers
+ * @property FreeNumberFilter $numbers7800
  */
 class FreeNumberFilter extends Number
 {

@@ -18,13 +18,13 @@ use app\models\ClientAccount;
 use app\models\TagsResource;
 
 /**
- * @property int id
- * @property int date
- * @property int client_id
- * @property string event
- * @property int source_id
- * @property string comment
- * @property array properties
+ * @property int $id
+ * @property int $date
+ * @property int $client_id
+ * @property string $event
+ * @property int $source_id
+ * @property string $comment
+ * @property array $properties
  */
 class ImportantEvents extends ActiveRecord
 {

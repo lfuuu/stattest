@@ -7,7 +7,7 @@ use yii\db\ActiveRecord;
 /**
  * Отображение в ячейке строкового значения из selectbox вместо ID
  *
- * @property string[] filter
+ * @property string[] $filter
  * @method mixed getDataCellValue(ActiveRecord $model, string $key, integer $index)
  */
 trait ListTrait

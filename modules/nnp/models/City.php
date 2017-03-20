@@ -8,10 +8,10 @@ use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
- * @property int id
- * @property string name
- * @property int country_code
- * @property int region_id
+ * @property int $id
+ * @property string $name
+ * @property int $country_code
+ * @property int $region_id
  */
 class City extends ActiveRecord
 {

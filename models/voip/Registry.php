@@ -10,17 +10,17 @@ use app\models\City;
 /**
  * Class Registry
  *
- * @property integer id
- * @property integer country_id
- * @property integer city_id
- * @property string source
- * @property integer number_type_id
- * @property string number_from
- * @property string number_to
- * @property integer account_id
- * @property string created_at
- * @property string comment
- * @property City city
+ * @property integer $id
+ * @property integer $country_id
+ * @property integer $city_id
+ * @property string $source
+ * @property integer $number_type_id
+ * @property string $number_from
+ * @property string $number_to
+ * @property integer $account_id
+ * @property string $created_at
+ * @property string $comment
+ * @property City $city
  *
  * @package app\models\voip
  */

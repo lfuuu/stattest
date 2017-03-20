@@ -6,9 +6,9 @@ use yii\db\ActiveRecord;
 /**
  * Class ClientAccountOptions
  * @package app\models
- * @property int client_account_id
- * @property string option
- * @property string value
+ * @property int $client_account_id
+ * @property string $option
+ * @property string $value
  */
 class ClientAccountOptions extends ActiveRecord
 {

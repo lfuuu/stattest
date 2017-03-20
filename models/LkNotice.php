@@ -7,14 +7,14 @@ use yii\db\ActiveRecord;
  * Class LkNotice
  * Оповещение клиентов
  *
- * @property int id
- * @property string type
- * @property string data
- * @property string subject
- * @property string message
- * @property string created
- * @property int contact_id
- * @property string lang
+ * @property int $id
+ * @property string $type
+ * @property string $data
+ * @property string $subject
+ * @property string $message
+ * @property string $created
+ * @property int $contact_id
+ * @property string $lang
  *
  * @package app\models
  */

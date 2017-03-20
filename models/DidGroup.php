@@ -9,12 +9,12 @@ use yii\helpers\Url;
  * @property int $id
  * @property string $name
  * @property int $beauty_level
- * @property int country_code
- * @property int city_id
- * @property int number_type_id
- * @property float price1
- * @property float price2
- * @property float price3
+ * @property int $country_code
+ * @property int $city_id
+ * @property int $number_type_id
+ * @property float $price1
+ * @property float $price2
+ * @property float $price3
  *
  * @property City $city
  * @property Country $country

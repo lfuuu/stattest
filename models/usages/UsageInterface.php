@@ -11,15 +11,15 @@ use app\models\tariffs\TariffInterface;
 
 /**
  * @property int $id
- * @property string client
- * @property string activation_dt
- * @property string expire_dt
- * @property string actual_from
- * @property string actual_to
- * @property string status
- * @property int moved_from
- * @property int prev_usage_id
- * @property int next_usage_id
+ * @property string $client
+ * @property string $activation_dt
+ * @property string $expire_dt
+ * @property string $actual_from
+ * @property string $actual_to
+ * @property string $status
+ * @property int $moved_from
+ * @property int $prev_usage_id
+ * @property int $next_usage_id
  *
  * @property LogTarif $logTariff см. LogTariffTrait
  * @property ClientAccount $clientAccount

@@ -29,7 +29,7 @@ use yii\helpers\Url;
  * @property float $price
  * @property string $update_time
  * @property int $is_default
- * @property int is_converted
+ * @property int $is_converted
  *
  * @property ClientAccount $clientAccount
  * @property AccountEntry[] $accountEntries

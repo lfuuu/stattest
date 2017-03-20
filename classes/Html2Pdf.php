@@ -10,8 +10,8 @@ use yii\base\Object;
  *
  * Class Html2Pdf
  *
- * @property string html
- * @property string pdf
+ * @property string $html
+ * @property string $pdf
  *
  * @package app\classes
  */

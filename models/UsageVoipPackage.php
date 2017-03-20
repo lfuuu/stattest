@@ -20,15 +20,15 @@ use app\models\important_events\ImportantEvents;
 
 /**
  * @property int $id
- * @property string client
- * @property string activation_dt
- * @property string expire_dt
- * @property string actual_from
- * @property string actual_to
- * @property int tariff_id
- * @property int usage_voip_id
- * @property int usage_trunk_id
- * @property string status
+ * @property string $client
+ * @property string $activation_dt
+ * @property string $expire_dt
+ * @property string $actual_from
+ * @property string $actual_to
+ * @property int $tariff_id
+ * @property int $usage_voip_id
+ * @property int $usage_trunk_id
+ * @property string $status
  *
  * @property Region $connectionPoint
  * @property ClientAccount $clientAccount

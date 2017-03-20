@@ -9,12 +9,12 @@ use yii\db\Expression;
  * Class ClientContactPersonal
  * @package app\models
  *
- * @property int id
- * @property string date
- * @property string type_id
- * @property string contract_id
- * @property string contact
- * @property ClientContactType type
+ * @property int $id
+ * @property string $date
+ * @property string $type_id
+ * @property string $contract_id
+ * @property string $contact
+ * @property ClientContactType $type
  */
 class ClientContactPersonal extends ActiveRecord
 {

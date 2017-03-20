@@ -7,11 +7,11 @@ use yii\db\ActiveRecord;
 /**
  * Class BusinessProcess
  *
- * @property integer id
- * @property integer business_id
- * @property string name
- * @property integer show_as_status
- * @property integer sort
+ * @property integer $id
+ * @property integer $business_id
+ * @property string $name
+ * @property integer $show_as_status
+ * @property integer $sort
  */
 class BusinessProcess extends ActiveRecord
 {

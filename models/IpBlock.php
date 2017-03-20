@@ -6,9 +6,9 @@ use yii\db\ActiveRecord;
 /**
  * Class IpBlock
  *
- * @property string ip
- * @property string block_time
- * @property string unblock_time
+ * @property string $ip
+ * @property string $block_time
+ * @property string $unblock_time
  *
  * @package app\models
  */

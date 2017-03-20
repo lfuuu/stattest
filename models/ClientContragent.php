@@ -11,35 +11,35 @@ use app\classes\validators\InnKppValidator;
 /**
  * Class ClientContragent
  *
- * @property int id
- * @property int super_id
- * @property int country_id
- * @property string lang_code
- * @property string name
- * @property string legal_type
- * @property string name_full
- * @property string address_jur
- * @property string inn
- * @property string inn_euro
- * @property string kpp
- * @property string position
- * @property string fio
- * @property string positionV
- * @property string fioV
- * @property string signer_passport
- * @property string tax_regime
- * @property string opf_id
- * @property string okpo
- * @property string okvd
- * @property string ogrn
- * @property string comment
- * @property int sale_channel_id
- * @property int partner_contract_id
- * @property ClientAccount[] accounts
- * @property ClientContragentPerson person
- * @property ClientContract[] contracts
- * @property Country country
- * @property ClientSuper super
+ * @property int $id
+ * @property int $super_id
+ * @property int $country_id
+ * @property string $lang_code
+ * @property string $name
+ * @property string $legal_type
+ * @property string $name_full
+ * @property string $address_jur
+ * @property string $inn
+ * @property string $inn_euro
+ * @property string $kpp
+ * @property string $position
+ * @property string $fio
+ * @property string $positionV
+ * @property string $fioV
+ * @property string $signer_passport
+ * @property string $tax_regime
+ * @property string $opf_id
+ * @property string $okpo
+ * @property string $okvd
+ * @property string $ogrn
+ * @property string $comment
+ * @property int $sale_channel_id
+ * @property int $partner_contract_id
+ * @property ClientAccount[] $accounts
+ * @property ClientContragentPerson $person
+ * @property ClientContract[] $contracts
+ * @property Country $country
+ * @property ClientSuper $super
  */
 class ClientContragent extends HistoryActiveRecord
 {

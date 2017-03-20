@@ -10,12 +10,12 @@ use app\classes\media\ClientMedia;
 use app\classes\traits\TagsTrait;
 
 /**
- * @property int id
- * @property int contract_id
- * @property int user_id
- * @property string ts
- * @property string comment
- * @property string name
+ * @property int $id
+ * @property int $contract_id
+ * @property int $user_id
+ * @property string $ts
+ * @property string $comment
+ * @property string $name
  */
 class ClientFiles extends ActiveRecord
 {

@@ -7,43 +7,43 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
- * @property string number
- * @property string status
- * @property string reserve_from
- * @property string reserve_till
- * @property string hold_from
- * @property string hold_to
- * @property int beauty_level
- * @property int region
- * @property int client_id
- * @property int usage_id
- * @property int uu_account_tariff_id
- * @property string reserved_free_date
- * @property string used_until_date
- * @property int edit_user_id
- * @property int city_id
- * @property int did_group_id
- * @property string number_tech
- * @property int ndc
- * @property string number_subscriber
- * @property int number_type
- * @property string date_start
- * @property string date_end
- * @property int operator_account_id
- * @property int country_code
- * @property int calls_per_month_0 Кол-во звонков за текущий месяц
- * @property int calls_per_month_1 Кол-во звонков за -1 месяц
- * @property int calls_per_month_2 Кол-во звонков за -2 месяц
- * @property int is_ported
+ * @property string $number
+ * @property string $status
+ * @property string $reserve_from
+ * @property string $reserve_till
+ * @property string $hold_from
+ * @property string $hold_to
+ * @property int $beauty_level
+ * @property int $region
+ * @property int $client_id
+ * @property int $usage_id
+ * @property int $uu_account_tariff_id
+ * @property string $reserved_free_date
+ * @property string $used_until_date
+ * @property int $edit_user_id
+ * @property int $city_id
+ * @property int $did_group_id
+ * @property string $number_tech
+ * @property int $ndc
+ * @property string $number_subscriber
+ * @property int $number_type
+ * @property string $date_start
+ * @property string $date_end
+ * @property int $operator_account_id
+ * @property int $country_code
+ * @property int $calls_per_month_0 Кол-во звонков за текущий месяц
+ * @property int $calls_per_month_1 Кол-во звонков за -1 месяц
+ * @property int $calls_per_month_2 Кол-во звонков за -2 месяц
+ * @property int $is_ported
  *
  * @property City $city
  * @property DidGroup $didGroup
  * @property UsageVoip $usage
  * @property ClientAccount $clientAccount
  *
- * @property float originPrice
- * @property float price
- * @property array priceWithCurrency
+ * @property float $originPrice
+ * @property float $price
+ * @property array $priceWithCurrency
  */
 class Number extends ActiveRecord
 {

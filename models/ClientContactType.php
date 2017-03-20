@@ -8,9 +8,9 @@ use yii\db\ActiveRecord;
  * Class ClientContactType
  * @package app\models
  *
- * @property int id
- * @property string code
- * @property string name
+ * @property int $id
+ * @property string $code
+ * @property string $name
  */
 class ClientContactType extends ActiveRecord
 {

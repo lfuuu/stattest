@@ -11,19 +11,19 @@ use app\dao\ClientDocumentDao;
 
 
 /**
- * @property int id
- * @property int contract_id
- * @property int account_id
- * @property string contract_no
- * @property string contract_date
- * @property string contract_dop_date
- * @property int contract_dop_no
- * @property int user_id
- * @property string ts
- * @property string comment
- * @property int is_active
- * @property string type
- * @property string fileContent
+ * @property int $id
+ * @property int $contract_id
+ * @property int $account_id
+ * @property string $contract_no
+ * @property string $contract_date
+ * @property string $contract_dop_date
+ * @property int $contract_dop_no
+ * @property int $user_id
+ * @property string $ts
+ * @property string $comment
+ * @property int $is_active
+ * @property string $type
+ * @property string $fileContent
  */
 class ClientDocument extends ActiveRecord
 {

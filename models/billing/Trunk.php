@@ -7,10 +7,10 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
- * @property int id
- * @property string name
- * @property int server_id
- * @property int code
+ * @property int $id
+ * @property string $name
+ * @property int $server_id
+ * @property int $code
  */
 class Trunk extends ActiveRecord
 {

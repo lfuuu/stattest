@@ -6,12 +6,12 @@ use yii\db\ActiveRecord;
 /**
  * Class BusinessProcessStatus
  *
- * @property int id
- * @property int business_process_id
- * @property string name
- * @property int sort
- * @property string oldstatus
- * @property string color
+ * @property int $id
+ * @property int $business_process_id
+ * @property string $name
+ * @property int $sort
+ * @property string $oldstatus
+ * @property string $color
  */
 class BusinessProcessStatus extends ActiveRecord
 {

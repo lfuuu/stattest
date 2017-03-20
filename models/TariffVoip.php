@@ -10,38 +10,38 @@ use yii\db\ActiveRecord;
  * Class TariffVoip
  * @package app\models
  *
- * @property int id
- * @property int country_id
- * @property int connection_point_id
- * @property string name
- * @property string name_short
- * @property float sum_deposit
- * @property float month_line
- * @property float month_number
- * @property float once_line
- * @property float once_number
- * @property string type_countstring
- * @property string status
- * @property string period
- * @property int free_local_min
- * @property int freemin_for_number
- * @property float month_min_payment
- * @property int dest
- * @property string currency_id
- * @property int priceid
- * @property int edit_user
- * @property string edit_time
- * @property int is_clientSelectable
- * @property int tarif_group
- * @property int pricelist_id
- * @property int paid_redirect
- * @property int tariffication_by_minutes
- * @property int tariffication_full_first_minute
- * @property int tariffication_free_first_seconds
- * @property int tmp
- * @property int is_virtual
- * @property int is_testing
- * @property int price_include_vat
+ * @property int $id
+ * @property int $country_id
+ * @property int $connection_point_id
+ * @property string $name
+ * @property string $name_short
+ * @property float $sum_deposit
+ * @property float $month_line
+ * @property float $month_number
+ * @property float $once_line
+ * @property float $once_number
+ * @property string $type_countstring
+ * @property string $status
+ * @property string $period
+ * @property int $free_local_min
+ * @property int $freemin_for_number
+ * @property float $month_min_payment
+ * @property int $dest
+ * @property string $currency_id
+ * @property int $priceid
+ * @property int $edit_user
+ * @property string $edit_time
+ * @property int $is_clientSelectable
+ * @property int $tarif_group
+ * @property int $pricelist_id
+ * @property int $paid_redirect
+ * @property int $tariffication_by_minutes
+ * @property int $tariffication_full_first_minute
+ * @property int $tariffication_free_first_seconds
+ * @property int $tmp
+ * @property int $is_virtual
+ * @property int $is_testing
+ * @property int $price_include_vat
  */
 class TariffVoip extends ActiveRecord implements TariffInterface
 {

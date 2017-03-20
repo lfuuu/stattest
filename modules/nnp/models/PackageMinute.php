@@ -10,14 +10,14 @@ use yii\db\ActiveRecord;
 /**
  * Пакеты. Предоплаченные минуты
  *
- * @property int id
- * @property int tariff_id
- * @property int destination_id
- * @property int minute
+ * @property int $id
+ * @property int $tariff_id
+ * @property int $destination_id
+ * @property int $minute
  *
- * @property Tariff tariff  FK нет, ибо в таблица в другой БД
- * @property Package package
- * @property Destination destination
+ * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property Package $package
+ * @property Destination $destination
  */
 class PackageMinute extends ActiveRecord
 {

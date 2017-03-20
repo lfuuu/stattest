@@ -44,9 +44,9 @@ use yii\helpers\Url;
  *
  * VOIP package only!
  * @property Package $package
- * @property PackageMinute[] packageMinutes
- * @property PackagePrice[] packagePrices
- * @property PackagePricelist[] packagePricelists
+ * @property PackageMinute[] $packageMinutes
+ * @property PackagePrice[] $packagePrices
+ * @property PackagePricelist[] $packagePricelists
  *
  * VM collocation only!
  * @property integer $vm_id

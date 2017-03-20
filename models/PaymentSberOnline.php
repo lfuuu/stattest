@@ -8,20 +8,20 @@ use app\classes\behaviors\CreatedAt;
 /**
  * Class PaymentSberOnline
  *
- * @property int id
- * @property string payment_sent_date
- * @property string payment_received_date
- * @property string code1
- * @property string code2
- * @property string code3
- * @property string code4
- * @property string payer
- * @property string description
- * @property float sum_paid
- * @property float sum_received
- * @property float sum_fee
- * @property string code5
- * @property string createdAt
+ * @property int $id
+ * @property string $payment_sent_date
+ * @property string $payment_received_date
+ * @property string $code1
+ * @property string $code2
+ * @property string $code3
+ * @property string $code4
+ * @property string $payer
+ * @property string $description
+ * @property float $sum_paid
+ * @property float $sum_received
+ * @property float $sum_fee
+ * @property string $code5
+ * @property string $createdAt
  *
  * @package app\models
  */

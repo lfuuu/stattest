@@ -5,9 +5,9 @@ use yii;
 use yii\db\ActiveRecord;
 
 /**
- * @property int id
- * @property string name
- * @property string hostname
+ * @property int $id
+ * @property string $name
+ * @property string $hostname
  *
  * @property string $apiUrl
  */

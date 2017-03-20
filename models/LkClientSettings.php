@@ -10,18 +10,18 @@ use yii\db\Expression;
  * Class LkClientSetting
  * @package app\models
  *
- * @property int client_id
- * @property string created
- * @property float min_balance
- * @property string min_balance_sent
- * @property int is_min_balance_sent
- * @property float min_day_limit
- * @property string min_day_limit_sent
- * @property int is_min_day_limit_sent
- * @property string zero_balance_sent
- * @property int is_zero_balance_sent
- * @property string day_limit_sent
- * @property int is_day_limit_sent
+ * @property int $client_id
+ * @property string $created
+ * @property float $min_balance
+ * @property string $min_balance_sent
+ * @property int $is_min_balance_sent
+ * @property float $min_day_limit
+ * @property string $min_day_limit_sent
+ * @property int $is_min_day_limit_sent
+ * @property string $zero_balance_sent
+ * @property int $is_zero_balance_sent
+ * @property string $day_limit_sent
+ * @property int $is_day_limit_sent
 
  */
 class LkClientSettings extends ActiveRecord

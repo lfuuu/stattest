@@ -7,8 +7,8 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
- * @property int id
- * @property string name
+ * @property int $id
+ * @property string $name
  */
 class Status extends ActiveRecord
 {

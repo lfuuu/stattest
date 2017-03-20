@@ -11,19 +11,19 @@ use yii\helpers\Url;
 /**
  * Пакеты
  *
- * @property int tariff_id
- * @property int service_type_id
- * @property int tarification_free_seconds
- * @property int tarification_interval_seconds
- * @property int tarification_type
- * @property int tarification_min_paid_seconds
- * @property int currency_id
- * @property bool is_include_vat
+ * @property int $tariff_id
+ * @property int $service_type_id
+ * @property int $tarification_free_seconds
+ * @property int $tarification_interval_seconds
+ * @property int $tarification_type
+ * @property int $tarification_min_paid_seconds
+ * @property int $currency_id
+ * @property bool $is_include_vat
  *
- * @property Tariff tariff  FK нет, ибо в таблица в другой БД
- * @property PackageMinute[] packageMinutes
- * @property PackagePrice[] packagePrices
- * @property PackagePricelist[] packagePricelists
+ * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property PackageMinute[] $packageMinutes
+ * @property PackagePrice[] $packagePrices
+ * @property PackagePricelist[] $packagePricelists
  */
 class Package extends ActiveRecord
 {

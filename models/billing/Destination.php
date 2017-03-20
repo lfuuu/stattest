@@ -7,10 +7,10 @@ use yii\db\Connection;
 use yii\db\Expression;
 
 /**
- * @property int id serial NOT NULL
- * @property int server_id integer NOT NULL
- * @property string name character varying(50) NOT NULL,
- * @property int[] prefixlist_ids integer[] NOT NULL DEFAULT '{}'::integer[],
+ * @property int $id serial NOT NULL
+ * @property int $server_id integer NOT NULL
+ * @property string $name character varying(50) NOT NULL,
+ * @property int[] $prefixlist_ids integer[] NOT NULL DEFAULT '{}'::integer[],
  */
 class Destination extends ActiveRecord
 {

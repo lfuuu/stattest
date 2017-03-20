@@ -4,24 +4,24 @@ namespace app\models;
 use yii\db\ActiveRecord;
 
 /**
- * @property int id
- * @property string code
- * @property string name
- * @property string super_client_prefix
- * @property string wizard_type
- * @property int country_id
- * @property int organization_id
- * @property int client_contract_business_id
- * @property int client_contract_business_process_id
- * @property int client_contract_business_process_status_id
- * @property string currency_id
- * @property string timezone_name
- * @property int is_postpaid
- * @property int account_version
- * @property int credit
- * @property int voip_credit_limit_day
- * @property int voip_limit_mn_day
- * @property int is_default
+ * @property int $id
+ * @property string $code
+ * @property string $name
+ * @property string $super_client_prefix
+ * @property string $wizard_type
+ * @property int $country_id
+ * @property int $organization_id
+ * @property int $client_contract_business_id
+ * @property int $client_contract_business_process_id
+ * @property int $client_contract_business_process_status_id
+ * @property string $currency_id
+ * @property string $timezone_name
+ * @property int $is_postpaid
+ * @property int $account_version
+ * @property int $credit
+ * @property int $voip_credit_limit_day
+ * @property int $voip_limit_mn_day
+ * @property int $is_default
  */
 class EntryPoint extends ActiveRecord
 {

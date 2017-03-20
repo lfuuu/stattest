@@ -11,11 +11,11 @@ use yii\db\ActiveRecord;
 
 /**
  * @property int $id
- * @property string signature_file_name         Имя файла с оттиском подписи ответственного лица
- * @property string name_nominative             ФИО в им. п. (виртуальное свойство, зависит от I18N)
- * @property string name_genitive               ФИО в род. п. (виртуальное свойство, зависит от I18N)
- * @property string post_nominative             Наименование должности в им. п. (виртуальное свойство, зависит от I18N)
- * @property string post_genitive               Наименование должности в род. п. (виртуальное свойство, зависит от I18N)
+ * @property string $signature_file_name         Имя файла с оттиском подписи ответственного лица
+ * @property string $name_nominative             ФИО в им. п. (виртуальное свойство, зависит от I18N)
+ * @property string $name_genitive               ФИО в род. п. (виртуальное свойство, зависит от I18N)
+ * @property string $post_nominative             Наименование должности в им. п. (виртуальное свойство, зависит от I18N)
+ * @property string $post_genitive               Наименование должности в род. п. (виртуальное свойство, зависит от I18N)
  */
 class Person extends ActiveRecord
 {

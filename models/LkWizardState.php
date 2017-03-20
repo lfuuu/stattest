@@ -7,18 +7,18 @@ use yii\db\ActiveRecord;
 /**
  * Class LkWizardState
  *
- * @property int contract_id
- * @property int step
- * @property string state
- * @property int trouble_id
- * @property string type
- * @property int is_bonus_added
- * @property int is_on
- * @property int is_rules_accept_legal
- * @property int is_rules_accept_person
- * @property int is_contract_accept
- * @property int client_contragent_person
- * @property Trouble trouble
+ * @property int $contract_id
+ * @property int $step
+ * @property string $state
+ * @property int $trouble_id
+ * @property string $type
+ * @property int $is_bonus_added
+ * @property int $is_on
+ * @property int $is_rules_accept_legal
+ * @property int $is_rules_accept_person
+ * @property int $is_contract_accept
+ * @property int $client_contragent_person
+ * @property Trouble $trouble
  *
  * @package app\models
  */

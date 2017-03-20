@@ -8,10 +8,10 @@ use yii\db\ActiveRecord;
 /**
  * Interface UsageHelperInterface
  * @package app\helpers\usages
- * @property string title
- * @property string description
- * @property string help
- * @property string editLink
+ * @property string $title
+ * @property string $description
+ * @property string $help
+ * @property string $editLink
  * @property ActiveRecord $transferedFrom
  * @property $fieldsForClientAccountLink
  */

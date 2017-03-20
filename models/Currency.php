@@ -6,9 +6,9 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
- * @property string id
- * @property string name
- * @property string symbol
+ * @property string $id
+ * @property string $name
+ * @property string $symbol
  */
 class Currency extends ActiveRecord
 {

@@ -7,12 +7,12 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * @property int prefix_id
- * @property int destination_id
- * @property bool is_addition true - сложить, false - вычесть префикс
+ * @property int $prefix_id
+ * @property int $destination_id
+ * @property bool $is_addition true - сложить, false - вычесть префикс
  *
- * @property Prefix prefix
- * @property Destination destination
+ * @property Prefix $prefix
+ * @property Destination $destination
  */
 class PrefixDestination extends ActiveRecord
 {

@@ -5,13 +5,13 @@ use yii\db\ActiveRecord;
 
 
 /**
- * @property int pk
- * @property string e164
- * @property string action
- * @property int client
- * @property int user
- * @property string time
- * @property string addition
+ * @property int $pk
+ * @property string $e164
+ * @property string $action
+ * @property int $client
+ * @property int $user
+ * @property string $time
+ * @property string $addition
  *
  * Class NumberLog
  * @package app\models

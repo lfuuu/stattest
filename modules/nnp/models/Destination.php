@@ -11,14 +11,14 @@ use yii\helpers\Url;
  * Направление
  * Группировка префиксов
  *
- * @property int id
- * @property string name
+ * @property int $id
+ * @property string $name
  *
- * @property Land land
- * @property Status status
- * @property PrefixDestination[] prefixDestinations
- * @property PrefixDestination[] additionPrefixDestinations
- * @property PrefixDestination[] subtractionPrefixDestinations
+ * @property Land $land
+ * @property Status $status
+ * @property PrefixDestination[] $prefixDestinations
+ * @property PrefixDestination[] $additionPrefixDestinations
+ * @property PrefixDestination[] $subtractionPrefixDestinations
  */
 class Destination extends ActiveRecord
 {

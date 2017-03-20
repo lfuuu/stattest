@@ -12,7 +12,7 @@ use app\models\Organization;
 use app\models\Bill;
 
 /**
- * @property Organization organization
+ * @property Organization $organization
  * @property
  */
 abstract class DocumentReport extends Object

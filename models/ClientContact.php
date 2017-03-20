@@ -19,8 +19,8 @@ use yii\db\ActiveQuery;
  * @property int $is_official
  * @property int $is_validate
  *
- * @property User user
- * @property ClientAccount client
+ * @property User $user
+ * @property ClientAccount $client
  *
  * @method static ClientContact findOne($condition)
  */

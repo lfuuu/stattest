@@ -16,8 +16,8 @@ use app\helpers\usages\LogTariffTrait;
 /**
  * @property int $id
  * @property int $region
- * @property int amount
- * @property string comment
+ * @property int $amount
+ * @property string $comment
  * @property TariffVirtpbx $tariff
  * @property ClientAccount $clientAccount
  * @property UsageVirtpbxHelper $helper

@@ -6,10 +6,10 @@ use yii\db\ActiveRecord;
 /**
  * Class Bik
  *
- * @property string bik
- * @property string corr_acc
- * @property string bank_name
- * @property string bank_city
+ * @property string $bik
+ * @property string $corr_acc
+ * @property string $bank_name
+ * @property string $bank_city
  */
 class Bik extends ActiveRecord
 {

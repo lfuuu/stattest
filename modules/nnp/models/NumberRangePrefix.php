@@ -7,11 +7,11 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * @property int number_range_id
- * @property int prefix_id
+ * @property int $number_range_id
+ * @property int $prefix_id
  * 
- * @property NumberRange numberRange
- * @property Prefix prefix
+ * @property NumberRange $numberRange
+ * @property Prefix $prefix
  */
 class NumberRangePrefix extends ActiveRecord
 {

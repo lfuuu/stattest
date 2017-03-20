@@ -6,16 +6,16 @@ use yii\db\ActiveRecord;
 /**
  * Class Prefixlist
  *
- * @property int id
- * @property string name
- * @property int type_id
- * @property string sub_type
- * @property string prefixes
- * @property int country_id
- * @property int region_id
- * @property int city_id
- * @property int exclude_operators
- * @property string operators
+ * @property int $id
+ * @property string $name
+ * @property int $type_id
+ * @property string $sub_type
+ * @property string $prefixes
+ * @property int $country_id
+ * @property int $region_id
+ * @property int $city_id
+ * @property int $exclude_operators
+ * @property string $operators
  */
 class Prefixlist extends ActiveRecord
 {

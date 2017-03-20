@@ -6,11 +6,11 @@ use Yii;
 use yii\db\ActiveRecord;
 
 /**
- * @property float amount_sum
- * @property float amount_day_sum
- * @property float amount_mn_day_sum
- * @property float amount_month_sum
- * @property string amount_date
+ * @property float $amount_sum
+ * @property float $amount_day_sum
+ * @property float $amount_mn_day_sum
+ * @property float $amount_month_sum
+ * @property string $amount_date
  */
 class Counter extends ActiveRecord
 {

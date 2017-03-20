@@ -79,15 +79,15 @@ use yii\helpers\Url;
  * @property ClientContact[] $contacts
  * @property ClientContract $contract
  * @property ClientContragent $contragent
- * @property Organization organization
- * @property User userAccountManager
- * @property LkWizardState lkWizardState
- * @property ClientCounter billingCounters
- * @property ClientCounter billingCountersFastMass
- * @property string company_full
- * @property string address_jur
- * @property ClientContact[] allContacts
- * @property integer businessId
+ * @property Organization $organization
+ * @property User $userAccountManager
+ * @property LkWizardState $lkWizardState
+ * @property ClientCounter $billingCounters
+ * @property ClientCounter $billingCountersFastMass
+ * @property string $company_full
+ * @property string $address_jur
+ * @property ClientContact[] $allContacts
+ * @property integer $businessId
  */
 class ClientAccount extends HistoryActiveRecord
 {

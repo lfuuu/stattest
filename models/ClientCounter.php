@@ -24,7 +24,7 @@ use yii\helpers\ArrayHelper;
  * @property float $dayMnSummary
  * @property float $monthSummary
  *
- * @property ClientAccount clientAccount
+ * @property ClientAccount $clientAccount
  */
 class ClientCounter extends ActiveRecord
 {

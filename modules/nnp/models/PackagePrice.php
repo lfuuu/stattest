@@ -10,15 +10,15 @@ use yii\db\ActiveRecord;
 /**
  * Пакеты. Цена по направлениям
  *
- * @property int id
- * @property int tariff_id
- * @property int destination_id
- * @property float price
- * @property float interconnect_price
+ * @property int $id
+ * @property int $tariff_id
+ * @property int $destination_id
+ * @property float $price
+ * @property float $interconnect_price
  *
- * @property Tariff tariff  FK нет, ибо в таблица в другой БД
- * @property Package package
- * @property Destination destination
+ * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property Package $package
+ * @property Destination $destination
  */
 class PackagePrice extends ActiveRecord
 {
