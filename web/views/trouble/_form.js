@@ -1,7 +1,6 @@
 +function ($) {
     'use strict';
 
-    alert('aaa');
     /*
     $(function () {
         $('select[name="timing"]').on('change', function () {

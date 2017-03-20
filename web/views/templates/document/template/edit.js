@@ -1,7 +1,6 @@
 +function ($) {
     'use strict';
 
-    alert('aaa');
     $(function () {
         tinymce.init({
             selector: 'textarea',
