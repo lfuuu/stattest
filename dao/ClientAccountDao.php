@@ -462,12 +462,15 @@ class ClientAccountDao extends Singleton
 
         // пересохранение PaymentOrder
         PaymentOrder::deleteAll(['client_id' => $clientAccount->id]);
-        Yii::$app->db->createCommand()
-            ->batchInsert(
-                PaymentOrder::tableName(),
-                ['payment_id', 'bill_no', 'client_id', 'sum'],
-                $batchInsertPaymentOrders
-            )->execute();
+
+        if ($batchInsertPaymentOrders) {
+            Yii::$app->db->createCommand()
+                ->batchInsert(
+                    PaymentOrder::tableName(),
+                    ['payment_id', 'bill_no', 'client_id', 'sum'],
+                    $batchInsertPaymentOrders
+                )->execute();
+        }
 
 
         // проверка изменения частичной оплаты счета
