@@ -34,7 +34,7 @@ echo Breadcrumbs::widget([
     $form = ActiveForm::begin(['type' => ActiveForm::TYPE_VERTICAL]);
 
     $this->registerJsVariables([
-        'editFormI' => $form->getId(),
+        'editFormId' => $form->getId(),
         'tariffEditFormId' => '',
     ], 'usage');
     ?>

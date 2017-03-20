@@ -1,12 +1,12 @@
 function submitForm(scenario) {
     $('#scenario').val(scenario);
-    $('#' + window.frontendVariables.usage.editFormId)[0].submit();
+    $('#' + window.frontendVariables.usage.editFormId).submit();
 
 }
 
 function submitForm2(scenario) {
     $('#scenario2').val(scenario);
-    $('#' + window.frontendVariables.usage.tariffEditFormId)[0].submit();
+    $('#' + window.frontendVariables.usage.tariffEditFormId).submit();
 }
 
 +function ($) {
