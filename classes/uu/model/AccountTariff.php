@@ -966,7 +966,7 @@ class AccountTariff extends HistoryActiveRecord
             return;
         }
 
-        if ($this->isNewRecord && !$this->number->status != Number::STATUS_INSTOCK) {
+        if ($this->isNewRecord && $this->number->status != Number::STATUS_INSTOCK) {
             $this->addError($attribute, 'Этот телефонный номер нельзя подключить');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK;
             return;
