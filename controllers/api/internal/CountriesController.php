@@ -46,6 +46,7 @@ class CountriesController extends ApiInternalController
      *
      * @return array
      * @throws BadRequestHttpException
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function actionGetCities()
     {
@@ -59,16 +60,22 @@ class CountriesController extends ApiInternalController
         }
 
         $result = [];
-        $cities = City::getList($isWithEmpty = false, $countryId);
+        $cities = City::getList(
+            $isWithEmpty = false,
+            $countryId,
+            $isWithNullAndNotNull = false,
+            $isUsedOnly = true,
+            $isShowInLk = true
+        );
 
         foreach ($cities as $cityId => $city) {
 
             $freeNumbersCount = $withNumbers ?
-                (new FreeNumberFilter)->getNumbers()->setCity($cityId)->count() :
+                (new FreeNumberFilter)->setCity($cityId)->count() :
                 0;
 
             $ndcs = $withNdcs ?
-                (new FreeNumberFilter)->getNumbers()->setCity($cityId)->getDistinctNdc() :
+                (new FreeNumberFilter)->setCity($cityId)->getDistinctNdc() :
                 [];
 
             $result[] = [

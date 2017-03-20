@@ -113,13 +113,15 @@ class City extends ActiveRecord
      * @param int $countryId
      * @param bool $isWithNullAndNotNull
      * @param bool $isUsedOnly
+     * @param bool $isShowInLk
      * @return string[]
      */
     public static function getList(
         $isWithEmpty = false,
         $countryId = null,
         $isWithNullAndNotNull = false,
-        $isUsedOnly = true
+        $isUsedOnly = true,
+        $isShowInLk = false
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -133,7 +135,11 @@ class City extends ActiveRecord
             $where = [
                 'AND',
                 $countryId ? ['country_id' => $countryId] : [],
-                $isUsedOnly ? ['in_use' => 1] : []
+                [
+                    'AND',
+                    $isUsedOnly ? ['in_use' => 1] : [],
+                    $isShowInLk ? ['is_show_in_lk' => 1] : []
+                ]
             ]
         );
     }

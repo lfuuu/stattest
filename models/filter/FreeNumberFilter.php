@@ -32,7 +32,7 @@ class FreeNumberFilter extends Number
     private $_similar = null;
 
     /** @var int */
-    private $_totalCount = 0;
+    private $_totalCount = null;
 
     /**
      * При клонировании
@@ -356,8 +356,9 @@ class FreeNumberFilter extends Number
      */
     public function count()
     {
-        return $this->_totalCount;
-        // return $this->_query->count();
+        return is_null($this->_totalCount) ?
+            $this->_query->count() :
+            $this->_totalCount;
     }
 
     /**
