@@ -1,4 +1,4 @@
-+function ($) {
++function ($, packageList, packageSelected) {
     'use strict';
 
     $(function () {
@@ -13,30 +13,32 @@
 
                 $packages.find('option:gt(0)').remove();
 
-                if (current) {
-                    if (frontendVariables.reportVoipPackageUseReport.packageList[current]) {
-                        $.each(frontendVariables.reportVoipPackageUseReport.packageList[current], function () {
-                            $('<option />')
-                                .text(this.packageTitle)
-                                .val(this.packageId)
-                                .prop('selected', this.packageId == frontendVariables.reportVoipPackageUseReport.packageSelected)
-                                .appendTo(packages);
-                        });
-                    }
-
-                    if ($packages.find('option').length > 1) {
-                        $buildBtn
-                            .prop('disabled', false)
-                            .prev('div')
-                            .hide();
-                    }
-                    else {
-                        $buildBtn
-                            .prop('disabled', true)
-                            .prev('div')
-                            .show();
-                    }
+                if (!current) {
+                    return;
                 }
+
+                if (packageList[current]) {
+                    $.each(packageList[current], function () {
+                        $('<option />')
+                            .text(this.packageTitle)
+                            .val(this.packageId)
+                            .prop('selected', this.packageId == packageSelected)
+                            .appendTo($packages);
+                    });
+                }
+
+                if ($packages.find('option').length > 1) {
+                    $buildBtn
+                        .prop('disabled', false)
+                        .prev('div')
+                        .hide();
+                } else {
+                    $buildBtn
+                        .prop('disabled', true)
+                        .prev('div')
+                        .show();
+                }
+
             })
             .trigger('change');
 
@@ -46,7 +48,7 @@
 
                 $packages.find('option:eq(0)').prop('disabled', (current == 'by_package_calls' ? true : false));
 
-                if (!frontendVariables.reportVoipPackageUseReport.packageSelected) {
+                if (!packageSelected) {
                     $packages.find('option:gt(0)').prop('selected', true);
                 }
             })
