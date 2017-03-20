@@ -15,6 +15,7 @@ use app\models\ClientContragent;
 use app\models\Organization;
 use Yii;
 use yii\base\Exception;
+use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -31,7 +32,7 @@ class ContractEditForm extends Form
         $contragent_id,
         $number,
         $date,
-        $organization_id,
+        $organization_id = Organization::MCN_TELEKOM,
         $manager,
         $comment,
         $account_manager,
@@ -197,9 +198,10 @@ class ContractEditForm extends Form
         }
 
         $organizations = Organization::find()
-            ->andWhere(['<=', 'actual_from', $date]) // between
+            ->andWhere(['<=', 'actual_from', $date])
             ->andWhere(['>=', 'actual_to', $date])
             ->all();
+        
         return ArrayHelper::map($organizations, 'organization_id', 'name');
     }
 
