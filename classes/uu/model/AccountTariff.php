@@ -777,6 +777,11 @@ class AccountTariff extends HistoryActiveRecord
             return false;
         }
 
+        if ($this->tariffPeriod->tariff->service_type_id != ServiceType::ID_VOIP) {
+            // не телефония
+            return false;
+        }
+
         // таки можно
         return true;
     }
