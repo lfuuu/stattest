@@ -6,10 +6,10 @@
  * @var \yii\web\View $this
  */
 
+use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\GridView;
 use app\models\voip\filter\CallsRawFilter;
 use yii\widgets\Breadcrumbs;
-use app\classes\DateTimeWithUserTimezone;
 
 if (!isset(Yii::$app->request->get()['_pjax'])) {
     echo app\classes\Html::formLabel($this->title = 'Отчет по данным calls_raw');
@@ -88,26 +88,34 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
 }
 
 try {
-    GridView::separateWidget(
-        [
+    GridView::separateWidget([
+        'dataProvider' => $filterModel->getReport(),
+        'filterModel' => $filterModel,
+        'beforeHeader' => [
+            'columns' => $filter
+        ],
+        'pjaxSettings' => [
+            'options' => [
+                'timeout' => 180000,
+                'enableReplaceState' => true,
+            ]
+        ],
+        'columns' => $columns,
+        'filterPosition' => '',
+        'emptyText' => isset($emptyText) ?
+            $emptyText :
+            (
+                $filterModel->isFilteringPossible() ?
+                    Yii::t('yii', 'No results found.') :
+                    'Выберите время начала разговора и хотя бы еще одно поле'
+            ),
+        'exportWidget' => \app\widgets\GridViewExport\GridViewExport::widget([
             'dataProvider' => $filterModel->getReport(),
             'filterModel' => $filterModel,
-            'beforeHeader' => [
-                'columns' => $filter
-            ],
-            'pjaxSettings' => [
-                'options' => [
-                    'timeout' => 180000,
-                    'enableReplaceState' => true,
-                ]
-            ],
             'columns' => $columns,
-            'filterPosition' => '',
-            'emptyText' => isset($emptyText) ? $emptyText : ($filterModel->isFilteringPossible() ?
-                Yii::t('yii', 'No results found.') :
-                'Выберите время начала разговора и хотя бы еще одно поле'),
-        ]
-    );
+            'batchSize' => 1000,
+        ]),
+    ]);
 } catch (yii\db\Exception $e) {
     if ($e->getCode() == 8) {
         Yii::$app->session->addFlash(
@@ -115,9 +123,9 @@ try {
             'Запрос слишком тяжелый, чтобы выполниться. Задайте, пожалуйста, другие фильтры'
         );
     } else {
-        Yii::$app->session->addFlash('error', "Ошибка выполнения запроса: " . $e->getMessage());
+        Yii::$app->session->addFlash('error', 'Ошибка выполнения запроса: ' . $e->getMessage());
     }
 }
 
-list($serverUrl, $siteUrl) = Yii::$app->assetManager->publish(dirname(__FILE__) . '/assets');
+list($serverUrl, $siteUrl) = Yii::$app->assetManager->publish(__DIR__ . DIRECTORY_SEPARATOR . 'assets');
 $this->registerJsFile($siteUrl . '/index.js');

@@ -2,10 +2,17 @@
 
 namespace app\widgets\GridViewExport;
 
+use app\classes\grid\GridView;
 use app\classes\Html;
+use app\classes\validators\ArrayValidator;
+use app\exceptions\ModelValidationException;
+use app\widgets\GridViewExport\drivers\CsvDriver;
 use app\widgets\GridViewExport\drivers\ExportDriver;
 use Yii;
 use yii\base\DynamicModel;
+use yii\base\ExitException;
+use yii\base\InvalidConfigException;
+use yii\base\InvalidParamException;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQueryInterface;
@@ -18,11 +25,8 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
 use yii\helpers\Json;
 use yii\web\BadRequestHttpException;
+use yii\web\HttpException;
 use yii\web\JsExpression;
-use app\classes\validators\ArrayValidator;
-use app\exceptions\ModelValidationException;
-use app\classes\grid\GridView;
-use app\widgets\GridViewExport\drivers\CsvDriver;
 
 class GridViewExport extends GridView
 {
@@ -58,8 +62,9 @@ class GridViewExport extends GridView
      * @return string
      * @throws BadRequestHttpException
      * @throws ModelValidationException
-     * @throws \yii\base\ExitException
-     * @throws \yii\base\InvalidConfigException
+     * @throws ExitException
+     * @throws InvalidConfigException
+     * @throws InvalidParamException
      */
     public function run()
     {
@@ -75,7 +80,7 @@ class GridViewExport extends GridView
                 ob_end_clean();
             }
 
-            $action = 'action' . ucfirst($actionRequest);
+            $action = '_action' . ucfirst($actionRequest);
 
             if (!method_exists($this, $action)) {
                 throw new BadRequestHttpException('Action not found');
@@ -148,6 +153,7 @@ class GridViewExport extends GridView
      * @param ActiveRecord $model
      * @param string $key
      * @param int $index
+     * @throws InvalidParamException
      * @return array
      */
     public function getRow($model, $key, $index)
@@ -233,8 +239,12 @@ class GridViewExport extends GridView
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
+     * @throws InvalidParamException
+     * @throws ModelValidationException
+     * @throws BadRequestHttpException
      */
-    private function actionInit()
+    private function _actionInit()
     {
         /** @var DynamicModel $input */
         $input = DynamicModel::validateData(
@@ -274,8 +284,12 @@ class GridViewExport extends GridView
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
+     * @throws InvalidParamException
+     * @throws ModelValidationException
+     * @throws BadRequestHttpException
      */
-    private function actionIteration()
+    private function _actionIteration()
     {
         /** @var DynamicModel $input */
         $input = DynamicModel::validateData(
@@ -325,7 +339,13 @@ class GridViewExport extends GridView
         ]);
     }
 
-    private function actionDownload()
+    /**
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws ModelValidationException
+     * @throws HttpException
+     */
+    private function _actionDownload()
     {
         /** @var DynamicModel $input */
         $input = DynamicModel::validateData(
