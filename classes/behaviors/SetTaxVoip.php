@@ -3,9 +3,11 @@
 namespace app\classes\behaviors;
 
 use app\exceptions\ModelValidationException;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use Yii;
+use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 use yii\base\Behavior;
 use yii\db\AfterSaveEvent;
@@ -36,11 +38,20 @@ class SetTaxVoip extends Behavior
     {
         $model = $event->sender;
 
+        $isClientAccount = $model instanceof ClientAccount;
         $isClientContragent = $model instanceof ClientContragent;
         $isClientContract = $model instanceof ClientContract;
 
-        if (!($isClientContragent || $isClientContract)) {
+        if (!$isClientContragent && !$isClientContract && !$isClientAccount) {
             throw new \LogicException('Неподдерживаемая модель в поведении');
+        }
+
+        if ($isClientAccount) {
+            if ($event->name == ActiveRecord::EVENT_BEFORE_INSERT) {
+                $this->_clientAccountCreate($model);
+            }
+
+            return;
         }
 
         if ($isClientContragent && $model->isAttributeChanged('country_id')) {
@@ -50,6 +61,10 @@ class SetTaxVoip extends Behavior
             $contracts = [$model];
             $contragent = $model->contragent;
         } else {
+            return;
+        }
+
+        if (!$contracts) {
             return;
         }
 
@@ -89,5 +104,19 @@ class SetTaxVoip extends Behavior
             $transaction->rollBack();
             throw $e;
         }
+    }
+
+
+    /**
+     * Установка использования тарифов с НДС или без НДС при создании ЛС
+     *
+     * @param ClientAccount $model
+     * @internal param ModelEvent $event
+     */
+    private function _clientAccountCreate(ClientAccount $model)
+    {
+        $model->is_voip_with_tax = $model->contract->is_voip_with_tax;
+
+        // No save. Before save event.
     }
 }

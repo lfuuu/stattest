@@ -2,6 +2,7 @@
 
 namespace tests\codeception\unit\custom;
 
+use app\forms\client\ClientCreateExternalForm;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -111,20 +112,17 @@ trait _TransferTrait
 
     /**
      * Создание болванки ЛС для переноса
-     * @return int
+     * @return ClientAccount
      */
     private function createSingleClientAccount()
     {
-        $client = new ClientAccount;
-        $client->sale_channel = 0;
-        $client->consignee = '';
-        $client->is_active = 0;
-        $client->client = 'id' . mt_rand(0, 1000);
-        $client->timezone_name = DateTimeZoneHelper::TIMEZONE_MOSCOW;
-        if ($client->validate() && $client->save()) {
-            return $client;
+        $clientForm = new ClientCreateExternalForm();
+        $clientForm->company = 'test account ' . mt_rand(0, 1000);
+        if (!$clientForm->create()) {
+            $this->fail('Cant create client account');
         }
-        $this->fail('Cant create client account');
+
+        return ClientAccount::findOne(['id' => $clientForm->account_id]);
     }
 
     /**

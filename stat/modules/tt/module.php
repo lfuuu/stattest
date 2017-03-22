@@ -9,6 +9,8 @@
   7 | выполнен
   8 | отработано
 */
+use app\exceptions\ModelValidationException;
+use app\models\TroubleState;
 use yii\db\ActiveRecord;
 use yii\base\ModelEvent;
 use app\dao\TroubleDao;
@@ -1612,29 +1614,26 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
     function createStage($trouble_id, $data_to_open,$data_to_close = null,$user_edit=null)
     {
-        global $db,$user;
-        //state, user_main, comment, uspd,
-        //date_start, date_finish
+        global $user;
+
+        $state = TroubleState::findOne(['id' => $data_to_open['state_id']]);
 
         if(is_array($data_to_close)){
             $R = array(
-                'stage_id'=>$data_to_close['stage_id'],
-                'comment'=>$data_to_close['comment'],
-                'date_edit'=>array('NOW()'),
-                'user_edit'=>$user_edit?$user_edit:$user->Get('user')
+                'stage_id' => $data_to_close['stage_id'],
+                'comment' => $data_to_close['comment'],
+                'date_edit' => date(DateTimeZoneHelper::DATETIME_FORMAT),
+                'user_edit' => $user_edit ? $user_edit : $user->Get('user')
             );
 
-            $db->QueryUpdate('tt_stages','stage_id',$R);
+            if ($stage = YiiTroubleStage::findOne(['stage_id' => $data_to_close['stage_id']])) {
+                $stage->setAttributes($R, false);
+                if (!$stage->save()) {
+                    throw new ModelValidationException($stage);
+                }
+            }
 
-
-          $r = $db->GetRow('
-                select
-                    *
-                from
-                    tt_states
-                where
-                    id='.$data_to_open['state_id']);
-            $T = $r['time_delta'];
+            $T = $state ? $state->time_delta : 0;
             if(isset($data_to_open['date_start'])){
                 if(!isset($data_to_open['date_finish_desired']))
                     $data_to_open['date_finish_desired'] = array(
@@ -1647,16 +1646,16 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                 $time = $time[0];
                 $data_to_open['date_start'] = $date." ".$time.":00:00";
             }else{
-                $r1 = $db->GetRow('
+                $r1 = Yii::$app->db->createCommand('
                     select
                         GREATEST(date_start,NOW()) as date_start
                     from
                         tt_stages
                     where
                         stage_id='.$data_to_close['stage_id']
-                );
+                )->queryScalar();
 
-                $r2 = $db->GetRow('
+                $r2 = Yii::$app->db->createCommand('
                     select
                         GREATEST(date_finish_desired,NOW()+INTERVAL '.$T.' HOUR) as date_finish_desired
                     from
@@ -1668,39 +1667,35 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     order by
                         stage_id DESC
                     LIMIT 1
-                ');
-                $data_to_open['date_start'] = $r1['date_start'];
+                ')->queryScalar();
+                $data_to_open['date_start'] = $r1;
                 if(!isset($data_to_open['date_finish_desired']))
-                    $data_to_open['date_finish_desired'] = $r2['date_finish_desired'];
+                    $data_to_open['date_finish_desired'] = $r2;
             }
         }
         if(in_array($data_to_open['state_id'],array(2,20,21,39,40,48))){
-            $data_to_open['date_finish_desired'] = array('NOW()');
-            $data_to_open['date_edit'] = array('NOW()');
+            $data_to_open['date_finish_desired'] = date(DateTimeZoneHelper::DATETIME_FORMAT);;
+            $data_to_open['date_edit'] = date(DateTimeZoneHelper::DATETIME_FORMAT);
             $data_to_open['user_edit'] = $user_edit?$user_edit:$user->Get('user');
         }
         $trouble = YiiTrouble::findOne($trouble_id);
         $data_to_open['trouble_id']=$trouble->id;
 
-        $id = $db->QueryInsert('tt_stages',$data_to_open);
+        $stage = new YiiTroubleStage;
+        $stage->setAttributes($data_to_open, false);
+        $stage->save();
+        $id = $stage->stage_id;
 
-        $stage = YiiTroubleStage::findOne($id);
-        $stage->trigger(ActiveRecord::EVENT_AFTER_INSERT, new ModelEvent);
+        $trouble->cur_stage_id = $id;
+        $trouble->folder = $state->folder;
 
-        $db->Query('
-            UPDATE `tt_troubles`
-            SET
-                `cur_stage_id` = ' . $id . ',
-                `folder` = (SELECT `folder` FROM `tt_states` WHERE `id` = ' . (int)$data_to_open['state_id'] . ')
-            WHERE
-                `id` = ' . $trouble->id
-        );
 
         if(in_array($data_to_open["state_id"], array(2,20,7,8,48))){
             // to close
-            $db->Query("update tt_troubles set date_close=now() where id = '".$data_to_open["trouble_id"]."' and date_close='0000-00-00 00:00:00'");
-            $trouble->trigger(ActiveRecord::EVENT_AFTER_UPDATE, new ModelEvent);
+            $trouble->date_close = date(DateTimeZoneHelper::DATETIME_FORMAT);
         }
+
+        $trouble->save();
 
         if($id>0)
             $this->doers_action('fix_doers', $trouble_id, $id);
@@ -1748,11 +1743,11 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
             $R2['time']=$R['time'];
 
         if($R['trouble_type']=='trouble'){
-            $R2['date_start'] = array('NOW()');
+            $R2['date_start'] = date(DateTimeZoneHelper::DATETIME_FORMAT);
             $R2['state_id']=1;
         }else{
             if (!isset($R['folder'])) {
-                $R['folder'] = array('(select pk from tt_folders where pk & (select folders from tt_types where code="'.addcslashes($R['trouble_type'],"\\\"").'") order by pk limit 1)');
+                $R['folder'] = Yii::$app->db->createCommand('select pk from tt_folders where pk & (select folders from tt_types where code="' . $R['trouble_type'] . '") order by pk limit 1')->queryScalar();
             }
             $R2['date_start'] = isset($R['date_start'])?$R['date_start']:array('NOW()');
 
@@ -1764,20 +1759,23 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         unset($R['date_finish_desired']);
         unset($R['time']);
 
-        $R['date_creation'] = array('NOW()');
+        $R['date_creation'] = date(DateTimeZoneHelper::DATETIME_FORMAT);
         if(isset($R2['time'])){
             $R2['date_finish_desired'] = array((is_array($R2['date_start'])?'NOW()':'"'.$R2['date_start'].'"').' + INTERVAL '.$R2['time'].' HOUR');
             unset($R2['time']);
         }
         if(isset($R['bill_no']) && $R['bill_no']=='null')
             unset($R['bill_no']);
-        $id = $db->QueryInsert('tt_troubles',$R);
 
-        $trouble = YiiTrouble::findOne($id);
+        $trouble = new YiiTrouble();
+        $trouble->setAttributes($R, false);
+        if (!$trouble->save()) {
+            throw new LogicException($trouble);
+        }
 
         $trouble->mediaManager->addFiles($files = 'tt_files', $custom_names = 'custom_name_tt_files');
 
-        $trouble->trigger(YiiTrouble::EVENT_AFTER_INSERT, new ModelEvent);
+        //$trouble->trigger(YiiTrouble::EVENT_AFTER_INSERT, new ModelEvent);
 
         $R2['user_main'] = $user_main;
 /*

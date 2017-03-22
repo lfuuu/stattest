@@ -423,12 +423,14 @@ class ClientCreateExternalForm extends Form
             ]);
         }
 
-        $this->_addContact([
-            'type' => 'email',
-            'data' => $this->email,
-            'comment' => $this->fio,
-            'is_official' => 1
-        ]);
+        if ($this->email) {
+            $this->_addContact([
+                'type' => 'email',
+                'data' => $this->email,
+                'comment' => $this->fio,
+                'is_official' => 1
+            ]);
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 
 namespace tests\codeception\func;
 
+use app\forms\client\ClientCreateExternalForm;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
@@ -29,17 +30,13 @@ class _NumberCycleHelper
      */
     function createSingleClientAccount()
     {
-        $client = new ClientAccount();
-        $client->is_active = 0;
-        $client->timezone_name = DateTimeZoneHelper::TIMEZONE_DEFAULT;
-        $client->currency = Currency::RUB;
-        $client->validate();
-        $client->save();
+        $clientForm = new ClientCreateExternalForm();
+        $clientForm->company = 'test account ' . mt_rand(0, 1000);
+        if (!$clientForm->create()) {
+            $this->fail('Cant create client account');
+        }
 
-        $client->client = 'id' . $client->id;
-        $client->save();
-
-        return $client;
+        return ClientAccount::findOne(['id' => $clientForm->account_id]);
     }
 
     /**

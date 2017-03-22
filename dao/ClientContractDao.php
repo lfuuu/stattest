@@ -4,6 +4,7 @@ namespace app\dao;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientDocument;
@@ -193,6 +194,7 @@ class ClientContractDao extends Singleton
             $contract->isHistoryVersioning = false;
         }
 
+        /** @var ClientAccount $account */
         foreach ($contract->accounts as $account) {
 
             $countAll++;
