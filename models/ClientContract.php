@@ -384,7 +384,7 @@ class ClientContract extends HistoryActiveRecord
     public function getAllDocuments()
     {
         return ClientDocument::find()
-            ->andWhere(['contract_id' => $this->id, 'type' => ['agreement', 'contract']])
+            ->andWhere(['contract_id' => $this->id, 'type' => [ClientDocument::DOCUMENT_AGREEMENT_TYPE, ClientDocument::DOCUMENT_CONTRACT_TYPE]])
             ->all();
     }
 

@@ -3,6 +3,8 @@
 namespace app\controllers\api;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\ContractType;
+use app\models\Country;
 use Yii;
 use app\classes\validators\AccountIdValidator;
 use app\exceptions\ModelValidationException;
@@ -56,32 +58,45 @@ class LkDocsController extends ApiController
     {
         $this->validateAccountId();
 
-        $data = [["type" => "client_card", "id" => 0]];
+        $data = [[
+            'type' => 'client_card',
+            'id' => 0
+        ]];
 
-        $contractId = ClientAccount::findOne($this->accountId)->contract_id;
-        $contract = ClientDocument::find()->contractId($contractId)->active()->contract()->last();
+        $account = ClientAccount::findOne($this->accountId);
+
+        // Договора показываем только в России
+        if (!$account || !$account->contragent || $account->contragent->country_id != Country::RUSSIA) {
+            return $data;
+        }
+
+        $contract = ClientDocument::find()
+            ->contractId($account->contract_id)
+            ->active()
+            ->contract()
+            ->last();
 
         if ($contract) {
             $data[] = [
-                "type" => "contract",
-                "id" => $contract->id,
-                "no" => $contract->contract_no,
-                "date" => strtotime($contract->contract_date)
+                'type' => ClientDocument::DOCUMENT_CONTRACT_TYPE,
+                'id' => $contract->id,
+                'no' => $contract->contract_no,
+                'date' => strtotime($contract->contract_date)
             ];
 
             if ($contract->blank) {
                 $data[] = [
-                    "type" => "blank",
-                    "id" => $contract->blank->id,
+                    'type' => ClientDocument::DOCUMENT_BLANK_TYPE,
+                    'id' => $contract->blank->id,
                 ];
             }
 
             foreach ($contract->agreements as $agreement) {
                 $data[] = [
-                    "type" => "agreement",
-                    "id" => $agreement->id,
-                    "no" => $agreement->contract_dop_no,
-                    "date" => strtotime($agreement->contract_dop_date)
+                    'type' => ClientDocument::DOCUMENT_AGREEMENT_TYPE,
+                    'id' => $agreement->id,
+                    'no' => $agreement->contract_dop_no,
+                    'date' => strtotime($agreement->contract_dop_date)
                 ];
             }
         }
@@ -236,7 +251,7 @@ class LkDocsController extends ApiController
         $result = $document->toArray();
         $result["content"] = $document->fileContent;
 
-        if ($document->type != "agreement") {
+        if ($document->type != ClientDocument::DOCUMENT_AGREEMENT_TYPE) {
             unset($result["contract_dop_no"], $result["contract_dop_date"]);
         }
 
