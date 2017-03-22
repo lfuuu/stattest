@@ -9,7 +9,6 @@ use app\models\LkWizardState;
  * Класс-форма сохранения "галочек" европейского визарда.
  *
  * Class AcceptsForm
- * @package app\forms\lk_wizard
  */
 class AcceptsForm extends Form
 {
@@ -20,38 +19,38 @@ class AcceptsForm extends Form
     public $is_rules_accept_person;
     public $is_contract_accept;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = [];
         $rules[] = [['legal_type', 'step'], 'safe'];
 
-        foreach (['required', 'boolean'] as $validator) {
-            $rules[] = [
-                "is_rules_accept_legal",
-                $validator,
-                "when" => function () {
-                    return $this->isNeedCheck('is_rules_accept_legal');
-                }
-            ];
-            $rules[] = [
-                "is_rules_accept_person",
-                $validator,
-                "when" => function () {
-                    return $this->isNeedCheck('is_rules_accept_person');
-                }
-            ];
-            $rules[] = [
-                "is_contract_accept",
-                $validator,
-                "when" => function () {
-                    return $this->isNeedCheck('is_contract_accept');
-                }
-            ];
-        }
+        $rules[] = [
+            ['is_rules_accept_legal', 'is_rules_accept_person', 'is_contract_accept',],
+            'required',
+            'message' => 'wizard_fill_field',
+            'when' => function ($model, $attribute) {
+                return $this->isNeedCheck($attribute);
+            }
+        ];
+
+        $rules[] = [
+            ['is_rules_accept_legal', 'is_rules_accept_person', 'is_contract_accept',],
+            'boolean',
+            'message' => 'format_error',
+            'when' => function ($model, $attribute) {
+                return $this->isNeedCheck($attribute);
+            }
+        ];
 
         return $rules;
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -64,7 +63,7 @@ class AcceptsForm extends Form
     /**
      * Проверяет необходимость проверки и созранения той или иной "галочки"
      *
-     * @param $field
+     * @param string $field
      * @return bool
      */
     public function isNeedCheck($field)
@@ -85,6 +84,10 @@ class AcceptsForm extends Form
         }
     }
 
+    /**
+     * @param LkWizardState $wizard
+     * @return bool
+     */
     public function save(LkWizardState $wizard)
     {
         if ($this->isNeedCheck('is_rules_accept_legal')) {

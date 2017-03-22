@@ -7,6 +7,9 @@ use app\classes\validators\FormFieldValidator;
 use app\models\ClientContragent;
 use app\models\ClientAccount;
 
+/**
+ * Class WizardContragentEuroForm
+ */
 class WizardContragentEuroForm extends Form
 {
     public $is_inn = null;
@@ -24,52 +27,68 @@ class WizardContragentEuroForm extends Form
     public $birthday;
     public $address;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = [];
 
-        $rules[] = [['legal_type'], 'required'];
+        $rules[] = [['legal_type'], 'required', 'message' => 'wizard_fill_field'];
         $rules[] = [['middle_name'], 'safe'];
-        $rules[] = [['legal_type'], 'in', 'range' => [ClientContragent::LEGAL_TYPE, ClientContragent::PERSON_TYPE]];
+        $rules[] = [['legal_type'], 'in', 'range' => [ClientContragent::LEGAL_TYPE, ClientContragent::PERSON_TYPE], 'message' => 'format_error'];
 
         $rules[] = [['address_post'], FormFieldValidator::className()];
 
-        $rules[] = [['is_inn'], 'required', 'when' => function($model){
-            return $model->legal_type == ClientContragent::LEGAL_TYPE;
-        }];
-
-        $rules[] = [['inn'], 'required', 'when' => function($model){
-            return $model->legal_type == ClientContragent::LEGAL_TYPE && $model->is_inn;
-        }];
-
-        $rules[] = [['inn'], FormFieldValidator::className(), 'when' => function($model){
-            return $model->legal_type == ClientContragent::LEGAL_TYPE && $model->is_inn;
-        }];
+        $rules[] = [
+            ['is_inn'],
+            'required',
+            'when' => function ($model) {
+                return $model->legal_type == ClientContragent::LEGAL_TYPE;
+            },
+            'message' => 'wizard_fill_field'
+        ];
 
         foreach (['required', FormFieldValidator::className()] as $validator) {
-            $rules[] = [
-                ['name', 'address_jur', 'position', 'fio'],
-                $validator,
-                "when" => function ($model) {
-                    return $model->legal_type == ClientContragent::LEGAL_TYPE;
-                }
-            ];
+
+            $validatorMessageRuleAdd = ($validator == 'required' ? ['message' => 'wizard_fill_field'] : []);
 
             $rules[] = [
-                ['last_name', 'first_name', 'address_birth', 'birthday', 'address'],
-                $validator,
-                "when" => function ($model) {
-                    return $model->legal_type == ClientContragent::PERSON_TYPE;
-                }
-            ];
+                    ['inn'],
+                    $validator,
+                    'when' => function ($model) {
+                        return $model->legal_type == ClientContragent::LEGAL_TYPE && $model->is_inn;
+                    },
+                    'message' => 'wizard_fill_field'
+                ] + $validatorMessageRuleAdd;
+
+            $rules[] = [
+                    ['name', 'address_jur', 'position', 'fio'],
+                    $validator,
+                    "when" => function ($model) {
+                        return $model->legal_type == ClientContragent::LEGAL_TYPE;
+                    }
+                ] + $validatorMessageRuleAdd;
+
+            $rules[] = [
+                    ['last_name', 'first_name', 'address_birth', 'birthday', 'address'],
+                    $validator,
+                    "when" => function ($model) {
+                        return $model->legal_type == ClientContragent::PERSON_TYPE;
+                    }
+                ] + $validatorMessageRuleAdd;
         }
 
         return $rules;
     }
 
+    /**
+     * @param ClientAccount $account
+     * @return bool
+     */
     public function saveInContragent(ClientAccount $account)
     {
-        /*
+        /**
          *     $legal_type, $name, $inn, $address_jur, $position, $fio - legal fields
          *     $last_name, $first_name, $middle_name, $address_birth, $birthday, $address - person fields
          *
