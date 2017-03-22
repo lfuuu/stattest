@@ -28,15 +28,24 @@ echo Breadcrumbs::widget([
                         array_intersect_key($urlParams, get_class_vars(get_class($folder))),
                         ['client/grid', 'folderId' => $folder->getId(), 'businessProcessId' => $urlParams['businessProcessId']]
                     );
+                $isActive = $activeFolder->getId() == $folder->getId();
                 ?>
-                <li class="<?= $activeFolder->getId() == $folder->getId() ? 'active' : '' ?>">
+                <li class="<?= $isActive ? 'active' : '' ?>">
                     <a href="<?= \yii\helpers\Url::toRoute($params) ?>">
                         <?php
                             echo $folder->getName();
-                            $count = $folder->getCount();
-                            if ($count !== null) {
+
+                            if ($isActive) {
+                                $count = $folder->getCount();
+                                Yii::$app->cache->set('grid.folder.' . $activeFolder->getId() . '.count', $count);
+                            } else {
+                                $count = Yii::$app->cache->get('grid.folder.' . $folder->getId() . '.count');
+                            }
+
+                            if (is_numeric($count)) {
                                 echo " ($count)";
                             }
+
                         ?>
                     </a>
                 </li>
