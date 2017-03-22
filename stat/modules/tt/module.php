@@ -270,7 +270,7 @@ class m_tt extends IModule{
             $gio_trouble = Trouble::find_by_bill_id($trouble["bill_id"]);
             $cur_state = $gio_trouble->current_stage->state;
 
-            $new_state = TroubleState::find($R["state_id"]);
+            $new_state = TroubleState::findOne(['id' => $R["state_id"]]);
 
             if($new_state->state_1c != $cur_state->state_1c)
             {
