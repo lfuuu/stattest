@@ -75,11 +75,11 @@ echo Breadcrumbs::widget([
         $tabs = [];
 
         $mainTabs = [];
-        foreach (Country::getList() as $country) {
+        foreach (Country::getList() as $countryCode => $countryName) {
             $tabs = [];
             foreach (Language::getList() as $languageCode => $languageTitle) {
                 foreach (Template::$types as $type => $descr) {
-                    $templateContentModel = $model->getTemplateContent($country->code, $languageCode, $type);
+                    $templateContentModel = $model->getTemplateContent($countryCode, $languageCode, $type);
 
                     $tabs[] = [
                         'label' =>
@@ -112,14 +112,9 @@ echo Breadcrumbs::widget([
             }
 
             $mainTabs[] = [
-                'label' =>
-                    Html::tag('div',
-                        '',
-                        ['title' => $country->name, 'class' => 'flag flag-' . explode('-', $country->lang)[0]]
-                    ) .
-                    $country->name,
+                'label' => $countryName,
                 'content' => TabsX::widget([
-                    'id' => 'tabs-message-template-content-' . $country->code,
+                    'id' => 'tabs-message-template-content-' . $countryCode,
                     'items' => $tabs,
                     'position' => TabsX::POS_LEFT,
                     'bordered' => true,

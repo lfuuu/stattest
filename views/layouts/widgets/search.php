@@ -7,7 +7,7 @@ $request = Yii::$app->request->get();
 ?>
 
 <div>
-    <form action="<?= Url::toRoute(['search/index', 'search' => isset($request['search']) ? $request['search'] : '']) ?>"
+    <form action="<?= Url::toRoute(['/search/index', 'search' => isset($request['search']) ? $request['search'] : '']) ?>"
           id="search-form">
         <input type="hidden" name="searchType" value="<?= (isset($request['searchType'])) ? $request['searchType'] : '' ?>"
                id="search-type">

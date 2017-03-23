@@ -89,7 +89,7 @@ class SearchController extends BaseController
                 if ($model) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
-                        return [['url' => 'index.php?module=tt&action=view&id=' . $model->id, 'value' => $model->id]];
+                        return [['url' => '/index.php?module=tt&action=view&id=' . $model->id, 'value' => $model->id]];
                     } else {
                         return $this->redirect('/index.php?module=tt&action=view&id=' . $model->id);
                     }
@@ -108,7 +108,7 @@ class SearchController extends BaseController
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         return [
                             [
-                                'url' => 'index.php?module=incomegoods&action=order_view&id=' . $model->id,
+                                'url' => '/index.php?module=incomegoods&action=order_view&id=' . $model->id,
                                 'value' => $model->id,
                             ]
                         ];
@@ -142,9 +142,9 @@ class SearchController extends BaseController
             return Yii::$app->runAction($controller . '/' . $action);
         } else {
             return $this->redirect(Url::toRoute([$controller . '/' . $action] + $params + [
-                    'search' => $search,
-                    'searchType' => $searchType
-                ]));
+                'search' => $search,
+                'searchType' => $searchType
+            ]));
         }
     }
 

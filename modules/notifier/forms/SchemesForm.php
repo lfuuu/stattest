@@ -31,7 +31,7 @@ class SchemesForm extends Form
     }
 
     /**
-     * @return Country[]
+     * @return string[]
      */
     public function getAvailableCountries()
     {
@@ -52,14 +52,13 @@ class SchemesForm extends Form
 
     /**
      * @param int $countryCode
-     * @return NotificationScheme[]
+     * @return Schemes[]
      */
     public function getCountryNotificationScheme($countryCode)
     {
-        return
-            Schemes::find()
-                ->where(['country_code' => $countryCode])
-                ->all();
+        return Schemes::find()
+            ->where(['country_code' => $countryCode])
+            ->all();
     }
 
     /**
