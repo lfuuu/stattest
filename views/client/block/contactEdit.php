@@ -31,6 +31,7 @@ use unclead\widgets\TabularColumn;
     ?>
     <?= TabularInput::widget([
             'models' => array_values($contacts), // ключ должен быть автоинкрементный
+            'min' => 0,
             'rowOptions' => function ($clientContact = null) {
                 $options = [];
 
