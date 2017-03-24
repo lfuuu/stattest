@@ -41,9 +41,19 @@ class ClientAccountBiller
     protected $periodical;
     protected $resource;
 
+    /** @var null|float */
+    protected $forecastCoefficient;
+
     /**
+     * Создание биллера ЛС
+     *
      * @param ClientAccount $clientAccount
      * @param DateTime $date
+     * @param bool $onlyConnecting
+     * @param bool $connecting
+     * @param bool $periodical
+     * @param bool $resource
+     * @param null $forecastCoefficient
      * @return ClientAccountBiller
      */
     public static function create(
@@ -52,18 +62,31 @@ class ClientAccountBiller
         $onlyConnecting = false,
         $connecting = true,
         $periodical = true,
-        $resource = true
+        $resource = true,
+        $forecastCoefficient = null
     ) {
-        return new static($clientAccount, $date, $onlyConnecting, $connecting, $periodical, $resource);
+        return new static($clientAccount, $date, $onlyConnecting, $connecting, $periodical, $resource, $forecastCoefficient);
     }
 
+    /**
+     * ClientAccountBiller constructor.
+     *
+     * @param ClientAccount $clientAccount
+     * @param DateTime $date
+     * @param bool $onlyConnecting
+     * @param bool $connecting
+     * @param bool $periodical
+     * @param bool $resource
+     * @param null|float $forecastCoefficient
+     */
     protected function __construct(
         ClientAccount $clientAccount,
         DateTime $date,
         $onlyConnecting,
         $connecting,
         $periodical,
-        $resource
+        $resource,
+        $forecastCoefficient
     ) {
         $this->billerDate = $date;
         $this->clientAccount = $clientAccount;
@@ -71,10 +94,14 @@ class ClientAccountBiller
         $this->connecting = $connecting;
         $this->periodical = $periodical;
         $this->resource = $resource;
+        $this->forecastCoefficient = $forecastCoefficient;
 
         $this->setupBillerPeriod();
     }
 
+    /**
+     * Установка периода биллера
+     */
     protected function setupBillerPeriod()
     {
         $year = $this->billerDate->format('Y');
@@ -89,6 +116,11 @@ class ClientAccountBiller
         $this->billerPeriodTo->setTime(23, 59, 59);
     }
 
+    /**
+     * Запуск расчета
+     *
+     * @return $this
+     */
     public function process()
     {
         $this->createTransactions();
@@ -96,6 +128,11 @@ class ClientAccountBiller
         return $this;
     }
 
+    /**
+     * Создание транзакций
+     *
+     * @return $this
+     */
     public function createTransactions()
     {
         $this->transactions = [];
@@ -106,7 +143,7 @@ class ClientAccountBiller
             $status = 'working';
         }
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageIpPorts::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -114,7 +151,7 @@ class ClientAccountBiller
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageVoip::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -122,7 +159,7 @@ class ClientAccountBiller
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageVoipPackage::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -130,14 +167,14 @@ class ClientAccountBiller
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageTrunk::find()
                 ->andWhere(['client_account_id' => $this->clientAccount->id])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageVirtpbx::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -145,7 +182,7 @@ class ClientAccountBiller
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageExtra::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -153,7 +190,7 @@ class ClientAccountBiller
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageWelltime::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -161,7 +198,7 @@ class ClientAccountBiller
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageEmails::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -169,7 +206,7 @@ class ClientAccountBiller
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageSms::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -177,7 +214,7 @@ class ClientAccountBiller
                 ->all()
         );
 
-        $this->processUsages(
+        $this->_processUsages(
             UsageCallChat::find()
                 ->andWhere(['client' => $this->clientAccount->client])
                 ->andWhere(['status' => $status])
@@ -189,6 +226,12 @@ class ClientAccountBiller
         return $this;
     }
 
+    /**
+     * Сохранение транзакций
+     *
+     * @return $this
+     * @throws \Exception
+     */
     public function saveTransactions()
     {
         $dbTransaction = Yii::$app->db->beginTransaction();
@@ -198,23 +241,23 @@ class ClientAccountBiller
             if ($this->connecting) {
                 $transactionTypes[] = Transaction::TYPE_CONNECTING;
             }
+
             if ($this->periodical) {
                 $transactionTypes[] = Transaction::TYPE_PERIODICAL;
             }
+
             if ($this->resource) {
                 $transactionTypes[] = Transaction::TYPE_RESOURCE;
             }
 
-            $query =
-                Transaction::find()
-                    ->andWhere([
-                        'client_account_id' => $this->clientAccount->id,
-                        'source' => Transaction::SOURCE_STAT,
-                        'billing_period' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT),
-                        'transaction_type' => $transactionTypes,
-                    ])
-                    ->orderBy('id');
-
+            $query = Transaction::find()
+                ->andWhere([
+                    'client_account_id' => $this->clientAccount->id,
+                    'source' => Transaction::SOURCE_STAT,
+                    'billing_period' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                    'transaction_type' => $transactionTypes,
+                ])
+                ->orderBy('id');
 
             /** @var Transaction[] $transactions */
             $transactions = $query->all();
@@ -225,6 +268,7 @@ class ClientAccountBiller
                 if (!isset($existsTransactionsByKey[$key])) {
                     $existsTransactionsByKey[$key] = [];
                 }
+
                 $existsTransactionsByKey[$key][] = $transaction;
             }
 
@@ -252,8 +296,6 @@ class ClientAccountBiller
                 } else {
                     $transaction->save();
                 }
-
-
             }
 
             foreach ($existsTransactionsByKey as $transactions) {
@@ -293,21 +335,66 @@ class ClientAccountBiller
         return $this->transactions;
     }
 
-    private function processUsages(array $usages)
+    /**
+     * Рассчет усулг
+     *
+     * @param array $usages
+     */
+    private function _processUsages(array $usages)
     {
         foreach ($usages as $usage) {
-            $this->processUsage($usage);
+            $this->_processUsage($usage);
         }
     }
 
-    private function processUsage(UsageInterface $usage)
+    /**
+     * Расчет услуги
+     *
+     * @param UsageInterface $usage
+     */
+    private function _processUsage(UsageInterface $usage)
     {
-        $transactions =
-            $usage
-                ->getBiller($this->billerDate, $this->clientAccount)
-                ->process($this->onlyConnecting, $this->connecting, $this->periodical, $this->resource)
-                ->getTransactions();
+        $biller = $usage->getBiller($this->billerDate, $this->clientAccount);
+
+        if ($this->forecastCoefficient) {
+            $biller->setForecastCoefficient($this->forecastCoefficient);
+        }
+
+        $transactions = $biller
+            ->process($this->onlyConnecting, $this->connecting, $this->periodical, $this->resource)
+            ->getTransactions();
         $this->transactions = array_merge($this->transactions, $transactions);
     }
 
+    /**
+     * @return bool
+     */
+    public function isOnlyConnecting()
+    {
+        return $this->onlyConnecting;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConnecting()
+    {
+        return $this->connecting;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPeriodical()
+    {
+        return $this->periodical;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isResource()
+    {
+        return $this->resource;
+    }
 }

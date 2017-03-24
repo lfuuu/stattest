@@ -12,27 +12,34 @@ use Yii;
 class VoipBiller extends Biller
 {
     /** @var LogTarif */
-    private $logTariff = false;
+    private $_logTariff = false;
+
     /** @var TariffVoip */
-    private $tariff = false;
+    private $_tariff = false;
 
-    private $rangeTariff = [];
+    private $_rangeTariff = [];
 
+    /**
+     * @return string
+     */
     public function getTranslateFilename()
     {
         return 'biller-voip';
     }
 
+    /**
+     * @return bool
+     */
     public function beforeProcess()
     {
         $logTariffList = [];
 
         /** @var LogTarif $logTariff */
-        foreach(LogTarif::find()
-                ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
-                ->andWhere('id_tarif != 0')
-                ->orderBy('date_activation, id desc')
-                ->all() as $logTariff) {
+        foreach (LogTarif::find()
+                     ->andWhere(['service' => 'usage_voip', 'id_service' => $this->usage->id])
+                     ->andWhere('id_tarif != 0')
+                     ->orderBy('date_activation, id desc')
+                     ->all() as $logTariff) {
 
             if (!isset($logTariffList[$logTariff->date_activation])) {
                 $logTariffList[$logTariff->date_activation] = $logTariff;
@@ -64,19 +71,7 @@ class VoipBiller extends Biller
             }
         }
 
-        /** @var LogTarif $logTariff */
-
-//        $prevTariffId = null;
-//        foreach($logTariffList as $activationDate => $logTariff) {
-//            if ($prevTariffId != $logTariff->id_tarif) {
-//                $filteredTariffList[$activationDate] = $logTariff;
-//            }
-//            $prevTariffId = $logTariff->id_tarif;
-//        }
-
-
-
-        //Нарезаем лог тарифов. Только за период биллера
+        // Нарезаем лог тарифов. Только за период биллера
         $rangeTariff = [];
         $prevTariffId = null;
         $prevActivationDate = null;
@@ -85,10 +80,10 @@ class VoipBiller extends Biller
         $startDateDt = $this->billerPeriodFrom < $this->usageActualFrom ? $this->usageActualFrom : $this->billerPeriodFrom;
         $endDateDt = $this->usageActualTo < $this->billerPeriodTo ? $this->usageActualTo : $this->billerPeriodTo;
 
-        foreach($filteredTariffList as $activationDate => $logTariff) {
+        foreach ($filteredTariffList as $activationDate => $logTariff) {
             $activationDateDt = new \DateTime($activationDate, $this->timezone);
 
-            //отбрасываем тарифы, начинающиеся до начала услуги.
+            // отбрасываем тарифы, начинающиеся до начала услуги.
             if ($activationDateDt <= $startDateDt) {
                 $prevActivationDate = clone $startDateDt;
                 $prevLogTariff = $logTariff;
@@ -106,6 +101,7 @@ class VoipBiller extends Biller
                     $prevActivationDate = null;
                     $prevLogTariff = null;
                 }
+
                 break;
             }
 
@@ -140,12 +136,15 @@ class VoipBiller extends Biller
             return false;
         }
 
-        $this->rangeTariff = $rangeTariff;
+        $this->_rangeTariff = $rangeTariff;
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function processConnecting()
     {
-        foreach ($this->rangeTariff as $range) {
+        foreach ($this->_rangeTariff as $range) {
             /** @var TariffVoip $tariff */
             $tariff = $range['tariff'];
 
@@ -153,6 +152,7 @@ class VoipBiller extends Biller
             if ($price < 0) {
                 $price = 0;
             }
+
             $price += $tariff->once_number;
 
             $template = 'voip_connection';
@@ -169,9 +169,12 @@ class VoipBiller extends Biller
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function processPeriodical()
     {
-        foreach ($this->rangeTariff as $range) {
+        foreach ($this->_rangeTariff as $range) {
             /** @var TariffVoip $tariff */
             $tariff = $range['tariff'];
 
@@ -230,11 +233,14 @@ class VoipBiller extends Biller
         }
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function processResource()
     {
         $is7800 = substr($this->usage->E164, 0, 4) == "7800";
 
-        foreach($this->rangeTariff as $range) {
+        foreach ($this->_rangeTariff as $range) {
             /** @var TariffVoip $tariff */
             /** @var  LogTarif $logTariff */
             $tariff = $range['tariff'];
@@ -243,7 +249,7 @@ class VoipBiller extends Biller
             $rangeFromMutable = clone $range['from'];
             $rangeToMutable = clone $range['to'];
 
-            $lines = $this->calc($is7800, $logTariff, $rangeFromMutable, $rangeToMutable);
+            $lines = $this->_calc($is7800, $logTariff, $rangeFromMutable, $rangeToMutable);
 
             foreach ($lines as $dest => $r) {
 
@@ -275,6 +281,7 @@ class VoipBiller extends Biller
                             $this->clientAccount->contragent->country->lang
                         );
                     }
+
                     if (strpos($logTariff->dest_group, '1') !== false) {
                         $group[] = Yii::t(
                             $this->getTranslateFilename(),
@@ -283,6 +290,7 @@ class VoipBiller extends Biller
                             $this->clientAccount->contragent->country->lang
                         );
                     }
+
                     if (strpos($logTariff->dest_group, '2') !== false) {
                         $group[] = Yii::t(
                             $this->getTranslateFilename(),
@@ -305,7 +313,6 @@ class VoipBiller extends Biller
                     } else {
                         $template = 'voip_group_calls_payment';
                     }
-
                 }
 
                 $template_data = [
@@ -334,7 +341,16 @@ class VoipBiller extends Biller
         }
     }
 
-    private function calc($is7800, LogTarif $logTarif, \DateTime $from, \DateTime $to)
+    /**
+     * Получение значений потребленного траффика по телефонии
+     *
+     * @param bool $is7800
+     * @param LogTarif $logTarif
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @return array
+     */
+    private function _calc($is7800, LogTarif $logTarif, \DateTime $from, \DateTime $to)
     {
         $from->setTimezone(new \DateTimeZone('UTC'));
         $to->setTimezone(new \DateTimeZone('UTC'));
@@ -343,30 +359,32 @@ class VoipBiller extends Biller
 
         $groups = $logTarif->dest_group;
 
-        /*
-           [dest_group] => 0
-           [minpayment_group] => 0      // 100
-
-           [minpayment_local_mob] => 0  // 5
-           [minpayment_russia] => 1500  // 1
-           [minpayment_intern] => 0     // 2
-
-           // other 900
+        /**
+         * [dest_group] => 0
+         * [minpayment_group] => 0      // 100
+         *
+         * [minpayment_local_mob] => 0  // 5
+         * [minpayment_russia] => 1500  // 1
+         * [minpayment_intern] => 0     // 2
+         *
+         * other 900
          */
 
-        //default value
+        // default value
         $lines = array();
         if ($logTarif->dest_group > 0) {
-            $lines["100"] = array('price' => 0);
+            $lines["100"] = ['price' => 0];
         } else {
             if ($logTarif->minpayment_local_mob) {
-                $lines["5"] = array('price' => 0);
+                $lines["5"] = ['price' => 0];
             }
+
             if ($logTarif->minpayment_russia) {
-                $lines["1"] = array('price' => 0);
+                $lines["1"] = ['price' => 0];
             }
+
             if ($logTarif->minpayment_intern) {
-                $lines["2"] = array('price' => 0);
+                $lines["2"] = ['price' => 0];
             }
         }
 
@@ -375,6 +393,7 @@ class VoipBiller extends Biller
             if (strpos($groups, $dest) !== false) {
                 $dest = '100';
             }
+
             if ((int)$logTarif->minpayment_group +
                 (int)$logTarif->minpayment_local_mob +
                 (int)$logTarif->minpayment_russia +
@@ -384,28 +403,28 @@ class VoipBiller extends Biller
             }
 
             if (!isset($lines[$dest])) {
-                $lines[$dest] = array('price' => 0);
+                $lines[$dest] = ['price' => 0];
             }
+
             $lines[$dest]['price'] += $r['price'];
         }
 
         if ($is7800 && !$lines) {
-            $lines["900"] = array("price" => 0);
+            $lines["900"] = ["price" => 0];
         }
 
-        uksort($lines, '\app\classes\bill\cmp_calc_voip_by_dest');
+        uksort($lines, function ($a, $b) {
+            $a = ($a < 4 ? $a + 10 : $a);
+            $b = ($b < 4 ? $b + 10 : $b);
+            if ($a == $b) {
+                return 0;
+            }
+
+            return ($a < $b) ? -1 : 1;
+        });
+
+        $this->applyForecastCoefficient($lines);
 
         return $lines;
     }
-
-}
-
-function cmp_calc_voip_by_dest($a, $b)
-{
-    $a = ($a < 4 ? $a + 10 : $a);
-    $b = ($b < 4 ? $b + 10 : $b);
-    if ($a == $b) {
-        return 0;
-    }
-    return ($a < $b) ? -1 : 1;
 }

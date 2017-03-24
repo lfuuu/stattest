@@ -5,11 +5,14 @@ namespace app\models\important_events;
 use yii\db\ActiveRecord;
 
 /**
+ * Class ImportantEventsGroups
+ *
  * @property string $title
- * @package app\models\important_events
  */
 class ImportantEventsGroups extends ActiveRecord
 {
+    const ID_FINANCIAL = 6;
+
     // Определяет getList (список для selectbox)
     use \app\classes\traits\GetListTrait {
         getList as getListTrait;

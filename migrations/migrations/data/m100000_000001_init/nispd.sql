@@ -2479,7 +2479,7 @@ CREATE TABLE `important_events_groups` (
 
 LOCK TABLES `important_events_groups` WRITE;
 /*!40000 ALTER TABLE `important_events_groups` DISABLE KEYS */;
-INSERT INTO `important_events_groups` VALUES (1,'Базовая группа'),(9,'Услуга телефония');
+INSERT INTO `important_events_groups` VALUES (1,'Базовая группа'),(6,'Финансовые события'),(9,'Услуга телефония');
 /*!40000 ALTER TABLE `important_events_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -30,8 +30,11 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_ZERO_BALANCE = 'zero_balance';
     const IMPORTANT_EVENT_UNSET_ZERO_BALANCE = 'unset_zero_balance';
     const IMPORTANT_EVENT_CR_TOKEN = 'cr_token';
-    const IMPORTANT_EVENT_CHANGE_CREDIT_LIMIT = 'change_credit_limit';
     const IMPORTANT_EVENT_CHANGE_MIN_DAY_LIMIT = 'change_min_day_limit';
+
+    const IMPORTANT_EVENT_FORECASTING_7DAY = 'forecasting_7day';
+    const IMPORTANT_EVENT_FORECASTING_3DAY = 'forecasting_3day';
+    const IMPORTANT_EVENT_FORECASTING_1DAY = 'forecasting_1day';
 
     // Payment
     const IMPORTANT_EVENT_PAYMENT_ADD = 'payment_add';
@@ -44,6 +47,7 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_CONTRACT_TRANSFER = 'contract_transfer';
     const IMPORTANT_EVENT_ACCOUNT_CONTRACT_CHANGED = 'account_contract_changed';
     const IMPORTANT_EVENT_TRANSFER_CONTRAGENT = 'transfer_contragent';
+    const IMPORTANT_EVENT_CHANGE_CREDIT_LIMIT = 'change_credit_limit';
 
     // Troubles
     const IMPORTANT_EVENT_CREATED_TROUBLE = 'created_trouble';
@@ -59,6 +63,14 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_UPDATED_USAGE = 'updated_usage';
     const IMPORTANT_EVENT_DELETED_USAGE = 'deleted_usage';
     const IMPORTANT_EVENT_TRANSFER_USAGE = 'transfer_usage';
+
+    // Flags
+    const IMPORTANT_EVENT_NOTIFIED_7DAYS = 'notified_7days';
+    const IMPORTANT_EVENT_RESET_NOTIFIED_7DAYS = 'reset_notified_7days';
+    const IMPORTANT_EVENT_NOTIFIED_3DAYS = 'notified_3days';
+    const IMPORTANT_EVENT_RESET_NOTIFIED_3DAYS = 'reset_notified_3days';
+    const IMPORTANT_EVENT_NOTIFIED_1DAYS = 'notified_1days';
+    const IMPORTANT_EVENT_RESET_NOTIFIED_1DAYS = 'reset_notified_1days';
 
     /**
      * @return string

@@ -2,12 +2,16 @@
 namespace app\commands;
 
 use app\classes\behaviors\SetTaxVoip;
+use app\classes\uu\model\AccountTariff;
+use app\classes\uu\model\ServiceType;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\billing\CallsAggr;
 use app\models\Business;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContract;
+use app\models\ClientFlag;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use app\models\LogTarif;
@@ -354,5 +358,114 @@ class UsageController extends Controller
         }
 
         echo PHP_EOL . date('r') . ": end. Count: " . $count;
+    }
+
+    /**
+     * Генерация событий о блокировке через 7/3/1 день по трафику телефонии
+     */
+    public function actionCheckVoipBlockByTrafficAlert()
+    {
+        echo PHP_EOL . date("r");
+
+        $reportDays = 30;
+
+        $tz = new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
+        $periodTo = new \DateTime('now', $tz);
+        $periodTo->setTime(0, 0, 0);
+
+        $periodFrom = clone $periodTo;
+        $periodFrom->modify('-' . $reportDays . ' days');
+
+
+        $callsByAccountId = CallsAggr::dao()->getCallCostByPeriod($periodFrom, $periodTo);
+
+        $activeUuUsagesQuery = AccountTariff::find()
+            ->select('client_account_id')
+            ->distinct()
+            ->where([
+                'AND',
+                ['service_type_id' => ServiceType::ID_VOIP],
+                ['IS NOT', 'voip_number', null],
+                ['IS NOT', 'tariff_period_id', null],
+            ]);
+
+        $activeUsages = UsageVoip::find()
+            ->select('c.id')
+            ->distinct()
+            ->innerJoin(['c' => ClientAccount::tableName()], 'c.client = ' . UsageVoip::tableName() . '.client')
+            ->actual()
+            ->union($activeUuUsagesQuery);
+
+        $clientIdsQuery = (new Query())
+            ->select('id')
+            ->from(['a' => $activeUsages]);
+
+        $accountsQuery = ClientAccount::find()
+            ->with('flag')
+            ->where(['id' => $clientIdsQuery]);
+
+
+        /** @var ClientAccount $account */
+        foreach ($accountsQuery->each() as $account) {
+            if (!isset($callsByAccountId[$account->id]) || $callsByAccountId[$account->id]) {
+                continue;
+            }
+
+            $callsCost = $callsByAccountId[$account->id];
+
+            if ($callsCost > -100) {
+                continue;
+            }
+
+            $perDay = $callsCost / $reportDays;
+
+            $balance = $account->billingCountersFastMass->amount_sum;
+            $flag = $account->flag;
+
+            if (!$flag) {
+                $flag = new ClientFlag;
+                $flag->account_id = $account->id;
+                $flag->is_notified_7day = 0;
+                $flag->is_notified_3day = 0;
+                $flag->is_notified_1day = 0;
+            }
+
+            $sum7Day = $balance + ($perDay * 7);
+            if (-$sum7Day > $account->credit) {
+                $flag->is_notified_7day = 1;
+            } else {
+                $flag->is_notified_7day = 0;
+            }
+
+            $sum3Day = $balance + ($perDay * 3);
+            if (-$sum3Day > $account->credit) {
+                $flag->is_notified_3day = 1;
+            } else {
+                $flag->is_notified_3day = 0;
+            }
+
+            $sum1Day = $balance + ($perDay * 1);
+            if (-$sum1Day > $account->credit) {
+                $flag->is_notified_1day = 1;
+            } else {
+                $flag->is_notified_1day = 0;
+            }
+
+            if (!$flag->save()) {
+                throw new ModelValidationException($flag);
+            }
+
+            if ($flag->isSetFlag) {
+                if ($flag->is_notified_7day || $flag->is_notified_3day || $flag->is_notified_1day) {
+                    echo PHP_EOL . "(+) ";
+                } else {
+                    echo PHP_EOL . "(-) ";
+                }
+
+                echo $account->id . ' ';
+                echo (int)$flag->is_notified_7day . '/' . (int)$flag->is_notified_3day . '/' . (int)$flag->is_notified_1day;
+                echo ' callsCost: ' . $callsCost . ', perDay: ' . $perDay . ', credit: ' . $account->credit . ', balance: ' . $balance;
+            }
+        }
     }
 }

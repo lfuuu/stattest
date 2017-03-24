@@ -50,6 +50,15 @@ abstract class Biller
     protected $isPeriodical;
     protected $isResource;
 
+    protected $forecastCoefficient;
+
+    /**
+     * Biller constructor.
+     *
+     * @param UsageInterface $usage
+     * @param DateTime $date
+     * @param ClientAccount $clientAccount
+     */
     public function __construct(UsageInterface $usage, DateTime $date, ClientAccount $clientAccount)
     {
         $this->usage = $usage;
@@ -64,6 +73,11 @@ abstract class Biller
         $this->setupBillerActualPeriod();
     }
 
+    /**
+     * Установка дату биллера
+     *
+     * @param DateTime $date
+     */
     protected function setupBillerDate(DateTime $date)
     {
         $this->billerDate = new DateTime();
@@ -73,6 +87,9 @@ abstract class Biller
         $this->billerDate->setTime($date->format('H'), $date->format('i'), $date->format('s'));
     }
 
+    /**
+     * Установка период биллера
+     */
     protected function setupBillerPeriod()
     {
         $year = $this->billerDate->format('Y');
@@ -87,6 +104,9 @@ abstract class Biller
         $this->billerPeriodTo->setTime(23, 59, 59);
     }
 
+    /**
+     * Установка актуального периода услуг
+     */
     protected function setupUsageActualPeriod()
     {
         if ($this->usage->hasAttribute('actual_from')) {
@@ -94,7 +114,6 @@ abstract class Biller
         }
 
         Assert::isObject($this->usageActualFrom);
-
 
         if ($this->usage->hasAttribute('actual_to')) {
             $this->usageActualTo = new DateTime($this->usage->actual_to, $this->timezone);
@@ -104,19 +123,25 @@ abstract class Biller
         Assert::isObject($this->usageActualTo);
     }
 
+    /**
+     * Установка актуального периода биллера
+     */
     protected function setupBillerActualPeriod()
     {
-        $this->billerActualFrom =
-            $this->usageActualFrom > $this->billerPeriodFrom
-                ? clone $this->usageActualFrom
-                : clone $this->billerPeriodFrom;
+        $this->billerActualFrom = $this->usageActualFrom > $this->billerPeriodFrom ?
+            clone $this->usageActualFrom :
+            clone $this->billerPeriodFrom;
 
-        $this->billerActualTo =
-            $this->usageActualTo < $this->billerPeriodTo
-                ? clone $this->usageActualTo
-                : clone $this->billerPeriodTo;
+        $this->billerActualTo = $this->usageActualTo < $this->billerPeriodTo ?
+            clone $this->usageActualTo :
+            clone $this->billerPeriodTo;
     }
 
+    /**
+     * Добавление пакета
+     *
+     * @param BillerPackage $package
+     */
     protected function addPackage(BillerPackage $package)
     {
         $transaction = $package->createTransaction();
@@ -125,6 +150,11 @@ abstract class Biller
         }
     }
 
+    /**
+     * Добавление транзакции
+     *
+     * @param Transaction $transaction
+     */
     protected function addTransaction(Transaction $transaction)
     {
         $this->transactions[] = $transaction;
@@ -138,6 +168,15 @@ abstract class Biller
         return $this->transactions;
     }
 
+    /**
+     * Запуск рассчета
+     *
+     * @param bool $onlyConnecting
+     * @param bool $connecting
+     * @param bool $periodical
+     * @param bool $resource
+     * @return $this
+     */
     public function process($onlyConnecting = false, $connecting = true, $periodical = true, $resource = true)
     {
         $this->isOnlyConnecting = $onlyConnecting;
@@ -182,31 +221,54 @@ abstract class Biller
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     protected function beforeProcess()
     {
         return true;
     }
 
+    /**
+     * Расчет подключаемых значений
+     */
     protected function processConnecting()
     {
 
     }
 
+    /**
+     * Расчет абон.платы
+     */
     protected function processPeriodical()
     {
 
     }
 
+    /**
+     * Расчет ресурсов
+     */
     protected function processResource()
     {
 
     }
 
+    /**
+     * @return string
+     */
     public function getTranslateFilename()
     {
         return 'biller';
     }
 
+    /**
+     * Шаблон периода
+     *
+     * @param string $period
+     * @param DateTime $from
+     * @param DateTime $to
+     * @return string
+     */
     public function getPeriodTemplate($period, DateTime $from, DateTime $to)
     {
 
@@ -221,6 +283,11 @@ abstract class Biller
         }
     }
 
+    /**
+     * Получение номера договора ЛС
+     *
+     * @return string
+     */
     protected function getContractInfo()
     {
         $contract = $this->clientAccount->contract->getContractInfo($this->billerDate);
@@ -236,5 +303,33 @@ abstract class Biller
         }
     }
 
+    /**
+     * Установка коэффициента прогноза
+     *
+     * @param float $coefficient
+     */
+    public function setForecastCoefficient($coefficient)
+    {
+        $this->forecastCoefficient = $coefficient;
+    }
 
+    /**
+     * Применение коэффициента прогноза к значению
+     *
+     * @param float|array $value
+     */
+    protected function applyForecastCoefficient(&$value)
+    {
+        if (!$this->forecastCoefficient) {
+            return;
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $key => &$val) {
+                $this->applyForecastCoefficient($val);
+            }
+        } else {
+            $value *= $this->forecastCoefficient;
+        }
+    }
 }

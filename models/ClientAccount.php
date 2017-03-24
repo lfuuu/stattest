@@ -78,6 +78,7 @@ use yii\helpers\Url;
  * @property DateTimeZone $timezone
  * @property LkClientSettings $lkClientSettings
  * @property LkNoticeSetting $lkNoticeSetting
+ * @property ClientFlag $flag
  * @property ClientContact[] $contacts
  * @property ClientContract $contract
  * @property ClientContragent $contragent
@@ -1023,6 +1024,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getLkSettings()
     {
         return $this->hasOne(LkClientSettings::className(), ['client_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getFlag()
+    {
+        return $this->hasOne(ClientFlag::className(), ['account_id' => 'id']);
     }
 
     /**

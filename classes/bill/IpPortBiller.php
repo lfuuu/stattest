@@ -131,8 +131,10 @@ class IpPortBiller extends Biller
         $stat = TraffFlow1d::getStatistic($this->billerActualFrom, $this->billerActualTo, TraffFlow1d::STAT_TOTAL_ONLY, $validedRouters);
 
         //в мегабайтах
-        $stat['in_bytes'] /= 1024*1024;
-        $stat['out_bytes'] /= 1024*1024;
+        if ($stat) {
+            $stat['in_bytes'] /= 1024 * 1024;
+            $stat['out_bytes'] /= 1024 * 1024;
+        }
 
         return $stat;
     }

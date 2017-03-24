@@ -176,7 +176,7 @@ class TraffFlow1d extends ActiveRecord
             $countRow = 0;
             $sql = $query->createCommand(self::getDb())->rawSql;
             foreach ($query->createCommand(self::getDb())->queryAll() as $row) {
-                $row['tsf'] = $format ? DateFunction::mdate($row['ts'], $format) : $row['ts'];
+                $row['tsf'] = isset($row['ts']) ? ($format ? DateFunction::mdate($row['ts'], $format) : $row['ts']) : '';
                 $row['is_total'] = 0;
                 $rows[] = $row;
 
