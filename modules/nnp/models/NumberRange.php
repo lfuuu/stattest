@@ -2,7 +2,7 @@
 namespace app\modules\nnp\models;
 
 use app\classes\Connection;
-use app\modules\nnp\models\Country;
+use app\models\billing\InstanceSettings;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
@@ -40,6 +40,22 @@ class NumberRange extends ActiveRecord
 {
     // Методы для полей insert_time, insert_user_id, update_time, update_user_id
     use \app\classes\traits\InsertUpdateUserTrait;
+
+    private static $_triggerTables = [
+        // 'nnp.account_tariff_light',
+        'nnp.country',
+        'nnp.destination',
+        'nnp.number_range',
+        'nnp.number_range_prefix',
+        'nnp.operator',
+        // 'nnp.package',
+        // 'nnp.package_minute',
+        // 'nnp.package_price',
+        // 'nnp.package_pricelist',
+        'nnp.prefix',
+        'nnp.prefix_destination',
+        'nnp.region',
+    ];
 
     /**
      * Имена полей
@@ -171,4 +187,58 @@ class NumberRange extends ActiveRecord
         return $this->hasMany(NumberRangePrefix::className(), ['number_range_id' => 'id']);
     }
 
+    /**
+     * Выключить триггеры
+     *
+     * @throws \yii\db\Exception
+     */
+    public static function disableTrigger()
+    {
+        /** @var Connection $db */
+        $db = Yii::$app->dbPgNnp;
+
+        foreach (self::$_triggerTables as $triggerTable) {
+            $sql = sprintf("SELECT nnp.disable_trigger('%s','notify')", $triggerTable);
+            $db->createCommand($sql)->execute();
+        }
+    }
+
+    /**
+     * Включить триггеры и синхронизировать данные по региональным серверам
+     *
+     * @throws \yii\db\Exception
+     */
+    public static function enableTrigger()
+    {
+        /** @var Connection $db */
+        $db = Yii::$app->dbPgNnp;
+
+        foreach (self::$_triggerTables as $triggerTable) {
+            $sql = sprintf("SELECT nnp.enable_trigger('%s','notify')", $triggerTable);
+            $db->createCommand($sql)->execute();
+        }
+
+        // синхронизировать данные по региональным серверам
+        $sql = 'select from event.notify_nnp_all(:p_server_id)';
+        $activeQuery = InstanceSettings::find()
+            ->where(['active' => true]);
+        foreach ($activeQuery->each() as $instanceSettings) {
+            $db->createCommand($sql, [':p_server_id' => $instanceSettings->id])->execute();
+        }
+    }
+
+    /**
+     * Включен триггер?
+     *
+     * @throws \yii\db\Exception
+     */
+    public static function isTriggerEnabled()
+    {
+        /** @var Connection $db */
+        $db = Yii::$app->dbPgNnp;
+
+        $triggerTable = reset(self::$_triggerTables);
+        $sql = sprintf("SELECT nnp.is_trigger_enabled('%s','notify')", $triggerTable);
+        $db->createCommand($sql)->queryColumn();
+    }
 }
