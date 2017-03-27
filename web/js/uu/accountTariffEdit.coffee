@@ -70,13 +70,13 @@ class AccountTariffEdit
 
       if isUpdateNumberTypesAndCities
 # обновить список типов номеров в зависимости от страны. И включить
-        $.get '/uu/voip/get-number-types', {countryId: countryVal, isWithEmpty: true, format: 'options'}, (html) =>
+        $.get '/uu/voip/get-number-types', {countryId: countryVal, isWithEmpty: 1, format: 'options'}, (html) =>
           @numberType.html(html) # обновить значения
           @numberType.prop('disabled', false)
           @numberType.val('').trigger('change')
 
         # обновить список городов в зависимости от страны
-        $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: true, format: 'options'}, (html) =>
+        $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: 1, format: 'options'}, (html) =>
           @city.html(html) # обновить значения
           @city.val('').trigger('change')
 
@@ -123,7 +123,7 @@ class AccountTariffEdit
       @reloadTariffList()
 
     if cityVal && numberTypeVal == 'number'
-      $.get '/uu/voip/get-did-groups', {cityId: cityVal, isWithEmpty: true, format: 'options'}, (html) =>
+      $.get '/uu/voip/get-did-groups', {cityId: cityVal, isWithEmpty: 1, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
         @didGroup.prop('disabled', false)
         @didGroup.val('').trigger('change')

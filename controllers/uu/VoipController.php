@@ -15,7 +15,6 @@ use app\models\City;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\models\UsageVoip;
-use Yii;
 
 
 class VoipController extends BaseController
@@ -25,7 +24,7 @@ class VoipController extends BaseController
      * Используется для динамической подгрузки select2 или selectbox
      *
      * @param int $countryId
-     * @param bool $isWithEmpty
+     * @param int|bool $isWithEmpty
      * @param string $format
      */
     public function actionGetNumberTypes($countryId = null, $isWithEmpty = false, $format = null)
@@ -34,7 +33,7 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $numberTypes = Tariff::getVoipTypesByCountryId($countryId, $isWithEmpty);
+        $numberTypes = Tariff::getVoipTypesByCountryId($countryId, (int)$isWithEmpty);
         ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
     }
 
@@ -43,7 +42,7 @@ class VoipController extends BaseController
      * Используется для динамической подгрузки select2 или selectbox
      *
      * @param int $countryId
-     * @param bool $isWithEmpty
+     * @param int|bool $isWithEmpty
      * @param string $format
      */
     public function actionGetCities($countryId = null, $isWithEmpty = false, $format = null)
@@ -52,7 +51,7 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $numberTypes = City::getList($isWithEmpty, $countryId);
+        $numberTypes = City::getList((int)$isWithEmpty, $countryId);
         ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
     }
 
@@ -61,7 +60,7 @@ class VoipController extends BaseController
      * Используется для динамической подгрузки select2 или selectbox
      *
      * @param int $cityId
-     * @param bool $isWithEmpty
+     * @param int|bool $isWithEmpty
      * @param string $format
      */
     public function actionGetDidGroups($cityId = null, $isWithEmpty = false, $format = null)
@@ -70,7 +69,7 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $numberTypes = DidGroup::getList($isWithEmpty, $cityId);
+        $numberTypes = DidGroup::getList((int)$isWithEmpty, $cityId);
         ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
     }
 
@@ -157,7 +156,7 @@ class VoipController extends BaseController
      * @param int $serviceTypeId
      * @param string $currency
      * @param int $cityId
-     * @param int $isWithEmpty
+     * @param int|bool $isWithEmpty
      * @param string $format
      * @param int $statusId
      * @param int $isPostpaid
@@ -175,7 +174,7 @@ class VoipController extends BaseController
             $serviceTypeId,
             $currency,
             $cityId,
-            $isWithEmpty,
+            (int)$isWithEmpty,
             $isWithNullAndNotNull = false,
             $statusId,
             $isPostpaid
@@ -190,11 +189,11 @@ class VoipController extends BaseController
      *
      * @param int $regionId
      * @param string $format
-     * @param bool $isWithEmpty
+     * @param int|bool $isWithEmpty
      */
     public function actionGetTrunks($regionId = null, $format = null, $isWithEmpty = true)
     {
-        $trunks = Trunk::getList($regionId, $isWithEmpty);
+        $trunks = Trunk::dao()->getList(['serverIds' => $regionId], (int)$isWithEmpty);
         ReturnFormatted::me()->returnFormattedValues($trunks, $format);
     }
 }
