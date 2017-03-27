@@ -116,12 +116,14 @@ class PricelistReportController extends BaseController
             if (count($prices)) {
                 $bestPrices = $prices;
                 sort($bestPrices, SORT_NUMERIC);
-                foreach ($bestPrices as $index => $price) {
-                    $row['best_price_' . ($index + 1)] = $price;
-                    if ($index > 1) {
-                        break;
-                    }
+                $bestPricesCount = count($bestPrices);
+
+                if ($bestPricesCount === 1) {
+                    $row['best_price_1'] = reset($bestPrices);
+                } elseif ($bestPricesCount > 1) {
+                    list($row['best_price_1'], $row['best_price_2']) = $bestPrices;
                 }
+
                 unset($bestPrices);
             }
 
