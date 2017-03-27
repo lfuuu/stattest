@@ -230,6 +230,7 @@ class NumberRange extends ActiveRecord
     /**
      * Включен триггер?
      *
+     * @return bool
      * @throws \yii\db\Exception
      */
     public static function isTriggerEnabled()
