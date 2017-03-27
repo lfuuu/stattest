@@ -59,7 +59,7 @@ class Country extends ActiveRecord
     {
         return [
             'code' => 'Код',
-            'name' => 'Эндоним',
+            'name' => 'Английское название',
             'name_rus' => 'Русское название',
             'prefix' => 'Префикс',
         ];
