@@ -239,6 +239,7 @@ class NumberRange extends ActiveRecord
 
         $triggerTable = reset(self::$_triggerTables);
         $sql = sprintf("SELECT nnp.is_trigger_enabled('%s','notify')", $triggerTable);
-        $db->createCommand($sql)->queryColumn();
+        $column = $db->createCommand($sql)->queryColumn();
+        return $column[0];
     }
 }
