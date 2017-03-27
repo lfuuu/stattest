@@ -31,7 +31,7 @@ class Clients extends ActiveRecord
      */
     public function getCounter()
     {
-        return $this->hasOne(Counter::className(), ['client_id' => 'id']);
+        return $this->hasOne(CachedCounter::className(), ['client_id' => 'id']);
     }
 
     /**

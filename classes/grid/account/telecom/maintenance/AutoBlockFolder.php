@@ -6,7 +6,7 @@ use yii\db\Query;
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
 use app\models\billing\Clients;
-use app\models\billing\Counter;
+use app\models\billing\CachedCounter;
 use app\models\billing\Locks;
 
 class AutoBlockFolder extends AccountGridFolder
@@ -54,7 +54,7 @@ class AutoBlockFolder extends AccountGridFolder
         $billingQuery = (new Query)
             ->select('clients.id')
             ->from(['clients' => Clients::tableName()])
-            ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
+            ->innerJoin(['counter' => CachedCounter::tableName()], 'counter.client_id = clients.id')
             ->leftJoin(['lock' => Locks::tableName()], 'lock.client_id = clients.id')
             ->where(new Expression('TRUE IN (lock.is_finance_block, lock.is_overran, lock.is_mn_overran)'))
             ->orWhere([

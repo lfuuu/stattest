@@ -3,13 +3,10 @@ namespace app\classes\grid\account\telecom\maintenance;
 
 use app\models\Bill;
 use Yii;
-use yii\console\Exception;
 use yii\db\Expression;
 use yii\db\Query;
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
-use app\models\billing\Clients;
-use app\models\billing\Counter;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 

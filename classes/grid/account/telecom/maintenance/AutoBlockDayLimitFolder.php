@@ -7,7 +7,7 @@ use yii\db\Query;
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
 use app\models\billing\Clients;
-use app\models\billing\Counter;
+use app\models\billing\CachedCounter;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 
@@ -50,7 +50,7 @@ class AutoBlockDayLimitFolder extends AccountGridFolder
         $billingQuery = (new Query)
                 ->select('clients.id')
                 ->from(['clients' => Clients::tableName()])
-                ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
+                ->innerJoin(['counter' => CachedCounter::tableName()], 'counter.client_id = clients.id')
                 ->orWhere([
                     'OR',
                     [

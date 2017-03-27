@@ -20,7 +20,7 @@ class Counter extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'billing.counters2';
+        return 'billing.counters';
     }
 
     /**
