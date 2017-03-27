@@ -437,12 +437,12 @@ class ImportController extends Controller
         fclose($handle);
 
         if (count($insertValues)) {
-            echo '. ';
+            echo '.. ';
             $this->_db->createCommand()->batchInsert(
                 $tableName,
                 ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number'],
                 $insertValues
-            );
+            )->execute();
         }
 
         echo PHP_EOL;
