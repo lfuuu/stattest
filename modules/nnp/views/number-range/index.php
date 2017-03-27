@@ -8,6 +8,7 @@
 
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
@@ -137,6 +138,19 @@ $columns = [
 
             return implode('<br/>', $htmlArray);
         }
+    ],
+    [
+        'attribute' => 'insert_time',
+        'class' => MonthColumn::className(),
+        'filterOptions' => [
+            'colspan' => 2, // фильтр на оба столбца
+        ],
+    ],
+    [
+        'attribute' => 'date_stop',
+        'filterOptions' => [
+            'class' => 'collapse',
+        ],
     ],
 ];
 

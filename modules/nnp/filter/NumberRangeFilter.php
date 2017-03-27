@@ -29,6 +29,7 @@ class NumberRangeFilter extends NumberRange
     public $numbers_count_to = '';
     public $city_id = '';
     public $is_reverse_city_id = '';
+    public $insert_time = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это месяц добавления (insert_time) ИЛИ выключения (date_stop)
 
     public $prefix_id = '';
 
@@ -38,7 +39,7 @@ class NumberRangeFilter extends NumberRange
     public function rules()
     {
         return [
-            [['operator_source', 'region_source', 'full_number_from'], 'string'],
+            [['operator_source', 'region_source', 'full_number_from', 'insert_time'], 'string'],
             [['country_code', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
         ];
@@ -144,6 +145,14 @@ class NumberRangeFilter extends NumberRange
         if ($this->full_number_from) {
             $query->andWhere(['<=', $numberRangeTableName . '.full_number_from', $this->full_number_from]);
             $query->andWhere(['>=', $numberRangeTableName . '.full_number_to', $this->full_number_from]);
+        }
+
+        if ($this->insert_time) {
+            $query->andWhere([
+                'OR',
+                ["DATE_TRUNC('month', {$numberRangeTableName}.insert_time)::date" => $this->insert_time . '-01'],
+                ["DATE_TRUNC('month', {$numberRangeTableName}.date_stop)::date" => $this->insert_time . '-01']
+            ]);
         }
 
         $this->numbers_count_from && $query->andWhere('1 + ' . $numberRangeTableName . '.number_to - ' . $numberRangeTableName . '.number_from >= :numbers_count_from', [':numbers_count_from' => $this->numbers_count_from]);

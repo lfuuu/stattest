@@ -582,7 +582,8 @@ SQL;
         full_number_to,
         date_resolution,
         detail_resolution,
-        status_number
+        status_number,
+        insert_time
     )
     SELECT 
         :country_code as country_code, 
@@ -596,7 +597,8 @@ SQL;
         full_number_to,
         date_resolution,
         detail_resolution,
-        status_number
+        status_number,
+        NOW()
     FROM
         number_range_tmp
 SQL;
