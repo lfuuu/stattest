@@ -93,7 +93,7 @@
         if (isUpdateNumberTypesAndCities) {
           $.get('/uu/voip/get-number-types', {
             countryId: countryVal,
-            isWithEmpty: true,
+            isWithEmpty: 1,
             format: 'options'
           }, (function(_this) {
             return function(html) {
@@ -104,7 +104,7 @@
           })(this));
           $.get('/uu/voip/get-cities', {
             countryId: countryVal,
-            isWithEmpty: true,
+            isWithEmpty: 1,
             format: 'options'
           }, (function(_this) {
             return function(html) {
@@ -154,7 +154,7 @@
       if (cityVal && numberTypeVal === 'number') {
         return $.get('/uu/voip/get-did-groups', {
           cityId: cityVal,
-          isWithEmpty: true,
+          isWithEmpty: 1,
           format: 'options'
         }, (function(_this) {
           return function(html) {
