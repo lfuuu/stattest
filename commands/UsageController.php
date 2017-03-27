@@ -222,7 +222,7 @@ class UsageController extends Controller
                 'is_block_mn' => $isMNBlockExp
             ])
             ->from(['c' => 'billing.clients'])
-            ->innerJoin(['cc' => 'billing.counters'], 'c.id=cc.client_id')
+            ->innerJoin(['cc' => 'billing.counters2'], 'c.id=cc.client_id')
             ->innerJoin(['cl' => 'billing.locks'], 'c.id=cl.client_id')
             ->where([
                 'AND',
