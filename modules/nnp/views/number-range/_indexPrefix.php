@@ -22,7 +22,15 @@ use kartik\select2\Select2;
     <div class="row">
 
         <div class="col-sm-2">
-            Все отфильтрованные записи в существующий префикс
+            Все отфильтрованные записи добавить / удалить в новый
+        </div>
+
+        <div class="col-sm-2">
+            <?= Html::textInput('Prefix[name]', '', ['class' => 'form-control']) ?>
+        </div>
+
+        <div class="col-sm-1">
+            или существующий префикс
         </div>
 
         <div class="col-sm-3">
@@ -30,14 +38,6 @@ use kartik\select2\Select2;
                 'name' => 'Prefix[id]',
                 'data' => Prefix::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
-        </div>
-
-        <div class="col-sm-1">
-            или новый
-        </div>
-
-        <div class="col-sm-3">
-            <?= Html::textInput('Prefix[name]', '', ['class' => 'form-control']) ?>
         </div>
 
         <div class="col-sm-3">

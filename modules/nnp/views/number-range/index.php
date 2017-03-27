@@ -33,7 +33,14 @@ use yii\widgets\Breadcrumbs;
     ],
 ]) ?>
 
-<?= $this->render('_indexPrefix') ?>
+<?php
+if (NumberRange::isTriggerEnabled()) {
+    echo $this->render('_indexTriggerEnabled');
+} else {
+    echo $this->render('_indexPrefix');
+    echo $this->render('_indexTriggerDisabled');
+}
+?>
 
 <?php
 $baseView = $this;
