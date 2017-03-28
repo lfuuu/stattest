@@ -8,7 +8,7 @@ use yii\db\Query;
 use app\classes\grid\account\AccountGridFolder;
 use app\models\BusinessProcessStatus;
 use app\models\billing\Clients;
-use app\models\billing\Counter;
+use app\models\billing\CachedCounter;
 use app\models\billing\Locks;
 
 class AutoBlock800Folder extends AccountGridFolder
@@ -58,7 +58,7 @@ class AutoBlock800Folder extends AccountGridFolder
         $billingQuery = (new Query)
             ->select('clients.id')
             ->from(['clients' => Clients::tableName()])
-            ->innerJoin(['counter' => Counter::tableName()], 'counter.client_id = clients.id')
+            ->innerJoin(['counter' => CachedCounter::tableName()], 'counter.client_id = clients.id')
             ->leftJoin(['lock' => Locks::tableName()], 'lock.client_id = clients.id')
             ->where(new Expression('TRUE IN (lock.voip_auto_disabled, lock.voip_auto_disabled_local)'));
 

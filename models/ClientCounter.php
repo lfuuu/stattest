@@ -3,7 +3,7 @@
 namespace app\models;
 
 use app\exceptions\ModelValidationException;
-use app\models\billing\Counter as BillingCounter;
+use app\models\billing\CachedCounter as BillingCounter;
 use Yii;
 use yii\db\ActiveRecord;
 use yii\db\Query;
