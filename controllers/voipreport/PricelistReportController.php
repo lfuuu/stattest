@@ -113,10 +113,17 @@ class PricelistReportController extends BaseController
                 $prices[$position] = $price;
             }
 
-            if (count($prices) > 1) {
+            if (count($prices)) {
                 $bestPrices = $prices;
                 sort($bestPrices, SORT_NUMERIC);
-                list($row['best_price_1'], $row['best_price_2']) = $bestPrices;
+                $bestPricesCount = count($bestPrices);
+
+                if ($bestPricesCount === 1) {
+                    $row['best_price_1'] = reset($bestPrices);
+                } elseif ($bestPricesCount > 1) {
+                    list($row['best_price_1'], $row['best_price_2']) = $bestPrices;
+                }
+
                 unset($bestPrices);
             }
 
@@ -171,7 +178,7 @@ class PricelistReportController extends BaseController
                 $row['destination'],
                 $this->_numberValueForExcel($row['best_price_1']),
                 $this->_numberValueForExcel($row['best_price_2']),
-                array_key_exists('modify_result', $row) ? $this->_numberValueForExcel($row['modify_result']) : 0
+                array_key_exists('modify_result', $row) ? $this->_numberValueForExcel($row['modify_result']) : null
             ];
 
             foreach ($pricelistReport->getDatesArray() as $index => $date) {
