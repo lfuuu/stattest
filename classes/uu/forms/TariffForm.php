@@ -252,6 +252,7 @@ abstract class TariffForm extends Form
         $this->_cloneTariffVoipCity($tariffCloned);
         $this->_cloneTariffPeriod($tariffCloned);
         $this->_cloneTariffResource($tariffCloned);
+        $this->_cloneTariffPackage($tariffCloned);
         $this->_cloneTariffPackagePrice($tariffCloned);
         $this->_cloneTariffPackagePricelist($tariffCloned);
         $this->_cloneTariffPackageMinute($tariffCloned);
@@ -376,6 +377,40 @@ abstract class TariffForm extends Form
                 $this->validateErrors += $tariffResourceCloned->getFirstErrors();
                 throw new ModelValidationException($tariffResourceCloned);
             }
+        }
+    }
+
+    /**
+     * Клонировать тариф. Package
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffPackage(Tariff $tariffCloned)
+    {
+        $package = $this->tariff->package;
+        if (!$package) {
+            return;
+        }
+
+        $fieldNames = [
+            'service_type_id',
+            'tarification_free_seconds',
+            'tarification_interval_seconds',
+            'tarification_type',
+            'tarification_min_paid_seconds',
+            'currency_id',
+            'is_include_vat',
+        ];
+        $packageCloned = new Package();
+        $packageCloned->tariff_id = $tariffCloned->id;
+        foreach ($fieldNames as $fieldName) {
+            $packageCloned->$fieldName = $package->$fieldName;
+        }
+
+        if (!$packageCloned->save()) {
+            $this->validateErrors += $packageCloned->getFirstErrors();
+            throw new ModelValidationException($packageCloned);
         }
     }
 
