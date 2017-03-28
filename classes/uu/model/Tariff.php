@@ -10,7 +10,6 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use yii\db\ActiveQuery;
-use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -412,8 +411,11 @@ class Tariff extends HistoryActiveRecord
                 $tariffTableName . '.is_postpaid' => $this->is_postpaid,
                 $tariffTableName . '.tariff_status_id' => TariffStatus::ID_PUBLIC,
                 $tariffTableName . '.is_default' => 1,
+                $tariffTableName . '.tariff_status_id' => [$this->tariff_status_id, TariffStatus::ID_PUBLIC],
                 TariffVoipCity::tableName() . '.city_id' => $cityId,
             ])
+            // сначала из папки тарифа, потом из публичной (она 1, то есть при desc в конце)
+            ->orderBy([$tariffTableName . '.tariff_status_id' => SORT_DESC])
             ->one();
         return $tariff;
 
