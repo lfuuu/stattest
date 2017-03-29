@@ -2,7 +2,7 @@
 /**
  * Бухгалтерский баланс. Бухгалтерский баланс
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var ClientAccount $clientAccount
  * @var \app\models\Currency $currency
  * @var AccountEntry[] $accountEntries

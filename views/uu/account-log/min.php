@@ -2,7 +2,7 @@
 /**
  * Расчет минималки
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var AccountLogMinFilter $filterModel
  */
 

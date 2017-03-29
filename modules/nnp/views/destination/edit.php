@@ -2,7 +2,7 @@
 /**
  * Создание/редактирование направления
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var Form $formModel
  */
 

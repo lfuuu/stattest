@@ -2,7 +2,7 @@
 /**
  * Пакеты. Цена по направлениям
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
  * @var int $editableType
@@ -23,7 +23,9 @@ if (!$packagePrices) {
     // нет моделей, но виджет для рендеринга их обязательно требует
     // поэтому рендерим дефолтную модель и сразу ж ее удаляем
     $packagePrices = [$packagePrice];
+    $this->registerJsVariable('isRemovePackagePrices', true);
 }
+
 $destinationList = Destination::getList(true);
 
 if ($editableType <= TariffController::EDITABLE_LIGHT) {

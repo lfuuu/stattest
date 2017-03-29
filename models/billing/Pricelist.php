@@ -120,11 +120,11 @@ class Pricelist extends ActiveRecord
             $orderBy = ['name' => SORT_ASC],
             $where = [
                 'AND',
-                !is_null($priceIncludeVat) ? ['price_include_vat' => $priceIncludeVat] : [],
+                is_null($priceIncludeVat) ? [] : ['price_include_vat' => $priceIncludeVat],
                 [
                     'AND',
-                    !is_null($type) ? ['type' => $type] : [],
-                    !is_null($orig) ? ['orig' => $orig] : []
+                    is_null($type) ? [] : ['type' => $type],
+                    is_null($orig) ? [] : ['orig' => $orig]
                 ]
             ]
         );

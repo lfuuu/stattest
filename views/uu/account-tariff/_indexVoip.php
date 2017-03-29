@@ -4,7 +4,7 @@
  *
  * @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=10715249
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var AccountTariffFilter $filterModel
  */
 

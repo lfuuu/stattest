@@ -2,7 +2,7 @@
 /**
  * Расчет платы за подключение
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var AccountLogSetupFilter $filterModel
  */
 

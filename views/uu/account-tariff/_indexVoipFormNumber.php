@@ -2,7 +2,7 @@
 /**
  * Список универсальных услуг с пакетами. Форма. Номера
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  *
  * @var AccountTariff $accountTariffFirst
  * @var AccountTariff[][] $row

@@ -2,12 +2,13 @@
 /**
  * Пакеты. Прайслист с МГП (минимальный гарантированный платеж)
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
  * @var int $editableType
  */
 
+use app\classes\uu\model\ServiceType;
 use app\controllers\uu\TariffController;
 use app\models\billing\Pricelist;
 use app\modules\nnp\models\PackagePricelist;
@@ -23,20 +24,21 @@ if (!$packagePricelists) {
     // нет моделей, но виджет для рендеринга их обязательно требует
     // поэтому рендерим дефолтную модель и сразу ж ее удаляем
     $packagePricelists = [$packagePricelist];
+    $this->registerJsVariable('isRemovePackagePricelists', true);
 }
 
 switch ($tariff = $formModel->tariff->service_type_id) {
 
-    case \app\classes\uu\model\ServiceType::ID_VOIP_PACKAGE:
-        $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type = 'client', $orig = true);
+    case ServiceType::ID_VOIP_PACKAGE:
+        $pricelistList = Pricelist::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $type = 'client', $orig = true);
         break;
 
-    case \app\classes\uu\model\ServiceType::ID_TRUNK_PACKAGE_ORIG:
-        $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type = 'operator', $orig = true);
+    case ServiceType::ID_TRUNK_PACKAGE_ORIG:
+        $pricelistList = Pricelist::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $type = 'operator', $orig = true);
         break;
 
-    case \app\classes\uu\model\ServiceType::ID_TRUNK_PACKAGE_TERM:
-        $pricelistList = Pricelist::getList(true, $isWithNullAndNotNull = false, $type = 'operator', $orig = false);
+    case ServiceType::ID_TRUNK_PACKAGE_TERM:
+        $pricelistList = Pricelist::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $type = 'operator', $orig = false);
         break;
 
     default:

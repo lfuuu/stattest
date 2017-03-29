@@ -3,7 +3,7 @@
  * Main page view for Raw report (/voip/raw)
  *
  * @var CallsRawFilter $filterModel
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  */
 
 use app\classes\DateTimeWithUserTimezone;

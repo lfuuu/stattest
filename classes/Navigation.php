@@ -161,7 +161,7 @@ class Navigation
             NavigationBlock::create()
                 ->setId('nnp')
                 ->setTitle('Национальный номерной план')
-                ->addItem('Диапазон номеров', ['/nnp/number-range/'], ['tarifs.read'])
+                ->addItem('Диапазон номеров', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => 643, 'NumberRangeFilter[is_active]' => 1], ['tarifs.read'])
                 ->addItem('Операторы', ['/nnp/operator/'], ['tarifs.read'])
                 ->addItem('Страны', ['/nnp/country/'], ['tarifs.read'])
                 ->addItem('Регионы', ['/nnp/region/'], ['tarifs.read'])

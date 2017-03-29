@@ -2,7 +2,7 @@
 /**
  * Создание/редактирование универсальной услуги
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
  * @var bool $isReadOnly
  */

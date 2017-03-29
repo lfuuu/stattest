@@ -2,7 +2,7 @@
 /**
  * Просмотр контактов
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var ClientAccount $account
  * @var ClientContact[] $contacts
  */

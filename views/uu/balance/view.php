@@ -9,7 +9,7 @@ use yii\widgets\Breadcrumbs;
 /**
  * Бухгалтерский баланс
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var ClientAccount $clientAccount
  * @var Currency $currency
  * @var AccountEntry[] $accountEntries

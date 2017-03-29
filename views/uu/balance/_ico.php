@@ -2,7 +2,7 @@
 /**
  * Иконка со ссылкой на бухгалтерский баланс
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var int $clientAccountId
  */
 

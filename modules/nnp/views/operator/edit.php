@@ -2,7 +2,7 @@
 /**
  * Создание/редактирование оператора
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var Form $formModel
  */
 

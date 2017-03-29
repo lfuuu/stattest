@@ -1,6 +1,6 @@
 <?php
 /**
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var ClientSuper $client
  * @var ClientAccount $account
  * @var ContractEditForm $contractForm

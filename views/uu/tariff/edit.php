@@ -2,7 +2,7 @@
 /**
  * Создание/редактирование универсального тарифа
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  */
 

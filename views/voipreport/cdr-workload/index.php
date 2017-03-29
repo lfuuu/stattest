@@ -3,7 +3,7 @@
  * Main page view for number cdr-workload report (/voipreport/cdr-workload)
  *
  * @var CdrWorkload $filterModel
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  */
 
 use app\classes\grid\GridView;

@@ -2,7 +2,7 @@
 /**
  * Расчет платы за ресурсы
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var AccountLogResourceFilter $filterModel
  */
 

@@ -12,7 +12,7 @@ use app\models\Language;
 /**
  * Бухгалтерский баланс. Грид
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var ClientAccount $clientAccount
  * @var Currency $currency
  * @var AccountEntry[] $accountEntries

@@ -70,7 +70,7 @@ class RegionController extends Controller
         $regionSourceToId = Region::find()
             ->select([
                 'id',
-                new Expression('CONCAT(country_code, name)'),
+                'name' => new Expression('CONCAT(country_code, name)'),
             ])
             ->indexBy('name')
             ->column();

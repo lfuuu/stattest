@@ -2,7 +2,7 @@
 /**
  * Список типов услуг
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var ServiceTypeFilter $filterModel
  */
 

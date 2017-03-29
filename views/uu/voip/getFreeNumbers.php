@@ -2,7 +2,7 @@
 /**
  * Вернуть массив свободных номеров
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \yii\db\ActiveQuery $numberActiveQuery
  * @var int $rowClass
  * @var \app\models\Number[] $numbers

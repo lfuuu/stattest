@@ -2,7 +2,7 @@
 /**
  * Свойства тарификации пакета
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \yii\widgets\ActiveForm $form
  * @var Package $package
  * @var array $options

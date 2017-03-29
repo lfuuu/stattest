@@ -2,7 +2,7 @@
 /**
  * Мониторинг расчетов
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var AccountLogMonitorFilter $filterModel
  */
 

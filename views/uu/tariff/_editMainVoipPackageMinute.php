@@ -2,7 +2,7 @@
 /**
  * Пакеты. Предоплаченные минуты
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
  * @var int $editableType
@@ -23,7 +23,9 @@ if (!$packageMinutes) {
     // нет моделей, но виджет для рендеринга их обязательно требует
     // поэтому рендерим дефолтную модель и сразу ж ее удаляем
     $packageMinutes = [$packageMinute];
+    $this->registerJsVariable('isRemovePackageMinutes', true);
 }
+
 $destinationList = Destination::getList(true);
 
 if ($editableType <= TariffController::EDITABLE_LIGHT) {

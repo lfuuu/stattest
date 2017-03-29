@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var PublicSite $model
  */
 

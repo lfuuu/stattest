@@ -2,7 +2,7 @@
 /**
  * свойства тарифа для "телефонии. Пакеты"
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\TariffForm $formModel
  * @var \yii\widgets\ActiveForm $form
  * @var int $editableType

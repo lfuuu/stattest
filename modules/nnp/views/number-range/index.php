@@ -97,6 +97,7 @@ $columns = [
         'attribute' => 'operator_id',
         'class' => OperatorColumn::className(),
         'countryCode' => $filterModel->country_code,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'region_source',
@@ -109,6 +110,7 @@ $columns = [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
         'countryCodes' => $filterModel->country_code,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'city_id',

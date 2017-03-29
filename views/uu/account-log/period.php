@@ -2,7 +2,7 @@
 /**
  * Расчет абонентки
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var AccountLogPeriodFilter $filterModel
  */
 

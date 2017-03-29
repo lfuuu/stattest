@@ -1,7 +1,16 @@
-+function ($) {
++function ($, isRemovePackagePricelists) {
     'use strict';
 
     $(function () {
+
+        if (isRemovePackagePricelists) {
+            // нет моделей, но виджет для рендеринга их обязательно требует
+            // поэтому рендерим дефолтную модель и сразу ж ее удаляем
+            $('.package-pricelist .multiple-input').on('afterInit', function () {
+                $(this).multipleInput('remove');
+            });
+        }
+
         $('body')
             .on('change', '.package-pricelist select', function () {
                 // при изменении прайслиста вывести ссылку на его просмотр
@@ -18,6 +27,6 @@
             });
         // при инициализации прайслиста вывести ссылку на его просмотр
         $('.package-pricelist select').trigger('change');
-    })
+    });
 
-}(jQuery);
+}(jQuery, window.frontendVariables.uuTariffEditMainVoipPackagePricelist.isRemovePackagePricelists);

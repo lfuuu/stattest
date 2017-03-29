@@ -2,7 +2,7 @@
 /**
  * Создание/редактирование типа
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\serviceTypeForm $formModel
  */
 

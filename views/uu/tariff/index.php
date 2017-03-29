@@ -2,7 +2,7 @@
 /**
  * Список универсальных тарифов
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var TariffFilter $filterModel
  */
 

@@ -2,7 +2,7 @@
 /**
  * Создание/редактирование страны
  *
- * @var \yii\web\View $this
+ * @var \app\classes\BaseView $this
  * @var CountryForm $formModel
  */
 
