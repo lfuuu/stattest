@@ -325,32 +325,6 @@ class AccountTariffController extends BaseController
                 if (!$accountTariffLog->save()) {
                     throw new ModelValidationException($accountTariffLog);
                 }
-
-                if (!$tariffPeriodIdNew) {
-                    // если закрывается услуга, то надо закрыть и все пакеты
-                    foreach ($accountTariff->nextAccountTariffs as $accountTariffPackage) {
-
-                        if (!$accountTariffPackage->tariff_period_id) {
-                            // эта услуга и так закрыта
-                            continue;
-                        }
-
-                        // изменить услугу
-                        $accountTariffPackage->tariff_period_id = null;
-                        if (!$accountTariffPackage->save()) {
-                            throw new ModelValidationException($accountTariffPackage);
-                        }
-
-                        // записать в лог тарифа
-                        $accountTariffLogPackage = new AccountTariffLog;
-                        $accountTariffLogPackage->account_tariff_id = $accountTariffPackage->id;
-                        $accountTariffLogPackage->tariff_period_id = null;
-                        $accountTariffLogPackage->actual_from = date(DateTimeZoneHelper::DATE_FORMAT, $actualFromTimestamp);
-                        if (!$accountTariffLogPackage->save()) {
-                            throw new ModelValidationException($accountTariffLogPackage);
-                        }
-                    }
-                }
             }
 
             $transaction->commit();
