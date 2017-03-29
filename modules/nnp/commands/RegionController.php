@@ -89,7 +89,7 @@ class RegionController extends Controller
             ->column();
 
         $numberRangeQuery = NumberRange::find()
-            ->where('is_active')
+            // ->where('is_active')
             ->andWhere('region_id IS NULL')
             ->andWhere(['IS NOT', 'region_source', null])
             ->andWhere(['!=', 'region_source', '']);
@@ -102,15 +102,29 @@ class RegionController extends Controller
                 echo '. ';
             }
 
-            $regionSource = $this->preProcessing($numberRange->region_source);
-            if (!$regionSource) {
-                continue;
-            }
-
             $transaction = Yii::$app->db->beginTransaction();
             try {
 
-                if (!isset($regionSourceToId[$numberRange->country_code . $regionSource])) {
+                if (
+                    ($key1 = $numberRange->country_code . $numberRange->region_source) &&
+                    isset($regionSourceToId[$key1])
+                ) {
+
+                    // оригинальный "исходный регион"
+                    $numberRange->region_id = $regionSourceToId[$key1];
+
+                } elseif (
+                    ($regionSource = $this->preProcessing($numberRange->region_source)) &&
+                    ($key2 = $numberRange->country_code . $regionSource) &&
+                    isset($regionSourceToId[$key2])
+                ) {
+
+                    // обработанный "исходный регион"
+                    $numberRange->region_id = $regionSourceToId[$key2];
+
+                } else {
+
+                    // ничего не нашли - создать новый
                     $region = new Region();
                     $region->name = $regionSource;
                     $region->country_code = $numberRange->country_code;
@@ -118,10 +132,20 @@ class RegionController extends Controller
                         throw new ModelValidationException($region);
                     }
 
-                    $regionSourceToId[$numberRange->country_code . $regionSource] = ['id' => $region->id];
+                    $numberRange->region_id = $region->id;
+
+                    // добавить в кэш
+                    if (isset($key1)) {
+                        $regionSourceToId[$key1] = $region->id;
+                    }
+
+                    if (isset($key2)) {
+                        $regionSourceToId[$key2] = $region->id;
+                    }
                 }
 
-                $numberRange->region_id = $regionSourceToId[$numberRange->country_code . $regionSource]['id'];
+                unset($key1, $key2);
+
                 if (!$numberRange->save()) {
                     throw new ModelValidationException($numberRange);
                 }

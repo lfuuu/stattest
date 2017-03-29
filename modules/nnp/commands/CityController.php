@@ -40,7 +40,7 @@ class CityController extends Controller
             ->column();
 
         $numberRangeQuery = NumberRange::find()
-            ->where('is_active')
+            // ->where('is_active')
             ->andWhere('city_id IS NULL')
             ->andWhere(['IS NOT', 'region_source', null])
             ->andWhere(['!=', 'region_source', '']);
