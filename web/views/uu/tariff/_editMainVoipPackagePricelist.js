@@ -1,15 +1,7 @@
-+function ($, isRemovePackagePricelists) {
++function ($) {
     'use strict';
 
     $(function () {
-
-        if (isRemovePackagePricelists) {
-            // нет моделей, но виджет для рендеринга их обязательно требует
-            // поэтому рендерим дефолтную модель и сразу ж ее удаляем
-            $('.package-pricelist .multiple-input').on('afterInit', function () {
-                $(this).multipleInput('remove');
-            });
-        }
 
         $('body')
             .on('change', '.package-pricelist select', function () {
@@ -29,4 +21,4 @@
         $('.package-pricelist select').trigger('change');
     });
 
-}(jQuery, window.frontendVariables.uuTariffEditMainVoipPackagePricelist.isRemovePackagePricelists);
+}(jQuery);
