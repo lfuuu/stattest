@@ -6,6 +6,7 @@ use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use Yii;
 use yii\console\Controller;
+use yii\db\Expression;
 
 /**
  * Группировка операторов
@@ -21,36 +22,30 @@ class OperatorController extends Controller
         // Группированные значение
         $operatorSourceToId = Operator::find()
             ->select([
-                'name',
                 'id',
+                'name' => new Expression('CONCAT(country_code, name)'),
             ])
             ->indexBy('name')
-            ->asArray()
-            ->all();
+            ->column();
 
         // уже сделанные соответствия
         $operatorSourceToId += NumberRange::find()
             ->distinct()
             ->select([
-                'name' => 'operator_source',
                 'id' => 'operator_id',
+                'name' => new Expression('CONCAT(country_code, operator_source)'),
             ])
             ->where('operator_id IS NOT NULL')
-            ->andWhere('operator_source IS NOT NULL AND operator_source != :empty')
-            ->params([
-                ':empty' => '',
-            ])
+            ->andWhere(['IS NOT', 'operator_source', null])
+            ->andWhere(['!=', 'operator_source', ''])
             ->indexBy('name')
-            ->asArray()
-            ->all();
+            ->column();
 
         $numberRangeQuery = NumberRange::find()
-            ->where('is_active')
+            // ->where('is_active')
             ->andWhere('operator_id IS NULL')
-            ->andWhere('operator_source IS NOT NULL AND operator_source != :empty')
-            ->params([
-                ':empty' => '',
-            ]);
+            ->andWhere(['IS NOT', 'operator_source', null])
+            ->andWhere(['!=', 'operator_source', '']);
         $i = 0;
 
         /** @var NumberRange $numberRange */
@@ -73,10 +68,10 @@ class OperatorController extends Controller
                         throw new ModelValidationException($operator);
                     }
 
-                    $operatorSourceToId[$operatorSource] = ['id' => $operator->id];
+                    $operatorSourceToId[$operatorSource] = $operator->id;
                 }
 
-                $numberRange->operator_id = $operatorSourceToId[$operatorSource]['id'];
+                $numberRange->operator_id = $operatorSourceToId[$operatorSource];
                 if (!$numberRange->save()) {
                     throw new ModelValidationException($numberRange);
                 }
