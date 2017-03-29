@@ -6,6 +6,7 @@ use app\classes\uu\model\TariffPeriod;
 use app\models\billing\Pricelist;
 use app\models\Business;
 use app\models\BusinessProcess;
+use app\models\Country;
 use Yii;
 use yii\helpers\Url;
 
@@ -161,7 +162,7 @@ class Navigation
             NavigationBlock::create()
                 ->setId('nnp')
                 ->setTitle('Национальный номерной план')
-                ->addItem('Диапазон номеров', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => 643, 'NumberRangeFilter[is_active]' => 1], ['tarifs.read'])
+                ->addItem('Диапазон номеров', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => Country::RUSSIA, 'NumberRangeFilter[is_active]' => 1], ['tarifs.read'])
                 ->addItem('Операторы', ['/nnp/operator/'], ['tarifs.read'])
                 ->addItem('Страны', ['/nnp/country/'], ['tarifs.read'])
                 ->addItem('Регионы', ['/nnp/region/'], ['tarifs.read'])
