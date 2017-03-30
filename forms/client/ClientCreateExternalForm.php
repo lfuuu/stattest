@@ -587,7 +587,7 @@ class ClientCreateExternalForm extends Form
                 $freeNumber
                     = (new FreeNumberFilter)
                     ->getNumbers()
-                    ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
+                    ->setDidGroup(DidGroup::ID_MOSCOW_STANDART_499)
                     ->randomOne();
 
                 if (!$freeNumber) {

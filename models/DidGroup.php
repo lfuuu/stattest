@@ -15,6 +15,7 @@ use yii\helpers\Url;
  * @property float $price1
  * @property float $price2
  * @property float $price3
+ * @property float $comment
  *
  * @property City $city
  * @property Country $country
@@ -26,7 +27,8 @@ class DidGroup extends ActiveRecord
         getList as getListTrait;
     }
 
-    const MOSCOW_STANDART_GROUP_ID = 2;
+    const ID_MOSCOW_STANDART_495 = 1;
+    const ID_MOSCOW_STANDART_499 = 2;
 
     const BEAUTY_LEVEL_STANDART = 0;
     const BEAUTY_LEVEL_PLATINUM = 1;
@@ -59,6 +61,7 @@ class DidGroup extends ActiveRecord
             'price1' => 'Цена 1',
             'price2' => 'Цена 2',
             'price3' => 'Цена 3',
+            'comment' => 'Комментарий для пользователя',
         ];
     }
 
@@ -68,7 +71,7 @@ class DidGroup extends ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'string'],
+            [['name','comment'], 'string'],
             [['beauty_level', 'city_id', 'number_type_id', 'country_code'], 'integer'],
             [['name', 'beauty_level', 'country_code', 'number_type_id'], 'required'],
             [['price1', 'price2', 'price3'], 'number'],

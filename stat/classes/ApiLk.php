@@ -472,18 +472,16 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
-        $cities =
-            City::find()
-                ->select(['id', 'name'])
-                ->where([
-                    'in_use' => 1,
-                    'is_show_in_lk' => 1,
-                    'country_id' => $clientAccount->country_id
-                ])
-                ->orderBy(['order' => SORT_ASC])
-                ->asArray()
-                ->all();
-
+        $cities = City::find()
+            ->select(['id', 'name'])
+            ->where([
+                'in_use' => 1,
+                'is_show_in_lk' => 1,
+                'country_id' => $clientAccount->country_id
+            ])
+            ->orderBy(['order' => SORT_ASC])
+            ->asArray()
+            ->all();
 
         $didGroupsByCityId = [];
 
@@ -495,13 +493,16 @@ class ApiLk
         /** @var DidGroup $didGroup */
         foreach ($didGroups->each() as $didGroup) {
 
-            if (!isset($didGroupsByCityId[$didGroup->city_id])) {
-                $didGroupsByCityId[$didGroup->city_id] = [];
+            $cityId = $didGroup->city_id ?: 'any';
+
+            if (!isset($didGroupsByCityId[$cityId])) {
+                $didGroupsByCityId[$cityId] = [];
             }
 
-            $didGroupsByCityId[$didGroup->city_id][$didGroup->id] = [
+            $didGroupsByCityId[$cityId][$didGroup->id] = [
                 'id' => $didGroup->id,
-                'name' => $didGroup->name,
+                'code' => 'group_' . $didGroup->beauty_level,
+                'comment' => $didGroup->comment,
                 'activation_fee' => (float)$didGroup->price1,
                 'currency_id' => $didGroup->country->currency_id,
                 'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART

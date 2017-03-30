@@ -101,18 +101,23 @@ if (!$didGroup->isNewRecord) {
         </div>
 
         <?php // Цена 1 ?>
-        <div class="col-sm-2">
+        <div class="col-sm-1">
             <?= $form->field($didGroup, 'price1')->input('number', ['step' => 0.01]) ?>
         </div>
 
         <?php // Цена 2 ?>
-        <div class="col-sm-2">
+        <div class="col-sm-1">
             <?= $form->field($didGroup, 'price2')->input('number', ['step' => 0.01]) ?>
         </div>
 
         <?php // Цена 3 ?>
-        <div class="col-sm-2">
+        <div class="col-sm-1">
             <?= $form->field($didGroup, 'price3')->input('number', ['step' => 0.01]) ?>
+        </div>
+
+        <?php // Комментарий ?>
+        <div class="col-sm-3">
+            <?= $form->field($didGroup, 'comment') ?>
         </div>
 
     </div>
