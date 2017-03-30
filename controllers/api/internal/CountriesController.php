@@ -93,9 +93,14 @@ class CountriesController extends ApiInternalController
     /**
      * @SWG\Definition(definition="countryRecord", type="object",
      *   @SWG\Property(property="country_code", type="integer", description="Идентификатор страны"),
-     *   @SWG\Property(property="country_title", type="string", description="Название страны"),
+     *   @SWG\Property(property="country_title", type="string", description="Название страны по-английски"),
+     *   @SWG\Property(property="country_rus", type="string", description="Название страны по-русски сокращенно"),
+     *   @SWG\Property(property="country_rus_full", type="string", description="Название страны по-русски полностью"),
      *   @SWG\Property(property="country_lang", type="string", description="Используемый язык"),
      *   @SWG\Property(property="country_currency", type="string", description="Используемая валюта"),
+     *   @SWG\Property(property="country_weight", type="string", description="Порядок вывода"),
+     *   @SWG\Property(property="country_prefix", type="string", description="Телефонный префикс"),
+     *   @SWG\Property(property="country_alpha_3", type="string", description="3-буквенный код страницы"),
      *   @SWG\Property(property="regions", type="array", @SWG\Items(type="integer"))
      * ),
      *
@@ -170,9 +175,13 @@ class CountriesController extends ApiInternalController
         return [
             'country_code' => $country->code,
             'country_title' => $country->name,
+            'country_rus' => $country->name_rus,
+            'country_rus_full' => $country->name_rus_full,
             'country_lang' => $country->lang,
             'country_currency' => $country->currency_id,
             'country_weight' => $country->order,
+            'country_prefix' => $country->prefix,
+            'country_alpha_3' => $country->alpha_3,
             'regions' => $regions,
         ];
     }
