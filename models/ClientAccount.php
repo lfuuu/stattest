@@ -144,6 +144,8 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
     const WARNING_BILL_PAY_OVERDUE = 'lock.bill_pay_overdue'; // Просрочка оплаты счета
 
+    const PAY_BILL_UNTIL_DAYS = 30;
+
 
     public static $statuses = [
         'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
@@ -245,6 +247,7 @@ class ClientAccount extends HistoryActiveRecord
         $rules[] = ['region', 'default', 'value' => self::DEFAULT_REGION];
         $rules[] = ['credit', 'default', 'value' => self::DEFAULT_CREDIT];
         $rules[] = ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE];
+        $rules[] = ['pay_bill_until_days', 'default', 'value' => self::PAY_BILL_UNTIL_DAYS];
 
         return $rules;
     }
