@@ -67,10 +67,11 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Definition(definition = "idResourceRecord", type = "object",
+     * @SWG\Definition(definition = "resourceRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID"),
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
      *   @SWG\Property(property = "unit", type = "string", description = "Ед. изм."),
+     *   @SWG\Property(property = "is_number", type = "boolean", description = "true - numeric, false - boolean"),
      *   @SWG\Property(property = "min_value", type = "string", description = "Минимум, ед."),
      *   @SWG\Property(property = "max_value", type = "string", description = "Максимум, ед."),
      *   @SWG\Property(property = "service_type", type = "object", description = "Тип услуги", ref = "#/definitions/idNameRecord"),
@@ -79,7 +80,7 @@ class UuController extends ApiInternalController
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-resources", summary = "Список ресурсов", operationId = "GetResources",
      *
      *   @SWG\Response(response = 200, description = "Список ресурсов (дисковое пространство, абоненты, линии и пр.)",
-     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idResourceRecord"))
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/resourceRecord"))
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",
      *     @SWG\Schema(ref = "#/definitions/error_result")
@@ -94,17 +95,31 @@ class UuController extends ApiInternalController
         $result = [];
         /** @var \app\classes\uu\model\Resource $model */
         foreach ($query->each() as $model) {
-            $result[] = [
-                'id' => $model->id,
-                'name' => $model->name,
-                'unit' => $model->unit,
-                'min_value' => $model->min_value,
-                'max_value' => $model->max_value,
-                'service_type' => $this->_getIdNameRecord($model->serviceType),
-            ];
+            $result[] = $this->_getResourceRecord($model);
         }
 
         return $result;
+    }
+
+    /**
+     * @param \app\classes\uu\model\Resource $model
+     * @return array
+     */
+    private function _getResourceRecord($model)
+    {
+        if (!$model) {
+            return [];
+        }
+
+        return [
+            'id' => $model->id,
+            'name' => $model->name,
+            'unit' => $model->unit,
+            'is_number' => $model->isNumber(),
+            'min_value' => $model->min_value,
+            'max_value' => $model->max_value,
+            'service_type' => $this->_getIdNameRecord($model->serviceType),
+        ];
     }
 
     /**
@@ -212,7 +227,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "amount", type = "number", description = "Включено, ед. Имеет смысл только при is_checkable=false"),
      *   @SWG\Property(property = "price_per_unit", type = "number", description = "Цена за превышение, ¤/ед."),
      *   @SWG\Property(property = "price_min", type = "number", description = "Мин. стоимость за месяц, ¤"),
-     *   @SWG\Property(property = "resource", type = "object", description = "Ресурс (дисковое пространство, абоненты, линии и пр.)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "resource", type = "object", description = "Ресурс (дисковое пространство, абоненты, линии и пр.)", ref = "#/definitions/resourceRecord"),
      * ),
      *
      * @SWG\Definition(definition = "tariffPeriodRecord", type = "object",
@@ -469,7 +484,7 @@ class UuController extends ApiInternalController
                 'amount' => $isCheckable ? null : $model->amount,
                 'price_per_unit' => $model->price_per_unit,
                 'price_min' => $model->price_min,
-                'resource' => $this->_getIdNameRecord($model->resource),
+                'resource' => $this->_getResourceRecord($model->resource),
             ];
 
         } else {
