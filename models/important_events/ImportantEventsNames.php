@@ -72,6 +72,10 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_NOTIFIED_1DAYS = 'notified_1days';
     const IMPORTANT_EVENT_RESET_NOTIFIED_1DAYS = 'reset_notified_1days';
 
+    // overdue
+    const IMPORTANT_EVENT_INVOCE_PAYMENT_DELAY = 'invoce_payment_delay';
+    const IMPORTANT_EVENT_INVOICE_PAYMENT_DONE = 'invoice_payment_done';
+
     /**
      * @return string
      */

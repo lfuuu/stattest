@@ -6,6 +6,9 @@ use app\exceptions\ModelValidationException;
 use app\models\Bill;
 use app\models\billing\Locks;
 use app\models\ClientAccount;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 use app\models\PaymentOrder;
 use yii\base\Behavior;
 use yii\base\Event;
@@ -97,6 +100,17 @@ class CheckBillPaymentOverdue extends Behavior
         }
 
         $account->is_bill_pay_overdue = $isSetPayOverdue;
+
+        ImportantEvents::create(
+            ($account->is_bill_pay_overdue ?
+                ImportantEventsNames::IMPORTANT_EVENT_INVOCE_PAYMENT_DELAY :
+                ImportantEventsNames::IMPORTANT_EVENT_INVOICE_PAYMENT_DONE
+            ),
+            ImportantEventsSources::SOURCE_STAT,
+            [
+                'client_id' => $account->id
+            ]
+        );
 
         if ($isSetPayOverdue) {
             // $account->voip_disabled = 1; // временно отключим саму блокировку
