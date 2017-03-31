@@ -183,7 +183,7 @@ class HistoryActiveRecord extends ActiveRecord
      */
     public function loadVersionOnDate($date = null)
     {
-        if (null === $date) {
+        if (!$date) {
             return $this;
         }
 
@@ -318,5 +318,55 @@ class HistoryActiveRecord extends ActiveRecord
         }
 
         $this->setAttributes($versionData, false);
+    }
+
+    /**
+     * Получение кешированной исторической модели
+     *
+     * @param string $className
+     * @param int $id
+     * @param string $date
+     * @return HistoryActiveRecord
+     */
+    protected function getCachedHistoryModel($className, $id, $date = null)
+    {
+        $models = $this->getCachedHistoryModels($className, 'id', $id, $date);
+
+        if (!$models) {
+            return null;
+        }
+
+        return reset($models);
+    }
+
+    /**
+     * Получение кешированных исторических моделей
+     *
+     * @param string $className
+     * @param string $field
+     * @param int $id
+     * @param string $date
+     * @return HistoryActiveRecord[]
+     */
+    protected function getCachedHistoryModels($className, $field, $id, $date = null)
+    {
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
+
+        static $_cache = [];
+
+        if (!isset($_cache[$className][$date][$field][$id])) {
+            $models = $className::findAll([$field => $id]);
+            /** @var self $model */
+            foreach ($models as $model) {
+
+                if ($model && $date) {
+                    $model->loadVersionOnDate($date);
+                }
+            }
+
+            $_cache[$className][$date][$field][$id] = $models;
+        }
+
+        return $_cache[$className][$date][$field][$id];
     }
 }

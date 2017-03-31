@@ -299,7 +299,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getOrganization($date = '')
     {
-        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: date(DateTimeZoneHelper::DATE_FORMAT));
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
         /** @var Organization $organization */
         $organization = Organization::find()->byId($this->organization_id)->actual($date)->one();
         return $organization;
@@ -339,14 +339,7 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getContragent($date = '')
     {
-        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
-
-        $contragent = ClientContragent::findOne($this->contragent_id);
-        if ($contragent && $date) {
-            $contragent->loadVersionOnDate($date);
-        }
-
-        return $contragent;
+        return $this->getCachedHistoryModel(ClientContragent::className(), $this->contragent_id, $date);
     }
 
     /**
@@ -355,19 +348,12 @@ class ClientContract extends HistoryActiveRecord
      */
     public function getAccounts($isFromHistory = true)
     {
-        $models = ClientAccount::findAll(['contract_id' => $this->id]);
-
-        if (!$isFromHistory) {
-            return $models;
-        }
-
-        foreach ($models as &$model) {
-            if ($model && $historyDate = $this->getHistoryVersionRequestedDate()) {
-                $model->loadVersionOnDate($historyDate);
-            }
-        }
-
-        return $models;
+        return $this->getCachedHistoryModels(
+            ClientAccount::className(),
+            'contract_id',
+            $this->id,
+            ($isFromHistory ? $this->getHistoryVersionRequestedDate() : null)
+        );
     }
 
     /**

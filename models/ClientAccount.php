@@ -626,16 +626,9 @@ class ClientAccount extends HistoryActiveRecord
      * @param string $date
      * @return ClientContract
      */
-    public function getContract($date = null)
+    public function getContract($date = '')
     {
-        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
-
-        $contract = ClientContract::findOne($this->contract_id);
-        if ($contract && $date) {
-            $contract->loadVersionOnDate($date);
-        }
-
-        return $contract;
+        return $this->getCachedHistoryModel(ClientContract::className(), $this->contract_id, $date);
     }
 
     /**
@@ -803,7 +796,11 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getTaxRate()
     {
-        return $this->effective_vat_rate;
+        if ($this->getHistoryVersionRequestedDate()) {
+            return ClientContract::dao()->getEffectiveVATRate($this->contract);
+        } else {
+            return $this->effective_vat_rate;
+        }
     }
 
     /**
