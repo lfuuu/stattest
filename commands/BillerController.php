@@ -143,7 +143,7 @@ class BillerController extends Controller
                 $importantEventName = ImportantEventsNames::IMPORTANT_EVENT_FORECASTING_3DAY;
                 break;
 
-            case 1:
+            case 0:
                 $importantEventName = ImportantEventsNames::IMPORTANT_EVENT_FORECASTING_1DAY;
                 break;
 
