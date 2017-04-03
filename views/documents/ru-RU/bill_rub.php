@@ -25,13 +25,7 @@ $payerCompany = $document->getPayer();
     <head>
         <title>Счёт &#8470;<?= $document->bill->bill_no; ?></title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <?php if ($inline_img) : ?>
-            <style type="text/css">
-            <?= file_get_contents(Yii::$app->basePath .'/web/bill.css') ?>
-            </style>
-        <?php else : ?>
-            <link href="/bill.css" rel="stylesheet" />
-        <?php endif; ?>
+        <link href="/bill.css" rel="stylesheet" />
     </head>
 
     <body bgcolor="#FFFFFF" style="background:#FFFFFF">
@@ -46,7 +40,7 @@ $payerCompany = $document->getPayer();
                     ?>
                 </td>
                 <td align="right">
-                    <div style="width: 110px;text-align: center;padding-right: 10px;">
+                    <div style="width: 110px;  text-align: center;padding-right: 10px;">
                         <?php if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)): ?>
                             <?php
                             if ($inline_img):
@@ -301,13 +295,12 @@ $payerCompany = $document->getPayer();
             <?php if ($document->sendEmail): ?>
                 <tr>
                     <td>&nbsp;</td>
-                    <td align="left">
-
+                    <td align=left>
                         <?php if (MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
                             $image_options = [
                                 'width' => 200,
                                 'border' => 0,
-                                'style' => 'position:relative; left:165; top:-50; z-index:-10; margin-bottom:-170px;',
+                                'style' => 'position:relative; left:65; top:-200; z-index:-10; margin-bottom:-170px;',
                             ];
 
                             if ($inline_img):
