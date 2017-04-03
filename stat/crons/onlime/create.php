@@ -120,6 +120,10 @@ class Onlime1CCreateBill
            from 01.02.2016
            28=3a0a1bfe-c8c2-11e5-af87-00155d881200 17990   Приставка, SML-482 HD Base с опцией Wi-Fi
 
+           from 03.04.2017
+           41=8d4c0c88-145b-11e7-9abf-00155d881200	18696	Пульт, универсальный дистанционного управления
+
+
          */
 
         foreach($o["products"] as $product)
@@ -137,6 +141,7 @@ class Onlime1CCreateBill
                 case '21':  $goodId = "e5f617a4-8f97-11e1-afcc-00155d881200"; break;
                 case '22':  $goodId = "4454e4d5-a79e-11e4-a330-00155d881200"; break;
                 case '28':  $goodId = "3a0a1bfe-c8c2-11e5-af87-00155d881200"; break;
+                case '41':  $goodId = "8d4c0c88-145b-11e7-9abf-00155d881200"; break;
             }
 
             if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])

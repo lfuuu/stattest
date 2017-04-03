@@ -2766,7 +2766,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         }
     }
 
-    $total = array(
+    $total = [
         "count_3" => 0,
         "count_9" => 0,
         "count_11" => 0,
@@ -2775,11 +2775,11 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         "count_18" => 0,
         "count_19" => 0,
         "count_22" => 0,
-        "count_28" => 0
-    );
+        "count_28" => 0,
+        "count_41" => 0,
+    ];
 
-    foreach($list as $l)
-    {
+    foreach ($list as $l) {
         $total["count_3"] += $l["count_3"];
         $total["count_9"] += $l["count_9"];
         $total["count_11"] += $l["count_11"];
@@ -2789,6 +2789,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         $total["count_19"] += $l["count_19"];
         $total["count_22"] += $l["count_22"];
         $total["count_28"] += $l["count_28"];
+        $total["count_41"] += $l["count_41"];
     }
 
     $design->assign("list", $list);
@@ -2809,8 +2810,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
 
     if(get_param_raw("export", "") == "excel")
     {
-        foreach($list as  &$l)
-        {
+        foreach($list as  &$l) {
             $l["count_3"] = (int)$l["count_3"];
             $l["count_9"] = (int)$l["count_9"];
             $l["count_11"] = (int)$l["count_11"];
@@ -2820,6 +2820,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             $l["count_19"] = (int)$l["count_19"];
             $l["count_22"] = (int)$l["count_22"];
             $l["count_28"] = (int)$l["count_28"];
+            $l["count_41"] = (int)$l["count_41"];
             $design->assign("i_stages", $l["stages"]);
             $design->assign("last", 1000);
             $html = $design->fetch("stats/onlime_stage.tpl");
@@ -2855,6 +2856,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                     "D-Link DWA-182/RU/C1A Беспроводной адаптер" => "count_19",
                     "Gigaset C530 IP IP-телефон" => "count_22",
                     "Приставка, SML-482 HD Base с опцией Wi-Fi" => "count_28",
+                    "Пульт универсальный" => "count_41",
                     "Серийные номера" => "serials",
                     "Номер купона" => "coupon",
                     "ФИО клиента" => "fio",
@@ -3192,6 +3194,10 @@ if($client != "nbn")
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('d78e0644-6dbc-11e5-9421-00155d881200', '3a0a1bfe-c8c2-11e5-af87-00155d881200')
                         and nl.bill_no = t.bill_no) as count_28,
+                        
+				(select sum(amount) from newbill_lines nl
+                        where item_id ='8d4c0c88-145b-11e7-9abf-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_41,
 
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
         (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
@@ -3332,6 +3338,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 				(select sum(amount) from newbill_lines nl
                         where item_id in ('d78e0644-6dbc-11e5-9421-00155d881200', '3a0a1bfe-c8c2-11e5-af87-00155d881200')
                         and nl.bill_no = t.bill_no) as count_28,
+                        
+				(select sum(amount) from newbill_lines nl
+                        where item_id ='8d4c0c88-145b-11e7-9abf-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_41,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
         (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
