@@ -4,6 +4,7 @@ namespace app\classes\documents;
 
 use app\models\ClientAccount;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use app\classes\BillQRCode;
@@ -115,6 +116,7 @@ abstract class DocumentReport extends Object
      * @param bool|true $inline_img
      * @return string
      * @throws \yii\base\InvalidConfigException
+     * @throws InvalidParamException
      */
     public function render($inline_img = true)
     {
@@ -128,7 +130,7 @@ abstract class DocumentReport extends Object
     }
 
     /**
-     * @return mixed
+     * @return string
      * @throws \yii\base\InvalidConfigException
      */
     public function renderAsPDF()
