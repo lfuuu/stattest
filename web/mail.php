@@ -47,7 +47,7 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
         if (in_array($R['obj'], ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom'])) {
             $bill = Bill::find()->where(['client_id' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
             $report = DocumentReportFactory::me()->getReport($bill, $R['obj']);
-            $report->renderAsPDF();
+            echo $report->renderAsPDF();
         } else {
             $design->assign('emailed', 1);
             $_GET = $R;
