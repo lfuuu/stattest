@@ -340,6 +340,7 @@ class ClientController extends ApiInternalController
                         'id' => $contragent->id,
                         'name' => $contragent->name,
                         'country' => $contragent->country->alpha_3,
+                        'country_id' => $contragent->country_id,
                         'contracts' => $resultContracts
                     ];
                 }
