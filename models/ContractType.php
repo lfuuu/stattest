@@ -30,12 +30,13 @@ class ContractType extends ActiveRecord
      * Вернуть список всех доступных значений
      *
      * @param int $businessProcessId
+     * @param bool $isWithEmpty
      * @return \string[]
      */
-    public static function getList($businessProcessId = null)
+    public static function getList($businessProcessId = null, $isWithEmpty = false)
     {
         return self::getListTrait(
-            $isWithEmpty = false,
+            $isWithEmpty,
             $isWithNullAndNotNull = false,
             $indexBy = 'id',
             $select = 'name',
