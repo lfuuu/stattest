@@ -6,6 +6,8 @@ use app\assets\AppAsset;
 use app\models\Language as LanguageModel;
 use app\classes\Language as LanguageClasses;
 use Yii;
+use yii\base\InvalidCallException;
+use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
@@ -27,6 +29,7 @@ class BaseView extends View
 
     /**
      * @return string
+     * @throws InvalidParamException
      */
     protected function renderHeadHtml()
     {
@@ -44,6 +47,8 @@ class BaseView extends View
      * @param string $context
      * @return string
      * @throws InvalidParamException
+     * @throws InvalidCallException
+     * @throws InvalidConfigException
      */
     public function render($view, $params = [], $context = null)
     {
@@ -62,6 +67,12 @@ class BaseView extends View
 
     /**
      * добавлен только 'basePath' => '@webroot'
+     *
+     * @param string $url
+     * @param array $options
+     * @param null $key
+     * @throws InvalidConfigException
+     * @throws InvalidParamException
      */
     public function registerCssFile($url, $options = [], $key = null)
     {
@@ -85,6 +96,12 @@ class BaseView extends View
 
     /**
      * добавлен только 'basePath' => '@webroot'
+     *
+     * @param string $url
+     * @param array $options
+     * @param null $key
+     * @throws InvalidConfigException
+     * @throws InvalidParamException
      */
     public function registerJsFile($url, $options = [], $key = null)
     {
@@ -194,7 +211,8 @@ class BaseView extends View
     }
 
     /**
-     * @inheritdoc
+     * @throws InvalidConfigException
+     * @throws InvalidParamException
      */
     private function _loadFrontend()
     {
