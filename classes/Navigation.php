@@ -45,6 +45,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Бухгалтерия')
                 ->addStatModuleItems('newaccounts')
+                ->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit')
         );
         $this->_addBlock(
             NavigationBlock::create()

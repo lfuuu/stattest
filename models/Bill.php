@@ -137,7 +137,12 @@ class Bill extends HistoryActiveRecord
     public function attributeLabels()
     {
         return [
+            'id' => 'Id',
+            'client_id' => 'ЛС',
+            'bill_no' => 'Номер счета',
+            'bill_date' => 'Дата счета',
             'sum' => 'Сумма',
+            'currency' => 'Валюта',
             'sum_with_unapproved' => 'Сумма (не проведенная)',
             'postreg' => 'Почтовый реестр',
             'courier_id' => 'Курьер',
@@ -145,6 +150,7 @@ class Bill extends HistoryActiveRecord
             'doc_date' => 'Дата документа',
             'bill_no_ext_date' => 'Дата внешнего счета',
             'bill_no_ext' => 'Внешний номер',
+            'comment' => 'Комментарий',
             'nal' => 'Предпологаемый тип платежа',
             'is_pay' => 'Счет оплачен',
             'pay_bill_until' => 'Оплатить счет до',
