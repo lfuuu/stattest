@@ -1363,9 +1363,9 @@ class m_newaccounts extends IModule
     {
         $count = 0;
 
-        $query = Bill::find()
-            ->where(['is_show_in_lk' => 0])
-            ->andWhere(['like', 'bill_no', date("Ym").'%', false]);
+        $query = Bill::find()->where([
+            'is_show_in_lk' => 0
+        ]);
 
         foreach ($query->each() as $bill) {
             $bill->is_show_in_lk = 1;
