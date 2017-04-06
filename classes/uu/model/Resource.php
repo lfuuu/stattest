@@ -19,7 +19,6 @@ use app\classes\uu\resourceReader\ZeroResourceReader;
 use app\models\Language;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\Expression;
 
 /**
  * Ресурс (дисковое пространство, абоненты, линии и пр.)
@@ -252,4 +251,41 @@ class Resource extends \yii\db\ActiveRecord
         return $resources;
     }
 
+    /**
+     * @return string
+     */
+    public function getMinValue()
+    {
+        return $this->isNumber() ? (string)$this->min_value : '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getMaxValue()
+    {
+        return $this->isNumber() ?
+            (string)($this->max_value ?: '∞') :
+            '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getValueRange()
+    {
+        return $this->isNumber() ?
+            $this->getMinValue() . ' - ' . $this->getMaxValue() . ' ' . $this->getUnit() :
+            '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnit()
+    {
+        return $this->isNumber() ?
+            $this->unit :
+            '';
+    }
 }

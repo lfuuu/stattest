@@ -32,6 +32,7 @@ use yii\helpers\Url;
  *
  * @property Currency $currency
  * @property TariffResource[] $tariffResources
+ * @property TariffResource[] $tariffResourcesIndexedByResourceId
  * @property ServiceType $serviceType
  * @property Country $country
  * @property TariffStatus $status
@@ -210,6 +211,15 @@ class Tariff extends HistoryActiveRecord
     {
         return $this->hasMany(TariffResource::className(), ['tariff_id' => 'id'])
             ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTariffResourcesIndexedByResourceId()
+    {
+        return $this->getTariffResources()
+            ->indexBy('resource_id');
     }
 
     /**

@@ -8,6 +8,7 @@ use app\classes\uu\model\AccountLogPeriod;
 use app\classes\uu\model\AccountLogSetup;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use app\classes\uu\model\AccountTariffResourceLog;
 use app\classes\uu\model\Period;
 use app\classes\uu\model\Resource;
 use app\classes\uu\model\ServiceType;
@@ -1285,9 +1286,9 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Definition(definition = "vmCollocationRecord", type = "object",
-     *   @SWG\Property(property="vm_user_id", type="string|null", description="ID юзера в VM manager (обычно не нужен)"),
-     *   @SWG\Property(property="vm_user_login", type="string|null", description="Логин юзера в VM manager"),
-     *   @SWG\Property(property="vm_user_password", type="string|null", description="Постоянный пароль юзера в VM manager (обычно не нужен)"),
+     *   @SWG\Property(property = "vm_user_id", type = "string|null", description = "ID юзера в VM manager (обычно не нужен)"),
+     *   @SWG\Property(property = "vm_user_login", type = "string|null", description = "Логин юзера в VM manager"),
+     *   @SWG\Property(property = "vm_user_password", type = "string|null", description = "Постоянный пароль юзера в VM manager (обычно не нужен)"),
      * ),
      *
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VM collocation ЛС", operationId = "GetVmCollocationInfo",
@@ -1323,5 +1324,68 @@ class UuController extends ApiInternalController
             'vm_user_login' => $vm_user_id ? ('client_' . $client_account_id) : null,
             'vm_user_password' => $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_PASSWORD),
         ];
+    }
+
+    /**
+     * @SWG\Definition(definition = "accountTariffResourceRecord", type = "object",
+     *   @SWG\Property(property = "price", type = "float", description = "Стоимость этого ресурса, списанная за период, указанный ниже"),
+     *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой начинается действие и списание. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "actual_to", type = "string", description = "Дата, по которую списано (включительно). ГГГГ-ММ-ДД"),
+     * ),
+     *
+     * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/edit-account-tariff-resource", summary = "Изменить количество ресурса в услуге ЛС", operationId = "EditAccountTariffResource",
+     *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "resource_id", type = "integer", description = "ID ресурса", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "amount", type = "integer", description = "Количество ресурса", in = "formData", required = true, default = ""),
+     *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата смены. ГГГГ-ММ-ДД. Если не указано - сейчас", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "is_validate_only", type = "integer", description = "Эмуляция без реального действия. 0 - изменить количество ресурса и списать деньги. 1 - не менять и не списывать, но валидировать и посчитать стоимость", in = "formData", default = "0"),
+     *
+     *   @SWG\Response(response = 200, description = "Количество ресурса изменено",
+     *     @SWG\Schema(ref = "#/definitions/accountTariffResourceRecord")
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function actionEditAccountTariffResource()
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $post = Yii::$app->request->post();
+
+            $isValidateOnly = (isset($post['is_validate_only']) && $post['is_validate_only']) ? (boolean)$post['is_validate_only'] : false;
+
+            $accountTariffResourceLog = new AccountTariffResourceLog();
+            $accountTariffResourceLog->setAttributes($post);
+            if (!$accountTariffResourceLog->actual_from_utc) {
+                $accountTariffResourceLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+            }
+
+            if (
+                ($isValidateOnly && !$accountTariffResourceLog->validate()) || // если is_validate_only, то только валидировать
+                (!$isValidateOnly && !$accountTariffResourceLog->save()) // если !is_validate_only, то валидировать и сохранить
+            ) {
+                throw new ModelValidationException($accountTariffResourceLog, $accountTariffResourceLog->errorCode);
+            }
+
+            $transaction->commit();
+
+            list(, $actualTo) = $accountTariffResourceLog->accountTariff->getLastLogPeriod();
+
+            return [
+                'price' => 0, // @todo
+                'actual_from' => $accountTariffResourceLog->actual_from,
+                'actual_to' => $actualTo,
+            ];
+
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 }

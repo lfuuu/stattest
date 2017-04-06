@@ -71,7 +71,7 @@ class TariffResource extends HistoryActiveRecord
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getTariffName()
     {
@@ -88,6 +88,18 @@ class TariffResource extends HistoryActiveRecord
     {
         if ($this->tariff->service_type_id != $this->resource->service_type_id) {
             $this->addError($attribute, 'Этот ресурс от другого типа услуги.');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getAmount()
+    {
+        if ($this->resource->isNumber()) {
+            return $this->amount;
+        } else {
+            return $this->amount ? '+' : '-';
         }
     }
 }

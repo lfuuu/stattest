@@ -28,13 +28,13 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 <?php if ($tariffResources) { ?>
     <div class="well tariffResources">
         <div class="row">
-            <div class="col-sm-2"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'resource_id')) ?></label></div>
+            <div class="col-sm-3"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'resource_id')) ?></label></div>
+            <div class="col-sm-3"><label>История изменений</label></div>
+            <div class="col-sm-1"><label>Диапазон значений</label></div>
+            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'amount')) ?></label></div>
             <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $resourceTableName, 'unit')) ?></label></div>
-            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $resourceTableName, 'min_value')) ?></label></div>
-            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $resourceTableName, 'max_value')) ?></label></div>
-            <div class="col-sm-2"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'amount')) ?></label></div>
-            <div class="col-sm-2"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_per_unit')) ?></label></div>
-            <div class="col-sm-2"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_min')) ?></label></div>
+            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_per_unit')) ?></label></div>
+            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_min')) ?></label></div>
         </div>
 
         <?php
@@ -46,31 +46,20 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
             ?>
             <div class="row">
 
-                <div class="col-sm-2">
+                <div class="col-sm-3">
                     <label for="resourcetariff-<?= $i ?>-amount"><?= Html::encode($resource->name) ?></label>
-                    <?php if (!$tariffResource->isNewRecord) : ?>
-                        <div>
-                            <?= $this->render('//layouts/_showHistory', ['model' => $tariffResource]) ?>
-                        </div>
-                    <?php endif; ?>
+                </div>
+
+                <div class="col-sm-3">
+                    <?= $tariffResource->isNewRecord ? '' : $this->render('//layouts/_showHistory', ['model' => $tariffResource]) ?>
                 </div>
 
                 <div class="col-sm-1">
-                    <?= $isNumber ? Html::encode($resource->unit) : '' ?>
-                </div>
-
-                <div class="col-sm-1">
-                    <?= $isNumber ? $resource->min_value : '' ?>
-                </div>
-
-                <div class="col-sm-1">
-                    <?= $isNumber ?
-                        ($resource->max_value ?: '∞') :
-                        '' ?>
+                    <?= $resource->getValueRange() ?>
                 </div>
 
                 <?php // имена инпутов сделаны для совместимости с multiple-input ?>
-                <div class="col-sm-2">
+                <div class="col-sm-1">
                     <?= Html::activeHiddenInput($tariffResource, "[{$i}]id") ?>
                     <?= Html::activeHiddenInput($tariffResource, "[{$i}]resource_id") ?>
                     <?php
@@ -82,7 +71,11 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     ?>
                 </div>
 
-                <div class="col-sm-2">
+                <div class="col-sm-1">
+                    <?= Html::encode($resource->getUnit()) ?>
+                </div>
+
+                <div class="col-sm-1">
                     <?php
                     $params = [];
                     if (in_array($tariffResource->resource_id, [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS])) {
@@ -93,7 +86,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     <?= $form->field($tariffResource, "[{$i}]price_per_unit")->textInput($options + $params)->label(false) ?>
                 </div>
 
-                <div class="col-sm-2">
+                <div class="col-sm-1">
                     <?= $form->field($tariffResource, "[{$i}]price_min")->textInput($options)->label(false) ?>
                 </div>
 

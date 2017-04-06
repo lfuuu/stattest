@@ -64,7 +64,7 @@ if ($formModel->validateErrors) {
 <?php
 $viewParams = [
     'formModel' => $formModel,
-    'isReadOnly' => $isReadOnly
+    'isReadOnly' => $isReadOnly,
 ];
 
 if ($serviceType->id == ServiceType::ID_VOIP && $accountTariff->isNewRecord) {
@@ -75,4 +75,6 @@ if ($serviceType->id == ServiceType::ID_VOIP && $accountTariff->isNewRecord) {
     echo $this->render($isReadOnly ? '_viewMain' : '_editMain', $viewParams);
     // лог тарифов
     echo $accountTariff->isNewRecord ? '' : $this->render('_editLogGrid', $viewParams);
+    // лог ресурсов
+    echo $accountTariff->isNewRecord ? '' : $this->render('_editResourceLogForm', $viewParams);
 }

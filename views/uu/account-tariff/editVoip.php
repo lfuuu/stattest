@@ -15,7 +15,7 @@ ob_end_clean(); // форма уже есть на странице, а здес
 
 ?>
 
-<div class="resource-tariff-form well">
+<div class="account-tariff-edit-voip well">
 
     <?= $this->render('_editLogInput', [
         'formModel' => $formModel,

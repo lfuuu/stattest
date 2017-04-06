@@ -41,6 +41,7 @@ use yii\helpers\Url;
  * @property AccountTariff $prevAccountTariff  Основная услуга
  * @property AccountTariff[] $nextAccountTariffs   Пакеты
  * @property AccountTariffLog[] $accountTariffLogs
+ * @property AccountTariffResourceLog[] $accountTariffResourceLogs
  * @property TariffPeriod $tariffPeriod
  *
  * @property AccountLogSetup[] $accountLogSetups
@@ -71,18 +72,18 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_ACCOUNT_POSTPAID = 11; // ЛС и тариф должны быть либо оба предоплатные, либо оба постоплатные
 
     // Ошибки даты
-    const ERROR_CODE_DATE_PREV = 21; // Нельзя менять тариф задним числом
-    const ERROR_CODE_DATE_TODAY = 22; // Сегодня тариф уже меняли. Теперь можно сменить его не ранее завтрашнего дня
-    const ERROR_CODE_DATE_FUTURE = 23; // Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену
+    const ERROR_CODE_DATE_PREV = 21; // Нельзя менять задним числом
+    const ERROR_CODE_DATE_TODAY = 22; // Сегодня уже меняли. Теперь можно сменить его не ранее завтрашнего дня
+    const ERROR_CODE_DATE_FUTURE = 23; // Уже назначена смена в будущем. Если вы хотите установить новое значение - сначала отмените эту смену
     const ERROR_CODE_DATE_TARIFF = 24; // Пакет телефонии может начать действовать только после начала действия основной услуги телефонии
-    const ERROR_CODE_DATE_PAID = 25; // Нельзя закрыть услугу раньше уже оплаченного периода
+    const ERROR_CODE_DATE_PAID = 25; // Нельзя менять раньше уже оплаченного периода
 
     // Ошибки тарифа
     const ERROR_CODE_SERVICE_TYPE = 31; // Нельзя менять тип услуги
     const ERROR_CODE_TARIFF_EMPTY = 32; // Не указан тариф/период
     const ERROR_CODE_TARIFF_WRONG = 33; // Неправильный тариф/период
     const ERROR_CODE_TARIFF_SERVICE_TYPE = 34; // Тариф/период не соответствует типу услуги
-    const ERROR_CODE_TARIFF_SAME = 35; // Нет смысла менять период/тариф на тот же самый. Выберите другой период/тариф
+    const ERROR_CODE_TARIFF_SAME = 35; // Нет смысла менять на то же самое значение. Выберите другое значение
 
     // Ошибки услуги
     const ERROR_CODE_USAGE_EMPTY = 41; // Услуга не указана
@@ -94,7 +95,7 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_USAGE_NOT_EDITABLE = 47; // Услуга нередактируемая
     const ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK = 48; // Этот телефонный номер нельзя подключить
 
-    /** @var array Код ошибки для АПИ */
+    /** @var int Код ошибки для АПИ */
     public $errorCode = null;
 
     /** @var int */
@@ -336,6 +337,23 @@ class AccountTariff extends HistoryActiveRecord
     {
         return $this->hasMany(AccountTariffLog::className(), ['account_tariff_id' => 'id'])
             ->orderBy(['actual_from_utc' => SORT_DESC, 'id' => SORT_DESC])
+            ->indexBy('id');
+    }
+
+    /**
+     * @param int $resourceId
+     * @return ActiveQuery
+     */
+    public function getAccountTariffResourceLogs($resourceId = null)
+    {
+        return $this->hasMany(AccountTariffResourceLog::className(), ['account_tariff_id' => 'id'])
+            ->andWhere($resourceId ? ['resource_id' => $resourceId] : [])
+            ->orderBy(
+                [
+                    'resource_id' => SORT_ASC,
+                    'actual_from_utc' => SORT_DESC,
+                    'id' => SORT_DESC,
+                ])
             ->indexBy('id');
     }
 
@@ -793,7 +811,60 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function isActive()
     {
-        return (bool) $this->tariff_period_id;
+        return (bool)$this->tariff_period_id;
+    }
+
+    /**
+     * Можно ли отменить последнюю смену количества ресурса
+     *
+     * @param int $resourceId
+     * @return bool
+     */
+    public function isResourceCancelable($resourceId)
+    {
+        $accountTariffResourceLogs = $this->getAccountTariffResourceLogs($resourceId)->all();
+        $accountTariffResourceLog = reset($accountTariffResourceLogs);
+        if (!$accountTariffResourceLog) {
+            return false;
+        }
+
+        $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
+        return $accountTariffResourceLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT);
+    }
+
+    /**
+     * Можно ли поменять количество ресурса
+     *
+     * @param int $resourceId
+     * @return bool
+     */
+    public function isResourceEditable($resourceId)
+    {
+        return !$this->isResourceCancelable($resourceId);
+    }
+
+    /**
+     * Вернуть текущее количество ресурса
+     *
+     * @param int $resourceId
+     * @return float
+     */
+    public function getResourceValue($resourceId)
+    {
+        $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
+
+        /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
+        $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs($resourceId);
+        foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLog) {
+            if ($accountTariffResourceLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT)) {
+                // еще не действует
+                continue;
+            }
+
+            return $accountTariffResourceLog->amount;
+        }
+
+        return null;
     }
 
     /**
@@ -1033,6 +1104,35 @@ class AccountTariff extends HistoryActiveRecord
         return (new DateTime($date))
             ->modify('+1 day')
             ->format(DateTimeZoneHelper::DATE_FORMAT);
+    }
+
+    /**
+     * Даты последнего периода абонентской платы
+     *
+     * @return string[]
+     */
+    public function getLastLogPeriod()
+    {
+        $date = date(DateTimeZoneHelper::DATE_FORMAT);
+
+        if (!count($accountLogPeriods = $this->accountLogPeriods)) {
+            return [$date, $date];
+        }
+
+        // после завершения оплаченного
+        $accountLogPeriod = end($accountLogPeriods);
+
+        $modify = $accountLogPeriod->tariffPeriod
+            ->chargePeriod
+            ->getModify($isPositive = false);
+
+        $actualTo = $accountLogPeriod->date_to;
+        $actualFrom = (new DateTime($actualTo))
+            ->modify($modify)
+            ->modify('+1 day')
+            ->format(DateTimeZoneHelper::DATE_FORMAT);
+
+        return [$actualFrom, $actualTo];
     }
 
     /**

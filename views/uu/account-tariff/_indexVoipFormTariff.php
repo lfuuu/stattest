@@ -22,7 +22,6 @@ use app\classes\Html;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\ServiceType;
 use app\helpers\DateTimeZoneHelper;
-use yii\helpers\Url;
 
 ?>
 <?= Html::tag($isCurrent ? 'b' : 'span', $accountTariffLog->getTariffPeriodLink()) ?>
@@ -60,7 +59,11 @@ use yii\helpers\Url;
             'aria-hidden' => 'true',
         ]) . ' ' .
         Yii::t('common', 'Cancel'),
-        Url::toRoute(['/uu/account-tariff/cancel', 'ids' => array_keys($row), 'accountTariffHash' => $accountTariffFirst->getHash()]),
+        [
+            '/uu/account-tariff/cancel',
+            'ids' => array_keys($row),
+            'accountTariffHash' => $accountTariffFirst->getHash(),
+        ],
         [
             'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
             'title' => 'Отменить смену тарифа',

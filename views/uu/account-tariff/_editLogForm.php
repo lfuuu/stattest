@@ -11,13 +11,11 @@ use yii\widgets\ActiveForm;
 ?>
 
 <?php $form = ActiveForm::begin(); ?>
-<div class="resource-tariff-form well">
 
-    <?= $this->render('_editLogInput', [
-        'formModel' => $formModel,
-        'form' => $form,
-    ])
-    ?>
+<?= $this->render('_editLogInput', [
+    'formModel' => $formModel,
+    'form' => $form,
+])
+?>
 
-</div>
 <?php ActiveForm::end(); ?>

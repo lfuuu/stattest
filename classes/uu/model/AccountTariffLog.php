@@ -3,6 +3,7 @@
 namespace app\classes\uu\model;
 
 use app\classes\behaviors\uu\AccountTariffBiller;
+use app\classes\behaviors\uu\FillAccountTariffResourceLog;
 use app\classes\Html;
 use app\classes\uu\forms\AccountLogFromToTariff;
 use app\classes\uu\tarificator\AccountLogPeriodTarificator;
@@ -38,7 +39,7 @@ class AccountTariffLog extends ActiveRecord
 
     protected $countLogs = null;
 
-    /** @var array Код ошибки для АПИ */
+    /** @var int Код ошибки для АПИ */
     public $errorCode = null;
 
     /**
@@ -56,7 +57,7 @@ class AccountTariffLog extends ActiveRecord
     {
         return [
             [['account_tariff_id', 'tariff_period_id'], 'integer'],
-            [['account_tariff_id', 'actual_from_utc'], 'required'],
+            [['account_tariff_id'], 'required'],
             ['actual_from', 'date', 'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT],
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
             ['actual_from', 'validatorPackage', 'skipOnEmpty' => false],
@@ -74,6 +75,7 @@ class AccountTariffLog extends ActiveRecord
     {
         return [
             'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
+            'FillAccountTariffResourceLog' => FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
         ];
     }
 
@@ -177,7 +179,7 @@ class AccountTariffLog extends ActiveRecord
         }
 
         if (!$this->tariff_period_id && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())) {
-            $this->addError($attribute, 'Закрыть можно только начиная с ' . $minEditDate);
+            $this->addError($attribute, 'Закрыть можно, начиная с ' . $minEditDate);
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
             return;
         }

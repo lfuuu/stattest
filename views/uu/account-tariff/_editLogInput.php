@@ -1,6 +1,6 @@
 <?php
 /**
- * Строчка
+ * Создание/редактирование универсальной услуги. Сменить/закрыть тариф с определенной даты
  *
  * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
@@ -73,9 +73,6 @@ $clientAccount = $accountTariff->clientAccount;
                     'startDate' => date(DateTimeZoneHelper::DATE_FORMAT),
                     'todayHighlight' => true,
                 ],
-                'options' => [
-                    'style' => 'width: 110px;',
-                ],
             ])
             ->label($isShowTariffPeriodList ? $accountTariffLog->getAttributeLabel('actual_from_utc') : false)
         // <div class="text-danger">Если сегодня, то отменить нельзя!</div>
@@ -101,7 +98,7 @@ $clientAccount = $accountTariff->clientAccount;
                 ) ?>
             </div>
 
-        <?php endif // не автоформатировать этот блок! ?>
+        <?php endif ?>
 
         <div class="col-sm-6">
             <?= Html::submitButton(

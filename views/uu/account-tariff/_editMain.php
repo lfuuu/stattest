@@ -25,7 +25,7 @@ if (!$serviceType) {
 }
 ?>
 
-<div class="resource-tariff-form well">
+<div class="account-tariff-edit-main well">
     <?php $form = ActiveForm::begin(); ?>
 
     <?php // добавить тариф (только для новых записей) ?>

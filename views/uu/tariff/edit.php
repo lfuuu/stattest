@@ -35,7 +35,7 @@ if (!$serviceType) {
     ],
 ]) ?>
 
-<div class="resource-tariff-form">
+<div class="tariff-edit">
     <?php
     $form = ActiveForm::begin();
     $viewParams = [

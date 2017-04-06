@@ -6,6 +6,7 @@ use app\classes\Form;
 use app\classes\uu\model\AccountLogResource;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use app\classes\uu\model\AccountTariffResourceLog;
 use app\classes\uu\model\AccountTariffVoip;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
@@ -257,7 +258,41 @@ abstract class AccountTariffForm extends Form
                 $accountLogResource->amount_overhead = $resourceOneTimeCost;
                 $accountLogResource->price_per_unit = 1;
                 $accountLogResource->price = $resourceOneTimeCost;
-                $accountLogResource->save();
+                if (!$accountLogResource->save()) {
+                    $this->validateErrors += $accountLogResource->getFirstErrors();
+                }
+            }
+
+            // Лог ресурсов
+            Yii::info('AccountTariffForm. Before AccountTariffResourceLog->load', 'uu');
+            if (isset($post['AccountTariffResourceLog'])) {
+                $actualFrom = isset($post['AccountTariffResourceLog']['actual_from']) ? $post['AccountTariffResourceLog']['actual_from'] : null;
+                foreach ($post['AccountTariffResourceLog'] as $resourceId => $resourceValues) {
+
+                    if (!is_numeric($resourceId)) {
+                        continue;
+                    }
+
+                    $newResourceValue = $resourceValues['amount'];
+                    $currentResourceValue = $this->accountTariff->getResourceValue($resourceId);
+
+                    if ($newResourceValue == $currentResourceValue) {
+                        continue;
+                    }
+
+                    $accountTariffResourceLog = new AccountTariffResourceLog();
+                    $accountTariffResourceLog->account_tariff_id = $this->accountTariff->id;
+                    $accountTariffResourceLog->amount = $newResourceValue;
+                    $accountTariffResourceLog->resource_id = $resourceId;
+                    $accountTariffResourceLog->actual_from = $actualFrom;
+                    if ($accountTariffResourceLog->save()) {
+                        $this->isSaved = true;
+                    } else {
+                        $this->validateErrors += $accountTariffResourceLog->getFirstErrors();
+                    }
+                }
+
+                unset($actualFrom, $resourceId, $resourceValues, $accountTariffResourceLog, $newResourceValue, $currentResourceValue);
             }
 
             if ($this->validateErrors) {

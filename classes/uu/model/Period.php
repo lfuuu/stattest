@@ -1,6 +1,7 @@
 <?php
 
 namespace app\classes\uu\model;
+
 use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 use LogicException;
@@ -74,14 +75,15 @@ class Period extends \yii\db\ActiveRecord
     /**
      * Вернуть modify-параметр для DateTime
      *
+     * @param bool $isPositive
      * @return string
      */
-    public function getModify()
+    public function getModify($isPositive = true)
     {
         if ($this->monthscount) {
-            return sprintf('+%d months', $this->monthscount);
+            return sprintf(($isPositive ? '+' : '-') . '%d months', $this->monthscount);
         } elseif ($this->dayscount) {
-            return sprintf('+%d days', $this->dayscount);
+            return sprintf(($isPositive ? '+' : '-') . '%d days', $this->dayscount);
         } else {
             throw new LogicException('Dayscount and monthscount are 0');
         }

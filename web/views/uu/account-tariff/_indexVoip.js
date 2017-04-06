@@ -53,7 +53,7 @@
             });
 
         $('body')
-            .on('click', '.resource-tariff-form .btn-cancel', function (e, item) {
+            .on('click', '.account-tariff-edit-voip .btn-cancel', function (e, item) {
                 e.preventDefault();
                 $(this).parents('.account-tariff-voip-form').prev().click();
             });

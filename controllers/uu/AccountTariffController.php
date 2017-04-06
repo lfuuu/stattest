@@ -12,6 +12,7 @@ use app\classes\uu\forms\AccountTariffAddForm;
 use app\classes\uu\forms\AccountTariffEditForm;
 use app\classes\uu\model\AccountTariff;
 use app\classes\uu\model\AccountTariffLog;
+use app\classes\uu\model\AccountTariffResourceLog;
 use app\classes\uu\model\ServiceType;
 use app\classes\uu\model\TariffPeriod;
 use app\exceptions\ModelValidationException;
@@ -20,6 +21,7 @@ use app\models\UsageTrunkSettings;
 use InvalidArgumentException;
 use LogicException;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 use yii\web\Response;
 
@@ -46,7 +48,7 @@ class AccountTariffController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel'],
+                        'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel'],
                         'roles' => ['tarifs.edit'],
                     ],
                 ],
@@ -469,6 +471,48 @@ class AccountTariffController extends BaseController
                 ]
             );
         }
+    }
+
+    /**
+     * Отменить последнюю смену количества ресурса
+     *
+     * @param int $accountTariffId
+     * @param int $resourceId
+     * @return string|Response
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionResourceCancel($accountTariffId, $resourceId)
+    {
+        /** @var AccountTariff $accountTariff */
+        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+        if (!$accountTariff) {
+            throw new InvalidParamException('Услуга не найдена');
+        }
+
+        try {
+
+            if (!$accountTariff->isResourceCancelable($resourceId)) {
+                throw new InvalidParamException('Ресурс невозможно отменить');
+            }
+
+            /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
+            $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resourceId)->all();
+            $accountTariffResourceLog = reset($accountTariffResourceLogs);
+            if (!$accountTariffResourceLog->delete()) {
+                throw new ModelValidationException($accountTariffResourceLog);
+            }
+        } catch (\Exception $e) {
+
+            Yii::error($e);
+            Yii::$app->session->setFlash('error', YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error'));
+        }
+
+        return $this->redirect(
+            [
+                '/uu/account-tariff/edit',
+                'id' => $accountTariffId,
+            ]
+        );
     }
 
     /**
