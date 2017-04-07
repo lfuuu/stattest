@@ -17,7 +17,7 @@ use yii\helpers\Html;
 <div class="account-tariff-edit-log-form well">
     <?php
     // добавить тариф (только при редактировании)
-    if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->accountTariff->isCancelable()) {
+    if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->accountTariff->isLogCancelable()) {
         echo $this->render('_editLogForm', ['formModel' => $formModel]);
     }
     ?>

@@ -200,7 +200,7 @@ class FreeNumberFilter extends Number
     {
         if (!empty($mask)) {
             $mask = strtr($mask, ['.' => '_', '*' => '%']);
-            $this->_query->andWhere(parent::tableName() . '.number LIKE :number', [':number' => $mask]);
+            $mask && $this->_query->andWhere(['LIKE', parent::tableName() . '.number', $mask, $isEscape = false]);
         }
 
         return $this;

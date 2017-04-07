@@ -710,11 +710,11 @@ class AccountTariff extends HistoryActiveRecord
     }
 
     /**
-     * Можно ли отменить последнюю смену тарифа
+     * Можно ли сменить редактировать
      *
      * @return bool
      */
-    public function isCancelable()
+    public function isEditable()
     {
         if (!$this->isActive()) {
             // уже закрытый
@@ -722,7 +722,28 @@ class AccountTariff extends HistoryActiveRecord
         }
 
         if ($this->tariffPeriod->tariff->is_default) {
-            // дефолтный нельзя отменять. Он должен отмениться автоматически при отмене базового тарифа
+            // дефолтный нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
+            return false;
+        }
+
+        if (!$this->client_account_id) {
+            // не указан ЛС
+            return false;
+        }
+
+        // таки можно
+        return true;
+    }
+
+    /**
+     * Можно ли отменить последнюю смену тарифа
+     *
+     * @return bool
+     */
+    public function isLogCancelable()
+    {
+        if (!$this->isEditable()) {
+            // нередактируемый в принципе
             return false;
         }
 
@@ -741,24 +762,14 @@ class AccountTariff extends HistoryActiveRecord
      *
      * @return bool
      */
-    public function isEditable()
+    public function isLogEditable()
     {
-        if (!$this->isActive()) {
-            // уже закрытый
-            return false;
-        }
-
-        if ($this->tariffPeriod->tariff->is_default) {
-            // дефолтный нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
+        if (!$this->isEditable()) {
+            // нередактируемый в принципе
             return false;
         }
 
         $clientAccount = $this->clientAccount;
-        if (!$clientAccount) {
-            // не указан ЛС
-            return false;
-        }
-
         $currentDateTimeUtc = $clientAccount
             ->getDatetimeWithTimezone()
             ->setTime(0, 0, 0)
@@ -785,13 +796,8 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function isPackageAddable()
     {
-        if (!$this->isActive()) {
-            // уже закрытый
-            return false;
-        }
-
-        if ($this->tariffPeriod->tariff->is_default) {
-            // дефолтный нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
+        if (!$this->isEditable()) {
+            // нередактируемый в принципе
             return false;
         }
 
@@ -822,6 +828,16 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function isResourceCancelable($resourceId)
     {
+        if (!$this->isEditable()) {
+            // нередактируемый в принципе
+            return false;
+        }
+
+        if (Resource::getReader($resourceId)) {
+            // для этого ресурса есть ридер. Значит, он меняется динамически (например, стоимость звонков или трафик)
+            return false;
+        }
+
         $accountTariffResourceLogs = $this->getAccountTariffResourceLogs($resourceId)->all();
         $accountTariffResourceLog = reset($accountTariffResourceLogs);
         if (!$accountTariffResourceLog) {
@@ -840,6 +856,16 @@ class AccountTariff extends HistoryActiveRecord
      */
     public function isResourceEditable($resourceId)
     {
+        if (!$this->isEditable()) {
+            // нередактируемый в принципе
+            return false;
+        }
+
+        if (Resource::getReader($resourceId)) {
+            // для этого ресурса есть ридер. Значит, он меняется динамически (например, стоимость звонков или трафик)
+            return false;
+        }
+
         return !$this->isResourceCancelable($resourceId);
     }
 

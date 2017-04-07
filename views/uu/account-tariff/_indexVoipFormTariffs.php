@@ -20,9 +20,9 @@ use app\classes\uu\model\ServiceType;
 <div class="well">
 
     <?php
-    $isEditable = $accountTariffFirst->isEditable();
+    $isEditable = $accountTariffFirst->isLogEditable();
     $isDefault = $accountTariffFirst->tariff_period_id && $accountTariffFirst->tariffPeriod->tariff->is_default;
-    $isCancelable = $accountTariffFirst->isCancelable();
+    $isCancelable = $accountTariffFirst->isLogCancelable();
     $actualFromNext = '';
 
     /** @var AccountTariffLog[] $accountTariffLogs */

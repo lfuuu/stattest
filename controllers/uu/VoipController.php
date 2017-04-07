@@ -129,13 +129,7 @@ class VoipController extends BaseController
         $numbers->setCity($cityId);
         $didGroupId && $numbers->setDidGroup($didGroupId);
 
-        // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
-        if ($mask &&
-            ($mask = strtr($mask, ['.' => '_', '*' => '%'])) &&
-            preg_match('/^[\d_%]+$/', $mask)
-        ) {
-            $numbers->setNumberLike($mask);
-        }
+        $mask && $numbers->setNumberLike($mask);
 
         $orderByField && $orderByType && $numbers->orderBy([$orderByField => (int)$orderByType]);
         $limit = (int)$limit;

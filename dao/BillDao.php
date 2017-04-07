@@ -36,7 +36,7 @@ class BillDao extends Singleton
 
         $lastBillNumber = Bill::find()
             ->select('bill_no')
-            ->andWhere('bill_no like :prefix', [':prefix' => $prefix . '-%'])
+            ->andWhere(['LIKE', 'bill_no', $prefix . '-%', $isEscape = false])
             ->orderBy('bill_no desc')
             ->limit(1)
             ->scalar();

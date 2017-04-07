@@ -207,7 +207,7 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        if ($this->getCountLogs() && !$this->accountTariff->isEditable()) {
+        if ($this->getCountLogs() && !$this->accountTariff->isLogEditable()) {
             $this->addError($attribute, 'Услуга нередактируемая.');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NOT_EDITABLE;
             return;

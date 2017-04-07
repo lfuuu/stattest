@@ -392,7 +392,7 @@ class AccountTariffController extends BaseController
                 // отменяемый тариф
                 /** @var AccountTariffLog $accountTariffLogCancelled */
                 $accountTariffLogCancelled = array_shift($accountTariffLogs);
-                if (!$accountTariff->isCancelable()) {
+                if (!$accountTariff->isLogCancelable()) {
                     throw new LogicException('Нельзя отменить уже примененный тариф');
                 }
 

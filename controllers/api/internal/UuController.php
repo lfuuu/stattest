@@ -614,6 +614,16 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД"),
      * ),
      *
+     * @SWG\Definition(definition = "accountTariffResourceRecord", type = "object",
+     *   @SWG\Property(property = "resource", type = "object", description = "Ресурс", @SWG\Items(ref = "#/definitions/resourceRecord")),
+     *   @SWG\Property(property = "log", type = "array", description = "Лог смены количества ресурса. По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffResourceLogRecord")),
+     * ),
+     *
+     * @SWG\Definition(definition = "accountTariffResourceLogRecord", type = "object",
+     *   @SWG\Property(property = "amount", type = "float", description = "Значение"),
+     *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой это значение действует. ГГГГ-ММ-ДД"),
+     * ),
+     *
      * @SWG\Definition(definition = "accountLogSetupRecord", type = "object",
      *   @SWG\Property(property = "date", type = "string", description = "Дата списания. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "price", type = "number", description = "Стоимость"),
@@ -643,6 +653,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона"),
      *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие"),
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
+     *   @SWG\Property(property = "resources", type = "array", description = "Ресурсы услуги", @SWG\Items(ref = "#/definitions/accountTariffResourceRecord")),
      * ),
      *
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-account-tariffs", summary = "Список услуг у ЛС", operationId = "GetAccountTariffs",
@@ -745,6 +756,7 @@ class UuController extends ApiInternalController
             'voip_number' => $accountTariff->voip_number,
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs),
+            'resources' => $this->_getAccountTariffResourceRecord($accountTariff),
         ];
     }
 
@@ -777,6 +789,46 @@ class UuController extends ApiInternalController
             return null;
 
         }
+    }
+
+    /**
+     * @param AccountTariff $accountTariff
+     * @return array
+     */
+    private function _getAccountTariffResourceRecord($accountTariff)
+    {
+        $accountTariffResourceRecords = [];
+
+        $resources = Resource::findAll(['service_type_id' => $accountTariff->service_type_id]);
+        foreach ($resources as $resource) {
+
+            $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resource->id)->all();
+
+            $accountTariffResourceRecords[] = [
+                'resource' => $this->_getResourceRecord($resource),
+                'log' => $this->_getAccountTariffResourceLogRecord($accountTariffResourceLogs),
+            ];
+        }
+
+        return $accountTariffResourceRecords;
+    }
+
+    /**
+     * @param AccountTariffResourceLog[] $accountTariffResourceLogs
+     * @return array
+     */
+    private function _getAccountTariffResourceLogRecord($accountTariffResourceLogs)
+    {
+        $accountTariffResourceLogRecord = [];
+
+        foreach ($accountTariffResourceLogs as $accountTariffResourceLog) {
+            $accountTariffResourceLogRecord[] = [
+                'amount' => $accountTariffResourceLog->amount,
+                'actual_from' => $accountTariffResourceLog->actual_from,
+            ];
+        }
+
+        return $accountTariffResourceLogRecord;
     }
 
     /**
@@ -855,6 +907,19 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      * ),
      *
+     * @SWG\Definition(definition = "accountTariffResourceLogLightRecord", type = "object",
+     *   @SWG\Property(property = "amount", type = "float", description = "Значение"),
+     *   @SWG\Property(property = "activate_past_date", type = "string", description = "Дата, с которой это значение ресурса было изменено и сейчас действует. Всегда в прошлом. Если null - еще не включено (тогда см. activate_future_date). ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "activate_future_date", type = "string", description = "Дата, с которой это значение ресурса будет изменено, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену этого значения ресурса? Если в будущем назначена смена этого значения ресурса"),
+     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить это значение ресурса?"),
+     * ),
+     *
+     * @SWG\Definition(definition = "accountTariffResourceLightRecord", type = "object",
+     *   @SWG\Property(property = "resource", type = "object", description = "Ресурс", @SWG\Items(ref = "#/definitions/resourceRecord")),
+     *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог ресурсов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffResourceLogLightRecord")),
+     * ),
+     *
      * @SWG\Definition(definition = "accountTariffWithPackagesRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID услуги"),
      *   @SWG\Property(property = "service_type", type = "object", description = "Тип услуги", ref = "#/definitions/idNameRecord"),
@@ -862,11 +927,12 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
+     *   @SWG\Property(property = "resources", type = "array", description = "Ресурсы", @SWG\Items(ref = "#/definitions/accountTariffResourceLightRecord")),
      *   @SWG\Property(property = "is_active", type = "boolean", description = "Действует ли?"),
      *   @SWG\Property(property = "is_package_addable", type = "boolean", description = "Можно ли подключить пакет?"),
      *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа или закрытие? Если в будущем назначена смена тарифа или закрытие"),
-     *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие"),
+     *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие. И с которой уменьшение количества ресурса повлияет на баланс."),
      *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffWithPackagesRecord"))),
      * ),
      *
@@ -930,9 +996,10 @@ class UuController extends ApiInternalController
             'voip_city' => $this->_getIdNameRecord($accountTariff->city),
             'is_active' => $accountTariff->isActive(), // Действует ли?
             'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
-            'is_editable' => $accountTariff->isEditable(), // Можно ли сменить тариф или отключить услугу?
-            'is_cancelable' => $accountTariff->isCancelable(), // Можно ли отменить смену тарифа?
+            'is_editable' => $accountTariff->isLogEditable(), // Можно ли сменить тариф или отключить услугу?
+            'is_cancelable' => $accountTariff->isLogCancelable(), // Можно ли отменить смену тарифа?
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
+            'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'packages' => [],
         ];
@@ -949,6 +1016,83 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @param AccountTariff $accountTariff
+     * @return array
+     */
+    private function _getAccountTariffResourceLightRecord($accountTariff)
+    {
+        $accountTariffResourceRecords = [];
+
+        $resources = Resource::findAll(['service_type_id' => $accountTariff->service_type_id]);
+        foreach ($resources as $resource) {
+
+            $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resource->id)->all();
+
+            $accountTariffResourceRecords[] = [
+                'resource' => $this->_getResourceRecord($resource),
+                'log' => $this->_getAccountTariffResourceLogLightRecord($accountTariffResourceLogs),
+            ];
+        }
+
+        return $accountTariffResourceRecords;
+    }
+
+    /**
+     * @param AccountTariffResourceLog[] $models
+     * @return array
+     */
+    private function _getAccountTariffResourceLogLightRecord($models)
+    {
+        $result = [];
+
+        $modelLast = array_shift($models);
+        if (!$modelLast) {
+            return $result;
+        }
+
+        $modelPrev = array_shift($models);
+
+        $isCancelable = $modelLast->actual_from > date(DateTimeZoneHelper::DATE_FORMAT);
+        if ($isCancelable) {
+
+            // смена количества ресурса в будущем
+            if ($modelPrev) {
+                // текущее значение количества ресурса
+                $result[] = [
+                    'amount' => $modelPrev->amount,
+                    'activate_past_date' => $modelPrev->actual_from,
+                    'activate_future_date' => null,
+                    'is_cancelable' => false,
+                    'is_editable' => false,
+                ];
+            }
+
+            // будущее значение количества ресурса
+            $result[] = [
+                'amount' => $modelLast->amount,
+                'activate_past_date' => null,
+                'activate_future_date' => $modelLast->actual_from,
+                'is_cancelable' => true,
+                'is_editable' => false,
+            ];
+
+        } else {
+
+            // смена количества ресурса в прошлом
+            $result[] = [
+                'amount' => $modelLast->amount,
+                'activate_past_date' => $modelLast->actual_from,
+                'activate_future_date' => null,
+                'is_cancelable' => false,
+                'is_editable' => true,
+            ];
+
+        }
+
+        return $result;
+    }
+
+    /**
      * @param AccountTariffLog[] $models
      * @return array
      */
@@ -956,13 +1100,11 @@ class UuController extends ApiInternalController
     {
         $result = [];
 
-        /** @var AccountTariffLog $modelLast */
         $modelLast = array_shift($models);
         if (!$modelLast) {
             return $result;
         }
 
-        /** @var AccountTariffLog $modelPrev */
         $modelPrev = array_shift($models);
         $isCancelable = $modelLast->actual_from > date(DateTimeZoneHelper::DATE_FORMAT);
 
@@ -1242,7 +1384,7 @@ class UuController extends ApiInternalController
                 throw new HttpException(ModelValidationException::STATUS_CODE, 'Услуга с таким идентификатором не найдена', AccountTariff::ERROR_CODE_USAGE_EMPTY);
             }
 
-            if (!$accountTariff->isCancelable()) {
+            if (!$accountTariff->isLogCancelable()) {
                 throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
             }
 
@@ -1252,7 +1394,7 @@ class UuController extends ApiInternalController
             // отменяемый тариф
             /** @var AccountTariffLog $accountTariffLogCancelled */
             $accountTariffLogCancelled = array_shift($accountTariffLogs);
-            if (!$accountTariff->isCancelable()) {
+            if (!$accountTariff->isLogCancelable()) {
                 throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
             }
 
@@ -1327,7 +1469,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Definition(definition = "accountTariffResourceRecord", type = "object",
+     * @SWG\Definition(definition = "editAccountTariffResourceRecord", type = "object",
      *   @SWG\Property(property = "price", type = "float", description = "Стоимость этого ресурса, списанная за период, указанный ниже"),
      *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой начинается действие и списание. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "actual_to", type = "string", description = "Дата, по которую списано (включительно). ГГГГ-ММ-ДД"),
@@ -1341,7 +1483,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "is_validate_only", type = "integer", description = "Эмуляция без реального действия. 0 - изменить количество ресурса и списать деньги. 1 - не менять и не списывать, но валидировать и посчитать стоимость", in = "formData", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "Количество ресурса изменено",
-     *     @SWG\Schema(ref = "#/definitions/accountTariffResourceRecord")
+     *     @SWG\Schema(ref = "#/definitions/editAccountTariffResourceRecord")
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",
      *     @SWG\Schema(ref = "#/definitions/error_result")

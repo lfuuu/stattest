@@ -13,7 +13,6 @@ use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
 $accountTariff = $formModel->accountTariff;
-$isReadOnly = !($accountTariff->isNewRecord || $accountTariff->isEditable());
 
 $serviceType = $formModel->getServiceType();
 if (!$serviceType) {
@@ -62,19 +61,28 @@ if ($formModel->validateErrors) {
 ?>
 
 <?php
+$isLogReadOnly = !($accountTariff->isNewRecord || $accountTariff->isLogEditable());
 $viewParams = [
     'formModel' => $formModel,
-    'isReadOnly' => $isReadOnly,
+    'isReadOnly' => $isLogReadOnly,
 ];
 
 if ($serviceType->id == ServiceType::ID_VOIP && $accountTariff->isNewRecord) {
+
     // персональная форма
     echo $this->render('_editVoip', $viewParams);
+
 } else {
+
     // типовая форма
-    echo $this->render($isReadOnly ? '_viewMain' : '_editMain', $viewParams);
+    echo $this->render($isLogReadOnly ? '_viewMain' : '_editMain', $viewParams);
+
     // лог тарифов
     echo $accountTariff->isNewRecord ? '' : $this->render('_editLogGrid', $viewParams);
+
     // лог ресурсов
-    echo $accountTariff->isNewRecord ? '' : $this->render('_editResourceLogForm', $viewParams);
+    echo $accountTariff->isNewRecord ? '' : $this->render('_editResourceLogForm', [
+        'formModel' => $formModel,
+        'isReadOnly' => !$accountTariff->isEditable(),
+    ]);
 }

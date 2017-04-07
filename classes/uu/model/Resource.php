@@ -3,7 +3,6 @@
 namespace app\classes\uu\model;
 
 use app\classes\uu\resourceReader\CollocationTrafficResourceReader;
-use app\classes\uu\resourceReader\DummyResourceReader;
 use app\classes\uu\resourceReader\InternetTrafficResourceReader;
 use app\classes\uu\resourceReader\ResourceReaderInterface;
 use app\classes\uu\resourceReader\SmsResourceReader;
@@ -15,7 +14,6 @@ use app\classes\uu\resourceReader\VpbxExtDidResourceReader;
 use app\classes\uu\resourceReader\VpbxFaxResourceReader;
 use app\classes\uu\resourceReader\VpbxRecordResourceReader;
 use app\classes\uu\resourceReader\VpnTrafficResourceReader;
-use app\classes\uu\resourceReader\ZeroResourceReader;
 use app\models\Language;
 use Yii;
 use yii\db\ActiveQuery;
@@ -123,50 +121,15 @@ class Resource extends \yii\db\ActiveRecord
         $idToClassName = [
             // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
             self::ID_VPBX_DISK => VpbxDiskResourceReader::className(),
-            // Абоненты (шт, int). Берется из virtpbx_stat.numbers
-            self::ID_VPBX_ABONENT => VpbxAbonentResourceReader::className(),
-            // Подключение номера другого оператора (шт, int). Берется из virtpbx_stat.ext_did_count
-            self::ID_VPBX_EXT_DID => VpbxExtDidResourceReader::className(),
-            // Запись звонков (call recording) (bool). Берется из virtpbx_stat.call_recording_enabled
-            self::ID_VPBX_RECORD => VpbxRecordResourceReader::className(),
-            // Факс (bool). Берется из virtpbx_stat.faxes_enabled
-            self::ID_VPBX_FAX => VpbxFaxResourceReader::className(),
 
-            // Линии (шт, int). https://vpbx.mcn.ru/core/swagger/index.html , vpbx, /get_int_number_usage
-            self::ID_VOIP_LINE => VoipLinesResourceReader::className(),
             // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
             self::ID_VOIP_CALLS => VoipCallsResourceReader::className(),
-
-            // Трафик (Мб., float). nispd.traf_flows_1d;
-            self::ID_INTERNET_TRAFFIC => InternetTrafficResourceReader::className(),
-
-            // Трафик Russia (Мб., float). nispd.traf_flows_1d.in_r - входящий, nispd.traf_flows_1d.out_r - исходящий;
-            self::ID_COLLOCATION_TRAFFIC => CollocationTrafficResourceReader::className(),
-
-            // Трафик (Мб., float). nispd.mod_traf_1d, но таблицы пустые, походу никто их не использует давно. Какой-то рудимент. Видимо из-за повального использования безлимитных тарифов;
-            self::ID_VPN_TRAFFIC => VpnTrafficResourceReader::className(),
-
-            // СМС (шт, int). nispd.sms_stat - количество СМСок по дням;
-            self::ID_SMS => SmsResourceReader::className(),
-
-            // VM collocation. Процессор
-            self::ID_VM_COLLOCATION_PROCESSOR => ZeroResourceReader::className(),
-            // VM collocation. Постоянная память
-            self::ID_VM_COLLOCATION_HDD => ZeroResourceReader::className(),
-            // VM collocation. Оперативная память
-            self::ID_VM_COLLOCATION_RAM => ZeroResourceReader::className(),
-
-            // Разовая услуга
-            self::ID_ONE_TIME => DummyResourceReader::className(),
-
-            // ВАТС. Маршрутизация по минимальной цене
-            self::ID_VPBX_MIN_ROUTE => DummyResourceReader::className(),
-            // ВАТС. Маршрутизация по географии
-            self::ID_VPBX_GEO_ROUTE => DummyResourceReader::className(),
-
-            // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
-            self::ID_TRUNK_CALLS => VoipCallsResourceReader::className(),
         ];
+
+        if (!isset($idToClassName[$id])) {
+            return null;
+        }
+
         $className = $idToClassName[$id];
         return new $className();
     }

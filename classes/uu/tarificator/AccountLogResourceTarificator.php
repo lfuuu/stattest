@@ -110,6 +110,10 @@ class AccountLogResourceTarificator implements TarificatorI
 
                 /** @var ResourceReaderInterface $reader */
                 $reader = $this->resourceIdToReader[$resourceId];
+                if (!$reader) {
+                    continue;
+                }
+
                 $amountUse = $reader->read($accountTariff, $dateTime);
                 if ($amountUse === null) {
                     if (!($reader instanceof DummyResourceReader)) {

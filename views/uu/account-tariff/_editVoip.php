@@ -1,9 +1,10 @@
 <?php
 /**
- * свойства услуги для телефонии
+ * Свойства услуги для телефонии
  *
  * @var \app\classes\BaseView $this
  * @var \app\classes\uu\forms\AccountTariffForm $formModel
+ * @var bool $isReadOnly
  */
 
 use app\assets\AppAsset;

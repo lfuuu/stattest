@@ -65,11 +65,6 @@ class NumberFilter extends \app\models\Number
 
         $numberTableName = \app\models\Number::tableName();
 
-        // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
-//        $this->number !== '' &&
-//        ($this->number = strtr($this->number, ['.' => '_', '*' => '%'])) &&
-//        $query->andWhere('number LIKE :number', [':number' => $this->number]);
-
         $this->number !== '' && $query->andWhere(['LIKE', $numberTableName . '.number', $this->number]);
 
         $this->city_id !== '' && $query->andWhere([$numberTableName . '.city_id' => $this->city_id]);

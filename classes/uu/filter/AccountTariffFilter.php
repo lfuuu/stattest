@@ -62,15 +62,8 @@ class AccountTariffFilter extends AccountTariff
         $this->city_id !== '' && $query->andWhere([$accountTariffTableName . '.city_id' => $this->city_id]);
         $this->is_active !== '' && $query->andWhere([$accountTariffTableName . '.is_active' => $this->is_active]);
 
-        // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
-        if ($this->voip_number !== '' &&
-            ($this->voip_number = strtr($this->voip_number, ['.' => '_', '*' => '%'])) &&
-            preg_match('/^[\d_%]+$/', $this->voip_number)
-        ) {
-            $query->andWhere('voip_number LIKE :voip_number', [':voip_number' => $this->voip_number]);
-        } else {
-            $this->voip_number = '';
-        }
+        $this->voip_number = strtr($this->voip_number, ['.' => '_', '*' => '%']);
+        $this->voip_number && $query->andWhere(['LIKE', 'voip_number', $this->voip_number, $isEscape = false]);
 
         $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
         if ($this->service_type_id !== '' && $this->tariff_period_id !== '') {
