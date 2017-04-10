@@ -1,10 +1,10 @@
 <?php
-use app\models\HistoryChanges;
+use app\models\HistoryVersion;
 
 /**
  * Class m170410_104437_convert_uu_history
  */
-class m170410_104437_convert_uu_history extends \app\classes\Migration
+class m170410_104438_convert_uu_history extends \app\classes\Migration
 {
     /**
      * Up
@@ -13,9 +13,9 @@ class m170410_104437_convert_uu_history extends \app\classes\Migration
      */
     public function safeUp()
     {
-        $historyChangesTableName = HistoryChanges::tableName();
+        $historyVersionTableName = HistoryVersion::tableName();
         $sql = <<<SQL
-            UPDATE {$historyChangesTableName}
+            UPDATE {$historyVersionTableName}
             SET model = REPLACE(model, 'app\\\\classes\\\\uu\\\\model', 'app\\\\modules\\\\uu\\\\models')
             WHERE model LIKE 'app\\\\\\\\classes\\\\\\\\uu\\\\\\\\model%'
 SQL;
@@ -27,9 +27,9 @@ SQL;
      */
     public function safeDown()
     {
-        $historyChangesTableName = HistoryChanges::tableName();
+        $historyVersionTableName = HistoryVersion::tableName();
         $sql = <<<SQL
-            UPDATE {$historyChangesTableName}
+            UPDATE {$historyVersionTableName}
             SET model = REPLACE(model, 'app\\\\modules\\\\uu\\\\models', 'app\\\\classes\\\\uu\\\\model')
             WHERE model LIKE 'app\\\\\\\\modules\\\\\\\\uu\\\\\\\\models%'
 SQL;
