@@ -52,10 +52,14 @@ class BaseView extends View
      */
     public function render($view, $params = [], $context = null)
     {
-        $viewFile = $this->findViewFile($view, $context);
+        $this->_viewFile = $viewFile = $this->findViewFile($view, $context);
 
-        // Убрать путь до каталога с views и последний разделитель каталогов
-        $this->_viewFile = ltrim(str_replace(Yii::$app->getViewPath(), '', $viewFile), DIRECTORY_SEPARATOR);
+        // Убрать путь до каталога с views
+        $this->_viewFile = str_replace([Yii::$app->getBasePath(), '/views'], '', $this->_viewFile);
+
+        // Убрать последний разделитель каталогов
+        $this->_viewFile = ltrim($this->_viewFile, DIRECTORY_SEPARATOR);
+
         // Убрать расширение PHP скриптов
         $this->_viewFile = str_replace('.' . $this->defaultExtension, '', $this->_viewFile);
 
@@ -66,7 +70,7 @@ class BaseView extends View
     }
 
     /**
-     * добавлен только 'basePath' => '@webroot'
+     * Добавлен только 'basePath' => '@webroot'
      *
      * @param string $url
      * @param array $options
@@ -95,7 +99,7 @@ class BaseView extends View
     }
 
     /**
-     * добавлен только 'basePath' => '@webroot'
+     * Добавлен только 'basePath' => '@webroot'
      *
      * @param string $url
      * @param array $options
@@ -158,31 +162,33 @@ class BaseView extends View
         $formLanguage = LanguageModel::LANGUAGE_DEFAULT;
 
         return $this->_getRealFormPath($formName, $formLanguage);
-        // когда у нас появятся формы на разных языках, в разных странах, этот код понадобится
+
         /*
-        $formLanguage = $language;
+            // когда у нас появятся формы на разных языках, в разных странах, этот код понадобится
+            $formLanguage = $language;
 
-        $viewPath = $this->_getRealFormPath($formName, $formLanguage);
-        if ($this->_isFormExists($viewPath)) {
-            return $viewPath;
-        }
+            $viewPath = $this->_getRealFormPath($formName, $formLanguage);
+            if ($this->_isFormExists($viewPath)) {
+                return $viewPath;
+            }
 
-        $formLanguage = LanguageClasses::getCurrentLanguage();
-        $viewPath = $this->_getRealFormPath($formName, $formLanguage);
-        if ($this->_isFormExists($viewPath)) {
-            return $viewPath;
-        }
+            $formLanguage = LanguageClasses::getCurrentLanguage();
+            $viewPath = $this->_getRealFormPath($formName, $formLanguage);
+            if ($this->_isFormExists($viewPath)) {
+                return $viewPath;
+            }
 
-        $formLanguage = LanguageModel::LANGUAGE_DEFAULT;
+            $formLanguage = LanguageModel::LANGUAGE_DEFAULT;
 
-        return $this->_getRealFormPath($formName, $formLanguage);
+            return $this->_getRealFormPath($formName, $formLanguage);
         */
+
     }
 
     /**
      * Существует ли форма
      *
-     * @param $path
+     * @param string $path
      * @return bool
      */
     private function _isFormExists($path)
@@ -193,8 +199,8 @@ class BaseView extends View
     /**
      * Возвращает путь к view'шке формы по имени и языку
      *
-     * @param $formName
-     * @param $language
+     * @param string $formName
+     * @param string $language
      * @return string
      */
     private function _getRealFormPath($formName, $language)
@@ -223,6 +229,7 @@ class BaseView extends View
                 if (file_exists(Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . ($assetJsView = $assetViewFile . '.js'))) {
                     $this->registerJsFile($assetJsView, ['depends' => [AppAsset::className(),]]);
                 }
+
                 if (file_exists(Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . ($assetCssView = $assetViewFile . '.css'))) {
                     $this->registerCssFile($assetCssView, ['depends' => [AppAsset::className(),]]);
                 }

@@ -184,7 +184,7 @@ class AccountTariffController extends BaseController
      */
     public function actionEditVoip($id = null, $cityId = null, $serviceTypeId = null)
     {
-        $this->layout = 'minimal';
+        $this->layout = '@app/views/layouts/minimal';
 
         try {
             $formModel = $id ?
