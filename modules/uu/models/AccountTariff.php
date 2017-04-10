@@ -35,6 +35,7 @@ use yii\helpers\Url;
  *
  * @property ClientAccount $clientAccount
  * @property ServiceType $serviceType
+ * @property \app\modules\uu\models\Resource[] $resources
  * @property Region $region
  * @property City $city
  * @property \app\models\Number $number
@@ -298,6 +299,16 @@ class AccountTariff extends HistoryActiveRecord
     public function getServiceType()
     {
         return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getResources()
+    {
+        return $this->hasMany(Resource::className(), ['service_type_id' => 'service_type_id'])
+            ->indexBy('id')
+            ->orderBy(['id' => SORT_ASC]);
     }
 
     /**
@@ -823,22 +834,22 @@ class AccountTariff extends HistoryActiveRecord
     /**
      * Можно ли отменить последнюю смену количества ресурса
      *
-     * @param int $resourceId
+     * @param \app\modules\uu\models\Resource $resource
      * @return bool
      */
-    public function isResourceCancelable($resourceId)
+    public function isResourceCancelable(\app\modules\uu\models\Resource $resource)
     {
         if (!$this->isEditable()) {
-            // нередактируемый в принципе
+            // услуга нередактируемая
             return false;
         }
 
-        if (Resource::getReader($resourceId)) {
-            // для этого ресурса есть ридер. Значит, он меняется динамически (например, стоимость звонков или трафик)
+        if (!$resource->isEditable()) {
+            // ресурс нередактируемый
             return false;
         }
 
-        $accountTariffResourceLogs = $this->getAccountTariffResourceLogs($resourceId)->all();
+        $accountTariffResourceLogs = $this->getAccountTariffResourceLogs($resource->id)->all();
         $accountTariffResourceLog = reset($accountTariffResourceLogs);
         if (!$accountTariffResourceLog) {
             return false;
@@ -851,22 +862,22 @@ class AccountTariff extends HistoryActiveRecord
     /**
      * Можно ли поменять количество ресурса
      *
-     * @param int $resourceId
+     * @param \app\modules\uu\models\Resource $resource
      * @return bool
      */
-    public function isResourceEditable($resourceId)
+    public function isResourceEditable(\app\modules\uu\models\Resource $resource)
     {
         if (!$this->isEditable()) {
-            // нередактируемый в принципе
+            // услуга нередактируемая
             return false;
         }
 
-        if (Resource::getReader($resourceId)) {
-            // для этого ресурса есть ридер. Значит, он меняется динамически (например, стоимость звонков или трафик)
+        if (!$resource->isEditable()) {
+            // ресурс нередактируемый
             return false;
         }
 
-        return !$this->isResourceCancelable($resourceId);
+        return !$this->isResourceCancelable($resource);
     }
 
     /**
@@ -929,7 +940,8 @@ class AccountTariff extends HistoryActiveRecord
         $hashes[] = $this->city_id;
 
         // лог тарифа и даты
-        foreach ($this->accountTariffLogs as $accountTariffLog) {
+        $accountTariffLogs = $this->accountTariffLogs;
+        foreach ($accountTariffLogs as $accountTariffLog) {
             $hashes[] = $accountTariffLog->tariff_period_id ?: '';
             $hashes[] = $accountTariffLog->actual_from;
 
@@ -939,8 +951,12 @@ class AccountTariff extends HistoryActiveRecord
             }
         }
 
+        unset($accountTariffLogs, $accountTariffLog);
+
+
         // Пакет. Лог тарифа  и даты
-        foreach ($this->nextAccountTariffs as $accountTariffPackage) {
+        $nextAccountTariffs = $this->nextAccountTariffs;
+        foreach ($nextAccountTariffs as $accountTariffPackage) {
             foreach ($accountTariffPackage->accountTariffLogs as $accountTariffPackageLog) {
                 // лог тарифа
                 $hashes[] = $accountTariffPackageLog->tariff_period_id ?: '';
@@ -950,6 +966,25 @@ class AccountTariff extends HistoryActiveRecord
                     // показываем только текущий. Старье не нужно
                     break;
                 }
+            }
+        }
+
+        unset($nextAccountTariffs, $accountTariffPackage);
+
+        // ресурсы
+        $resources = $this->resources;
+        foreach ($resources as $resource) {
+            if (!$resource->isEditable()) {
+                // динамический ресурс
+                continue;
+            }
+
+            // лог ресурсов
+            /** @var AccountTariffResourceLog $accountTariffResourceLogTmp */
+            $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs($resource->id);
+            foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLogTmp) {
+                $hashes[] = $accountTariffResourceLogTmp->amount;
+                $hashes[] = $accountTariffResourceLogTmp->actual_from;
             }
         }
 

@@ -242,4 +242,16 @@ class Resource extends \yii\db\ActiveRecord
             $this->unit :
             '';
     }
+
+    /**
+     * Можно ли поменять количество ресурса в принципе
+     * А фактически еще надо вызвать AccountTariff::isResourceEditable для доп. проверок по логу
+     *
+     * @return bool
+     */
+    public function isEditable()
+    {
+        // Если для ресурса есть ридер, значит, он меняется динамически (например, стоимость звонков или трафик), и менять вручную нельзя
+        return !Resource::getReader($this->id);
+    }
 }

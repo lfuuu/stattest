@@ -1,4 +1,4 @@
-+function ($) {
++function ($, param) {
     'use strict';
 
     $(function () {
@@ -6,7 +6,7 @@
             $.get(
                 '/uu/voip/get-trunks', {
                     regionId: $(this).val(),
-                    format: frontendVariables.uuAccountTariffEditMainTrunk.format
+                    format: param.format
                 }, function (html) {
                     $('#accounttariff-trunk_id')
                         .html(html)
@@ -17,5 +17,5 @@
     })
 }(
     jQuery,
-    window.frontendVariables.uuAccountTariffEditMainTrunk.format
+    window.frontendVariables.modulesUuAccountTariffEditMainTrunk
 );

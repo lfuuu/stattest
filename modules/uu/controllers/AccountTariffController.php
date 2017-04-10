@@ -16,6 +16,7 @@ use app\modules\uu\forms\AccountTariffEditForm;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use InvalidArgumentException;
@@ -489,9 +490,15 @@ class AccountTariffController extends BaseController
             throw new InvalidParamException('Услуга не найдена');
         }
 
+        /** @var \app\modules\uu\models\Resource $resource */
+        $resource = Resource::findOne(['id' => $resourceId]);
+        if (!$resource) {
+            throw new InvalidParamException('Ресурс не найден');
+        }
+
         try {
 
-            if (!$accountTariff->isResourceCancelable($resourceId)) {
+            if (!$accountTariff->isResourceCancelable($resource)) {
                 throw new InvalidParamException('Ресурс невозможно отменить');
             }
 

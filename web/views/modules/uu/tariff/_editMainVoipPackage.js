@@ -26,7 +26,7 @@
     });
 
 }(jQuery,
-    window.frontendVariables.uuTariffEditMainVoipPackageMinute && window.frontendVariables.uuTariffEditMainVoipPackageMinute.isRemovePackageMinutes,
-    window.frontendVariables.uuTariffEditMainVoipPackagePrice && window.frontendVariables.uuTariffEditMainVoipPackagePrice.isRemovePackagePrices,
-    window.frontendVariables.uuTariffEditMainVoipPackagePricelist && window.frontendVariables.uuTariffEditMainVoipPackagePricelist.isRemovePackagePricelists
+    window.frontendVariables.modulesUuTariffEditMainVoipPackageMinute && window.frontendVariables.modulesUuTariffEditMainVoipPackageMinute.isRemovePackageMinutes,
+    window.frontendVariables.modulesUuTariffEditMainVoipPackagePrice && window.frontendVariables.modulesUuTariffEditMainVoipPackagePrice.isRemovePackagePrices,
+    window.frontendVariables.modulesUuTariffEditMainVoipPackagePricelist && window.frontendVariables.modulesUuTariffEditMainVoipPackagePricelist.isRemovePackagePricelists
 );

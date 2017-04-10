@@ -1,4 +1,4 @@
-+function ($) {
++function ($, param) {
     'use strict';
 
     $(function () {
@@ -13,12 +13,12 @@
                 packages.find('option:gt(0)').remove();
 
                 if (current) {
-                    if (window.frontendVariables.uuReportVoipPackagesUseReport.packageList[current]) {
-                        $.each(window.frontendVariables.uuReportVoipPackagesUseReport.packageList[current], function () {
+                    if (param.packageList[current]) {
+                        $.each(param.packageList[current], function () {
                             $('<option />')
                                 .text(this.packageTitle)
                                 .val(this.packageId)
-                                .prop('selected', this.packageId == frontendVariables.uuReportVoipPackagesUseReport.packageSelected)
+                                .prop('selected', this.packageId == param.packageSelected)
                                 .appendTo(packages);
                         });
                     }
@@ -46,7 +46,7 @@
 
                 packages.find('option:eq(0)').prop('disabled', (current == 'by_package_calls' ? true : false));
 
-                if (!frontendVariables.uuReportVoipPackagesUseReport.packageSelected) {
+                if (!param.packageSelected) {
                     packages.find('option:gt(0)').prop('selected', true);
                 }
             })
@@ -55,6 +55,5 @@
 
 }(
     jQuery,
-    window.frontendVariables.uuReportVoipPackagesUseReport.packageList,
-    window.frontendVariables.uuReportVoipPackagesUseReport.packageSelected
+    window.frontendVariables.modulesUuReportVoipPackagesUseReport
 );

@@ -147,6 +147,10 @@ class BaseView extends View
     public function registerJsVariables(array $variables, $viewJsKey = '')
     {
         $sectionKey = empty($viewJsKey) ? $this->_getViewJsKey() : $viewJsKey;
+        if (!isset($this->_jsVariables[$sectionKey])) {
+            $this->_jsVariables[$sectionKey] = [];
+        }
+
         $this->_jsVariables[$sectionKey] = array_merge((array)$this->_jsVariables[$sectionKey], $variables);
     }
 

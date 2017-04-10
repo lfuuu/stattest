@@ -16,13 +16,12 @@ use app\modules\uu\models\TariffResource;
 use kartik\widgets\DatePicker;
 use yii\widgets\ActiveForm;
 
-/** @var \app\modules\uu\models\Resource[] $resources */
-$resources = Resource::findAll(['service_type_id' => $formModel->serviceTypeId]);
+$accountTariff = $formModel->accountTariff;
+$resources = $accountTariff->resources;
 if (!$resources) {
     return;
 }
 
-$accountTariff = $formModel->accountTariff;
 $tariffPeriod = $accountTariff->tariffPeriod;
 
 /** @var TariffResource[] $tariffResources */
@@ -91,7 +90,7 @@ $resourceTableName = Resource::tableName();
                 <?php
                 $accountTariffResourceLog->amount = $accountTariff->getResourceValue($resource->id);
 
-                if ($isReadOnly || !$accountTariff->isResourceEditable($resource->id)) {
+                if ($isReadOnly || !$accountTariff->isResourceEditable($resource)) {
 
                     // нельзя редактировать
                     echo $accountTariffResourceLog->getAmount();
