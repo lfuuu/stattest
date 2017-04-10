@@ -3,7 +3,6 @@
 namespace app\classes\voip\forms;
 
 use app\classes\Form;
-use app\modules\uu\forms\CrudMultipleTrait;
 use app\models\NumberType;
 use app\models\NumberTypeCountry;
 use InvalidArgumentException;
@@ -11,13 +10,6 @@ use yii;
 
 abstract class NumberTypeForm extends Form
 {
-    use CrudMultipleTrait;
-
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
 
     /** @var NumberType */
     public $numberType;

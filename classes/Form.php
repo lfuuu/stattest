@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\modules\uu\forms\CrudMultipleTrait;
 use InvalidArgumentException;
 use Yii;
 use yii\base\InvalidParamException;
@@ -13,20 +14,19 @@ use yii\db\Query;
 abstract class Form extends Model
 {
 
+    use CrudMultipleTrait;
+
     const PAGE_SIZE = 200;
     const EVENT_AFTER_SAVE = 'afterSave';
 
     /** @var ActiveRecord */
     protected static $formModel;
 
-    /** @var int */
+    /** @var int ID сохраненный модели */
     public $id;
 
     /** @var bool */
     public $isSaved = false;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @param ActiveRecord $model

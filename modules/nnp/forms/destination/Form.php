@@ -2,7 +2,6 @@
 
 namespace app\modules\nnp\forms\destination;
 
-use app\modules\uu\forms\CrudMultipleTrait;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PrefixDestination;
 use InvalidArgumentException;
@@ -10,13 +9,6 @@ use yii;
 
 abstract class Form extends \app\classes\Form
 {
-    use CrudMultipleTrait;
-
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
 
     /** @var Destination */
     public $destination;

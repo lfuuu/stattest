@@ -2,7 +2,6 @@
 
 namespace app\modules\uu\forms;
 
-use app\classes\Form;
 use app\exceptions\ModelValidationException;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
@@ -16,15 +15,8 @@ use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
 use InvalidArgumentException;
 
-abstract class TariffForm extends Form
+abstract class TariffForm extends \app\classes\Form
 {
-    use CrudMultipleTrait;
-
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
 
     /** @var Tariff */
     public $tariff;

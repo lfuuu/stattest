@@ -6,7 +6,7 @@ use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Region;
 use app\models\Trouble;
-use kartik\mpdf\Pdf;
+use app\modules\uu\forms\CrudMultipleTrait;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\BadRequestHttpException;
@@ -15,6 +15,8 @@ use yii\web\NotFoundHttpException;
 
 class BaseController extends Controller
 {
+    use CrudMultipleTrait;
+
     /**
      * @return array
      */

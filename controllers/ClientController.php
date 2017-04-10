@@ -6,7 +6,6 @@ use app\classes\BaseController;
 use app\classes\Event;
 use app\classes\grid\GridFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
-use app\modules\uu\forms\CrudMultipleTrait;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
@@ -38,7 +37,6 @@ use yii\web\Response;
 class ClientController extends BaseController
 {
     use AddClientAccountFilterTraits;
-    use CrudMultipleTrait;
 
     /**
      * @return array
