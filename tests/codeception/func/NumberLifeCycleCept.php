@@ -139,7 +139,7 @@ $I->assertNotNull($clientAccountId);
 $clientAccount = \app\models\ClientAccount::findOne(['id' => $clientAccountId]);
 $I->assertNotNull($clientAccount);
 
-
+$ndc = '495';
 $testNumber = '74954117356';
 
 $registry = new \app\models\voip\Registry;
@@ -147,8 +147,11 @@ $registry->country_id = \app\models\Country::RUSSIA;
 $registry->city_id = \app\models\City::DEFAULT_USER_CITY_ID;
 $registry->source = \app\classes\enum\VoipRegistrySourceEnum::PORTABILITY;
 $registry->number_type_id = \app\models\NumberType::ID_GEO_DID;
+$registry->ndc = $ndc;
 $registry->number_from = $testNumber;
 $registry->number_to = $testNumber;
+$registry->number_full_from = $testNumber;
+$registry->number_full_to = $testNumber;
 $registry->account_id = $clientAccount->id;
 $registry->comment = 'Test registry';
 

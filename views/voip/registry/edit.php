@@ -6,6 +6,7 @@ use app\models\City;
 use app\models\Country;
 use app\models\Number;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NumberRange;
 use kartik\builder\Form;
 use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
@@ -112,11 +113,9 @@ echo Breadcrumbs::widget([
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => \app\models\NumberType::getList(),
             ],
-            'city_number_format' => [
-                'type' => Form::INPUT_TEXT,
-                'options' => [
-                    'disabled' => true
-                ]
+            'ndc' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => NumberRange::getNDCList($model->country_id, $model->city_id)
             ],
             'number_from' => [
                 'type' => Form::INPUT_TEXT,

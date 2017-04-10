@@ -84,6 +84,10 @@ $columns = [
         'class' => NumberTypeColumn::className(),
     ],
     [
+        'attribute' => 'ndc',
+        'class' => IntegerColumn::className(),
+    ],
+    [
         'attribute' => 'number_from',
         'class' => StringColumn::className(),
     ],

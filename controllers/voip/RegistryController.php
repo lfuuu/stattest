@@ -62,6 +62,7 @@ class RegistryController extends BaseController
      */
     public function actionEdit($id)
     {
+        /** @var Registry $registry */
         $registry = Registry::findOne(['id' => $id]);
 
         $model = new RegistryForm;

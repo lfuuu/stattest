@@ -5,11 +5,12 @@ use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\Form;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\FormFieldValidator;
+use app\exceptions\ModelValidationException;
 use app\models\City;
 use app\models\Country;
-use app\models\Number;
 use app\models\NumberType;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NumberRange;
 
 class RegistryForm extends Form
 {
@@ -24,17 +25,21 @@ class RegistryForm extends Form
         $number_from,
         $number_to,
         $account_id,
-        $comment = ''
+        $comment = '',
+        $ndc = ''
     ;
 
     /** @var Registry  */
     public $registry = null;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [
-                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id'],
+                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id','ndc'],
                 'required',
                 'on' => 'save'
             ],
@@ -49,35 +54,50 @@ class RegistryForm extends Form
             ['account_id', AccountIdValidator::className(), 'on' => 'save'],
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
-            [['number_from', 'number_to'], 'integer', 'min' => 10000000, 'on' => 'save'],
+            [['number_from', 'number_to'], 'integer', 'min' => 100000, 'on' => 'save'],
             ['number_from', 'validateNumbersRange']
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return (new Registry)->attributeLabels() + [
             'comment' => 'Комментарий',
-            'city_number_format' => 'Формат номера'
+            'city_number_format' => 'Формат номера',
+            'ndc' => 'NDC'
         ];
     }
 
+    /**
+     * Валидатор города
+     */
     public function validateCity()
     {
-        if (!array_key_exists($this->city_id, City::getList($isWithEmpty = false, $this->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false))){
+        if (!array_key_exists(
+            $this->city_id,
+            City::getList(
+                $isWithEmpty = false,
+                $this->country_id,
+                $isWithNullAndNotNull = false,
+                $isUsedOnly = false)
+        )) {
             $this->addError('city_id', 'Значение "Город" неверно');
         }
     }
 
+    /**
+     * Валидатор номерного диапазона
+     */
     public function validateNumbersRange()
     {
         if ($this->number_from > $this->number_to) {
             $this->addError('number_from', 'Номер "c" меньше номера "по"');
-        }else
-            if(($this->number_to - $this->number_from) > 100000){
-                $this->addError('number_from', 'Слишком большой диапазон номеров.');
-            }
-
+        } elseif (($this->number_to - $this->number_from) > 100000) {
+            $this->addError('number_from', 'Слишком большой диапазон номеров.');
+        }
     }
 
     /**
@@ -99,6 +119,7 @@ class RegistryForm extends Form
     public function initForm()
     {
         if ($this->country_id && $this->city_id) {
+            /** @var City $city */
             $city = City::findOne(['id' => $this->city_id]);
             if ($city && $city->country_id != $this->country_id) {
                 $cities = City::getList($isWithEmpty = false, $this->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false);
@@ -118,6 +139,7 @@ class RegistryForm extends Form
      * Действие. Сохранение формы.
      *
      * @return bool
+     * @throws ModelValidationException
      */
     public function save()
     {
@@ -125,15 +147,33 @@ class RegistryForm extends Form
             $this->registry = new Registry();
         }
 
-        foreach(['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id', 'comment'] as $field) {
+        foreach ([
+                     'country_id',
+                     'city_id',
+                     'source',
+                     'number_type_id',
+                     'number_from',
+                     'number_to',
+                     'account_id',
+                     'comment',
+                     'ndc'
+                 ] as $field) {
             $this->registry->{$field} = $this->{$field};
         }
 
-        $result = $this->registry->save();
+        $countryPrefix = $this->registry->country->prefix;
+
+        $this->registry->number_full_from = $countryPrefix . $this->ndc . $this->number_from;
+        $this->registry->number_full_to = $countryPrefix . $this->ndc . $this->number_to;
+
+        if (!($result = $this->registry->save())) {
+            throw new ModelValidationException($this->registry);
+        }
 
         if ($result) {
             $this->id = $this->registry->id;
         }
+
         return $result;
     }
 }

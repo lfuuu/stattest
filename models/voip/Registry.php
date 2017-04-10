@@ -6,6 +6,7 @@ use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\model\HistoryActiveRecord;
 use app\dao\VoipRegistryDao;
 use app\models\City;
+use app\models\Country;
 
 /**
  * Class Registry
@@ -13,16 +14,19 @@ use app\models\City;
  * @property integer $id
  * @property integer $country_id
  * @property integer $city_id
+ * @property integer $ndc
  * @property string $source
  * @property integer $number_type_id
  * @property string $number_from
  * @property string $number_to
+ * @property string $number_full_from
+ * @property string $number_full_to
  * @property integer $account_id
  * @property string $created_at
  * @property string $comment
  * @property City $city
- *
- * @package app\models\voip
+ * @property Country $country
+ * @property string $status
  */
 class Registry extends HistoryActiveRecord
 {
@@ -36,6 +40,9 @@ class Registry extends HistoryActiveRecord
         self::STATUS_FULL => 'Заполнено',
     ];
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -45,6 +52,9 @@ class Registry extends HistoryActiveRecord
 
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return [
@@ -57,14 +67,21 @@ class Registry extends HistoryActiveRecord
             'number_to' => 'Номер "по"',
             'account_id' => 'ЛС',
             'created_at' => 'Создано',
+            'ndc' => 'NDC',
         ];
     }
 
+    /**
+     * @return string
+     */
     public static function tableName()
     {
         return 'voip_registry';
     }
 
+    /**
+     * @return VoipRegistryDao
+     */
     public static function dao()
     {
         return VoipRegistryDao::me();
@@ -76,6 +93,14 @@ class Registry extends HistoryActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_id']);
     }
 
     /**
