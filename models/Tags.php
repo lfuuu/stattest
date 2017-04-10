@@ -3,6 +3,7 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * @property int $id
@@ -49,8 +50,8 @@ class Tags extends ActiveRecord
     {
         return $this
             ->hasMany(TagsResource::className(), ['tag_id' => 'id'])
-            ->select('resource')
-            ->groupBy('resource')
+            ->select(new Expression('IF(feature IS NULL, resource, CONCAT(resource, ", ", feature))'))
+            ->groupBy(['resource', 'feature'])
             ->column();
     }
 

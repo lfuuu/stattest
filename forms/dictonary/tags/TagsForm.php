@@ -49,13 +49,15 @@ class TagsForm extends Form
     {
         $result = [];
         foreach ($resources as $resource) {
+            list($resource, $feature) = explode(', ', $resource);
+
             $result[] = Html::tag(
                 'div',
                 (
                 array_key_exists($resource, self::$_tagsResourceMap) ?
                     self::$_tagsResourceMap[$resource] :
                     $resource
-                ),
+                ) . ($feature ? ', ' . $feature : ''),
                 ['class' => 'label label-info']
             );
         }
