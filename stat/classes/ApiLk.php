@@ -1636,23 +1636,23 @@ class ApiLk
             ->from(['uu' => AccountTariff::tableName()])
             ->leftJoin(['r' => Region::tableName()], 'r.id = uu.region_id')
             ->where(['uu.client_account_id' => $account->id])
-            ->andWhere(['IS NOT', 'voip_number', null])
-            ->orderBy([
-                'uu.region_id' => SORT_DESC,
-                'uu.id' => SORT_ASC
-            ]);
+            ->andWhere(['IS NOT', 'voip_number', null]);
 
         $usages = (new \yii\db\Query())
             ->select(['usage_id' => 'u.id', 'phone_num' => 'u.E164', 'u.region', 'r.timezone_name', 'region_name' => 'r.name'])
             ->from(['u' => UsageVoip::tableName()])
             ->leftJoin(['r' => Region::tableName()], 'r.id = u.region')
             ->where(['u.client' => $account->client])
-            ->orderBy([
-                'u.region' => SORT_DESC,
-                'u.id' => SORT_ASC
-            ])->union($uuUsagesQuery)->all();
+            ->union($uuUsagesQuery);
 
-        return $usages;
+        $usageUnionQuery = (new \yii\db\Query())
+            ->from(['u' => $usages])
+            ->orderBy([
+                'region' => SORT_DESC,
+                'usage_id' => SORT_ASC
+            ]);
+
+        return $usageUnionQuery->all();
     }
 
     public static function getStatisticsVoipPhones($client_id = '')
