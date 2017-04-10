@@ -147,6 +147,7 @@ class Navigation
                 ->addItem('Настройки платежных документов', ['/dictionary/invoice-settings'])
                 ->addItem('Точка входа', ['/dictionary/entry-point'])
                 ->addItem('Публичные сайты', ['/dictionary/public-site'])
+                ->addItem('Метки', ['/dictionary/tags'])
         );
 
         $this->_addBlock(

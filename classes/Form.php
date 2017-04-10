@@ -1,7 +1,9 @@
 <?php
 namespace app\classes;
 
+use InvalidArgumentException;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -14,6 +16,18 @@ abstract class Form extends Model
     const PAGE_SIZE = 200;
     const EVENT_AFTER_SAVE = 'afterSave';
 
+    /** @var ActiveRecord */
+    protected static $formModel;
+
+    /** @var int */
+    public $id;
+
+    /** @var bool */
+    public $isSaved = false;
+
+    /** @var string[] */
+    public $validateErrors = [];
+
     /**
      * @param ActiveRecord $model
      * @param bool $runValidation
@@ -23,7 +37,7 @@ abstract class Form extends Model
     public function saveModel(ActiveRecord $model, $runValidation = true, $autoSetAttributes = false)
     {
         if ($autoSetAttributes) {
-            $attributes = $this->getAttributes();
+            $attributes = $this->getAttributes(null, ['id', 'isSaved', 'validateErrors']);
             foreach ($attributes as $name => $value) {
                 $model->$name = $value;
             }
@@ -43,7 +57,56 @@ abstract class Form extends Model
     }
 
     /**
-     * @return mixed
+     * @throws InvalidArgumentException
+     * @throws \yii\db\Exception
+     */
+    protected function _loadFromInput()
+    {
+        $connection = $this->getModel()->getDb();
+        $transaction = $connection->beginTransaction();
+
+        try {
+            $post = Yii::$app->request->post();
+
+            if (isset($post['dropButton'])) {
+                // Удаление записи
+                $this->getModel()->delete();
+                $this->id = null;
+                $this->isSaved = true;
+
+            } elseif ($this->getModel()->load($post)) {
+                // Редактирование записи
+                if ($this->getModel()->validate() && $this->getModel()->save()) {
+                    $this->id = $this->getModel()->primaryKey;
+                    $this->isSaved = true;
+                } else {
+                    // Сбор ошибок валидации
+                    $this->validateErrors += $this->getModel()->getFirstErrors();
+                }
+            }
+
+            if ($this->validateErrors) {
+                throw new InvalidArgumentException;
+            }
+
+            $transaction->commit();
+
+        } catch (InvalidArgumentException $e) {
+            $transaction->rollBack();
+            $this->isSaved = false;
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+            $this->isSaved = false;
+            $this->validateErrors[] = YII_DEBUG ?
+                $e->getMessage() :
+                Yii::t('common', 'Internal error');
+        }
+    }
+
+    /**
+     * @return ActiveRecord
      */
     public function getModel()
     {
@@ -51,9 +114,11 @@ abstract class Form extends Model
     }
 
     /**
+     * @param array $config
      * @return ActiveDataProvider
+     * @throws InvalidParamException
      */
-    public function spawnDataProvider()
+    public function spawnDataProvider(array $config = [])
     {
         $query = $this->spawnQuery();
 
@@ -61,12 +126,15 @@ abstract class Form extends Model
             $this->applyFilter($query);
         }
 
-        return new ActiveDataProvider([
+        $dataProviderConfig = [
             'query' => $query,
+        ] + array_merge([
             'pagination' => [
                 'pageSize' => self::PAGE_SIZE,
             ],
-        ]);
+        ], $config);
+
+        return new ActiveDataProvider($dataProviderConfig);
     }
 
     /**
