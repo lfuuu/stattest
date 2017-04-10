@@ -7,6 +7,7 @@ use app\models\Business;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
+use app\models\Organization;
 use app\models\Payment;
 use app\models\usages\UsageInterface;
 use yii\data\ActiveDataProvider;
@@ -18,6 +19,15 @@ use yii\db\Query;
  */
 class OperatorPayFilter extends Bill
 {
+    const BILL_TYPE_EXPENDITURE = 1;
+    const BILL_TYPE_INCOME = 2;
+    const BILL_TYPE_ALL = 3;
+
+    const CHECKING_BILL_UNPAID_AND_UNVERIFIED = 1;
+    const CHECKING_BILL_PAID_AND_UNVERIFIED = 2;
+    const CHECKING_BILL_PAID_AND_VERIFIED = 3;
+    const CHECKING_BILL_ALL = 4;
+
     public $pay_bill_until_from = '';
     public $pay_bill_until_to = '';
 
@@ -38,13 +48,17 @@ class OperatorPayFilter extends Bill
     public $pay_date = '';
     public $comment = '';
 
+    public $organization_id = Organization::MCM_TELEKOM;
+    public $bill_type = self::BILL_TYPE_ALL;
+    public $checking_bill_state = self::CHECKING_BILL_PAID_AND_UNVERIFIED;
+
     /**
      * @return array
      */
     public function rules()
     {
         return [
-            [['client_id', 'sum_from', 'sum_to'], 'integer'],
+            [['client_id', 'sum_from', 'sum_to', 'organization_id', 'bill_type', 'checking_bill_state'], 'integer'],
             [
                 [
                     'bill_no',
@@ -69,7 +83,12 @@ class OperatorPayFilter extends Bill
      */
     public function attributeLabels()
     {
-        return parent::attributeLabels() + ['payment_date' => 'Дата платежа'];
+        return parent::attributeLabels() + [
+            'payment_date' => 'Дата платежа',
+            'organization_id' => 'Организация',
+            'bill_type' => 'Тип счета',
+            'checking_bill_state' => 'Состояние счета'
+        ];
     }
 
     /**
@@ -115,6 +134,37 @@ class OperatorPayFilter extends Bill
 
         $this->comment !== '' && $query->andWhere(['LIKE', 'b.comment', $this->comment]);
 
+        $this->organization_id !== '' && $query->andWhere(['ct.organization_id' => $this->organization_id]);
+
+        if ($this->bill_type != self::BILL_TYPE_ALL) {
+            $query->andWhere([($this->bill_type == self::BILL_TYPE_INCOME ? '>' : '<'), 'b.sum', 0]);
+        }
+
+        if ($this->checking_bill_state != self::CHECKING_BILL_ALL) {
+            switch ($this->checking_bill_state) {
+                // Неоплаченные и непроверенные
+                case self::CHECKING_BILL_UNPAID_AND_UNVERIFIED:
+                    $query
+                        ->andWhere(['not', ['b.is_payed' => 1]])
+                        ->andWhere(['b.courier_id' => 0]);
+                    break;
+
+                // Оплаченные и непроверенные
+                case self::CHECKING_BILL_PAID_AND_UNVERIFIED:
+                    $query
+                        ->andWhere(['b.is_payed' => 1])
+                        ->andWhere(['b.courier_id' => 0]);
+                    break;
+
+                // Оплаченные и проверенные
+                case self::CHECKING_BILL_PAID_AND_VERIFIED:
+                    $query
+                        ->andWhere(['b.is_payed' => 1])
+                        ->andWhere(['not', ['b.courier_id' => 0]]);
+                    break;
+            }
+        }
+
         $query->orderBy([
             // сначала полностью неоплаченные счета, потом частично
             new Expression('IF(payment_date IS NULL, :maxDate, payment_date) DESC', ['maxDate' => UsageInterface::MIDDLE_DATE]),
@@ -124,5 +174,34 @@ class OperatorPayFilter extends Bill
         ]);
 
         return $dataProvider;
+    }
+
+    /**
+     * Список типов счетов для фильтрации
+     *
+     * @return array
+     */
+    public function getBillTypeList()
+    {
+        return [
+            self::BILL_TYPE_EXPENDITURE => 'Расходные',
+            self::BILL_TYPE_INCOME => 'Доходные',
+            self::BILL_TYPE_ALL => 'Все',
+        ];
+    }
+
+    /**
+     * Список состояний счетов
+     *
+     * @return array
+     */
+    public function getCheckingBillStateList()
+    {
+        return [
+            self::CHECKING_BILL_UNPAID_AND_UNVERIFIED => 'Неоплаченные и непроверенные',
+            self::CHECKING_BILL_PAID_AND_UNVERIFIED => 'Оплаченные и непроверенные',
+            self::CHECKING_BILL_PAID_AND_VERIFIED => 'Оплаченные и проверенные',
+            self::CHECKING_BILL_ALL => 'Все',
+        ];
     }
 }

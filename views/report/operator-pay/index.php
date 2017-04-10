@@ -12,7 +12,6 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\StringWithLinkColumn;
 use app\classes\grid\GridView;
 use yii\helpers\Html;
-use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
 echo app\classes\Html::formLabel($this->title);
@@ -24,6 +23,27 @@ echo Breadcrumbs::widget([
 ]);
 
 $baseView = $this;
+
+$filterColumns = [
+    [
+        'attribute' => 'organization_id',
+        'class' => \app\classes\grid\column\universal\OrganizationColumn::className(),
+    ],
+    [
+        'attribute' => 'bill_type',
+        'filterType' => GridView::FILTER_SELECT2,
+        'filter' => $filterModel->getBillTypeList(),
+        'class' => \app\classes\grid\column\DataColumn::className()
+    ],
+    [
+        'attribute' => 'checking_bill_state',
+        'filterType' => GridView::FILTER_SELECT2,
+        'filter' => $filterModel->getCheckingBillStateList(),
+        'class' => \app\classes\grid\column\DataColumn::className()
+    ],
+];
+
+
 $columns = [
     [
         'attribute' => 'client_id',
@@ -90,4 +110,7 @@ echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'columns' => $columns,
+    'beforeHeader' => [ // фильтры над гридом
+        'columns' => $filterColumns,
+    ],
 ]);
