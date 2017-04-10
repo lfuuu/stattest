@@ -361,6 +361,7 @@ class ClientController extends BaseController
      */
     public function actionAddAdminLk($account_id, $admin_email_id)
     {
+        /** @var ClientAccount $account */
         $account = ClientAccount::findOne(['id' => $account_id]);
 
         Assert::isObject($account);
@@ -375,7 +376,7 @@ class ClientController extends BaseController
 
         Event::goWithIndicator(
             Event::CORE_CREATE_ADMIN,
-            ['id' => $account->super_id, 'email' => $contact->data],
+            ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data],
             ClientSuper::tableName(),
             $account->super_id);
 

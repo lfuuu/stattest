@@ -168,10 +168,13 @@ class ApiCore
         }
 
         /** @var ClientContact $adminEmail */
-        $adminEmail = $account->getContacts()->andWhere([
-            'type' => ClientContact::TYPE_EMAIL,
-            'is_official' => 1
-        ])->one();
+        $adminEmail = $account
+            ->getContacts()
+            ->andWhere([
+                'type' => ClientContact::TYPE_EMAIL,
+                'is_official' => 1
+            ])
+            ->one();
 
         if (!$adminEmail) {
             return;
@@ -179,7 +182,7 @@ class ApiCore
 
         Event::goWithIndicator(
             Event::CORE_CREATE_ADMIN,
-            ['id' => $superId, 'email' => $adminEmail->data],
+            ['id' => $superId, 'account_id' => $account->id, 'email' => $adminEmail->data],
             \app\models\ClientSuper::tableName(),
             $superId);
     }
@@ -197,7 +200,7 @@ class ApiCore
         $accountSync->id = $params['id'];
         $accountSync->type = CoreSyncIds::TYPE_SUPER_CLIENT;
 
-        $info = self::createCoreAdmin($params['id'], $params['email']);
+        $info = self::createCoreAdmin($params['id'], $params['account_id'], $params['email']);
 
         $accountSync->external_id = $info['user_id'];
 
@@ -212,13 +215,16 @@ class ApiCore
      * Вызов API функции. Создание админа в ЛК
      *
      * @param int $superClientId
+     * @param int $accountId
      * @param string $email
+     * @return array
      */
-    public static function createCoreAdmin($superClientId, $email)
+    public static function createCoreAdmin($superClientId, $accountId, $email)
     {
         $result = ApiCore::exec('create_core_admin', [
             'id' => $superClientId,
-            'email' => $email
+            'email' => $email,
+            'account_id' => $accountId,
         ]);
 
         if (isset($result['data'])) {
