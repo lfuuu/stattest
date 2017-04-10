@@ -12,6 +12,7 @@ use yii\db\ActiveRecord;
 class ImportantEventsGroups extends ActiveRecord
 {
     const ID_FINANCIAL = 6;
+    const ID_ACCOUNT = 8;
 
     // Определяет getList (список для selectbox)
     use \app\classes\traits\GetListTrait {

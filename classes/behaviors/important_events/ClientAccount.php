@@ -69,6 +69,22 @@ class ClientAccount extends Behavior
                 ]
             );
         }
+
+        if (isset($event->changedAttributes['voip_disabled'])) {
+            $eventName = $event->sender->voip_disabled ?
+                ImportantEventsNames::IMPORTANT_EVENT_SET_LOCAL_BLOCK :
+                ImportantEventsNames::IMPORTANT_EVENT_UNSET_LOCAL_BLOCK;
+
+            ImportantEvents::create($eventName,
+                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT,
+                [
+                    'client_id' => $event->sender->id,
+                    'user_id' => Yii::$app->user->id,
+                ]
+            );
+        }
+
+
     }
 
 }

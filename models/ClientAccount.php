@@ -1,7 +1,6 @@
 <?php
 namespace app\models;
 
-use app\classes\Assert;
 use app\classes\behaviors\AccountPriceIncludeVat;
 use app\classes\behaviors\ActualizeClientVoip;
 use app\classes\behaviors\ClientAccountComments;
@@ -27,6 +26,8 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
 /**
+ * Class ClientAccount
+ *
  * @property int $id
  * @property string $client
  * @property int $super_id
