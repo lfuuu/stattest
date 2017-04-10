@@ -121,7 +121,8 @@ SQL;
 
                 // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
                 $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
-                $accountTariffLog = reset($accountTariff->accountTariffLogs);
+                $accountTariffLogs = $accountTariff->accountTariffLogs;
+                $accountTariffLog = reset($accountTariffLogs);
                 $accountTariffLog->actual_from_utc = (new \DateTimeImmutable($accountTariffLog->actual_from_utc))
                     ->modify('+1 day')
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);

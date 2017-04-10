@@ -69,7 +69,7 @@ class UbillerController extends Controller
     {
         try {
             echo PHP_EOL . $name . '. ' . date(DATE_ATOM) . PHP_EOL;
-            $className = '\\app\\classes\\uu\\tarificator\\' . $className;
+            $className = '\\app\\modules\\uu\\tarificator\\' . $className;
             /** @var TarificatorI $tarificator */
             $tarificator = (new $className);
             $tarificator->tarificate();
