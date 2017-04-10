@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-use app\classes\behaviors\uu\RecalcRealtimeBalance;
+use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;

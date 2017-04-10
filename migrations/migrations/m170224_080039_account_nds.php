@@ -1,5 +1,5 @@
 <?php
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\ClientContract;

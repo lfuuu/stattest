@@ -2,8 +2,8 @@
 namespace app\commands;
 
 use app\classes\behaviors\SetTaxVoip;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\ServiceType;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;

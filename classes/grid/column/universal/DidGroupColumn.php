@@ -6,7 +6,6 @@ use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\models\DidGroup;
 use kartik\grid\GridView;
-use Yii;
 
 
 class DidGroupColumn extends DataColumn

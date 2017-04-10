@@ -5,7 +5,6 @@ namespace app\classes\grid\column\universal;
 use app\classes\grid\column\DataColumn;
 use app\classes\traits\GetListTrait;
 use kartik\grid\GridView;
-use Yii;
 
 
 class IsNullAndNotNullColumn extends DataColumn

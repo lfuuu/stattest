@@ -1,8 +1,8 @@
 <?php
-use app\classes\uu\model\Resource;
-use app\classes\uu\model\ServiceType;
-use app\classes\uu\model\Tariff;
-use app\classes\uu\model\TariffResource;
+use app\modules\uu\models\Resource;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffResource;
 use app\exceptions\ModelValidationException;
 
 /**

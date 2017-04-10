@@ -1,8 +1,8 @@
 <?php
-use app\classes\uu\model\Period;
-use app\classes\uu\model\Tariff;
-use app\classes\uu\model\TariffPeriod;
-use app\classes\uu\model\TariffStatus;
+use app\modules\uu\models\Period;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffStatus;
 use app\exceptions\ModelValidationException;
 
 /**

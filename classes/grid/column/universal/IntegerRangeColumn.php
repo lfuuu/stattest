@@ -4,7 +4,6 @@ namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\Html;
-use Yii;
 
 /**
  * Class IntegerRangeColumn
@@ -27,14 +26,14 @@ class IntegerRangeColumn extends DataColumn
         parent::__construct($config);
 
         $this->filter = Html::activeInput(
-            'number',
-            $this->grid->filterModel,
-            $this->attribute . '_from',
-            [
-                'class' => 'form-control input-sm',
-                'step' => $this->step,
-            ] + $this->options
-        ) .
+                'number',
+                $this->grid->filterModel,
+                $this->attribute . '_from',
+                [
+                    'class' => 'form-control input-sm',
+                    'step' => $this->step,
+                ] + $this->options
+            ) .
 
             ' ' .
 

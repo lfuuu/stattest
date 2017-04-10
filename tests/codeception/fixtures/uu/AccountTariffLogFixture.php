@@ -5,5 +5,5 @@ use app\tests\codeception\fixtures\ActiveFixture;
 
 class AccountTariffLogFixture extends ActiveFixture
 {
-    public $modelClass = 'app\classes\uu\model\AccountTariffLog';
+    public $modelClass = 'app\modules\uu\models\AccountTariffLog';
 }

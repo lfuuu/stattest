@@ -2,7 +2,7 @@
 
 namespace app\modules\nnp\forms\destination;
 
-use app\classes\uu\forms\CrudMultipleTrait;
+use app\modules\uu\forms\CrudMultipleTrait;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PrefixDestination;
 use InvalidArgumentException;

@@ -9,7 +9,7 @@ use app\widgets\DateControl as CustomDateControl;
 use kartik\widgets\DatePicker;
 use \app\models\TariffCallChat;
 
-if (\app\classes\uu\model\AccountTariff::isUuAccount()) {
+if (\app\modules\uu\models\AccountTariff::isUuAccount()) {
     return [];
 }
 

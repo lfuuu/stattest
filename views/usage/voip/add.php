@@ -16,11 +16,11 @@ use yii\widgets\Breadcrumbs;
 /** @var $model \app\forms\usage\UsageVoipEditForm */
 /** @var \app\classes\BaseView $this */
 
-if (\app\classes\uu\model\AccountTariff::isUuAccount()) {
+if (\app\modules\uu\models\AccountTariff::isUuAccount()) {
     return [];
 }
 
-$types = \app\classes\uu\model\Tariff::getVoipTypesByCountryId();
+$types = \app\modules\uu\models\Tariff::getVoipTypesByCountryId();
 
 $noYes = [
     '0' => 'Нет',

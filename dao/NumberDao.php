@@ -3,8 +3,8 @@ namespace app\dao;
 
 use app\classes\Assert;
 use app\classes\Singleton;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\AccountTariffLog;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Calls;
 use app\models\BusinessProcessStatus;

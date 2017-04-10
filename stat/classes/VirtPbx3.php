@@ -4,7 +4,7 @@ use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\ActaulizerVoipNumbers;
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;
 use app\models\UsageVirtpbx;

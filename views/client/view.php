@@ -12,7 +12,7 @@
  */
 
 use app\assets\AppAsset;
-use app\classes\uu\filter\AccountTariffFilter;
+use app\modules\uu\filter\AccountTariffFilter;
 use app\forms\client\ContractEditForm;
 use app\models\ClientAccount;
 use yii\db\ActiveRecord;
@@ -44,7 +44,7 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
         <?= $this->render('block/service', ['account' => $account, 'services' => $services]); ?>
         <?php
         if ($uuFilterModel) {
-            echo $this->render('//uu/account-tariff/_indexVoip',
+            echo $this->render('/../modules/uu/views/account-tariff/_indexVoip',
                 [
                     'filterModel' => $uuFilterModel,
                 ]

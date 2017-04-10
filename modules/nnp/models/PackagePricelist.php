@@ -2,7 +2,7 @@
 namespace app\modules\nnp\models;
 
 use app\classes\Connection;
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 use app\models\billing\Pricelist;
 use Yii;
 use yii\db\ActiveQuery;

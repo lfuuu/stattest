@@ -4,7 +4,6 @@ namespace app\classes\grid\column;
 
 use app\models\Region;
 use kartik\grid\GridView;
-use Yii;
 
 
 class RegionColumn extends DataColumn

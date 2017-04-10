@@ -1,7 +1,7 @@
 <?php
 namespace app\classes\behaviors;
 
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\models\UsageTrunk;
 use yii\base\Behavior;
 use yii\base\Event;

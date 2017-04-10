@@ -1,6 +1,6 @@
 <?php
-use app\classes\uu\model\ServiceType;
-use app\classes\uu\model\TariffStatus;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\TariffStatus;
 
 /**
  * Class m170328_160336_add_uu_status

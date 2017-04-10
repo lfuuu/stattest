@@ -1,10 +1,10 @@
 <?php
 namespace app\classes;
 
-use app\classes\behaviors\uu\AccountTariffBiller;
-use app\classes\behaviors\uu\SyncAccountTariffLight;
+use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\helpers\DateTimeZoneHelper;
-use app\classes\behaviors\uu\SyncVmCollocation;
+use app\modules\uu\behaviors\SyncVmCollocation;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
 

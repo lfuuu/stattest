@@ -3,22 +3,22 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
-use app\classes\behaviors\uu\SyncVmCollocation;
-use app\classes\uu\model\AccountLogPeriod;
-use app\classes\uu\model\AccountLogSetup;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\AccountTariffLog;
-use app\classes\uu\model\AccountTariffResourceLog;
-use app\classes\uu\model\Period;
-use app\classes\uu\model\Resource;
-use app\classes\uu\model\ServiceType;
-use app\classes\uu\model\Tariff;
-use app\classes\uu\model\TariffPeriod;
-use app\classes\uu\model\TariffPerson;
-use app\classes\uu\model\TariffResource;
-use app\classes\uu\model\TariffStatus;
-use app\classes\uu\model\TariffVoipCity;
-use app\classes\uu\model\TariffVoipGroup;
+use app\modules\uu\behaviors\SyncVmCollocation;
+use app\modules\uu\models\AccountLogPeriod;
+use app\modules\uu\models\AccountLogSetup;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Period;
+use app\modules\uu\models\Resource;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffPerson;
+use app\modules\uu\models\TariffResource;
+use app\modules\uu\models\TariffStatus;
+use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipGroup;
 use app\exceptions\ModelValidationException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
@@ -94,7 +94,7 @@ class UuController extends ApiInternalController
     {
         $query = Resource::find();
         $result = [];
-        /** @var \app\classes\uu\model\Resource $model */
+        /** @var \app\modules\uu\models\Resource $model */
         foreach ($query->each() as $model) {
             $result[] = $this->_getResourceRecord($model);
         }
@@ -103,7 +103,7 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @param \app\classes\uu\model\Resource $model
+     * @param \app\modules\uu\models\Resource $model
      * @return array
      */
     private function _getResourceRecord($model)
@@ -1084,7 +1084,7 @@ class UuController extends ApiInternalController
                 'activate_past_date' => $modelLast->actual_from,
                 'activate_future_date' => null,
                 'is_cancelable' => false,
-                'is_editable' => true,
+                'is_editable' => true, // @todo
             ];
 
         }

@@ -1,6 +1,6 @@
 <?php
-use app\classes\uu\model\Period;
-use app\classes\uu\model\TariffPeriod;
+use app\modules\uu\models\Period;
+use app\modules\uu\models\TariffPeriod;
 
 /**
  * Class m170223_144636_delete_tariff_period

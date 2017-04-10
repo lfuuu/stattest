@@ -169,6 +169,9 @@ $config = [
         'nnp' => [
             'class' => 'app\modules\nnp\Module',
         ],
+        'uu' => [
+            'class' => 'app\modules\uu\Module',
+        ],
         'socket' => [
             'class' => 'app\modules\socket\Module',
         ],

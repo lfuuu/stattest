@@ -1,7 +1,7 @@
 <?php
 namespace app\dao;
 
-use app\classes\uu\tarificator\RealtimeBalanceTarificator;
+use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;

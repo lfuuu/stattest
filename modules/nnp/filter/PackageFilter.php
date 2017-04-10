@@ -3,7 +3,7 @@
 namespace app\modules\nnp\filter;
 
 use app\classes\traits\GetListTrait;
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 use app\modules\nnp\models\Package;
 use yii\data\ActiveDataProvider;
 

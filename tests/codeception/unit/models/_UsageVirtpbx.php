@@ -2,7 +2,7 @@
 
 namespace tests\codeception\unit\models;
 
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 use app\models\UsageVoip;
 use app\models\LogTarif;
 use app\models\TariffVoip;

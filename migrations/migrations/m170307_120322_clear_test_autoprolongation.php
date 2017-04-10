@@ -1,6 +1,6 @@
 <?php
-use app\classes\uu\model\Tariff;
-use app\classes\uu\model\TariffStatus;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffStatus;
 use app\exceptions\ModelValidationException;
 
 /**

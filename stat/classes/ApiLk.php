@@ -2,7 +2,7 @@
 use app\classes\Assert;
 use app\classes\Encrypt;
 use app\classes\Language;
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\exceptions\ModelValidationException;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;

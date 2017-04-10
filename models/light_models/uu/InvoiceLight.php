@@ -10,14 +10,14 @@ use yii\db\Expression;
 use yii\db\Query;
 use app\classes\Assert;
 use app\classes\Smarty;
-use app\classes\uu\model\AccountEntry;
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountTariff;
 use app\forms\templates\uu\InvoiceForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\Language;
 use app\models\InvoiceSettings;
-use app\classes\uu\model\Bill;
+use app\modules\uu\models\Bill;
 
 class InvoiceLight extends Component
 {

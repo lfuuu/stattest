@@ -2,7 +2,6 @@
 
 namespace app\classes\grid\column\universal;
 
-use Yii;
 use app\models\ClientAccount;
 
 class SuperClientColumn extends StringColumn

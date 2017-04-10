@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 use yii\db\ActiveRecord;
 
 /**

@@ -1,5 +1,5 @@
 <?php
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 
 /**
  * Class m170223_112630_add_uu_tariff_is_postpaid

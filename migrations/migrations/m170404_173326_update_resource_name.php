@@ -1,5 +1,5 @@
 <?php
-use app\classes\uu\model\Resource;
+use app\modules\uu\models\Resource;
 
 /**
  * Class m170404_173326_update_resource_name

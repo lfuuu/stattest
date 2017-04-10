@@ -1,6 +1,6 @@
 <?php
-use app\classes\uu\model\AccountTariffLog;
-use app\classes\uu\model\AccountTariffResourceLog;
+use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffResourceLog;
 use app\exceptions\ModelValidationException;
 
 /**

@@ -1,8 +1,8 @@
 <?php
 
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\AccountTariffResourceLog;
-use app\classes\uu\model\Resource;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Resource;
 
 /**
  * Handles the creation for table `account_tariff_resource_log`.

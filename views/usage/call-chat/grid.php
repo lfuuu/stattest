@@ -3,7 +3,7 @@
 use kartik\grid\GridView;
 use app\classes\Html;
 
-if (\app\classes\uu\model\AccountTariff::isUuAccount()) {
+if (\app\modules\uu\models\AccountTariff::isUuAccount()) {
     return [];
 }
 

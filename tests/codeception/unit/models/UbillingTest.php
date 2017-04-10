@@ -2,15 +2,15 @@
 
 namespace tests\codeception\unit\models;
 
-use app\classes\uu\model\AccountEntry;
-use app\classes\uu\model\AccountLogMin;
-use app\classes\uu\model\AccountLogPeriod;
-use app\classes\uu\model\AccountLogResource;
-use app\classes\uu\model\AccountLogSetup;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\Bill;
-use app\classes\uu\tarificator\AutoCloseAccountTariffTarificator;
-use app\classes\uu\tarificator\SetCurrentTariffTarificator;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountLogMin;
+use app\modules\uu\models\AccountLogPeriod;
+use app\modules\uu\models\AccountLogResource;
+use app\modules\uu\models\AccountLogSetup;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Bill;
+use app\modules\uu\tarificator\AutoCloseAccountTariffTarificator;
+use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use app\helpers\DateTimeZoneHelper;
 use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;

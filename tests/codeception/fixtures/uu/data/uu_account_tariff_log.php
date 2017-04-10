@@ -1,6 +1,6 @@
 <?php
 
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\helpers\DateTimeZoneHelper;
 
 $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())

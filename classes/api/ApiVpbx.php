@@ -2,9 +2,9 @@
 namespace app\classes\api;
 
 use app\classes\HttpClient;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\Resource;
-use app\classes\uu\model\ServiceType;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Resource;
+use app\modules\uu\models\ServiceType;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;

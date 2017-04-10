@@ -1,5 +1,5 @@
 <?php
-use app\classes\uu\model\ServiceType;
+use app\modules\uu\models\ServiceType;
 
 /**
  * Class m170224_092739_add_service_type_close_after_days

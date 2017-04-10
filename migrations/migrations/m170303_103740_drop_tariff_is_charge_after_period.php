@@ -1,6 +1,6 @@
 <?php
 
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 
 /**
  * Handles the dropping for table `tariff_is_charge_after_period`.

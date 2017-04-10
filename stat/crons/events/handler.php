@@ -4,13 +4,13 @@ use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiVpbx;
-use app\classes\behaviors\uu\AccountTariffBiller;
-use app\classes\behaviors\uu\SyncAccountTariffLight;
-use app\classes\behaviors\uu\SyncVmCollocation;
+use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\SyncAccountTariffLight;
+use app\modules\uu\behaviors\SyncVmCollocation;
 use app\classes\Event;
 use app\classes\notification\processors\AddPaymentNotificationProcessor;
 use app\classes\partners\RewardCalculate;
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
 

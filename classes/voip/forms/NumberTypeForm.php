@@ -3,7 +3,7 @@
 namespace app\classes\voip\forms;
 
 use app\classes\Form;
-use app\classes\uu\forms\CrudMultipleTrait;
+use app\modules\uu\forms\CrudMultipleTrait;
 use app\models\NumberType;
 use app\models\NumberTypeCountry;
 use InvalidArgumentException;

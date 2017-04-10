@@ -3,7 +3,6 @@
 namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
-use Yii;
 
 
 class WithoutFilterColumn extends DataColumn

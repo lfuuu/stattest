@@ -3,7 +3,7 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
 use app\models\City;

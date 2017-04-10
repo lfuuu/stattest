@@ -1,0 +1,100 @@
+<?php
+
+namespace app\modules\uu\filter;
+
+use app\classes\traits\GetListTrait;
+use app\modules\uu\models\AccountLogSetup;
+use app\modules\uu\models\AccountTariff;
+use yii\data\ActiveDataProvider;
+
+/**
+ * Фильтрация AccountLogSetup
+ */
+class AccountLogSetupFilter extends AccountLogSetup
+{
+    public $id = '';
+
+    public $date_from = '';
+    public $date_to = '';
+
+    public $price_setup_from = '';
+    public $price_setup_to = '';
+
+    public $price_number_from = '';
+    public $price_number_to = '';
+
+    public $price_from = '';
+    public $price_to = '';
+
+    public $client_account_id = '';
+
+    public $account_entry_id = '';
+
+    public $service_type_id = '';
+    public $tariff_period_id = '';
+
+    public function rules()
+    {
+        return [
+            [['id', 'client_account_id', 'tariff_period_id', 'service_type_id', 'account_entry_id'], 'integer'],
+            [['price_from', 'price_to'], 'double'],
+            [['price_setup_from', 'price_setup_to'], 'double'],
+            [['price_number_from', 'price_number_to'], 'double'],
+            [['date_from', 'date_to'], 'string', 'max' => 255],
+        ];
+    }
+
+    /**
+     * Фильтровать
+     *
+     * @return ActiveDataProvider
+     */
+    public function search()
+    {
+        $query = AccountLogSetup::find()
+            ->joinWith('accountTariff')
+            ->joinWith('tariffPeriod');
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        $accountLogSetupTableName = AccountLogSetup::tableName();
+        $accountTariffTableName = AccountTariff::tableName();
+
+        $this->id !== '' && $query->andWhere([$accountLogSetupTableName . '.id' => $this->id]);
+
+        $this->date_from !== '' && $query->andWhere(['>=', $accountLogSetupTableName . '.date', $this->date_from]);
+        $this->date_to !== '' && $query->andWhere(['<=', $accountLogSetupTableName . '.date', $this->date_to]);
+
+        $this->price_setup_from !== '' && $query->andWhere(['>=', $accountLogSetupTableName . '.price_setup', $this->price_setup_from]);
+        $this->price_setup_to !== '' && $query->andWhere(['<=', $accountLogSetupTableName . '.price_setup', $this->price_setup_to]);
+
+        $this->price_number_from !== '' && $query->andWhere(['>=', $accountLogSetupTableName . '.price_number', $this->price_number_from]);
+        $this->price_number_to !== '' && $query->andWhere(['<=', $accountLogSetupTableName . '.price_number', $this->price_number_to]);
+
+        $this->price_from !== '' && $query->andWhere(['>=', $accountLogSetupTableName . '.price', $this->price_from]);
+        $this->price_to !== '' && $query->andWhere(['<=', $accountLogSetupTableName . '.price', $this->price_to]);
+
+        $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
+
+        switch ($this->account_entry_id) {
+            case GetListTrait::$isNull:
+                $query->andWhere([$accountLogSetupTableName . '.account_entry_id' => null]);
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere($accountLogSetupTableName . '.account_entry_id IS NOT NULL');
+                break;
+            default:
+                break;
+        }
+
+        if (!$this->service_type_id) {
+            $this->tariff_period_id = '';
+        }
+        $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
+        $this->tariff_period_id !== '' && $query->andWhere([$accountLogSetupTableName . '.tariff_period_id' => $this->tariff_period_id]);
+
+        return $dataProvider;
+    }
+}

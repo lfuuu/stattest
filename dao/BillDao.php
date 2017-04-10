@@ -3,9 +3,9 @@ namespace app\dao;
 
 use app\classes\Language;
 use app\classes\Singleton;
-use app\classes\uu\model\AccountEntry;
-use app\classes\uu\model\Bill as uuBill;
-use app\classes\uu\model\Period;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\Bill as uuBill;
+use app\modules\uu\models\Period;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
