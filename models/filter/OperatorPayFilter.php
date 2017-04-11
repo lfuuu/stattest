@@ -145,22 +145,22 @@ class OperatorPayFilter extends Bill
                 // Неоплаченные и непроверенные
                 case self::CHECKING_BILL_UNPAID_AND_UNVERIFIED:
                     $query
-                        ->andWhere(['not', ['b.is_payed' => 1]])
+                        ->andWhere(['p.id' => null])
                         ->andWhere(['b.courier_id' => 0]);
                     break;
 
                 // Оплаченные и непроверенные
                 case self::CHECKING_BILL_PAID_AND_UNVERIFIED:
                     $query
-                        ->andWhere(['b.is_payed' => 1])
+                        ->andWhere(['IS NOT', 'p.id', null])
                         ->andWhere(['b.courier_id' => 0]);
                     break;
 
                 // Оплаченные и проверенные
                 case self::CHECKING_BILL_PAID_AND_VERIFIED:
                     $query
-                        ->andWhere(['b.is_payed' => 1])
-                        ->andWhere(['not', ['b.courier_id' => 0]]);
+                        ->andWhere(['IS NOT', 'p.id', null])
+                        ->andWhere(['NOT', ['b.courier_id' => 0]]);
                     break;
             }
         }
