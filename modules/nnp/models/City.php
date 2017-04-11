@@ -12,6 +12,9 @@ use yii\helpers\Url;
  * @property string $name
  * @property int $country_code
  * @property int $region_id
+ *
+ * @property Country $country
+ * @property Region $region
  */
 class City extends ActiveRecord
 {
@@ -65,6 +68,22 @@ class City extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgNnp;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_code']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRegion()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region_id']);
     }
 
     /**

@@ -12,6 +12,8 @@ use yii\helpers\Url;
  * @property string $name
  * @property int $country_code
  * @property int $cnt
+ *
+ * @property Country $country
  */
 class Operator extends ActiveRecord
 {
@@ -67,6 +69,14 @@ class Operator extends ActiveRecord
     public static function getDb()
     {
         return Yii::$app->dbPgNnp;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_code']);
     }
 
     /**
