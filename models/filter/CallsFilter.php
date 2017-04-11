@@ -215,10 +215,10 @@ class CallsFilter extends Calls
         $this->billed_time_to !== '' && $query->andWhere(['<=', 'billed_time', $this->billed_time_to]);
 
         $this->src_number = strtr($this->src_number, ['.' => '_', '*' => '%']);
-        $this->src_number && $query->andWhere(['LIKE', 'src_number', $this->src_number, $isEscape = false]);
+        $this->src_number !== '' && $query->andWhere('src_number::VARCHAR LIKE :src_number', [':src_number' => $this->src_number]);
 
         $this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']);
-        $this->dst_number && $query->andWhere(['LIKE', 'dst_number', $this->dst_number, $isEscape = false]);
+        $this->dst_number !== '' && $query->andWhere('dst_number::VARCHAR LIKE :dst_number', [':dst_number' => $this->dst_number]);
 
         $this->rate_from !== '' && $query->andWhere(['>=', 'rate', $this->rate_from]);
         $this->rate_to !== '' && $query->andWhere(['<=', 'rate', $this->rate_to]);
