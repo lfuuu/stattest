@@ -20,13 +20,15 @@ class RegistryForm extends Form
         $country_id = Country::RUSSIA,
         $city_id = City::DEFAULT_USER_CITY_ID,
         $city_number_format = '',
+        $city_number_format_length = 0,
         $source = VoipRegistrySourceEnum::OPERATOR,
         $number_type_id = NumberType::ID_GEO_DID,
         $number_from,
         $number_to,
         $account_id,
         $comment = '',
-        $ndc = ''
+        $ndc = NumberRange::DEFAULT_MOSCOW_NDC,
+        $ndsList = []
     ;
 
     /** @var Registry  */
@@ -54,8 +56,8 @@ class RegistryForm extends Form
             ['account_id', AccountIdValidator::className(), 'on' => 'save'],
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
-            [['number_from', 'number_to'], 'integer', 'min' => 100000, 'on' => 'save'],
-            ['number_from', 'validateNumbersRange']
+            ['number_from', 'validateNumbersRange'],
+            ['ndc', 'safe']
         ];
     }
 
@@ -114,9 +116,10 @@ class RegistryForm extends Form
     /**
      * Инициализация данных формы на основе загруженных значений
      *
+     * @param bool $isFromPost
      * @return bool
      */
-    public function initForm()
+    public function initForm($isFromPost = false)
     {
         if ($this->country_id && $this->city_id) {
             /** @var City $city */
@@ -127,12 +130,51 @@ class RegistryForm extends Form
             }
         }
 
-        if ($this->city_id) {
-            $city = City::findOne(['id' => $this->city_id]);
-            $this->city_number_format = $city->voip_number_format;
+        $this->_checkNDC();
+        $this->_setCityNumberFormat();
+
+        if ($isFromPost) {
+            $this->_prepareNumbesFromPost();
         }
 
         return true;
+    }
+
+    /**
+     * Подготовка номеров из POST-данных
+     */
+    private function _prepareNumbesFromPost()
+    {
+        $this->number_from = substr($this->number_from, $this->city_number_format_length);
+        $this->number_to = substr($this->number_to, $this->city_number_format_length);
+    }
+
+    /**
+     * Проверка наличия NDC для данного города и страны
+     */
+    private function _checkNDC()
+    {
+        $this->ndsList = NumberRange::getNDCList($this->country_id, $this->city_id);
+
+        if (!isset($this->ndsList[$this->ndc])) {
+            $this->ndc = reset($this->ndsList);
+        }
+    }
+
+    /**
+     * Установка формата вводимого номера
+     */
+    private function _setCityNumberFormat()
+    {
+        $country = Country::findOne(['code' => $this->country_id]);
+        if (!$country) {
+            return;
+        }
+
+        $this->city_number_format = str_replace(["9", "0"], ["\\9", "\\0"],
+                $country->prefix . " " . $this->ndc) . " 999999[9][9][9]";
+
+        $this->city_number_format_length = strlen($country->prefix . " " . $this->ndc) + 1;
     }
 
     /**

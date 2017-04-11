@@ -6,7 +6,6 @@ use app\models\City;
 use app\models\Country;
 use app\models\Number;
 use app\models\voip\Registry;
-use app\modules\nnp\models\NumberRange;
 use kartik\builder\Form;
 use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
@@ -48,6 +47,12 @@ $links[] = [
 echo Breadcrumbs::widget([
     'links' => $links
 ]);
+
+$readonlyOptions = $model->id ? [
+    'readonly' => true,
+    'disabled' => true
+] : [] ;
+
 ?>
 
 <div class="well">
@@ -71,14 +76,14 @@ echo Breadcrumbs::widget([
                 'items' => $countryList,
                 'options' => [
                     'class' => 'formReload'
-                ]
+                ] + $readonlyOptions
             ],
             'city_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $cityList,
                 'options' => [
                     'class' => 'formReload'
-                ]
+                ] + $readonlyOptions
             ],
             'source' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
@@ -90,19 +95,18 @@ echo Breadcrumbs::widget([
         ]
     ]);
 
-    /*
     $maskedInputWidgetConfig = [
         'type' => Form::INPUT_WIDGET,
         'widgetClass' => \app\classes\MaskedInput::className(),
         'options' => [
-            'mask' => str_replace(["9", "0"], ["\\9", "9"], $model->city_number_format), //символ-маска по-умолчанию цифра "9"
+            'mask' => $model->city_number_format,
             'options' => [
                 'class' => 'form-control',
                 'placeholder' => $model->city_number_format,
             ]
         ]
     ];
-    */
+
 
     echo Form::widget([
         'model' => $model,
@@ -115,14 +119,13 @@ echo Breadcrumbs::widget([
             ],
             'ndc' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => NumberRange::getNDCList($model->country_id, $model->city_id)
+                'items' => $model->ndsList,
+                'options' => [
+                        'class' => 'formReload'
+                    ] + $readonlyOptions
             ],
-            'number_from' => [
-                'type' => Form::INPUT_TEXT,
-            ],
-            'number_to' => [
-                'type' => Form::INPUT_TEXT,
-            ],
+            'number_from' => $maskedInputWidgetConfig,
+            'number_to' => $maskedInputWidgetConfig,
         ],
     ]);
 

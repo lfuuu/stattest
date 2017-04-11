@@ -41,6 +41,8 @@ class NumberRange extends ActiveRecord
     // Методы для полей insert_time, insert_user_id, update_time, update_user_id
     use \app\classes\traits\InsertUpdateUserTrait;
 
+    const DEFAULT_MOSCOW_NDC = 495;
+
     private static $_triggerTables = [
         // 'nnp.account_tariff_light',
         'nnp.country',
