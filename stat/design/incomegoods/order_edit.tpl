@@ -66,7 +66,7 @@
                 {if !$order->is_new_record()}
                     {$order->organization->name}
                 {else}
-                <select name="organization_id" class="form-control input-sm">
+                <select id="organization_id" name="organization_id" class="form-control input-sm">
                     {foreach from=$organizations item=org}
                         <option value="{$org->id}" {if $order->organization_id==$org->id}selected{/if}>{$org->name}</option>
                     {/foreach}
@@ -209,6 +209,8 @@
 
 <script>
     var price_includes_nds = {if $order->price_includes_nds}true{else}false{/if};
+
+    var organizationsTaxs = {$organizationsTaxs};
     {literal}
 
     (function(){
@@ -218,11 +220,11 @@
         $('.datepicker').datepicker({dateFormat:'dd.mm.yy'});
 
         var calc_nds = function(sum) {
-            price_includes_nds
+            var tax = organizationsTaxs[$('#organization_id').val()];
             if (price_includes_nds) {
-                return 18*sum/118;
+                return tax*sum/(100+tax);
             } else {
-                return sum*0.18;
+                return sum*(tax/100);
             }
         }
 
@@ -353,6 +355,10 @@
 
         $field.on('keyup change', function(){
             search(''+$field.val());
+        });
+
+        $('#organization_id').on('change', function () {
+           calc_all();
         });
     })();
 

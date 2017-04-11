@@ -70,6 +70,7 @@ use yii\helpers\Url;
  * @property int $pay_bill_until_days
  * @property int $is_bill_pay_overdue
  * @property int $is_voip_with_tax
+ * @property int $price_type
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient

@@ -157,7 +157,7 @@ statlib.modules.newaccounts.mk1cBill.findProduct = function(ev){
 
 				td = document.createElement('td')
 				td.style.textAlign = "left"
-				td.appendChild(document.createTextNode(d[i]['price']+'р'))
+				td.appendChild(document.createTextNode(d[i]['price']+d[i]['currency']))
 				tr.appendChild(td)
 				if(parseInt(d[i]['price'])) // && (parseInt(document.getElementsByName('is_rollback')[0].value) || d[i]['is_service'] || parseInt(d[i]['quantity'])))
 					td.onclick = statlib.modules.newaccounts.mk1cBill.findProduct.fixProd(i,d)

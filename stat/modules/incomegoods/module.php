@@ -172,6 +172,7 @@ class m_incomegoods extends IModule{
         $design->assign('users', User::find('all', array('order' => 'name', 'conditions' => array("enabled='yes'"))));
         $design->assign('stores', Store::find('all', array('order' => 'name')));
         $design->assign('currencies', Currency::find('all'));
+        $design->assign('organizationsTaxs', json_encode(GoodsOrganization::getTaxList()));
         $design->AddMain('incomegoods/order_edit.tpl');
     }
 

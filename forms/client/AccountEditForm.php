@@ -8,7 +8,7 @@ use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Currency;
-use app\models\PriceType;
+use app\models\GoodPriceType;
 use app\models\Region;
 use app\classes\Form;
 use yii\base\Exception;
@@ -180,7 +180,7 @@ class AccountEditForm extends Form
             ['currency', 'in', 'range' => array_keys(Currency::map())],
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
             ['region', 'in', 'range' => array_keys(Region::getList())],
-            ['price_type', 'in', 'range' => array_keys(PriceType::getList())],
+            ['price_type', 'in', 'range' => array_keys(GoodPriceType::getList())],
             ['timezone_name', 'in', 'range' => array_keys(Region::getTimezoneList())],
             ['status', 'in', 'range' => array_keys(ClientAccount::$statuses)],
             ['nal', 'in', 'range' => array_keys(ClientAccount::$nalTypes)],
