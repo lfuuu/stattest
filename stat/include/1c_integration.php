@@ -1347,20 +1347,20 @@ class SoapHandler{
                 $goodId = $i->{'КодНоменклатура1С'};
                 $descrId = $i->{'КодХарактеристика1С'};
                 $priceId = $i->{'КодВидЦен1С'};
-                $cost = $i->{'Цена'};
+                $price = $i->{'Цена'};
                 $currency = $i->{'Валюта1С'};
                 $isDel = $i->{'Удален'};
 
-                $data[$goodId][$descrId][$priceId][$currency] = $isDel ? false : $cost;
+                $data[$goodId][$descrId][$priceId][$currency] = $isDel ? false : $price;
             }
             unset($i);
 
             $insert = [];
-            $goodPriceFields = ['good_id', 'descr_id', 'price_type_id', 'currency', 'cost'];
+            $goodPriceFields = ['good_id', 'descr_id', 'price_type_id', 'currency', 'price'];
             foreach ($data as $goodId => &$goods) {
                 foreach ($goods as $descrId => $descrs) {
                     foreach ($descrs as $priceId => $prices) {
-                        foreach ($prices as $currency => $cost) {
+                        foreach ($prices as $currency => $price) {
                             $condition = [
                                 "good_id" => $goodId,
                                 "descr_id" => $descrId,
@@ -1368,7 +1368,7 @@ class SoapHandler{
                                 "currency" => $currency
                             ];
 
-                            if ($cost === false) {
+                            if ($price === false) {
                                 GoodPrice::deleteAll($condition);
                                 continue;
                             }
@@ -1377,19 +1377,20 @@ class SoapHandler{
                             $goodPrice = GoodPrice::findOne($condition);
 
                             if (!$goodPrice) {
-                                $insert[] = [$goodId, $descrId, $priceId, $currency, $cost];
+                                $insert[] = [$goodId, $descrId, $priceId, $currency, $price];
 
                                 if (count($insert) >= 1000) {
                                     \Yii::$app->db
                                         ->createCommand()
-                                        ->batchInsert(GoodPrice::tableName(), $goodPriceFields, $insert);
+                                        ->batchInsert(GoodPrice::tableName(), $goodPriceFields, $insert)
+                                        ->execute();
 
                                     $insert = [];
                                 }
                                 continue;
                             }
 
-                            $goodPrice->setAttributes($condition + ['cost' => $cost], false);
+                            $goodPrice->setAttributes($condition + ['price' => $price], false);
                             if (!$goodPrice->save()) {
                                 throw new \RuntimeException(implode(' ', $goodPrice->getErrors()));
                             }
@@ -1401,7 +1402,8 @@ class SoapHandler{
             if ($insert) {
                 \Yii::$app->db
                     ->createCommand()
-                    ->batchInsert(GoodPrice::tableName(), $goodPriceFields, $insert);
+                    ->batchInsert(GoodPrice::tableName(), $goodPriceFields, $insert)
+                    ->execute();
             }
 
         } catch (\Exception $e) {
