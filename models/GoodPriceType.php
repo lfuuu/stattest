@@ -10,6 +10,8 @@ class GoodPriceType extends ActiveRecord
 
     const RETAIL = '739a53ba-8389-11df-9af5-001517456eb1';
 
+    const DEFAULT_PRICE_LIST = self::RETAIL;
+
     /**
      * @return string
      */

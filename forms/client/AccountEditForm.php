@@ -45,7 +45,7 @@ class AccountEditForm extends Form
         $credit = ClientAccount::DEFAULT_CREDIT,
         $phone_connect,
         $form_type,
-        $price_type,
+        $price_type = GoodPriceType::DEFAULT_PRICE_LIST,
         $voip_disabled,
         $voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY,
         $voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC,
