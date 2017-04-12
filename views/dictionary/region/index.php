@@ -6,6 +6,7 @@
  * @var RegionFilter $filterModel
  */
 
+use app\classes\grid\column\universal\ConstructColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
@@ -73,8 +74,9 @@ $columns = [
         'class' => CountryColumn::className(),
     ],
     [
-        'attribute' => 'is_active',
-        'class' => YesNoColumn::className(),
+        'attribute' => 'type_id',
+        'class' => ConstructColumn::className(),
+        'filter' => Region::$typeNames,
     ],
 ];
 

@@ -85,7 +85,10 @@ if (!$region->isNewRecord) {
         </div>
 
         <div class="col-sm-3">
-            <?= $form->field($region, 'is_active')->checkbox() ?>
+            <?= $form->field($region, 'type_id')
+                ->widget(Select2::className(), [
+                    'data' => \app\models\Region::$typeNames,
+                ]) ?>
         </div>
 
     </div>

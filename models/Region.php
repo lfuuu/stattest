@@ -2,7 +2,6 @@
 namespace app\models;
 
 use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
 /**
@@ -12,7 +11,7 @@ use yii\helpers\Url;
  * @property int $code
  * @property string $timezone_name
  * @property int $country_id
- * @property int $is_active
+ * @property int $type_id
  *
  * @property Datacenter $datacenter
  * @property Country $country
@@ -28,6 +27,16 @@ class Region extends ActiveRecord
     const HUNGARY = 81;
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
 
+    const TYPE_HUB = 0;
+    const TYPE_NODE = 1;
+    const TYPE_POINT = 2;
+
+    public static $typeNames = [
+        self::TYPE_HUB => 'Хаб',
+        self::TYPE_NODE => 'Узел',
+        self::TYPE_POINT => 'Точка',
+    ];
+
     /**
      * @return string
      */
@@ -42,7 +51,7 @@ class Region extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'country_id', 'code', 'country_id', 'is_active'], 'integer'],
+            [['id', 'country_id', 'code', 'country_id', 'type_id'], 'integer'],
             [['name', 'short_name', 'timezone_name'], 'string'],
         ];
     }
@@ -61,7 +70,7 @@ class Region extends ActiveRecord
             'code' => 'Код',
             'timezone_name' => 'Часовой пояс',
             'country_id' => 'Страна',
-            'is_active' => 'Вкл/выкл',
+            'type_id' => 'Тип',
         ];
     }
 
@@ -115,7 +124,7 @@ class Region extends ActiveRecord
             $orderBy = ['name' => SORT_ASC],
             $where = [
                 'AND',
-                ['is_active' => 1],
+                ['type_id' => [self::TYPE_NODE, self::TYPE_POINT]],
                 $countryId ? ['country_id' => $countryId] : []
             ]
         );
@@ -136,5 +145,15 @@ class Region extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/dictionary/region/edit', 'id' => $id]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeName()
+    {
+        return isset(self::$typeNames[$this->type_id]) ?
+            self::$typeNames[$this->type_id] :
+            '';
     }
 }

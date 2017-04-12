@@ -154,8 +154,6 @@ class VoipController extends BaseController
      * @param string $format
      * @param int $statusId
      * @param int $isPostpaid
-     *
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $statusId = null, $isPostpaid = null)
     {
