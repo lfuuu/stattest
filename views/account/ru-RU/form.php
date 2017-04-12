@@ -85,6 +85,9 @@ use kartik\widgets\ActiveForm;
             echo implode(Html::tag('br'), $result);
             ?>
         </div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'price_level')->dropDownList(ClientAccount::getPriceLevels()) ?>
+        </div>
     </div>
 
     <div class="row">

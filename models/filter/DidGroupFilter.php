@@ -26,19 +26,42 @@ class DidGroupFilter extends DidGroup
     public $price3_from = '';
     public $price3_to = '';
 
+    public $price4_from = '';
+    public $price4_to = '';
+
+    public $price5_from = '';
+    public $price5_to = '';
+
+    public $price6_from = '';
+    public $price6_to = '';
+
+    public $price7_from = '';
+    public $price7_to = '';
+
+    public $price8_from = '';
+    public $price8_to = '';
+
+    public $price9_from = '';
+    public $price9_to = '';
+
+
+    /**
+     * Правила
+     */
     public function rules()
     {
-        return [
+        $rules = [
             [['id'], 'integer'],
             [['country_code'], 'integer'],
             [['city_id'], 'integer'],
             [['name'], 'string'],
             [['beauty_level'], 'integer'],
             [['number_type_id'], 'integer'],
-            [['price1_from', 'price1_to'], 'number'],
-            [['price2_from', 'price2_to'], 'number'],
-            [['price3_from', 'price3_to'], 'number'],
         ];
+
+        for ($i = 1; $i <= 9; $i++) {
+            $rules[] = [['price' . $i . '_from', 'price' . $i . '_to'], 'number'];
+        }
     }
 
     /**
@@ -62,14 +85,10 @@ class DidGroupFilter extends DidGroup
         $this->beauty_level !== '' && $query->andWhere([$didGroupTableName . '.beauty_level' => $this->beauty_level]);
         $this->number_type_id !== '' && $query->andWhere([$didGroupTableName . '.number_type_id' => $this->number_type_id]);
 
-        $this->price1_from !== '' && $query->andWhere(['>=', $didGroupTableName . '.price1', $this->price1_from]);
-        $this->price1_to !== '' && $query->andWhere(['<=', $didGroupTableName . '.price1', $this->price1_to]);
-
-        $this->price2_from !== '' && $query->andWhere(['>=', $didGroupTableName . '.price2', $this->price2_from]);
-        $this->price2_to !== '' && $query->andWhere(['<=', $didGroupTableName . '.price2', $this->price2_to]);
-
-        $this->price3_from !== '' && $query->andWhere(['>=', $didGroupTableName . '.price3', $this->price3_from]);
-        $this->price3_to !== '' && $query->andWhere(['<=', $didGroupTableName . '.price3', $this->price3_to]);
+        for ($i = 1; $i <= 9; $i++) {
+            $this->{'price' . $i .'_from'} !== '' && $query->andWhere(['>=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_from'}]);
+            $this->{'price' . $i .'_to'} !== '' && $query->andWhere(['<=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_to'}]);
+        }
 
         return $dataProvider;
     }

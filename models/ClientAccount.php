@@ -71,6 +71,7 @@ use yii\helpers\Url;
  * @property int $is_bill_pay_overdue
  * @property int $is_voip_with_tax
  * @property int $price_type
+ * @property int $price_level
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -129,6 +130,7 @@ class ClientAccount extends HistoryActiveRecord
     const DEFAULT_VOIP_IS_DAY_CALC = 1;
     const DEFAULT_VOIP_IS_MN_DAY_CALC = 1;
     const DEFAULT_CREDIT = 0;
+    const DEFAULT_PRICE_LEVEL = 1;
 
     const VERSION_BILLER_USAGE = 4;
     const VERSION_BILLER_UNIVERSAL = 5;
@@ -189,6 +191,7 @@ class ClientAccount extends HistoryActiveRecord
         self::VERSION_BILLER_USAGE => 'Старый',
         self::VERSION_BILLER_UNIVERSAL => 'Универсальный',
     ];
+
     public static $shopIds = [14050, 18042];
     public $client_orig = '';
     /**
@@ -348,6 +351,7 @@ class ClientAccount extends HistoryActiveRecord
             'effective_vat_rate' => 'Эффективная ставка НДС',
             'pay_bill_until_days' => 'Срок оплаты счетов (в днях)',
             'is_bill_pay_overdue' => 'Блокировка по неоплате счета',
+            'price_level' => 'Уровень цен',
         ];
     }
 
@@ -1129,6 +1133,16 @@ class ClientAccount extends HistoryActiveRecord
     public function getAccountTypeAndId()
     {
         return $this->getAccountType() . ' № ' . $this->id;
+    }
+
+    /**
+     * Список уровней цен
+     *
+     * @return array
+     */
+    public static function getPriceLevels()
+    {
+        return array_combine(range(1, 9), range(1, 9));
     }
 
     /**

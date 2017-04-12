@@ -79,7 +79,9 @@ class AccountEditForm extends Form
         $is_postpaid,
         $type_of_bill,
         $effective_vat_rate = 0,
-        $pay_bill_until_days = ClientAccount::PAY_BILL_UNTIL_DAYS;
+        $pay_bill_until_days = ClientAccount::PAY_BILL_UNTIL_DAYS,
+        $price_level = ClientAccount::DEFAULT_PRICE_LEVEL
+        ;
 
     /**
      * Правила
@@ -155,6 +157,7 @@ class AccountEditForm extends Form
                     'account_version',
                     'is_postpaid',
                     'type_of_bill',
+                    'price_level'
                 ],
                 'integer'
             ],

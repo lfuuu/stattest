@@ -75,20 +75,15 @@ $columns = [
     [
         'attribute' => 'number_type_id',
         'class' => NumberTypeColumn::className()
-    ],
-    [
-        'attribute' => 'price1',
-        'class' => IntegerRangeColumn::className()
-    ],
-    [
-        'attribute' => 'price2',
-        'class' => IntegerRangeColumn::className()
-    ],
-    [
-        'attribute' => 'price3',
-        'class' => IntegerRangeColumn::className()
-    ],
+    ]
 ];
+
+for ($i = 1; $i <= 9 ; $i++) {
+    $columns[] = [
+        'attribute' => 'price' . $i,
+        'class' => IntegerRangeColumn::className()
+    ];
+}
 
 $linkAdd = ['url' => ['/tariff/did-group/new']];
 if ($filterModel->country_code) {
