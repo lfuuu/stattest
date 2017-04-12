@@ -62,9 +62,11 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
         <div class="panel-body<?= $accountTariffFirst->tariff_period_id ? '' : ' collapse' ?>" id="<?= $panelBodyId ?>">
             <div class="row">
 
-                <?php // номера ?>
                 <div class="col-sm-2 account-tariff-voip-numbers">
+
+                    <?php // номера ?>
                     <?= $this->render('_indexVoipFormNumber', $params) ?>
+
                 </div>
 
                 <?php // тариф и базовый пакет ?>
@@ -83,6 +85,9 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                         ]) :
                         '' ?>
 
+                    <?php // ресурсы ?>
+                    <?= $this->render('_indexVoipFormResource', $params) ?>
+
                 </div>
 
                 <?php // пакеты ?>
@@ -92,6 +97,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                     </div>
                 <?php endif ?>
             </div>
+
 
         </div>
     </div>

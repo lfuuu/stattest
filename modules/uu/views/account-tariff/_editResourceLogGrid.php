@@ -47,7 +47,7 @@ use yii\data\ActiveDataProvider;
                                 Yii::t('common', 'Cancel'),
                                 [
                                     '/uu/account-tariff/resource-cancel',
-                                    'accountTariffId' => $accountTariffResourceLog->account_tariff_id,
+                                    'ids' => [$accountTariffResourceLog->account_tariff_id],
                                     'resourceId' => $accountTariffResourceLog->resource_id,
                                 ],
                                 [

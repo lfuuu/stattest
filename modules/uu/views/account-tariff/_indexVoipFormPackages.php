@@ -23,7 +23,7 @@ foreach ($packageServiceTypeIds as $packageServiceTypeId) {
         echo Html::tag('h3');
     }
 
-    echo Html::tag('b', ServiceType::findOne(['id' => $packageServiceTypeId])->name);
+    echo Html::tag('b', ServiceType::findOne(['id' => $packageServiceTypeId])->name) . ' ';
 
     if (isset($packagesList[$packageServiceTypeId])) {
         foreach ($packagesList[$packageServiceTypeId] as $accountTariffPackage) {

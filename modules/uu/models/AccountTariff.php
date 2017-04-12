@@ -890,7 +890,7 @@ class AccountTariff extends HistoryActiveRecord
     {
         $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
 
-        /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
+        /** @var AccountTariffResourceLog $accountTariffResourceLog */
         $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs($resourceId);
         foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLog) {
             if ($accountTariffResourceLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT)) {

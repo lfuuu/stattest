@@ -427,7 +427,7 @@ class AccountTariffController extends BaseController
             }
 
             $transaction->commit();
-            Yii::$app->session->setFlash('success', 'Тариф успешно отменен');
+            Yii::$app->session->setFlash('success', 'Смена тарифа успешно отменена');
 
         } catch (InvalidArgumentException $e) {
             $transaction->rollBack();
@@ -477,16 +477,18 @@ class AccountTariffController extends BaseController
     /**
      * Отменить последнюю смену количества ресурса
      *
-     * @param int $accountTariffId
+     * @param int[] $ids
      * @param int $resourceId
      * @return string|Response
      * @throws \yii\base\InvalidParamException
      */
-    public function actionResourceCancel($accountTariffId, $resourceId)
+    public function actionResourceCancel(array $ids, $resourceId)
     {
-        /** @var AccountTariff $accountTariff */
-        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
-        if (!$accountTariff) {
+        $serviceTypeId = null;
+
+        /** @var AccountTariff[] $accountTariffs */
+        $accountTariffs = AccountTariff::findAll(['id' => $ids]);
+        if (!$accountTariffs) {
             throw new InvalidParamException('Услуга не найдена');
         }
 
@@ -496,28 +498,39 @@ class AccountTariffController extends BaseController
             throw new InvalidParamException('Ресурс не найден');
         }
 
+        $transaction = \Yii::$app->db->beginTransaction();
         try {
 
-            if (!$accountTariff->isResourceCancelable($resource)) {
-                throw new InvalidParamException('Ресурс невозможно отменить');
+            foreach ($accountTariffs as $accountTariff) {
+
+                $serviceTypeId = $accountTariff->service_type_id;
+
+                if (!$accountTariff->isResourceCancelable($resource)) {
+                    throw new InvalidParamException('Ресурс невозможно отменить');
+                }
+
+                /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
+                $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resourceId)->all();
+                $accountTariffResourceLog = reset($accountTariffResourceLogs);
+                if (!$accountTariffResourceLog->delete()) {
+                    throw new ModelValidationException($accountTariffResourceLog);
+                }
             }
 
-            /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
-            $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resourceId)->all();
-            $accountTariffResourceLog = reset($accountTariffResourceLogs);
-            if (!$accountTariffResourceLog->delete()) {
-                throw new ModelValidationException($accountTariffResourceLog);
-            }
+            $transaction->commit();
+            Yii::$app->session->setFlash('success', 'Смена количества ресурса успешно отменена');
+
         } catch (\Exception $e) {
 
+            $transaction->rollBack();
             Yii::error($e);
             Yii::$app->session->setFlash('error', YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error'));
         }
 
         return $this->redirect(
             [
-                '/uu/account-tariff/edit',
-                'id' => $accountTariffId,
+                'index',
+                'serviceTypeId' => $serviceTypeId,
             ]
         );
     }
