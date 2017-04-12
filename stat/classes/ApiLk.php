@@ -1632,9 +1632,10 @@ class ApiLk
     private static function _getVoipPhones(ClientAccount $account)
     {
         $uuUsagesQuery = (new \yii\db\Query())
-            ->select(['usage_id' => 'uu.id', 'phone_num' => 'uu.voip_number', 'region' => 'uu.region_id', 'r.timezone_name', 'region_name' => 'r.name'])
+            ->select(['usage_id' => 'uu.id', 'phone_num' => 'uu.voip_number', 'region' => 'r.id', 'r.timezone_name', 'region_name' => 'r.name'])
             ->from(['uu' => AccountTariff::tableName()])
-            ->leftJoin(['r' => Region::tableName()], 'r.id = uu.region_id')
+            ->leftJoin(['c' => City::tableName()], 'c.id = uu.city_id')
+            ->leftJoin(['r' => Region::tableName()], 'r.id = c.connection_point_id')
             ->where(['uu.client_account_id' => $account->id])
             ->andWhere(['IS NOT', 'voip_number', null]);
 
