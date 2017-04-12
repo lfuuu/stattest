@@ -16,6 +16,7 @@ class RegionFilter extends Region
     public $code = '';
     public $timezone_name = '';
     public $country_id = '';
+    public $is_active = '';
     public $type_id = '';
 
     /**
@@ -36,6 +37,7 @@ class RegionFilter extends Region
         $this->timezone_name !== '' && $query->andWhere(['LIKE', 'timezone_name', $this->timezone_name]);
         $this->code !== '' && $query->andWhere(['code' => $this->code]);
         $this->country_id !== '' && $query->andWhere(['country_id' => $this->country_id]);
+        $this->is_active !== '' && $query->andWhere(['is_active' => $this->is_active]);
         $this->type_id !== '' && $query->andWhere(['type_id' => $this->type_id]);
 
         return $dataProvider;

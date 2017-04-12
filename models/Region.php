@@ -12,6 +12,7 @@ use yii\helpers\Url;
  * @property string $timezone_name
  * @property int $country_id
  * @property int $type_id
+ * @property int $is_active
  *
  * @property Datacenter $datacenter
  * @property Country $country
@@ -51,7 +52,7 @@ class Region extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'country_id', 'code', 'country_id', 'type_id'], 'integer'],
+            [['id', 'country_id', 'code', 'country_id', 'type_id', 'is_active'], 'integer'],
             [['name', 'short_name', 'timezone_name'], 'string'],
         ];
     }
@@ -71,6 +72,7 @@ class Region extends ActiveRecord
             'timezone_name' => 'Часовой пояс',
             'country_id' => 'Страна',
             'type_id' => 'Тип',
+            'is_active' => 'Активен',
         ];
     }
 

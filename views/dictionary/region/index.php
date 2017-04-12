@@ -74,6 +74,10 @@ $columns = [
         'class' => CountryColumn::className(),
     ],
     [
+        'attribute' => 'is_active',
+        'class' => YesNoColumn::className(),
+    ],
+    [
         'attribute' => 'type_id',
         'class' => ConstructColumn::className(),
         'filter' => Region::$typeNames,

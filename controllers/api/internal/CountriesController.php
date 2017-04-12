@@ -214,7 +214,10 @@ class CountriesController extends ApiInternalController
         $client_account_id = null
     ) {
         $regions = Region::find()
-            ->where(['type_id' => Region::TYPE_NODE])
+            ->where([
+                'is_active' => 1,
+                'type_id' => Region::TYPE_NODE,
+            ])
             ->orderBy([
                 new Expression('id > 97 DESC'),
                 'name' => SORT_ASC,
