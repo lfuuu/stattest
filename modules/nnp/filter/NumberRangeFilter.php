@@ -19,6 +19,7 @@ class NumberRangeFilter extends NumberRange
     public $country_code = '';
     public $ndc = '';
     public $full_number_from = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это full_number
+    public $full_number_mask = '';
     public $operator_source = '';
     public $operator_id = '';
     public $region_source = '';
@@ -39,7 +40,7 @@ class NumberRangeFilter extends NumberRange
     public function rules()
     {
         return [
-            [['operator_source', 'region_source', 'full_number_from', 'insert_time'], 'string'],
+            [['operator_source', 'region_source', 'full_number_from', 'insert_time', 'full_number_mask'], 'string'],
             [['country_code', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
         ];
@@ -145,6 +146,11 @@ class NumberRangeFilter extends NumberRange
         if ($this->full_number_from) {
             $query->andWhere(['<=', $numberRangeTableName . '.full_number_from', $this->full_number_from]);
             $query->andWhere(['>=', $numberRangeTableName . '.full_number_to', $this->full_number_from]);
+        }
+
+        if ($this->full_number_mask) {
+            $this->full_number_mask = strtr($this->full_number_mask, ['.' => '_', '*' => '%']);
+            $query->andWhere($numberRangeTableName . '.full_number_from::VARCHAR LIKE :full_number_mask', [':full_number_mask' => $this->full_number_mask]);
         }
 
         if ($this->insert_time) {

@@ -57,6 +57,11 @@ $filterColumns = [
         'class' => IntegerColumn::className(),
     ],
     [
+        'label' => 'Полный номер (маска)&nbsp;' . $this->render('//layouts/_helpMysqlLike'),
+        'attribute' => 'full_number_mask',
+        'class' => StringColumn::className(),
+    ],
+    [
         'label' => 'Кол-во номеров',
         'attribute' => 'numbers_count',
         'class' => IntegerRangeColumn::className(),
@@ -81,7 +86,7 @@ $columns = [
         'hAlign' => GridView::ALIGN_CENTER,
     ],
     [
-        'label' => 'Диапазон номеров',
+        'label' => 'Полный номер',
         'attribute' => 'full_number_from',
         'class' => IntegerColumn::className(),
         'format' => 'html',
