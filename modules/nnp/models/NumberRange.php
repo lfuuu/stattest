@@ -43,6 +43,9 @@ class NumberRange extends ActiveRecord
 
     const DEFAULT_MOSCOW_NDC = 495;
 
+    const RUSSIA_7800_NDC = 800;
+    const HUNGARY_800_NDC = 80;
+
     private static $_triggerTables = [
         // 'nnp.account_tariff_light',
         'nnp.country',

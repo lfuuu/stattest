@@ -31,6 +31,8 @@ class City extends ActiveRecord
     }
 
     const DEFAULT_USER_CITY_ID = 7495; // Moscow
+    const RUSSIA_CITY_ID_7800 = 7800;
+    const HUNGARY_CITY_ID_7800 = 3680;
 
     public static $primaryField = 'id';
 

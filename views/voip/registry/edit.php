@@ -5,6 +5,7 @@ use app\classes\Html;
 use app\models\City;
 use app\models\Country;
 use app\models\Number;
+use app\models\NumberType;
 use app\models\voip\Registry;
 use kartik\builder\Form;
 use kartik\widgets\ActiveForm;
@@ -48,10 +49,13 @@ echo Breadcrumbs::widget([
     'links' => $links
 ]);
 
-$readonlyOptions = $model->id ? [
+$readonlyOptions = [
     'readonly' => true,
     'disabled' => true
-] : [] ;
+];
+
+$isEdit = (bool)$model->id;
+$is7800 = $model->number_type_id == NumberType::ID_7800;
 
 ?>
 
@@ -76,14 +80,14 @@ $readonlyOptions = $model->id ? [
                 'items' => $countryList,
                 'options' => [
                     'class' => 'formReload'
-                ] + $readonlyOptions
+                ] + ($isEdit ? $readonlyOptions : [])
             ],
             'city_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $cityList,
                 'options' => [
                     'class' => 'formReload'
-                ] + $readonlyOptions
+                ] + ($isEdit || $is7800 ? $readonlyOptions : [])
             ],
             'source' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
@@ -115,14 +119,17 @@ $readonlyOptions = $model->id ? [
         'attributes' => [
             'number_type_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => \app\models\NumberType::getList(),
+                'items' => NumberType::getList(),
+                'options' => [
+                    'class' => 'formReload'
+                ]
             ],
             'ndc' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $model->ndsList,
                 'options' => [
-                        'class' => 'formReload'
-                    ] + $readonlyOptions
+                    'class' => 'formReload'
+                    ] + ($isEdit || $is7800 ? $readonlyOptions : [])
             ],
             'number_from' => $maskedInputWidgetConfig,
             'number_to' => $maskedInputWidgetConfig,

@@ -57,7 +57,7 @@ class RegistryController extends BaseController
     /**
      * Действие контроллера. Редактирование.
      *
-     * @param $id
+     * @param int $id
      * @return string|\yii\web\Response
      */
     public function actionEdit($id)

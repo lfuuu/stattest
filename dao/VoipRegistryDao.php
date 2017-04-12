@@ -31,10 +31,10 @@ class VoipRegistryDao extends Singleton
     {
         $count = Number::find()
             ->where(['city_id' => $registry->city_id])
-            ->andWhere(['between', 'number', $registry->number_from, $registry->number_to])
+            ->andWhere(['between', 'number', $registry->number_full_from, $registry->number_full_to])
             ->count();
 
-        return ($count == 0 ? Registry::STATUS_EMPTY : (($registry->number_to - $registry->number_from + 1) == $count ? Registry::STATUS_FULL : Registry::STATUS_PARTLY));
+        return ($count == 0 ? Registry::STATUS_EMPTY : (($registry->number_full_to - $registry->number_full_from + 1) == $count ? Registry::STATUS_FULL : Registry::STATUS_PARTLY));
     }
 
     /**
@@ -152,6 +152,7 @@ class VoipRegistryDao extends Singleton
      * @param Registry $registry
      * @param string $addNumber
      * @throws InvalidConfigException
+     * @throws ModelValidationException
      */
     private function _addNumber(Registry $registry, $addNumber)
     {
@@ -184,6 +185,7 @@ class VoipRegistryDao extends Singleton
         $number->operator_account_id = $registry->account_id;
         $number->country_code = $registry->country->code;
         $number->ndc = $registry->ndc;
+        $number->number_subscriber = substr($addNumber, strlen((string)$registry->country->prefix) + strlen($registry->ndc));
         $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $number->is_ported = (int)$registry->isSourcePotability();
 

@@ -130,14 +130,40 @@ class RegistryForm extends Form
             }
         }
 
-        $this->_checkNDC();
+        if ($this->number_type_id == NumberType::ID_7800) {
+            $this->_setCityAndNdcFor7800();
+        }
+
+        $this->_setNDC();
         $this->_setCityNumberFormat();
+
 
         if ($isFromPost) {
             $this->_prepareNumbesFromPost();
         }
 
         return true;
+    }
+
+    /**
+     * Установка города для номера 800
+     */
+    private function _setCityAndNdcFor7800()
+    {
+        switch ($this->country_id) {
+            case Country::RUSSIA:
+                $this->city_id = City::RUSSIA_CITY_ID_7800;
+                $this->ndc = NumberRange::RUSSIA_7800_NDC;
+                break;
+
+            case Country::HUNGARY:
+                $this->city_id = City::HUNGARY_CITY_ID_7800;
+                $this->ndc = NumberRange::HUNGARY_800_NDC;
+                break;
+
+            default:
+                throw new \LogicException('Для выбранной страны не установлен город для номеров 800');
+        }
     }
 
     /**
@@ -152,12 +178,17 @@ class RegistryForm extends Form
     /**
      * Проверка наличия NDC для данного города и страны
      */
-    private function _checkNDC()
+    private function _setNDC()
     {
+        if ($this->number_type_id == NumberType::ID_7800) {
+            $this->ndsList = [$this->ndc => $this->ndc];
+            return; // установлена в setCityAndNDCFor7800
+        }
+
         $this->ndsList = NumberRange::getNDCList($this->country_id, $this->city_id);
 
         if (!isset($this->ndsList[$this->ndc])) {
-            $this->ndc = reset($this->ndsList);
+            $this->ndc = $this->ndsList ? reset($this->ndsList) : '';
         }
     }
 
