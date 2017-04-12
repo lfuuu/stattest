@@ -53,6 +53,7 @@ class BaseView extends View
     public function render($view, $params = [], $context = null)
     {
         $this->_viewFile = $viewFile = $this->findViewFile($view, $context);
+        $this->_viewFile = realpath($this->_viewFile);
 
         // Убрать путь до каталога с views
         $this->_viewFile = str_replace([Yii::$app->getBasePath(), '/views'], '', $this->_viewFile);
