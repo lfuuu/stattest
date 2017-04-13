@@ -2,7 +2,6 @@
 use app\classes\Assert;
 use app\classes\Encrypt;
 use app\classes\Language;
-use app\modules\uu\models\AccountTariff;
 use app\exceptions\ModelValidationException;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
@@ -28,6 +27,7 @@ use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\User;
+use app\modules\uu\models\AccountTariff;
 
 class ApiLk
 {
@@ -466,6 +466,11 @@ class ApiLk
         return $ret;
     }
 
+    /**
+     * @param int $clientAccountId
+     * @return array
+     * @throws Exception
+     */
     public static function getVoipTariffTree($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
@@ -473,6 +478,8 @@ class ApiLk
         if (!$clientAccount) {
             throw new Exception("account_not_found");
         }
+
+        $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount->price_level);
 
         $cities = City::find()
             ->select(['id', 'name'])
@@ -491,7 +498,8 @@ class ApiLk
             ->where([
                 'country_code' => $clientAccount->country_id
             ])
-            ->orderBy(['price1' => SORT_ASC]);
+            ->orderBy([$priceField => SORT_ASC]);
+
         /** @var DidGroup $didGroup */
         foreach ($didGroups->each() as $didGroup) {
 
@@ -505,7 +513,7 @@ class ApiLk
                 'id' => $didGroup->id,
                 'code' => 'group_' . $didGroup->beauty_level,
                 'comment' => $didGroup->comment,
-                'activation_fee' => (float)$didGroup->price1,
+                'activation_fee' => (float)$didGroup->{$priceField},
                 'currency_id' => $didGroup->country->currency_id,
                 'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
             ];

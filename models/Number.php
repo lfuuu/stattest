@@ -174,12 +174,13 @@ class Number extends ActiveRecord
 
     /**
      * @param string|null $currency
+     * @param ClientAccount $clientAccount
      * @return float|null
      */
-    public function getPrice($currency = null)
+    public function getPrice($currency = null, ClientAccount $clientAccount = null)
     {
         try {
-            $price = $this->originPrice;
+            $price = $this->getOriginPrice($clientAccount);
         } catch (\Exception $e) {
             return null;
         }
@@ -212,30 +213,36 @@ class Number extends ActiveRecord
     }
 
     /**
+     * @param ClientAccount $clientAccount
      * @return float
      */
-    public function getOriginPrice()
+    public function getOriginPrice(ClientAccount $clientAccount = null)
     {
-        return (float)$this->didGroup->price1;
+        $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
+        return (float)$this->didGroup->{$priceField};
     }
 
     /**
+     * @param ClientAccount $clientAccount
      * @return NumberPriceLight
      */
-    public function getOriginPriceWithCurrency()
+    public function getOriginPriceWithCurrency(ClientAccount $clientAccount = null)
     {
         $formattedResult = new NumberPriceLight;
         try {
+
             $formattedResult->setAttributes([
                 'currency' => $this->didGroup->country->currency_id,
-                'price' => $this->originPrice,
+                'price' => $this->getOriginPrice($clientAccount),
             ]);
+
         } catch (\Exception $e) {
             $formattedResult->setAttributes([
                 'currency' => null,
                 'price' => null,
             ]);
         }
+
         return $formattedResult;
     }
 

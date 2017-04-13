@@ -42,12 +42,12 @@ class NumberLight extends Model
      */
     public function setPrices(\app\models\Number $number, $currency = Currency::RUB)
     {
-        $actualPrice = $number->getPriceWithCurrency($currency);
-        $originPrice = $number->getOriginPriceWithCurrency();
+        $actualPriceWithCurrency = $number->getPriceWithCurrency($currency);
+        $originPriceWithCurrency = $number->getOriginPriceWithCurrency();
 
-        $this->price = (float)$actualPrice->formattedPrice;
-        $this->currency = $actualPrice->currency;
-        $this->origin_price = (float)$originPrice->formattedPrice;
-        $this->origin_currency = $originPrice->currency;
+        $this->price = (float)$actualPriceWithCurrency->formattedPrice;
+        $this->currency = $actualPriceWithCurrency->currency;
+        $this->origin_price = (float)$originPriceWithCurrency->formattedPrice;
+        $this->origin_currency = $originPriceWithCurrency->currency;
     }
 }
