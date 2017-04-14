@@ -27,6 +27,7 @@ class CreatedAt extends Behavior
      */
     public function onBeforeInsert()
     {
-        $this->owner->created_at = (new \DateTime('now', new \DateTimeZone('UTC')))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $this->owner->created_at = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
     }
 }

@@ -163,7 +163,7 @@ class Currency extends ActiveRecord
             ->scalar();
 
         if (!$currencyId) {
-            $currencyId = self::RUB;
+            throw new \LogicException('Currency code not found');
         }
 
         return $currencyId;

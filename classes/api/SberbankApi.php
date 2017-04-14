@@ -279,6 +279,7 @@ class SberbankApi
                     ->setMethod($isPostJSON ? 'post' : 'get')
                     ->setData($data)
                     ->setUrl($url)
+                    ->addOptions([CURLOPT_SSLVERSION => 1])
                     ->getResponseDataWithCheck();
 
         if (isset($answer['errorCode']) && $answer['errorCode']) {
