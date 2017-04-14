@@ -22,7 +22,9 @@ class NumberLight extends Model
         $city_id,
         $did_group_id,
         $number_type,
-        $ndc;
+        $country_prefix,
+        $ndc,
+        $number_subscriber;
 
     /**
      * @return array
@@ -30,7 +32,7 @@ class NumberLight extends Model
     public function rules()
     {
         return [
-            [['beauty_level', 'region', 'city_id', 'did_group_id', 'number_type', 'ndc'], 'integer'],
+            [['beauty_level', 'region', 'city_id', 'did_group_id', 'number_type', 'country_prefix', 'ndc', 'number_subscriber'], 'integer'],
             [['number', 'currency', 'origin_currency'], 'string'],
             [['price', 'origin_price'], 'number'],
         ];

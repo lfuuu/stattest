@@ -37,6 +37,7 @@ use yii\helpers\Url;
  * @property int $is_ported
  *
  * @property City $city
+ * @property Country $country
  * @property DidGroup $didGroup
  * @property UsageVoip $usage
  * @property ClientAccount $clientAccount
