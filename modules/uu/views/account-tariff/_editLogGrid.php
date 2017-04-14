@@ -22,7 +22,7 @@ use yii\helpers\Html;
     }
     ?>
 
-    <?= $this->render('//layouts/_toggleButton', ['divSelector' => '#account-tariff-log-grid', 'title' => 'История изменений']) ?>
+    <?= $this->render('//layouts/_toggleButton', ['divSelector' => '#account-tariff-log-grid', 'title' => 'Лог тарифов']) ?>
 
     <div id="account-tariff-log-grid" class="collapse">
         <?= GridView::widget([

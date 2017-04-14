@@ -66,18 +66,19 @@ class AccountTariffFilter extends AccountTariff
         $this->voip_number && $query->andWhere(['LIKE', 'voip_number', $this->voip_number, $isEscape = false]);
 
         $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
-        if ($this->service_type_id !== '' && $this->tariff_period_id !== '') {
-            switch ($this->tariff_period_id) {
-                case TariffPeriod::IS_NOT_SET:
-                    $query->andWhere([$accountTariffTableName . '.tariff_period_id' => null]);
-                    break;
-                case TariffPeriod::IS_SET:
-                    $query->andWhere($accountTariffTableName . '.tariff_period_id IS NOT NULL');
-                    break;
-                default:
-                    $query->andWhere([$accountTariffTableName . '.tariff_period_id' => $this->tariff_period_id]);
-                    break;
-            }
+
+        switch ($this->tariff_period_id) {
+            case '':
+                break;
+            case TariffPeriod::IS_NOT_SET:
+                $query->andWhere([$accountTariffTableName . '.tariff_period_id' => null]);
+                break;
+            case TariffPeriod::IS_SET:
+                $query->andWhere($accountTariffTableName . '.tariff_period_id IS NOT NULL');
+                break;
+            default:
+                $query->andWhere([$accountTariffTableName . '.tariff_period_id' => $this->tariff_period_id]);
+                break;
         }
 
         return $dataProvider;

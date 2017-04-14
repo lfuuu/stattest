@@ -88,15 +88,14 @@ switch ($formModel->serviceTypeId) {
         ];
         $attributes[] = 'voip_number';
         break;
-
-    case ServiceType::ID_VOIP_PACKAGE:
-//        echo $this->render('_editMainVoipPackage', $viewParams);
-        break;
 }
-
 ?>
 
 <?= DetailView::widget([
     'model' => $accountTariff,
     'attributes' => $attributes,
 ]) ?>
+
+<div class="well">
+    <?= $this->render('//layouts/_showHistory', ['model' => $accountTariff]) ?>
+</div>

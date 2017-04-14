@@ -98,6 +98,7 @@ $accountTariffTableName = AccountTariff::tableName();
                 if (!$accountEntry) {
                     return Yii::t('common', '(not set)');
                 }
+
                 return Html::a($accountEntry->date, $accountEntry->getUrl());
             }
         ],
