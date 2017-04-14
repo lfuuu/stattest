@@ -358,7 +358,7 @@ class LkController extends ApiController
             $payment->payment_date = $payment->oper_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
             $payment->type = Payment::TYPE_ECASH;
             $payment->ecash_operator = Payment::ECASH_SBERBANK;
-            $payment->comment = "Sberbank payment #" . $bill->client_id . '-' . $bill->bill_no;
+            $payment->comment = "Sberbank payment #" . $bill->client_id . '-' . $bill->bill_no . ' (' . $info['cardAuthInfo']['cardholderName'] . ')';
             $payment->sum = $payment->original_sum = $info['amount'] / 100;
             $payment->currency = Currency::getIdByCode($info['currency']);
 
