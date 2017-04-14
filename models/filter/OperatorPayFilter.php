@@ -105,18 +105,14 @@ class OperatorPayFilter extends Bill
             ->innerJoin(['ct' => ClientContract::tableName()], 'ct.id = c.contract_id')
             ->innerJoin(['cg' => ClientContragent::tableName()], 'cg.id = ct.contragent_id')
             ->leftJoin(['p' => Payment::tableName()], 'b.bill_no = p.bill_no')
-            ->where(['ct.business_id' => Business::OPERATOR])
-            ->andWhere(['OR',
-                ['p.bill_no' => null],
-                ['!=', 'b.is_payed', Bill::STATUS_IS_PAID]
-            ]);
+            ->where(['ct.business_id' => Business::OPERATOR]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
 
         $this->client_id !== '' && $query->andWhere(['b.client_id' => $this->client_id]);
-        $this->bill_no !== '' && $query->andWhere(['LIKE', 'b.bill_no', $this->bill_no . '%', true]);
+        $this->bill_no !== '' && $query->andWhere(['LIKE', 'b.bill_no', $this->bill_no . '%', false]);
 
         $this->bill_date_from !== '' && $query->andWhere(['>=', 'b.bill_date', $this->bill_date_from]);
         $this->bill_date_to !== '' && $query->andWhere(['<=', 'b.bill_date', $this->bill_date_to]);
