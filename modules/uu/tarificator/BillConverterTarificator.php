@@ -8,7 +8,7 @@ use app\modules\uu\models\Bill;
 /**
  * Конвертацию УУ-счетов в старую бухгалтерию
  */
-class BillConverterTarificator implements TarificatorI
+class BillConverterTarificator extends Tarificator
 {
     /**
      * @param int|null $accountClientId Если указан, то только для этого ЛС. Если не указан - для всех
@@ -35,7 +35,7 @@ class BillConverterTarificator implements TarificatorI
         /** @var Bill $bill */
         foreach ($activeQuery->each() as $bill) {
             \app\models\Bill::dao()->transferUniversalBillsToBills($bill);
-            echo '. ';
+            $this->out('. ');
         }
 
     }

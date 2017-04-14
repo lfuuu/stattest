@@ -1,18 +1,21 @@
 <?php
 namespace app\models;
 
+use app\classes\behaviors\PartnerRewards;
+use app\classes\Utils;
+use Yii;
 use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\CheckBillPaymentOverdue;
 use app\classes\behaviors\PartnerRewardsCalculation;
 use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\HistoryActiveRecord;
-use app\classes\Utils;
 use app\dao\BillDao;
 use app\queries\BillQuery;
-use Yii;
 use yii\helpers\Url;
 
 /**
+ * Class Bill
+ *
  * @property int $id
  * @property string $bill_no        номер счета для отображения
  * @property string $bill_date      дата счета
@@ -54,6 +57,10 @@ class Bill extends HistoryActiveRecord
 {
     const MINIMUM_BILL_DATE = '2000-01-01';
 
+    const PAY_NOT_PAYED = 0;
+    const PAY_FULL_PAYED = 1;
+    const PAY_PART_PAYED = 2;
+
     const STATUS_NOT_PAID = 0;
     const STATUS_IS_PAID = 1;
     const STATUS_PAID_IN_PART = 2;
@@ -84,6 +91,8 @@ class Bill extends HistoryActiveRecord
     public $isSetPayOverdue = null;
 
     /**
+     * Название таблицы
+     *
      * @return string
      */
     public static function tableName()
@@ -102,6 +111,8 @@ class Bill extends HistoryActiveRecord
     }
 
     /**
+     * Поведение модели
+     *
      * @return array
      */
     public function behaviors()
@@ -116,6 +127,8 @@ class Bill extends HistoryActiveRecord
     }
 
     /**
+     * Query модели
+     *
      * @return BillQuery
      */
     public static function find()
@@ -124,6 +137,8 @@ class Bill extends HistoryActiveRecord
     }
 
     /**
+     * Dao
+     *
      * @return BillDao
      */
     public static function dao()
@@ -132,6 +147,8 @@ class Bill extends HistoryActiveRecord
     }
 
     /**
+     * Навзщение полей
+     *
      * @return array
      */
     public function attributeLabels()
@@ -159,6 +176,8 @@ class Bill extends HistoryActiveRecord
     }
 
     /**
+     * Подготовка полей для исторических данных
+     *
      * @param string $field
      * @param string $value
      * @return string
@@ -211,6 +230,8 @@ class Bill extends HistoryActiveRecord
     }
 
     /**
+     * Закрыт ли счет?
+     *
      * @return bool
      */
     public function isClosed()
@@ -227,6 +248,8 @@ class Bill extends HistoryActiveRecord
     }
 
     /**
+     * Получаем последний неоплаченный счет
+     *
      * @param int $clientId
      * @return boolean|\app\models\Bill
      */

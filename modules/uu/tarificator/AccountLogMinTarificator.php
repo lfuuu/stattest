@@ -11,7 +11,7 @@ use Yii;
 /**
  * Предварительное списание (транзакции) минимальной платы за ресурсы. Тарификация
  */
-class AccountLogMinTarificator implements TarificatorI
+class AccountLogMinTarificator extends Tarificator
 {
     /**
      * Предварительное списание (транзакции) минимальной платы за ресурсы
@@ -30,7 +30,7 @@ class AccountLogMinTarificator implements TarificatorI
         $tariffPeriodTableName = TariffPeriod::tableName();
 
         // удалить всё
-        echo '. ';
+        $this->out('. ');
         if ($accountTariffId) {
             $truncateSQL = "DELETE FROM {$accountLogMinTableName} WHERE account_tariff_id = {$accountTariffId}";
         } else {
@@ -42,7 +42,7 @@ class AccountLogMinTarificator implements TarificatorI
         unset($truncateSQL);
 
         // создать заново
-        echo '. ';
+        $this->out('. ');
         $insertSql = <<<SQL
             INSERT INTO {$accountLogMinTableName} (
                 id,	
@@ -84,7 +84,7 @@ SQL;
         unset($insertSql);
 
         // обновить стоимость ресурсов
-        echo '. ';
+        $this->out('. ');
         $updateSql = <<<SQL
             UPDATE 
                 {$accountLogMinTableName} account_log_min,
@@ -113,7 +113,7 @@ SQL;
         unset($updateSql);
 
         // обновить итоговую стоимость
-        echo '. ';
+        $this->out('. ');
         $updateSql = <<<SQL
             UPDATE {$accountLogMinTableName}
             SET price = GREATEST(0, price_with_coefficient - price_resource)

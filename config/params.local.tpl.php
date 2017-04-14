@@ -22,4 +22,9 @@ return [
     // емайл, на который дублируются все сообщения системы
     'monitoring_email' => null,
 
+    'SberbankApi' => [
+        'user' => '',
+        'password' => ''
+    ]
+
 ];

@@ -10,7 +10,7 @@ use Yii;
 /**
  * Пересчитать RealtimeBalance
  */
-class RealtimeBalanceTarificator implements TarificatorI
+class RealtimeBalanceTarificator extends Tarificator
 {
     /**
      * @param int|null $accountClientId Если указан, то только для этого ЛС. Если не указан - для всех
@@ -47,7 +47,7 @@ class RealtimeBalanceTarificator implements TarificatorI
 SQL;
         $db->createCommand($selectSQL)
             ->execute();
-        echo '. ';
+        $this->out('. ');
 
         // платежи
         $selectSQL = <<<SQL
@@ -74,7 +74,7 @@ SQL;
 SQL;
         $db->createCommand($selectSQL)
             ->execute();
-        echo '. ';
+        $this->out('. ');
 
         // автоматические счета
         $selectSQL = <<<SQL
@@ -101,7 +101,7 @@ SQL;
 SQL;
         $db->createCommand($selectSQL)
             ->execute();
-        echo '. ';
+        $this->out('. ');
 
 
         // ручные счета
@@ -133,7 +133,7 @@ SQL;
 SQL;
         $db->createCommand($selectSQL)
             ->execute();
-        echo '. ';
+        $this->out('. ');
 
 
         if ($accountClientId) {
@@ -154,15 +154,15 @@ SQL;
             WHERE
                 clients.id = clients_tmp.id
 SQL;
-        echo $db->createCommand($updateSQL)
-            ->execute();
-        echo '. ';
+        $this->out($db->createCommand($updateSQL)
+            ->execute());
+        $this->out('. ');
 
         $updateSQL = <<<SQL
             DROP TEMPORARY TABLE clients_tmp
 SQL;
         $db->createCommand($updateSQL)
             ->execute();
-        echo '. ';
+        $this->out('. ');
     }
 }

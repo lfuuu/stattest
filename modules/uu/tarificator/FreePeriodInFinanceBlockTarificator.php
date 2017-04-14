@@ -17,7 +17,7 @@ use Yii;
  * Не списывать абонентку и минималку при финансовой блокировке
  * Ибо ЛС все равно не может пользоваться услугами
  */
-class FreePeriodInFinanceBlockTarificator implements TarificatorI
+class FreePeriodInFinanceBlockTarificator extends Tarificator
 {
     /**
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
@@ -114,7 +114,7 @@ SQL;
             ':setZeroBalance' => ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE,
             ':unsetZeroBalance' => ImportantEventsNames::IMPORTANT_EVENT_UNSET_ZERO_BALANCE,
         ])->execute();
-        echo 'Периодов фин.блокировки = ' . $count . PHP_EOL;
+        $this->out('Периодов фин.блокировки = ' . $count . PHP_EOL);
 
         // сбросить абонентскую плату за периоды блокировки
         $accountLogPeriodTableName = AccountLogPeriod::tableName();
@@ -137,7 +137,7 @@ SQL;
                 AND tariff.is_charge_after_blocking = 0
 SQL;
         $count = $db->createCommand($sql)->execute();
-        echo 'Абонентка сброшена = ' . $count . PHP_EOL;
+        $this->out('Абонентка сброшена = ' . $count . PHP_EOL);
 
         // сбросить минимальную плату за периоды блокировки
         $accountLogMinTableName = AccountLogMin::tableName();
@@ -160,7 +160,7 @@ SQL;
                 AND tariff.is_charge_after_blocking = 0
 SQL;
         $count = $db->createCommand($sql)->execute();
-        echo 'Минималка сброшена = ' . $count . PHP_EOL;
+        $this->out('Минималка сброшена = ' . $count . PHP_EOL);
 
         // убрать за собой
         $sql = <<<SQL

@@ -51,6 +51,7 @@ class Payment extends ActiveRecord
     const ECASH_CYBERPLAT = 'cyberplat';
     const ECASH_YANDEX = 'yandex';
     const ECASH_PAYPAL = 'paypal';
+    const ECASH_SBERBANK = 'sberbank';
 
     public static $types = [
         self::TYPE_PROV => 'Check',
@@ -74,11 +75,21 @@ class Payment extends ActiveRecord
         self::ECASH_PAYPAL => 'PayPal',
     ];
 
+    /**
+     * Название таблицы
+     *
+     * @return string
+     */
     public static function tableName()
     {
         return 'newpayments';
     }
 
+    /**
+     * Флаги транзации
+     *
+     * @return array
+     */
     public function transactions()
     {
         return [
@@ -87,6 +98,8 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * Поведение
+     *
      * @return array
      */
     public function behaviors()
@@ -97,6 +110,8 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * Получение счета по платежу
+     *
      * @return ActiveQuery
      */
     public function getBill()
@@ -105,6 +120,8 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * Получение ЛС
+     *
      * @return ActiveQuery
      */
     public function getClient()
@@ -112,6 +129,10 @@ class Payment extends ActiveRecord
         return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
     }
 
+    /**
+     * @param bool $insert
+     * @param array $changedAttributes
+     */
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
@@ -126,13 +147,15 @@ class Payment extends ActiveRecord
                     'currency' => $this->currency,
                     'user_id' => Yii::$app->user->id
                 ]);
-
         } else {
             Transaction::dao()->updateByPayment($this);
         }
     }
 
 
+    /**
+     * @return bool
+     */
     public function beforeDelete()
     {
         Transaction::dao()->deleteByPaymentId($this->id);
@@ -147,5 +170,4 @@ class Payment extends ActiveRecord
 
         return parent::beforeDelete();
     }
-
 }

@@ -129,6 +129,45 @@ class Currency extends ActiveRecord
         return $fmt->formatCurrency($value, $currency);
     }
 
+    /**
+     * Получение кода валюты по Id валюты
+     *
+     * @param string $id
+     * @return bool|string
+     */
+    public static function getCodeById($id)
+    {
+        $currencyCode = self::find()
+            ->where(['id' => $id])
+            ->select('code')
+            ->scalar();
+
+        if (!$currencyCode) {
+            $currencyCode = self::getCodeById(self::RUB);
+        }
+
+        return $currencyCode;
+    }
+
+    /**
+     * Получение ID валюты по коду
+     *
+     * @param string $code
+     * @return bool|string
+     */
+    public static function getIdByCode($code)
+    {
+        $currencyId = self::find()
+            ->where(['code' => $code])
+            ->select('id')
+            ->scalar();
+
+        if (!$currencyId) {
+            $currencyId = self::RUB;
+        }
+
+        return $currencyId;
+    }
 
     /**
      * Вернуть список всех доступных значений

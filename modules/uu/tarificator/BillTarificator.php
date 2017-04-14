@@ -11,7 +11,7 @@ use Yii;
 /**
  * Расчет для счетов (Bill)
  */
-class BillTarificator implements TarificatorI
+class BillTarificator extends Tarificator
 {
     /**
      * На основе новых проводок создать новые счета или добавить в существующие
@@ -34,7 +34,7 @@ class BillTarificator implements TarificatorI
         }
 
         // создать пустые счета
-        echo '. ';
+        $this->out('. ');
         $insertSQL = <<<SQL
             INSERT INTO {$billTableName}
             (date, client_account_id, price, is_default)
@@ -59,7 +59,7 @@ SQL;
 
         // привязать проводки к счетам
         // абонентку за будущий месяц, все остальное - за прошлый
-        echo '. ';
+        $this->out('. ');
         $updateSql = <<<SQL
             UPDATE
                {$billTableName} bill,
@@ -82,7 +82,7 @@ SQL;
         unset($updateSql);
 
         // пересчитать стоимость счетов
-        echo '. ';
+        $this->out('. ');
         $updateSql = <<<SQL
             UPDATE
                 {$billTableName} bill

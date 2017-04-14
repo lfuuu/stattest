@@ -34,7 +34,7 @@ use yii\db\Expression;
  * проводки за подключение группируются посуточно и на их основе создаются счета. В эти же счета добавляются проводки за абонентку от этих же услуг за эту же дату
  * все остальные проводки группируются помесячно и на их основе создаются счета.
  */
-class AccountEntryTarificator implements TarificatorI
+class AccountEntryTarificator extends Tarificator
 {
     /**
      * На основе новых транзакций создать новые проводки или добавить в существующие
@@ -44,7 +44,7 @@ class AccountEntryTarificator implements TarificatorI
     public function tarificate($accountTariffId = null)
     {
         // проводки за подключение
-        echo 'Проводки за подключение';
+        $this->out('Проводки за подключение');
         $this->_tarificate(
             AccountLogSetup::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_SETUP),
@@ -56,7 +56,7 @@ class AccountEntryTarificator implements TarificatorI
 
         // проводки за абоненскую плату
         // сначала с !$isDefault, потом с $isDefault
-        echo PHP_EOL . 'Проводки за абоненскую плату';
+        $this->out(PHP_EOL . 'Проводки за абоненскую плату');
         $this->_tarificate(
             AccountLogPeriod::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_PERIOD),
@@ -75,7 +75,7 @@ class AccountEntryTarificator implements TarificatorI
         );
 
         // проводки за ресурсы
-        echo PHP_EOL . 'Проводки за ресурсы';
+        $this->out(PHP_EOL . 'Проводки за ресурсы');
         $this->_tarificate(
             AccountLogResource::tableName(),
             'tariff_resource_id',
@@ -86,7 +86,7 @@ class AccountEntryTarificator implements TarificatorI
         );
 
         // проводки за минимальную плату
-        echo PHP_EOL . 'Проводки за минимальную плату';
+        $this->out(PHP_EOL . 'Проводки за минимальную плату');
         $this->_tarificate(
             AccountLogMin::tableName(),
             new Expression((string)AccountEntry::TYPE_ID_MIN),
@@ -97,10 +97,10 @@ class AccountEntryTarificator implements TarificatorI
         );
 
         // Расчёт НДС
-        echo PHP_EOL . 'Расчёт НДС';
+        $this->out(PHP_EOL . 'Расчёт НДС');
         $this->_tarificateVat($accountTariffId);
 
-        echo PHP_EOL;
+        $this->out(PHP_EOL);
     }
 
     /**
@@ -138,7 +138,7 @@ class AccountEntryTarificator implements TarificatorI
         // проводки за подключение датируются своей датой
         // ... за абонентку - если есть проводки за подключение, то своей датой. Иначе 01
         // ... за ресурсы и минималку - 01
-        echo '. ';
+        $this->out('. ');
         $insertSQL = <<<SQL
             INSERT INTO {$accountEntryTableName}
             (date, account_tariff_id, type_id, price, is_default, tariff_period_id, date_from, date_to)
@@ -196,7 +196,7 @@ SQL;
         }
 
         // привязать транзакции к проводкам
-        echo '. ';
+        $this->out('. ');
         $updateSql = <<<SQL
             UPDATE
                 {$accountEntryTableName} account_entry,
@@ -220,7 +220,7 @@ SQL;
         unset($updateSql);
 
         // пересчитать стоимость проводок
-        echo '. ';
+        $this->out('. ');
         $updateSql = <<<SQL
             UPDATE
             {$accountEntryTableName} account_entry,
@@ -273,7 +273,7 @@ SQL;
         }
 
         // посчитать ставку НДС для юр.лиц
-        echo '. ';
+        $this->out('. ');
         $accountTariffTableName = AccountTariff::tableName();
         $clientAccountTableName = ClientAccount::tableName();
         $clientContractTableName = ClientContract::tableName();
@@ -316,7 +316,7 @@ SQL;
             AccountLogResource::tableName() => 'account_entry.type_id > 0',
         ];
         foreach ($accountLogs as $accountLogTableName => $sqlAndWhereTmp) {
-            echo '. ';
+            $this->out('. ');
             $updateSql = <<<SQL
         UPDATE
             (
@@ -348,7 +348,7 @@ SQL;
 
 
         // посчитать НДС и цену с НДС для юр.лиц
-        echo '. ';
+        $this->out('. ');
         $updateSql = <<<SQL
         UPDATE
             {$accountEntryTableName} account_entry

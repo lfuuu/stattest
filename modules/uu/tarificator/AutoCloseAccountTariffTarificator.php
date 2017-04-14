@@ -14,7 +14,7 @@ use Yii;
  * Автоматически закрыть услугу по истечению тестового периода
  * Лучше вызывать по крону. Триггером запускать не надо, иначе нельзя будет отменить закрытие и указать другой тариф вручную
  */
-class AutoCloseAccountTariffTarificator implements TarificatorI
+class AutoCloseAccountTariffTarificator extends Tarificator
 {
     /**
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
@@ -56,7 +56,7 @@ SQL;
 
         foreach ($query as $row) {
 
-            echo '. ';
+            $this->out('. ');
             $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
             try {
 
@@ -112,7 +112,7 @@ SQL;
                 $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction->rollBack();
-                echo PHP_EOL . $e->getMessage() . PHP_EOL;
+                $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
                 if ($accountTariffId) {
                     throw $e;

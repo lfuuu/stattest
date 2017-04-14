@@ -10,7 +10,7 @@ use Yii;
 /**
  * Месячную финансовую блокировку заменить на постоянную
  */
-class FinanceBlockTarificator implements TarificatorI
+class FinanceBlockTarificator extends Tarificator
 {
     const DAYS_LIMIT = 30; // через сколько суток непрерывной финансовой блокировки заменять на постоянную
 
@@ -88,7 +88,7 @@ SQL;
                 continue;
             }
 
-            echo $client->id . ' ';
+            $this->out($client->id . ' ');
             $client->is_blocked = 1;
             $client->save();
         }

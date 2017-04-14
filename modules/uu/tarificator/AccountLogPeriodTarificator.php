@@ -13,7 +13,7 @@ use Yii;
 /**
  * Предварительное списание (транзакции) абонентской платы. Тарификация
  */
-class AccountLogPeriodTarificator implements TarificatorI
+class AccountLogPeriodTarificator extends Tarificator
 {
     /**
      * Рассчитать плату всех услуг
@@ -36,7 +36,7 @@ class AccountLogPeriodTarificator implements TarificatorI
         $i = 0;
         foreach ($accountTariffs->each() as $accountTariff) {
             if ($i++ % 1000 === 0) {
-                echo '. ';
+                $this->out('. ');
             }
 
             /** @var AccountTariffLog $accountTariffLog */
@@ -55,7 +55,7 @@ class AccountLogPeriodTarificator implements TarificatorI
                 $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction->rollBack();
-                echo PHP_EOL . $e->getMessage() . PHP_EOL;
+                $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
                 if ($accountTariffId) {

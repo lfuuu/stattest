@@ -7,7 +7,7 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\Bill;
-use app\modules\uu\tarificator\TarificatorI;
+use app\modules\uu\tarificator\Tarificator;
 use app\models\ClientAccount;
 use Yii;
 use yii\console\Controller;
@@ -70,8 +70,8 @@ class UbillerController extends Controller
         try {
             echo PHP_EOL . $name . '. ' . date(DATE_ATOM) . PHP_EOL;
             $className = '\\app\\modules\\uu\\tarificator\\' . $className;
-            /** @var TarificatorI $tarificator */
-            $tarificator = (new $className);
+            /** @var Tarificator $tarificator */
+            $tarificator = (new $className($isEcho = true));
             $tarificator->tarificate();
             echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
             return Controller::EXIT_CODE_NORMAL;

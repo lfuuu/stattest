@@ -13,7 +13,7 @@ use Yii;
 /**
  * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog
  */
-class SetCurrentTariffTarificator implements TarificatorI
+class SetCurrentTariffTarificator extends Tarificator
 {
     /**
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
@@ -116,7 +116,7 @@ SQL;
 
             } catch (\LogicException $e) {
                 $isWithTransaction && $transaction->rollBack();
-                echo PHP_EOL . $e->getMessage() . PHP_EOL;
+                $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
 
                 // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
@@ -131,7 +131,7 @@ SQL;
 
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction->rollBack();
-                echo PHP_EOL . $e->getMessage() . PHP_EOL;
+                $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
                 if ($accountTariffId) {
                     throw $e;

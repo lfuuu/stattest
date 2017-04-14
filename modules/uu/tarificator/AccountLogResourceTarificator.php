@@ -17,7 +17,7 @@ use Yii;
 /**
  * Предварительное списание (транзакции) платы за ресурсы. Тарификация
  */
-class AccountLogResourceTarificator implements TarificatorI
+class AccountLogResourceTarificator extends Tarificator
 {
     /** @var ResourceReaderInterface[] кэш */
     protected $resourceIdToReader = [];
@@ -41,7 +41,7 @@ class AccountLogResourceTarificator implements TarificatorI
         $i = 0;
         foreach ($accountTariffs->each() as $accountTariff) {
             if ($i++ % 1000 === 0) {
-                echo '. ';
+                $this->out('. ');
             }
 
             /** @var AccountTariffLog $accountTariffLog */
@@ -60,7 +60,7 @@ class AccountLogResourceTarificator implements TarificatorI
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
-                echo PHP_EOL . $e->getMessage() . PHP_EOL;
+                $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
                 if ($accountTariffId) {
@@ -117,12 +117,12 @@ class AccountLogResourceTarificator implements TarificatorI
                 $amountUse = $reader->read($accountTariff, $dateTime);
                 if ($amountUse === null) {
                     if (!($reader instanceof DummyResourceReader)) {
-                        echo PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- ' . $resourceId . PHP_EOL;
+                        $this->out(PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- ' . $resourceId . PHP_EOL);
                     }
 
                     continue; // нет данных. Пропустить
                 } else {
-                    echo '+ ';
+                    $this->out('+ ');
                 }
 
                 $accountLogResource = new AccountLogResource();

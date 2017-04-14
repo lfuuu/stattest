@@ -2,7 +2,14 @@
 
 namespace app\controllers\api;
 
+use app\classes\api\SberbankApi;
+use app\exceptions\api\SberbankApiException;
+use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
+use app\models\Currency;
 use app\models\media\ClientFiles;
+use app\models\Payment;
+use app\models\SberbankOrder;
 use app\models\User;
 use Yii;
 use app\classes\Assert;
@@ -15,7 +22,6 @@ use yii\base\InvalidParamException;
 
 /**
  * Class LkController
- * @package app\controllers\api
  */
 class LkController extends ApiController
 {
@@ -110,7 +116,11 @@ class LkController extends ApiController
      **/
     public function actionGetFiles()
     {
-        $accountId = (int)(isset(Yii::$app->request->bodyParams['account_id']) ? Yii::$app->request->bodyParams['account_id'] : 0);
+        $accountId = (int)(isset(Yii::$app->request->bodyParams['account_id']) ?
+            Yii::$app->request->bodyParams['account_id'] :
+            0
+        );
+
         $form = DynamicModel::validateData(
             ['account_id' => $accountId],
             [
@@ -122,8 +132,7 @@ class LkController extends ApiController
             throw new ModelValidationException($form);
         }
 
-
-        return $this->getFiles($form->account_id);
+        return $this->_getFiles($form->account_id);
     }
 
     /**
@@ -132,7 +141,7 @@ class LkController extends ApiController
      * @param int $accountId id ЛС
      * @return array
      */
-    private function getFiles($accountId)
+    private function _getFiles($accountId)
     {
         $account = ClientAccount::findOne(["id" => $accountId]);
         Assert::isObject($account);
@@ -142,7 +151,9 @@ class LkController extends ApiController
             "contract_id" => $account->contract_id,
             "user_id" => User::CLIENT_USER_ID
         ]) as $file) {
-            $files[] = ['name' =>$file->name];
+            $files[] = [
+                "name" => $file->name
+            ];
         }
 
         return $files;
@@ -200,7 +211,7 @@ class LkController extends ApiController
         $account = ClientAccount::findOne(["id" => $form->account_id]);
         Assert::isObject($account);
 
-        $files = $this->getFiles($account->id);
+        $files = $this->_getFiles($account->id);
 
         if (count($files) >= self::MAX_UPLOAD_FILES) {
             return ["errors" => [["code" => "max upload file limit"]]];
@@ -220,9 +231,155 @@ class LkController extends ApiController
         );
 
         if ($file) {
-            return ["file_name" => $file->name, "file_id" => $file->id, 'is_can_upload' => (count($files)+1 < self::MAX_UPLOAD_FILES)];
+            return [
+                "file_name" => $file->name,
+                "file_id" => $file->id,
+                "is_can_upload" => (count($files) + 1 < self::MAX_UPLOAD_FILES)
+            ];
         } else {
-            return ["errors" => [["code" => "error upload file"]]];
+            return [
+                "errors" => [
+                    [
+                        "code" => "error upload file"
+                    ]
+                ]
+            ];
         }
+    }
+
+    /**
+     * Создание счета на оплату и регистрация его в Сбербанк.
+     */
+    public function actionMakeSberbankOrder()
+    {
+        $form = DynamicModel::validateData(
+            \Yii::$app->request->bodyParams,
+            [
+                ['account_id', AccountIdValidator::className()],
+                ['sum', 'double', 'min' => 10, 'max' => 15000],
+            ]
+        );
+
+        if ($form->hasErrors()) {
+            throw new ModelValidationException($form);
+        }
+
+        $bill = Bill::dao()->getPrepayedBillOnSum($form->account_id, $form->sum);
+
+        $sbOrder = SberbankOrder::findOne(['bill_no' => $bill->bill_no]);
+
+        if ($sbOrder && $sbOrder->status == SberbankOrder::STATUS_PAYED) {
+            throw new \Exception('Bill already payed');
+        }
+
+        if (!$sbOrder) {
+            $sbOrder = new SberbankOrder();
+            $sbOrder->bill_no = $bill->bill_no;
+            $sbOrder->status = SberbankOrder::STATUS_NOT_REGISTERED;
+            $sbOrder->save();
+            $sbOrder->refresh();
+        }
+
+        $sberbankApi = new SberbankApi();
+
+        if ($sbOrder->status == SberbankOrder::STATUS_NOT_REGISTERED) {
+            $reg = $sberbankApi->register(
+                $form->account_id,
+                $bill->bill_no,
+                $form->sum,
+                $bill->clientAccount->currency
+            );
+
+            $sbOrder->status = SberbankOrder::STATUS_REGISTERED;
+            $sbOrder->order_id = $reg['orderId'];
+            $sbOrder->order_url = $reg['formUrl'];
+            $sbOrder->save();
+        }
+
+        $info = $sberbankApi->getOrderStatusExtended($sbOrder->order_id);
+        $sbOrder->info_json = json_encode($info, JSON_UNESCAPED_UNICODE);
+        $sbOrder->save();
+
+        return [
+            'order_url' => $sbOrder->order_url
+        ];
+    }
+
+    /**
+     * Внесение платежа, прошедшего через Сбербанк
+     *
+     * @throws ModelValidationException
+     */
+    public function actionApplySberbankPayment()
+    {
+
+        $form = DynamicModel::validateData(
+            \Yii::$app->request->bodyParams,
+            [
+                ['account_id', AccountIdValidator::className()],
+                ['order_id', 'required']
+            ]
+        );
+
+        if ($form->hasErrors()) {
+            throw new ModelValidationException($form);
+        }
+
+        $sbOrder = SberbankOrder::findOne(['order_id' => $form->order_id]);
+
+        if (!$sbOrder || $sbOrder->status == SberbankOrder::STATUS_NOT_REGISTERED) {
+            throw new \Exception('Status Sberbank order status error');
+        }
+
+        if ($sbOrder->status == SberbankOrder::STATUS_PAYED) {
+            return [
+                'status' => 'ok'
+            ];
+        }
+
+        $sbApi = new SberbankApi;
+        $info = $sbApi->getOrderStatusExtended($sbOrder->order_id);
+
+        if ($info['orderStatus'] != SberbankApi::ERROR_PAYED) {
+            throw new \Exception($info['errorMessage']);
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $now = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)));
+
+            $payment = new Payment();
+
+            $bill = $sbOrder->bill;
+
+            $payment->client_id = $bill->client_id;
+            $payment->bill_no = $payment->bill_vis_no = $bill->bill_no;
+            $payment->add_date = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $payment->payment_date = $payment->oper_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
+            $payment->type = Payment::TYPE_ECASH;
+            $payment->ecash_operator = Payment::ECASH_SBERBANK;
+            $payment->comment = "Sberbank payment #" . $bill->client_id . '-' . $bill->bill_no;
+            $payment->sum = $payment->original_sum = $info['amount'] / 100;
+            $payment->currency = Currency::getIdByCode($info['currency']);
+
+            $payment->save();
+            $payment->refresh();
+
+            $sbOrder->payment_id = $payment->id;
+            $sbOrder->info_json = json_encode($info, JSON_UNESCAPED_UNICODE);
+            $sbOrder->status = SberbankOrder::STATUS_PAYED;
+            $sbOrder->save();
+        }catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        $transaction->commit();
+
+        ClientAccount::dao()->updateBalance($sbOrder->bill->client_id);
+
+        return [
+            'status' => 'ok'
+        ];
     }
 }

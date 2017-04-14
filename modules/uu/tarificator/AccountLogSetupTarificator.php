@@ -14,12 +14,14 @@ use Yii;
 /**
  * Предварительное списание (транзакции) стоимости подключения. Тарификация
  */
-class AccountLogSetupTarificator implements TarificatorI
+class AccountLogSetupTarificator extends Tarificator
 {
     /**
      * Рассчитать плату всех услуг
+     *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @param bool $isWithTransaction
+     * @throws \Exception
      */
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
@@ -34,7 +36,7 @@ class AccountLogSetupTarificator implements TarificatorI
         $i = 0;
         foreach ($accountTariffs->each() as $accountTariff) {
             if ($i++ % 1000 === 0) {
-                echo '. ';
+                $this->out('. ');
             }
 
             /** @var AccountTariffLog $accountTariffLog */
@@ -53,7 +55,7 @@ class AccountLogSetupTarificator implements TarificatorI
                 $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction->rollBack();
-                echo PHP_EOL . $e->getMessage() . PHP_EOL;
+                $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
                 if ($accountTariffId) {
@@ -65,6 +67,7 @@ class AccountLogSetupTarificator implements TarificatorI
 
     /**
      * Рассчитать плату по конкретной услуге
+     *
      * @param AccountTariff $accountTariff
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
@@ -94,6 +97,7 @@ class AccountLogSetupTarificator implements TarificatorI
      * @param AccountTariff $accountTariff
      * @param AccountLogFromToTariff $accountLogFromToTariff
      * @return AccountLogSetup
+     * @throws \Exception
      */
     public function getAccountLogSetup(AccountTariff $accountTariff, AccountLogFromToTariff $accountLogFromToTariff)
     {
@@ -126,6 +130,7 @@ class AccountLogSetupTarificator implements TarificatorI
         } else {
             $accountLogSetup->price = $accountLogSetup->price_setup + $accountLogSetup->price_number;
         }
+
         return $accountLogSetup;
     }
 }
