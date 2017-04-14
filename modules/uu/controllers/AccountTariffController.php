@@ -227,11 +227,124 @@ class AccountTariffController extends BaseController
     }
 
     /**
-     * Сменить тариф телефонии
+     * Сменить тариф или количество ресурса
      *
      * @return string|Response
      */
     public function actionSaveVoip()
+    {
+        $post = Yii::$app->request->post();
+
+        if (isset(
+            $post['AccountTariff'],
+            $post['AccountTariff']['ids'],
+            $post['AccountTariff']['tariff_period_id'],
+            $post['AccountTariffLog'],
+            $post['AccountTariffLog']['tariff_period_id'],
+            $post['AccountTariffLog']['actual_from'],
+            $post['accountTariffId'],
+            $post['serviceTypeId'])
+        ) {
+            // Сменить тариф
+            return $this->_saveVoipTariff();
+        }
+
+        if (isset(
+            $post['AccountTariff'],
+            $post['AccountTariff']['ids'],
+            $post['AccountTariffResourceLog'])
+        ) {
+            // Сменить количество ресурса
+            return $this->_saveVoipResource();
+        }
+
+        throw new InvalidArgumentException('Неправильные параметры');
+    }
+
+    /**
+     * Сменить количество ресурса
+     *
+     * @return string|Response
+     */
+    private function _saveVoipResource()
+    {
+        $transaction = \Yii::$app->db->beginTransaction();
+        $serviceTypeId = ServiceType::ID_VOIP;
+        try {
+
+            $post = Yii::$app->request->post();
+
+            $actualFrom = isset($post['AccountTariffResourceLog']['actual_from']) ? $post['AccountTariffResourceLog']['actual_from'] : null;
+
+            // по всем услугам
+            $accountTariffIds = (array)$post['AccountTariff']['ids'];
+            foreach ($accountTariffIds as $accountTariffId) {
+
+                $accountTariff = AccountTariff::findOne($accountTariffId);
+                if (!$accountTariff) {
+                    throw new InvalidArgumentException(Yii::t('common', 'Wrong ID ' . $accountTariffId));
+                }
+
+                $serviceTypeId = $accountTariff->service_type_id;
+
+                // по всем ресурсам
+                foreach ($post['AccountTariffResourceLog'] as $resourceId => $resourceValues) {
+
+                    if (!is_numeric($resourceId)) {
+                        continue;
+                    }
+
+                    $newResourceValue = $resourceValues['amount'];
+                    $currentResourceValue = $accountTariff->getResourceValue($resourceId);
+
+                    if ($newResourceValue == $currentResourceValue) {
+                        // ресурс не изменился
+                        continue;
+                    }
+
+                    $accountTariffResourceLog = new AccountTariffResourceLog();
+                    $accountTariffResourceLog->account_tariff_id = $accountTariff->id;
+                    $accountTariffResourceLog->amount = $newResourceValue;
+                    $accountTariffResourceLog->resource_id = $resourceId;
+                    $accountTariffResourceLog->actual_from = $actualFrom;
+                    if (!$accountTariffResourceLog->save()) {
+                        throw new ModelValidationException($accountTariffResourceLog);
+                    }
+                }
+            }
+
+            $transaction->commit();
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
+
+        } catch (InvalidArgumentException $e) {
+            $transaction->rollBack();
+            Yii::$app->session->setFlash('error', $e->getMessage());
+
+        } catch (LogicException $e) {
+            $transaction->rollBack();
+            Yii::$app->session->setFlash('error', $e->getMessage());
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+            Yii::$app->session->setFlash('error', YII_DEBUG ? $e->getMessage() : Yii::t('common', 'Internal error'));
+        }
+
+        return $this->redirect(
+            [
+                'index',
+                'serviceTypeId' => $serviceTypeId,
+            ]
+        );
+
+    }
+
+    /**
+     * Сменить тариф
+     *
+     * @return string|Response
+     */
+    private function _saveVoipTariff()
     {
         // загрузить параметры от юзера
         // здесь сильно разнородные данные, поэтому проще хардкорно валидировать, чем писать штатный обработчик
@@ -240,18 +353,7 @@ class AccountTariffController extends BaseController
         try {
             $post = Yii::$app->request->post();
 
-            if (!isset(
-                    $post['AccountTariff'],
-                    $post['AccountTariff']['ids'],
-                    $post['AccountTariff']['tariff_period_id'],
-                    $post['AccountTariffLog'],
-                    $post['AccountTariffLog']['tariff_period_id'],
-                    $post['AccountTariffLog']['actual_from'],
-                    $post['accountTariffId'],
-                    $post['serviceTypeId']
-                )
-                || !($actualFromTimestamp = strtotime($post['AccountTariffLog']['actual_from']))
-            ) {
+            if (!($actualFromTimestamp = strtotime($post['AccountTariffLog']['actual_from']))) {
                 throw new InvalidArgumentException('Неправильные параметры');
             }
 

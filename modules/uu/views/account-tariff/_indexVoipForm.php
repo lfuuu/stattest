@@ -30,6 +30,7 @@ $params = [
     'serviceType' => $serviceType,
     'packagesList' => $packagesList,
     'isShowAddPackage' => $isShowAddPackage,
+    'form' => $form,
 ];
 $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 ?>
@@ -52,7 +53,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                 <?= $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
 
                 <?= $accountTariffFirst->tariff_period_id ?
-                    '' :
+                    $this->render('//layouts/_buttonCancel', ['url' => '#', 'class' => 'collapse']) :
                     $this->render('//layouts/_toggleButton', ['divSelector' => '#' . $panelBodyId])
                 ?>
             </h2>
@@ -82,6 +83,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                             'serviceType' => $serviceType,
                             'packagesList' => $packagesList,
                             'isShowAddPackage' => false,
+                            'form' => $form,
                         ]) :
                         '' ?>
 

@@ -50,7 +50,7 @@ use yii\helpers\Html;
                                         'class' => 'glyphicon glyphicon-erase',
                                         'aria-hidden' => 'true',
                                     ]) . ' ' .
-                                    Yii::t('common', 'Cancel'),
+                                    Yii::t('common', 'Reject'),
                                     [
                                         '/uu/account-tariff/cancel',
                                         'id' => $accountTariff->id,
@@ -58,7 +58,7 @@ use yii\helpers\Html;
                                     ],
                                     [
                                         'class' => 'btn btn-danger account-tariff-button-cancel btn-xs',
-                                        'title' => 'Отменить смену тарифа',
+                                        'title' => 'Отклонить смену тарифа',
                                     ]
                                 ) : ''
                             );

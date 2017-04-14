@@ -44,7 +44,7 @@ use yii\data\ActiveDataProvider;
                                     'class' => 'glyphicon glyphicon-erase',
                                     'aria-hidden' => 'true',
                                 ]) . ' ' .
-                                Yii::t('common', 'Cancel'),
+                                Yii::t('common', 'Reject'),
                                 [
                                     '/uu/account-tariff/resource-cancel',
                                     'ids' => [$accountTariffResourceLog->account_tariff_id],
@@ -52,7 +52,7 @@ use yii\data\ActiveDataProvider;
                                 ],
                                 [
                                     'class' => 'btn btn-danger account-tariff-button-cancel btn-xs',
-                                    'title' => 'Отменить смену количества ресурса',
+                                    'title' => 'Отклонить смену количества ресурса',
                                 ]
                             ) : ''
                         );

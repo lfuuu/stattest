@@ -58,7 +58,7 @@ use app\modules\uu\models\ServiceType;
             'class' => 'glyphicon glyphicon-erase',
             'aria-hidden' => 'true',
         ]) . ' ' .
-        Yii::t('common', 'Cancel'),
+        Yii::t('common', 'Reject'),
         [
             '/uu/account-tariff/cancel',
             'ids' => array_keys($row),
@@ -66,7 +66,7 @@ use app\modules\uu\models\ServiceType;
         ],
         [
             'class' => 'btn btn-danger account-tariff-voip-button account-tariff-button-cancel btn-xs',
-            'title' => 'Отменить смену тарифа',
+            'title' => 'Отклонить запланированную смену тарифа',
         ]
     ) : '' ?>
 
@@ -75,8 +75,8 @@ use app\modules\uu\models\ServiceType;
         Html::tag('i', '', [
             'class' => 'glyphicon glyphicon-edit',
             'aria-hidden' => 'true',
-        ]) .
-        ' Сменить',
+        ]) . ' ' .
+        Yii::t('common', 'Change'),
         [
             'class' => 'btn btn-primary account-tariff-voip-button account-tariff-voip-button-edit btn-xs',
             'title' => 'Сменить тариф или отключить услугу',

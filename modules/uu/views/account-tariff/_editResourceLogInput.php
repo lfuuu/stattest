@@ -177,7 +177,7 @@ $resourceTableName = Resource::tableName();
                         'pluginOptions' => [
                             'autoclose' => true,
                             'format' => 'yyyy-mm-dd',
-                            'startDate' => date(DateTimeZoneHelper::DATE_FORMAT),
+                            'startDate' => $currentDate,
                             'todayHighlight' => true,
                         ],
                     ])

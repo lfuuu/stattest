@@ -277,6 +277,7 @@ abstract class AccountTariffForm extends Form
                     $currentResourceValue = $this->accountTariff->getResourceValue($resourceId);
 
                     if ($newResourceValue == $currentResourceValue) {
+                        // ресурс не изменился
                         continue;
                     }
 

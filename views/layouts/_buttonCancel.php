@@ -4,6 +4,7 @@
  *
  * @var app\classes\BaseView $this
  * @var string $url
+ * @var string $class
  */
 ?>
 
@@ -12,6 +13,6 @@
     'text' => Yii::t('common', 'Cancel'),
     'glyphicon' => 'glyphicon-level-up',
     'params' => [
-        'class' => 'btn btn-link btn-cancel',
+        'class' => 'btn btn-link btn-cancel ' . (isset($class) ? $class : ''),
     ],
 ]) ?>

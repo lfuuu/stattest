@@ -25,7 +25,7 @@ use app\modules\uu\models\ServiceType;
             <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
         <?php else : ?>
             <?= Html::a(
-                $accountTariff->voip_number ?: Yii::t('common', '(not set)'),
+                $accountTariff->voip_number ?: 'id' . $accountTariff->id,
                 $accountTariff->getUrl()
             ) ?>
         <?php endif ?>
