@@ -62,6 +62,8 @@ class DidGroupFilter extends DidGroup
         for ($i = 1; $i <= 9; $i++) {
             $rules[] = [['price' . $i . '_from', 'price' . $i . '_to'], 'number'];
         }
+
+        return $rules;
     }
 
     /**
