@@ -69,7 +69,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public static function findIdentity($id)
     {
-        return static::findOne(['id' => $id, 'enabled' => 'yes']);
+        return $id == static::SYSTEM_USER_ID ? null : static::findOne(['id' => $id, 'enabled' => 'yes']);
     }
 
     /**
@@ -80,7 +80,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public static function findIdentityByAccessToken($token, $type = null)
     {
         if ($token == Yii::$app->params['API_SECURE_KEY']) {
-            return self::findOne(['id' => static::SYSTEM_USER_ID]);
+            return self::findOne(['id' => Yii::$app->user->getId() ?: static::SYSTEM_USER_ID]);
         }
 
         return null;
