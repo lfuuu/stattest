@@ -212,7 +212,7 @@ class VoipRegistryDao extends Singleton
             (new Query())
             ->from(Number::tableName())
             ->where(['city_id' => $registry->city_id])
-            ->andWhere(['between', 'number', $registry->number_from, $registry->number_to])
+            ->andWhere(['between', 'number', $registry->number_full_from, $registry->number_full_to])
             ->select(['status' => 'status', 'count' => new Expression('count(*)')])
             ->groupBy('status')
             ->all(),
@@ -229,7 +229,7 @@ class VoipRegistryDao extends Singleton
     public function toSale(Registry $registry)
     {
         foreach (Number::find()
-            ->where(['between', 'number', $registry->number_from, $registry->number_to])
+            ->where(['between', 'number', $registry->number_full_from, $registry->number_full_to])
             ->andWhere([
                 'city_id' => $registry->city_id,
                 'status' => Number::STATUS_NOTSALE
