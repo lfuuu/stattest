@@ -97,6 +97,8 @@ class ClientContragent extends HistoryActiveRecord
     public function rules()
     {
         $rules = [
+            ['country_id', 'required'],
+            ['country_id', 'integer'],
             [['inn', 'kpp'], InnKppValidator::className()],
         ];
         return $rules;

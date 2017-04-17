@@ -108,7 +108,7 @@ class Period extends \yii\db\ActiveRecord
         $dateTimeFromTmp = clone $dateTimeFrom;
 
         while (true) {
-            // конец текущего месяца/квартала/полугода/года
+            // конец текущего периода
             $dateTimeFromTmp = $this->getMinDateTo($dateTimeFromTmp);
 
             if ($dateTimeFromTmp->format(DateTimeZoneHelper::DATE_FORMAT) >= $dateTimeMin->format(DateTimeZoneHelper::DATE_FORMAT)) {
@@ -121,52 +121,26 @@ class Period extends \yii\db\ActiveRecord
     }
 
     /**
-     * Вернуть конец текущего месяца/квартала/полугода/года
+     * Вернуть конец текущего периода
+     * Посуточно: этот же день
+     * Помесячно и более: первый неполный месяц + оставшиеся полные месяцы (последний день)
      *
      * @param DateTimeImmutable $dateTimeFrom
      * @return DateTimeImmutable
      */
     public function getMinDateTo(DateTimeImmutable $dateTimeFrom)
     {
-        switch ($this->monthscount) {
-            case 0:
-                // день
-                return $dateTimeFrom;
-
-            case 1:
-                // месяц
-                return $dateTimeFrom->modify('last day of this month');
-
-            case 3:
-                // квартал
-                $month = $dateTimeFrom->format('n'); // 'm' нельзя, ибо '09' в восьмеричной системе неправильно
-                if ($month <= 3) {
-                    return $dateTimeFrom->modify('last day of march');
-                } elseif ($month >= 4 && $month <= 6) {
-                    return $dateTimeFrom->modify('last day of june');
-                } elseif ($month >= 7 && $month <= 9) {
-                    return $dateTimeFrom->modify('last day of september');
-                } else {
-                    return $dateTimeFrom->modify('last day of december');
-                }
-                break;
-
-            case 6:
-                // полгода
-                $month = $dateTimeFrom->format('n'); // 'm' нельзя, ибо '09' в восьмеричной системе неправильно
-                if ($month <= 6) {
-                    return $dateTimeFrom->modify('last day of june');
-                } else {
-                    return $dateTimeFrom->modify('last day of december');
-                }
-                break;
-
-            case 12:
-                // год
-                return $dateTimeFrom->modify('last day of december');
-
-            default:
-                throw new LogicException('Unknow period: ' . $this->monthscount . ' months');
+        if (!$this->monthscount) {
+            // Посуточно: этот же день
+            return $dateTimeFrom;
         }
+
+        // Помесячно и более: первый неполный месяц + оставшиеся полные месяцы (последний день)
+        // просто прибавить месяцы нельзя, потому что неоднозначно, чему будет равно "31 января + 1 месяц". Поэтому временно переводим на 1 число следующего месяца, а потом на последний предыдущего
+        return $dateTimeFrom
+            ->modify('last day of this month')
+            ->modify('+1 day')
+            ->modify('+' . ($this->monthscount - 1) . ' months')
+            ->modify('-1 day');
     }
 }

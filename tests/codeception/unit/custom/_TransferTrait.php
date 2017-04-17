@@ -3,6 +3,7 @@
 namespace tests\codeception\unit\custom;
 
 use app\forms\client\ClientCreateExternalForm;
+use tests\codeception\unit\models\_ClientAccount;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -89,11 +90,11 @@ trait _TransferTrait
         $this->transaction = Yii::$app->db->beginTransaction();
 
         // Создание ЛС с которого будет перенос услуги
-        $this->fromClientAccount = $this->createSingleClientAccount();
+        $this->fromClientAccount = _ClientAccount::createOne();
         $this->assertNotNull($this->fromClientAccount, 'See object "fromClientAccount"');
 
         // Создание ЛС на который будет перенос услуги
-        $this->toClientAccount = $this->createSingleClientAccount();
+        $this->toClientAccount = _ClientAccount::createOne();
         $this->assertNotNull($this->toClientAccount, 'See object "toClientAccount"');
 
         // Example: display debug info
@@ -108,21 +109,6 @@ trait _TransferTrait
         $this->transaction->rollBack();
 
         parent::tearDown();
-    }
-
-    /**
-     * Создание болванки ЛС для переноса
-     * @return ClientAccount
-     */
-    private function createSingleClientAccount()
-    {
-        $clientForm = new ClientCreateExternalForm();
-        $clientForm->company = 'test account ' . mt_rand(0, 1000);
-        if (!$clientForm->create()) {
-            $this->fail('Cant create client account');
-        }
-
-        return ClientAccount::findOne(['id' => $clientForm->account_id]);
     }
 
     /**

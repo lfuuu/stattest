@@ -245,14 +245,17 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function rules()
     {
-        $rules = [];
-        $rules[] = ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY];
-        $rules[] = ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC];
-        $rules[] = ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC];
-        $rules[] = ['region', 'default', 'value' => self::DEFAULT_REGION];
-        $rules[] = ['credit', 'default', 'value' => self::DEFAULT_CREDIT];
-        $rules[] = ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE];
-        $rules[] = ['pay_bill_until_days', 'default', 'value' => self::PAY_BILL_UNTIL_DAYS];
+        $rules = [
+            ['country_id', 'required'],
+            ['country_id', 'integer'],
+            ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
+            ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC],
+            ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC],
+            ['region', 'default', 'value' => self::DEFAULT_REGION],
+            ['credit', 'default', 'value' => self::DEFAULT_CREDIT],
+            ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE],
+            ['pay_bill_until_days', 'default', 'value' => self::PAY_BILL_UNTIL_DAYS],
+        ];
 
         return $rules;
     }

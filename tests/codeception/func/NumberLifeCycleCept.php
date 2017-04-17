@@ -5,6 +5,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\filter\FreeNumberFilter;
 use app\models\Number;
 use tests\codeception\func\_NumberCycleHelper;
+use tests\codeception\unit\models\_ClientAccount;
 
 
 $I = new _FuncTester($scenario);
@@ -17,7 +18,7 @@ $now = new \DateTime('now', new \DateTimeZone(\app\helpers\DateTimeZoneHelper::T
 $transaction = Yii::$app->db->beginTransaction();
 
 // создаем ЛС
-$clientAccount = $helper->createSingleClientAccount();
+$clientAccount = _ClientAccount::createOne();
 $I->assertNotNull($clientAccount);
 
 $freeNumber =
@@ -134,7 +135,7 @@ $transaction->rollBack();
 
 $transaction = Yii::$app->db->beginTransaction();
 // создаем ЛС
-$clientAccountId = $helper->createSingleClientAccount(); //\app\models\ClientAccount::find()->max('id');//
+$clientAccountId = _ClientAccount::createOne();
 $I->assertNotNull($clientAccountId);
 $clientAccount = \app\models\ClientAccount::findOne(['id' => $clientAccountId]);
 $I->assertNotNull($clientAccount);

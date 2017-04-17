@@ -22,23 +22,6 @@ class _NumberCycleHelper
         $this->I = &$_I;
     }
 
-
-    /**
-     * Создание пустого ЛС
-     *
-     * @return ClientAccount
-     */
-    function createSingleClientAccount()
-    {
-        $clientForm = new ClientCreateExternalForm();
-        $clientForm->company = 'test account ' . mt_rand(0, 1000);
-        if (!$clientForm->create()) {
-            $this->fail('Cant create client account');
-        }
-
-        return ClientAccount::findOne(['id' => $clientForm->account_id]);
-    }
-
     /**
      * Создание улуги телефонии
      *
