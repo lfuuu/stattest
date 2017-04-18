@@ -38,6 +38,10 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
+        'attribute' => 'alpha_3',
+        'class' => StringColumn::className(),
+    ],
+    [
         'label' => 'Диапазон номеров',
         'format' => 'html',
         'value' => function (Country $country) use ($baseView) {
