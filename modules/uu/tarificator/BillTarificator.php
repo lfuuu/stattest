@@ -17,6 +17,7 @@ class BillTarificator extends Tarificator
      * На основе новых проводок создать новые счета или добавить в существующие
      *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @throws \yii\db\Exception
      */
     public function tarificate($accountTariffId = null)
     {
@@ -90,7 +91,7 @@ SQL;
                 (
                     SELECT
                        bill_id,
-                       SUM(price) AS price
+                       SUM(price_with_vat) AS price
                     FROM
                        {$accountEntryTableName} account_entry
                     GROUP BY

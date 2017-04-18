@@ -40,6 +40,7 @@ class AccountEntryTarificator extends Tarificator
      * На основе новых транзакций создать новые проводки или добавить в существующие
      *
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @throws \yii\db\Exception
      */
     public function tarificate($accountTariffId = null)
     {

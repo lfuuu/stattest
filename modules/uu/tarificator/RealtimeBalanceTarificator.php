@@ -4,6 +4,8 @@ namespace app\modules\uu\tarificator;
 
 use app\models\ClientAccount;
 use app\models\Payment;
+use app\modules\uu\models\AccountLogMin;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Bill;
 use Yii;
 
@@ -21,8 +23,6 @@ class RealtimeBalanceTarificator extends Tarificator
         $db = Yii::$app->db;
 
         $clientAccountTableName = ClientAccount::tableName();
-        $paymentTableName = Payment::tableName();
-        $billTableName = Bill::tableName();
         $versionBillerUniversal = ClientAccount::VERSION_BILLER_UNIVERSAL;
 
         if ($accountClientId) {
@@ -50,6 +50,7 @@ SQL;
         $this->out('. ');
 
         // платежи
+        $paymentTableName = Payment::tableName();
         $selectSQL = <<<SQL
             UPDATE
                 clients_tmp,
@@ -76,7 +77,9 @@ SQL;
             ->execute();
         $this->out('. ');
 
-        // автоматические счета
+
+        // автоматические счета (универсальные)
+        $billTableName = Bill::tableName();
         $selectSQL = <<<SQL
             UPDATE
                 clients_tmp,
@@ -104,7 +107,7 @@ SQL;
         $this->out('. ');
 
 
-        // ручные счета
+        // ручные счета (неуниверсальные)
         // Для УУ старый счет считается ручным, если у него нет ссылки на УУ-счет
         // Счет с задатком не учитывается, но эта логика заложена в \app\dao\BillDao::calculateBillSum, а здесь достаточно просуммировать суммы старых счетов (для zadatok она будет нулевой)
         $oldBillTableName = \app\models\Bill::tableName();
@@ -122,6 +125,39 @@ SQL;
                         clients.account_version = {$versionBillerUniversal}
                         AND bill.client_id = clients.id
                         AND bill.uu_bill_id IS NULL
+                        {$sqlAndWhere}
+                    GROUP BY
+                        clients.id
+                ) t
+            SET
+                clients_tmp.balance = clients_tmp.balance - t.balance
+            WHERE
+                t.client_id = clients_tmp.id
+SQL;
+        $db->createCommand($selectSQL)
+            ->execute();
+        $this->out('. ');
+
+
+        // транзакции за МГП, которые пока не учтены в счете @todo учитывать НДС
+        $accountTariffTableName = AccountTariff::tableName();
+        $accountLogMinTableName = AccountLogMin::tableName();
+        $selectSQL = <<<SQL
+            UPDATE
+                clients_tmp,
+                (
+                    SELECT
+                        clients.id AS client_id,
+                        SUM(COALESCE(account_log.price, 0)) AS balance
+                    FROM
+                        {$clientAccountTableName} clients,
+                        {$accountTariffTableName} account_tariff,
+                        {$accountLogMinTableName} account_log
+                    WHERE
+                        clients.account_version = {$versionBillerUniversal}
+                        AND clients.id = account_tariff.client_account_id
+                        AND account_tariff.id = account_log.account_tariff_id
+                        AND account_log.account_entry_id IS NULL
                         {$sqlAndWhere}
                     GROUP BY
                         clients.id
