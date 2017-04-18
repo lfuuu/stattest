@@ -12,7 +12,6 @@
  * @var AccountTariff $accountTariffLog
  * @var bool $isCurrent
  * @var bool $isEditable
- * @var bool $isDefault
  * @var bool $isCancelable
  * @var string $actualFromNext
  */
@@ -70,7 +69,7 @@ use app\modules\uu\models\ServiceType;
         ]
     ) : '' ?>
 
-<?= (!$isCancelable && $isEditable && !$isDefault) ?
+<?= (!$isCancelable && $isEditable) ?
     Html::button(
         Html::tag('i', '', [
             'class' => 'glyphicon glyphicon-edit',

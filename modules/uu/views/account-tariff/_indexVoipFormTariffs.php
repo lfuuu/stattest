@@ -21,7 +21,6 @@ use app\modules\uu\models\ServiceType;
 
     <?php
     $isEditable = $accountTariffFirst->isLogEditable();
-    $isDefault = $accountTariffFirst->tariff_period_id && $accountTariffFirst->tariffPeriod->tariff->is_default;
     $isCancelable = $accountTariffFirst->isLogCancelable();
     $actualFromNext = '';
 
@@ -42,7 +41,6 @@ use app\modules\uu\models\ServiceType;
             'accountTariffLog' => $accountTariffLog,
             'actualFromNext' => $actualFromNext,
             'isEditable' => $isEditable,
-            'isDefault' => $isDefault,
             'isCancelable' => $isCancelable,
             'isCurrent' => true,
         ]);
@@ -74,7 +72,6 @@ use app\modules\uu\models\ServiceType;
                         'accountTariffLog' => $accountTariffLog,
                         'actualFromNext' => $actualFromNext,
                         'isEditable' => $isEditable,
-                        'isDefault' => $isDefault,
                         'isCancelable' => $isCancelable,
                         'isCurrent' => false,
                     ]
