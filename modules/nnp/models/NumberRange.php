@@ -12,8 +12,8 @@ use yii\helpers\Url;
  * @property int $id
  * @property int $country_code
  * @property int $ndc
- * @property int $number_from
- * @property int $number_to
+ * @property int $number_from bigint
+ * @property int $number_to bigint
  * @property int $full_number_from bigint
  * @property int $full_number_to bigint
  * @property string $operator_source
