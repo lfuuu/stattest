@@ -22,7 +22,7 @@ class CityColumn extends DataColumn
     public $isAddLink = true;
     public $filterType = GridView::FILTER_SELECT2;
     public $country_id = null;
-    public $isWithNullAndNotNull = false;
+    public $isWithNullAndNotNull = true;
     public $reverseCheckboxAttribute = ''; // имя bool/int - поля, из которого брать галочку "кроме". Не забудьте добавить в МодельFilter соответствующее инвертирующее условие
 
     /**

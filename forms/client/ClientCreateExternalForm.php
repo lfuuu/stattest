@@ -587,6 +587,8 @@ class ClientCreateExternalForm extends Form
                 $freeNumber
                     = (new FreeNumberFilter)
                     ->getNumbers()
+                    ->setCountry(Country::RUSSIA)
+                    ->setCity(City::MOSCOW)
                     ->setDidGroup(DidGroup::ID_MOSCOW_STANDART_499)
                     ->randomOne();
 

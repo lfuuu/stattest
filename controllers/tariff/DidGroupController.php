@@ -2,14 +2,23 @@
 namespace app\controllers\tariff;
 
 use app\classes\BaseController;
+use app\dao\DidGroupDao;
 use app\forms\tariff\DidGroupFormEdit;
 use app\forms\tariff\DidGroupFormNew;
+use app\models\City;
+use app\models\Country;
+use app\models\DidGroup;
 use app\models\filter\DidGroupFilter;
+use app\models\Number;
 use Yii;
+use yii\db\Expression;
 use yii\filters\AccessControl;
 
 class DidGroupController extends BaseController
 {
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -82,4 +91,17 @@ class DidGroupController extends BaseController
             ]);
         }
     }
+
+    /**
+     * Назаначение DID-групп к номерам
+     */
+    public function actionApply()
+    {
+        DidGroup::dao()->applyDidGroupToNumbers();
+
+        Yii::$app->session->addFlash('success', \Yii::t('number', 'The DID-group scheme is applied to the numbers'));
+
+        return $this->redirect('/tariff/did-group/');
+    }
+
 }

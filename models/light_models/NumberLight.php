@@ -20,7 +20,6 @@ class NumberLight extends Model
         $origin_currency,
         $region,
         $city_id,
-        $did_group_id,
         $number_type,
         $country_prefix,
         $ndc,

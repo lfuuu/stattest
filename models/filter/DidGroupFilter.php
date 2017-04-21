@@ -2,6 +2,7 @@
 
 namespace app\models\filter;
 
+use app\classes\traits\GetListTrait;
 use app\models\DidGroup;
 use yii\data\ActiveDataProvider;
 
@@ -82,7 +83,24 @@ class DidGroupFilter extends DidGroup
 
         $this->id !== '' && $query->andWhere([$didGroupTableName . '.id' => $this->id]);
         $this->country_code !== '' && $query->andWhere([$didGroupTableName . '.country_code' => $this->country_code]);
-        $this->city_id !== '' && $query->andWhere([$didGroupTableName . '.city_id' => $this->city_id]);
+
+        switch($this->city_id) {
+            case '':
+                break;
+
+            case GetListTrait::$isNull:
+                $query->andWhere(['city_id' => null]);
+                break;
+
+            case GetListTrait::$isNotNull:
+                $query->andWhere(['IS NOT', 'city_id', null]);
+                break;
+
+            default:
+                $query->andWhere([$didGroupTableName . '.city_id' => $this->city_id]);
+                break;
+        }
+
         $this->name !== '' && $query->andWhere(['LIKE', $didGroupTableName . '.name', $this->name]);
         $this->beauty_level !== '' && $query->andWhere([$didGroupTableName . '.beauty_level' => $this->beauty_level]);
         $this->number_type_id !== '' && $query->andWhere([$didGroupTableName . '.number_type_id' => $this->number_type_id]);

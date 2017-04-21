@@ -132,7 +132,13 @@ class VoipRegistryDao extends Singleton
             ->all();
 
         if (!$this->_didGroups) {
-            throw new InvalidConfigException('Не найдены DID-группы для города id:' . $registry->city_id);
+            throw new InvalidConfigException(
+                \Yii::t(
+                    'number',
+                    'No DID groups found for city id:{cityId}',
+                    ['cityId' => $registry->city_id]
+                )
+            );
         }
 
         $filledCount = 0;
@@ -163,20 +169,11 @@ class VoipRegistryDao extends Singleton
             $beautyLevel = NumberBeautyDao::getNumberBeautyLvl($addNumber);
         }
 
-        if (!isset($this->_didGroups[$beautyLevel])) {
-            throw new InvalidConfigException('Для номера ' .$addNumber . ' с красотой: "' . DidGroup::$beautyLevelNames[$beautyLevel] . '" не найдена DID-группа');
-        }
-
-        if ($this->_didGroups[$beautyLevel]->number_type_id != $registry->number_type_id) {
-            throw new InvalidConfigException('Тип номера ' .$addNumber . ' ("' . DidGroup::$beautyLevelNames[$beautyLevel] . '") в DID-группе (id: ' . $this->_didGroups[$beautyLevel]->id . ') и в реестре не совпадают');
-        }
-
         $transaction = \Yii::$app->getDb()->beginTransaction();
 
         $number = new Number;
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
-        $number->did_group_id = $this->_didGroups[$beautyLevel]->id;
         $number->region = $registry->city->connection_point_id;
         $number->number_type = $registry->number_type_id;
         $number->city_id = $registry->city_id;
@@ -188,6 +185,40 @@ class VoipRegistryDao extends Singleton
         $number->number_subscriber = substr($addNumber, strlen((string)$registry->country->prefix) + strlen($registry->ndc));
         $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $number->is_ported = (int)$registry->isSourcePotability();
+
+        $didGroupId = DidGroup::dao()->getIdByNumber($number);
+
+        $didGroup = null;
+        if ($didGroupId) {
+            $didGroup = DidGroup::findOne(['id' => $didGroupId]);
+        }
+
+        $numberParams = [
+            'number' => $addNumber,
+            'beautyLevel' => \Yii::t('app', DidGroup::$beautyLevelNames[$beautyLevel])
+        ];
+
+        if (!$didGroup) {
+            throw new InvalidConfigException(
+                \Yii::t(
+                    'number',
+                    'For the number {number} with beauty: "{beautyLevel}" no DID group was found',
+                    $numberParams
+                )
+            );
+        }
+
+        if ($didGroup->number_type_id != $registry->number_type_id) {
+            throw new InvalidConfigException(
+                \Yii::t(
+                    'app',
+                    'Number type {number} ("{beautyLevel}") in the DID-group (id: {didId}) and in the registry do not match',
+                    $numberParams + ['didId' => $didGroup->id]
+                )
+            );
+        }
+
+        $number->did_group_id = $didGroup->id;
 
         if (!$number->save()) {
             throw new ModelValidationException($number);

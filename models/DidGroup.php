@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\dao\DidGroupDao;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 use yii\helpers\Url;
 
 /**
@@ -127,30 +128,19 @@ class DidGroup extends ActiveRecord
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param int $cityId
-     * @param int $countryId
-     * @return string[]
+     * @return \string[]
+     * @internal param int $countryId
      */
     public static function getList(
         $isWithEmpty = false,
-        $cityId = null,
-        $countryId = null
+        $cityId = null
     ) {
 
         $where = [];
-        if ($cityId) {
-            if ($countryId) {
-                $where = [
-                    'AND',
-                    ['country_code' => $countryId],
-                    [
-                        'OR',
-                        ['city_id' => $cityId],
-                        ['city_id' => null]
-                    ]
-                ];
-            } else {
-                $where = ['city_id' => $cityId];
-            }
+
+        /** @var City $city */
+        if ($cityId && ($city = City::findOne(['id' => $cityId]))) {
+            $where = DidGroup::dao()->getQueryWhereByCity($city);
         }
 
         return self::getListTrait(
@@ -158,7 +148,7 @@ class DidGroup extends ActiveRecord
             $isWithNullAndNotNull = false,
             $indexBy = 'id',
             $select = 'name',
-            $orderBy = ['name' => SORT_ASC],
+            $orderBy = ['beauty_level' => SORT_ASC],
             $where
         );
     }

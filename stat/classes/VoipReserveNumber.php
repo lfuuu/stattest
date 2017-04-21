@@ -3,10 +3,12 @@
 use app\classes\api\Errors;
 use app\forms\comment\ClientContractCommentForm;
 use app\models\filter\FreeNumberFilter;
+use app\models\Number;
 use app\models\Trouble;
 use app\models\ClientAccount;
 use app\models\TariffVoip;
 use app\forms\usage\UsageVoipEditForm;
+use app\models\UsageVoip;
 
 /**
  * Class VoipReserveNumber
@@ -17,7 +19,7 @@ class VoipReserveNumber
     /**
      * Резерв списка номеров за клиентом
      *
-     * @param $clientId
+     * @param int $clientId
      * @param array $numbers
      * @return bool
      * @throws Exception
@@ -69,6 +71,7 @@ class VoipReserveNumber
                 }
             }
         }
+
         return true;
     }
 
@@ -77,8 +80,8 @@ class VoipReserveNumber
      * Используется как в составе самостоятельной функции резерва номера по 2-х запросной схеме резерва номера,
      * так и при 1-запросной схемы.
      *
-     * @param $number
-     * @param $clientId
+     * @param int $number
+     * @param int $clientId
      * @param int $lineCount
      * @param null $tariffId
      * @param bool $isForceStart
@@ -97,25 +100,23 @@ class VoipReserveNumber
             $tariffId = $db->escape($tariffId);
         }
 
-        $voipNumber = $db->GetRow("select region,city_id,did_group_id from voip_numbers where number = '".$number."'");
+        $voipNumber = Number::findOne(['number' => $number]);
 
         if (!$voipNumber) {
             throw new \Exception("Номер не найден");
         }
 
-        $region = $voipNumber["region"];
+        $region = $voipNumber->region;
 
 
+        $usage = UsageVoip::find()
+            ->phone($number)
+            ->actual()
+            ->one();
 
-        $u = $db->GetValue("select id from usage_voip where 
-                (  
-                 cast(now() as date) between actual_from and actual_to 
-                 or (actual_from > '3000-01-01' and actual_to > '3000-01-01')
-                ) and E164 = '".$number."'");
-
-        if ($u)
+        if ($usage) {
             throw new yii\web\BadRequestHttpException("Номер уже используется", Errors::ERROR_RESERVE_NUMBER_BUSY);
-
+        }
 
         $client = ClientAccount::findOne(["id" => $clientId]);
 
@@ -129,10 +130,9 @@ class VoipReserveNumber
             throw new \Exception("Тариф не найден");
         }
 
-
         $transaction = Yii::$app->db->beginTransaction();
         try {
-            //Создаем запись услуги
+            // Создаем запись услуги
             $form = new UsageVoipEditForm;
             $form->scenario = 'add';
             $form->initModel($client);
@@ -144,10 +144,8 @@ class VoipReserveNumber
 
             $form->prepareAdd();
 
-            if (!$form->validate() || !$form->add()) 
-            {
-                if ($form->errors)
-                {
+            if (!$form->validate() || !$form->add()) {
+                if ($form->errors) {
                     \Yii::error($form);
                     $errorKeys = array_keys($form->errors);
                     throw new \Exception($form->errors[$errorKeys[0]][0], 500);
@@ -155,6 +153,7 @@ class VoipReserveNumber
                     throw new \Exception("Unknown error", 500);
                 }
             }
+
             $usageVoipId = $form->id;
 
             $transaction->commit();
@@ -172,8 +171,8 @@ class VoipReserveNumber
     /**
      * Возвращает тариф по-умолчанию в регионе подключения
      *
-     * @param $regionId
-     * @param $currency
+     * @param int $regionId
+     * @param string $currency
      * @return bool|mixed
      * @throws Exception
      */
@@ -193,7 +192,6 @@ class VoipReserveNumber
 
             throw new \Exception("Тариф не установлен");
         }
-
 
         return $tariff->id;
     }

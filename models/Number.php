@@ -90,6 +90,7 @@ class Number extends ActiveRecord
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -107,12 +108,15 @@ class Number extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['status', 'number_tech'], 'string'],
-            [['beauty_level', 'did_group_id'], 'integer'],
-            [['status', 'beauty_level', 'did_group_id'], 'required', 'on' => 'save'],
+            [['beauty_level'], 'integer'],
+            [['status', 'beauty_level'], 'required', 'on' => 'save'],
         ];
     }
 
@@ -256,7 +260,9 @@ class Number extends ActiveRecord
     }
 
     /**
-     * @param $id
+     * Получение URL по Id
+     *
+     * @param integer $id
      * @return string
      */
     public static function getUrlById($id)
@@ -266,19 +272,22 @@ class Number extends ActiveRecord
 
     /**
      * Вернуть кол-во звонков за месяц
+     *
      * @param string $month %02d
      * @return int
      */
     public function getCallsWithoutUsagesByMonth($month)
     {
         if (is_null($this->callsCount)) {
-            $this->callsCount = \app\models\Number::dao()->getCallsWithoutUsages($this->city->connection_point_id, $this->number);
+            $this->callsCount = Number::dao()->getCallsWithoutUsages($this->city->connection_point_id, $this->number);
         }
+
         foreach ($this->callsCount as $calls) {
             if ($calls['m'] === $month) {
                 return $calls['c'];
             }
         }
+
         return '';
     }
 

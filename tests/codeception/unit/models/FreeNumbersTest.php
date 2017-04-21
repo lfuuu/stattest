@@ -65,26 +65,26 @@ class FreeNumbersTest extends TestCase
             (new FreeNumberFilter)
                 ->setMinCost(0)
                 ->setMaxCost(1999);
-        $this->assertEquals(16, count($numbers->result(null)));
+        $this->assertEquals(20, count($numbers->result(null)));
 
         // Between
         $numbers =
             (new FreeNumberFilter)
                 ->setMinCost(999)
                 ->setMaxCost(1999);
-        $this->assertEquals(0, count($numbers->result(null)));
+        $this->assertEquals(2, count($numbers->result(null)));
 
         // Greater than minCost
         $numbers =
             (new FreeNumberFilter)
                 ->setMinCost(999);
-        $this->assertEquals(0, count($numbers->result(null)));
+        $this->assertEquals(2, count($numbers->result(null)));
 
         // Less than maxCost
         $numbers =
             (new FreeNumberFilter)
                 ->setMaxCost(999);
-        $this->assertEquals(16, count($numbers->result(null)));
+        $this->assertEquals(18, count($numbers->result(null)));
     }
 
     public function testFreeNumbersByBeautyLvl()

@@ -5,6 +5,7 @@ use app\classes\Assert;
 use app\helpers\DateTimeZoneHelper;
 use app\models\City;
 use app\models\ClientAccount;
+use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\models\LogTarif;
 use app\models\LogUsageHistory;
@@ -311,6 +312,8 @@ class UsageVoipEditForm extends UsageVoipForm
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
                         ->getNumbers()
+                        ->setCity($this->city_id)
+                        ->setCountry($this->country_id)
                         ->setDidGroup($this->did_group_id)
                         ->randomOne();
 
@@ -387,13 +390,9 @@ class UsageVoipEditForm extends UsageVoipForm
                 $number = Number::findOne(['number' => $this->did]);
 
                 if ($number) {
-                    if ($number->did_group_id) {
-                        $this->connection_point_id = $number->region;
-                        $this->did_group_id = $number->did_group_id;
-                        $this->city_id = $number->city_id;
-                    } else {
-                        $this->did = null;
-                    }
+                    $this->connection_point_id = $number->region;
+                    $this->did_group_id = DidGroup::dao()->getIdByNumber($number);
+                    $this->city_id = $number->city_id;
                 } else {
                     $this->did = null;
                 }
@@ -608,6 +607,8 @@ class UsageVoipEditForm extends UsageVoipForm
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
                             ->getNumbers()
+                            ->setCity($this->city_id)
+                            ->setCountry($this->country_id)
                             ->setDidGroup($this->did_group_id)
                             ->randomOne();
 
@@ -622,13 +623,8 @@ class UsageVoipEditForm extends UsageVoipForm
                         if (!$number) {
                             $this->did = null;
                         } else {
-
-                            if ($number->did_group_id) {
-                                $this->city_id = $number->city_id;
-                                $this->did_group_id = $number->did_group_id;
-                            } else {
-                                $this->did = null;
-                            }
+                            $this->city_id = $number->city_id;
+                            $this->did_group_id = DidGroup::dao()->getIdByNumber($number);
                         }
                     }
                 }

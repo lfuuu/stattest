@@ -488,31 +488,23 @@ class ApiLk
             ->asArray()
             ->all();
 
+        $didGroupsByCity = DidGroup::dao()->getDidgroupsByCity($clientAccount->country_id);
+
         $didGroupsByCityId = [];
 
-        $didGroups = DidGroup::find()
-            ->where([
-                'country_code' => $clientAccount->country_id
-            ])
-            ->orderBy([$priceField => SORT_ASC]);
-
         /** @var DidGroup $didGroup */
-        foreach ($didGroups->each() as $didGroup) {
+        foreach ($didGroupsByCity as $cityId => $cityData) {
+            foreach ($cityData as $didGroup) {
 
-            $cityId = $didGroup->city_id ?: 'any';
-
-            if (!isset($didGroupsByCityId[$cityId])) {
-                $didGroupsByCityId[$cityId] = [];
+                $didGroupsByCityId[$cityId][$didGroup->id] = [
+                    'id' => $didGroup->id,
+                    'code' => 'group_' . $didGroup->beauty_level,
+                    'comment' => $didGroup->comment,
+                    'activation_fee' => (float)$didGroup->{$priceField},
+                    'currency_id' => $didGroup->country->currency_id,
+                    'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
+                ];
             }
-
-            $didGroupsByCityId[$cityId][$didGroup->id] = [
-                'id' => $didGroup->id,
-                'code' => 'group_' . $didGroup->beauty_level,
-                'comment' => $didGroup->comment,
-                'activation_fee' => (float)$didGroup->{$priceField},
-                'currency_id' => $didGroup->country->currency_id,
-                'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
-            ];
         }
 
         return [
@@ -938,9 +930,9 @@ class ApiLk
         return $ret;
     }
 
-    public static function getFreeNumbers($numberTariffId, $isSimple = false)
+    public static function getFreeNumbers($cityId, $didGroupId, $isSimple = false)
     {
-        $didGroup = DidGroup::findOne(['id' => $numberTariffId]);
+        $didGroup = DidGroup::findOne(['id' => $didGroupId]);
         Assert::isObject($didGroup);
 
         $ret = [];
@@ -948,6 +940,7 @@ class ApiLk
         $numbers =
             (new \app\models\filter\FreeNumberFilter)
                 ->getNumbers()
+                ->setCity($cityId)
                 ->setDidGroup($didGroup->id);
 
         $skipFrom = 1;

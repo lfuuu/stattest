@@ -96,6 +96,10 @@ if ($filterModel->city_id) {
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
-    'extraButtons' => $this->render('//layouts/_buttonCreate', $linkAdd),
+    'extraButtons' => $this->render('//layouts/_buttonCreate', $linkAdd) . $this->render('//layouts/_buttonLink', [
+            'url' => '/tariff/did-group/apply',
+            'text' => 'Применить',
+            'class' => 'btn-warning',
+        ]),
     'columns' => $columns,
 ]);
