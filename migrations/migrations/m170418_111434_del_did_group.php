@@ -14,6 +14,8 @@ class m170418_111434_del_did_group extends \app\classes\Migration
      */
     public function safeUp()
     {
+        $this->update(Number::tableName(), ['did_group_id' => null]);
+
         $this->delete(DidGroup::tableName(), [
             'AND',
             ['country_code' => Country::RUSSIA],
@@ -33,6 +35,8 @@ class m170418_111434_del_did_group extends \app\classes\Migration
             ['city_id' => null],
             ['country_code' => Country::GERMANY]
         );
+
+        DidGroup::dao()->applyDidGroupToNumbers();
     }
 
     /**
