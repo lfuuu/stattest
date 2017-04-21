@@ -267,6 +267,15 @@ class ImportController extends Controller
 
                 list($countryPrefix, $ndc, $ndcTypeOriginal, $ndcTypeId, $numberFrom, $numberTo, $regionSource, $operatorSource, $dateResolution, $detailResolution, $statusNumber) = $row;
 
+                if (!$countryPrefix) {
+                    return null;
+                }
+
+                if ($operatorSource && ord($operatorSource[0]) == 171) {
+                    // какой-то баг Excel с символом «
+                    $operatorSource[0] = '';
+                }
+
                 $ndc = (int)$ndc;
 
                 $ndcTypeId = (int)$ndcTypeId;
@@ -368,7 +377,12 @@ class ImportController extends Controller
 
             try {
 
-                $insertValues[] = $callbackRow($row);
+                $insertValuesTmp = $callbackRow($row);
+                if (!$insertValuesTmp) {
+                    continue;
+                }
+
+                $insertValues[] = $insertValuesTmp;
 
                 if (count($insertValues) % 1000 === 0) {
                     echo '. ';
