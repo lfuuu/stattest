@@ -17,7 +17,6 @@ use DateTime;
 use DateTimeZone;
 use Yii;
 use yii\db\Expression;
-use yii\helpers\ArrayHelper;
 
 class UsageVoipEditForm extends UsageVoipForm
 {
@@ -311,26 +310,25 @@ class UsageVoipEditForm extends UsageVoipForm
                 if ($this->isMultiAdd) {
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
-                            ->getNumbers()
-                            ->setDidGroup($this->did_group_id)
-                            ->randomOne();
+                        ->getNumbers()
+                        ->setDidGroup($this->did_group_id)
+                        ->randomOne();
 
                     if (!$number) {
                         throw new \Exception(
-                            'Нет свободного номера в заданной DID-групе (нашлось только: '. $i .')'
+                            'Нет свободного номера в заданной DID-групе (нашлось только: ' . $i . ')'
                         );
                     }
 
-                    if (UsageVoip::find()->actual()->andWhere(['E164' => $number->number])->count()) {
-                        throw new \Exception('Номер ' . $number->number . ' уже используется');
-                    }
+                    $this->did = $number->number;
 
-                    $numberStr = $number->number;
-                } else {
-                    $numberStr = $this->did;
+                    if (!$this->validate()) {
+                        $transaction->rollBack();
+                        return false;
+                    }
                 }
 
-                $this->numbers[] = $numberStr;
+                $this->numbers[] = $this->did;
 
                 $usage = new UsageVoip;
                 $usage->region = $this->connection_point_id;
@@ -338,7 +336,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 $usage->actual_to = $actualTo;
                 $usage->type_id = $this->type_id;
                 $usage->client = $this->clientAccount->client;
-                $usage->E164 = $numberStr;
+                $usage->E164 = $this->did;
                 $usage->no_of_lines = (int)$this->no_of_lines;
                 $usage->status = $this->status;
                 $usage->address = $this->address;

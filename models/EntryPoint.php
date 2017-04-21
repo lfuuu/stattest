@@ -129,7 +129,7 @@ class EntryPoint extends ActiveRecord
             'client_contract_business_process_status_id' => 'Статус БП',
             'currency_id' => 'Валюта',
             'timezone_name' => 'Часовой пояс',
-            'is_postpaid' => 'Метод платежа - препейд',
+            'is_postpaid' => 'Метод платежа - postpaid',
             'account_version' => 'Версия ЛС	',
             'credit' => 'Кредит',
             'voip_credit_limit_day' => 'Лимит телефонии',

@@ -2,8 +2,12 @@
 namespace app\forms\usage;
 
 use app\classes\Form;
+use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\ServiceType;
 
 /**
  * Class UsageVoipForm
@@ -159,17 +163,70 @@ class UsageVoipForm extends Form
         $from = $this->connecting_date;
         $to = $this->disconnecting_date ?: UsageInterface::MAX_POSSIBLE_DATE;
 
+        // включен в услугах
         $queryVoip = UsageVoip::find()
             ->andWhere('(actual_from between :from and :to) or (actual_to between :from and :to)',
                 [':from' => $from, ':to' => $to])
             ->andWhere(['E164' => $this->did]);
+
         if ($this->id) {
             $queryVoip->andWhere('id != :id', [':id' => $this->id]);
         }
 
-        foreach ($queryVoip->all() as $usage) {
+        $usage = $queryVoip->one();
+
+        if ($usage) {
             $this->addError('did',
-                "Номер пересекается с id: {$usage->id}, клиент: {$usage->clientAccount->client}, c {$usage->actual_from} по {$usage->actual_to}");
+                "Номер пересекается с id: {$usage->id}, клиент: {$usage->clientAccount->id}, c {$usage->actual_from} по {$usage->actual_to}"
+            );
+
+            return;
+        }
+
+        // включен в универсальных услугах
+        $uUsage = AccountTariff::find()
+            ->where([
+                'service_type_id' => ServiceType::ID_VOIP,
+                'voip_number' => $this->did
+            ])
+            ->andWhere(['IS NOT', 'tariff_period_id', null])
+            ->one();
+
+        if ($uUsage) {
+            $this->addError('did',
+                "Номер пересекается с uid: {$uUsage->id}, клиент: {$uUsage->clientAccount->id}"
+            );
+
+            return;
+        }
+
+        // включен в будущем в универсальных услугах
+        $uUsages = AccountTariff::find()
+            ->where([
+                'service_type_id' => ServiceType::ID_VOIP,
+                'voip_number' => $this->did,
+            ])
+        ->with('accountTariffLogs');
+
+        $now = DateTimeZoneHelper::getUtcDateTime();
+
+        /** @var AccountTariff $uUsage */
+        foreach ($uUsages->each() as $uUsage) {
+            if (
+                $uUsage->tariff_period_id ||
+                (
+                    ($accountTariffLogs = $uUsage->accountTariffLogs) &&
+                    ($accountTariffLog = reset($accountTariffLogs)) &&
+                    $accountTariffLog->tariff_period_id &&
+                    strtotime($accountTariffLog->actual_from_utc) > $now->getTimestamp()
+                )
+            ) {
+                $this->addError('did',
+                    "Номер включится в будущем с uid: {$uUsage->id}, клиент: {$uUsage->clientAccount->id}"
+                );
+
+                return;
+            }
         }
     }
 
