@@ -126,9 +126,18 @@ class DidGroupDao extends Singleton
             ->orderBy(new Expression('country_code, COALESCE(city_id, 0), beauty_level'));
 
         $didGroupsByCity = [];
+        $moscowDidGroups = [];
         /** @var DidGroup $didGroup */
         foreach ($didGroupQuery->each() as $didGroup) {
-            $didGroupsByCity[$didGroup->city_id ?: 0][$didGroup->beauty_level] = $didGroup;
+            if ($didGroup->city_id == City::MOSCOW) {
+                $moscowDidGroups[] = $didGroup;
+            } else {
+                $didGroupsByCity[$didGroup->city_id ?: 0][$didGroup->beauty_level] = $didGroup;
+            }
+        }
+
+        if ($moscowDidGroups) {
+            $didGroupsByCity[City::MOSCOW] = $moscowDidGroups;
         }
 
         $anyDidgroups = isset($didGroupsByCity[0]) ? $didGroupsByCity[0] : [];
@@ -148,8 +157,8 @@ class DidGroupDao extends Singleton
             $cityData = $anyDidgroups;
 
             if (isset($didGroupsByCity[$city->id])) {
-                foreach ($didGroupsByCity[$city->id] as $beautyLevel => $didGroup) {
-                    $cityData[$beautyLevel] = $didGroup;
+                foreach ($didGroupsByCity[$city->id] as $didGroup) {
+                    $cityData[] = $didGroup;
                 }
             }
 
@@ -222,7 +231,7 @@ class DidGroupDao extends Singleton
 
         if ($didGroupId == DidGroup::ID_MOSCOW_STANDART_495) {
             return ['like', 'number', '7495%', $isEscape = false];
-        } elseif ($group->id == DidGroup::ID_MOSCOW_STANDART_499) {
+        } elseif ($didGroupId == DidGroup::ID_MOSCOW_STANDART_499) {
             return ['like', 'number', '7499%', $isEscape = false];
         }
 

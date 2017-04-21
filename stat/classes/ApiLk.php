@@ -496,7 +496,7 @@ class ApiLk
         foreach ($didGroupsByCity as $cityId => $cityData) {
             foreach ($cityData as $didGroup) {
 
-                $didGroupsByCityId[$cityId][$didGroup->id] = [
+                $didGroupsByCityId[$cityId][] = [
                     'id' => $didGroup->id,
                     'code' => 'group_' . $didGroup->beauty_level,
                     'comment' => $didGroup->comment,
