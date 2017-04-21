@@ -3,17 +3,17 @@ namespace app\dao;
 
 use app\classes\Language;
 use app\classes\Singleton;
-use app\models\LogBill;
-use app\modules\uu\models\AccountEntry;
-use app\modules\uu\models\Bill as uuBill;
-use app\modules\uu\models\Period;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
+use app\models\LogBill;
 use app\models\Transaction;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\Bill as uuBill;
+use app\modules\uu\models\Period;
 use Yii;
 
 
@@ -310,6 +310,7 @@ class BillDao extends Singleton
                 },
                 0
             );
+            $billPrice = round($billPrice, 2);
             if ($billPrice != $bill->sum) {
                 $bill->sum = $bill->sum_with_unapproved = $billPrice;
                 if (!$bill->save()) {
@@ -510,7 +511,7 @@ SQL;
     /**
      * Получение счета на предоплату для ЛК
      *
-     * @param int   $accountId
+     * @param int $accountId
      * @param float $sum
      * @return Bill
      */
@@ -528,7 +529,7 @@ SQL;
     /**
      * Получение счета на предоплату для Лк из базы
      *
-     * @param int   $accountId
+     * @param int $accountId
      * @param float $sum
      * @return null|Bill
      */
@@ -568,9 +569,9 @@ SQL;
                     bill_date DESC
                 LIMIT 1
              )a", [
-                    ':biller_version' => ClientAccount::VERSION_BILLER_USAGE,
-                    ':accountId' => $accountId,
-                     'sum' => $sum
+            ':biller_version' => ClientAccount::VERSION_BILLER_USAGE,
+            ':accountId' => $accountId,
+            'sum' => $sum
         ])->queryScalar();
 
     }
@@ -656,7 +657,7 @@ SQL;
 
         $lastBillNo = Bill::find()
             ->select('bill_no')
-            ->where(['like', 'bill_no', $prefix."-%", false])
+            ->where(['like', 'bill_no', $prefix . "-%", false])
             ->orderBy(['bill_no' => SORT_DESC])
             ->scalar();
 

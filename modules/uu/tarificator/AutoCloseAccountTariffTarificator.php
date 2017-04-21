@@ -57,7 +57,8 @@ SQL;
         foreach ($query as $row) {
 
             $this->out('. ');
-            $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
+            $transaction = null;
+
             try {
 
                 $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
@@ -80,6 +81,8 @@ SQL;
                     // тестовый тариф уже запланировали закрыть
                     continue;
                 }
+
+                $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
 
                 $chargePeriod = $tariffPeriod->chargePeriod;
                 $dateFrom = $accountLogHugePeriod->dateFrom;
@@ -111,7 +114,7 @@ SQL;
 
                 $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
-                $isWithTransaction && $transaction->rollBack();
+                $isWithTransaction && $transaction && $transaction->rollBack();
                 $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
                 if ($accountTariffId) {
