@@ -30,6 +30,7 @@ class ImportController extends Controller
     const DATE_FORMAT_DMY_DOT = 'd.m.Y';
     const DATE_FORMAT_MDY_HYPHEN = 'm-d-y';
     const DATE_FORMAT_DMY_HYPHEN = 'd-m-y';
+    const DATE_FORMAT_MDY_SLASH = 'm/d/Y';
 
     /**
      * Европа
@@ -39,8 +40,8 @@ class ImportController extends Controller
     private $_europe = [
         Country::HUNGARY_CODE => ['0B9ds-UaQbaC7Tm45Q2l2czhrWHM', self::EXCEL5, self::DATE_FORMAT_YMD_DOT],
         Country::SLOVAKIA_CODE => ['0B9ds-UaQbaC7SHJHY0JnNHpRN00', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
-        Country::AUSTRIA_CODE => ['0B9ds-UaQbaC7UHo2M3VfM3I5d2M', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT],
-        Country::GERMANY_CODE => ['0B9ds-UaQbaC7MDRNLTl5WVN2Y0k', self::EXCEL2007, self::DATE_FORMAT_DMY_HYPHEN],
+        // Country::AUSTRIA_CODE => ['0B9ds-UaQbaC7UHo2M3VfM3I5d2M', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT], // PHP Fatal error:  Allowed memory size of 4294967296 bytes exhausted (tried to allocate 1073741824 bytes) in /home/httpd/stat.mcn.ru/stat/vendor/phpoffice/phpexcel/Classes/PHPExcel/Worksheet.php on line 1219
+        Country::GERMANY_CODE => ['0B9ds-UaQbaC7MDRNLTl5WVN2Y0k', self::EXCEL2007, self::DATE_FORMAT_MDY_SLASH],
         Country::CZECH_CODE => ['0B9ds-UaQbaC7VzNPMzljR2VTMms', self::EXCEL5, self::DATE_FORMAT_DMY_DOT],
         // Country::POLAND_CODE => ['0B96cvSC012ZaXzRtQTExQVVZY2M', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
         Country::ROMANIA_CODE => ['0B9ds-UaQbaC7Ynpwb1ZhZTFUV3M', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
