@@ -81,7 +81,7 @@ function doEvents()
             );
 
             $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
-            $isVpbxServer = ApiVpbx::getVpbxHost() && ApiVpbx::getApiUrl();
+            $isVpbxServer = ApiVpbx::me()->isAvailable();
 
             switch ($event->event) {
                 case Event::USAGE_VOIP__INSERT:
@@ -304,11 +304,11 @@ function doEvents()
                     break;
 
                 case Event::VPBX_BLOCKED:
-                    $isVpbxServer && ApiVpbx::lockAccount($param); // Синхронизировать в Vpbx. Блокировка
+                    $isVpbxServer && ApiVpbx::me()->lockAccount($param); // Синхронизировать в Vpbx. Блокировка
                     break;
 
                 case Event::VPBX_UNBLOCKED:
-                    $isVpbxServer && ApiVpbx::unlockAccount($param); // Синхронизировать в Vpbx. Разблокировка
+                    $isVpbxServer && ApiVpbx::me()->unlockAccount($param); // Синхронизировать в Vpbx. Разблокировка
                     break;
 
                 case Event::PARTNER_REWARD: {

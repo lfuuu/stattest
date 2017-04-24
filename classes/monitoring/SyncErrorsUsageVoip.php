@@ -4,7 +4,6 @@ namespace app\classes\monitoring;
 
 use app\classes\api\ApiVpbx;
 use app\models\UsageVoip;
-use Yii;
 use yii\helpers\Html;
 
 class SyncErrorsUsageVoip extends SyncErrorsUsageBase
@@ -35,16 +34,28 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
         return 'Ошибки синхронизации услуг телефонии платформой. (Без "коротких" номеров и "Телемир"а)';
     }
 
+    /**
+     * @return array
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidCallException
+     */
     public function getServiceData()
     {
-        return ApiVpbx::getPhoneServices();
+        return ApiVpbx::me()->getPhoneServices();
     }
 
+    /**
+     * @return string
+     */
     public function getServiceClass()
     {
         return UsageVoip::className();
     }
 
+    /**
+     * @return string
+     */
     public function getServiceIdField()
     {
         return 'E164';
@@ -53,13 +64,13 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
     /**
      * Предварительный фильтр результат запроса
      *
-     * @param $data
+     * @param array $data
      * @return null
      */
     public function filterResult($data)
     {
         $result = [];
-        foreach($data as $phone => $clientId) {
+        foreach ($data as $phone => $clientId) {
             if (in_array($clientId, self::$brokenAccountIds)) {
                 continue;
             }
@@ -81,7 +92,7 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
             [
                 'label' => 'Id услуги',
                 'format' => 'html',
-                'value' => function($model) {
+                'value' => function ($model) {
                     $usage = UsageVoip::find()->where(['E164' => $model['usage_id']])->orderBy(['id' => SORT_DESC])->one();
                     return ($usage ? Html::a(' ' . $usage->id . ' ', $usage->helper->editLink) : '');
                 }
@@ -94,14 +105,14 @@ class SyncErrorsUsageVoip extends SyncErrorsUsageBase
             [
                 'attribute' => 'ЛС',
                 'format' => 'html',
-                'value' => function($model) {
-                    return Html::a(' ' . $model['account_id'] . ' ', ['/client/view', 'id' => $model['account_id']]) ;
+                'value' => function ($model) {
+                    return Html::a(' ' . $model['account_id'] . ' ', ['/client/view', 'id' => $model['account_id']]);
                 }
             ],
             [
                 'label' => 'Статус',
                 'format' => 'html',
-                'value' => function($model) {
+                'value' => function ($model) {
                     return Html::beginTag('span', ['class' => self::$statusClasses[$model['status']]]) .
                         self::$statusNames[$model['status']] . ($model['status'] == self::STATUS_ACCOUNT_DIFF ? ' (ЛС: ' . Html::a(' ' . $model['account_id2'] . ' ', ['/client/view', 'id' => $model['account_id2']]) . ')' : '') .
                         Html::endTag('span');

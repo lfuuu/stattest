@@ -813,7 +813,7 @@ class ClientAccountDao extends Singleton
     public function getClientVoipNumbers(ClientAccount $clientAccount)
     {
         if (is_null($this->_voipNumbers)) {
-            $this->_voipNumbers = ApiPhone::getNumbersInfo($clientAccount);
+            $this->_voipNumbers = ApiPhone::me()->getNumbersInfo($clientAccount);
         }
 
         return $this->_voipNumbers;

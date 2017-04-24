@@ -2,54 +2,52 @@
 namespace app\classes\api;
 
 use app\classes\HttpClient;
-use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\Resource;
-use app\modules\uu\models\ServiceType;
+use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Resource;
+use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
-class ApiVpbx
+/**
+ * Class ApiVpbx
+ *
+ * @method static ApiVpbx me($args = null)
+ */
+class ApiVpbx extends Singleton
 {
     /**
      * @return bool
      */
-    public static function isAvailable()
+    public function isAvailable()
     {
-        return self::getPhoneHost() && self::getApiUrl();
+        return $this->_getHost() && $this->_getApiUrl();
     }
 
     /**
-     * @return string|bool
+     * @return string
      */
-    public static function getPhoneHost()
+    private function _getHost()
     {
-        return isset(Yii::$app->params['PHONE_SERVER']) ? Yii::$app->params['PHONE_SERVER'] : false;
+        return isset(Yii::$app->params['VPBX_SERVER']) ? Yii::$app->params['VPBX_SERVER'] : '';
     }
 
     /**
-     * @return string|bool
+     * @return string
      */
-    public static function getVpbxHost()
+    private function _getApiUrl()
     {
-        return isset(Yii::$app->params['VPBX_SERVER']) ? Yii::$app->params['VPBX_SERVER'] : false;
-    }
-
-    /**
-     * @return string|bool
-     */
-    public static function getApiUrl()
-    {
-        return isset(Yii::$app->params['VIRTPBX_URL']) ? Yii::$app->params['VIRTPBX_URL'] : false;
+        return isset(Yii::$app->params['VIRTPBX_URL']) ? Yii::$app->params['VIRTPBX_URL'] : '';
     }
 
     /**
      * @return array
      */
-    public static function getApiAuthorization()
+    private function _getApiAuthorization()
     {
         return isset(Yii::$app->params['VPBX_API_AUTHORIZATION']) ? Yii::$app->params['VPBX_API_AUTHORIZATION'] : [];
     }
@@ -57,39 +55,27 @@ class ApiVpbx
     /**
      * @param string $action
      * @param array $data
-     * @param string $toServer
      * @param bool $isSendPost
      * @return mixed
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function exec($action, $data, $toServer = 'phone', $isSendPost = true)
+    private function _exec($action, $data, $isSendPost = true)
     {
-        $url = self::getApiUrl();
-        $host = null;
-
-        switch ($toServer) {
-            case 'phone':
-                $host = self::getPhoneHost();
-                break;
-            case 'vpbx':
-                $host = self::getVpbxHost();
-                break;
-        }
-
-        if (!$url || !$host) {
+        if (!$this->isAvailable()) {
             throw new InvalidConfigException('API Vpbx was not configured');
         }
 
-        $url = strtr($url, ['[address]' => $host, '[action]' => $action]);
+        $url = $this->_getApiUrl();
+        $url = strtr($url, ['[address]' => $this->_getHost(), '[action]' => $action]);
 
         return (new HttpClient)
             ->createJsonRequest()
             ->setMethod($isSendPost ? 'post' : 'get')
             ->setData($data)
             ->setUrl($url)
-            ->auth(self::getApiAuthorization())
+            ->auth($this->_getApiAuthorization())
             ->getResponseDataWithCheck();
     }
 
@@ -102,19 +88,19 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function create($clientId, $usageId, $billerVersion = ClientAccount::VERSION_BILLER_USAGE)
+    public function create($clientId, $usageId, $billerVersion = ClientAccount::VERSION_BILLER_USAGE)
     {
         $tariff = null;
 
         switch ($billerVersion) {
 
             case ClientAccount::VERSION_BILLER_USAGE: {
-                $tariff = self::getTariff($usageId);
+                $tariff = $this->getTariff($usageId);
                 break;
             }
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL: {
-                $tariff = self::getTariffUniversal($usageId);
+                $tariff = $this->getTariffUniversal($usageId);
                 break;
             }
         }
@@ -123,19 +109,21 @@ class ApiVpbx
             throw new \Exception('bad tariff');
         }
 
-        self::exec(
+        $this->_exec(
             'create',
             [
-                "client_id" => (int)$clientId,
-                "stat_product_id" => (int)$usageId,
-                "numbers" => [],
-                "phones" => $tariff["num_ports"],
-                "faxes" => (int)$tariff["is_fax"] ? 5 : 0,
-                "record" => (bool)$tariff["is_record"],
-                "enable_web_call" => (bool)$tariff["is_web_call"],
-                "disk_space" => (int)$tariff["space"],
-                "timezone" => ClientAccount::findOne($clientId)->timezone_name,
-                "region" => $tariff['region']
+                'client_id' => (int)$clientId,
+                'stat_product_id' => (int)$usageId,
+                'numbers' => [],
+                'phones' => $tariff['num_ports'],
+                'faxes' => (int)$tariff['is_fax'] ? 5 : 0,
+                'record' => (bool)$tariff['is_record'],
+                'enable_web_call' => (bool)$tariff['is_web_call'],
+                'disk_space' => (int)$tariff['space'],
+                'timezone' => ClientAccount::findOne($clientId)->timezone_name,
+                'region' => $tariff['region'],
+                'enable_geo' => isset($tariff['enable_geo']) ? $tariff['enable_geo'] : 0,
+                'enable_min_price' => isset($tariff['enable_min_price']) ? $tariff['enable_min_price'] : 0,
             ]
         );
     }
@@ -151,7 +139,7 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function transfer(
+    public function transfer(
         $fromAccountId,
         $fromUsageId,
         $toAccountId,
@@ -164,7 +152,7 @@ class ApiVpbx
             'to_stat_product_id' => $toUsageId
         ];
 
-        self::exec('transfer', $query);
+        $this->_exec('transfer', $query);
     }
 
     /**
@@ -178,7 +166,7 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function transferVpbxOnly(
+    public function transferVpbxOnly(
         $fromAccountId,
         $fromUsageId,
         $toAccountId,
@@ -191,7 +179,7 @@ class ApiVpbx
             'to_stat_product_id' => $toUsageId
         ];
 
-        self::exec('transfer_vpbx_only', $query);
+        $this->_exec('transfer_vpbx_only', $query);
     }
 
     /**
@@ -201,13 +189,13 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function stop($clientId, $usageId)
+    public function stop($clientId, $usageId)
     {
-        self::exec(
+        $this->_exec(
             'delete',
             [
-                "client_id" => (int)$clientId,
-                "stat_product_id" => (int)$usageId,
+                'client_id' => (int)$clientId,
+                'stat_product_id' => (int)$usageId,
             ]
         );
     }
@@ -222,12 +210,12 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function update($clientId, $usageId, $regionId, $billerVersion = ClientAccount::VERSION_BILLER_USAGE)
+    public function update($clientId, $usageId, $regionId, $billerVersion = ClientAccount::VERSION_BILLER_USAGE)
     {
         if ($billerVersion == ClientAccount::VERSION_BILLER_USAGE) {
-            $tariff = self::getTariff($usageId);
+            $tariff = $this->getTariff($usageId);
         } elseif ($billerVersion == ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            $tariff = self::getTariffUniversal($usageId);
+            $tariff = $this->getTariffUniversal($usageId);
         } else {
             throw new \Exception('bad biller version');
         }
@@ -236,17 +224,19 @@ class ApiVpbx
             throw new \Exception('bad tariff');
         }
 
-        self::exec(
+        $this->_exec(
             'update',
             [
-                "client_id" => (int)$clientId,
-                "stat_product_id" => (int)$usageId,
-                "phones" => $tariff["num_ports"],
-                "faxes" => $tariff["is_fax"] ? 5 : 0,
-                "record" => (bool)$tariff["is_record"],
-                "disk_space" => (int)$tariff["space"],
-                "enable_web_call" => (bool)$tariff["is_web_call"],
-                "region" => (int)$regionId,
+                'client_id' => (int)$clientId,
+                'stat_product_id' => (int)$usageId,
+                'phones' => $tariff['num_ports'],
+                'faxes' => $tariff['is_fax'] ? 5 : 0,
+                'record' => (bool)$tariff['is_record'],
+                'disk_space' => (int)$tariff['space'],
+                'enable_web_call' => (bool)$tariff['is_web_call'],
+                'region' => (int)$regionId,
+                'enable_geo' => isset($tariff['enable_geo']) ? $tariff['enable_geo'] : 0,
+                'enable_min_price' => isset($tariff['enable_min_price']) ? $tariff['enable_min_price'] : 0,
             ]
         );
     }
@@ -260,9 +250,9 @@ class ApiVpbx
      * @return int занятое просторанство
      * @throws \yii\base\Exception
      */
-    public static function getUsageSpaceStatistic($clientId, $usageId, $date)
+    public function getUsageSpaceStatistic($clientId, $usageId, $date)
     {
-        return self::getStatistic($clientId, $usageId, $date, "get_total_space_usage", "total");
+        return $this->getStatistic($clientId, $usageId, $date, 'get_total_space_usage', 'total');
     }
 
     /**
@@ -274,9 +264,9 @@ class ApiVpbx
      * @return int кол-во используемых портов
      * @throws \yii\base\Exception
      */
-    public static function getUsageNumbersStatistic($clientId, $usageId, $date)
+    public function getUsageNumbersStatistic($clientId, $usageId, $date)
     {
-        return self::getStatistic($clientId, $usageId, $date, "get_int_number_usage", "int_number_amount");
+        return $this->getStatistic($clientId, $usageId, $date, 'get_int_number_usage', 'int_number_amount');
     }
 
     /**
@@ -286,9 +276,9 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function getResourceStatistics(\DateTime $date)
+    public function getResourceStatistics(\DateTime $date)
     {
-        return self::exec('get_resource_usage_per_day', ['date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)]);
+        return $this->_exec('get_resource_usage_per_day', ['date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)]);
     }
 
     /**
@@ -303,27 +293,27 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function getStatistic(
+    public function getStatistic(
         $clientId,
         $usageId,
         $date,
-        $statisticFunction = "get_total_space_usage",
-        $statisticField = "total"
+        $statisticFunction = 'get_total_space_usage',
+        $statisticField = 'total'
     ) {
-        $result = self::exec(
+        $result = $this->_exec(
             $statisticFunction,
             [
-                "client_id" => (int)$clientId,
-                "stat_product_id" => (int)$usageId,
-                "date" => $date,
+                'client_id' => (int)$clientId,
+                'stat_product_id' => (int)$usageId,
+                'date' => $date,
             ]
         );
 
         if (!isset($result[$statisticField])) {
             throw new Exception(
-                isset($result["errors"]) && $result["errors"] ?
-                    implode("; ", $result["error"]) :
-                    "Ошибка получения статистики"
+                isset($result['errors']) && $result['errors'] ?
+                    implode('; ', $result['error']) :
+                    'Ошибка получения статистики'
             );
         }
 
@@ -331,15 +321,15 @@ class ApiVpbx
     }
 
     /**
-     * Возвращает подготовленное описание для синхронизации тарифа ВАТС. "Старые" услуги.
+     * Возвращает подготовленное описание для синхронизации тарифа ВАТС. 'Старые' услуги.
      *
      * @param int $usageId
      * @return array|false
      * @throws \yii\db\Exception
      */
-    public static function getTariff($usageId)
+    public function getTariff($usageId)
     {
-        $command = Yii::$app->db->createCommand("
+        $sql = <<<SQL
                 SELECT
                     t.num_ports,
                     t.space,
@@ -363,35 +353,36 @@ class ApiVpbx
                     FROM usage_virtpbx u
                     WHERE u.id = :usageId ) u
                 LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
-            ", [':usageId' => $usageId]);
+SQL;
+        $command = Yii::$app->db->createCommand($sql, [':usageId' => $usageId]);
 
         return $command->queryOne();
     }
 
     /**
-     * Возвращает список подключенных телефонных номеров на платформе
+     * Получить список service_id и account_id с включенной телефонией
      *
      * @return array
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function getPhoneServices()
+    public function getPhoneServices()
     {
-        return self::exec('services/phone/', [], 'vpbx', false);
+        return $this->_exec('services/phone', [], $isSendPost = false);
     }
 
     /**
-     * Возвращает список подключенных телефонных номеров на платформе
+     * Получить список service_id и account_id с включенными ВАТС
      *
      * @return array
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function getVpbxServices()
+    public function getVpbxServices()
     {
-        return self::exec('services/vpbx/', [], 'vpbx', false);
+        return $this->_exec('services/vpbx', [], $isSendPost = false);
     }
 
     /**
@@ -404,7 +395,7 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function getTariffUniversal($usageId)
+    public function getTariffUniversal($usageId)
     {
         $accountTariff = AccountTariff::findOne(['id' => $usageId]);
 
@@ -412,41 +403,16 @@ class ApiVpbx
             throw new \Exception('bad tariff');
         }
 
-        $data = [
-            "num_ports" => 0,
-            "space" => 0,
-            "is_record" => 0,
-            "is_fax" => 0,
-            "is_web_call" => 0,
-            "region" => $accountTariff->region_id
+        return [
+            'num_ports' => $accountTariff->getResourceValue(Resource::ID_VPBX_ABONENT),
+            'space' => 0, // $accountTariff->getResourceValue(Resource::ID_VPBX_DISK) * 1024, // трафик устанавливается не заранее, а по факту
+            'is_record' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_RECORD),
+            'is_fax' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_FAX),
+            'is_web_call' => 0, // ?
+            'region' => $accountTariff->region_id,
+            'enable_geo' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_GEO_ROUTE),
+            'enable_min_price' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_MIN_ROUTE),
         ];
-
-        foreach ($accountTariff->tariffPeriod->tariff->tariffResources as $tariffResource) {
-            switch ($tariffResource->resource_id) {
-
-                case Resource::ID_VPBX_ABONENT: {
-                    $data['num_ports'] = $tariffResource->amount;
-                    break;
-                }
-
-                case Resource::ID_VPBX_DISK: {
-                    $data['space'] = $tariffResource->amount * 1024;
-                    break;
-                }
-
-                case Resource::ID_VPBX_RECORD: {
-                    $data['is_record'] = $tariffResource->amount ? 1 : 0;
-                    break;
-                }
-
-                case Resource::ID_VPBX_FAX: {
-                    $data['is_fax'] = $tariffResource->amount ? 1 : 0;
-                    break;
-                }
-            }
-        }
-
-        return $data;
     }
 
     /**
@@ -458,16 +424,16 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function lockAccount($accountId)
+    public function lockAccount($accountId)
     {
         $account = ClientAccount::findOne(['id' => $accountId]);
 
         if (
             $account &&
             $account->is_blocked &&
-            self::_isHaveEnabledVPBX($accountId)
+            $this->_isHaveEnabledVPBX($accountId)
         ) {
-            return self::exec('lock_account/', ['account_id' => $accountId], 'vpbx');
+            return $this->_exec('lock_account', ['account_id' => $accountId]);
         }
 
         return null;
@@ -482,15 +448,15 @@ class ApiVpbx
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public static function unlockAccount($accountId)
+    public function unlockAccount($accountId)
     {
         $account = ClientAccount::findOne(['id' => $accountId]);
         if (
             $account &&
             !$account->is_blocked &&
-            self::_isHaveEnabledVPBX($accountId)
+            $this->_isHaveEnabledVPBX($accountId)
         ) {
-            return self::exec('unlock_account/', ['account_id' => $accountId], 'vpbx');
+            return $this->_exec('unlock_account', ['account_id' => $accountId]);
         }
 
         return null;
@@ -502,7 +468,7 @@ class ApiVpbx
      * @param int $accountId
      * @return bool
      */
-    private static function _isHaveEnabledVPBX($accountId)
+    private function _isHaveEnabledVPBX($accountId)
     {
         return (bool)ActualVirtpbx::find()
             ->where(['client_id' => $accountId])
