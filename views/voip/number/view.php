@@ -75,28 +75,34 @@ echo \yii\widgets\Breadcrumbs::widget([
             echo Html::activeHiddenInput($actionForm, 'client_account_id');
             echo Html::activeHiddenInput($actionForm, 'hold_month', ['id' => 'hold_month']);
 
-            if ($number->status == Number::STATUS_INSTOCK) {
-                if ($actionForm->client_account_id) {
-                    $clientAccount = ClientAccount::findOne($actionForm->client_account_id);
-                    echo Html::button('Зарезервировать за клиентом ' . $clientAccount->id . ' ' . $clientAccount->company, ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startReserve')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-                }
+            switch ($number->status) {
+                case Number::STATUS_INSTOCK:
 
-                echo "<br>".Html::button('Поместить в отстойник (6 месяцев)', ['class' => 'btn btn-primary', 'onclick' => "numberHoldSubmitForm('6')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-                echo "<br>".Html::button('Поместить в отстойник (3 месяца)', ['class' => 'btn btn-primary', 'onclick' => "numberHoldSubmitForm('3')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-                echo "<br>".Html::button('Поместить в отстойник (1 месяц)', ['class' => 'btn btn-primary', 'onclick' => "numberHoldSubmitForm('1')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                    if ($actionForm->client_account_id) {
+                        $clientAccount = ClientAccount::findOne($actionForm->client_account_id);
+                        echo Html::button('Зарезервировать за клиентом ' . $clientAccount->id . ' ' . $clientAccount->company, ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startReserve')"]) . "<br>";
+                    }
 
-                echo Html::button('Номер не продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('startNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                    echo Html::button('Поместить в отстойник (6 месяцев)', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberHoldSubmitForm('6')"]);
+                    echo Html::button('Поместить в отстойник (3 месяца)', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberHoldSubmitForm('3')"]);
+                    echo Html::button('Поместить в отстойник (1 месяц)', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberHoldSubmitForm('1')"]);
 
-                echo "<br>" . Html::button('Высвободить номер', ['class' => 'btn btn-danger', 'style' => 'margin-top: 200px;', 'onclick' => "numberSubmitForm('toRelease')"]);
-            }
-            if ($number->status == Number::STATUS_NOTACTIVE_RESERVED) {
-                echo Html::button('Снять с резерва', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopReserve')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-            }
-            if ($number->status == Number::STATUS_NOTACTIVE_HOLD) {
-                echo Html::button('Убрать из отстойника', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopHold')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-            }
-            if ($number->status == Number::STATUS_NOTSALE) {
-                echo Html::button('Номер продается', ['class' => 'btn btn-primary', 'onclick' => "numberSubmitForm('stopNotSell')"]) . '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                    echo Html::button('Номер не продается', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberSubmitForm('startNotSell')"]);
+
+                    echo "<br>" . Html::button('Высвободить номер', ['class' => 'btn btn-danger btn-sm col-sm-3', 'style' => 'margin-top: 200px;', 'onclick' => "numberSubmitForm('toRelease')"]);
+                    break;
+
+                case Number::STATUS_NOTACTIVE_RESERVED:
+                    echo Html::button('Снять с резерва', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberSubmitForm('stopReserve')"]);
+                    break;
+
+                case Number::STATUS_NOTACTIVE_HOLD:
+                    echo Html::button('Убрать из отстойника', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberSubmitForm('stopHold')"]);
+                    break;
+
+                case Number::STATUS_NOTSALE:
+                    echo Html::button('Номер продается', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberSubmitForm('stopNotSell')"]);
+                    break;
             }
 
             if ($number->is7800()) {
@@ -128,7 +134,7 @@ echo \yii\widgets\Breadcrumbs::widget([
             ?>
         </td>
         <td valign="top" width="50%" style="padding: 10px">
-            <?php if (!empty($logList)): ?>
+            <?php if (!empty($logList)) : ?>
                 <table class="table table-bordered table-striped table-condensed table-hover">
                     <tr>
                         <th colspan='2'>Операции с номером</th>

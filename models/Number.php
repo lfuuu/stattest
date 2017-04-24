@@ -7,6 +7,8 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
+ * Class Number
+ *
  * @property string $number
  * @property string $status
  * @property string $reserve_from
@@ -50,6 +52,7 @@ class Number extends ActiveRecord
 {
     const STATUS_NOTSALE = 'notsale';
     const STATUS_INSTOCK = 'instock';
+    const STATUS_ACTIVE_CONNECTED = 'active_connected';
     const STATUS_ACTIVE_TESTED = 'active_tested';
     const STATUS_ACTIVE_COMMERCIAL = 'active_commercial';
     const STATUS_NOTACTIVE_RESERVED = 'notactive_reserved';
@@ -66,13 +69,14 @@ class Number extends ActiveRecord
         self::STATUS_INSTOCK => 'Свободен',
         self::STATUS_ACTIVE_TESTED => 'Используется. Тестируется.',
         self::STATUS_ACTIVE_COMMERCIAL => 'Используется. В коммерции.',
+        self::STATUS_ACTIVE_CONNECTED => 'Подключение запланировано',
         self::STATUS_NOTACTIVE_RESERVED => 'В резерве',
         self::STATUS_NOTACTIVE_HOLD => 'В отстойнике',
         self::STATUS_RELEASED => 'Откреплен',
     ];
 
     public static $statusGroup = [
-        self::STATUS_GROUP_ACTIVE => [self::STATUS_ACTIVE_TESTED, self::STATUS_ACTIVE_COMMERCIAL],
+        self::STATUS_GROUP_ACTIVE => [self::STATUS_ACTIVE_CONNECTED, self::STATUS_ACTIVE_TESTED, self::STATUS_ACTIVE_COMMERCIAL],
         self::STATUS_GROUP_NOTACTIVE => [self::STATUS_NOTACTIVE_RESERVED, self::STATUS_NOTACTIVE_HOLD],
     ];
 
@@ -91,7 +95,7 @@ class Number extends ActiveRecord
     /**
      * Вернуть имена полей
      *
-     * @return array [полеВТаблице => Перевод]
+     * @return array
      */
     public function attributeLabels()
     {
@@ -127,7 +131,6 @@ class Number extends ActiveRecord
     {
         return NumberDao::me();
     }
-
 
     /**
      * @return \yii\db\ActiveQuery
@@ -260,9 +263,9 @@ class Number extends ActiveRecord
     }
 
     /**
-     * Получение URL по Id
+     * Ссылка на страницу номера
      *
-     * @param integer $id
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)
@@ -279,7 +282,7 @@ class Number extends ActiveRecord
     public function getCallsWithoutUsagesByMonth($month)
     {
         if (is_null($this->callsCount)) {
-            $this->callsCount = Number::dao()->getCallsWithoutUsages($this->city->connection_point_id, $this->number);
+            $this->callsCount = self::dao()->getCallsWithoutUsages($this->city->connection_point_id, $this->number);
         }
 
         foreach ($this->callsCount as $calls) {

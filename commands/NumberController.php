@@ -282,6 +282,7 @@ class NumberController extends Controller
                 Number::STATUS_INSTOCK,
                 Number::STATUS_ACTIVE_TESTED,
                 Number::STATUS_ACTIVE_COMMERCIAL,
+                Number::STATUS_ACTIVE_CONNECTED,
                 Number::STATUS_NOTACTIVE_RESERVED,
                 Number::STATUS_NOTACTIVE_HOLD
             ]
