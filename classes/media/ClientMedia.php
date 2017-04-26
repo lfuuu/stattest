@@ -39,7 +39,7 @@ class ClientMedia extends MediaManager
      * @return ClientFiles|bool
      * @throws \Exception
      */
-    public function addFileFromParam($name, $content, $comment = '', $userId = null)
+    public function addFileFromParam($name, $content, $comment = '', $userId = null, $isShowInLk = false)
     {
         if (!$name) {
             throw new \Exception('Не задано имя файла');
@@ -49,7 +49,7 @@ class ClientMedia extends MediaManager
             $userId = Yii::$app->user->getId();
         }
 
-        $model = $this->createFileModel($name, $comment, $userId);
+        $model = $this->createFileModel($name, $comment, $userId, $isShowInLk);
 
         if ($model->user_id !== $userId) {
             $model->user_id = $userId;
@@ -69,7 +69,7 @@ class ClientMedia extends MediaManager
      * @param int $userId
      * @return ClientFiles
      */
-    protected function createFileModel($name, $comment, $userId = null)
+    protected function createFileModel($name, $comment, $userId = null, $isShowInLk = false)
     {
         $model = new ClientFiles;
         $model->contract_id = $this->_contract->id;
@@ -77,6 +77,7 @@ class ClientMedia extends MediaManager
         $model->name = $name;
         $model->comment = $comment;
         $model->user_id = $userId ?: Yii::$app->user->getId();
+        $model->is_show_in_lk = $isShowInLk;
 
         $model->save();
 

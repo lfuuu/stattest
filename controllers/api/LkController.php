@@ -149,7 +149,7 @@ class LkController extends ApiController
         $files = [];
         foreach (ClientFiles::findAll([
             "contract_id" => $account->contract_id,
-            "user_id" => User::CLIENT_USER_ID
+            "is_show_in_lk" => 1
         ]) as $file) {
             $files[] = [
                 "name" => $file->name
@@ -224,10 +224,11 @@ class LkController extends ApiController
         }
 
         $file = $account->contract->mediaManager->addFileFromParam(
-            $data["file"]["name"],
-            base64_decode($data["file"]["content"]),
-            "ЛК - wizard",
-            User::CLIENT_USER_ID
+            $name = $data["file"]["name"],
+            $content = base64_decode($data["file"]["content"]),
+            $comment = "ЛК - wizard",
+            $userId = User::CLIENT_USER_ID,
+            $isShowInLk = true
         );
 
         if ($file) {

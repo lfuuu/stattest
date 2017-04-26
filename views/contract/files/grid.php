@@ -63,6 +63,16 @@ $baseView = $this;
             }
         ],
         [
+            'attribute' => 'is_show_in_lk',
+            'format' => 'raw',
+            'value' => function (ClientFiles $file) {
+                return Html::checkbox("client_file[{$file->id}]", $file->is_show_in_lk, [
+                    'class' => 'show_client_file_in_lk',
+                    'data-id' => $file->id
+                ]);
+            }
+        ],
+        [
             'class' => TagsColumn::class,
             'filter' => TagsColumn::class,
             'isEditable' => true,
