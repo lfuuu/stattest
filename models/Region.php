@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
@@ -26,7 +27,6 @@ class Region extends ActiveRecord
 
     const MOSCOW = 99;
     const HUNGARY = 81;
-    const TIMEZONE_MOSCOW = 'Europe/Moscow';
 
     const TYPE_HUB = 0;
     const TYPE_NODE = 1;
@@ -157,5 +157,19 @@ class Region extends ActiveRecord
         return isset(self::$typeNames[$this->type_id]) ?
             self::$typeNames[$this->type_id] :
             '';
+    }
+
+    /**
+     * @param int $regionId
+     * @return string
+     */
+    public static function getTimezoneByRegionId($regionId)
+    {
+        $region = self::findOne($regionId);
+        if (!$region) {
+            return DateTimeZoneHelper::TIMEZONE_MOSCOW;
+        }
+
+        return $region->timezone_name;
     }
 }

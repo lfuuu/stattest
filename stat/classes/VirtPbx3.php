@@ -212,7 +212,7 @@ class VirtPbx3
     {
         if (ApiPhone::me()->isAvailable()) {
             try {
-                return ApiPhone::me()->exec('numbers_state', ['account_id' => $clientId]);
+                return ApiPhone::me()->numbersState($clientId);
             } catch (Exception $e) {
                 trigger_error2($e->getMessage());
                 return [];
@@ -402,7 +402,7 @@ class VirtPbx3Action
 
         try {
 
-            ApiVpbx::me()->stop($l["client_id"], $l["usage_id"]);
+            ApiVpbx::me()->delete($l["client_id"], $l["usage_id"]);
 
         } catch (Exception $e) {
             if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS) {

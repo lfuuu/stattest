@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 
 /**
@@ -40,7 +41,7 @@ class EntryPoint extends ActiveRecord
         $this->currency_id = Currency::RUB;
         $this->organization_id = Organization::MCN_TELEKOM;
         $this->country_id = Country::RUSSIA;
-        $this->timezone_name = Region::TIMEZONE_MOSCOW;
+        $this->timezone_name = DateTimeZoneHelper::TIMEZONE_MOSCOW;
         $this->is_postpaid = 1;
 
         $this->client_contract_business_id = Business::TELEKOM;

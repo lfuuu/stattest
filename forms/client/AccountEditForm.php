@@ -2,6 +2,11 @@
 namespace app\forms\client;
 
 use app\classes\api\ApiCore;
+use app\classes\Form;
+use app\classes\validators\ArrayValidator;
+use app\classes\validators\BikValidator;
+use app\helpers\DateTimeZoneHelper;
+use app\models\Bik;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\ClientContact;
@@ -10,12 +15,8 @@ use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\GoodPriceType;
 use app\models\Region;
-use app\classes\Form;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
-use app\models\Bik;
-use app\classes\validators\BikValidator;
-use app\classes\validators\ArrayValidator;
 
 /**
  * Class AccountEditForm
@@ -59,7 +60,7 @@ class AccountEditForm extends Form
         $is_with_consignee,
         $consignee,
         $is_upd_without_sign,
-        $timezone_name = Region::TIMEZONE_MOSCOW,
+        $timezone_name = DateTimeZoneHelper::TIMEZONE_MOSCOW,
         $is_active,
         $admin_contact_id = 0,
         $admin_is_active = 0,
@@ -80,8 +81,7 @@ class AccountEditForm extends Form
         $type_of_bill,
         $effective_vat_rate = 0,
         $pay_bill_until_days = ClientAccount::PAY_BILL_UNTIL_DAYS,
-        $price_level = ClientAccount::DEFAULT_PRICE_LEVEL
-        ;
+        $price_level = ClientAccount::DEFAULT_PRICE_LEVEL;
 
     /**
      * Правила

@@ -905,6 +905,35 @@ class AccountTariff extends HistoryActiveRecord
     }
 
     /**
+     * Всем примененным ресурсам установить текущую дату синхронизации
+     *
+     * @throws \app\exceptions\ModelValidationException
+     */
+    public function setResourceSyncTime()
+    {
+        $dateTimeNow = $this->clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
+
+        /** @var AccountTariffResourceLog $accountTariffResourceLog */
+        $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs();
+        foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLog) {
+            if ($accountTariffResourceLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT)) {
+                // еще не действует
+                continue;
+            }
+
+            if ($accountTariffResourceLog->sync_time) {
+                // дата синхронизации уже установлена
+                continue;
+            }
+
+            $accountTariffResourceLog->sync_time = date(DateTimeZoneHelper::DATETIME_FORMAT);
+            if (!$accountTariffResourceLog->save()) {
+                throw new ModelValidationException($accountTariffResourceLog);
+            }
+        }
+    }
+
+    /**
      * Сгруппировать одинаковые город-тариф-пакеты по строчкам
      *
      * @param ActiveQuery $query

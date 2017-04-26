@@ -34,6 +34,10 @@ class UbillerController extends Controller
         // Обязательно после actionSetCurrentTariff (чтобы правильно учесть тариф) и до транзакций (чтобы они правильно посчитали)
         $this->actionAutoCloseAccountTariff();
 
+        // Отправить измененные ресурсы на платформу и другим поставщикам услуг
+        // Обязательно после actionSetCurrentTariff, чтобы измененный тариф сам синхронизировал некоторые ресурсы
+        $this->actionSyncResource();
+
         // транзакции
         $this->actionSetup();
         $this->actionPeriod();
@@ -164,6 +168,14 @@ class UbillerController extends Controller
     public function actionSetCurrentTariff()
     {
         $this->_tarificate('SetCurrentTariffTarificator', 'Обновить AccountTariff.TariffPeriod');
+    }
+
+    /**
+     * Отправить измененные ресурсы на платформу и другим поставщикам услуг
+     */
+    public function actionSyncResource()
+    {
+        $this->_tarificate('SyncResourceTarificator', 'Отправить измененные ресурсы на платформу');
     }
 
     /**

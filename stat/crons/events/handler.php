@@ -3,16 +3,16 @@
 use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
 use app\classes\api\ApiCore;
+use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
+use app\classes\Event;
+use app\classes\partners\RewardCalculate;
+use app\models\ClientAccount;
+use app\models\EventQueueIndicator;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\behaviors\SyncVmCollocation;
-use app\classes\Event;
-use app\classes\notification\processors\AddPaymentNotificationProcessor;
-use app\classes\partners\RewardCalculate;
 use app\modules\uu\models\AccountTariff;
-use app\models\ClientAccount;
-use app\models\EventQueueIndicator;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -254,6 +254,16 @@ function doEvents()
                     // Если эта услуга активна - подключить базовый пакет. Если неактивна - закрыть все пакеты.
                     AccountTariff::findOne(['id' => $param['account_tariff_id']])
                         ->addOrCloseDefaultPackage();
+                    break;
+
+                case Event::UU_ACCOUNT_TARIFF_RESOURCE_VOIP:
+                    // Отправить измененные ресурсы телефонии на платформу и другим поставщикам услуг
+                    $isCoreServer && ApiPhone::me()->editDid($param['account_id'], $param['number'], $param['lines']);
+                    break;
+
+                case Event::UU_ACCOUNT_TARIFF_RESOURCE_VPBX:
+                    // Отправить измененные ресурсы ВАТС на платформу и другим поставщикам услуг
+                    $isCoreServer && ApiVpbx::me()->update($param['account_id'], $param['account_tariff_id'], $regionId = null, ClientAccount::VERSION_BILLER_UNIVERSAL);
                     break;
 
                 case Event::ACTUALIZE_NUMBER:

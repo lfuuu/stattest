@@ -3,8 +3,8 @@ namespace app\classes\api;
 
 use app\classes\HttpClient;
 use app\classes\Singleton;
-use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\Region;
 use Yii;
 use yii\base\InvalidConfigException;
 
@@ -15,6 +15,9 @@ use yii\base\InvalidConfigException;
  */
 class ApiPhone extends Singleton
 {
+    const TYPE_LINE = 'line';
+    const TYPE_VPBX = 'vpbx';
+
     /**
      * @return bool
      */
@@ -49,23 +52,6 @@ class ApiPhone extends Singleton
     }
 
     /**
-     * @return array
-     */
-    public function getMultitranks()
-    {
-        $data = [];
-        try {
-            foreach ($this->exec('multitrunks', null) as $d) {
-                $data[$d['id']] = $d['name'];
-            }
-        } catch (\Exception $e) {
-            // так исторически сложилось
-        }
-
-        return $data;
-    }
-
-    /**
      * @param string $action
      * @param array $data
      * @return mixed
@@ -73,8 +59,12 @@ class ApiPhone extends Singleton
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      */
-    public function exec($action, $data)
+    private function _exec($action, $data)
     {
+        if (defined('ats3_silent')) {
+            return true;
+        }
+
         if (!$this->isAvailable()) {
             throw new InvalidConfigException('API Phone was not configured');
         }
@@ -89,6 +79,23 @@ class ApiPhone extends Singleton
     }
 
     /**
+     * @return array
+     */
+    public function getMultitranks()
+    {
+        $data = [];
+        try {
+            foreach ($this->_exec('multitrunks', null) as $d) {
+                $data[$d['id']] = $d['name'];
+            }
+        } catch (\Exception $e) {
+            // так исторически сложилось
+        }
+
+        return $data;
+    }
+
+    /**
      * @param ClientAccount $client
      * @return array
      * @throws \yii\base\InvalidConfigException
@@ -97,29 +104,128 @@ class ApiPhone extends Singleton
      */
     public function getNumbersInfo(ClientAccount $client)
     {
-        return $this->exec('numbers_info', ['account_id' => $client->id]);
+        return $this->_exec('numbers_info', ['account_id' => $client->id]);
     }
 
     /**
-     * @param ClientAccount $clientAccount
-     * @param int $did
-     * @param \DateTimeImmutable $date
-     * @return array. int_number_amount=>... или errors=>...
+     * @param int $clientAccountId
+     * @param string $number
+     * @param int $lines
+     * @param int $region
+     * @param bool $isNonumber
+     * @param string $number7800
+     * @param int $vpbxStatProductId
+     * @return array
      * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidCallException
      */
-    public function getResourceVoipLines(ClientAccount $clientAccount, $did, \DateTimeImmutable $date)
+    public function addDid($clientAccountId, $number, $lines, $region, $isNonumber, $number7800 = null, $vpbxStatProductId = null)
     {
-        return $this->exec(
-            'get_did_client_lines',
-            [
-                'timezone' => $clientAccount->timezone_name,
-                'date_log' => $date->format(DateTimeZoneHelper::DATE_FORMAT),
-                'account_id' => $clientAccount->id,
-                'did' => $did,
-            ]
-        );
+        $params = [
+            'client_id' => $clientAccountId,
+            'did' => $number,
+            'cl' => (int)$lines,
+            'region' => (int)$region,
+            'timezone' => Region::getTimezoneByRegionId($region),
+            'type' => self::TYPE_LINE,
+            'sip_accounts' => 1,
+            'nonumber' => $isNonumber
+        ];
+
+        if ($isNonumber && $number7800) {
+            $params['nonumber_phone'] = $number7800;
+        }
+
+        if ($vpbxStatProductId) {
+            $params['vpbx_stat_product_id'] = $vpbxStatProductId;
+            $params['type'] = self::TYPE_VPBX;
+        }
+
+        return $this->_exec('add_did', $params);
     }
 
+    /**
+     * @param int $clientAccountId
+     * @param string $number
+     * @param int $lines
+     * @param int $region
+     * @param string $number7800
+     * @return array
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidCallException
+     */
+    public function editDid($clientAccountId, $number, $lines, $region = null, $number7800 = null)
+    {
+        $params = [
+            'client_id' => $clientAccountId,
+            'did' => $number,
+            'cl' => (int)$lines,
+        ];
+
+        if ($region) {
+            $params['region'] = (int)$region;
+        }
+
+        if ($number7800) {
+            $params['nonumber_phone'] = $number7800;
+        }
+
+        return $this->_exec('edit_did', $params);
+    }
+
+    /**
+     * @param int $clientAccountId
+     * @param string $number
+     * @return array
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidCallException
+     */
+    public function disableDid($clientAccountId, $number)
+    {
+        $params = [
+            'client_id' => $clientAccountId,
+            'did' => $number,
+        ];
+
+        return $this->_exec('disable_did', $params);
+    }
+
+    /**
+     * @param int $oldClientAccountId
+     * @param int $newClientAccountId
+     * @param string $number
+     * @return array
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidCallException
+     */
+    public function editClientId($oldClientAccountId, $newClientAccountId, $number)
+    {
+        $params = [
+            'old_client_id' => $oldClientAccountId,
+            'new_client_id' => $newClientAccountId,
+            'did' => $number,
+        ];
+
+        return $this->_exec('edit_client_id', $params);
+    }
+
+    /**
+     * @param int $clientAccountId
+     * @return array
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidCallException
+     */
+    public function numbersState($clientAccountId)
+    {
+        $params = [
+            'account_id' => $clientAccountId,
+        ];
+
+        return $this->_exec('numbers_state', $params);
+    }
 }

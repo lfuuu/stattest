@@ -98,7 +98,7 @@ class VatsController extends Controller
     {
         try {
 
-            return ApiVpbx::me()->getResourceStatistics($date);
+            return ApiVpbx::me()->getResourceUsagePerDay($date);
 
         } catch (\Exception $e) {
             if ($e->getCode() != 540) {

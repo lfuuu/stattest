@@ -10,7 +10,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use Yii;
-use yii\base\Exception;
+use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -83,6 +83,7 @@ class ApiVpbx extends Singleton
      * @param int $clientId
      * @param int $usageId
      * @param int $billerVersion
+     * @return mixed
      * @throws \Exception
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
@@ -95,21 +96,21 @@ class ApiVpbx extends Singleton
         switch ($billerVersion) {
 
             case ClientAccount::VERSION_BILLER_USAGE: {
-                $tariff = $this->getTariff($usageId);
+                $tariff = $this->_getTariff($usageId);
                 break;
             }
 
             case ClientAccount::VERSION_BILLER_UNIVERSAL: {
-                $tariff = $this->getTariffUniversal($usageId);
+                $tariff = $this->_getTariffUniversal($usageId);
                 break;
             }
         }
 
         if (!$tariff) {
-            throw new \Exception('bad tariff');
+            throw new InvalidCallException('bad tariff');
         }
 
-        $this->_exec(
+        return $this->_exec(
             'create',
             [
                 'client_id' => (int)$clientId,
@@ -122,8 +123,8 @@ class ApiVpbx extends Singleton
                 'disk_space' => (int)$tariff['space'],
                 'timezone' => ClientAccount::findOne($clientId)->timezone_name,
                 'region' => $tariff['region'],
-                'enable_geo' => isset($tariff['enable_geo']) ? $tariff['enable_geo'] : 0,
-                'enable_min_price' => isset($tariff['enable_min_price']) ? $tariff['enable_min_price'] : 0,
+                'enable_geo' => $tariff['enable_geo'],
+                'enable_min_price' => $tariff['enable_min_price'],
             ]
         );
     }
@@ -135,6 +136,7 @@ class ApiVpbx extends Singleton
      * @param int $fromUsageId
      * @param int $toAccountId
      * @param int $toUsageId
+     * @return mixed
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
@@ -152,7 +154,7 @@ class ApiVpbx extends Singleton
             'to_stat_product_id' => $toUsageId
         ];
 
-        $this->_exec('transfer', $query);
+        return $this->_exec('transfer', $query);
     }
 
     /**
@@ -162,6 +164,7 @@ class ApiVpbx extends Singleton
      * @param int $fromUsageId
      * @param int $toAccountId
      * @param int $toUsageId
+     * @return mixed
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
@@ -179,19 +182,20 @@ class ApiVpbx extends Singleton
             'to_stat_product_id' => $toUsageId
         ];
 
-        $this->_exec('transfer_vpbx_only', $query);
+        return $this->_exec('transfer_vpbx_only', $query);
     }
 
     /**
      * @param int $clientId
      * @param int $usageId
+     * @return mixed
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public function stop($clientId, $usageId)
+    public function delete($clientId, $usageId)
     {
-        $this->_exec(
+        return $this->_exec(
             'delete',
             [
                 'client_id' => (int)$clientId,
@@ -205,6 +209,7 @@ class ApiVpbx extends Singleton
      * @param int $usageId
      * @param int $regionId
      * @param int $billerVersion
+     * @return mixed
      * @throws \Exception
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
@@ -213,18 +218,18 @@ class ApiVpbx extends Singleton
     public function update($clientId, $usageId, $regionId, $billerVersion = ClientAccount::VERSION_BILLER_USAGE)
     {
         if ($billerVersion == ClientAccount::VERSION_BILLER_USAGE) {
-            $tariff = $this->getTariff($usageId);
+            $tariff = $this->_getTariff($usageId);
         } elseif ($billerVersion == ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            $tariff = $this->getTariffUniversal($usageId);
+            $tariff = $this->_getTariffUniversal($usageId);
         } else {
-            throw new \Exception('bad biller version');
+            throw new InvalidCallException('bad biller version');
         }
 
         if (!$tariff) {
-            throw new \Exception('bad tariff');
+            throw new InvalidCallException('bad tariff');
         }
 
-        $this->_exec(
+        return $this->_exec(
             'update',
             [
                 'client_id' => (int)$clientId,
@@ -235,38 +240,10 @@ class ApiVpbx extends Singleton
                 'disk_space' => (int)$tariff['space'],
                 'enable_web_call' => (bool)$tariff['is_web_call'],
                 'region' => (int)$regionId,
-                'enable_geo' => isset($tariff['enable_geo']) ? $tariff['enable_geo'] : 0,
-                'enable_min_price' => isset($tariff['enable_min_price']) ? $tariff['enable_min_price'] : 0,
+                'enable_geo' => $tariff['enable_geo'],
+                'enable_min_price' => $tariff['enable_min_price'],
             ]
         );
-    }
-
-    /**
-     * Получаем статистику по занятому пространству
-     *
-     * @param int $clientId
-     * @param int $usageId
-     * @param string $date
-     * @return int занятое просторанство
-     * @throws \yii\base\Exception
-     */
-    public function getUsageSpaceStatistic($clientId, $usageId, $date)
-    {
-        return $this->getStatistic($clientId, $usageId, $date, 'get_total_space_usage', 'total');
-    }
-
-    /**
-     * Получаем статистику по количеству используемых портов
-     *
-     * @param int $clientId
-     * @param int $usageId
-     * @param string $date
-     * @return int кол-во используемых портов
-     * @throws \yii\base\Exception
-     */
-    public function getUsageNumbersStatistic($clientId, $usageId, $date)
-    {
-        return $this->getStatistic($clientId, $usageId, $date, 'get_int_number_usage', 'int_number_amount');
     }
 
     /**
@@ -276,87 +253,9 @@ class ApiVpbx extends Singleton
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    public function getResourceStatistics(\DateTime $date)
+    public function getResourceUsagePerDay(\DateTime $date)
     {
         return $this->_exec('get_resource_usage_per_day', ['date' => $date->format(DateTimeZoneHelper::DATE_FORMAT)]);
-    }
-
-    /**
-     * @param int $clientId
-     * @param int $usageId
-     * @param string $date
-     * @param string $statisticFunction
-     * @param string $statisticField
-     * @return mixed
-     * @throws \yii\base\Exception
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getStatistic(
-        $clientId,
-        $usageId,
-        $date,
-        $statisticFunction = 'get_total_space_usage',
-        $statisticField = 'total'
-    ) {
-        $result = $this->_exec(
-            $statisticFunction,
-            [
-                'client_id' => (int)$clientId,
-                'stat_product_id' => (int)$usageId,
-                'date' => $date,
-            ]
-        );
-
-        if (!isset($result[$statisticField])) {
-            throw new Exception(
-                isset($result['errors']) && $result['errors'] ?
-                    implode('; ', $result['error']) :
-                    'Ошибка получения статистики'
-            );
-        }
-
-        return $result[$statisticField];
-    }
-
-    /**
-     * Возвращает подготовленное описание для синхронизации тарифа ВАТС. 'Старые' услуги.
-     *
-     * @param int $usageId
-     * @return array|false
-     * @throws \yii\db\Exception
-     */
-    public function getTariff($usageId)
-    {
-        $sql = <<<SQL
-                SELECT
-                    t.num_ports,
-                    t.space,
-                    t.is_record,
-                    t.is_fax,
-                    t.is_web_call,
-                    region
-                FROM (select (
-                        select
-                            id_tarif
-                        from
-                            log_tarif
-                        where
-                                id_service = u.id
-                            and service = 'usage_virtpbx'
-                            and date_activation < now()
-                        ORDER BY
-                        date_activation DESC, id DESC LIMIT 1
-                        ) as tarif_id,
-                        u.region
-                    FROM usage_virtpbx u
-                    WHERE u.id = :usageId ) u
-                LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
-SQL;
-        $command = Yii::$app->db->createCommand($sql, [':usageId' => $usageId]);
-
-        return $command->queryOne();
     }
 
     /**
@@ -386,36 +285,6 @@ SQL;
     }
 
     /**
-     * Возвращает подготовленное описание для синхронизации тарифа ВАТС. Универсальные услуги.
-     *
-     * @param int $usageId
-     * @return array
-     * @throws \Exception
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function getTariffUniversal($usageId)
-    {
-        $accountTariff = AccountTariff::findOne(['id' => $usageId]);
-
-        if (!$accountTariff || !$accountTariff->tariffPeriod || $accountTariff->service_type_id != ServiceType::ID_VPBX) {
-            throw new \Exception('bad tariff');
-        }
-
-        return [
-            'num_ports' => $accountTariff->getResourceValue(Resource::ID_VPBX_ABONENT),
-            'space' => 0, // $accountTariff->getResourceValue(Resource::ID_VPBX_DISK) * 1024, // трафик устанавливается не заранее, а по факту
-            'is_record' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_RECORD),
-            'is_fax' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_FAX),
-            'is_web_call' => 0, // ?
-            'region' => $accountTariff->region_id,
-            'enable_geo' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_GEO_ROUTE),
-            'enable_min_price' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_MIN_ROUTE),
-        ];
-    }
-
-    /**
      * Блокирует клиентский аккаунт в ВАТС
      *
      * @param int $accountId
@@ -427,16 +296,11 @@ SQL;
     public function lockAccount($accountId)
     {
         $account = ClientAccount::findOne(['id' => $accountId]);
-
-        if (
-            $account &&
-            $account->is_blocked &&
-            $this->_isHaveEnabledVPBX($accountId)
-        ) {
-            return $this->_exec('lock_account', ['account_id' => $accountId]);
+        if (!$account || !$account->is_blocked || !$this->_isHaveEnabledVPBX($accountId)) {
+            return null;
         }
 
-        return null;
+        return $this->_exec('lock_account', ['account_id' => $accountId]);
     }
 
     /**
@@ -451,15 +315,11 @@ SQL;
     public function unlockAccount($accountId)
     {
         $account = ClientAccount::findOne(['id' => $accountId]);
-        if (
-            $account &&
-            !$account->is_blocked &&
-            $this->_isHaveEnabledVPBX($accountId)
-        ) {
-            return $this->_exec('unlock_account', ['account_id' => $accountId]);
+        if (!$account || $account->is_blocked || !$this->_isHaveEnabledVPBX($accountId)) {
+            return null;
         }
 
-        return null;
+        return $this->_exec('unlock_account', ['account_id' => $accountId]);
     }
 
     /**
@@ -473,5 +333,79 @@ SQL;
         return (bool)ActualVirtpbx::find()
             ->where(['client_id' => $accountId])
             ->count();
+    }
+
+    /**
+     * Возвращает подготовленное описание для синхронизации тарифа ВАТС. 'Старые' услуги.
+     *
+     * @param int $usageId
+     * @return array|false
+     * @throws \yii\db\Exception
+     */
+    private function _getTariff($usageId)
+    {
+        $sql = <<<SQL
+                SELECT
+                    t.num_ports,
+                    t.space,
+                    t.is_record,
+                    t.is_fax,
+                    t.is_web_call,
+                    region,
+                    0 as enable_geo,
+                    0 as enable_min_price
+                FROM (select (
+                        select
+                            id_tarif
+                        from
+                            log_tarif
+                        where
+                                id_service = u.id
+                            and service = 'usage_virtpbx'
+                            and date_activation < now()
+                        ORDER BY
+                        date_activation DESC, id DESC LIMIT 1
+                        ) as tarif_id,
+                        u.region
+                    FROM usage_virtpbx u
+                    WHERE u.id = :usageId ) u
+                LEFT JOIN tarifs_virtpbx t ON (t.id = u.tarif_id)
+SQL;
+        $command = Yii::$app->db->createCommand($sql, [':usageId' => $usageId]);
+
+        return $command->queryOne();
+    }
+
+    /**
+     * Возвращает подготовленное описание для синхронизации тарифа ВАТС. Универсальные услуги.
+     *
+     * @param int $usageId
+     * @return array
+     * @throws \Exception
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\InvalidCallException
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function _getTariffUniversal($usageId)
+    {
+        $accountTariff = AccountTariff::findOne(['id' => $usageId]);
+
+        if (!$accountTariff || !$accountTariff->tariffPeriod || $accountTariff->service_type_id != ServiceType::ID_VPBX) {
+            throw new \Exception('bad tariff');
+        }
+
+        // Всем примененным ресурсам установить текущую дату синхронизации
+        $accountTariff->setResourceSyncTime();
+
+        return [
+            'num_ports' => $accountTariff->getResourceValue(Resource::ID_VPBX_ABONENT),
+            'space' => 0, // $accountTariff->getResourceValue(Resource::ID_VPBX_DISK) * 1024, // трафик устанавливается не заранее, а по факту
+            'is_record' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_RECORD),
+            'is_fax' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_FAX),
+            'is_web_call' => 0, // "звонок-чат". Во-первых, он вообще не из ВАТС, а из отдельной услуги. Во-вторых, он всегда всем включен и не выключается.
+            'region' => $accountTariff->region_id,
+            'enable_geo' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_GEO_ROUTE),
+            'enable_min_price' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_MIN_ROUTE),
+        ];
     }
 }

@@ -4,7 +4,6 @@ namespace app\classes;
 
 use app\classes\api\ApiPhone;
 use app\models\ActualNumber;
-use app\models\Region;
 use app\models\UsageVoip;
 
 /**
@@ -273,7 +272,9 @@ class ActaulizerVoipNumbers extends Singleton
 
     /**
      * @param array $data
-     * @return array
+     * @throws \yii\base\InvalidCallException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
      */
     private function _addEvent($data)
     {
@@ -289,55 +290,43 @@ class ActaulizerVoipNumbers extends Singleton
             $params = [];
         }
 
-        $s = [
-            'client_id' => (int)$data['client_id'],
-            'did' => $data['number'],
-            'cl' => (int)$data['call_count'],
-            'region' => (int)$data['region'],
-            'timezone' => $this->_getTimezoneByRegion($data['region']),
-            'type' => 'line', // $usage->type_id,
-            'sip_accounts' => 1,
-            'nonumber' => (bool)$this->_isNonumber($data['number'])
-        ];
-
-        if ($s['nonumber'] && $data['number7800']) {
-            $s['nonumber_phone'] = $data['number7800'];
-        }
-
-        if (isset($params['vpbx_stat_product_id'])) {
-            $s['vpbx_stat_product_id'] = $params['vpbx_stat_product_id'];
-            $s['type'] = 'vpbx';
-        }
-
-        $this->_execQuery('add_did', $s);
-
-        return $s;
+        ApiPhone::me()->addDid(
+            (int)$data['client_id'],
+            $data['number'],
+            (int)$data['call_count'],
+            (int)$data['region'],
+            (bool)$this->_isNonumber($data['number']),
+            $data['number7800'],
+            isset($params['vpbx_stat_product_id']) ? $params['vpbx_stat_product_id'] : null
+        );
     }
 
     /**
      * @param array $data
+     * @throws \yii\base\InvalidCallException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
      */
     private function _delEvent($data)
     {
-        $s = [
-            'client_id' => $data['client_id'],
-            'did' => $data['number']
-        ];
-
-        $this->_execQuery('disable_did', $s);
+        ApiPhone::me()->disableDid(
+            (int)$data['client_id'],
+            $data['number']
+        );
     }
 
     /**
      * @param string $number
      * @param array $data
+     * @throws \yii\base\InvalidCallException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
      */
     private function _changeEvent($number, $data)
     {
         $old = $data['data_old'];
         $new = $data['data_new'];
         $changedFields = $data['changed_fields'];
-
-        $structClientChange = null;
 
         // change client_id
         if (isset($changedFields['client_id'])) {
@@ -349,18 +338,18 @@ class ActaulizerVoipNumbers extends Singleton
             }
 
             if ($isMoved) {
-                $structClientChange = [
-                    'old_client_id' => (int)$old['client_id'],
-                    'did' => $number,
-                    'new_client_id' => (int)$new['client_id']
-                ];
 
-                $this->_execQuery('edit_client_id', $structClientChange);
+                ApiPhone::me()->editClientId(
+                    (int)$old['client_id'],
+                    (int)$new['client_id'],
+                    $number
+                );
+
                 unset($changedFields['client_id']);
             } else {
                 $this->_delEvent($old);
                 $this->_addEvent($new);
-                return true;
+                return;
             }
         }
 
@@ -390,22 +379,13 @@ class ActaulizerVoipNumbers extends Singleton
 
         // change fields
         if ($changedFields) {
-            $structChange = [
-                'client_id' => (int)$new['client_id'],
-                'did' => $number,
-                'cl' => (int)$new['call_count']
-            ];
-
-            if (isset($changedFields['region'])) {
-                $structChange['region'] = (int)$changedFields['region'];
-                $structChange['timezone'] = $this->_getTimezoneByRegion($changedFields['region']);
-            }
-
-            if (isset($changedFields['number7800'])) {
-                $structChange['nonumber_phone'] = $changedFields['number7800'];
-            }
-
-            $this->_execQuery('edit_did', $structChange);
+            ApiPhone::me()->editDid(
+                (int)$new['client_id'],
+                $number,
+                (int)$new['call_count'],
+                isset($changedFields['region']) ? (int)$changedFields['region'] : null,
+                isset($changedFields['number7800']) ? $changedFields['number7800'] : null
+            );
         }
     }
 
@@ -428,21 +408,6 @@ class ActaulizerVoipNumbers extends Singleton
     }
 
     /**
-     * @param int $regionId
-     * @return string
-     */
-    private function _getTimezoneByRegion($regionId)
-    {
-        $region = Region::findOne($regionId);
-
-        if ($region) {
-            return $region->timezone_name;
-        }
-
-        return 'Europe/Moscow';
-    }
-
-    /**
      * @param string $number
      * @param int $toClientId
      */
@@ -452,18 +417,6 @@ class ActaulizerVoipNumbers extends Singleton
         if ($actual) {
             $actual->client_id = $toClientId;
             $actual->save();
-        }
-    }
-
-
-    /**
-     * @param string $action
-     * @param array $data
-     */
-    private function _execQuery($action, $data)
-    {
-        if (!defined('ats3_silent')) {
-            ApiPhone::me()->exec($action, $data);
         }
     }
 }

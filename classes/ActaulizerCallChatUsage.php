@@ -12,7 +12,11 @@ use app\dao\ActualCallChatDao;
 use app\models\ActualCallChat;
 use app\models\UsageCallChat;
 
-
+/**
+ * Class ActaulizerCallChatUsage
+ *
+ * @method static ActaulizerCallChatUsage me($args = null)
+ */
 class ActaulizerCallChatUsage extends Singleton
 {
 

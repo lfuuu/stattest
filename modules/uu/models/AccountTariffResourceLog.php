@@ -20,6 +20,7 @@ use yii\db\ActiveRecord;
  * @property int $resource_id
  * @property float $amount
  * @property string $actual_from_utc
+ * @property string $sync_time
  *
  * @property AccountTariff $accountTariff
  * @property \app\modules\uu\models\Resource $resource

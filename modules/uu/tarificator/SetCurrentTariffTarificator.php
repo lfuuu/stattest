@@ -71,7 +71,7 @@ SQL;
 
             $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
 
-            $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
+            $isWithTransaction && $transaction = $db->beginTransaction();
             try {
 
                 if ($accountTariff->tariff_period_id && $accountTariff->tariff_period_id != $row['new_tariff_period_id'] && $row['new_tariff_period_id']) {
@@ -81,29 +81,31 @@ SQL;
 
                 // доп. обработка в зависимости от типа услуги
                 switch ($accountTariff->service_type_id) {
-                    case ServiceType::ID_VOIP: {
+
+                    case ServiceType::ID_VOIP:
+                        // Телефония
                         Event::go(Event::UU_ACCOUNT_TARIFF_VOIP, [
                             'account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
-                            'number' => $accountTariff->voip_number
+                            'number' => $accountTariff->voip_number,
                         ]);
+                        // \app\dao\ActualNumberDao::collectFromUsages ресурс "линии" всегда передает 1. Надо дополнительно отправить запрос про ресурсы
                         break;
-                    }
 
-                    case ServiceType::ID_VPBX: {
+                    case ServiceType::ID_VPBX:
+                        // ВАТС
                         Event::go(Event::UU_ACCOUNT_TARIFF_VPBX, [
                             'account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);
+                        // Из VirtPbx3Action::add/dataChanged передаются все текущие ресурсы. Больше ничего не надо
                         break;
-                    }
 
-                    case ServiceType::ID_VM_COLLOCATION: {
+                    case ServiceType::ID_VM_COLLOCATION:
                         Event::go(SyncVmCollocation::EVENT_SYNC, [
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         break;
-                    }
                 }
 
                 if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
@@ -120,7 +122,7 @@ SQL;
                 Yii::error($e->getMessage());
 
                 // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
-                $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
+                $isWithTransaction && $transaction = $db->beginTransaction();
                 $accountTariffLogs = $accountTariff->accountTariffLogs;
                 $accountTariffLog = reset($accountTariffLogs);
                 $accountTariffLog->actual_from_utc = (new \DateTimeImmutable($accountTariffLog->actual_from_utc))
