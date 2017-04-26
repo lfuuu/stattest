@@ -94,6 +94,8 @@ class HttpRequest extends \yii\httpclient\Request
 
         if (isset($responseData['errors']) && $responseData['errors']) {
 
+            $msg = '';
+
             if (isset($responseData['errors']['message'], $responseData['errors']['code'])) {
                 $msg = $responseData['errors']['message'];
                 $code = $responseData['errors']['code'];
@@ -107,7 +109,15 @@ class HttpRequest extends \yii\httpclient\Request
                 }
             }
 
-            throw new InvalidCallException((is_string($msg) ? $msg : ''), is_numeric($code) ? $code : -1);
+            if (!is_string($msg)) {
+                $msg = '';
+            }
+
+            $msg .= PHP_EOL . PHP_EOL;
+            $msg .= print_r($this->_getDebugInfo(), true) . PHP_EOL . PHP_EOL;
+            $msg .= print_r($responseData, true);
+
+            throw new InvalidCallException($msg, is_numeric($code) ? $code : -1);
         }
 
         return $responseData;

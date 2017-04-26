@@ -86,6 +86,7 @@ $columns = [
             if (!$eventQueue->log_error) {
                 return '';
             }
+
             return Html::tag(
                 'button',
                 $eventQueue->log_error,
@@ -94,7 +95,7 @@ $columns = [
                     'data-toggle' => 'popover',
                     'data-html' => 'true',
                     'data-placement' => 'bottom',
-                    'data-content' => nl2br(htmlspecialchars($eventQueue->log_error)),
+                    'data-content' => nl2br(htmlspecialchars($eventQueue->log_error . PHP_EOL . PHP_EOL . $eventQueue->trace)),
                 ]
             );
         }
