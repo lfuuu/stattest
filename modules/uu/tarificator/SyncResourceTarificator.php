@@ -41,7 +41,7 @@ class SyncResourceTarificator extends Tarificator
             try {
 
                 // только по незакрытым услугам
-                if (!$accountTariff->isActive()) {
+                if ($accountTariff->isActive()) {
 
                     // в зависимости от типа услуги
                     switch ($accountTariff->service_type_id) {
