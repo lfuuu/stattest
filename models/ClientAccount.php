@@ -17,6 +17,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use app\dao\ClientAccountDao;
 use app\models\billing\Locks;
+use app\models\voip\StatisticDay;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -1136,6 +1137,16 @@ class ClientAccount extends HistoryActiveRecord
     public function getAccountTypeAndId()
     {
         return $this->getAccountType() . ' № ' . $this->id;
+    }
+
+    /**
+     * Счетчики для дашборда в ЛК
+     *
+     * @return array
+     */
+    public function getDashboardCounters()
+    {
+        return StatisticDay::getCounters($this);
     }
 
     /**
