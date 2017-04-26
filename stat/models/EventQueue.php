@@ -1,4 +1,5 @@
 <?php
+use app\exceptions\InvalidHttpRequestException;
 
 /**
  * @property int $id
@@ -61,12 +62,15 @@ class EventQueue extends ActiveRecord\Model
      */
     public function setError(Exception $e = null)
     {
+        /** @var InvalidHttpRequestException $e */
         list($this->status, $this->next_start) = self::_setNextStart($this);
         $this->iteration++;
 
         if ($e) {
-            $this->log_error = $e->getCode().": ".$e->getMessage();
-            $this->trace = $e->getFile()." +".$e->getLine().";\n " . $e->getTraceAsString();
+            $this->log_error = $e->getCode() . ": " . $e->getMessage();
+            $this->trace = ($e instanceof InvalidHttpRequestException ? $e->debugInfo : '') .
+                $e->getFile() . ":" . $e->getLine() . ";\n " .
+                $e->getTraceAsString();
             Yii::error($e);
         }
 
