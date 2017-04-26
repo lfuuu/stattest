@@ -9,7 +9,7 @@
             batchSize: 5000
         }, options);
 
-        this.showError = function($dialog, message) {
+        this.showError = function ($dialog, message) {
             $dialog.find('.dialog-step:visible').hide();
             $dialog
                 .find('.dialog-step[data-step="error"]')
@@ -18,7 +18,7 @@
                 .show();
         };
 
-        this.actionIteration = function(driver, columns, $dialog, iterations, key, offset) {
+        this.actionIteration = function (driver, columns, $dialog, iterations, key, offset) {
             $.ajax({
                 url: gridUrl,
                 dataType: 'json',
@@ -31,36 +31,37 @@
                     'columns': columns,
                     'batchSize': that.options.batchSize
                 },
-                success: function(data) {
-                    if (data.success) {
-                        var nextIteration = data.iteration++;
-                        $dialog.find('.dialog-export-progress-bar div').css('width', ((100 / iterations) * (nextIteration + 1)) + '%');
+                success: function (data) {
+                    if (!(data && data.success)) {
+                        that.showError($dialog, 'не удалось загрузить данные по этапу №' + offset);
+                        return false;
+                    }
 
-                        if (nextIteration < iterations) {
-                            var subTotal = data.iteration * that.options.batchSize;
-                            $dialog.find('span.dialog-export-total').text(
-                                (subTotal > data.total ? data.total : subTotal) + ' \/ ' + data.total
-                            );
-                            that.actionIteration(driver, columns, $dialog, iterations, key, data.iteration++);
-                        } else {
-                            $dialog.find('.dialog-step:visible').hide();
-                            $dialog.find('.dialog-step[data-step="complete"]').show();
-                            self.location.href = gridUrl + '&action=download&key=' + key + '&driver=' + driver;
-                            setTimeout(function() {
-                                $dialog.modal('hide');
-                            }, 3000);
-                        }
+                    var nextIteration = data.iteration++;
+                    $dialog.find('.dialog-export-progress-bar div').css('width', ((100 / iterations) * (nextIteration + 1)) + '%');
+
+                    if (nextIteration < iterations) {
+                        var subTotal = data.iteration * that.options.batchSize;
+                        $dialog.find('span.dialog-export-total').text(
+                            (subTotal > data.total ? data.total : subTotal) + ' \/ ' + data.total
+                        );
+                        that.actionIteration(driver, columns, $dialog, iterations, key, data.iteration++);
                     } else {
-                        that.showError($dialog, 'не удалось загрузить данные по итерации №' + offset);
+                        $dialog.find('.dialog-step:visible').hide();
+                        $dialog.find('.dialog-step[data-step="complete"]').show();
+                        self.location.href = gridUrl + '&action=download&key=' + key + '&driver=' + driver;
+                        setTimeout(function () {
+                            $dialog.modal('hide');
+                        }, 3000);
                     }
                 },
-                error: function() {
-                    that.showError($dialog, '(backend) итерация №' + offset + ' не может быть завершена');
+                error: function (jqXHR, textStatus) {
+                    that.showError($dialog, 'Ошибка на стороне сервера. Этап № ' + offset + '<br />' + textStatus);
                 }
             });
         };
 
-        this.actionInit = function(driver, columns, $dialog) {
+        this.actionInit = function (driver, columns, $dialog) {
             var iterations = 0;
 
             $.ajax({
@@ -72,7 +73,7 @@
                     'driver': driver,
                     'columns': columns
                 },
-                success: function(data) {
+                success: function (data) {
                     if (data.total) {
                         $dialog.find('span.dialog-export-total').text('0 \/ ' + data.total);
                         $dialog.find('.dialog-step:visible').hide().next().show();
@@ -87,31 +88,33 @@
                         that.showError($dialog, 'не удалось получить данные');
                     }
                 },
-                error: function() {
-                    that.showError($dialog, '(backend) возникла ошибка на сервере. Возможно, не хватает параметров');
+                error: function (jqXHR, textStatus) {
+                    that.showError($dialog, 'Ошибка на стороне сервера.<br />' + textStatus);
                 }
             });
         };
 
         return this.each(function() {
-            $(this).off('click').on('click', function(e) {
+            $(this).off('click').on('click', function (e) {
                 e.preventDefault();
 
                 var
                     columns = [],
                     uid = $(this).data('uid'),
                     driver = $(this).data('export-gridview-format');
-                    $dialog = $('#' + uid + '-export-dialog');
+                    $dialog = $('#' + uid + '-export-dialog')
+                        .off('shown.bs.modal')
+                        .off('hide.bs.modal');
 
                 $('[data-export-menu="' + uid + '"] ul.export-checkbox-list input[type="checkbox"][data-key]:checked').each(function() {
                     columns.push($(this).data('key'));
                 });
 
-                $dialog.on('shown.bs.modal', function() {
+                $dialog.on('shown.bs.modal', function () {
                     that.actionInit(driver, columns, $dialog);
                 });
 
-                $dialog.on('hide.bs.modal', function() {
+                $dialog.on('hide.bs.modal', function () {
                     $(this).find('.dialog-step').hide().eq(0).show();
                 });
 
@@ -125,8 +128,8 @@
 
     };
 
-    $.fn.gridViewMenu = function() {
-        return this.each(function() {
+    $.fn.gridViewMenu = function () {
+        return this.each(function () {
             var $that = $(this),
                 $columns = $that.find('.export-checkbox-list li'),
                 $toggle = $that.find('input[name="export_gridview_columns_toggle"]');
