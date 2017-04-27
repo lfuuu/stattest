@@ -79,7 +79,19 @@ class OperatorOnlime extends Operators
                 'd78e0644-6dbc-11e5-9421-00155d881200',
                 '3a0a1bfe-c8c2-11e5-af87-00155d881200',
             ],
-        ]
+        ],
+        'count_41' => [
+            'id' => 18696,
+            'name' => 'Пульт универсальный дистанционного управления',
+            'nameFull' => 'Пульт универсальный дистанционного управления',
+            'id_1c' => '8d4c0c88-145b-11e7-9abf-00155d881200',
+        ],
+        'count_44' => [
+            'id' => 18711,
+            'name' => 'Видеокамера Hikvision DS-2CD-VC1W',
+            'nameFull' => 'Видеокамера Hikvision DS-2CD-VC1W',
+            'id_1c' => 'bc938b25-2991-11e7-b423-00155d881200',
+        ],
     ];
 
     public static $requestModes = [

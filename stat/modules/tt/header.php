@@ -1,4 +1,4 @@
-<?
+<?php
 class m_tt_head extends IModuleHead{
 	public $module_name = 'tt';
 	public $module_title = 'Заявки';

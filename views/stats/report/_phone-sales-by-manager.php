@@ -1,7 +1,8 @@
 <?php
-/**
- * @var array $managers
- */
+/** @var \app\classes\BaseView $this */
+use app\assets\AppAsset;
+
+/** @var array $managers */
 
 $amount = [
     'number_new' => 0,
@@ -16,7 +17,15 @@ $amount = [
     'vpbx_old' => 0,
     'departure' => 0,
 ];
+
+/**
+ * renderFile может правильно подключить эти файлы в автоматическом режиме, но т.к. он самодостаточен,
+ * регистрация их в глобальном layout не происходит
+ */
 ?>
+<script type="text/javascript" src="/views/stats/report/_phone-sales-by-manager.js"></script>
+<link href="/views/stats/report/_phone-sales-by-manager.css" rel="stylesheet" />
+
 <h3>Статистика продажи телефонных номеров по аккаунт-менеджерам</h3>
 <table class="sale-report">
     <thead>

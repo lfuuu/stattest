@@ -1,7 +1,6 @@
 <?php
 namespace app\models;
 
-use app\classes\Assert;
 use app\classes\behaviors\AccountPriceIncludeVat;
 use app\classes\behaviors\ActualizeClientVoip;
 use app\classes\behaviors\ClientAccountComments;
@@ -18,6 +17,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
 use app\dao\ClientAccountDao;
 use app\models\billing\Locks;
+use app\models\voip\StatisticDay;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -27,6 +27,8 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 
 /**
+ * Class ClientAccount
+ *
  * @property int $id
  * @property string $client
  * @property int $super_id
@@ -69,6 +71,8 @@ use yii\helpers\Url;
  * @property int $pay_bill_until_days
  * @property int $is_bill_pay_overdue
  * @property int $is_voip_with_tax
+ * @property int $price_type
+ * @property int $price_level
  *
  * @property Currency $currencyModel
  * @property ClientSuper $superClient
@@ -127,6 +131,7 @@ class ClientAccount extends HistoryActiveRecord
     const DEFAULT_VOIP_IS_DAY_CALC = 1;
     const DEFAULT_VOIP_IS_MN_DAY_CALC = 1;
     const DEFAULT_CREDIT = 0;
+    const DEFAULT_PRICE_LEVEL = 1;
 
     const VERSION_BILLER_USAGE = 4;
     const VERSION_BILLER_UNIVERSAL = 5;
@@ -143,6 +148,8 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_LIMIT_DAY = 'lock.limit_day'; // Превышен дневной лимит
     const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
     const WARNING_BILL_PAY_OVERDUE = 'lock.bill_pay_overdue'; // Просрочка оплаты счета
+
+    const PAY_BILL_UNTIL_DAYS = 30;
 
 
     public static $statuses = [
@@ -185,6 +192,7 @@ class ClientAccount extends HistoryActiveRecord
         self::VERSION_BILLER_USAGE => 'Старый',
         self::VERSION_BILLER_UNIVERSAL => 'Универсальный',
     ];
+
     public static $shopIds = [14050, 18042];
     public $client_orig = '';
     /**
@@ -238,13 +246,17 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function rules()
     {
-        $rules = [];
-        $rules[] = ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY];
-        $rules[] = ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC];
-        $rules[] = ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC];
-        $rules[] = ['region', 'default', 'value' => self::DEFAULT_REGION];
-        $rules[] = ['credit', 'default', 'value' => self::DEFAULT_CREDIT];
-        $rules[] = ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE];
+        $rules = [
+            ['country_id', 'required'],
+            ['country_id', 'integer'],
+            ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
+            ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC],
+            ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC],
+            ['region', 'default', 'value' => self::DEFAULT_REGION],
+            ['credit', 'default', 'value' => self::DEFAULT_CREDIT],
+            ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE],
+            ['pay_bill_until_days', 'default', 'value' => self::PAY_BILL_UNTIL_DAYS],
+        ];
 
         return $rules;
     }
@@ -343,6 +355,7 @@ class ClientAccount extends HistoryActiveRecord
             'effective_vat_rate' => 'Эффективная ставка НДС',
             'pay_bill_until_days' => 'Срок оплаты счетов (в днях)',
             'is_bill_pay_overdue' => 'Блокировка по неоплате счета',
+            'price_level' => 'Уровень цен',
         ];
     }
 
@@ -623,16 +636,9 @@ class ClientAccount extends HistoryActiveRecord
      * @param string $date
      * @return ClientContract
      */
-    public function getContract($date = null)
+    public function getContract($date = '')
     {
-        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
-
-        $contract = ClientContract::findOne($this->contract_id);
-        if ($contract && $date) {
-            $contract->loadVersionOnDate($date);
-        }
-
-        return $contract;
+        return $this->getCachedHistoryModel(ClientContract::className(), $this->contract_id, $date);
     }
 
     /**
@@ -800,7 +806,11 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getTaxRate()
     {
-        return $this->effective_vat_rate;
+        if ($this->getHistoryVersionRequestedDate()) {
+            return ClientContract::dao()->getEffectiveVATRate($this->contract);
+        } else {
+            return $this->effective_vat_rate;
+        }
     }
 
     /**
@@ -1127,6 +1137,26 @@ class ClientAccount extends HistoryActiveRecord
     public function getAccountTypeAndId()
     {
         return $this->getAccountType() . ' № ' . $this->id;
+    }
+
+    /**
+     * Счетчики для дашборда в ЛК
+     *
+     * @return array
+     */
+    public function getDashboardCounters()
+    {
+        return StatisticDay::getCounters($this);
+    }
+
+    /**
+     * Список уровней цен
+     *
+     * @return array
+     */
+    public static function getPriceLevels()
+    {
+        return array_combine(range(1, 9), range(1, 9));
     }
 
     /**

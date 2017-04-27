@@ -27,7 +27,6 @@ class CountryColumn extends DataColumn
      * CountryColumn constructor.
      *
      * @param array $config
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function __construct($config = [])
     {

@@ -1,6 +1,8 @@
 <?php
 namespace app\controllers;
 
+use app\exceptions\ModelValidationException;
+use app\models\media\ClientFiles;
 use Yii;
 use yii\base\Exception;
 use yii\filters\AccessControl;
@@ -147,6 +149,33 @@ class ContractController extends BaseController
         }
 
         $this->redirect(['contract/edit', 'id' => $contractId, '#' => 'rewards']);
+    }
+
+    /**
+     * Устанавливаем флаг у файла - показывать ли его в ЛК
+     *
+     * @param int $fileId
+     * @param int $isShow
+     * @return string
+     */
+    public function actionFileShowInLk($fileId, $isShow)
+    {
+        try {
+            $file = ClientFiles::findOne(['id' => $fileId]);
+
+            Assert::isObject($file);
+
+            $file->is_show_in_lk = (int)(bool)$isShow;
+
+            if (!$file->save()) {
+                throw new ModelValidationException($file);
+            }
+        } catch (\Exception $e) {
+            Yii::error($e);
+            return $e->getMessage();
+        }
+
+        return "ok";
     }
 
 }

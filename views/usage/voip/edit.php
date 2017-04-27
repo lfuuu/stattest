@@ -19,7 +19,7 @@ use yii\widgets\Breadcrumbs;
 /** @var $model \app\forms\usage\UsageVoipEditForm */
 /** @var \app\classes\BaseView $this */
 
-$types = \app\classes\uu\model\Tariff::getVoipTypesByCountryId();
+$types = \app\modules\uu\models\Tariff::getVoipTypesByCountryId();
 
 $noYes = [
     '0' => 'Нет',

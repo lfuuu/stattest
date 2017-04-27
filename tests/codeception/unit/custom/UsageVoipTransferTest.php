@@ -13,7 +13,7 @@ use app\models\UsageVoip;
 use tests\codeception\unit\models\_UsageVoip;
 use app\models\usages\UsageInterface;
 use app\models\LogTarif;
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 
 class UsageVoipTransferTest extends \yii\codeception\TestCase
 {

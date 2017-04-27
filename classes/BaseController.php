@@ -6,7 +6,7 @@ use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\Region;
 use app\models\Trouble;
-use kartik\mpdf\Pdf;
+use app\modules\uu\forms\CrudMultipleTrait;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\BadRequestHttpException;
@@ -15,6 +15,8 @@ use yii\web\NotFoundHttpException;
 
 class BaseController extends Controller
 {
+    use CrudMultipleTrait;
+
     /**
      * @return array
      */
@@ -194,12 +196,14 @@ class BaseController extends Controller
      * Формирует результат в формате PDF, по-умолчанию отдает на отображение в браузер
      *
      * @param string $view
-     * @param [] $params
-     * @param [] $pdfParams
+     * @param array $params
+     * @param array $pdfParams
      * @return mixed
      */
     public function renderAsPDF($view, $params = [], $pdfParams = [])
     {
+        $content = parent::render($view, $params + ['isPdf' => 1]);
+        /*
         $this->layout = 'empty';
         $content = parent::render($view, $params + ['isPdf' => 1]);
 
@@ -224,6 +228,10 @@ class BaseController extends Controller
         $pdf = new \kartik\mpdf\Pdf(array_merge($pdfDefault, $pdfParams));
 
         return $pdf->render();
+        */
+        $generator = new Html2Pdf;
+        $generator->html = $content;
+        return $generator->pdf;
     }
 
     /**

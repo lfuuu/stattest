@@ -2,20 +2,21 @@
 namespace app\forms\client;
 
 use app\classes\api\ApiCore;
+use app\classes\Form;
+use app\classes\validators\ArrayValidator;
+use app\classes\validators\BikValidator;
+use app\helpers\DateTimeZoneHelper;
+use app\models\Bik;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Currency;
-use app\models\PriceType;
+use app\models\GoodPriceType;
 use app\models\Region;
-use app\classes\Form;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
-use app\models\Bik;
-use app\classes\validators\BikValidator;
-use app\classes\validators\ArrayValidator;
 
 /**
  * Class AccountEditForm
@@ -45,7 +46,7 @@ class AccountEditForm extends Form
         $credit = ClientAccount::DEFAULT_CREDIT,
         $phone_connect,
         $form_type,
-        $price_type,
+        $price_type = GoodPriceType::DEFAULT_PRICE_LIST,
         $voip_disabled,
         $voip_credit_limit_day = ClientAccount::DEFAULT_VOIP_CREDIT_LIMIT_DAY,
         $voip_is_day_calc = ClientAccount::DEFAULT_VOIP_IS_DAY_CALC,
@@ -59,7 +60,7 @@ class AccountEditForm extends Form
         $is_with_consignee,
         $consignee,
         $is_upd_without_sign,
-        $timezone_name = Region::TIMEZONE_MOSCOW,
+        $timezone_name = DateTimeZoneHelper::TIMEZONE_MOSCOW,
         $is_active,
         $admin_contact_id = 0,
         $admin_is_active = 0,
@@ -79,7 +80,8 @@ class AccountEditForm extends Form
         $is_postpaid,
         $type_of_bill,
         $effective_vat_rate = 0,
-        $pay_bill_until_days = 30;
+        $pay_bill_until_days = ClientAccount::PAY_BILL_UNTIL_DAYS,
+        $price_level = ClientAccount::DEFAULT_PRICE_LEVEL;
 
     /**
      * Правила
@@ -155,6 +157,7 @@ class AccountEditForm extends Form
                     'account_version',
                     'is_postpaid',
                     'type_of_bill',
+                    'price_level'
                 ],
                 'integer'
             ],
@@ -180,7 +183,7 @@ class AccountEditForm extends Form
             ['currency', 'in', 'range' => array_keys(Currency::map())],
             ['form_type', 'in', 'range' => array_keys(ClientAccount::$formTypes)],
             ['region', 'in', 'range' => array_keys(Region::getList())],
-            ['price_type', 'in', 'range' => array_keys(PriceType::getList())],
+            ['price_type', 'in', 'range' => array_keys(GoodPriceType::getList())],
             ['timezone_name', 'in', 'range' => array_keys(Region::getTimezoneList())],
             ['status', 'in', 'range' => array_keys(ClientAccount::$statuses)],
             ['nal', 'in', 'range' => array_keys(ClientAccount::$nalTypes)],

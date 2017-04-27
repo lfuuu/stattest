@@ -5,5 +5,5 @@ use app\tests\codeception\fixtures\ActiveFixture;
 
 class TariffPeriodFixture extends ActiveFixture
 {
-    public $modelClass = 'app\classes\uu\model\TariffPeriod';
+    public $modelClass = 'app\modules\uu\models\TariffPeriod';
 }

@@ -6,7 +6,6 @@ use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\classes\traits\YesNoTraits;
 use kartik\grid\GridView;
-use Yii;
 
 
 class YesNoColumn extends DataColumn

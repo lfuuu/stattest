@@ -1,7 +1,6 @@
 <?php
 
 use app\classes\BaseView;
-use app\classes\Html;
 use app\forms\client\ContractEditForm;
 use app\models\Business;
 use app\models\BusinessProcess;
@@ -155,27 +154,31 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                     ->dropDownList($model->model->statusesForChange())
                 ?>
             </div>
+
             <?php switch ($model->business_id) {
                 case Business::OPERATOR: {
-                    echo Html::beginTag('div', ['class' => 'col-sm-4']);
-                        echo $f
+                    ?>
+                    <div class="col-sm-4">
+                        <?= $f
                             ->field($model, 'contract_type_id')
-                            ->dropDownList(ContractType::getList());
-                    echo Html::endTag('div');
+                            ->dropDownList(ContractType::getList($model->business_process_id, $isWithEmpty = true))
+                        ?>
+                    </div>
 
-                    echo Html::beginTag('div', ['class' => 'col-sm-4']);
-                        echo $f
+                    <div class="col-sm-4">
+                        <?= $f
                             ->field($model, 'financial_type')
                             ->dropDownList(ClientContract::$financialTypes, [
                                 'disabled' =>
                                     !$model->getIsNewRecord()
                                     && $model->state !== ClientContract::STATE_UNCHECKED
                                     && !Yii::$app->user->can('clients.client_type_change')
-                            ]);
-                    echo Html::endTag('div');
+                            ])
+                        ?>
+                    </div>
 
-                    echo Html::beginTag('div', ['class' => 'col-sm-12']);
-                        echo $f
+                    <div class="col-sm-12">
+                        <?= $f
                             ->field($model, 'federal_district')
                             ->checkboxButtonGroup(ClientContract::$districts, [
                                 'class' =>
@@ -185,17 +188,22 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                                     && !Yii::$app->user->can('clients.client_type_change') ?
                                         'btn-disabled' :
                                         ''
-                            ]);
-                    echo Html::endTag('div');
+                            ])
+                            ?>
+                    </div>
+                    <?php
                     break;
                 }
 
                 case Business::PARTNER: {
-                    echo Html::beginTag('div', ['class' => 'col-sm-4']);
-                    echo $f
-                        ->field($model, 'contract_type_id')
-                        ->dropDownList(ContractType::getList());
-                    echo Html::endTag('div');
+                    ?>
+                    <div class="col-sm-4">
+                        <?= $f
+                            ->field($model, 'contract_type_id')
+                            ->dropDownList(ContractType::getList($model->business_process_id, $isWithEmpty = true))
+                        ?>
+                    </div>
+                    <?php
                     break;
                 }
             }

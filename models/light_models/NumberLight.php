@@ -20,9 +20,10 @@ class NumberLight extends Model
         $origin_currency,
         $region,
         $city_id,
-        $did_group_id,
         $number_type,
-        $ndc;
+        $country_prefix,
+        $ndc,
+        $number_subscriber;
 
     /**
      * @return array
@@ -30,7 +31,7 @@ class NumberLight extends Model
     public function rules()
     {
         return [
-            [['beauty_level', 'region', 'city_id', 'did_group_id', 'number_type', 'ndc'], 'integer'],
+            [['beauty_level', 'region', 'city_id', 'number_type', 'country_prefix', 'ndc', 'number_subscriber'], 'integer'],
             [['number', 'currency', 'origin_currency'], 'string'],
             [['price', 'origin_price'], 'number'],
         ];
@@ -42,12 +43,12 @@ class NumberLight extends Model
      */
     public function setPrices(\app\models\Number $number, $currency = Currency::RUB)
     {
-        $actualPrice = $number->getPriceWithCurrency($currency);
-        $originPrice = $number->getOriginPriceWithCurrency();
+        $actualPriceWithCurrency = $number->getPriceWithCurrency($currency);
+        $originPriceWithCurrency = $number->getOriginPriceWithCurrency();
 
-        $this->price = (float)$actualPrice->formattedPrice;
-        $this->currency = $actualPrice->currency;
-        $this->origin_price = (float)$originPrice->formattedPrice;
-        $this->origin_currency = $originPrice->currency;
+        $this->price = (float)$actualPriceWithCurrency->formattedPrice;
+        $this->currency = $actualPriceWithCurrency->currency;
+        $this->origin_price = (float)$originPriceWithCurrency->formattedPrice;
+        $this->origin_currency = $originPriceWithCurrency->currency;
     }
 }

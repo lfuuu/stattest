@@ -12,8 +12,8 @@ use yii\helpers\Url;
  * @property int $id
  * @property int $country_code
  * @property int $ndc
- * @property int $number_from
- * @property int $number_to
+ * @property int $number_from bigint
+ * @property int $number_to bigint
  * @property int $full_number_from bigint
  * @property int $full_number_to bigint
  * @property string $operator_source
@@ -40,6 +40,11 @@ class NumberRange extends ActiveRecord
 {
     // Методы для полей insert_time, insert_user_id, update_time, update_user_id
     use \app\classes\traits\InsertUpdateUserTrait;
+
+    const DEFAULT_MOSCOW_NDC = 495;
+
+    const RUSSIA_7800_NDC = 800;
+    const HUNGARY_800_NDC = 80;
 
     private static $_triggerTables = [
         // 'nnp.account_tariff_light',
@@ -241,5 +246,70 @@ class NumberRange extends ActiveRecord
         $triggerTable = reset(self::$_triggerTables);
         $sql = sprintf("SELECT nnp.is_trigger_enabled('%s','notify')", $triggerTable);
         return $db->createCommand($sql)->queryScalar();
+    }
+
+    /**
+     * Список NDC
+     *
+     * @param int $countryCode
+     * @param int $cityId
+     * @return \integer[]
+     */
+    public static function getNDCList($countryCode, $cityId)
+    {
+        static $_cache = [];
+
+        if (!isset($_cache[$countryCode][$cityId])) {
+            $_cache[$countryCode][$cityId] = NumberRange::find()
+                ->select('ndc')
+                ->distinct()
+                ->where([
+                    'country_code' => $countryCode,
+                    'city_id' => $cityId,
+                    'is_active' => true
+                ])
+                ->andWhere(['NOT BETWEEN', 'ndc', 900, 999])// без мобильных
+                ->indexBy('ndc')
+                ->orderBy(['ndc' => SORT_DESC])
+                ->column();
+        }
+
+        return $_cache[$countryCode][$cityId];
+    }
+
+    /**
+     * Определение NDC у номера
+     *
+     * @param int $number
+     * @param int $countryPrefix
+     * @param int $countryId
+     * @param int $cityId
+     * @return int
+     */
+    public static function detectNDC($number, $countryPrefix, $countryId, $cityId)
+    {
+        if (strpos($number, (string)$countryPrefix) !== 0) {
+            throw new \LogicException('Неправильный номер: '. $number);
+        }
+
+        if ($cityId == 7800) {
+            return 800;
+        }
+
+        if ($cityId == 3680) {
+            return 80;
+        }
+
+        $numberWithoutCountryPrefix = substr($number, strlen($countryPrefix));
+
+        $ndcList = NumberRange::getNDCList($countryId, $cityId);
+
+        foreach ($ndcList as $ndc) {
+            if (strpos($numberWithoutCountryPrefix, (string)$ndc) === 0) {
+                return $ndc;
+            }
+        }
+
+        throw new \LogicException('NDC не найден для номера:' . $number);
     }
 }

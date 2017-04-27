@@ -21,7 +21,7 @@ class CityColumn extends DataColumn
     public $filterType = GridView::FILTER_SELECT2;
     public $countryCodes = null;
     public $regionIds = null;
-    public $isWithNullAndNotNull = false;
+    public $isWithNullAndNotNull = true;
     public $isWithEmpty = true;
 
     public function __construct($config = [])

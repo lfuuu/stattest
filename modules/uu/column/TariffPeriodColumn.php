@@ -1,0 +1,27 @@
+<?php
+
+namespace app\modules\uu\column;
+
+use app\classes\grid\column\DataColumn;
+use app\modules\uu\models\TariffPeriod;
+use kartik\grid\GridView;
+
+
+class TariffPeriodColumn extends DataColumn
+{
+    // Отображение в ячейке строкового значения из selectbox вместо ID
+//    use ListTrait; @todo
+
+    public $filterType = GridView::FILTER_SELECT2;
+    public $serviceTypeId = null;
+
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+
+        $this->filter = TariffPeriod::getList($defaultTariffPeriodId, $this->serviceTypeId, $currencyTmp = null,
+            $cityTmp = null, $isWithEmptyTmp = true, $isWithNullAndNotNullTmp = true);
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' tariff-period-column';
+    }
+}

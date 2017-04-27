@@ -69,11 +69,6 @@ class NumberController extends BaseController
 
         $this->_addClientAccountFilter($filterModel, $get);
 
-        $post = Yii::$app->request->post();
-        if (isset($post['Number'])) {
-            $filterModel->groupEdit($post['Number']);
-        }
-
         return $this->render('index', [
             'filterModel' => $filterModel,
             'currentClientAccountId' => $this->_getCurrentClientAccountId(),

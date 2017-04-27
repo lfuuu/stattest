@@ -2,7 +2,7 @@
 
 namespace app\helpers\usages;
 
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;

@@ -1,4 +1,4 @@
-<?
+<?php
 class PaymentParser {
     private static $types=array(
             '1CClientBankExchange' => array(

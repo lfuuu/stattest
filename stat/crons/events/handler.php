@@ -3,16 +3,16 @@
 use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
 use app\classes\api\ApiCore;
+use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
-use app\classes\behaviors\uu\AccountTariffBiller;
-use app\classes\behaviors\uu\SyncAccountTariffLight;
-use app\classes\behaviors\uu\SyncVmCollocation;
 use app\classes\Event;
-use app\classes\notification\processors\AddPaymentNotificationProcessor;
 use app\classes\partners\RewardCalculate;
-use app\classes\uu\model\AccountTariff;
 use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
+use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\SyncAccountTariffLight;
+use app\modules\uu\behaviors\SyncVmCollocation;
+use app\modules\uu\models\AccountTariff;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -81,7 +81,7 @@ function doEvents()
             );
 
             $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
-            $isVpbxServer = ApiVpbx::getVpbxHost() && ApiVpbx::getApiUrl();
+            $isVpbxServer = ApiVpbx::me()->isAvailable();
 
             switch ($event->event) {
                 case Event::USAGE_VOIP__INSERT:
@@ -197,7 +197,7 @@ function doEvents()
                 case Event::LK_SETTINGS_TO_MAILER: {
                     /** @var \app\modules\notifier\Module $notifier */
                     $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applyPersonalLkSchemeForClientAccount($param['client_account_id']);
+                    $notifier->actions->applySchemePersonalSubscribe($param);
                     break;
                 }
 
@@ -225,7 +225,7 @@ function doEvents()
                     break;
 
                 case Event::ADD_ACCOUNT:
-                    Event::go(Event::PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT, $param);
+                    // Пока ничего не делаем
                     break;
 
                 case Event::USAGE_VIRTPBX__INSERT:
@@ -254,6 +254,16 @@ function doEvents()
                     // Если эта услуга активна - подключить базовый пакет. Если неактивна - закрыть все пакеты.
                     AccountTariff::findOne(['id' => $param['account_tariff_id']])
                         ->addOrCloseDefaultPackage();
+                    break;
+
+                case Event::UU_ACCOUNT_TARIFF_RESOURCE_VOIP:
+                    // Отправить измененные ресурсы телефонии на платформу и другим поставщикам услуг
+                    $isCoreServer && ApiPhone::me()->editDid($param['account_id'], $param['number'], $param['lines']);
+                    break;
+
+                case Event::UU_ACCOUNT_TARIFF_RESOURCE_VPBX:
+                    // Отправить измененные ресурсы ВАТС на платформу и другим поставщикам услуг
+                    $isCoreServer && ApiVpbx::me()->update($param['account_id'], $param['account_tariff_id'], $regionId = null, ClientAccount::VERSION_BILLER_UNIVERSAL);
                     break;
 
                 case Event::ACTUALIZE_NUMBER:
@@ -304,29 +314,15 @@ function doEvents()
                     break;
 
                 case Event::VPBX_BLOCKED:
-                    $isVpbxServer && ApiVpbx::lockAccount($param); // Синхронизировать в Vpbx. Блокировка
+                    $isVpbxServer && ApiVpbx::me()->lockAccount($param); // Синхронизировать в Vpbx. Блокировка
                     break;
 
                 case Event::VPBX_UNBLOCKED:
-                    $isVpbxServer && ApiVpbx::unlockAccount($param); // Синхронизировать в Vpbx. Разблокировка
+                    $isVpbxServer && ApiVpbx::me()->unlockAccount($param); // Синхронизировать в Vpbx. Разблокировка
                     break;
 
                 case Event::PARTNER_REWARD: {
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
-                    break;
-                }
-
-                case Event::PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT: {
-                    /** @var \app\modules\notifier\Module $notifier */
-                    $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applySchemeForClientAccount($clientAccountId = $param);
-                    break;
-                }
-
-                case Event::PUBLISH_NOTIFICATION_SCHEME: {
-                    /** @var \app\modules\notifier\Module $notifier */
-                    $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applySchemeForCountry($param['country'], $param['user_id']);
                     break;
                 }
             }

@@ -138,7 +138,7 @@ report_limit.findProduct = function(ev){
 
                                 td = document.createElement('td')
                                 td.style.textAlign = "left"
-                                td.appendChild(document.createTextNode(d[i]['price']+'р'))
+                                td.appendChild(document.createTextNode(d[i]['price']+d[i]['currency']))
                                 tr.appendChild(td)
                                 td.onclick = report_limit.findProduct.fixProd(i,d)
                         }

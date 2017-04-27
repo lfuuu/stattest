@@ -5,7 +5,6 @@ namespace app\classes\grid\column\universal;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use kartik\grid\GridView;
-use Yii;
 
 
 class NumberStatusColumn extends DataColumn

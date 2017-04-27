@@ -5,5 +5,5 @@ use app\tests\codeception\fixtures\ActiveFixture;
 
 class TariffResourceFixture extends ActiveFixture
 {
-    public $modelClass = 'app\classes\uu\model\TariffResource';
+    public $modelClass = 'app\modules\uu\models\TariffResource';
 }

@@ -16,6 +16,7 @@ use yii\db\ActiveRecord;
  * @property string $log_error
  * @property string $code
  * @property string $insert_time
+ * @property string $trace
  */
 class EventQueue extends ActiveRecord
 {

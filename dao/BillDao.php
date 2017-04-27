@@ -3,9 +3,6 @@ namespace app\dao;
 
 use app\classes\Language;
 use app\classes\Singleton;
-use app\classes\uu\model\AccountEntry;
-use app\classes\uu\model\Bill as uuBill;
-use app\classes\uu\model\Period;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
@@ -14,6 +11,9 @@ use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\LogBill;
 use app\models\Transaction;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\Bill as uuBill;
+use app\modules\uu\models\Period;
 use Yii;
 
 
@@ -36,7 +36,7 @@ class BillDao extends Singleton
 
         $lastBillNumber = Bill::find()
             ->select('bill_no')
-            ->andWhere('bill_no like :prefix', [':prefix' => $prefix . '-%'])
+            ->andWhere(['LIKE', 'bill_no', $prefix . '-%', $isEscape = false])
             ->orderBy('bill_no desc')
             ->limit(1)
             ->scalar();
@@ -51,6 +51,8 @@ class BillDao extends Singleton
     }
 
     /**
+     * Пересчет счета
+     *
      * @param Bill $bill
      * @throws \Exception
      */
@@ -76,16 +78,18 @@ class BillDao extends Singleton
     }
 
     /**
+     * Пересчет суммы счета
+     *
      * @param Bill $bill
      * @param array $lines
      */
     private function _calculateBillSum(Bill $bill, array $lines)
     {
-        /** @var BillLine[] $lines */
-
         $bill->sum_with_unapproved = 0;
+
+        /** @var BillLine[] $lines */
         foreach ($lines as $line) {
-            if ($line->type == 'zadatok') {
+            if ($line->type == BillLine::LINE_TYPE_ZADATOK) {
                 continue;
             }
 
@@ -100,17 +104,24 @@ class BillDao extends Singleton
     }
 
     /**
+     * Обновить транзакции счета
+     *
      * @param Bill $bill
      * @param array $lines
      */
     private function _updateTransactions(Bill $bill, array $lines)
     {
-        $transactions = Transaction::find()->andWhere(['bill_id' => $bill->id])->indexBy('bill_line_id')->all();
+        $transactions = Transaction::find()
+            ->andWhere([
+                'bill_id' => $bill->id
+            ])
+            ->indexBy('bill_line_id')
+            ->all();
 
         if ($bill->is_approved) {
             /** @var BillLine[] $lines */
             foreach ($lines as $line) {
-                if ($line->type == 'zadatok') {
+                if ($line->type == BillLine::LINE_TYPE_ZADATOK) {
                     continue;
                 }
 
@@ -133,6 +144,8 @@ class BillDao extends Singleton
     }
 
     /**
+     * Получение типа документа по номеру
+     *
      * @param string $bill_no
      * @return array
      */
@@ -156,9 +169,10 @@ class BillDao extends Singleton
     }
 
     /**
+     * Закрыт ли счет
+     *
      * @param Bill $bill
      * @return bool
-     * @throws \yii\db\Exception
      */
     public function isClosed(Bill $bill)
     {
@@ -168,10 +182,13 @@ class BillDao extends Singleton
                     WHERE bill_no = :billNo and  t.cur_stage_id = s.stage_id
                 ', [':billNo' => $bill->bill_no]
         )->queryScalar();
+
         return $stateId == 20;
     }
 
     /**
+     * Получить менеджера счета
+     *
      * @param string $billNo
      * @return bool|string
      */
@@ -184,6 +201,8 @@ class BillDao extends Singleton
     }
 
     /**
+     * Установить менеджер счета
+     *
      * @param string $billNo
      * @param int $userId
      */
@@ -213,6 +232,7 @@ class BillDao extends Singleton
      */
     public function transferUniversalBillsToBills(uuBill $uuBill)
     {
+        /** @var Bill $bill */
         $bill = Bill::find()
             ->where(['uu_bill_id' => $uuBill->id])
             ->one();
@@ -290,6 +310,7 @@ class BillDao extends Singleton
                 },
                 0
             );
+            $billPrice = round($billPrice, 2);
             if ($billPrice != $bill->sum) {
                 $bill->sum = $bill->sum_with_unapproved = $billPrice;
                 if (!$bill->save()) {
@@ -490,7 +511,7 @@ SQL;
     /**
      * Получение счета на предоплату для ЛК
      *
-     * @param int   $accountId
+     * @param int $accountId
      * @param float $sum
      * @return Bill
      */
@@ -508,7 +529,7 @@ SQL;
     /**
      * Получение счета на предоплату для Лк из базы
      *
-     * @param int   $accountId
+     * @param int $accountId
      * @param float $sum
      * @return null|Bill
      */
@@ -548,9 +569,9 @@ SQL;
                     bill_date DESC
                 LIMIT 1
              )a", [
-                    ':biller_version' => ClientAccount::VERSION_BILLER_USAGE,
-                    ':accountId' => $accountId,
-                     'sum' => $sum
+            ':biller_version' => ClientAccount::VERSION_BILLER_USAGE,
+            ':accountId' => $accountId,
+            'sum' => $sum
         ])->queryScalar();
 
     }
@@ -611,6 +632,7 @@ SQL;
         $bill->client_id = $clientAccount->id;
         $bill->currency = $clientAccount->currency;
         $bill->bill_no = $this->_getNextBill($date);
+        $bill->bill_date = $date->format('Y-m-d');
         $bill->bill_date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         $bill->nal = $clientAccount->nal;
         $bill->is_approved = 1;
@@ -635,7 +657,7 @@ SQL;
 
         $lastBillNo = Bill::find()
             ->select('bill_no')
-            ->where(['like', 'bill_no', $prefix."-%", false])
+            ->where(['like', 'bill_no', $prefix . "-%", false])
             ->orderBy(['bill_no' => SORT_DESC])
             ->scalar();
 

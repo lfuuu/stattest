@@ -1,8 +1,8 @@
 <?php
 namespace app\dao;
 
-use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\Singleton;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\DidGroup;
@@ -16,11 +16,10 @@ use yii\helpers\ArrayHelper;
 
 /**
  * @method static VoipRegistryDao me($args = null)
- * @property
  */
 class VoipRegistryDao extends Singleton
 {
-    private $didGroups = [];
+    private $_didGroups = [];
 
     /**
      * Вычисляем статус записи
@@ -32,10 +31,10 @@ class VoipRegistryDao extends Singleton
     {
         $count = Number::find()
             ->where(['city_id' => $registry->city_id])
-            ->andWhere(['between', 'number', $registry->number_from, $registry->number_to])
+            ->andWhere(['between', 'number', $registry->number_full_from, $registry->number_full_to])
             ->count();
 
-        return ($count == 0 ? Registry::STATUS_EMPTY : (($registry->number_to - $registry->number_from + 1) == $count ? Registry::STATUS_FULL : Registry::STATUS_PARTLY));
+        return ($count == 0 ? Registry::STATUS_EMPTY : (($registry->number_full_to - $registry->number_full_from + 1) == $count ? Registry::STATUS_FULL : Registry::STATUS_PARTLY));
     }
 
     /**
@@ -51,8 +50,8 @@ class VoipRegistryDao extends Singleton
             ->andWhere([
                 'between',
                 'number',
-                $registry->number_from,
-                $registry->number_to
+                $registry->number_full_from,
+                $registry->number_full_to
             ])
             ->orderBy(['number' => SORT_ASC])
             ->createCommand();
@@ -64,9 +63,10 @@ class VoipRegistryDao extends Singleton
             $number = $numberArr['number'];
 
             if (!$startValue) {
-                if ($registry->number_from < $number) {
-                    $data[] = ['filling' => 'pass', 'start' => $registry->number_from, 'end' => $number - 1];
+                if ($registry->number_full_from < $number) {
+                    $data[] = ['filling' => 'pass', 'start' => $registry->number_full_from, 'end' => $number - 1];
                 }
+
                 $startValue = $number;
                 $lastValue = $number;
                 continue;
@@ -83,16 +83,23 @@ class VoipRegistryDao extends Singleton
 
         if ($startValue) {
             $data[] = ['filling' => 'fill', 'start' => $startValue, 'end' => $lastValue];
-            if ($lastValue < $registry->number_to) {
-                $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $registry->number_to];
+            if ($lastValue < $registry->number_full_to) {
+                $data[] = ['filling' => 'pass', 'start' => $lastValue + 1, 'end' => $registry->number_full_to];
             }
         } else {
-            $data[] = ['filling' => 'pass', 'start' => $registry->number_from, 'end' => $registry->number_to];
+            $data[] = ['filling' => 'pass', 'start' => $registry->number_full_from, 'end' => $registry->number_full_to];
         }
 
         return $data;
     }
 
+    /**
+     * Заливка номеров
+     *
+     * @param Registry $registry
+     * @return bool
+     * @throws InvalidConfigException
+     */
     public function fillNumbers(Registry $registry)
     {
         if ($registry->status == Registry::STATUS_FULL) {
@@ -120,12 +127,18 @@ class VoipRegistryDao extends Singleton
             $didGroups->andWhere(['beauty_level' => DidGroup::BEAUTY_LEVEL_STANDART]);
         }
 
-        $this->didGroups = $didGroups
+        $this->_didGroups = $didGroups
             ->indexBy('beauty_level')
             ->all();
 
-        if (!$this->didGroups) {
-            throw new InvalidConfigException('Не найдены DID-группы для города id:' . $registry->city_id);
+        if (!$this->_didGroups) {
+            throw new InvalidConfigException(
+                \Yii::t(
+                    'number',
+                    'No DID groups found for city id:{cityId}',
+                    ['cityId' => $registry->city_id]
+                )
+            );
         }
 
         $filledCount = 0;
@@ -133,13 +146,22 @@ class VoipRegistryDao extends Singleton
             if ($part['filling'] == 'pass') {
                 for ($i = $part['start']; $i <= $part['end']; $i++) {
                     $filledCount++;
-                    $this->addNumber($registry, $i);
+                    $this->_addNumber($registry, $i);
                 }
             }
         }
     }
 
-    private function addNumber(Registry $registry, $addNumber) {
+    /**
+     * Добавление номера
+     *
+     * @param Registry $registry
+     * @param string $addNumber
+     * @throws InvalidConfigException
+     * @throws ModelValidationException
+     */
+    private function _addNumber(Registry $registry, $addNumber)
+    {
 
         if ($registry->isSourcePotability()) {
             $beautyLevel = DidGroup::BEAUTY_LEVEL_STANDART;
@@ -147,35 +169,60 @@ class VoipRegistryDao extends Singleton
             $beautyLevel = NumberBeautyDao::getNumberBeautyLvl($addNumber);
         }
 
-        if (!isset($this->didGroups[$beautyLevel])) {
-            throw new InvalidConfigException('Для номера ' .$addNumber . ' с красотой: "' . DidGroup::$beautyLevelNames[$beautyLevel] . '" не найдена DID-группа');
-        }
-
-        if ($this->didGroups[$beautyLevel]->number_type_id != $registry->number_type_id) {
-            throw new InvalidConfigException('Тип номера ' .$addNumber . ' ("' . DidGroup::$beautyLevelNames[$beautyLevel] . '") в DID-группе (id: ' . $this->didGroups[$beautyLevel]->id . ') и в реестре не совпадают');
-        }
-
         $transaction = \Yii::$app->getDb()->beginTransaction();
-
-        $country = $registry->city->country;
 
         $number = new Number;
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
-        $number->did_group_id = $this->didGroups[$beautyLevel]->id;
         $number->region = $registry->city->connection_point_id;
         $number->number_type = $registry->number_type_id;
         $number->city_id = $registry->city_id;
         $number->status = Number::STATUS_NOTSALE;
         $number->edit_user_id = \Yii::$app->user->identity->id;
         $number->operator_account_id = $registry->account_id;
-        $number->country_code = $country->code;
-        $number->ndc = substr($addNumber, strlen($country->prefix), $ndcLength = 3); // NDC - 3 символа после кода страны
+        $number->country_code = $registry->country->code;
+        $number->ndc = $registry->ndc;
+        $number->number_subscriber = substr($addNumber, strlen((string)$registry->country->prefix) + strlen($registry->ndc));
         $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $number->is_ported = (int)$registry->isSourcePotability();
 
+        $didGroupId = DidGroup::dao()->getIdByNumber($number);
 
-        $number->save();
+        $didGroup = null;
+        if ($didGroupId) {
+            $didGroup = DidGroup::findOne(['id' => $didGroupId]);
+        }
+
+        $numberParams = [
+            'number' => $addNumber,
+            'beautyLevel' => \Yii::t('app', DidGroup::$beautyLevelNames[$beautyLevel])
+        ];
+
+        if (!$didGroup) {
+            throw new InvalidConfigException(
+                \Yii::t(
+                    'number',
+                    'For the number {number} with beauty: "{beautyLevel}" no DID group was found',
+                    $numberParams
+                )
+            );
+        }
+
+        if ($didGroup->number_type_id != $registry->number_type_id) {
+            throw new InvalidConfigException(
+                \Yii::t(
+                    'app',
+                    'Number type {number} ("{beautyLevel}") in the DID-group (id: {didId}) and in the registry do not match',
+                    $numberParams + ['didId' => $didGroup->id]
+                )
+            );
+        }
+
+        $number->did_group_id = $didGroup->id;
+
+        if (!$number->save()) {
+            throw new ModelValidationException($number);
+        }
 
         Number::dao()->log($number, NumberLog::ACTION_CREATE, "Y");
 
@@ -186,13 +233,17 @@ class VoipRegistryDao extends Singleton
         $transaction->commit();
     }
 
+    /**
+     * @param Registry $registry
+     * @return array
+     */
     public function getStatusInfo(Registry $registry)
     {
         return ArrayHelper::map(
             (new Query())
             ->from(Number::tableName())
             ->where(['city_id' => $registry->city_id])
-            ->andWhere(['between', 'number', $registry->number_from, $registry->number_to])
+            ->andWhere(['between', 'number', $registry->number_full_from, $registry->number_full_to])
             ->select(['status' => 'status', 'count' => new Expression('count(*)')])
             ->groupBy('status')
             ->all(),
@@ -201,14 +252,20 @@ class VoipRegistryDao extends Singleton
         );
     }
 
+    /**
+     * Передать номера в продажу
+     *
+     * @param Registry $registry
+     */
     public function toSale(Registry $registry)
     {
-        foreach(Number::find()->where([
-                'AND', ['city_id' => $registry->city_id],
-                ['between', 'number', $registry->number_from, $registry->number_to],
-                ['status' => Number::STATUS_NOTSALE]
+        foreach (Number::find()
+            ->where(['between', 'number', $registry->number_full_from, $registry->number_full_to])
+            ->andWhere([
+                'city_id' => $registry->city_id,
+                'status' => Number::STATUS_NOTSALE
             ])->all() as $number) {
-            \Yii::$app->getDb()->transaction(function($db) use ($number) {
+            \Yii::$app->getDb()->transaction(function ($db) use ($number) {
                 $number->status = Number::STATUS_INSTOCK;
                 $number->save();
                 Number::dao()->log($number, NumberLog::ACTION_SALE, "Y");

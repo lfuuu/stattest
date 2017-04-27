@@ -6,9 +6,6 @@ use app\classes\BaseController;
 use app\classes\Event;
 use app\classes\grid\GridFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
-use app\classes\uu\filter\AccountTariffFilter;
-use app\classes\uu\forms\CrudMultipleTrait;
-use app\classes\uu\model\ServiceType;
 use app\forms\client\AccountEditForm;
 use app\forms\client\ContractEditForm;
 use app\forms\client\ContragentEditForm;
@@ -28,6 +25,7 @@ use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\UsageWelltime;
+use app\modules\uu\filter\AccountTariffFilter;
 use kartik\widgets\ActiveForm;
 use Yii;
 use yii\base\Exception;
@@ -39,7 +37,6 @@ use yii\web\Response;
 class ClientController extends BaseController
 {
     use AddClientAccountFilterTraits;
-    use CrudMultipleTrait;
 
     /**
      * @return array
@@ -362,6 +359,7 @@ class ClientController extends BaseController
      */
     public function actionAddAdminLk($account_id, $admin_email_id)
     {
+        /** @var ClientAccount $account */
         $account = ClientAccount::findOne(['id' => $account_id]);
 
         Assert::isObject($account);
@@ -376,7 +374,7 @@ class ClientController extends BaseController
 
         Event::goWithIndicator(
             Event::CORE_CREATE_ADMIN,
-            ['id' => $account->super_id, 'email' => $contact->data],
+            ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data],
             ClientSuper::tableName(),
             $account->super_id);
 

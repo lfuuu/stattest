@@ -4,7 +4,7 @@ use app\classes\Html;
 use app\models\Region;
 use app\models\Metro;
 use app\models\Bank;
-use app\models\PriceType;
+use app\models\GoodPriceType;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\Select2;
 use kartik\builder\Form;

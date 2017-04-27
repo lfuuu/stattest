@@ -65,7 +65,7 @@ optools.DatePickerInit();
             <td rowspan=2 width=10%>Оператор</td>
             <td colspan=2 width=10%>Номер счета</td>
             <td rowspan=2 width=10%>Дата<br>создания заказа</td>
-            <td colspan=8 width=1%>Кол-во</td>
+            <td colspan=9 width=1%>Кол-во</td>
             <td colspan=1 width=10%>Номер купона</td>
             <td rowspan=2 width=30%>Клиент <br />(ФИО, телефон, адрес)</td>
             <td colspan=2 width=10%>Дата доставки</td>
@@ -83,6 +83,8 @@ optools.DatePickerInit();
             <td>D-Link DWA-182</td>
             <td>Gigaset C530</td>
             <td>Приставка, SML-482 HD Base</td>
+            <td>Пульт универсальный</td>
+            <td>Видеокамера Hikvision DS-2CD-VC1W</td>
             <td>Серийный номер</td>
             <td>Желаемая</td>
             <td>Фактическая</td>
@@ -104,6 +106,8 @@ optools.DatePickerInit();
                 <td rowspan=2 align=center>{$i.count_19|round:0}</td>
                 <td rowspan=2 align=center>{$i.count_22|round:0}</td>
                 <td rowspan=2 align=center>{$i.count_28|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_41|round:0}</td>
+                <td rowspan=2 align=center>{$i.count_44|round:0}</td>
                 <td colspan=1>{if $i.coupon}{$i.coupon}{/if}</td>
                 <td rowspan=2><p>{$i.fio}</p>
                     <p>{$i.phone}</p>
@@ -137,6 +141,8 @@ optools.DatePickerInit();
                 <td align=center><b>{$total.count_19}</b></td>
                 <td align=center><b>{$total.count_22}</b></td>
                 <td align=center><b>{$total.count_28}</b></td>
+                <td align=center><b>{$total.count_41}</b></td>
+                <td align=center><b>{$total.count_44}</b></td>
                 <td colspan=5>&nbsp;</td>
             </tr>
         {/if}

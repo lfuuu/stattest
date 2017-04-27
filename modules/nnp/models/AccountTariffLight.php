@@ -7,7 +7,7 @@ use yii\db\ActiveRecord;
 
 /**
  * Универсальные услуги для низкоуровневого биллинга
- * Копия \app\classes\uu\model\AccountTariff
+ * Копия \app\modules\uu\models\AccountTariff
  *
  * @property int $id
  * @property int $account_client_id

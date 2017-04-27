@@ -46,7 +46,7 @@ class EffectiveVATRate extends Behavior
         }
 
         $contracts = [];
-        if ($isClientContragent && (isset($event->changedAttributes['country_id']) || $event->changedAttributes['tax_regime'])) {
+        if ($isClientContragent && (isset($event->changedAttributes['country_id']) || isset($event->changedAttributes['tax_regime']))) {
             $contracts = $event->sender->contracts;
         } elseif ($isClientContract && isset($event->changedAttributes['organization_id'])) {
             $contracts = [$event->sender];

@@ -6,7 +6,6 @@ use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\models\Currency;
 use kartik\grid\GridView;
-use Yii;
 
 
 class CurrencyColumn extends DataColumn

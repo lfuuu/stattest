@@ -331,7 +331,7 @@ if ($has) :
 
                                         if ($futureTariff !== null) {
                                             echo Html::beginTag('div', ['class' => 'alert alert-success']);
-                                                echo Html::beginTag('abbr', ['title' => 'Тариф включится начиная с ' . $futureLogTariff->date_activation]);
+                                                echo Html::beginTag('abbr', ['title' => 'Тариф включится с ' . $futureLogTariff->date_activation]);
                                                     echo $futureTariff->name . ' (' . $futureTariff->month_number . '-' . $futureTariff->month_line . ')';
 
                                                     if ($futureLogTariff->dest_group != '0') {

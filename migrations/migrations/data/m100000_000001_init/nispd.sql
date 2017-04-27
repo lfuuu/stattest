@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: nispd_test
 -- ------------------------------------------------------
--- Server version	5.7.17-0ubuntu0.16.04.1
+-- Server version	5.7.17-0ubuntu0.16.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -359,9 +359,11 @@ CREATE TABLE `city` (
   `in_use` int(1) NOT NULL DEFAULT '0',
   `billing_method_id` int(11) DEFAULT NULL,
   `order` int(11) DEFAULT '0',
+  `is_show_in_lk` smallint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `fk_city__country_id` (`country_id`),
   KEY `fk-city-billing_method` (`billing_method_id`),
+  KEY `idx-is_show_in_lk` (`is_show_in_lk`),
   CONSTRAINT `fk-city-billing_method` FOREIGN KEY (`billing_method_id`) REFERENCES `city_billing_methods` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_city__country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`code`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -373,7 +375,7 @@ CREATE TABLE `city` (
 
 LOCK TABLES `city` WRITE;
 /*!40000 ALTER TABLE `city` DISABLE KEYS */;
-INSERT INTO `city` VALUES (49,'Германия',276,82,'49 0000 000-000-000',0,NULL,0),(361,'Budapest',348,81,'36 1 000-0000',0,NULL,0),(3621,'LIECS numbers',348,81,'36 21 000-000',0,NULL,0),(3646,'Miskolc',348,81,'36 46 000-000',0,NULL,0),(3652,'Debrecen',348,81,'36 52 000-000',0,NULL,0),(3662,'Szeged',348,81,'36 62 000-000',0,NULL,0),(3672,'Pécs',348,81,'36 72 000-000',0,NULL,0),(3696,'Győr',348,81,'36 96 000-000',0,NULL,0),(7342,'Пермь',643,92,'7 342 000-00-00',0,NULL,0),(7343,'Екатеринбург',643,95,'7 343 000-00-00',0,NULL,0),(7347,'Уфа',643,84,'7 347 000-00-00',0,NULL,0),(7351,'Челябинск',643,90,'7 351 000-00-00',0,NULL,0),(7383,'Новосибирск',643,94,'7 383 000-00-00',0,NULL,0),(7473,'Воронеж',643,86,'7 473 000-00-00',0,NULL,0),(7495,'Москва',643,99,'7 495 000-00-00',1,NULL,0),(7812,'Санкт-Петербург',643,98,'7 812 000-00-00',0,NULL,0),(7831,'Нижний Новгород',643,88,'7 831 000-00-00',0,NULL,0),(7843,'Казань',643,93,'7 843 000-00-00',0,NULL,0),(7846,'Самара',643,96,'7 846 000-00-00',0,NULL,0),(7861,'Краснодар',643,97,'7 861 000-00-00',0,NULL,0),(7863,'Ростов-на-Дону',643,87,'7 863 000-00-00',0,NULL,0),(74212,'Хабаровск',643,83,'7 4212 00-00-00',0,NULL,0),(74232,'Владивосток',643,89,'7 4232 00-00-00',0,NULL,0),(74832,'Брянск',643,85,'7 4832 00-00-00',0,NULL,0),(78442,'Волгоград',643,91,'7 8442 00-00-00',0,NULL,0);
+INSERT INTO `city` VALUES (49,'Германия',276,82,'49 0000 000-000-000',0,NULL,0,0),(361,'Budapest',348,81,'36 1 000-0000',0,NULL,0,0),(3621,'LIECS numbers',348,81,'36 21 000-000',0,NULL,0,0),(3646,'Miskolc',348,81,'36 46 000-000',0,NULL,0,0),(3652,'Debrecen',348,81,'36 52 000-000',0,NULL,0,0),(3662,'Szeged',348,81,'36 62 000-000',0,NULL,0,0),(3672,'Pécs',348,81,'36 72 000-000',0,NULL,0,0),(3696,'Győr',348,81,'36 96 000-000',0,NULL,0,0),(7342,'Пермь',643,92,'7 342 000-00-00',0,NULL,0,0),(7343,'Екатеринбург',643,95,'7 343 000-00-00',0,NULL,0,0),(7347,'Уфа',643,84,'7 347 000-00-00',0,NULL,0,0),(7351,'Челябинск',643,90,'7 351 000-00-00',0,NULL,0,0),(7383,'Новосибирск',643,94,'7 383 000-00-00',0,NULL,0,0),(7473,'Воронеж',643,86,'7 473 000-00-00',0,NULL,0,0),(7495,'Москва',643,99,'7 495 000-00-00',1,NULL,0,1),(7812,'Санкт-Петербург',643,98,'7 812 000-00-00',0,NULL,0,0),(7831,'Нижний Новгород',643,88,'7 831 000-00-00',0,NULL,0,0),(7843,'Казань',643,93,'7 843 000-00-00',0,NULL,0,0),(7846,'Самара',643,96,'7 846 000-00-00',0,NULL,0,0),(7861,'Краснодар',643,97,'7 861 000-00-00',0,NULL,0,0),(7863,'Ростов-на-Дону',643,87,'7 863 000-00-00',0,NULL,0,0),(74212,'Хабаровск',643,83,'7 4212 00-00-00',0,NULL,0,0),(74232,'Владивосток',643,89,'7 4232 00-00-00',0,NULL,0,0),(74832,'Брянск',643,85,'7 4832 00-00-00',0,NULL,0,0),(78442,'Волгоград',643,91,'7 8442 00-00-00',0,NULL,0,0);
 /*!40000 ALTER TABLE `city` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -496,8 +498,8 @@ CREATE TABLE `client_contacts` (
   `user_id` int(11) NOT NULL DEFAULT '0',
   `ts` datetime DEFAULT NULL,
   `comment` text NOT NULL,
-  `is_active` tinyint(1) NOT NULL,
   `is_official` tinyint(1) NOT NULL,
+  `is_validate` smallint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
   KEY `type_data` (`type`,`data`(32),`user_id`) USING BTREE
@@ -538,6 +540,7 @@ CREATE TABLE `client_contract` (
   `is_external` enum('internal','external') NOT NULL DEFAULT 'internal',
   `is_lk_access` tinyint(1) NOT NULL DEFAULT '0',
   `is_partner_login_allow` tinyint(1) DEFAULT '0',
+  `is_voip_with_tax` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `contragent_id` (`contragent_id`),
   KEY `super_id` (`super_id`)
@@ -620,7 +623,7 @@ CREATE TABLE `client_contract_business_process_status` (
   `oldstatus` varchar(20) NOT NULL DEFAULT '',
   `color` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=150 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -629,7 +632,7 @@ CREATE TABLE `client_contract_business_process_status` (
 
 LOCK TABLES `client_contract_business_process_status` WRITE;
 /*!40000 ALTER TABLE `client_contract_business_process_status` DISABLE KEYS */;
-INSERT INTO `client_contract_business_process_status` VALUES (8,1,'Подключаемые',1,'connecting','#F49AC1'),(9,1,'Включенные',2,'work',''),(10,1,'Отключенные',3,'closed','#FFFFCC'),(15,6,'Действующий',3,'distr','yellow'),(16,4,'Действующий',0,'once','silver'),(19,1,'Заказ услуг',0,'negotiations','#C4DF9B'),(22,1,'Мусор',4,'trash','#a5e934'),(27,1,'Техотказ',5,'tech_deny','#996666'),(28,1,'Отказ',6,'deny','#A0A0A0'),(29,1,'Дубликат',7,'double','#60a0e0'),(30,9,'Заказ магазина',0,'income','#CCFFFF'),(33,3,'Заказ магазина',0,'once','silver'),(34,10,'Внутренний офис',0,'',''),(35,8,'Действующий',1,'',''),(37,11,'Входящий',0,'income','#CCFFFF'),(38,11,'Переговоры',1,'negotiations','#C4DF9B'),(39,11,'Тестирование',2,'testing','#6DCFF6'),(40,11,'Действующий',3,'work',''),(41,11,'Приостановлен',5,'suspended','#C4a3C0'),(42,11,'Расторгнут',6,'closed','#FFFFCC'),(43,11,'Фрод блокировка',7,'blocked','silver'),(44,11,'Отказ',8,'tech_deny','#996666'),(47,12,'Входящий',0,'income','#CCFFFF'),(48,12,'Переговоры',1,'negotiations','#C4DF9B'),(49,12,'Тестирование',2,'testing','#6DCFF6'),(50,12,'Действующий',3,'work',''),(51,12,'Приостановлен',5,'suspended','#C4a3C0'),(52,12,'Расторгнут',6,'closed','#FFFFCC'),(53,12,'Фрод блокировка',7,'blocked','silver'),(54,12,'Отказ',8,'tech_deny','#996666'),(56,12,'JiraSoft',4,'work',''),(62,13,'Входящий',0,'income','#CCFFFF'),(63,13,'Переговоры',1,'negotiations','#C4DF9B'),(64,13,'Тестирование',2,'testing','#6DCFF6'),(65,13,'Действующий',3,'work',''),(66,13,'Приостановлен',5,'suspended','#C4a3C0'),(67,13,'Расторгнут',6,'closed','#FFFFCC'),(68,13,'Фрод блокировка',7,'blocked','silver'),(69,13,'Отказ',8,'tech_deny','#996666'),(77,14,'Входящий',0,'income','#CCFFFF'),(78,14,'Переговоры',1,'negotiations','#C4DF9B'),(79,14,'Тестирование',2,'testing','#6DCFF6'),(80,14,'Действующий',3,'work',''),(81,14,'Приостановлен',4,'suspended','#C4a3C0'),(82,14,'Расторгнут',5,'closed','#FFFFCC'),(83,14,'Фрод блокировка',6,'blocked','silver'),(84,14,'Отказ',7,'tech_deny','#996666'),(92,6,'Закрытый',4,'closed',''),(93,6,'Самозакупки',5,'distr',''),(94,6,'Разовый',6,'distr',''),(95,15,'Пуско-наладка',0,'connecting',''),(96,15,'Техобслуживание',1,'work',''),(97,15,'Без Техобслуживания',2,'work',''),(98,15,'Приостановленные',3,'suspended',''),(99,15,'Отказ',4,'deny',''),(100,15,'Мусор',5,'trash',''),(107,11,'Ручной счет',4,'','#CCFFFF'),(108,6,'GPON',0,'distr',''),(109,6,'ВОЛС',1,'distr',''),(110,6,'Сервисный',2,'distr',''),(111,10,'Закрытые',1,'',''),(121,11,'Мусор',9,'trash','#996666'),(122,12,'Мусор',9,'trash','#996666'),(123,13,'Мусор',9,'trash','#996666'),(124,14,'Мусор',8,'trash','#996666'),(125,11,'Формальные',4,'',''),(126,8,'Переговоры',0,'',''),(127,8,'Ручной счет',2,'',''),(128,8,'Приостановлен',3,'',''),(129,8,'Расторгнут',4,'',''),(130,8,'Отказ',5,'',''),(131,8,'Мусор',6,'',''),(132,17,'Входящие',0,'income',''),(133,17,'В стадии переговоров',1,'negotiations',''),(134,17,'Проверка документов',2,'connecting',''),(135,17,'Подключаемые',3,'connecting',''),(136,17,'На обслуживании',4,'work',''),(137,17,'Приостановленные',5,'suspended',''),(138,17,'Отказ',6,'tech_deny',''),(139,17,'Мусор',7,'trash',''),(140,13,'Формальные',4,'',''),(141,18,'Заказ услуг',0,'negotiations','#C4DF9B'),(142,18,'Подключаемые',1,'connecting','#F49AC1'),(143,18,'Включенные',2,'work',''),(144,18,'Отключенные',3,'closed','#FFFFCC'),(146,18,'Мусор',4,'trash','#a5e934'),(147,18,'Техотказ',5,'tech_deny','#996666'),(148,18,'Отказ',6,'deny','#A0A0A0'),(149,18,'Дубликат',7,'double','#60a0e0');
+INSERT INTO `client_contract_business_process_status` VALUES (8,1,'Подключаемые',1,'connecting','#F49AC1'),(9,1,'Включенные',2,'work',''),(10,1,'Отключенные',3,'closed','#FFFFCC'),(15,6,'Действующий',3,'distr','yellow'),(16,4,'Действующий',0,'once','silver'),(19,1,'Заказ услуг',0,'negotiations','#C4DF9B'),(22,1,'Мусор',4,'trash','#a5e934'),(27,1,'Техотказ',5,'tech_deny','#996666'),(28,1,'Отказ',6,'deny','#A0A0A0'),(29,1,'Дубликат',7,'double','#60a0e0'),(30,9,'Заказ магазина',0,'income','#CCFFFF'),(33,3,'Заказ магазина',0,'once','silver'),(34,10,'Внутренний офис',0,'',''),(35,8,'Действующий',1,'',''),(37,11,'Входящий',0,'income','#CCFFFF'),(38,11,'Переговоры',1,'negotiations','#C4DF9B'),(39,11,'Тестирование',2,'testing','#6DCFF6'),(40,11,'Действующий',3,'work',''),(41,11,'Приостановлен',5,'suspended','#C4a3C0'),(42,11,'Расторгнут',6,'closed','#FFFFCC'),(43,11,'Фрод блокировка',7,'blocked','silver'),(44,11,'Отказ',8,'tech_deny','#996666'),(47,12,'Входящий',0,'income','#CCFFFF'),(48,12,'Переговоры',1,'negotiations','#C4DF9B'),(49,12,'Тестирование',2,'testing','#6DCFF6'),(50,12,'Действующий',3,'work',''),(51,12,'Приостановлен',5,'suspended','#C4a3C0'),(52,12,'Расторгнут',6,'closed','#FFFFCC'),(53,12,'Фрод блокировка',7,'blocked','silver'),(54,12,'Отказ',8,'tech_deny','#996666'),(56,12,'JiraSoft',4,'work',''),(62,13,'Входящий',0,'income','#CCFFFF'),(63,13,'Переговоры',1,'negotiations','#C4DF9B'),(64,13,'Тестирование',2,'testing','#6DCFF6'),(65,13,'Действующий',3,'work',''),(66,13,'Приостановлен',5,'suspended','#C4a3C0'),(67,13,'Расторгнут',6,'closed','#FFFFCC'),(68,13,'Фрод блокировка',7,'blocked','silver'),(69,13,'Отказ',8,'tech_deny','#996666'),(77,14,'Входящий',0,'income','#CCFFFF'),(78,14,'Переговоры',1,'negotiations','#C4DF9B'),(79,14,'Тестирование',2,'testing','#6DCFF6'),(80,14,'Действующий',3,'work',''),(81,14,'Приостановлен',4,'suspended','#C4a3C0'),(82,14,'Расторгнут',5,'closed','#FFFFCC'),(83,14,'Фрод блокировка',6,'blocked','silver'),(84,14,'Отказ',7,'tech_deny','#996666'),(92,6,'Закрытый',4,'closed',''),(93,6,'Самозакупки',5,'distr',''),(94,6,'Разовый',6,'distr',''),(95,15,'Пуско-наладка',0,'connecting',''),(96,15,'Техобслуживание',1,'work',''),(97,15,'Без Техобслуживания',2,'work',''),(98,15,'Приостановленные',3,'suspended',''),(99,15,'Отказ',4,'deny',''),(100,15,'Мусор',5,'trash',''),(107,11,'Ручной счет',4,'','#CCFFFF'),(108,6,'Shop MCNTele.com',0,'distr',''),(109,6,'ВОЛС',1,'distr',''),(110,6,'Сервисный',2,'distr',''),(111,10,'Закрытые',1,'',''),(121,11,'Мусор',9,'trash','#996666'),(122,12,'Мусор',9,'trash','#996666'),(123,13,'Мусор',9,'trash','#996666'),(124,14,'Мусор',8,'trash','#996666'),(125,11,'Формальные',4,'',''),(126,8,'Переговоры',0,'',''),(127,8,'Ручной счет',2,'',''),(128,8,'Приостановлен',3,'',''),(129,8,'Расторгнут',4,'',''),(130,8,'Отказ',5,'',''),(131,8,'Мусор',6,'',''),(132,17,'Входящие',0,'income',''),(133,17,'В стадии переговоров',1,'negotiations',''),(134,17,'Проверка документов',2,'connecting',''),(135,17,'Подключаемые',3,'connecting',''),(136,17,'На обслуживании',4,'work',''),(137,17,'Приостановленные',5,'suspended',''),(138,17,'Отказ',6,'tech_deny',''),(139,17,'Мусор',7,'trash',''),(140,13,'Формальные',4,'',''),(141,18,'Заказ услуг',0,'negotiations','#C4DF9B'),(142,18,'Подключаемые',1,'connecting','#F49AC1'),(143,18,'Включенные',2,'work',''),(144,18,'Отключенные',3,'closed','#FFFFCC'),(146,18,'Мусор',4,'trash','#a5e934'),(147,18,'Техотказ',5,'tech_deny','#996666'),(148,18,'Отказ',6,'deny','#A0A0A0'),(149,18,'Дубликат',7,'double','#60a0e0'),(150,13,'Ручной счет',10,'','');
 /*!40000 ALTER TABLE `client_contract_business_process_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -895,6 +898,31 @@ LOCK TABLES `client_files` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `client_flag`
+--
+
+DROP TABLE IF EXISTS `client_flag`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_flag` (
+  `account_id` int(11) NOT NULL AUTO_INCREMENT,
+  `is_notified_7day` int(11) NOT NULL DEFAULT '0',
+  `is_notified_3day` int(11) NOT NULL DEFAULT '0',
+  `is_notified_1day` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`account_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `client_flag`
+--
+
+LOCK TABLES `client_flag` WRITE;
+/*!40000 ALTER TABLE `client_flag` DISABLE KEYS */;
+/*!40000 ALTER TABLE `client_flag` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `client_inn`
 --
 
@@ -1053,7 +1081,6 @@ CREATE TABLE `clients` (
   `bank_city` varchar(255) DEFAULT NULL,
   `sync_1c` enum('no','yes') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'no',
   `price_type` varchar(60) DEFAULT '',
-  `voip_credit_limit` int(11) NOT NULL DEFAULT '0',
   `voip_disabled` int(1) NOT NULL DEFAULT '0',
   `voip_credit_limit_day` int(11) NOT NULL DEFAULT '0',
   `balance` decimal(12,2) NOT NULL DEFAULT '0.00',
@@ -1090,7 +1117,10 @@ CREATE TABLE `clients` (
   `voip_limit_mn_day` int(11) NOT NULL DEFAULT '0',
   `voip_is_mn_day_calc` int(1) NOT NULL DEFAULT '1',
   `type_of_bill` tinyint(1) DEFAULT '1',
-  `is_calc_with_tax` int(11) DEFAULT NULL,
+  `effective_vat_rate` int(11) NOT NULL DEFAULT '0',
+  `pay_bill_until_days` int(11) NOT NULL DEFAULT '30',
+  `is_bill_pay_overdue` int(11) DEFAULT '0',
+  `is_voip_with_tax` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `_1c_uk` (`cli_1c`,`con_1c`),
   KEY `client` (`client`),
@@ -1307,6 +1337,7 @@ CREATE TABLE `currency` (
   `id` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `name` varchar(50) NOT NULL,
   `symbol` varchar(16) NOT NULL DEFAULT '',
+  `code` int(11) NOT NULL DEFAULT '0' COMMENT 'ISO 4217',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1317,7 +1348,7 @@ CREATE TABLE `currency` (
 
 LOCK TABLES `currency` WRITE;
 /*!40000 ALTER TABLE `currency` DISABLE KEYS */;
-INSERT INTO `currency` VALUES ('EUR','Евро','€'),('HUF','Форинт','Ft.'),('RUB','Российский рубль','руб.'),('USD','Доллар США','$');
+INSERT INTO `currency` VALUES ('EUR','Евро','€',978),('HUF','Форинт','Ft.',348),('RUB','Российский рубль','руб.',643),('USD','Доллар США','$',840);
 /*!40000 ALTER TABLE `currency` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1392,6 +1423,7 @@ CREATE TABLE `did_group` (
   `price1` float DEFAULT NULL,
   `price2` float DEFAULT NULL,
   `price3` float DEFAULT NULL,
+  `comment` varchar(255) DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `fk_did_group__city_id` (`city_id`),
   KEY `fk-number_type_id` (`number_type_id`),
@@ -1408,7 +1440,7 @@ CREATE TABLE `did_group` (
 
 LOCK TABLES `did_group` WRITE;
 /*!40000 ALTER TABLE `did_group` DISABLE KEYS */;
-INSERT INTO `did_group` VALUES (1,'Стандартные 495',7495,0,1,643,NULL,NULL,NULL),(2,'Стандартные 499',7495,0,1,643,0,NULL,NULL),(3,'Платиновые',7495,1,1,643,NULL,NULL,NULL),(4,'Золотые',7495,2,1,643,NULL,NULL,NULL),(5,'Серебряные',7495,3,1,643,5999,NULL,NULL),(6,'Бронзовые',7495,4,1,643,NULL,NULL,NULL),(7,'Стандартные',7812,0,1,643,NULL,NULL,NULL),(8,'Платиновые',7812,1,1,643,NULL,NULL,NULL),(9,'Золотые',7812,2,1,643,NULL,NULL,NULL),(10,'Серебряные',7812,3,1,643,NULL,NULL,NULL),(11,'Бронзовые',7812,4,1,643,NULL,NULL,NULL),(12,'Стандартные',7861,0,1,643,NULL,NULL,NULL),(13,'Платиновые',7861,1,1,643,NULL,NULL,NULL),(14,'Золотые',7861,2,1,643,NULL,NULL,NULL),(15,'Серебряные',7861,3,1,643,NULL,NULL,NULL),(16,'Бронзовые',7861,4,1,643,NULL,NULL,NULL),(17,'Стандартные',7846,0,1,643,NULL,NULL,NULL),(18,'Платиновые',7846,1,1,643,NULL,NULL,NULL),(19,'Золотые',7846,2,1,643,NULL,NULL,NULL),(20,'Серебряные',7846,3,1,643,NULL,NULL,NULL),(21,'Бронзовые',7846,4,1,643,NULL,NULL,NULL),(22,'Стандартные',7343,0,1,643,NULL,NULL,NULL),(23,'Платиновые',7343,1,1,643,NULL,NULL,NULL),(24,'Золотые',7343,2,1,643,NULL,NULL,NULL),(25,'Серебряные',7343,3,1,643,NULL,NULL,NULL),(26,'Бронзовые',7343,4,1,643,NULL,NULL,NULL),(27,'Стандартные',7383,0,1,643,NULL,NULL,NULL),(28,'Платиновые',7383,1,1,643,NULL,NULL,NULL),(29,'Золотые',7383,2,1,643,NULL,NULL,NULL),(30,'Серебряные',7383,3,1,643,NULL,NULL,NULL),(31,'Бронзовые',7383,4,1,643,NULL,NULL,NULL),(32,'Стандартные',7843,0,1,643,NULL,NULL,NULL),(33,'Платиновые',7843,1,1,643,NULL,NULL,NULL),(34,'Золотые',7843,2,1,643,NULL,NULL,NULL),(35,'Серебряные',7843,3,1,643,NULL,NULL,NULL),(36,'Бронзовые',7843,4,1,643,NULL,NULL,NULL),(37,'Стандартные',74232,0,1,643,NULL,NULL,NULL),(38,'Платиновые',74232,1,1,643,NULL,NULL,NULL),(39,'Золотые',74232,2,1,643,NULL,NULL,NULL),(40,'Серебряные',74232,3,1,643,NULL,NULL,NULL),(41,'Бронзовые',74232,4,1,643,NULL,NULL,NULL),(42,'Стандартные',7831,0,1,643,NULL,NULL,NULL),(43,'Платиновые',7831,1,1,643,NULL,NULL,NULL),(44,'Золотые',7831,2,1,643,NULL,NULL,NULL),(45,'Серебряные',7831,3,1,643,NULL,NULL,NULL),(46,'Бронзовые',7831,4,1,643,NULL,NULL,NULL),(47,'Стандартные',7863,0,1,643,NULL,NULL,NULL),(48,'Платиновые',7863,1,1,643,NULL,NULL,NULL),(49,'Золотые',7863,2,1,643,NULL,NULL,NULL),(50,'Серебряные',7863,3,1,643,NULL,NULL,NULL),(51,'Бронзовые',7863,4,1,643,NULL,NULL,NULL),(52,'Стандартные',361,0,1,348,NULL,NULL,NULL),(53,'Стандартные',3646,0,1,348,NULL,NULL,NULL),(54,'Стандартные',3652,0,1,348,NULL,NULL,NULL),(55,'Стандартные',3662,0,1,348,NULL,NULL,NULL),(56,'Стандартные',3672,0,1,348,NULL,NULL,NULL),(57,'Стандартные',3696,0,1,348,NULL,NULL,NULL),(58,'Стандартные',3621,0,1,348,NULL,NULL,NULL),(59,'Платиновые',361,1,1,348,NULL,NULL,NULL),(60,'Золотые',361,2,1,348,NULL,NULL,NULL),(61,'Серебряные',361,3,1,348,NULL,NULL,NULL),(62,'Бронзовые',361,4,1,348,NULL,NULL,NULL),(63,'Платиновые',3646,1,1,348,NULL,NULL,NULL),(64,'Золотые',3646,2,1,348,NULL,NULL,NULL),(65,'Серебряные',3646,3,1,348,NULL,NULL,NULL),(66,'Бронзовые',3646,4,1,348,NULL,NULL,NULL),(67,'Платиновые',3652,1,1,348,NULL,NULL,NULL),(68,'Золотые',3652,2,1,348,NULL,NULL,NULL),(69,'Серебряные',3652,3,1,348,NULL,NULL,NULL),(70,'Бронзовые',3652,4,1,348,NULL,NULL,NULL),(71,'Платиновые',3662,1,1,348,NULL,NULL,NULL),(72,'Золотые',3662,2,1,348,NULL,NULL,NULL),(73,'Серебряные',3662,3,1,348,NULL,NULL,NULL),(74,'Бронзовые',3662,4,1,348,NULL,NULL,NULL),(75,'Платиновые',3672,1,1,348,NULL,NULL,NULL),(76,'Золотые',3672,2,1,348,NULL,NULL,NULL),(77,'Серебряные',3672,3,1,348,NULL,NULL,NULL),(78,'Бронзовые',3672,4,1,348,NULL,NULL,NULL),(79,'Платиновые',3696,1,1,348,NULL,NULL,NULL),(80,'Золотые',3696,2,1,348,NULL,NULL,NULL),(81,'Серебряные',3696,3,1,348,NULL,NULL,NULL),(82,'Бронзовые',3696,4,1,348,NULL,NULL,NULL),(83,'Платиновые',3621,1,1,348,NULL,NULL,NULL),(84,'Золотые',3621,2,1,348,NULL,NULL,NULL),(85,'Серебряные',3621,3,1,348,NULL,NULL,NULL),(86,'Бронзовые',3621,4,1,348,NULL,NULL,NULL),(87,'Стандартные',49,0,1,276,NULL,NULL,NULL),(88,'Платиновые',49,1,1,276,NULL,NULL,NULL),(89,'Золотые',49,2,1,276,NULL,NULL,NULL),(90,'Серебряные',49,3,1,276,NULL,NULL,NULL),(91,'Бронзовые',49,4,1,276,NULL,NULL,NULL),(92,'Стандартные',74212,0,1,643,NULL,NULL,NULL),(93,'Платиновые',74212,1,1,643,NULL,NULL,NULL),(94,'Золотые',74212,2,1,643,NULL,NULL,NULL),(95,'Серебряные',74212,3,1,643,NULL,NULL,NULL),(96,'Бронзовые',74212,4,1,643,NULL,NULL,NULL);
+INSERT INTO `did_group` VALUES (1,'Стандартные 495',7495,0,1,643,999,NULL,NULL,'495'),(2,'Стандартные 499',7495,0,1,643,0,NULL,NULL,'499'),(3,'Платиновые',7495,1,1,643,39000,NULL,NULL,''),(4,'Золотые',7495,2,1,643,9999,NULL,NULL,''),(5,'Серебряные',7495,3,1,643,5999,NULL,NULL,''),(6,'Бронзовые',7495,4,1,643,1999,NULL,NULL,''),(7,'Стандартные',7812,0,1,643,0,NULL,NULL,''),(8,'Платиновые',7812,1,1,643,39000,NULL,NULL,''),(9,'Золотые',7812,2,1,643,9999,NULL,NULL,''),(10,'Серебряные Питера',7812,3,1,643,5999,NULL,NULL,''),(11,'Бронзовые',7812,4,1,643,1999,NULL,NULL,''),(12,'Стандартные',7861,0,1,643,0,NULL,NULL,''),(13,'Платиновые',7861,1,1,643,39000,NULL,NULL,''),(14,'Золотые',7861,2,1,643,9999,NULL,NULL,''),(15,'Серебряные',7861,3,1,643,5999,NULL,NULL,''),(16,'Бронзовые',7861,4,1,643,1999,NULL,NULL,''),(17,'Стандартные',7846,0,1,643,0,NULL,NULL,''),(18,'Платиновые',7846,1,1,643,39000,NULL,NULL,''),(19,'Золотые',7846,2,1,643,9999,NULL,NULL,''),(20,'Серебряные',7846,3,1,643,5999,NULL,NULL,''),(21,'Бронзовые',7846,4,1,643,1999,NULL,NULL,''),(22,'Стандартные',7343,0,1,643,0,NULL,NULL,''),(23,'Платиновые',7343,1,1,643,39000,NULL,NULL,''),(24,'Золотые',7343,2,1,643,9999,NULL,NULL,''),(25,'Серебряные',7343,3,1,643,5999,NULL,NULL,''),(26,'Бронзовые',7343,4,1,643,1999,NULL,NULL,''),(27,'Стандартные',7383,0,1,643,0,NULL,NULL,''),(28,'Платиновые',7383,1,1,643,39000,NULL,NULL,''),(29,'Золотые',7383,2,1,643,9999,NULL,NULL,''),(30,'Серебряные',7383,3,1,643,5999,NULL,NULL,''),(31,'Бронзовые',7383,4,1,643,1999,NULL,NULL,''),(32,'Стандартные',7843,0,1,643,0,NULL,NULL,''),(33,'Платиновые',7843,1,1,643,39000,NULL,NULL,''),(34,'Золотые',7843,2,1,643,9999,NULL,NULL,''),(35,'Серебряные',7843,3,1,643,5999,NULL,NULL,''),(36,'Бронзовые',7843,4,1,643,1999,NULL,NULL,''),(37,'Стандартные',74232,0,1,643,0,NULL,NULL,''),(38,'Платиновые',74232,1,1,643,39000,NULL,NULL,''),(39,'Золотые',74232,2,1,643,9999,NULL,NULL,''),(40,'Серебряные',74232,3,1,643,5999,NULL,NULL,''),(41,'Бронзовые',74232,4,1,643,1999,NULL,NULL,''),(42,'Стандартные',7831,0,1,643,0,299,NULL,''),(43,'Платиновые',7831,1,1,643,39000,NULL,NULL,''),(44,'Золотые',7831,2,1,643,9999,NULL,NULL,''),(45,'Серебряные',7831,3,1,643,5999,NULL,NULL,''),(46,'Бронзовые',7831,4,1,643,1999,NULL,NULL,''),(47,'Стандартные',7863,0,1,643,0,NULL,NULL,''),(48,'Платиновые',7863,1,1,643,39000,NULL,NULL,''),(49,'Золотые',7863,2,1,643,9999,NULL,NULL,''),(50,'Серебряные',7863,3,1,643,5999,NULL,NULL,''),(51,'Бронзовые',7863,4,1,643,1999,NULL,NULL,''),(52,'Стандартные',361,0,1,348,0,NULL,NULL,''),(53,'Стандартные',3646,0,1,348,0,NULL,NULL,''),(54,'Стандартные',3652,0,1,348,0,NULL,NULL,''),(55,'Стандартные',3662,0,1,348,0,NULL,NULL,''),(56,'Стандартные',3672,0,1,348,0,NULL,NULL,''),(57,'Стандартные',3696,0,1,348,0,NULL,NULL,''),(58,'Стандартные',3621,0,2,348,0,NULL,NULL,''),(59,'Платиновые',361,1,1,348,15000,NULL,NULL,''),(60,'Золотые',361,2,1,348,9000,NULL,NULL,''),(61,'Серебряные',361,3,1,348,3000,NULL,NULL,''),(62,'Бронзовые',361,4,1,348,1000,NULL,NULL,''),(63,'Платиновые',3646,1,1,348,15000,NULL,NULL,''),(64,'Золотые',3646,2,1,348,9000,NULL,NULL,''),(65,'Серебряные',3646,3,1,348,3000,NULL,NULL,''),(66,'Бронзовые',3646,4,1,348,1000,NULL,NULL,''),(67,'Платиновые',3652,1,1,348,15000,NULL,NULL,''),(68,'Золотые',3652,2,1,348,9000,NULL,NULL,''),(69,'Серебряные',3652,3,1,348,3000,NULL,NULL,''),(70,'Бронзовые',3652,4,1,348,1000,NULL,NULL,''),(71,'Платиновые',3662,1,1,348,15000,NULL,NULL,''),(72,'Золотые',3662,2,1,348,9000,NULL,NULL,''),(73,'Серебряные',3662,3,1,348,3000,NULL,NULL,''),(74,'Бронзовые',3662,4,1,348,1000,NULL,NULL,''),(75,'Платиновые',3672,1,1,348,15000,NULL,NULL,''),(76,'Золотые',3672,2,1,348,9000,NULL,NULL,''),(77,'Серебряные',3672,3,1,348,3000,NULL,NULL,''),(78,'Бронзовые',3672,4,1,348,1000,NULL,NULL,''),(79,'Платиновые',3696,1,1,348,15000,NULL,NULL,''),(80,'Золотые',3696,2,1,348,9000,NULL,NULL,''),(81,'Серебряные',3696,3,1,348,3000,NULL,NULL,''),(82,'Бронзовые',3696,4,1,348,1000,NULL,NULL,''),(83,'Платиновые',3621,1,2,348,15000,NULL,NULL,''),(84,'Золотые',3621,2,2,348,9000,NULL,NULL,''),(85,'Серебряные',3621,3,2,348,3000,NULL,NULL,''),(86,'Бронзовые',3621,4,2,348,1000,NULL,NULL,''),(87,'Стандартные',7342,0,1,643,0,NULL,NULL,''),(88,'Платиновые',7342,1,1,643,39000,NULL,NULL,''),(89,'Золотые',7342,2,1,643,9999,NULL,NULL,''),(90,'Серебряные',7342,3,1,643,5999,NULL,NULL,''),(91,'Бронзовые',7342,4,1,643,1999,NULL,NULL,''),(92,'Стандартные',3624,0,1,348,0,NULL,NULL,''),(93,'Стандартные',7487,0,1,643,0,NULL,NULL,''),(94,'Платиновые',7487,1,1,643,39000,NULL,NULL,''),(95,'Золотые',7487,2,1,643,9999,NULL,NULL,''),(96,'Серебряные',7487,3,1,643,5999,NULL,NULL,''),(97,'Бронзовые',7487,4,1,643,1999,NULL,NULL,''),(98,'Стандартные',7345,0,1,643,0,999,NULL,''),(99,'Платиновые',7345,1,1,643,39000,NULL,NULL,''),(100,'Золотые',7345,2,1,643,9999,NULL,NULL,''),(101,'Серебряные',7345,3,1,643,5999,NULL,NULL,''),(102,'Бронзовые',7345,4,1,643,1999,NULL,NULL,''),(103,'Стандартные',49,0,1,276,NULL,NULL,NULL,''),(104,'Платиновые',49,1,1,276,NULL,NULL,NULL,''),(105,'Золотые',49,2,1,276,NULL,NULL,NULL,''),(106,'Серебряные',49,3,1,276,NULL,NULL,NULL,''),(107,'Бронзовые',49,4,1,276,NULL,NULL,NULL,''),(108,'Стандартные',74212,0,1,643,0,999,NULL,''),(109,'Платиновые',74212,1,1,643,39000,NULL,NULL,''),(110,'Золотые',74212,2,1,643,9999,NULL,NULL,''),(111,'Серебряные',74212,3,1,643,5999,NULL,NULL,''),(112,'Бронзовые',74212,4,1,643,1999,NULL,NULL,''),(113,'Стандартные',7851,0,1,643,0,NULL,NULL,''),(114,'Платиновые',7851,1,1,643,39000,NULL,NULL,''),(115,'Золотые',7851,2,1,643,9999,NULL,NULL,''),(116,'Серебряные',7851,3,1,643,5999,NULL,NULL,''),(117,'Бронзовые',7851,4,1,643,1999,NULL,NULL,''),(118,'Стандартные',74832,0,1,643,0,NULL,NULL,''),(119,'Платиновые',74832,1,1,643,39000,NULL,NULL,''),(120,'Золотые',74832,2,1,643,9999,NULL,NULL,''),(121,'Серебряные',74832,3,1,643,5999,NULL,NULL,''),(122,'Бронзовые',74832,4,1,643,1999,NULL,NULL,''),(123,'Стандартные',78442,0,1,643,0,NULL,NULL,''),(124,'Бронзовые',78442,4,1,643,1999,NULL,NULL,''),(125,'Серебряные',78442,3,1,643,5999,NULL,NULL,''),(126,'Золотые',78442,2,1,643,9999,NULL,NULL,''),(127,'Платиновые',78442,1,1,643,39000,NULL,NULL,''),(128,'Стандартные',7473,0,1,643,0,NULL,NULL,''),(129,'Бронзовые',7473,4,1,643,1999,NULL,NULL,''),(130,'Серебряные',7473,3,1,643,5999,NULL,NULL,''),(131,'Золотые',7473,2,1,643,9999,NULL,NULL,''),(132,'Платиновые',7473,1,1,643,39000,NULL,NULL,''),(133,'Стандартные',7401,0,1,643,0,NULL,NULL,''),(134,'Бронзовые',7401,4,1,643,1999,NULL,NULL,''),(135,'Серебряные',7401,3,1,643,5999,NULL,NULL,''),(136,'Золотые',7401,2,1,643,9999,NULL,NULL,''),(137,'Платиновые',7401,1,1,643,39000,NULL,NULL,''),(138,'Стандартные',7352,0,1,643,0,NULL,NULL,''),(139,'Бронзовые',7352,4,1,643,1999,NULL,NULL,''),(140,'Серебряные',7352,3,1,643,5999,NULL,NULL,''),(141,'Золотые',7352,2,1,643,9999,NULL,NULL,''),(142,'Платиновые',7352,1,1,643,39000,NULL,NULL,''),(143,'Стандартные',7471,0,1,643,0,NULL,NULL,''),(144,'Бронзовые',7471,4,1,643,1999,NULL,NULL,''),(145,'Серебряные',7471,3,1,643,5999,NULL,NULL,''),(146,'Золотые',7471,2,1,643,9999,NULL,NULL,''),(147,'Платиновые',7471,1,1,643,39000,NULL,NULL,''),(148,'Стандартные',7474,0,1,643,0,NULL,NULL,''),(149,'Бронзовые',7474,4,1,643,1999,NULL,NULL,''),(150,'Серебряные',7474,3,1,643,5999,NULL,NULL,''),(151,'Золотые',7474,2,1,643,9999,NULL,NULL,''),(152,'Платиновые',7474,1,1,643,39000,NULL,NULL,''),(153,'Стандартные',7349,0,1,643,0,NULL,NULL,''),(154,'Бронзовые',7349,4,1,643,1999,NULL,NULL,''),(155,'Серебряные',7349,3,1,643,5999,NULL,NULL,''),(156,'Золотые',7349,2,1,643,9999,NULL,NULL,''),(157,'Платиновые',7349,1,1,643,39000,NULL,NULL,''),(158,'Стандартные',7491,0,1,643,0,NULL,NULL,''),(159,'Бронзовые',7491,4,1,643,1999,NULL,NULL,''),(160,'Серебряные',7491,3,1,643,5999,NULL,NULL,''),(161,'Золотые',7491,2,1,643,9999,NULL,NULL,''),(162,'Платиновые',7491,1,1,643,39000,NULL,NULL,''),(163,'Стандартные',7862,0,1,643,0,NULL,NULL,''),(164,'Бронзовые',7862,4,1,643,1999,NULL,NULL,''),(165,'Серебряные',7862,3,1,643,5999,NULL,NULL,''),(166,'Золотые',7862,2,1,643,9999,NULL,NULL,''),(167,'Платиновые',7862,1,1,643,39000,NULL,NULL,''),(168,'Стандартные',7346,0,1,643,0,NULL,NULL,''),(169,'Бронзовые',7346,4,1,643,1999,NULL,NULL,''),(170,'Серебряные',7346,3,1,643,5999,NULL,NULL,''),(171,'Золотые',7346,2,1,643,9999,NULL,NULL,''),(172,'Платиновые',7346,1,1,643,39000,NULL,NULL,''),(173,'Стандартные',7482,0,1,643,0,NULL,NULL,''),(174,'Бронзовые',7482,4,1,643,1999,NULL,NULL,''),(175,'Серебряные',7482,3,1,643,5999,NULL,NULL,''),(176,'Золотые',7482,2,1,643,9999,NULL,NULL,''),(177,'Платиновые',7482,1,1,643,39000,NULL,NULL,''),(178,'Стандартные',7347,0,1,643,0,NULL,NULL,''),(179,'Бронзовые',7347,4,1,643,1999,NULL,NULL,''),(180,'Серебряные',7347,3,1,643,5999,NULL,NULL,''),(181,'Золотые',7347,2,1,643,9999,NULL,NULL,''),(182,'Платиновые',7347,1,1,643,39000,NULL,NULL,''),(183,'Стандартные',7351,0,1,643,0,NULL,NULL,''),(184,'Бронзовые',7351,4,1,643,1999,NULL,NULL,''),(185,'Серебряные',7351,3,1,643,5999,NULL,NULL,''),(186,'Золотые',7351,2,1,643,9999,NULL,NULL,''),(187,'Платиновые',7351,1,1,643,39000,NULL,NULL,''),(188,'Стандартные',7485,0,1,643,0,NULL,NULL,''),(189,'Бронзовые',7485,4,1,643,1999,NULL,NULL,''),(190,'Серебряные',7485,3,1,643,5999,NULL,NULL,''),(191,'Золотые',7485,2,1,643,9999,NULL,NULL,''),(192,'Платиновые',7485,1,1,643,39000,NULL,NULL,''),(193,'7800 Стандартный',7800,0,8,643,599,NULL,NULL,''),(194,'7800 Платиновый',7800,1,8,643,1200,NULL,NULL,''),(195,'7800 Золотой',7800,2,8,643,1200,NULL,NULL,''),(196,'7800 Серебряный',7800,3,8,643,1200,NULL,NULL,''),(197,'7800 Бронзовый',7800,4,8,643,1200,NULL,NULL,''),(203,'Бронзовые',3624,4,1,348,1000,NULL,NULL,''),(204,'Серебряные',3624,3,1,348,3000,NULL,NULL,''),(205,'Золотые',3624,2,1,348,9000,NULL,NULL,''),(206,'Платиновые',3624,1,1,348,15000,NULL,NULL,''),(207,'Стандартные',3626,0,1,348,0,NULL,NULL,''),(208,'Бронзовые',3626,4,1,348,1000,NULL,NULL,''),(209,'Серебряные',3626,3,1,348,3000,NULL,NULL,''),(210,'Золотые',3626,2,1,348,9000,NULL,NULL,''),(211,'Платиновые',3626,1,1,348,15000,NULL,NULL,''),(212,'Стандартные',3629,0,1,348,0,NULL,NULL,''),(213,'Бронзовые',3629,4,1,348,1000,NULL,NULL,''),(214,'Серебряные',3629,3,1,348,3000,NULL,NULL,''),(215,'Золотые',3629,2,1,348,9000,NULL,NULL,''),(217,'80 Standart',3680,0,8,348,12000,0,0,''),(218,'80 Silver',3680,3,8,348,12000,NULL,NULL,''),(219,'80 Gold',3680,2,8,348,12000,NULL,NULL,''),(220,'80 Platinum',3680,1,8,348,12000,NULL,NULL,''),(221,'80 Bronze',3680,4,8,348,12000,NULL,NULL,''),(222,'Бронзовый',NULL,4,1,643,1999,1999,999,''),(223,'Standart Hungary',NULL,0,1,348,0,0,0,''),(224,'Bronze Hungary',NULL,4,1,348,1000,1000,1000,''),(225,'Silver  Hungary',NULL,3,1,348,3000,3000,3000,''),(226,'Gold Hungary',NULL,2,1,348,9000,9000,9000,''),(227,'Platinum Hungary',NULL,1,1,348,15000,15000,15000,''),(228,'Стандартные (для всех регионов, кроме Москва 495)',NULL,0,1,643,0,299,250,''),(229,'Серебряные',NULL,3,1,643,5999,5999,2999,''),(230,'Золотые',NULL,2,1,643,9999,9999,4999,''),(231,'Платиновые',NULL,1,1,643,39000,39000,19500,'');
 /*!40000 ALTER TABLE `did_group` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1695,6 +1727,7 @@ CREATE TABLE `event_queue` (
   `log_error` text,
   `code` char(32) NOT NULL,
   `insert_time` datetime DEFAULT NULL,
+  `trace` text,
   PRIMARY KEY (`id`),
   KEY `is_handled` (`status`) USING BTREE,
   KEY `code` (`code`)
@@ -1708,6 +1741,36 @@ CREATE TABLE `event_queue` (
 LOCK TABLES `event_queue` WRITE;
 /*!40000 ALTER TABLE `event_queue` DISABLE KEYS */;
 /*!40000 ALTER TABLE `event_queue` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `event_queue_indicator`
+--
+
+DROP TABLE IF EXISTS `event_queue_indicator`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `event_queue_indicator` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `object` varchar(255) NOT NULL,
+  `object_id` int(11) NOT NULL,
+  `event_queue_id` bigint(20) DEFAULT NULL,
+  `section` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx-object-object_id` (`object`,`object_id`),
+  KEY `fk-event_queue-id` (`event_queue_id`),
+  CONSTRAINT `fk-event_queue-id` FOREIGN KEY (`event_queue_id`) REFERENCES `event_queue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `event_queue_indicator`
+--
+
+LOCK TABLES `event_queue_indicator` WRITE;
+/*!40000 ALTER TABLE `event_queue_indicator` DISABLE KEYS */;
+/*!40000 ALTER TABLE `event_queue_indicator` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2446,7 +2509,8 @@ CREATE TABLE `important_events` (
   `comment` varchar(255) DEFAULT NULL,
   `context` text,
   PRIMARY KEY (`id`),
-  KEY `date` (`date`) USING BTREE
+  KEY `date` (`date`) USING BTREE,
+  KEY `idx-client_id-event` (`client_id`,`event`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2479,7 +2543,7 @@ CREATE TABLE `important_events_groups` (
 
 LOCK TABLES `important_events_groups` WRITE;
 /*!40000 ALTER TABLE `important_events_groups` DISABLE KEYS */;
-INSERT INTO `important_events_groups` VALUES (1,'Базовая группа'),(6,'Финансовые события'),(9,'Услуга телефония');
+INSERT INTO `important_events_groups` VALUES (1,'Базовая группа'),(6,'Финансовые события'),(8,'Клиенты.Контрагенты.Договора'),(9,'Услуга телефония');
 /*!40000 ALTER TABLE `important_events_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2602,6 +2666,7 @@ DROP TABLE IF EXISTS `language`;
 CREATE TABLE `language` (
   `code` varchar(5) NOT NULL,
   `name` varchar(50) NOT NULL,
+  `order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2612,7 +2677,7 @@ CREATE TABLE `language` (
 
 LOCK TABLES `language` WRITE;
 /*!40000 ALTER TABLE `language` DISABLE KEYS */;
-INSERT INTO `language` VALUES ('de-DE','Deutsch'),('en-EN','English'),('hu-HU','Magyar'),('ru-RU','Русский');
+INSERT INTO `language` VALUES ('de-DE','Deutsch',3),('en-EN','English',1),('hu-HU','Magyar',2),('ru-RU','Русский',0);
 /*!40000 ALTER TABLE `language` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3422,9 +3487,7 @@ CREATE TABLE `migration` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `migration`
---
+
 --
 -- Table structure for table `mod_traf_1d`
 --
@@ -3883,13 +3946,16 @@ CREATE TABLE `newbills` (
   `state_1c` varchar(32) NOT NULL DEFAULT 'Новый',
   `is_rollback` tinyint(4) NOT NULL DEFAULT '0',
   `editor` enum('stat','admin') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'stat',
-  `is_lk_show` tinyint(4) NOT NULL DEFAULT '1',
+  `is_show_in_lk` tinyint(4) NOT NULL DEFAULT '1',
   `doc_date` date NOT NULL DEFAULT '1970-01-02',
   `is_user_prepay` tinyint(4) NOT NULL DEFAULT '0',
   `bill_no_ext` varchar(32) NOT NULL DEFAULT '',
   `bill_no_ext_date` date NOT NULL,
   `biller_version` int(1) unsigned DEFAULT '4',
   `uu_bill_id` int(11) DEFAULT NULL,
+  `organization_id` int(11) DEFAULT NULL,
+  `pay_bill_until` date DEFAULT NULL,
+  `is_pay_overdue` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `bill_no` (`bill_no`) USING BTREE,
   KEY `client_id` (`client_id`),
@@ -3897,7 +3963,10 @@ CREATE TABLE `newbills` (
   KEY `courier_id` (`courier_id`),
   KEY `is_user_prepay` (`is_user_prepay`),
   KEY `fk-newbills-uu_bill_id` (`uu_bill_id`),
-  CONSTRAINT `fk-newbills-uu_bill_id` FOREIGN KEY (`uu_bill_id`) REFERENCES `uu_bill` (`id`) ON DELETE SET NULL
+  KEY `fk-organization_id` (`organization_id`),
+  KEY `idx-pay_bill_until` (`pay_bill_until`),
+  CONSTRAINT `fk-newbills-uu_bill_id` FOREIGN KEY (`uu_bill_id`) REFERENCES `uu_bill` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk-organization_id` FOREIGN KEY (`organization_id`) REFERENCES `organization` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=396266 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4015,7 +4084,7 @@ CREATE TABLE `newpayments` (
   `oper_date` date NOT NULL DEFAULT '1970-01-02',
   `payment_rate` decimal(8,4) NOT NULL DEFAULT '0.0000',
   `type` enum('bank','prov','ecash','neprov') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bank',
-  `ecash_operator` enum('uniteller','cyberplat','paypal','yandex') DEFAULT NULL,
+  `ecash_operator` enum('cyberplat','paypal','yandex','sberbank') DEFAULT NULL,
   `sum` decimal(11,2) NOT NULL DEFAULT '0.00',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
   `original_sum` decimal(11,2) DEFAULT NULL,
@@ -4140,6 +4209,8 @@ CREATE TABLE `notifier_log` (
   `action` varchar(100) DEFAULT NULL,
   `value` varchar(100) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
+  `result` varchar(100) DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4262,6 +4333,35 @@ CREATE TABLE `onlime_order` (
 LOCK TABLES `onlime_order` WRITE;
 /*!40000 ALTER TABLE `onlime_order` DISABLE KEYS */;
 /*!40000 ALTER TABLE `onlime_order` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `order_sberbank`
+--
+
+DROP TABLE IF EXISTS `order_sberbank`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `order_sberbank` (
+  `created_at` datetime NOT NULL,
+  `order_id` varchar(255) NOT NULL,
+  `bill_no` varchar(255) NOT NULL,
+  `payment_id` int(11) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT '0',
+  `order_url` varchar(255) NOT NULL DEFAULT '',
+  `info_json` varchar(4096) DEFAULT NULL,
+  UNIQUE KEY `uidx-bill_no` (`bill_no`),
+  KEY `idx-order_id` (`order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `order_sberbank`
+--
+
+LOCK TABLES `order_sberbank` WRITE;
+/*!40000 ALTER TABLE `order_sberbank` DISABLE KEYS */;
+/*!40000 ALTER TABLE `order_sberbank` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4840,6 +4940,86 @@ LOCK TABLES `product_state` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `public_site`
+--
+
+DROP TABLE IF EXISTS `public_site`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `public_site` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) DEFAULT NULL,
+  `domain` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `domain` (`domain`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `public_site`
+--
+
+LOCK TABLES `public_site` WRITE;
+/*!40000 ALTER TABLE `public_site` DISABLE KEYS */;
+/*!40000 ALTER TABLE `public_site` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `public_site_city`
+--
+
+DROP TABLE IF EXISTS `public_site_city`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `public_site_city` (
+  `public_site_country_id` int(11) NOT NULL,
+  `city_id` int(10) NOT NULL,
+  PRIMARY KEY (`public_site_country_id`,`city_id`),
+  KEY `fk-public_site_city-city_id` (`city_id`),
+  CONSTRAINT `fk-public_site_city-city_id` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk-public_site_city-public_site_country_id` FOREIGN KEY (`public_site_country_id`) REFERENCES `public_site_country` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `public_site_city`
+--
+
+LOCK TABLES `public_site_city` WRITE;
+/*!40000 ALTER TABLE `public_site_city` DISABLE KEYS */;
+/*!40000 ALTER TABLE `public_site_city` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `public_site_country`
+--
+
+DROP TABLE IF EXISTS `public_site_country`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `public_site_country` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `site_id` int(11) DEFAULT NULL,
+  `country_code` int(4) DEFAULT NULL,
+  `order` int(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk-public_site_country-country_code` (`country_code`),
+  KEY `fk-public_site_country-site_id` (`site_id`),
+  CONSTRAINT `fk-public_site_country-country_code` FOREIGN KEY (`country_code`) REFERENCES `country` (`code`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk-public_site_country-site_id` FOREIGN KEY (`site_id`) REFERENCES `public_site` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `public_site_country`
+--
+
+LOCK TABLES `public_site_country` WRITE;
+/*!40000 ALTER TABLE `public_site_country` DISABLE KEYS */;
+/*!40000 ALTER TABLE `public_site_country` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `qr_code`
 --
 
@@ -5016,7 +5196,9 @@ CREATE TABLE `regions` (
   `code` int(11) DEFAULT NULL,
   `timezone_name` varchar(50) NOT NULL,
   `country_id` int(10) NOT NULL,
-  PRIMARY KEY (`id`)
+  `is_active` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx-is_active` (`is_active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -5026,7 +5208,7 @@ CREATE TABLE `regions` (
 
 LOCK TABLES `regions` WRITE;
 /*!40000 ALTER TABLE `regions` DISABLE KEYS */;
-INSERT INTO `regions` VALUES (81,'Hungary','Внгр',36,'Europe/Budapest',348),(82,'Германия','Герм',49,'Europe/Moscow',276),(83,'Хабаровск','Хаб',74212,'Asia/Vladivostok',643),(84,'Уфа','Уфа',7347,'Asia/Yekaterinburg',643),(85,'Брянск','Брск',74832,'Europe/Moscow',643),(86,'Воронеж','Врнж',7473,'Europe/Moscow',643),(87,'Ростов-на-Дону','РнД',7863,'Europe/Moscow',643),(88,'Нижний Новгород','НН',7831,'Europe/Moscow',643),(89,'Владивосток','Влдв',7423,'Asia/Vladivostok',643),(90,'Челябинск','Члб',7351,'Asia/Yekaterinburg',643),(91,'Волгоград','Влгрд',78442,'Europe/Volgograd',643),(92,'Пермь','Прм',7342,'Asia/Yekaterinburg',643),(93,'Казань','Кзн',7843,'Europe/Moscow',643),(94,'Новосибирск','Нсб',7383,'Asia/Novosibirsk',643),(95,'Екатеринбург','Екб',7343,'Asia/Yekaterinburg',643),(96,'Самара','Смр',7846,'Europe/Samara',643),(97,'Краснодар','Крд',7861,'Europe/Moscow',643),(98,'Санкт-Петербург','СпБ',7812,'Europe/Moscow',643),(99,'Москва','МСК',7495,'Europe/Moscow',643);
+INSERT INTO `regions` VALUES (81,'Hungary','Внгр',36,'Europe/Budapest',348,1),(82,'Германия','Герм',49,'Europe/Moscow',276,0),(83,'Хабаровск','Хаб',74212,'Asia/Vladivostok',643,1),(84,'Уфа','Уфа',7347,'Asia/Yekaterinburg',643,1),(85,'Брянск','Брск',74832,'Europe/Moscow',643,1),(86,'Воронеж','Врнж',7473,'Europe/Moscow',643,1),(87,'Ростов-на-Дону','РнД',7863,'Europe/Moscow',643,1),(88,'Нижний Новгород','НН',7831,'Europe/Moscow',643,1),(89,'Владивосток','Влдв',7423,'Asia/Vladivostok',643,1),(90,'Челябинск','Члб',7351,'Asia/Yekaterinburg',643,1),(91,'Волгоград','Влгрд',78442,'Europe/Volgograd',643,1),(92,'Пермь','Прм',7342,'Asia/Yekaterinburg',643,1),(93,'Казань','Кзн',7843,'Europe/Moscow',643,1),(94,'Новосибирск','Нсб',7383,'Asia/Novosibirsk',643,1),(95,'Екатеринбург','Екб',7343,'Asia/Yekaterinburg',643,1),(96,'Самара','Смр',7846,'Europe/Samara',643,1),(97,'Краснодар','Крд',7861,'Europe/Moscow',643,1),(98,'Санкт-Петербург','СпБ',7812,'Europe/Moscow',643,1),(99,'Москва','МСК',7495,'Europe/Moscow',643,1);
 /*!40000 ALTER TABLE `regions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -5807,7 +5989,7 @@ CREATE TABLE `tarifs_virtpbx` (
   `edit_time` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `price_include_vat` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5908,6 +6090,36 @@ CREATE TABLE `tarifs_voip_package` (
 LOCK TABLES `tarifs_voip_package` WRITE;
 /*!40000 ALTER TABLE `tarifs_voip_package` DISABLE KEYS */;
 /*!40000 ALTER TABLE `tarifs_voip_package` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tax_voip_settings`
+--
+
+DROP TABLE IF EXISTS `tax_voip_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tax_voip_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `business_id` int(11) NOT NULL DEFAULT '0',
+  `country_id` int(11) NOT NULL DEFAULT '0',
+  `is_with_tax` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `fk-country` (`country_id`),
+  KEY `fk-business` (`business_id`),
+  CONSTRAINT `fk-business` FOREIGN KEY (`business_id`) REFERENCES `client_contract_business` (`id`),
+  CONSTRAINT `fk-country` FOREIGN KEY (`country_id`) REFERENCES `country` (`code`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tax_voip_settings`
+--
+
+LOCK TABLES `tax_voip_settings` WRITE;
+/*!40000 ALTER TABLE `tax_voip_settings` DISABLE KEYS */;
+INSERT INTO `tax_voip_settings` VALUES (1,2,643,1),(2,10,643,1),(3,6,643,1);
+/*!40000 ALTER TABLE `tax_voip_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -7188,7 +7400,7 @@ CREATE TABLE `user_rights` (
 
 LOCK TABLES `user_rights` WRITE;
 /*!40000 ALTER TABLE `user_rights` DISABLE KEYS */;
-INSERT INTO `user_rights` VALUES ('ats','Управление ATC','access,support','доступ,ограниченный доступ',0),('clients','Работа с клиентами','read,read_filter,read_all,new,edit,restatus,edit_tele,sale_channels,file,inn_double,all4net,history_edit,client_type_change,changeback_contract_state','просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории,Изменение тип договора,Изменение статуса проверки документов на \"не проверено\"',0),('data','Данные справочников','access','доступ',0),('employeers','Сотрудники','r','чтение',0),('incomegoods','Закупки','access,admin','доступ,администрирование',0),('logs','Логи','read','просмотр',0),('mail','Письма клиентам','r,w','просмотр PM,работа с рассылкой',0),('monitoring','Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики',0),('newaccounts_balance','Баланс','read','просмотр',0),('newaccounts_bills','Счета','read,edit,delete,admin,del_docs,edit_ext','просмотр,изменение,удаление,изменение счета в любое время,Удаление отсканированных актов,Редактирование номера внешнего счета',0),('newaccounts_mass','Массовые операции','access','доступ',0),('newaccounts_payments','Платежи','read,edit,delete','просмотр,изменение,удаление',0),('newaccounts_usd','Курс доллара','access','доступ',0),('organization','Организации','read,edit','чтение,изменение',0),('person','Ответственные лица','read,edit,delete','чтение,изменение,удаление',0),('routers_devices','Клиентские устройства','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('routers_models','Модели клиентских устройств','r,w','чтение,редактирование',0),('routers_nets','Сети','r','доступ',0),('routers_routers','Роутеры','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('send','Массовая отправка счетов','r,send','просмотр состояния,отправка',0),('services_additional','Дополнительные услуги','r,edit,addnew,full,activate,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение',0),('services_collocation','Collocation','r,edit,addnew,activate,close','просмотр,редактирование,добавление,активирование,отключение',0),('services_domains','Доменные имена','r,edit,addnew,close','просмотр,редактирование,добавление,отключение',0),('services_internet','Интернет','r,edit,addnew,activate,close,full,edit_off,tarif','просмотр,изменение,добавление,активирование,отключение,полная информация по сетям (общее с collocation),редактирование отключенных сетей (общее с collocation),изменение тарифа (общее с collocation)',0),('services_itpark','Услуги IT Park\'а','full','полный доступ',0),('services_mail','E-mail','r,edit,addnew,full,activate,chpass,whitelist','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,белый список',0),('services_ppp','PPP-логины','r,edit,addnew,full,activate,chpass,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,отключение',0),('services_voip','IP Телефония','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение,просмотр регистрации,отображение пароля,выслать настройки,номерные емкости,удалять невключенные номера',0),('services_wellsystem','WellSystem','full','полный доступ',0),('services_welltime','WellTime','full,docs','полный доступ,документы',0),('stats','Статистика','r,report,vip_report,voip_recognition,sale_channel_report,onlime_read,onlime_create,onlime_full','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители,onlime просмотр отчета,onlime создание заявок,onlime полный доступ',0),('tarifs','Работа с тарифами','read,edit','чтение,изменение',0),('tt','Работа с заявками','view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating,limit','просмотр,показывать \"Запросы клиентов\",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки,просмотр остатков',0),('usercontrol','О пользователе','read,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля,изменение всех данных,настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список',0),('users','Работа с пользователями','r,change,grant','чтение,изменение,раздача прав',0),('voip','Телефония','access,admin,catalog','доступ,администрирование,справочники',0),('voipreports','Телефония Отчеты','access,admin','доступ,администрирование',0);
+INSERT INTO `user_rights` VALUES ('ats','Управление ATC','access,support','доступ,ограниченный доступ',0),('clients','Работа с клиентами','read,read_filter,read_all,new,edit,restatus,edit_tele,sale_channels,file,inn_double,all4net,history_edit,client_type_change,changeback_contract_state','просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории,Изменение тип договора,Изменение статуса проверки документов на \"не проверено\"',0),('data','Данные справочников','access','доступ',0),('employeers','Сотрудники','r','чтение',0),('incomegoods','Закупки','access,admin','доступ,администрирование',0),('logs','Логи','read,history_version,history_changes','Просмотр,Просмотри истории версий,Просмотр истории изменений',0),('mail','Письма клиентам','r,w','просмотр PM,работа с рассылкой',0),('monitoring','Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики',0),('newaccounts_balance','Баланс','read','просмотр',0),('newaccounts_bills','Счета','read,edit,delete,admin,del_docs,edit_ext','просмотр,изменение,удаление,изменение счета в любое время,Удаление отсканированных актов,Редактирование номера внешнего счета',0),('newaccounts_mass','Массовые операции','access','доступ',0),('newaccounts_payments','Платежи','read,edit,delete','просмотр,изменение,удаление',0),('newaccounts_usd','Курс доллара','access','доступ',0),('organization','Организации','read,edit','чтение,изменение',0),('person','Ответственные лица','read,edit,delete','чтение,изменение,удаление',0),('routers_devices','Клиентские устройства','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('routers_models','Модели клиентских устройств','r,w','чтение,редактирование',0),('routers_nets','Сети','r','доступ',0),('routers_routers','Роутеры','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('send','Массовая отправка счетов','r,send','просмотр состояния,отправка',0),('services_additional','Дополнительные услуги','r,edit,addnew,full,activate,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение',0),('services_collocation','Collocation','r,edit,addnew,activate,close','просмотр,редактирование,добавление,активирование,отключение',0),('services_domains','Доменные имена','r,edit,addnew,close','просмотр,редактирование,добавление,отключение',0),('services_internet','Интернет','r,edit,addnew,activate,close,full,edit_off,tarif','просмотр,изменение,добавление,активирование,отключение,полная информация по сетям (общее с collocation),редактирование отключенных сетей (общее с collocation),изменение тарифа (общее с collocation)',0),('services_itpark','Услуги IT Park\'а','full','полный доступ',0),('services_mail','E-mail','r,edit,addnew,full,activate,chpass,whitelist','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,белый список',0),('services_ppp','PPP-логины','r,edit,addnew,full,activate,chpass,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,отключение',0),('services_voip','IP Телефония','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение,просмотр регистрации,отображение пароля,выслать настройки,номерные емкости,удалять невключенные номера',0),('services_wellsystem','WellSystem','full','полный доступ',0),('services_welltime','WellTime','full,docs','полный доступ,документы',0),('stats','Статистика','r,report,vip_report,voip_recognition,sale_channel_report,onlime_read,onlime_create,onlime_full','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители,onlime просмотр отчета,onlime создание заявок,onlime полный доступ',0),('tarifs','Работа с тарифами','read,edit','чтение,изменение',0),('tt','Работа с заявками','view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating,limit','просмотр,показывать \"Запросы клиентов\",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки,просмотр остатков',0),('usercontrol','О пользователе','read,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля,изменение всех данных,настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список',0),('users','Работа с пользователями','r,change,grant','чтение,изменение,раздача прав',0),('voip','Телефония','access,admin,catalog','доступ,администрирование,справочники',0),('voipreports','Телефония Отчеты','access,admin','доступ,администрирование',0);
 /*!40000 ALTER TABLE `user_rights` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7488,48 +7700,6 @@ LOCK TABLES `uu_account_tariff` WRITE;
 /*!40000 ALTER TABLE `uu_account_tariff` DISABLE KEYS */;
 /*!40000 ALTER TABLE `uu_account_tariff` ENABLE KEYS */;
 UNLOCK TABLES;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50003 TRIGGER `sync_uu_account_tariff_voip_update` AFTER UPDATE ON `uu_account_tariff` FOR EACH ROW BEGIN
-                IF  OLD.service_type_id = 2 
-                    AND OLD.id >= 100000
-                THEN
-                    CALL z_sync_postgres('uu_account_tariff', OLD.id);
-                END IF;
-            END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8 */ ;
-/*!50003 SET character_set_results = utf8 */ ;
-/*!50003 SET collation_connection  = utf8_general_ci */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = '' */ ;
-DELIMITER ;;
-/*!50003 CREATE*/ /*!50003 TRIGGER `sync_uu_account_tariff_voip_delete` AFTER DELETE ON `uu_account_tariff` FOR EACH ROW BEGIN
-                IF  OLD.service_type_id = 2 
-                    AND OLD.id >= 100000
-                THEN
-                    CALL z_sync_postgres('uu_account_tariff', OLD.id);
-                END IF;
-            END */;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
 
 --
 -- Table structure for table `uu_account_tariff_log`
@@ -7562,6 +7732,40 @@ CREATE TABLE `uu_account_tariff_log` (
 LOCK TABLES `uu_account_tariff_log` WRITE;
 /*!40000 ALTER TABLE `uu_account_tariff_log` DISABLE KEYS */;
 /*!40000 ALTER TABLE `uu_account_tariff_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `uu_account_tariff_resource_log`
+--
+
+DROP TABLE IF EXISTS `uu_account_tariff_resource_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `uu_account_tariff_resource_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_tariff_id` int(11) NOT NULL,
+  `resource_id` int(11) NOT NULL,
+  `amount` float NOT NULL,
+  `actual_from_utc` datetime NOT NULL,
+  `insert_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `insert_user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk-insert_user_id` (`insert_user_id`),
+  KEY `fk-account_tariff_id` (`account_tariff_id`),
+  KEY `fk-resource_id` (`resource_id`),
+  CONSTRAINT `fk-account_tariff_id` FOREIGN KEY (`account_tariff_id`) REFERENCES `uu_account_tariff` (`id`),
+  CONSTRAINT `fk-insert_user_id` FOREIGN KEY (`insert_user_id`) REFERENCES `user_users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk-resource_id` FOREIGN KEY (`resource_id`) REFERENCES `uu_resource` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uu_account_tariff_resource_log`
+--
+
+LOCK TABLES `uu_account_tariff_resource_log` WRITE;
+/*!40000 ALTER TABLE `uu_account_tariff_resource_log` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uu_account_tariff_resource_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -7663,6 +7867,7 @@ CREATE TABLE `uu_service_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `parent_id` int(11) DEFAULT NULL,
+  `close_after_days` int(11) NOT NULL DEFAULT '60',
   PRIMARY KEY (`id`),
   KEY `fk-uu_service_type-parent_id` (`parent_id`),
   CONSTRAINT `fk-uu_service_type-parent_id` FOREIGN KEY (`parent_id`) REFERENCES `uu_service_type` (`id`)
@@ -7675,7 +7880,7 @@ CREATE TABLE `uu_service_type` (
 
 LOCK TABLES `uu_service_type` WRITE;
 /*!40000 ALTER TABLE `uu_service_type` DISABLE KEYS */;
-INSERT INTO `uu_service_type` VALUES (1,'ВАТС',NULL),(2,'Телефония',NULL),(3,'Телефония. Пакеты',NULL),(4,'Интернет',NULL),(5,'Collocation',NULL),(6,'VPN',NULL),(7,'IT Park',NULL),(8,'Регистрация доменов',NULL),(9,'Виртуальный почтовый сервер',NULL),(10,'Старый ВАТС',NULL),(11,'Сайт',NULL),(12,'Провайдер',NULL),(13,'Wellsystem',NULL),(14,'Welltime как продукт',NULL),(15,'Дополнительные услуги',NULL),(16,'SMS Gate',NULL),(17,'SMS',NULL),(18,'Welltime как сервис',NULL),(19,'Звонок-чат',NULL),(20,'VM collocation',NULL),(21,'Разовая услуга',NULL),(22,'Транк',NULL),(23,'ОригТранк. Пакеты',NULL),(24,'ТермТранк. Пакеты',NULL);
+INSERT INTO `uu_service_type` VALUES (1,'ВАТС',NULL,60),(2,'Телефония',NULL,60),(3,'Телефония. Пакеты',NULL,60),(4,'Интернет',NULL,60),(5,'Collocation',NULL,60),(6,'VPN',NULL,60),(7,'IT Park',NULL,60),(8,'Регистрация доменов',NULL,60),(9,'Виртуальный почтовый сервер',NULL,60),(10,'Старый ВАТС',NULL,60),(11,'Сайт',NULL,60),(12,'Провайдер',NULL,60),(13,'Wellsystem',NULL,60),(14,'Welltime как продукт',NULL,60),(15,'Дополнительные услуги',NULL,60),(16,'SMS Gate',NULL,60),(17,'SMS',NULL,60),(18,'Welltime как сервис',NULL,60),(19,'Звонок-чат',NULL,60),(20,'VM collocation',NULL,60),(21,'Разовая услуга',NULL,60),(22,'Транк',NULL,60),(23,'ОригТранк. Пакеты',NULL,60),(24,'ТермТранк. Пакеты',NULL,60);
 /*!40000 ALTER TABLE `uu_service_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7692,7 +7897,6 @@ CREATE TABLE `uu_tariff` (
   `period_days` int(11) NOT NULL DEFAULT '0',
   `count_of_validity_period` int(11) NOT NULL DEFAULT '0',
   `is_autoprolongation` int(11) NOT NULL,
-  `is_charge_after_period` int(11) NOT NULL,
   `is_charge_after_blocking` int(11) NOT NULL,
   `is_include_vat` int(11) NOT NULL,
   `currency_id` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
@@ -7707,6 +7911,7 @@ CREATE TABLE `uu_tariff` (
   `voip_group_id` int(11) DEFAULT NULL,
   `is_default` int(11) DEFAULT NULL,
   `vm_id` int(11) DEFAULT NULL,
+  `is_postpaid` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `fk-uu_tariff-currency_id` (`currency_id`),
   KEY `fk-uu_tariff-service_type_id` (`service_type_id`),
@@ -7735,7 +7940,7 @@ CREATE TABLE `uu_tariff` (
 
 LOCK TABLES `uu_tariff` WRITE;
 /*!40000 ALTER TABLE `uu_tariff` DISABLE KEYS */;
-INSERT INTO `uu_tariff` VALUES (10000,'Разовая услуга',0,0,0,1,1,1,'RUB',21,2,643,1,'2016-11-08 12:13:19',NULL,'2016-11-08 12:13:19',NULL,NULL,1,NULL),(10001,'Single-Service',0,0,0,1,1,1,'EUR',21,2,276,1,'2016-11-08 12:13:19',NULL,'2016-11-08 12:13:19',NULL,NULL,1,NULL),(10002,'Jedno-time ponuka',0,0,0,1,1,1,'EUR',21,2,703,1,'2016-11-08 12:13:20',NULL,'2016-11-08 12:13:20',NULL,NULL,1,NULL),(10003,'Egyszeri ajánlat',0,0,0,1,1,1,'HUF',21,2,348,1,'2016-11-08 12:13:20',NULL,'2016-11-08 12:13:20',NULL,NULL,1,NULL);
+INSERT INTO `uu_tariff` VALUES (10000,'Разовая услуга',0,0,0,1,1,'RUB',21,2,643,1,'2016-11-08 12:13:19',NULL,'2016-11-08 12:13:19',NULL,NULL,1,NULL,0),(10001,'Single-Service',0,0,0,1,1,'EUR',21,2,276,1,'2016-11-08 12:13:19',NULL,'2016-11-08 12:13:19',NULL,NULL,1,NULL,0),(10002,'Jedno-time ponuka',0,0,0,1,1,'EUR',21,2,703,1,'2016-11-08 12:13:20',NULL,'2016-11-08 12:13:20',NULL,NULL,1,NULL,0),(10003,'Egyszeri ajánlat',0,0,0,1,1,'HUF',21,2,348,1,'2016-11-08 12:13:20',NULL,'2016-11-08 12:13:20',NULL,NULL,1,NULL,0);
 /*!40000 ALTER TABLE `uu_tariff` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7752,14 +7957,11 @@ CREATE TABLE `uu_tariff_period` (
   `price_setup` float NOT NULL DEFAULT '0',
   `price_min` float NOT NULL DEFAULT '0',
   `tariff_id` int(11) NOT NULL,
-  `period_id` int(11) NOT NULL,
   `charge_period_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk-uu_tariff_period-tariff_id` (`tariff_id`),
-  KEY `fk-uu_tariff_period-period_id` (`period_id`),
   KEY `fk-uu_tariff_period-charge_period_id` (`charge_period_id`),
   CONSTRAINT `fk-uu_tariff_period-charge_period_id` FOREIGN KEY (`charge_period_id`) REFERENCES `uu_period` (`id`),
-  CONSTRAINT `fk-uu_tariff_period-period_id` FOREIGN KEY (`period_id`) REFERENCES `uu_period` (`id`),
   CONSTRAINT `fk-uu_tariff_period-tariff_id` FOREIGN KEY (`tariff_id`) REFERENCES `uu_tariff` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -7770,7 +7972,7 @@ CREATE TABLE `uu_tariff_period` (
 
 LOCK TABLES `uu_tariff_period` WRITE;
 /*!40000 ALTER TABLE `uu_tariff_period` DISABLE KEYS */;
-INSERT INTO `uu_tariff_period` VALUES (1,0,0,0,10000,1,1),(2,0,0,0,10001,1,1),(3,0,0,0,10002,1,1),(4,0,0,0,10003,1,1);
+INSERT INTO `uu_tariff_period` VALUES (1,0,0,0,10000,1),(2,0,0,0,10001,1),(3,0,0,0,10002,1),(4,0,0,0,10003,1);
 /*!40000 ALTER TABLE `uu_tariff_period` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7844,7 +8046,7 @@ CREATE TABLE `uu_tariff_status` (
   PRIMARY KEY (`id`),
   KEY `fk-uu_tariff_status-service_type_id` (`service_type_id`),
   CONSTRAINT `fk-uu_tariff_status-service_type_id` FOREIGN KEY (`service_type_id`) REFERENCES `uu_service_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7853,7 +8055,7 @@ CREATE TABLE `uu_tariff_status` (
 
 LOCK TABLES `uu_tariff_status` WRITE;
 /*!40000 ALTER TABLE `uu_tariff_status` DISABLE KEYS */;
-INSERT INTO `uu_tariff_status` VALUES (1,'Публичный',NULL),(2,'Специальный',NULL),(3,'Архивный',NULL),(4,'Тестовый',NULL),(5,'8-800',2),(6,'Операторский',2),(7,'Переходный',2),(8,'ADSL',4),(9,'8-800 тестовый',NULL);
+INSERT INTO `uu_tariff_status` VALUES (1,'Публичный',NULL),(2,'Специальный',NULL),(3,'Архивный',NULL),(4,'Тестовый',NULL),(5,'8-800',2),(6,'Операторский',2),(7,'Переходный',2),(8,'ADSL',4),(9,'8-800 тестовый',NULL),(10,'ОТТ 1',2),(11,'ОТТ 2',2),(12,'ОТТ 3',2);
 /*!40000 ALTER TABLE `uu_tariff_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8326,6 +8528,12 @@ CREATE TABLE `z_sync_postgres` (
 --
 -- Dumping data for table `z_sync_postgres`
 --
+
+LOCK TABLES `z_sync_postgres` WRITE;
+/*!40000 ALTER TABLE `z_sync_postgres` DISABLE KEYS */;
+/*!40000 ALTER TABLE `z_sync_postgres` ENABLE KEYS */;
+UNLOCK TABLES;
+
 --
 -- Final view structure for view `tt_states_rb`
 --
@@ -8338,7 +8546,6 @@ CREATE TABLE `z_sync_postgres` (
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-
 /*!50001 VIEW `tt_states_rb` AS select `tt_states`.`id` AS `id`,`tt_states`.`pk` AS `pk`,if((`tt_states`.`id` = 17),'К поступлению',if((`tt_states`.`id` = 18),'Принят',`tt_states`.`name`)) AS `name`,`tt_states`.`order` AS `order`,`tt_states`.`time_delta` AS `time_delta`,`tt_states`.`folder` AS `folder`,`tt_states`.`deny` AS `deny`,`tt_states`.`state_1c` AS `state_1c`,`tt_states`.`oso` AS `oso`,`tt_states`.`omo` AS `omo` from `tt_states` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -8356,7 +8563,6 @@ CREATE TABLE `z_sync_postgres` (
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=MERGE */
-
 /*!50001 VIEW `usage_sms_gate` AS select sql_no_cache `u`.`id` AS `usage_id`,`c`.`client` AS `client`,`c`.`id` AS `client_id`,sha(concat(sha(`c`.`password`),sha(concat(sha(now()),`c`.`password`)))) AS `password`,sha(concat(sha(now()),`c`.`password`)) AS `salt`,`u`.`actual_from` AS `actual_from`,`u`.`actual_to` AS `actual_to`,if((isnull(`u`.`param_value`) or (`u`.`param_value` = _utf8'')),ltrim(substr(`t`.`param_name`,(locate(_utf8'=',`t`.`param_name`) + 1))),`u`.`param_value`) AS `sms_max`,`u`.`status` AS `status` from ((`clients` `c` join `usage_extra` `u` on((`u`.`client` = `c`.`client`))) join `tarifs_extra` `t` on(((`t`.`id` = `u`.`tarif_id`) and (`t`.`code` = 'sms_gate')))) */
 /*!50002 WITH LOCAL CHECK OPTION */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
@@ -8375,7 +8581,6 @@ CREATE TABLE `z_sync_postgres` (
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-
 /*!50001 VIEW `welltime_updates` AS select `u`.`client` AS `client`,`c`.`password` AS `password`,trim(replace(`t`.`description`,'Welltime','')) AS `version` from ((`usage_extra` `u` join `tarifs_extra` `t`) join `clients` `c`) where ((`u`.`tarif_id` in (219,226,227)) and (now() between `u`.`actual_from` and `u`.`actual_to`) and (`t`.`id` = `u`.`tarif_id`) and (`c`.`client` = `u`.`client`) and (`c`.`status` in ('work','once'))) union select `u`.`client` AS `client`,`c`.`password` AS `password`,trim(replace(`t`.`description`,'Welltime','')) AS `version` from ((`usage_welltime` `u` join `tarifs_extra` `t`) join `clients` `c`) where ((`u`.`tarif_id` = 322) and (now() between `u`.`actual_from` and `u`.`actual_to`) and (`t`.`id` = `u`.`tarif_id`) and (`c`.`client` = `u`.`client`) and (`c`.`status` in ('work','once'))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -8390,4 +8595,4 @@ CREATE TABLE `z_sync_postgres` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-01-25 12:55:21
+-- Dump completed on 2017-04-17 15:25:42

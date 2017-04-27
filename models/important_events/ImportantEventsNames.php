@@ -7,6 +7,7 @@ use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 
 /**
+ * @property int $id
  * @property string $code
  * @property string $value
  * @property int $group_id
@@ -31,6 +32,8 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_UNSET_ZERO_BALANCE = 'unset_zero_balance';
     const IMPORTANT_EVENT_CR_TOKEN = 'cr_token';
     const IMPORTANT_EVENT_CHANGE_MIN_DAY_LIMIT = 'change_min_day_limit';
+    const IMPORTANT_EVENT_SET_LOCAL_BLOCK = 'set_local_block';
+    const IMPORTANT_EVENT_UNSET_LOCAL_BLOCK = 'unset_local_block';
 
     const IMPORTANT_EVENT_FORECASTING_7DAY = 'forecasting_7day';
     const IMPORTANT_EVENT_FORECASTING_3DAY = 'forecasting_3day';
@@ -71,6 +74,10 @@ class ImportantEventsNames extends ActiveRecord
     const IMPORTANT_EVENT_RESET_NOTIFIED_3DAYS = 'reset_notified_3days';
     const IMPORTANT_EVENT_NOTIFIED_1DAYS = 'notified_1days';
     const IMPORTANT_EVENT_RESET_NOTIFIED_1DAYS = 'reset_notified_1days';
+
+    // overdue
+    const IMPORTANT_EVENT_INVOCE_PAYMENT_DELAY = 'invoce_payment_delay';
+    const IMPORTANT_EVENT_INVOICE_PAYMENT_DONE = 'invoice_payment_done';
 
     /**
      * @return string

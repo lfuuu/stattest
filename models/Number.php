@@ -7,6 +7,8 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
+ * Class Number
+ *
  * @property string $number
  * @property string $status
  * @property string $reserve_from
@@ -37,6 +39,7 @@ use yii\helpers\Url;
  * @property int $is_ported
  *
  * @property City $city
+ * @property Country $country
  * @property DidGroup $didGroup
  * @property UsageVoip $usage
  * @property ClientAccount $clientAccount
@@ -49,6 +52,7 @@ class Number extends ActiveRecord
 {
     const STATUS_NOTSALE = 'notsale';
     const STATUS_INSTOCK = 'instock';
+    const STATUS_ACTIVE_CONNECTED = 'active_connected';
     const STATUS_ACTIVE_TESTED = 'active_tested';
     const STATUS_ACTIVE_COMMERCIAL = 'active_commercial';
     const STATUS_NOTACTIVE_RESERVED = 'notactive_reserved';
@@ -65,13 +69,14 @@ class Number extends ActiveRecord
         self::STATUS_INSTOCK => 'Свободен',
         self::STATUS_ACTIVE_TESTED => 'Используется. Тестируется.',
         self::STATUS_ACTIVE_COMMERCIAL => 'Используется. В коммерции.',
+        self::STATUS_ACTIVE_CONNECTED => 'Подключение запланировано',
         self::STATUS_NOTACTIVE_RESERVED => 'В резерве',
         self::STATUS_NOTACTIVE_HOLD => 'В отстойнике',
         self::STATUS_RELEASED => 'Откреплен',
     ];
 
     public static $statusGroup = [
-        self::STATUS_GROUP_ACTIVE => [self::STATUS_ACTIVE_TESTED, self::STATUS_ACTIVE_COMMERCIAL],
+        self::STATUS_GROUP_ACTIVE => [self::STATUS_ACTIVE_CONNECTED, self::STATUS_ACTIVE_TESTED, self::STATUS_ACTIVE_COMMERCIAL],
         self::STATUS_GROUP_NOTACTIVE => [self::STATUS_NOTACTIVE_RESERVED, self::STATUS_NOTACTIVE_HOLD],
     ];
 
@@ -89,7 +94,8 @@ class Number extends ActiveRecord
 
     /**
      * Вернуть имена полей
-     * @return array [полеВТаблице => Перевод]
+     *
+     * @return array
      */
     public function attributeLabels()
     {
@@ -106,12 +112,15 @@ class Number extends ActiveRecord
         ];
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['status', 'number_tech'], 'string'],
-            [['beauty_level', 'did_group_id'], 'integer'],
-            [['status', 'beauty_level', 'did_group_id'], 'required', 'on' => 'save'],
+            [['beauty_level'], 'integer'],
+            [['status', 'beauty_level'], 'required', 'on' => 'save'],
         ];
     }
 
@@ -122,7 +131,6 @@ class Number extends ActiveRecord
     {
         return NumberDao::me();
     }
-
 
     /**
      * @return \yii\db\ActiveQuery
@@ -174,12 +182,13 @@ class Number extends ActiveRecord
 
     /**
      * @param string|null $currency
+     * @param ClientAccount $clientAccount
      * @return float|null
      */
-    public function getPrice($currency = null)
+    public function getPrice($currency = null, ClientAccount $clientAccount = null)
     {
         try {
-            $price = $this->originPrice;
+            $price = $this->getOriginPrice($clientAccount);
         } catch (\Exception $e) {
             return null;
         }
@@ -212,30 +221,36 @@ class Number extends ActiveRecord
     }
 
     /**
+     * @param ClientAccount $clientAccount
      * @return float
      */
-    public function getOriginPrice()
+    public function getOriginPrice(ClientAccount $clientAccount = null)
     {
-        return (float)$this->didGroup->price1;
+        $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
+        return (float)$this->didGroup->{$priceField};
     }
 
     /**
+     * @param ClientAccount $clientAccount
      * @return NumberPriceLight
      */
-    public function getOriginPriceWithCurrency()
+    public function getOriginPriceWithCurrency(ClientAccount $clientAccount = null)
     {
         $formattedResult = new NumberPriceLight;
         try {
+
             $formattedResult->setAttributes([
                 'currency' => $this->didGroup->country->currency_id,
-                'price' => $this->originPrice,
+                'price' => $this->getOriginPrice($clientAccount),
             ]);
+
         } catch (\Exception $e) {
             $formattedResult->setAttributes([
                 'currency' => null,
                 'price' => null,
             ]);
         }
+
         return $formattedResult;
     }
 
@@ -248,7 +263,9 @@ class Number extends ActiveRecord
     }
 
     /**
-     * @param $id
+     * Ссылка на страницу номера
+     *
+     * @param int $id
      * @return string
      */
     public static function getUrlById($id)
@@ -258,19 +275,22 @@ class Number extends ActiveRecord
 
     /**
      * Вернуть кол-во звонков за месяц
+     *
      * @param string $month %02d
      * @return int
      */
     public function getCallsWithoutUsagesByMonth($month)
     {
         if (is_null($this->callsCount)) {
-            $this->callsCount = \app\models\Number::dao()->getCallsWithoutUsages($this->city->connection_point_id, $this->number);
+            $this->callsCount = self::dao()->getCallsWithoutUsages($this->city->connection_point_id, $this->number);
         }
+
         foreach ($this->callsCount as $calls) {
             if ($calls['m'] === $month) {
                 return $calls['c'];
             }
         }
+
         return '';
     }
 

@@ -88,11 +88,9 @@ echo Breadcrumbs::widget([
     </div>
 </div>
 
-<?
+<?php
 if ($filterModel->partner_contract_id) {
-    echo $this->render(($filterModel->isExtendsMode ? '_grid_extends' : '_grid'),
-        [
-            'filterModel' => $filterModel,
-        ]
-    );
+    echo $this->render(($filterModel->isExtendsMode ? '_grid_extends' : '_grid'),[
+        'filterModel' => $filterModel,
+    ]);
 }

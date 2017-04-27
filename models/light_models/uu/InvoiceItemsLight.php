@@ -4,7 +4,7 @@ namespace app\models\light_models\uu;
 
 use Yii;
 use yii\base\Component;
-use app\classes\uu\model\AccountEntry;
+use app\modules\uu\models\AccountEntry;
 use app\models\ClientAccount;
 use app\models\InvoiceSettings;
 

@@ -1,0 +1,29 @@
+.personal-scheme-radio-group .status {
+    white-space: nowrap;
+}
+.personal-scheme-radio-group .status > div {
+    white-space: normal;
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    padding: 0 5px;
+}
+
+.personal-scheme-radio-group .status__text {
+    width:42%;
+}
+
+.personal-scheme-radio-group .status__text .glyphicon-resize-horizontal {
+    font-size: 17px;
+    left: -5px;
+    top: 3px;
+}
+
+.personal-scheme-radio-group .status__text .glyphicon-ok {
+    top: -1px;
+}
+
+.personal-scheme-radio-group .status__radio {
+    width: 16%;
+    text-align: center;
+}

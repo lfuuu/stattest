@@ -1,6 +1,7 @@
 <?php
 namespace app\commands\stat;
 
+use app\classes\api\ApiVpbx;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Virtpbx;
 use DateTime;
@@ -97,7 +98,7 @@ class VatsController extends Controller
     {
         try {
 
-            return \app\classes\api\ApiVpbx::getResourceStatistics($date);
+            return ApiVpbx::me()->getResourceUsagePerDay($date);
 
         } catch (\Exception $e) {
             if ($e->getCode() != 540) {

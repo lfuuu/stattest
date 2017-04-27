@@ -1,0 +1,84 @@
+<?php
+/**
+ * Список универсальных услуг с пакетами. Форма. Тариф с историей
+ *
+ * @var \app\classes\BaseView $this
+ *
+ * @var AccountTariff $accountTariffFirst
+ * @var int[] $packageServiceTypeIds
+ * @var AccountTariff[][] $row
+ * @var ServiceType $serviceType
+ * @var AccountTariff[][] $packagesList
+ */
+
+use app\classes\Html;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\ServiceType;
+
+?>
+<div class="well">
+
+    <?php
+    $isEditable = $accountTariffFirst->isLogEditable();
+    $isCancelable = $accountTariffFirst->isLogCancelable();
+    $actualFromNext = '';
+
+    /** @var AccountTariffLog[] $accountTariffLogs */
+    $accountTariffLogs = $accountTariffFirst->accountTariffLogs;
+    $accountTariffLog = array_shift($accountTariffLogs);
+
+    ?>
+    <div>
+        <?php
+        // текущий тариф
+        echo $this->render('_indexVoipFormTariff', [
+            'accountTariffFirst' => $accountTariffFirst,
+            'packageServiceTypeIds' => $packageServiceTypeIds,
+            'row' => $row,
+            'serviceType' => $serviceType,
+            'packagesList' => $packagesList,
+            'accountTariffLog' => $accountTariffLog,
+            'actualFromNext' => $actualFromNext,
+            'isEditable' => $isEditable,
+            'isCancelable' => $isCancelable,
+            'isCurrent' => true,
+        ]);
+        $actualFromNext = $accountTariffLog->actual_from;
+
+        // показать/скрыть историю
+        $divId = 'accountTariffLogs' . $accountTariffFirst->id;
+        if (count($accountTariffLogs)) {
+            echo $this->render('//layouts/_toggleButton', ['divSelector' => '#' . $divId]);
+        }
+        ?>
+    </div>
+    <?php
+
+    // предыдущие тарифы (история)
+    ?>
+    <div id="<?= $divId ?>" class="collapse">
+        <?php
+        foreach ($accountTariffLogs as $accountTariffLog) {
+            echo Html::tag(
+                'div',
+                $this->render('_indexVoipFormTariff',
+                    [
+                        'accountTariffFirst' => $accountTariffFirst,
+                        'packageServiceTypeIds' => $packageServiceTypeIds,
+                        'row' => $row,
+                        'serviceType' => $serviceType,
+                        'packagesList' => $packagesList,
+                        'accountTariffLog' => $accountTariffLog,
+                        'actualFromNext' => $actualFromNext,
+                        'isEditable' => $isEditable,
+                        'isCancelable' => $isCancelable,
+                        'isCurrent' => false,
+                    ]
+                )
+            );
+            $actualFromNext = $accountTariffLog->actual_from;
+        }
+        ?>
+    </div>
+</div>

@@ -5,11 +5,12 @@ use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\Form;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\FormFieldValidator;
+use app\exceptions\ModelValidationException;
 use app\models\City;
 use app\models\Country;
-use app\models\Number;
 use app\models\NumberType;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NumberRange;
 
 class RegistryForm extends Form
 {
@@ -19,22 +20,28 @@ class RegistryForm extends Form
         $country_id = Country::RUSSIA,
         $city_id = City::DEFAULT_USER_CITY_ID,
         $city_number_format = '',
+        $city_number_format_length = 0,
         $source = VoipRegistrySourceEnum::OPERATOR,
         $number_type_id = NumberType::ID_GEO_DID,
         $number_from,
         $number_to,
         $account_id,
-        $comment = ''
+        $comment = '',
+        $ndc = NumberRange::DEFAULT_MOSCOW_NDC,
+        $ndsList = []
     ;
 
     /** @var Registry  */
     public $registry = null;
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [
-                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id'],
+                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id','ndc'],
                 'required',
                 'on' => 'save'
             ],
@@ -49,35 +56,50 @@ class RegistryForm extends Form
             ['account_id', AccountIdValidator::className(), 'on' => 'save'],
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
-            [['number_from', 'number_to'], 'integer', 'min' => 10000000, 'on' => 'save'],
-            ['number_from', 'validateNumbersRange']
+            ['number_from', 'validateNumbersRange'],
+            ['ndc', 'safe']
         ];
     }
 
+    /**
+     * @return array
+     */
     public function attributeLabels()
     {
         return (new Registry)->attributeLabels() + [
             'comment' => 'Комментарий',
-            'city_number_format' => 'Формат номера'
+            'city_number_format' => 'Формат номера',
+            'ndc' => 'NDC'
         ];
     }
 
+    /**
+     * Валидатор города
+     */
     public function validateCity()
     {
-        if (!array_key_exists($this->city_id, City::getList($isWithEmpty = false, $this->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false))){
+        if (!array_key_exists(
+            $this->city_id,
+            City::getList(
+                $isWithEmpty = false,
+                $this->country_id,
+                $isWithNullAndNotNull = false,
+                $isUsedOnly = false)
+        )) {
             $this->addError('city_id', 'Значение "Город" неверно');
         }
     }
 
+    /**
+     * Валидатор номерного диапазона
+     */
     public function validateNumbersRange()
     {
         if ($this->number_from > $this->number_to) {
             $this->addError('number_from', 'Номер "c" меньше номера "по"');
-        }else
-            if(($this->number_to - $this->number_from) > 100000){
-                $this->addError('number_from', 'Слишком большой диапазон номеров.');
-            }
-
+        } elseif (($this->number_to - $this->number_from) > 100000) {
+            $this->addError('number_from', 'Слишком большой диапазон номеров.');
+        }
     }
 
     /**
@@ -94,11 +116,13 @@ class RegistryForm extends Form
     /**
      * Инициализация данных формы на основе загруженных значений
      *
+     * @param bool $isFromPost
      * @return bool
      */
-    public function initForm()
+    public function initForm($isFromPost = false)
     {
         if ($this->country_id && $this->city_id) {
+            /** @var City $city */
             $city = City::findOne(['id' => $this->city_id]);
             if ($city && $city->country_id != $this->country_id) {
                 $cities = City::getList($isWithEmpty = false, $this->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false);
@@ -106,18 +130,89 @@ class RegistryForm extends Form
             }
         }
 
-        if ($this->city_id) {
-            $city = City::findOne(['id' => $this->city_id]);
-            $this->city_number_format = $city->voip_number_format;
+        if ($this->number_type_id == NumberType::ID_7800) {
+            $this->_setCityAndNdcFor7800();
+        }
+
+        $this->_setNDC();
+        $this->_setCityNumberFormat();
+
+
+        if ($isFromPost) {
+            $this->_prepareNumbesFromPost();
         }
 
         return true;
     }
 
     /**
+     * Установка города для номера 800
+     */
+    private function _setCityAndNdcFor7800()
+    {
+        switch ($this->country_id) {
+            case Country::RUSSIA:
+                $this->city_id = City::RUSSIA_CITY_ID_7800;
+                $this->ndc = NumberRange::RUSSIA_7800_NDC;
+                break;
+
+            case Country::HUNGARY:
+                $this->city_id = City::HUNGARY_CITY_ID_7800;
+                $this->ndc = NumberRange::HUNGARY_800_NDC;
+                break;
+
+            default:
+                throw new \LogicException('Для выбранной страны не установлен город для номеров 800');
+        }
+    }
+
+    /**
+     * Подготовка номеров из POST-данных
+     */
+    private function _prepareNumbesFromPost()
+    {
+        $this->number_from = substr($this->number_from, $this->city_number_format_length);
+        $this->number_to = substr($this->number_to, $this->city_number_format_length);
+    }
+
+    /**
+     * Проверка наличия NDC для данного города и страны
+     */
+    private function _setNDC()
+    {
+        if ($this->number_type_id == NumberType::ID_7800) {
+            $this->ndsList = [$this->ndc => $this->ndc];
+            return; // установлена в setCityAndNDCFor7800
+        }
+
+        $this->ndsList = NumberRange::getNDCList($this->country_id, $this->city_id);
+
+        if (!isset($this->ndsList[$this->ndc])) {
+            $this->ndc = $this->ndsList ? reset($this->ndsList) : '';
+        }
+    }
+
+    /**
+     * Установка формата вводимого номера
+     */
+    private function _setCityNumberFormat()
+    {
+        $country = Country::findOne(['code' => $this->country_id]);
+        if (!$country) {
+            return;
+        }
+
+        $this->city_number_format = str_replace(["9", "0"], ["\\9", "\\0"],
+                $country->prefix . " " . $this->ndc) . " 999999[9][9][9]";
+
+        $this->city_number_format_length = strlen($country->prefix . " " . $this->ndc) + 1;
+    }
+
+    /**
      * Действие. Сохранение формы.
      *
      * @return bool
+     * @throws ModelValidationException
      */
     public function save()
     {
@@ -125,15 +220,33 @@ class RegistryForm extends Form
             $this->registry = new Registry();
         }
 
-        foreach(['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id', 'comment'] as $field) {
+        foreach ([
+                     'country_id',
+                     'city_id',
+                     'source',
+                     'number_type_id',
+                     'number_from',
+                     'number_to',
+                     'account_id',
+                     'comment',
+                     'ndc'
+                 ] as $field) {
             $this->registry->{$field} = $this->{$field};
         }
 
-        $result = $this->registry->save();
+        $countryPrefix = $this->registry->country->prefix;
+
+        $this->registry->number_full_from = $countryPrefix . $this->ndc . $this->number_from;
+        $this->registry->number_full_to = $countryPrefix . $this->ndc . $this->number_to;
+
+        if (!($result = $this->registry->save())) {
+            throw new ModelValidationException($this->registry);
+        }
 
         if ($result) {
             $this->id = $this->registry->id;
         }
+
         return $result;
     }
 }

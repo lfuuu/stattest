@@ -25,7 +25,9 @@ use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
+use app\models\UsageVoip;
 use app\models\User;
+use app\modules\uu\models\AccountTariff;
 
 class ApiLk
 {
@@ -139,24 +141,20 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
-        /* !!! проверка поличества созданных счетов */
+        $billNo = \app\models\Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum);
 
-        $bill = \app\models\Bill::dao()->createBillOnSum($clientId, $sum);
+        if (!$billNo) {
 
-
-        $bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
-
-        if (!$bill) {
             NewBill::createBillOnPay($clientId, $sum, '', true);
 
-            $bill = self::_getUserBillOnSum_fromDB($clientId, $sum);
+            $billNo = \app\models\Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum);
         }
 
-        if (!$bill) {
+        if (!$billNo) {
             throw new Exception("account_error_create");
         }
 
-        return $bill;
+        return $billNo;
     }
 
     public static function getBillUrl($billNo)
@@ -464,6 +462,11 @@ class ApiLk
         return $ret;
     }
 
+    /**
+     * @param int $clientAccountId
+     * @return array
+     * @throws Exception
+     */
     public static function getVoipTariffTree($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
@@ -472,40 +475,36 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
-        $cities =
-            City::find()
-                ->select(['id', 'name'])
-                ->where([
-                    'in_use' => 1,
-                    'is_show_in_lk' => 1,
-                    'country_id' => $clientAccount->country_id
-                ])
-                ->orderBy(['order' => SORT_ASC])
-                ->asArray()
-                ->all();
+        $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount->price_level);
 
+        $cities = City::find()
+            ->select(['id', 'name'])
+            ->where([
+                'in_use' => 1,
+                'is_show_in_lk' => 1,
+                'country_id' => $clientAccount->country_id
+            ])
+            ->orderBy(['order' => SORT_ASC])
+            ->asArray()
+            ->all();
+
+        $didGroupsByCity = DidGroup::dao()->getDidgroupsByCity($clientAccount->country_id);
 
         $didGroupsByCityId = [];
 
-        $didGroups = DidGroup::find()
-            ->where([
-                'country_code' => $clientAccount->country_id
-            ])
-            ->orderBy(['price1' => SORT_ASC]);
         /** @var DidGroup $didGroup */
-        foreach ($didGroups->each() as $didGroup) {
+        foreach ($didGroupsByCity as $cityId => $cityData) {
+            foreach ($cityData as $didGroup) {
 
-            if (!isset($didGroupsByCityId[$didGroup->city_id])) {
-                $didGroupsByCityId[$didGroup->city_id] = [];
+                $didGroupsByCityId[$cityId][] = [
+                    'id' => $didGroup->id,
+                    'code' => 'group_' . $didGroup->beauty_level,
+                    'comment' => $didGroup->comment,
+                    'activation_fee' => (float)$didGroup->{$priceField},
+                    'currency_id' => $didGroup->country->currency_id,
+                    'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
+                ];
             }
-
-            $didGroupsByCityId[$didGroup->city_id][$didGroup->id] = [
-                'id' => $didGroup->id,
-                'name' => $didGroup->name,
-                'activation_fee' => (float)$didGroup->price1,
-                'currency_id' => $didGroup->country->currency_id,
-                'promo_info' => $didGroup->country_code == Country::RUSSIA && $didGroup->beauty_level == DidGroup::BEAUTY_LEVEL_STANDART
-            ];
         }
 
         return [
@@ -931,9 +930,9 @@ class ApiLk
         return $ret;
     }
 
-    public static function getFreeNumbers($numberTariffId, $isSimple = false)
+    public static function getFreeNumbers($cityId, $didGroupId, $isSimple = false)
     {
-        $didGroup = DidGroup::findOne(['id' => $numberTariffId]);
+        $didGroup = DidGroup::findOne(['id' => $didGroupId]);
         Assert::isObject($didGroup);
 
         $ret = [];
@@ -941,6 +940,7 @@ class ApiLk
         $numbers =
             (new \app\models\filter\FreeNumberFilter)
                 ->getNumbers()
+                ->setCity($cityId)
                 ->setDidGroup($didGroup->id);
 
         $skipFrom = 1;
@@ -1620,21 +1620,55 @@ class ApiLk
         return $ret;
     }
 
+    /**
+     * Получение используемых телефонных номеров для статистики
+     *
+     * @param ClientAccount $account
+     * @return array
+     */
+    private static function _getVoipPhones(ClientAccount $account)
+    {
+        $uuUsagesQuery = (new \yii\db\Query())
+            ->select(['usage_id' => 'uu.id', 'phone_num' => 'uu.voip_number', 'region' => 'r.id', 'r.timezone_name', 'region_name' => 'r.name'])
+            ->from(['uu' => AccountTariff::tableName()])
+            ->leftJoin(['c' => City::tableName()], 'c.id = uu.city_id')
+            ->leftJoin(['r' => Region::tableName()], 'r.id = c.connection_point_id')
+            ->where(['uu.client_account_id' => $account->id])
+            ->andWhere(['IS NOT', 'voip_number', null]);
+
+        $usages = (new \yii\db\Query())
+            ->select(['usage_id' => 'u.id', 'phone_num' => 'u.E164', 'u.region', 'r.timezone_name', 'region_name' => 'r.name'])
+            ->from(['u' => UsageVoip::tableName()])
+            ->leftJoin(['r' => Region::tableName()], 'r.id = u.region')
+            ->where(['u.client' => $account->client])
+            ->union($uuUsagesQuery);
+
+        $usageUnionQuery = (new \yii\db\Query())
+            ->from(['u' => $usages])
+            ->orderBy([
+                'region' => SORT_DESC,
+                'usage_id' => SORT_ASC
+            ]);
+
+        return $usageUnionQuery->all();
+    }
+
     public static function getStatisticsVoipPhones($client_id = '')
     {
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id)) {
-            throw new Exception("account_is_bad");
+            throw new LogicException("account_is_bad");
         }
-        global $db;
 
         $account = self::getAccount($client_id);
 
-        $timezones = [$account['timezone_name']];
+        if (!$account) {
+            throw new LogicException("account_is_bad");
+        }
 
-        $usages = $db->AllRecords($q = "select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
-                                       left join regions r on r.id=u.region
-                                       where u.client='" . addslashes($account->client) . "'
-                                       order by u.region desc, u.id asc");
+        $timezones = [$account->timezone_name];
+
+
+        $usages = self::_getVoipPhones($account);
 
         $regions = [];
         foreach ($usages as $u) {
@@ -1646,28 +1680,15 @@ class ApiLk
             }
         }
 
-        $timezones[] = 'UTC';
-
-
-        $regions_cnt = count($regions);
+        $timezones[] = DateTimeZoneHelper::TIMEZONE_UTC;
 
         $last_region = '';
-        $regions = $phones = [];
-        $isAllRegions = false;
-        if ($regions_cnt > 1) {
-            $isAllRegions = true;
+        $phones = [];
+        if (count($regions) > 1) {
             $phones['all'] = 'Все регионы';
         }
 
         foreach ($usages as $r) {
-            if ($isAllRegions) {
-                if (!isset($regions[$r['region']])) {
-                    $regions[$r['region']] = [];
-                }
-                if (!isset($regions[$r['region']][$r['id']])) {
-                    $regions[$r['region']][$r['id']] = $r['id'];
-                }
-            }
             if (substr($r['phone_num'], 0, 4) == '7095') {
                 $r['phone_num'] = '7495' . substr($r['phone_num'], 4);
             }
@@ -1677,10 +1698,15 @@ class ApiLk
             }
             $phones[$r['region'] . '_' . $r['phone_num']] = '&nbsp;&nbsp;' . $r['phone_num'];
         }
+
         $ret = [];
-        foreach ($phones as $k => $v) {
-            $ret[] = ['id' => $k, 'number' => $v];
+        foreach ($phones as $key => $phone) {
+            $ret[] = [
+                'id' => $key,
+                'number' => $phone
+            ];
         }
+
         return [
             'phones' => $ret,
             'timezones' => $timezones,
@@ -1689,7 +1715,6 @@ class ApiLk
 
     public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $timezone = 'Europe/Moscow', $onlypay = 0, $isFull = 0)
     {
-        global $db;
         include PATH_TO_ROOT . "modules/stats/module.php";
         $module_stats = new m_stats();
 
@@ -1698,10 +1723,11 @@ class ApiLk
 
         $account = self::getAccount($client_id);
 
-        $usages = $db->AllRecords($q = "select u.id, u.E164 as phone_num, u.region, r.name as region_name from usage_voip u
-                                       left join regions r on r.id=u.region
-                                       where u.client='" . $account->client . "'
-                                       order by u.region desc, u.id asc");
+        if (!$account) {
+            throw new LogicException("account_is_bad");
+        }
+
+        $usages = self::_getVoipPhones($account);
 
         $regions = $phones_sel = [];
 
@@ -1710,12 +1736,12 @@ class ApiLk
                 if (!isset($regions[$r['region']])) {
                     $regions[$r['region']] = [];
                 }
-                if (!isset($regions[$r['region']][$r['id']])) {
-                    $regions[$r['region']][$r['id']] = $r['id'];
+                if (!isset($regions[$r['region']][$r['usage_id']])) {
+                    $regions[$r['region']][$r['usage_id']] = $r['usage_id'];
                 }
             }
             if ($phone == $r['region'] || $phone == $r['region'] . '_' . $r['phone_num']) {
-                $phones_sel[] = $r['id'];
+                $phones_sel[] = $r['usage_id'];
             }
         }
 
@@ -2418,47 +2444,6 @@ class ApiLk
         return $v;
     }
 
-    private static function _getUserBillOnSum_fromDB($clientId, $sum)
-    {
-        global $db;
-
-        return $db->GetValue(
-            "SELECT 
-                bill_no 
-             FROM (
-                SELECT 
-                    b.bill_no, 
-                    p.payment_no 
-                FROM (
-                        SELECT 
-                            b.bill_no, 
-                            b.client_id, 
-                            bill_date, 
-                            COUNT(1) AS count_lines, 
-                            SUM(l.sum) AS l_sum 
-                        FROM 
-                            newbills b, newbill_lines l 
-                        WHERE 
-                                b.client_id = '" . $clientId . "'
-                            AND l.bill_no = b.bill_no 
-                            AND is_user_prepay 
-                            AND biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
-                        GROUP BY 
-                            bill_no 
-                        HAVING 
-                                count_lines = 1 
-                            AND l_sum = '" . $sum . "'
-                ) b 
-                LEFT JOIN newpayments p ON (p.client_id = b.client_id and (b.bill_no = p.bill_no OR b.bill_no = p.bill_vis_no))
-                HAVING 
-                    p.payment_no IS NULL #счет неоплачен
-                ORDER BY 
-                    bill_date DESC #последний счет 
-                LIMIT 1
-             )a");
-    }
-
-
     public static function _exportModelRow($fields, &$row)
     {
         $spec_chars = ['/\t/u', '/\f/u', '/\n/u', '/\r/u', '/\v/u'];
@@ -2584,7 +2569,7 @@ class ApiLk
     public static function checkVoipNumber($number)
     {
         if (strpos($number, '7800') === 0) {
-            $check = \app\models\UsageVoip::find()->where("CAST(NOW() as DATE) BETWEEN actual_from AND actual_to")->andWhere(["E164" => $number])->one();
+            $check = UsageVoip::find()->actual()->phone($number)->one();
         } else {
             $check = Number::findOne(["number" => $number]);
         }

@@ -3,8 +3,8 @@ namespace app\dao;
 
 use app\classes\Assert;
 use app\classes\Singleton;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\AccountTariffLog;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Calls;
 use app\models\BusinessProcessStatus;
@@ -70,21 +70,31 @@ class NumberDao extends Singleton
     public function startActive(
         \app\models\Number $number,
         UsageVoip $usage = null,
-        AccountTariff $uuUsage = null
+        AccountTariff $uuUsage = null,
+        $isInFuture = false
     ) {
 
         if ($usage) {
             $number->usage_id = $usage->id;
             $number->client_id = $usage->clientAccount->id;
-            $isTest = $usage->tariff->isTest();
+            if (!$isInFuture) {
+                $isTest = $usage->tariff->isTest();
+            }
         } else {
             // uuUsage
             $number->uu_account_tariff_id = $uuUsage->id;
             $number->client_id = $uuUsage->client_account_id;
-            $isTest = $uuUsage->tariffPeriod->tariff->isTest;
+            if (!$isInFuture) {
+                $isTest = $uuUsage->tariffPeriod->tariff->isTest;
+            }
         }
 
-        $newStatus = $isTest ? Number::STATUS_ACTIVE_TESTED : Number::STATUS_ACTIVE_COMMERCIAL;
+        $newStatus = $isInFuture ?
+            Number::STATUS_ACTIVE_CONNECTED :
+            ($isTest ?
+                Number::STATUS_ACTIVE_TESTED :
+                Number::STATUS_ACTIVE_COMMERCIAL
+            );
 
         if ($newStatus == $number->status) {
             return;
@@ -322,26 +332,60 @@ class NumberDao extends Singleton
      */
     public function actualizeStatus(\app\models\Number $number)
     {
+        $isInFuture = false;
+
         /** @var UsageVoip $usage */
         $usage = UsageVoip::find()
-            ->andWhere(['E164' => $number->number])
+            ->phone($number->number)
             ->actual()
             ->one();
 
-        $uuUsage = null;
+        if (!$usage) {
+            ($usage = UsageVoip::find()
+                ->phone($number->number)
+                ->inFuture()
+                ->one()) && $isInFuture = true;
+        }
+
+        $universalUsage = null;
 
         if (!$usage) {
-            $uuUsage = AccountTariff::find()
-                ->where(['voip_number' => $number])
-                ->andWhere(['not', ['tariff_period_id' => null]])
-                ->andWhere(['>', 'id', AccountTariff::DELTA])
+            $universalUsage = AccountTariff::find()
+                ->where(['voip_number' => $number->number])
+                ->andWhere(['IS NOT', 'tariff_period_id', null])
                 ->one();
         }
 
+        if (!$usage && !$universalUsage) {
+            $uUsages = AccountTariff::find()
+                ->where([
+                    'voip_number' => $number->number,
+                    'tariff_period_id' => null
+                ])
+                ->with('accountTariffLogs')
+                ->all();
+
+            $now = DateTimeZoneHelper::getUtcDateTime();
+
+            foreach ($uUsages as $uUsage) {
+                /** @var AccountTariffLog $log */
+                if (
+                    ($logs = $uUsage->accountTariffLogs) &&
+                    ($log = reset($logs)) &&
+                    $log->actual_from_utc > $now
+                ) {
+                    $universalUsage = $uUsage;
+                    $isInFuture = true;
+
+                    break;
+                }
+            }
+        }
+
         if ($usage) {
-            Number::dao()->startActive($number, $usage);
-        } elseif ($uuUsage) {
-            Number::dao()->startActive($number, null, $uuUsage);
+            Number::dao()->startActive($number, $usage, null, $isInFuture);
+        } elseif ($universalUsage) {
+            Number::dao()->startActive($number, null, $universalUsage, $isInFuture);
         } else {
             Number::dao()->stopActive($number);
         }

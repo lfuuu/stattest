@@ -48,18 +48,22 @@ if (!$region->isNewRecord) {
     <div class="row">
 
         <?php // Название ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($region, 'name')->textInput() ?>
         </div>
 
         <?php // Короткое название ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($region, 'short_name')->textInput() ?>
         </div>
 
         <?php // Часовой пояс ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($region, 'timezone_name')->textInput() ?>
+        </div>
+
+        <div class="col-sm-3">
+            <?= $form->field($region, 'is_active')->checkbox() ?>
         </div>
 
     </div>
@@ -85,7 +89,10 @@ if (!$region->isNewRecord) {
         </div>
 
         <div class="col-sm-3">
-            <?= $form->field($region, 'is_active')->checkbox() ?>
+            <?= $form->field($region, 'type_id')
+                ->widget(Select2::className(), [
+                    'data' => \app\models\Region::$typeNames,
+                ]) ?>
         </div>
 
     </div>

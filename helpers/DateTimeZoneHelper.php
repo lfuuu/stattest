@@ -129,6 +129,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
 
     /**
      * Вернуть DateTime в таймзоне UTC
+     *
      * @param string $date в дефолтной (московской?) таймзоне
      * @return DateTimeImmutable
      */

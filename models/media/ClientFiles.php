@@ -10,12 +10,15 @@ use app\classes\media\ClientMedia;
 use app\classes\traits\TagsTrait;
 
 /**
+ * Class ClientFiles
+ *
  * @property int $id
  * @property int $contract_id
  * @property int $user_id
  * @property string $ts
  * @property string $comment
  * @property string $name
+ * @property int $is_show_in_lk
  */
 class ClientFiles extends ActiveRecord
 {
@@ -42,6 +45,7 @@ class ClientFiles extends ActiveRecord
             'comment' => 'Комментарий',
             'ts' => 'Дата загрузки',
             'tags_filter' => 'Метки',
+            'is_show_in_lk' => 'Показывать в ЛК',
         ];
     }
 

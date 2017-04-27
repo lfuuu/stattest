@@ -17,6 +17,7 @@ class RegionFilter extends Region
     public $timezone_name = '';
     public $country_id = '';
     public $is_active = '';
+    public $type_id = '';
 
     /**
      * Фильтровать
@@ -37,6 +38,7 @@ class RegionFilter extends Region
         $this->code !== '' && $query->andWhere(['code' => $this->code]);
         $this->country_id !== '' && $query->andWhere(['country_id' => $this->country_id]);
         $this->is_active !== '' && $query->andWhere(['is_active' => $this->is_active]);
+        $this->type_id !== '' && $query->andWhere(['type_id' => $this->type_id]);
 
         return $dataProvider;
     }

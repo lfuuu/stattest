@@ -5,7 +5,7 @@ namespace app\classes\partners\rewards;
 use app\models\BillLine;
 use app\models\ClientAccount;
 use app\models\PartnerRewards;
-use app\classes\uu\model\AccountLogSetup;
+use app\modules\uu\models\AccountLogSetup;
 
 abstract class EnablePercentageReward
 {

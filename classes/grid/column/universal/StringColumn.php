@@ -4,7 +4,6 @@ namespace app\classes\grid\column\universal;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\Html;
-use Yii;
 
 
 class StringColumn extends DataColumn

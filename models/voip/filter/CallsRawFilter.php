@@ -324,7 +324,7 @@ class CallsRawFilter extends Model
                      $field
                   END)";
     }
-    
+
     /**
      * Проверка на наличие обязательных фильтров
      *
@@ -541,8 +541,8 @@ class CallsRawFilter extends Model
             [
                 'BETWEEN',
                 'cr.billed_time',
-                $this->session_time_from ? (int) $this->session_time_from : 0,
-                $this->session_time_to ? (int) $this->session_time_to : self::UNATTAINABLE_SESSION_TIME
+                $this->session_time_from ? (int)$this->session_time_from : 0,
+                $this->session_time_to ? (int)$this->session_time_to : self::UNATTAINABLE_SESSION_TIME
             ]
         );
 
@@ -568,14 +568,14 @@ class CallsRawFilter extends Model
 
         $this->dst_logical_trunks_ids
         && $query2->andWhere(['cr.trunk_service_id' => $this->dst_logical_trunks_ids]);
-            $query3 = null;
+        $query3 = null;
 
         $this->src_contracts_ids
         && $query1->andWhere(['st.contract_id' => $this->src_contracts_ids])
         && $query3 = null;
 
         $this->dst_contracts_ids
-        && $query2->andWhere(['st.contract_id' => $this->dst_contracts_ids ]) 
+        && $query2->andWhere(['st.contract_id' => $this->dst_contracts_ids])
         && $query3 = null;
 
         $this->src_operator_ids
@@ -642,21 +642,25 @@ class CallsRawFilter extends Model
 
         if ($this->is_success_calls) {
             $condition = ['or', 'billed_time > 0', ['disconnect_cause' => DisconnectCause::$successCodes]];
-            $query1->andWhere($condition)
-            && $query2->andWhere($condition)
-            && $query3 = null;
+            $query1->andWhere($condition);
+            $query2->andWhere($condition);
+            $query3 = null;
         }
 
+        /** @var Query $query3 */
+
         if ($this->dst_number) {
-            $query1->andWhere('CAST(cr.dst_number AS varchar) LIKE :dst_number', [':dst_number' => strtr($this->dst_number, ['.' => '_', '*' => '%'])]);
-            $query2->andWhere('CAST(cr.dst_number AS varchar) LIKE :dst_number', [':dst_number' => strtr($this->dst_number, ['.' => '_', '*' => '%'])]);
-            $query3 && $query3->andWhere('CAST(cu.cr.dst_number AS varchar) LIKE :dst_number', [':dst_number' => strtr($this->dst_number, ['.' => '_', '*' => '%'])]);
+            $this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']);
+            $query1->andWhere(['LIKE', 'CAST(cr.dst_number AS varchar)', $this->dst_number, $isEscape = false]);
+            $query2->andWhere(['LIKE', 'CAST(cr.dst_number AS varchar)', $this->dst_number, $isEscape = false]);
+            $query3 && $query3->andWhere(['LIKE', 'CAST(cu.dst_number AS varchar)', $this->dst_number, $isEscape = false]);
         }
 
         if ($this->src_number) {
-            $query1->andWhere('CAST(cr.src_number AS varchar) LIKE :src_number', [':src_number' => strtr($this->src_number, ['.' => '_', '*' => '%'])]);
-            $query2->andWhere('CAST(cr.src_number AS varchar) LIKE :src_number', [':src_number' => strtr($this->src_number, ['.' => '_', '*' => '%'])]);
-            $query3 && $query3->andWhere('CAST(cr.src_number AS varchar) LIKE :src_number', [':src_number' => strtr($this->src_number, ['.' => '_', '*' => '%'])]);
+            $this->src_number = strtr($this->src_number, ['.' => '_', '*' => '%']);
+            $query1->andWhere(['LIKE', 'CAST(cr.src_number AS varchar)', $this->src_number, $isEscape = false]);
+            $query2->andWhere(['LIKE', 'CAST(cr.src_number AS varchar)', $this->src_number, $isEscape = false]);
+            $query3 && $query3->andWhere(['LIKE', 'CAST(cu.src_number AS varchar)', $this->src_number, $isEscape = false]);
         }
 
         if ($this->disconnect_causes) {
@@ -738,7 +742,7 @@ class CallsRawFilter extends Model
 
         $query4->addWith(['cr1' => $query1]);
         $query4->addWith(['cr2' => $query2]);
-        
+
         $count1 = $query1->liteRowCount();
         $count2 = $query2->liteRowCount();
         $count3 = $query3 ? $query3->liteRowCount() : 0;

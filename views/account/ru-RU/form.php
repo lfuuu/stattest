@@ -4,7 +4,7 @@ use app\classes\Html;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\Currency;
-use app\models\PriceType;
+use app\models\GoodPriceType;
 use app\models\Region;
 use kartik\widgets\ActiveForm;
 
@@ -40,7 +40,7 @@ use kartik\widgets\ActiveForm;
             <?= $f->field($model, 'currency')->dropDownList(Currency::map()) ?>
         </div>
         <div class="col-sm-3">
-            <?= $f->field($model, 'price_type')->dropDownList(PriceType::getList()) ?>
+            <?= $f->field($model, 'price_type')->dropDownList(GoodPriceType::getList()) ?>
         </div>
         <div class="col-sm-3">
             <?= $f->field($model, 'pay_bill_until_days') ?>
@@ -84,6 +84,9 @@ use kartik\widgets\ActiveForm;
             echo $f->field($model, 'voip_is_day_calc')->checkbox()->label('');
             echo implode(Html::tag('br'), $result);
             ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'price_level')->dropDownList(ClientAccount::getPriceLevels()) ?>
         </div>
     </div>
 

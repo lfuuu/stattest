@@ -1,13 +1,13 @@
 <?php
 namespace app\commands;
 
-use app\classes\uu\model\AccountEntry;
-use app\classes\uu\model\AccountLogMin;
-use app\classes\uu\model\AccountLogPeriod;
-use app\classes\uu\model\AccountLogResource;
-use app\classes\uu\model\AccountLogSetup;
-use app\classes\uu\model\Bill;
-use app\classes\uu\tarificator\TarificatorI;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountLogMin;
+use app\modules\uu\models\AccountLogPeriod;
+use app\modules\uu\models\AccountLogResource;
+use app\modules\uu\models\AccountLogSetup;
+use app\modules\uu\models\Bill;
+use app\modules\uu\tarificator\Tarificator;
 use app\models\ClientAccount;
 use Yii;
 use yii\console\Controller;
@@ -33,6 +33,10 @@ class UbillerController extends Controller
         // Автоматически закрыть услугу по истечению тестового периода
         // Обязательно после actionSetCurrentTariff (чтобы правильно учесть тариф) и до транзакций (чтобы они правильно посчитали)
         $this->actionAutoCloseAccountTariff();
+
+        // Отправить измененные ресурсы на платформу и другим поставщикам услуг
+        // Обязательно после actionSetCurrentTariff, чтобы измененный тариф сам синхронизировал некоторые ресурсы
+        $this->actionSyncResource();
 
         // транзакции
         $this->actionSetup();
@@ -69,9 +73,9 @@ class UbillerController extends Controller
     {
         try {
             echo PHP_EOL . $name . '. ' . date(DATE_ATOM) . PHP_EOL;
-            $className = '\\app\\classes\\uu\\tarificator\\' . $className;
-            /** @var TarificatorI $tarificator */
-            $tarificator = (new $className);
+            $className = '\\app\\modules\\uu\\tarificator\\' . $className;
+            /** @var Tarificator $tarificator */
+            $tarificator = (new $className($isEcho = true));
             $tarificator->tarificate();
             echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
             return Controller::EXIT_CODE_NORMAL;
@@ -164,6 +168,14 @@ class UbillerController extends Controller
     public function actionSetCurrentTariff()
     {
         $this->_tarificate('SetCurrentTariffTarificator', 'Обновить AccountTariff.TariffPeriod');
+    }
+
+    /**
+     * Отправить измененные ресурсы на платформу и другим поставщикам услуг
+     */
+    public function actionSyncResource()
+    {
+        $this->_tarificate('SyncResourceTarificator', 'Отправить измененные ресурсы на платформу');
     }
 
     /**

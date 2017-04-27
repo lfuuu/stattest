@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\dao\DidGroupDao;
 use yii\db\ActiveRecord;
+use yii\db\Query;
 use yii\helpers\Url;
 
 /**
@@ -15,6 +16,13 @@ use yii\helpers\Url;
  * @property float $price1
  * @property float $price2
  * @property float $price3
+ * @property float $price4
+ * @property float $price5
+ * @property float $price6
+ * @property float $price7
+ * @property float $price8
+ * @property float $price9
+ * @property float $comment
  *
  * @property City $city
  * @property Country $country
@@ -26,7 +34,8 @@ class DidGroup extends ActiveRecord
         getList as getListTrait;
     }
 
-    const MOSCOW_STANDART_GROUP_ID = 2;
+    const ID_MOSCOW_STANDART_495 = 1;
+    const ID_MOSCOW_STANDART_499 = 2;
 
     const BEAUTY_LEVEL_STANDART = 0;
     const BEAUTY_LEVEL_PLATINUM = 1;
@@ -59,6 +68,13 @@ class DidGroup extends ActiveRecord
             'price1' => 'Цена 1',
             'price2' => 'Цена 2',
             'price3' => 'Цена 3',
+            'price4' => 'Цена 4',
+            'price5' => 'Цена 5',
+            'price6' => 'Цена 6',
+            'price7' => 'Цена 7',
+            'price8' => 'Цена 8',
+            'price9' => 'Цена 9',
+            'comment' => 'Комментарий для пользователя',
         ];
     }
 
@@ -68,10 +84,10 @@ class DidGroup extends ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'string'],
+            [['name','comment'], 'string'],
             [['beauty_level', 'city_id', 'number_type_id', 'country_code'], 'integer'],
             [['name', 'beauty_level', 'country_code', 'number_type_id'], 'required'],
-            [['price1', 'price2', 'price3'], 'number'],
+            [['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', 'price9'], 'number'],
         ];
     }
 
@@ -112,30 +128,19 @@ class DidGroup extends ActiveRecord
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param int $cityId
-     * @param int $countryId
-     * @return string[]
+     * @return \string[]
+     * @internal param int $countryId
      */
     public static function getList(
         $isWithEmpty = false,
-        $cityId = null,
-        $countryId = null
+        $cityId = null
     ) {
 
         $where = [];
-        if ($cityId) {
-            if ($countryId) {
-                $where = [
-                    'AND',
-                    ['country_code' => $countryId],
-                    [
-                        'OR',
-                        ['city_id' => $cityId],
-                        ['city_id' => null]
-                    ]
-                ];
-            } else {
-                $where = ['city_id' => $cityId];
-            }
+
+        /** @var City $city */
+        if ($cityId && ($city = City::findOne(['id' => $cityId]))) {
+            $where = DidGroup::dao()->getQueryWhereByCity($city);
         }
 
         return self::getListTrait(
@@ -143,7 +148,7 @@ class DidGroup extends ActiveRecord
             $isWithNullAndNotNull = false,
             $indexBy = 'id',
             $select = 'name',
-            $orderBy = ['name' => SORT_ASC],
+            $orderBy = ['beauty_level' => SORT_ASC],
             $where
         );
     }

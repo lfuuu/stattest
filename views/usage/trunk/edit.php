@@ -2,8 +2,8 @@
 
 use app\assets\AppAsset;
 use app\classes\Html;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\ServiceType;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;

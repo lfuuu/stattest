@@ -45,14 +45,20 @@ trait InsertUserTrait
 
     /**
      * @param bool $insert
+     * @param bool $isCallParent
      * @return bool
      */
     public function beforeSave($insert, $isCallParent = true)
     {
         if ($insert) {
-            $this->insert_time = DateTimeZoneHelper::getUtcDateTime()
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-            $this->insert_user_id = Yii::$app->user->getId();
+            if (!$this->insert_time) {
+                $this->insert_time = DateTimeZoneHelper::getUtcDateTime()
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            }
+
+            if (!$this->insert_user_id) {
+                $this->insert_user_id = Yii::$app->user->getId();
+            }
         }
 
         if ($isCallParent) {

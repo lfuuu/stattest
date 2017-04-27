@@ -1,10 +1,10 @@
 <?php
 namespace app\classes;
 
-use app\classes\behaviors\uu\AccountTariffBiller;
-use app\classes\behaviors\uu\SyncAccountTariffLight;
+use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\helpers\DateTimeZoneHelper;
-use app\classes\behaviors\uu\SyncVmCollocation;
+use app\modules\uu\behaviors\SyncVmCollocation;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
 
@@ -55,13 +55,13 @@ class Event
     const USAGE_VOIP__UPDATE = 'usage_voip__update';
     const UU_ACCOUNT_TARIFF_VOIP = 'uu_account_tariff_voip';
     const UU_ACCOUNT_TARIFF_VPBX = 'uu_account_tariff_vpbx';
+    const UU_ACCOUNT_TARIFF_RESOURCE_VOIP = 'uu_account_tariff_resource_voip';
+    const UU_ACCOUNT_TARIFF_RESOURCE_VPBX = 'uu_account_tariff_resource_vpbx';
     const YANDEX_PAYMENT = 'yandex_payment';
     const UPDATE_BALANCE = 'update_balance';
     const ACCOUNT_BLOCKED = 'account_blocked';
     const ACCOUNT_UNBLOCKED = 'account_unblocked';
     const PARTNER_REWARD = 'partner_reward';
-    const PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT = 'publish_notification_scheme_for_client_account';
-    const PUBLISH_NOTIFICATION_SCHEME = 'publish_notification_scheme';
     const VPBX_BLOCKED = 'vpbx_blocked';
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
 
@@ -112,6 +112,8 @@ class Event
         self::USAGE_VOIP__DELETE => 'Услуга телефонии удалена',
         self::UU_ACCOUNT_TARIFF_VOIP => 'UU-услуга телефонии',
         self::UU_ACCOUNT_TARIFF_VPBX => 'UU-услуга ВАТС',
+        self::UU_ACCOUNT_TARIFF_RESOURCE_VOIP => 'UU-ресурс телефонии',
+        self::UU_ACCOUNT_TARIFF_RESOURCE_VPBX => 'UU-ресурс ВАТС',
         self::UPDATE_BALANCE => 'Обновление баланса',
         SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'Добавление услуги в NNP',
         SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'Удаление услуги из NNP',

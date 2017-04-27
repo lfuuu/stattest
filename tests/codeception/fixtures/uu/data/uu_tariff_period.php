@@ -1,7 +1,7 @@
 <?php
 
-use app\classes\uu\model\Period;
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Period;
+use app\modules\uu\models\Tariff;
 
 return [
     // Tariff with autoprolongation

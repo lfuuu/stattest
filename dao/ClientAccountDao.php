@@ -1,7 +1,7 @@
 <?php
 namespace app\dao;
 
-use app\classes\uu\tarificator\RealtimeBalanceTarificator;
+use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
@@ -813,7 +813,7 @@ class ClientAccountDao extends Singleton
     public function getClientVoipNumbers(ClientAccount $clientAccount)
     {
         if (is_null($this->_voipNumbers)) {
-            $this->_voipNumbers = ApiPhone::getNumbersInfo($clientAccount);
+            $this->_voipNumbers = ApiPhone::me()->getNumbersInfo($clientAccount);
         }
 
         return $this->_voipNumbers;

@@ -9,11 +9,14 @@ use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Courier;
 use app\models\ClientAccount;
+use app\models\Currency;
 use app\models\CurrencyRate;
+use app\models\GoodPriceType;
 use app\models\Payment;
 use app\models\Param;
 use app\models\BillDocument;
 use app\models\PaymentSberOnline;
+use app\models\Store;
 use app\models\Transaction;
 use app\classes\documents\DocumentReportFactory;
 use app\classes\bill\ClientAccountBiller;
@@ -1363,9 +1366,9 @@ class m_newaccounts extends IModule
     {
         $count = 0;
 
-        $query = Bill::find()
-            ->where(['is_show_in_lk' => 0])
-            ->andWhere(['like', 'bill_no', date("Ym").'%', false]);
+        $query = Bill::find()->where([
+            'is_show_in_lk' => 0
+        ]);
 
         foreach ($query->each() as $bill) {
             $bill->is_show_in_lk = 1;
@@ -5733,17 +5736,17 @@ SELECT cr.manager, cr.account_manager FROM clients c
         $prod = get_param_raw('findProduct');
         if (strlen($prod) >= 1) {
             $ret = "";
-            $prod = str_replace(array("*", "%%"), array("%", "%"), $db->escape($prod));
+            $prod = str_replace(['*', '%%'], ['%', '%'], $db->escape($prod));
 
-            $storeId = get_param_protected("store_id", "8e5c7b22-8385-11df-9af5-001517456eb1");
+            $storeId = get_param_protected('store_id', Store::MAIN_STORE);
 
-            $priceType = '739a53ba-8389-11df-9af5-001517456eb1';
+            /** @var ClientAccount $account */
+            $account = ClientAccount::findOne(['id' => $fixclient]);
+            $priceType = $account ? $account->price_type : GoodPriceType::RETAIL;
+            $currency = Currency::findOne($account ? $account->currency : Currency::RUB);
 
-            if (get_param_raw('priceType', 'NO') != 'NO') {
-                //$priceType =  ClientAccount::findOne($fixclient)->price_type;
-            } else {
-                $store_info = $db->GetRow('SELECT id, name FROM g_store WHERE id = "' . $storeId . '"');
-            }
+            $storeInfo = Store::findOne(['id' => $storeId]);
+
 
             foreach ($db->AllRecords($q =
                 "
@@ -5760,7 +5763,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                             union select * from g_goods g1 where g1.num_id = '" . $prod . "'
                             union select * from g_goods g2 where g2.name like '%" . $prod . "%'
                             ) g
-                        left join g_good_price p on (p.good_id = g.id )
+                        left join g_good_price p on (p.good_id = g.id AND p.currency = '" . $currency . "')
                         left join g_good_description d on (g.id = d.good_id and d.id = p.descr_id)
                         left join g_good_store s on (s.good_id = g.id and s.descr_id = p.descr_id and s.store_id = '" . $storeId . "')
                         left join g_division dv on (g.division_id = dv.id)
@@ -5792,19 +5795,13 @@ SELECT cr.manager, cr.account_manager FROM clients c
                         )
                         ) a group by a.id
 
-                        "
-            /*
-                           "SELECT id, name, price, quantity, quantity_store, is_service
-                           FROM `g_goods`
-                           WHERE name like '%".$prod."%'
-                           LIMIT 50
-                           "*/) as $good) {
+                        ") as $good) {
                 if (strpos($good["name"], "(Архив)") !== false) {
                     continue;
                 }
-                if (!empty($store_info)) {
-                    $add_fields = "store_id:'" . addcslashes($store_info['id'], "\\'") . "'," .
-                        "store_name:'" . addcslashes($store_info['name'], "\\'") . "',";
+                if (!empty($storeInfo)) {
+                    $add_fields = "store_id:'" . addcslashes($storeInfo->id, "\\'") . "'," .
+                        "store_name:'" . addcslashes($storeInfo->name, "\\'") . "',";
                 } else {
                     $add_fields = '';
                 }
@@ -5816,6 +5813,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                     "description:'" . addcslashes($good['description'], "\\'") . "'," .
                     "division:'" . addcslashes($good['division'], "\\'") . "'," .
                     "price:'" . addcslashes($good['price'], "\\'") . "'," .
+                    "currency:'" . addcslashes($currency->symbol, "\\'") . "'," .
                     "qty_free:'" . addcslashes($good['qty_free'], "\\'") . "'," .
                     "qty_store:'" . addcslashes($good['qty_store'], "\\'") . "'," .
                     "qty_wait:'" . addcslashes($good['qty_wait'], "\\'") . "'," .
@@ -5832,26 +5830,6 @@ SELECT cr.manager, cr.account_manager FROM clients c
             $ret = "false";
         }
 
-        /*
-        if(include_once(INCLUDE_PATH."1c_integration.php")){
-            $bm = new \_1c\billMaker($db);
-            $prods_list = $bm->findProduct(trim($_GET['findProduct']), trim($_GET['priceType']));
-
-            $ret = '[';
-            for($i=0;$i<count($prods_list);$i++){
-                $ret .= "{".
-                    "id:'".addcslashes($prods_list[$i]['id'],"\\'")."',".
-                    "name:'".addcslashes($prods_list[$i]['name'],"\\'")."',".
-                    "price:'".addcslashes($prods_list[$i]['price'],"\\'")."',".
-                    "quantity:'".addcslashes($prods_list[$i]['quantity'],"\\'")."',".
-                    "is_service:".($prods_list[$i]['is_service']?'true':'false').
-                "},";
-            }
-            $ret .= ']';
-        }else{
-            $ret = 'false';
-        }
-        */
         header('Content-Type: text/plain; charset="utf-8"');
         echo $ret;
         exit();

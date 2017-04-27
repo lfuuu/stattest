@@ -17,31 +17,44 @@ use yii\base\Object;
  */
 class Html2Pdf extends Object
 {
-    private
-        $html = '',
-        $pdf = '';
 
-    private $execTool = "/usr/bin/wkhtmltopdf";
+    /** @var string */
+    private $html = '';
 
+    /** @var string */
+    private $pdf = '';
+
+    private $execTool = '/usr/bin/wkhtmltopdf';
+
+    /**
+     * @param array $config
+     * @throws \Exception
+     */
     public function __construct(array $config = [])
     {
         if (!is_file($this->execTool)) {
-            throw new \Exception("wkhtmltopdf not found");
+            throw new \Exception('wkhtmltopdf not found');
         }
 
         if (!is_executable($this->execTool)) {
-            throw new \Exception("wkhtmltopdf not executable");
+            throw new \Exception('wkhtmltopdf not executable');
         }
 
         parent::__construct($config);
     }
 
-    public function setHtml($html = "")
+    /**
+     * @param string $html
+     */
+    public function setHtml($html = '')
     {
         $this->html = $html;
-        $this->pdf = "";
+        $this->pdf = '';
     }
 
+    /**
+     * @return string
+     */
     public function getPdf()
     {
         if ($this->pdf) {
@@ -59,28 +72,30 @@ class Html2Pdf extends Object
      */
     private function generatePdf()
     {
-        $tmp_dir = sys_get_temp_dir();
-        $file_html = tempnam($tmp_dir, "html_to_pdf");
-        $file_pdf = tempnam($tmp_dir, "html_to_pdf");
+        $tmpDir = sys_get_temp_dir();
 
-        unlink($file_html);
-        unlink($file_pdf);
+        $filenameOfHtml = tempnam($tmpDir, 'html_to_pdf');
+        $filenameOfPdf = tempnam($tmpDir, 'html_to_pdf');
 
-        $file_html = $file_html . ".html";
-        $file_pdf = $file_pdf . ".pdf";
+        unlink($filenameOfHtml);
+        unlink($filenameOfPdf);
+
+        $filenameOfHtml .= '.html';
+        $filenameOfPdf .= '.pdf';
 
         /** wkhtmltopdf */
         $options = ' --quiet -L 15 -R 15 -T 15 -B 15';
 
-        file_put_contents($file_html, $this->html);
+        file_put_contents($filenameOfHtml, $this->html);
 
-        exec($this->execTool . " " . $options . " " . $file_html . " " . $file_pdf);
+        exec($this->execTool . ' ' . $options . ' ' . $filenameOfHtml . ' ' . $filenameOfPdf);
 
-        $content = file_get_contents($file_pdf);
+        $content = file_get_contents($filenameOfPdf);
 
-        unlink($file_html);
-        unlink($file_pdf);
+        unlink($filenameOfHtml);
+        unlink($filenameOfPdf);
 
         return $content;
     }
+
 }

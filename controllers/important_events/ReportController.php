@@ -2,19 +2,22 @@
 
 namespace app\controllers\important_events;
 
-use Yii;
-use yii\web\Response;
-use ActiveRecord\RecordNotFound;
-use app\exceptions\ModelValidationException;
-use app\classes\DynamicModel;
+use app\classes\Assert;
 use app\classes\BaseController;
+use app\classes\DynamicModel;
+use app\exceptions\ModelValidationException;
 use app\models\important_events\ImportantEvents;
+use Yii;
+use yii\base\InvalidParamException;
+use yii\db\StaleObjectException;
+use yii\web\Response;
 
 class ReportController extends BaseController
 {
 
     /**
      * @return string
+     * @throws InvalidParamException
      */
     public function actionIndex()
     {
@@ -30,8 +33,9 @@ class ReportController extends BaseController
     /**
      * @return array
      * @throws ModelValidationException
-     * @throws RecordNotFound
      * @throws \yii\base\InvalidConfigException
+     * @throws StaleObjectException
+     * @throws \Exception
      */
     public function actionSetComment()
     {
@@ -47,10 +51,9 @@ class ReportController extends BaseController
             throw new ModelValidationException($data);
         }
 
+        /** @var ImportantEvents $event */
         $event = ImportantEvents::findOne($data->id);
-        if (is_null($event)) {
-            throw new RecordNotFound;
-        }
+        Assert::isObject($event);
 
         $event->comment = $data->comment;
         $event->update($runValidation = false);

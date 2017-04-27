@@ -23,7 +23,11 @@ class RegistryFilter extends Country
     public $number_from = '';
     public $number_to = '';
     public $account_id = '';
+    public $ndc = '';
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -31,6 +35,7 @@ class RegistryFilter extends Country
             [['city_id'], 'integer'],
             [['source'], 'string'],
             [['number_type_id'], 'integer'],
+            [['ndc'], 'integer'],
             [['number_from'], 'integer'],
             [['number_to'], 'integer'],
             [['account_id'], 'integer'],
@@ -44,11 +49,10 @@ class RegistryFilter extends Country
      */
     public function search()
     {
-
         $query = Registry::find();
 
-        //equal filter
-        foreach (['country_id', 'city_id', 'source', 'number_type_id', 'account_id'] as $field) {
+        // equal filter
+        foreach (['country_id', 'city_id', 'source', 'number_type_id', 'account_id', 'ndc'] as $field) {
             if ($this->{$field} !== '') {
                 $query->andWhere([$field => $this->{$field}]);
             }
@@ -60,7 +64,6 @@ class RegistryFilter extends Country
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-
 
         return $dataProvider;
     }

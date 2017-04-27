@@ -7,7 +7,7 @@ use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
-use app\classes\uu\model\Tariff;
+use app\modules\uu\models\Tariff;
 use app\models\usages\UsageInterface;
 use yii\db\ActiveRecord;
 

@@ -21,7 +21,6 @@ use app\models\EntryPoint;
 use app\models\filter\FreeNumberFilter;
 use app\models\LkWizardState;
 use app\models\LogTarif;
-use app\models\Number;
 use app\models\Organization;
 use app\models\Region;
 use app\models\TariffVirtpbx;
@@ -233,7 +232,7 @@ class ClientCreateExternalForm extends Form
         }
 
         if (!$this->timezone) {
-            $this->timezone = Region::TIMEZONE_MOSCOW;
+            $this->timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
         }
 
         $transaction = Yii::$app->db->beginTransaction();
@@ -587,7 +586,9 @@ class ClientCreateExternalForm extends Form
                 $freeNumber
                     = (new FreeNumberFilter)
                     ->getNumbers()
-                    ->setDidGroup(DidGroup::MOSCOW_STANDART_GROUP_ID)
+                    ->setCountry(Country::RUSSIA)
+                    ->setCity(City::MOSCOW)
+                    ->setDidGroup(DidGroup::ID_MOSCOW_STANDART_499)
                     ->randomOne();
 
                 if (!$freeNumber) {

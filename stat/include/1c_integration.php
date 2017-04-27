@@ -5,7 +5,10 @@ namespace _1c;
 use app\classes\operators\OperatorOnlime;
 use app\classes\operators\OperatorOnlimeDevices;
 use app\classes\operators\OperatorOnlimeStb;
+use app\exceptions\ModelValidationException;
 use app\models\Bill;
+use app\models\GoodPrice;
+use app\models\GoodStore;
 use app\models\Metro;
 
 function trr($var){
@@ -1316,63 +1319,98 @@ class SoapHandler{
         return array('return'=>true);
     }
 
+    /**
+     * Сохранение цен на товары
+     *
+     * @param $data
+     * @return array|\SoapFault
+     * @throws ModelValidationException
+     */
     public function statSavePriceList($data)
     {
-        global $db;
-
-        //return new \SoapFault('statSavePriceList', "test error");
-        //file_put_contents("/tmp/statSavePriceList_test", var_export($data,true));
-
-        if(!isset($data->{\_1c\tr('ЦеныТовара')}))
-            return new \SoapFault('statSavePriceList',\_1c\tr('неожидаемые данные'));
-        if(!isset($data->{\_1c\tr('ЦеныТовара')}->{\_1c\tr('Список')}))
-            return array('return'=>true);
-
-
-        $l = $data->{\_1c\tr('ЦеныТовара')}->{\_1c\tr('Список')};
-        if(!is_array($l))
-            $l = array($l);
-
-        $d = array();
-        foreach($l as $i){
-            $goodId = $i->{tr('КодНоменклатура1С')};
-            $descrId = $i->{\_1c\tr('КодХарактеристика1С')};
-            $priceId = $i->{\_1c\tr('КодВидЦен1С')};
-            $cost = $i->{\_1c\tr('Цена')};
-            $isDel  = $i->{\_1c\tr('Удален')};
-
-            if(!isset($d[$goodId])) $d[$goodId] = array();
-            if(!isset($d[$goodId][$descrId])) $d[$goodId][$descrId] = array();
-            if(!isset($d[$goodId][$descrId][$priceId])) $d[$goodId][$descrId][$priceId] = array();
-
-            $d[$goodId][$descrId][$priceId] = $isDel ? false : $cost;
+        if (!isset($data->{'ЦеныТовара'})) {
+            return new \SoapFault('statSavePriceList', 'неожидаемые данные');
         }
-        unset($i);
 
-        $s = array();
-        foreach($d as $goodId => &$goods) {
-            foreach($goods as $descrId => &$descrs) {
-                foreach($descrs as $priceId => $cost) {
-                    $db->QueryDelete("g_good_price", array("good_id" => $goodId, "descr_id" => $descrId, "price_type_id" => $priceId));
-                    if($cost !== false){
-                        $s[] = "('".$goodId."', '".$descrId."', '".$priceId."','".$cost."')";
+        if (!isset($data->{'ЦеныТовара'}->{'Список'})) {
+            return ['return' => true];
+        }
 
-                        if(count($s) >= 1000){
-                            $db->Query("insert into g_good_price value ".implode(",", $s));
-                            if(mysql_errno()) return new \SoapFault('statSavePriceList', mysql_error());
-                            $s = array();
+        try {
+            $l = $data->{'ЦеныТовара'}->{'Список'};
+            if (!is_array($l)) {
+                $l = [$l];
+            };
+
+            $data = [];
+            foreach ($l as $i) {
+                $goodId = $i->{'КодНоменклатура1С'};
+                $descrId = $i->{'КодХарактеристика1С'};
+                $priceId = $i->{'КодВидЦен1С'};
+                $price = $i->{'Цена'};
+                $currency = $i->{'Валюта1С'};
+                $isDel = $i->{'Удален'};
+
+                $data[$goodId][$descrId][$priceId][$currency] = $isDel ? false : $price;
+            }
+            unset($i);
+
+            $insert = [];
+            $goodPriceFields = ['good_id', 'descr_id', 'price_type_id', 'currency', 'price'];
+            foreach ($data as $goodId => &$goods) {
+                foreach ($goods as $descrId => $descrs) {
+                    foreach ($descrs as $priceId => $prices) {
+                        foreach ($prices as $currency => $price) {
+                            $condition = [
+                                "good_id" => $goodId,
+                                "descr_id" => $descrId,
+                                "price_type_id" => $priceId,
+                                "currency" => $currency
+                            ];
+
+                            if ($price === false) {
+                                GoodPrice::deleteAll($condition);
+                                continue;
+                            }
+
+                            /** @var GoodPrice $goodStore */
+                            $goodPrice = GoodPrice::findOne($condition);
+
+                            if (!$goodPrice) {
+                                $insert[] = [$goodId, $descrId, $priceId, $currency, $price];
+
+                                if (count($insert) >= 1000) {
+                                    \Yii::$app->db
+                                        ->createCommand()
+                                        ->batchInsert(GoodPrice::tableName(), $goodPriceFields, $insert)
+                                        ->execute();
+
+                                    $insert = [];
+                                }
+                                continue;
+                            }
+
+                            $goodPrice->setAttributes($condition + ['price' => $price], false);
+                            if (!$goodPrice->save()) {
+                                throw new \RuntimeException(implode(' ', $goodPrice->getErrors()));
+                            }
                         }
                     }
                 }
             }
-        }
-        if($s)
-            $db->Query("insert into g_good_price value ".implode(",", $s));
-        if(mysql_errno()) {
-            return new \SoapFault('statSavePriceList', mysql_error());
+
+            if ($insert) {
+                \Yii::$app->db
+                    ->createCommand()
+                    ->batchInsert(GoodPrice::tableName(), $goodPriceFields, $insert)
+                    ->execute();
+            }
+
+        } catch (\Exception $e) {
+            return new \SoapFault('statSavePriceList', \_1c\tr($e->getMessage()));
         }
 
-        return array('return'=>true);
+        return ['return' => true];
     }
 
 

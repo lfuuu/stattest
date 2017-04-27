@@ -2,30 +2,29 @@
 
 namespace app\modules\notifier\forms;
 
-use Yii;
-use yii\base\ErrorException;
-use yii\base\InvalidConfigException;
-use yii\data\ArrayDataProvider;
-use yii\db\Expression;
 use app\classes\Form;
-use app\classes\Html;
-use app\classes\Event;
 use app\classes\validators\ArrayValidator;
 use app\models\Country;
-use app\models\important_events\ImportantEventsNames;
 use app\models\User;
+use app\modules\notifier\components\decorators\SchemeDecorator;
+use app\modules\notifier\components\decorators\WhiteListDecorator;
+use app\modules\notifier\components\traits\FormExceptionTrait;
 use app\modules\notifier\Module as Notifier;
-use app\modules\notifier\models\Logger;
-use app\modules\notifier\models\Schemes;
+use Yii;
 
 /**
+ * @property int $countryCode
+ * @property array $whitelist
  * @property array|null $formData
  */
 class ControlForm extends Form
 {
 
+    use FormExceptionTrait;
+
     /** @var int */
     public $countryCode;
+
     /** @var array */
     public $whitelist;
 
@@ -41,51 +40,7 @@ class ControlForm extends Form
     }
 
     /**
-     * @return bool
-     */
-    public function applyPublish()
-    {
-        return Event::go(
-            Event::PUBLISH_NOTIFICATION_SCHEME,
-            [
-                'country' => $this->countryCode,
-                'user_id' => \Yii::$app->user->getId() ?: User::SYSTEM_USER_ID,
-            ]
-        ) ? true : false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function saveWhiteList()
-    {
-        try {
-            /** @var Notifier $notifier */
-            $notifier = Notifier::getInstance();
-        } catch (InvalidConfigException $e) {
-            Yii::$app->session->addFlash('error', 'Отсутствует конфигурация для MAILER');
-        }
-
-        try {
-            $notifier->actions->applyWhiteList($this->whitelist);
-            return true;
-        } catch (ErrorException $e) {
-            Yii::$app->session->addFlash(
-                'error',
-                'Ошибка работы с MAILER. Текст ошибки:' . $e->getMessage()
-            );
-        } catch (\Exception $e) {
-            Yii::$app->session->addFlash(
-                'error',
-                'Отсутствует соединение с MAILER' . PHP_EOL . Html::tag('br') . 'Ошибка: ' . $e->getMessage()
-            );
-        }
-
-        return false;
-    }
-
-    /**
-     * @return Country[]
+     * @return string[]
      */
     public function getAvailableCountries()
     {
@@ -93,91 +48,64 @@ class ControlForm extends Form
     }
 
     /**
-     * @return ArrayDataProvider
+     * @return WhiteListDecorator
      */
-    public function getAvailableEvents()
+    public function getWhiteList()
     {
-        try {
-            /** @var Notifier $notifier */
-            $notifier = Notifier::getInstance();
-        } catch (InvalidConfigException $e) {
-            Yii::$app->session->addFlash('error', 'Отсутствует конфигурация для MAILER');
-            return false;
-        }
-
-        $events = ImportantEventsNames::find()->all();
         $whitelist = [];
-        $data = [];
 
         try {
-            $whitelist = $notifier->actions->getWhiteList();
-        } catch (ErrorException $e) {
-            Yii::$app->session->addFlash(
-                'error',
-                'Ошибка работы с MAILER. Текст ошибки:' . $e->getMessage()
-            );
+            $whitelist = Notifier::getInstance()->actions->getWhiteList();
         } catch (\Exception $e) {
-            Yii::$app->session->addFlash(
-                'error',
-                'Отсутствует соединение с MAILER' . PHP_EOL . Html::tag('br') . 'Ошибка: ' . $e->getMessage()
-            );
+            $this->catchException($e);
         }
 
-        foreach ($events as $event) {
-            $data[] = [
-                'id' => $event->id,
-                'code' => $event->code,
-                'title' => $event->value,
-                'group_id' => $event->group_id,
-                'in_use' => array_key_exists($event->code, $whitelist) ? $whitelist[$event->code] : 0,
-            ];
-        }
-
-        return new ArrayDataProvider([
-            'allModels' => $data,
-            'sort' => false,
-            'pagination' => false,
-        ]);
+        return new WhiteListDecorator($whitelist);
     }
 
     /**
      * @param int $countryCode
-     * @return bool|string
+     * @return SchemeDecorator
      */
-    public function getCountOfClientsInCountry($countryCode)
+    public function getScheme($countryCode)
     {
-        return
-            Schemes::findClientInCountry($countryCode)
-            ->select(new Expression('COUNT(*)'))
-            ->scalar();
+        try {
+            return new SchemeDecorator(Notifier::getInstance()->actions->getScheme($countryCode));
+        } catch (\Exception $e) {
+            return $this->catchException($e);
+        }
     }
 
     /**
-     * @param int $countryCode
-     * @return array
+     * @return bool
      */
-    public function getSchemeLastPublishData($countryCode)
+    public function applyPublish()
     {
-        return Logger::find()
-            ->where([
-                'action' => Logger::ACTION_APPLY_SCHEME,
-                'value' => $countryCode,
-            ])
-            ->orderBy(['created_at' => SORT_DESC])
-            ->one();
+        try {
+            return Notifier::getInstance()->actions->applyScheme($this->countryCode, $this->_getUserId());
+        } catch (\Exception $e) {
+            return $this->catchException($e);
+        }
     }
 
     /**
-     * @return null|\yii\db\ActiveRecord
+     * @return bool
      */
-    public function getWhitelistLastPublishData()
+    public function applyWhiteList()
     {
-        return Logger::find()
-            ->where([
-                'action' => Logger::ACTION_APPLY_WHITELIST,
-            ])
-            ->orderBy(['created_at' => SORT_DESC])
-            ->one();
+        try {
+            return Notifier::getInstance()->actions->applyWhiteList($this->whitelist, $this->_getUserId());
+        } catch (\Exception $e) {
+            return $this->catchException($e);
+        }
+    }
+
+    /**
+     * @return int
+     */
+    private function _getUserId()
+    {
+        return Yii::$app->user->getId() ?: User::SYSTEM_USER_ID;
     }
 
 }

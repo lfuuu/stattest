@@ -2,7 +2,7 @@
 
 use app\classes\Assert;
 use app\classes\Event;
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\dao\services\EmailsServiceDao;
 use app\dao\services\ExtraServiceDao;
 use app\dao\services\SmsServiceDao;

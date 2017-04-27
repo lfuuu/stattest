@@ -2,14 +2,14 @@
 
 namespace app\classes\grid\column\universal;
 
-use Yii;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
+use app\models\Organization;
 use kartik\grid\GridView;
+use Yii;
 use yii\db\ActiveRecord;
 use yii\helpers\Html;
 use yii\helpers\Url;
-use app\models\Organization;
 
 class OrganizationColumn extends DataColumn
 {

@@ -2,6 +2,8 @@
 
 namespace app\controllers\api;
 
+use app\exceptions\web\BadRequestHttpException;
+use app\models\ClientAccount;
 use Yii;
 use app\classes\ApiController;
 use app\models\Message;
@@ -53,5 +55,45 @@ class LkCounterController extends ApiController
     private function getMessagesUnreadCount($accountId)
     {
         return (int)Message::find()->where(['account_id' => $accountId, "is_read" => 0])->count();
+    }
+
+    /**
+     * @SWG\Get(
+     *   tags={"Работа с лицевыми счетами"},
+     *   path="/lk-counter/dashboard/",
+     *   summary="Счетчики для дашборда в ЛК",
+     *   operationId="Счетчики для дашборда в ЛК",
+     *   @SWG\Parameter(name="account_id",type="string",description="Идентификатор лицевого счёта",in="query"),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Счетчики",
+     *     @SWG\Definition(
+     *       type="object",
+     *       @SWG\Property(property="avgDayPrevMonth",type="float",description="Средний расход за день, за предыдущий месяц"),
+     *       @SWG\Property(property="avgDayThisMonth",type="float",description="Средний расход за день, за текущий месяц"),
+     *       @SWG\Property(property="avgDayAllTime",type="float",description="Средний расход за день, за всё время"),
+     *       @SWG\Property(property="thisDay",type="float",description="Расход за сегодня"),
+     *       @SWG\Property(property="thisMonth",type="float",description="Расход за текущий месяц"),
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="Ошибки",
+     *     @SWG\Schema(
+     *       ref="#/definitions/error_result"
+     *     )
+     *   )
+     * )
+     */
+    public function actionDashboard($account_id)
+    {
+        /** @var ClientAccount $account */
+        $account = ClientAccount::findOne(['id' => $account_id]);
+
+        if (!$account) {
+            throw new BadRequestHttpException('Account not found');
+        }
+
+        return $account->getDashboardCounters();
     }
 }

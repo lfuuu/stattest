@@ -1,4 +1,4 @@
-<?
+<?php
 	define("PATH_TO_ROOT",'../../stat/');
 	include PATH_TO_ROOT."conf_yii.php";
 	debug_table(__file__."\n".'GET '.print_r($_GET,true)."\n\n".'POST '.print_r($_POST,true));

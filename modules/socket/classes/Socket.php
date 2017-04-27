@@ -110,7 +110,6 @@ class Socket extends Singleton
      *
      * @param array $handshakeData Должны быть ключи user и user_id
      * @return string
-     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     private function _getUrl($handshakeData)
     {

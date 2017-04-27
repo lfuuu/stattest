@@ -327,7 +327,7 @@ a.nohover:hover {
     border-radius: 22px;
 }
 
-.showHistoryDiv, .showVersionDiv {
+.showHistoryDiv, .showVersionDiv, .toggleButtonDiv {
     cursor: pointer;
     display: inline-block;
 }
@@ -375,4 +375,8 @@ a.nohover:hover {
 
 .no-margin {
     margin: 0;
+}
+
+.krajee-datepicker {
+    width: 110px !important;
 }

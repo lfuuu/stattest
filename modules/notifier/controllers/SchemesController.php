@@ -5,16 +5,20 @@ namespace app\modules\notifier\controllers;
 use Yii;
 use app\classes\BaseController;
 use app\modules\notifier\forms\SchemesForm;
+use yii\base\InvalidParamException;
 
 class SchemesController extends BaseController
 {
 
     /**
      * @return string
+     * @throws InvalidParamException
+     * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public function actionIndex()
     {
-        $form = (new SchemesForm);
+        $form = new SchemesForm;
 
         if ($form->load() && $form->validate() && $form->save()) {
             $this->redirect('/notifier/schemes');
@@ -24,11 +28,9 @@ class SchemesController extends BaseController
             Yii::$app->session->addFlash('error', 'Ошибка сохранения данных');
         }
 
-        return $this->render('view',
-            [
-                'dataForm' => $form,
-            ]
-        );
+        return $this->render('index', [
+            'dataForm' => $form,
+        ]);
     }
 
 }

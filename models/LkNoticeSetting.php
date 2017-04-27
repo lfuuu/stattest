@@ -1,8 +1,8 @@
 <?php
 namespace app\models;
 
-use app\classes\behaviors\lk\LkNoticeSettings;
-use app\models\important_events\ImportantEventsNames;
+use app\classes\behaviors\EventQueueAddEvent;
+use app\classes\Event;
 use app\queries\LkNoticeSettingQuery;
 use yii\db\ActiveRecord;
 
@@ -24,12 +24,7 @@ class LkNoticeSetting extends ActiveRecord
     const STATUS_WORK = 'working';
     const STATUS_CONNECT = 'connecting';
 
-    public static $defaultNotices = [
-        ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT,
-        ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
-        ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
-    ];
-
+    /** @var array */
     public static $noticeTypes = [
         'email' => 'email',
         'sms' => 'phone',
@@ -41,7 +36,12 @@ class LkNoticeSetting extends ActiveRecord
     public function behaviors()
     {
         return [
-            'LkNoticeSettings' => LkNoticeSettings::className(),
+            'EventQueueAddEvent' => [
+                'class' => EventQueueAddEvent::className(),
+                'insertEvent' => Event::LK_SETTINGS_TO_MAILER,
+                'updateEvent' => Event::LK_SETTINGS_TO_MAILER,
+                'idField' => 'client_id',
+            ],
         ];
     }
 

@@ -1,8 +1,8 @@
 <?php
 namespace app\classes;
 
-use app\classes\uu\model\ServiceType;
-use app\classes\uu\model\TariffPeriod;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\TariffPeriod;
 use app\models\billing\Pricelist;
 use app\models\Business;
 use app\models\BusinessProcess;
@@ -45,6 +45,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Бухгалтерия')
                 ->addStatModuleItems('newaccounts')
+                ->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit')
         );
         $this->_addBlock(
             NavigationBlock::create()
@@ -146,6 +147,7 @@ class Navigation
                 ->addItem('Настройки платежных документов', ['/dictionary/invoice-settings'])
                 ->addItem('Точка входа', ['/dictionary/entry-point'])
                 ->addItem('Публичные сайты', ['/dictionary/public-site'])
+                ->addItem('Метки', ['/dictionary/tags'])
         );
 
         $this->_addBlock(
@@ -354,7 +356,7 @@ class Navigation
                 ->addItem(Yii::t('tariff', 'Resource tariffication'), ['/uu/account-log/resource'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Min resource tariffication'), ['/uu/account-log/min'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Monitoring'), [
-                    'uu/monitor',
+                    '/uu/monitor',
                     'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
                     'AccountLogMonitorFilter[month]' => date('Y-m'),
                 ],

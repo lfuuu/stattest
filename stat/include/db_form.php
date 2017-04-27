@@ -771,7 +771,7 @@ class DbFormUsageVoip extends DbForm {
         $client = $fixclient_data["client"];
         $data = [
             "vpbxs" => $db->AllRecordsAssoc("select id, concat('id:', id, ' (',actual_from,')') as name from usage_virtpbx where client='".$client."' and cast(now() as date) between actual_from and actual_to", "id", "name"),
-            "multis" => app\classes\api\ApiPhone::getMultitranks()
+            "multis" => app\classes\api\ApiPhone::me()->getMultitranks()
             ];
 
 

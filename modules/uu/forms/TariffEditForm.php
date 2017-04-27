@@ -1,0 +1,67 @@
+<?php
+
+namespace app\modules\uu\forms;
+
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffResource;
+use app\modules\uu\models\TariffVoipCity;
+
+class TariffEditForm extends TariffForm
+{
+    /**
+     * Конструктор
+     */
+    public function init()
+    {
+        if ($this->id === null) {
+            throw new \InvalidArgumentException(\Yii::t('tariff', 'You should enter tariff'));
+        }
+
+        parent::init();
+    }
+
+    /**
+     * @return Tariff
+     */
+    public function getTariffModel()
+    {
+        $tariffTableName = Tariff::tableName();
+
+        /** @var Tariff $tariff */
+        $tariff = Tariff::find()
+            ->where($tariffTableName . '.id = :id', [':id' => $this->id])
+            ->joinWith(['tariffPeriods', 'country', 'status'])
+            ->one();
+        if (!$tariff) {
+            throw new \InvalidArgumentException(\Yii::t('common', 'Wrong ID'));
+        }
+
+        return $tariff;
+    }
+
+    /**
+     * @return TariffResource[]
+     */
+    public function getTariffResources()
+    {
+        return $this->tariff->tariffResources;
+    }
+
+    /**
+     * @return TariffPeriod[]
+     */
+    public function getTariffPeriods()
+    {
+        $tariffPeriods = $this->tariff->tariffPeriods;
+        return $tariffPeriods ?: $this->getNewTariffPeriods();
+    }
+
+    /**
+     * @return TariffVoipCity[]
+     */
+    public function getTariffVoipCities()
+    {
+        return $this->tariff->voipCities;
+    }
+}

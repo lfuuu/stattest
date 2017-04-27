@@ -1,6 +1,6 @@
 <?php
 
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\helpers\DateTimeZoneHelper;
 
 $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())
@@ -47,7 +47,7 @@ return [
     ],
     [
         // 4го сразу же подключил годовой тариф
-        // по этому тарифу с 4го до конца этого года
+        // по этому тарифу с 4го до конца этого месяца + еще 11 месяцев
         'account_tariff_id' => AccountTariff::DELTA + 2,
         'tariff_period_id' => 3, // по годам
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+3 days')->format(DateTimeZoneHelper::DATETIME_FORMAT),

@@ -57,11 +57,12 @@ class RegistryController extends BaseController
     /**
      * Действие контроллера. Редактирование.
      *
-     * @param $id
+     * @param int $id
      * @return string|\yii\web\Response
      */
     public function actionEdit($id)
     {
+        /** @var Registry $registry */
         $registry = Registry::findOne(['id' => $id]);
 
         $model = new RegistryForm;
@@ -76,7 +77,7 @@ class RegistryController extends BaseController
 
         $isLoad = $model->load(Yii::$app->request->post());
 
-        if ($isLoad && $model->initForm()) {
+        if ($isLoad && $model->initForm($isFromPost = true)) {
             if ($model->getScenario() == 'save' && $model->validate() && $model->save()) {
                 Yii::$app->session->addFlash('success', ($id ? 'Запись обновлена' : 'Запись создана'));
                 return $this->redirect(['edit', 'id' => $model->id]);

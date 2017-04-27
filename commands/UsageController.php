@@ -2,13 +2,12 @@
 namespace app\commands;
 
 use app\classes\behaviors\SetTaxVoip;
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\ServiceType;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\billing\CallsAggr;
-use app\models\Business;
 use app\models\BusinessProcessStatus;
 use app\models\ClientContract;
 use app\models\ClientFlag;
@@ -19,7 +18,6 @@ use app\models\TariffVoip;
 use Yii;
 use DateTime;
 use app\models\ClientAccount;
-use yii\base\Exception;
 use yii\console\Controller;
 use app\forms\usage\UsageVoipEditForm;
 use yii\db\Expression;

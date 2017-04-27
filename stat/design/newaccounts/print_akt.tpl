@@ -170,7 +170,7 @@
         </div>
 
         {if isset($emailed) && $emailed==1}
-            <div style="position: relative; top: -10px;left: 100px;">
+            <div style="position: relative; top: -160px; left: 130px;">
                 {if $firma && isset($firma.src) && $firma.src}
                     <img style="{$firma.style}" src="{if $is_pdf == '1'}{$WEB_PATH}images/{else}{$IMAGES_PATH}{/if}{$firma.src}"{if $firma.width} width="{$firma.width}" height="{$firma.height}"{/if}>
                 {/if}

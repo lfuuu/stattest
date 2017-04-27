@@ -245,7 +245,7 @@ use yii\helpers\Url;
                                             </span>
                                             <div class="btn-group pull-right">
                                                 <?php if ($contractAccount->hasVoip) : ?>
-                                                    <?php if ($contractAccount->voip_disabled && !isset($warnings[ClientAccount::WARNING_BILL_PAY_OVERDUE])) : ?>
+                                                    <?php if ($contractAccount->voip_disabled /*&& !isset($warnings[ClientAccount::WARNING_BILL_PAY_OVERDUE])*/) : ?>
                                                         <button
                                                                 type="button" class="btn btn-sm set-voip-disabled <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
                                                                 style="width: 120px;padding: 3px 10px;"

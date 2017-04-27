@@ -5,6 +5,7 @@ use app\classes\Html;
 use app\models\City;
 use app\models\Country;
 use app\models\Number;
+use app\models\NumberType;
 use app\models\voip\Registry;
 use kartik\builder\Form;
 use kartik\widgets\ActiveForm;
@@ -47,6 +48,15 @@ $links[] = [
 echo Breadcrumbs::widget([
     'links' => $links
 ]);
+
+$readonlyOptions = [
+    'readonly' => true,
+    'disabled' => true
+];
+
+$isEdit = (bool)$model->id;
+$is7800 = $model->number_type_id == NumberType::ID_7800;
+
 ?>
 
 <div class="well">
@@ -70,14 +80,14 @@ echo Breadcrumbs::widget([
                 'items' => $countryList,
                 'options' => [
                     'class' => 'formReload'
-                ]
+                ] + ($isEdit ? $readonlyOptions : [])
             ],
             'city_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $cityList,
                 'options' => [
                     'class' => 'formReload'
-                ]
+                ] + ($isEdit || $is7800 ? $readonlyOptions : [])
             ],
             'source' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
@@ -89,19 +99,18 @@ echo Breadcrumbs::widget([
         ]
     ]);
 
-    /*
     $maskedInputWidgetConfig = [
         'type' => Form::INPUT_WIDGET,
         'widgetClass' => \app\classes\MaskedInput::className(),
         'options' => [
-            'mask' => str_replace(["9", "0"], ["\\9", "9"], $model->city_number_format), //символ-маска по-умолчанию цифра "9"
+            'mask' => $model->city_number_format,
             'options' => [
                 'class' => 'form-control',
                 'placeholder' => $model->city_number_format,
             ]
         ]
     ];
-    */
+
 
     echo Form::widget([
         'model' => $model,
@@ -110,20 +119,20 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'number_type_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => \app\models\NumberType::getList(),
-            ],
-            'city_number_format' => [
-                'type' => Form::INPUT_TEXT,
+                'items' => NumberType::getList(),
                 'options' => [
-                    'disabled' => true
+                    'class' => 'formReload'
                 ]
             ],
-            'number_from' => [
-                'type' => Form::INPUT_TEXT,
+            'ndc' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $model->ndsList,
+                'options' => [
+                    'class' => 'formReload'
+                    ] + ($isEdit || $is7800 ? $readonlyOptions : [])
             ],
-            'number_to' => [
-                'type' => Form::INPUT_TEXT,
-            ],
+            'number_from' => $maskedInputWidgetConfig,
+            'number_to' => $maskedInputWidgetConfig,
         ],
     ]);
 

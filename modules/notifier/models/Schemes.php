@@ -3,12 +3,6 @@
 namespace app\modules\notifier\models;
 
 use yii\db\ActiveRecord;
-use yii\db\Query;
-use app\models\Business;
-use app\models\BusinessProcessStatus;
-use app\models\ClientAccount;
-use app\models\ClientContract;
-use app\models\ClientContragent;
 
 /**
  * @property string $country_code
@@ -25,6 +19,9 @@ class Schemes extends ActiveRecord
     const NOTIFICATION_TYPE_EMAIL_OPERATOR = 'do_email_operator';
     const NOTIFICATION_TYPE_EMAIL = 'do_email';
     const NOTIFICATION_TYPE_SMS = 'do_sms';
+    const NOTIFICATION_TYPE_EMAIL_PERSONAL = 'do_email_personal';
+    const NOTIFICATION_TYPE_SMS_PERSONAL = 'do_sms_personal';
+    const NOTIFICATION_TYPE_LK = 'do_lk';
 
     public static $types = [
         self::NOTIFICATION_TYPE_EMAIL_MONITORING,
@@ -52,28 +49,6 @@ class Schemes extends ActiveRecord
             [['do_email', 'do_sms', 'do_email_monitoring', 'do_email_operator', ], 'boolean'],
             [['country_code', 'event',], 'required'],
         ];
-    }
-
-    /**
-     * @param int $countryCode
-     * @return Query
-     */
-    public static function findClientInCountry($countryCode)
-    {
-        return (new Query)
-            ->from([
-                'client' => ClientAccount::tableName()
-            ])
-            ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
-            ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
-            ->where(['contragent.country_id' => $countryCode])
-            ->andWhere(['IN', 'contract.business_id', [Business::TELEKOM, Business::OPERATOR]])
-            ->andWhere(['IN', 'contract.business_process_status_id', [
-                BusinessProcessStatus::TELEKOM_MAINTENANCE_CONNECTED, // Телеком - Подключаемые
-                BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK, // Телеком - Включенные
-                BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES, // Телеком - Заказ услуг
-                BusinessProcessStatus::OPERATOR_OPERATORS_ACTING, // Оператор - Действующий
-            ]]);
     }
 
 }

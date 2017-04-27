@@ -41,6 +41,7 @@ class Module extends \yii\base\Module
         $this->setComponents([
             'actions' => [
                 'class' => '\app\modules\notifier\components\Actions',
+                'module' => $this,
             ],
         ]);
 

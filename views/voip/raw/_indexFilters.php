@@ -5,25 +5,25 @@
  * @var CallsRawFilter $filterModel
  */
 
-use app\models\voip\filter\CallsRawFilter;
-use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
-use app\classes\grid\column\universal\StringColumn;
-use app\classes\grid\column\universal\CheckboxColumn;
-use app\classes\grid\column\billing\ServiceTrunkColumn;
-use app\classes\grid\column\billing\ServerColumn;
 use app\classes\grid\column\billing\ContractColumn;
-use app\classes\grid\column\universal\NnpOperatorColumn;
-use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\billing\DisconnectCauseColumn;
+use app\classes\grid\column\billing\ServerColumn;
+use app\classes\grid\column\billing\ServiceTrunkColumn;
+use app\classes\grid\column\billing\TrunkColumn;
+use app\classes\grid\column\universal\CheckboxColumn;
 use app\classes\grid\column\universal\ConstructColumn;
-use app\classes\grid\column\universal\WithEmptyFilterColumn;
-use app\modules\nnp\column\CountryColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
+use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
+use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\WithEmptyFilterColumn;
+use app\models\voip\filter\CallsRawFilter;
 use app\modules\nnp\column\CityColumn;
-use app\modules\nnp\column\RegionColumn;
+use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\column\DestinationColumn;
 use app\modules\nnp\column\NdcTypeColumn;
-use app\classes\grid\column\billing\TrunkColumn;
+use app\modules\nnp\column\OperatorColumn;
+use app\modules\nnp\column\RegionColumn;
 
 return [
     [
@@ -87,7 +87,7 @@ return [
     [
         'attribute' => 'src_operator_ids',
         'label' => 'Оператор номера А',
-        'class' => NnpOperatorColumn::className(),
+        'class' => OperatorColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -96,7 +96,7 @@ return [
     [
         'attribute' => 'dst_operator_ids',
         'label' => 'Оператор номера В',
-        'class' => NnpOperatorColumn::className(),
+        'class' => OperatorColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],

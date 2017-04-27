@@ -4,7 +4,7 @@ use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\ActaulizerVoipNumbers;
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;
 use app\models\UsageVirtpbx;
@@ -210,9 +210,9 @@ class VirtPbx3
 
     public static function getNumberTypes($clientId)
     {
-        if (ApiPhone::isAvailable()) {
+        if (ApiPhone::me()->isAvailable()) {
             try {
-                return ApiPhone::exec('numbers_state', ['account_id' => $clientId]);
+                return ApiPhone::me()->numbersState($clientId);
             } catch (Exception $e) {
                 trigger_error2($e->getMessage());
                 return [];
@@ -352,11 +352,11 @@ class VirtPbx3Action
             throw new LogicException($msg);
         }
 
-        if (ApiVpbx::isAvailable()) {
+        if (ApiVpbx::me()->isAvailable()) {
             $exceptionVpbx = null;
             try {
 
-                ApiVpbx::create($l["client_id"], $l["usage_id"], $l['biller_version']);
+                ApiVpbx::me()->create($l["client_id"], $l["usage_id"], $l['biller_version']);
 
             } catch (Exception $e) {
                 $exceptionVpbx = $e;
@@ -365,7 +365,6 @@ class VirtPbx3Action
             if ($exceptionVpbx) {
                 throw $exceptionVpbx;
             }
-
         }
 
         $row = new ActualVirtpbx();
@@ -382,7 +381,7 @@ class VirtPbx3Action
     {
         l::ll(__CLASS__, __FUNCTION__, $l);
 
-        if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX || !ApiVpbx::isAvailable()) {
+        if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX || !ApiVpbx::me()->isAvailable()) {
             return null;
         }
 
@@ -403,7 +402,7 @@ class VirtPbx3Action
 
         try {
 
-            ApiVpbx::stop($l["client_id"], $l["usage_id"]);
+            ApiVpbx::me()->delete($l["client_id"], $l["usage_id"]);
 
         } catch (Exception $e) {
             if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS) {
@@ -440,10 +439,10 @@ class VirtPbx3Action
 
             $numInfo = [];
 
-            if (ApiVpbx::isAvailable()) {
+            if (ApiVpbx::me()->isAvailable()) {
 
-                // $numInfo = ApiPhone::getNumbersInfo($fromUsage->clientAccount);
-                ApiVpbx::transferVpbxOnly(
+                // $numInfo = ApiPhone::me()->getNumbersInfo($fromUsage->clientAccount);
+                ApiVpbx::me()->transferVpbxOnly(
                     $fromUsage->clientAccount->id,
                     $fromUsage->id,
                     $toUsage->clientAccount->id,
@@ -483,7 +482,7 @@ class VirtPbx3Action
         l::ll(__CLASS__, __FUNCTION__, $l);
 
         try {
-            ApiVpbx::update($l["client_id"], $l["usage_id"], $l["region_id"], $l['biller_version']);
+            ApiVpbx::me()->update($l["client_id"], $l["usage_id"], $l["region_id"], $l['biller_version']);
         } catch (Exception $e) {
             throw $e;
         }

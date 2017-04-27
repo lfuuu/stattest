@@ -3,10 +3,10 @@ namespace app\modules\nnp\commands;
 
 use app\classes\Connection;
 use app\helpers\DateTimeZoneHelper;
-use app\models\billing\InstanceSettings;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use InvalidArgumentException;
 use UnexpectedValueException;
 use Yii;
 use yii\base\InvalidParamException;
@@ -15,6 +15,8 @@ use yii\console\Controller;
 
 /**
  * Импорт из справочников
+ *
+ * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
  */
 class ImportController extends Controller
 {
@@ -24,15 +26,100 @@ class ImportController extends Controller
     const EXCEL2007 = 'Excel2007';
     const EXCEL5 = 'Excel5';
 
-    /** @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629 */
-    const FILE_ID_HUNGARY = '0B9ds-UaQbaC7Tm45Q2l2czhrWHM';
-    const FILE_ID_SLOVAKIA = '0B9ds-UaQbaC7SHJHY0JnNHpRN00';
-    const FILE_ID_AUSTRIA = '0B9ds-UaQbaC7UHo2M3VfM3I5d2M';
-    const FILE_ID_GERMANY = '0B9ds-UaQbaC7MDRNLTl5WVN2Y0k';
-    const FILE_ID_CZECH = '0B9ds-UaQbaC7VzNPMzljR2VTMms';
-    const FILE_ID_ROMANIA = '0B9ds-UaQbaC7Ynpwb1ZhZTFUV3M';
-    const FILE_ID_CROATIA = '0B9ds-UaQbaC7UERUWmpVeEZ4THM';
-    const FILE_ID_SERBIA = '0B9ds-UaQbaC7N1p6Zm5sNWhmMWs';
+    const DATE_FORMAT_YMD_DOT = 'Y.m.d';
+    const DATE_FORMAT_DMY_DOT = 'd.m.Y';
+    const DATE_FORMAT_MDY_HYPHEN = 'm-d-y';
+    const DATE_FORMAT_DMY_HYPHEN = 'd-m-y';
+    const DATE_FORMAT_MDY_SLASH = 'm/d/Y';
+
+    /**
+     * Европа
+     *
+     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=10322013
+     */
+    private $_europe = [
+        Country::HUNGARY_CODE => ['0B9ds-UaQbaC7Tm45Q2l2czhrWHM', self::EXCEL5, self::DATE_FORMAT_YMD_DOT],
+        Country::SLOVAKIA_CODE => ['0B9ds-UaQbaC7SHJHY0JnNHpRN00', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::AUSTRIA_CODE => ['0B9ds-UaQbaC7UHo2M3VfM3I5d2M', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT], // PHP Fatal error:  Allowed memory size of 4294967296 bytes exhausted
+        // Country::GERMANY_CODE => ['0B9ds-UaQbaC7MDRNLTl5WVN2Y0k', self::EXCEL2007, self::DATE_FORMAT_MDY_SLASH], // PHP Fatal error:  Allowed memory size of 4294967296 bytes exhausted
+        Country::CZECH_CODE => ['0B9ds-UaQbaC7VzNPMzljR2VTMms', self::EXCEL5, self::DATE_FORMAT_DMY_DOT],
+        // Country::POLAND_CODE => ['0B96cvSC012ZaXzRtQTExQVVZY2M', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::ROMANIA_CODE => ['0B9ds-UaQbaC7Ynpwb1ZhZTFUV3M', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::BULGARIA_CODE => ['0B96cvSC012ZaS3FGX2gwUndMb3M', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::CROATIA_CODE => ['0B9ds-UaQbaC7UERUWmpVeEZ4THM', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::SERBIA_CODE => ['0B9ds-UaQbaC7N1p6Zm5sNWhmMWs', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::BELGIUM_CODE => ['0B7mk5bJgGNORUFV5dU9IUy1WZWM', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::UNITED_KINGDOM_CODE => ['0B96cvSC012ZadGV0czQyZlN1Wms', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::IRELAND_CODE => ['0B96cvSC012ZaT0U4ZXpzek5IVTQ', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::LIECHTENSTEIN_CODE => ['0B7mk5bJgGNORME1LZHMxeHZ1azA', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::LUXEMBOURG_CODE => ['0B7mk5bJgGNORNGIzdDltVFZyOTg', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::MONACO_CODE => ['0B96cvSC012ZaTXRQaHlRZ0J3aWc', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::NETHERLANDS_CODE => ['0B7mk5bJgGNORUVRyT3oxdDRzMFU', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::FRANCE_CODE => ['0B96cvSC012ZaN25aTElCSE5EQUU', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::SWITZERLAND_CODE => ['0B7mk5bJgGNORS2tpNW9meUZDMTA', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::DENMARK_CODE => ['0B0uCc2piA2iSc1ptMUxVT1lTSUk', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::ICELAND_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::NORWAY_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::LATVIA_CODE => ['0B96cvSC012ZaYWJVMlBMYVczbzA', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::LITHUANIA_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::FINLAND_CODE => ['0B96cvSC012ZaN25aTElCSE5EQUU', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::SWEDEN_CODE => ['0B96cvSC012ZaNEpxWjFpaWZDMFE', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::ESTONIA_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::ALBANIA_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::ANDORRA_CODE => ['0B96cvSC012ZaQnotZGNVQzJUbXc', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::BOSNIA_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::VATICAN_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::GREECE_CODE => ['0B96cvSC012ZaMEFpVEFrU2I2QkE', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::SPAIN_CODE => ['0BxjkzgnzZC8EUXdja0lQRV9HbUU', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::ITALY_CODE => ['0B7mk5bJgGNORRndxczdjSlJJbWs', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::MACEDONIA_CODE => ['0B96cvSC012ZaTzR0Y0NFenNIcWM', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::MALTA_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::PORTUGAL_CODE => ['0B7mk5bJgGNORdnFmLUxLRnd6V1E', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::SAN_MARINO_CODE => ['0B96cvSC012ZaUXhIQmx5bnhTWFE', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::SLOVENIA_CODE => ['0B96cvSC012ZaWnc3bmFEeWU4WFU', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::MONTENEGRO_CODE => ['0B96cvSC012ZaYk1JUjJyeUdQY3c', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        // Country::CYPRUS_CODE => ['', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+    ];
+
+    /**
+     * СНГ
+     * Commonwealth of Independent States (CIS)
+     *
+     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=10321972
+     */
+    private $_cis = [
+        Country::AZERBAIJAN_CODE => ['0B9ds-UaQbaC7aTBIdzJaeHB5X0k', self::EXCEL2007, ''],
+        Country::ARMENIA_CODE => ['0B9ds-UaQbaC7azFCZHV4RC15Znc', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT],
+        Country::GEORGIA_CODE => ['0B9ds-UaQbaC7SGpkcmhtWWhmejA', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::BELARUS_CODE => ['0B9ds-UaQbaC7VHY4NkxLTkRxNzQ', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::KAZAKHSTAN_CODE => ['0B9ds-UaQbaC7Nm51REtxWHRxaW8', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT],
+        Country::KYRGYZSTAN_CODE => ['0B9ds-UaQbaC7VnBYelFQRHo1bWM', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT],
+        Country::MOLDOVA_CODE => ['0B9ds-UaQbaC7NW5MODRDVG5YeEE', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::MONGOLIA_CODE => ['0B9ds-UaQbaC7RWM5WDd5V3NENms', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT],
+        Country::TAJIKISTAN_CODE => ['0B9ds-UaQbaC7Z0hwem04VV82TE0', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::TURKMENISTAN_CODE => ['0B9ds-UaQbaC7d21DU1VzajgyM2s', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::UZBEKISTAN_CODE => ['0B9ds-UaQbaC7MTVVbExlcjh0YkU', self::EXCEL2007, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::UKRAINE_CODE => ['0B9ds-UaQbaC7ajdiYXdfamNnV1k', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT],
+        // Приднестровье
+    ];
+
+    /**
+     * Азия
+     *
+     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=10322017
+     */
+
+    /**
+     * Африка
+     *
+     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=10322019
+     */
+
+    /**
+     * Америка
+     *
+     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=10322021
+     */
 
     /** @var Connection */
     private $_db = null;
@@ -51,7 +138,6 @@ class ImportController extends Controller
     /**
      * Импортировать Россию из Россвязи. 2 минуты. Сначала надо disable-trigger, потом enable-trigger
      *
-     * @link http://www.rossvyaz.ru/activity/num_resurs/registerNum/
      * @throws \yii\db\Exception
      */
     public function actionRus()
@@ -97,153 +183,70 @@ class ImportController extends Controller
     }
 
     /**
-     * Импортировать Словакию из Excel. 3 сек. Сначала надо disable-trigger, потом enable-trigger
+     * Импортировать страны Европу из Excel. Сначала надо disable-trigger, потом enable-trigger
      *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @param string $countryCode Если указан - только эту страну. Иначе - все
+     * @throws \InvalidArgumentException
      * @throws \Exception
      */
-    public function actionSlovakia()
+    public function actionEurope($countryCode = '')
     {
-        $this->_import(
-            function () {
-                $this->_importCallback(self::FILE_ID_SLOVAKIA, Country::SLOVAKIA_PREFIX, self::EXCEL5, 'm-d-y');
-            },
-            Country::SLOVAKIA_CODE
-        );
+        $this->_importCountries($this->_europe, $countryCode);
     }
 
     /**
-     * Импортировать Венгрию из Excel. 5 сек. Сначала надо disable-trigger, потом enable-trigger
+     * Импортировать страны СНГ из Excel. Сначала надо disable-trigger, потом enable-trigger
      *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @param string $countryCode Если указан - только эту страну. Иначе - все
+     * @throws \InvalidArgumentException
      * @throws \Exception
      */
-    public function actionHungary()
+    public function actionCis($countryCode = '')
     {
-        $this->_import(
-            function () {
-                $this->_importCallback(self::FILE_ID_HUNGARY, Country::HUNGARY_PREFIX, self::EXCEL5, 'Y.m.d');
-            },
-            Country::HUNGARY_CODE
-        );
+        $this->_importCountries($this->_cis, $countryCode);
     }
 
     /**
-     * Импортировать Германию из Excel. 10 минут и 3Гб оперативки. Сначала надо disable-trigger, потом enable-trigger
+     * Импортировать страны из Excel
      *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
+     * @param array $countries страны
+     * @param string $countryCode Если указан - только эту страну. Иначе - все
+     * @throws \InvalidArgumentException
      * @throws \Exception
      */
-    public function actionGermany()
+    private function _importCountries($countries, $countryCode)
     {
-        $this->_import(
-            function () {
-                $this->_importCallback(self::FILE_ID_GERMANY, Country::GERMANY_PREFIX, self::EXCEL2007, 'd-m-y');
-            },
-            Country::GERMANY_CODE
-        );
-    }
+        if ($countryCode) {
+            if (!isset($countries[$countryCode])) {
+                throw new InvalidArgumentException('Неизвестный код страны');
+            }
 
-    /**
-     * Импортировать Австрию из Excel. 5 минут и 1.5Гб оперативки. Сначала надо disable-trigger, потом enable-trigger
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     * @throws \Exception
-     */
-    public function actionAustria()
-    {
-        $this->_import(
-            function () {
-                $this->_importCallback(self::FILE_ID_AUSTRIA, Country::AUSTRIA_PREFIX, self::EXCEL2007, 'd.m.Y');
-            },
-            Country::AUSTRIA_CODE
-        );
-    }
+            $countries = [$countryCode => $countries[$countryCode]];
+        }
 
-    /**
-     * Импортировать Чехию из Excel. Сначала надо disable-trigger, потом enable-trigger
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     * @throws \Exception
-     */
-    public function actionCzech()
-    {
-        $this->_import(
-            function () {
-                $this->_importCallback(self::FILE_ID_CZECH, Country::CZECH_PREFIX, self::EXCEL5, 'd.m.Y');
-            },
-            Country::CZECH_CODE
-        );
-    }
-
-    /**
-     * Импортировать Румынию из Excel. Сначала надо disable-trigger, потом enable-trigger
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     * @throws \Exception
-     */
-    public function actionRomania()
-    {
-        $this->_import(
-            function () {
-                $this->_importCallback(self::FILE_ID_ROMANIA, Country::ROMANIA_PREFIX, self::EXCEL2007, 'm-d-y');
-            },
-            Country::ROMANIA_CODE
-        );
-    }
-
-    /**
-     * Импортировать Хорватию из Excel. Сначала надо disable-trigger, потом enable-trigger
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     * @throws \Exception
-     */
-    public function actionCroatia()
-    {
-        $this->_import(
-            function () {
-                $this->_importCallback(self::FILE_ID_CROATIA, Country::CROATIA_PREFIX, self::EXCEL5, 'm-d-y');
-            },
-            Country::CROATIA_CODE
-        );
-    }
-
-    /**
-     * Импортировать Сербию из Excel. Сначала надо disable-trigger, потом enable-trigger
-     *
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
-     * @throws \Exception
-     */
-    public function actionSerbia()
-    {
-        $this->_import(
-            function () {
-                $this->_importCallback(self::FILE_ID_SERBIA, Country::SERBIA_PREFIX, self::EXCEL2007, 'm-d-y');
-            },
-            Country::SERBIA_CODE
-        );
+        foreach ($countries as $countryCodeTmp => $fileInfo) {
+            $this->_import(
+                function () use ($fileInfo) {
+                    $this->_importCallback($fileInfo[0], $fileInfo[1], $fileInfo[2]);
+                },
+                $countryCodeTmp
+            );
+        }
     }
 
     /**
      * Импортировать из Excel. Callback
      *
      * @param string $fileId
-     * @param int $countryPrefix
      * @param string $excelFormat
      * @param string $dateFormat
-     * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=8356629
      * @throws \Exception
      */
-    private function _importCallback($fileId, $countryPrefix, $excelFormat = self::EXCEL2007, $dateFormat = 'd-m-y')
+    private function _importCallback($fileId, $excelFormat = self::EXCEL2007, $dateFormat = 'd-m-y')
     {
-        /** @var NdcType[] $ndcTypes */
-        $ndcTypes = NdcType::find()
-            ->indexBy('name')
-            ->all();
-
         $this->_importFromExcel(
             'https://docs.google.com/uc?export=download&id=' . $fileId,
-            function ($row) use (&$ndcTypes, $countryPrefix, $dateFormat) {
+            function ($row) use ($dateFormat) {
                 /**
                  * 0 - Префикс страны
                  * 1 - NDC
@@ -258,11 +261,27 @@ class ImportController extends Controller
                  * 10 - Статус номера. Не всегда указано
                  */
 
-                $ndc = $row[1];
+                // заполнить недостающие столбцы
+                while (count($row) < 11) {
+                    $row[] = null;
+                }
 
-                $ndcTypeId = $row[3];
+                list($countryPrefix, $ndc, $ndcTypeOriginal, $ndcTypeId, $numberFrom, $numberTo, $regionSource, $operatorSource, $dateResolution, $detailResolution, $statusNumber) = $row;
 
-                $numberFrom = str_replace(' ', '', $row[4]); // number_from
+                if (!$countryPrefix) {
+                    return null;
+                }
+
+                if ($operatorSource && ord($operatorSource[0]) == 171) {
+                    // какой-то баг Excel с символом «
+                    $operatorSource[0] = '';
+                }
+
+                $ndc = (int)$ndc;
+
+                $ndcTypeId = (int)$ndcTypeId;
+
+                $numberFrom = str_replace(' ', '', $numberFrom); // number_from
                 if (!$numberFrom) {
                     $numberFrom = $ndc;
                     $ndc = null;
@@ -272,7 +291,7 @@ class ImportController extends Controller
                     throw new InvalidParamException('Ошибочный number_from (' . $numberFrom . ')');
                 }
 
-                $numberTo = str_replace(' ', '', $row[5]); // number_to
+                $numberTo = str_replace(' ', '', $numberTo); // number_to
                 if (!$numberTo) {
                     $numberTo = $numberFrom;
                 }
@@ -281,13 +300,12 @@ class ImportController extends Controller
                     throw new InvalidParamException('Ошибочный number_to (' . $numberTo . ')');
                 }
 
-                $dateResolution = isset($row[8]) ? $row[8] : null;
                 if ($dateResolution) {
                     $dateResolutionDateTime = \DateTimeImmutable::createFromFormat($dateFormat, $dateResolution);
                     if ($dateResolutionDateTime) {
                         $dateResolution = $dateResolutionDateTime->format(DateTimeZoneHelper::DATE_FORMAT);
                     } else {
-                        echo 'Ошибочный date_resolution ' . $dateResolution . PHP_EOL;
+                        echo 'Ошибочный date_resolution ' . $dateResolution . ' (' . $dateFormat . ')' . PHP_EOL;
                     }
                 }
 
@@ -296,14 +314,14 @@ class ImportController extends Controller
                         $ndc ?: null, // ndc
                         $numberFrom, // number_from
                         $numberTo, // number_to
-                        $ndcTypeId, // ndc_type_id
-                        $row[7], // operator_source
-                        $row[6], // region_source
+                        $ndcTypeId ?: null, // ndc_type_id
+                        $operatorSource, // operator_source
+                        $regionSource, // region_source
                         $countryPrefix . $ndc . $numberFrom, // full_number_from
                         $countryPrefix . $ndc . $numberTo, // full_number_to
                         $dateResolution ?: null, // date_resolution
-                        isset($row[9]) ? $row[9] : null, // detail_resolution
-                        isset($row[10]) ? $row[10] : null, // status_number
+                        $detailResolution ?: null, // detail_resolution
+                        $statusNumber ?: null, // status_number
                     ];
             },
             $excelFormat
@@ -360,7 +378,12 @@ class ImportController extends Controller
 
             try {
 
-                $insertValues[] = $callbackRow($row);
+                $insertValuesTmp = $callbackRow($row);
+                if (!$insertValuesTmp) {
+                    continue;
+                }
+
+                $insertValues[] = $insertValuesTmp;
 
                 if (count($insertValues) % 1000 === 0) {
                     echo '. ';
@@ -382,7 +405,7 @@ class ImportController extends Controller
                 $tableName,
                 ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number'],
                 $insertValues
-            );
+            )->execute();
         }
     }
 
@@ -461,7 +484,7 @@ class ImportController extends Controller
         $transaction = $this->_db->beginTransaction();
         try {
 
-            echo PHP_EOL . 'Импортировать. ' . date(DATE_ATOM) . PHP_EOL;
+            echo PHP_EOL . 'Импортировать ' . $countryCode . '. ' . date(DATE_ATOM) . PHP_EOL;
 
             $this->_preImport();
             $callbackMethod();
@@ -476,7 +499,7 @@ class ImportController extends Controller
             $transaction->rollBack();
             Yii::error('Ошибка импорта');
             Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
+            printf(' % s % s', $e->getMessage(), $e->getTraceAsString());
             return Controller::EXIT_CODE_ERROR;
         }
     }
@@ -493,8 +516,8 @@ class ImportController extends Controller
 CREATE TEMPORARY TABLE number_range_tmp
 (
   ndc integer,
-  number_from integer,
-  number_to integer,
+  number_from bigint,
+  number_to bigint,
   ndc_type_id integer,
   operator_source character varying(255),
   region_source character varying(255),
@@ -521,11 +544,13 @@ SQL;
 
         $tableName = NumberRange::tableName();
 
-        // всё выключить
+        // выключить всё, кроме больших диапазонов по всей стране
         $sql = <<<SQL
     UPDATE {$tableName}
     SET is_active = false, date_stop = now()
-    WHERE is_active AND country_code = :country_code
+    WHERE is_active 
+        AND country_code = :country_code 
+        AND (ndc_type_id IS NOT NULL OR operator_id IS NOT NULL OR region_id IS NOT NULL OR ndc IS NOT NULL)
 SQL;
         $affectedRowsBefore = $this->_db->createCommand($sql, [':country_code' => $countryCode])->execute();
         printf("They were: %d\n", $affectedRowsBefore);
@@ -615,7 +640,7 @@ SQL;
         $this->_db->createCommand($sql)->execute();
 
         if ($affectedRowsDelta < self::DELTA_MIN) {
-            throw new \LogicException('После обновления осталось ' . $affectedRowsDelta . '% исходных данных. Нужно вручную разобраться в причинах');
+            throw new \LogicException('После обновления осталось ' . $affectedRowsDelta . ' % исходных данных . Нужно вручную разобраться в причинах');
         }
     }
 

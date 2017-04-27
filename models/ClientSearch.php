@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\classes\uu\model\AccountTariff;
+use app\modules\uu\models\AccountTariff;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 

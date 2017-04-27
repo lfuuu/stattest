@@ -8,6 +8,8 @@ use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
+ * Class Country
+ *
  * @property int $code
  * @property string $alpha_3
  * @property string $name
@@ -18,7 +20,6 @@ use yii\helpers\Url;
  * @property string $currency_id
  * @property integer $prefix
  * @property integer $order
- *
  * @property Currency $currency
  * @property PublicSiteCountry[] $publicSiteCountries
  */

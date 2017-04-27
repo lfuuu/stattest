@@ -1,9 +1,9 @@
 <?php
 
-use app\classes\uu\model\ServiceType;
-use app\classes\uu\model\Tariff;
-use app\classes\uu\model\TariffPerson;
-use app\classes\uu\model\TariffStatus;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPerson;
+use app\modules\uu\models\TariffStatus;
 use app\models\Country;
 
 return [

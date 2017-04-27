@@ -1,7 +1,7 @@
 <?php
 
-use app\classes\uu\model\AccountTariff;
-use app\classes\uu\model\ServiceType;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\models\ClientAccount;
 use tests\codeception\unit\models\_ClientAccount;
 

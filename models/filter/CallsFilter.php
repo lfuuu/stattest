@@ -214,27 +214,17 @@ class CallsFilter extends Calls
         $this->billed_time_from !== '' && $query->andWhere(['>=', 'billed_time', $this->billed_time_from]);
         $this->billed_time_to !== '' && $query->andWhere(['<=', 'billed_time', $this->billed_time_to]);
 
-        // если ['LIKE', 'number', $mask], то он заэскейпит спецсимволы и добавить % в начало и конец. Подробнее см. \yii\db\QueryBuilder::buildLikeCondition
-        $this->src_number !== '' && ($this->src_number = strtr($this->src_number,
-            ['.' => '_', '*' => '%'])) && $query->andWhere('src_number::VARCHAR LIKE :src_number',
-            [':src_number' => $this->src_number]);
-        $this->dst_number !== '' && ($this->dst_number = strtr($this->dst_number,
-            ['.' => '_', '*' => '%'])) && $query->andWhere('dst_number::VARCHAR LIKE :dst_number',
-            [':dst_number' => $this->dst_number]);
+        $this->src_number = strtr($this->src_number, ['.' => '_', '*' => '%']);
+        $this->src_number !== '' && $query->andWhere('src_number::VARCHAR LIKE :src_number', [':src_number' => $this->src_number]);
+
+        $this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']);
+        $this->dst_number !== '' && $query->andWhere('dst_number::VARCHAR LIKE :dst_number', [':dst_number' => $this->dst_number]);
 
         $this->rate_from !== '' && $query->andWhere(['>=', 'rate', $this->rate_from]);
         $this->rate_to !== '' && $query->andWhere(['<=', 'rate', $this->rate_to]);
 
-        $this->interconnect_rate_from !== '' && $query->andWhere([
-            '>=',
-            'interconnect_rate',
-            $this->interconnect_rate_from
-        ]);
-        $this->interconnect_rate_to !== '' && $query->andWhere([
-            '<=',
-            'interconnect_rate',
-            $this->interconnect_rate_to
-        ]);
+        $this->interconnect_rate_from !== '' && $query->andWhere(['>=', 'interconnect_rate', $this->interconnect_rate_from]);
+        $this->interconnect_rate_to !== '' && $query->andWhere(['<=', 'interconnect_rate', $this->interconnect_rate_to]);
 
         $this->cost_from !== '' && $query->andWhere(['>=', 'cost', $this->cost_from]);
         $this->cost_to !== '' && $query->andWhere(['<=', 'cost', $this->cost_to]);
@@ -248,7 +238,7 @@ class CallsFilter extends Calls
         $this->destination_id !== '' && $query->andWhere(['destination_id' => $this->destination_id]);
 
         $this->geo_id && $query->andWhere(['geo_id' => $this->geo_id]);
-        
+
         $this->geoIds && $query->andWhere(['IN', 'geo_id', $this->geoIds]);
 
         $this->server_id !== '' && $query->andWhere(['server_id' => $this->server_id]);

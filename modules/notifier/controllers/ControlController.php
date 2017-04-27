@@ -2,7 +2,9 @@
 
 namespace app\modules\notifier\controllers;
 
+use app\classes\Assert;
 use app\classes\BaseController;
+use app\models\Country;
 use app\modules\notifier\forms\ControlForm;
 use Yii;
 use yii\base\InvalidParamException;
@@ -16,22 +18,26 @@ class ControlController extends BaseController
      */
     public function actionIndex()
     {
+        $form = new ControlForm;
+
         return $this->render('view', [
-            'dataForm' => (new ControlForm),
+            'dataForm' => new ControlForm,
         ]);
     }
 
     /**
-     * @inheritdoc
+     * @throws InvalidParamException
      */
     public function actionApplyWhiteList()
     {
         $form = new ControlForm;
 
-        if ($form->load(Yii::$app->request->post()) && $form->validate(['whitelist'])) {
-            $form->saveWhiteList();
-        } else {
-            Yii::$app->session->setFlash('error', $form->getErrorsAsString());
+        if (
+            $form->load(Yii::$app->request->post())
+            && $form->validate(['whitelist'])
+            && $form->applyWhiteList()
+        ) {
+            Yii::$app->session->setFlash('success', 'Данные белого списка оповещений сохранены');
         }
 
         $this->redirect('/notifier/control');
@@ -43,11 +49,15 @@ class ControlController extends BaseController
      */
     public function actionApplyScheme($countryCode)
     {
+        /** @var Country $country */
+        $country = Country::findOne(['code' => $countryCode]);
+        Assert::isObject($country);
+
         $form = new ControlForm;
         $form->countryCode = $countryCode;
 
-        if ($form->validate(['countryCode'])) {
-            $form->applyPublish();
+        if ($form->validate(['countryCode']) && $form->applyPublish()) {
+            Yii::$app->session->setFlash('success', 'Данные общей схемы "' . $country->name . '" оповещений обновлены');
         } else {
             Yii::$app->session->setFlash('error', $form->getErrorsAsString());
         }

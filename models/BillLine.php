@@ -5,6 +5,8 @@ use app\classes\model\HistoryActiveRecord;
 use yii\db\ActiveRecord;
 
 /**
+ * Class BillLine
+ *
  * @property int $pk
  * @property string $bill_no        номер счета, ссылка на счет
  * @property string $bill_date      дата счета
