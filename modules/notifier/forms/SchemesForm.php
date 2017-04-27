@@ -6,17 +6,20 @@ use app\classes\Form;
 use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
 use app\models\Country;
-use app\models\important_events\ImportantEventsNames;
+use app\modules\notifier\components\decorators\WhiteListDecorator;
+use app\modules\notifier\components\traits\FormExceptionTrait;
 use app\modules\notifier\models\Schemes;
+use app\modules\notifier\Module as Notifier;
 use Exception;
 use Yii;
-use yii\data\ActiveDataProvider;
 
 /**
  * @property array|null $formData
  */
 class SchemesForm extends Form
 {
+
+    use FormExceptionTrait;
 
     public $formData;
 
@@ -39,15 +42,21 @@ class SchemesForm extends Form
     }
 
     /**
-     * @return ActiveDataProvider
+     * @return WhiteListDecorator
      */
     public function getAvailableEvents()
     {
-        return new ActiveDataProvider([
-            'query' => ImportantEventsNames::find(),
-            'sort' => false,
-            'pagination' => false,
-        ]);
+        $whitelist = [
+            'isAvailable' => true,
+        ];
+
+        try {
+            $whitelist += Notifier::getInstance()->actions->getWhiteList();
+        } catch (\Exception $e) {
+            $this->catchException($e);
+        }
+
+        return new WhiteListDecorator($whitelist);
     }
 
     /**
@@ -65,15 +74,17 @@ class SchemesForm extends Form
      * @param array $scheme
      * @param string $notificationType
      * @param string $eventCode
-     * @return bool
+     * @return int
      */
     public function isNotificationUsed(array $scheme, $notificationType, $eventCode)
     {
-        return (bool)array_filter($scheme,
-            function ($row) use ($notificationType, $eventCode) {
-                return $row->event === $eventCode && $row->{$notificationType};
+        foreach ($scheme as $row) {
+            if ($row->event === $eventCode) {
+                return (int)$row->{$notificationType};
             }
-        );
+        }
+
+        return 0;
     }
 
     /**

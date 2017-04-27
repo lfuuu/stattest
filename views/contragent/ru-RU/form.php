@@ -103,7 +103,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
     </div>
 
     <div id="ip" class="tab-pane col-sm-12">
-        <?
+        <?php
         echo Form::widget([
             'model' => $model,
             'form' => $f,
@@ -175,7 +175,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
     </div>
 
     <div id="person" class="tab-pane col-sm-12">
-        <?
+        <?php
         echo Form::widget([
             'model' => $model,
             'form' => $f,

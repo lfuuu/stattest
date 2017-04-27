@@ -2,6 +2,7 @@
 
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\notifier\components\decorators\WhiteListEventDecorator;
 use app\modules\notifier\models\Schemes;
 
 /**
@@ -14,14 +15,14 @@ $notificationScheme = $dataForm->getCountryNotificationScheme($countryCode);
 echo $this->render('//layouts/_submitButtonSave', ['class' => 'pull-right', 'style' => 'clear: both; margin-bottom: 20px;',]);
 
 echo GridView::widget([
-    'dataProvider' => $dataForm->getAvailableEvents(),
+    'dataProvider' => $dataForm->getAvailableEvents()->dataProvider,
     'columns' => [
         [
             'attribute' => 'code',
             'label' => 'Код',
             'format' => 'raw',
-            'value' => function ($data) {
-                return Html::a($data->value, ['/important_events/names/edit', 'id' => $data->id]);
+            'value' => function (WhiteListEventDecorator $data) {
+                return $data->editLink;
             },
         ],
         [
@@ -30,63 +31,63 @@ echo GridView::widget([
             'class' => \app\classes\grid\column\important_events\GroupColumn::class,
         ],
         [
-            'label' => 'Email (Мониторинг)',
+            'label' => 'Email (мониторинг)',
             'format' => 'raw',
-            'value' => function ($data) use ($dataForm, $countryCode, $notificationScheme) {
+            'value' => function (WhiteListEventDecorator $data) use ($dataForm, $countryCode, $notificationScheme) {
                 $notificationType = Schemes::NOTIFICATION_TYPE_EMAIL_MONITORING;
-                $fieldName = 'formData[' . $countryCode . '][' . $data['code'] . '][' . $notificationType . ']';
+                $fieldName = 'formData[' . $countryCode . '][' . $data->code . '][' . $notificationType . ']';
 
                 return
                     Html::hiddenInput($fieldName, 0) .
-                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data['code']));
+                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data->code));
             },
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '5%',
         ],
         [
-            'label' => 'Email (Оператор)',
+            'label' => 'Email (оператор)',
             'format' => 'raw',
-            'value' => function ($data) use ($dataForm, $countryCode, $notificationScheme) {
+            'value' => function (WhiteListEventDecorator $data) use ($dataForm, $countryCode, $notificationScheme) {
                 $notificationType = Schemes::NOTIFICATION_TYPE_EMAIL_OPERATOR;
-                $fieldName = 'formData[' . $countryCode . '][' . $data['code'] . '][' . $notificationType . ']';
+                $fieldName = 'formData[' . $countryCode . '][' . $data->code . '][' . $notificationType . ']';
 
                 return
                     Html::hiddenInput($fieldName, 0) .
-                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data['code']));
+                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data->code));
             },
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '5%',
         ],
         [
-            'label' => 'Email (Официальный)',
+            'label' => 'Email (официальный)',
             'format' => 'raw',
-            'value' => function ($data) use ($dataForm, $countryCode, $notificationScheme) {
+            'value' => function (WhiteListEventDecorator $data) use ($dataForm, $countryCode, $notificationScheme) {
                 $notificationType = Schemes::NOTIFICATION_TYPE_EMAIL;
-                $fieldName = 'formData[' . $countryCode . '][' . $data['code'] . '][' . $notificationType . ']';
+                $fieldName = 'formData[' . $countryCode . '][' . $data->code . '][' . $notificationType . ']';
 
                 return
                     Html::hiddenInput($fieldName, 0) .
-                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data['code']));
+                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data->code));
             },
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '5%',
         ],
         [
-            'label' => 'Sms (Официальный)',
+            'label' => 'Sms (официальный)',
             'format' => 'raw',
-            'value' => function ($data) use ($dataForm, $countryCode, $notificationScheme) {
+            'value' => function (WhiteListEventDecorator $data) use ($dataForm, $countryCode, $notificationScheme) {
                 $notificationType = Schemes::NOTIFICATION_TYPE_SMS;
-                $fieldName = 'formData[' . $countryCode . '][' . $data['code'] . '][' . $notificationType . ']';
+                $fieldName = 'formData[' . $countryCode . '][' . $data->code . '][' . $notificationType . ']';
 
                 return
                     Html::hiddenInput($fieldName, 0) .
-                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data['code']));
+                    Html::checkbox($fieldName, $dataForm->isNotificationUsed($notificationScheme, $notificationType, $data->code));
             },
             'hAlign' => GridView::ALIGN_CENTER,
             'width' => '5%',
         ],
     ],
-    'floatHeader' => true,
+    'floatHeader' => false,
     'isFilterButton' => false,
     'export' => false,
     'panel' => '',

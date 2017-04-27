@@ -7,6 +7,7 @@ use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
 
 /**
+ * @property int $id
  * @property string $code
  * @property string $value
  * @property int $group_id

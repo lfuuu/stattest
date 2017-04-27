@@ -1,5 +1,6 @@
 <?php
 
+use app\modules\notifier\components\decorators\WhiteListEventDecorator;
 use kartik\widgets\ActiveForm;
 use kartik\tabs\TabsX;
 use yii\helpers\Url;
@@ -51,15 +52,27 @@ $form = ActiveForm::begin([
     'action' => '/notifier/control/apply-white-list'
 ]);
 
+$whiteList = $dataForm->getWhiteList();
+
+if (!count($whiteList->log)) {
+    $whiteListUpdated = Html::tag('b', 'Данные об обновлении отсутствуют');
+} else {
+    $firstRecord = reset($whiteList->prettyLog);
+    $whiteListUpdated =
+        Html::tag('b', 'Обновлено: ') .
+        $firstRecord->userName . ' (' . $firstRecord->updated . ')' . Html::tag('br') .
+        Html::tag('div', $firstRecord->message, ['class' => 'label label-danger']);
+}
+
 echo GridView::widget([
-    'dataProvider' => $dataForm->getAvailableEvents(),
+    'dataProvider' => $whiteList->dataProvider,
     'columns' => [
         [
             'attribute' => 'code',
             'label' => 'Код',
             'format' => 'raw',
-            'value' => function ($data) {
-                return Html::a($data['title'], ['/important_events/names/edit', 'id' => $data['id']]);
+            'value' => function (WhiteListEventDecorator $data) {
+                return $data->editLink;
             },
         ],
         [
@@ -70,10 +83,10 @@ echo GridView::widget([
         [
             'format' => 'raw',
             'label' => 'Использование',
-            'value' => function ($data) use ($dataForm) {
+            'value' => function (WhiteListEventDecorator $data) use ($dataForm) {
                 return Html::checkbox(
-                    $dataForm->formName() . '[whitelist][' . $data['code'] .']',
-                    $data['in_use']
+                    $dataForm->formName() . '[whitelist][' . $data->code .']',
+                    $data->isActive
                 );
             },
             'hAlign' => GridView::ALIGN_CENTER,
@@ -81,8 +94,8 @@ echo GridView::widget([
         [
             'format' => 'raw',
             'label' => 'Установлено',
-            'value' => function ($data) {
-                return $data['in_use'] ?: 'Не установлено';
+            'value' => function (WhiteListEventDecorator $data) {
+                return $data->isActive ?: 'Не установлено';
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
@@ -95,7 +108,7 @@ echo GridView::widget([
     'panel' => [
         'heading' =>
             Html::beginTag('div', ['class' => 'text-center']) .
-            'Обновлено: ' . (string)$dataForm->getWhitelistLastPublishData() .
+                $whiteListUpdated .
             Html::endTag('div'),
     ],
 ]);

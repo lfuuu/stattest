@@ -191,7 +191,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                             ])
                             ?>
                     </div>
-                    <?
+                    <?php
                     break;
                 }
 
@@ -203,7 +203,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
                             ->dropDownList(ContractType::getList($model->business_process_id, $isWithEmpty = true))
                         ?>
                     </div>
-                    <?
+                    <?php
                     break;
                 }
             }

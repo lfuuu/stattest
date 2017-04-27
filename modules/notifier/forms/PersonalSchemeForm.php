@@ -2,25 +2,36 @@
 
 namespace app\modules\notifier\forms;
 
-use Yii;
-use app\classes\Html;
-use app\classes\validators\ArrayValidator;
-use app\modules\notifier\Module as Notifier;
 use app\classes\Form;
-use app\models\Language;
-use app\models\ClientAccountOptions;
+use app\classes\validators\ArrayValidator;
 use app\forms\client\ClientAccountOptionsForm;
-use yii\base\ErrorException;
+use app\models\ClientAccount;
+use app\models\ClientAccountOptions;
+use app\models\Language;
+use app\models\User;
+use app\modules\notifier\components\decorators\SchemePersonalDecorator;
+use app\modules\notifier\components\decorators\WhiteListDecorator;
+use app\modules\notifier\components\traits\FormExceptionTrait;
+use app\modules\notifier\Module as Notifier;
+use Yii;
 use yii\base\InvalidConfigException;
 
 class PersonalSchemeForm extends Form
 {
 
-    public
-        $clientAccountId,
-        $clientData,
-        $events,
-        $language;
+    use FormExceptionTrait;
+
+    /** @var ClientAccount */
+    public $clientAccount;
+
+    /** @var array */
+    public $clientData;
+
+    /** @var array */
+    public $events;
+
+    /** @var string */
+    public $language;
 
     /**
      * @return array
@@ -28,8 +39,6 @@ class PersonalSchemeForm extends Form
     public function rules()
     {
         return [
-            ['clientAccountId', 'integer'],
-            ['clientAccountId', 'required'],
             ['events', ArrayValidator::className()],
             ['language', 'in', 'range' => array_keys(Language::getList())],
             ['language', 'default', 'value' => Language::LANGUAGE_DEFAULT],
@@ -37,104 +46,68 @@ class PersonalSchemeForm extends Form
     }
 
     /**
+     * @return WhiteListDecorator
+     */
+    public function getAvailableEvents()
+    {
+        $whitelist = [
+            'isAvailable' => true,
+        ];
+
+        try {
+            $whitelist += Notifier::getInstance()->actions->getWhiteList();
+        } catch (\Exception $e) {
+            $this->catchException($e);
+        }
+
+        return new WhiteListDecorator($whitelist);
+    }
+
+    /**
      * @return array|bool
      * @throws InvalidConfigException
      * @throws \yii\base\Exception
      */
-    public function loadData()
+    public function loadScheme()
     {
         try {
-            /** @var Notifier $notifier */
-            $notifier = Notifier::getInstance();
-        } catch (InvalidConfigException $e) {
-            Yii::$app->session->addFlash('error', 'Отсутствует конфигурация для MAILER');
-            return false;
-        }
-
-        try {
-            $response = $notifier->actions->getPersonalSchemeForClientAccount($this->clientAccountId);
-        } catch (ErrorException $e) {
-            Yii::$app->session->addFlash(
-                'error',
-                'Ошибка работы с MAILER. Текст ошибки:' . $e->getMessage()
-            );
-            return false;
+            $response = Notifier::getInstance()->actions->getSchemePersonal($this->clientAccount->id);
+            return (new SchemePersonalDecorator($response))
+                ->prettyScheme;
         } catch (\Exception $e) {
-            Yii::$app->session->addFlash(
-                'error',
-                'Отсутствует соединение с MAILER' . PHP_EOL . Html::tag('br') . 'Ошибка: ' . $e->getMessage()
-            );
-            return false;
+            return $this->catchException($e);
         }
-
-        if (!is_array($response)) {
-            Yii::$app->session->addFlash('error', 'Ошибка формата данных MAILER');
-            return false;
-        }
-
-        $result = [];
-
-        foreach ($response as $record) {
-            $result[] = [
-                'event' => $record['event_code'],
-                'group_id' => $record['group_id'],
-                'do_email_monitoring' => $record['do_email_monitoring'],
-                'do_email_operator' => $record['do_email_operator'],
-                'do_email' => $record['do_email'],
-                'do_email_personal' => $record['do_email_personal'],
-                'do_sms' => $record['do_sms'],
-                'do_sms_personal' => $record['do_sms_personal'],
-                'do_lk' => $record['do_lk'],
-            ];
-        }
-
-        return $result;
     }
 
     /**
-     * Сохранение формы
-     *
+     * @return \app\modules\notifier\models\Schemes[]
+     */
+    public function loadGlobalScheme()
+    {
+        return (new SchemesForm)->getCountryNotificationScheme($this->clientAccount->contragent->country->code);
+    }
+
+    /**
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function saveData()
     {
-        try {
-            /** @var Notifier $notifier */
-            $notifier = Notifier::getInstance();
-        } catch (InvalidConfigException $e) {
-            Yii::$app->session->addFlash('error', 'Отсутствует конфигурация для MAILER');
-            return false;
-        }
-
         (new ClientAccountOptionsForm)
-            ->setClientAccountId($this->clientAccountId)
+            ->setClientAccountId($this->clientAccount->id)
             ->setOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE)
             ->setValue($this->language)
             ->save($deleteExisting = true);
 
         try {
-            $response = $notifier->actions->applyPersonalSchemeForClientAccount($this->clientAccountId, $this->events);
-        } catch (ErrorException $e) {
-            Yii::$app->session->addFlash(
-                'error',
-                'Ошибка работы с MAILER. Текст ошибки:' . $e->getMessage()
+            return Notifier::getInstance()->actions->applySchemePersonal(
+                $this->clientAccount->id,
+                $this->events,
+                Yii::$app->user->getId() ?: User::SYSTEM_USER_ID
             );
-            return false;
         } catch (\Exception $e) {
-            Yii::$app->session->addFlash(
-                'error',
-                'Отсутствует соединение с MAILER' . PHP_EOL . Html::tag('br') . 'Ошибка: ' . $e->getMessage()
-            );
-            return false;
+            return $this->catchException($e);
         }
-
-        if (!is_array($response) || empty($response['updated'])) {
-            Yii::$app->session->addFlash('error', 'Ошибка формата данных MAILER');
-            return false;
-        }
-
-        Yii::$app->session->addFlash('success', 'Данные успешно обновлены (' . $response['updated'] . ' позиций)');
-        return true;
     }
 
 }

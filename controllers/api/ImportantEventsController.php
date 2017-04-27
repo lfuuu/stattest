@@ -2,13 +2,13 @@
 
 namespace app\controllers\api;
 
-use Yii;
-use app\exceptions\ModelValidationException;
-use app\classes\DynamicModel;
 use app\classes\ApiInternalController;
+use app\classes\DynamicModel;
+use app\exceptions\ModelValidationException;
 use app\models\important_events\ImportantEvents;
-use app\models\light_models\ImportantEventLight;
 use app\models\important_events\ImportantEventsNames;
+use app\models\light_models\ImportantEventLight;
+use Yii;
 
 class ImportantEventsController extends ApiInternalController
 {
@@ -174,8 +174,7 @@ class ImportantEventsController extends ApiInternalController
 
         if (!$applyFilter) {
             $result->limit(1);
-        }
-        else {
+        } else {
             if ((int)$model->limit) {
                 $result->limit($model->limit);
             }
@@ -183,7 +182,9 @@ class ImportantEventsController extends ApiInternalController
 
         return array_map(function(ImportantEvents $event) {
             $formattedResult = new ImportantEventLight;
-            $formattedResult->setAttributes($event->getAttributes());
+            $formattedResult->setAttributes($event->getAttributes() + [
+                'country_code' => $event->clientAccount ? $event->clientAccount->country->code : null,
+            ]);
             return $formattedResult;
         }, $result->all());
     }

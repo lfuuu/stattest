@@ -1,4 +1,4 @@
-<?
+<?php
 class m_services_head extends IModuleHead {
 	public $module_name	= 'services';
 	public $module_title = 'Услуги';

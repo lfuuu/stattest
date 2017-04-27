@@ -1,4 +1,4 @@
-<?
+<?php
 use app\models\Bill;
 use app\models\ClientAccount;
 use app\classes\documents\DocumentReportFactory;

@@ -197,9 +197,9 @@ echo \yii\widgets\Breadcrumbs::widget([
                                         break;
                                     case NumberLog::ACTION_CREATE:
                                         if ($log['addition'] == "N") {
-                                            ?><b>Номер высвобожден</b><?
+                                            echo '<b>Номер высвобожден</b>';
                                         } else {
-                                            ?><b>Номер создан</b><?
+                                            echo '<b>Номер создан</b>';
                                         }
                                         ?>
                                     <?php } ?>

@@ -62,8 +62,6 @@ class Event
     const ACCOUNT_BLOCKED = 'account_blocked';
     const ACCOUNT_UNBLOCKED = 'account_unblocked';
     const PARTNER_REWARD = 'partner_reward';
-    const PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT = 'publish_notification_scheme_for_client_account';
-    const PUBLISH_NOTIFICATION_SCHEME = 'publish_notification_scheme';
     const VPBX_BLOCKED = 'vpbx_blocked';
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
 

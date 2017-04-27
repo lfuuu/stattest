@@ -1,4 +1,4 @@
-<?
+<?php
 use app\classes\Encrypt;
 
 class m_send {

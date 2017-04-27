@@ -33,7 +33,7 @@ IP сети: {$router.net}<br>
           <TD class=header vAlign=bottom width="15%">PPP-логины</TD>
           <TD class=header vAlign=bottom width="20%">{sort_link sort=4 text='Адрес' link='?module=routers&id=' link2=$router.router sort_cur=$sort so_cur=$so}</TD>
         </TR>
-<?
+
 {foreach from=$router_clients item=item name=outer}
 <TR class={if $smarty.foreach.outer.iteration%2==0}even{else}odd{/if}>
           <TD><a href='/client/view?id={$item.clientid}'>{$item.client_company}</a></TD>

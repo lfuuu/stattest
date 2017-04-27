@@ -1,4 +1,4 @@
-<?
+<?php
 
 define("print_sql", 1);
 	define('NO_WEB',1);

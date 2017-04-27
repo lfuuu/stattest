@@ -29,7 +29,7 @@ echo Breadcrumbs::widget([
     foreach ($dataForm->getAvailableCountries() as $countryCode => $countryName) {
         $tabs[] = [
             'label' => $countryName,
-            'content' => $this->render('form',
+            'content' => $this->render('grid',
                 [
                     'dataForm' => $dataForm,
                     'countryCode' => $countryCode,

@@ -7,14 +7,17 @@ use app\models\important_events\ImportantEventsNames;
 class EventNameColumn extends \kartik\grid\DataColumn
 {
 
-    public
-        $label = 'Событие',
-        $attribute = 'event',
-        $value = 'event',
-        $filterType = '\app\widgets\multiselect\MultiSelect',
-        $filterInputOptions = [];
+    /** @var string */
+    public $label = 'Событие';
 
-    private $eventsList = [];
+    /** @var string */
+    public $filterType = '\app\widgets\multiselect\MultiSelect';
+
+    /** @var array */
+    public $filterInputOptions = [];
+
+    /** @var array */
+    private $_eventsList = [];
 
     /**
      * @param array $config
@@ -25,7 +28,7 @@ class EventNameColumn extends \kartik\grid\DataColumn
 
         foreach (ImportantEventsNames::find()->each() as $event) {
             $eventsList[$event->group->title][$event->code] = $event->value;
-            $this->eventsList[$event->code] = $event->value;
+            $this->_eventsList[$event->code] = $event->value;
         }
 
         $this->filterWidgetOptions['data'] = $eventsList;
@@ -48,7 +51,7 @@ class EventNameColumn extends \kartik\grid\DataColumn
     protected function renderDataCellContent($model, $key, $index)
     {
         $value = parent::getDataCellValue($model, $key, $index);
-        return isset($this->eventsList[$value]) ? $this->eventsList[$value] : $value;
+        return array_key_exists($value, $this->_eventsList) ? $this->_eventsList[$value] : $value;
     }
 
 }

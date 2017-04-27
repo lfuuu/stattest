@@ -1,4 +1,4 @@
-<?
+<?php
 class m_logs_head extends IModuleHead{
 	public $module_name = 'logs';
 	public $module_title = 'Логи';

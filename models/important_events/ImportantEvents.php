@@ -23,7 +23,17 @@ use app\models\TagsResource;
  * @property int $client_id
  * @property string $event
  * @property int $source_id
+ * @property int $from_ip
  * @property string $comment
+ * @property string $context - JSON formatted
+ *
+ * @property string $title
+ * @property ImportantEventsNames $name
+ * @property ClientAccount $clientAccount
+ * @property ImportantEventsSources $source
+ * @property array $tags
+ * @property array $tagList
+ * @property float $balance
  * @property array $properties
  */
 class ImportantEvents extends ActiveRecord
@@ -153,14 +163,6 @@ class ImportantEvents extends ActiveRecord
     }
 
     /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRules()
-    {
-        return $this->hasMany(ImportantEventsRules::className(), ['event' => 'event']);
-    }
-
-    /**
      * @return string
      */
     public function getTitle()
@@ -225,11 +227,11 @@ class ImportantEvents extends ActiveRecord
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => false,
             'pagination' => [
                 'pageSize' => self::ROWS_PER_PAGE,
             ],
         ]);
-        $dataProvider->sort = false;
 
         if (!($this->load($params) && $this->validate())) {
             if ($fixclient_data) {

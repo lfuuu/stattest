@@ -197,7 +197,7 @@ function doEvents()
                 case Event::LK_SETTINGS_TO_MAILER: {
                     /** @var \app\modules\notifier\Module $notifier */
                     $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applyPersonalLkSchemeForClientAccount($param['client_account_id']);
+                    $notifier->actions->applySchemePersonalSubscribe($param);
                     break;
                 }
 
@@ -225,7 +225,7 @@ function doEvents()
                     break;
 
                 case Event::ADD_ACCOUNT:
-                    Event::go(Event::PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT, $param);
+                    // Пока ничего не делаем
                     break;
 
                 case Event::USAGE_VIRTPBX__INSERT:
@@ -323,20 +323,6 @@ function doEvents()
 
                 case Event::PARTNER_REWARD: {
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
-                    break;
-                }
-
-                case Event::PUBLISH_NOTIFICATION_SCHEME_FOR_CLIENT_ACCOUNT: {
-                    /** @var \app\modules\notifier\Module $notifier */
-                    $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applySchemeForClientAccount($clientAccountId = $param);
-                    break;
-                }
-
-                case Event::PUBLISH_NOTIFICATION_SCHEME: {
-                    /** @var \app\modules\notifier\Module $notifier */
-                    $notifier = Yii::$app->getModule('notifier');
-                    $notifier->actions->applySchemeForCountry($param['country'], $param['user_id']);
                     break;
                 }
             }

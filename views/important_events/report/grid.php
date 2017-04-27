@@ -9,6 +9,8 @@ use app\classes\Html;
 use app\classes\important_events\ImportantEventsDetailsFactory;
 use app\helpers\DateTimeZoneHelper;
 use app\models\important_events\ImportantEvents;
+use kartik\daterange\DateRangePicker;
+use kartik\grid\ExpandRowColumn;
 use yii\data\ActiveDataProvider;
 
 /** @var ActiveDataProvider $dataProvider */
@@ -16,16 +18,12 @@ use yii\data\ActiveDataProvider;
 
 echo Html::formLabel('Лог значимых событий');
 
-foreach (\app\models\important_events\ImportantEventsNames::find()->all() as $event) {
-    $eventsList[$event->group->title][$event->code] = $event->value;
-}
-
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => [
         [
-            'class' => 'kartik\grid\ExpandRowColumn',
+            'class' => ExpandRowColumn::className(),
             'width' => '50px',
             'value' => function () {
                 return GridView::ROW_COLLAPSED;
@@ -44,10 +42,13 @@ echo GridView::widget([
             'attribute' => 'date',
             'width' => '15%',
             'format' => 'raw',
-            'filter' => \kartik\daterange\DateRangePicker::widget([
+            'filter' => DateRangePicker::widget([
                 'name' => $filterModel->formName() . '[date]',
                 'presetDropdown' => true,
-                'value' => $filterModel->date ?: (new DateTime)->format(DateTimeZoneHelper::DATE_FORMAT) . ' - ' . (new DateTime)->format(DateTimeZoneHelper::DATE_FORMAT),
+                'value' => $filterModel->date ?:
+                    (new DateTime)->format(DateTimeZoneHelper::DATE_FORMAT) .
+                    ' - ' .
+                    (new DateTime)->format(DateTimeZoneHelper::DATE_FORMAT),
                 'pluginOptions' => [
                     'locale' => [
                         'format' => 'YYYY-MM-DD',
@@ -64,6 +65,7 @@ echo GridView::widget([
             },
         ],
         [
+            'attribute' => 'event',
             'class' => EventNameColumn::class,
             'width' => '15%',
         ],
