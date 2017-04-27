@@ -122,7 +122,6 @@ class Event
         self::ACCOUNT_UNBLOCKED => 'ЛС разблокирован',
         SyncVmCollocation::EVENT_SYNC => 'API VM manager',
         self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',
-        self::PUBLISH_NOTIFICATION_SCHEME => 'Публикация схемы уведомлений',
         self::VPBX_BLOCKED => 'Блокировка ВАТС',
         self::VPBX_UNBLOCKED => 'Разблокировка ВАТС'
     ];
