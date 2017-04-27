@@ -49,7 +49,7 @@ echo GridView::widget([
             'label' => 'Email (официальный)',
             'format' => 'raw',
             'value' => function (WhiteListEventDecorator $data) use ($baseView, $personalScheme, $globalSchemeForm, $globalScheme) {
-                return $baseView->render('_wtf-radio-group', [
+                return $baseView->render('_radio-group', [
                     'inputName' => 'FormData[events][' . $data->code . '][' . Schemes::NOTIFICATION_TYPE_EMAIL . ']',
                     'value' => isset($personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_EMAIL]) ?
                         $personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_EMAIL] :
@@ -82,7 +82,7 @@ echo GridView::widget([
             'label' => 'Sms (официальный)',
             'format' => 'raw',
             'value' => function (WhiteListEventDecorator $data) use ($baseView, $personalScheme, $globalSchemeForm, $globalScheme) {
-                return $baseView->render('_wtf-radio-group', [
+                return $baseView->render('_radio-group', [
                     'inputName' => 'FormData[events][' . $data->code . '][' . Schemes::NOTIFICATION_TYPE_SMS . ']',
                     'value' => isset($personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_SMS]) ?
                         $personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_SMS] :
