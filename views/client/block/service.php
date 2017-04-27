@@ -103,7 +103,7 @@ if ($has) :
                                            target="_blank">
                                             <img class=icon src='/images/icons/act.gif' alt='Отправить акт по почте'>
                                         </a>
-                                    <? endif; ?>
+                                    <?php endif; ?>
                                     <?php /*if ($actual($service->actual_from, $service->actual_to)): ?>
                                     <a href="/?module=services&action=in_close&id=<?= $service->id ?>">
                                         <img class=icon src='/images/icons/delete.gif' alt="Отключить">
@@ -382,8 +382,7 @@ if ($has) :
                                                 (
                                                     <abbr title="Кол-во минут по тарифу"><?= $package->tariff->minutes_count; ?></abbr>
                                                 )</span><br />
-                                            <?endforeach;
-                                            ?>
+                                            <?php endforeach; ?>
                                         </div>
                                     </td>
                                     <td>

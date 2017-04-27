@@ -71,5 +71,5 @@ $tagsUsedInto = $formModel->resourcesMap($model->resourceNames);
         <?= $this->render('//layouts/_submitButton' . (!$model->primaryKey ? 'Create' : 'Save')) ?>
     </div>
 
-    <? ActiveForm::end() ?>
+    <?php ActiveForm::end() ?>
 </div>

@@ -46,25 +46,25 @@ $currentBusinessProcessStatus = BusinessProcessStatus::findOne($contractForm->bu
 
                     <?php if ($account->lkWizardState->step == 3) : ?>
 
-                        <? if ($account->lkWizardState->step != LkWizardState::STATE_REJECTED) : ?>
+                        <?php if ($account->lkWizardState->step != LkWizardState::STATE_REJECTED) : ?>
                             | <?= Html::a('отклонить', ['/account/change-wizard-state', 'id' => $account->id, 'state' => LkWizardState::STATE_REJECTED]) ?>
                         <?php endif; ?>
 
-                        <? if ($account->lkWizardState->step != LkWizardState::STATE_APPROVE) : ?>
+                        <?php if ($account->lkWizardState->step != LkWizardState::STATE_APPROVE) : ?>
                             | <?= Html::a('одобрить', ['/account/change-wizard-state', 'id' => $account->id, 'state' => LkWizardState::STATE_APPROVE]) ?>
                         <?php endif; ?>
 
-                        <? if ($account->lkWizardState->step != LkWizardState::STATE_REVIEW) : ?>
+                        <?php if ($account->lkWizardState->step != LkWizardState::STATE_REVIEW) : ?>
                             | <?= Html::a('рассмотрение', ['/account/change-wizard-state', 'id' => $account->id, 'state' => LkWizardState::STATE_REVIEW]) ?>
                         <?php endif; ?>
 
                     <?php endif; ?>
 
-                    <? if ($account->lkWizardState->step != 1): ?>
+                    <?php if ($account->lkWizardState->step != 1): ?>
                         | <?= Html::a('*первый шаг*', ['/account/change-wizard-state', 'id' => $account->id, 'state' => 'first']) ?>
                     <?php endif; ?>
 
-                    <? if ($account->lkWizardState->step != 3): ?>
+                    <?php if ($account->lkWizardState->step != 3): ?>
                         | <?= Html::a('*след шаг*', ['/account/change-wizard-state', 'id' => $account->id, 'state' => 'next']) ?>
                     <?php endif; ?>
                     ]
