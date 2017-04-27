@@ -145,7 +145,7 @@ foreach ($conf[$p_region][$p_dest]['pricelists'] as $pricelistId) {
         'position' => $count++,
         'pricelist_id' => $pricelistId,
         'param' => 'd1',
-        'date' => DateTimeZoneHelper::DATE_FORMAT
+        'date' => date(DateTimeZoneHelper::DATE_FORMAT)
     ];
 }
 
