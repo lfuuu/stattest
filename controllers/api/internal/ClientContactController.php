@@ -105,8 +105,8 @@ class ClientContactController extends ApiInternalController
 
     /**
      * @SWG\GET(
-     *   tags={"Список персональных контактов лицевого счета"},
-     *   path="/internal/client-contact/get/",
+     *   tags={"Список контактов лицевого счета"},
+     *   path="/internal/client-contact/get-personal/",
      *   summary="Получение списка персональных контактов лицевого счета",
      *   operationId="Получение списка персональных контактов лицевого счета",
      *   @SWG\Parameter(name="clientAccountId",type="integer",description="ID лицевого счета",in="query",required=true,default=""),
