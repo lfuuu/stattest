@@ -398,6 +398,7 @@ class CallsRawFilter extends Model
                     'st.contract_number || \' (\' || cct.name || \')\' src_contract_name',
                     'sale' => new Expression(self::getMoneyCalculateExpression('@(cr.cost)')),
                     'orig_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
+                    'cr.server_id'
                 ]
             )
             ->from('calls_raw.calls_raw cr')
@@ -426,6 +427,7 @@ class CallsRawFilter extends Model
                 'st.contract_number || \' (\' || cct.name || \')\' dst_contract_name',
                 'cost_price' => new Expression(self::getMoneyCalculateExpression('cr.cost')),
                 'term_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
+                'cr.server_id'
             ]
         )
             ->from('calls_raw.calls_raw cr')
@@ -482,7 +484,7 @@ class CallsRawFilter extends Model
                 '(@(cr1.sale)) - cr2.cost_price margin',
             ]
         )->from('cr1')
-            ->join('JOIN', 'cr2', 'cr1.cdr_id = cr2.cdr_id');
+            ->join('JOIN', 'cr2', ['AND', 'cr1.cdr_id = cr2.cdr_id', 'cr1.server_id = cr2.server_id']);
 
         if ($this->server_ids) {
             $condition = ['cr.server_id' => $this->server_ids];
