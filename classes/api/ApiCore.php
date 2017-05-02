@@ -194,7 +194,7 @@ class ApiCore
      * @return string
      * @throws ModelValidationException
      */
-    public function syncCoreAdmin($params)
+    public static function syncCoreAdmin($params)
     {
         $accountSync = new CoreSyncIds;
         $accountSync->id = $params['id'];
