@@ -1,10 +1,12 @@
 <?php
 namespace app\commands;
 
+use app\classes\api\SberbankApi;
 use app\helpers\DateTimeZoneHelper;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use app\models\SberbankOrder;
 use app\models\Transaction;
 use Yii;
 use DateTime;
@@ -248,5 +250,35 @@ class BillerController extends Controller
                 }
             ),
             2);
+    }
+
+    /**
+     * Завершение сбербанковских платежей
+     */
+    public function actionSberbankOrdersFinishing()
+    {
+        $date = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
+            ->modify('-3 days');
+
+        $sberbankApi = new SberbankApi();
+
+        $orderQuery = SberbankOrder::find()
+            ->where([
+                'status' => SberbankOrder::STATUS_REGISTERED
+            ])
+            ->andWhere(['>', 'created_at', $date->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+
+        /** @var SberbankOrder $order */
+        foreach ($orderQuery->each() as $order) {
+            $info = $sberbankApi->getOrderStatusExtended($order->order_id);
+
+            if ($info['orderStatus'] == SberbankOrder::STATUS_PAYED) {
+                $order->makePayment($info);
+
+                ClientAccount::dao()->updateBalance($order->bill->client_id);
+
+                echo PHP_EOL . date("r") . ': ' . $order->bill_no . ' - payed';
+            }
+        }
     }
 }

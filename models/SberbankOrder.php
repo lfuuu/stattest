@@ -1,6 +1,8 @@
 <?php
 namespace app\models;
 
+use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveRecord;
 use app\classes\behaviors\CreatedAt;
 
@@ -53,5 +55,55 @@ class SberbankOrder extends ActiveRecord
     public function getBill()
     {
         return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * Создание платежа на основе сбербанковского заказа
+     *
+     * @param array $info
+     * @throws \Exception
+     */
+    public function makePayment($info)
+    {
+
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+            $now = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)));
+
+            $payment = new Payment();
+
+            $bill = $this->bill;
+
+            $payment->client_id = $bill->client_id;
+            $payment->bill_no = $payment->bill_vis_no = $bill->bill_no;
+            $payment->add_date = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $payment->payment_date = $payment->oper_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
+            $payment->type = Payment::TYPE_ECASH;
+            $payment->ecash_operator = Payment::ECASH_SBERBANK;
+            $payment->comment = "Sberbank payment #" . $bill->client_id . '-' . $bill->bill_no . ' (' . $info['cardAuthInfo']['cardholderName'] . ')';
+            $payment->sum = $payment->original_sum = $info['amount'] / 100;
+            $payment->currency = Currency::getIdByCode($info['currency']);
+
+            if (!$payment->save()) {
+                throw new ModelValidationException($payment);
+            }
+
+            $payment->refresh();
+
+            $this->payment_id = $payment->id;
+            $this->info_json = json_encode($info, JSON_UNESCAPED_UNICODE);
+            $this->status = SberbankOrder::STATUS_PAYED;
+            if (!$this->save()) {
+                throw new ModelValidationException($this);
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            \Yii::error($e);
+            throw $e;
+        }
+
+
     }
 }

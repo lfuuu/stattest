@@ -345,37 +345,7 @@ class LkController extends ApiController
             throw new \Exception($info['errorMessage']);
         }
 
-        $transaction = \Yii::$app->db->beginTransaction();
-        try {
-            $now = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)));
-
-            $payment = new Payment();
-
-            $bill = $sbOrder->bill;
-
-            $payment->client_id = $bill->client_id;
-            $payment->bill_no = $payment->bill_vis_no = $bill->bill_no;
-            $payment->add_date = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
-            $payment->payment_date = $payment->oper_date = $now->format(DateTimeZoneHelper::DATE_FORMAT);
-            $payment->type = Payment::TYPE_ECASH;
-            $payment->ecash_operator = Payment::ECASH_SBERBANK;
-            $payment->comment = "Sberbank payment #" . $bill->client_id . '-' . $bill->bill_no . ' (' . $info['cardAuthInfo']['cardholderName'] . ')';
-            $payment->sum = $payment->original_sum = $info['amount'] / 100;
-            $payment->currency = Currency::getIdByCode($info['currency']);
-
-            $payment->save();
-            $payment->refresh();
-
-            $sbOrder->payment_id = $payment->id;
-            $sbOrder->info_json = json_encode($info, JSON_UNESCAPED_UNICODE);
-            $sbOrder->status = SberbankOrder::STATUS_PAYED;
-            $sbOrder->save();
-        }catch (\Exception $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-
-        $transaction->commit();
+        $sbOrder->makePayment($info);
 
         ClientAccount::dao()->updateBalance($sbOrder->bill->client_id);
 
