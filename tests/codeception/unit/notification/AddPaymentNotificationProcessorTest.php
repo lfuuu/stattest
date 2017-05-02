@@ -40,10 +40,12 @@ class AddPaymentNotificationProcessorTest extends \yii\codeception\TestCase
         $c = new ClientContact;
         $c->client_id = $account->id;
         $c->type = 'email';
-        $c->data = 'test' . $account->id . '@mcn.ru.loc';
+        $c->data = 'test' . $account->id . '@mcn.ru';
         $c->is_official = 1;
         $c->user_id = 0;
-        $c->save();
+        if (!$c->save()) {
+            $this->fail(implode('', $c->getFirstErrors()));
+        }
 
         $row = new LkNoticeSetting();
         $row->client_id = $account->id;
@@ -51,8 +53,9 @@ class AddPaymentNotificationProcessorTest extends \yii\codeception\TestCase
         $row->add_pay_notif = 1;
         $row->status = LkNoticeSetting::STATUS_WORK;
         $row->activate_code = '';
-        $row->save();
-
+        if (!$row->save()) {
+            $this->fail(implode('', $row->getFirstErrors()));
+        }
 
         $now = new \DateTime('now', new \DateTimeZone('UTC'));
 
@@ -62,8 +65,9 @@ class AddPaymentNotificationProcessorTest extends \yii\codeception\TestCase
         $payment->currency = Currency::RUB;
         $payment->payment_date = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $payment->comment = '';
-        $payment->save();
-
+        if (!$payment->save()) {
+            $this->fail(implode('', $payment->getFirstErrors()));
+        }
 
         $account->refresh();
 

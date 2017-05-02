@@ -10,7 +10,8 @@ use yii\helpers\Url;
  * Предварительное списание (транзакции) платы за ресурсы
  *
  * @property int $id
- * @property string $date
+ * @property string $date_from
+ * @property string $date_to
  * @property int $tariff_period_id  кэш accountTariff -> accountTariffLog -> tariff_period_id
  * @property int $tariff_resource_id
  * @property int $account_tariff_id
@@ -18,7 +19,8 @@ use yii\helpers\Url;
  * @property float $amount_free кэш tariffResource -> amount
  * @property float $amount_overhead кэш ceil(amount_use - amount_free)
  * @property float $price_per_unit кэш tariffResource -> price_per_unit
- * @property float $price кэш amount_overhead * price_per_unit
+ * @property int $coefficient кэш (date_to - date_from)
+ * @property float $price кэш amount_overhead * price_per_unit * $coefficient
  * @property string $insert_time
  * @property int $account_entry_id
  *
@@ -46,9 +48,9 @@ class AccountLogResource extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'tariff_period_id', 'account_tariff_id', 'tariff_resource_id'], 'integer'],
+            [['id', 'tariff_period_id', 'account_tariff_id', 'tariff_resource_id', 'coefficient'], 'integer'],
             [['price'], 'double'],
-            [['date'], 'string', 'max' => 255],
+            [['date_from', 'date_to'], 'string', 'max' => 10],
         ];
     }
 

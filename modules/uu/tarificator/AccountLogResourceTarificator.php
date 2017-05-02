@@ -3,13 +3,13 @@
 namespace app\modules\uu\tarificator;
 
 use app\helpers\DateTimeZoneHelper;
-use app\modules\uu\forms\AccountLogFromToTariff;
+use app\modules\uu\classes\AccountLogFromToResource;
+use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\TariffResource;
-use app\modules\uu\resourceReader\DummyResourceReader;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use DateTimeImmutable;
 use Yii;
@@ -32,19 +32,20 @@ class AccountLogResourceTarificator extends Tarificator
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить старые данные
-        AccountLogResource::deleteAll(['<', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
+        AccountLogResource::deleteAll(['<', 'date_from', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
 
         // рассчитать новое по каждой универсальной услуге
-        $accountTariffs = AccountTariff::find();
-        $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
+        $accountTariffQuery = AccountTariff::find();
+        $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         $i = 0;
-        foreach ($accountTariffs->each() as $accountTariff) {
+        /** @var AccountTariff $accountTariff */
+        foreach ($accountTariffQuery->each() as $accountTariff) {
             if ($i++ % 1000 === 0) {
                 $this->out('. ');
             }
 
-            /** @var AccountTariffLog $accountTariffLog */
+            /** @var AccountTariffLog[] $accountTariffLogs */
             $accountTariffLogs = $accountTariff->accountTariffLogs;
             $accountTariffLog = reset($accountTariffLogs);
             if (!$accountTariffLog ||
@@ -74,19 +75,67 @@ class AccountLogResourceTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге
      *
      * @param AccountTariff $accountTariff
+     * @throws \LogicException
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
-        // ресурсы, по которым произведен расчет
-        $accountLogsQuery = AccountLogResource::find()
-            ->where(['account_tariff_id' => $accountTariff->id]);
-        /** @var AccountLogResource $accountLog */
-        $accountLogs = [];
-        foreach ($accountLogsQuery->each() as $accountLog) {
-            $accountLogs[$accountLog->date][$accountLog->tariffResource->resource_id] = $accountLog;
-        }
+        $this->tarificateAccountTariffOption($accountTariff);
+        $this->tarificateAccountTariffTraffic($accountTariff);
+    }
 
-        $untarificatedPeriodss = $accountTariff->getUntarificatedResourcePeriods($accountLogs);
+    /**
+     * Рассчитать плату по конкретной услуге за ресурсы-опции (количество линий, запись звонков и пр.)
+     *
+     * @param AccountTariff $accountTariff
+     * @throws \LogicException
+     */
+    public function tarificateAccountTariffOption(AccountTariff $accountTariff)
+    {
+        /** @var AccountLogFromToResource[][] $untarificatedPeriodss */
+        $untarificatedPeriodss = $accountTariff->getUntarificatedResourceOptionPeriods();
+
+        /** @var AccountLogFromToResource[] $untarificatedPeriods */
+        foreach ($untarificatedPeriodss as $resourceId => $untarificatedPeriods) {
+
+            /** @var AccountLogFromToResource $untarificatedPeriod */
+            foreach ($untarificatedPeriods as $untarificatedPeriod) {
+
+                $tariffPeriod = $untarificatedPeriod->tariffPeriod;
+
+                /** @var TariffResource $tariffResource */
+                $tariffResource = TariffResource::findOne([
+                    'resource_id' => $resourceId,
+                    'tariff_id' => $tariffPeriod->tariff_id,
+                ]);
+
+                $this->out('+ ');
+
+                $accountLogResource = new AccountLogResource();
+                $accountLogResource->date_from = $untarificatedPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+                $accountLogResource->date_to = $untarificatedPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
+                $accountLogResource->tariff_period_id = $tariffPeriod->id;
+                $accountLogResource->account_tariff_id = $accountTariff->id;
+                $accountLogResource->tariff_resource_id = $tariffResource->id;
+                $accountLogResource->amount_use = $untarificatedPeriod->amount;
+                $accountLogResource->amount_free = $tariffResource->amount;
+                $accountLogResource->price_per_unit = $tariffResource->price_per_unit;
+                $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
+                $accountLogResource->coefficient = 1 + (int)$untarificatedPeriod->dateTo->diff($untarificatedPeriod->dateFrom)->format('%a'); // кол-во дней между dateTo и dateFrom
+                $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit * $accountLogResource->coefficient;
+                $accountLogResource->save();
+            }
+        }
+    }
+
+    /**
+     * Рассчитать плату по конкретной услуге за ресурсы-трафик (звонки и дисковое пространство)
+     *
+     * @param AccountTariff $accountTariff
+     * @throws \LogicException
+     */
+    public function tarificateAccountTariffTraffic(AccountTariff $accountTariff)
+    {
+        $untarificatedPeriodss = $accountTariff->getUntarificatedResourceTrafficPeriods();
 
         /** @var AccountLogFromToTariff[] $untarificatedPeriods */
         foreach ($untarificatedPeriodss as $dateYmd => $untarificatedPeriods) {
@@ -110,23 +159,16 @@ class AccountLogResourceTarificator extends Tarificator
 
                 /** @var ResourceReaderInterface $reader */
                 $reader = $this->resourceIdToReader[$resourceId];
-                if (!$reader) {
-                    continue;
-                }
-
                 $amountUse = $reader->read($accountTariff, $dateTime);
                 if ($amountUse === null) {
-                    if (!($reader instanceof DummyResourceReader)) {
-                        $this->out(PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- ' . $resourceId . PHP_EOL);
-                    }
-
+                    $this->out(PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- ' . $resourceId . PHP_EOL);
                     continue; // нет данных. Пропустить
-                } else {
-                    $this->out('+ ');
                 }
 
+                $this->out('+ ');
+
                 $accountLogResource = new AccountLogResource();
-                $accountLogResource->date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
+                $accountLogResource->date_from = $accountLogResource->date_to = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
                 $accountLogResource->tariff_period_id = $tariffPeriod->id;
                 $accountLogResource->account_tariff_id = $accountTariff->id;
                 $accountLogResource->tariff_resource_id = $tariffResource->id;
@@ -136,6 +178,7 @@ class AccountLogResourceTarificator extends Tarificator
                     $tariffResource->price_per_unit / $dateTime->format('t') : // это "цена за месяц", а надо перевести в "цену за день"
                     $tariffResource->price_per_unit; // это "цена за день", так и оставить
                 $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
+                $accountLogResource->coefficient = 1;
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
                 $accountLogResource->save();
             }

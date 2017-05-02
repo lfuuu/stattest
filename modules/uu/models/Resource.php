@@ -109,13 +109,7 @@ class Resource extends \yii\db\ActiveRecord
      */
     public static function getReader($id)
     {
-        $idToClassName = [
-            // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
-            self::ID_VPBX_DISK => VpbxDiskResourceReader::className(),
-
-            // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
-            self::ID_VOIP_CALLS => VoipCallsResourceReader::className(),
-        ];
+        $idToClassName = self::getReaderNames();
 
         if (!isset($idToClassName[$id])) {
             return null;
@@ -123,6 +117,20 @@ class Resource extends \yii\db\ActiveRecord
 
         $className = $idToClassName[$id];
         return new $className();
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getReaderNames()
+    {
+        return [
+            // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
+            self::ID_VPBX_DISK => VpbxDiskResourceReader::className(),
+
+            // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
+            self::ID_VOIP_CALLS => VoipCallsResourceReader::className(),
+        ];
     }
 
     /**

@@ -39,25 +39,13 @@ class TrunkColumn extends DataColumn
         // если выбран оператор, то в списке показать только его транки
         if ($this->filterByIds) {
             $filterByIds = $this->filterByIds;
-            $newFilter = [];
-            foreach ($this->filter as $trunkId => $trunk) {
-                if ($trunkId === '' || isset($filterByIds[$trunkId])) {
-                    $newFilter[$trunkId] = $trunk;
-                }
-            }
-
-            $this->filter = $newFilter;
-
-            // это извращение из-за того, что php 5.5 не понимает ARRAY_FILTER_USE_KEY
-            // когда везде будет php 5.6, то верхний кусок выпилить, а нижний раскомментировать
-            /*
-            $filterByIds = $this->filterByIds;
             $this->filter = array_filter(
                 $this->filter,
                 function ($trunkId) use ($filterByIds) {
                     return $trunkId === '' || isset($filterByIds[$trunkId]);
-                });
-            */
+                },
+                ARRAY_FILTER_USE_KEY
+            );
         }
     }
 

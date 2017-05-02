@@ -4,7 +4,7 @@
  * Объект сделан только для удобства, чтобы не оперировать массивом непонятной структуры
  */
 
-namespace app\modules\uu\forms;
+namespace app\modules\uu\classes;
 
 
 use app\helpers\DateTimeZoneHelper;
@@ -28,6 +28,7 @@ class AccountLogFromToTariff
     /**
      * Вернуть уникальный Id
      * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     *
      * @return string
      */
     public function getUniqueId()

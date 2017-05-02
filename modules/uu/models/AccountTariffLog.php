@@ -7,7 +7,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\FillAccountTariffResourceLog;
-use app\modules\uu\forms\AccountLogFromToTariff;
+use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
 use DateTime;

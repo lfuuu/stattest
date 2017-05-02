@@ -133,7 +133,7 @@ if ($monthDateTime) {
                 <?php if ($accountLogPeriod) : ?>
                     <span class="label label-<?= ($accountLogPeriod === 2) ? 'success' : 'warning' ?>"
                           title="Абонентская плата посчитана <?= ($accountLogPeriod === 2) ? 'и учтена' : ', но не учтена' ?> в проводке">+</span>
-                <?php elseif ($isNeedCalculate): ?>
+                <?php elseif ($isNeedCalculate) : ?>
                     <span class="label label-danger" title="Абонентская плата не посчитана">-</span>
                 <?php endif ?>
                 <br/>
@@ -153,13 +153,13 @@ if ($monthDateTime) {
                                 $resourceTitle .= ', но не учтена в проводках';
                                 $resourceClassName = 'warning';
                             }
-
                         } else {
 
                             $resourceTitle .= 'Плата за часть ресурсов не посчитана';
                             if ($accountLogResource !== $accountLogResourceWithEntry) {
                                 $resourceTitle .= ' и не учтена в проводках';
                             }
+
                             $resourceClassName = 'warning';
                         }
                     } else {
@@ -168,7 +168,8 @@ if ($monthDateTime) {
                     }
                     ?>
                     <span class="label label-<?= $resourceClassName ?>" title="<?= $resourceTitle ?>"><?= $accountLogResource ?></span>
-                <?php elseif ($accountLogResource): ?>
+
+                <?php elseif ($accountLogResource) : ?>
                     <?= $accountLogResource ?>
                 <?php endif ?>
                 <br/>

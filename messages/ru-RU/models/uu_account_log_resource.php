@@ -1,7 +1,8 @@
 <?php
 return [
     'id' => 'ID',
-    'date' => 'Дата',
+    'date_from' => 'Дата с',
+    'date_to' => 'Дата по',
     'insert_time' => 'Время расчета',
     'tariff_period_id' => 'Универсальный тариф',
     'tariff_resource_id' => 'Ресурс',
@@ -10,6 +11,7 @@ return [
     'amount_free' => 'Включено, ед./месяц',
     'amount_overhead' => 'Превышение, ед./сутки',
     'price_per_unit' => 'Цена за превышение, ¤/сутки',
+    'coefficient' => 'Количество суток',
     'price' => 'Стоимость, ¤',
     'account_entry_id' => 'Проводка',
 ];

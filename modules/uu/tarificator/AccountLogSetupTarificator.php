@@ -4,7 +4,7 @@ namespace app\modules\uu\tarificator;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\Number;
-use app\modules\uu\forms\AccountLogFromToTariff;
+use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -72,17 +72,7 @@ class AccountLogSetupTarificator extends Tarificator
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
-        /** @var AccountLogSetup[] $accountLogs */
-        $accountLogs = AccountLogSetup::find()
-            ->where('account_tariff_id = :account_tariff_id', [':account_tariff_id' => $accountTariff->id])
-            ->indexBy(function (AccountLogSetup $accountLogSetup) {
-                return $accountLogSetup->getUniqueId();
-            })
-            ->all(); // по которым произведен расчет
-
-        $accountTariff->accountTariffLogs;
-
-        $untarificatedPeriods = $accountTariff->getUntarificatedSetupPeriods($accountLogs);
+        $untarificatedPeriods = $accountTariff->getUntarificatedSetupPeriods();
         /** @var AccountLogFromToTariff $untarificatedPeriod */
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogSetup = $this->getAccountLogSetup($accountTariff, $untarificatedPeriod);

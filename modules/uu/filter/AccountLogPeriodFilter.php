@@ -37,6 +37,9 @@ class AccountLogPeriodFilter extends AccountLogPeriod
     public $service_type_id = '';
     public $tariff_period_id = '';
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -45,8 +48,8 @@ class AccountLogPeriodFilter extends AccountLogPeriod
             [['period_price_from', 'coefficient_from', 'price_from'], 'double'],
             [['period_price_to', 'coefficient_to', 'price_to'], 'double'],
 
-            [['date_from_from', 'date_to_from'], 'string', 'max' => 255],
-            [['date_from_to', 'date_to_to'], 'string', 'max' => 255],
+            [['date_from_from', 'date_to_from'], 'string', 'max' => 10],
+            [['date_from_to', 'date_to_to'], 'string', 'max' => 10],
         ];
     }
 

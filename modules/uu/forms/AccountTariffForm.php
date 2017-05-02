@@ -248,7 +248,7 @@ abstract class AccountTariffForm extends Form
 
                 // собственно, вся услуга заключается в этой стоимости ресурса
                 $accountLogResource = new AccountLogResource();
-                $accountLogResource->date = $this->accountTariffLog->actual_from;
+                $accountLogResource->date_from = $accountLogResource->date_to = $this->accountTariffLog->actual_from;
                 $accountLogResource->tariff_period_id = $this->accountTariffLog->tariff_period_id;
                 $accountLogResource->tariff_resource_id = reset($tariffResources)->id;
                 $accountLogResource->account_tariff_id = $this->accountTariff->id;
@@ -257,6 +257,7 @@ abstract class AccountTariffForm extends Form
                 $accountLogResource->amount_free = 0;
                 $accountLogResource->amount_overhead = $resourceOneTimeCost;
                 $accountLogResource->price_per_unit = 1;
+                $accountLogResource->coefficient = 1;
                 $accountLogResource->price = $resourceOneTimeCost;
                 if (!$accountLogResource->save()) {
                     $this->validateErrors += $accountLogResource->getFirstErrors();

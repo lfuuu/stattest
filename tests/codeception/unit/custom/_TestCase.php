@@ -17,6 +17,8 @@ use app\models\UsageTechCpe;
  * @method bool assertNotEmpty($value)
  * @method bool assertEmpty($value)
  * @method bool assertEquals($value1, $value2)
+ * @method bool assertTrue($value)
+ * @method bool assertFalse($value)
  */
 class _TestCase extends \yii\codeception\TestCase
 {

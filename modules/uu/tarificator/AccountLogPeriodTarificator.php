@@ -3,7 +3,7 @@
 namespace app\modules\uu\tarificator;
 
 use app\helpers\DateTimeZoneHelper;
-use app\modules\uu\forms\AccountLogFromToTariff;
+use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -69,19 +69,12 @@ class AccountLogPeriodTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге
      *
      * @param AccountTariff $accountTariff
+     * @throws \RangeException
+     * @throws \LogicException
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
-        // по которым произведен расчет
-        /** @var AccountLogPeriod[] $accountLogs */
-        $accountLogs = AccountLogPeriod::find()
-            ->where(['account_tariff_id' => $accountTariff->id])
-            ->indexBy(function (AccountLogPeriod $accountLogPeriod) {
-                return $accountLogPeriod->getUniqueId();
-            })
-            ->all();
-
-        $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods($accountLogs);
+        $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods();
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
             $accountLogPeriod->save();

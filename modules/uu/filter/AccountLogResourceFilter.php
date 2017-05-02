@@ -16,8 +16,11 @@ class AccountLogResourceFilter extends AccountLogResource
 {
     public $id = '';
 
-    public $date_from = '';
-    public $date_to = '';
+    public $date_from_from = '';
+    public $date_from_to = '';
+
+    public $date_to_from = '';
+    public $date_to_to = '';
 
     public $amount_use_from = '';
     public $amount_use_to = '';
@@ -30,6 +33,9 @@ class AccountLogResourceFilter extends AccountLogResource
 
     public $price_per_unit_from = '';
     public $price_per_unit_to = '';
+
+    public $coefficient_from = '';
+    public $coefficient_to = '';
 
     public $price_from = '';
     public $price_to = '';
@@ -44,6 +50,7 @@ class AccountLogResourceFilter extends AccountLogResource
 
     /**
      * Вернуть имена полей
+     *
      * @return array [полеВТаблице => Перевод]
      */
     public function attributeLabels()
@@ -53,6 +60,9 @@ class AccountLogResourceFilter extends AccountLogResource
             ] + parent::attributeLabels();
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
@@ -61,8 +71,10 @@ class AccountLogResourceFilter extends AccountLogResource
             [['amount_free_from', 'amount_free_to'], 'double'],
             [['amount_overhead_from', 'amount_overhead_to'], 'double'],
             [['price_per_unit_from', 'price_per_unit_to'], 'double'],
+            [['coefficient_from', 'coefficient_to'], 'double'],
             [['price_from', 'price_to'], 'double'],
-            [['date_from', 'date_to'], 'string', 'max' => 255],
+            [['date_from_from', 'date_to_from'], 'string', 'max' => 10],
+            [['date_from_to', 'date_to_to'], 'string', 'max' => 10],
         ];
     }
 
@@ -88,8 +100,11 @@ class AccountLogResourceFilter extends AccountLogResource
 
         $this->id !== '' && $query->andWhere([$accountLogResourceTableName . '.id' => $this->id]);
 
-        $this->date_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.date', $this->date_from]);
-        $this->date_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.date', $this->date_to]);
+        $this->date_from_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.date_from', $this->date_from_from]);
+        $this->date_from_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.date_from', $this->date_from_to]);
+
+        $this->date_to_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.date_to', $this->date_to_from]);
+        $this->date_to_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.date_to', $this->date_to_to]);
 
         $this->amount_use_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.amount_use', $this->amount_use_from]);
         $this->amount_use_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.amount_use', $this->amount_use_to]);
@@ -102,6 +117,9 @@ class AccountLogResourceFilter extends AccountLogResource
 
         $this->price_per_unit_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.price_per_unit', $this->price_per_unit_from]);
         $this->price_per_unit_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.price_per_unit', $this->price_per_unit_to]);
+
+        $this->coefficient_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.coefficient', $this->coefficient_from]);
+        $this->coefficient_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.coefficient', $this->coefficient_to]);
 
         $this->price_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.price', $this->price_to]);

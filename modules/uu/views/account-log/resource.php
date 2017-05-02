@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -38,7 +39,11 @@ $columns = [
         'class' => IntegerColumn::className(),
     ],
     [
-        'attribute' => 'date',
+        'attribute' => 'date_from',
+        'class' => DateRangeDoubleColumn::className(),
+    ],
+    [
+        'attribute' => 'date_to',
         'class' => DateRangeDoubleColumn::className(),
     ],
     [
@@ -88,6 +93,10 @@ $columns = [
         'class' => FloatRangeColumn::className(),
     ],
     [
+        'attribute' => 'coefficient',
+        'class' => IntegerRangeColumn::className(),
+    ],
+    [
         'attribute' => 'price',
         'class' => FloatRangeColumn::className(),
     ],
@@ -100,6 +109,7 @@ $columns = [
             if (!$accountEntry) {
                 return Yii::t('common', '(not set)');
             }
+
             return Html::a($accountEntry->date, $accountEntry->getUrl());
         }
     ],
