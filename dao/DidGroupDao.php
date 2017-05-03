@@ -154,6 +154,11 @@ class DidGroupDao extends Singleton
                 continue;
             }
 
+            if ($city->id == City::MOSCOW) {
+                $data[$city->id] = $didGroupsByCity[$city->id];
+                continue;
+            }
+
             $cityData = $anyDidgroups;
 
             if (isset($didGroupsByCity[$city->id])) {
