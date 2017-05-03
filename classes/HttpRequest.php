@@ -2,7 +2,6 @@
 
 namespace app\classes;
 
-use app\exceptions\InvalidHttpRequestException;
 use Yii;
 use yii\base\InvalidCallException;
 use yii\httpclient\Response;
@@ -49,20 +48,24 @@ class HttpRequest extends \yii\httpclient\Request
      * Выполнить запрос
      *
      * @return Response
+     * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
      */
     public function send()
     {
-        $debugInfo = $this->_getDebugInfo();
-        Yii::info('Json request: ' . $debugInfo);
+        $debugInfoRequest = 'Request: ' . $this->_getDebugInfo();
+        Yii::info($debugInfoRequest);
+        $httpClientLogger = HttpClientLogger::me();
+        $httpClientLogger->add($debugInfoRequest);
 
         $response = parent::send();
 
-        $debugInfo .= sprintf('response = %s', print_r($response->data, true)) . PHP_EOL;
-        Yii::info('Json response: ' . $debugInfo);
+        $debugInfoResponse = sprintf('Response = %s', print_r($response->data, true)) . PHP_EOL;
+        Yii::info($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse);
+        $httpClientLogger->add($debugInfoResponse);
 
         if (!$response->getIsOk()) {
-            throw new BadRequestHttpException($debugInfo);
+            throw new BadRequestHttpException($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse);
         }
 
         return $response;
@@ -95,8 +98,6 @@ class HttpRequest extends \yii\httpclient\Request
 
         if (isset($responseData['errors']) && $responseData['errors']) {
 
-            $msg = '';
-
             if (isset($responseData['errors']['message'], $responseData['errors']['code'])) {
                 $msg = $responseData['errors']['message'];
                 $code = $responseData['errors']['code'];
@@ -114,12 +115,7 @@ class HttpRequest extends \yii\httpclient\Request
                 $msg = '';
             }
 
-            $exception = new InvalidHttpRequestException($msg, is_numeric($code) ? $code : -1);
-
-            $exception->debugInfo .= print_r($this->_getDebugInfo(), true) . PHP_EOL . PHP_EOL;
-            $exception->debugInfo .= print_r($responseData, true);
-
-            throw $exception;
+            throw new InvalidCallException($msg, is_numeric($code) ? $code : -1);
         }
 
         return $responseData;

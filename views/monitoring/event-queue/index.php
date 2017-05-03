@@ -83,21 +83,36 @@ $columns = [
             'class' => 'popover-width-auto',
         ],
         'value' => function (EventQueue $eventQueue) {
-            if (!$eventQueue->log_error) {
-                return '';
+
+            if ($eventQueue->log_error) {
+                return Html::tag(
+                    'button',
+                    $eventQueue->log_error,
+                    [
+                        'class' => 'btn btn-xs btn-danger event-queue-log-error-button text-overflow-ellipsis',
+                        'data-toggle' => 'popover',
+                        'data-html' => 'true',
+                        'data-placement' => 'bottom',
+                        'data-content' => nl2br(htmlspecialchars($eventQueue->log_error . PHP_EOL . PHP_EOL . $eventQueue->trace)),
+                    ]
+                );
             }
 
-            return Html::tag(
-                'button',
-                $eventQueue->log_error,
-                [
-                    'class' => 'btn btn-xs btn-danger event-queue-log-error-button text-overflow-ellipsis',
-                    'data-toggle' => 'popover',
-                    'data-html' => 'true',
-                    'data-placement' => 'bottom',
-                    'data-content' => nl2br(htmlspecialchars($eventQueue->log_error . PHP_EOL . PHP_EOL . $eventQueue->trace)),
-                ]
-            );
+            if ($eventQueue->trace) {
+                return Html::tag(
+                    'button',
+                    'Лог',
+                    [
+                        'class' => 'btn btn-xs btn-info event-queue-log-error-button text-overflow-ellipsis',
+                        'data-toggle' => 'popover',
+                        'data-html' => 'true',
+                        'data-placement' => 'bottom',
+                        'data-content' => nl2br(htmlspecialchars($eventQueue->trace)),
+                    ]
+                );
+            }
+
+            return '';
         }
     ],
     [
@@ -111,10 +126,12 @@ $columns = [
             if (!$eventQueue->param) {
                 return '';
             }
+
             if ($eventQueue->param[0] !== '{') {
                 // не json
                 return $eventQueue->param;
             }
+
             $paramArray = json_decode($eventQueue->param, true);
             $paramString = print_r($paramArray, true);
             return Html::tag(

@@ -1,5 +1,5 @@
 <?php
-use app\exceptions\InvalidHttpRequestException;
+use app\classes\HttpClientLogger;
 
 /**
  * @property int $id
@@ -22,10 +22,10 @@ class EventQueue extends ActiveRecord\Model
      */
     public static function getPlanedEvents()
     {
-        return self::find("all", array(
-            "conditions" => array("status" => "plan"),
-            "order" => "id"
-            )
+        return self::find('all', [
+                'conditions' => ['status' => 'plan'],
+                'order' => 'id'
+            ]
         );
     }
 
@@ -34,10 +34,10 @@ class EventQueue extends ActiveRecord\Model
      */
     public static function getPlanedErrorEvents()
     {
-        return self::find("all", array(
-            "conditions" => array("status = ? and next_start < NOW()", ["error"]),
-            "order" => "id"
-        ));
+        return self::find('all', [
+            'conditions' => ['status = ? and next_start < NOW()', ['error']],
+            'order' => 'id'
+        ]);
     }
 
     /**
@@ -51,6 +51,12 @@ class EventQueue extends ActiveRecord\Model
             $this->log_error = $info;
         }
 
+        $httpClientLogger = HttpClientLogger::me();
+        $logs = $httpClientLogger->get();
+        if ($logs) {
+            $this->trace = implode(PHP_EOL . PHP_EOL, $logs);
+        }
+
         $this->status = 'ok';
         $this->save();
     }
@@ -62,15 +68,22 @@ class EventQueue extends ActiveRecord\Model
      */
     public function setError(Exception $e = null)
     {
-        /** @var InvalidHttpRequestException $e */
         list($this->status, $this->next_start) = self::_setNextStart($this);
         $this->iteration++;
 
         if ($e) {
-            $this->log_error = $e->getCode() . ": " . $e->getMessage();
-            $this->trace = ($e instanceof InvalidHttpRequestException ? $e->debugInfo : '') .
-                $e->getFile() . ":" . $e->getLine() . ";\n " .
-                $e->getTraceAsString();
+            $this->log_error = $e->getCode() . ': ' . $e->getMessage();
+
+            $httpClientLogger = HttpClientLogger::me();
+            $logs = $httpClientLogger->get();
+            if ($logs) {
+                $this->trace = implode(PHP_EOL . PHP_EOL, $logs) . PHP_EOL . PHP_EOL;
+            } else {
+                $this->trace = '';
+            }
+
+            $this->trace .= $e->getFile() . ':' . $e->getLine() . ';\n ' . $e->getTraceAsString();
+
             Yii::error($e);
         }
 
@@ -85,51 +98,69 @@ class EventQueue extends ActiveRecord\Model
      */
     private static function _setNextStart(EventQueue $o)
     {
-        switch ($o->iteration)
-        {
-            case 0:  $time = "+1 minute";
+        switch ($o->iteration) {
+            case 0:
+                $time = '+1 minute';
                 break;
-            case 1: $time = "+2 minute";
+            case 1:
+                $time = '+2 minute';
                 break;
-            case 2: $time = "+3 minute";
+            case 2:
+                $time = '+3 minute';
                 break;
-            case 3:  $time = "+5 minute";
+            case 3:
+                $time = '+5 minute';
                 break;
-            case 4:  $time = "+10 minute";
+            case 4:
+                $time = '+10 minute';
                 break;
-            case 5: $time = "+20 minute";
+            case 5:
+                $time = '+20 minute';
                 break;
-            case 6: $time = "+30 minute";
+            case 6:
+                $time = '+30 minute';
                 break;
-            case 7: $time = "+1 hour";
+            case 7:
+                $time = '+1 hour';
                 break;
-            case 8: $time = "+2 hour";
+            case 8:
+                $time = '+2 hour';
                 break;
-            case 9: $time = "+3 hour";
+            case 9:
+                $time = '+3 hour';
                 break;
-            case 10: $time = "+6 hour";
+            case 10:
+                $time = '+6 hour';
                 break;
-            case 11: $time = "+12 hour";
+            case 11:
+                $time = '+12 hour';
                 break;
-            case 12: $time = "+1 day";
+            case 12:
+                $time = '+1 day';
                 break;
-            case 13: $time = "+1 day";
+            case 13:
+                $time = '+1 day';
                 break;
-            case 14: $time = "+1 day";
+            case 14:
+                $time = '+1 day';
                 break;
-            case 15: $time = "+1 day";
+            case 15:
+                $time = '+1 day';
                 break;
-            case 16: $time = "+1 day";
+            case 16:
+                $time = '+1 day';
                 break;
-            case 17: $time = "+1 day";
+            case 17:
+                $time = '+1 day';
                 break;
-            case 18: $time = "+1 day";
+            case 18:
+                $time = '+1 day';
                 break;
-            default: 
-                return array('stop', date('Y-m-d H:i:s'));
+            default:
+                return ['stop', date('Y-m-d H:i:s')];
         }
 
-        return array('error', date('Y-m-d H:i:s', strtotime($time)));
+        return ['error', date('Y-m-d H:i:s', strtotime($time))];
     }
 
     /**
@@ -137,6 +168,6 @@ class EventQueue extends ActiveRecord\Model
      */
     public static function clean()
     {
-        EventQueue::table()->conn->query("delete from event_queue where date < date_sub(now(), INTERVAL 3 month)");
+        EventQueue::table()->conn->query('delete from event_queue where date < date_sub(now(), INTERVAL 3 month)');
     }
 }
