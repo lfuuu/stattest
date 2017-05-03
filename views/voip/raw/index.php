@@ -126,6 +126,3 @@ try {
         Yii::$app->session->addFlash('error', 'Ошибка выполнения запроса: ' . $e->getMessage());
     }
 }
-
-list($serverUrl, $siteUrl) = Yii::$app->assetManager->publish(__DIR__ . DIRECTORY_SEPARATOR . 'assets');
-$this->registerJsFile($siteUrl . '/index.js');
