@@ -1,5 +1,6 @@
 <?php
 
+use app\models\User;
 use tests\codeception\_pages\LoginPage;
 use tests\codeception\_pages\ClientViewPage;
 
@@ -80,7 +81,7 @@ $I->seeResponseContainsJson([
 $I->seeResponseContainsJson([
     "step3" => [
         "manager_name" => "Default manager",
-        "manager_phone" => "(495) 105-99-99"
+        "manager_phone" => User::DEFAULT_INCOMING_PHONE
     ]
 ]);
 
@@ -121,7 +122,7 @@ $s = [
     ],
     "step3" => [
         "manager_name" => "Default manager",
-        "manager_phone" => "(495) 105-99-99"
+        "manager_phone" => User::DEFAULT_INCOMING_PHONE
     ],
     "state" => [
         "step" => 1,

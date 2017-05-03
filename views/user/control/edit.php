@@ -81,7 +81,12 @@ echo Breadcrumbs::widget([
         'columns' => 4,
         'attributes' => [
             'email' => ['type' => Form::INPUT_TEXT],
-            'icq' => ['type' => Form::INPUT_TEXT],
+            'incoming_phone' => [
+                'type' => Form::INPUT_TEXT,
+                'options' => [
+                    'placeholder' => User::DEFAULT_INCOMING_PHONE
+                ]
+            ],
             'phone_work' => ['type' => Form::INPUT_TEXT],
             'phone_mobile' => ['type' => Form::INPUT_TEXT],
         ],
@@ -120,8 +125,9 @@ echo Breadcrumbs::widget([
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 4,
+        'columns' => 5,
         'attributes' => [
+            'icq' => ['type' => Form::INPUT_TEXT],
             'photo' => [
                 'type' => Form::INPUT_WIDGET,
                 'widgetClass' => FileInput::className(),

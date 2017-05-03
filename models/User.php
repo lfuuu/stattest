@@ -15,6 +15,7 @@ use yii\db\ActiveRecord;
  * @property string $name
  * @property string $email
  * @property string $phone_work
+ * @property string $incoming_phone
  * @property string $data_flag
  * @property integer $depart_id
  * @property string $enabled
@@ -38,6 +39,8 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const DEPART_PURCHASE = 29;
 
     const PHOTO_SIZE_OF_SQUARE_SIDE = 250;
+
+    const DEFAULT_INCOMING_PHONE = '+7 (495) 105-99-99';
 
     /**
      * @return string

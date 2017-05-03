@@ -271,13 +271,14 @@ class WizardMcnController extends WizardBaseController
         if (!$manager) {
             return [
                 "manager_name" => "",
-                "manager_phone" => "(495) 105-99-99"
+                "manager_phone" => User::DEFAULT_INCOMING_PHONE
             ];
         }
 
         return [
             "manager_name" => $manager->name,
-            "manager_phone" => "(495) 105-99-99" . ($manager->phone_work ? " доп. " . $manager->phone_work : "")
+            "manager_phone" => ($manager->incoming_phone ?: User::DEFAULT_INCOMING_PHONE) .
+                ($manager->phone_work ? " доп. " . $manager->phone_work : "")
         ];
     }
 

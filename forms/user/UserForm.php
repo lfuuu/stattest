@@ -20,6 +20,7 @@ class UserForm extends Form
         $user,
         $name,
         $email,
+        $incoming_phone,
         $phone_work,
         $phone_mobile,
         $icq,
@@ -44,6 +45,7 @@ class UserForm extends Form
                     'name',
                     'language',
                     'email',
+                    'incoming_phone',
                     'phone_work',
                     'phone_mobile',
                     'icq',
@@ -82,6 +84,7 @@ class UserForm extends Form
             'show_troubles_on_every_page' => 'Показывать заявки на каждой странице',
             'courier_id' => 'Привязка к курьеру',
             'enabled' => 'Пользователь активен',
+            'incoming_phone' => 'Входящий номер',
         ];
     }
 
