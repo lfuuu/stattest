@@ -6,7 +6,7 @@ use yii\web\AssetBundle;
 
 class LayoutMainAsset extends AssetBundle
 {
-    public $basePath = '@webroot';
+    public $basePath = '@webroot/views/layouts/';
     public $baseUrl = '@web/views/layouts/';
 
     public $css = [

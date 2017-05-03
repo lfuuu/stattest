@@ -166,7 +166,7 @@ class ImportantEventsController extends ApiInternalController
                 break;
             }
             case 1: {
-                $result->andWhere(['>=', 'date', array_pop($model->date)]);
+                $result->andWhere(['>=', 'date', $model->date[0]]);
                 $applyFilter = true;
                 break;
             }

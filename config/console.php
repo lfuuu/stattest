@@ -72,6 +72,11 @@ return [
             'enableSession' => false,
             'enableAutoLogin' => false,
         ],
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'baseUrl' => false,
+        ],
         'log' => $log,
         'db' => $db,
         'dbAts' => $dbAts,
