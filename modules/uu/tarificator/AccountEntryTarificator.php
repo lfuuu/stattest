@@ -80,8 +80,8 @@ class AccountEntryTarificator extends Tarificator
         $this->_tarificate(
             AccountLogResource::tableName(),
             'tariff_resource_id',
-            'date',
-            'date',
+            'date_from',
+            'date_to',
             $accountTariffId,
             $isDefault = 1
         );

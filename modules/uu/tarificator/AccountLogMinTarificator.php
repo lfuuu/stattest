@@ -91,12 +91,12 @@ SQL;
                 (
                     SELECT
                         account_log_resource.account_tariff_id,
-                        DATE_FORMAT(account_log_resource.date, "%Y-%m-01") as date,
+                        DATE_FORMAT(account_log_resource.date_from, "%Y-%m-01") as date,
                         SUM(account_log_resource.price) as price 
                     FROM {$accountLogResourceTableName} account_log_resource
                     GROUP BY
                         account_log_resource.account_tariff_id,
-                        DATE_FORMAT(account_log_resource.date, "%Y-%m-01") 
+                        DATE_FORMAT(account_log_resource.date_from, "%Y-%m-01") 
                 ) account_log_resource_groupped
             SET
                 account_log_min.price_resource = account_log_resource_groupped.price
