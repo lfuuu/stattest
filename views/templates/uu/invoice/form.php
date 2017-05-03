@@ -37,9 +37,9 @@ use yii\helpers\Url;
     <div class="form-group col-sm-12">
         <label>Укажите файл с содержанием</label>
         <div class="file_upload form-control input-sm">
-            Выбрать файл <input type="file" name="<?= $model->formName(); ?>[filename][<?= $model->getLanguage() ?>]" class="media-manager-<?= $model->getLanguage() ?>" />
+            Выбрать файл <input type="file" name="<?= $model->formName(); ?>[filename][<?= $model->getLanguage() ?>]" class="media-manager" data-language="<?= $model->getLanguage() ?>" />
         </div>
-        <div class="media-manager-block-<?= $model->getLanguage() ?>" style="padding: 10px;"></div>
+        <div class="media-manager-block" data-language="<?= $model->getLanguage() ?>" style="padding: 10px;"></div>
     </div>
 
 </div>
