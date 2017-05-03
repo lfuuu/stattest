@@ -26,15 +26,19 @@ $scheme = $dataForm->getScheme($countryCode);
                 <div class="label label-danger"><?= $firstRecord->message ?></div>
             <?php endif; ?>
         </div>
-        <div class="col-sm-2">
-            <?= $this->render('//layouts/_submitButton', [
-                'text' => 'Опубликовать схему',
-                'params' => [
-                    'class' => 'btn btn-primary',
-                    'style' => $style,
-                ],
-            ]) ?>
-
+        <div class="col-sm-2 text-right">
+            <?php if ($scheme->isActual($countryCode)) : ?>
+                <div class="label label-success">
+                    Обновление не требуется
+                </div>
+            <?php else : ?>
+                <?= $this->render('//layouts/_submitButton', [
+                    'text' => 'Опубликовать схему',
+                    'params' => [
+                        'class' => 'btn btn-primary',
+                    ],
+                ]) ?>
+            <?php endif ?>
         </div>
     </div>
 </div>

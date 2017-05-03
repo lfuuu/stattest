@@ -24,10 +24,13 @@ class LkNoticeSetting extends ActiveRecord
     const STATUS_WORK = 'working';
     const STATUS_CONNECT = 'connecting';
 
+    const NOTIFICATION_TYPE_EMAIL = 'email';
+    const NOTIFICATION_TYPE_SMS = 'sms';
+
     /** @var array */
     public static $noticeTypes = [
-        'email' => 'email',
-        'sms' => 'phone',
+        self::NOTIFICATION_TYPE_EMAIL => 'email',
+        self::NOTIFICATION_TYPE_SMS => 'phone',
     ];
 
     /**

@@ -107,6 +107,17 @@ class Actions extends Component
     }
 
     /**
+     * @param int[] $clientAccountIds
+     * @return mixed
+     * @throws InvalidParamException
+     * @throws Exception
+     */
+    public function getSchemePersonalByIds(array $clientAccountIds = [])
+    {
+        return $this->module->send(self::MAILER_SCHEME_PERSONAL_GET, $clientAccountIds);
+    }
+
+    /**
      * @param int $clientAccountId
      * @param array $scheme
      * @param int $userId
@@ -148,6 +159,7 @@ class Actions extends Component
                 ->select([
                     ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => new Expression('MAX(ns.min_balance)'),
                     ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => new Expression('MAX(ns.min_day_limit)'),
+                    ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_ADD => new Expression('MAX(ns.add_pay_notif)'),
                 ])
                 ->from(['ns' => LkNoticeSetting::tableName()])
                 ->leftJoin(['cc' => ClientContact::tableName()], 'cc.id = ns.client_contact_id')

@@ -15,7 +15,7 @@ echo Breadcrumbs::widget([
         'Шаблоны',
         [
             'label' => 'Управление шаблонами документов',
-            'url' => $cancelUrl,
+            'url' => Url::toRoute(['/templates/document/template']),
         ],
     ],
 ]);

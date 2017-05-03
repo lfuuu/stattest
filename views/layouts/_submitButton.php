@@ -10,13 +10,14 @@
 use app\classes\Html;
 
 !isset($params) && $params = [];
+$iTagParams['aria-hidden'] = 'true';
+if (isset($glyphicon)) {
+    $iTagParams['class'] = 'glyphicon ' . $glyphicon;
+}
 ?>
 
 <?= Html::submitButton(
-    Html::tag('i', '', [
-        'class' => 'glyphicon ' . $glyphicon,
-        'aria-hidden' => 'true',
-    ]) . ' ' .
+    Html::tag('i', '', $iTagParams) . ' ' .
     $text,
     $params
 ) ?>

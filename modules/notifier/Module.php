@@ -3,6 +3,8 @@
 namespace app\modules\notifier;
 
 use app\classes\HttpClient;
+use app\classes\Navigation;
+use app\classes\NavigationBlock;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -22,12 +24,20 @@ class Module extends \yii\base\Module
     /** @var array */
     public $config;
 
+    private $_isTestEnvironment = false;
+
     /**
+     * @return bool
      * @throws InvalidConfigException
      */
     public function init()
     {
         parent::init();
+
+        if (YII_ENV === 'test') {
+            $this->_isTestEnvironment = true;
+            return $this->_isTestEnvironment;
+        }
 
         $localConfigFileName = __DIR__ . '/config.local.php';
         if (file_exists($localConfigFileName)) {
@@ -49,6 +59,25 @@ class Module extends \yii\base\Module
             ->createJsonRequest()
             ->setMethod(isset($this->config['request']['method']) ? $this->config['request']['method'] : 'post')
             ->auth(isset($this->config['auth']) ? $this->config['auth'] : []);
+
+        return true;
+    }
+
+    /**
+     * @param Navigation $navigation
+     */
+    public function getNavigation(Navigation $navigation)
+    {
+        $navigation->addBlock(
+            NavigationBlock::create()
+                ->setId('notifier')
+                ->setTitle('Mailer')
+                ->addItem('Общие схемы оповещения', ['/notifier/schemes'])
+                ->addItem('Персональная схема оповещения', ['/notifier/personal-scheme'])
+                ->addItem('Шаблоны почтовых оповещений', ['/notifier/email-templates'], ['mail.w'])
+                ->addItem('Управление оповещениями', ['/notifier/control'])
+                ->addItem('Мониторинг расхождения персональных схем', ['/notifier/personal-scheme/monitoring'])
+        );
     }
 
     /**
@@ -59,6 +88,10 @@ class Module extends \yii\base\Module
      */
     public function send($requestAction, array $requestData = [])
     {
+        if ($this->_isTestEnvironment) {
+            return [];
+        }
+
         try {
             $response = $this->request
                 ->setData($requestData)

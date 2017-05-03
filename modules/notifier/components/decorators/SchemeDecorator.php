@@ -2,6 +2,7 @@
 
 namespace app\modules\notifier\components\decorators;
 
+use app\modules\notifier\models\Schemes;
 use yii\base\Model;
 
 /**
@@ -46,22 +47,26 @@ class SchemeDecorator extends Model
 
     /**
      * @param int $countryCode
-     * @return array
+     * @return bool
      */
-    public function diff($countryCode)
+    public function isActual($countryCode)
     {
-        /** @todo Need to make multi-dimensional diff */
-        /*
         $currentScheme = Schemes::find()
+            ->select([
+                'country_code',
+                'event_type_id' => 'event',
+                'do_email',
+                'do_sms',
+                'do_email_monitoring',
+                'do_email_operator',
+            ])
             ->where([
                 'country_code' => $countryCode,
             ])
             ->asArray()
             ->all();
 
-        return array_diff_assoc($currentScheme, $this->scheme);
-        */
-        return [];
+        return $this->scheme == $currentScheme;
     }
 
 }

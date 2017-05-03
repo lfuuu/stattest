@@ -25,7 +25,7 @@ class Navigation
      */
     private function __construct()
     {
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setRights(['clients.read'])
                 ->setTitle('Клиенты')
@@ -41,13 +41,13 @@ class Navigation
         $this->_addBlockNewClients();
 
         $this->_addBlockForStatModule('services');
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Бухгалтерия')
                 ->addStatModuleItems('newaccounts')
                 ->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit')
         );
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Тарифы')
                 ->addItem('Телефония', ['/tariff/voip'], ['tarifs.read'])
@@ -56,7 +56,7 @@ class Navigation
                 ->addStatModuleItems('tarifs')
         );
         $this->_addBlockForStatModule('tt');
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Статистика')
                 ->addStatModuleItems('stats')
@@ -67,7 +67,7 @@ class Navigation
         );
         $this->_addBlockForStatModule('routers');
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Мониторинг')
                 ->addStatModuleItems('monitoring')
@@ -76,7 +76,7 @@ class Navigation
                 ->addItem('Очередь событий', ['/monitoring/event-queue'], [])
         );
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Управление доступом')
                 ->addItem('Операторы', ['/user/control'], ['users.r'])
@@ -87,13 +87,13 @@ class Navigation
         $this->_addBlockForStatModule('send');
         $this->_addBlockForStatModule('employeers');
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Письма клиентам')
                 ->addStatModuleItems('mail')
         );
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Телефония')
                 ->addStatModuleItems('voipnew')
@@ -112,7 +112,7 @@ class Navigation
                 ->addItem('Отчет по calls_raw', ['/voip/raw'], ['voip.access'])
         );
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Межоператорка (Отчеты)')
                 ->addStatModuleItems('voipreports')
@@ -124,14 +124,14 @@ class Navigation
         $this->_addBlockForStatModule('data');
         $this->_addBlockForStatModule('incomegoods');
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Логи')
                 ->addStatModuleItems('logs')
                 ->addItem('Значимые события', ['/important_events/report'])
         );
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setId('dictionaries')
                 ->setTitle('Словари')
@@ -150,7 +150,7 @@ class Navigation
                 ->addItem('Метки', ['/dictionary/tags'])
         );
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setId('templates')
                 ->setTitle('Шаблоны')
@@ -160,7 +160,7 @@ class Navigation
 
         $this->_addBlockUniversalUsage();
 
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setId('nnp')
                 ->setTitle('Национальный номерной план')
@@ -177,15 +177,10 @@ class Navigation
                 ->addItem('Пакеты', Url::to(['/uu/tariff', 'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE]), ['tarifs.read'])
         );
 
-        $this->_addBlock(
-            NavigationBlock::create()
-                ->setId('notifier')
-                ->setTitle('Mailer')
-                ->addItem('Общие схемы оповещения', ['/notifier/schemes'])
-                ->addItem('Персональная схема оповещения', ['/notifier/personal-scheme'])
-                ->addItem('Шаблоны почтовых оповещений', ['/notifier/email-templates'], ['mail.w'])
-                ->addItem('Управление оповещениями', ['/notifier/control'])
-        );
+        /** @var \app\modules\notifier\Module $module */
+        if ($module = Yii::$app->getModule('notifier')) {
+            $module->getNavigation($this);
+        }
     }
 
     /**
@@ -214,7 +209,7 @@ class Navigation
      * @param NavigationBlock $block
      * @return $this
      */
-    private function _addBlock(NavigationBlock $block)
+    public function addBlock(NavigationBlock $block)
     {
         if (!$block->id) {
             $block->id = 'block' . md5($block->title);
@@ -264,7 +259,7 @@ class Navigation
         }
 
         if ($block !== null) {
-            $this->_addBlock($block);
+            $this->addBlock($block);
         }
 
         return $this;
@@ -302,7 +297,7 @@ class Navigation
                 );
             }
 
-            $this->_addBlock($block);
+            $this->addBlock($block);
         }
     }
 
@@ -343,11 +338,11 @@ class Navigation
 
         }
 
-        $this->_addBlock($block);
-        $this->_addBlock($block2);
+        $this->addBlock($block);
+        $this->addBlock($block2);
 
         // мониторинг
-        $this->_addBlock(
+        $this->addBlock(
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
                 ->addItem(Yii::t('tariff', 'Service types'), ['/uu/service-type'], ['tarifs.read'])
