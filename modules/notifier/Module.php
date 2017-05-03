@@ -44,10 +44,6 @@ class Module extends \yii\base\Module
             Yii::configure($this, require $localConfigFileName);
         }
 
-        if (!isset($this->config, $this->config['uri'])) {
-            throw new InvalidConfigException('Mailer was not configured');
-        }
-
         $this->setComponents([
             'actions' => [
                 'class' => '\app\modules\notifier\components\Actions',
@@ -90,6 +86,10 @@ class Module extends \yii\base\Module
     {
         if ($this->_isTestEnvironment) {
             return [];
+        }
+
+        if (!isset($this->config, $this->config['uri'])) {
+            throw new InvalidConfigException('Mailer was not configured');
         }
 
         try {
