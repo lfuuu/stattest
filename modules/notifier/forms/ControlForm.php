@@ -70,10 +70,12 @@ class ControlForm extends Form
     public function getScheme($countryCode)
     {
         try {
-            return new SchemeDecorator(Notifier::getInstance()->actions->getScheme($countryCode));
+            $scheme = (Notifier::getInstance()->actions->getScheme($countryCode));
         } catch (\Exception $e) {
-            return $this->catchException($e);
+            $this->catchException($e);
         }
+
+        return new SchemeDecorator($scheme);
     }
 
     /**
