@@ -18,7 +18,7 @@ class DisconnectCauseColumn extends DataColumn
     public $isWithEmpty = true;
 
     /**
-     * @param [] $config
+     * @param array $config
      */
     public function __construct($config = [])
     {

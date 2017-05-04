@@ -47,7 +47,7 @@ class CsvDriver extends Component implements ExportDriver
 
     /**
      * @param int $key
-     * @param [] $columns
+     * @param array $columns
      * @return boolean|int
      */
     public function createHeader($key, $columns = [])
@@ -66,7 +66,7 @@ class CsvDriver extends Component implements ExportDriver
 
     /**
      * @param int $key
-     * @param [] $rows
+     * @param array $rows
      * @throws Exception
      */
     public function setData($key, $rows = [])

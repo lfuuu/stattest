@@ -73,7 +73,7 @@ class CurrencyController extends Controller
     /**
      * Импортировать все курсы на заданную дату
      *
-     * @param [] $currencies валюты, которые импортировать. Код валюты - в ключе
+     * @param array $currencies валюты, которые импортировать. Код валюты - в ключе
      * @param DateTime $dateTime
      * @param bool $isStrictDate
      * @throws ParseError

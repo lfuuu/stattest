@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogPeriod;
@@ -71,13 +72,16 @@ class AccountLogPeriodTarificator extends Tarificator
      * @param AccountTariff $accountTariff
      * @throws \RangeException
      * @throws \LogicException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
         $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods();
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
-            $accountLogPeriod->save();
+            if (!$accountLogPeriod->save()) {
+                throw new ModelValidationException($accountLogPeriod);
+            }
         }
     }
 

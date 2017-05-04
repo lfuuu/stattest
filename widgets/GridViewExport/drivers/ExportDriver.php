@@ -33,13 +33,13 @@ interface ExportDriver
 
     /**
      * @param int $key
-     * @param [] $columns
+     * @param array $columns
      */
     public function createHeader($key, $columns = []);
 
     /**
      * @param int $key
-     * @param [] $rows
+     * @param array $rows
      */
     public function setData($key, $rows = []);
 

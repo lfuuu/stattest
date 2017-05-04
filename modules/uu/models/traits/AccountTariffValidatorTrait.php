@@ -36,7 +36,7 @@ trait AccountTariffValidatorTrait
      * Валидировать, что нельзя менять service_type_id
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorServiceType($attribute, $params)
     {
@@ -51,7 +51,7 @@ trait AccountTariffValidatorTrait
      * Валидировать, что задан транк для соответствующей услуги
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorTrunk($attribute, $params)
     {
@@ -86,7 +86,7 @@ trait AccountTariffValidatorTrait
      * Валидировать, что tariff_period_id соответствует service_type_id
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorTariffPeriod($attribute, $params)
     {
@@ -112,7 +112,7 @@ trait AccountTariffValidatorTrait
      * Валидировать, что номер свободный
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorVoipNumber($attribute, $params)
     {

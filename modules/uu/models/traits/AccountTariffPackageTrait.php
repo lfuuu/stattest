@@ -89,9 +89,9 @@ trait AccountTariffPackageTrait
     }
 
     /**
-     * Вернуть существующий базовый пакет.
+     * Есть ли существующий базовый пакет.
      *
-     * @return bool
+     * @return bool|null
      */
     private function _hasDefaultPackage()
     {

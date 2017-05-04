@@ -23,7 +23,7 @@ class OrganizationColumn extends DataColumn
     public $filterType = GridView::FILTER_SELECT2;
 
     /**
-     * @param [] $config
+     * @param array $config
      */
     public function __construct($config = [])
     {

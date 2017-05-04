@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
@@ -16,6 +17,8 @@ class FinanceBlockTarificator extends Tarificator
 
     /**
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @throws \yii\db\Exception
+     * @throws \app\exceptions\ModelValidationException
      */
     public function tarificate($accountTariffId = null)
     {
@@ -90,7 +93,9 @@ SQL;
 
             $this->out($client->id . ' ');
             $client->is_blocked = 1;
-            $client->save();
+            if (!$client->save()) {
+                throw new ModelValidationException($client);
+            }
         }
     }
 }

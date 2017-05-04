@@ -118,7 +118,7 @@ class SyncVmCollocation
      *
      * @param int $clientAccountId
      * @param bool $isEnable
-     * @return mixed
+     * @return mixed|null|bool
      */
     protected function enableOrDisableAccount($clientAccountId, $isEnable)
     {
@@ -193,8 +193,8 @@ class SyncVmCollocation
         $options = $clientAccount->getOption($option);
         if (count($options)) {
             return $options[0];
-        } else {
-            return null;
         }
+
+        return null;
     }
 }

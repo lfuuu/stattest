@@ -7,8 +7,10 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\FillAccountTariffResourceLog;
+use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
+use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
 use DateTime;
 use DateTimeImmutable;
@@ -37,7 +39,7 @@ class AccountTariffLog extends ActiveRecord
     // Методы для полей insert_time, insert_user_id
     use \app\classes\traits\InsertUserTrait;
 
-    protected $countLogs = null;
+    private $_countLogs = null;
 
     /** @var int Код ошибки для АПИ */
     public $errorCode = null;
@@ -126,11 +128,11 @@ class AccountTariffLog extends ActiveRecord
      * Валидировать дату смены тарифа
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorFuture($attribute, $params)
     {
-        Yii::info('AccountTariffLog. Before validatorFuture', 'uu');
+        Yii::trace('AccountTariffLog. Before validatorFuture', 'uu');
 
         if (!$this->isNewRecord) {
             return;
@@ -184,20 +186,20 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        Yii::info('AccountTariffLog. After validatorFuture', 'uu');
+        Yii::trace('AccountTariffLog. After validatorFuture', 'uu');
     }
 
     /**
      * Валидировать, что при создании сразу же не закрытый
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorCreateNotClose($attribute, $params)
     {
-        Yii::info('AccountTariffLog. Before validatorCreateNotClose', 'uu');
+        Yii::trace('AccountTariffLog. Before validatorCreateNotClose', 'uu');
 
-        if (!$this->tariff_period_id && !$this->getCountLogs()) {
+        if (!$this->tariff_period_id && !$this->_getCountLogs()) {
             $this->addError($attribute, 'Не указан тариф/период.');
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
             return;
@@ -207,7 +209,7 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        if ($this->getCountLogs() && !$this->accountTariff->isLogEditable()) {
+        if ($this->_getCountLogs() && !$this->accountTariff->isLogEditable()) {
             $this->addError($attribute, 'Услуга нередактируемая.');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NOT_EDITABLE;
             return;
@@ -221,19 +223,21 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        Yii::info('AccountTariffLog. After validatorCreateNotClose', 'uu');
+        Yii::trace('AccountTariffLog. After validatorCreateNotClose', 'uu');
     }
 
     /**
      * Вернуть кол-во предыдущих логов
+     *
+     * @return int
      */
-    protected function getCountLogs()
+    private function _getCountLogs()
     {
-        if (!is_null($this->countLogs)) {
-            return $this->countLogs;
+        if (!is_null($this->_countLogs)) {
+            return $this->_countLogs;
         }
 
-        return $this->countLogs = self::find()
+        return $this->_countLogs = self::find()
             ->where(['account_tariff_id' => $this->account_tariff_id])
             ->count();
     }
@@ -250,15 +254,17 @@ class AccountTariffLog extends ActiveRecord
     }
 
     /**
-     * Валидировать, что realtime balance больше обязательного платежа по услуге (подключение + абонентская плата + минимальная плата за ресурсы)
+     * Валидировать, что realtime balance больше обязательного платежа по услуге (подключение + абонентка + ресурс + минималка)
      * В логе, а не услуге, потому что нужна дата включения
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
+     * @throws \RangeException
+     * @throws \Exception
      */
     public function validatorBalance($attribute, $params)
     {
-        Yii::info('AccountTariffLog. Before validatorBalance', 'uu');
+        Yii::trace('AccountTariffLog. Before validatorBalance', 'uu');
 
         if (!$this->isNewRecord) {
             return;
@@ -305,31 +311,31 @@ class AccountTariffLog extends ActiveRecord
         $realtimeBalanceWithCredit = ($realtimeBalance + $credit);
 
         $warnings = $clientAccount->getVoipWarnings();
-        $isCountLogs = $this->getCountLogs(); // смена тарифа или закрытие услуги
+        $isCountLogs = $this->_getCountLogs(); // смена тарифа или закрытие услуги
 
         if (!$tariffPeriod) {
             if ($isCountLogs) {
                 // закрытие услуги
                 return;
-            } else {
-                // подключение новой услуги
-                $this->addError($attribute, 'Не указан тариф/период.');
-                $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
-                return;
             }
+
+            // подключение новой услуги
+            $this->addError($attribute, 'Не указан тариф/период.');
+            $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
+            return;
         }
 
         if ($clientAccount->is_blocked) {
             $error = 'ЛС заблокирован';
             if ($isCountLogs) {
                 // смена тарифа или закрытие услуги
-                $this->shiftActualFrom($error);
+                $this->_shiftActualFrom($error);
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, $error);
-                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_PERMANENT;
             }
 
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_PERMANENT;
             return;
         }
 
@@ -337,13 +343,13 @@ class AccountTariffLog extends ActiveRecord
             $error = 'ЛС заблокирован из-за превышения лимитов';
             if ($isCountLogs) {
                 // смена тарифа или закрытие услуги
-                $this->shiftActualFrom($error);
+                $this->_shiftActualFrom($error);
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, $error);
-                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_TEMPORARY;
             }
 
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_TEMPORARY;
             return;
         }
 
@@ -351,13 +357,13 @@ class AccountTariffLog extends ActiveRecord
             $error = sprintf('ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
             if ($isCountLogs) {
                 // смена тарифа или закрытие услуги
-                $this->shiftActualFrom($error);
+                $this->_shiftActualFrom($error);
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, $error);
-                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_FINANCE;
             }
 
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_FINANCE;
             return;
         }
 
@@ -369,21 +375,51 @@ class AccountTariffLog extends ActiveRecord
 
         // AccountLogSetupTarificator и AccountLogPeriodTarificator сейчас нельзя вызвать, потому что записи в логе тарифов еще нет
         // AccountLogResourceTarificator пока нет
+        //
+        // подключение
         $accountLogSetup = (new AccountLogSetupTarificator())->getAccountLogSetup($accountTariff, $accountLogFromToTariff);
         if ($isCountLogs) {
             // смена тарифа или закрытие услуги
             // плата за номер не взимается
-            $accountLogSetup->price = max(0, ($accountLogSetup->price - $accountLogSetup->price_number));
+            $accountLogSetup->price = max(0, $accountLogSetup->price - $accountLogSetup->price_number);
             $accountLogSetup->price_number = 0;
         }
 
+        // абонентка
         $accountLogPeriod = (new AccountLogPeriodTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToTariff);
+
+        // ресурсы
+        $priceResources = 0;
+        $readerNames = Resource::getReaderNames();
+        $tariffResources = $tariffPeriod->tariff->tariffResources;
+        foreach ($tariffResources as $tariffResource) {
+
+            if (array_key_exists($tariffResource->resource_id, $readerNames)) {
+                // этот ресурс - не опция. Он считается по факту, а не заранее
+                continue;
+            }
+
+            $accountLogFromToResource = new AccountLogFromToResource;
+            $accountLogFromToResource->dateFrom = $accountLogFromToTariff->dateFrom;
+            $accountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;
+            $accountLogFromToResource->tariffPeriod = $tariffPeriod;
+            $accountLogFromToResource->amount = (float)$accountTariff->getResourceValue($tariffResource->resource_id); // текущее кол-во ресурса может быть null, если услуга только создается
+
+            $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $tariffResource->resource_id);
+            $priceResources += $accountLogResource->price;
+        }
+
+        // минималка
         $priceMin = ($tariffPeriod->price_min * $accountLogPeriod->coefficient);
-        $tariffPrice = ($accountLogSetup->price + $accountLogPeriod->price + $priceMin);
+        $priceMin -= $priceResources;
+        $priceMin = max(0, $priceMin);
+
+        // суммарный платеж
+        $tariffPrice = $accountLogSetup->price + $accountLogPeriod->price + $priceResources + $priceMin;
 
         if ($realtimeBalanceWithCredit < $tariffPrice) {
             $error = sprintf(
-                'На ЛС %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f %s + абонентская плата %.2f %s до конца периода + минимальная стоимость ресурсов %.2f %s)',
+                'На ЛС %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f + абонентка %.2f + ресурсы %.2f + минималка %.2f)',
                 $realtimeBalance,
                 $clientAccount->currency,
                 $credit,
@@ -391,28 +427,27 @@ class AccountTariffLog extends ActiveRecord
                 $tariffPrice,
                 $clientAccount->currency,
                 $accountLogSetup->price,
-                $clientAccount->currency,
                 $accountLogPeriod->price,
-                $clientAccount->currency,
-                $priceMin,
-                $clientAccount->currency
+                $priceResources,
+                $priceMin
             );
+
             if ($isCountLogs) {
                 // смена тарифа или закрытие услуги
-                $this->shiftActualFrom($error);
+                $this->_shiftActualFrom($error);
             } else {
                 // подключение новой услуги
                 $this->addError($attribute, $error);
-                $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
             }
 
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
             return;
         }
 
         // все хорошо - денег хватает
         // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
         // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
-        Yii::info('AccountTariffLog. After validatorBalance', 'uu');
+        Yii::trace('AccountTariffLog. After validatorBalance', 'uu');
     }
 
     /**
@@ -420,7 +455,7 @@ class AccountTariffLog extends ActiveRecord
      *
      * @param string $error
      */
-    protected function shiftActualFrom($error)
+    private function _shiftActualFrom($error)
     {
         $accountTariff = $this->accountTariff;
         $clientAccount = $accountTariff->clientAccount;
@@ -430,20 +465,19 @@ class AccountTariffLog extends ActiveRecord
             $this->actual_from = $datimeNow->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
             Yii::$app->session->setFlash('error', $error . '. Дата включения сдвинута на завтра.');
         }
-
     }
 
     /**
      * Валидировать, что дата включения пакета не раньше даты включения услуги
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorPackage($attribute, $params)
     {
-        Yii::info('AccountTariffLog. Before validatorPackage', 'uu');
+        Yii::trace('AccountTariffLog. Before validatorPackage', 'uu');
 
-        $isNewRecord = !$this->getCountLogs();
+        $isNewRecord = !$this->_getCountLogs();
         if (!$isNewRecord) {
             // смена тарифа или закрытие услуги. А все последующие проверки только при создании услуги
             return;
@@ -475,7 +509,7 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        Yii::info('AccountTariffLog. After validatorPackage', 'uu');
+        Yii::trace('AccountTariffLog. After validatorPackage', 'uu');
     }
 
     /**
@@ -497,7 +531,7 @@ class AccountTariffLog extends ActiveRecord
      * Вернуть actual_from в виде date в таймзоне клиента, а не datetime UTC
      * Для совместимости, ибо старое поле actual_from удалено
      *
-     * @return string
+     * @return string|null
      */
     public function getActual_from()
     {
@@ -540,7 +574,7 @@ class AccountTariffLog extends ActiveRecord
      * Валидировать, что пакет подключен только 1 раз
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorDoublePackage($attribute, $params)
     {
@@ -601,7 +635,7 @@ class AccountTariffLog extends ActiveRecord
      * Валидировать, что базовый пакет только один
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorDefaultPackage($attribute, $params)
     {

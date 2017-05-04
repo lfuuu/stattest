@@ -188,7 +188,7 @@ trait AccountTariffBoolTrait
      * Вернуть текущее количество ресурса
      *
      * @param int $resourceId
-     * @return float
+     * @return float|null
      */
     public function getResourceValue($resourceId)
     {

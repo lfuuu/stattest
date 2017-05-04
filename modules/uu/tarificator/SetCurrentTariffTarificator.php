@@ -3,6 +3,7 @@
 namespace app\modules\uu\tarificator;
 
 use app\classes\Event;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\behaviors\SyncVmCollocation;
 use app\modules\uu\models\AccountTariff;
@@ -111,7 +112,9 @@ SQL;
                 if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
                     // сменить тариф
                     $accountTariff->tariff_period_id = $row['new_tariff_period_id'];
-                    $accountTariff->save();
+                    if (!$accountTariff->save()) {
+                        throw new ModelValidationException($accountTariff);
+                    }
                 }
 
                 $isWithTransaction && $transaction->commit();
@@ -128,7 +131,11 @@ SQL;
                 $accountTariffLog->actual_from_utc = (new \DateTimeImmutable($accountTariffLog->actual_from_utc))
                     ->modify('+1 day')
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-                $accountTariffLog->save();
+                if (!$accountTariffLog->save()) {
+                    // здесь нет смысла кидаться исключением
+                    // throw new ModelValidationException($accountTariffLog);
+                }
+
                 $isWithTransaction && $transaction->commit();
 
             } catch (\Exception $e) {

@@ -375,7 +375,7 @@ class Tariff extends HistoryActiveRecord
      * VM должен быть заполнен
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorVm($attribute, $params)
     {
@@ -389,7 +389,7 @@ class Tariff extends HistoryActiveRecord
      * Тестовый тариф должен быть без автопролонгации
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorTest($attribute, $params)
     {
@@ -403,7 +403,7 @@ class Tariff extends HistoryActiveRecord
      * Найти и вернуть дефолтный пакет
      *
      * @param int $cityId
-     * @return Tariff
+     * @return Tariff|null
      */
     public function findDefaultPackage($cityId)
     {

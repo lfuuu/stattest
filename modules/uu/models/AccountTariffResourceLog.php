@@ -3,6 +3,9 @@
 namespace app\modules\uu\models;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
+use app\modules\uu\classes\AccountLogFromToResource;
+use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -37,6 +40,8 @@ class AccountTariffResourceLog extends ActiveRecord
     /** @var int Код ошибки для АПИ */
     public $errorCode = null;
 
+    private $_countLogs = null;
+
     /**
      * @return string
      */
@@ -58,6 +63,7 @@ class AccountTariffResourceLog extends ActiveRecord
             ['resource_id', 'validateTariffResource'],
             ['actual_from', 'date', 'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT],
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
+            ['id', 'validatorBalance', 'skipOnEmpty' => false],
         ];
     }
 
@@ -94,7 +100,7 @@ class AccountTariffResourceLog extends ActiveRecord
     /**
      * Вернуть actual_from в виде date в таймзоне клиента, а не datetime UTC
      *
-     * @return string
+     * @return string|null
      */
     public function getActual_from()
     {
@@ -137,7 +143,7 @@ class AccountTariffResourceLog extends ActiveRecord
      * Валидировать ресурс
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validateTariffResource($attribute, $params)
     {
@@ -158,11 +164,11 @@ class AccountTariffResourceLog extends ActiveRecord
      * Валидировать дату смены количества ресурса
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorFuture($attribute, $params)
     {
-        Yii::info('AccountTariffResourceLog. Before validatorFuture', 'uu');
+        Yii::trace('AccountTariffResourceLog. Before validatorFuture', 'uu');
 
         if (!$this->isNewRecord) {
             return;
@@ -223,18 +229,18 @@ class AccountTariffResourceLog extends ActiveRecord
             }
         */
 
-        Yii::info('AccountTariffResourceLog. After validatorFuture', 'uu');
+        Yii::trace('AccountTariffResourceLog. After validatorFuture', 'uu');
     }
 
     /**
      * Валидировать, что меняется на другое значение
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorOther($attribute, $params)
     {
-        Yii::info('AccountTariffResourceLog. Before validatorOther', 'uu');
+        Yii::trace('AccountTariffResourceLog. Before validatorOther', 'uu');
 
         if (!$this->isNewRecord) {
             // При обновлении не проверяем. Клиент обновить все равно не может. Он может только удалить (если дата еще не наступила) или добавить новый (если дата ужа наступила)
@@ -259,7 +265,7 @@ class AccountTariffResourceLog extends ActiveRecord
             return;
         }
 
-        Yii::info('AccountTariffResourceLog. After validatorCreateNotClose', 'uu');
+        Yii::trace('AccountTariffResourceLog. After validatorCreateNotClose', 'uu');
     }
 
     /**
@@ -276,5 +282,154 @@ class AccountTariffResourceLog extends ActiveRecord
         }
 
         return $this->amount ? '+' : '-';
+    }
+
+    /**
+     * Валидировать, что realtime balance больше обязательного платежа по ресурсу
+     *
+     * @param string $attribute
+     * @param array $params
+     * @return float|null
+     * @throws \RangeException
+     * @throws \Exception
+     */
+    public function validatorBalance($attribute, $params)
+    {
+        Yii::trace('AccountTariffResourceLog. Before validatorBalance', 'uu');
+
+        if (!$this->isNewRecord) {
+            return null;
+        }
+
+        $accountTariff = $this->accountTariff;
+        if (!$accountTariff) {
+            $this->addError($attribute, 'Услуга не указана.');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_EMPTY;
+            return null;
+        }
+
+        $clientAccount = $accountTariff->clientAccount;
+        if (!$clientAccount) {
+            $this->addError($attribute, 'ЛС не указан.');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_EMPTY;
+            return null;
+        }
+
+        if ($clientAccount->account_version != ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            $this->addError($attribute, 'Универсальную услугу можно добавить только ЛС, тарифицируемому универсально.');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_IS_NOT_UU;
+            return null;
+        }
+
+        if (!$this->_getCountLogs()) {
+            // при инициализации ресурсов денег не списывается. Проверять дальше не смысла
+            return null;
+        }
+
+        $tariffPeriod = $accountTariff->tariffPeriod;
+        if (!$tariffPeriod) {
+            $this->addError($attribute, 'Услуга закрыта.');
+            $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
+            return null;
+        }
+
+        $credit = $clientAccount->credit; // кредитный лимит
+        $realtimeBalance = $clientAccount->balance; // $clientAccount->billingCounters->getRealtimeBalance()
+        $realtimeBalanceWithCredit = ($realtimeBalance + $credit);
+
+        $warnings = $clientAccount->getVoipWarnings();
+
+        if ($clientAccount->is_blocked) {
+            $this->_shiftActualFrom('ЛС заблокирован');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_PERMANENT;
+            return null;
+        }
+
+        if (isset($warnings[ClientAccount::WARNING_OVERRAN])) {
+            $this->_shiftActualFrom('ЛС заблокирован из-за превышения лимитов');
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_TEMPORARY;
+            return null;
+        }
+
+        if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
+            $error = sprintf('ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
+            $this->_shiftActualFrom($error);
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_BLOCKED_FINANCE;
+            return null;
+        }
+
+        // ресурсы
+        $priceResources = 0;
+        $readerNames = Resource::getReaderNames();
+        $tariffResources = $tariffPeriod->tariff->tariffResources;
+        foreach ($tariffResources as $tariffResource) {
+
+            if (array_key_exists($tariffResource->resource_id, $readerNames)) {
+                // этот ресурс - не опция. Он считается по факту, а не заранее
+                continue;
+            }
+
+            $accountLogFromToResource = new AccountLogFromToResource;
+            $accountLogFromToResource->dateFrom = new DateTimeImmutable($this->actual_from);
+            $accountLogFromToResource->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToResource->dateFrom);
+            $accountLogFromToResource->tariffPeriod = $tariffPeriod;
+            $accountLogFromToResource->amount = (float)$accountTariff->getResourceValue($tariffResource->resource_id); // текущее кол-во ресурса может быть null, если услуга только создается
+
+            $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $tariffResource->resource_id);
+            $priceResources += $accountLogResource->price;
+        }
+
+        if ($realtimeBalanceWithCredit < $priceResources) {
+            $error = sprintf(
+                'На ЛС %.2f %s и кредит %.2f %s, что меньше стоимости ресурсов %.2f',
+                $realtimeBalance,
+                $clientAccount->currency,
+                $credit,
+                $clientAccount->currency,
+                $priceResources
+            );
+            $this->_shiftActualFrom($error);
+            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
+            return $priceResources;
+        }
+
+        // все хорошо - денег хватает
+        // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
+        // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
+        Yii::trace('AccountTariffResourceLog. After validatorBalance', 'uu');
+        return $priceResources;
+    }
+
+    /**
+     * Сдвинуть actual_from на завтра
+     *
+     * @param string $error
+     */
+    private function _shiftActualFrom($error)
+    {
+        $accountTariff = $this->accountTariff;
+        $clientAccount = $accountTariff->clientAccount;
+        $datimeNow = $clientAccount->getDatetimeWithTimezone();
+        if ($datimeNow->format(DateTimeZoneHelper::DATE_FORMAT) == $this->actual_from) {
+            // с сегодня откладываем на завтра
+            $this->actual_from = $datimeNow->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
+            Yii::$app->session->setFlash('error', $error . '. Дата включения сдвинута на завтра.');
+        }
+    }
+
+    /**
+     * Вернуть кол-во предыдущих логов
+     *
+     * @return int
+     */
+    private function _getCountLogs()
+    {
+        if (!is_null($this->_countLogs)) {
+            return $this->_countLogs;
+        }
+
+        return $this->_countLogs = self::find()
+            ->where(['account_tariff_id' => $this->account_tariff_id])
+            ->count();
     }
 }

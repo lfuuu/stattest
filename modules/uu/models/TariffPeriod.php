@@ -199,7 +199,7 @@ class TariffPeriod extends HistoryActiveRecord
      * У постоплаты и пакетов может быть только помесячное списание
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatorPeriod($attribute, $params)
     {

@@ -238,7 +238,7 @@ class BaseController extends Controller
      * Формирует результат в формате MHTML (Word2003) и отдает на скачивание
      *
      * @param string $view
-     * @param [] $params
+     * @param array $params
      * @return bool
      * @throws \Exception
      */

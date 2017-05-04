@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
@@ -88,6 +89,7 @@ class AccountLogResourceTarificator extends Tarificator
      *
      * @param AccountTariff $accountTariff
      * @throws \LogicException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function tarificateAccountTariffOption(AccountTariff $accountTariff)
     {
@@ -99,30 +101,10 @@ class AccountLogResourceTarificator extends Tarificator
 
             /** @var AccountLogFromToResource $untarificatedPeriod */
             foreach ($untarificatedPeriods as $untarificatedPeriod) {
-
-                $tariffPeriod = $untarificatedPeriod->tariffPeriod;
-
-                /** @var TariffResource $tariffResource */
-                $tariffResource = TariffResource::findOne([
-                    'resource_id' => $resourceId,
-                    'tariff_id' => $tariffPeriod->tariff_id,
-                ]);
-
-                $this->out('+ ');
-
-                $accountLogResource = new AccountLogResource();
-                $accountLogResource->date_from = $untarificatedPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
-                $accountLogResource->date_to = $untarificatedPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
-                $accountLogResource->tariff_period_id = $tariffPeriod->id;
-                $accountLogResource->account_tariff_id = $accountTariff->id;
-                $accountLogResource->tariff_resource_id = $tariffResource->id;
-                $accountLogResource->amount_use = $untarificatedPeriod->amount;
-                $accountLogResource->amount_free = $tariffResource->amount;
-                $accountLogResource->price_per_unit = $tariffResource->price_per_unit;
-                $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
-                $accountLogResource->coefficient = 1 + (int)$untarificatedPeriod->dateTo->diff($untarificatedPeriod->dateFrom)->format('%a'); // кол-во дней между dateTo и dateFrom
-                $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit * $accountLogResource->coefficient;
-                $accountLogResource->save();
+                $accountLogResource = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod, $resourceId);
+                if (!$accountLogResource->save()) {
+                    throw new ModelValidationException($accountLogResource);
+                }
             }
         }
     }
@@ -132,6 +114,7 @@ class AccountLogResourceTarificator extends Tarificator
      *
      * @param AccountTariff $accountTariff
      * @throws \LogicException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function tarificateAccountTariffTraffic(AccountTariff $accountTariff)
     {
@@ -168,7 +151,9 @@ class AccountLogResourceTarificator extends Tarificator
                 $this->out('+ ');
 
                 $accountLogResource = new AccountLogResource();
-                $accountLogResource->date_from = $accountLogResource->date_to = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
+                $accountLogResource->date_from
+                    = $accountLogResource->date_to
+                    = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
                 $accountLogResource->tariff_period_id = $tariffPeriod->id;
                 $accountLogResource->account_tariff_id = $accountTariff->id;
                 $accountLogResource->tariff_resource_id = $tariffResource->id;
@@ -180,8 +165,46 @@ class AccountLogResourceTarificator extends Tarificator
                 $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
                 $accountLogResource->coefficient = 1;
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
-                $accountLogResource->save();
+                if (!$accountLogResource->save()) {
+                    throw new ModelValidationException($accountLogResource);
+                }
             }
         }
+    }
+
+    /**
+     * Создать и вернуть AccountLogResource, но не сохранять его!
+     * "Не сохранение" нужно для проверки возможности списания без фактического списывания
+     *
+     * @param AccountTariff $accountTariff
+     * @param AccountLogFromToResource $accountLogFromToResource
+     * @param int $resourceId
+     * @return AccountLogResource
+     * @throws \RangeException
+     */
+    public function getAccountLogPeriod(AccountTariff $accountTariff, AccountLogFromToResource $accountLogFromToResource, $resourceId)
+    {
+        $tariffPeriod = $accountLogFromToResource->tariffPeriod;
+
+        /** @var TariffResource $tariffResource */
+        $tariffResource = TariffResource::findOne([
+            'resource_id' => $resourceId,
+            'tariff_id' => $tariffPeriod->tariff_id,
+        ]);
+
+        $this->out('+ ');
+
+        $accountLogResource = new AccountLogResource();
+        $accountLogResource->date_from = $accountLogFromToResource->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+        $accountLogResource->date_to = $accountLogFromToResource->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
+        $accountLogResource->tariff_period_id = $tariffPeriod->id;
+        $accountLogResource->account_tariff_id = $accountTariff->id;
+        $accountLogResource->tariff_resource_id = $tariffResource->id;
+        $accountLogResource->amount_use = $accountLogFromToResource->amount;
+        $accountLogResource->amount_free = $tariffResource->amount;
+        $accountLogResource->price_per_unit = $tariffResource->price_per_unit / $accountLogFromToResource->dateFrom->format('t'); // это "цена за месяц", а надо перевести в "цену за день"
+        $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
+        $accountLogResource->coefficient = 1 + (int)$accountLogFromToResource->dateTo->diff($accountLogFromToResource->dateFrom)->days; // кол-во дней между dateTo и dateFrom
+        $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit * $accountLogResource->coefficient;
     }
 }

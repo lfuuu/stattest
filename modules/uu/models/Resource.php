@@ -104,7 +104,7 @@ class Resource extends \yii\db\ActiveRecord
 
     /**
      * @param int $id
-     * @return ResourceReaderInterface
+     * @return ResourceReaderInterface|null
      * @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=13336881
      */
     public static function getReader($id)

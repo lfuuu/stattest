@@ -21,7 +21,7 @@ trait CrudMultipleTrait
      * 3. возвращает данные, а не параметр по ссылке
      *
      * @param ActiveRecord[] $models
-     * @param [] $data
+     * @param array $data
      * @param ActiveRecord $originalModel
      * @return ActiveRecord[]
      */
@@ -71,7 +71,7 @@ trait CrudMultipleTrait
      * Аналог crudMultiple, но для мульти-select2
      *
      * @param ActiveRecord[] $models
-     * @param [] $data
+     * @param array $data
      * @param ActiveRecord $originalModel
      * @param string $fieldName
      * @param string $formName

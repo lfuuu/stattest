@@ -204,7 +204,7 @@ class ClientContact extends HistoryActiveRecord
      * Валидировать телефон
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validatePhone($attribute, $params)
     {

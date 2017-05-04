@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Number;
 use app\modules\uu\classes\AccountLogFromToTariff;
@@ -69,6 +70,7 @@ class AccountLogSetupTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге
      *
      * @param AccountTariff $accountTariff
+     * @throws \app\exceptions\ModelValidationException
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
@@ -76,7 +78,9 @@ class AccountLogSetupTarificator extends Tarificator
         /** @var AccountLogFromToTariff $untarificatedPeriod */
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogSetup = $this->getAccountLogSetup($accountTariff, $untarificatedPeriod);
-            $accountLogSetup->save();
+            if (!$accountLogSetup->save()) {
+                throw new ModelValidationException($accountLogSetup);
+            }
         }
     }
 

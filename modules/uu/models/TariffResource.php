@@ -82,7 +82,7 @@ class TariffResource extends HistoryActiveRecord
      * Валидировать тип услуги
      *
      * @param string $attribute
-     * @param [] $params
+     * @param array $params
      */
     public function validateServiceType($attribute, $params)
     {
