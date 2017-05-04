@@ -77,6 +77,8 @@ class AccountLogResourceTarificator extends Tarificator
      *
      * @param AccountTariff $accountTariff
      * @throws \LogicException
+     * @throws \Exception
+     * @throws \app\exceptions\ModelValidationException
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
@@ -90,6 +92,8 @@ class AccountLogResourceTarificator extends Tarificator
      * @param AccountTariff $accountTariff
      * @throws \LogicException
      * @throws \app\exceptions\ModelValidationException
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
      */
     public function tarificateAccountTariffOption(AccountTariff $accountTariff)
     {
@@ -206,5 +210,7 @@ class AccountLogResourceTarificator extends Tarificator
         $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
         $accountLogResource->coefficient = 1 + (int)$accountLogFromToResource->dateTo->diff($accountLogFromToResource->dateFrom)->days; // кол-во дней между dateTo и dateFrom
         $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit * $accountLogResource->coefficient;
+
+        return $accountLogResource;
     }
 }

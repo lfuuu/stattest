@@ -56,42 +56,56 @@ return [
     ],
     [
         // инициализация с 1го
-        // 1го и 2го числа - 1 линия
         'account_tariff_id' => AccountTariff::DELTA + 1,
         'resource_id' => Resource::ID_VPBX_ABONENT,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
-    [
-        // 2го с 3го подключил месячный тариф
-        // 3го с 5го увеличил линии до 3х
-        // 3-4го - 1 линия, с 5го до конца прошлого месяца - 3 линии
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_ABONENT,
-        'amount' => 3,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+4 days')->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+2 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
-    [
-        // 6го с 7го уменьшил линии до 2х
-        // весь этот месяц - 2 линии
-        'account_tariff_id' => AccountTariff::DELTA + 1,
-        'resource_id' => Resource::ID_VPBX_ABONENT,
-        'amount' => 2,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+4 days')->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+2 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
-    ],
 
     // тест 2
     [
-        // инициализация с 1го
+        // 1го сразу же подключил дневной тариф
+        // 2го сразу же подключил месячный тариф
+        // 4го сразу же подключил годовой тариф
+        //
+        // 3го с 3го увеличил до 3х линий
+        // 6го с 7го увеличил линии до 5х
+        // 6го с 8го уменьшил линии до 2х
+        //
+        // 1го числа - 1 линия по дневному тарифу
+        // 2го числа - 1 линия по месячному тарифу
+        // 3го числа - 3 линии по месячному тарифу
+        // 4го-6го числа - 3 линии по годовому тарифу
+        // 7го числа до конца прошлого месяца, весь этот месяц +10 месяцев - 5 линий по годовому тарифу
         'account_tariff_id' => AccountTariff::DELTA + 2,
         'resource_id' => Resource::ID_VPBX_ABONENT,
         'amount' => 1,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
+    [
+        'account_tariff_id' => AccountTariff::DELTA + 2,
+        'resource_id' => Resource::ID_VPBX_ABONENT,
+        'amount' => 3,
+        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+2 days')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+2 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+    [
+        'account_tariff_id' => AccountTariff::DELTA + 2,
+        'resource_id' => Resource::ID_VPBX_ABONENT,
+        'amount' => 5,
+        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+6 days')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+5 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+    [
+        'account_tariff_id' => AccountTariff::DELTA + 2,
+        'resource_id' => Resource::ID_VPBX_ABONENT,
+        'amount' => 2,
+        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+7 days')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+5 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
+    ],
+
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 2,

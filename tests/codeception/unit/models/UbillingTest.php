@@ -560,7 +560,7 @@ class UbillingTest extends _TestCase
         $dateTimeLastDayOfPrevMonth = (new DateTimeImmutable())->modify('last day of previous month');
 
         /** @var AccountTariff $accountTariff */
-        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 1])->one();
+        $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 2])->one();
         $this->assertNotEmpty($accountTariff);
 
         /** @var AccountLogFromToResource[][] $untarificatedResourceOptionPeriodss */
@@ -575,13 +575,13 @@ class UbillingTest extends _TestCase
         /** @var AccountLogFromToResource[] $untarificatedResourceOptionPeriods */
         $untarificatedResourceOptionPeriods = $untarificatedResourceOptionPeriodss[Resource::ID_VPBX_ABONENT];
 
-        // должно быть 5 диапазонов (см. ниже)
-        $this->assertEquals(5, count($untarificatedResourceOptionPeriods));
+        // должно быть 16 диапазонов (см. ниже)
+        $this->assertEquals(16, count($untarificatedResourceOptionPeriods));
 
-        // 1го сразу же подключил дневной тариф
-        // 1го и 2го числа - 1 линия
+        // 1го числа - 1 линия по дневному тарифу
         $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
         $this->assertEquals(1, $untarificatedResourceOptionPeriod->amount);
+        $this->assertEquals(1 /* дневной */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
             $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
@@ -591,8 +591,10 @@ class UbillingTest extends _TestCase
             $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
         );
 
+        // 2го числа - 1 линия по месячному тарифу
         $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
         $this->assertEquals(1, $untarificatedResourceOptionPeriod->amount);
+        $this->assertEquals(2 /* месячный */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT),
             $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
@@ -602,24 +604,38 @@ class UbillingTest extends _TestCase
             $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
         );
 
-        // 2го с 3го подключил месячный тариф
-        // 3го с 5го увеличил линии до 3х
-        // 3-4го - 1 линия, с 5го до конца прошлого месяца - 3 линии
+        // 3го числа - 3 линии по месячному тарифу
         $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-        $this->assertEquals(1, $untarificatedResourceOptionPeriod->amount);
+        $this->assertEquals(3, $untarificatedResourceOptionPeriod->amount);
+        $this->assertEquals(2 /* месячный */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->modify('+2 day')->format(DateTimeZoneHelper::DATE_FORMAT),
             $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
         );
         $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->modify('+3 day')->format(DateTimeZoneHelper::DATE_FORMAT),
+            $dateTimeFirstDayOfPrevMonth->modify('+2 day')->format(DateTimeZoneHelper::DATE_FORMAT),
             $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
         );
 
+        // 4го-6го числа - 3 линии по годовому тарифу
         $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
         $this->assertEquals(3, $untarificatedResourceOptionPeriod->amount);
+        $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
         $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->modify('+4 day')->format(DateTimeZoneHelper::DATE_FORMAT),
+            $dateTimeFirstDayOfPrevMonth->modify('+3 day')->format(DateTimeZoneHelper::DATE_FORMAT),
+            $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+        );
+        $this->assertEquals(
+            $dateTimeFirstDayOfPrevMonth->modify('+5 day')->format(DateTimeZoneHelper::DATE_FORMAT),
+            $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+        );
+
+        // 7го числа до конца прошлого месяца, весь этот месяц +10 месяцев - 5 линий по годовому тарифу
+        $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
+        $this->assertEquals(5, $untarificatedResourceOptionPeriod->amount);
+        $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
+        $this->assertEquals(
+            $dateTimeFirstDayOfPrevMonth->modify('+6 day')->format(DateTimeZoneHelper::DATE_FORMAT),
             $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
         );
         $this->assertEquals(
@@ -627,10 +643,10 @@ class UbillingTest extends _TestCase
             $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
         );
 
-        // 6го с 7го уменьшил линии до 2х
-        // весь этот месяц - 2 линии
+        // 7го числа до конца прошлого месяца, весь этот месяц +10 месяцев - 5 линий по годовому тарифу
         $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-        $this->assertEquals(2, $untarificatedResourceOptionPeriod->amount);
+        $this->assertEquals(5, $untarificatedResourceOptionPeriod->amount);
+        $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
         $this->assertEquals(
             $dateTimeFirstDayOfCurMonth->format(DateTimeZoneHelper::DATE_FORMAT),
             $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)

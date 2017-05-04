@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models\traits;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
@@ -102,10 +103,13 @@ trait AccountTariffBillerResourceTrait
      * Вернуть периоды, по которым не произведен расчет по ресурсам-опциям
      *
      * @return AccountLogFromToResource[][]
+     * @throws \yii\db\StaleObjectException
+     * @throws \Exception
      * @throws \LogicException
      */
     public function getUntarificatedResourceOptionPeriods()
     {
+        $minLogDatetime = self::getMinLogDatetime();
         $accountLogFromToResourcess = [];
 
         // по которым произведен расчет
@@ -137,6 +141,12 @@ trait AccountTariffBillerResourceTrait
             $accountLogFromToResources = $this->getAccountLogFromToResources($resource->id);
             foreach ($accountLogFromToResources as $accountLogFromToResource) {
 
+                $dateFrom = $accountLogFromToResource->dateFrom;
+                if ($dateFrom && $dateFrom < $minLogDatetime) {
+                    // слишком старый. Для оптимизации считать не будем
+                    continue;
+                }
+
                 $uniqueId = $accountLogFromToResource->getUniqueId();
                 if (isset($accountLogss[$resource->id][$uniqueId])) {
                     // уже посчитан
@@ -155,8 +165,12 @@ trait AccountTariffBillerResourceTrait
                         continue;
                     }
 
-                    // остался неизвестный период, который уже рассчитан
-                    printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
+                    // Остался неизвестный период, который уже рассчитан
+                    // Это не ошибка. Такое может быть, когда списали ресурс до конца периода, а в середине кол-во увеличилось. Приходится перерасчитывать
+                    // printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
+                    if (!$accountLog->delete()) {
+                        throw new ModelValidationException($accountLog);
+                    }
                 }
             }
         }
@@ -179,6 +193,7 @@ trait AccountTariffBillerResourceTrait
         $hugeAccountLogFromToResources = $this->getHugeAccountLogFromToResources($resourceId);
         foreach ($hugeAccountLogFromToResources as $hugeAccountLogFromToResource) {
 
+            $dateFrom = $hugeAccountLogFromToResource->dateFrom;
             $dateTo = $hugeAccountLogFromToResource->dateFrom;
 
             do {
@@ -193,7 +208,7 @@ trait AccountTariffBillerResourceTrait
                 }
 
                 $accountLogFromToResource = new AccountLogFromToResource;
-                $accountLogFromToResource->dateFrom = $hugeAccountLogFromToResource->dateFrom;
+                $accountLogFromToResource->dateFrom = $dateFrom;
                 $accountLogFromToResource->dateTo = $dateTo;
                 $accountLogFromToResource->amount = $hugeAccountLogFromToResource->amount;
                 $accountLogFromToResource->tariffPeriod = $hugeAccountLogFromToResource->tariffPeriod;
@@ -206,8 +221,7 @@ trait AccountTariffBillerResourceTrait
                     $dateTo->format(DateTimeZoneHelper::DATE_FORMAT) <
                     $hugeAccountLogFromToResource->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
                 )
-                &&
-                $dateTo = $dateTo->modify('+1 day') // это не проверка, а просто переход на следующий месяц
+                && ($dateFrom = $dateTo = $dateTo->modify('+1 day')) // это не проверка, а просто переход на следующий месяц
             );
         }
 
@@ -246,6 +260,19 @@ trait AccountTariffBillerResourceTrait
         if (is_null($this->_accountLogFromToTariffsOption)) {
             // если ресурсов несколько, то выгоднее закэшировать, чем по каждому спрашивать одно и то же
             $this->_accountLogFromToTariffsOption = $this->getAccountLogFromToTariffs($chargePeriodMain = null, $isWithCurrent = true, $isSplitByMonth = false);
+            // если тариф менялся во время действия предыдущего, то диапазоны будут пересекаться
+            // надо сделать непересекающиеся (предыдущий закончить до начала действия последующего)
+            foreach ($this->_accountLogFromToTariffsOption as $i => $accountLogFromToTariff) {
+                if (!$i) {
+                    // перед первым диапазоном нет ничего
+                    continue;
+                }
+
+                if ($this->_accountLogFromToTariffsOption[$i - 1]->dateTo >= $accountLogFromToTariff->dateFrom) {
+                    // тут может получиться from больше to. Это мы проигнорируем позже
+                    $this->_accountLogFromToTariffsOption[$i - 1]->dateTo = $accountLogFromToTariff->dateFrom->modify('-1 day');
+                }
+            }
         }
 
 
@@ -253,6 +280,11 @@ trait AccountTariffBillerResourceTrait
         foreach ($this->_accountLogFromToTariffsOption as $accountLogFromToTariff) {
             $dateFromYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
             $dateToYmd = $accountLogFromToTariff->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
+
+            if ($dateFromYmd > $dateToYmd) {
+                // в течение дня несколько раз меняли. В результате получилась фигня, которую надо проигнонрировать в ресурсах (но в абонентке это надо учитывать)
+                continue;
+            }
 
             $prevDateYmd = $dateFromYmd;
             $prevAmount = null;
@@ -268,7 +300,7 @@ trait AccountTariffBillerResourceTrait
                     continue;
                 }
 
-                if ($actualFromYmd >= $dateToYmd) {
+                if ($actualFromYmd > $dateToYmd) {
                     // после
                     break;
                 }
