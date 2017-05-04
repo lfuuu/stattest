@@ -17,6 +17,8 @@ class NnpController extends ApiInternalController
 {
     use IdNameRecordTrait;
 
+    const LIMIT = 1000;
+
     /**
      * @throws NotImplementedHttpException
      */
@@ -283,6 +285,8 @@ class NnpController extends ApiInternalController
      *   @SWG\Property(property = "city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "is_mob", type = "integer", description = "Мобильный? 0 - стационарный ABC, 1 - мобильный DEF"),
      *   @SWG\Property(property = "is_active", type = "integer", description = "Активен? 0 - выключен, 1 - активен"),
+     *   @SWG\Property(property = "limit", type = "integer", description = "Не более 1000 записей. Можно только уменьшить"),
+     *   @SWG\Property(property = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0"),
      * ),
      *
      * @SWG\Get(tags = {"NationalNumberPlan"}, path = "/internal/nnp/get-number-ranges", summary = "Диапазоны номеров", operationId = "NumberRange",
@@ -315,6 +319,8 @@ class NnpController extends ApiInternalController
      * @param string $city_id
      * @param bool|string $is_mob
      * @param bool|string $is_active
+     * @param int $limit
+     * @param int $offset
      * @return array
      */
     public function actionGetNumberRanges(
@@ -327,7 +333,9 @@ class NnpController extends ApiInternalController
         $region_id = '',
         $city_id = '',
         $is_mob = '',
-        $is_active = ''
+        $is_active = '',
+        $limit = self::LIMIT,
+        $offset = 0
     ) {
 
         $query = NumberRange::find();
@@ -393,6 +401,15 @@ class NnpController extends ApiInternalController
 
         $query->orderBy(new Expression('ndc IS NOT NULL DESC')); // чтобы большой диапазон по всей стране типа 0000-9999 был в конце
 
+        $limit = (int)$limit;
+        if ($limit <= 0 || $limit > self::LIMIT) {
+            $limit = self::LIMIT;
+        }
+
+        $query->limit($limit);
+
+        $offset = (int)$offset;
+        $offset && $query->offset($offset);
 
         $result = [];
         foreach ($query->each() as $numberRange) {
