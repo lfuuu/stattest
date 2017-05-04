@@ -44,10 +44,9 @@ class RenderParams extends Singleton
      */
     public function apply($tpl, $clientAccountId, $eventId = null)
     {
-        Assert::isNotEmpty($tpl);
-
         $that = $this;
         $mailVariables = Yii::$app->params['mail_map_names'];
+        $event = null;
 
         if ((int)$eventId) {
             /** @var ImportantEvents $event */
