@@ -128,9 +128,9 @@ class AccountTariffResourceLog extends ActiveRecord
     {
         if ($this->accountTariff && $this->accountTariff->clientAccount) {
             return $this->accountTariff->clientAccount->getTimezone();
-        } else {
-            return new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
         }
+
+        return new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT);
     }
 
     /**
@@ -141,9 +141,16 @@ class AccountTariffResourceLog extends ActiveRecord
      */
     public function validateTariffResource($attribute, $params)
     {
+        if (!$this->resource) {
+            $this->addError($attribute, 'Указан несуществующий ресурс.');
+            $this->errorCode = AccountTariff::ERROR_CODE_RESOURSE_WRONG;
+            return;
+        }
+
         $tariffPeriod = $this->accountTariff->tariffPeriod;
         if ($tariffPeriod && $this->resource->service_type_id != $tariffPeriod->tariff->service_type_id) {
-            $this->addError($attribute, 'Этот ресурс "' . $this->resource->name . '" от другого типа услуги.');
+            $this->addError($attribute, 'Этот ресурс "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" от другого типа услуги.');
+            $this->errorCode = AccountTariff::ERROR_CODE_RESOURSE_TYPE_WRONG;
         }
     }
 
@@ -176,7 +183,7 @@ class AccountTariffResourceLog extends ActiveRecord
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if ($this->actual_from_utc < $currentDateTimeUtc) {
-            $this->addError($attribute, 'Нельзя менять количество ресурса "' . $this->resource->name . '" задним числом.');
+            $this->addError($attribute, 'Нельзя менять количество ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" задним числом.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PREV;
             return;
         }
@@ -201,7 +208,8 @@ class AccountTariffResourceLog extends ActiveRecord
             ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
             ->count()
         ) {
-            $this->addError($attribute, 'Уже назначена смена количество ресурса "' . $this->resource->name . '" в будущем. Если вы хотите установить новое количество ресурса - сначала отмените эту смену.');
+            $this->addError($attribute,
+                'Уже назначена смена количество ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" в будущем. Если вы хотите установить новое количество ресурса - сначала отмените эту смену.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_FUTURE;
             return;
         }
@@ -209,7 +217,7 @@ class AccountTariffResourceLog extends ActiveRecord
         /*
             $currentAmount = (int)$this->accountTariff->getResourceValue($this->resource_id);
             if ($this->amount < $currentAmount && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())) {
-                $this->addError($attribute, 'Уменьшить количество ресурса "' . $this->resource->name . '" можно, начиная с ' . $minEditDate);
+                $this->addError($attribute, 'Уменьшить количество ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" можно, начиная с ' . $minEditDate);
                 $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
                 return;
             }
@@ -246,7 +254,7 @@ class AccountTariffResourceLog extends ActiveRecord
             ->one();
 
         if ($prev && $this->amount == $prev->amount) {
-            $this->addError($attribute, 'Нет смысла менять значение ресурса "' . $this->resource->name . '" на тот же самый. Выберите другое значение.');
+            $this->addError($attribute, 'Нет смысла менять значение ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" на тот же самый. Выберите другое значение.');
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SAME;
             return;
         }
@@ -259,10 +267,14 @@ class AccountTariffResourceLog extends ActiveRecord
      */
     public function getAmount()
     {
+        if (!$this->resource) {
+            return null;
+        }
+
         if ($this->resource->isNumber()) {
             return (string)$this->amount;
-        } else {
-            return $this->amount ? '+' : '-';
         }
+
+        return $this->amount ? '+' : '-';
     }
 }

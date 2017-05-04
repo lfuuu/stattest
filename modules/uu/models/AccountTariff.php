@@ -86,6 +86,10 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_USAGE_NOT_EDITABLE = 47; // Услуга нередактируемая
     const ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK = 48; // Этот телефонный номер нельзя подключить
 
+    // Ошибки ресурса
+    const ERROR_CODE_RESOURSE_WRONG = 51; // Указан несуществующий ресурс
+    const ERROR_CODE_RESOURSE_TYPE_WRONG = 52; // Этот ресурс от другого типа услуги
+
     /**
      * @return array
      */
