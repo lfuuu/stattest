@@ -72,4 +72,13 @@ class DayLimitNotificationProcessor extends NotificationProcessor
         ])->all();
     }
 
+    /**
+     * Надо ли отправлять оповещение напрямую
+     *
+     * @return bool
+     */
+    public function isLocalSeviceNotification()
+    {
+        return false;
+    }
 }

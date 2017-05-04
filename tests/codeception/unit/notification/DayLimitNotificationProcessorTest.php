@@ -113,13 +113,7 @@ class DayLimitNotificationProcessorTest extends \yii\codeception\TestCase
             'event' => $mockObj->getEnterEvent(),
             'is_set' => 1
         ]);
-        $this->assertNotNull($lkNoticeLog);
-        $this->assertGreaterThan(0, $lkNoticeLog->contact_id);
-
-        $this->assertNotNull(ClientContact::findOne([
-            'client_id' => $this->account->id,
-            'id' => $lkNoticeLog->contact_id
-        ]));
+        $this->assertNull($lkNoticeLog);
 
         $this->end();
     }
@@ -166,10 +160,8 @@ class DayLimitNotificationProcessorTest extends \yii\codeception\TestCase
             'event' => $mockObj->getEnterEvent(),
             'is_set' => 0
         ]);
-        $this->assertNotNull($lkNoticeLog);
-        $this->assertEquals($lkNoticeLog->contact_id, 0);
+        $this->assertNull($lkNoticeLog);
 
         $this->end();
     }
-
 }
