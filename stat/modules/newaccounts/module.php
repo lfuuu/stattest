@@ -4,6 +4,7 @@ use app\classes\Encrypt;
 use app\classes\StatModule;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
+use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\ClientContract;
 use app\models\ClientContragent;
@@ -89,6 +90,21 @@ class m_newaccounts extends IModule
     function newaccounts_bill_balance_mass($fixclient)
     {
         global $design;
+
+        $now = (new \DateTimeImmutable('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)));
+
+        Param::setParam(
+            Param::NOTIFICATIONS_SWITCH_OFF_DATE,
+            $now->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $isRawValue = true
+        );
+
+        Param::setParam(
+            Param::NOTIFICATIONS_SWITCH_ON_DATE,
+            $now->modify("+1 hour")
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $isRawValue = true
+        );
 
         $design->ProcessEx('errors.tpl');
 

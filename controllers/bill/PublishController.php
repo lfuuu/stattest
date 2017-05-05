@@ -41,10 +41,16 @@ class PublishController extends BaseController
      */
     public function actionIndex($organizationId = Organization::MCN_TELEKOM, $regionId = Region::HUNGARY)
     {
-        $isNotificationsOn = false;
+        $isNotificationsOff = false;
         $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);
         if ($switchOffParam) {
-            $isNotificationsOn = DateTimeZoneHelper::getDateTime($switchOffParam->value);
+            $isNotificationsOff = DateTimeZoneHelper::getDateTime($switchOffParam->value);
+        }
+
+        $isNotificationsOn = false;
+        $switchOnParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_ON_DATE);
+        if ($switchOnParam) {
+            $isNotificationsOn = DateTimeZoneHelper::getDateTime($switchOnParam->value);
         }
 
         $isEnabledRecalcWhenEditBill = !((bool)Param::findOne(Param::DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL));
@@ -52,6 +58,7 @@ class PublishController extends BaseController
         return $this->render('index', [
             'organizationId' => $organizationId,
             'regionId' => $regionId,
+            'isNotificationsOff' => $isNotificationsOff,
             'isNotificationsOn' => $isNotificationsOn,
             'isNotificationsRunning' => Utils::isFileLocked(Param::NOTIFICATIONS_LOCK_FILEPATH),
             'isEnabledRecalcWhenEditBill' => $isEnabledRecalcWhenEditBill,

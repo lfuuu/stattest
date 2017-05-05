@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\exceptions\ModelValidationException;
 use yii\db\ActiveRecord;
 
 /**
@@ -13,6 +14,7 @@ class Param extends ActiveRecord
 {
     const PI_LIST_LAST_INFO = 'pi_list_last_info'; // информация о последнем импорте
     const NOTIFICATIONS_SWITCH_OFF_DATE = 'notifications_switch_off_date'; // дата отключения оповещений
+    const NOTIFICATIONS_SWITCH_ON_DATE = 'notifications_switch_on_date'; // дата включения оповещений
     const NOTIFICATIONS_PERIOD_OFF_MODIFY = '+3 hours'; // через какое время произойдет автоматическое включение оповещений
     const NOTIFICATIONS_LOCK_FILEPATH = '/tmp/yii-check-notification'; // путь к файлу-блокировке работы системы оповещения
 
@@ -33,9 +35,11 @@ class Param extends ActiveRecord
      *
      * @param string $key
      * @param string $value
-     * @return bool
+     * @param bool $isRawValue
+     * @return Param
+     * @throws ModelValidationException
      */
-    public static function setParam($key, $value)
+    public static function setParam($key, $value, $isRawValue = false)
     {
         $param = self::findOne(['param' => $key]);
 
@@ -44,7 +48,11 @@ class Param extends ActiveRecord
             $param->param = $key;
         }
 
-        $param->value = json_encode($value);
-        return $param->save();
+        $param->value = $isRawValue ? $value : json_encode($value);
+        if (!$param->save()) {
+            throw new ModelValidationException($param);
+        }
+
+        return $param;
     }
 }

@@ -92,13 +92,10 @@ class MonitoringController extends BaseController
      */
     public function actionNotificationOn()
     {
-        $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);
-
-        if ($switchOffParam) {
-            if (!$switchOffParam->delete()) {
-                throw new ModelValidationException($switchOffParam);
-            }
-        }
+        Param::deleteAll(['param' => [
+            Param::NOTIFICATIONS_SWITCH_OFF_DATE,
+            Param::NOTIFICATIONS_SWITCH_ON_DATE
+        ]]);
 
         return $this->redirect(\Yii::$app->request->referrer ?: "/");
     }
@@ -108,18 +105,21 @@ class MonitoringController extends BaseController
      */
     public function actionNotificationOff()
     {
-        $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);
+        $now = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)));
+        Param::setParam(
+            Param::NOTIFICATIONS_SWITCH_OFF_DATE,
+            $now
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $isRawValue = true
+        );
 
-        if (!$switchOffParam) {
-            $switchOffParam = new Param();
-            $switchOffParam->param = Param::NOTIFICATIONS_SWITCH_OFF_DATE;
-        }
-
-        $switchOffParam->value = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        if (!$switchOffParam->save()) {
-            throw new ModelValidationException($switchOffParam);
-        }
+        Param::setParam(
+            Param::NOTIFICATIONS_SWITCH_ON_DATE,
+            $now
+                ->modify(Param::NOTIFICATIONS_PERIOD_OFF_MODIFY)
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+            $isRawValue = true
+        );
 
         return $this->redirect(\Yii::$app->request->referrer ?: "/");
     }

@@ -101,7 +101,7 @@ use app\models\Region;
         <a class="btn <?=($isNotificationsRunning ? 'btn-warning' : 'btn-primary')?>" href="/monitoring/notification-off" role="button">Отключить оповещения</a>
     <?php else: ?>
         <a class="btn <?=($isNotificationsRunning ? 'btn-danger' : 'btn-info')?>" href="/monitoring/notification-on" role="button">Включить оповещения</a>
-        <h6>Отключено: <?= $isNotificationsOn ?></h6>
+        <h6>Отключено: <?= $isNotificationsOff ?><br>Авто включение: <?= $isNotificationsOn ?></h6>
     <?php endif; ?>
     <?php if ($isNotificationsRunning) : ?>
         <div><code>Скрипт работает</code></div>
