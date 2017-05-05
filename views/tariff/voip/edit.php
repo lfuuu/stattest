@@ -38,8 +38,7 @@ $priceLists = Pricelist::find()
     ->andWhere([
         'orig' => 1,
         'local' => 0,
-        'price_include_vat' => $model->price_include_vat
-    ])
+    ] + ($creatingMode ? [] : ['price_include_vat' => $model->price_include_vat]))
     ->orderBy([
         'region' => SORT_DESC,
         'name' => SORT_ASC
