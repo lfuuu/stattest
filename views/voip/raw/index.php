@@ -87,9 +87,11 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     $columns = require '_indexColumns.php';
 }
 
+$report = $filterModel->getReport();
+
 try {
     GridView::separateWidget([
-        'dataProvider' => $filterModel->getReport(),
+        'dataProvider' => $report,
         'filterModel' => $filterModel,
         'beforeHeader' => [
             'columns' => $filter
@@ -110,7 +112,7 @@ try {
                     'Выберите время начала разговора и хотя бы еще одно поле'
             ),
         'exportWidget' => \app\widgets\GridViewExport\GridViewExport::widget([
-            'dataProvider' => $filterModel->getReport(),
+            'dataProvider' => $report,
             'filterModel' => $filterModel,
             'columns' => $columns,
             'batchSize' => 1000,

@@ -9,10 +9,10 @@
 
         $(document)
             .on('pjax:start', 'div[data-pjax-container]', function () {
-                $(this).find('.kv-grid-table').addClass('kv-grid-loading');
+                $(this).find('.kv-grid-container > .kv-grid-table').addClass('kv-grid-loading');
             })
             .on('pjax:end', 'div[data-pjax-container]', function () {
-                $(this).find('.kv-grid-table').removeClass('kv-grid-loading');
+                $(this).find('.kv-grid-container > .kv-grid-table').removeClass('kv-grid-loading');
                 $('div[data-pjax-container] > div').yiiGridView({'filterUrl':'', 'filterSelector':'.beforeHeaderFilters input, .beforeHeaderFilters select'});
                 $(document).off('change.yiiGridView', '.beforeHeaderFilters input, .beforeHeaderFilters select');
             });

@@ -192,6 +192,10 @@ class CallsRawFilter extends Model
 
     public $term_rate = null;
 
+    public $dateStart = null;
+
+    public $dbConn = null;
+
     /**
      * Rules set
      *
@@ -279,10 +283,10 @@ class CallsRawFilter extends Model
          * Проверяем не составляет ли интервал больше одного месяца
          */
         if ($this->connect_time_from && $this->connect_time_to) {
-            $dateStart = new \DateTime($this->connect_time_from);
+            $this->dateStart = new \DateTime($this->connect_time_from);
             $dateEnd = new \DateTime($this->connect_time_to);
             $dateEnd->modify('-1 second');
-            $interval = $dateEnd->diff($dateStart);
+            $interval = $dateEnd->diff($this->dateStart);
             if ($interval->m > 1 || ($interval->m && ($interval->i || $interval->d || $interval->h || $interval->s))) {
                 Yii::$app->session->addFlash('error', 'Временной период больше одного месяца');
                 return false;
@@ -362,19 +366,176 @@ class CallsRawFilter extends Model
     }
 
     /**
-     * Отчет по calls_raw (живет по адресу /voip/raw)
+     * Формирование отчета путем обращения в кеширующей базе данных
      *
-     * @return ActiveDataProvider|ArrayDataProvider
+     * @return CTEQuery
      */
-    public function getReport()
+    public function getCacheReport()
     {
-        if (!$this->isFilteringPossible()) {
-            return new ArrayDataProvider(
+        $this->dbConn = Yii::$app->dbPgCache;
+
+        $query = new CTEQuery();
+
+        $query->select(
+            [
+                'connect_time',
+                'disconnect_cause',
+                'src_route',
+                'src_number',
+                'dst_number',
+                'pdd',
+                'src_operator_name',
+                'src_country_name',
+                'src_region_name',
+                'src_city_name',
+                'src_contract_name',
+                'sale',
+                'orig_rate',
+                'session_time',
+                'dst_route',
+                'dst_operator_name',
+                'dst_country_name',
+                'dst_region_name',
+                'dst_city_name',
+                'dst_contract_name',
+                'cost_price',
+                'term_rate',
+                'margin'
+            ]
+        )
+        ->from('calls_raw_cache.calls_raw_cache');
+
+        if ($this->connect_time_from || $this->correct_connect_time_to) {
+            $query->andWhere(
                 [
-                    'allModels' => [],
+                    'BETWEEN',
+                    'connect_time',
+                    $this->connect_time_from,
+                    $this->correct_connect_time_to ? $this->correct_connect_time_to : new Expression('now()'),
                 ]
             );
         }
+
+        ($this->session_time_from || $this->session_time_to)
+        && $query->andWhere(
+            [
+                'BETWEEN',
+                'session_time',
+                $this->session_time_from ? (int)$this->session_time_from : 0,
+                $this->session_time_to ? (int)$this->session_time_to : self::UNATTAINABLE_SESSION_TIME
+            ]
+        );
+
+        $this->server_ids
+        && $query->andWhere(['server_id' => $this->server_ids]);
+
+        $this->src_physical_trunks_ids
+        && $query->andWhere(['src_trunk_id' => $this->src_physical_trunks_ids]);
+
+        $this->dst_physical_trunks_ids
+        && $query->andWhere(['dst_trunk_id' => $this->dst_physical_trunks_ids]);
+
+        $this->src_logical_trunks_ids
+        && $query->andWhere(['src_trunk_service_id' => $this->src_logical_trunks_ids]);
+
+        $this->dst_logical_trunks_ids
+        && $query->andWhere(['dst_trunk_service_id' => $this->dst_logical_trunks_ids]);
+
+        $this->src_contracts_ids
+        && $query->andWhere(['src_contract_id' => $this->src_contracts_ids]);
+
+        $this->dst_contracts_ids
+        && $query->andWhere(['dst_contract_id' => $this->dst_contracts_ids]);
+
+        $this->src_operator_ids
+        && $query->andWhere(['src_nnp_operator_id' => $this->src_operator_ids]);
+
+        $this->src_regions_ids
+        && $query->andWhere(['src_nnp_region_id' => $this->src_regions_ids]);
+
+        $this->src_cities_ids
+        && $query->andWhere(['src_nnp_city_id' => $this->src_cities_ids]);
+
+        $this->src_countries_ids
+        && $query->andWhere(['src_nnp_country_code' => $this->src_countries_ids]);
+
+        $this->dst_operator_ids
+        && $query->andWhere(['dst_nnp_operator_id' => $this->dst_operator_ids]);
+
+        $this->dst_regions_ids
+        && $query->andWhere(['dst_nnp_region_id' => $this->dst_regions_ids]);
+
+        $this->dst_cities_ids
+        && $query->andWhere(['dst_nnp_city_id' => $this->dst_cities_ids]);
+
+        $this->dst_countries_ids
+        && $query->andWhere(['dst_nnp_country_code', $this->dst_countries_ids]);
+
+        $this->is_success_calls
+        && $query->andWhere(['or', 'session_time > 0', ['disconnect_cause' => DisconnectCause::$successCodes]]);
+
+        if ($this->dst_number) {
+            $this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']);
+            $query->andWhere(['LIKE', 'dst_number', $this->dst_number, $isEscape = false]);
+        }
+
+        if ($this->src_number) {
+            $this->src_number = strtr($this->src_number, ['.' => '_', '*' => '%']);
+            $query->andWhere(['LIKE', 'src_number', $this->src_number, $isEscape = false]);
+        }
+
+        $this->disconnect_causes
+        && $query->andWhere(['disconnect_cause' => $this->disconnect_causes]);
+
+        if ($this->src_destinations_ids || $this->src_number_type_ids) {
+            $condition = [];
+
+            $this->src_destinations_ids
+            && $query->andWhere(['src_nrd.destination_id' => $this->src_destinations_ids])
+            && $condition[] = ['src_nrd.destination_id' => $this->src_destinations_ids];
+
+            $this->src_number_type_ids
+            && $query->andWhere(['src_nrd.ndc_type_id' => $this->src_number_type_ids])
+            && $condition[] = ['src_nrd.ndc_type_id' => $this->src_number_type_ids];
+
+            $condition = count($condition) == 2 ? ['AND', $condition[0], $condition[1]] : $condition[0];
+            $query5 = new Query();
+            $query5->from('nnp.number_range_destination src_nrd')
+                ->andWhere(['AND', 'src_nnp_number_range_id = src_nrd.number_range_id', $condition])
+                ->limit(1);
+            $query->join('LEFT JOIN LATERAL', ['src_nrd' => $query5], 'src_nnp_number_range_id = src_nrd.number_range_id');
+        }
+
+        if ($this->dst_destinations_ids || $this->dst_number_type_ids) {
+            $condition = [];
+
+            $this->dst_destinations_ids
+            && $query->andWhere(['dst_nrd.destination_id' => $this->dst_destinations_ids])
+            && $condition[] = ['dst_nrd.destination_id' => $this->dst_destinations_ids];
+
+            $this->dst_number_type_ids
+            && $query->andWhere(['dst_nrd.ndc_type_id' => $this->dst_number_type_ids])
+            && $condition[] = ['dst_nrd.ndc_type_id' => $this->dst_number_type_ids];
+
+            $condition = count($condition) == 2 ? ['AND', $condition[0], $condition[1]] : $condition[0];
+            $query5 = new Query();
+            $query5->from('nnp.number_range_destination dst_nrd')
+                ->andWhere(['AND', 'dst_nnp_number_range_id = dst_nrd.number_range_id', $condition])
+                ->limit(1);
+            $query->join('LEFT JOIN LATERAL', ['dst_nrd' => $query5], 'dst_nnp_number_range_id = dst_nrd.number_range_id');
+        }
+
+        return $query;
+    }
+
+    /**
+     * Формирование отчета на основе "сырых" данных
+     *
+     * @return CTEQuery
+     */
+    public function getSlowReport()
+    {
+        $this->dbConn = Yii::$app->dbPgSlave;
 
         $query1 = new CTEQuery();
         $query2 = new CTEQuery();
@@ -462,6 +623,7 @@ class CallsRawFilter extends Model
                 'src_contract_name' => $null,
                 'sale' => $null,
                 'orig_rate' => $null,
+                'cu.server_id',
                 'cdr_id1' => $null,
                 'session_time' => $null,
                 'dst_route',
@@ -472,6 +634,7 @@ class CallsRawFilter extends Model
                 'dst_contract_name' => $null,
                 'cost_price' => $null,
                 'term_rate' => $null,
+                'server_id1' => $null,
                 'margin' => $null,
             ]
         )->from('calls_cdr.cdr_unfinished cu')
@@ -565,20 +728,16 @@ class CallsRawFilter extends Model
         }
 
         $this->src_logical_trunks_ids
-        && $query1->andWhere(['cr.trunk_service_id' => $this->src_logical_trunks_ids])
-        && $query3 = null;
+        && $query1->andWhere(['cr.trunk_service_id' => $this->src_logical_trunks_ids]);
 
         $this->dst_logical_trunks_ids
         && $query2->andWhere(['cr.trunk_service_id' => $this->dst_logical_trunks_ids]);
-        $query3 = null;
 
         $this->src_contracts_ids
-        && $query1->andWhere(['st.contract_id' => $this->src_contracts_ids])
-        && $query3 = null;
+        && $query1->andWhere(['st.contract_id' => $this->src_contracts_ids]);
 
         $this->dst_contracts_ids
-        && $query2->andWhere(['st.contract_id' => $this->dst_contracts_ids])
-        && $query3 = null;
+        && $query2->andWhere(['st.contract_id' => $this->dst_contracts_ids]);
 
         $this->src_operator_ids
         && $query1->andWhere(['cr.nnp_operator_id' => $this->src_operator_ids]);
@@ -675,14 +834,46 @@ class CallsRawFilter extends Model
 
         $query3 && $query4 = (new CTEQuery())->from(['cr' => $query4->union($query3)]);
 
-        $query4->orderBy('connect_time');
+        if (($this->sort && $this->sort != 'connect_time') || $this->group || $this->group_period || $this->aggr) {
+            $query1->orderBy([])->limit(-1);
+            $query2->orderBy([])->limit(-1);
+            $query3 && $query3->orderBy([])->limit(-1);
+            $query4->orderBy([])->limit(-1);
+        }
+
+        $query4->addWith(['cr1' => $query1]);
+        $query4->addWith(['cr2' => $query2]);
+
+        return $query4;
+    }
+
+    /**
+     * Отчет по calls_raw (живет по адресу /voip/raw)
+     *
+     * @return ActiveDataProvider|ArrayDataProvider
+     */
+    public function getReport()
+    {
+        if (!$this->isFilteringPossible()) {
+            return new ArrayDataProvider(
+                [
+                    'allModels' => [],
+                ]
+            );
+        }
+
+        $last_month = (new \DateTime())->setTimestamp(mktime(0, 0, 0, date('m') - 1, 1));
+
+        $query = $this->dateStart >= $last_month ? $this->getCacheReport() : $this->getSlowReport();
+
+        $query->orderBy('connect_time');
 
         if ($this->group || $this->group_period || $this->aggr) {
             $fields = $groups = [];
             if ($this->group_period) {
-                $query4->rightJoin(
+                $query->rightJoin(
                     "generate_series ('{$this->connect_time_from}'::timestamp, '{$this->correct_connect_time_to}'::timestamp, '1 {$this->group_period}'::interval) gs",
-                    "cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval '1 {$this->group_period}'"
+                    "connect_time >= gs.gs AND connect_time <= gs.gs + interval '1 {$this->group_period}'"
                 );
                 $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 {$this->group_period}'";
                 $groups[] = 'gs.gs';
@@ -700,13 +891,11 @@ class CallsRawFilter extends Model
                 }
             }
 
-            $query1->limit(-1);
-            $query2->limit(-1);
-            $query3 && $query3->limit(-1);
-
-            $query4->select($fields)
+            $query->select($fields)
                 ->groupBy($groups)
                 ->orderBy($sort[0]);
+
+            $count = $query->liteRowCount($this->dbConn);
         } else {
             $sort = [
                 'connect_time',
@@ -733,37 +922,22 @@ class CallsRawFilter extends Model
                 'term_rate',
                 'pdd',
             ];
-        }
 
-        if ($this->sort && $this->sort != 'connect_time') {
-            $query1->orderBy([])->limit(-1);
-            $query2->orderBy([])->limit(-1);
-            $query3 && $query3->orderBy([])->limit(-1);
-            $query4->orderBy([])->limit(-1);
-        }
+            $count = $query->liteRowCount($this->dbConn);
 
-        $query4->addWith(['cr1' => $query1]);
-        $query4->addWith(['cr2' => $query2]);
-
-        $count1 = $query1->liteRowCount();
-        $count2 = $query2->liteRowCount();
-        $count3 = $query3 ? $query3->liteRowCount() : 0;
-        $count4 = $query4->liteRowCount();
-
-        $count = min(min($count1, $count2) + $count3, $count4);
-
-        /**
-         * Метод получения количества записей на основе статистики неточен.
-         * Посему не следуют его использовать если его неточность может повлить на вычислени количества страниц.
-         */
-        if ($count < 5000) {
-            $count = $query4->rowCount();
+            /**
+             * Метод получения количества записей на основе статистики неточен.
+             * Посему не следуют его использовать если его неточность может повлить на вычислени количества страниц.
+             */
+            if ($count < 5000) {
+                $count = $query->rowCount($this->dbConn);
+            }
         }
 
         return new ActiveDataProvider(
             [
-                'db' => 'dbPgSlave',
-                'query' => $query4,
+                'db' => $this->dbConn,
+                'query' => $query,
                 'pagination' => [],
                 'totalCount' => $count,
                 'sort' => [
