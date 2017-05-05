@@ -24,6 +24,7 @@ use app\dao\ClientDocumentDao;
  * @property int $is_active
  * @property string $type
  * @property string $fileContent
+ * @property ClientAccount clientAccount
  */
 class ClientDocument extends ActiveRecord
 {
@@ -185,6 +186,14 @@ class ClientDocument extends ActiveRecord
     {
         $clientContract = ClientContract::findOne($this->contract_id);
         return !is_null($clientContract) ? $clientContract->loadVersionOnDate($this->contract_date) : null;
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['id' => 'account_id']);
     }
 
     /**

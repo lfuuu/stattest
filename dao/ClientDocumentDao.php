@@ -218,7 +218,7 @@ class ClientDocumentDao extends Singleton
     private function _makeBlankZakaz(ClientDocument $document, &$design)
     {
         /** @var ClientAccount $clientAccount */
-        $clientAccount = $document->contract->accounts[0];
+        $clientAccount = $document->clientAccount;
         $client = $clientAccount->client;
 
         $data = [
