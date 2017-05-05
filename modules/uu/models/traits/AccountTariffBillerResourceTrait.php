@@ -128,11 +128,10 @@ trait AccountTariffBillerResourceTrait
 
 
         // по всем ресурсам
-        $readerNames = Resource::getReaderNames();
         $resources = Resource::findAll(['service_type_id' => $this->service_type_id]);
         foreach ($resources as $resource) {
 
-            if (array_key_exists($resource->id, $readerNames)) {
+            if (!$resource->isOption()) {
                 // этот ресурс - не опция. Он считается в соседнем методе
                 continue;
             }

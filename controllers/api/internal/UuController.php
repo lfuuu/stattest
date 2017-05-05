@@ -1454,7 +1454,12 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Definition(definition = "editAccountTariffResourceRecord", type = "object",
-     *   @SWG\Property(property = "price", type = "float", description = "Стоимость этого ресурса, списанная за период, указанный ниже"),
+     *   @SWG\Property(property = "amount_use", type = "float", description = "Используемое количество ресурса"),
+     *   @SWG\Property(property = "amount_free", type = "float", description = "Условно-бесплатное количество ресурса, включенное в тариф"),
+     *   @SWG\Property(property = "amount_overhead", type = "float", description = "Количество ресурса сверх бесплатного (amount_use - amount_free)"),
+     *   @SWG\Property(property = "price_per_unit", type = "float", description = "Цена за единицу ресурса в день"),
+     *   @SWG\Property(property = "coefficient", type = "integer", description = "Количество дней"),
+     *   @SWG\Property(property = "price", type = "float", description = "Стоимость этого ресурса за период, указанный ниже. Если null - списание невозможно"),
      *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой начинается действие и списание. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "actual_to", type = "string", description = "Дата, по которую списано (включительно). ГГГГ-ММ-ДД"),
      * ),
@@ -1499,14 +1504,18 @@ class UuController extends ApiInternalController
                 throw new ModelValidationException($accountTariffResourceLog, $accountTariffResourceLog->errorCode);
             }
 
+            $accountLogResource = $accountTariffResourceLog->validatorBalance('id', []);
             $transaction->commit();
 
-            list(, $actualTo) = $accountTariffResourceLog->accountTariff->getLastLogPeriod();
-
             return [
-                'price' => 0, // @todo
-                'actual_from' => $accountTariffResourceLog->actual_from,
-                'actual_to' => $actualTo,
+                'amount_use' => $accountLogResource->amount_use,
+                'amount_free' => $accountLogResource->amount_free,
+                'amount_overhead' => $accountLogResource->amount_overhead,
+                'price_per_unit' => $accountLogResource->price_per_unit,
+                'coefficient' => $accountLogResource->coefficient,
+                'price' => $accountLogResource->price,
+                'actual_from' => $accountLogResource->date_from,
+                'actual_to' => $accountLogResource->date_to,
             ];
 
         } catch (Exception $e) {

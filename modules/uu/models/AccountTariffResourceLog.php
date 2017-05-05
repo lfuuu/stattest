@@ -149,14 +149,21 @@ class AccountTariffResourceLog extends ActiveRecord
     {
         if (!$this->resource) {
             $this->addError($attribute, 'Указан несуществующий ресурс.');
-            $this->errorCode = AccountTariff::ERROR_CODE_RESOURSE_WRONG;
+            $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_WRONG;
             return;
         }
 
         $tariffPeriod = $this->accountTariff->tariffPeriod;
         if ($tariffPeriod && $this->resource->service_type_id != $tariffPeriod->tariff->service_type_id) {
             $this->addError($attribute, 'Этот ресурс "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" от другого типа услуги.');
-            $this->errorCode = AccountTariff::ERROR_CODE_RESOURSE_TYPE_WRONG;
+            $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_TYPE_WRONG;
+            return;
+        }
+
+        if (!$this->resource->isOption()) {
+            $this->addError($attribute, 'Этот ресурс "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" - трафик, а не опция. Его нельзя установить заранее.');
+            $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_TRAFFIC;
+            return;
         }
     }
 
@@ -289,7 +296,7 @@ class AccountTariffResourceLog extends ActiveRecord
      *
      * @param string $attribute
      * @param array $params
-     * @return float|null
+     * @return AccountLogResource|null
      * @throws \RangeException
      * @throws \Exception
      */
@@ -358,26 +365,13 @@ class AccountTariffResourceLog extends ActiveRecord
             return null;
         }
 
-        // ресурсы
-        $priceResources = 0;
-        $readerNames = Resource::getReaderNames();
-        $tariffResources = $tariffPeriod->tariff->tariffResources;
-        foreach ($tariffResources as $tariffResource) {
-
-            if (array_key_exists($tariffResource->resource_id, $readerNames)) {
-                // этот ресурс - не опция. Он считается по факту, а не заранее
-                continue;
-            }
-
-            $accountLogFromToResource = new AccountLogFromToResource;
-            $accountLogFromToResource->dateFrom = new DateTimeImmutable($this->actual_from);
-            $accountLogFromToResource->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToResource->dateFrom);
-            $accountLogFromToResource->tariffPeriod = $tariffPeriod;
-            $accountLogFromToResource->amount = (float)$accountTariff->getResourceValue($tariffResource->resource_id); // текущее кол-во ресурса может быть null, если услуга только создается
-
-            $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $tariffResource->resource_id);
-            $priceResources += $accountLogResource->price;
-        }
+        $accountLogFromToResource = new AccountLogFromToResource;
+        $accountLogFromToResource->dateFrom = new DateTimeImmutable($this->actual_from);
+        $accountLogFromToResource->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToResource->dateFrom);
+        $accountLogFromToResource->tariffPeriod = $tariffPeriod;
+        $accountLogFromToResource->amount = $this->amount;
+        $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $this->resource_id);
+        $priceResources = $accountLogResource->price;
 
         if ($realtimeBalanceWithCredit < $priceResources) {
             $error = sprintf(
@@ -390,14 +384,14 @@ class AccountTariffResourceLog extends ActiveRecord
             );
             $this->_shiftActualFrom($error);
             $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
-            return $priceResources;
+            return $accountLogResource;
         }
 
         // все хорошо - денег хватает
         // на самом деле мы не знаем, сколько клиент уже потратил на звонки сегодня. Но это дело низкоуровневого биллинга. Если денег не хватит - заблокирует финансово
         // транзакции не сохраняем, деньги пока не списываем. Подробнее см. AccountTariffBiller
         Yii::trace('AccountTariffResourceLog. After validatorBalance', 'uu');
-        return $priceResources;
+        return $accountLogResource;
     }
 
     /**

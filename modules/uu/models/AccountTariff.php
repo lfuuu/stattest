@@ -87,8 +87,9 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK = 48; // Этот телефонный номер нельзя подключить
 
     // Ошибки ресурса
-    const ERROR_CODE_RESOURSE_WRONG = 51; // Указан несуществующий ресурс
-    const ERROR_CODE_RESOURSE_TYPE_WRONG = 52; // Этот ресурс от другого типа услуги
+    const ERROR_CODE_RESOURCE_WRONG = 51; // Указан несуществующий ресурс
+    const ERROR_CODE_RESOURCE_TYPE_WRONG = 52; // Этот ресурс от другого типа услуги
+    const ERROR_CODE_RESOURCE_TRAFFIC = 54; // Этот ресурс - трафик, а не опция. Его нельзя установить заранее.
 
     /**
      * @return array

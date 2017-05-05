@@ -204,7 +204,7 @@ class AccountLogResourceTarificator extends Tarificator
         $accountLogResource->tariff_period_id = $tariffPeriod->id;
         $accountLogResource->account_tariff_id = $accountTariff->id;
         $accountLogResource->tariff_resource_id = $tariffResource->id;
-        $accountLogResource->amount_use = $accountLogFromToResource->amount;
+        $accountLogResource->amount_use = (float) $accountLogFromToResource->amount;
         $accountLogResource->amount_free = $tariffResource->amount;
         $accountLogResource->price_per_unit = $tariffResource->price_per_unit / $accountLogFromToResource->dateFrom->format('t'); // это "цена за месяц", а надо перевести в "цену за день"
         $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
