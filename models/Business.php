@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
@@ -40,6 +41,14 @@ class Business extends ActiveRecord
     }
 
     /**
+     * @return ActiveQuery
+     */
+    public static function find()
+    {
+        return parent::find()->orderBy(['sort' => SORT_ASC]);
+    }
+
+    /**
      * Вернуть список всех доступных значений
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
@@ -68,5 +77,13 @@ class Business extends ActiveRecord
     public function getBusinessProcesses()
     {
         return $this->hasMany(BusinessProcess::className(), ['business_id' => 'id']);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
     }
 }

@@ -7,7 +7,7 @@
 		<TBODY>
 			<TR>
 				<TD class=left>
-					<label for="region">Регион:</label>
+					<label for="region">Регион: </label>
 				</TD>
 				<TD>
 					<select name="region" id="region" onchange='document.forms["bill_region"].submit();'>
@@ -16,7 +16,7 @@
 						</option>
 						<option value="0" {if $region == 0}selected="selected"{/if}>
 								Все регионы
-							</option>
+						</option>
 						{foreach from=$regions item="r"}
 							<option value="{$r.id}" {if $region == $r.id}selected="selected"{/if}>
 								{$r.name}
@@ -24,13 +24,19 @@
 						{/foreach}
 					</select>
 				</TD>
-				
+				<TD class=left>
+					<label for="region">Подразделение: </label>
+				</TD>
+				<TD>
+					<select name="business_id" id="business_id" onchange='document.forms["bill_region"].submit();'>
+						{html_options options=$businesses selected=$business_id}
+					</select>
+				</TD>
+
 			</TR>
 		</TBODY>
        </TABLE>
       <HR>
-
-      <DIV align=center><INPUT class=button type=submit value="Сформировать отчёт"></DIV>
 </FORM>
 {if $graphs}
 	<table>

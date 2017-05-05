@@ -175,4 +175,12 @@ class Region extends ActiveRecord
 
         return $region->timezone_name;
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
 }
