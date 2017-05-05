@@ -134,6 +134,17 @@ class Resource extends \yii\db\ActiveRecord
     }
 
     /**
+     * Опция? Иначе ресурс
+     *
+     * @return bool
+     */
+    public function isOption()
+    {
+        $readerNames = self::getReaderNames();
+        return !isset($readerNames[$this->id]);
+    }
+
+    /**
      * Вернуть список всех доступных значений
      *
      * @param int $serviceTypeId

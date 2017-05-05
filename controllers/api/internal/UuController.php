@@ -3,6 +3,14 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
+use app\exceptions\ModelValidationException;
+use app\exceptions\web\NotImplementedHttpException;
+use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
+use app\models\ClientContragent;
+use app\modules\nnp\models\PackageMinute;
+use app\modules\nnp\models\PackagePrice;
+use app\modules\nnp\models\PackagePricelist;
 use app\modules\uu\behaviors\SyncVmCollocation;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogSetup;
@@ -19,14 +27,6 @@ use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipGroup;
-use app\exceptions\ModelValidationException;
-use app\exceptions\web\NotImplementedHttpException;
-use app\helpers\DateTimeZoneHelper;
-use app\models\ClientAccount;
-use app\models\ClientContragent;
-use app\modules\nnp\models\PackageMinute;
-use app\modules\nnp\models\PackagePrice;
-use app\modules\nnp\models\PackagePricelist;
 use Exception;
 use Yii;
 use yii\web\HttpException;
@@ -75,6 +75,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_number", type = "boolean", description = "true - numeric, false - boolean"),
      *   @SWG\Property(property = "min_value", type = "string", description = "Минимум, ед."),
      *   @SWG\Property(property = "max_value", type = "string", description = "Максимум, ед."),
+     *   @SWG\Property(property = "is_option", type = "boolean", description = "Опция? Иначе ресурс"),
      *   @SWG\Property(property = "service_type", type = "object", description = "Тип услуги", ref = "#/definitions/idNameRecord"),
      * ),
      *
@@ -119,6 +120,7 @@ class UuController extends ApiInternalController
             'is_number' => $model->isNumber(),
             'min_value' => $model->min_value,
             'max_value' => $model->max_value,
+            'is_option' => $model->isOption(),
             'service_type' => $this->_getIdNameRecord($model->serviceType),
         ];
     }
@@ -467,16 +469,15 @@ class UuController extends ApiInternalController
     private function _getTariffResourceRecord($model)
     {
         if (is_array($model)) {
-
             $result = [];
             foreach ($model as $subModel) {
                 $result[] = $this->_getTariffResourceRecord($subModel);
             }
 
             return $result;
+        }
 
-        } elseif ($model) {
-
+        if ($model) {
             $isCheckable = !$model->resource->isNumber();
             return [
                 'id' => $model->id,
@@ -487,12 +488,9 @@ class UuController extends ApiInternalController
                 'price_min' => $model->price_min,
                 'resource' => $this->_getResourceRecord($model->resource),
             ];
-
-        } else {
-
-            return null;
-
         }
+
+        return null;
     }
 
     /**
@@ -502,16 +500,15 @@ class UuController extends ApiInternalController
     private function _getTariffPeriodRecord($model)
     {
         if (is_array($model)) {
-
             $result = [];
             foreach ($model as $subModel) {
                 $result[] = $this->_getTariffPeriodRecord($subModel);
             }
 
             return $result;
+        }
 
-        } elseif ($model) {
-
+        if ($model) {
             return [
                 'id' => $model->id,
                 'price_setup' => $model->price_setup,
@@ -520,12 +517,9 @@ class UuController extends ApiInternalController
                 'price_min' => $model->price_min,
                 'charge_period' => $this->_getIdNameRecord($model->chargePeriod),
             ];
-
-        } else {
-
-            return null;
-
         }
+
+        return null;
     }
 
     /**
@@ -539,14 +533,12 @@ class UuController extends ApiInternalController
         }
 
         if (is_array($packageMinutes)) {
-
             $result = [];
             foreach ($packageMinutes as $packageMinute) {
                 $result[] = $this->_getVoipPackageMinuteRecord($packageMinute);
             }
 
             return $result;
-
         }
 
         return [
@@ -566,14 +558,12 @@ class UuController extends ApiInternalController
         }
 
         if (is_array($packagePrices)) {
-
             $result = [];
             foreach ($packagePrices as $packagePrice) {
                 $result[] = $this->_getVoipPackagePriceRecord($packagePrice);
             }
 
             return $result;
-
         }
 
         return [
@@ -593,14 +583,12 @@ class UuController extends ApiInternalController
         }
 
         if (is_array($packagePricelists)) {
-
             $result = [];
             foreach ($packagePricelists as $packagePricelist) {
                 $result[] = $this->_getVoipPackagePricelistRecord($packagePricelist);
             }
 
             return $result;
-
         }
 
         return [
@@ -734,14 +722,12 @@ class UuController extends ApiInternalController
         }
 
         if (is_array($accountTariff)) {
-
             $result = [];
             foreach ($accountTariff as $subAccountTariff) {
                 $result[] = $this->_getAccountTariffRecord($subAccountTariff);
             }
 
             return $result;
-
         }
 
         return [
@@ -767,28 +753,24 @@ class UuController extends ApiInternalController
     private function _getAccountTariffLogRecord($model)
     {
         if (is_array($model)) {
-
             $result = [];
             foreach ($model as $subModel) {
                 $result[] = $this->_getAccountTariffLogRecord($subModel);
             }
 
             return $result;
+        }
 
-        } elseif ($model) {
-
+        if ($model) {
             return [
                 'tariff' => $model->tariffPeriod ?
                     $this->_getTariffRecord($model->tariffPeriod->tariff, $model->tariffPeriod) :
                     null,
                 'actual_from' => $model->actual_from,
             ];
-
-        } else {
-
-            return null;
-
         }
+
+        return null;
     }
 
     /**
@@ -801,7 +783,6 @@ class UuController extends ApiInternalController
 
         $resources = Resource::findAll(['service_type_id' => $accountTariff->service_type_id]);
         foreach ($resources as $resource) {
-
             $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resource->id)->all();
 
             $accountTariffResourceRecords[] = [
@@ -838,28 +819,24 @@ class UuController extends ApiInternalController
     private function _getAccountLogSetupRecord($model)
     {
         if (is_array($model)) {
-
             $result = [];
             foreach ($model as $subModel) {
                 $result[] = $this->_getAccountLogSetupRecord($subModel);
             }
 
             return $result;
+        }
 
-        } elseif ($model) {
-
+        if ($model) {
             return [
                 'date' => $model->date,
                 'price' => $model->price,
                 'tariff_id' => $model->tariff_period_id ? $model->tariffPeriod->tariff_id : null,
                 'tariff_period_id' => $model->tariff_period_id,
             ];
-
-        } else {
-
-            return null;
-
         }
+
+        return null;
     }
 
     /**
@@ -869,16 +846,15 @@ class UuController extends ApiInternalController
     private function _getAccountLogPeriodRecord($model)
     {
         if (is_array($model)) {
-
             $result = [];
             foreach ($model as $subModel) {
                 $result[] = $this->_getAccountLogPeriodRecord($subModel);
             }
 
             return $result;
+        }
 
-        } elseif ($model) {
-
+        if ($model) {
             return [
                 'date_from' => $model->date_from,
                 'date_to' => $model->date_to,
@@ -888,12 +864,9 @@ class UuController extends ApiInternalController
                 'tariff_id' => $model->tariff_period_id ? $model->tariffPeriod->tariff_id : null,
                 'tariff_period_id' => $model->tariff_period_id,
             ];
-
-        } else {
-
-            return null;
-
         }
+
+        return null;
     }
 
     /**
@@ -917,6 +890,9 @@ class UuController extends ApiInternalController
      *
      * @SWG\Definition(definition = "accountTariffResourceLightRecord", type = "object",
      *   @SWG\Property(property = "resource", type = "object", description = "Ресурс", @SWG\Items(ref = "#/definitions/resourceRecord")),
+     *   @SWG\Property(property = "free_amount", type = "number", description = "Условно-бесплатно включено в текущий тариф, ед. Если null - изменить нельзя"),
+     *   @SWG\Property(property = "price_per_unit", type = "number", description = "Цена за превышение в текущем тарифе, ¤/ед. Если null - изменить нельзя"),
+     *   @SWG\Property(property = "price_min", type = "number", description = "Мин. стоимость за месяц в текущем тарифе, ¤. Если null - изменить нельзя"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог ресурсов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffResourceLogLightRecord")),
      * ),
      *
@@ -1023,13 +999,21 @@ class UuController extends ApiInternalController
     {
         $accountTariffResourceRecords = [];
 
+        $tariffPeriod = $accountTariff->tariffPeriod;
+        $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
+        $tariffResourcesIndexedByResourceId = $tariff ? $tariff->tariffResourcesIndexedByResourceId : [];
+
         $resources = Resource::findAll(['service_type_id' => $accountTariff->service_type_id]);
         foreach ($resources as $resource) {
 
+            $tariffResource = isset($tariffResourcesIndexedByResourceId[$resource->id]) ? $tariffResourcesIndexedByResourceId[$resource->id] : null;
             $accountTariffResourceLogs = $accountTariff->getAccountTariffResourceLogs($resource->id)->all();
 
             $accountTariffResourceRecords[] = [
                 'resource' => $this->_getResourceRecord($resource),
+                'free_amount' => $tariffResource ? $tariffResource->amount : null,
+                'price_per_unit' => $tariffResource ? $tariffResource->price_per_unit : null,
+                'price_min' => $tariffResource ? $tariffResource->price_min : null,
                 'log' => $this->_getAccountTariffResourceLogLightRecord($accountTariffResourceLogs),
             ];
         }
