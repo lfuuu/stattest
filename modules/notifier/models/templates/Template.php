@@ -19,7 +19,7 @@ class Template extends ActiveRecord
 
     const TYPE_EMAIL = 'email';
     const TYPE_EMAIL_INNER = 'email_inner';
-    const TYPE_SMS = 'sms';
+    const TYPE_SMS = 'phone';
 
     public static $types = [
         self::TYPE_EMAIL => [
