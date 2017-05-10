@@ -346,6 +346,18 @@ class AccountTariffResourceLog extends ActiveRecord
 
         $tariffPeriod = $accountTariff->tariffPeriod;
         if (!$tariffPeriod) {
+            // Это еще не значит, что услуга закрыта. Возможно, она только что создана и еще не успела проставиться
+            // Возьмем тариф из лога. Он нужен для расчета срока списания денег за ресурс, но без фактического списывания
+            $accountTariffLogs = $accountTariff->accountTariffLogs;
+            if (count($accountTariffLogs) === 1) {
+                // Только если одна запись, которая при создании.
+                // Если ни одной записи - что-то не так. Лог ресурсов должен создаваться из FillAccountTariffResourceLog, который вызывается из AccountTariffLog
+                // Если две записи - это уже не создание. В этом случае тариф должен быть у услуги. Значит, что-то не так.
+                $tariffPeriod = reset($accountTariffLogs)->tariffPeriod;
+            }
+        }
+
+        if (!$tariffPeriod) {
             $this->addError($attribute, 'Услуга закрыта.');
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
             return null;
