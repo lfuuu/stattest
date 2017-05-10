@@ -4,6 +4,7 @@ namespace app\modules\uu\models;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use DateTime;
@@ -64,6 +65,16 @@ class AccountTariffResourceLog extends ActiveRecord
             ['actual_from', 'date', 'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT],
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
         ];
     }
 
