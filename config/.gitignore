@@ -5,6 +5,7 @@ db_pg_ats.local.php
 db_pgsql.local.php
 db_pg_slave.local.php
 db_pgsql_nfdump.local.php
+db_pg_cache.local.php
 log.local.php
 params.local.php
 /web.local.php

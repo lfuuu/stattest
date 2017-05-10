@@ -121,4 +121,19 @@ class CTEQuery extends Query
         preg_match('/rows=(\d+)/', $first_row, $matches);
         return $matches[1];
     }
+
+    /**
+     * Добавление условия
+     *
+     * @param $param
+     * @param $property
+     * @return $this
+     */
+    public function reportCondition($param, $property)
+    {
+        $property
+        && $this->andWhere([$param => $property]);
+
+        return $this;
+    }
 }

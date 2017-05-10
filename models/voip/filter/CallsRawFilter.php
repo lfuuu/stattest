@@ -7,14 +7,13 @@ namespace app\models\voip\filter;
 
 use app\classes\yii\CTEQuery;
 use app\helpers\DateTimeZoneHelper;
-use app\models\billing\DisconnectCause;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
-use yii\db\Expression;
+use yii\db\Connection;
 use yii\db\Query;
 
 /**
@@ -62,10 +61,25 @@ use yii\db\Query;
  * @property array $aggr
  * @property string $group_period
  * @property string $sort
+ * 
+ * @property string $currency
+ * @property float $currency_rate
+ * @property float $sale
+ * @property float $cost_price
+ * @property float $margin
+ * @property float $orig_rate
+ * @property float $term_rate
+ *
+ * @property \DateTime $dateStart = null;
+ * @property Connection $dbConn
  */
 class CallsRawFilter extends Model
 {
+    use \app\classes\traits\CallsRawCacheReport;
+    use \app\classes\traits\CallsRawSlowReport;
+
     const UNATTAINABLE_SESSION_TIME = 2592000;
+    const EXACT_COUNT_LIMIT = 5000;
 
     public $groupConst = [
         'src_route' => 'Транк-оригинатор',
@@ -192,6 +206,10 @@ class CallsRawFilter extends Model
 
     public $term_rate = null;
 
+    public $dateStart = null;
+
+    public $dbConn = null;
+
     /**
      * Rules set
      *
@@ -279,10 +297,10 @@ class CallsRawFilter extends Model
          * Проверяем не составляет ли интервал больше одного месяца
          */
         if ($this->connect_time_from && $this->connect_time_to) {
-            $dateStart = new \DateTime($this->connect_time_from);
+            $this->dateStart = new \DateTime($this->connect_time_from);
             $dateEnd = new \DateTime($this->connect_time_to);
             $dateEnd->modify('-1 second');
-            $interval = $dateEnd->diff($dateStart);
+            $interval = $dateEnd->diff($this->dateStart);
             if ($interval->m > 1 || ($interval->m && ($interval->i || $interval->d || $interval->h || $interval->s))) {
                 Yii::$app->session->addFlash('error', 'Временной период больше одного месяца');
                 return false;
@@ -362,6 +380,61 @@ class CallsRawFilter extends Model
     }
 
     /**
+     * Метод добавления фильтра по длительности звонка
+     *
+     * @param CTEQuery $query
+     * @param $param
+     * @return CTEQuery
+     */
+    private function setSessionCondition (CTEQuery $query, $param)
+    {
+        ($this->session_time_from || $this->session_time_to)
+        && $query->andWhere(
+            [
+                'BETWEEN',
+                $param,
+                $this->session_time_from ? (int)$this->session_time_from : 0,
+                $this->session_time_to ? (int)$this->session_time_to : self::UNATTAINABLE_SESSION_TIME
+            ]
+        );
+
+        return $query;
+    }
+
+    /**
+     * Добавление фильтрации по направлению и/или типу звонка
+     *
+     * @param CTEQuery $query
+     * @param $destination
+     * @param $number_type
+     * @param $param
+     * @return CTEQuery
+     */
+    private function setDestinationCondition(CTEQuery $query, $destination, $number_type, $param)
+    {
+        if ($destination || $number_type) {
+            $condition = [];
+
+            $destination
+            && $query->andWhere(['nrd.destination_id' => $destination])
+            && $condition[] = ['nrd.destination_id' => $destination];
+
+            $number_type
+            && $query->andWhere(['nrd.ndc_type_id' => $number_type])
+            && $condition[] = ['nrd.ndc_type_id' => $number_type];
+
+            $condition = count($condition) == 2 ? ['AND', $condition[0], $condition[1]] : $condition[0];
+            $query5 = new Query();
+            $query5->from('nnp.number_range_destination nrd')
+                ->andWhere(['AND', $param . ' = nrd.number_range_id', $condition])
+                ->limit(1);
+            $query->join('LEFT JOIN LATERAL', ['nrd' => $query5], $param . ' = nrd.number_range_id');
+        }
+
+        return $query;
+    }
+
+    /**
      * Отчет по calls_raw (живет по адресу /voip/raw)
      *
      * @return ActiveDataProvider|ArrayDataProvider
@@ -376,313 +449,18 @@ class CallsRawFilter extends Model
             );
         }
 
-        $query1 = new CTEQuery();
-        $query2 = new CTEQuery();
-        $query3 = new CTEQuery();
-        $query4 = new CTEQuery();
+        $last_month = (new \DateTime())->setTimestamp(mktime(0, 0, 0, date('m') - 1, 1));
 
-        $query1
-            ->select(
-                [
-                    'cr.cdr_id',
-                    'cr.connect_time',
-                    'cr.disconnect_cause',
-                    't.name src_route',
-                    'src_number' => new Expression('cr.src_number::varchar'),
-                    'dst_number' => new Expression('cr.dst_number::varchar'),
-                    'cr.pdd',
-                    'o.name src_operator_name',
-                    'nc.name_rus src_country_name',
-                    'r.name src_region_name',
-                    'ci.name src_city_name',
-                    'st.contract_number || \' (\' || cct.name || \')\' src_contract_name',
-                    'sale' => new Expression(self::getMoneyCalculateExpression('@(cr.cost)')),
-                    'orig_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
-                    'cr.server_id'
-                ]
-            )
-            ->from('calls_raw.calls_raw cr')
-            ->leftJoin('auth.trunk t', 't.id = cr.trunk_id')
-            ->leftJoin('billing.service_trunk st', 'st.id = cr.trunk_service_id')
-            ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id')
-            ->leftJoin('nnp.operator o', 'o.id = cr.nnp_operator_id')
-            ->leftJoin('nnp.country nc', 'nc.code = cr.nnp_country_code')
-            ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
-            ->leftJoin('nnp.city ci', 'ci.id = cr.nnp_city_id')
-            ->leftJoin('billing.clients c', 'c.id = cr.account_id')
-            ->leftJoin('billing.currency_rate rate', 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
-            ->andWhere('cr.orig')
-            ->orderBy('connect_time')
-            ->limit(500);
+        $query = $this->dateStart >= $last_month ? $this->getCacheReport() : $this->getSlowReport();
 
-        $query2->select(
-            [
-                'cr.cdr_id',
-                'cr.billed_time session_time',
-                't.name dst_route',
-                'o.name dst_operator_name',
-                'nc.name_rus dst_country_name',
-                'r.name dst_region_name',
-                'ci.name dst_city_name',
-                'st.contract_number || \' (\' || cct.name || \')\' dst_contract_name',
-                'cost_price' => new Expression(self::getMoneyCalculateExpression('cr.cost')),
-                'term_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
-                'cr.server_id'
-            ]
-        )
-            ->from('calls_raw.calls_raw cr')
-            ->leftJoin('auth.trunk t', 't.id = cr.trunk_id')
-            ->leftJoin('billing.service_trunk st', 'st.id = cr.trunk_service_id')
-            ->leftJoin('stat.client_contract_type cct', 'cct.id = st.contract_type_id')
-            ->leftJoin('nnp.operator o', 'o.id = cr.nnp_operator_id')
-            ->leftJoin('nnp.country nc', 'nc.code = cr.nnp_country_code')
-            ->leftJoin('nnp.region r', 'r.id = cr.nnp_region_id')
-            ->leftJoin('nnp.city ci', 'ci.id = cr.nnp_city_id')
-            ->leftJoin('billing.clients c', 'c.id = cr.account_id')
-            ->leftJoin('billing.currency_rate rate', 'rate.currency::public.currencies = c.currency AND rate.date = now()::date')
-            ->andWhere('NOT cr.orig')
-            ->orderBy('connect_time')
-            ->limit(500);
-
-        $null = new Expression('NULL');
-
-        $query3->select(
-            [
-                'cdr_id' => 'cu.id',
-                'date_trunc(\'second\', setup_time) connect_time',
-                'disconnect_cause',
-                'src_route',
-                'src_number',
-                'dst_number',
-                'pdd' => $null,
-                'src_operator_name' => $null,
-                'src_country_name' => $null,
-                'src_region_name' => $null,
-                'src_city_name' => $null,
-                'src_contract_name' => $null,
-                'sale' => $null,
-                'orig_rate' => $null,
-                'cdr_id1' => $null,
-                'session_time' => $null,
-                'dst_route',
-                'dst_operator_name' => $null,
-                'dst_country_name' => $null,
-                'dst_region_name' => $null,
-                'dst_city_name' => $null,
-                'dst_contract_name' => $null,
-                'cost_price' => $null,
-                'term_rate' => $null,
-                'margin' => $null,
-            ]
-        )->from('calls_cdr.cdr_unfinished cu')
-            ->orderBy('connect_time')
-            ->limit(500);
-
-        $query4->select(
-            [
-                '*',
-                '(@(cr1.sale)) - cr2.cost_price margin',
-            ]
-        )->from('cr1')
-            ->join('JOIN', 'cr2', ['AND', 'cr1.cdr_id = cr2.cdr_id', 'cr1.server_id = cr2.server_id']);
-
-        if ($this->server_ids) {
-            $condition = ['cr.server_id' => $this->server_ids];
-            $query1->andWhere($condition)
-            && $query2->andWhere($condition)
-            && $query3
-            && $query3->andWhere(['cu.server_id' => $this->server_ids]);
-        }
-
-        if ($this->connect_time_from || $this->correct_connect_time_to) {
-            $condition = function ($field) {
-                return [
-                    'BETWEEN',
-                    $field,
-                    $this->connect_time_from ? $this->connect_time_from : new Expression('to_timestamp(0)'),
-                    $this->correct_connect_time_to ? $this->correct_connect_time_to : new Expression('now()'),
-                ];
-            };
-            $query1->andWhere($condition('cr.connect_time'));
-            $query2->andWhere($condition('cr.connect_time'));
-            $query3 && $query3->andWhere($condition('setup_time'));
-        }
-
-        if ($this->session_time_from
-            || $this->session_time_to
-            || $this->dst_logical_trunks_ids
-            || $this->dst_contracts_ids
-            || $this->dst_operator_ids
-            || $this->dst_regions_ids
-            || $this->dst_cities_ids
-            || $this->dst_countries_ids
-            || $this->dst_destinations_ids
-            || $this->dst_number_type_ids
-            || $this->dst_number
-        ) {
-            $query1->limit(-1)->orderBy([]);
-            $query3 = null;
-        }
-
-        if ($this->src_logical_trunks_ids
-            || $this->src_contracts_ids
-            || $this->src_operator_ids
-            || $this->src_regions_ids
-            || $this->src_cities_ids
-            || $this->src_countries_ids
-            || $this->src_destinations_ids
-            || $this->src_number_type_ids
-            || $this->src_number
-        ) {
-            $query2->limit(-1)->orderBy([]);
-            $query3 = null;
-        }
-
-        ($this->session_time_from || $this->session_time_to)
-        && $query2->andWhere(
-            [
-                'BETWEEN',
-                'cr.billed_time',
-                $this->session_time_from ? (int)$this->session_time_from : 0,
-                $this->session_time_to ? (int)$this->session_time_to : self::UNATTAINABLE_SESSION_TIME
-            ]
-        );
-
-        if ($this->src_physical_trunks_ids) {
-            $query1->andWhere(['cr.trunk_id' => $this->src_physical_trunks_ids])
-            && $query3
-            && $query3
-                ->leftJoin('auth.trunk t1', 'src_route = t1.trunk_name')
-                ->andWhere(['t1.id' => $this->src_physical_trunks_ids]);
-        }
-
-        if ($this->dst_physical_trunks_ids) {
-            $query2->andWhere(['cr.trunk_id' => $this->dst_physical_trunks_ids])
-            && $query3
-            && $query3
-                ->leftJoin('auth.trunk t2', 'dst_route = t2.trunk_name')
-                ->andWhere(['t2.id' => $this->dst_physical_trunks_ids]);
-        }
-
-        $this->src_logical_trunks_ids
-        && $query1->andWhere(['cr.trunk_service_id' => $this->src_logical_trunks_ids])
-        && $query3 = null;
-
-        $this->dst_logical_trunks_ids
-        && $query2->andWhere(['cr.trunk_service_id' => $this->dst_logical_trunks_ids]);
-        $query3 = null;
-
-        $this->src_contracts_ids
-        && $query1->andWhere(['st.contract_id' => $this->src_contracts_ids])
-        && $query3 = null;
-
-        $this->dst_contracts_ids
-        && $query2->andWhere(['st.contract_id' => $this->dst_contracts_ids])
-        && $query3 = null;
-
-        $this->src_operator_ids
-        && $query1->andWhere(['cr.nnp_operator_id' => $this->src_operator_ids]);
-
-        $this->src_regions_ids
-        && $query1->andWhere(['cr.nnp_region_id' => $this->src_regions_ids]);
-
-        $this->src_cities_ids
-        && $query1->andWhere(['cr.nnp_city_id' => $this->src_cities_ids]);
-
-        $this->src_countries_ids
-        && $query1->andWhere(['cr.nnp_country_code' => $this->src_countries_ids]);
-
-        if ($this->src_destinations_ids || $this->src_number_type_ids) {
-            $condition = [];
-
-            $this->src_destinations_ids
-            && $query1->andWhere(['nrd.destination_id' => $this->src_destinations_ids])
-            && $condition[] = ['nrd.destination_id' => $this->src_destinations_ids];
-
-            $this->src_number_type_ids
-            && $query1->andWhere(['nrd.ndc_type_id' => $this->src_number_type_ids])
-            && $condition[] = ['nrd.ndc_type_id' => $this->src_number_type_ids];
-
-            $condition = count($condition) == 2 ? ['AND', $condition[0], $condition[1]] : $condition[0];
-            $query5 = new Query();
-            $query5->from('nnp.number_range_destination nrd')
-                ->andWhere(['AND', 'cr.nnp_number_range_id = nrd.number_range_id', $condition])
-                ->limit(1);
-            $query1->join('LEFT JOIN LATERAL', ['nrd' => $query5], 'cr.nnp_number_range_id = nrd.number_range_id');
-        }
-
-        $this->dst_operator_ids
-        && $query2->andWhere(['cr.nnp_operator_id' => $this->dst_operator_ids]);
-
-        $this->dst_regions_ids
-        && $query2->andWhere(['cr.nnp_region_id' => $this->dst_regions_ids]);
-
-        $this->dst_cities_ids
-        && $query2->andWhere(['cr.nnp_city_id' => $this->dst_cities_ids]);
-
-        $this->dst_countries_ids
-        && $query2->andWhere(['cr.nnp_country_code', $this->dst_countries_ids]);
-
-        if ($this->dst_destinations_ids || $this->dst_number_type_ids) {
-            $condition = [];
-
-            $this->dst_destinations_ids
-            && $query2->andWhere(['nrd.destination_id' => $this->dst_destinations_ids])
-            && $condition[] = ['nrd.destination_id' => $this->dst_destinations_ids];
-
-            $this->dst_number_type_ids
-            && $query2->andWhere(['nrd.ndc_type_id' => $this->dst_number_type_ids])
-            && $condition[] = ['nrd.ndc_type_id' => $this->dst_number_type_ids];
-
-            $condition = count($condition) == 2 ? ['AND', $condition[0], $condition[1]] : $condition[0];
-            $query5 = new Query();
-            $query5->from('nnp.number_range_destination nrd')
-                ->andWhere(['AND', 'cr.nnp_number_range_id = nrd.number_range_id', $condition])
-                ->limit(1);
-            $query2->join('LEFT JOIN LATERAL', ['nrd' => $query5], 'cr.nnp_number_range_id = nrd.number_range_id');
-        }
-
-        if ($this->is_success_calls) {
-            $condition = ['or', 'billed_time > 0', ['disconnect_cause' => DisconnectCause::$successCodes]];
-            $query1->andWhere($condition);
-            $query2->andWhere($condition);
-            $query3 = null;
-        }
-
-        /** @var Query $query3 */
-
-        if ($this->dst_number) {
-            $this->dst_number = strtr($this->dst_number, ['.' => '_', '*' => '%']);
-            $query1->andWhere(['LIKE', 'CAST(cr.dst_number AS varchar)', $this->dst_number, $isEscape = false]);
-            $query2->andWhere(['LIKE', 'CAST(cr.dst_number AS varchar)', $this->dst_number, $isEscape = false]);
-            $query3 && $query3->andWhere(['LIKE', 'CAST(cu.dst_number AS varchar)', $this->dst_number, $isEscape = false]);
-        }
-
-        if ($this->src_number) {
-            $this->src_number = strtr($this->src_number, ['.' => '_', '*' => '%']);
-            $query1->andWhere(['LIKE', 'CAST(cr.src_number AS varchar)', $this->src_number, $isEscape = false]);
-            $query2->andWhere(['LIKE', 'CAST(cr.src_number AS varchar)', $this->src_number, $isEscape = false]);
-            $query3 && $query3->andWhere(['LIKE', 'CAST(cu.src_number AS varchar)', $this->src_number, $isEscape = false]);
-        }
-
-        if ($this->disconnect_causes) {
-            $condition = ['cr.disconnect_cause' => $this->disconnect_causes];
-            $query1->andWhere($condition)
-            && $query2->andWhere($condition)
-            && $query3
-            && $query3->andWhere($condition);
-        }
-
-        $query3 && $query4 = (new CTEQuery())->from(['cr' => $query4->union($query3)]);
-
-        $query4->orderBy('connect_time');
+        $query->orderBy('connect_time');
 
         if ($this->group || $this->group_period || $this->aggr) {
             $fields = $groups = [];
             if ($this->group_period) {
-                $query4->rightJoin(
+                $query->rightJoin(
                     "generate_series ('{$this->connect_time_from}'::timestamp, '{$this->correct_connect_time_to}'::timestamp, '1 {$this->group_period}'::interval) gs",
-                    "cr1.connect_time >= gs.gs AND cr1.connect_time <= gs.gs + interval '1 {$this->group_period}'"
+                    "connect_time >= gs.gs AND connect_time <= gs.gs + interval '1 {$this->group_period}'"
                 );
                 $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 {$this->group_period}'";
                 $groups[] = 'gs.gs';
@@ -700,13 +478,11 @@ class CallsRawFilter extends Model
                 }
             }
 
-            $query1->limit(-1);
-            $query2->limit(-1);
-            $query3 && $query3->limit(-1);
-
-            $query4->select($fields)
+            $query->select($fields)
                 ->groupBy($groups)
                 ->orderBy($sort[0]);
+
+            $count = $query->liteRowCount($this->dbConn);
         } else {
             $sort = [
                 'connect_time',
@@ -733,37 +509,22 @@ class CallsRawFilter extends Model
                 'term_rate',
                 'pdd',
             ];
-        }
 
-        if ($this->sort && $this->sort != 'connect_time') {
-            $query1->orderBy([])->limit(-1);
-            $query2->orderBy([])->limit(-1);
-            $query3 && $query3->orderBy([])->limit(-1);
-            $query4->orderBy([])->limit(-1);
-        }
+            $count = $query->liteRowCount($this->dbConn);
 
-        $query4->addWith(['cr1' => $query1]);
-        $query4->addWith(['cr2' => $query2]);
-
-        $count1 = $query1->liteRowCount();
-        $count2 = $query2->liteRowCount();
-        $count3 = $query3 ? $query3->liteRowCount() : 0;
-        $count4 = $query4->liteRowCount();
-
-        $count = min(min($count1, $count2) + $count3, $count4);
-
-        /**
-         * Метод получения количества записей на основе статистики неточен.
-         * Посему не следуют его использовать если его неточность может повлить на вычислени количества страниц.
-         */
-        if ($count < 5000) {
-            $count = $query4->rowCount();
+            /**
+             * Метод получения количества записей на основе статистики неточен.
+             * Посему не следуют его использовать, если его неточность может повлить на вычисление количества страниц.
+             */
+            if ($count < self::EXACT_COUNT_LIMIT) {
+                $count = $query->rowCount($this->dbConn);
+            }
         }
 
         return new ActiveDataProvider(
             [
-                'db' => 'dbPgSlave',
-                'query' => $query4,
+                'db' => $this->dbConn,
+                'query' => $query,
                 'pagination' => [],
                 'totalCount' => $count,
                 'sort' => [
