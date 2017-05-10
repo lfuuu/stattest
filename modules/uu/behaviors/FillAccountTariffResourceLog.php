@@ -5,6 +5,7 @@ namespace app\modules\uu\behaviors;
 use app\exceptions\ModelValidationException;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Resource;
 use yii\base\Behavior;
 use yii\base\Event;
 use yii\db\ActiveRecord;
@@ -46,9 +47,15 @@ class FillAccountTariffResourceLog extends Behavior
             return;
         }
 
+        $readerNames = Resource::getReaderNames();
         $tariff = $accountTariffLog->tariffPeriod->tariff;
         $tariffResources = $tariff->tariffResources;
         foreach ($tariffResources as $tariffResource) {
+
+            if (array_key_exists($tariffResource->resource_id, $readerNames)) {
+                // этот ресурс - не опция. Он считается по факту, а не заранее
+                continue;
+            }
 
             $accountTariffResourceLog = new AccountTariffResourceLog;
             $accountTariffResourceLog->account_tariff_id = $accountTariffLog->account_tariff_id;
