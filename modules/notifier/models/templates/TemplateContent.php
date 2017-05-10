@@ -135,13 +135,13 @@ class TemplateContent extends ActiveRecord
     public function isEmpty()
     {
         switch ($this->type) {
-            case Template::TYPE_EMAIL: {
+            case Template::CLIENT_CONTACT_TYPE_EMAIL: {
                 return !$this->getMediaManager()->getFile($this->filename);
             }
-            case Template::TYPE_SMS: {
+            case Template::CLIENT_CONTACT_TYPE_PHONE: {
                 return empty(trim($this->content));
             }
-            case Template::TYPE_EMAIL_INNER: {
+            case Template::CLIENT_CONTACT_TYPE_EMAIL_INNER: {
                 return empty(trim(strip_tags($this->content)));
             }
         }

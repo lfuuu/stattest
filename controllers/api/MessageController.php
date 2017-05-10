@@ -255,7 +255,7 @@ class MessageController extends ApiController
     public function actionGetTemplate(
         $eventCode,
         $clientAccountId,
-        $type = Template::TYPE_EMAIL,
+        $type = Template::CLIENT_CONTACT_TYPE_EMAIL,
         $eventId = null
     ) {
         if (is_null($clientAccount = ClientAccount::findOne($clientAccountId))) {
@@ -288,7 +288,7 @@ class MessageController extends ApiController
 
         if (!is_null($templateContent)) {
             switch ($type) {
-                case Template::TYPE_EMAIL: {
+                case Template::CLIENT_CONTACT_TYPE_EMAIL: {
                     $content = $templateContent->mediaManager->getFile($templateContent, true);
                     if (!empty($content)) {
                         $render = RenderParams::me();
@@ -301,8 +301,8 @@ class MessageController extends ApiController
 
                     break;
                 }
-                case Template::TYPE_EMAIL_INNER:
-                case Template::TYPE_SMS: {
+                case Template::CLIENT_CONTACT_TYPE_EMAIL_INNER:
+                case Template::CLIENT_CONTACT_TYPE_PHONE: {
                     if (!empty($templateContent->content)) {
                         $render = RenderParams::me();
                         return [
