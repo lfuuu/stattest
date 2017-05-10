@@ -17,22 +17,22 @@ use app\modules\notifier\behaviors\templates\TemplateEvent;
 class Template extends ActiveRecord
 {
 
-    const TYPE_EMAIL = 'email';
-    const TYPE_EMAIL_INNER = 'email_inner';
-    const TYPE_SMS = 'phone';
+    const CLIENT_CONTACT_TYPE_EMAIL = 'email';
+    const CLIENT_CONTACT_TYPE_PHONE = 'phone';
+    const CLIENT_CONTACT_TYPE_EMAIL_INNER = 'email_inner';
 
     public static $types = [
-        self::TYPE_EMAIL => [
+        self::CLIENT_CONTACT_TYPE_EMAIL => [
             'title' => 'Клиенту',
             'format' => 'file',
             'icon' => 'envelope',
         ],
-        self::TYPE_SMS => [
+        self::CLIENT_CONTACT_TYPE_PHONE => [
             'title' => 'SMS',
             'format' => 'plain',
             'icon' => 'phone',
         ],
-        self::TYPE_EMAIL_INNER => [
+        self::CLIENT_CONTACT_TYPE_EMAIL_INNER => [
             'title' => 'Внутренний',
             'format' => 'html',
             'icon' => 'envelope',
