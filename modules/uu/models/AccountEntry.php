@@ -197,12 +197,16 @@ class AccountEntry extends ActiveRecord
     /**
      * Вернуть тип текстом
      *
-     * @param string $langCode
+     * @param string|null $langCode
      * @return string
      * @throws \yii\base\InvalidConfigException
      */
-    public function getFullName($langCode = Language::LANGUAGE_DEFAULT)
+    public function getFullName($langCode = null)
     {
+        if (is_null($langCode)) {
+            $langCode = $this->accountTariff->clientAccount->country->lang;
+        }
+
         $accountTariff = $this->accountTariff;
 
         $names = [];
@@ -215,16 +219,25 @@ class AccountEntry extends ActiveRecord
         }
 
         // Например, "Абонентская плата" или "Подключение" или "Номер 1234567890. Звонки"
-        $names[] = $this->name;
+        $names[] = $this->getName($langCode);
 
         // Например, "Тариф «Максимальный»"
         // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
         $tariffPeriod = $this->tariffPeriod;
         $names[] = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariffPeriod->tariff->name], $langCode);
 
+
+        // Сохранить \yii\i18n\Formatter locale
+        $locale = Yii::$app->formatter->locale;
+        // Установить \yii\i18n\Formatter locale = $langCode
+        Yii::$app->formatter->locale = $langCode;
+
         // Например, "25 марта" или "1-31 окт."
         $names[] = (($this->date_from != $this->date_to) ? Yii::$app->formatter->asDate($this->date_from, 'php:j') . '-' : '') .
             Yii::$app->formatter->asDate($this->date_to, 'php:j M');
+
+        // Восстановить \yii\i18n\Formatter locale
+        Yii::$app->formatter->locale = $locale;
 
         return implode('. ', $names);
     }
