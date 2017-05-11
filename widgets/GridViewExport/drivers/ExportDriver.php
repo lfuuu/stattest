@@ -3,10 +3,10 @@
 namespace app\widgets\GridViewExport\drivers;
 
 /**
- * @property-read string $name
- * @property-read string $mimeType
- * @property-read string $extension
- * @property-read string $icon
+ * @property string $name
+ * @property string $mimeType
+ * @property string $extension
+ * @property string $icon
  */
 interface ExportDriver
 {

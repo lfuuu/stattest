@@ -5,6 +5,7 @@ namespace app\widgets\GridViewExport\drivers;
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidParamException;
 
 class CsvDriver extends Component implements ExportDriver
 {
@@ -49,12 +50,15 @@ class CsvDriver extends Component implements ExportDriver
      * @param int $key
      * @param array $columns
      * @return boolean|int
+     * @throws InvalidParamException
      */
     public function createHeader($key, $columns = [])
     {
         $fileName = Yii::getAlias(self::$folder) . $key . $this->extension;
 
         if ($file = fopen($fileName, 'a+')) {
+            // Append BOM to fix UTF-8 in "Microsoft Office Excel"
+            fwrite($file, $bom = (chr(0xEF) . chr(0xBB) . chr(0xBF)));
             fputcsv($file, $columns, self::$delimiter);
             fclose($file);
 
@@ -67,6 +71,7 @@ class CsvDriver extends Component implements ExportDriver
     /**
      * @param int $key
      * @param array $rows
+     * @throws InvalidParamException
      * @throws Exception
      */
     public function setData($key, $rows = [])
@@ -78,6 +83,14 @@ class CsvDriver extends Component implements ExportDriver
         }
 
         foreach ($rows as $row) {
+            // Format price field for "Microsoft Office Excel"
+            $row = array_map(function ($column) {
+                if (is_numeric($column)) {
+                    $column = str_replace('.', ',', $column);
+                }
+                return $column;
+            }, $row);
+
             fputcsv($file, $row, self::$delimiter);
         }
 
@@ -87,6 +100,8 @@ class CsvDriver extends Component implements ExportDriver
     /**
      * @param int $key
      * @param bool|true $deleteAfter
+     * @return string
+     * @throws InvalidParamException
      */
     public function fetchFile($key, $deleteAfter = true)
     {
