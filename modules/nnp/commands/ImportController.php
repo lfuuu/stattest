@@ -39,8 +39,8 @@ class ImportController extends Controller
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=10322013
      */
     private $_europe = [
-        Country::HUNGARY_CODE => ['0B96cvSC012ZaMnpZVzE4My1adjQ', self::EXCEL5, self::DATE_FORMAT_YMD_DOT],
-        Country::SLOVAKIA_CODE => ['0B96cvSC012ZaSDU3S2hTYlV0elU', self::EXCEL5, self::DATE_FORMAT_MDY_HYPHEN],
+        Country::HUNGARY_CODE => ['0B96cvSC012ZaMnpZVzE4My1adjQ', self::EXCEL2007, self::DATE_FORMAT_YMD_DOT],
+        Country::SLOVAKIA_CODE => ['0B96cvSC012ZaSDU3S2hTYlV0elU', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT],
         // Country::AUSTRIA_CODE => ['0B9ds-UaQbaC7UHo2M3VfM3I5d2M', self::EXCEL2007, self::DATE_FORMAT_DMY_DOT], // PHP Fatal error:  Allowed memory size of 4294967296 bytes exhausted
         Country::GERMANY_CODE => ['0B96cvSC012ZaNUk4d3RpQko5UTQ', self::EXCEL2007, self::DATE_FORMAT_MDY_SLASH], // PHP Fatal error:  Allowed memory size of 4294967296 bytes exhausted
         Country::CZECH_CODE => ['0B9ds-UaQbaC7VzNPMzljR2VTMms', self::EXCEL5, self::DATE_FORMAT_DMY_DOT],
