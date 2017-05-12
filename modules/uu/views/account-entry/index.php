@@ -131,8 +131,7 @@ $accountTariffTableName = AccountTariff::tableName();
                         $accountLogs = $accountEntry->accountLogSetups;
                         array_walk($accountLogs, function (&$accountLog) {
                             /** @var AccountLogSetup $accountLog */
-                            $accountLog =
-                                Yii::$app->formatter->asDate($accountLog->date, 'php:j M') . ': ' .
+                            $accountLog = Yii::$app->formatter->asDate($accountLog->date, 'php:j M') . ': ' .
                                 Html::a(
                                     sprintf('%.2f', $accountLog->price),
                                     $accountLog->getUrl()
@@ -144,8 +143,7 @@ $accountTariffTableName = AccountTariff::tableName();
                         $accountLogs = $accountEntry->accountLogPeriods;
                         array_walk($accountLogs, function (&$accountLog) {
                             /** @var AccountLogPeriod $accountLog */
-                            $accountLog =
-                                Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
+                            $accountLog = Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
                                 Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': ' .
                                 Html::a(
                                     sprintf('%.2f', $accountLog->price),
@@ -158,8 +156,7 @@ $accountTariffTableName = AccountTariff::tableName();
                         $accountLogs = $accountEntry->accountLogMins;
                         array_walk($accountLogs, function (&$accountLog) {
                             /** @var AccountLogMin $accountLog */
-                            $accountLog =
-                                Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
+                            $accountLog = Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
                                 Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': ' .
                                 Html::a(
                                     sprintf('%.2f', $accountLog->price),
@@ -172,7 +169,8 @@ $accountTariffTableName = AccountTariff::tableName();
                         $accountLogs = $accountEntry->accountLogResources;
                         array_walk($accountLogs, function (&$accountLog) {
                             /** @var AccountLogResource $accountLog */
-                            $accountLog = Yii::$app->formatter->asDate($accountLog->date, 'php:j M') . ': ' .
+                            $accountLog = Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
+                                Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': ' .
                                 Html::a(
                                     sprintf('%.2f', $accountLog->price),
                                     $accountLog->getUrl()
