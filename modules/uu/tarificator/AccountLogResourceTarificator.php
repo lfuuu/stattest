@@ -79,6 +79,7 @@ class AccountLogResourceTarificator extends Tarificator
      * @throws \LogicException
      * @throws \Exception
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\StaleObjectException
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
