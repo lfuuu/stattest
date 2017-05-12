@@ -3545,12 +3545,12 @@ where cg.inn = '" . $inn . "'";
 
             foreach ($db->AllRecords($q = '
                         (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills n2
-                         where n2.client_id="' . $clientId . '" and n2.is_payed=1 and n2.biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . '
+                         where n2.client_id="' . $clientId . '" and n2.is_payed=1
                          /* and (select if(sum(if(is_payed = 1,1,0)) = count(1),1,0) as all_payed from newbills where client_id = "' . $clientId . '")
                          */
                          order by n2.bill_date desc limit 1)
-                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id=' . $clientId . ' and bill_no = "' . $billNo . '" and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . ')
-                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id=' . $clientId . ' and is_payed!="1"  and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . ')
+                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id=' . $clientId . ' and bill_no = "' . $billNo . '")
+                        union (select bill_no, is_payed,sum,bill_no_ext,UNIX_TIMESTAMP(bill_no_ext_date) as bill_no_ext_date, client_id from newbills where client_id=' . $clientId . ' and is_payed!="1")
                         '
             ) as $b) {
                 $v[] = $b;
