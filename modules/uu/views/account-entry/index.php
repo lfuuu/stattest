@@ -129,57 +129,35 @@ $accountTariffTableName = AccountTariff::tableName();
                 switch ($accountEntry->type_id) {
                     case AccountEntry::TYPE_ID_SETUP:
                         $accountLogs = $accountEntry->accountLogSetups;
-                        array_walk($accountLogs, function (&$accountLog) {
-                            /** @var AccountLogSetup $accountLog */
-                            $accountLog = Yii::$app->formatter->asDate($accountLog->date, 'php:j M') . ': ' .
-                                Html::a(
-                                    sprintf('%.2f', $accountLog->price),
-                                    $accountLog->getUrl()
-                                );
-                        });
                         break;
 
                     case AccountEntry::TYPE_ID_PERIOD:
                         $accountLogs = $accountEntry->accountLogPeriods;
-                        array_walk($accountLogs, function (&$accountLog) {
-                            /** @var AccountLogPeriod $accountLog */
-                            $accountLog = Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
-                                Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': ' .
-                                Html::a(
-                                    sprintf('%.2f', $accountLog->price),
-                                    $accountLog->getUrl()
-                                );
-                        });
                         break;
 
                     case AccountEntry::TYPE_ID_MIN:
                         $accountLogs = $accountEntry->accountLogMins;
-                        array_walk($accountLogs, function (&$accountLog) {
-                            /** @var AccountLogMin $accountLog */
-                            $accountLog = Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
-                                Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': ' .
-                                Html::a(
-                                    sprintf('%.2f', $accountLog->price),
-                                    $accountLog->getUrl()
-                                );
-                        });
                         break;
 
                     default:
                         $accountLogs = $accountEntry->accountLogResources;
-                        array_walk($accountLogs, function (&$accountLog) {
-                            /** @var AccountLogResource $accountLog */
-                            $accountLog = Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
-                                Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': ' .
-                                Html::a(
-                                    sprintf('%.2f', $accountLog->price),
-                                    $accountLog->getUrl()
-                                );
-                        });
                         break;
                 }
 
-                return implode('<br />', $accountLogs);
+                $htmlArray = [];
+                foreach ($accountLogs as $accountLog) {
+                    /** @var AccountLogPeriod|AccountLogResource|AccountLogMin|AccountLogSetup $accountLog */
+                    $htmlArray[] = (
+                        ($accountEntry->type_id == AccountEntry::TYPE_ID_SETUP) ?
+                            Yii::$app->formatter->asDate($accountLog->date, 'php:j M') . ': ' :
+                            Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
+                            Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': '
+                        ) .
+                        Html::a(sprintf('%.2f', $accountLog->price), $accountLog->getUrl());
+                }
+
+
+                return implode('<br />', $htmlArray);
 
             },
         ],

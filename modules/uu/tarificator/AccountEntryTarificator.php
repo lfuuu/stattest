@@ -331,7 +331,7 @@ SQL;
             ON account_entry.type_id = tariff_resource.id
         SET
             account_entry.price_without_vat = IF(
-                (account_entry.type_id < 0 AND tariff.is_include_vat) OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id IN ({$resourceIdVoipCalls})),
+                tariff.is_include_vat OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id IN ({$resourceIdVoipCalls})),
                 account_entry.price * 100 / (100 + account_entry.vat_rate),
                 account_entry.price
                )
