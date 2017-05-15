@@ -155,6 +155,8 @@ SQL;
      *
      * @param AccountTariff $accountTariff
      * @return bool
+     * @throws \yii\db\Exception
+     * @throws \Exception
      * @throws \LogicException
      */
     protected function checkBalance(AccountTariff $accountTariff)

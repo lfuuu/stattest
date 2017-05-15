@@ -6,6 +6,7 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\tarificator\AccountEntryTarificator;
 use app\modules\uu\tarificator\AccountLogMinTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
+use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
 use app\modules\uu\tarificator\BillConverterTarificator;
 use app\modules\uu\tarificator\BillTarificator;
@@ -70,20 +71,23 @@ class AccountTariffBiller extends Behavior
         Yii::info('AccountTariffBiller. Before SetCurrentTariffTarificator', 'uu');
         (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
 
-        Yii::info('AccountTariffBiller. Before SyncResourceTarificator', 'uu');
-        (new SyncResourceTarificator())->tarificate($accountTariffId);
-
         Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
         (new AccountLogSetupTarificator)->tarificate($accountTariffId);
 
         Yii::info('AccountTariffBiller. Before AccountLogPeriodTarificator', 'uu');
         (new AccountLogPeriodTarificator)->tarificate($accountTariffId);
 
+        Yii::info('AccountTariffBiller. Before AccountLogResourceTarificator', 'uu');
+        (new AccountLogResourceTarificator)->tarificate($accountTariffId);
+
         Yii::info('AccountTariffBiller. Before AccountLogMinTarificator', 'uu');
         (new AccountLogMinTarificator)->tarificate($accountTariffId);
 
         Yii::info('AccountTariffBiller. Before AccountEntryTarificator', 'uu');
         (new AccountEntryTarificator)->tarificate($accountTariffId);
+
+        Yii::info('AccountTariffBiller. Before SyncResourceTarificator', 'uu');
+        (new SyncResourceTarificator())->tarificate($accountTariffId);
 
         Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
         (new BillTarificator)->tarificate($accountTariffId);
