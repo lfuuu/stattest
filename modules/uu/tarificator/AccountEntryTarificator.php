@@ -83,7 +83,16 @@ class AccountEntryTarificator extends Tarificator
             'date_from',
             'date_to',
             $accountTariffId,
-            $isDefault = 1
+            $isDefault = 1 // ресурсы-трафик
+        );
+        $this->out(PHP_EOL . 'Проводки за ресурсы');
+        $this->_tarificate(
+            AccountLogResource::tableName(),
+            'tariff_resource_id',
+            'date_from',
+            'date_to',
+            $accountTariffId,
+            $isDefault = 0 // ресурсы-опции
         );
 
         // проводки за минимальную плату
@@ -122,17 +131,35 @@ class AccountEntryTarificator extends Tarificator
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
         $clientAccountTableName = ClientAccount::tableName();
+        $tariffResourceTableName = TariffResource::tableName();
         $sqlParams = [];
 
-        $sqlAndWhere = '';
+        $sqlAndWhere = $sqlJoin = '';
         if ($accountTariffId) {
             $sqlAndWhere .= ' AND account_log.account_tariff_id = :account_tariff_id';
             $sqlParams[':account_tariff_id'] = $accountTariffId;
         }
 
-        if ($accountLogTableName == AccountLogMin::tableName()) {
-            // минималку в проводку/счет включаем только после истечения периода. Но транзакцию делаем сразу, потом ее корректируем
-            $sqlAndWhere .= ' AND account_log.date_to < DATE_FORMAT(NOW(), "%Y-%m-%d")';
+        // Костыли в зависимости от таблицы. Иначе надо это еще одним (plain-sql) параметром передавать, а это еще хуже
+        switch ($accountLogTableName) {
+
+            case AccountLogMin::tableName():
+                // минималку в проводку/счет включаем только после истечения периода. Но транзакцию делаем сразу, потом ее корректируем
+                $sqlAndWhere .= ' AND account_log.date_to < DATE_FORMAT(NOW(), "%Y-%m-%d")';
+                break;
+
+            case AccountLogResource::tableName():
+                // Ресурсы. Ресурсы-опции добавлять в счет за будущий месяц, ресурсы-трафик - за прошлый
+                $sqlJoin .= ', ' . $tariffResourceTableName;
+                $readerNames = Resource::getReaderNames();
+                if (!$readerNames) {
+                    $readerNames = [0]; // чтобы SQL был валидным
+                }
+
+                $sqlInTmp = implode(', ', array_keys($readerNames));
+                $sqlAndWhere .= " AND account_log.tariff_resource_id = {$tariffResourceTableName}.id AND {$tariffResourceTableName}.resource_id " . ($isDefault ? '' : 'NOT') . " IN ({$sqlInTmp})";
+                unset($readerNames, $sqlInTmp);
+                break;
         }
 
         // создать пустые проводки
@@ -156,6 +183,7 @@ class AccountEntryTarificator extends Tarificator
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
                     {$clientAccountTableName} client_account
+                    {$sqlJoin}
                 WHERE
                     account_log.account_entry_id IS NULL
                     AND account_log.account_tariff_id = account_tariff.id
@@ -171,7 +199,7 @@ SQL;
             // костыль для абонентки
             // если есть соответствующая проводка за подключение, то должна быть и за абонентку.
             // а все остальные абонентки включать в базовую (isDefault) проводку
-            // поэтому создаем проводки для всех абоненток, а потом удаляем ненужные (для которых нет соотвествующих проводок за подключение). Это гораздо проще, чем сразу создавать только нужные
+            // поэтому создаем проводки для всех абоненток, а потом удаляем ненужные (для которых нет соответствующих проводок за подключение). Это гораздо проще, чем сразу создавать только нужные
             $accountEntryTypeIdSetup = AccountEntry::TYPE_ID_SETUP;
             $accountEntryTypeIdPeriod = AccountEntry::TYPE_ID_PERIOD;
             $deleteSQL = <<<SQL
@@ -204,6 +232,7 @@ SQL;
                 {$accountLogTableName} account_log,
                 {$accountTariffTableName} account_tariff,
                 {$clientAccountTableName} client_account
+                {$sqlJoin}
             SET
                 account_log.account_entry_id = account_entry.id
             WHERE
@@ -235,6 +264,7 @@ SQL;
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
                     {$clientAccountTableName} client_account
+                    {$sqlJoin}
                 WHERE
                     account_log.account_tariff_id = account_tariff.id
                     AND account_tariff.client_account_id = client_account.id

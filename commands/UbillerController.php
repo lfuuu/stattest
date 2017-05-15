@@ -256,6 +256,10 @@ class UbillerController extends Controller
      */
     public function actionClearEntry()
     {
+        AccountLogSetup::updateAll(['account_entry_id' => null]);
+        AccountLogPeriod::updateAll(['account_entry_id' => null]);
+        AccountLogResource::updateAll(['account_entry_id' => null]);
+        AccountLogMin::updateAll(['account_entry_id' => null]);
         AccountEntry::deleteAll();
         echo '. ' . PHP_EOL;
     }
@@ -271,6 +275,8 @@ class UbillerController extends Controller
             ['biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL],
             ['IS NOT', 'uu_bill_id', null]
         ]);
+
+        AccountEntry::updateAll(['bill_id' => null]);
         Bill::deleteAll();
         echo '. ' . PHP_EOL;
     }

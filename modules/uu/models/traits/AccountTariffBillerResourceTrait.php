@@ -324,7 +324,10 @@ trait AccountTariffBillerResourceTrait
                 $hugeAccountLogFromToResource->amount = $prevAmount;
                 $hugeAccountLogFromToResource->tariffPeriod = $accountLogFromToTariff->tariffPeriod;
 
-                $hugeAccountLogFromToResources[] = $hugeAccountLogFromToResource;
+                if ($hugeAccountLogFromToResource->dateFrom <= $hugeAccountLogFromToResource->dateTo) {
+                    // если в течение дня меняли несколько раз, то учитывать только максимальное
+                    $hugeAccountLogFromToResources[] = $hugeAccountLogFromToResource;
+                }
 
                 // следущее списание будет с этой даты
                 $prevDateYmd = $actualFromYmd;
