@@ -46,4 +46,5 @@ return [
     'Published {n, plural, one{# bill} other{# bills}}' => 'Опубликованно {n, plural, one{# счет} many{# счетов} other{# счета}}',
 
     'Tasks {count, plural, one{# entry} other{# entries}}' => '{count, plural, one{# заявка} many{# заявок} other{# заявки}}',
+    'Client account with ID: {account_id} not found' => 'ЛС с ID: {account_id} не найден'
 ];

@@ -3,6 +3,7 @@ namespace app\controllers;
 
 use app\classes\Assert;
 use app\forms\buh\PaymentAddForm;
+use app\forms\buh\PaymentYandexTransfer;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\Bill;
@@ -24,6 +25,11 @@ class PaymentController extends BaseController
             [
                 'allow' => true,
                 'actions' => ['delete'],
+                'roles' => ['newaccounts_payments.delete'],
+            ],
+            [
+                'allow' => true,
+                'actions' => ['yandex-transfer'],
                 'roles' => ['newaccounts_payments.delete'],
             ],
             [
@@ -71,5 +77,29 @@ class PaymentController extends BaseController
         ClientAccount::dao()->updateBalance($payment->client_id);
 
         $this->redirect(Yii::$app->request->referrer);
+    }
+
+    public function actionYandexTransfer()
+    {
+        global $fixclient_data;
+
+        if (!$fixclient_data || !isset($fixclient_data['id'])) {
+            Yii::$app->session->addFlash('error', 'ЛС не выбран');
+        }
+
+        $account = ClientAccount::findOne(['id' => $fixclient_data['id']]);
+
+        $model = new PaymentYandexTransfer();
+        $model->from_client_id = $account->id;
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->transfer()) {
+            Yii::$app->session->addFlash('success', 'Платеж перенесен');
+        }
+
+        return $this->render(
+            'yandex-transfer', [
+                'model' => $model
+            ]
+        );
     }
 }

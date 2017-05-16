@@ -21,8 +21,11 @@ class AccountIdValidator extends NumberValidator
         if (!$model->hasErrors($attribute)) {
             $account = ClientAccount::findOne($model->$attribute);
             if ($account === null) {
-                $this->addError($model, $attribute, 'Client account with id {account_id} not found',
-                    ['account_id' => $model->$attribute]);
+                $this->addError($model, $attribute, \Yii::t(
+                    'common',
+                    'Client account with ID: {account_id} not found',
+                    ['account_id' => $model->$attribute]
+                ));
             }
         }
     }

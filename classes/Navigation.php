@@ -25,6 +25,8 @@ class Navigation
      */
     private function __construct()
     {
+        global $fixclient_data;
+
         $this->addBlock(
             NavigationBlock::create()
                 ->setRights(['clients.read'])
@@ -41,12 +43,20 @@ class Navigation
         $this->_addBlockNewClients();
 
         $this->_addBlockForStatModule('services');
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setTitle('Бухгалтерия')
-                ->addStatModuleItems('newaccounts')
-                ->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit')
-        );
+
+        $accountBlock = NavigationBlock::create()
+            ->setTitle('Бухгалтерия')
+            ->addStatModuleItems('newaccounts');
+
+        if ($fixclient_data) {
+            $accountBlock->addItem('Перенос Яндекс платежей', '/payment/yandex-transfer', 'newaccounts_payments.delete');
+        }
+
+        $accountBlock->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit');
+
+        $this->addBlock($accountBlock);
+
+
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle('Тарифы')
