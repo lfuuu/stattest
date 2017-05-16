@@ -125,12 +125,12 @@ $is7800 = $model->ndc_type_id == NdcType::ID_FREEPHONE;
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => NdcType::getList(),
                     'options' => [
-                        'class' => 'formReload'
+                        'class' => 'formReload',
                     ]
                 ],
                 'ndc' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $model->ndsList,
+                    'items' => $model->ndcList,
                     'options' => [
                             'class' => 'formReload'
                         ] + ($isEdit || $is7800 ? $readonlyOptions : [])

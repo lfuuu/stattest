@@ -253,9 +253,10 @@ class NumberRange extends ActiveRecord
      *
      * @param int $countryCode
      * @param int $cityId
+     * @param int $ndcTypeId
      * @return \integer[]
      */
-    public static function getNDCList($countryCode, $cityId)
+    public static function getNdcList($countryCode, $cityId, $ndcTypeId)
     {
         static $_cache = [];
 
@@ -266,11 +267,11 @@ class NumberRange extends ActiveRecord
                 ->where([
                     'country_code' => $countryCode,
                     'city_id' => $cityId,
+                    'ndc_type_id' => $ndcTypeId,
                     'is_active' => true
                 ])
-                ->andWhere(['NOT BETWEEN', 'ndc', 900, 999])// без мобильных
                 ->indexBy('ndc')
-                ->orderBy(['ndc' => SORT_DESC])
+                ->orderBy(['ndc' => SORT_ASC])
                 ->column();
         }
 
@@ -286,7 +287,7 @@ class NumberRange extends ActiveRecord
      * @param int $cityId
      * @return int
      */
-    public static function detectNDC($number, $countryPrefix, $countryId, $cityId)
+    public static function detectNdc($number, $countryPrefix, $countryId, $cityId)
     {
         if (strpos($number, (string)$countryPrefix) !== 0) {
             throw new \LogicException('Неправильный номер: '. $number);
@@ -302,7 +303,7 @@ class NumberRange extends ActiveRecord
 
         $numberWithoutCountryPrefix = substr($number, strlen($countryPrefix));
 
-        $ndcList = NumberRange::getNDCList($countryId, $cityId);
+        $ndcList = NumberRange::getNdcList($countryId, $cityId);
 
         foreach ($ndcList as $ndc) {
             if (strpos($numberWithoutCountryPrefix, (string)$ndc) === 0) {

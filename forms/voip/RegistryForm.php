@@ -29,7 +29,7 @@ class RegistryForm extends Form
         $account_id,
         $comment = '',
         $ndc = NumberRange::DEFAULT_MOSCOW_NDC,
-        $ndsList = [];
+        $ndcList = [];
 
     /** @var Registry */
     public $registry = null;
@@ -185,14 +185,14 @@ class RegistryForm extends Form
     private function _setNDC()
     {
         if ($this->ndc_type_id == NdcType::ID_FREEPHONE) {
-            $this->ndsList = [$this->ndc => $this->ndc];
+            $this->ndcList = [$this->ndc => $this->ndc];
             return; // установлена в setCityAndNDCFor7800
         }
 
-        $this->ndsList = NumberRange::getNDCList($this->country_id, $this->city_id);
+        $this->ndcList = NumberRange::getNdcList($this->country_id, $this->city_id, $this->ndc_type_id);
 
-        if (!isset($this->ndsList[$this->ndc])) {
-            $this->ndc = $this->ndsList ? reset($this->ndsList) : '';
+        if (!isset($this->ndcList[$this->ndc])) {
+            $this->ndc = $this->ndcList ? reset($this->ndcList) : '';
         }
     }
 
