@@ -92,6 +92,12 @@ class OperatorOnlime extends Operators
             'nameFull' => 'Видеокамера Hikvision DS-2CD-VC1W',
             'id_1c' => 'bc938b25-2991-11e7-b423-00155d881200',
         ],
+        'count_45' => [
+            'id' => 18716,
+            'name' => 'Пульт RM-E12',
+            'nameFull' => '(Onlime) Пульт, дистанционного управления RM-E12',
+            'id_1c' => '230bbc32-36fc-11e7-9b8f-00155d881200',
+        ],
     ];
 
     public static $requestModes = [

@@ -2778,6 +2778,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         "count_28" => 0,
         "count_41" => 0,
         "count_44" => 0,
+        "count_45" => 0,
     ];
 
     foreach ($list as $l) {
@@ -2792,6 +2793,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
         $total["count_28"] += $l["count_28"];
         $total["count_41"] += $l["count_41"];
         $total["count_44"] += $l["count_44"];
+        $total["count_45"] += $l["count_45"];
     }
 
     $design->assign("list", $list);
@@ -2824,6 +2826,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
             $l["count_28"] = (int)$l["count_28"];
             $l["count_41"] = (int)$l["count_41"];
             $l["count_44"] = (int)$l["count_44"];
+            $l["count_45"] = (int)$l["count_45"];
             $design->assign("i_stages", $l["stages"]);
             $design->assign("last", 1000);
             $html = $design->fetch("stats/onlime_stage.tpl");
@@ -2861,6 +2864,7 @@ function stats_report_plusopers($fixclient, $client, $genReport = false, $viewLi
                     "Приставка, SML-482 HD Base с опцией Wi-Fi" => "count_28",
                     "Пульт универсальный" => "count_41",
                     "Видеокамера Hikvision DS-2CD-VC1W" => "count_44",
+                    "Пульт RM-E12" => "count_45",
                     "Серийные номера" => "serials",
                     "Номер купона" => "coupon",
                     "ФИО клиента" => "fio",
@@ -3206,6 +3210,10 @@ if($client != "nbn")
 				(select sum(amount) from newbill_lines nl
                         where item_id ='bc938b25-2991-11e7-b423-00155d881200'
                         and nl.bill_no = t.bill_no) as count_44,
+                        
+				(select sum(amount) from newbill_lines nl
+                        where item_id ='230bbc32-36fc-11e7-9b8f-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_45,
 
         (select group_concat(serial SEPARATOR ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
         (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,
@@ -3354,6 +3362,10 @@ private function report_plusopers__getList($client, $listType, $d1, $d2, $delive
 				(select sum(amount) from newbill_lines nl
                         where item_id ='bc938b25-2991-11e7-b423-00155d881200'
                         and nl.bill_no = t.bill_no) as count_44,
+                        
+				(select sum(amount) from newbill_lines nl
+                        where item_id ='230bbc32-36fc-11e7-9b8f-00155d881200'
+                        and nl.bill_no = t.bill_no) as count_45,
 
         (select group_concat(serial separator ', ') from g_serials s where s.bill_no = t.bill_no) as serials,
         (select concat(coupon) from onlime_order oo where oo.bill_no = t.bill_no) as coupon,

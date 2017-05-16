@@ -126,6 +126,9 @@ class Onlime1CCreateBill
            from 27.04.2017
            44=bc938b25-2991-11e7-b423-00155d881200 18711   Видеокамера Hikvision DS-2CD-VC1W
 
+           from 16.05.2017
+            45=230bbc32-36fc-11e7-9b8f-00155d881200 18716 (Onlime) Пульт, дистанционного управления RM-E12
+
          */
 
         foreach($o["products"] as $product)
@@ -145,6 +148,7 @@ class Onlime1CCreateBill
                 case '28':  $goodId = "3a0a1bfe-c8c2-11e5-af87-00155d881200"; break;
                 case '41':  $goodId = "8d4c0c88-145b-11e7-9abf-00155d881200"; break;
                 case '44':  $goodId = "bc938b25-2991-11e7-b423-00155d881200"; break;
+                case '45':  $goodId = "230bbc32-36fc-11e7-9b8f-00155d881200"; break;
             }
 
             if(isset($o["coupon"]) && isset($o["coupon"]["groupon"]) && $o["coupon"]["groupon"])
