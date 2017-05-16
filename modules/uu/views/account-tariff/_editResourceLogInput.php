@@ -68,6 +68,7 @@ $resourceTableName = Resource::tableName();
     </div>
 
     <?php
+    /** @var \app\modules\uu\models\Resource $resource */
     foreach ($resources as $resource) :
         $tariffResource = isset($tariffResources[$resource->id]) ? $tariffResources[$resource->id] : null;
         ?>
@@ -101,7 +102,12 @@ $resourceTableName = Resource::tableName();
                     $field = $form->field($accountTariffResourceLog, "[{$resource->id}]amount");
 
                     if ($resource->isNumber()) {
-                        $field->textInput(['type' => 'number', 'step' => 1]);
+                        $params = ['type' => 'number', 'step' => 1, 'min' => $resource->min_value];
+                        if ($resource->max_value) {
+                            $params['max'] = $resource->max_value;
+                        }
+
+                        $field->textInput($params);
                     } else {
                         $field->checkbox(['value' => 1], $enclosedByLabel = false);
                     }

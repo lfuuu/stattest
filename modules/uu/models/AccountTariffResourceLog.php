@@ -59,9 +59,9 @@ class AccountTariffResourceLog extends ActiveRecord
         return [
             [['account_tariff_id', 'resource_id', 'amount'], 'required'],
             [['account_tariff_id', 'resource_id'], 'integer'],
+            ['resource_id', 'validateTariffResource'],
             [['amount'], 'number'],
             [['amount'], 'validatorOther', 'skipOnEmpty' => false],
-            ['resource_id', 'validateTariffResource'],
             ['actual_from', 'date', 'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT],
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
@@ -262,6 +262,19 @@ class AccountTariffResourceLog extends ActiveRecord
 
         if (!$this->isNewRecord) {
             // При обновлении не проверяем. Клиент обновить все равно не может. Он может только удалить (если дата еще не наступила) или добавить новый (если дата ужа наступила)
+            return;
+        }
+
+        $resource = $this->resource;
+        if ($this->amount < $resource->min_value) {
+            $this->addError($attribute, 'Значение ' . $this->amount . ' ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" меньше минимально допустимого значения ' . $resource->min_value . '.');
+            $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_AMOUNT_MIN;
+            return;
+        }
+
+        if ($resource->max_value && $this->amount > $resource->max_value) {
+            $this->addError($attribute, 'Значение ' . $this->amount . ' ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" больше максимально допустимого значения ' . $resource->max_value . '.');
+            $this->errorCode = AccountTariff::ERROR_CODE_RESOURCE_AMOUNT_MAX;
             return;
         }
 

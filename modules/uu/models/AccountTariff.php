@@ -90,6 +90,8 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_RESOURCE_WRONG = 51; // Указан несуществующий ресурс
     const ERROR_CODE_RESOURCE_TYPE_WRONG = 52; // Этот ресурс от другого типа услуги
     const ERROR_CODE_RESOURCE_TRAFFIC = 54; // Этот ресурс - трафик, а не опция. Его нельзя установить заранее.
+    const ERROR_CODE_RESOURCE_AMOUNT_MIN = 55; // Значение ресурса меньше минимально допустимого значения.
+    const ERROR_CODE_RESOURCE_AMOUNT_MAX = 56; // Значение ресурса больше максимально допустимого значения.
 
     /**
      * @return array
