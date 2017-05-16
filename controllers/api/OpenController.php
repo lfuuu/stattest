@@ -65,7 +65,7 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "region", type = "integer", description = "ID региона"),
      *   @SWG\Property(property = "city_id", type = "integer", description = "ID города"),
      *   @SWG\Property(property = "did_group_id", type = "integer", description = "ID DID-группы"),
-     *   @SWG\Property(property = "number_type", type = "integer", description = "ID типа номера"),
+     *   @SWG\Property(property = "ndc_type_id", type = "integer", description = "ID типа номера"),
      *   @SWG\Property(property = "country_prefix", type = "integer", description = "Префикс страны"),
      *   @SWG\Property(property = "ndc", type = "integer", description = "NDC"),
      *   @SWG\Property(property = "number_subscriber", type = "integer", description = "Номер без префикса и NDC")
@@ -74,7 +74,7 @@ final class OpenController extends Controller
      * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers-by-filter", summary = "Выбрать список свободных номеров", operationId = "getFreeNumbersByFilter",
      *   @SWG\Parameter(name = "regions[0]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
      *   @SWG\Parameter(name = "regions[1]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "numberType", type = "integer", description = "Тип номеров (const from NumberType)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "ndcType", type = "integer", description = "Тип номеров", in = "query", default = ""),
      *   @SWG\Parameter(name = "minCost", type = "number", description = "Минимальная цена", in = "query", default = ""),
      *   @SWG\Parameter(name = "maxCost", type = "number", description = "Максимальная цена", in = "query", default = ""),
      *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Уровень красоты", in = "query", default = ""),
@@ -96,7 +96,7 @@ final class OpenController extends Controller
      * )
      *
      * @param array $regions
-     * @param int $numberType
+     * @param int $ndcType
      * @param float $minCost
      * @param float $maxCost
      * @param int $beautyLvl
@@ -114,7 +114,7 @@ final class OpenController extends Controller
      */
     public function actionGetFreeNumbersByFilter(
         array $regions = [],
-        $numberType = null,
+        $ndcType = null,
         $minCost = null,
         $maxCost = null,
         $beautyLvl = null,
@@ -147,8 +147,8 @@ final class OpenController extends Controller
             $numbers->setOffset((int)$offset);
         }
 
-        if ((int)$numberType) {
-            $numbers->setType((int)$numberType);
+        if ((int)$ndcType) {
+            $numbers->setType((int)$ndcType);
         }
 
         $responseNumbers = [];
@@ -172,7 +172,7 @@ final class OpenController extends Controller
      * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers-by-ndc", summary = "Выбрать список свободных номеров и сгруппировать по NDC", operationId = "getFreeNumbersByNdc",
      *   @SWG\Parameter(name = "regions[0]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
      *   @SWG\Parameter(name = "regions[1]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "numberType", type = "integer", description = "Тип номеров (const from NumberType)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "ndcType", type = "integer", description = "Тип номеров", in = "query", default = ""),
      *   @SWG\Parameter(name = "minCost", type = "number", description = "Минимальная цена", in = "query", default = ""),
      *   @SWG\Parameter(name = "maxCost", type = "number", description = "Максимальная цена", in = "query", default = ""),
      *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Уровень красоты", in = "query", default = ""),
@@ -191,7 +191,7 @@ final class OpenController extends Controller
      * )
      *
      * @param array $regions
-     * @param int $numberType
+     * @param int $ndcType
      * @param float $minCost
      * @param float $maxCost
      * @param int $beautyLvl
@@ -208,7 +208,7 @@ final class OpenController extends Controller
      */
     public function actionGetFreeNumbersByNdc(
         array $regions = [],
-        $numberType = null,
+        $ndcType = null,
         $minCost = null,
         $maxCost = null,
         $beautyLvl = null,
@@ -239,8 +239,8 @@ final class OpenController extends Controller
             $numbers->setOffset((int)$offset);
         }
 
-        if ((int)$numberType) {
-            $numbers->setType((int)$numberType);
+        if ((int)$ndcType) {
+            $numbers->setType((int)$ndcType);
         }
 
         $response = [];
@@ -273,7 +273,7 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "country_code", type = "integer", description = "Идентификатор страны"),
      *   @SWG\Property(property = "city_id", type = "integer", description = "Идентификатор города"),
      *   @SWG\Property(property = "beauty_level", type = "integer", description = "Степень красоты"),
-     *   @SWG\Property(property = "number_type_id", type = "integer", description = "Тип номеров")
+     *   @SWG\Property(property = "ndc_type_id", type = "integer", description = "Тип номеров")
      * ),
      *
      * @SWG\Get(tags = {"Numbers"}, path = "/open/did-groups", summary = "Получение DID групп", operationId = "didGroups",

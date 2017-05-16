@@ -1,12 +1,13 @@
 <?php
+
 namespace app\controllers\voip;
 
+use app\classes\BaseController;
 use app\forms\voip\RegistryForm;
 use app\models\City;
+use app\models\filter\voip\RegistryFilter;
 use app\models\voip\Registry;
 use Yii;
-use app\models\filter\voip\RegistryFilter;
-use app\classes\BaseController;
 use yii\filters\AccessControl;
 
 class RegistryController extends BaseController
@@ -33,6 +34,7 @@ class RegistryController extends BaseController
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
     {
@@ -48,10 +50,11 @@ class RegistryController extends BaseController
      * Действие контроллера. Добавление.
      *
      * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidParamException
      */
     public function actionAdd()
     {
-       return $this->actionEdit(0);
+        return $this->actionEdit(0);
     }
 
     /**
@@ -59,6 +62,7 @@ class RegistryController extends BaseController
      *
      * @param int $id
      * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidParamException
      */
     public function actionEdit($id)
     {
@@ -77,11 +81,9 @@ class RegistryController extends BaseController
 
         $isLoad = $model->load(Yii::$app->request->post());
 
-        if ($isLoad && $model->initForm($isFromPost = true)) {
-            if ($model->getScenario() == 'save' && $model->validate() && $model->save()) {
-                Yii::$app->session->addFlash('success', ($id ? 'Запись обновлена' : 'Запись создана'));
-                return $this->redirect(['edit', 'id' => $model->id]);
-            }
+        if ($isLoad && $model->initForm($isFromPost = true) && $model->getScenario() === 'save' && $model->validate() && $model->save()) {
+            Yii::$app->session->addFlash('success', ($id ? 'Запись обновлена' : 'Запись создана'));
+            return $this->redirect(['edit', 'id' => $model->id]);
         }
 
         $isShowCheckList = false;

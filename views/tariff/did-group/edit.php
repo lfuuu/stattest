@@ -11,7 +11,7 @@ use app\forms\tariff\DidGroupForm;
 use app\models\City;
 use app\models\Country;
 use app\models\DidGroup;
-use app\models\NumberType;
+use app\modules\nnp\models\NdcType;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -85,9 +85,9 @@ if (!$didGroup->isNewRecord) {
 
         <?php // Тип номера ?>
         <div class="col-sm-3">
-            <?= $form->field($didGroup, 'number_type_id')
+            <?= $form->field($didGroup, 'ndc_type_id')
                 ->widget(Select2::className(), [
-                    'data' => NumberType::getList($isWithEmpty = true),
+                    'data' => NdcType::getList($isWithEmpty = true),
                 ]) ?>
         </div>
 
@@ -108,10 +108,10 @@ if (!$didGroup->isNewRecord) {
     </div>
 
     <div class="row">
-        <?php for ($i = 1 ; $i <= 9; $i++ ) : ?>
-        <div class="col-sm-1">
-            <?= $form->field($didGroup, 'price' . $i)->input('number', ['step' => 0.01]) ?>
-        </div>
+        <?php for ($i = 1; $i <= 9; $i++) : ?>
+            <div class="col-sm-1">
+                <?= $form->field($didGroup, 'price' . $i)->input('number', ['step' => 0.01]) ?>
+            </div>
         <?php endfor; ?>
     </div>
 

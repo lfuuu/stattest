@@ -115,7 +115,6 @@ class Navigation
                 ->addItem('Местные Префиксы', ['/voip/network-config/list'], ['voip.access'])
                 ->addItem('Списки префиксов', ['/voip/prefixlist'], ['voip.access'])
                 ->addItem('Направления', ['/voip/destination'], ['voip.access'])
-                ->addItem('Тип номера', ['/voip/number-type'], ['voip.access'])
                 ->addItem('DID группы', ['/tariff/did-group/'], ['tarifs.read'])
                 ->addItem('Номера', ['/voip/number'], ['stats.report'])
                 ->addItem('Реестр номеров', ['/voip/registry'], ['voip.access'])

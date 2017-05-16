@@ -1,6 +1,6 @@
 <?php
 
-use app\models\NumberType;
+use app\modules\nnp\models\NdcType;
 
 return [
     [
@@ -12,7 +12,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '01',
     ],
     [
@@ -24,7 +24,7 @@ return [
         'did_group_id' => 6,
         'ndc' => 495,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '02',
     ],
     [
@@ -36,7 +36,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '03',
     ],
     [
@@ -48,7 +48,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '04',
     ],
     [
@@ -60,7 +60,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '05',
     ],
     [
@@ -72,7 +72,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '06',
     ],
     [
@@ -84,7 +84,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '07',
     ],
     [
@@ -96,7 +96,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '08',
     ],
     [
@@ -108,7 +108,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '09',
     ],
     [
@@ -120,7 +120,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '10',
     ],
     [
@@ -132,7 +132,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '11',
     ],
     [
@@ -144,7 +144,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '12',
     ],
     [
@@ -156,7 +156,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '13',
     ],
     [
@@ -168,7 +168,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '14',
     ],
     [
@@ -180,7 +180,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '15',
     ],
     [
@@ -192,7 +192,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '16',
     ],
     [
@@ -204,7 +204,7 @@ return [
         'did_group_id' => 2,
         'ndc' => 499,
         'country_code' => 643,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '17',
     ],
     [
@@ -216,7 +216,7 @@ return [
         'did_group_id' => 224,
         'ndc' => 192,
         'country_code' => 348,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '18',
     ],
     [
@@ -228,7 +228,7 @@ return [
         'did_group_id' => 223,
         'ndc' => 192,
         'country_code' => 348,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '19',
     ],
     [
@@ -240,7 +240,7 @@ return [
         'did_group_id' => 223,
         'ndc' => 192,
         'country_code' => 348,
-        'number_type' => NumberType::ID_GEO_DID,
+        'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
         'number_cut' => '20',
     ],
     [
@@ -252,7 +252,7 @@ return [
         'did_group_id' => null,
         'ndc' => 800,
         'country_code' => 643,
-        'number_type' => NumberType::ID_7800,
+        'ndc_type_id' => NdcType::ID_FREEPHONE,
         'number_cut' => '01',
     ],
     [
@@ -264,7 +264,7 @@ return [
         'did_group_id' => null,
         'ndc' => 800,
         'country_code' => 643,
-        'number_type' => NumberType::ID_7800,
+        'ndc_type_id' => NdcType::ID_FREEPHONE,
         'number_cut' => '02',
     ],
 ];

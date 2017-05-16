@@ -15,11 +15,11 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\NumberStatusColumn;
-use app\classes\grid\column\universal\NumberTypeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\filter\voip\NumberFilter;
+use app\modules\nnp\column\NdcTypeColumn;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
@@ -128,8 +128,8 @@ $columns = [
         'class' => NumberStatusColumn::className(),
     ],
     [
-        'attribute' => 'number_type',
-        'class' => NumberTypeColumn::className(),
+        'attribute' => 'ndc_type_id',
+        'class' => NdcTypeColumn::className()
     ],
     [
         'attribute' => 'beauty_level',

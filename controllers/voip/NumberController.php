@@ -8,12 +8,10 @@ namespace app\controllers\voip;
 use app\classes\Assert;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
-use app\classes\voip\forms\NumberFormEdit;
 use app\classes\voip\forms\NumberFormNew;
+use app\forms\usage\NumberForm;
 use app\models\Country;
 use app\models\filter\voip\NumberFilter;
-use app\models\NumberType;
-use app\forms\usage\NumberForm;
 use app\models\Number;
 use Yii;
 use yii\filters\AccessControl;
@@ -46,6 +44,7 @@ class NumberController extends BaseController
 
     /**
      * Вернуть имя колонки, в которую надо установить фильтр по клиенту
+     *
      * @return string
      */
     protected function getClientAccountField()
@@ -65,7 +64,7 @@ class NumberController extends BaseController
         $get = Yii::$app->request->get();
         $className = $filterModel->formName();
         !isset($get[$className]['country_id']) && $get[$className]['country_id'] = Country::RUSSIA;
-//        !isset($get[$className]['number_type']) && $get[$className]['number_type'] = NumberType::ID_GEO_DID;
+//        !isset($get[$className]['ndc_type_id']) && $get[$className]['ndc_type_id'] = NdcType::ID_GEOGRAPHIC;
 
         $this->_addClientAccountFilter($filterModel, $get);
 

@@ -6,9 +6,8 @@ use app\models\Currency;
 use app\models\DidGroup;
 use app\models\light_models\NumberLight;
 use app\models\Number;
-use app\models\NumberType;
+use app\modules\nnp\models\NdcType;
 use yii\db\Expression;
-use yii\db\Query;
 
 /**
  * Фильтрация для свободных номеров
@@ -61,7 +60,7 @@ class FreeNumberFilter extends Number
      */
     public function getNumbers()
     {
-        $this->type = NumberType::ID_GEO_DID;
+        $this->type = NdcType::ID_GEOGRAPHIC;
         return $this;
     }
 
@@ -72,19 +71,19 @@ class FreeNumberFilter extends Number
      */
     public function getNumbers7800()
     {
-        $this->type = NumberType::ID_7800;
+        $this->type = NdcType::ID_FREEPHONE;
         return $this;
     }
 
     /**
-     * @param int $numberType - константа из NumberType
+     * @param int $ndcType - константа из NdcType
      * @return $this
      */
-    public function setType($numberType = NumberType::ID_GEO_DID)
+    public function setType($ndcType = NdcType::ID_GEOGRAPHIC)
     {
-        $this->_query->andWhere([parent::tableName() . '.number_type' => $numberType]);
+        $this->_query->andWhere([parent::tableName() . '.ndc_type_id' => $ndcType]);
 
-        if ($numberType == NumberType::ID_GEO_DID) {
+        if ($ndcType == NdcType::ID_GEOGRAPHIC) {
             $this->_query->andWhere(new Expression('
                     IF(
                         `' . parent::tableName() . '`.`number` LIKE "7495%",
@@ -215,9 +214,11 @@ class FreeNumberFilter extends Number
     public function setDidGroup($didGroupId)
     {
         if ((int)$didGroupId) {
-            $this->_query->andWhere([parent::tableName() . '.beauty_level' => DidGroup::find()
-                ->select('beauty_level')
-                ->where(['id' => (int)$didGroupId])]);
+            $this->_query->andWhere([
+                parent::tableName() . '.beauty_level' => DidGroup::find()
+                    ->select('beauty_level')
+                    ->where(['id' => (int)$didGroupId])
+            ]);
 
             if (($didgroupAdditionWhere = DidGroup::dao()->getDidgroupAdditionWhere(null, $didGroupId))) {
                 $this->_query->andWhere($didgroupAdditionWhere);

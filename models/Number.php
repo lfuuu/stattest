@@ -1,8 +1,10 @@
 <?php
+
 namespace app\models;
 
 use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
+use app\modules\nnp\models\NdcType;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
@@ -28,7 +30,7 @@ use yii\helpers\Url;
  * @property string $number_tech
  * @property int $ndc
  * @property string $number_subscriber
- * @property int $number_type
+ * @property int $ndc_type_id
  * @property string $date_start
  * @property string $date_end
  * @property int $operator_account_id
@@ -43,6 +45,7 @@ use yii\helpers\Url;
  * @property DidGroup $didGroup
  * @property UsageVoip $usage
  * @property ClientAccount $clientAccount
+ * @property NdcType $ndcType
  *
  * @property float $originPrice
  * @property float $price
@@ -107,7 +110,7 @@ class Number extends ActiveRecord
             'did_group_id' => 'DID группа',
             'beauty_level' => 'Степень красивости',
             'status' => 'Статус',
-            'number_type' => 'Тип номера',
+            'ndc_type_id' => 'Тип номера',
             'number_tech' => 'Технический номер',
         ];
     }
@@ -167,9 +170,9 @@ class Number extends ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getNumberType()
+    public function getNdcType()
     {
-        return $this->hasOne(NumberType::className(), ['id' => 'number_type']);
+        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
     }
 
     /**

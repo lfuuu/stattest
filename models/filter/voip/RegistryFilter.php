@@ -19,7 +19,7 @@ class RegistryFilter extends Country
     public $country_id = '';
     public $city_id = '';
     public $source = '';
-    public $number_type_id = '';
+    public $ndc_type_id = '';
     public $number_from = '';
     public $number_to = '';
     public $account_id = '';
@@ -34,7 +34,7 @@ class RegistryFilter extends Country
             [['country_id'], 'integer'],
             [['city_id'], 'integer'],
             [['source'], 'string'],
-            [['number_type_id'], 'integer'],
+            [['ndc_type_id'], 'integer'],
             [['ndc'], 'integer'],
             [['number_from'], 'integer'],
             [['number_to'], 'integer'],
@@ -52,7 +52,7 @@ class RegistryFilter extends Country
         $query = Registry::find();
 
         // equal filter
-        foreach (['country_id', 'city_id', 'source', 'number_type_id', 'account_id', 'ndc'] as $field) {
+        foreach (['country_id', 'city_id', 'source', 'ndc_type_id', 'account_id', 'ndc'] as $field) {
             if ($this->{$field} !== '') {
                 $query->andWhere([$field => $this->{$field}]);
             }

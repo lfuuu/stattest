@@ -11,11 +11,11 @@ use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
-use app\classes\grid\column\universal\NumberTypeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\models\DidGroup;
 use app\models\filter\DidGroupFilter;
+use app\modules\nnp\column\NdcTypeColumn;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
@@ -73,12 +73,12 @@ $columns = [
         'class' => BeautyLevelColumn::className(),
     ],
     [
-        'attribute' => 'number_type_id',
-        'class' => NumberTypeColumn::className()
-    ]
+        'attribute' => 'ndc_type_id',
+        'class' => NdcTypeColumn::className()
+    ],
 ];
 
-for ($i = 1; $i <= 9 ; $i++) {
+for ($i = 1; $i <= 9; $i++) {
     $columns[] = [
         'attribute' => 'price' . $i,
         'class' => IntegerRangeColumn::className()

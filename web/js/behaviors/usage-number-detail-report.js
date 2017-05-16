@@ -1,9 +1,9 @@
 jQuery(document).ready(function() {
 
-    var numberTypeList = $('input[type=radio].numberTypeList');
+    var ndcTypeList = $('input[type=radio].ndcTypeList');
 
-    numberTypeList.change(function () {
-        var numberTypeId = numberTypeList.filter(':checked').val();
+    ndcTypeList.change(function () {
+        var ndcTypeId = ndcTypeList.filter(':checked').val();
 
         var subList = $('input[type=checkbox].subList');
 
@@ -12,7 +12,7 @@ jQuery(document).ready(function() {
             .css('color', 'gray');
 
         subList
-            .filter('[data-number-type-id=' + numberTypeId + ']')
+            .filter('[data-ndc-type-id=' + ndcTypeId + ']')
             .parent() //label
             .css('color', 'black');
 

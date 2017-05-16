@@ -27,14 +27,14 @@ class VoipController extends BaseController
      * @param int|bool $isWithEmpty
      * @param string $format
      */
-    public function actionGetNumberTypes($countryId = null, $isWithEmpty = false, $format = null)
+    public function actionGetNdcTypes($countryId = null, $isWithEmpty = false, $format = null)
     {
         if (!$countryId) {
             throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $numberTypes = Tariff::getVoipTypesByCountryId($countryId, (int)$isWithEmpty);
-        ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
+        $ndcTypes = Tariff::getVoipTypesByCountryId($countryId, (int)$isWithEmpty);
+        ReturnFormatted::me()->returnFormattedValues($ndcTypes, $format);
     }
 
     /**
@@ -51,8 +51,8 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $numberTypes = City::getList((int)$isWithEmpty, $countryId);
-        ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
+        $ndcTypes = City::getList((int)$isWithEmpty, $countryId);
+        ReturnFormatted::me()->returnFormattedValues($ndcTypes, $format);
     }
 
     /**
@@ -69,8 +69,8 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $numberTypes = DidGroup::getList((int)$isWithEmpty, $cityId);
-        ReturnFormatted::me()->returnFormattedValues($numberTypes, $format);
+        $ndcTypes = DidGroup::getList((int)$isWithEmpty, $cityId);
+        ReturnFormatted::me()->returnFormattedValues($ndcTypes, $format);
     }
 
     /**

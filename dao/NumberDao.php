@@ -249,7 +249,7 @@ class NumberDao extends Singleton
         if ($holdTo) {
             $number->hold_to = $holdTo->format(DateTimeZoneHelper::DATETIME_FORMAT);
         } else {
-            $now->add($number->numberType->hold);
+            $now->add($number->ndcType->getHold());
             $number->hold_to = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
         }
 

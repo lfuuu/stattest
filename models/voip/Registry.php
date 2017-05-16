@@ -16,7 +16,7 @@ use app\models\Country;
  * @property integer $city_id
  * @property integer $ndc
  * @property string $source
- * @property integer $number_type_id
+ * @property integer $ndc_type_id
  * @property string $number_from
  * @property string $number_to
  * @property string $number_full_from
@@ -62,7 +62,7 @@ class Registry extends HistoryActiveRecord
             'country_id' => 'Страна',
             'city_id' => 'Город',
             'source' => 'Источник',
-            'number_type_id' => 'Тип номера',
+            'ndc_type_id' => 'Тип номера',
             'number_from' => 'Номер "с"',
             'number_to' => 'Номер "по"',
             'account_id' => 'ЛС',

@@ -175,7 +175,7 @@ class VoipRegistryDao extends Singleton
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
         $number->region = $registry->city->connection_point_id;
-        $number->number_type = $registry->number_type_id;
+        $number->ndc_type_id = $registry->ndc_type_id;
         $number->city_id = $registry->city_id;
         $number->status = Number::STATUS_NOTSALE;
         $number->edit_user_id = \Yii::$app->user->identity->id;
@@ -208,7 +208,7 @@ class VoipRegistryDao extends Singleton
             );
         }
 
-        if ($didGroup->number_type_id != $registry->number_type_id) {
+        if ($didGroup->ndc_type_id != $registry->ndc_type_id) {
             throw new InvalidConfigException(
                 \Yii::t(
                     'app',

@@ -1,12 +1,17 @@
 <?php
 
-/** @var \app\forms\voip\RegistryForm $model */
+/**
+ * @var \app\forms\voip\RegistryForm $model
+ * @var bool $creatingMode
+ * @var array $checkList
+ * @var array $statusInfo
+ */
 use app\classes\Html;
 use app\models\City;
 use app\models\Country;
 use app\models\Number;
-use app\models\NumberType;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NdcType;
 use kartik\builder\Form;
 use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
@@ -42,7 +47,7 @@ if ($model->id) {
 }
 $links[] = [
     'label' => $title,
-    'url' => ($model->id ? ['/voip/registry/edit', 'id' => $model->id] : ['/voip/registry/add'])
+    'url' => $model->id ? ['/voip/registry/edit', 'id' => $model->id] : ['/voip/registry/add']
 ];
 
 echo Breadcrumbs::widget([
@@ -55,159 +60,162 @@ $readonlyOptions = [
 ];
 
 $isEdit = (bool)$model->id;
-$is7800 = $model->number_type_id == NumberType::ID_7800;
+$is7800 = $model->ndc_type_id == NdcType::ID_FREEPHONE;
 
 ?>
 
-<div class="well">
-    <?php
+    <div class="well">
+        <?php
 
-    $form = ActiveForm::begin([
-        'id' => 'RegistryForm',
-        'type' => ActiveForm::TYPE_VERTICAL,
-        'enableClientValidation' => true,
-    ]);
+        $form = ActiveForm::begin([
+            'id' => 'RegistryForm',
+            'type' => ActiveForm::TYPE_VERTICAL,
+            'enableClientValidation' => true,
+        ]);
 
-    $this->registerJsVariable('registryFormId', $form->getId());
+        $this->registerJsVariable('registryFormId', $form->getId());
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 4,
-        'attributes' => [
-            'country_id' => [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => $countryList,
-                'options' => [
-                    'class' => 'formReload'
-                ] + ($isEdit ? $readonlyOptions : [])
-            ],
-            'city_id' => [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => $cityList,
-                'options' => [
-                    'class' => 'formReload'
-                ] + ($isEdit || $is7800 ? $readonlyOptions : [])
-            ],
-            'source' => [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => \app\classes\enum\VoipRegistrySourceEnum::$names,
-            ],
-            'account_id' => [
-                'type' => Form::INPUT_TEXT,
-            ]
-        ]
-    ]);
-
-    $maskedInputWidgetConfig = [
-        'type' => Form::INPUT_WIDGET,
-        'widgetClass' => \app\classes\MaskedInput::className(),
-        'options' => [
-            'mask' => $model->city_number_format,
-            'options' => [
-                'class' => 'form-control',
-                'placeholder' => $model->city_number_format,
-            ]
-        ]
-    ];
-
-
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 4,
-        'attributes' => [
-            'number_type_id' => [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => NumberType::getList(),
-                'options' => [
-                    'class' => 'formReload'
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 4,
+            'attributes' => [
+                'country_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $countryList,
+                    'options' => [
+                            'class' => 'formReload'
+                        ] + ($isEdit ? $readonlyOptions : [])
+                ],
+                'city_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $cityList,
+                    'options' => [
+                            'class' => 'formReload'
+                        ] + ($isEdit || $is7800 ? $readonlyOptions : [])
+                ],
+                'source' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => \app\classes\enum\VoipRegistrySourceEnum::$names,
+                ],
+                'account_id' => [
+                    'type' => Form::INPUT_TEXT,
                 ]
-            ],
-            'ndc' => [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => $model->ndsList,
-                'options' => [
-                    'class' => 'formReload'
-                    ] + ($isEdit || $is7800 ? $readonlyOptions : [])
-            ],
-            'number_from' => $maskedInputWidgetConfig,
-            'number_to' => $maskedInputWidgetConfig,
-        ],
-    ]);
-
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 1,
-        'attributes' => [
-            'comment' => [
-                'type' => Form::INPUT_TEXT
             ]
-        ]
-    ]);
+        ]);
+
+        $maskedInputWidgetConfig = [
+            'type' => Form::INPUT_WIDGET,
+            'widgetClass' => \app\classes\MaskedInput::className(),
+            'options' => [
+                'mask' => $model->city_number_format,
+                'options' => [
+                    'class' => 'form-control',
+                ]
+            ]
+        ];
 
 
-    echo Form::widget([
-        'model' => $model,
-        'form' => $form,
-        'columns' => 3,
-        'attributes' => [
-            'check-number' => [
-                'type' => Form::INPUT_RAW,
-                'value' => ($model->id ? Html::submitButton('Проверить номера', [
-                        'class' => 'btn btn-info',
-                        'name' => 'check-numbers',
-                        'value' => 'Проверить номера'
-                    ])
-                    . (in_array($model->registry->status, [Registry::STATUS_PARTLY, Registry::STATUS_EMPTY]) ?
-                        ' ' . Html::submitButton('Залить номера', [
-                            'class' => 'btn btn-success',
-                            'name' => 'fill-numbers',
-                            'value' => 'Залить номера'
-                        ])
-                        : '')
-                    . ($statusInfo && isset($statusInfo[Number::STATUS_NOTSALE]) && $statusInfo[Number::STATUS_NOTSALE] ?
-                        ' ' . Html::submitButton('Передать в продажу номера (' . $statusInfo[Number::STATUS_NOTSALE] . ' шт.)', [
-                            'class' => 'btn btn-warning',
-                            'name' => 'to-sale',
-                            'value' => 'Передать в продажу номера'
-                        ])
-                        : '')
-
-
-                    : '')
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 4,
+            'attributes' => [
+                'ndc_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => NdcType::getList(),
+                    'options' => [
+                        'class' => 'formReload'
+                    ]
+                ],
+                'ndc' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $model->ndsList,
+                    'options' => [
+                            'class' => 'formReload'
+                        ] + ($isEdit || $is7800 ? $readonlyOptions : [])
+                ],
+                'number_from' => $maskedInputWidgetConfig,
+                'number_to' => $maskedInputWidgetConfig,
             ],
-            'id' => [
-                'type' => Form::INPUT_RAW,
-                'value' => Html::activeHiddenInput($model, 'id')
-            ],
+        ]);
 
-            'actions' => [
-                'type' => Form::INPUT_RAW,
-                'value' =>
-                    Html::tag(
-                        'div',
-                        Html::button('Отменить', [
-                            'class' => 'btn btn-link',
-                            'style' => 'margin-right: 15px;',
-                            'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
-                        ]) .
-                        Html::submitButton('Сохранить',
-                            [
-                                'class' => 'btn btn-primary',
-                                'name' => 'save',
-                                'value' => 'Сохранить'
-                            ]),
-                        ['style' => 'text-align: right; padding-right: 0px;']
-                    )
-            ],
-        ],
-    ]);
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 1,
+            'attributes' => [
+                'comment' => [
+                    'type' => Form::INPUT_TEXT
+                ]
+            ]
+        ]);
 
-    ActiveForm::end();
-    ?>
-</div>
+
+        $value = '';
+        if ($model->id) {
+            $value .= Html::submitButton('Проверить номера', [
+                'class' => 'btn btn-info',
+                'name' => 'check-numbers',
+                'value' => 'Проверить номера'
+            ]);
+
+            if (in_array($model->registry->status, [Registry::STATUS_PARTLY, Registry::STATUS_EMPTY])) {
+                $value .= ' ' . Html::submitButton('Залить номера', [
+                        'class' => 'btn btn-success',
+                        'name' => 'fill-numbers',
+                        'value' => 'Залить номера'
+                    ]);
+            }
+
+            if ($statusInfo && isset($statusInfo[Number::STATUS_NOTSALE]) && $statusInfo[Number::STATUS_NOTSALE]) {
+                $value .= ' ' . Html::submitButton('Передать в продажу номера (' . $statusInfo[Number::STATUS_NOTSALE] . ' шт.)', [
+                        'class' => 'btn btn-warning',
+                        'name' => 'to-sale',
+                        'value' => 'Передать в продажу номера'
+                    ]);
+            }
+        }
+
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 3,
+            'attributes' => [
+                'check-number' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' => $value,
+                ],
+                'id' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' => Html::activeHiddenInput($model, 'id')
+                ],
+
+                'actions' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' =>
+                        Html::tag(
+                            'div',
+                            Html::button('Отменить', [
+                                'class' => 'btn btn-link',
+                                'style' => 'margin-right: 15px;',
+                                'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
+                            ]) .
+                            Html::submitButton('Сохранить',
+                                [
+                                    'class' => 'btn btn-primary',
+                                    'name' => 'save',
+                                    'value' => 'Сохранить'
+                                ]),
+                            ['style' => 'text-align: right; padding-right: 0px;']
+                        )
+                ],
+            ],
+        ]);
+
+        ActiveForm::end();
+        ?>
+    </div>
 
 <?php if ($checkList) {
 
@@ -225,14 +233,14 @@ $is7800 = $model->number_type_id == NumberType::ID_7800;
         'panelHeadingTemplate' => '<div class="pull-left">{summary}</div>',
         'dataProvider' => $provider,
         'rowOptions' => function ($model) {
-            return ['class' => $model['filling'] == 'pass' ? 'warning' : 'success'];
+            return ['class' => $model['filling'] === 'pass' ? 'warning' : 'success'];
         },
         'columns' => [
             [
                 'attribute' => 'filling',
                 'label' => 'Состояние',
                 'value' => function ($model) {
-                    return $model['filling'] == 'pass' ? 'Пропущено' : 'Заполнено';
+                    return $model['filling'] === 'pass' ? 'Пропущено' : 'Заполнено';
                 }
             ],
             [

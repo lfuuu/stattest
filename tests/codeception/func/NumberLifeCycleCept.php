@@ -4,6 +4,7 @@ use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\filter\FreeNumberFilter;
 use app\models\Number;
+use app\modules\nnp\models\NdcType;
 use tests\codeception\func\_NumberCycleHelper;
 use tests\codeception\unit\models\_ClientAccount;
 
@@ -147,7 +148,7 @@ $registry = new \app\models\voip\Registry;
 $registry->country_id = \app\models\Country::RUSSIA;
 $registry->city_id = \app\models\City::DEFAULT_USER_CITY_ID;
 $registry->source = \app\classes\enum\VoipRegistrySourceEnum::PORTABILITY;
-$registry->number_type_id = \app\models\NumberType::ID_GEO_DID;
+$registry->ndc_type_id = NdcType::ID_GEOGRAPHIC;
 $registry->ndc = $ndc;
 $registry->number_from = $testNumber;
 $registry->number_to = $testNumber;

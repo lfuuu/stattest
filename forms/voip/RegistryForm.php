@@ -1,4 +1,5 @@
 <?php
+
 namespace app\forms\voip;
 
 use app\classes\enum\VoipRegistrySourceEnum;
@@ -8,8 +9,8 @@ use app\classes\validators\FormFieldValidator;
 use app\exceptions\ModelValidationException;
 use app\models\City;
 use app\models\Country;
-use app\models\NumberType;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 
 class RegistryForm extends Form
@@ -22,16 +23,15 @@ class RegistryForm extends Form
         $city_number_format = '',
         $city_number_format_length = 0,
         $source = VoipRegistrySourceEnum::OPERATOR,
-        $number_type_id = NumberType::ID_GEO_DID,
+        $ndc_type_id = NdcType::ID_GEOGRAPHIC,
         $number_from,
         $number_to,
         $account_id,
         $comment = '',
         $ndc = NumberRange::DEFAULT_MOSCOW_NDC,
-        $ndsList = []
-    ;
+        $ndsList = [];
 
-    /** @var Registry  */
+    /** @var Registry */
     public $registry = null;
 
     /**
@@ -41,18 +41,18 @@ class RegistryForm extends Form
     {
         return [
             [
-                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id','ndc'],
+                ['country_id', 'city_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'ndc'],
                 'required',
                 'on' => 'save'
             ],
             [
-                ['country_id', 'city_id', 'source', 'number_type_id', 'number_from', 'number_to', 'account_id', 'comment'],
+                ['country_id', 'city_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'comment'],
                 FormFieldValidator::className()
             ],
             ['country_id', 'in', 'range' => array_keys(Country::getList()), 'on' => 'save'],
             ['city_id', 'validateCity', 'on' => 'save'],
             ['source', 'in', 'range' => array_keys(VoipRegistrySourceEnum::$names), 'on' => 'save'],
-            ['number_type_id', 'in', 'range' => array_keys(NumberType::getList()), 'on' => 'save'],
+            ['ndc_type_id', 'in', 'range' => array_keys(NdcType::getList()), 'on' => 'save'],
             ['account_id', AccountIdValidator::className(), 'on' => 'save'],
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
@@ -67,10 +67,10 @@ class RegistryForm extends Form
     public function attributeLabels()
     {
         return (new Registry)->attributeLabels() + [
-            'comment' => 'Комментарий',
-            'city_number_format' => 'Формат номера',
-            'ndc' => 'NDC'
-        ];
+                'comment' => 'Комментарий',
+                'city_number_format' => 'Формат номера',
+                'ndc' => 'NDC'
+            ];
     }
 
     /**
@@ -85,7 +85,8 @@ class RegistryForm extends Form
                 $this->country_id,
                 $isWithNullAndNotNull = false,
                 $isUsedOnly = false)
-        )) {
+        )
+        ) {
             $this->addError('city_id', 'Значение "Город" неверно');
         }
     }
@@ -118,6 +119,7 @@ class RegistryForm extends Form
      *
      * @param bool $isFromPost
      * @return bool
+     * @throws \LogicException
      */
     public function initForm($isFromPost = false)
     {
@@ -130,7 +132,7 @@ class RegistryForm extends Form
             }
         }
 
-        if ($this->number_type_id == NumberType::ID_7800) {
+        if ($this->ndc_type_id == NdcType::ID_FREEPHONE) {
             $this->_setCityAndNdcFor7800();
         }
 
@@ -147,6 +149,8 @@ class RegistryForm extends Form
 
     /**
      * Установка города для номера 800
+     *
+     * @throws \LogicException
      */
     private function _setCityAndNdcFor7800()
     {
@@ -180,7 +184,7 @@ class RegistryForm extends Form
      */
     private function _setNDC()
     {
-        if ($this->number_type_id == NumberType::ID_7800) {
+        if ($this->ndc_type_id == NdcType::ID_FREEPHONE) {
             $this->ndsList = [$this->ndc => $this->ndc];
             return; // установлена в setCityAndNDCFor7800
         }
@@ -224,7 +228,7 @@ class RegistryForm extends Form
                      'country_id',
                      'city_id',
                      'source',
-                     'number_type_id',
+                     'ndc_type_id',
                      'number_from',
                      'number_to',
                      'account_id',

@@ -12,7 +12,7 @@ use yii\helpers\Url;
  * @property int $beauty_level
  * @property int $country_code
  * @property int $city_id
- * @property int $number_type_id
+ * @property int $ndc_type_id
  * @property float $price1
  * @property float $price2
  * @property float $price3
@@ -64,7 +64,7 @@ class DidGroup extends ActiveRecord
             'city_id' => 'Город',
             'name' => 'Название',
             'beauty_level' => 'Красивость',
-            'number_type_id' => 'Тип номера',
+            'ndc_type_id' => 'Тип номера',
             'price1' => 'Цена 1',
             'price2' => 'Цена 2',
             'price3' => 'Цена 3',
@@ -85,8 +85,8 @@ class DidGroup extends ActiveRecord
     {
         return [
             [['name','comment'], 'string'],
-            [['beauty_level', 'city_id', 'number_type_id', 'country_code'], 'integer'],
-            [['name', 'beauty_level', 'country_code', 'number_type_id'], 'required'],
+            [['beauty_level', 'city_id', 'ndc_type_id', 'country_code'], 'integer'],
+            [['name', 'beauty_level', 'country_code', 'ndc_type_id'], 'required'],
             [['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', 'price9'], 'number'],
         ];
     }

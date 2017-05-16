@@ -25,7 +25,7 @@ class NumberFilter extends Number
     public $usage_id = '';
     public $client_id = '';
     public $country_id = '';
-    public $number_type = '';
+    public $ndc_type_id = '';
 
     public $calls_per_month_2_from = '';
     public $calls_per_month_2_to = '';
@@ -45,7 +45,7 @@ class NumberFilter extends Number
     {
         return [
             [['number', 'status', 'number_tech'], 'string'],
-            [['city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'number_type'], 'integer'], // , 'did_group_id'
+            [['city_id', 'beauty_level', 'usage_id', 'client_id', 'country_id', 'ndc_type_id'], 'integer'], // , 'did_group_id'
             [['calls_per_month_2_from', 'calls_per_month_2_to'], 'integer'],
             [['calls_per_month_1_from', 'calls_per_month_1_to'], 'integer'],
             [['calls_per_month_0_from', 'calls_per_month_0_to'], 'integer'],
@@ -75,7 +75,7 @@ class NumberFilter extends Number
         $this->status !== '' && $query->andWhere([$numberTableName . '.status' => $this->status]);
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
         $this->did_group_id !== '' && $query->andWhere([$numberTableName . '.did_group_id' => $this->did_group_id]);
-        $this->number_type !== '' && $query->andWhere([$numberTableName . '.number_type' => $this->number_type]);
+        $this->ndc_type_id !== '' && $query->andWhere([$numberTableName . '.ndc_type_id' => $this->ndc_type_id]);
         $this->number_tech !== '' && $query->andWhere([$numberTableName . '.number_tech' => $this->number_tech]);
 
         $this->calls_per_month_2_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_2', $this->calls_per_month_2_from]);
