@@ -62,6 +62,7 @@ class PersonalSchemeController extends BaseController
                 Event::go(Event::LK_SETTINGS_TO_MAILER, $clientAccountId);
             }
             Yii::$app->session->addFlash('success', 'Данные для синхронизации добавлены в очередь, обработка может занять некоторое время');
+            return $this->refresh();
         }
 
         $form = new MonitoringPersonalSchemesForm;

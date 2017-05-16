@@ -152,7 +152,7 @@ class Actions extends Component
      */
     public function applySchemePersonalSubscribe($clientAccountId)
     {
-        $requestData = [];
+        $requestScheme = [];
 
         foreach (LkNoticeSetting::$noticeTypes as $type => $typeInLk) {
             $settings = (new Query)
@@ -170,12 +170,9 @@ class Actions extends Component
                 ])->one();
 
             foreach ($settings as $name => $value) {
-                $requestData[$name]['do_' . $type . '_personal'] = $value;
+                $requestScheme[$name]['do_' . $type . '_personal'] = $value;
             }
         }
-
-        $personalScheme = (new SchemePersonalDecorator($this->getSchemePersonal($clientAccountId)))->prettyScheme;
-        $requestScheme = array_merge($requestData, $personalScheme);
 
         return $this->applySchemePersonal($clientAccountId, $requestScheme, User::SYSTEM_USER_ID);
     }

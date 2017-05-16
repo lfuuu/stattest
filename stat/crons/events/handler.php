@@ -6,6 +6,7 @@ use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\Event;
+use app\classes\HttpClientLogger;
 use app\classes\partners\RewardCalculate;
 use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
@@ -51,8 +52,9 @@ function doEvents()
 {
     /** @var \EventQueue $event */
     foreach ((EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents()) as $event) {
+        HttpClientLogger::me()->clear();
 
-        $info = "";
+        $info = '';
 
         try {
             echo PHP_EOL . date('r') . ': event: ' . $event->event . ', ' . $event->param;
