@@ -15,14 +15,20 @@ class m170516_155213_message_template_content_type extends \app\classes\Migratio
         $this->alterColumn(
             TemplateContent::tableName(),
             'type',
-            "ENUM('email', 'phone', 'email_inner')"
+            "ENUM('email', 'sms', 'phone', 'email_inner')"
         );
 
         TemplateContent::updateAll([
             'type' => Template::CLIENT_CONTACT_TYPE_PHONE,
         ], [
-            'type' => '',
+            'type' => 'sms',
         ]);
+
+        $this->alterColumn(
+            TemplateContent::tableName(),
+            'type',
+            "ENUM('email', 'phone', 'email_inner')"
+        );
     }
 
     /**
@@ -33,13 +39,19 @@ class m170516_155213_message_template_content_type extends \app\classes\Migratio
         $this->alterColumn(
             TemplateContent::tableName(),
             'type',
-            "ENUM('email', 'sms', 'email_inner')"
+            "ENUM('email', 'sms', 'phone', 'email_inner')"
         );
 
         TemplateContent::updateAll([
             'type' => 'sms',
         ], [
-            'type' => '',
+            'type' => Template::CLIENT_CONTACT_TYPE_PHONE,
         ]);
+
+        $this->alterColumn(
+            TemplateContent::tableName(),
+            'type',
+            "ENUM('email', 'sms', 'email_inner')"
+        );
     }
 }
