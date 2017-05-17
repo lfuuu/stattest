@@ -2,7 +2,7 @@
     'use strict';
 
     $(function () {
-        var symbolsPerMessage = 62,
+        var symbolsPerMessage = 70,
             checkLength = function () {
                  if ($(this).val().length > symbolsPerMessage) {
                      $(this).addClass('warning');
