@@ -23,6 +23,8 @@ class NdcType extends ActiveRecord
     const ID_SHORT_CODE = 6;
     const ID_REST = 7;
 
+    const ID_LINE = -1; // псевдо-id для подключения услуги "линия без номера"
+
     const DEFAULT_HOLD = '6 month';
 
     private static $_holdList = [

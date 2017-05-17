@@ -14,8 +14,8 @@ use app\models\City;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\models\UsageVoip;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
-use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use yii\db\Expression;
 
@@ -25,30 +25,14 @@ class VoipController extends BaseController
     use IdNameRecordTrait;
 
     /**
-     * Вернуть массив типов номера в зависимости от страны
-     * Используется для динамической подгрузки select2 или selectbox
-     *
-     * @param int $countryId
-     * @param int|bool $isWithEmpty
-     * @param string $format
-     */
-    public function actionGetNdcTypes($countryId = null, $isWithEmpty = false, $format = null)
-    {
-        if (!$countryId) {
-            throw new \InvalidArgumentException('Wrong countryId');
-        }
-
-        $ndcTypes = Tariff::getVoipTypesByCountryId($countryId, (int)$isWithEmpty);
-        ReturnFormatted::me()->returnFormattedValues($ndcTypes, $format);
-    }
-
-    /**
      * Вернуть массив городов в зависимости от страны
      * Используется для динамической подгрузки select2 или selectbox
      *
      * @param int $countryId
      * @param int|bool $isWithEmpty
      * @param string $format
+     * @throws \InvalidArgumentException
+     * @throws \yii\base\ExitException
      */
     public function actionGetCities($countryId = null, $isWithEmpty = false, $format = null)
     {
@@ -67,6 +51,8 @@ class VoipController extends BaseController
      * @param int $cityId
      * @param int|bool $isWithEmpty
      * @param string $format
+     * @throws \InvalidArgumentException
+     * @throws \yii\base\ExitException
      */
     public function actionGetDidGroups($cityId = null, $isWithEmpty = false, $format = null)
     {
@@ -88,8 +74,9 @@ class VoipController extends BaseController
      * @param string $orderByType
      * @param string $mask
      * @param int $limit
-     * @param string $numberType
+     * @param string $ndcTypeId
      * @return string
+     * @throws \InvalidArgumentException
      * @throws \yii\base\InvalidParamException
      */
     public function actionGetFreeNumbers(
@@ -100,31 +87,22 @@ class VoipController extends BaseController
         $orderByType = null,
         $mask = '',
         $limit = 0,
-        $numberType = ''
+        $ndcTypeId = ''
     ) {
         $numbers = new FreeNumberFilter;
 
-        switch ($numberType) {
-            case Tariff::NUMBER_TYPE_NUMBER:
-                $numbers->getNumbers();
-                break;
-            case Tariff::NUMBER_TYPE_7800:
-                $numbers->getNumbers7800();
-                break;
-            case Tariff::NUMBER_TYPE_LINE:
-                $number = UsageVoip::dao()->getNextLineNumber();
-                return Html::checkbox(
-                    'numberIds[]',
-                    true,
-                    [
-                        'value' => $number,
-                        'label' => $number,
-                        'disabled' => 'disabled',
-                    ]
-                );
-                break;
-            default:
-                throw new \InvalidArgumentException('Wrong numberType');
+        if ($ndcTypeId == NdcType::ID_LINE) {
+            // "линия без номера" - это ненастоящий тип NDC
+            $number = UsageVoip::dao()->getNextLineNumber();
+            return Html::checkbox(
+                'numberIds[]',
+                true,
+                [
+                    'value' => $number,
+                    'label' => $number,
+                    'disabled' => 'disabled',
+                ]
+            );
         }
 
         if (!$cityId) {
@@ -132,8 +110,8 @@ class VoipController extends BaseController
         }
 
         $numbers->setCity($cityId);
+        $ndcTypeId && $numbers->setNdcType($ndcTypeId);
         $didGroupId && $numbers->setDidGroup($didGroupId);
-
         $mask && $numbers->setNumberLike($mask);
 
         $orderByField && $orderByType && $numbers->orderBy([$orderByField => (int)$orderByType]);
@@ -159,6 +137,7 @@ class VoipController extends BaseController
      * @param string $format
      * @param int $statusId
      * @param int $isPostpaid
+     * @throws \InvalidArgumentException
      */
     public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $statusId = null, $isPostpaid = null)
     {
@@ -187,6 +166,7 @@ class VoipController extends BaseController
      * @param int $regionId
      * @param string $format
      * @param int|bool $isWithEmpty
+     * @throws \yii\base\ExitException
      */
     public function actionGetTrunks($regionId = null, $format = null, $isWithEmpty = true)
     {

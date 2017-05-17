@@ -1,7 +1,7 @@
 class AccountTariffEdit
 
   country: null
-  numberType: null
+  ndcType: null
   city: null
   didGroup: null
 
@@ -30,7 +30,7 @@ class AccountTariffEdit
   constructor: () ->
     setTimeout () =>
       @country = $('#voipCountryId').on('change', @onCountryChange)
-      @numberType = $('#voipNumberType').on('change', @onNumberTypeChange)
+      @ndcType = $('#voipNdcType').on('change', @onCityChange)
       @city = $('#voipRegions').on('change', @onCityChange)
       @didGroup = $('#voipDidGroup').on('change', @showNumbersList)
 
@@ -55,7 +55,6 @@ class AccountTariffEdit
       $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
 
       @initCountry(false)
-      @numberType.trigger('change')
 
     , 200 # Потому что select2 рендерит чуть позже. @todo
 
@@ -64,66 +63,42 @@ class AccountTariffEdit
     @initCountry(true)
 
 # при изменении страны
-  initCountry: (isUpdateNumberTypesAndCities) =>
+  initCountry: (isUpdateCities) =>
     countryVal = @country.val()
     if countryVal
 
-      if isUpdateNumberTypesAndCities
-# обновить список типов номеров в зависимости от страны. И включить
-        $.get '/uu/voip/get-number-types', {countryId: countryVal, isWithEmpty: 1, format: 'options'}, (html) =>
-          @numberType.html(html) # обновить значения
-          @numberType.prop('disabled', false)
-          @numberType.val('').trigger('change')
-
+      if isUpdateCities
         # обновить список городов в зависимости от страны
         $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: 1, format: 'options'}, (html) =>
           @city.html(html) # обновить значения
           @city.val('').trigger('change')
 
       @country.parent().parent().removeClass(@errorClassName)
+      @city.prop('disabled', false)
+
     else
-      @numberType.prop('disabled', true)
-      @numberType.val('').trigger('change')
+
+      @city.prop('disabled', true)
       @city.val('').trigger('change')
       @country.parent().parent().addClass(@errorClassName)
 
-    # город всегда выключаем. Включим его после выбора типа номера
-    @city.prop('disabled', true)
-
-# при изменении типа номера
-  onNumberTypeChange: =>
-    numberTypeVal = @numberType.val()
-
-    # пометить себя красным, если можно выбирать, но не выбран
-    if @numberType.prop('disabled') or numberTypeVal
-      @numberType.parent().parent().removeClass(@errorClassName)
-    else
-      @numberType.parent().parent().addClass(@errorClassName)
-
-    if numberTypeVal
-      @city.prop('disabled', false)
-    else
-      @city.prop('disabled', true)
-
-    @city.trigger('change')
-
-# при изменении города
+# при изменении типа NDC или города
   onCityChange: =>
-    cityVal = @city.val()
-    numberTypeVal = @numberType.val()
+    cityId = @city.val()
+    ndcTypeId = @ndcType.val()
 
     # пометить себя красным, если можно выбирать, но не выбран
-    if @city.prop('disabled') or cityVal
+    if @city.prop('disabled') or cityId
       @city.parent().parent().removeClass(@errorClassName)
     else
       @city.parent().parent().addClass(@errorClassName)
 
-    if cityVal
+    if cityId
 # заранее подготовить список тарифов и пакетов
       @reloadTariffList()
 
-    if cityVal && numberTypeVal == 'number'
-      $.get '/uu/voip/get-did-groups', {cityId: cityVal, isWithEmpty: 1, format: 'options'}, (html) =>
+    if cityId && ndcTypeId >= 0
+      $.get '/uu/voip/get-did-groups', {cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
         @didGroup.prop('disabled', false)
         @didGroup.val('').trigger('change')
@@ -134,26 +109,26 @@ class AccountTariffEdit
 # показать номера
 # при изменении красивости или кол-ва колонок или сортировки
   showNumbersList: =>
-    numberTypeVal = @numberType.val()
-    cityVal = @city.val()
+    ndcTypeId = @ndcType.val()
+    cityId = @city.val()
     didGroupVal = @didGroup.val()
 
-    if cityVal and numberTypeVal == 'number' # выбирать пока только для номера. Потом еще для 7800
+    if cityId and ndcTypeId == 'number' # выбирать пока только для номера. Потом еще для 7800
       @numbersListFilter.slideDown()
     else
       @numbersListFilter.slideUp()
 
-    if cityVal
+    if cityId
       @numbersList.html('')
       $.get '/uu/voip/get-free-numbers', {
-        cityId: cityVal,
+        cityId: cityId,
         didGroupId: didGroupVal,
         rowClass: @numbersListClass.val(),
         orderByField: @numbersListOrderByField.val(),
         orderByType: @numbersListOrderByType.val()
         mask: @numbersListMask.val()
         limit: @numbersListLimit.val()
-        numberType: numberTypeVal
+        ndcTypeId: ndcTypeId
       }, (html) =>
         @numbersList.html(html) # обновить значения
         if @numbersList.find('input').length > 1 # есть чекбоксы - показать 'выбрать все'
@@ -195,8 +170,8 @@ class AccountTariffEdit
 
 # перегрузить список тарифов
   reloadTariffList: =>
-    cityVal = @city.val()
-    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityVal, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid}, (html) =>
+    cityId = @city.val()
+    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityId, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid}, (html) =>
       @tariffPeriod.val('').html(html) # обновить значения
       @tariffPeriod.trigger('change')
 

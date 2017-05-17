@@ -242,6 +242,19 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @param int $ndcTypeId
+     * @return $this
+     */
+    public function setNdcType($ndcTypeId)
+    {
+        if ((int)$ndcTypeId) {
+            $this->_query->andWhere([parent::tableName() . '.ndc_type_id' => (int)$ndcTypeId]);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param int[] $cityIds
      * @return $this
      */

@@ -6,7 +6,7 @@
   AccountTariffEdit = (function() {
     AccountTariffEdit.prototype.country = null;
 
-    AccountTariffEdit.prototype.numberType = null;
+    AccountTariffEdit.prototype.ndcType = null;
 
     AccountTariffEdit.prototype.city = null;
 
@@ -52,13 +52,12 @@
       this.selectAllNumbers = bind(this.selectAllNumbers, this);
       this.showNumbersList = bind(this.showNumbersList, this);
       this.onCityChange = bind(this.onCityChange, this);
-      this.onNumberTypeChange = bind(this.onNumberTypeChange, this);
       this.initCountry = bind(this.initCountry, this);
       this.onCountryChange = bind(this.onCountryChange, this);
       setTimeout((function(_this) {
         return function() {
           _this.country = $('#voipCountryId').on('change', _this.onCountryChange);
-          _this.numberType = $('#voipNumberType').on('change', _this.onNumberTypeChange);
+          _this.ndcType = $('#voipNdcType').on('change', _this.onCityChange);
           _this.city = $('#voipRegions').on('change', _this.onCityChange);
           _this.didGroup = $('#voipDidGroup').on('change', _this.showNumbersList);
           _this.numbersList = $('#voipNumbersList').on('change', 'input', _this.showTariffDiv);
@@ -76,8 +75,7 @@
           _this.currencyVal = $('#voipCurrency').val();
           _this.isPostpaid = $('#isPostpaid').val();
           $('#addAccountTariffVoipForm').on('submit', _this.onFormSubmit);
-          _this.initCountry(false);
-          return _this.numberType.trigger('change');
+          return _this.initCountry(false);
         };
       })(this), 200);
     }
@@ -86,22 +84,11 @@
       return this.initCountry(true);
     };
 
-    AccountTariffEdit.prototype.initCountry = function(isUpdateNumberTypesAndCities) {
+    AccountTariffEdit.prototype.initCountry = function(isUpdateCities) {
       var countryVal;
       countryVal = this.country.val();
       if (countryVal) {
-        if (isUpdateNumberTypesAndCities) {
-          $.get('/uu/voip/get-number-types', {
-            countryId: countryVal,
-            isWithEmpty: 1,
-            format: 'options'
-          }, (function(_this) {
-            return function(html) {
-              _this.numberType.html(html);
-              _this.numberType.prop('disabled', false);
-              return _this.numberType.val('').trigger('change');
-            };
-          })(this));
+        if (isUpdateCities) {
           $.get('/uu/voip/get-cities', {
             countryId: countryVal,
             isWithEmpty: 1,
@@ -114,46 +101,29 @@
           })(this));
         }
         this.country.parent().parent().removeClass(this.errorClassName);
-      } else {
-        this.numberType.prop('disabled', true);
-        this.numberType.val('').trigger('change');
-        this.city.val('').trigger('change');
-        this.country.parent().parent().addClass(this.errorClassName);
-      }
-      return this.city.prop('disabled', true);
-    };
-
-    AccountTariffEdit.prototype.onNumberTypeChange = function() {
-      var numberTypeVal;
-      numberTypeVal = this.numberType.val();
-      if (this.numberType.prop('disabled') || numberTypeVal) {
-        this.numberType.parent().parent().removeClass(this.errorClassName);
-      } else {
-        this.numberType.parent().parent().addClass(this.errorClassName);
-      }
-      if (numberTypeVal) {
-        this.city.prop('disabled', false);
+        return this.city.prop('disabled', false);
       } else {
         this.city.prop('disabled', true);
+        this.city.val('').trigger('change');
+        return this.country.parent().parent().addClass(this.errorClassName);
       }
-      return this.city.trigger('change');
     };
 
     AccountTariffEdit.prototype.onCityChange = function() {
-      var cityVal, numberTypeVal;
-      cityVal = this.city.val();
-      numberTypeVal = this.numberType.val();
-      if (this.city.prop('disabled') || cityVal) {
+      var cityId, ndcTypeId;
+      cityId = this.city.val();
+      ndcTypeId = this.ndcType.val();
+      if (this.city.prop('disabled') || cityId) {
         this.city.parent().parent().removeClass(this.errorClassName);
       } else {
         this.city.parent().parent().addClass(this.errorClassName);
       }
-      if (cityVal) {
+      if (cityId) {
         this.reloadTariffList();
       }
-      if (cityVal && numberTypeVal === 'number') {
+      if (cityId && ndcTypeId >= 0) {
         return $.get('/uu/voip/get-did-groups', {
-          cityId: cityVal,
+          cityId: cityId,
           isWithEmpty: 1,
           format: 'options'
         }, (function(_this) {
@@ -170,26 +140,26 @@
     };
 
     AccountTariffEdit.prototype.showNumbersList = function() {
-      var cityVal, didGroupVal, numberTypeVal;
-      numberTypeVal = this.numberType.val();
-      cityVal = this.city.val();
+      var cityId, didGroupVal, ndcTypeId;
+      ndcTypeId = this.ndcType.val();
+      cityId = this.city.val();
       didGroupVal = this.didGroup.val();
-      if (cityVal && numberTypeVal === 'number') {
+      if (cityId && ndcTypeId === 'number') {
         this.numbersListFilter.slideDown();
       } else {
         this.numbersListFilter.slideUp();
       }
-      if (cityVal) {
+      if (cityId) {
         this.numbersList.html('');
         return $.get('/uu/voip/get-free-numbers', {
-          cityId: cityVal,
+          cityId: cityId,
           didGroupId: didGroupVal,
           rowClass: this.numbersListClass.val(),
           orderByField: this.numbersListOrderByField.val(),
           orderByType: this.numbersListOrderByType.val(),
           mask: this.numbersListMask.val(),
           limit: this.numbersListLimit.val(),
-          numberType: numberTypeVal
+          ndcTypeId: ndcTypeId
         }, (function(_this) {
           return function(html) {
             _this.numbersList.html(html);
@@ -239,12 +209,12 @@
     };
 
     AccountTariffEdit.prototype.reloadTariffList = function() {
-      var cityVal;
-      cityVal = this.city.val();
+      var cityId;
+      cityId = this.city.val();
       return $.get('/uu/voip/get-tariff-periods', {
         serviceTypeId: this.voipServiceTypeIdVal,
         currency: this.currencyVal,
-        cityId: cityVal,
+        cityId: cityId,
         isWithEmpty: 1,
         format: 'options',
         isPostpaid: this.isPostpaid

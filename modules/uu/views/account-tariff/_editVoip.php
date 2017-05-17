@@ -12,9 +12,9 @@ use app\classes\Html;
 use app\models\City;
 use app\models\Country;
 use app\models\Number;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariffVoip;
 use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\Tariff;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 use yii\helpers\Url;
@@ -48,17 +48,6 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         </div>
 
         <div class="col-sm-2">
-            <?php // тип номера ?>
-            <?= $form->field($accountTariffVoip, 'voip_number_type')
-                ->widget(Select2::className(), [
-                    'data' => Tariff::getVoipTypesByCountryId($accountTariffVoip->voip_country_id, true), // страна выбрана от клиента
-                    'options' => [
-                        'id' => 'voipNumberType',
-                    ],
-                ]) ?>
-        </div>
-
-        <div class="col-sm-2">
             <?php // регион (город) ?>
             <?= $form->field($accountTariffVoip, 'city_id')
                 ->widget(Select2::className(), [
@@ -66,6 +55,17 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                     'options' => [
                         'disabled' => true,
                         'id' => 'voipRegions',
+                    ],
+                ]) ?>
+        </div>
+
+        <div class="col-sm-2">
+            <?php // тип номера ?>
+            <?= $form->field($accountTariffVoip, 'voip_ndc_type_id')
+                ->widget(Select2::className(), [
+                    'data' => NdcType::getList($isWithEmpty = true) + [NdcType::ID_LINE => 'Линия без номера'],
+                    'options' => [
+                        'id' => 'voipNdcType',
                     ],
                 ]) ?>
         </div>
