@@ -23,7 +23,9 @@ class NumberLight extends Model
         $ndc_type_id,
         $country_prefix,
         $ndc,
-        $number_subscriber;
+        $number_subscriber,
+        $common_ndc,
+        $common_number_subscriber;
 
     /**
      * @return array
@@ -31,7 +33,7 @@ class NumberLight extends Model
     public function rules()
     {
         return [
-            [['beauty_level', 'region', 'city_id', 'ndc_type_id', 'country_prefix', 'ndc', 'number_subscriber'], 'integer'],
+            [['beauty_level', 'region', 'city_id', 'ndc_type_id', 'country_prefix', 'ndc', 'number_subscriber', 'common_ndc', 'common_number_subscriber'], 'integer'],
             [['number', 'currency', 'origin_currency'], 'string'],
             [['price', 'origin_price'], 'number'],
         ];
@@ -50,5 +52,17 @@ class NumberLight extends Model
         $this->currency = $actualPriceWithCurrency->currency;
         $this->origin_price = (float)$originPriceWithCurrency->formattedPrice;
         $this->origin_currency = $originPriceWithCurrency->currency;
+    }
+
+    /**
+     * Установка полей общепринятого формата номера
+     *
+     * @param \app\models\Number $number
+     */
+    public function setCommon(\app\models\Number $number)
+    {
+        $this->common_number_subscriber = substr($this->number, -$number->city->postfix_length);
+        $this->common_ndc = substr($this->number, strlen($this->country_prefix),
+            strlen($this->number) - strlen($this->country_prefix) - $number->city->postfix_length);
     }
 }

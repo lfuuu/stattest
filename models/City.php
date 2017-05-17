@@ -16,6 +16,7 @@ use yii\helpers\Url;
  * @property int $in_use
  * @property int $is_show_in_lk
  * @property int $order
+ * @property int $postfix_length
  *
  * @property Country $country
  * @property Region $region
@@ -54,6 +55,7 @@ class City extends ActiveRecord
             'is_show_in_lk' => 'Показывать в ЛК',
             'billing_method_id' => 'Метод биллингования',
             'order' => 'Порядок сортировки',
+            'postfix_length' => 'Длина постфикса',
         ];
     }
 
@@ -73,7 +75,8 @@ class City extends ActiveRecord
         return [
             [['name', 'voip_number_format'], 'string'],
             [['id', 'country_id', 'connection_point_id', 'billing_method_id', 'is_show_in_lk'], 'integer'],
-            [['name', 'voip_number_format', 'country_id', 'connection_point_id', 'id'], 'required'],
+            [['name', 'voip_number_format', 'country_id', 'connection_point_id', 'id', 'postfix_length'], 'required'],
+            ['postfix_length', 'integer', 'min' => 4, 'max' => 11]
         ];
     }
 

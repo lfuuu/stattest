@@ -91,6 +91,17 @@ if (!$city->isNewRecord) {
                 ]) ?>
         </div>
 
+        <?php // Длина постфикса ?>
+        <div class="col-sm-2">
+            <?= $form->field($city, 'postfix_length')
+                ->textInput([
+                    'type' => 'number',
+                    'step' => 1,
+                    'min' => 4,
+                    'max' => 11
+                ]) ?>
+        </div>
+
         <?php // Показывать в ЛК
         if ($city->in_use) : ?>
         <div class="col-sm-2">

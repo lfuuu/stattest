@@ -410,6 +410,7 @@ class FreeNumberFilter extends Number
         $formattedResult->setAttributes($number->getAttributes());
         $formattedResult->setPrices($number, $currency);
         $formattedResult->country_prefix = $number->country_code ? $number->country->prefix : null;
+        $formattedResult->setCommon($number);
 
         return $formattedResult;
     }

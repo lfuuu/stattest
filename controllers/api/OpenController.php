@@ -68,7 +68,9 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "ndc_type_id", type = "integer", description = "ID типа номера"),
      *   @SWG\Property(property = "country_prefix", type = "integer", description = "Префикс страны"),
      *   @SWG\Property(property = "ndc", type = "integer", description = "NDC"),
-     *   @SWG\Property(property = "number_subscriber", type = "integer", description = "Номер без префикса и NDC")
+     *   @SWG\Property(property = "number_subscriber", type = "integer", description = "Номер без префикса и NDC"),
+     *   @SWG\Property(property = "common_ndc", type = "integer", description = "Общепринятый NDC"),
+     *   @SWG\Property(property = "common_number_subscriber", type = "integer", description = "Общепринятый местный номер")
      * ),
      *
      * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers-by-filter", summary = "Выбрать список свободных номеров", operationId = "getFreeNumbersByFilter",
