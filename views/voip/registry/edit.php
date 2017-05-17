@@ -54,14 +54,12 @@ echo Breadcrumbs::widget([
     'links' => $links
 ]);
 
+$isEditable = $model->registry->isEditable();
+$isSubmitable = $model->registry->isSubmitable();
 $readonlyOptions = [
     'readonly' => true,
     'disabled' => true
 ];
-
-$isEdit = (bool)$model->id;
-$is7800 = $model->ndc_type_id == NdcType::ID_FREEPHONE;
-
 ?>
 
     <div class="well">
@@ -85,21 +83,23 @@ $is7800 = $model->ndc_type_id == NdcType::ID_FREEPHONE;
                     'items' => $countryList,
                     'options' => [
                             'class' => 'formReload'
-                        ] + ($isEdit ? $readonlyOptions : [])
+                        ] + ($isEditable ? [] : $readonlyOptions),
                 ],
                 'city_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => $cityList,
                     'options' => [
                             'class' => 'formReload'
-                        ] + ($isEdit || $is7800 ? $readonlyOptions : [])
+                        ] + ($isEditable ? [] : $readonlyOptions),
                 ],
                 'source' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => \app\classes\enum\VoipRegistrySourceEnum::$names,
+                    'options' => $isEditable ? [] : $readonlyOptions,
                 ],
                 'account_id' => [
                     'type' => Form::INPUT_TEXT,
+                    'options' => $isEditable ? [] : $readonlyOptions,
                 ]
             ]
         ]);
@@ -110,8 +110,8 @@ $is7800 = $model->ndc_type_id == NdcType::ID_FREEPHONE;
             'options' => [
                 'mask' => $model->city_number_format,
                 'options' => [
-                    'class' => 'form-control',
-                ]
+                        'class' => 'form-control',
+                    ] + ($isEditable ? [] : $readonlyOptions),
             ]
         ];
 
@@ -125,15 +125,15 @@ $is7800 = $model->ndc_type_id == NdcType::ID_FREEPHONE;
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => NdcType::getList(),
                     'options' => [
-                        'class' => 'formReload',
-                    ]
+                            'class' => 'formReload',
+                        ] + ($isEditable ? [] : $readonlyOptions),
                 ],
                 'ndc' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => $model->ndcList,
                     'options' => [
                             'class' => 'formReload'
-                        ] + ($isEdit || $is7800 ? $readonlyOptions : [])
+                        ] + ($isEditable ? [] : $readonlyOptions),
                 ],
                 'number_from' => $maskedInputWidgetConfig,
                 'number_to' => $maskedInputWidgetConfig,
@@ -143,17 +143,22 @@ $is7800 = $model->ndc_type_id == NdcType::ID_FREEPHONE;
         echo Form::widget([
             'model' => $model,
             'form' => $form,
-            'columns' => 1,
+            'columns' => 2,
             'attributes' => [
                 'comment' => [
-                    'type' => Form::INPUT_TEXT
-                ]
+                    'type' => Form::INPUT_TEXT,
+                    'options' => $isEditable ? [] : $readonlyOptions,
+                ],
+                'operator' => [
+                    'type' => Form::INPUT_TEXT,
+                    'options' => $readonlyOptions, // опредляется автоматически из ННП
+                ],
             ]
         ]);
 
 
         $value = '';
-        if ($model->id) {
+        if ($model->id && $isSubmitable) {
             $value .= Html::submitButton('Проверить номера', [
                 'class' => 'btn btn-info',
                 'name' => 'check-numbers',
@@ -177,41 +182,45 @@ $is7800 = $model->ndc_type_id == NdcType::ID_FREEPHONE;
             }
         }
 
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 3,
-            'attributes' => [
-                'check-number' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => $value,
-                ],
-                'id' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => Html::activeHiddenInput($model, 'id')
-                ],
+        if ($isSubmitable) {
+            echo Form::widget([
+                'model' => $model,
+                'form' => $form,
+                'columns' => 3,
+                'attributes' => [
+                    'check-number' => [
+                        'type' => Form::INPUT_RAW,
+                        'value' => $value,
+                    ],
+                    'id' => [
+                        'type' => Form::INPUT_RAW,
+                        'value' => Html::activeHiddenInput($model, 'id')
+                    ],
 
-                'actions' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' =>
-                        Html::tag(
-                            'div',
-                            Html::button('Отменить', [
-                                'class' => 'btn btn-link',
-                                'style' => 'margin-right: 15px;',
-                                'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
-                            ]) .
-                            Html::submitButton('Сохранить',
-                                [
-                                    'class' => 'btn btn-primary',
-                                    'name' => 'save',
-                                    'value' => 'Сохранить'
-                                ]),
-                            ['style' => 'text-align: right; padding-right: 0px;']
-                        )
+                    'actions' => [
+                        'type' => Form::INPUT_RAW,
+                        'value' =>
+                            $isEditable ?
+                                Html::tag(
+                                    'div',
+                                    Html::button('Отменить', [
+                                        'class' => 'btn btn-link',
+                                        'style' => 'margin-right: 15px;',
+                                        'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
+                                    ]) .
+                                    Html::submitButton('Сохранить',
+                                        [
+                                            'class' => 'btn btn-primary',
+                                            'name' => 'save',
+                                            'value' => 'Сохранить'
+                                        ]),
+                                    ['style' => 'text-align: right; padding-right: 0px;']
+                                ) :
+                                ''
+                    ],
                 ],
-            ],
-        ]);
+            ]);
+        }
 
         ActiveForm::end();
         ?>

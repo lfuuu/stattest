@@ -333,7 +333,7 @@ class NnpController extends ApiInternalController
         $region_id = '',
         $city_id = '',
         $is_mob = '',
-        $is_active = '',
+        $is_active = '1',
         $limit = self::LIMIT,
         $offset = 0
     ) {

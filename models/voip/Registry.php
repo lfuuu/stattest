@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models\voip;
 
 use app\classes\behaviors\CreatedAt;
@@ -151,5 +152,21 @@ class Registry extends HistoryActiveRecord
     public function isSourcePotability()
     {
         return $this->source == VoipRegistrySourceEnum::PORTABILITY;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEditable()
+    {
+        return $this->status == self::STATUS_EMPTY;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSubmitable()
+    {
+        return $this->status != self::STATUS_FULL;
     }
 }

@@ -29,7 +29,8 @@ class RegistryForm extends Form
         $account_id,
         $comment = '',
         $ndc = NumberRange::DEFAULT_MOSCOW_NDC,
-        $ndcList = [];
+        $ndcList = [],
+        $operator = '';
 
     /** @var Registry */
     public $registry = null;
@@ -69,7 +70,8 @@ class RegistryForm extends Form
         return (new Registry)->attributeLabels() + [
                 'comment' => 'Комментарий',
                 'city_number_format' => 'Формат номера',
-                'ndc' => 'NDC'
+                'ndc' => 'NDC',
+                'operator' => 'ННП-оператор',
             ];
     }
 
