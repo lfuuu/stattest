@@ -104,7 +104,6 @@ class PaymentYandexTransfer extends Form
             ->where([
                 'client_id' => $this->from_client_id,
                 'type' => Payment::TYPE_ECASH,
-                'ecash_operator' => Payment::ECASH_YANDEX
             ])
             ->select(['name' => new Expression("CONCAT(sum, ' ', currency, ' - ', comment)"), 'id' => 'id'])
             ->orderBy(['id' => SORT_DESC])

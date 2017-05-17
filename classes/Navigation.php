@@ -49,7 +49,7 @@ class Navigation
             ->addStatModuleItems('newaccounts');
 
         if ($fixclient_data) {
-            $accountBlock->addItem('Перенос Яндекс платежей', '/payment/yandex-transfer', 'newaccounts_payments.delete');
+            $accountBlock->addItem('Перенос эл. платежей', '/payment/yandex-transfer', 'newaccounts_payments.delete');
         }
 
         $accountBlock->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit');
