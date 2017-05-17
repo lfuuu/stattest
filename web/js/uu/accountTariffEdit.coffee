@@ -113,7 +113,7 @@ class AccountTariffEdit
     cityId = @city.val()
     didGroupVal = @didGroup.val()
 
-    if cityId and ndcTypeId == 'number' # выбирать пока только для номера. Потом еще для 7800
+    if cityId and ndcTypeId >= 0
       @numbersListFilter.slideDown()
     else
       @numbersListFilter.slideUp()

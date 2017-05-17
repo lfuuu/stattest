@@ -144,7 +144,7 @@
       ndcTypeId = this.ndcType.val();
       cityId = this.city.val();
       didGroupVal = this.didGroup.val();
-      if (cityId && ndcTypeId === 'number') {
+      if (cityId && ndcTypeId >= 0) {
         this.numbersListFilter.slideDown();
       } else {
         this.numbersListFilter.slideUp();
