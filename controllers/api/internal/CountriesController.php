@@ -74,7 +74,7 @@ class CountriesController extends ApiInternalController
                 0;
 
             $ndcs = $withNdcs ?
-                (new FreeNumberFilter)->setCity($cityId)->getDistinctNdc() :
+                (new FreeNumberFilter)->setCity($cityId)->getDistinct('ndc') :
                 [];
 
             $result[] = [

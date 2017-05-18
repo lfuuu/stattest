@@ -82,6 +82,18 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                 ]) ?>
         </div>
 
+        <div class="col-sm-2">
+            <?php // оператор ?>
+            <?= $form->field($accountTariffVoip, 'operator_account_id')
+                ->widget(Select2::className(), [
+                    'data' => [],
+                    'options' => [
+                        'disabled' => true,
+                        'id' => 'voipOperatorAccount',
+                    ],
+                ]) ?>
+        </div>
+
     </div>
 
 <?php // фильтры списка номеров ?>

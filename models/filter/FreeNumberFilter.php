@@ -229,6 +229,19 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @param int $operatorAccountId
+     * @return $this
+     */
+    public function setOperatorAccount($operatorAccountId)
+    {
+        if ((int)$operatorAccountId) {
+            $this->_query->andWhere([parent::tableName() . '.operator_account_id' => (int)$operatorAccountId]);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param int $cityId
      * @return $this
      */
@@ -351,14 +364,17 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * Вернуть уникальные NDC по установленным фильтрам
+     * Вернуть уникальные значения по установленным фильтрам
+     *
+     * @param string $fieldName
+     * @return array
      */
-    public function getDistinctNdc()
+    public function getDistinct($fieldName)
     {
         $query = clone $this->_query;
         return $query->select(
             [
-                'ndc' => new Expression('DISTINCT ndc'),
+                'value' => new Expression('DISTINCT ' . $fieldName),
             ]
         )
             ->asArray()

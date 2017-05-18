@@ -11,6 +11,7 @@ use app\classes\ReturnFormatted;
 use app\controllers\api\internal\IdNameRecordTrait;
 use app\models\billing\Trunk;
 use app\models\City;
+use app\models\ClientAccount;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\models\UsageVoip;
@@ -65,10 +66,41 @@ class VoipController extends BaseController
     }
 
     /**
+     * Вернуть массив аккаунтов операторов в зависимости от города
+     * Используется для динамической подгрузки select2 или selectbox
+     *
+     * @param int $cityId
+     * @param int|bool $isWithEmpty
+     * @param string $format
+     * @throws \InvalidArgumentException
+     * @throws \yii\base\ExitException
+     */
+    public function actionGetOperatorAccounts($cityId = null, $isWithEmpty = false, $format = null)
+    {
+        if (!$cityId) {
+            throw new \InvalidArgumentException('Wrong cityId');
+        }
+
+        $numbers = new FreeNumberFilter;
+        $numbers->setCity($cityId);
+
+        $operatorAccounts = ClientAccount::getListTrait(
+            (int)$isWithEmpty,
+            $isWithNullAndNotNull = false,
+            $indexBy = 'id',
+            $select = 'client',
+            $orderBy = ['id' => SORT_ASC],
+            $where = ['id' => $numbers->getDistinct('operator_account_id')]
+        );
+        ReturnFormatted::me()->returnFormattedValues($operatorAccounts, $format);
+    }
+
+    /**
      * Вернуть массив свободных номеров по городу и красивости номера
      *
      * @param int $cityId
      * @param int $didGroupId
+     * @param int $operatorAccountId
      * @param int $rowClass
      * @param string $orderByField
      * @param string $orderByType
@@ -82,6 +114,7 @@ class VoipController extends BaseController
     public function actionGetFreeNumbers(
         $cityId = null,
         $didGroupId = null,
+        $operatorAccountId = null,
         $rowClass = 6,
         $orderByField = null,
         $orderByType = null,
@@ -112,6 +145,7 @@ class VoipController extends BaseController
         $numbers->setCity($cityId);
         $ndcTypeId && $numbers->setNdcType($ndcTypeId);
         $didGroupId && $numbers->setDidGroup($didGroupId);
+        $operatorAccountId && $numbers->setOperatorAccount($operatorAccountId);
         $mask && $numbers->setNumberLike($mask);
 
         $orderByField && $orderByType && $numbers->orderBy([$orderByField => (int)$orderByType]);

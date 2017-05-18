@@ -12,6 +12,8 @@
 
     AccountTariffEdit.prototype.didGroup = null;
 
+    AccountTariffEdit.prototype.operatorAccount = null;
+
     AccountTariffEdit.prototype.numbersList = null;
 
     AccountTariffEdit.prototype.numbersListSelectAll = null;
@@ -60,6 +62,7 @@
           _this.ndcType = $('#voipNdcType').on('change', _this.onCityChange);
           _this.city = $('#voipRegions').on('change', _this.onCityChange);
           _this.didGroup = $('#voipDidGroup').on('change', _this.showNumbersList);
+          _this.operatorAccount = $('#voipOperatorAccount').on('change', _this.showNumbersList);
           _this.numbersList = $('#voipNumbersList').on('change', 'input', _this.showTariffDiv);
           _this.numbersListSelectAll = $('#voipNumbersListSelectAll');
           _this.numbersListSelectAllCheckbox = _this.numbersListSelectAll.find('input').on('change', _this.selectAllNumbers);
@@ -122,7 +125,7 @@
         this.reloadTariffList();
       }
       if (cityId && ndcTypeId >= 0) {
-        return $.get('/uu/voip/get-did-groups', {
+        $.get('/uu/voip/get-did-groups', {
           cityId: cityId,
           isWithEmpty: 1,
           format: 'options'
@@ -133,17 +136,29 @@
             return _this.didGroup.val('').trigger('change');
           };
         })(this));
+        return $.get('/uu/voip/get-operator-accounts', {
+          cityId: cityId,
+          isWithEmpty: 1,
+          format: 'options'
+        }, (function(_this) {
+          return function(html) {
+            _this.operatorAccount.html(html);
+            _this.operatorAccount.prop('disabled', false);
+            return _this.operatorAccount.val('').trigger('change');
+          };
+        })(this));
       } else {
         this.didGroup.prop('disabled', true);
-        return this.didGroup.val('').trigger('change');
+        this.didGroup.val('').trigger('change');
+        this.operatorAccount.prop('disabled', true);
+        return this.operatorAccount.val('').trigger('change');
       }
     };
 
     AccountTariffEdit.prototype.showNumbersList = function() {
-      var cityId, didGroupVal, ndcTypeId;
+      var cityId, ndcTypeId;
       ndcTypeId = this.ndcType.val();
       cityId = this.city.val();
-      didGroupVal = this.didGroup.val();
       if (cityId && ndcTypeId >= 0) {
         this.numbersListFilter.slideDown();
       } else {
@@ -153,7 +168,8 @@
         this.numbersList.html('');
         return $.get('/uu/voip/get-free-numbers', {
           cityId: cityId,
-          didGroupId: didGroupVal,
+          didGroupId: this.didGroup.val(),
+          operatorAccountId: this.operatorAccount.val(),
           rowClass: this.numbersListClass.val(),
           orderByField: this.numbersListOrderByField.val(),
           orderByType: this.numbersListOrderByType.val(),

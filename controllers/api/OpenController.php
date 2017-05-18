@@ -247,7 +247,7 @@ final class OpenController extends Controller
 
         $response = [];
 
-        $distinctNdcs = $numbers->getDistinctNdc();
+        $distinctNdcs = $numbers->getDistinct('ndc');
         foreach ($distinctNdcs as $distinctNdc) {
 
             $numbersCloned = clone $numbers;

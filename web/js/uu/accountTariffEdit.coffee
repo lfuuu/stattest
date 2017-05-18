@@ -4,6 +4,7 @@ class AccountTariffEdit
   ndcType: null
   city: null
   didGroup: null
+  operatorAccount: null
 
   numbersList: null
   numbersListSelectAll: null
@@ -33,6 +34,7 @@ class AccountTariffEdit
       @ndcType = $('#voipNdcType').on('change', @onCityChange)
       @city = $('#voipRegions').on('change', @onCityChange)
       @didGroup = $('#voipDidGroup').on('change', @showNumbersList)
+      @operatorAccount = $('#voipOperatorAccount').on('change', @showNumbersList)
 
       @numbersList = $('#voipNumbersList').on('change', 'input', @showTariffDiv)
       @numbersListSelectAll = $('#voipNumbersListSelectAll')
@@ -98,20 +100,30 @@ class AccountTariffEdit
       @reloadTariffList()
 
     if cityId && ndcTypeId >= 0
+
       $.get '/uu/voip/get-did-groups', {cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
         @didGroup.prop('disabled', false)
         @didGroup.val('').trigger('change')
+
+      $.get '/uu/voip/get-operator-accounts', {cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
+        @operatorAccount.html(html) # обновить значения
+        @operatorAccount.prop('disabled', false)
+        @operatorAccount.val('').trigger('change')
+
     else
+
       @didGroup.prop('disabled', true)
       @didGroup.val('').trigger('change')
+
+      @operatorAccount.prop('disabled', true)
+      @operatorAccount.val('').trigger('change')
 
 # показать номера
 # при изменении красивости или кол-ва колонок или сортировки
   showNumbersList: =>
     ndcTypeId = @ndcType.val()
     cityId = @city.val()
-    didGroupVal = @didGroup.val()
 
     if cityId and ndcTypeId >= 0
       @numbersListFilter.slideDown()
@@ -122,7 +134,8 @@ class AccountTariffEdit
       @numbersList.html('')
       $.get '/uu/voip/get-free-numbers', {
         cityId: cityId,
-        didGroupId: didGroupVal,
+        didGroupId: @didGroup.val(),
+        operatorAccountId: @operatorAccount.val(),
         rowClass: @numbersListClass.val(),
         orderByField: @numbersListOrderByField.val(),
         orderByType: @numbersListOrderByType.val()
