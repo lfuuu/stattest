@@ -513,14 +513,17 @@ SQL;
      *
      * @param int $accountId
      * @param float $sum
+     * @param bool $isForceCreate
      * @return Bill
      */
-    public function getPrepayedBillOnSum($accountId, $sum)
+    public function getPrepayedBillOnSum($accountId, $sum, $isForceCreate = false)
     {
-        $billNo = $this->getPrepayedBillNoOnSumFromDB($accountId, $sum);
+        if (!$isForceCreate) {
+            $billNo = $this->getPrepayedBillNoOnSumFromDB($accountId, $sum);
 
-        if ($billNo) {
-            return Bill::findOne(['bill_no' => $billNo]);
+            if ($billNo) {
+                return Bill::findOne(['bill_no' => $billNo]);
+            }
         }
 
         return $this->createBillOnSum($accountId, $sum);

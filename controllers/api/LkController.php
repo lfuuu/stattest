@@ -265,7 +265,7 @@ class LkController extends ApiController
             throw new ModelValidationException($form);
         }
 
-        $bill = Bill::dao()->getPrepayedBillOnSum($form->account_id, $form->sum);
+        $bill = Bill::dao()->getPrepayedBillOnSum($form->account_id, $form->sum, $isForceCreate = true);
 
         $sbOrder = SberbankOrder::findOne(['bill_no' => $bill->bill_no]);
 
