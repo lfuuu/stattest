@@ -54,8 +54,8 @@ echo Breadcrumbs::widget([
     'links' => $links
 ]);
 
-$isEditable = $model->registry->isEditable();
-$isSubmitable = $model->registry->isSubmitable();
+$isEditable = $model->registry ? $model->registry->isEditable() : true;
+$isSubmitable = $model->registry ? $model->registry->isSubmitable() : true;
 $readonlyOptions = [
     'readonly' => true,
     'disabled' => true
