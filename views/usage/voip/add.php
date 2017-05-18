@@ -93,7 +93,7 @@ echo Breadcrumbs::widget([
             'attributes' => [
                 'did_group_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => DidGroup::getList($isWithEmpty = true, $model->city_id, $model->country_id),
+                    'items' => DidGroup::getList($isWithEmpty = true, $model->city_id),
                     'options' => ['class' => 'select2 form-reload'],
                 ],
                 'did' => ['type' => Form::INPUT_TEXT],

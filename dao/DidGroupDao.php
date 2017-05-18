@@ -6,6 +6,7 @@ use app\models\City;
 use app\models\Country;
 use app\models\DidGroup;
 use app\models\Number;
+use app\modules\nnp\models\NdcType;
 use Yii;
 use yii\db\Expression;
 use yii\db\Query;
@@ -100,11 +101,14 @@ class DidGroupDao extends Singleton
                         'OR',
                         ['city_id' => $city->id],
                         ['city_id' => null]
-                    ]
+                    ],
+                    ['ndc_type_id' => $city->ndcTypeId]
                 ])
                 ->groupBy('beauty_level');
 
-            $where = ['id' => $query];
+            $where = [
+                'id' => $query,
+            ];
         }
 
         return $where;
@@ -114,13 +118,15 @@ class DidGroupDao extends Singleton
      * Получение списка DID-групп в стране с индексом по городам
      *
      * @param int $countryCode
+     * @param int $ndcTypeId
      * @return array
      */
-    public function getDidgroupsByCity($countryCode)
+    public function getDidgroupsByCity($countryCode, $ndcTypeId = NdcType::ID_GEOGRAPHIC)
     {
         $didGroupQuery = DidGroup::find()
             ->where([
-                'country_code' => $countryCode
+                'country_code' => $countryCode,
+                'ndc_type_id' => $ndcTypeId
             ])
             ->with('country')
             ->orderBy(new Expression('country_code, COALESCE(city_id, 0), beauty_level'));
@@ -191,15 +197,12 @@ class DidGroupDao extends Singleton
 
                 $where = [
                     'country_code' => $group->country_code,
-                    'beauty_level' => $group->beauty_level
+                    'beauty_level' => $group->beauty_level,
+                    'ndc_type_id' => $group->ndc_type_id
                 ];
 
                 if ($group->city_id) {
-                    $where = [
-                        'AND',
-                        $where,
-                        ['city_id' => $group->city_id]
-                    ];
+                    $where['city_id'] = $group->city_id;
                 }
 
                 if ($didgroupAdditionWhere = self::getDidgroupAdditionWhere($group)) {

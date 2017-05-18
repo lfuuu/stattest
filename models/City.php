@@ -3,6 +3,7 @@ namespace app\models;
 
 use app\classes\traits\GridSortTrait;
 use app\dao\CityDao;
+use app\modules\nnp\models\NdcType;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\helpers\Url;
@@ -20,6 +21,7 @@ use yii\helpers\Url;
  *
  * @property Country $country
  * @property Region $region
+ * @property int $ndcTypeId
  */
 class City extends ActiveRecord
 {
@@ -110,6 +112,20 @@ class City extends ActiveRecord
     public function getBillingMethod()
     {
         return $this->hasOne(CityBillingMethod::className(), ['id' => 'billing_method_id']);
+    }
+
+    /**
+     * Получаем тип NDC по городу
+     *
+     * @return int
+     */
+    public function getNdcTypeId()
+    {
+        if ($this->id == self::RUSSIA_CITY_ID_7800 || $this->id == self::HUNGARY_CITY_ID_7800) {
+            return NdcType::ID_FREEPHONE;
+        }
+
+        return NdcType::ID_GEOGRAPHIC; // @TODO: определится как связан город с типом NDC
     }
 
     /**

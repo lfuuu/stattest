@@ -35,8 +35,6 @@ class m170418_111434_del_did_group extends \app\classes\Migration
             ['city_id' => null],
             ['country_code' => Country::GERMANY]
         );
-
-        DidGroup::dao()->applyDidGroupToNumbers();
     }
 
     /**
