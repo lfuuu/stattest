@@ -943,21 +943,36 @@ class ApiLk
                 ->setCity($cityId)
                 ->setDidGroup($didGroup->id);
 
-        $skipFrom = 1;
-        $areaLen = 3;
+        $countryPrefix = null;
+        $cityPostfixLength = null;
 
         foreach ($numbers->result(null) as $number) {
+
+            if (!$countryPrefix) {
+                $countryPrefix = $number->country->prefix;
+                $cityPostfixLength = $number->city->postfix_length;
+            }
+
             $line = [
-                'number' => $number->number,
                 'full_number' => $number->number,
-                'area_code' => substr($number->number, $skipFrom, $areaLen)
             ];
-            $l = strlen($line['number']);
+
+
+            $line['number'] = substr($number->number, -$cityPostfixLength);
+            $line['area_code'] = substr($number->number, strlen($countryPrefix),
+                strlen($number->number) - strlen($countryPrefix) - $cityPostfixLength);
+
             $number = $line['number'];
-            $line['number'] =
-                substr($line['number'], 4, ($l - 8)) . '-' .
-                substr($line['number'], ($l - 4), 2) . '-' .
-                substr($line['number'], ($l - 2), 2);
+
+            // через каждые 2 знака тире. Формат 22-33-44 или 222-33-44
+            $tmp = "";
+            do {
+                $tmp = "-" . substr($number, -2) . $tmp;
+                $number = substr($number, 0, strlen($number)-2);
+            } while(strlen($number) > 3);
+
+            $line['number'] = $number . $tmp;
+
             $ret[] = $isSimple ? $number : $line;
         }
 
