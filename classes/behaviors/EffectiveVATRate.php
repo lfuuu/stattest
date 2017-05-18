@@ -91,7 +91,7 @@ class EffectiveVATRate extends Behavior
             return;
         }
 
-        $model->effective_vat_rate = ClientContract::dao()->getEffectiveVATRate($contract, $isOrganizationValue);
+        $model->effective_vat_rate = ClientContract::dao()->getEffectiveVATRate($contract);
 
         // No save. Before save event
     }

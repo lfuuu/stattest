@@ -246,6 +246,9 @@ class ClientContractDao extends Singleton
             }
         }
 
+        $contract->refresh();
+        $contract->contragent->refresh();
+
         $isOrganizationValue = false;
         $organizationId = $contract->organization_id;
         $countryId = $contract->contragent->country_id;
