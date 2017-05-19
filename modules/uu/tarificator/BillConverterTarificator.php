@@ -20,7 +20,7 @@ class BillConverterTarificator extends Tarificator
             // которые требуют конвертации (не сконвертированы или изменились после конвертирования)
             ->where(['is_converted' => 0])
             //
-            // либо на доплату, либо за прошлый месяц
+            // и либо на доплату, либо за прошлый месяц
             ->andWhere('(is_default = 0 OR date <= :date)', [
                 ':date' => (new \DateTimeImmutable())
                     ->modify('first day of this month')// @todo таймзона клиента

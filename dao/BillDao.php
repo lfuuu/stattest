@@ -288,13 +288,15 @@ class BillDao extends Singleton
             ->all();
 
         if (!$clientAccount->is_postpaid) {
-
-            // для предоплаты не надо включать в счет посуточную абонентку
-            $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
-                return
-                    $accountEntry->type_id != AccountEntry::TYPE_ID_PERIOD ||
-                    $accountEntry->tariffPeriod->charge_period_id != Period::ID_DAY;
-            });
+            /*
+                // для предоплаты не надо включать в счет посуточную абонентку
+                // или все-таки надо? иначе эти строчки никогда не попадут в счет и бухгалтерский баланс будет сильно отличаться от реалтайма
+                $accountEntries = array_filter($accountEntries, function (AccountEntry $accountEntry) {
+                    return
+                        $accountEntry->type_id != AccountEntry::TYPE_ID_PERIOD ||
+                        $accountEntry->tariffPeriod->charge_period_id != Period::ID_DAY;
+                });
+            */
 
             // если не осталось строчек счета, то и сам счет не нужен
             if (!count($accountEntries) && !$bill->isNewRecord && !$bill->delete()) {
