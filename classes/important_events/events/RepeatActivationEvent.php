@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\important_events\events\core;
+namespace app\classes\important_events\events;
 
 use app\classes\important_events\events\properties\ClientProperty;
 use app\classes\important_events\events\properties\DateProperty;
@@ -9,7 +9,7 @@ use app\classes\important_events\events\properties\platform\IsSupportProperty;
 use app\classes\important_events\events\properties\platform\LoginValueProperty;
 use app\classes\important_events\events\UnknownEvent;
 
-class CoreUserCreatedEvent extends UnknownEvent
+class RepeatActivationEvent extends UnknownEvent
 {
 
     public static
