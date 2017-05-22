@@ -187,6 +187,8 @@ class ClientContractDao extends Singleton
     {
         $countAll = $countSet = $countFromOrganization = 0;
 
+        $contract->refresh();
+
         $vatRate = $this->getEffectiveVATRate($contract, $isOrganizationValue);
 
         if (!$isWithTrace) {
@@ -245,9 +247,6 @@ class ClientContractDao extends Singleton
                 $cash[$settings->doer_organization_id][$settings->customer_country_code ?: 'any'][$settings->vat_apply_scheme] = $settings->vat_rate;
             }
         }
-
-        $contract->refresh();
-        $contract->contragent->refresh();
 
         $isOrganizationValue = false;
         $organizationId = $contract->organization_id;

@@ -29,6 +29,9 @@ class HistoryActiveRecord extends ActiveRecord
         $attributesAllowedForVersioning = [];   // Свойства модели, которые должны обновляться при загрузки версионной модели
 
 
+    private static $_cache = [];
+    private static $_cacheHolder = [];
+
     /**
      * @return null|string Дата сохранения версии
      */
@@ -328,9 +331,9 @@ class HistoryActiveRecord extends ActiveRecord
      * @param string $date
      * @return HistoryActiveRecord
      */
-    protected function getCachedHistoryModel($className, $id, $date = null)
+    protected function getCachedHistoryModel($className, $id, $date = null, $relatedHolderObject = null)
     {
-        $models = $this->getCachedHistoryModels($className, 'id', $id, $date);
+        $models = $this->getCachedHistoryModels($className, 'id', $id, $date, $relatedHolderObject);
 
         if (!$models) {
             return null;
@@ -348,13 +351,11 @@ class HistoryActiveRecord extends ActiveRecord
      * @param string $date
      * @return HistoryActiveRecord[]
      */
-    protected function getCachedHistoryModels($className, $field, $id, $date = null)
+    protected function getCachedHistoryModels($className, $field, $id, $date = null, $relatedHolderObject = null)
     {
-        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
+        $date = (string)($date ?: ($this->getHistoryVersionRequestedDate() ?: null));
 
-        static $_cache = [];
-
-        if (!isset($_cache[$className][$date][$field][$id])) {
+        if (!isset(self::$_cache[$className][$date][$field][$id])) {
             $models = $className::findAll([$field => $id]);
             /** @var self $model */
             foreach ($models as $model) {
@@ -364,9 +365,57 @@ class HistoryActiveRecord extends ActiveRecord
                 }
             }
 
-            $_cache[$className][$date][$field][$id] = $models;
+            self::$_cache[$className][$date][$field][$id] = $models;
+
+            if ($relatedHolderObject) {
+                self::$_cacheHolder[$relatedHolderObject::className()][$relatedHolderObject->id][$className][$date][$field] = $id;
+            }
         }
 
-        return $_cache[$className][$date][$field][$id];
+        return self::$_cache[$className][$date][$field][$id];
+    }
+
+    /**
+     * Обновление данных модели
+     *
+     * @return bool
+     */
+    public function refresh()
+    {
+        if (!$this->_historyVersionStoredDate) {
+            $this->_resetCachedModel(self::className(), $this->id, $this->_historyVersionRequestedDate);
+            return parent::refresh();
+        }
+
+        return false; // не обновлять, если модель взята из истории
+    }
+
+    /**
+     * Сброс модели, хранящейся в кеше
+     *
+     * @param string $className
+     * @param int $id
+     * @param string $date
+     * @param string $field
+     */
+    private function _resetCachedModel($className, $id, $date, $field = 'id')
+    {
+        $date = (string)$date;
+
+        unset(self::$_cache[$className][$date][$field][$id]);
+
+        if (!isset(self::$_cacheHolder[$className][$id])) {
+            return;
+        }
+
+        foreach (self::$_cacheHolder[$className][$id] as $relatedClassName => $dates) {
+            foreach ($dates as $relatedDate => $fields) {
+                foreach ($fields as $relatedField => $relatedId) {
+                    unset(self::$_cache[$relatedClassName][$relatedDate][$relatedField][$relatedId]);
+                }
+            }
+        }
+
+        unset(self::$_cacheHolder[$className][$id]);
     }
 }

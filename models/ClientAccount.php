@@ -638,7 +638,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getContract($date = '')
     {
-        return $this->getCachedHistoryModel(ClientContract::className(), $this->contract_id, $date);
+        return $this->getCachedHistoryModel(ClientContract::className(), $this->contract_id, $date, $this);
     }
 
     /**
@@ -819,6 +819,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getOrganization($date = '')
     {
+        $date = $date ?: ($this->getHistoryVersionRequestedDate() ?: null);
         return $this->getContract($date)->getOrganization($date);
     }
 
