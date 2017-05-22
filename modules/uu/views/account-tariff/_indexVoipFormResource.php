@@ -112,7 +112,12 @@ $dateTimeNow = $accountTariffFirst->clientAccount->getDatetimeWithTimezone(); //
                         $field = $form->field($accountTariffResourceLog, "[{$resource->id}]amount");
 
                         if ($resource->isNumber()) {
-                            $field->textInput(['type' => 'number', 'step' => 1]);
+                            $params = ['type' => 'number', 'step' => 1, 'min' => $resource->min_value];
+                            if ($resource->max_value) {
+                                $params['max'] = $resource->max_value;
+                            }
+
+                            $field->textInput($params);
                         } else {
                             $field->checkbox(['value' => 1], $enclosedByLabel = false);
                         }
