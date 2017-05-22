@@ -59,6 +59,7 @@ class DidGroupDao extends Singleton
                     'country_code' => $number->country_code,
                     'city_id' => $number->city_id,
                     'beauty_level' => $number->beauty_level,
+                    'ndc_type_id' => $number->ndc_type_id,
                 ];
             }
         }
@@ -66,8 +67,11 @@ class DidGroupDao extends Singleton
         $query = DidGroup::find()
             ->where($where ?: [
                 'AND',
-                ['country_code' => $number->country_code],
-                ['beauty_level' => $number->beauty_level],
+                [
+                    'country_code' => $number->country_code,
+                    'beauty_level' => $number->beauty_level,
+                    'ndc_type_id' => $number->ndc_type_id,
+                ],
                 [
                     'OR',
                     ['city_id' => $number->city_id],
