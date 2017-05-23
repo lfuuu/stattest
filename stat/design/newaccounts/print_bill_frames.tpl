@@ -1,7 +1,7 @@
 <frameset rows="{$rows}">
 {foreach from=$objects item=obj}
-    {if $obj.doc_type!=""}
-        <frame src="/bill/print?&billNo={$obj.bill_no}&docType={$obj.doc_type}&isPdf={$is_pdf}" name="" marginwidth="10" marginheight="10" />
+    {if $obj.doc_type!="" || $obj.isBill}
+        <frame src="/bill/print?&billNo={$obj.bill_no}{if $obj.doc_type}&docType={$obj.doc_type}{/if}&isPdf={$is_pdf}" name="" marginwidth="10" marginheight="10" />
 	{elseif $obj.obj!='envelope'}
 		<frame src="?module=newaccounts&action=bill_print&bill={$obj.bill_no}&object={$obj.obj}&is_pdf={$is_pdf}" name="" marginwidth="10" marginheight="10">
 	{else}

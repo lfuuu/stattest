@@ -113,19 +113,16 @@ $payerCompany = $document->getPayer();
                 <td align="center"><b>Количество</b></td>
                 <td align="center"><b>Единица измерения</b></td>
                 <td align="center"><b>Стоимость,&nbsp;<?= $currencyWithoutValue; ?></b></td>
+                <?php if($organization->isNotSimpleTaxSystem()): ?>
+                    <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
+                <?php endif; ?>
                 <?php if ($hasDiscount): ?>
                     <td align="center"><b>Скидка</b></td>
                 <?php endif; ?>
 
                 <?php if ($organization->isNotSimpleTaxSystem()): ?>
-                    <?php if ($document->bill->price_include_vat): ?>
-                        <td align="center"><b>Сумма налога, &nbsp;<?= $currencyWithoutValue; ?></b></td>
-                        <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
-                    <?php else: ?>
-                        <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
-                        <td align="center"><b>Сумма налога, &nbsp;<?= $currencyWithoutValue; ?></b></td>
-                        <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currencyWithoutValue; ?></b></td>
-                    <?php endif; ?>
+                    <td align="center"><b>Сумма налога, &nbsp;<?= $currencyWithoutValue; ?></b></td>
+                    <td align="center"><b>Сумма с учётом налога,&nbsp;<?= $currencyWithoutValue; ?></b></td>
                 <?php else: ?>
                     <td align="center"><b>Сумма,&nbsp;<?= $currencyWithoutValue; ?></b></td>
                 <?php endif; ?>
@@ -148,21 +145,26 @@ $payerCompany = $document->getPayer();
                         }
                         ?>
                     </td>
-                    <td align="center"><?= Utils::round($line['price'], 4); ?></td>
+                    <?php if($organization->isNotSimpleTaxSystem()): ?>
+                        <td align="center"><?= Utils::round(
+                                $document->bill->price_include_vat
+                                    ? round($line['sum_without_tax'] / $line['amount'], 4)
+                                    : round($line['sum'] / $line['amount'], 4), 4);?></td>
+                        <td align="center"><?= Utils::round($line['sum_without_tax'], 4); ?></td>
+                    <?php else: ?>
+                        <td align="center"><?= Utils::round($line['price'], 4); ?></td>
+                    <?php endif; ?>
+
+
+
 
                     <?php if ($hasDiscount): ?>
                         <td align="center"><?= Utils::round($line['discount_auto'] + $line['discount_set'], 2); ?></td>
                     <?php endif; ?>
 
                     <?php if($organization->isNotSimpleTaxSystem()): ?>
-                        <?php if ($document->bill->price_include_vat): ?>
-                            <td align="center"><?= (!$document->bill->clientAccount->getTaxRate() ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
-                            <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
-                        <?php else: ?>
-                            <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
-                            <td align="center"><?= (!$document->bill->clientAccount->getTaxRate() ? 'без НДС' : Utils::round($line['sum_tax'], 2)); ?></td>
-                            <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
-                        <?php endif; ?>
+                        <td align="center"><?= ($document->bill->clientAccount->getTaxRate() ? Utils::round($line['sum_tax'], 2) : 'без НДС'); ?></td>
+                        <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
                     <?php else: ?>
                         <td align="center"><?= Utils::round($line['sum'], 2); ?></td>
                     <?php endif; ?>
@@ -178,14 +180,9 @@ $payerCompany = $document->getPayer();
                 </td>
 
                 <?php if($organization->isNotSimpleTaxSystem()): ?>
-                    <?php if ($document->bill->price_include_vat): ?>
-                        <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
-                        <td align="center"><?= Utils::round($document->sum, 2); ?></td>
-                    <?php else: ?>
-                        <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
-                        <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
-                        <td align="center"><?= Utils::round($document->sum, 2); ?></td>
-                    <?php endif; ?>
+                    <td align="center"><?= Utils::round($document->sum_without_tax, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum_with_tax, 2); ?></td>
+                    <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                 <?php else: ?>
                     <td align="center"><?= Utils::round($document->sum, 2); ?></td>
                 <?php endif; ?>

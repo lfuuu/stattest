@@ -1879,6 +1879,7 @@ class m_newaccounts extends IModule
 
                 $R[] = [
                     "bill_no" => $billNo,
+                    "isBill" => strpos($obj, 'bill') === 0,
                     "obj" => $obj . "&" . http_build_query([
                             "to_print" => "true",
                         ] + $printParams[$idx]
