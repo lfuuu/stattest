@@ -1,6 +1,7 @@
 <?php
 namespace app\dao;
 
+use app\models\ClientContract;
 use Yii;
 use yii\db\Expression;
 use yii\db\Query;
@@ -575,7 +576,10 @@ class ClientDocumentDao extends Singleton
             ];
         }
 
+        /** @var ClientContract $contract */
         $contract = $document->getContract();
+
+        /** @var ClientContragent $contragent */
         $contragent = $contract->getContragent();
 
         $organization = $contract->getOrganization($contractDate);
@@ -599,6 +603,9 @@ class ClientDocumentDao extends Singleton
             'first_name' => $person ? $person->first_name : '',
             'last_name' => $person ? $person->last_name : '',
             'middle_name' => $person ? $person->middle_name : '',
+
+            'birthdate' => $contragent->person ? $contragent->person->birthday : '',
+            'birthplace' => $contragent->person ? $contragent->person->birthplace : '',
 
             'address_jur' => $contragent->address_jur,
             'bank_properties' => str_replace("\n", '<br/>', $account->bank_properties),

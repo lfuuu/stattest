@@ -241,7 +241,7 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
                 'passport_issued' => ['columnOptions' => ['colspan' => 2]],
                 ['type' => Form::INPUT_RAW],
                 'registration_address' => ['columnOptions' => ['colspan' => 2]],
-                ['type' => Form::INPUT_RAW],
+                'birthplace' => ['columnOptions' => ['colspan' => 2]],
             ],
         ]);
         ?>

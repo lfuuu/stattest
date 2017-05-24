@@ -85,6 +85,26 @@ ActiveForm::end();
         <td>Фио Исполнительного органа</td>
     </tr>
     <tr>
+        <td>{$first_name}</td>
+        <td>Имя</td>
+    </tr>
+    <tr>
+        <td>{$last_name}</td>
+        <td>Фамилия</td>
+    </tr>
+    <tr>
+        <td>{$middle_name}</td>
+        <td>Отчество</td>
+    </tr>
+    <tr>
+        <td>{$birthdate}</td>
+        <td>День рождения</td>
+    </tr>
+    <tr>
+        <td>{$birthplace}</td>
+        <td>Место рождения</td>
+    </tr>
+    <tr>
         <td>{$name}</td>
         <td>Краткое наименование контрагента</td>
     </tr>
