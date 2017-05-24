@@ -114,7 +114,7 @@ ActiveForm::end();
     </tr>
     <tr>
         <td>{$address_jur}</td>
-        <td>Адрес юридический</td>
+        <td>Адрес юридический или адрес регистрации (для физ.лица)</td>
     </tr>
     <tr>
         <td>{$bank_properties}</td>

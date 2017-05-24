@@ -607,8 +607,10 @@ class ClientDocumentDao extends Singleton
             'birthdate' => $contragent->person ? $contragent->person->birthday : '',
             'birthplace' => $contragent->person ? $contragent->person->birthplace : '',
 
-            'address_jur' => $contragent->address_jur,
-            'bank_properties' => str_replace("\n", '<br/>', $account->bank_properties),
+            'address_jur' => ($contragent->legal_type == ClientContragent::PERSON_TYPE ?
+                ($person ? $person->registration_address : '') :
+                $contragent->address_jur),
+            'bank_properties' => nl2br($account->bank_properties),
             'bik' => $account->bik,
             'address_post_real' => $account->address_post_real,
             'address_post' => $account->address_post,
