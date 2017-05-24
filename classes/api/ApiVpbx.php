@@ -205,6 +205,42 @@ class ApiVpbx extends Singleton
     }
 
     /**
+     * Архивирование ВАТС
+     *
+     * @param integer $clientId
+     * @param integer $usageId
+     * @return mixed
+     */
+    public function archiveVpbx($clientId, $usageId)
+    {
+        return $this->_exec(
+            'archive_vpbx',
+            [
+                'account_id' => (int)$clientId,
+                'stat_product_id' => (int)$usageId,
+            ]
+        );
+    }
+
+    /**
+     * Деархивация ВАТС
+     *
+     * @param integer $clientId
+     * @param integer $usageId
+     * @return mixed
+     */
+    public function dearchiveVpbx($clientId, $usageId)
+    {
+        return $this->_exec(
+            'dearchive_vpbx',
+            [
+                'account_id' => (int)$clientId,
+                'stat_product_id' => (int)$usageId,
+            ]
+        );
+    }
+
+    /**
      * @param int $clientId
      * @param int $usageId
      * @param int $regionId

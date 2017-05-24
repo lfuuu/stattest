@@ -1,6 +1,7 @@
 <?php
 namespace app\classes;
 
+use app\exceptions\ModelValidationException;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\helpers\DateTimeZoneHelper;
@@ -164,7 +165,9 @@ class Event
             $eventQueue->status = EventQueue::STATUS_PLAN;
         }
 
-        $eventQueue->save();
+        if (!$eventQueue->save()) {
+            throw new ModelValidationException($eventQueue);
+        }
 
         return $eventQueue;
     }
@@ -177,6 +180,8 @@ class Event
      * @param string $object
      * @param integer $objectId
      * @param string|null $section
+     * @return EventQueue
+     * @throws ModelValidationException
      */
     public static function goWithIndicator($event, $eventParam, $object, $objectId = 0, $section = null)
     {
@@ -209,6 +214,11 @@ class Event
         }
 
         $indicator->event_queue_id = $eventQueue->id;
-        $indicator->save();
+
+        if (!$indicator->save()) {
+            throw new ModelValidationException($eventQueue);
+        }
+
+        return $eventQueue;
     }
 }

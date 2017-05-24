@@ -402,7 +402,7 @@ class VirtPbx3Action
 
         try {
 
-            ApiVpbx::me()->delete($l["client_id"], $l["usage_id"]);
+            ApiVpbx::me()->archiveVpbx($l["client_id"], $l["usage_id"]);
 
         } catch (Exception $e) {
             if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS) {

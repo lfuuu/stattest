@@ -628,10 +628,12 @@ if ($has) :
                             <th width="20%">Дата</th>
                             <th width="30%">Описание</th>
                             <th width="10%">Стоимость</th>
-                            <th width="40%">Регион</th>
+                            <th width="30%">Регион</th>
+                            <th width="10%">&nbsp;</th>
                         </tr>
                         </thead>
                         <tbody>
+                        <?php /** @var app\models\UsageVirtpbx $service */ ?>
                         <?php foreach ($services['virtpbx'] as $service): ?>
                             <tr bgcolor="<?= ($service->status == 'working') ? ($actual($service->actual_from, $service->actual_to) ? '#EEDCA9' : '#fffff5') : '#ffe0e0' ?>">
                                 <td>
@@ -649,6 +651,15 @@ if ($has) :
                                 <td><?= $service->tariff->description ?></td>
                                 <td><?= $service->tariff->price ?></td>
                                 <td><?= $service->regionName->name ?></td>
+                                <td><?php if (!$service->is_dearchived && strtotime($service->expire_dt) < time()) : ?>
+                                        <?= $this->render('//layouts/_buttonLink', [
+                                            'url' => Url::to(['/usage/vpbx/dearchive', 'accountId' => $service->clientAccount->id, 'usageId' => $service->id]),
+                                            'text' => 'Разархивировать',
+                                            'glyphicon' => 'glyphicon-upload',
+                                            'class' => 'btn-xs btn-info',
+                                        ]) ?>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>

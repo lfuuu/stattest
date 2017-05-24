@@ -1,6 +1,8 @@
 <?php
 namespace app\models;
 
+use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use DateTime;
 use yii\db\ActiveRecord;
 use app\classes\bill\VirtpbxBiller;
@@ -17,6 +19,7 @@ use app\helpers\usages\LogTariffTrait;
  * @property int $id
  * @property int $region
  * @property int $amount
+ * @property int $is_dearchived
  * @property string $comment
  * @property TariffVirtpbx $tariff
  * @property ClientAccount $clientAccount
@@ -152,6 +155,54 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
         }
 
         return (bool)($isAdd ? $this->prev_usage_id : $this->next_usage_id);
+    }
+
+    /**
+     * Переоткрытие услуги
+     *
+     * @return UsageVirtpbx
+     * @throws \Exception
+     */
+    public function reopen()
+    {
+        if (strtotime($this->expire_dt) > time()) {
+            throw new \LogicException('Услуга активна');
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+
+        try {
+            $newUsage = new UsageVirtpbx;
+            $newUsage->setAttributes($this->getAttributes(null, ['id']), false);
+            $newUsage->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+            $newUsage->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
+
+            if (!$newUsage->save()) {
+                throw new ModelValidationException($newUsage);
+            }
+
+            /** @var LogTarif $logTariff */
+            $logTariff = $this->getLogTariff();
+
+            if (!$logTariff) {
+                throw new \LogicException('Тариф не найден');
+            }
+
+            $newLogTariff = new LogTarif();
+            $newLogTariff->setAttributes($logTariff->getAttributes(null, ['id']), false);
+            $newLogTariff->id_service = $newUsage->id;
+            $newLogTariff->date_activation = date(DateTimeZoneHelper::DATE_FORMAT);
+            if (!$newLogTariff->save()) {
+                throw new ModelValidationException($newLogTariff);
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return $newUsage;
     }
 
 }
