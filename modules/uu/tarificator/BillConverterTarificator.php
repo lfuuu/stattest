@@ -16,13 +16,12 @@ class BillConverterTarificator extends Tarificator
     public function tarificate($accountClientId = null)
     {
         $activeQuery = Bill::find()
-            //
-            // которые требуют конвертации (не сконвертированы или изменились после конвертирования)
-            ->where(['is_converted' => 0])
-            //
-            // и либо на доплату, либо за прошлый месяц
-            ->andWhere('(is_default = 0 OR date <= :date)', [
-                ':date' => (new \DateTimeImmutable())
+            ->where(['is_converted' => 0]) // которые не сконвертированы или изменились после конвертирования
+            ->andWhere(['>', 'price', 0]) // и цена больше нуля
+            ->andWhere([ // и за прошлый месяц
+                '<=',
+                'date',
+                (new \DateTimeImmutable())
                     ->modify('first day of this month')// @todo таймзона клиента
                     ->format(DateTimeZoneHelper::DATE_FORMAT),
             ]);

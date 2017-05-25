@@ -38,10 +38,6 @@ use yii\widgets\Breadcrumbs;
             'class' => IntegerColumn::className(),
         ],
         [
-            'attribute' => 'is_default',
-            'class' => YesNoColumn::className(),
-        ],
-        [
             'attribute' => 'is_converted',
             'class' => YesNoColumn::className(),
         ],
@@ -49,8 +45,7 @@ use yii\widgets\Breadcrumbs;
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (Bill $bill) {
-                $format = $bill->is_default ? 'LLL Y' : 'd LLL Y';
-                return datefmt_format_object(new DateTime($bill->date), $format, Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
+                return datefmt_format_object(new DateTime($bill->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
             }
         ],
         [

@@ -18,13 +18,12 @@ class BillFilter extends Bill
     public $price_to = '';
 
     public $client_account_id = '';
-    public $is_default = '';
     public $is_converted = '';
 
     public function rules()
     {
         return [
-            [['id', 'client_account_id', 'is_default', 'is_converted'], 'integer'],
+            [['id', 'client_account_id', 'is_converted'], 'integer'],
             [['price_from', 'price_to'], 'double'],
             [['date'], 'string', 'max' => 255],
         ];
@@ -49,7 +48,6 @@ class BillFilter extends Bill
 
         $this->price_from !== '' && $query->andWhere(['>=', 'price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', 'price', $this->price_to]);
-        $this->is_default !== '' && $query->andWhere(['is_default' => $this->is_default]);
         $this->is_converted !== '' && $query->andWhere(['is_converted' => $this->is_converted]);
 
         $this->client_account_id !== '' && $query->andWhere(['client_account_id' => $this->client_account_id]);

@@ -25,7 +25,6 @@ class BillTarificator extends Tarificator
         $billTableName = Bill::tableName();
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
-        $accountEntryTypeIdPeriod = AccountEntry::TYPE_ID_PERIOD;
         $clientAccountTableName = ClientAccount::tableName();
 
         if ($accountTariffId) {
@@ -38,17 +37,11 @@ class BillTarificator extends Tarificator
         $this->out('. ');
         $insertSQL = <<<SQL
             INSERT INTO {$billTableName}
-            (date, client_account_id, price, is_default)
+            (date, client_account_id, price)
                 SELECT DISTINCT
-                    IF(
-                        (account_entry.is_default = 1 AND account_entry.type_id != {$accountEntryTypeIdPeriod}) 
-                            OR client_account.is_postpaid = 1, 
-                        account_entry.date + INTERVAL 1 MONTH, 
-                        account_entry.date
-                    ) AS date,
+                    IF(account_entry.is_next_month = 1, account_entry.date + INTERVAL 1 MONTH, account_entry.date) AS date,
                     account_tariff.client_account_id,
-                    0,
-                    IF(account_entry.type_id > 0, 1, account_entry.is_default) AS is_default -- все ресурсы в ежемесячный счет, но опции за прошлый месяц, а трафик за следующий
+                    0
                 FROM
                     {$accountEntryTableName} account_entry,
                     {$accountTariffTableName} account_tariff,
@@ -58,14 +51,14 @@ class BillTarificator extends Tarificator
                     AND account_entry.account_tariff_id = account_tariff.id
                     AND account_tariff.client_account_id = client_account.id
                     {$sqlAndWhere}
+                ORDER BY
+                    account_entry.is_next_month ASC
             ON DUPLICATE KEY UPDATE price = 0
 SQL;
         $db->createCommand($insertSQL)
             ->execute();
 
         // привязать проводки к счетам
-        // Абонентку: за будущий месяц
-        // все остальное - за прошлый
         $this->out('. ');
         $updateSql = <<<SQL
             UPDATE
@@ -78,13 +71,7 @@ SQL;
             WHERE
                 account_entry.account_tariff_id = account_tariff.id
                 AND account_entry.bill_id IS NULL
-                AND IF(
-                    (account_entry.is_default = 1 AND account_entry.type_id != {$accountEntryTypeIdPeriod}) 
-                        OR client_account.is_postpaid = 1, 
-                    account_entry.date + INTERVAL 1 MONTH, 
-                    account_entry.date
-                ) = bill.date
-                AND IF(account_entry.type_id > 0, 1, account_entry.is_default) = bill.is_default  -- все ресурсы в ежемесячный счет, но опции за прошлый месяц, а трафик за следующий
+                AND IF(account_entry.is_next_month = 1, account_entry.date + INTERVAL 1 MONTH, account_entry.date) = bill.date
                 AND account_tariff.client_account_id = bill.client_account_id
                 AND account_tariff.client_account_id = client_account.id
                 {$sqlAndWhere}

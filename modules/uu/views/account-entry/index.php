@@ -50,15 +50,14 @@ $accountTariffTableName = AccountTariff::tableName();
             'class' => IntegerColumn::className(),
         ],
         [
-            'attribute' => 'is_default',
+            'attribute' => 'is_next_month',
             'class' => YesNoColumn::className(),
         ],
         [
             'attribute' => 'date',
             'class' => MonthColumn::className(),
             'value' => function (AccountEntry $accountEntry) {
-                $format = $accountEntry->is_default ? 'LLL Y' : 'd LLL Y';
-                return datefmt_format_object(new DateTime($accountEntry->date), $format, Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
+                return datefmt_format_object(new DateTime($accountEntry->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
             },
         ],
         [
@@ -171,6 +170,7 @@ $accountTariffTableName = AccountTariff::tableName();
                 if (!$bill) {
                     return Yii::t('common', '(not set)');
                 }
+
                 return Html::a($bill->date, $bill->getUrl());
             }
         ],

@@ -23,16 +23,6 @@ use yii\db\Expression;
  * Расчет для бухгалтерской проводки (AccountEntry)
  *
  * @link http://bugtracker.welltime.ru/jira/browse/BIL-1909
- * Счет на postpaid никогда не создается
- * При подключении новой услуги prepaid сразу же создается счет на эту услугу. Если в течение календарных суток подключается вторая услуга, то она добавляется в первый счет.
- *      Если в новые календарные сутки - создается новый счет. В этот счет идет подключение подключение и абонентка. Ресурсы и минималка никогда сюда не попадают.
- * 1го числа каждого месяца создается новый счет за все prepaid абонентки, не вошедшие в отдельные счета (то есть абонентки автопродлеваемых услуг), все ресурсы и минималки.
- *      Подключение в этот счет не должно попасть.
- * Из любого счета всегда исключаются строки с нулевой стоимостью. Если в счете нет ни одной строки - он автоматически удаляется.
- *
- * Иными словами можно сказать:
- * проводки за подключение группируются посуточно и на их основе создаются счета. В эти же счета добавляются проводки за абонентку от этих же услуг за эту же дату
- * все остальные проводки группируются помесячно и на их основе создаются счета.
  */
 class AccountEntryTarificator extends Tarificator
 {
@@ -44,26 +34,26 @@ class AccountEntryTarificator extends Tarificator
      */
     public function tarificate($accountTariffId = null)
     {
-        // проводки за подключение
+        // Подключение
+        // Транзакции группировать в проводки следующего месяца
         $this->out('Проводки за подключение');
-        $this->_tarificate(AccountLogSetup::tableName(), new Expression((string)AccountEntry::TYPE_ID_SETUP), 'date', 'date', $accountTariffId, $isDefault = 0);
+        $this->_tarificate(AccountLogSetup::tableName(), new Expression((string)AccountEntry::TYPE_ID_SETUP), 'date', 'date', $accountTariffId, $isSplitByMonths = 0);
 
-
-        // проводки за абоненскую плату
-        // сначала с !$isDefault, потом с $isDefault
+        // Абонентская плата
+        // Постоплатные: все транзакции группировать в проводки следующего месяца
+        // Предоплатные: помесячные транзакции от 1го числа группировать в проводки того же месяца. Остальные транзакции (посуточные или не от 1го числа) группировать в проводки следующего месяца
         $this->out(PHP_EOL . 'Проводки за абоненскую плату');
-        $this->_tarificate(AccountLogPeriod::tableName(), new Expression((string)AccountEntry::TYPE_ID_PERIOD), 'date_from', 'date_to', $accountTariffId, $isDefault = 0);
-        $this->_tarificate(AccountLogPeriod::tableName(), new Expression((string)AccountEntry::TYPE_ID_PERIOD), 'date_from', 'date_to', $accountTariffId, $isDefault = 1);
+        $this->_tarificate(AccountLogPeriod::tableName(), new Expression((string)AccountEntry::TYPE_ID_PERIOD), 'date_from', 'date_to', $accountTariffId, $isSplitByMonths = 1);
 
-        // проводки за ресурсы
-        $this->out(PHP_EOL . 'Проводки за ресурсы-трафик помесячно');
-        $this->_tarificate(AccountLogResource::tableName(), 'tariff_resource_id', 'date_from', 'date_to', $accountTariffId, $isDefault = 1);
-        $this->out(PHP_EOL . 'Проводки за остальные ресурсы');
-        $this->_tarificate(AccountLogResource::tableName(), 'tariff_resource_id', 'date_from', 'date_to', $accountTariffId, $isDefault = 0);
+        // Ресурсы
+        // (аналогично абонентке)
+        $this->out(PHP_EOL . 'Проводки за ресурсы');
+        $this->_tarificate(AccountLogResource::tableName(), 'tariff_resource_id', 'date_from', 'date_to', $accountTariffId, $isSplitByMonths = 1);
 
-        // проводки за минимальную плату
+        // Минимальная плата
+        // Транзакции группировать в проводки следующего месяца
         $this->out(PHP_EOL . 'Проводки за минимальную плату');
-        $this->_tarificate(AccountLogMin::tableName(), new Expression((string)AccountEntry::TYPE_ID_MIN), 'date_from', 'date_to', $accountTariffId, $isDefault = 1);
+        $this->_tarificate(AccountLogMin::tableName(), new Expression((string)AccountEntry::TYPE_ID_MIN), 'date_from', 'date_to', $accountTariffId, $isSplitByMonths = 0);
 
         // Расчёт НДС
         $this->out(PHP_EOL . 'Расчёт НДС');
@@ -80,10 +70,10 @@ class AccountEntryTarificator extends Tarificator
      * @param string $dateFieldNameFrom
      * @param string $dateFieldNameTo
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
-     * @param int $isDefault
+     * @param int $isSplitByMonths делить ли на прошлый/будущий месяц
      * @throws \yii\db\Exception
      */
-    private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isDefault)
+    private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isSplitByMonths)
     {
         /** @var Connection $db */
         $db = Yii::$app->db;
@@ -98,38 +88,26 @@ class AccountEntryTarificator extends Tarificator
             $sqlParams[':account_tariff_id'] = $accountTariffId;
         }
 
-        // Костыли в зависимости от таблицы. Иначе надо это еще одним (plain-sql) параметром передавать, а это еще хуже
-        switch ($accountLogTableName) {
-
-            case AccountLogMin::tableName():
-                // минималку в проводку/счет включаем только после истечения периода. Но транзакцию делаем сразу, потом ее корректируем
-                $sqlAndWhere .= ' AND account_log.date_to < DATE_FORMAT(NOW(), "%Y-%m-%d")';
-                break;
-
-            case AccountLogResource::tableName():
-                // Ресурсы: помесячное с 1 числа - за будущий месяц. Все остальное - за прошлый
-                $sqlAndWhere .= " AND DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, '%d') " . ($isDefault ? '!' : '') . "= '01'" . PHP_EOL; // !$isDefault - с 1 числа
-                $sqlAndWhere .= " AND account_log.`{$dateFieldNameTo}` " . ($isDefault ? '' : '!') . "= account_log.`{$dateFieldNameFrom}`" . PHP_EOL; // !$isDefault - помесячно
-                break;
+        if ($isSplitByMonths) {
+            $isNextMonthSql = "(DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, '%d') != '01' OR account_log.`{$dateFieldNameTo}` = account_log.`{$dateFieldNameFrom}`)";
+        } else {
+            $isNextMonthSql = 'true';
         }
 
         // создать пустые проводки
-        // проводки за подключение датируются своей датой
-        // ... за абонентку - если есть проводки за подключение, то своей датой. Иначе 01
-        // ... за ресурсы и минималку - 01
         $this->out('. ');
         $insertSQL = <<<SQL
             INSERT INTO {$accountEntryTableName}
-            (date, account_tariff_id, type_id, price, is_default, tariff_period_id, date_from, date_to)
+            (date, account_tariff_id, type_id, price, is_next_month, tariff_period_id, date_from, date_to)
                 SELECT DISTINCT
-                    DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d")) AS date,
+                    DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, "%Y-%m-01") AS date,
                     account_log.account_tariff_id,
                     {$typeId} as type_id,
                     0 AS price,
-                    IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, 1, 0) AS is_default,
+                    IF(client_account.is_postpaid = 1 OR {$isNextMonthSql}, 1, 0) AS is_next_month,
                     account_log.tariff_period_id,
-                    DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d")) AS date_from,
-                    DATE_FORMAT(account_log.`{$dateFieldNameTo}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d")) AS date_to
+                    account_log.`{$dateFieldNameFrom}` AS date_from,
+                    account_log.`{$dateFieldNameTo}` AS date_to
                 FROM
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
@@ -145,35 +123,6 @@ SQL;
             ->execute();
         unset($insertSQL);
 
-        if (!$isDefault && $accountLogTableName == AccountLogPeriod::tableName()) {
-            // костыль для абонентки
-            // если есть соответствующая проводка за подключение, то должна быть и за абонентку.
-            // а все остальные абонентки включать в базовую (isDefault) проводку
-            // поэтому создаем проводки для всех абоненток, а потом удаляем ненужные (для которых нет соответствующих проводок за подключение). Это гораздо проще, чем сразу создавать только нужные
-            $accountEntryTypeIdSetup = AccountEntry::TYPE_ID_SETUP;
-            $accountEntryTypeIdPeriod = AccountEntry::TYPE_ID_PERIOD;
-            $deleteSQL = <<<SQL
-            DELETE
-                account_entry_period
-            FROM
-                {$accountEntryTableName} account_entry_period
-            LEFT JOIN
-                {$accountEntryTableName} account_entry_setup
-                ON account_entry_setup.type_id = {$accountEntryTypeIdSetup}
-                AND account_entry_setup.is_default = 0
-                AND account_entry_setup.date = account_entry_period.date
-                AND account_entry_setup.account_tariff_id = account_entry_period.account_tariff_id
-            WHERE
-                account_entry_period.type_id = {$accountEntryTypeIdPeriod}
-                AND account_entry_period.is_default = 0
-                AND account_entry_setup.id IS NULL
-SQL;
-            $db->createCommand($deleteSQL, $sqlParams)
-                ->execute();
-            unset($deleteSQL);
-
-        }
-
         // привязать транзакции к проводкам
         $this->out('. ');
         $updateSql = <<<SQL
@@ -186,8 +135,8 @@ SQL;
                 account_log.account_entry_id = account_entry.id
             WHERE
                 account_log.account_entry_id IS NULL
-                AND account_entry.is_default = IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, 1, 0)
-                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, IF(client_account.is_postpaid = 1 OR {$isDefault} = 1, "%Y-%m-01", "%Y-%m-%d"))
+                AND account_entry.is_next_month = IF(client_account.is_postpaid = 1 OR {$isNextMonthSql}, 1, 0)
+                AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, "%Y-%m-01")
                 AND account_entry.type_id = {$typeId}
                 AND account_entry.account_tariff_id = account_log.account_tariff_id
                 AND account_log.account_tariff_id = account_tariff.id

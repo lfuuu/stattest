@@ -12,6 +12,6 @@ return [
     'price_with_vat' => 'Cost with VAT',
 
     'update_time' => 'Update time',
-    'is_default' => 'Monthly',
+    'is_next_month' => 'Next month',
     'bill_id' => 'Bill',
 ];

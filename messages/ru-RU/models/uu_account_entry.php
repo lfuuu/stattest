@@ -12,6 +12,6 @@ return [
     'price_with_vat' => 'Стоимость с НДС, ¤',
 
     'update_time' => 'Время расчёта',
-    'is_default' => 'Ежемесячная',
+    'is_next_month' => 'Следующий месяц',
     'bill_id' => 'Счёт',
 ];
