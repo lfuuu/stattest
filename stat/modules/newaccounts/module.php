@@ -3624,32 +3624,26 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
 
     function GetBillNoFromComment($c)
     {
-        global $db;
+        $isDetected = preg_match('|20\d{4} ?[-/]\d{1,4}(?:-\d+)?|', $c, $m);
+
+        if (!$isDetected) {
+            $isDetected = preg_match('|[12]\d{9}|', $c, $m);
+        }
+
+        if (!$isDetected) {
+            return false;
+        }
+
+        $billNo = str_replace(" ", "", $m[0]);
 
         if (
-            preg_match('|20\d{4} ?[-/]\d{1,4}(?:-\d+)?|', $c, $m)
-            && $db->QuerySelectRow('newbills', [
-                'bill_no' => str_replace(" ", "", $m[0]),
-                'biller_version' => ClientAccount::VERSION_BILLER_USAGE
-            ])
+            Bill::find()
+            ->where(['bill_no' => $billNo])
+            ->exists()
         ) {
-            return str_replace(" ", "", $m[0]);
-        } else {
-            if ($m) {
-                if (substr($m[0], 6, 1) == "/") {
-                    $m[0][6] = "-";
-                } else {
-                    $m[0][6] = "/";
-                }
-                if ($db->QuerySelectRow('newbills', [
-                    'bill_no' => $m[0],
-                    'biller_version' => ClientAccount::VERSION_BILLER_USAGE
-                ])
-                ) {
-                    return $m[0];
-                }
-            }
+            return $billNo;
         }
+
         return false;
     }
 
