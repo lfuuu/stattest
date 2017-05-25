@@ -405,7 +405,7 @@ class AccountTariffResourceLog extends ActiveRecord
         $accountLogFromToResource->dateFrom = new DateTimeImmutable($this->actual_from);
         $accountLogFromToResource->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToResource->dateFrom);
         $accountLogFromToResource->tariffPeriod = $tariffPeriod;
-        $accountLogFromToResource->amount = $this->amount;
+        $accountLogFromToResource->amountOverhead = $this->amount;
         $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $this->resource_id);
         $priceResources = $accountLogResource->price;
 

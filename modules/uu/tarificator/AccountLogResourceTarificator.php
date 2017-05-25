@@ -16,7 +16,7 @@ use DateTimeImmutable;
 use Yii;
 
 /**
- * Предварительное списание (транзакции) платы за ресурсы. Тарификация
+ * Списание (транзакции) платы за ресурсы. Тарификация
  */
 class AccountLogResourceTarificator extends Tarificator
 {
@@ -205,12 +205,14 @@ class AccountLogResourceTarificator extends Tarificator
         $accountLogResource->tariff_period_id = $tariffPeriod->id;
         $accountLogResource->account_tariff_id = $accountTariff->id;
         $accountLogResource->tariff_resource_id = $tariffResource->id;
-        $accountLogResource->amount_use = (float) $accountLogFromToResource->amount;
-        $accountLogResource->amount_free = $tariffResource->amount;
+        $accountLogResource->amount_overhead
+            = $accountLogResource->amount_use
+            = (float)$accountLogFromToResource->amountOverhead;
+        $accountLogResource->amount_free = 0; // В amount_use не всего, а уже превышение, то есть за вычетом бесплатного
         $accountLogResource->price_per_unit = $tariffResource->price_per_unit / $accountLogFromToResource->dateFrom->format('t'); // это "цена за месяц", а надо перевести в "цену за день"
-        $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
         $accountLogResource->coefficient = 1 + (int)$accountLogFromToResource->dateTo->diff($accountLogFromToResource->dateFrom)->days; // кол-во дней между dateTo и dateFrom
         $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit * $accountLogResource->coefficient;
+        $accountLogResource->account_tariff_resource_log_id = $accountLogFromToResource->account_tariff_resource_log_id;
 
         return $accountLogResource;
     }

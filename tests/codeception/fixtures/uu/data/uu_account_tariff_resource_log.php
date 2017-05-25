@@ -70,14 +70,20 @@ return [
         // 4го сразу же подключил годовой тариф
         //
         // 3го с 3го увеличил до 3х линий
-        // 6го с 7го увеличил линии до 5х
+        // 6го с 7го увеличил линии до 6х
         // 6го с 8го уменьшил линии до 2х
-        //
-        // 1го числа - 1 линия по дневному тарифу
-        // 2го числа - 1 линия по месячному тарифу
-        // 3го числа - 3 линии по месячному тарифу
-        // 4го-6го числа - 3 линии по годовому тарифу
-        // 7го числа до конца прошлого месяца, весь этот месяц +10 месяцев - 5 линий по годовому тарифу
+
+        // по дневному тарифу:
+        //      1-1: 1 линия (бесплатно)
+        //      2-2: 1 линия (бесплатно)
+        // по месячному тарифу:
+        //      2-30: 1 линия (бесплатно)
+        //      3-30: +2 линии
+        // по годовому тарифу:
+        //      4-30: 1 линия (бесплатно)
+        //      4-30: +2 линии
+        //      7-30: +3 линии
+        //      повторить 1-30 числа 1+2+2 линии еще 11 месяцев
         'account_tariff_id' => AccountTariff::DELTA + 2,
         'resource_id' => Resource::ID_VPBX_ABONENT,
         'amount' => 1,
@@ -94,7 +100,7 @@ return [
     [
         'account_tariff_id' => AccountTariff::DELTA + 2,
         'resource_id' => Resource::ID_VPBX_ABONENT,
-        'amount' => 5,
+        'amount' => 6,
         'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->modify('+6 days')->format(DateTimeZoneHelper::DATETIME_FORMAT),
         'insert_time' => $dateTimeFirstDayOfPrevMonth->modify('+5 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],

@@ -41,16 +41,16 @@ class AccountLogResourceMonitor extends AccountLogResource implements AccountLog
             self::$logs =
                 $accountTariff->getAccountLogResources()
                     ->select([
-                        'date' => 'date',
+                        'date' => 'date_from',
                         'cnt' => 'COUNT(price)',
                         'cnt_entry' => 'COUNT(account_entry_id)',
                     ])
-                    ->where('date BETWEEN :date_from AND :date_to', [
+                    ->where('date_from BETWEEN :date_from AND :date_to', [
                         ':date_from' => $monthDateTime->modify('first day of this month')->format(DateTimeZoneHelper::DATE_FORMAT),
                         ':date_to' => $monthDateTime->modify('last day of this month')->format(DateTimeZoneHelper::DATE_FORMAT),
                     ])
-                    ->groupBy('date')
-                    ->indexBy('date')
+                    ->groupBy('date_from')
+                    ->indexBy('date_from')
                     ->asArray()
                     ->all();
         }

@@ -23,7 +23,10 @@ class AccountLogFromToResource
     public $tariffPeriod = null;
 
     /** @var float */
-    public $amount = null;
+    public $amountOverhead = null;
+
+    /** @var int */
+    public $account_tariff_resource_log_id = null;
 
     /**
      * Вернуть уникальный Id
@@ -36,6 +39,8 @@ class AccountLogFromToResource
         return
             $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT) .
             '_' .
-            $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
+            $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT).
+            '_' .
+            $this->account_tariff_resource_log_id;
     }
 }

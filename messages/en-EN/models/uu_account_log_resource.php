@@ -14,4 +14,5 @@ return [
     'coefficient' => 'Days',
     'price' => 'Cost',
     'account_entry_id' => 'Entry',
+    'account_tariff_resource_log_id' => 'Amount changing',
 ];

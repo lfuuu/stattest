@@ -23,11 +23,13 @@ use yii\helpers\Url;
  * @property float $price кэш amount_overhead * price_per_unit * $coefficient
  * @property string $insert_time
  * @property int $account_entry_id
+ * @property int $account_tariff_resource_log_id
  *
  * @property AccountTariff $accountTariff
  * @property TariffPeriod $tariffPeriod
  * @property TariffResource $tariffResource
  * @property AccountEntry $accountEntry
+ * @property AccountTariffResourceLog $accountTariffResourceLog
  */
 class AccountLogResource extends ActiveRecord
 {
@@ -87,10 +89,34 @@ class AccountLogResource extends ActiveRecord
     }
 
     /**
+     * @return ActiveQuery
+     */
+    public function getAccountTariffResourceLog()
+    {
+        return $this->hasOne(AccountTariffResourceLog::className(), ['id' => 'account_tariff_resource_log_id']);
+    }
+
+    /**
      * @return string
      */
     public function getUrl()
     {
         return Url::to(['/uu/account-log/resource', 'AccountLogResourceFilter[id]' => $this->id]);
+    }
+
+    /**
+     * Вернуть уникальный Id в пределах account_tariff_id и tariff_resource_id
+     * Поле id хоть и уникальное, но не подходит для поиска нерассчитанных данных при тарификации
+     *
+     * @return string
+     */
+    public function getUniqueId()
+    {
+        return
+            $this->date_from .
+            '_' .
+            $this->date_to.
+            '_' .
+            $this->account_tariff_resource_log_id;
     }
 }

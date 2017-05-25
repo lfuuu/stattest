@@ -2,7 +2,6 @@
 
 namespace app\modules\uu\models\traits;
 
-use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
@@ -123,7 +122,7 @@ trait AccountTariffBillerResourceTrait
         /** @var AccountLogResource $accountLog */
         $accountLogss = [];
         foreach ($accountLogsQuery->each() as $accountLog) {
-            $accountLogss[$accountLog->tariffResource->resource_id][$accountLog->date_from . '_' . $accountLog->date_to] = $accountLog;
+            $accountLogss[$accountLog->tariffResource->resource_id][$accountLog->getUniqueId()] = $accountLog;
         }
 
 
@@ -138,6 +137,7 @@ trait AccountTariffBillerResourceTrait
 
             // Вернуть периоды не более месяца, по которым надо расчитывать списания за смену ресурсов
             $accountLogFromToResources = $this->getAccountLogFromToResources($resource->id);
+            /** @var AccountLogFromToResource $accountLogFromToResource */
             foreach ($accountLogFromToResources as $accountLogFromToResource) {
 
                 $dateFrom = $accountLogFromToResource->dateFrom;
@@ -164,12 +164,8 @@ trait AccountTariffBillerResourceTrait
                         continue;
                     }
 
-                    // Остался неизвестный период, который уже рассчитан
-                    // Это не ошибка. Такое может быть, когда списали ресурс до конца периода, а в середине кол-во увеличилось. Приходится перерасчитывать
-                    // printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
-                    if (!$accountLog->delete()) {
-                        throw new ModelValidationException($accountLog);
-                    }
+                    // остался неизвестный период, который уже рассчитан
+                    printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
                 }
             }
         }
@@ -209,8 +205,9 @@ trait AccountTariffBillerResourceTrait
                 $accountLogFromToResource = new AccountLogFromToResource;
                 $accountLogFromToResource->dateFrom = $dateFrom;
                 $accountLogFromToResource->dateTo = $dateTo;
-                $accountLogFromToResource->amount = $hugeAccountLogFromToResource->amount;
+                $accountLogFromToResource->amountOverhead = $hugeAccountLogFromToResource->amountOverhead;
                 $accountLogFromToResource->tariffPeriod = $hugeAccountLogFromToResource->tariffPeriod;
+                $accountLogFromToResource->account_tariff_resource_log_id = $hugeAccountLogFromToResource->account_tariff_resource_log_id;
 
                 $accountLogFromToResources[] = $accountLogFromToResource;
 
@@ -244,8 +241,8 @@ trait AccountTariffBillerResourceTrait
 
         // лог смены ресурсов
         /** @var ActiveQuery $accountTariffResourceLogsQuery */
-        /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
         $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs($resourceId);
+        /** @var AccountTariffResourceLog[] $accountTariffResourceLogs */
         $accountTariffResourceLogs = $accountTariffResourceLogsQuery
             ->orderBy(
                 [
@@ -255,40 +252,37 @@ trait AccountTariffBillerResourceTrait
             ->all();
 
 
-        // смена тарифов по периодам оплаты (не всегда по месяцам!), чтобы правильно рассчитать срок оплаты ресурса
+        // смена тарифов по периодам оплаты (не всегда по месяцам!)
         if (is_null($this->_accountLogFromToTariffsOption)) {
             // если ресурсов несколько, то выгоднее закэшировать, чем по каждому спрашивать одно и то же
             $this->_accountLogFromToTariffsOption = $this->getAccountLogFromToTariffs($chargePeriodMain = null, $isWithCurrent = true, $isSplitByMonth = false);
-            // если тариф менялся во время действия предыдущего, то диапазоны будут пересекаться
-            // надо сделать непересекающиеся (предыдущий закончить до начала действия последующего)
-            foreach ($this->_accountLogFromToTariffsOption as $i => $accountLogFromToTariff) {
-                if (!$i) {
-                    // перед первым диапазоном нет ничего
-                    continue;
-                }
-
-                if ($this->_accountLogFromToTariffsOption[$i - 1]->dateTo >= $accountLogFromToTariff->dateFrom) {
-                    // тут может получиться from больше to. Это мы проигнорируем позже
-                    $this->_accountLogFromToTariffsOption[$i - 1]->dateTo = $accountLogFromToTariff->dateFrom->modify('-1 day');
-                }
-            }
         }
 
 
         // берем все периоды оплаты. Внутри них находим смены ресурсов и считаем по наибольшему
         foreach ($this->_accountLogFromToTariffsOption as $accountLogFromToTariff) {
+
+            // нужно знать, сколько ресурса включено в тариф. И билинговать только превышение
+            $tariffResources = $accountLogFromToTariff->tariffPeriod->tariff->tariffResourcesIndexedByResourceId;
+            $amountPaid = $tariffResources[$resourceId]->amount;
+
             $dateFromYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
             $dateToYmd = $accountLogFromToTariff->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
-
-            if ($dateFromYmd > $dateToYmd) {
-                // в течение дня несколько раз меняли. В результате получилась фигня, которую надо проигнонрировать в ресурсах (но в абонентке это надо учитывать)
-                continue;
-            }
 
             $prevDateYmd = $dateFromYmd;
             $prevAmount = null;
 
+            // просмотреть предыдущие периоды оплаты ресурсов и исключить из них те, которые произошли уже при этом тарифе
+            // они должны быть пробилингованы по этому тарифу
+            $hugeAccountLogFromToResources = array_filter(
+                $hugeAccountLogFromToResources,
+                function (AccountLogFromToResource $accountLogFromToResource) use ($accountLogFromToTariff) {
+                    return $accountLogFromToResource->dateFrom < $accountLogFromToTariff->dateFrom;
+                }
+            );
+
             // по всем сменам ресурсов
+            $accountTariffResourceLogPrev = null;
             foreach ($accountTariffResourceLogs as $accountTariffResourceLog) {
 
                 $actualFromYmd = $accountTariffResourceLog->actual_from;
@@ -296,6 +290,7 @@ trait AccountTariffBillerResourceTrait
                 if ($actualFromYmd <= $dateFromYmd) {
                     // до
                     $prevAmount = $accountTariffResourceLog->amount;
+                    $accountTariffResourceLogPrev = $accountTariffResourceLog;
                     continue;
                 }
 
@@ -317,21 +312,23 @@ trait AccountTariffBillerResourceTrait
                     throw new \LogicException('Начальное значение ресурса ' . $resourceId . ' не инициализировано. AccountTariffId = ' . $this->id);
                 }
 
-                // от предыдущего увеличения (или начала периода) до текущего увеличения
-                $hugeAccountLogFromToResource = new AccountLogFromToResource;
-                $hugeAccountLogFromToResource->dateFrom = new DateTimeImmutable($prevDateYmd);
-                $hugeAccountLogFromToResource->dateTo = (new DateTimeImmutable($actualFromYmd))->modify('-1 day');
-                $hugeAccountLogFromToResource->amount = $prevAmount;
-                $hugeAccountLogFromToResource->tariffPeriod = $accountLogFromToTariff->tariffPeriod;
-
-                if ($hugeAccountLogFromToResource->dateFrom <= $hugeAccountLogFromToResource->dateTo) {
-                    // если в течение дня меняли несколько раз, то учитывать только максимальное
+                // от предыдущего увеличения (или начала периода) до конца периода
+                if ($prevAmount > $amountPaid) {
+                    $hugeAccountLogFromToResource = new AccountLogFromToResource;
+                    $hugeAccountLogFromToResource->dateFrom = new DateTimeImmutable($prevDateYmd);
+                    $hugeAccountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;
+                    $hugeAccountLogFromToResource->amountOverhead = $prevAmount - $amountPaid;
+                    $hugeAccountLogFromToResource->tariffPeriod = $accountLogFromToTariff->tariffPeriod;
+                    $hugeAccountLogFromToResource->account_tariff_resource_log_id = $accountTariffResourceLogPrev->id;
                     $hugeAccountLogFromToResources[] = $hugeAccountLogFromToResource;
+
+                    $amountPaid = $prevAmount;
                 }
 
                 // следущее списание будет с этой даты
                 $prevDateYmd = $actualFromYmd;
                 $prevAmount = $accountTariffResourceLog->amount;
+                $accountTariffResourceLogPrev = $accountTariffResourceLog;
             }
 
             if (null === $prevAmount) {
@@ -339,13 +336,15 @@ trait AccountTariffBillerResourceTrait
             }
 
             // от предыдущего увеличения (или начала периода) до конца периода
-            $hugeAccountLogFromToResource = new AccountLogFromToResource;
-            $hugeAccountLogFromToResource->dateFrom = new DateTimeImmutable($prevDateYmd);
-            $hugeAccountLogFromToResource->dateTo = (new DateTimeImmutable($dateToYmd));
-            $hugeAccountLogFromToResource->amount = $prevAmount;
-            $hugeAccountLogFromToResource->tariffPeriod = $accountLogFromToTariff->tariffPeriod;
-
-            $hugeAccountLogFromToResources[] = $hugeAccountLogFromToResource;
+            if ($prevAmount > $amountPaid) {
+                $hugeAccountLogFromToResource = new AccountLogFromToResource;
+                $hugeAccountLogFromToResource->dateFrom = new DateTimeImmutable($prevDateYmd);
+                $hugeAccountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;
+                $hugeAccountLogFromToResource->amountOverhead = $prevAmount - $amountPaid;
+                $hugeAccountLogFromToResource->tariffPeriod = $accountLogFromToTariff->tariffPeriod;
+                $hugeAccountLogFromToResource->account_tariff_resource_log_id = $accountTariffResourceLogPrev->id;
+                $hugeAccountLogFromToResources[] = $hugeAccountLogFromToResource;
+            }
         }
 
         return $hugeAccountLogFromToResources;

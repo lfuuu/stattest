@@ -70,15 +70,6 @@ trait AccountTariffBillerPeriodTrait
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
             printf(PHP_EOL . 'Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
-
-            /*
-                foreach ($accountLogs as $accountLog) {
-                    if (!$accountLog->delete()) {
-                        throw new ModelValidationException($accountLog);
-                    };
-                }
-            */
-
         }
 
         return $untarificatedPeriods;

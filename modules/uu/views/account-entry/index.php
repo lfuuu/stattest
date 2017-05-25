@@ -150,7 +150,8 @@ $accountTariffTableName = AccountTariff::tableName();
                     $htmlArray[] = (
                         ($accountEntry->type_id == AccountEntry::TYPE_ID_SETUP) ?
                             Yii::$app->formatter->asDate($accountLog->date, 'php:j M') . ': ' :
-                            Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-' .
+
+                            ($accountLog->date_from == $accountLog->date_to ? '' : Yii::$app->formatter->asDate($accountLog->date_from, 'php:j') . '-') .
                             Yii::$app->formatter->asDate($accountLog->date_to, 'php:j M') . ': '
                         ) .
                         Html::a(sprintf('%.2f', $accountLog->price), $accountLog->getUrl());

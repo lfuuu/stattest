@@ -14,4 +14,5 @@ return [
     'coefficient' => 'Количество суток',
     'price' => 'Стоимость, ¤',
     'account_entry_id' => 'Проводка',
+    'account_tariff_resource_log_id' => 'Смена количества',
 ];

@@ -372,7 +372,7 @@ class BillDao extends Singleton
                 $line->price = round($line->price, 2);
             }
 
-            $line->tax_rate = $accountEntry->vat;
+            $line->tax_rate = $accountEntry->vat_rate;
             $line->sum = $accountEntry->price_with_vat;
             $line->sum_without_tax = $accountEntry->price_without_vat;
             $line->sum_tax = $accountEntry->vat;

@@ -67,10 +67,11 @@ class TariffPeriod extends HistoryActiveRecord
     {
         $tariff = $this->tariff;
         return sprintf(
-            '%s %d %s',
+            '%s %d %s %s',
             $tariff->name,
             $this->price_per_period,
-            $tariff->currency->symbol
+            $tariff->currency->symbol,
+            $this->chargePeriod->name
         );
     }
 

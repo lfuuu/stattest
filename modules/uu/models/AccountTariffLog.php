@@ -403,7 +403,7 @@ class AccountTariffLog extends ActiveRecord
             $accountLogFromToResource->dateFrom = $accountLogFromToTariff->dateFrom;
             $accountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;
             $accountLogFromToResource->tariffPeriod = $tariffPeriod;
-            $accountLogFromToResource->amount = (float)$accountTariff->getResourceValue($tariffResource->resource_id); // текущее кол-во ресурса может быть null, если услуга только создается
+            $accountLogFromToResource->amountOverhead = (float)$accountTariff->getResourceValue($tariffResource->resource_id); // текущее кол-во ресурса может быть null, если услуга только создается
 
             $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $tariffResource->resource_id);
             $priceResources += $accountLogResource->price;

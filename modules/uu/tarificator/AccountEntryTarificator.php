@@ -46,65 +46,24 @@ class AccountEntryTarificator extends Tarificator
     {
         // проводки за подключение
         $this->out('Проводки за подключение');
-        $this->_tarificate(
-            AccountLogSetup::tableName(),
-            new Expression((string)AccountEntry::TYPE_ID_SETUP),
-            'date',
-            'date',
-            $accountTariffId,
-            $isDefault = 0
-        );
+        $this->_tarificate(AccountLogSetup::tableName(), new Expression((string)AccountEntry::TYPE_ID_SETUP), 'date', 'date', $accountTariffId, $isDefault = 0);
+
 
         // проводки за абоненскую плату
         // сначала с !$isDefault, потом с $isDefault
         $this->out(PHP_EOL . 'Проводки за абоненскую плату');
-        $this->_tarificate(
-            AccountLogPeriod::tableName(),
-            new Expression((string)AccountEntry::TYPE_ID_PERIOD),
-            'date_from',
-            'date_to',
-            $accountTariffId,
-            $isDefault = 0
-        );
-        $this->_tarificate(
-            AccountLogPeriod::tableName(),
-            new Expression((string)AccountEntry::TYPE_ID_PERIOD),
-            'date_from',
-            'date_to',
-            $accountTariffId,
-            $isDefault = 1
-        );
+        $this->_tarificate(AccountLogPeriod::tableName(), new Expression((string)AccountEntry::TYPE_ID_PERIOD), 'date_from', 'date_to', $accountTariffId, $isDefault = 0);
+        $this->_tarificate(AccountLogPeriod::tableName(), new Expression((string)AccountEntry::TYPE_ID_PERIOD), 'date_from', 'date_to', $accountTariffId, $isDefault = 1);
 
         // проводки за ресурсы
-        $this->out(PHP_EOL . 'Проводки за ресурсы');
-        $this->_tarificate(
-            AccountLogResource::tableName(),
-            'tariff_resource_id',
-            'date_from',
-            'date_to',
-            $accountTariffId,
-            $isDefault = 1 // ресурсы-трафик
-        );
-        $this->out(PHP_EOL . 'Проводки за ресурсы');
-        $this->_tarificate(
-            AccountLogResource::tableName(),
-            'tariff_resource_id',
-            'date_from',
-            'date_to',
-            $accountTariffId,
-            $isDefault = 0 // ресурсы-опции
-        );
+        $this->out(PHP_EOL . 'Проводки за ресурсы-трафик помесячно');
+        $this->_tarificate(AccountLogResource::tableName(), 'tariff_resource_id', 'date_from', 'date_to', $accountTariffId, $isDefault = 1);
+        $this->out(PHP_EOL . 'Проводки за остальные ресурсы');
+        $this->_tarificate(AccountLogResource::tableName(), 'tariff_resource_id', 'date_from', 'date_to', $accountTariffId, $isDefault = 0);
 
         // проводки за минимальную плату
         $this->out(PHP_EOL . 'Проводки за минимальную плату');
-        $this->_tarificate(
-            AccountLogMin::tableName(),
-            new Expression((string)AccountEntry::TYPE_ID_MIN),
-            'date_from',
-            'date_to',
-            $accountTariffId,
-            $isDefault = 1
-        );
+        $this->_tarificate(AccountLogMin::tableName(), new Expression((string)AccountEntry::TYPE_ID_MIN), 'date_from', 'date_to', $accountTariffId, $isDefault = 1);
 
         // Расчёт НДС
         $this->out(PHP_EOL . 'Расчёт НДС');
@@ -131,10 +90,9 @@ class AccountEntryTarificator extends Tarificator
         $accountEntryTableName = AccountEntry::tableName();
         $accountTariffTableName = AccountTariff::tableName();
         $clientAccountTableName = ClientAccount::tableName();
-        $tariffResourceTableName = TariffResource::tableName();
         $sqlParams = [];
 
-        $sqlAndWhere = $sqlJoin = '';
+        $sqlAndWhere = '';
         if ($accountTariffId) {
             $sqlAndWhere .= ' AND account_log.account_tariff_id = :account_tariff_id';
             $sqlParams[':account_tariff_id'] = $accountTariffId;
@@ -149,16 +107,9 @@ class AccountEntryTarificator extends Tarificator
                 break;
 
             case AccountLogResource::tableName():
-                // Ресурсы. Ресурсы-опции добавлять в счет за будущий месяц, ресурсы-трафик - за прошлый
-                $sqlJoin .= ', ' . $tariffResourceTableName;
-                $readerNames = Resource::getReaderNames();
-                if (!$readerNames) {
-                    $readerNames = [0]; // чтобы SQL был валидным
-                }
-
-                $sqlInTmp = implode(', ', array_keys($readerNames));
-                $sqlAndWhere .= " AND account_log.tariff_resource_id = {$tariffResourceTableName}.id AND {$tariffResourceTableName}.resource_id " . ($isDefault ? '' : 'NOT') . " IN ({$sqlInTmp})";
-                unset($readerNames, $sqlInTmp);
+                // Ресурсы: помесячное с 1 числа - за будущий месяц. Все остальное - за прошлый
+                $sqlAndWhere .= " AND DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, '%d') " . ($isDefault ? '!' : '') . "= '01'" . PHP_EOL; // !$isDefault - с 1 числа
+                $sqlAndWhere .= " AND account_log.`{$dateFieldNameTo}` " . ($isDefault ? '' : '!') . "= account_log.`{$dateFieldNameFrom}`" . PHP_EOL; // !$isDefault - помесячно
                 break;
         }
 
@@ -183,7 +134,6 @@ class AccountEntryTarificator extends Tarificator
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
                     {$clientAccountTableName} client_account
-                    {$sqlJoin}
                 WHERE
                     account_log.account_entry_id IS NULL
                     AND account_log.account_tariff_id = account_tariff.id
@@ -232,7 +182,6 @@ SQL;
                 {$accountLogTableName} account_log,
                 {$accountTariffTableName} account_tariff,
                 {$clientAccountTableName} client_account
-                {$sqlJoin}
             SET
                 account_log.account_entry_id = account_entry.id
             WHERE
@@ -264,7 +213,6 @@ SQL;
                     {$accountLogTableName} account_log,
                     {$accountTariffTableName} account_tariff,
                     {$clientAccountTableName} client_account
-                    {$sqlJoin}
                 WHERE
                     account_log.account_tariff_id = account_tariff.id
                     AND account_tariff.client_account_id = client_account.id

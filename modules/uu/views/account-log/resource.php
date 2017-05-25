@@ -81,6 +81,17 @@ $columns = [
         'class' => FloatRangeColumn::className(),
     ],
     [
+        'attribute' => 'account_tariff_resource_log_id',
+        'value' => function (AccountLogResource $accountLogResource) {
+            if (!$accountLogResource->account_tariff_resource_log_id) {
+                return '';
+            }
+
+            $accountTariffResourceLog = $accountLogResource->accountTariffResourceLog;
+            return $accountTariffResourceLog->amount . ' / ' . $accountTariffResourceLog->actual_from;
+        },
+    ],
+    [
         'attribute' => 'amount_free',
         'class' => FloatRangeColumn::className(),
     ],
