@@ -1,17 +1,13 @@
 <?php
+
 namespace app\controllers\tariff;
 
 use app\classes\BaseController;
-use app\dao\DidGroupDao;
 use app\forms\tariff\DidGroupFormEdit;
 use app\forms\tariff\DidGroupFormNew;
-use app\models\City;
-use app\models\Country;
 use app\models\DidGroup;
 use app\models\filter\DidGroupFilter;
-use app\models\Number;
 use Yii;
-use yii\db\Expression;
 use yii\filters\AccessControl;
 
 class DidGroupController extends BaseController
@@ -38,35 +34,33 @@ class DidGroupController extends BaseController
      * Список
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
     {
         $filterModel = new DidGroupFilter();
         $filterModel->load(Yii::$app->request->getQueryParams());
 
-        return $this->render('index', [
-            'filterModel' => $filterModel,
-        ]);
+        return $this->render('index', ['filterModel' => $filterModel]);
     }
 
     /**
      * Создать
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionNew()
     {
-        /** @var DidGroupFormNew $form */
-        $form = new DidGroupFormNew();
+        /** @var DidGroupFormNew $formModel */
+        $formModel = new DidGroupFormNew();
 
-        if ($form->isSaved) {
+        if ($formModel->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $form,
-            ]);
         }
+
+        return $this->render('edit', ['formModel' => $formModel]);
     }
 
     /**
@@ -74,33 +68,31 @@ class DidGroupController extends BaseController
      *
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionEdit($id)
     {
-        /** @var DidGroupFormEdit $form */
-        $form = new DidGroupFormEdit([
-            'id' => $id
-        ]);
+        /** @var DidGroupFormEdit $formModel */
+        $formModel = new DidGroupFormEdit(['id' => $id]);
 
-        if ($form->isSaved) {
-            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
+        if ($formModel->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', $formModel->id ? 'The object was saved successfully' : 'The object was dropped successfully'));
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $form,
-            ]);
         }
+
+        return $this->render('edit', ['formModel' => $formModel]);
     }
 
     /**
      * Назаначение DID-групп к номерам
+     *
+     * @throws \Exception
      */
     public function actionApply()
     {
         DidGroup::dao()->applyDidGroupToNumbers();
 
         Yii::$app->session->addFlash('success', \Yii::t('number', 'The DID-group scheme is applied to the numbers'));
-
         return $this->redirect('/tariff/did-group/');
     }
 

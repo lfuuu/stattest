@@ -1,9 +1,9 @@
 <?php
+
 namespace app\models;
 
 use app\dao\DidGroupDao;
 use yii\db\ActiveRecord;
-use yii\db\Query;
 use yii\helpers\Url;
 
 /**
@@ -13,6 +13,7 @@ use yii\helpers\Url;
  * @property int $country_code
  * @property int $city_id
  * @property int $ndc_type_id
+ *
  * @property float $price1
  * @property float $price2
  * @property float $price3
@@ -22,6 +23,29 @@ use yii\helpers\Url;
  * @property float $price7
  * @property float $price8
  * @property float $price9
+ *
+ * @property float $tariff_status_main1
+ * @property float $tariff_status_main2
+ * @property float $tariff_status_main3
+ * @property float $tariff_status_main4
+ * @property float $tariff_status_main5
+ * @property float $tariff_status_main6
+ * @property float $tariff_status_main7
+ * @property float $tariff_status_main8
+ * @property float $tariff_status_main9
+ *
+ * @property float $tariff_status_package1
+ * @property float $tariff_status_package2
+ * @property float $tariff_status_package3
+ * @property float $tariff_status_package4
+ * @property float $tariff_status_package5
+ * @property float $tariff_status_package6
+ * @property float $tariff_status_package7
+ * @property float $tariff_status_package8
+ * @property float $tariff_status_package9
+ *
+ * @property float tariff_status_beauty
+ *
  * @property float $comment
  *
  * @property City $city
@@ -58,24 +82,24 @@ class DidGroup extends ActiveRecord
      */
     public function attributeLabels()
     {
-        return [
+        $labels = [
             'id' => 'ID',
             'country_code' => 'Страна',
             'city_id' => 'Город',
             'name' => 'Название',
             'beauty_level' => 'Красивость',
             'ndc_type_id' => 'Тип номера',
-            'price1' => 'Цена 1',
-            'price2' => 'Цена 2',
-            'price3' => 'Цена 3',
-            'price4' => 'Цена 4',
-            'price5' => 'Цена 5',
-            'price6' => 'Цена 6',
-            'price7' => 'Цена 7',
-            'price8' => 'Цена 8',
-            'price9' => 'Цена 9',
             'comment' => 'Комментарий для пользователя',
+            'tariff_status_beauty' => 'Пакет за красивость',
         ];
+
+        for ($i = 1; $i <= 9; $i++) {
+            $labels['price' . $i] = 'Цена ' . $i;
+            $labels['tariff_status_main' . $i] = 'Тариф ' . $i;
+            $labels['tariff_status_package' . $i] = 'Пакет ' . $i;
+        }
+
+        return $labels;
     }
 
     /**
@@ -83,12 +107,20 @@ class DidGroup extends ActiveRecord
      */
     public function rules()
     {
-        return [
-            [['name','comment'], 'string'],
+        $rules = [
+            [['name', 'comment'], 'string'],
             [['beauty_level', 'city_id', 'ndc_type_id', 'country_code'], 'integer'],
             [['name', 'beauty_level', 'country_code', 'ndc_type_id'], 'required'],
-            [['price1', 'price2', 'price3', 'price4', 'price5', 'price6', 'price7', 'price8', 'price9'], 'number'],
+            ['tariff_status_beauty', 'number'],
         ];
+
+        for ($i = 1; $i <= 9; $i++) {
+            $rules[] = ['price' . $i, 'number'];
+            $rules[] = ['tariff_status_main' . $i, 'number'];
+            $rules[] = ['tariff_status_package' . $i, 'number'];
+        }
+
+        return $rules;
     }
 
     /**
@@ -155,6 +187,7 @@ class DidGroup extends ActiveRecord
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function getUrl()
     {
@@ -164,6 +197,7 @@ class DidGroup extends ActiveRecord
     /**
      * @param integer $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public static function getUrlById($id)
     {

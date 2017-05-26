@@ -12,6 +12,7 @@ use app\models\City;
 use app\models\Country;
 use app\models\DidGroup;
 use app\modules\nnp\models\NdcType;
+use app\modules\uu\models\TariffStatus;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -108,12 +109,39 @@ if (!$didGroup->isNewRecord) {
     </div>
 
     <div class="row">
-        <?php for ($i = 1; $i <= 9; $i++) : ?>
-            <div class="col-sm-1">
-                <?= $form->field($didGroup, 'price' . $i)->input('number', ['step' => 0.01]) ?>
-            </div>
-        <?php endfor; ?>
+        <div class="col-sm-2 col-sm-offset-1"><label>Цена</label></div>
+        <div class="col-sm-3"><label>Тариф</label></div>
+        <div class="col-sm-3"><label>Пакет</label></div>
+        <div class="col-sm-3"><label>Пакет за красивость</label></div>
     </div>
+
+    <?php for ($i = 1; $i <= 9; $i++) : ?>
+        <div class="row">
+            <div class="col-sm-1">
+                Уровень <?= $i ?>
+            </div>
+            <div class="col-sm-2">
+                <?= $form->field($didGroup, 'price' . $i)->input('number', ['step' => 0.01])->label(false) ?>
+            </div>
+            <div class="col-sm-3">
+                <?= $form->field($didGroup, 'tariff_status_main' . $i)
+                    ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
+                    ->label(false) ?>
+            </div>
+            <div class="col-sm-3">
+                <?= $form->field($didGroup, 'tariff_status_package' . $i)
+                    ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
+                    ->label(false) ?>
+            </div>
+            <div class="col-sm-3">
+                <?= $i==1 ?
+                    $form->field($didGroup, 'tariff_status_beauty')
+                        ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
+                        ->label(false) :
+                    '' ?>
+            </div>
+        </div>
+    <?php endfor; ?>
 
 
     <?php // кнопки ?>
