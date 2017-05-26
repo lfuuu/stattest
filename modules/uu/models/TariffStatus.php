@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use yii\db\ActiveQuery;
+use yii\helpers\Url;
 
 /**
  * Статусы тарифа (публичный, специальный, архивный и пр.)
@@ -52,7 +53,7 @@ class TariffStatus extends \yii\db\ActiveRecord
         return [
             [['id', 'service_type_id'], 'integer'],
             [['name'], 'string'],
-            [['name', 'service_type_id'], 'required'],
+            [['name'], 'required'],
         ];
     }
 
@@ -91,5 +92,24 @@ class TariffStatus extends \yii\db\ActiveRecord
     public function getServiceType()
     {
         return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+    }
+
+    /**
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/uu/tariff-status/edit', 'id' => $id]);
     }
 }

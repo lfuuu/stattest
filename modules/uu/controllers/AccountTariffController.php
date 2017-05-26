@@ -72,12 +72,7 @@ class AccountTariffController extends BaseController
         $filterModel = new AccountTariffFilter($serviceTypeId);
         $this->_addClientAccountFilter($filterModel);
 
-        return $this->render(
-            'index',
-            [
-                'filterModel' => $filterModel,
-            ]
-        );
+        return $this->render('index', ['filterModel' => $filterModel]);
     }
 
     /**
@@ -90,44 +85,26 @@ class AccountTariffController extends BaseController
     public function actionNew($serviceTypeId)
     {
         $this->_checkNonPackage($serviceTypeId);
+        $formModel = new AccountTariffAddForm(['serviceTypeId' => $serviceTypeId]);
 
-        $formModel = new AccountTariffAddForm(
-            [
-                'serviceTypeId' => $serviceTypeId,
-            ]
-        );
-
-        if ($formModel->isSaved) {
-
-            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
-
-            if ($formModel->id) {
-                // добавили одного - на его карточку
-                return $this->redirect(
-                    [
-                        'edit',
-                        'id' => $formModel->id,
-                    ]
-                );
-            } else {
-                // добавили мульти - на их список
-                return $this->redirect(
-                    [
-                        'index',
-                        'serviceTypeId' => $serviceTypeId,
-                        'AccountTariffFilter[client_account_id]' => $formModel->clientAccountId,
-                    ]
-                );
-            }
-        } else {
-            return $this->render(
-                'edit',
-                [
-                    'formModel' => $formModel,
-                ]
-            );
+        if (!$formModel->isSaved) {
+            return $this->render('edit', ['formModel' => $formModel]);
         }
 
+        Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
+        if ($formModel->id) {
+            // добавили одного - на его карточку
+            return $this->redirect(['edit', 'id' => $formModel->id]);
+        }
+
+        // добавили мульти - на их список
+        return $this->redirect(
+            [
+                'index',
+                'serviceTypeId' => $serviceTypeId,
+                'AccountTariffFilter[client_account_id]' => $formModel->clientAccountId,
+            ]
+        );
     }
 
     /**
@@ -140,38 +117,23 @@ class AccountTariffController extends BaseController
     public function actionEdit($id)
     {
         try {
-            $formModel = new AccountTariffEditForm(
-                [
-                    'id' => $id,
-                ]
-            );
+            $formModel = new AccountTariffEditForm(['id' => $id]);
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
+            return $this->render('//layouts/empty', ['content' => '']);
+        }
 
-            return $this->render(
-                '//layouts/empty',
-                [
-                    'content' => '',
-                ]
-            );
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
         }
 
         if ($formModel->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
-            return $this->redirect(
-                [
-                    'edit',
-                    'id' => $formModel->id,
-                ]
-            );
-        } else {
-            return $this->render(
-                'edit',
-                [
-                    'formModel' => $formModel,
-                ]
-            );
+            return $this->redirect(['edit', 'id' => $formModel->id]);
         }
+
+        return $this->render('edit', ['formModel' => $formModel]);
     }
 
     /**
@@ -189,18 +151,8 @@ class AccountTariffController extends BaseController
 
         try {
             $formModel = $id ?
-                // редактировать телефонию или пакет телефонии
-                new AccountTariffEditForm(
-                    [
-                        'id' => $id,
-                    ]
-                ) :
-                // добавить пакет телефонии
-                new AccountTariffAddForm(
-                    [
-                        'serviceTypeId' => $serviceTypeId,
-                    ]
-                );
+                new AccountTariffEditForm(['id' => $id]) : // редактировать телефонию или пакет телефонии
+                new AccountTariffAddForm(['serviceTypeId' => $serviceTypeId]); // добавить пакет телефонии
 
             $cityId = (int)$cityId;
             if ($cityId && !$formModel->accountTariff->city_id) {
@@ -210,20 +162,10 @@ class AccountTariffController extends BaseController
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
 
-            return $this->render(
-                '//layouts/empty',
-                [
-                    'content' => '',
-                ]
-            );
+            return $this->render('//layouts/empty', ['content' => '']);
         }
 
-        return $this->render(
-            'editVoip',
-            [
-                'formModel' => $formModel,
-            ]
-        );
+        return $this->render('editVoip', ['formModel' => $formModel]);
     }
 
     /**

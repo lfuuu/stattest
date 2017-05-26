@@ -6,13 +6,13 @@
 namespace app\modules\uu\controllers;
 
 use app\classes\BaseController;
-use app\modules\uu\filter\ServiceTypeFilter;
-use app\modules\uu\forms\ServiceTypeEditForm;
+use app\modules\uu\filter\TariffStatusFilter;
+use app\modules\uu\forms\TariffStatusAddForm;
+use app\modules\uu\forms\TariffStatusEditForm;
 use Yii;
 use yii\filters\AccessControl;
 
-
-class ServiceTypeController extends BaseController
+class TariffStatusController extends BaseController
 {
     /**
      * Права доступа
@@ -48,10 +48,40 @@ class ServiceTypeController extends BaseController
      */
     public function actionIndex()
     {
-        $filterModel = new ServiceTypeFilter();
+        $filterModel = new TariffStatusFilter();
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', ['filterModel' => $filterModel]);
+    }
+
+    /**
+     * Создать
+     *
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionNew()
+    {
+        try {
+            /** @var TariffStatusAddForm $formModel */
+            $formModel = new TariffStatusAddForm();
+        } catch (\InvalidArgumentException $e) {
+            Yii::$app->session->setFlash('error', $e->getMessage());
+
+            return $this->render('//layouts/empty', ['content' => '']);
+        }
+
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
+
+        if ($formModel->isSaved) {
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
+            return $this->redirect(['index']);
+        }
+
+        return $this->render('edit', ['formModel' => $formModel]);
     }
 
     /**
@@ -64,10 +94,11 @@ class ServiceTypeController extends BaseController
     public function actionEdit($id)
     {
         try {
-            /** @var ServiceTypeEditForm $formModel */
-            $formModel = new ServiceTypeEditForm(['id' => $id]);
+            /** @var TariffStatusEditForm $formModel */
+            $formModel = new TariffStatusEditForm(['id' => $id]);
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
+
             return $this->render('//layouts/empty', ['content' => '']);
         }
 
@@ -82,6 +113,5 @@ class ServiceTypeController extends BaseController
         }
 
         return $this->render('edit', ['formModel' => $formModel]);
-
     }
 }

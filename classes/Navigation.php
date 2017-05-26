@@ -354,21 +354,22 @@ class Navigation
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
+                ->addItem(Yii::t('tariff', 'Tariff statuses'), ['/uu/tariff-status'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Service types'), ['/uu/service-type'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Setup tariffication'), ['/uu/account-log/setup'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Period tariffication'), ['/uu/account-log/period'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Resource tariffication'), ['/uu/account-log/resource'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Min resource tariffication'), ['/uu/account-log/min'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Account entries'), ['/uu/account-entry'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Bills'), ['/uu/bill'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Invoice'), ['/uu/invoice/view'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Balance'), ['/uu/balance/view'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Monitoring'), [
                     '/uu/monitor',
                     'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
                     'AccountLogMonitorFilter[month]' => date('Y-m'),
                 ],
                     ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Account entries'), ['/uu/account-entry'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Bills'), ['/uu/bill'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Invoice'), ['/uu/invoice/view'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Balance'), ['/uu/balance/view'], ['newaccounts_balance.read'])
         );
     }
 

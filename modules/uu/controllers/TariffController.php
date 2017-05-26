@@ -58,12 +58,7 @@ class TariffController extends BaseController
         $filterModel = new TariffFilter($serviceTypeId);
         $filterModel->load(Yii::$app->request->get());
 
-        return $this->render(
-            'index',
-            [
-                'filterModel' => $filterModel,
-            ]
-        );
+        return $this->render('index', ['filterModel' => $filterModel]);
     }
 
     /**
@@ -77,29 +72,19 @@ class TariffController extends BaseController
     public function actionNew($serviceTypeId, $countryId = null)
     {
         /** @var TariffAddForm $formModel */
-        $formModel = new TariffAddForm(
-            [
-                'serviceTypeId' => $serviceTypeId,
-                'countryId' => $countryId,
-            ]
-        );
+        $formModel = new TariffAddForm(['serviceTypeId' => $serviceTypeId, 'countryId' => $countryId]);
+
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        }
 
         if ($formModel->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
-            return $this->redirect(
-                [
-                    'edit',
-                    'id' => $formModel->id,
-                ]
-            );
+            return $this->redirect(['edit', 'id' => $formModel->id]);
         }
 
-        return $this->render(
-            'edit',
-            [
-                'formModel' => $formModel,
-            ]
-        );
+        return $this->render('edit', ['formModel' => $formModel]);
     }
 
     /**
@@ -113,53 +98,28 @@ class TariffController extends BaseController
     {
         try {
             /** @var TariffEditForm $formModel */
-            $formModel = new TariffEditForm(
-                [
-                    'id' => $id
-                ]
-            );
+            $formModel = new TariffEditForm(['id' => $id]);
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
 
-            return $this->render(
-                '//layouts/empty',
-                [
-                    'content' => '',
-                ]
-            );
+            return $this->render('//layouts/empty', ['content' => '']);
+        }
+
+        // сообщение об ошибке
+        if ($formModel->validateErrors) {
+            Yii::$app->session->setFlash('error', $formModel->validateErrors);
         }
 
         if ($formModel->isSaved) {
-
             if ($formModel->id) {
-
                 Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
-                return $this->redirect(
-                    [
-                        'edit',
-                        'id' => $formModel->id,
-                    ]
-                );
-
-            } else {
-
-                Yii::$app->session->setFlash('success', Yii::t('common', 'The object was dropped successfully'));
-                return $this->redirect(
-                    [
-                        'index',
-                        'serviceTypeId' => $formModel->tariff->service_type_id,
-                    ]
-                );
-
+                return $this->redirect(['edit', 'id' => $formModel->id]);
             }
+
+            Yii::$app->session->setFlash('success', Yii::t('common', 'The object was dropped successfully'));
+            return $this->redirect(['index', 'serviceTypeId' => $formModel->tariff->service_type_id]);
         }
 
-        return $this->render(
-            'edit',
-            [
-                'formModel' => $formModel,
-            ]
-        );
-
+        return $this->render('edit', ['formModel' => $formModel]);
     }
 }
