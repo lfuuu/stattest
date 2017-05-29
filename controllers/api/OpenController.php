@@ -2,9 +2,20 @@
 
 namespace app\controllers\api;
 
+use app\exceptions\ModelValidationException;
+use app\models\ClientAccount;
+use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Resource;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPerson;
+use app\modules\uu\models\TariffResource;
+use app\modules\uu\models\TariffVoipCity;
+use HttpException;
 use Yii;
 use yii\web\Controller;
 
@@ -14,6 +25,8 @@ final class OpenController extends Controller
     const FREE_NUMBERS_PREVIEW_MODE = 4;
 
     public $enableCsrfValidation = false;
+
+    private $_defaultTariffCache = [];
 
     /**
      * Инициализация
@@ -55,6 +68,15 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "numbers", type = "array", description = "Номер", @SWG\Items(ref = "#/definitions/freeNumberRecord")),
      * ),
      *
+     * @SWG\Definition(definition = "voipDefaultPackageRecord", type = "object",
+     *   @SWG\Property(property = "name", type = "string", description = "Название"),
+     *   @SWG\Property(property = "price_per_period", type = "float", description = "Абонентская плата за месяц"),
+     *   @SWG\Property(property = "lines", type = "integer", description = "Количество линий, включенных в пакет"),
+     *   @SWG\Property(property = "line_price", type = "float", description = "Плата за доп. канал за месяц"),
+     *   @SWG\Property(property = "call_price1", type = "float", description = "Цена1 за минуту"),
+     *   @SWG\Property(property = "call_price2", type = "float", description = "Цена2 за минуту"),
+     * ),
+     *
      * @SWG\Definition(definition = "freeNumberRecord", type = "object",
      *   @SWG\Property(property = "number", type = "string", description = "Номер"),
      *   @SWG\Property(property = "beauty_level", type = "integer", description = "Уровень красоты"),
@@ -70,7 +92,8 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "ndc", type = "integer", description = "NDC"),
      *   @SWG\Property(property = "number_subscriber", type = "integer", description = "Номер без префикса и NDC"),
      *   @SWG\Property(property = "common_ndc", type = "integer", description = "Общепринятый NDC"),
-     *   @SWG\Property(property = "common_number_subscriber", type = "integer", description = "Общепринятый местный номер")
+     *   @SWG\Property(property = "common_number_subscriber", type = "integer", description = "Общепринятый местный номер"),
+     *   @SWG\Property(property = "default_tariff", type = "object", description = "Дефолтный пакет", ref = "#/definitions/voipDefaultPackageRecord")
      * ),
      *
      * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers-by-filter", summary = "Выбрать список свободных номеров", operationId = "getFreeNumbersByFilter",
@@ -92,6 +115,8 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name = "ndc", type = "integer", description = "NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "excludeNdcs[0]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
+     *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Выбрать список свободных номеров", @SWG\Definition(ref = "#/definitions/freeNumberRecords")),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
@@ -112,7 +137,9 @@ final class OpenController extends Controller
      * @param string $similar
      * @param int $ndc
      * @param int|int[] $excludeNdcs
+     * @param int $client_account_id
      * @return array
+     * @throws \HttpException
      */
     public function actionGetFreeNumbersByFilter(
         array $regions = [],
@@ -129,7 +156,8 @@ final class OpenController extends Controller
         array $cities = [],
         $similar = null,
         $ndc = null,
-        array $excludeNdcs = []
+        array $excludeNdcs = [],
+        $client_account_id = null
     ) {
         $numbers = (new FreeNumberFilter)
             ->setRegions($regions)
@@ -153,15 +181,100 @@ final class OpenController extends Controller
             $numbers->setType((int)$ndcType);
         }
 
+        $client_account_id = (int)$client_account_id;
+        if ($client_account_id) {
+            // взять страну от ЛС
+            $clientAccount = ClientAccount::findOne(['id' => $client_account_id]);
+            if (!$clientAccount) {
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+            }
+
+            $priceLevel = $clientAccount->price_level;
+        } else {
+            $clientAccount = null;
+            $priceLevel = ClientAccount::DEFAULT_PRICE_LEVEL;
+        }
+
         $responseNumbers = [];
 
-        foreach ($numbers->result($limit) as $freeNumberFilter) {
-            $responseNumbers[] = $numbers->formattedNumber($freeNumberFilter, $currency);
+        foreach ($numbers->result($limit) as $freeNumber) {
+            $responseNumber = $numbers->formattedNumber($freeNumber, $currency);
+
+            $priceLevelField = 'tariff_status_main' . $priceLevel;
+            $tariffStatusId = $freeNumber->didGroup->{$priceLevelField};
+            $responseNumber->default_tariff = $this->_getDefaultTariff($clientAccount, $tariffStatusId, $freeNumber->city_id);
+            $responseNumbers[] = $responseNumber;
         }
 
         return [
             'total' => $numbers->count(),
             'numbers' => $responseNumbers,
+        ];
+    }
+
+    /**
+     * @param ClientAccount $clientAccount
+     * @param int $tariffStatusId
+     * @param int $voipCityId
+     * @return array
+     */
+    private function _getDefaultTariff($clientAccount, $tariffStatusId, $voipCityId)
+    {
+        if (!$clientAccount) {
+            return [];
+        }
+
+        if (isset($this->_defaultTariffCache[$tariffStatusId])) {
+            // взять из кэша
+            return $this->_defaultTariffCache[$tariffStatusId];
+        }
+
+        $isDefault = true;
+        $serviceTypeId = ServiceType::ID_VOIP;
+        $countryId = $clientAccount->country_id;
+        $currencyId = $clientAccount->country->currency_id;
+        $isPostpaid = $clientAccount->is_postpaid;
+        $tariffPersonId = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
+            TariffPerson::ID_NATURAL_PERSON :
+            TariffPerson::ID_LEGAL_PERSON;
+
+        $tariffQuery = Tariff::find();
+        $tariffTableName = Tariff::tableName();
+        $serviceTypeId && $tariffQuery->andWhere([$tariffTableName . '.service_type_id' => (int)$serviceTypeId]);
+        $countryId && $tariffQuery->andWhere([$tariffTableName . '.country_id' => (int)$countryId]);
+        $currencyId && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currencyId]);
+        !is_null($isDefault) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$isDefault]);
+        !is_null($isPostpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$isPostpaid]);
+        $tariffStatusId && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariffStatusId]);
+        $tariffPersonId && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int)$tariffPersonId]);
+
+        if ($voipCityId) {
+            $tariffQuery->joinWith('voipCities');
+            $tariffVoipCityTableName = TariffVoipCity::tableName();
+            $tariffQuery->andWhere([$tariffVoipCityTableName . '.city_id' => $voipCityId]);
+        }
+
+        /** @var Tariff $tariff */
+        $tariff = $tariffQuery->one();
+        if (!$tariff) {
+            return $this->_defaultTariffCache[$tariffStatusId] = [$tariffQuery->createCommand()->rawSql];
+        }
+
+        $tariffPeriods = $tariff->tariffPeriods;
+        $tariffPeriod = reset($tariffPeriods);
+
+        /** @var TariffResource $tariffResources */
+        $tariffResources = $tariff->getTariffResource(Resource::ID_VOIP_LINE)->one();
+
+        $packagePrices = $tariff->packagePrices;
+
+        return $this->_defaultTariffCache[$tariffStatusId] = [
+            'name' => $tariff->name,
+            'price_per_period' => $tariffPeriod->price_per_period,
+            'lines' => $tariffResources->amount,
+            'line_price' => $tariffResources->price_per_unit,
+            'call_price1' => count($packagePrices) ? $packagePrices[0]->price : null,
+            'call_price2' => count($packagePrices) > 1 ? $packagePrices[1]->price : null,
         ];
     }
 

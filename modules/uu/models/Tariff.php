@@ -403,31 +403,26 @@ class Tariff extends HistoryActiveRecord
      * Найти и вернуть дефолтный пакет
      *
      * @param int $cityId
-     * @return Tariff|null
+     * @param int[] $tariffStatuses
+     * @return Tariff[]|null
      */
-    public function findDefaultPackage($cityId)
+    public function findDefaultPackages($cityId, $tariffStatuses = [])
     {
         if ($this->service_type_id != ServiceType::ID_VOIP) {
             return null;
         }
 
         $tariffTableName = Tariff::tableName();
-        /** @var Tariff $tariff */
-        $tariff = Tariff::find()
+        return Tariff::find()
             ->joinWith('voipCities')
             ->where([
                 $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE,
                 $tariffTableName . '.currency_id' => $this->currency_id,
                 $tariffTableName . '.is_postpaid' => $this->is_postpaid,
-                $tariffTableName . '.tariff_status_id' => TariffStatus::ID_PUBLIC,
                 $tariffTableName . '.is_default' => 1,
-                $tariffTableName . '.tariff_status_id' => [$this->tariff_status_id, TariffStatus::ID_PUBLIC],
+                $tariffTableName . '.tariff_status_id' => $tariffStatuses,
                 TariffVoipCity::tableName() . '.city_id' => $cityId,
             ])
-            // сначала из папки тарифа, потом из публичной (она 1, то есть при desc в конце)
-            ->orderBy([$tariffTableName . '.tariff_status_id' => SORT_DESC])
-            ->one();
-        return $tariff;
-
+            ->all();
     }
 }

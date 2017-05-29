@@ -8,6 +8,7 @@ use app\exceptions\web\NotImplementedHttpException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
+use app\models\Number;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -287,17 +288,18 @@ class UuController extends ApiInternalController
      *
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-tariffs", summary = "Список тарифов", operationId = "GetTariffs",
      *   @SWG\Parameter(name = "id", type = "integer", description = "ID", in = "query", default = ""),
-     *   @SWG\Parameter(name = "parent_id", type = "integer", description = "ID родителя. Нужен для поиска совместимых пакетов", in = "query", default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "is_default", type = "integer", description = "По умолчанию (0 / 1)", in = "query", default = ""),
      *   @SWG\Parameter(name = "is_postpaid", type = "integer", description = "0 - предоплата, 1 - постоплата", in = "query", default = ""),
      *   @SWG\Parameter(name = "currency_id", type = "string", description = "Код валюты (RUB, USD, EUR и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "ID страны", in = "query", default = ""),
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_group_id", type = "integer", description = "ID группы телефонии (местные, междугородние, международные и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_city_id", type = "integer", description = "ID города телефонии", in = "query", default = ""),
+     *   @SWG\Parameter(name = "voip_number", type = "string", description = "Номер телефонии", in = "query", default = ""),
+     *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги телефонии, для которой надо вернуть совместимые пакеты", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список тарифов",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/tariffRecord"))
@@ -309,7 +311,6 @@ class UuController extends ApiInternalController
      */
     /**
      * @param int $id
-     * @param int $parent_id
      * @param int $service_type_id
      * @param int $country_id
      * @param int $client_account_id
@@ -320,12 +321,13 @@ class UuController extends ApiInternalController
      * @param int $tariff_person_id
      * @param int $voip_group_id
      * @param int $voip_city_id
+     * @param string $voip_number
+     * @param int $account_tariff_id
      * @return array
      * @throws HttpException
      */
     public function actionGetTariffs(
         $id = null,
-        $parent_id = null,
         $service_type_id = null,
         $country_id = null,
         $client_account_id = null,
@@ -335,10 +337,11 @@ class UuController extends ApiInternalController
         $tariff_status_id = null,
         $tariff_person_id = null,
         $voip_group_id = null,
-        $voip_city_id = null
+        $voip_city_id = null,
+        $voip_number = null,
+        $account_tariff_id = null
     ) {
         $id = (int)$id;
-        $parent_id = (int)$parent_id;
         $service_type_id = (int)$service_type_id;
         $country_id = (int)$country_id;
         $client_account_id = (int)$client_account_id;
@@ -346,6 +349,7 @@ class UuController extends ApiInternalController
         $tariff_person_id = (int)$tariff_person_id;
         $voip_group_id = (int)$voip_group_id;
         $voip_city_id = (int)$voip_city_id;
+        $account_tariff_id = (int)$account_tariff_id;
 
         if ($client_account_id) {
             // взять страну от ЛС
@@ -360,17 +364,53 @@ class UuController extends ApiInternalController
             $tariff_person_id = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
                 TariffPerson::ID_NATURAL_PERSON :
                 TariffPerson::ID_LEGAL_PERSON;
+
+            if ($service_type_id == ServiceType::ID_VOIP) {
+                if (!$voip_number) {
+                    throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+                }
+
+                /** @var \app\models\Number $number */
+                $number = Number::findOne(['number' => $voip_number]);
+                if (!$number) {
+                    throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+                }
+
+                if ($number->status != Number::STATUS_INSTOCK) {
+                    throw new HttpException(ModelValidationException::STATUS_CODE, 'Телефонный номер уже занят', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+                }
+
+                $priceLevelField = 'tariff_status_main' . $clientAccount->price_level;
+                $tariff_status_id = $number->didGroup->{$priceLevelField};
+            }
         }
 
-        if ($parent_id) {
-            // передан родительский тариф (предполагается, что телефонии), надо найти пакеты
-            /** @var Tariff $tariff */
-            $tariff = Tariff::find()->where(['id' => (int)$parent_id])->one();
-            if (!$tariff) {
-                return [];
+        if ($service_type_id == ServiceType::ID_VOIP_PACKAGE) {
+            if (!$account_tariff_id) {
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указана основная услуга телефонии для пакета телефонии', AccountTariff::ERROR_CODE_USAGE_MAIN);
             }
 
-            $service_type_id = ServiceType::ID_VOIP_PACKAGE;
+            /** @var AccountTariff $accountTariff */
+            $accountTariff = AccountTariff::findOne(['id' => $account_tariff_id, 'service_type_id' => ServiceType::ID_VOIP]);
+            if (!$accountTariff) {
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Указана неправильная услуга', AccountTariff::ERROR_CODE_USAGE_MAIN);
+            }
+
+            $number = $accountTariff->number;
+            if (!$number) {
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+            }
+
+            $priceLevelField = 'tariff_status_package' . $accountTariff->clientAccount->price_level;
+            $tariff_status_id = $number->didGroup->{$priceLevelField};
+
+            $tariffPeriod = $accountTariff->tariffPeriod;
+            if (!$tariffPeriod) {
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Услуга закрыта', AccountTariff::ERROR_CODE_USAGE_NOT_EDITABLE);
+            }
+
+            $tariff = $tariffPeriod->tariff;
+
             !$country_id && $country_id = $tariff->country_id;
             !$currency_id && $currency_id = $tariff->currency_id;
             !$voip_city_id && $voip_city_id = array_keys($tariff->voipCities);
@@ -400,6 +440,7 @@ class UuController extends ApiInternalController
         foreach ($tariffQuery->each() as $tariff) {
 
             if ($tariff->service_type_id == ServiceType::ID_VOIP) {
+                // @todo новый алгоритм выбора пакета
                 $defaultPackageRecords = $this->actionGetTariffs(
                     $id_tmp = null,
                     $parent_id_tmp = $tariff->id,

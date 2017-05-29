@@ -94,7 +94,6 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_RESOURCE_AMOUNT_MAX = 56; // Значение ресурса больше максимально допустимого значения.
 
     // Ошибка телефонии
-    const ERROR_CODE_VOIP_WRONG_NUMBER = 71; // Не указан телефонный номер
     const ERROR_CODE_VOIP_WRONG_STATUS = 72; // Статус тарифа не совпадает со статусом телефонного номера
 
     /**

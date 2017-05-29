@@ -4,9 +4,12 @@ namespace app\modules\uu\models\traits;
 
 use app\classes\Html;
 use app\exceptions\ModelValidationException;
+use app\models\ClientAccount;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPeriod;
 use Yii;
 
 trait AccountTariffPackageTrait
@@ -26,7 +29,7 @@ trait AccountTariffPackageTrait
         try {
 
             if ($this->tariff_period_id) {
-                // подключить базовый пакет
+                // подключить базовые пакеты
                 $this->_addDefaultPackage();
             } else {
                 // выключить все пакеты
@@ -44,48 +47,78 @@ trait AccountTariffPackageTrait
     }
 
     /**
-     * Подключить базовый пакет.
+     * Подключить базовые пакеты
      *
      * @throws \app\exceptions\ModelValidationException
      */
     private function _addDefaultPackage()
     {
         if ($this->_hasDefaultPackage()) {
-            // базовый пакет уже подключен
+            // хотя бы один базовый пакет уже подключен
             return;
         }
 
-        $defaultPackage = $this->tariffPeriod->tariff->findDefaultPackage($this->city_id);
-        if (!$defaultPackage) {
+        /** @var TariffPeriod $tariffPeriod */
+        $tariffPeriod = $this->tariffPeriod;
+        $tariffStatuses = $this->_getPackageTariffStatuses();
+        $defaultPackages = $tariffPeriod->tariff->findDefaultPackages($this->city_id, $tariffStatuses);
+        if (!$defaultPackages) {
             Yii::error('Не найден базовый пакет для услуги ' . $this->id, 'uu');
             return;
         }
 
-        $tariffPeriods = $defaultPackage->tariffPeriods;
-        $tariffPeriod = reset($tariffPeriods);
+        /** @var Tariff $defaultPackage */
+        foreach ($defaultPackages as $defaultPackage) {
+            $tariffPeriods = $defaultPackage->tariffPeriods;
+            $tariffPeriod = reset($tariffPeriods);
 
-        $accountTariffLogs = $this->accountTariffLogs;
-        $accountTariffLog = end($accountTariffLogs); // базовый пакет должен быть подключен с самого начала (конца desc-списка)
+            $accountTariffLogs = $this->accountTariffLogs;
+            $accountTariffLog = end($accountTariffLogs); // базовый пакет должен быть подключен с самого начала (конца desc-списка)
 
-        // подключить базовый пакет
-        $accountTariffPackage = new AccountTariff();
-        $accountTariffPackage->client_account_id = $this->client_account_id;
-        $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
-        $accountTariffPackage->region_id = $this->region_id;
-        $accountTariffPackage->city_id = $this->city_id;
-        $accountTariffPackage->prev_account_tariff_id = $this->id;
-        if (!$accountTariffPackage->save()) {
-            throw new ModelValidationException($accountTariffPackage);
+            // подключить базовый пакет
+            $accountTariffPackage = new AccountTariff();
+            $accountTariffPackage->client_account_id = $this->client_account_id;
+            $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
+            $accountTariffPackage->region_id = $this->region_id;
+            $accountTariffPackage->city_id = $this->city_id;
+            $accountTariffPackage->prev_account_tariff_id = $this->id;
+            if (!$accountTariffPackage->save()) {
+                throw new ModelValidationException($accountTariffPackage);
+            }
+
+            $accountTariffPackageLog = new AccountTariffLog();
+            $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
+            $accountTariffPackageLog->tariff_period_id = $tariffPeriod->id;
+            $accountTariffPackageLog->actual_from_utc = $accountTariffLog->actual_from_utc;
+            $accountTariffPackageLog->insert_time = $accountTariffLog->actual_from_utc; // чтобы не было лишнего списания
+            if (!$accountTariffPackageLog->save()) {
+                throw new ModelValidationException($accountTariffPackageLog);
+            }
+        }
+    }
+
+    /**
+     * @return int[]
+     */
+    private function _getPackageTariffStatuses()
+    {
+        $tarifStatuses = [];
+
+        /** @var \app\models\Number $number */
+        $number = $this->number;
+        if (!$number) {
+            // возможно, линия
+            return $tarifStatuses;
         }
 
-        $accountTariffPackageLog = new AccountTariffLog();
-        $accountTariffPackageLog->account_tariff_id = $accountTariffPackage->id;
-        $accountTariffPackageLog->tariff_period_id = $tariffPeriod->id;
-        $accountTariffPackageLog->actual_from_utc = $accountTariffLog->actual_from_utc;
-        $accountTariffPackageLog->insert_time = $accountTariffLog->actual_from_utc; // чтобы не было лишнего списания
-        if (!$accountTariffPackageLog->save()) {
-            throw new ModelValidationException($accountTariffPackageLog);
-        }
+        /** @var ClientAccount $clientAccount */
+        $clientAccount = $this->clientAccount;
+        $priceLevel = $clientAccount->price_level;
+        $didGroup = $number->didGroup;
+        $tarifStatuses[] = $didGroup->{'tariff_status_package' . $priceLevel}; // пакет с учетом уровня цен
+        $tarifStatuses[] = $didGroup->tariff_status_beauty; // пакет за красивость
+
+        return $tarifStatuses;
     }
 
     /**
