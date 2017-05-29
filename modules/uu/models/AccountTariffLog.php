@@ -65,6 +65,7 @@ class AccountTariffLog extends ActiveRecord
             ['actual_from', 'validatorPackage', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
+            ['tariff_period_id', 'validatorDidGroup'],
             ['tariff_period_id', 'validatorDoublePackage'],
             ['tariff_period_id', 'validatorDefaultPackage'],
         ];
@@ -224,6 +225,48 @@ class AccountTariffLog extends ActiveRecord
         }
 
         Yii::trace('AccountTariffLog. After validatorCreateNotClose', 'uu');
+    }
+
+    /**
+     * Валидировать DID-группу
+     *
+     * @param string $attribute
+     * @param array $params
+     */
+    public function validatorDidGroup($attribute, $params)
+    {
+        if (!$this->tariff_period_id) {
+            // закрытие. Тариф проверять не надо
+            return;
+        }
+
+        $accountTariff = $this->accountTariff;
+        if ($accountTariff->service_type_id != ServiceType::ID_VOIP) {
+            // не телефония
+            return;
+        }
+
+        if (!$accountTariff->voip_number) {
+            $this->addError($attribute, 'Не указан телефонный номер');
+            $this->errorCode = AccountTariff::ERROR_CODE_VOIP_WRONG_NUMBER;
+            return;
+        }
+
+        $number = $accountTariff->number;
+        if (!$number) {
+            // возможно, линия
+            return;
+        }
+
+        // для телефонии статус DID-группы (с учетом уровня цен аккаунта) должен совпадать со статусом тарифа
+        $priceLevel = $accountTariff->clientAccount->price_level;
+        $didGroup = $number->didGroup;
+        $tariffStatusId = $didGroup->{'tariff_status_main' . $priceLevel};
+        if ($tariffStatusId != $this->tariffPeriod->tariff->tariff_status_id) {
+            $this->addError($attribute, 'Статус тарифа не совпадает со статусом телефонного номера');
+            $this->errorCode = AccountTariff::ERROR_CODE_VOIP_WRONG_STATUS;
+            return;
+        }
     }
 
     /**

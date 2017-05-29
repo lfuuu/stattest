@@ -125,16 +125,16 @@ if (!$didGroup->isNewRecord) {
             </div>
             <div class="col-sm-3">
                 <?= $form->field($didGroup, 'tariff_status_main' . $i)
-                    ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
+                    ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = false))
                     ->label(false) ?>
             </div>
             <div class="col-sm-3">
                 <?= $form->field($didGroup, 'tariff_status_package' . $i)
-                    ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
+                    ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = false))
                     ->label(false) ?>
             </div>
             <div class="col-sm-3">
-                <?= $i==1 ?
+                <?= $i == 1 ?
                     $form->field($didGroup, 'tariff_status_beauty')
                         ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
                         ->label(false) :

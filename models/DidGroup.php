@@ -116,8 +116,12 @@ class DidGroup extends ActiveRecord
 
         for ($i = 1; $i <= 9; $i++) {
             $rules[] = ['price' . $i, 'number'];
+
             $rules[] = ['tariff_status_main' . $i, 'number'];
+            $rules[] = ['tariff_status_main' . $i, 'required'];
+
             $rules[] = ['tariff_status_package' . $i, 'number'];
+            $rules[] = ['tariff_status_package' . $i, 'required'];
         }
 
         return $rules;

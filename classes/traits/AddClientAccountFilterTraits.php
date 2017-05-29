@@ -1,6 +1,8 @@
 <?php
+
 namespace app\classes\traits;
 
+use app\models\ClientAccount;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -35,7 +37,7 @@ trait AddClientAccountFilterTraits
     }
 
     /**
-     * Вернуть текущего клиента, если он есть
+     * Вернуть ID текущего клиента, если он есть
      *
      * @return int|null
      */
@@ -47,6 +49,21 @@ trait AddClientAccountFilterTraits
         }
 
         return null;
+    }
+
+    /**
+     * Вернуть текущего клиента, если он есть
+     *
+     * @return ClientAccount|null
+     */
+    private function _getCurrentClientAccount()
+    {
+        $accountId = $this->_getCurrentClientAccountId();
+        if (!$accountId) {
+            return null;
+        }
+
+        return ClientAccount::findOne(['id' => $accountId]);
     }
 
     /**

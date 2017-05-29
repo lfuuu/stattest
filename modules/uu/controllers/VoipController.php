@@ -8,6 +8,7 @@ namespace app\modules\uu\controllers;
 use app\classes\BaseController;
 use app\classes\Html;
 use app\classes\ReturnFormatted;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\controllers\api\internal\IdNameRecordTrait;
 use app\models\billing\Trunk;
 use app\models\City;
@@ -17,6 +18,7 @@ use app\models\filter\FreeNumberFilter;
 use app\models\UsageVoip;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use yii\db\Expression;
 
@@ -24,6 +26,7 @@ use yii\db\Expression;
 class VoipController extends BaseController
 {
     use IdNameRecordTrait;
+    use AddClientAccountFilterTraits;
 
     /**
      * Вернуть массив городов в зависимости от страны
@@ -169,14 +172,32 @@ class VoipController extends BaseController
      * @param int $cityId
      * @param int|bool $isWithEmpty
      * @param string $format
-     * @param int $statusId
      * @param int $isPostpaid
+     * @param int $didGroupId
      * @throws \InvalidArgumentException
+     * @throws \yii\base\ExitException
      */
-    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $statusId = null, $isPostpaid = null)
+    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null, $didGroupId = null)
     {
         if (!$cityId) {
             throw new \InvalidArgumentException('Wrong cityId');
+        }
+
+        if (!$didGroupId) {
+            throw new \InvalidArgumentException('Wrong didGroupId');
+        }
+
+        $didGroup = DidGroup::findOne(['id' => $didGroupId]);
+        if (!$didGroup) {
+            throw new \InvalidArgumentException('Не найдена DID-группа ' . $didGroupId);
+        }
+
+        if ($serviceTypeId == ServiceType::ID_VOIP) {
+            $clientAccount = $this->_getCurrentClientAccount();
+            $priceLevel = $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL;
+            $statusId = $didGroup->{'tariff_status_main' . $priceLevel};
+        } else {
+            $statusId = null;
         }
 
         $tariffPeriods = TariffPeriod::getList(

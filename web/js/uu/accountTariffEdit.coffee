@@ -33,8 +33,8 @@ class AccountTariffEdit
       @country = $('#voipCountryId').on('change', @onCountryChange)
       @ndcType = $('#voipNdcType').on('change', @onCityChange)
       @city = $('#voipRegions').on('change', @onCityChange)
-      @didGroup = $('#voipDidGroup').on('change', @showNumbersList)
-      @operatorAccount = $('#voipOperatorAccount').on('change', @showNumbersList)
+      @didGroup = $('#voipDidGroup').on('change', @onDidGroupChange)
+      @operatorAccount = $('#voipOperatorAccount').on('change', @onDidGroupChange)
 
       @numbersList = $('#voipNumbersList').on('change', 'input', @showTariffDiv)
       @numbersListSelectAll = $('#voipNumbersListSelectAll')
@@ -70,7 +70,7 @@ class AccountTariffEdit
     if countryVal
 
       if isUpdateCities
-        # обновить список городов в зависимости от страны
+# обновить список городов в зависимости от страны
         $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: 1, format: 'options'}, (html) =>
           @city.html(html) # обновить значения
           @city.val('').trigger('change')
@@ -79,7 +79,6 @@ class AccountTariffEdit
       @city.prop('disabled', false)
 
     else
-
       @city.prop('disabled', true)
       @city.val('').trigger('change')
       @country.parent().parent().addClass(@errorClassName)
@@ -95,10 +94,7 @@ class AccountTariffEdit
     else
       @city.parent().parent().addClass(@errorClassName)
 
-    if cityId
-# заранее подготовить список тарифов и пакетов
-      @reloadTariffList()
-
+    # город указан и тип NDC не линия (в том числе пустой)
     if cityId && ndcTypeId >= 0
 
       $.get '/uu/voip/get-did-groups', {cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
@@ -112,12 +108,26 @@ class AccountTariffEdit
         @operatorAccount.val('').trigger('change')
 
     else
-
       @didGroup.prop('disabled', true)
       @didGroup.val('').trigger('change')
 
       @operatorAccount.prop('disabled', true)
       @operatorAccount.val('').trigger('change')
+
+# при изменении DID-группы
+  onDidGroupChange: =>
+    didGroupId = @didGroup.val()
+
+    # пометить себя красным, если можно выбирать, но не выбран
+    if @didGroup.prop('disabled') or didGroupId
+      @didGroup.parent().parent().removeClass(@errorClassName)
+    else
+      @didGroup.parent().parent().addClass(@errorClassName)
+
+    if didGroupId
+# заранее подготовить список тарифов и пакетов
+      @reloadTariffList()
+      @showNumbersList()
 
 # показать номера
 # при изменении красивости или кол-ва колонок или сортировки
@@ -184,7 +194,8 @@ class AccountTariffEdit
 # перегрузить список тарифов
   reloadTariffList: =>
     cityId = @city.val()
-    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityId, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid}, (html) =>
+    didGroupId = @didGroup.val()
+    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityId, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid, didGroupId: didGroupId}, (html) =>
       @tariffPeriod.val('').html(html) # обновить значения
       @tariffPeriod.trigger('change')
 
