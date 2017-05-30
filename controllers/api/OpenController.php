@@ -73,8 +73,8 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "price_per_period", type = "float", description = "Абонентская плата за месяц"),
      *   @SWG\Property(property = "lines", type = "integer", description = "Количество линий, включенных в пакет"),
      *   @SWG\Property(property = "line_price", type = "float", description = "Плата за доп. канал за месяц"),
-     *   @SWG\Property(property = "call_price1", type = "float", description = "Цена1 за минуту"),
-     *   @SWG\Property(property = "call_price2", type = "float", description = "Цена2 за минуту"),
+     *   @SWG\Property(property = "call_price_mobile", type = "float", description = "Цена звонков на сотовые за минуту"),
+     *   @SWG\Property(property = "call_price_local", type = "float", description = "Цена звонков на местные за минуту"),
      * ),
      *
      * @SWG\Definition(definition = "freeNumberRecord", type = "object",
@@ -273,8 +273,8 @@ final class OpenController extends Controller
             'price_per_period' => $tariffPeriod->price_per_period,
             'lines' => $tariffResources->amount,
             'line_price' => $tariffResources->price_per_unit,
-            'call_price1' => count($packagePrices) ? $packagePrices[0]->price : null,
-            'call_price2' => count($packagePrices) > 1 ? $packagePrices[1]->price : null,
+            'call_price_mobile' => count($packagePrices) ? $packagePrices[0]->price : null,
+            'call_price_local' => count($packagePrices) > 1 ? $packagePrices[1]->price : null,
         ];
     }
 
