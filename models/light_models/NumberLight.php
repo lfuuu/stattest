@@ -25,7 +25,8 @@ class NumberLight extends Model
         $ndc,
         $number_subscriber,
         $common_ndc,
-        $common_number_subscriber;
+        $common_number_subscriber,
+        $default_tariff;
 
     /**
      * @return array
