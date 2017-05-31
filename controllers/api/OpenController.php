@@ -246,7 +246,7 @@ final class OpenController extends Controller
         !is_null($isDefault) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$isDefault]);
         !is_null($isPostpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$isPostpaid]);
         $tariffStatusId && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariffStatusId]);
-        $tariffPersonId && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => (int)$tariffPersonId]);
+        $tariffPersonId && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariffPersonId]]);
 
         if ($voipCityId) {
             $tariffQuery->joinWith('voipCities');
@@ -257,7 +257,7 @@ final class OpenController extends Controller
         /** @var Tariff $tariff */
         $tariff = $tariffQuery->one();
         if (!$tariff) {
-            return $this->_defaultTariffCache[$tariffStatusId] = [$tariffQuery->createCommand()->rawSql];
+            return $this->_defaultTariffCache[$tariffStatusId] = [];
         }
 
         $tariffPeriods = $tariff->tariffPeriods;
