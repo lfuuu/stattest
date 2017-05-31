@@ -70,6 +70,7 @@ final class OpenController extends Controller
      *
      * @SWG\Definition(definition = "voipDefaultPackageRecord", type = "object",
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
+     *   @SWG\Property(property = "tariff_period_id", type = "integer", description = "ID тарифа/периода"),
      *   @SWG\Property(property = "price_per_period", type = "float", description = "Абонентская плата за месяц"),
      *   @SWG\Property(property = "lines", type = "integer", description = "Количество линий, включенных в пакет"),
      *   @SWG\Property(property = "line_price", type = "float", description = "Плата за доп. канал за месяц"),
@@ -270,6 +271,7 @@ final class OpenController extends Controller
 
         return $this->_defaultTariffCache[$tariffStatusId] = [
             'name' => $tariff->name,
+            'tariff_period_id' => $tariffPeriod->id,
             'price_per_period' => $tariffPeriod->price_per_period,
             'lines' => $tariffResources->amount,
             'line_price' => $tariffResources->price_per_unit,
