@@ -19,7 +19,6 @@ use Yii;
  */
 class ClientContractDao extends Singleton
 {
-    private $_isOrganizationValue = false;
 
     /**
      * Получить транковые контракты с типом контракта в скобках
@@ -190,7 +189,7 @@ class ClientContractDao extends Singleton
 
         $contract->refresh();
 
-        $vatRate = $this->getEffectiveVATRate($contract);
+        $vatRate = $this->getEffectiveVATRate($contract, $isOrganizationValue);
 
         if (!$isWithTrace) {
             $contract->detachBehaviors();
@@ -219,7 +218,7 @@ class ClientContractDao extends Singleton
 
             $countSet++;
 
-            if ($this->_isOrganizationValue) {
+            if ($isOrganizationValue) {
                 $countFromOrganization++;
             }
         }
@@ -235,9 +234,10 @@ class ClientContractDao extends Singleton
      * Рассчитывает эффективную ставку НДС для данного договора
      *
      * @param ClientContract $contract
+     * @param bool $isOrganizationValue
      * @return int
      */
-    public function getEffectiveVATRate(ClientContract $contract)
+    public function getEffectiveVATRate(ClientContract $contract, &$isOrganizationValue)
     {
         static $cash = [];
 
@@ -248,7 +248,7 @@ class ClientContractDao extends Singleton
             }
         }
 
-        $this->_isOrganizationValue = false;
+        $isOrganizationValue = false;
         $organizationId = $contract->organization_id;
         $countryId = $contract->contragent->country_id;
 
@@ -259,7 +259,7 @@ class ClientContractDao extends Singleton
             $countrySettings = $cash[$organizationId]['any'];
         } else {
             Yii::warning('[contract_vat_not_found] Не найдена эффективная ставка НДС для договора ' . $contract->id . '. Нет настроек страны для организации id:' . $organizationId);
-            $this->_isOrganizationValue = true;
+            $isOrganizationValue = true;
             return $this->getOrganizationVATRateByContract($contract);
         }
 
@@ -272,7 +272,7 @@ class ClientContractDao extends Singleton
         }
 
         Yii::warning('[contract_vat_not_found] Не найдена эффективная ставка НДС для договора ' . $contract->id . '. Нет настроек по режиму.');
-        $this->_isOrganizationValue = true;
+        $isOrganizationValue = true;
         return $this->getOrganizationVATRateByContract($contract);
     }
 

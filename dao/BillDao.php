@@ -10,7 +10,6 @@ use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
 use app\models\LogBill;
-use app\models\Organization;
 use app\models\Transaction;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill as uuBill;
@@ -24,61 +23,31 @@ use Yii;
 class BillDao extends Singleton
 {
     /**
-     * Получение следующего номера счета
-     *
      * @param \DateTime|string $billDate
      * @return string
      */
-    public function spawnBillNumber($billDate, $organizationId = Organization::MCN_TELEKOM)
+    public function spawnBillNumber($billDate)
     {
-        if (is_numeric($billDate)) {
-            $timestamp = $billDate;
-            $billDate = new \DateTime(null, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
-            $billDate->setTimestamp($timestamp);
-        }
-
-        if (!$billDate && !($billDate instanceof \DateTime)) {
-            $billDate = new \DateTime($billDate, new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
-        }
-
-        if (!$billDate) {
-            $billDate = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
-        }
-
-        $billNoPrefix = $billDate->format('Ym') . '-';
-
-        $organizationPrefix = '';
-        $isShortBillNo = true;
-        if ($billDate >= $this->getDateAfterBillNoWithOrganization()) {
-            $organizationPrefix = sprintf('%02d', $organizationId);
-            $isShortBillNo = true;
+        if ($billDate instanceof \DateTime) {
+            $prefix = $billDate->format('Ym');
+        } else {
+            $prefix = substr($billDate, 0, 4) . substr($billDate, 5, 2);
         }
 
         $lastBillNumber = Bill::find()
             ->select('bill_no')
-            ->where(['LIKE', 'bill_no', $billNoPrefix . $organizationPrefix . '%', $isEscape = false])
-            ->andWhere([ // разделяем поиск "до" даты перехода - без кода организации, "после" - с кодом
-                ($isShortBillNo ? '>=' : '<'),
-                'bill_date',
-                $this->getDateAfterBillNoWithOrganization()->format(DateTimeZoneHelper::DATE_FORMAT)
-            ])
-            ->orderBy(['bill_no' => SORT_DESC])
+            ->andWhere(['LIKE', 'bill_no', $prefix . '-%', $isEscape = false])
+            ->orderBy('bill_no desc')
             ->limit(1)
             ->scalar();
 
-        $suffix = $lastBillNumber ? 1 + intval(substr($lastBillNumber, strlen($billNoPrefix) + strlen($organizationPrefix))) : 1;
+        if ($lastBillNumber) {
+            $suffix = 1 + intval(substr($lastBillNumber, 7));
+        } else {
+            $suffix = 1;
+        }
 
-        return $billNoPrefix . $organizationPrefix . sprintf("%04d", $suffix);
-    }
-
-    /**
-     * Дата, после которой номер счета с организацией
-     *
-     * @return \DateTime
-     */
-    public function getDateAfterBillNoWithOrganization()
-    {
-        return new \DateTime('2017-06-01', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
+        return sprintf("%s-%04d", $prefix, $suffix);
     }
 
     /**
@@ -186,11 +155,11 @@ class BillDao extends Singleton
 
             return ['type' => Bill::DOC_TYPE_INCOMEGOOD];
 
-        } elseif (preg_match("/20\d{4}\/(\d{2})?\d{4}/", $bill_no)) {
+        } elseif (preg_match("/20\d{4}\/\d{4}/", $bill_no)) {
 
             return ['type' => Bill::DOC_TYPE_BILL, 'bill_type' => Bill::TYPE_1C];
 
-        } elseif (preg_match("/20\d{4}-(\d{2})?\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)) {
+        } elseif (preg_match("/20\d{4}-\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)) {
 
             // mcn telekom || all4net
             return ['type' => Bill::DOC_TYPE_BILL, 'bill_type' => Bill::TYPE_STAT];
@@ -253,6 +222,7 @@ class BillDao extends Singleton
         }
     }
 
+
     /**
      * Функция переноса проводок универсального биллера в "старые" счета
      *
@@ -279,9 +249,7 @@ class BillDao extends Singleton
         $clientAccount = $uuBill->clientAccount;
 
         $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
-        $newBillNo = $uuBillDateTime->format('ym') .
-            ($this->getDateAfterBillNoWithOrganization() ? sprintf('%02d', $clientAccount->contract->organization_id) : '') .
-            $uuBill->id;
+        $newBillNo = $uuBillDateTime->format('ym') . $uuBill->id;
 
         if (!$bill) {
             $bill = new Bill();
@@ -662,13 +630,14 @@ SQL;
     public function createBill(ClientAccount $clientAccount, \DateTime $date = null)
     {
         if (!$date) {
-            $date = new \DateTime('now', new \DateTimeZone($clientAccount->timezone_name));
+            $date = new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT));
         }
 
         $bill = new Bill();
         $bill->client_id = $clientAccount->id;
         $bill->currency = $clientAccount->currency;
-        $bill->bill_no = self::me()->spawnBillNumber($date, $clientAccount->contract->organization_id);
+        $bill->bill_no = $this->_getNextBill($date);
+        $bill->bill_date = $date->format('Y-m-d');
         $bill->bill_date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         $bill->nal = $clientAccount->nal;
         $bill->is_approved = 1;
@@ -679,5 +648,26 @@ SQL;
         $bill->refresh();
 
         return $bill;
+    }
+
+    /**
+     * Получение следующего номера счета
+     *
+     * @param \DateTime $billDate
+     * @return string
+     */
+    private function _getNextBill(\DateTime $billDate)
+    {
+        $prefix = $billDate->format('Ym');
+
+        $lastBillNo = Bill::find()
+            ->select('bill_no')
+            ->where(['like', 'bill_no', $prefix . "-%", false])
+            ->orderBy(['bill_no' => SORT_DESC])
+            ->scalar();
+
+        $suffix = 1 + intval(substr($lastBillNo, 7));
+
+        return sprintf("%s-%04d", $prefix, $suffix);
     }
 }

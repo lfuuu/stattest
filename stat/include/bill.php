@@ -1,7 +1,5 @@
 <?php
 
-use app\dao\BillDao;
-use app\exceptions\ModelValidationException;
 use app\models\TaxType;
 use app\models\BillLine;
 use app\models\ClientAccount;
@@ -12,8 +10,6 @@ use app\classes\BillContract;
 
 class Bill {
     public $client_id;
-
-    /** @var $client_data ClientAccount */
     private $client_data = null;
     private $bill_no;
     private $bill_ts;
@@ -58,18 +54,49 @@ class Bill {
             ");
             $this->max_sort=($r?$r['V']:0);
         } else {
-            is_object($client_id) && $client_id = $client_id->toArray();
+            $prefix=date("Ym",$bill_date);
+            if ($r=$db->GetRow($q = "
+				SELECT
+					bill_no as suffix
+				FROM
+					newbills
+				WHERE
+					bill_no like '".$prefix."-%'
+				ORDER BY
+					bill_no DESC
+				LIMIT 1
+            "))
+                $suffix=1+intval(substr($r['suffix'],7));
+            else
+                $suffix=1;
 
-            $this->client_id = is_array($client_id) ? $client_id['id'] : $client_id;
+            $this->bill_no=sprintf("%s-%04d",$prefix,$suffix);
 
-            !$currency && $currency = $this->client_data['currency'];
+            if(is_object($client_id))
+                $client_id = $client_id->toArray();
 
-            $this->bill_date = date('Y-m-' . ($is_auto ? '01' : 'd'), $bill_date);
+            if (is_array($client_id)) {
+                //$this->client_data=$client_id;
+                $this->client_id = $client_id=$client_id['id'];
+            } else {
+                $this->client_id = $client_id;
+                /*
+                $this->client_data=$db->GetRow("
+					select
+						*
+					from
+						clients
+					where
+						id='".$client_id."'
+                ");
+                */
+            }
+            if (!$currency) $currency=$this->client_data['currency'];
 
-            $this->bill_no = BillDao::me()->spawnBillNumber($bill_date, $this->Client()->contract->organization_id);
+            $this->bill_date = date('Y-m-'.($is_auto?'01':'d'),$bill_date);
 
             $bill = new \app\models\Bill();
-            $bill->client_id = $this->client_id;
+            $bill->client_id = $client_id;
             $bill->currency = $this->Client()->currency;
             $bill->bill_no = $this->bill_no;
             $bill->bill_date = $this->bill_date;
@@ -79,9 +106,7 @@ class Bill {
             $bill->is_approved = 1;
             $bill->price_include_vat = $this->client_data['price_include_vat'];
             $bill->biller_version = $this->client_data['account_version'];
-            if (!$bill->save()) {
-                throw new ModelValidationException($bill);
-            }
+            $bill->save();
         }
 
         $this->bill = $db->GetRow("
@@ -573,7 +598,7 @@ class Bill {
 
     public function is1CBill()
     {
-        return (bool)preg_match("/20\d{4}\/\d{4,6}/", $this->bill_no);
+        return (bool)preg_match("/20\d{4}\/\d{4}/", $this->bill_no);
     }
 
     public function getShipmentDate()

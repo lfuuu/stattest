@@ -121,7 +121,7 @@ class BillFactory
                 $bill->sum_with_unapproved = $sum;
                 $bill->price_include_vat = $this->clientAccount->price_include_vat;
                 $bill->sum = $sum;
-                $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom, $this->clientAccount->contract->organization_id);
+                $bill->bill_no = Bill::dao()->spawnBillNumber($this->billerPeriodFrom);
                 $bill->save();
                 $sort = 1;
             } else {

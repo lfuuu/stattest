@@ -667,7 +667,6 @@ class m_newaccounts extends IModule
             return;
         }
         $currency = get_param_raw('currency');
-
         $bill = new \Bill(null, $fixclient_data, time(), 0, $currency);
         $no = $bill->GetNo();
         unset($bill);
@@ -695,7 +694,7 @@ class m_newaccounts extends IModule
                 }
             }
             // 1c || all4net bills
-        } elseif (isset($_GET['bill']) && preg_match('/^(\d{6}\/\d{4,6}|\d{6,7})$/', $_GET['bill'])) {
+        } elseif (isset($_GET['bill']) && preg_match('/^(\d{6}\/\d{4}|\d{6,7})$/', $_GET['bill'])) {
             $design->assign('1c_bill_flag', true);
             if (isset($_POST['select_doer'])) {
                 $d = (int)$_POST['doer'];
@@ -728,7 +727,7 @@ class m_newaccounts extends IModule
             exit();
 
             // stat bills
-        } elseif (preg_match("/\d{6}-\d{4,6}/", $_GET["bill"]) || preg_match('/^\d{10,}$/', $_GET['bill'])) {
+        } elseif (preg_match("/\d{6}-\d{4}/", $_GET["bill"]) || preg_match('/^\d{10,}$/', $_GET['bill'])) {
             $a = 1;
             //nothing
         } else {
@@ -3625,10 +3624,10 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
 
     function GetBillNoFromComment($c)
     {
-        $isDetected = preg_match('|20\d{4} ?[-/]\d{1,6}(?:-\d+)?|', $c, $m);
+        $isDetected = preg_match('|20\d{4} ?[-/]\d{1,4}(?:-\d+)?|', $c, $m);
 
         if (!$isDetected) {
-            $isDetected = preg_match('|[12]\d{9,11}|', $c, $m);
+            $isDetected = preg_match('|[12]\d{9}|', $c, $m);
         }
 
         if (!$isDetected) {
