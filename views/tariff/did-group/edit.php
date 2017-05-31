@@ -118,7 +118,7 @@ if (!$didGroup->isNewRecord) {
     <?php for ($i = 1; $i <= 9; $i++) : ?>
         <div class="row">
             <div class="col-sm-1">
-                Уровень <?= $i ?>
+                <?= ($i <= 2) ? 'Клиент ' . $i : 'ОТТ ' . ($i - 2) ?>
             </div>
             <div class="col-sm-2">
                 <?= $form->field($didGroup, 'price' . $i)->input('number', ['step' => 0.01])->label(false) ?>
