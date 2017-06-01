@@ -268,12 +268,26 @@ final class OpenController extends Controller
         /** @var TariffResource $tariffResources */
         $tariffResources = $tariff->getTariffResource(Resource::ID_VOIP_LINE)->one();
 
-        $packagePrices = $tariff->packagePrices;
+        $tariffTableName = Tariff::tableName();
+        /** @var Tariff $tariffPackage */
+        $tariffPackage = Tariff::find()
+            ->joinWith('voipCities')
+            ->where([
+                $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE,
+                $tariffTableName . '.country_id' => $tariff->country_id,
+                $tariffTableName . '.currency_id' => $tariff->currency_id,
+                $tariffTableName . '.is_default' => 1,
+                $tariffTableName . '.is_postpaid' => 0,
+                $tariffTableName . '.tariff_status_id' => $tariff->tariff_status_id,
+                $tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, TariffPerson::ID_NATURAL_PERSON],
+                TariffVoipCity::tableName() . '.city_id' => array_keys($tariff->voipCities),
+            ])->one();
+        $packagePrices = $tariffPackage ? $tariffPackage->packagePrices : null;
 
         $dateTime = new \DateTimeImmutable();
-        $daysInMonth = (int)$dateTime->format('%t');
-        $currentDay = (int)$dateTime->format('%j');
-        $daysLeft = $daysInMonth - $currentDay + 1; // +1, потому что текущий день тоже надо считать
+        $daysInMonth = (int)$dateTime->format('t');
+        $currentDay = (int)$dateTime->format('j');
+        $daysLeft = $daysInMonth - $currentDay + 1; // "+1", потому что текущий день тоже надо считать
         $coefficient = $daysLeft / $daysInMonth;
 
         return $this->_defaultTariffCache[$tariffStatusId] = [
@@ -283,8 +297,8 @@ final class OpenController extends Controller
             'cost_per_period' => $tariffPeriod->price_per_period * $coefficient,
             'lines' => $tariffResources->amount,
             'line_price' => $tariffResources->price_per_unit,
-            'call_price_mobile' => count($packagePrices) ? $packagePrices[0]->price : null,
-            'call_price_local' => count($packagePrices) > 1 ? $packagePrices[1]->price : null,
+            'call_price_mobile' => count($packagePrices) ? array_shift($packagePrices)->price : null,
+            'call_price_local' => count($packagePrices) ? array_shift($packagePrices)->price : null,
         ];
     }
 
