@@ -146,10 +146,7 @@ $payerCompany = $document->getPayer();
                         ?>
                     </td>
                     <?php if($organization->isNotSimpleTaxSystem()): ?>
-                        <td align="center"><?= Utils::round(
-                                $document->bill->price_include_vat
-                                    ? round($line['sum_without_tax'] / $line['amount'], 4)
-                                    : round($line['sum'] / $line['amount'], 4), 4);?></td>
+                        <td align="center"><?= Utils::round(round($line['sum_without_tax'] / $line['amount'], 4), 4);?></td>
                         <td align="center"><?= Utils::round($line['sum_without_tax'], 4); ?></td>
                     <?php else: ?>
                         <td align="center"><?= Utils::round($line['price'], 4); ?></td>
