@@ -283,10 +283,8 @@ class NnpController extends ApiInternalController
      *   @SWG\Property(property = "region_source", type = "string", description = "Исходный регион"),
      *   @SWG\Property(property = "region", type = "object", description = "Регион", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
-     *   @SWG\Property(property = "is_mob", type = "integer", description = "Мобильный? 0 - стационарный ABC, 1 - мобильный DEF"),
+     *   @SWG\Property(property = "ndc_type", type = "object", description = "Тип NDC", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "is_active", type = "integer", description = "Активен? 0 - выключен, 1 - активен"),
-     *   @SWG\Property(property = "limit", type = "integer", description = "Не более 1000 записей. Можно только уменьшить"),
-     *   @SWG\Property(property = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0"),
      * ),
      *
      * @SWG\Get(tags = {"NationalNumberPlan"}, path = "/internal/nnp/get-number-ranges", summary = "Диапазоны номеров", operationId = "NumberRange",
@@ -297,8 +295,10 @@ class NnpController extends ApiInternalController
      *   @SWG\Parameter(name = "operator_id", type = "integer", description = "ID оператора. Также можно указать -1 для пустого или -2 для любого", in = "query", default = ""),
      *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона. Также можно указать -1 для пустого или -2 для любого", in = "query", default = ""),
      *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города. Также можно указать -1 для пустого или -2 для любого", in = "query", default = ""),
-     *   @SWG\Parameter(name = "is_mob", type = "integer", description = "Мобильный? 0 - стационарный ABC, 1 - мобильный DEF", in = "query", default = ""),
+     *   @SWG\Parameter(name = "ndc_type_id", type = "integer", description = "ID типа NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "is_active", type = "integer", description = "Активен? 0 - выключен, 1 - активен", in = "query", default = ""),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "Не более 1000 записей. Можно только уменьшить", in = "query", default = ""),
+     *   @SWG\Parameter(name = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Диапазоны номеров",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/nnpNumberRangeRecord"))
@@ -317,7 +317,7 @@ class NnpController extends ApiInternalController
      * @param string $operator_id
      * @param string $region_id
      * @param string $city_id
-     * @param bool|string $is_mob
+     * @param bool|string $ndc_type_id
      * @param bool|string $is_active
      * @param int $limit
      * @param int $offset
@@ -332,7 +332,7 @@ class NnpController extends ApiInternalController
         $operator_id = '',
         $region_id = '',
         $city_id = '',
-        $is_mob = '',
+        $ndc_type_id = '',
         $is_active = '1',
         $limit = self::LIMIT,
         $offset = 0
@@ -344,7 +344,7 @@ class NnpController extends ApiInternalController
         $country_code && $query->andWhere([$numberRangeTableName . '.country_code' => $country_code]);
         $ndc && $query->andWhere([$numberRangeTableName . '.ndc' => $ndc]);
 
-        $is_mob !== '' && $query->andWhere([$numberRangeTableName . '.is_mob' => (bool)$is_mob]);
+        $ndc_type_id !== '' && $query->andWhere([$numberRangeTableName . '.ndc_type_id' => $ndc_type_id]);
         $is_active !== '' && $query->andWhere([$numberRangeTableName . '.is_active' => (bool)$is_active]);
 
         switch ($operator_id) {
@@ -439,7 +439,7 @@ class NnpController extends ApiInternalController
             'region_source' => $numberRange->region_source,
             'region' => $this->_getIdNameRecord($numberRange->region),
             'city' => $this->_getIdNameRecord($numberRange->city),
-            'is_mob' => (int)$numberRange->is_mob,
+            'ndc_type' => $this->_getIdNameRecord($numberRange->ndcType),
             'is_active' => (int)$numberRange->is_active,
         ];
     }

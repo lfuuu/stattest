@@ -72,6 +72,7 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
      *   @SWG\Property(property = "tariff_period_id", type = "integer", description = "ID тарифа/периода"),
      *   @SWG\Property(property = "price_per_period", type = "float", description = "Абонентская плата за месяц"),
+     *   @SWG\Property(property = "cost_per_period", type = "float", description = "Абонентская плата до конца текущего месяца"),
      *   @SWG\Property(property = "lines", type = "integer", description = "Количество линий, включенных в пакет"),
      *   @SWG\Property(property = "line_price", type = "float", description = "Плата за доп. канал за месяц"),
      *   @SWG\Property(property = "call_price_mobile", type = "float", description = "Цена звонков на сотовые за минуту"),
@@ -269,10 +270,17 @@ final class OpenController extends Controller
 
         $packagePrices = $tariff->packagePrices;
 
+        $dateTime = new \DateTimeImmutable();
+        $daysInMonth = (int)$dateTime->format('%t');
+        $currentDay = (int)$dateTime->format('%j');
+        $daysLeft = $daysInMonth - $currentDay + 1; // +1, потому что текущий день тоже надо считать
+        $coefficient = $daysLeft / $daysInMonth;
+
         return $this->_defaultTariffCache[$tariffStatusId] = [
             'name' => $tariff->name,
             'tariff_period_id' => $tariffPeriod->id,
             'price_per_period' => $tariffPeriod->price_per_period,
+            'cost_per_period' => $tariffPeriod->price_per_period * $coefficient,
             'lines' => $tariffResources->amount,
             'line_price' => $tariffResources->price_per_unit,
             'call_price_mobile' => count($packagePrices) ? $packagePrices[0]->price : null,

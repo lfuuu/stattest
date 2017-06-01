@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models;
 
 use app\classes\behaviors\AccountPriceIncludeVat;
@@ -1157,7 +1158,12 @@ class ClientAccount extends HistoryActiveRecord
      */
     public static function getPriceLevels()
     {
-        return array_combine(range(1, 9), range(1, 9));
+        $priceLevels = [];
+        for ($i = 1; $i <= 9; $i++) {
+            $priceLevels[$i] = ($i <= 2) ? 'Клиент ' . $i : 'ОТТ ' . ($i - 2);
+        }
+
+        return $priceLevels;
     }
 
     /**

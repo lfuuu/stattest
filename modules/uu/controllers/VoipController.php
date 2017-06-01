@@ -159,6 +159,7 @@ class VoipController extends BaseController
             [
                 'numbers' => $numbers->result($limit ?: 100),
                 'rowClass' => $rowClass,
+                'clientAccount' => $this->_getCurrentClientAccount(),
             ]
         );
     }

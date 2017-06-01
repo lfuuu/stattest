@@ -9,6 +9,7 @@
 use app\classes\Html;
 use app\forms\tariff\DidGroupForm;
 use app\models\City;
+use app\models\ClientAccount;
 use app\models\Country;
 use app\models\DidGroup;
 use app\modules\nnp\models\NdcType;
@@ -115,10 +116,13 @@ if (!$didGroup->isNewRecord) {
         <div class="col-sm-3"><label>Пакет за красивость</label></div>
     </div>
 
-    <?php for ($i = 1; $i <= 9; $i++) : ?>
+    <?php
+    $priceLevels = ClientAccount::getPriceLevels();
+    foreach ($priceLevels as $i => $priceLevel) :
+        ?>
         <div class="row">
             <div class="col-sm-1">
-                <?= ($i <= 2) ? 'Клиент ' . $i : 'ОТТ ' . ($i - 2) ?>
+                <?= $priceLevel ?>
             </div>
             <div class="col-sm-2">
                 <?= $form->field($didGroup, 'price' . $i)->input('number', ['step' => 0.01])->label(false) ?>
@@ -141,7 +145,7 @@ if (!$didGroup->isNewRecord) {
                     '' ?>
             </div>
         </div>
-    <?php endfor; ?>
+    <?php endforeach; ?>
 
 
     <?php // кнопки ?>

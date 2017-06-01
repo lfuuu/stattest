@@ -6,6 +6,7 @@
  * @var \yii\db\ActiveQuery $numberActiveQuery
  * @var int $rowClass
  * @var \app\models\Number[] $numbers
+ * @var \app\models\ClientAccount $clientAccount
  */
 
 use app\classes\Html;
@@ -24,7 +25,7 @@ use app\classes\Html;
                 'label' => $number->number,
             ]) ?>
             <?php
-            $price = $number->price;
+            $price = $number->getPrice($currency = null, $clientAccount);
             $currency = $number->city->country->currency;
             ?>
             <?= is_null($price) ?
