@@ -21,6 +21,7 @@ class NdcTypeColumn extends DataColumn
     public $filterType = GridView::FILTER_SELECT2;
     public $isAddLink = true;
     public $isWithEmpty = true;
+    public $label = 'Тип номера';
     public $isWithNullAndNotNull = true;
 
     public function __construct($config = [])

@@ -65,7 +65,7 @@ class DidGroupDao extends Singleton
         }
 
         $query = DidGroup::find()
-            ->where($where ?: [
+            ->where($where ?: [ // прямое условие, без исключений
                 'AND',
                 [
                     'country_code' => $number->country_code,
@@ -86,9 +86,10 @@ class DidGroupDao extends Singleton
      * Получение DID-групп по городу
      *
      * @param City $city
+     * @param int $ndcTypeId
      * @return array
      */
-    public function getQueryWhereByCity(City $city)
+    public function getQueryWhereByCity(City $city, $ndcTypeId = NdcType::ID_GEOGRAPHIC)
     {
         if ($city->id == City::MOSCOW) { // исключение
             $where = [
@@ -100,13 +101,15 @@ class DidGroupDao extends Singleton
                 ->select('MAX(id)')
                 ->where([
                     'AND',
-                    ['country_code' => $city->country_id],
+                    [
+                        'country_code' => $city->country_id,
+                        'ndc_type_id' => $ndcTypeId
+                    ],
                     [
                         'OR',
                         ['city_id' => $city->id],
                         ['city_id' => null]
-                    ],
-                    ['ndc_type_id' => $city->ndcTypeId]
+                    ]
                 ])
                 ->groupBy('beauty_level');
 

@@ -27,6 +27,7 @@ use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\User;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariff;
 
 class ApiLk
@@ -477,7 +478,9 @@ class ApiLk
 
         $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount->price_level);
 
-        $cities = City::find()
+        $cities = array_merge(
+            [['id' => Number::TYPE_7800, 'name' => '800']],
+            City::find()
             ->select(['id', 'name'])
             ->where([
                 'in_use' => 1,
@@ -486,7 +489,8 @@ class ApiLk
             ])
             ->orderBy(['order' => SORT_ASC])
             ->asArray()
-            ->all();
+            ->all()
+        );
 
         $didGroupsByCity = DidGroup::dao()->getDidgroupsByCity($clientAccount->country_id);
 
@@ -930,18 +934,31 @@ class ApiLk
         return $ret;
     }
 
-    public static function getFreeNumbers($cityId, $didGroupId, $isSimple = false)
+    public static function getFreeNumbers($clientId, $cityId, $didGroupId, $isSimple = false)
     {
+        /** @var ClientAccount $account */
+        $account = ClientAccount::findOne(['id' => $clientId]);
+        Assert::isObject($account);
+
         $didGroup = DidGroup::findOne(['id' => $didGroupId]);
         Assert::isObject($didGroup);
 
         $ret = [];
 
+        /** @var \app\models\filter\FreeNumberFilter $numbers */
         $numbers =
             (new \app\models\filter\FreeNumberFilter)
-                ->getNumbers()
-                ->setCity($cityId)
                 ->setDidGroup($didGroup->id);
+
+        if ($cityId == Number::TYPE_7800) {
+            $numbers
+                ->getNumbers7800()
+                ->setCountry($account->contragent->country_id);
+        } else {
+            $numbers
+                ->getNumbers()
+                ->setCity($cityId);
+        }
 
         $countryPrefix = null;
         $cityPostfixLength = null;

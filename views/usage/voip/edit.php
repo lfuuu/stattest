@@ -7,6 +7,7 @@ use app\models\Number;
 use app\models\TariffVoip;
 use app\models\TariffVoipPackage;
 use app\models\User;
+use app\modules\nnp\models\NdcType;
 use app\widgets\DateControl as CustomDateControl;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
@@ -110,13 +111,22 @@ echo Breadcrumbs::widget([
         ],
     ]);
 
-    if ($model->type_id == 'number') {
+    if ($model->type_id == Number::TYPE_NUMBER) {
         $number = Number::findOne($model->did);
         echo Form::widget([
             'model' => $model,
             'form' => $form,
             'columns' => 4,
             'attributes' => [
+                'ndc_type_id' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' => '
+                        <div class="form-group">
+                            <label class="control-label">Тип номера</label>
+                            <input type="text" class="form-control" value="' . ($model->did? $number->ndcType->name: '') . '" readonly="readonly" />
+                        </div>
+                    ',
+                ],
                 'did_group_id' => [
                     'type' => Form::INPUT_RAW,
                     'value' => '
@@ -126,12 +136,19 @@ echo Breadcrumbs::widget([
                         </div>
                     ',
                 ],
-                'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
-                'no_of_lines' => ['type' => Form::INPUT_TEXT],
+                'did' => [
+                    'type' => Form::INPUT_TEXT,
+                    'options' => [
+                        'readonly' => 'readonly'
+                    ]
+                ],
+                'no_of_lines' => [
+                    'type' => Form::INPUT_TEXT
+                ],
             ],
         ]);
     }
-    else if ($model->type_id == '7800') {
+    else if ($model->type_id == Number::TYPE_7800) {
         echo Form::widget([
             'model' => $model,
             'form' => $form,
@@ -142,8 +159,7 @@ echo Breadcrumbs::widget([
                 'line7800_id' => ['type' => Form::INPUT_TEXT, 'options' => ['disabled' => 'disabled']],
             ],
         ]);
-    }
-    else {
+    } else { // line
         echo Form::widget([
             'model' => $model,
             'form' => $form,
@@ -345,7 +361,15 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'tariff_main_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_LOCAL_FIXED, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency, $model->tariff_main_status),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_LOCAL_FIXED,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency,
+                    $model->tariff_main_status,
+                    $model->ndc_type_id
+                ),
                 'options' => ['class' => 'select2'],
                 'hint' => !$model->tariff_main_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
                     ['class' => 'alert-danger']) : '',
@@ -359,7 +383,14 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_local_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_LOCAL_MOBILE, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_LOCAL_MOBILE,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency
+                    //$model->ndc_type_id
+                ),
                 'options' => [
                     'class' => 'select2 form-reload2',
                 ],
@@ -381,7 +412,14 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_russia_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_RUSSIA, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_RUSSIA,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency
+                    //$model->ndc_type_id
+                ),
                 'options' => [
                     'class' => 'select2 form-reload2'
                 ],
@@ -403,7 +441,14 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_russia_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_RUSSIA, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_RUSSIA,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency
+                    //$model->ndc_type_id
+                ),
                 'options' => ['class' => 'select2'],
                 'hint' => !$model->tariff_russia_mob_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
                     ['class' => 'alert-danger']) : '',
@@ -413,7 +458,14 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_intern_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_INTERNATIONAL, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_INTERNATIONAL,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency
+                    //$model->ndc_type_id
+                ),
                 'options' => [
                     'class' => 'select2 form-reload2'
                 ],

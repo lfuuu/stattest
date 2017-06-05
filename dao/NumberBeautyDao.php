@@ -10,6 +10,7 @@ use app\models\DidGroup;
  */
 class NumberBeautyDao extends Singleton
 {
+    const DEFAULT_POSTFIX_LENGTH = 7;
 
     public static $beautyLvlPlatinum = [
         /**
@@ -408,12 +409,15 @@ class NumberBeautyDao extends Singleton
     ];
 
     /**
+     * Определение красивости номера
+     *
      * @param string $number
+     * @param int $postfixLength
      * @return int
      */
-    public static function getNumberBeautyLvl($number)
+    public static function getNumberBeautyLvl($number, $postfixLength = self::DEFAULT_POSTFIX_LENGTH)
     {
-        $number = substr($number, -7);
+        $number = substr($number, -$postfixLength);
 
         /**
          * Платиновые номера

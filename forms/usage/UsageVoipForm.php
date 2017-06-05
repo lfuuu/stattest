@@ -5,6 +5,7 @@ use app\classes\Form;
 use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
@@ -30,6 +31,7 @@ class UsageVoipForm extends Form
     public $address = '';
     public $line7800_id;
     public $address_from_datacenter_id;
+    public $ndc_type_id = NdcType::ID_GEOGRAPHIC;
 
     /** @var UsageVoip */
     public $usage;
@@ -69,7 +71,8 @@ class UsageVoipForm extends Form
                     'connection_point_id',
                     'did_group_id',
                     'line7800_id',
-                    'no_of_lines'
+                    'no_of_lines',
+                    'ndc_type_id',
                 ],
                 'integer'
             ],
@@ -114,7 +117,7 @@ class UsageVoipForm extends Form
             'city_id' => 'Город',
             'country_id' => 'Страна',
             'connection_point_id' => 'Точка присоединения',
-            'type_id' => 'Тип',
+            'type_id' => 'Тип номера',
             'did_group_id' => 'DID группа',
             'connecting_date' => 'Дата подключения',
             'disconnecting_date' => 'Дата отключения',
@@ -138,6 +141,7 @@ class UsageVoipForm extends Form
             'tariff_group_russia_price' => 'Гарантированный платеж',
             'tariff_group_intern_price' => 'Гарантированный платеж',
             'tariff_group_price' => 'Гарантированный платеж (Набор)',
+            'ndc_type_id' => 'Тип NDC',
         ];
     }
 

@@ -1,6 +1,7 @@
 <?php
 
 use app\assets\AppAsset;
+use app\modules\nnp\models\NdcType;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use app\classes\Html;
@@ -69,7 +70,7 @@ echo Breadcrumbs::widget([
     echo Form::widget([
         'model' => $model,
         'form' => $form,
-        'columns' => 3,
+        'columns' => 4,
         'attributes' => [
             'country_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
@@ -95,6 +96,14 @@ echo Breadcrumbs::widget([
                 'items' => $currencies,
                 'options' => ['class' => 'select2'] + $optionDisabled
             ],
+            'ndc_type_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => NdcType::getList($isWithEmpty = true),
+                'options' => ['class' => 'select2']
+            ],
+            'empty' => [
+                'type' => Form::INPUT_RAW
+            ],
             'status' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $statuses,
@@ -116,8 +125,12 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 2,
         'attributes' => [
-            'name' => ['type' => Form::INPUT_TEXT],
-            'name_short' => ['type' => Form::INPUT_TEXT],
+            'name' => [
+                'type' => Form::INPUT_TEXT
+            ],
+            'name_short' => [
+                'type' => Form::INPUT_TEXT
+            ],
         ],
     ]);
 

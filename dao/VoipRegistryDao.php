@@ -9,6 +9,7 @@ use app\models\DidGroup;
 use app\models\Number;
 use app\models\NumberLog;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NdcType;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
 use yii\db\Query;
@@ -107,19 +108,20 @@ class VoipRegistryDao extends Singleton
         }
 
         $didGroups = DidGroup::find()
-            ->where([
-                'OR',
-                'city_id = :city_id', // город
+            ->where(
                 [
                     'AND',
-                    'country_code = :country_code', // страна без города
-                    'city_id IS NULL'
+                    ['ndc_type_id' => $registry->ndc_type_id],
+                    [
+                        'OR',
+                        ['city_id' => $registry->city_id],
+                        [
+                            'country_code' => $registry->country_id, // страна без города
+                            'city_id' => null
+                        ]
+                    ]
                 ]
-            ])
-            ->addParams([
-                ':city_id' => $registry->city_id,
-                ':country_code' => $registry->country_id,
-            ])
+            )
             ->orderBy(new Expression('COALESCE(city_id, 0) DESC')) // выбор по стране без города имеет приоритет ниже страны с городом
         ;
 
@@ -135,8 +137,12 @@ class VoipRegistryDao extends Singleton
             throw new InvalidConfigException(
                 \Yii::t(
                     'number',
-                    'No DID groups found for city id:{cityId}',
-                    ['cityId' => $registry->city_id]
+                    'No DID groups found for {country} {ndcType} {city}',
+                    [
+                        'country' => $registry->country->name,
+                        'ndcType' => $registry->ndcType->name,
+                        'city' => ($registry->city_id ? $registry->city->name : '')
+                    ]
                 )
             );
         }
@@ -166,7 +172,10 @@ class VoipRegistryDao extends Singleton
         if ($registry->isSourcePotability()) {
             $beautyLevel = DidGroup::BEAUTY_LEVEL_STANDART;
         } else {
-            $beautyLevel = NumberBeautyDao::getNumberBeautyLvl($addNumber);
+            $beautyLevel = NumberBeautyDao::getNumberBeautyLvl(
+                $addNumber,
+                $registry->city_id ? $registry->city->postfix_length : NumberBeautyDao::DEFAULT_POSTFIX_LENGTH
+            );
         }
 
         $transaction = \Yii::$app->getDb()->beginTransaction();
@@ -174,7 +183,7 @@ class VoipRegistryDao extends Singleton
         $number = new Number;
         $number->number = $addNumber;
         $number->beauty_level = $beautyLevel;
-        $number->region = $registry->city->connection_point_id;
+        $number->region = $registry->city_id ? $registry->city->connection_point_id : $registry->country->default_connection_point_id;
         $number->ndc_type_id = $registry->ndc_type_id;
         $number->city_id = $registry->city_id;
         $number->status = Number::STATUS_NOTSALE;
@@ -202,8 +211,8 @@ class VoipRegistryDao extends Singleton
             throw new InvalidConfigException(
                 \Yii::t(
                     'number',
-                    'For the number {number} with beauty: "{beautyLevel}" no DID group was found',
-                    $numberParams
+                    'For the number {number} ({ndc_type}) with beauty: "{beautyLevel}" no DID group was found',
+                    $numberParams + ['ndc_type' => $registry->ndcType->name]
                 )
             );
         }

@@ -8,6 +8,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\dao\VoipRegistryDao;
 use app\models\City;
 use app\models\Country;
+use app\modules\nnp\models\NdcType;
 
 /**
  * Class Registry
@@ -27,6 +28,7 @@ use app\models\Country;
  * @property string $comment
  * @property City $city
  * @property Country $country
+ * @property NdcType $ndcType
  * @property string $status
  */
 class Registry extends HistoryActiveRecord
@@ -102,6 +104,14 @@ class Registry extends HistoryActiveRecord
     public function getCountry()
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNdcType()
+    {
+        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use app\classes\Html;
+use app\modules\nnp\column\NdcTypeColumn;
 use kartik\grid\GridView;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\ConnectionPointColumn;
@@ -53,11 +54,16 @@ echo GridView::widget([
             'vAlign' => 'top',
         ],
         [
+            'class' => NdcTypeColumn::className(),
+            'attribute' => 'ndc_type_id',
+            'isWithNullAndNotNull' => false
+        ],
+        [
             'class' => BooleanColumn::className(),
             'attribute' => 'is_default',
-            'values' => [0 => '', 1 => 'по-умолчанию'],
-            'label' => 'По-умолчанию',
-            'noWrap' => true,
+            'values' => [0 => 'Нет', 1 => 'Да'],
+            'encodeLabel' => false,
+            'label' => 'По-<wbr>умол&shy;чанию',
             'vAlign' => 'top',
         ],
         [
@@ -74,7 +80,8 @@ echo GridView::widget([
             'class' => BooleanColumn::className(),
             'attribute' => 'paid_redirect',
             'values' => [0 => 'нет', 1 => 'да'],
-            'label' => 'Платная переадресация',
+            'encodeLabel' => false,
+            'label' => 'Платная пере&shy;адре&shy;са&shy;ция',
             'vAlign' => 'top',
         ],
         [

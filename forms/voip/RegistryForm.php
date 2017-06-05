@@ -42,9 +42,16 @@ class RegistryForm extends Form
     {
         return [
             [
-                ['country_id', 'city_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'ndc'],
+                ['country_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'ndc'],
                 'required',
                 'on' => 'save'
+            ],
+            ['city_id',
+                'required',
+                'on' => 'save',
+                'when' => function ($model) {
+                    return $model->ndc_type_id == NdcType::ID_GEOGRAPHIC;
+                }
             ],
             [
                 ['country_id', 'city_id', 'source', 'ndc_type_id', 'number_from', 'number_to', 'account_id', 'comment'],
@@ -80,6 +87,10 @@ class RegistryForm extends Form
      */
     public function validateCity()
     {
+        if (!NdcType::isCityDependent($this->ndc_type_id)) {
+            return;
+        }
+
         if (!array_key_exists(
             $this->city_id,
             City::getList(
@@ -119,11 +130,11 @@ class RegistryForm extends Form
     /**
      * Инициализация данных формы на основе загруженных значений
      *
-     * @param bool $isFromPost
+     * @param bool $isSaveFromPost
      * @return bool
      * @throws \LogicException
      */
-    public function initForm($isFromPost = false)
+    public function initForm($isSaveFromPost = false)
     {
         if ($this->country_id && $this->city_id) {
             /** @var City $city */
@@ -134,42 +145,15 @@ class RegistryForm extends Form
             }
         }
 
-        if ($this->ndc_type_id == NdcType::ID_FREEPHONE) {
-            $this->_setCityAndNdcFor7800();
-        }
-
         $this->_setNDC();
         $this->_setCityNumberFormat();
 
 
-        if ($isFromPost) {
+        if ($isSaveFromPost) {
             $this->_prepareNumbesFromPost();
         }
 
         return true;
-    }
-
-    /**
-     * Установка города для номера 800
-     *
-     * @throws \LogicException
-     */
-    private function _setCityAndNdcFor7800()
-    {
-        switch ($this->country_id) {
-            case Country::RUSSIA:
-                $this->city_id = City::RUSSIA_CITY_ID_7800;
-                $this->ndc = NumberRange::RUSSIA_7800_NDC;
-                break;
-
-            case Country::HUNGARY:
-                $this->city_id = City::HUNGARY_CITY_ID_7800;
-                $this->ndc = NumberRange::HUNGARY_800_NDC;
-                break;
-
-            default:
-                throw new \LogicException('Для выбранной страны не установлен город для номеров 800');
-        }
     }
 
     /**
@@ -186,9 +170,8 @@ class RegistryForm extends Form
      */
     private function _setNDC()
     {
-        if ($this->ndc_type_id == NdcType::ID_FREEPHONE) {
-            $this->ndcList = [$this->ndc => $this->ndc];
-            return; // установлена в setCityAndNDCFor7800
+        if (!NdcType::isCityDependent($this->ndc_type_id)) {
+            $this->city_id = null;
         }
 
         $this->ndcList = NumberRange::getNdcList($this->country_id, $this->city_id, $this->ndc_type_id);
@@ -224,6 +207,10 @@ class RegistryForm extends Form
     {
         if (!$this->registry) {
             $this->registry = new Registry();
+        }
+
+        if (!NdcType::isCityDependent($this->ndc_type_id)) {
+            $this->city_id = null;
         }
 
         foreach ([

@@ -8,10 +8,13 @@ use yii\db\Expression;
 class TariffVoipListForm extends TariffVoipForm
 {
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
-            [['country_id', 'connection_point_id', 'dest',], 'integer'],
+            [['country_id', 'connection_point_id', 'dest','ndc_type_id'], 'integer'],
             [['currency_id', 'status',], 'string']
         ];
     }
@@ -27,29 +30,21 @@ class TariffVoipListForm extends TariffVoipForm
             ->orderBy([$orderBy]);
     }
 
+    /**
+     * @param Query $query
+     */
     public function applyFilter(Query $query)
     {
-        if ($this->country_id) {
-            $query->andWhere(['tarifs_voip.country_id' => $this->country_id]);
-        }
-
-        if ($this->connection_point_id) {
-            $query->andWhere(['tarifs_voip.connection_point_id' => $this->connection_point_id]);
-        }
-
-        if ($this->currency_id) {
-            $query->andWhere(['tarifs_voip.currency_id' => $this->currency_id]);
-        }
+        $this->country_id &&          $query->andWhere(['tarifs_voip.country_id' => $this->country_id]);
+        $this->connection_point_id && $query->andWhere(['tarifs_voip.connection_point_id' => $this->connection_point_id]);
+        $this->currency_id &&         $query->andWhere(['tarifs_voip.currency_id' => $this->currency_id]);
+        $this->dest &&                $query->andWhere(['tarifs_voip.dest' => $this->dest]);
+        $this->ndc_type_id != '' &&   $query->andWhere(['tarifs_voip.ndc_type_id' => $this->ndc_type_id]);
 
         if ($this->status) {
             $query->andWhere(['tarifs_voip.status' => $this->status]);
         } else {
             $query->andWhere(['!=', 'tarifs_voip.status', 'archive']);
         }
-
-        if ($this->dest) {
-            $query->andWhere(['tarifs_voip.dest' => $this->dest]);
-        }
     }
-
 }

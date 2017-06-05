@@ -10,6 +10,7 @@ use app\classes\dictionary\forms\CountryForm;
 use app\classes\traits\YesNoTraits;
 use app\models\Currency;
 use app\models\Language;
+use app\models\Region;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -116,6 +117,15 @@ if (!$country->isNewRecord) {
             <?= $form->field($country, 'site')->textInput() ?>
         </div>
 
+    </div>
+
+    <div class="row">
+        <?php // точка подключения по-умолчанию ?>
+        <div class="col-sm-6">
+            <?= $form->field($country, 'default_connection_point_id')->widget(Select2::className(), [
+                'data' => Region::getList($isWithEmpty = $country->isNewRecord),
+            ]) ?>
+        </div>
     </div>
 
     <?php // кнопки ?>

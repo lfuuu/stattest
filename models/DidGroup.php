@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\dao\DidGroupDao;
+use app\modules\nnp\models\NdcType;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
@@ -164,20 +165,25 @@ class DidGroup extends ActiveRecord
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param int $cityId
+     * @param int $ndcTypeId
      * @return \string[]
      * @internal param int $countryId
      */
     public static function getList(
         $isWithEmpty = false,
-        $cityId = null
+        $cityId = null,
+        $ndcTypeId = NdcType::ID_GEOGRAPHIC
     ) {
 
         $where = [];
 
         /** @var City $city */
         if ($cityId && ($city = City::findOne(['id' => $cityId]))) {
-            $where = DidGroup::dao()->getQueryWhereByCity($city);
+            $where = DidGroup::dao()->getQueryWhereByCity($city, $ndcTypeId);
         }
+
+        $ndcTypeId && $where = ['AND', ['ndc_type_id' => $ndcTypeId], $where];
+
 
         return self::getListTrait(
             $isWithEmpty,

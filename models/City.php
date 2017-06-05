@@ -35,8 +35,6 @@ class City extends ActiveRecord
 
     const MOSCOW = 7495;
     const DEFAULT_USER_CITY_ID = self::MOSCOW;
-    const RUSSIA_CITY_ID_7800 = 7800;
-    const HUNGARY_CITY_ID_7800 = 3680;
 
     public static $primaryField = 'id';
 
@@ -112,20 +110,6 @@ class City extends ActiveRecord
     public function getBillingMethod()
     {
         return $this->hasOne(CityBillingMethod::className(), ['id' => 'billing_method_id']);
-    }
-
-    /**
-     * Получаем тип NDC по городу
-     *
-     * @return int
-     */
-    public function getNdcTypeId()
-    {
-        if ($this->id == self::RUSSIA_CITY_ID_7800 || $this->id == self::HUNGARY_CITY_ID_7800) {
-            return NdcType::ID_FREEPHONE;
-        }
-
-        return NdcType::ID_GEOGRAPHIC; // @TODO: определится как связан город с типом NDC
     }
 
     /**

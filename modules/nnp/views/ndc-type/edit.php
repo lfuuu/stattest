@@ -42,6 +42,11 @@ if (!$ndcType->isNewRecord) {
         <div class="col-sm-6">
             <?= $form->field($ndcType, 'name')->textInput() ?>
         </div>
+
+        <?php // зависимость от города ?>
+        <div class="col-sm-6">
+            <?= $form->field($ndcType, 'is_city_dependent')->checkbox() ?>
+        </div>
     </div>
 
     <?php // кнопки ?>

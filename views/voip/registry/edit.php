@@ -73,35 +73,42 @@ $readonlyOptions = [
 
         $this->registerJsVariable('registryFormId', $form->getId());
 
+        $attributes = [
+            'country_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $countryList,
+                'options' => [
+                        'class' => 'formReload'
+                    ] + ($isEditable ? [] : $readonlyOptions),
+                'columnOptions' => (!NdcType::isCityDependent($model->ndc_type_id) ? ['colspan' => 2] : [])
+            ],
+            'city_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $cityList,
+                'options' => [
+                        'class' => 'formReload'
+                    ] + ($isEditable ? [] : $readonlyOptions),
+            ],
+            'source' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => \app\classes\enum\VoipRegistrySourceEnum::$names,
+                'options' => $isEditable ? [] : $readonlyOptions,
+            ],
+            'account_id' => [
+                'type' => Form::INPUT_TEXT,
+                'options' => $isEditable ? [] : $readonlyOptions,
+            ]
+        ];
+
+        if (!NdcType::isCityDependent($model->ndc_type_id)) {
+            unset($attributes['city_id']);
+        }
+
         echo Form::widget([
             'model' => $model,
             'form' => $form,
             'columns' => 4,
-            'attributes' => [
-                'country_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $countryList,
-                    'options' => [
-                            'class' => 'formReload'
-                        ] + ($isEditable ? [] : $readonlyOptions),
-                ],
-                'city_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $cityList,
-                    'options' => [
-                            'class' => 'formReload'
-                        ] + ($isEditable ? [] : $readonlyOptions),
-                ],
-                'source' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => \app\classes\enum\VoipRegistrySourceEnum::$names,
-                    'options' => $isEditable ? [] : $readonlyOptions,
-                ],
-                'account_id' => [
-                    'type' => Form::INPUT_TEXT,
-                    'options' => $isEditable ? [] : $readonlyOptions,
-                ]
-            ]
+            'attributes' => $attributes
         ]);
 
         $maskedInputWidgetConfig = [
@@ -158,7 +165,7 @@ $readonlyOptions = [
 
 
         $value = '';
-        if ($model->id && $isSubmitable) {
+        if ($model->id) {
             $value .= Html::submitButton('Проверить номера', [
                 'class' => 'btn btn-info',
                 'name' => 'check-numbers',
@@ -182,45 +189,43 @@ $readonlyOptions = [
             }
         }
 
-        if ($isSubmitable) {
-            echo Form::widget([
-                'model' => $model,
-                'form' => $form,
-                'columns' => 3,
-                'attributes' => [
-                    'check-number' => [
-                        'type' => Form::INPUT_RAW,
-                        'value' => $value,
-                    ],
-                    'id' => [
-                        'type' => Form::INPUT_RAW,
-                        'value' => Html::activeHiddenInput($model, 'id')
-                    ],
-
-                    'actions' => [
-                        'type' => Form::INPUT_RAW,
-                        'value' =>
-                            $isEditable ?
-                                Html::tag(
-                                    'div',
-                                    Html::button('Отменить', [
-                                        'class' => 'btn btn-link',
-                                        'style' => 'margin-right: 15px;',
-                                        'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
-                                    ]) .
-                                    Html::submitButton('Сохранить',
-                                        [
-                                            'class' => 'btn btn-primary',
-                                            'name' => 'save',
-                                            'value' => 'Сохранить'
-                                        ]),
-                                    ['style' => 'text-align: right; padding-right: 0px;']
-                                ) :
-                                ''
-                    ],
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 3,
+            'attributes' => [
+                'check-number' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' => $value,
                 ],
-            ]);
-        }
+                'id' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' => Html::activeHiddenInput($model, 'id')
+                ],
+
+                'actions' => [
+                    'type' => Form::INPUT_RAW,
+                    'value' =>
+                        $isSubmitable && $isEditable ?
+                            Html::tag(
+                                'div',
+                                Html::button('Отменить', [
+                                    'class' => 'btn btn-link',
+                                    'style' => 'margin-right: 15px;',
+                                    'onClick' => 'self.location = "' . Url::toRoute(['voip/registry']) . '";',
+                                ]) .
+                                Html::submitButton('Сохранить',
+                                    [
+                                        'class' => 'btn btn-primary',
+                                        'name' => 'save',
+                                        'value' => 'Сохранить'
+                                    ]),
+                                ['style' => 'text-align: right; padding-right: 0px;']
+                            ) :
+                            ''
+                ],
+            ],
+        ]);
 
         ActiveForm::end();
         ?>

@@ -43,9 +43,6 @@ class NumberRange extends ActiveRecord
 
     const DEFAULT_MOSCOW_NDC = 495;
 
-    const RUSSIA_7800_NDC = 800;
-    const HUNGARY_800_NDC = 80;
-
     private static $_triggerTables = [
         // 'nnp.account_tariff_light',
         'nnp.country',
@@ -261,15 +258,18 @@ class NumberRange extends ActiveRecord
         static $_cache = [];
 
         if (!isset($_cache[$countryCode][$cityId])) {
+            $where = [
+                'country_code' => $countryCode,
+                'ndc_type_id' => $ndcTypeId,
+                'is_active' => true
+            ];
+
+            $cityId && $where['city_id'] = $cityId;
+
             $_cache[$countryCode][$cityId] = NumberRange::find()
                 ->select('ndc')
                 ->distinct()
-                ->where([
-                    'country_code' => $countryCode,
-                    'city_id' => $cityId,
-                    'ndc_type_id' => $ndcTypeId,
-                    'is_active' => true
-                ])
+                ->where($where)
                 ->indexBy('ndc')
                 ->orderBy(['ndc' => SORT_ASC])
                 ->column();

@@ -14,6 +14,7 @@ use app\models\Number;
 use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
+use app\modules\nnp\models\NdcType;
 use DateTime;
 use DateTimeZone;
 use Yii;
@@ -75,6 +76,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 'tariff_russia_id',
                 'tariff_russia_mob_id',
                 'tariff_intern_id',
+                'ndc_type_id',
             ],
             'required',
             'on' => 'add'
@@ -146,7 +148,7 @@ class UsageVoipEditForm extends UsageVoipForm
     public function attributeLabels()
     {
         return parent::attributeLabels() + [
-            'count_numbers' => 'Кол-во номеров (для пакетного добавления)'
+            'count_numbers' => 'Кол-во номеров (для пакетного добавления)',
         ];
     }
 
@@ -226,7 +228,7 @@ class UsageVoipEditForm extends UsageVoipForm
                     }
                 }
 
-                if ($number && $number->city_id != $this->city_id) {
+                if ($number && NdcType::isCityDependent($number->ndc_type_id) && $number->city_id != $this->city_id) {
                     $this->addError('did', 'Номер ' . $this->did . ' из другого города');
                 }
 
@@ -571,6 +573,8 @@ class UsageVoipEditForm extends UsageVoipForm
             $tariff = TariffVoip::findOne($this->tariff_main_id);
             // Устанавливает "Тип тарифа" от включенного "Тариф Основной"
             $this->tariff_main_status = $this->tariffMainStatus = $tariff->status;
+
+            $this->ndc_type_id = $usage->voipNumber->ndc_type_id;
         } else {
             $this->connecting_date = $this->today->format(DateTimeZoneHelper::DATE_FORMAT);
         }
@@ -603,10 +607,20 @@ class UsageVoipEditForm extends UsageVoipForm
         // type_id => [number, line, 7800, operator]
         switch ($this->type_id) {
             case 'number': {
+                if ($this->ndc_type_id == NdcType::ID_FREEPHONE) {
+
+                    $this->ndc_type_id = NdcType::ID_GEOGRAPHIC;
+
+                }
+
+                if (in_array($this->tariff_main_status,  [TariffVoip::STATUS_7800, TariffVoip::STATUS_7800_TEST])) {
+                    $this->tariff_main_status = TariffVoip::STATUS_PUBLIC;
+                }
+
                 if ($this->city_id && $this->did_group_id && !$this->did) {
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
-                            ->getNumbers()
+                            ->setType($this->ndc_type_id)
                             ->setCity($this->city_id)
                             ->setCountry($this->country_id)
                             ->setDidGroup($this->did_group_id)
@@ -625,6 +639,7 @@ class UsageVoipEditForm extends UsageVoipForm
                         } else {
                             $this->city_id = $number->city_id;
                             $this->did_group_id = DidGroup::dao()->getIdByNumber($number);
+                            $this->ndc_type_id = $number->ndc_type_id;
                         }
                     }
                 }
@@ -643,6 +658,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
             case '7800': {
                 $this->did_group_id = null;
+                $this->ndc_type_id = NdcType::ID_FREEPHONE;
 
                 if (!$this->did) {
                     /** @var \app\models\Number $number */

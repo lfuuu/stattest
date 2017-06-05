@@ -4,6 +4,7 @@ namespace app\models;
 use app\helpers\tariffs\TariffVoipHelper;
 use app\models\billing\Pricelist;
 use app\models\tariffs\TariffInterface;
+use app\modules\nnp\models\NdcType;
 use yii\db\ActiveRecord;
 
 /**
@@ -147,7 +148,8 @@ class TariffVoip extends ActiveRecord implements TariffInterface
         $isWithEmpty = false,
         $connectingPointId = null,
         $currencyId = null,
-        $status = null
+        $status = null,
+        $ndcTypeId = NdcType::ID_GEOGRAPHIC
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -160,16 +162,11 @@ class TariffVoip extends ActiveRecord implements TariffInterface
                 [
                     'dest' => $dest,
                     'price_include_vat' => $priceIncludeVat,
+                    'ndc_type_id' => $ndcTypeId,
                 ],
-                [
-                    'AND',
-                    $status ? ['status' => $status] : [],
-                    [
-                        'AND',
-                        $connectingPointId ? ['connection_point_id' => $connectingPointId] : [],
-                        $currencyId ? ['currency_id' => $currencyId] : []
-                    ]
-                ]
+                $status ? ['status' => $status] : [],
+                $connectingPointId ? ['connection_point_id' => $connectingPointId] : [],
+                $currencyId ? ['currency_id' => $currencyId] : [],
             ]
         );
     }

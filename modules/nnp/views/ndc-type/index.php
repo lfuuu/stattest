@@ -8,6 +8,7 @@
 
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\modules\nnp\filter\NdcTypeFilter;
 use app\modules\nnp\models\NdcType;
@@ -54,6 +55,10 @@ $columns = [
     [
         'attribute' => 'name',
         'class' => StringColumn::className(),
+    ],
+    [
+        'attribute' => 'is_city_dependent',
+        'class' => YesNoColumn::className(),
     ],
     [
         'label' => 'Диапазон номеров',

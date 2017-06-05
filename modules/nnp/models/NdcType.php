@@ -9,6 +9,7 @@ use yii\helpers\Url;
 /**
  * @property int $id
  * @property string $name
+ * @property boolean $is_city_dependent
  */
 class NdcType extends ActiveRecord
 {
@@ -41,6 +42,7 @@ class NdcType extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название',
+            'is_city_dependent' => 'Зависит от города'
         ];
     }
 
@@ -61,6 +63,7 @@ class NdcType extends ActiveRecord
     {
         return [
             [['name'], 'string'],
+            [['is_city_dependent'], 'boolean'],
         ];
     }
 
@@ -105,5 +108,23 @@ class NdcType extends ActiveRecord
         }
 
         return \DateInterval::createFromDateString($interval);
+    }
+
+    /**
+     * Зависим ли тип от города
+     *
+     * @param integer $ndcTypeId
+     * @return bool
+     */
+    public static function isCityDependent($ndcTypeId)
+    {
+        /** @var NdcType $ndcType */
+        $ndcType = NdcType::findOne(['id' => $ndcTypeId]);
+
+        if (!$ndcType) {
+            throw new \LogicException('Неизвестный тип NDC: ' . $ndcTypeId);
+        }
+
+        return $ndcType->is_city_dependent;
     }
 }

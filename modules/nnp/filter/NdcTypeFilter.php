@@ -12,12 +12,17 @@ class NdcTypeFilter extends NdcType
 {
     public $id = '';
     public $name = '';
+    public $is_city_dependent = '';
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['id'], 'integer'],
             [['name'], 'string'],
+            [['is_city_dependent'], 'integer'],
         ];
     }
 
@@ -36,6 +41,7 @@ class NdcTypeFilter extends NdcType
 
         $this->id && $query->andWhere([$ndcTypeTableName . '.id' => $this->id]);
         $this->name && $query->andWhere(['LIKE', $ndcTypeTableName . '.name', $this->name]);
+        $this->is_city_dependent !== '' && $query->andWhere(['is_city_dependent' => $this->is_city_dependent]);
 
         return $dataProvider;
     }

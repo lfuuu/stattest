@@ -4,6 +4,7 @@ namespace app\forms\tariff\voip;
 
 use app\classes\Form;
 use app\models\TariffVoip;
+use app\modules\nnp\models\NdcType;
 
 class TariffVoipForm extends Form
 {
@@ -33,12 +34,13 @@ class TariffVoipForm extends Form
         $is_default = 0,
         $price_include_vat = 1,
         $edit_user = 0,
-        $edit_time = '';
+        $edit_time = '',
+        $ndc_type_id = '';
 
     public function rules()
     {
         return [
-            [['country_id', 'connection_point_id', 'dest', 'currency_id', 'name',], 'required'],
+            [['country_id', 'connection_point_id', 'dest', 'currency_id', 'name', 'ndc_type_id'], 'required'],
             [
                 [
                     'id',
@@ -54,6 +56,7 @@ class TariffVoipForm extends Form
                     'tariffication_by_minutes',
                     'tariffication_full_first_minute',
                     'tariffication_free_first_seconds',
+                    'ndc_type_id'
                 ],
                 'integer'
             ],
@@ -87,6 +90,7 @@ class TariffVoipForm extends Form
             'is_virtual' => 'тариф для виртуальных номеров',
             'is_default' => 'тариф по-умолчанию',
             'price_include_vat' => 'включить в цену ставку налога',
+            'ndc_type_id' => 'Тип номера',
         ];
     }
 

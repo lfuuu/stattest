@@ -4,7 +4,9 @@ use app\classes\Html;
 use app\models\City;
 use app\models\Country;
 use app\models\DidGroup;
+use app\models\Number;
 use app\models\TariffVoip;
+use app\modules\nnp\models\NdcType;
 use app\widgets\DateControl as CustomDateControl;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
@@ -70,8 +72,26 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 4,
         'attributes' => [
-            'type_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $types, 'options' => ['class' => 'select2 form-reload']],
-            'city_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => City::getList($isWithEmpty = true, $model->country_id, $isWithNullAndNotNull = false, $isUsedOnly = false), 'options' => ['class' => 'select2 form-reload',]],
+            'type_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $types,
+                'options' => [
+                    'class' => 'select2 form-reload'
+                ]
+            ],
+            'city_id' => $model->type_id != Number::TYPE_7800 ?
+                [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => City::getList(
+                        $isWithEmpty = true,
+                        $model->country_id,
+                        $isWithNullAndNotNull = false,
+                        $isUsedOnly = false
+                    ),
+                    'options' => [
+                        'class' => 'select2 form-reload',
+                    ]
+                ] : ['type' => Form::INPUT_RAW],
             'country_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Country::getList($isWithEmpty = false), 'options' => ['class' => 'select2 form-reload',]],
             [
                 'type' => Form::INPUT_RAW,
@@ -85,30 +105,47 @@ echo Breadcrumbs::widget([
         ],
     ]);
 
-    if ($model->type_id === 'number') {
+    if ($model->type_id === Number::TYPE_NUMBER) {
         echo Form::widget([
             'model' => $model,
             'form' => $form,
             'columns' => 4,
             'attributes' => [
+                'ndc_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => NdcType::getList(),
+                    'options' => ['class' => 'select2 form-reload'],
+                ],
                 'did_group_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => DidGroup::getList($isWithEmpty = true, $model->city_id),
+                    'items' => DidGroup::getList($isWithEmpty = true, $model->city_id, $model->ndc_type_id),
                     'options' => ['class' => 'select2 form-reload'],
                 ],
                 'did' => ['type' => Form::INPUT_TEXT],
                 'no_of_lines' => ['type' => Form::INPUT_TEXT],
             ],
         ]);
-    } elseif ($model->type_id == '7800') {
+    } elseif ($model->type_id == Number::TYPE_7800) {
         echo Form::widget([
             'model' => $model,
             'form' => $form,
             'columns' => 4,
             'attributes' => [
-                'did' => ['type' => Form::INPUT_TEXT],
-                'no_of_lines' => ['type' => Form::INPUT_TEXT],
-                'line7800_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => $model->getLinesFor7800($clientAccount)],
+                'ndc_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => NdcType::getList(),
+                    'options' => ['class' => 'select2 form-reload'],
+                ],
+                'did' => [
+                    'type' => Form::INPUT_TEXT
+                ],
+                'no_of_lines' => [
+                    'type' => Form::INPUT_TEXT
+                ],
+                'line7800_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => $model->getLinesFor7800($clientAccount)
+                ],
             ],
         ]);
     } else {
@@ -117,8 +154,20 @@ echo Breadcrumbs::widget([
             'form' => $form,
             'columns' => 4,
             'attributes' => [
-                'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
-                'no_of_lines' => ['type' => Form::INPUT_TEXT],
+                'ndc_type_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => NdcType::getList(),
+                    'options' => ['class' => 'select2 form-reload'],
+                ],
+                'did' => [
+                    'type' => Form::INPUT_TEXT,
+                    'options' => [
+                        'readonly' => 'readonly'
+                    ]
+                ],
+                'no_of_lines' => [
+                    'type' => Form::INPUT_TEXT
+                ],
             ],
         ]);
     }
@@ -168,7 +217,15 @@ echo Breadcrumbs::widget([
         'attributes' => [
             'tariff_main_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_LOCAL_FIXED, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency, $model->tariff_main_status),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_LOCAL_FIXED,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency,
+                    $model->tariff_main_status,
+                    $model->ndc_type_id
+                ),
                 'options' => ['class' => 'select2']
             ],
             'tariff_main_status' => [
@@ -180,7 +237,14 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_local_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_LOCAL_MOBILE, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_LOCAL_MOBILE,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency
+                    //$model->ndc_type_id
+                ),
                 'options' => [
                     'class' => 'select2 form-reload'
                 ]
@@ -200,7 +264,14 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_russia_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_RUSSIA, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_RUSSIA,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency
+                    //$model->ndc_type_id
+                ),
                 'options' => [
                     'class' => 'select2 form-reload'
                 ]
@@ -220,7 +291,14 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_russia_mob_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_RUSSIA, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_RUSSIA,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency
+                    //$model->ndc_type_id
+                ),
                 'options' => ['class' => 'select2']
             ],
             ['type' => Form::INPUT_RAW],
@@ -228,7 +306,14 @@ echo Breadcrumbs::widget([
             ['type' => Form::INPUT_RAW],
             'tariff_intern_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => TariffVoip::getList(TariffVoip::DEST_INTERNATIONAL, $isPriceIncludeVat, $isWithEmpty = false, $model->connection_point_id, $clientAccount->currency),
+                'items' => TariffVoip::getList(
+                    TariffVoip::DEST_INTERNATIONAL,
+                    $isPriceIncludeVat,
+                    $isWithEmpty = false,
+                    $model->connection_point_id,
+                    $clientAccount->currency
+                    //$model->ndc_type_id
+                ),
                 'options' => [
                     'class' => 'select2 form-reload'
                 ]

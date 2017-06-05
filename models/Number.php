@@ -87,6 +87,10 @@ class Number extends ActiveRecord
 
     public $levenshtein = -1;
 
+    const TYPE_NUMBER = 'number';
+    const TYPE_7800 = '7800';
+    const TYPE_LINE = 'line';
+
     /**
      * @return string
      */
