@@ -2,6 +2,7 @@
 use app\classes\Assert;
 use app\classes\Encrypt;
 use app\classes\Language;
+use app\dao\NumberBeautyDao;
 use app\exceptions\ModelValidationException;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
@@ -967,7 +968,7 @@ class ApiLk
 
             if (!$countryPrefix) {
                 $countryPrefix = $number->country->prefix;
-                $cityPostfixLength = $number->city->postfix_length;
+                $cityPostfixLength = $cityId == Number::TYPE_7800 ? NumberBeautyDao::DEFAULT_POSTFIX_LENGTH  : $number->city->postfix_length;
             }
 
             $line = [
