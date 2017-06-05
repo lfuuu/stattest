@@ -71,7 +71,23 @@ class NumberFilter extends Number
 
         $this->number !== '' && $query->andWhere(['LIKE', $numberTableName . '.number', $this->number]);
 
-        $this->city_id !== '' && $query->andWhere([$numberTableName . '.city_id' => $this->city_id]);
+        switch($this->city_id) {
+            case '':
+                break;
+
+            case GetListTrait::$isNull:
+                $query->andWhere(['city_id' => null]);
+                break;
+
+            case GetListTrait::$isNotNull:
+                $query->andWhere(['IS NOT', 'city_id', null]);
+                break;
+
+            default:
+                $query->andWhere([$numberTableName . '.city_id' => $this->city_id]);
+                break;
+        }
+
         $this->status !== '' && $query->andWhere([$numberTableName . '.status' => $this->status]);
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
         $this->did_group_id !== '' && $query->andWhere([$numberTableName . '.did_group_id' => $this->did_group_id]);
@@ -87,11 +103,7 @@ class NumberFilter extends Number
         $this->calls_per_month_0_from !== '' && $query->andWhere(['>=', $numberTableName . '.calls_per_month_0', $this->calls_per_month_0_from]);
         $this->calls_per_month_0_to !== '' && $query->andWhere(['<=', $numberTableName . '.calls_per_month_0', $this->calls_per_month_0_to]);
 
-        if ($this->country_id !== '') {
-            $cityTableName = City::tableName();
-            $query->joinWith('city');
-            $query->andWhere([$cityTableName . '.country_id' => $this->country_id]);
-        }
+        $this->country_id !== '' && $query->andWhere([$numberTableName . '.country_code' => $this->country_id]);
 
         switch ($this->usage_id) {
             case GetListTrait::$isNull:

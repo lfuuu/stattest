@@ -64,7 +64,7 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong cityId');
         }
 
-        $ndcTypes = DidGroup::getList((int)$isWithEmpty, $cityId);
+        $ndcTypes = DidGroup::getList((int)$isWithEmpty, null, $cityId);
         ReturnFormatted::me()->returnFormattedValues($ndcTypes, $format);
     }
 

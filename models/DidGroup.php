@@ -171,6 +171,7 @@ class DidGroup extends ActiveRecord
      */
     public static function getList(
         $isWithEmpty = false,
+        $countryId = null,
         $cityId = null,
         $ndcTypeId = NdcType::ID_GEOGRAPHIC
     ) {
@@ -183,6 +184,7 @@ class DidGroup extends ActiveRecord
         }
 
         $ndcTypeId && $where = ['AND', ['ndc_type_id' => $ndcTypeId], $where];
+        $countryId && $where = ['AND', ['country_code' => $countryId], $where];
 
 
         return self::getListTrait(

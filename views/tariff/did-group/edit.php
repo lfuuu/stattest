@@ -59,7 +59,7 @@ if (!$didGroup->isNewRecord) {
     <div class="row">
 
         <?php // Страна ?>
-        <div class="col-sm-3">
+        <div class="col-sm-<?= (NdcType::isCityDependent($didGroup->ndc_type_id) ? 3 : 6)?>">
             <?= $form->field($didGroup, 'country_code')
                 ->widget(Select2::className(), [
                     'data' => Country::getList($isWithEmpty = false),
@@ -69,13 +69,15 @@ if (!$didGroup->isNewRecord) {
                 ]) ?>
         </div>
 
-        <?php // Город ?>
-        <div class="col-sm-3">
-            <?= $form->field($didGroup, 'city_id')
-                ->widget(Select2::className(), [
-                    'data' => City::getList($isWithEmpty = true, $didGroup->country_code),
-                ]) ?>
-        </div>
+        <?php if (NdcType::isCityDependent($didGroup->ndc_type_id)) : ?>
+            <?php // Город ?>
+            <div class="col-sm-3">
+                <?= $form->field($didGroup, 'city_id')
+                    ->widget(Select2::className(), [
+                        'data' => City::getList($isWithEmpty = true, $didGroup->country_code),
+                    ]) ?>
+            </div>
+        <?php endif; ?>
 
         <?php // Красивость ?>
         <div class="col-sm-3">
@@ -90,6 +92,9 @@ if (!$didGroup->isNewRecord) {
             <?= $form->field($didGroup, 'ndc_type_id')
                 ->widget(Select2::className(), [
                     'data' => NdcType::getList($isWithEmpty = true),
+                    'options' => [
+                        'class' => 'formReload'
+                    ],
                 ]) ?>
         </div>
 

@@ -79,7 +79,7 @@ echo Breadcrumbs::widget([
                     'class' => 'select2 form-reload'
                 ]
             ],
-            'city_id' => $model->type_id != Number::TYPE_7800 ?
+            'city_id' => NdcType::isCityDependent($model->ndc_type_id) ?
                 [
                     'type' => Form::INPUT_DROPDOWN_LIST,
                     'items' => City::getList(
@@ -118,7 +118,7 @@ echo Breadcrumbs::widget([
                 ],
                 'did_group_id' => [
                     'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => DidGroup::getList($isWithEmpty = true, $model->city_id, $model->ndc_type_id),
+                    'items' => DidGroup::getList($isWithEmpty = true, $model->country_id, $model->city_id, $model->ndc_type_id),
                     'options' => ['class' => 'select2 form-reload'],
                 ],
                 'did' => ['type' => Form::INPUT_TEXT],
