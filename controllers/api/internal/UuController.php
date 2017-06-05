@@ -13,11 +13,13 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\uu\behaviors\SyncVmCollocation;
+use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Bill;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
@@ -1547,5 +1549,76 @@ class UuController extends ApiInternalController
             $transaction->rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * @SWG\Definition(definition = "accountEntryRecord", type = "object",
+     *   @SWG\Property(property = "name", type = "string", description = "Название"),
+     *   @SWG\Property(property = "date", type = "string", description = "Дата счета"),
+     *   @SWG\Property(property = "date_from", type = "string", description = "Минимальная дата транзакций"),
+     *   @SWG\Property(property = "date_to", type = "string", description = "Максимальная дата транзакций"),
+     *   @SWG\Property(property = "account_tariff_id", type = "integer", description = "ID услуги"),
+     *   @SWG\Property(property = "tariff_period_id", type = "integer", description = "ID периода/тариф"),
+     *   @SWG\Property(property = "type_id", type = "integer", description = "-1 - Подключение. -2 - Абонентка. -3 - Минималка. Положительное - Ресурс тарифа"),
+     *   @SWG\Property(property = "price", type = "float", description = "Цена по тарифу, ¤"),
+     *   @SWG\Property(property = "price_without_vat", type = "float", description = "Цена без НДС, ¤"),
+     *   @SWG\Property(property = "vat_rate", type = "float", description = "НДС, %"),
+     *   @SWG\Property(property = "vat", type = "float", description = "НДС, ¤"),
+     *   @SWG\Property(property = "price_with_vat", type = "float", description = "Цена с НДС, ¤"),
+     * ),
+     *
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-account-entries", summary = "Список реалтайм проводок, еще не ставших бухгалтерскими", operationId = "GetAccountEntries",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Список реалтайм проводок, еще не ставших бухгалтерскими",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/accountEntryRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @param int $client_account_id
+     * @return array
+     */
+    public function actionGetAccountEntries($client_account_id)
+    {
+        $billTableName = Bill::tableName();
+        $accountEntryTableName = AccountEntry::tableName();
+        $query = AccountEntry::find()
+            ->joinWith('bill')
+            ->where([
+                $billTableName . '.client_account_id' => $client_account_id,
+                $billTableName . '.is_converted' => 0,
+            ])
+            ->andWhere(['>', $accountEntryTableName . '.price_with_vat', 0]);
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->_getAccountEntryRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param AccountEntry $model
+     * @return array
+     */
+    private function _getAccountEntryRecord($model)
+    {
+        return [
+            'name' => $model->getFullName(),
+            'date' => $model->date,
+            'date_from' => $model->date_from,
+            'date_to' => $model->date_to,
+            'account_tariff_id' => $model->account_tariff_id,
+            'tariff_period_id' => $model->tariff_period_id,
+            'type_id' => $model->type_id,
+            'price' => $model->price,
+            'price_without_vat' => $model->price_without_vat,
+            'vat_rate' => $model->vat_rate,
+            'vat' => $model->vat,
+            'price_with_vat' => $model->price_with_vat,
+        ];
     }
 }
