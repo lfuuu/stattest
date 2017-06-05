@@ -1,12 +1,18 @@
 <?php
 namespace app\controllers\templates\document;
 
-use yii\filters\AccessControl;
 use app\classes\BaseController;
 use app\models\document\DocumentTemplate;
+use Yii;
+use yii\base\InvalidParamException;
+use yii\filters\AccessControl;
 
 class TemplateController extends BaseController
 {
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -22,11 +28,20 @@ class TemplateController extends BaseController
         ];
     }
 
+    /**
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionIndex()
     {
         return $this->render('list');
     }
 
+    /**
+     * @param bool|false $id
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionEdit($id = false)
     {
         $model = DocumentTemplate::findOne($id);
@@ -35,11 +50,14 @@ class TemplateController extends BaseController
             $model = new DocumentTemplate;
         }
 
-        if ($model->load(\Yii::$app->request->post()) && $model->save()) {
-            \Yii::$app->session->setFlash('success');
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', 'Документ успешно сохранен');
+            Yii::$app->response->redirect('/templates/document/template');
         }
 
-        return $this->render('edit', ['model' => $model]);
+        return $this->render('edit', [
+            'model' => $model
+        ]);
     }
 
 }

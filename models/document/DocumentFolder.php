@@ -1,10 +1,10 @@
 <?php
 namespace app\models\document;
 
-use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
-use yii\helpers\Url;
 use app\models\ClientDocument;
+use yii\base\InvalidParamException;
+use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 class DocumentFolder extends ActiveRecord
 {
@@ -29,6 +29,7 @@ class DocumentFolder extends ActiveRecord
             [['name',], 'string'],
             [['name',], 'required'],
             [['parent_id', 'default_for_business_id', 'sort'], 'integer'],
+            [['parent_id', 'sort',], 'default', 'value' => 0],
         ];
     }
 
@@ -84,6 +85,7 @@ class DocumentFolder extends ActiveRecord
      * @param null|array $data
      * @param bool|true $withDocuments
      * @return array
+     * @throws InvalidParamException
      */
     public function populateTreeForWidget($data = null, $withDocuments = true)
     {

@@ -58,6 +58,7 @@ class DocumentTemplate extends ActiveRecord
             [['folder_id', 'sort',], 'integer'],
             [['name', 'folder_id',], 'required'],
             ['type', 'in', 'range' => array_keys(ClientDocument::$types)],
+            ['sort', 'default', 'value' => 0],
         ];
     }
 
