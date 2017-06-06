@@ -1059,9 +1059,9 @@ class DbFormUsageExtra extends DbForm{
             $R = ['' => ''];
             while ($r=$db->NextRecord()) {
                 $sName = $r['description'].' ('.$r['price'].' '.$r['currency'].')';
-                $allTarif[$r['id']] = $sName;
+                $allTarif[$r['id']] = htmlspecialchars($sName);
                 if($r["code"] == ""){
-                    $R[$r['id']]=$sName;
+                    $R[$r['id']] = htmlspecialchars($sName);
                 }
             }
             $this->fields['tarif_id']['type']='select';
