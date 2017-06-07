@@ -14,6 +14,7 @@ use yii\helpers\Url;
  * @property int $country_code
  * @property int $city_id
  * @property int $ndc_type_id
+ * @property int $is_service
  *
  * @property float $price1
  * @property float $price2
@@ -92,6 +93,7 @@ class DidGroup extends ActiveRecord
             'ndc_type_id' => 'Тип номера',
             'comment' => 'Комментарий для пользователя',
             'tariff_status_beauty' => 'Пакет за красивость',
+            'is_service' => 'Служебная группа',
         ];
 
         for ($i = 1; $i <= 9; $i++) {
@@ -111,7 +113,8 @@ class DidGroup extends ActiveRecord
         $rules = [
             [['name', 'comment'], 'string'],
             [['beauty_level', 'city_id', 'ndc_type_id', 'country_code'], 'integer'],
-            [['name', 'beauty_level', 'country_code', 'ndc_type_id'], 'required'],
+            [['name', 'beauty_level', 'country_code', 'ndc_type_id', 'is_service'], 'required'],
+            ['is_service', 'boolean'],
             ['tariff_status_beauty', 'number'],
         ];
 

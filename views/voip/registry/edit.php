@@ -6,7 +6,9 @@
  * @var array $checkList
  * @var array $statusInfo
  */
+use app\classes\enum\VoipRegistrySourceEnum;
 use app\classes\Html;
+use app\models\billing\Trunk;
 use app\models\City;
 use app\models\Country;
 use app\models\Number;
@@ -91,12 +93,17 @@ $readonlyOptions = [
             ],
             'source' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => \app\classes\enum\VoipRegistrySourceEnum::$names,
-                'options' => $isEditable ? [] : $readonlyOptions,
+                'items' => VoipRegistrySourceEnum::$names,
+                'options' => [
+                    'class' => 'formReload',
+                ] + ($isEditable ? [] : $readonlyOptions),
+
             ],
             'account_id' => [
                 'type' => Form::INPUT_TEXT,
-                'options' => $isEditable ? [] : $readonlyOptions,
+                'options' => [
+                    'class' => 'formReloadOnLostFocus'
+                ] + ($isEditable ? [] : $readonlyOptions),
             ]
         ];
 
@@ -114,6 +121,9 @@ $readonlyOptions = [
         $maskedInputWidgetConfig = [
             'type' => Form::INPUT_WIDGET,
             'widgetClass' => \app\classes\MaskedInput::className(),
+            'columnOptions' => [
+                'colspan' => 3
+            ],
             'options' => [
                 'mask' => $model->city_number_format,
                 'options' => [
@@ -122,29 +132,46 @@ $readonlyOptions = [
             ]
         ];
 
+        $line2attributes = [
+            'ndc_type_id' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'columnOptions' => [
+                    'colspan' => 2
+                ],
+                'items' => NdcType::getList(),
+                'options' => [
+                        'class' => 'formReload',
+                    ] + ($isEditable ? [] : $readonlyOptions),
+            ],
+            'ndc' => [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => $model->ndcList,
+                'options' => [
+                        'class' => 'formReload'
+                    ] + ($isEditable ? [] : $readonlyOptions),
+            ],
+            'number_from' => $maskedInputWidgetConfig,
+            'number_to' => $maskedInputWidgetConfig,
+        ];
+
+        if ($model->source == VoipRegistrySourceEnum::OPERATOR_NOT_FOR_SALE) {
+            $line2attributes['trunk_id'] = [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'columnOptions' => [
+                    'colspan' => 3
+                ],
+                'items' => ($model->account_id ? Trunk::dao()->getList(['accountId' => $model->account_id], $isWithEmpty = true) : ['' => '----']),
+                'options' => [
+                    'class' => 'select2'
+                    ] + ($isEditable ? [] : $readonlyOptions)
+            ];
+        }
 
         echo Form::widget([
             'model' => $model,
             'form' => $form,
-            'columns' => 4,
-            'attributes' => [
-                'ndc_type_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => NdcType::getList(),
-                    'options' => [
-                            'class' => 'formReload',
-                        ] + ($isEditable ? [] : $readonlyOptions),
-                ],
-                'ndc' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => $model->ndcList,
-                    'options' => [
-                            'class' => 'formReload'
-                        ] + ($isEditable ? [] : $readonlyOptions),
-                ],
-                'number_from' => $maskedInputWidgetConfig,
-                'number_to' => $maskedInputWidgetConfig,
-            ],
+            'columns' => 8,
+            'attributes' => $line2attributes
         ]);
 
         echo Form::widget([

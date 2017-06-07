@@ -111,7 +111,10 @@ class VoipRegistryDao extends Singleton
             ->where(
                 [
                     'AND',
-                    ['ndc_type_id' => $registry->ndc_type_id],
+                    [
+                        'ndc_type_id' => $registry->ndc_type_id,
+                        'is_service' => (int)$registry->isService()
+                    ],
                     [
                         'OR',
                         ['city_id' => $registry->city_id],
@@ -119,7 +122,7 @@ class VoipRegistryDao extends Singleton
                             'country_code' => $registry->country_id, // страна без города
                             'city_id' => null
                         ]
-                    ]
+                    ],
                 ]
             )
             ->orderBy(new Expression('COALESCE(city_id, 0) DESC')) // выбор по стране без города имеет приоритет ниже страны с городом
@@ -194,6 +197,8 @@ class VoipRegistryDao extends Singleton
         $number->number_subscriber = substr($addNumber, strlen((string)$registry->country->prefix) + strlen($registry->ndc));
         $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $number->is_ported = (int)$registry->isSourcePotability();
+        $number->is_service = (int)$registry->isService();
+        $registry->trunk_id && $number->trunk_id = $number->trunk_id;
 
         $didGroupId = DidGroup::dao()->getIdByNumber($number);
 

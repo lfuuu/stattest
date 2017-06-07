@@ -7,6 +7,12 @@
             document.getElementById(frontendVariables.voipRegistryEdit.registryFormId).submit();
         });
 
+        $('.formReloadOnLostFocus').on('focusout', function () {
+            if ($('#registryform-source').val() == 'operator_not_for_sale') {
+                document.getElementById(frontendVariables.voipRegistryEdit.registryFormId).submit();
+            }
+        });
+
         $('#registryform-number_from, #registryform-number_to').on('blur', function () {
             var $operator = $('#registryform-operator');
             $operator.val('');

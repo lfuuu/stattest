@@ -429,7 +429,8 @@ final class OpenController extends Controller
      */
     public function actionDidGroups(array $id = [], array $beautyLvl = [])
     {
-        $result = DidGroup::find();
+        $result = DidGroup::find()
+            ->where(['is_service' => 0]);
 
         if (count($id)) {
             $result->andWhere(['IN', 'id', $id]);

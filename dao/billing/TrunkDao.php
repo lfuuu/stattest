@@ -31,7 +31,11 @@ class TrunkDao extends Singleton
             $query->andWhere(['t.server_id' => $params['serverIds']]);
         }
 
-        if (((isset($params['serviceTrunkIds']) && $params['serviceTrunkIds']) || (isset($params['contractIds']) && $params['contractIds']))) {
+        if (
+            (isset($params['serviceTrunkIds']) && $params['serviceTrunkIds']) ||
+            (isset($params['contractIds']) && $params['contractIds']) ||
+            (isset($params['accountId']) && $params['accountId'])
+        ) {
             $query->leftJoin(['st' => 'billing.service_trunk'], 'st.trunk_id = t.id');
         }
 
@@ -41,6 +45,10 @@ class TrunkDao extends Singleton
 
         if (isset($params['contractIds']) && $params['contractIds']) {
             $query->andWhere(['st.contract_id' => $params['contractIds']]);
+        }
+
+        if (isset($params['accountId']) && $params['accountId']) {
+            $query->andWhere(['st.client_account_id' => $params['accountId']]);
         }
 
         if (!isset($params['showInStat']) || (isset($params['showInStat']) && $params['showInStat'])) {

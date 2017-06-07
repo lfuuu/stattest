@@ -17,6 +17,7 @@ class DidGroupFilter extends DidGroup
     public $name = '';
     public $beauty_level = '';
     public $ndc_type_id = '';
+    public $is_service = '';
 
     public $price1_from = '';
     public $price1_to = '';
@@ -57,7 +58,7 @@ class DidGroupFilter extends DidGroup
             [['city_id'], 'integer'],
             [['name'], 'string'],
             [['beauty_level'], 'integer'],
-            [['ndc_type_id'], 'integer'],
+            [['ndc_type_id', 'is_service'], 'integer'],
         ];
 
         for ($i = 1; $i <= 9; $i++) {
@@ -104,6 +105,7 @@ class DidGroupFilter extends DidGroup
         $this->name !== '' && $query->andWhere(['LIKE', $didGroupTableName . '.name', $this->name]);
         $this->beauty_level !== '' && $query->andWhere([$didGroupTableName . '.beauty_level' => $this->beauty_level]);
         $this->ndc_type_id !== '' && $query->andWhere([$didGroupTableName . '.ndc_type_id' => $this->ndc_type_id]);
+        $this->is_service !== '' && $query->andWhere(['is_service' => $this->is_service]);
 
         for ($i = 1; $i <= 9; $i++) {
             $this->{'price' . $i .'_from'} !== '' && $query->andWhere(['>=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_from'}]);

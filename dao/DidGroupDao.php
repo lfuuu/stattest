@@ -60,6 +60,7 @@ class DidGroupDao extends Singleton
                     'city_id' => $number->city_id,
                     'beauty_level' => $number->beauty_level,
                     'ndc_type_id' => $number->ndc_type_id,
+                    'is_service' => $number->is_service,
                 ];
             }
         }
@@ -71,6 +72,7 @@ class DidGroupDao extends Singleton
                     'country_code' => $number->country_code,
                     'beauty_level' => $number->beauty_level,
                     'ndc_type_id' => $number->ndc_type_id,
+                    'is_service' => $number->is_service,
                 ],
                 [
                     'OR',
@@ -133,7 +135,8 @@ class DidGroupDao extends Singleton
         $didGroupQuery = DidGroup::find()
             ->where([
                 'country_code' => $countryCode,
-                'ndc_type_id' => $ndcTypeId
+                'ndc_type_id' => $ndcTypeId,
+                'is_service' => 0,
             ])
             ->with('country')
             ->orderBy(new Expression('country_code, COALESCE(city_id, 0), beauty_level'));
@@ -205,7 +208,8 @@ class DidGroupDao extends Singleton
                 $where = [
                     'country_code' => $group->country_code,
                     'beauty_level' => $group->beauty_level,
-                    'ndc_type_id' => $group->ndc_type_id
+                    'ndc_type_id' => $group->ndc_type_id,
+                    'is_service' => $group->is_service,
                 ];
 
                 if ($group->city_id) {

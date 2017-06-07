@@ -50,7 +50,10 @@ class FreeNumberFilter extends Number
     public function init()
     {
         $this->_query = parent::find()
-            ->where([parent::tableName() . '.status' => parent::STATUS_INSTOCK]);
+            ->where([
+                parent::tableName() . '.status' => parent::STATUS_INSTOCK,
+                parent::tableName() . '.is_service' => 0
+            ]);
     }
 
     /**

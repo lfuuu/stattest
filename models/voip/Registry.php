@@ -26,6 +26,7 @@ use app\modules\nnp\models\NdcType;
  * @property integer $account_id
  * @property string $created_at
  * @property string $comment
+ * @property integer $trunk_id
  * @property City $city
  * @property Country $country
  * @property NdcType $ndcType
@@ -71,6 +72,7 @@ class Registry extends HistoryActiveRecord
             'account_id' => 'ЛС',
             'created_at' => 'Создано',
             'ndc' => 'NDC',
+            'trunk_id' => "FMC транк",
         ];
     }
 
@@ -161,7 +163,17 @@ class Registry extends HistoryActiveRecord
      */
     public function isSourcePotability()
     {
-        return $this->source == VoipRegistrySourceEnum::PORTABILITY;
+        return in_array($this->source, [VoipRegistrySourceEnum::PORTABILITY, VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE]);
+    }
+
+    /**
+     * Это служебная группа
+     *
+     * @return bool
+     */
+    public function isService()
+    {
+        return isset(VoipRegistrySourceEnum::$service[$this->source]);
     }
 
     /**

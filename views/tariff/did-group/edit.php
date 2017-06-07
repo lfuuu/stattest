@@ -103,13 +103,18 @@ if (!$didGroup->isNewRecord) {
     <div class="row">
 
         <?php // Название ?>
-        <div class="col-sm-9">
+        <div class="col-sm-6">
             <?= $form->field($didGroup, 'name')->textInput() ?>
         </div>
 
         <?php // Комментарий ?>
         <div class="col-sm-3">
             <?= $form->field($didGroup, 'comment') ?>
+        </div>
+
+        <?php // Служебная группа? ?>
+        <div class="col-sm-3">
+            <?= $form->field($didGroup, 'is_service')->checkbox() ?>
         </div>
 
     </div>

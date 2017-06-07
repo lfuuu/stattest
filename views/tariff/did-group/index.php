@@ -12,6 +12,7 @@ use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\models\DidGroup;
 use app\models\filter\DidGroupFilter;
@@ -75,6 +76,10 @@ $columns = [
     [
         'attribute' => 'ndc_type_id',
         'class' => NdcTypeColumn::className()
+    ],
+    [
+        'attribute' => 'is_service',
+        'class' => YesNoColumn::className()
     ],
 ];
 
