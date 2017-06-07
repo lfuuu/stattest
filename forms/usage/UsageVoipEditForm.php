@@ -598,7 +598,7 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     protected function preProcess()
     {
-        if ($this->type_id == Number::TYPE_7800 || !NdcType::isCityDependent($this->ndc_type_id)) {
+        if ($this->type_id != Number::TYPE_LINE && !NdcType::isCityDependent($this->ndc_type_id)) {
             $this->city_id = null;
         }
 
