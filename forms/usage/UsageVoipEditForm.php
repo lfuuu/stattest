@@ -5,6 +5,7 @@ use app\classes\Assert;
 use app\helpers\DateTimeZoneHelper;
 use app\models\City;
 use app\models\ClientAccount;
+use app\models\Country;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\models\LogTarif;
@@ -342,8 +343,13 @@ class UsageVoipEditForm extends UsageVoipForm
 
                 $this->numbers[] = $this->did;
 
+                $region = $this->connection_point_id;
+                if (!$region && ($country = Country::findOne(['code' => $this->country_id]))) {
+                    $region = $country->default_connection_point_id;
+                }
+
                 $usage = new UsageVoip;
-                $usage->region = $this->connection_point_id;
+                $usage->region = $region;
                 $usage->actual_from = $actualFrom;
                 $usage->actual_to = $actualTo;
                 $usage->type_id = $this->type_id;
