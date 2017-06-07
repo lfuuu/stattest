@@ -261,7 +261,15 @@ class AccountEditForm extends Form
             $this->clientM->country_id = $contragent->country_id;
             $this->clientM->currency = Currency::defaultCurrencyByCountryId($contragent->country_id);
 
-            $this->setAttributes($this->clientM->getAttributes(), false);
+            $this->setAttributes(
+                array_filter(
+                    $this->clientM->getAttributes(),
+                    function ($value) {
+                        return !is_null($value);
+                    }
+                ),
+                false
+            );
 
             $this->admin_contact_id = 0;
             $this->admin_is_active = 0;
