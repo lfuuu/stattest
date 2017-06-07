@@ -67,7 +67,6 @@ class UsageVoipEditForm extends UsageVoipForm
         $rules[] = [
             [
                 'type_id',
-                'city_id',
                 'client_account_id',
                 'no_of_lines',
                 'did',
@@ -80,6 +79,14 @@ class UsageVoipEditForm extends UsageVoipForm
             ],
             'required',
             'on' => 'add'
+        ];
+        $rules[] = [
+            'city_id',
+            'required',
+            'on' => 'add',
+            'when' => function ($model) {
+                return $model->type_id !== Number::TYPE_7800;
+            }
         ];
         $rules[] = [['did'], 'trim'];
         $rules[] = [['did'], 'validateDid', 'on' => 'add'];
@@ -112,7 +119,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'required',
             'on' => 'add',
             'when' => function ($model) {
-                return $model->type_id === 'number';
+                return $model->type_id === Number::TYPE_NUMBER;
             }
         ];
         $rules[] = [
@@ -120,7 +127,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'required',
             'on' => 'add',
             'when' => function ($model) {
-                return $model->type_id === '7800';
+                return $model->type_id === Number::TYPE_7800;
             }
         ];
         $rules[] = [
@@ -128,7 +135,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'validateNoUsedLine',
             'on' => 'add',
             'when' => function ($model) {
-                return $model->type_id === '7800';
+                return $model->type_id === Number::TYPE_7800;
             }
         ];
 
@@ -585,6 +592,10 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     protected function preProcess()
     {
+        if ($this->type_id == Number::TYPE_7800 || !NdcType::isCityDependent($this->ndc_type_id)) {
+            $this->city_id = null;
+        }
+
         if ($this->city_id) {
             $this->city = City::findOne($this->city_id);
             $this->connection_point_id = $this->city->connection_point_id;
