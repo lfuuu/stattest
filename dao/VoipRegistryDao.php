@@ -9,7 +9,6 @@ use app\models\DidGroup;
 use app\models\Number;
 use app\models\NumberLog;
 use app\models\voip\Registry;
-use app\modules\nnp\models\NdcType;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
 use yii\db\Query;

@@ -163,7 +163,7 @@ class Registry extends HistoryActiveRecord
      */
     public function isSourcePotability()
     {
-        return in_array($this->source, [VoipRegistrySourceEnum::PORTABILITY, VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE]);
+        return in_array($this->source, [VoipRegistrySourceEnum::PORTABILITY_NOT_FOR_SALE, VoipRegistrySourceEnum::OPERATOR_NOT_FOR_SALE]);
     }
 
     /**

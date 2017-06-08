@@ -59,7 +59,7 @@ if (!$didGroup->isNewRecord) {
     <div class="row">
 
         <?php // Страна ?>
-        <div class="col-sm-<?= (NdcType::isCityDependent($didGroup->ndc_type_id) ? 3 : 6)?>">
+        <div class="col-sm-<?= (NdcType::isCityDependent($didGroup->ndc_type_id) && !$didGroup->is_service ? 3 : 6)?>">
             <?= $form->field($didGroup, 'country_code')
                 ->widget(Select2::className(), [
                     'data' => Country::getList($isWithEmpty = false),
@@ -69,7 +69,7 @@ if (!$didGroup->isNewRecord) {
                 ]) ?>
         </div>
 
-        <?php if (NdcType::isCityDependent($didGroup->ndc_type_id)) : ?>
+        <?php if (NdcType::isCityDependent($didGroup->ndc_type_id) && !$didGroup->is_service) : ?>
             <?php // Город ?>
             <div class="col-sm-3">
                 <?= $form->field($didGroup, 'city_id')
@@ -113,8 +113,10 @@ if (!$didGroup->isNewRecord) {
         </div>
 
         <?php // Служебная группа? ?>
-        <div class="col-sm-3">
-            <?= $form->field($didGroup, 'is_service')->checkbox() ?>
+        <div class="col-sm-3" >
+            <?= $form->field($didGroup, 'is_service')->checkbox([
+                'class' => 'formReload'
+            ]) ?>
         </div>
 
     </div>
