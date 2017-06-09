@@ -195,7 +195,7 @@ class DidGroup extends ActiveRecord
             $isWithNullAndNotNull = false,
             $indexBy = 'id',
             $select = 'name',
-            $orderBy = ['beauty_level' => SORT_ASC],
+            $orderBy = ['is_service' => SORT_DESC, 'beauty_level' => SORT_ASC],
             $where
         );
     }

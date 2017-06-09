@@ -162,7 +162,7 @@ class TariffVoip extends ActiveRecord implements TariffInterface
                 [
                     'dest' => $dest,
                     'price_include_vat' => $priceIncludeVat,
-                    'ndc_type_id' => $ndcTypeId,
+                    'ndc_type_id' => $ndcTypeId ?: NdcType::ID_GEOGRAPHIC,
                 ],
                 $status ? ['status' => $status] : [],
                 $connectingPointId ? ['connection_point_id' => $connectingPointId] : [],

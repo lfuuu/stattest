@@ -203,7 +203,7 @@ class UsageVoipEditForm extends UsageVoipForm
         switch ($this->type_id) {
 
             case '7800': {
-                if (!preg_match('/^7800\d{7}$/', $this->did)) {
+                if (!preg_match('/^\d{1,2}80\d{6,7}$/', $this->did)) {
                     $this->addError('did', 'Неверный формат номера');
                 }
 
@@ -691,10 +691,6 @@ class UsageVoipEditForm extends UsageVoipForm
                 // BIL-1442: У номеров 7800 тариф берется из папки 7800, или архив
                 if (!in_array($this->tariff_main_status, [TariffVoip::STATUS_7800, TariffVoip::STATUS_7800_TEST, TariffVoip::STATUS_ARCHIVE])) {
                     $this->tariff_main_status = TariffVoip::STATUS_7800;
-                }
-
-                if (substr($this->did, 0, 4) != '7800') {
-                    $this->did = null;
                 }
 
                 break;
