@@ -1772,6 +1772,7 @@ class m_newaccounts extends IModule
 
                     $ll = array(
                         "bill_no" => $bill_no,
+                        "isBill" => strpos($r, 'bill') === 0,
                         "obj" => $r,
                         "bill_client" => $bill->Get("client_id"),
                         "g" => get_param_protected($r),
