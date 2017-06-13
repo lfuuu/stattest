@@ -203,7 +203,7 @@ class UsageVoipEditForm extends UsageVoipForm
         switch ($this->type_id) {
 
             case '7800': {
-                if (!preg_match('/^\d{1,2}80\d{6,7}$/', $this->did)) {
+                if (!preg_match('/^\d{1,2}80\d{6,8}$/', $this->did)) {
                     $this->addError('did', 'Неверный формат номера');
                 }
 
