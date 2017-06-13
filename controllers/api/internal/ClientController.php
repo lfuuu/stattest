@@ -244,6 +244,9 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="partner_id", type="integer", description="Идентификатор договора партнера"),
      *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнерского договора"),
      *   @SWG\Property(property="partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
+     *   @SWG\Property(property="business_id", type="integer", description="Идентификатор типа договора"),
+     *   @SWG\Property(property="business_process_id", type="integer", description="Идентификатор подразделения"),
+     *   @SWG\Property(property="business_process_status_id", type="integer", description="Идентификатор статуса договора"),
      *   @SWG\Property(property="accounts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-full-client-struct-account"))
      * ),
      *
@@ -330,6 +333,9 @@ class ClientController extends ApiInternalController
                             'partner_id' => $contract->isPartnerAgent(),
                             'is_partner' => $contract->isPartner(),
                             'partner_login_allow' => $contract->is_partner_login_allow,
+                            'business_id' => $contract->business_id,
+                            'business_process_id' => $contract->business_process_id,
+                            'business_process_status_id' => $contract->business_process_status_id,
                             'accounts' => $resultAccounts
                         ];
                     }
