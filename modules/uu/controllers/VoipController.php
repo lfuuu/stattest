@@ -38,54 +38,74 @@ class VoipController extends BaseController
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetCities($countryId = null, $isWithEmpty = false, $format = null)
+    public function actionGetCities($countryId, $isWithEmpty = false, $format = null)
     {
         if (!$countryId) {
             throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $ndcTypes = City::getList((int)$isWithEmpty, $countryId);
-        ReturnFormatted::me()->returnFormattedValues($ndcTypes, $format);
+        $sities = City::getList((int)$isWithEmpty, $countryId);
+        ReturnFormatted::me()->returnFormattedValues($sities, $format);
     }
 
     /**
-     * Вернуть массив красивости номера в зависимости от города
+     * Вернуть массив красивости номера в зависимости от страны/города
      * Используется для динамической подгрузки select2 или selectbox
      *
+     * @param int $countryId
      * @param int $cityId
      * @param int|bool $isWithEmpty
      * @param string $format
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetDidGroups($cityId = null, $isWithEmpty = false, $format = null)
+    public function actionGetDidGroups($countryId, $cityId = null, $isWithEmpty = false, $format = null)
     {
-        if (!$cityId) {
-            throw new \InvalidArgumentException('Wrong cityId');
+        if (!$countryId) {
+            throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $ndcTypes = DidGroup::getList((int)$isWithEmpty, null, $cityId);
+        $didGroups = DidGroup::getList((int)$isWithEmpty, $countryId, $cityId);
+        ReturnFormatted::me()->returnFormattedValues($didGroups, $format);
+    }
+
+    /**
+     * Вернуть массив NDC
+     * Используется для динамической подгрузки select2 или selectbox
+     *
+     * @param null|bool $isCityDepended
+     * @param int|bool $isWithEmpty
+     * @param string $format
+     * @throws \InvalidArgumentException
+     * @throws \yii\base\ExitException
+     */
+    public function actionGetNdcTypes($isCityDepended = null, $isWithEmpty = false, $format = null)
+    {
+        $ndcTypes = NdcType::getList((int)$isWithEmpty, $isWithNullAndNotNull = false, $isCityDepended);
+        $isCityDepended && $ndcTypes[NdcType::ID_LINE] = 'Линия без номера';
         ReturnFormatted::me()->returnFormattedValues($ndcTypes, $format);
     }
 
     /**
-     * Вернуть массив аккаунтов операторов в зависимости от города
+     * Вернуть массив аккаунтов операторов в зависимости от страны/города
      * Используется для динамической подгрузки select2 или selectbox
      *
+     * @param int $countryId
      * @param int $cityId
      * @param int|bool $isWithEmpty
      * @param string $format
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetOperatorAccounts($cityId = null, $isWithEmpty = false, $format = null)
+    public function actionGetOperatorAccounts($countryId, $cityId = null, $isWithEmpty = false, $format = null)
     {
-        if (!$cityId) {
-            throw new \InvalidArgumentException('Wrong cityId');
+        if (!$countryId) {
+            throw new \InvalidArgumentException('Wrong countryId');
         }
 
         $numbers = new FreeNumberFilter;
-        $numbers->setCity($cityId);
+        $numbers->setCountry($countryId);
+        $cityId && $numbers->setCity($cityId);
 
         $operatorAccounts = ClientAccount::getListTrait(
             (int)$isWithEmpty,
@@ -99,8 +119,9 @@ class VoipController extends BaseController
     }
 
     /**
-     * Вернуть массив свободных номеров по городу и красивости номера
+     * Вернуть массив свободных номеров по стране/городу и красивости номера
      *
+     * @param int $countryId
      * @param int $cityId
      * @param int $didGroupId
      * @param int $operatorAccountId
@@ -115,6 +136,7 @@ class VoipController extends BaseController
      * @throws \yii\base\InvalidParamException
      */
     public function actionGetFreeNumbers(
+        $countryId,
         $cityId = null,
         $didGroupId = null,
         $operatorAccountId = null,
@@ -141,11 +163,12 @@ class VoipController extends BaseController
             );
         }
 
-        if (!$cityId) {
-            throw new \InvalidArgumentException('Wrong cityId');
+        if (!$countryId) {
+            throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $numbers->setCity($cityId);
+        $numbers->setCountry($countryId);
+        $cityId && $numbers->setCity($cityId);
         $ndcTypeId && $numbers->setNdcType($ndcTypeId);
         $didGroupId && $numbers->setDidGroup($didGroupId);
         $operatorAccountId && $numbers->setOperatorAccount($operatorAccountId);
@@ -165,11 +188,12 @@ class VoipController extends BaseController
     }
 
     /**
-     * Вернуть массив тарифов в зависимости от города
+     * Вернуть массив тарифов в зависимости от страны/города
      * Используется для динамической подгрузки select2 или selectbox
      *
      * @param int $serviceTypeId
      * @param string $currency
+     * @param int $countryId
      * @param int $cityId
      * @param int|bool $isWithEmpty
      * @param string $format
@@ -178,10 +202,10 @@ class VoipController extends BaseController
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetTariffPeriods($serviceTypeId, $currency, $cityId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null, $didGroupId = null)
+    public function actionGetTariffPeriods($serviceTypeId, $currency, $countryId, $cityId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null, $didGroupId = null)
     {
-        if (!$cityId) {
-            throw new \InvalidArgumentException('Wrong cityId');
+        if (!$countryId) {
+            throw new \InvalidArgumentException('Wrong countryId');
         }
 
         if (!$didGroupId) {
@@ -205,6 +229,7 @@ class VoipController extends BaseController
             $defaultTariffPeriodId,
             $serviceTypeId,
             $currency,
+            $countryId,
             $cityId,
             (int)$isWithEmpty,
             $isWithNullAndNotNull = false,

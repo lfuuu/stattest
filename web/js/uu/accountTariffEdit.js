@@ -20,8 +20,6 @@
 
     AccountTariffEdit.prototype.numbersListSelectAllCheckbox = null;
 
-    AccountTariffEdit.prototype.numbersListFilter = null;
-
     AccountTariffEdit.prototype.numbersListClass = null;
 
     AccountTariffEdit.prototype.numbersListOrderByField = null;
@@ -60,14 +58,13 @@
       setTimeout((function(_this) {
         return function() {
           _this.country = $('#voipCountryId').on('change', _this.onCountryChange);
-          _this.ndcType = $('#voipNdcType').on('change', _this.onCityChange);
           _this.city = $('#voipRegions').on('change', _this.onCityChange);
+          _this.ndcType = $('#voipNdcType').on('change', _this.showNumbersList);
           _this.didGroup = $('#voipDidGroup').on('change', _this.onDidGroupChange);
-          _this.operatorAccount = $('#voipOperatorAccount').on('change', _this.onDidGroupChange);
+          _this.operatorAccount = $('#voipOperatorAccount').on('change', _this.showNumbersList);
           _this.numbersList = $('#voipNumbersList').on('change', 'input', _this.showTariffDiv);
           _this.numbersListSelectAll = $('#voipNumbersListSelectAll');
           _this.numbersListSelectAllCheckbox = _this.numbersListSelectAll.find('input').on('change', _this.selectAllNumbers);
-          _this.numbersListFilter = $('#voipNumbersListFilter');
           _this.tariffDiv = $('#voipTariffDiv');
           _this.numbersListClass = $('#voipNumbersListClass').on('change', _this.showNumbersList);
           _this.numbersListOrderByField = $('#voipNumbersListOrderByField').on('change', _this.showNumbersList);
@@ -103,6 +100,8 @@
               return _this.city.val('').trigger('change');
             };
           })(this));
+        } else {
+          this.city.val('').trigger('change');
         }
         this.country.parent().parent().removeClass(this.errorClassName);
         return this.city.prop('disabled', false);
@@ -114,16 +113,23 @@
     };
 
     AccountTariffEdit.prototype.onCityChange = function() {
-      var cityId, ndcTypeId;
+      var cityId, countryId;
+      countryId = this.country.val();
       cityId = this.city.val();
-      ndcTypeId = this.ndcType.val();
-      if (this.city.prop('disabled') || cityId) {
-        this.city.parent().parent().removeClass(this.errorClassName);
-      } else {
-        this.city.parent().parent().addClass(this.errorClassName);
-      }
-      if (cityId && ndcTypeId >= 0) {
+      this.didGroup.val('').trigger('change');
+      $.get('/uu/voip/get-ndc-types', {
+        isCityDepended: (cityId ? 1 : 0),
+        isWithEmpty: 1,
+        format: 'options'
+      }, (function(_this) {
+        return function(html) {
+          _this.ndcType.html(html);
+          return _this.ndcType.val('').trigger('change');
+        };
+      })(this));
+      if (countryId) {
         $.get('/uu/voip/get-did-groups', {
+          countryId: countryId,
           cityId: cityId,
           isWithEmpty: 1,
           format: 'options'
@@ -135,6 +141,7 @@
           };
         })(this));
         return $.get('/uu/voip/get-operator-accounts', {
+          countryId: countryId,
           cityId: cityId,
           isWithEmpty: 1,
           format: 'options'
@@ -154,33 +161,27 @@
     };
 
     AccountTariffEdit.prototype.onDidGroupChange = function() {
-      var didGroupId;
-      didGroupId = this.didGroup.val();
-      if (this.didGroup.prop('disabled') || didGroupId) {
+      if (this.didGroup.val()) {
         this.didGroup.parent().parent().removeClass(this.errorClassName);
       } else {
         this.didGroup.parent().parent().addClass(this.errorClassName);
       }
-      if (didGroupId) {
-        this.reloadTariffList();
-        return this.showNumbersList();
-      }
+      this.reloadTariffList();
+      return this.showNumbersList();
     };
 
     AccountTariffEdit.prototype.showNumbersList = function() {
-      var cityId, ndcTypeId;
+      var cityId, countryId, didGroupId, ndcTypeId;
       ndcTypeId = this.ndcType.val();
+      countryId = this.country.val();
       cityId = this.city.val();
-      if (cityId && ndcTypeId >= 0) {
-        this.numbersListFilter.slideDown();
-      } else {
-        this.numbersListFilter.slideUp();
-      }
-      if (cityId) {
-        this.numbersList.html('');
+      didGroupId = this.didGroup.val();
+      this.numbersList.html('');
+      if (didGroupId) {
         return $.get('/uu/voip/get-free-numbers', {
+          countryId: countryId,
           cityId: cityId,
-          didGroupId: this.didGroup.val(),
+          didGroupId: didGroupId,
           operatorAccountId: this.operatorAccount.val(),
           rowClass: this.numbersListClass.val(),
           orderByField: this.numbersListOrderByField.val(),
@@ -200,7 +201,6 @@
           };
         })(this));
       } else {
-        this.numbersList.html('');
         this.numbersListSelectAll.hide();
         return this.showTariffDiv();
       }
@@ -237,23 +237,27 @@
     };
 
     AccountTariffEdit.prototype.reloadTariffList = function() {
-      var cityId, didGroupId;
+      var cityId, countryId, didGroupId;
+      countryId = this.country.val();
       cityId = this.city.val();
       didGroupId = this.didGroup.val();
-      return $.get('/uu/voip/get-tariff-periods', {
-        serviceTypeId: this.voipServiceTypeIdVal,
-        currency: this.currencyVal,
-        cityId: cityId,
-        isWithEmpty: 1,
-        format: 'options',
-        isPostpaid: this.isPostpaid,
-        didGroupId: didGroupId
-      }, (function(_this) {
-        return function(html) {
-          _this.tariffPeriod.val('').html(html);
-          return _this.tariffPeriod.trigger('change');
-        };
-      })(this));
+      if (didGroupId) {
+        return $.get('/uu/voip/get-tariff-periods', {
+          serviceTypeId: this.voipServiceTypeIdVal,
+          currency: this.currencyVal,
+          countryId: countryId,
+          cityId: cityId,
+          isWithEmpty: 1,
+          format: 'options',
+          isPostpaid: this.isPostpaid,
+          didGroupId: didGroupId
+        }, (function(_this) {
+          return function(html) {
+            _this.tariffPeriod.val('').html(html);
+            return _this.tariffPeriod.trigger('change');
+          };
+        })(this));
+      }
     };
 
     AccountTariffEdit.prototype.onFormSubmit = function(e) {

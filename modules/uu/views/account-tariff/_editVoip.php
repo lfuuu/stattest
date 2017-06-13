@@ -12,7 +12,6 @@ use app\classes\Html;
 use app\models\City;
 use app\models\Country;
 use app\models\Number;
-use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariffVoip;
 use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
@@ -44,11 +43,12 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                     'options' => [
                         'id' => 'voipCountryId',
                     ],
-                ]) ?>
+                ])
+                ->label('Страна *') ?>
         </div>
 
         <div class="col-sm-2">
-            <?php // регион (город) ?>
+            <?php // город ?>
             <?= $form->field($accountTariffVoip, 'city_id')
                 ->widget(Select2::className(), [
                     'data' => City::getList($isWithEmpty = true, $accountTariffVoip->voip_country_id), // страна выбрана от клиента
@@ -63,7 +63,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
             <?php // тип номера ?>
             <?= $form->field($accountTariffVoip, 'voip_ndc_type_id')
                 ->widget(Select2::className(), [
-                    'data' => NdcType::getList($isWithEmpty = true) + [NdcType::ID_LINE => 'Линия без номера'],
+                    'data' => [],
                     'options' => [
                         'id' => 'voipNdcType',
                     ],
@@ -79,7 +79,8 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                         'disabled' => true,
                         'id' => 'voipDidGroup',
                     ],
-                ]) ?>
+                ])
+                ->label('DID-группа *') ?>
         </div>
 
         <div class="col-sm-2">
@@ -97,7 +98,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
     </div>
 
 <?php // фильтры списка номеров ?>
-    <div class="row collapse" id="voipNumbersListFilter">
+    <div class="row">
 
         <div class="col-sm-2">
             <?php // кол-во столбцов ?>

@@ -356,6 +356,7 @@ abstract class AccountTariffForm extends Form
      * @param int $defaultTariffPeriodId
      * @param bool $isWithEmpty
      * @param int $serviceTypeId
+     * @param int $countryId
      * @param int $cityId
      * @param bool $isWithNullAndNotNull
      * @param bool $isPostpaid
@@ -365,6 +366,7 @@ abstract class AccountTariffForm extends Form
         &$defaultTariffPeriodId,
         $isWithEmpty = false,
         $serviceTypeId = null,
+        $countryId = null,
         $cityId = null,
         $isWithNullAndNotNull = false,
         $isPostpaid = null
@@ -373,6 +375,7 @@ abstract class AccountTariffForm extends Form
             $defaultTariffPeriodId,
             $serviceTypeId ?: $this->serviceTypeId,
             $this->accountTariff->clientAccount->currency,
+            $countryId,
             $cityId,
             $isWithEmpty,
             $isWithNullAndNotNull,

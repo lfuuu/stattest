@@ -113,7 +113,7 @@ class Number extends ActiveRecord
             'client_id' => 'Клиент',
             'usage_id' => 'Услуга',
             'city_id' => 'Город',
-            'did_group_id' => 'DID группа',
+            'did_group_id' => 'DID-группа',
             'beauty_level' => 'Степень красивости',
             'status' => 'Статус',
             'ndc_type_id' => 'Тип номера',

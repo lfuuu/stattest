@@ -26,7 +26,7 @@ use app\classes\Html;
             ]) ?>
             <?php
             $price = $number->getPrice($currency = null, $clientAccount);
-            $currency = $number->city->country->currency;
+            $currency = $number->country->currency;
             ?>
             <?= is_null($price) ?
                 'Договорная' :

@@ -25,6 +25,7 @@ $clientAccount = $accountTariff->clientAccount;
         $defaultTariffPeriodId,
         true,
         $accountTariff->service_type_id,
+        $clientAccount->country_id,
         $accountTariff->city_id,
         $isWithNullAndNotNull = false,
         $clientAccount->is_postpaid

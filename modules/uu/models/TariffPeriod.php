@@ -120,6 +120,7 @@ class TariffPeriod extends HistoryActiveRecord
      * @param int $defaultTariffPeriodId
      * @param int $serviceTypeId
      * @param int $currency
+     * @param int $countryId
      * @param int $cityId
      * @param bool $isWithEmpty
      * @param bool $isWithNullAndNotNull
@@ -132,6 +133,7 @@ class TariffPeriod extends HistoryActiveRecord
         &$defaultTariffPeriodId,
         $serviceTypeId,
         $currency = null,
+        $countryId = null,
         $cityId = null,
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
@@ -160,6 +162,10 @@ class TariffPeriod extends HistoryActiveRecord
 
         if ($isIncludeVat) {
             $activeQuery->andWhere(['tariff.is_include_vat' => $isIncludeVat]);
+        }
+
+        if ($countryId) {
+            $activeQuery->andWhere(['tariff.country_id' => $countryId]);
         }
 
         if ($cityId && ($serviceTypeId == ServiceType::ID_VOIP || $serviceTypeId == ServiceType::ID_VOIP_PACKAGE)) {

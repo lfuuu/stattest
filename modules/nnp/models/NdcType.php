@@ -14,7 +14,9 @@ use yii\helpers\Url;
 class NdcType extends ActiveRecord
 {
     // Определяет getList (список для selectbox) и __toString
-    use \app\classes\traits\GetListTrait;
+    use \app\classes\traits\GetListTrait {
+        getList as getListTrait;
+    }
 
     const ID_GEOGRAPHIC = 1;
     const ID_MOBILE = 2;
@@ -115,6 +117,7 @@ class NdcType extends ActiveRecord
      *
      * @param integer $ndcTypeId
      * @return bool
+     * @throws \LogicException
      */
     public static function isCityDependent($ndcTypeId)
     {
@@ -127,4 +130,28 @@ class NdcType extends ActiveRecord
 
         return $ndcType->is_city_dependent;
     }
+
+    /**
+     * Вернуть список всех доступных значений
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @param null|bool $isCityDepended null - любое, bool - только указанное
+     * @return \string[]
+     */
+    public static function getList(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false,
+        $isCityDepended = null
+    ) {
+        return self::getListTrait(
+            $isWithEmpty,
+            $isWithNullAndNotNull,
+            $indexBy = 'id',
+            $select = 'name',
+            $orderBy = ['name' => SORT_ASC],
+            $where = is_null($isCityDepended) ? [] : ['is_city_dependent' => $isCityDepended]
+        );
+    }
+
 }

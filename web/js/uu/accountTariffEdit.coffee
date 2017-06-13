@@ -9,7 +9,6 @@ class AccountTariffEdit
   numbersList: null
   numbersListSelectAll: null
   numbersListSelectAllCheckbox: null
-  numbersListFilter: null
 
   numbersListClass: null
   numbersListOrderByField: null
@@ -31,15 +30,14 @@ class AccountTariffEdit
   constructor: () ->
     setTimeout () =>
       @country = $('#voipCountryId').on('change', @onCountryChange)
-      @ndcType = $('#voipNdcType').on('change', @onCityChange)
       @city = $('#voipRegions').on('change', @onCityChange)
+      @ndcType = $('#voipNdcType').on('change', @showNumbersList)
       @didGroup = $('#voipDidGroup').on('change', @onDidGroupChange)
-      @operatorAccount = $('#voipOperatorAccount').on('change', @onDidGroupChange)
+      @operatorAccount = $('#voipOperatorAccount').on('change', @showNumbersList)
 
       @numbersList = $('#voipNumbersList').on('change', 'input', @showTariffDiv)
       @numbersListSelectAll = $('#voipNumbersListSelectAll')
       @numbersListSelectAllCheckbox = @numbersListSelectAll.find('input').on('change', @selectAllNumbers)
-      @numbersListFilter = $('#voipNumbersListFilter')
       @tariffDiv = $('#voipTariffDiv')
 
       @numbersListClass = $('#voipNumbersListClass').on('change', @showNumbersList)
@@ -64,7 +62,8 @@ class AccountTariffEdit
   onCountryChange: () =>
     @initCountry(true)
 
-# при изменении страны
+# при инициализации или изменении страны
+# страна обязательна. Без нее ничего нельзя
   initCountry: (isUpdateCities) =>
     countryVal = @country.val()
     if countryVal
@@ -74,6 +73,8 @@ class AccountTariffEdit
         $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: 1, format: 'options'}, (html) =>
           @city.html(html) # обновить значения
           @city.val('').trigger('change')
+      else
+        @city.val('').trigger('change')
 
       @country.parent().parent().removeClass(@errorClassName)
       @city.prop('disabled', false)
@@ -83,26 +84,27 @@ class AccountTariffEdit
       @city.val('').trigger('change')
       @country.parent().parent().addClass(@errorClassName)
 
-# при изменении типа NDC или города
+# при изменении города
+# город в качестве доп. фильтра. Но можно и без него, тогда всё остальное (дид-группа, тариф и пр.) только относящиеся ко всей стране
   onCityChange: =>
+    countryId = @country.val()
     cityId = @city.val()
-    ndcTypeId = @ndcType.val()
 
-    # пометить себя красным, если можно выбирать, но не выбран
-    if @city.prop('disabled') or cityId
-      @city.parent().parent().removeClass(@errorClassName)
-    else
-      @city.parent().parent().addClass(@errorClassName)
+    # сбросить, чтобы не было несколько @showNumbersList
+    @didGroup.val('').trigger('change')
 
-    # город указан и тип NDC не линия (в том числе пустой)
-    if cityId && ndcTypeId >= 0
+    # обновить список типов NDC в зависимости от города. Фактически geo/mob или freephone. Страна не важна
+    $.get '/uu/voip/get-ndc-types', {isCityDepended: (if cityId then 1 else 0), isWithEmpty: 1, format: 'options'}, (html) =>
+      @ndcType.html(html) # обновить значения
+      @ndcType.val('').trigger('change')
 
-      $.get '/uu/voip/get-did-groups', {cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
+    if countryId
+      $.get '/uu/voip/get-did-groups', {countryId: countryId, cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
         @didGroup.prop('disabled', false)
         @didGroup.val('').trigger('change')
 
-      $.get '/uu/voip/get-operator-accounts', {cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
+      $.get '/uu/voip/get-operator-accounts', {countryId: countryId, cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
         @operatorAccount.html(html) # обновить значения
         @operatorAccount.prop('disabled', false)
         @operatorAccount.val('').trigger('change')
@@ -116,35 +118,28 @@ class AccountTariffEdit
 
 # при изменении DID-группы
   onDidGroupChange: =>
-    didGroupId = @didGroup.val()
-
     # пометить себя красным, если можно выбирать, но не выбран
-    if @didGroup.prop('disabled') or didGroupId
+    if @didGroup.val()
       @didGroup.parent().parent().removeClass(@errorClassName)
     else
       @didGroup.parent().parent().addClass(@errorClassName)
 
-    if didGroupId
-# заранее подготовить список тарифов и пакетов
-      @reloadTariffList()
-      @showNumbersList()
+    @reloadTariffList()
+    @showNumbersList()
 
 # показать номера
-# при изменении красивости или кол-ва колонок или сортировки
   showNumbersList: =>
     ndcTypeId = @ndcType.val()
+    countryId = @country.val()
     cityId = @city.val()
+    didGroupId = @didGroup.val()
 
-    if cityId and ndcTypeId >= 0
-      @numbersListFilter.slideDown()
-    else
-      @numbersListFilter.slideUp()
-
-    if cityId
-      @numbersList.html('')
+    @numbersList.html('')
+    if didGroupId
       $.get '/uu/voip/get-free-numbers', {
+        countryId: countryId,
         cityId: cityId,
-        didGroupId: @didGroup.val(),
+        didGroupId: didGroupId,
         operatorAccountId: @operatorAccount.val(),
         rowClass: @numbersListClass.val(),
         orderByField: @numbersListOrderByField.val(),
@@ -161,7 +156,6 @@ class AccountTariffEdit
         @showTariffDiv()
 
     else
-      @numbersList.html('')
       @numbersListSelectAll.hide()
       @showTariffDiv()
 
@@ -193,11 +187,14 @@ class AccountTariffEdit
 
 # перегрузить список тарифов
   reloadTariffList: =>
+    countryId = @country.val()
     cityId = @city.val()
     didGroupId = @didGroup.val()
-    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, cityId: cityId, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid, didGroupId: didGroupId}, (html) =>
-      @tariffPeriod.val('').html(html) # обновить значения
-      @tariffPeriod.trigger('change')
+
+    if didGroupId
+      $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, countryId: countryId, cityId: cityId, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid, didGroupId: didGroupId}, (html) =>
+        @tariffPeriod.val('').html(html) # обновить значения
+        @tariffPeriod.trigger('change')
 
 # при сабмите формы
   onFormSubmit: (e) =>

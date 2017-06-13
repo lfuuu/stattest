@@ -118,7 +118,7 @@ class UsageVoipForm extends Form
             'country_id' => 'Страна',
             'connection_point_id' => 'Точка присоединения',
             'type_id' => 'Тип номера',
-            'did_group_id' => 'DID группа',
+            'did_group_id' => 'DID-группа',
             'connecting_date' => 'Дата подключения',
             'disconnecting_date' => 'Дата отключения',
             'tariff_change_date' => 'Дата изменения тарифа',

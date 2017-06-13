@@ -167,6 +167,7 @@ class DidGroup extends ActiveRecord
      * Вернуть список всех доступных значений
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param int $countryId
      * @param int $cityId
      * @param int $ndcTypeId
      * @return \string[]
@@ -184,10 +185,12 @@ class DidGroup extends ActiveRecord
         /** @var City $city */
         if ($cityId && ($city = City::findOne(['id' => $cityId]))) {
             $where = DidGroup::dao()->getQueryWhereByCity($city, $ndcTypeId);
+        } else {
+            $where['city_id'] = null;
         }
 
-        $ndcTypeId && $where = ['AND', ['ndc_type_id' => $ndcTypeId], $where];
-        $countryId && $where = ['AND', ['country_code' => $countryId], $where];
+        $ndcTypeId && $where['ndc_type_id'] = $ndcTypeId;
+        $countryId && $where['country_code'] = $countryId;
 
 
         return self::getListTrait(

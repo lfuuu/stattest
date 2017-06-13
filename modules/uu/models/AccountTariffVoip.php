@@ -11,11 +11,11 @@ class AccountTariffVoip extends AccountTariff
     public $voip_ndc_type_id = null;
     public $voip_did_group = null;
     public $operator_account_id = null;
-    public $voip_numbers_list_class = 2;
+    public $voip_numbers_list_class = 3;
     public $voip_numbers_list_order_by_field = 'number';
     public $voip_numbers_list_order_by_type = SORT_ASC;
     public $voip_numbers_list_mask = '';
-    public $voip_numbers_list_limit = 50;
+    public $voip_numbers_list_limit = 40;
     public $voip_numbers = []; // Номера
 
     /**
@@ -28,7 +28,7 @@ class AccountTariffVoip extends AccountTariff
         return (parent::attributeLabels() + [
                 'voip_country_id' => 'Страна',
                 'voip_ndc_type_id' => 'Тип NDC',
-                'voip_did_group' => 'DID группа',
+                'voip_did_group' => 'DID-группа',
                 'operator_account_id' => 'Оператор',
                 'voip_numbers_list_class' => 'Количество столбцов',
                 'voip_numbers_list_order_by_field' => 'Сортировка по полю',
