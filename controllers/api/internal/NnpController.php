@@ -309,7 +309,6 @@ class NnpController extends ApiInternalController
      * ),
      */
     /**
-     * @param string $number
      * @param string $country_code
      * @param string $ndc
      * @param string $number_full
@@ -324,7 +323,6 @@ class NnpController extends ApiInternalController
      * @return array
      */
     public function actionGetNumberRanges(
-        $number = '',
         $country_code = '',
         $ndc = '',
         $number_full = '',

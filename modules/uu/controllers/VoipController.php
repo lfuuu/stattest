@@ -44,8 +44,8 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Wrong countryId');
         }
 
-        $sities = City::getList((int)$isWithEmpty, $countryId);
-        ReturnFormatted::me()->returnFormattedValues($sities, $format);
+        $cities = City::getList((int)$isWithEmpty, $countryId);
+        ReturnFormatted::me()->returnFormattedValues($cities, $format);
     }
 
     /**
