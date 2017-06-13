@@ -3,6 +3,7 @@ use app\classes\Assert;
 use app\classes\Encrypt;
 use app\classes\Language;
 use app\dao\NumberBeautyDao;
+use app\dao\reports\ReportUsageDao;
 use app\exceptions\ModelValidationException;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
@@ -25,6 +26,7 @@ use app\models\Region;
 use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
+use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\User;
@@ -1653,39 +1655,6 @@ class ApiLk
         return $ret;
     }
 
-    /**
-     * Получение используемых телефонных номеров для статистики
-     *
-     * @param ClientAccount $account
-     * @return array
-     */
-    private static function _getVoipPhones(ClientAccount $account)
-    {
-        $uuUsagesQuery = (new \yii\db\Query())
-            ->select(['usage_id' => 'uu.id', 'phone_num' => 'uu.voip_number', 'region' => 'r.id', 'r.timezone_name', 'region_name' => 'r.name'])
-            ->from(['uu' => AccountTariff::tableName()])
-            ->leftJoin(['c' => City::tableName()], 'c.id = uu.city_id')
-            ->leftJoin(['r' => Region::tableName()], 'r.id = c.connection_point_id')
-            ->where(['uu.client_account_id' => $account->id])
-            ->andWhere(['IS NOT', 'voip_number', null]);
-
-        $usages = (new \yii\db\Query())
-            ->select(['usage_id' => 'u.id', 'phone_num' => 'u.E164', 'u.region', 'r.timezone_name', 'region_name' => 'r.name'])
-            ->from(['u' => UsageVoip::tableName()])
-            ->leftJoin(['r' => Region::tableName()], 'r.id = u.region')
-            ->where(['u.client' => $account->client])
-            ->union($uuUsagesQuery);
-
-        $usageUnionQuery = (new \yii\db\Query())
-            ->from(['u' => $usages])
-            ->orderBy([
-                'region' => SORT_DESC,
-                'usage_id' => SORT_ASC
-            ]);
-
-        return $usageUnionQuery->all();
-    }
-
     public static function getStatisticsVoipPhones($client_id = '')
     {
         if (is_array($client_id) || !$client_id || !preg_match("/^\d{1,6}$/", $client_id)) {
@@ -1698,59 +1667,21 @@ class ApiLk
             throw new LogicException("account_is_bad");
         }
 
-        $timezones = [$account->timezone_name];
+        $usagesData = ReportUsageDao::me()->getUsageVoipAndTrunks($account);
 
-
-        $usages = self::_getVoipPhones($account);
-
-        $regions = [];
-        foreach ($usages as $u) {
-            if (!isset($regions[$u['region']])) {
-                $regions[$u['region']] = $u['region'];
-                if (!in_array($u['timezone_name'], $timezones)) {
-                    $timezones[] = $u['timezone_name'];
-                }
-            }
-        }
-
-        $timezones[] = DateTimeZoneHelper::TIMEZONE_UTC;
-
-        $last_region = '';
-        $phones = [];
-        if (count($regions) > 1) {
-            $phones['all'] = 'Все регионы';
-        }
-
-        foreach ($usages as $r) {
-            if (substr($r['phone_num'], 0, 4) == '7095') {
-                $r['phone_num'] = '7495' . substr($r['phone_num'], 4);
-            }
-            if ($last_region != $r['region']) {
-                $phones[$r['region']] = $r['region_name'];
-                $last_region = $r['region'];
-            }
-            $phones[$r['region'] . '_' . $r['phone_num']] = '&nbsp;&nbsp;' . $r['phone_num'];
-        }
-
-        $ret = [];
-        foreach ($phones as $key => $phone) {
-            $ret[] = [
-                'id' => $key,
-                'number' => $phone
-            ];
-        }
+        $phones = ReportUsageDao::me()->usagesToSelect($usagesData);
+        array_walk($phones, function (&$item, $key) {
+            $item = ['id' => $key, 'number' => $item];
+        });
 
         return [
-            'phones' => $ret,
-            'timezones' => $timezones,
+            'phones' => array_values($phones),
+            'timezones' => ReportUsageDao::me()->getTimezones($account, $usagesData['voip'])
         ];
     }
 
     public static function getStatisticsVoipData($client_id = '', $phone = 'all', $from = '', $to = '', $detality = 'day', $destination = 'all', $direction = 'both', $timezone = 'Europe/Moscow', $onlypay = 0, $isFull = 0)
     {
-        include PATH_TO_ROOT . "modules/stats/module.php";
-        $module_stats = new m_stats();
-
         $destination = (!in_array($destination, ['all', '0', '0-m', '0-f', '0-f-z', '1', '1-m', '1-f', '2', '3'])) ? 'all' : $destination;
         $direction = (!in_array($direction, ['both', 'in', 'out'])) ? 'both' : $direction;
 
@@ -1760,52 +1691,22 @@ class ApiLk
             throw new LogicException("account_is_bad");
         }
 
-        $usages = self::_getVoipPhones($account);
+        /** @var ReportUsageDao $reportDao */
+        $reportDao = ReportUsageDao::me();
 
-        $regions = $phones_sel = [];
-
-        foreach ($usages as $r) {
-            if ($phone == 'all') {
-                if (!isset($regions[$r['region']])) {
-                    $regions[$r['region']] = [];
-                }
-                if (!isset($regions[$r['region']][$r['usage_id']])) {
-                    $regions[$r['region']][$r['usage_id']] = $r['usage_id'];
-                }
-            }
-            if ($phone == $r['region'] || $phone == $r['region'] . '_' . $r['phone_num']) {
-                $phones_sel[] = $r['usage_id'];
-            }
-        }
+        $usagesData = $reportDao->getUsageVoipAndTrunks($account);
+        list($usageIds, $regions, $isTrunk) = $reportDao->reportConfig($phone, $usagesData);
 
         $stats = [];
-        if ($phone == 'all') {
 
-            foreach ($regions as $region => $phones_sel) {
-                $stats[$region] = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
-                    $region,
-                    strtotime($from),
-                    strtotime($to),
-                    $detality,
-                    $account->id,
-                    $phones_sel,
-                    $onlypay,
-                    $destination,
-                    $direction
-                );
-            }
-
-            $ar = Region::getList();
-            $stats = $module_stats->prepareStatArray($account, $stats, $detality, $ar);
-
-        } else {
-            $stats = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
-                $phone,
+        if ($usageIds) {
+            $stats = $reportDao->getUsageVoipStatistic(
+                ($isTrunk ? 'trunk' : $regions),
                 strtotime($from),
                 strtotime($to),
                 $detality,
                 $account->id,
-                $phones_sel,
+                $usageIds,
                 $onlypay,
                 $destination,
                 $direction,

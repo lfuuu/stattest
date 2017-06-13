@@ -2,6 +2,10 @@
 
 namespace app\dao\reports;
 
+use app\models\UsageTrunk;
+use app\models\UsageVoip;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use Yii;
 use DateTime;
 use DateTimeZone;
@@ -26,6 +30,8 @@ class ReportUsageDao extends Singleton
     const REPORT_MAX_VIEW_ITEMS = 5000;
 
     /**
+     * Статистика по телефонии
+     *
      * @param string $region
      * @param string $from
      * @param string $to
@@ -40,7 +46,7 @@ class ReportUsageDao extends Singleton
      * @return array
      * @throws \Exception
      */
-    public static function getUsageVoipStatistic(
+    public function getUsageVoipStatistic(
         $region,
         $from,
         $to,
@@ -63,26 +69,21 @@ class ReportUsageDao extends Singleton
 
         $clientAccount = ClientAccount::findOne($clientId);
         $query = Calls::find()
-            ->from(['cr' => Calls::tableName()]);
+            ->alias('cr')
+            ->andWhere([
+                'BETWEEN',
+                'cr.connect_time',
+                $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
+            ])
+            ->andWhere(['account_id' => $clientId]);
 
-        $query->andWhere([
-            'between',
-            'cr.connect_time',
-            $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
-            $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
-        ]);
+        $direction !== 'both' && $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
+        isset($usages) && count($usages) > 0 && $query->andWhere([($region == 'trunk' ? 'trunk_service_id' : 'number_service_id') => $usages]);
+        $paidonly && $query->andWhere('ABS(cr.cost) > 0.0001');
+        $region != 'trunk' && $query->andWhere(['cr.server_id' => $region]);
 
-        if ($direction !== 'both') {
-            $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
-        }
-
-        if (isset($usages) && count($usages) > 0) {
-            $query->andWhere(['in', 'cr.number_service_id', $usages]);
-        }
-
-        if ($paidonly) {
-            $query->andWhere('ABS(cr.cost) > 0.0001');
-        }
+        $query->andWhere([($region == 'trunk' ? 'number_service_id' : 'trunk_service_id') => null]);
 
         if ($destination !== 'all') {
             list ($dest, $mobile, $zone) = explode('-', $destination);
@@ -120,20 +121,22 @@ class ReportUsageDao extends Singleton
 
         switch ($detality) {
             case 'dest':
-                return self::_voipStatisticByDestination($query, $clientAccount, $region);
+                return $this->_voipStatisticByDestination($query, $clientAccount);
                 break;
             default:
-                return self::_voipStatistic($query, $clientAccount, $from, $packages, $detality, $paidonly, $isFull);
+                return $this->_voipStatistic($query, $clientAccount, $from, $packages, $detality, $paidonly, $isFull);
                 break;
         }
     }
 
     /**
+     * Статистика по пакетам
+     *
      * @param int $usageId
      * @param int $packageId
      * @return array|\yii\db\ActiveRecord[]
      */
-    public static function getUsageVoipPackagesStatistic($usageId, $packageId = 0)
+    public function getUsageVoipPackagesStatistic($usageId, $packageId = 0)
     {
         $query = UsageVoipPackage::find()
                 ->actual()
@@ -147,6 +150,8 @@ class ReportUsageDao extends Singleton
     }
 
     /**
+     * Вспомогательная функция статистики по телефонии
+     *
      * @param ActiveQuery $query
      * @param ClientAccount $clientAccount
      * @param DateTime $from
@@ -157,7 +162,7 @@ class ReportUsageDao extends Singleton
      * @return array
      * @throws \Exception
      */
-    private static function _voipStatistic(
+    private function _voipStatistic(
         ActiveQuery $query,
         ClientAccount $clientAccount,
         DateTime $from,
@@ -244,7 +249,10 @@ class ReportUsageDao extends Singleton
 
             if (isset($record['geo_id'])) {
                 if (!isset($geo[$record['geo_id']])) {
-                    $geo[$record['geo_id']] = Geo::find()->select('name')->where(['id' => (int)$record['geo_id']])->scalar();
+                    $geo[$record['geo_id']] = Geo::find()
+                        ->select('name')
+                        ->where(['id' => (int)$record['geo_id']])
+                        ->scalar();
                 }
 
                 $record['geo'] = $geo[$record['geo_id']];
@@ -269,7 +277,7 @@ class ReportUsageDao extends Singleton
             $record['price'] = number_format($record['price'], 2, '.', '');
 
             if ($isWithPackageDetail) {
-                self::_admixedPackageDetails($record);
+                $this->_admixedPackageDetails($record);
             }
 
             $result[] = $record;
@@ -298,12 +306,13 @@ class ReportUsageDao extends Singleton
     }
 
     /**
+     * Вспомогательная функция. Статистика по направлениям
+     *
      * @param ActiveQuery $query
      * @param ClientAccount $clientAccount
-     * @param int $region
      * @return array
      */
-    private static function _voipStatisticByDestination(ActiveQuery $query, ClientAccount $clientAccount, $region)
+    private function _voipStatisticByDestination(ActiveQuery $query, ClientAccount $clientAccount)
     {
         $query->select([
             'dest' => 'cr.destination_id',
@@ -313,7 +322,6 @@ class ReportUsageDao extends Singleton
             'cnt' => 'SUM(1)'
         ]);
 
-        $query->andWhere(['cr.server_id' => (int)$region]);
         $query->groupBy(['cr.destination_id', 'mob']);
 
         $result = [
@@ -416,6 +424,8 @@ class ReportUsageDao extends Singleton
     }
 
     /**
+     * Формирование итоговых значений
+     *
      * @param ClientAccount $clientAccount
      * @param array $row
      * @return array
@@ -442,7 +452,7 @@ class ReportUsageDao extends Singleton
      * 
      * @param array $record
      */
-    private static function _admixedPackageDetails(&$record)
+    private function _admixedPackageDetails(&$record)
     {
         // Детализация универсальных пакетов.
         $packageMinute = $record['nnp_package_minute_id'] ?
@@ -517,6 +527,288 @@ class ReportUsageDao extends Singleton
             $record['real_cost'],
             $record['billed_time']
         );
+    }
+
+    /**
+     * Список услуг телефонии в ЛС
+     *
+     * @param ClientAccount $account
+     * @return array
+     */
+    public function getUsageVoipAndTrunks(ClientAccount $account)
+    {
+        $trunks = UsageTrunk::find()
+            ->select(['id', 'trunk_id'])
+            ->where(['client_account_id' => $account->id])
+            ->asArray()
+            ->all();
+
+        if ($account->account_version == ClientAccount::VERSION_BILLER_USAGE) {
+            $usages = UsageVoip::find()
+                ->alias('u')
+                ->select([
+                    'id' => 'u.id',
+                    'phone_num' => 'u.E164',
+                    'region' => 'u.region',
+                    'region_name' => 'r.name',
+                    'timezone_name' => 'r.timezone_name'
+                ])
+                ->joinWith('connectionPoint r')
+                ->client($account->client)
+                ->orderBy([
+                    'u.region' => SORT_DESC,
+                    'u.id' => SORT_ASC
+                ])
+                ->asArray()
+                ->all();
+
+        } elseif ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+
+            $accountTariffs = AccountTariff::find()
+                ->where([
+                    'client_account_id' => $account->id,
+                    'service_type_id' => ServiceType::ID_VOIP
+                ])
+                ->with('city', 'region')
+                ->orderBy([
+                    AccountTariff::tableName() . '.id' => SORT_ASC
+                ]);
+
+            $usages = [];
+
+            /** @var AccountTariff $accountTariff */
+            foreach ($accountTariffs->each() as $accountTariff) {
+                $region = $accountTariff->city->region;
+                $usages[] = [
+                    'id' => $accountTariff->id,
+                    'phone_num' => $accountTariff->voip_number,
+                    'region' => $region->id,
+                    'region_name' => $region->name,
+                    'timezone_name' => $region->timezone_name
+                ];
+            }
+
+            /**
+            * ->orderBy([
+            *     'region'                     => SORT_DESC,
+            *     'account_tariff.voip_number' => SORT_ASC,
+            * ]);
+            */
+            usort($usages, function ($a, $b) {
+                if ($a['region'] == $b['region']) {
+                    if ($a['phone_num'] == $b['phone_num']) {
+                        return 0;
+                    }
+
+                    return $a['phone_num'] > $b['phone_num'] ? 1 : -1;
+                }
+
+                return $a['region'] < $b['region'] ? 1 : -1;
+            });
+        }
+
+        return [
+            'voip' => $usages,
+            'trunk' => $trunks
+        ];
+    }
+
+    /**
+     * Получение таймзон услуг
+     *
+     * @param ClientAccount $account
+     * @param array $usageVoip
+     * @return array
+     */
+    public function getTimezones(ClientAccount $account, $usageVoip)
+    {
+        $timezones = [
+            $account->timezone_name => 1,
+            DateTimeZoneHelper::TIMEZONE_UTC => 1
+        ];
+
+        foreach ($usageVoip as $usage) {
+            $timezones[$usage['timezone_name']] = 1;
+        }
+
+        return array_keys($timezones);
+    }
+
+    /**
+     * Получение регионов
+     *
+     * @param array $usageVoip
+     * @return array
+     */
+    public function getRegions($usageVoip)
+    {
+        $regions = [];
+        foreach ($usageVoip as $usage) {
+            if (isset($regions[$usage['region']])) {
+                continue;
+            }
+
+            $regions[$usage['region']] = $usage['region'];
+        }
+
+        return $regions;
+    }
+
+    /**
+     * Список услуг телефонии и транки
+     *
+     * @param array $services
+     * @param array $regions
+     * @return array
+     */
+    public function prepareToSelect($services, $regions)
+    {
+        $select = [];
+
+        if (count($regions) > 1) {
+            $select[] = [
+                'type' => 'usage',
+                'is_all' => true,
+            ];
+        }
+
+        $lastRegion = '';
+        foreach ($services['voip'] as $usage) {
+            if ($lastRegion != $usage['region']) {
+                $select[] = [
+                    'type' => 'usage',
+                    'region' => $usage['region'],
+                    'region_name' => $usage['region_name'],
+                    'is_all' => 1,
+                ];
+                $lastRegion = $usage['region'];
+            }
+
+            $select[] = [
+                'type' => 'usage',
+                'region' => $usage['region'],
+                'region_name' => $usage['region_name'],
+                'is_all' => false,
+                'id' => $usage['id'],
+                'value' => $usage['phone_num'],
+            ];
+        }
+
+        if ($services['trunk']) {
+            $select[] = [
+                'type' => 'trunk',
+                'is_all' => true,
+            ];
+        }
+
+        foreach ($services['trunk'] as $trunk) {
+            $select[] = [
+                'type' => 'trunk',
+                'is_all' => false,
+                'id' => $trunk['id'],
+                'value' => $trunk['id'],
+            ];
+        }
+
+        return $select;
+    }
+
+    /**
+     * Конвертирует список услуг в данные для select'а
+     *
+     * @param array $usagesData
+     * @return string[]
+     */
+    public function usagesToSelect($usagesData)
+    {
+        $convertData = self::me()->prepareToSelect($usagesData, $this->getRegions($usagesData['voip']));
+
+        $select = [];
+
+        foreach ($convertData as $type => $usage) {
+            $key = $usage['type'] . '_' . (isset($usage['region']) ? $usage['region'] : '');
+
+            ($usage['is_all'] || isset($usage['id'])) && $key .= '_' . ($usage['is_all'] ? 'all' : $usage['value']);
+
+            if ($usage['type'] == 'usage') {
+                if ($usage['is_all']) {
+                    $value = isset($usage['region']) ? $usage['region_name'] . ' (все номера)' : 'Все регионы';
+                } else {
+                    $value = '&nbsp;&nbsp;' . $usage['value'];
+                }
+            } else { // trunk
+                $value = ($usage['is_all'] ? 'Все транки' : 'Транк #' . $usage['id']);
+            }
+
+            $select[$key] = $value;
+        }
+
+        return $select;
+    }
+
+    /**
+     * Разбор полученного значения
+     *
+     * @param string $selected
+     * @return array
+     */
+    public function decodeSelected($selected)
+    {
+        $e = explode('_', $selected);
+        list($type, $region, $value) = $e;
+
+        $data = ['type' => $type];
+
+        if ($value == 'all') {
+            return $data + [
+                'is_all' => true
+            ] + ($region ? ['region' => $region] : []);
+        }
+
+        $data['is_all'] = false;
+        $data['value'] = $value;
+
+        return $data;
+    }
+
+    /**
+     * Получаем настройки отчета
+     *
+     * @param string $selected
+     * @param array $usagesData
+     * @return array
+     */
+    public function reportConfig($selected, $usagesData)
+    {
+        $reportConfig = $this->decodeSelected($selected);
+
+        $usageIds = [];
+        $regions = [];
+        $isTrunk = false;
+
+        if ($reportConfig['type'] == 'usage') {
+            foreach ($usagesData['voip'] as $usage) {
+                if (
+                    ($reportConfig['is_all'] &&
+                        (isset($reportConfig['region']) ? $reportConfig['region'] == $usage['region'] : true)
+                    ) ||
+                    ($usage['phone_num'] == $reportConfig['value'])
+                ) {
+                    $usageIds[] = $usage['id'];
+                    $regions[$usage['region']] = 1;
+                }
+            }
+        } else { // trunk
+            foreach ($usagesData['trunk'] as $trunk) {
+                if ($reportConfig['is_all'] || $trunk['id'] == $reportConfig['value']) {
+                    $usageIds[] = $trunk['id'];
+                }
+
+                $isTrunk = true;
+            }
+        }
+
+        return [$usageIds, array_keys($regions), $isTrunk];
     }
 
 }

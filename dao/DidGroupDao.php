@@ -113,7 +113,7 @@ class DidGroupDao extends Singleton
                         ['city_id' => null]
                     ]
                 ])
-                ->groupBy('beauty_level');
+                ->groupBy(['beauty_level', 'is_service']);
 
             $where = [
                 'id' => $query,

@@ -1,5 +1,8 @@
 <?php
 
+use app\dao\reports\ReportUsageDao;
+use app\models\UsageTrunk;
+use app\models\UsageVoip;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use app\helpers\DateTimeZoneHelper;
@@ -153,117 +156,28 @@ class m_stats extends IModule{
 		}
 	}
 
-    function stats_voip($fixclient){
-        global $db,$design;
-        if(!$fixclient){
+    public function stats_voip($fixclient)
+    {
+        global $design;
+
+        if (!$fixclient) {
             trigger_error2('Клиент не выбран');
             return;
         }
+
+        $phone = get_param_protected('phone', '');
 
         session_write_close();
 
         /** @var ClientAccount $account */
         $account = ClientAccount::findOne($fixclient);
 
-        $timezones = [ $account->timezone_name ];
+        $usagesData = ReportUsageDao::me()->getUsageVoipAndTrunks($account);
 
-        $usages = [];
-
-        if ($account->account_version == ClientAccount::VERSION_BILLER_USAGE) {
-            $usages = $db->AllRecords("select u.id, u.E164 as phone_num, u.region, r.name as region_name, r.timezone_name from usage_voip u
-                                       left join regions r on r.id=u.region
-                                       where u.client='" . addslashes($account->client) . "'
-                                       order by u.region desc, u.id asc");
-        } elseif ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
-
-            $accountTariffs = AccountTariff::find()->where([
-                'client_account_id' => $account->id,
-                'service_type_id' => ServiceType::ID_VOIP
-            ])
-                ->with('city', 'region')
-                ->orderBy([
-                    AccountTariff::tableName() . '.id' => SORT_ASC
-                ]);
-
-            /** @var AccountTariff $accountTariff */
-            foreach ($accountTariffs->each() as $accountTariff) {
-                $region = $accountTariff->city->region;
-                $usages[] = [
-                    'id' => $accountTariff->id,
-                    'phone_num' => $accountTariff->voip_number,
-                    'region' => $region->id,
-                    'region_name' => $region->name,
-                    'timezone_name' => $region->timezone_name
-                ];
-            }
-
-            // ->orderBy([
-            //     'region'                     => SORT_DESC,
-            //     'account_tariff.voip_number' => SORT_ASC,
-            // ]);
-            usort($usages, function ($a, $b) {
-                if ($a['region'] == $b['region']) {
-                    if ($a['phone_num'] == $b['phone_num']) {
-                        return 0;
-                    }
-                    return $a['phone_num'] > $b['phone_num'] ? 1 : -1;
-                }
-                return $a['region'] < $b['region'] ? 1 : -1;
-            });
-        }
-
-        if (!$usages) {
-            trigger_error2("У клиента нет подключенных телефонных номеров!");
+        if (!$usagesData) {
+            trigger_error2("У клиента нет подключенных телефонных номеров и транков!");
             return;
         }
-
-        $regions = array();
-        foreach ($usages as $u) {
-            if (!isset($regions[$u['region']])) {
-                $regions[$u['region']] = $u['region'];
-                if (!in_array($u['timezone_name'], $timezones)) {
-                    $timezones[] = $u['timezone_name'];
-                }
-            }
-        }
-
-        $timezones[] = 'UTC';
-
-        $regions_cnt = count($regions);
-
-        $design->assign('regions_cnt',$regions_cnt);
-        $design->assign('phone',$phone=get_param_protected('phone',''));
-        $phones = array();
-        $phones_sel = array();
-
-        $regions = array();
-
-        $last_region = $region = '';
-        if ($phone == '' && count($usages) > 0) {
-            $phone = $usages[0]['region'];
-            if ($regions_cnt > 1) $region = 'all';
-        }
-        if ($region != 'all') {
-            $region = explode('_', $phone);
-            $region = $region[0];
-        }
-
-        foreach ($usages as $r) {
-            if ($region == 'all') {
-                if (!isset($regions[$r['region']])) $regions[$r['region']] = array();
-                if (!isset($regions[$r['region']][$r['id']])) $regions[$r['region']][$r['id']] = $r['id'];
-            }
-            if (substr($r['phone_num'],0,4)=='7095') $r['phone_num']='7495'.substr($r['phone_num'],4);
-            if ($last_region != $r['region']){
-                $phones[$r['region']] = $r['region_name'].' (все номера)';
-                $last_region = $r['region'];
-            }
-            $phones[$r['region'].'_'.$r['phone_num']]='&nbsp;&nbsp;'.$r['phone_num'];
-            if (($phone==(string) $r['region']) || $phone==$r['region'].'_'.$r['phone_num']) {
-                $phones_sel[]=$r['id'];
-            }
-        }
-        $design->assign('phones',$phones);
 
         $dateFrom = new DatePickerValues('date_from', 'first');
         $dateTo = new DatePickerValues('date_to', 'last');
@@ -275,53 +189,39 @@ class m_stats extends IModule{
         DatePickerPeriods::assignPeriods(new DateTime());
 
         $destination = get_param_raw('destination', 'all');
-        if(!in_array($destination,array('all','0','0-m','0-f','0-f-z','1','1-m','1-f','2','3')))
-            $destination = 'all';
+        !in_array($destination, array('all', '0', '0-m', '0-f', '0-f-z', '1', '1-m', '1-f', '2', '3')) && $destination = 'all';
 
-        $direction = get_param_raw('direction','both');
-        if(!in_array($direction,array('both','in','out')))
-            $direction = 'both';
+        $direction = get_param_raw('direction', 'both');
+        !in_array($direction, array('both', 'in', 'out')) && $direction = 'both';
 
+        $design->assign('phone', $phone);
+        $design->assign('phones', ReportUsageDao::me()->usagesToSelect($usagesData));
+        $design->assign('destination', $destination);
+        $design->assign('direction', $direction);
+        $design->assign('detality', $detality = get_param_protected('detality', 'day'));
+        $design->assign('paidonly', $paidonly = get_param_integer('paidonly', 0));
+        $design->assign('timezone', $timezone = get_param_raw('timezone', $account->timezone_name));
+        $design->assign('timezones', ReportUsageDao::me()->getTimezones($account, $usagesData['voip']));
 
-        $design->assign('destination',$destination);
-        $design->assign('direction',$direction);
-        $design->assign('detality',$detality=get_param_protected('detality','day'));
-        $design->assign('paidonly',$paidonly=get_param_integer('paidonly',0));
-        $design->assign('timezone',$timezone=get_param_raw('timezone', $account->timezone_name));
-        $design->assign('timezones', $timezones);
+        list($usageIds, $regions, $isTrunk) = ReportUsageDao::me()->reportConfig($phone, $usagesData);
 
-        if ($region === 'all') {
-            $stats = array();
-            foreach ($regions as $region=>$phones_sel) {
-                $stats[$region] = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
-                    $region,
-                    $from,
-                    $to,
-                    $detality,
-                    $account->id,
-                    $phones_sel,
-                    $paidonly,
-                    $destination,
-                    $direction
-                );
-            }
-            $stats = $this->prepareStatArray($account, $stats, $detality);
-        } else {
+        $stats = [];
 
+        $isTrunk && $regions = 'trunk';
 
-            if (!(
-                $stats = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
-                    $region,
-                    $from,
-                    $to,
-                    $detality,
-                    $account->id,
-                    $phones_sel,
-                    $paidonly,
-                    $destination,
-                    $direction
-                )
-            )) {
+        if ($usageIds) {
+            if (!($stats = ReportUsageDao::me()->getUsageVoipStatistic(
+                $regions,
+                $from,
+                $to,
+                $detality,
+                $account->id,
+                $usageIds,
+                $paidonly,
+                $destination,
+                $direction
+            ))
+            ) {
                 return;
             }
         }
@@ -330,145 +230,6 @@ class m_stats extends IModule{
         $design->assign('price_include_vat', $account->price_include_vat);
         $design->AddMain('stats/voip_form.tpl');
         $design->AddMain('stats/voip.tpl');
-    }
-
-    /*функция формирует единый массив для разных регионов,
-     * входной массив вида: array('region_id1'=>array(), 'region_id2'=>array(), ...);
-    */
-    function prepareStatArray(ClientAccount $account, $data = array(), $detality = '', $all_regions = array()) {
-
-        if (!count($data)) return $data;
-        $Res = array();
-        $rt = array('price'=>0, 'cnt'=>0, 'ts2'=>0, 'len'=>0, 'price_with_tax' => 0, 'price_without_tax' => 0);
-
-        $tax_rate = $account->getTaxRate();
-
-        switch ($detality) {
-            case 'dest':
-                foreach ($data as $r_id=>$reg_data) {
-                    foreach ($reg_data as $k=>$r) {
-                        if ($r['is_total'] == false) {
-                            if (!isset($Res[$k])) $Res[$k] = array('tsf1'=>$r['tsf1'], 'reg_id'=>$r_id, 'cnt'=>0, 'price'=>0, 'len'=>0);
-
-                            $Res[$k]['cnt'] += $r['cnt'];
-                            $Res[$k]['len'] += $r['len'];
-                            $Res[$k]['price'] += $r['price'];
-                            $Res[$k]['price'] = number_format($Res[$k]['price'], 2, '.','');
-
-                            if ($Res[$k]['len']>=24*60*60) $d=floor($Res[$k]['len']/(24*60*60)); else $d=0;
-                            $Res[$k]['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$Res[$k]['len']-$d*24*60*60);
-
-                            if (isset($r['price'])) $rt['price']+=$r['price'];
-                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
-                            if (isset($r['len'])) $rt['len']+=$r['len'];
-                        }
-                    }
-                }
-                $rt['tsf1']='Итого';
-                if ($rt['len']>=24*60*60) $d=floor($rt['len']/(24*60*60)); else $d=0;
-                $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['len']-$d*24*60*60);
-
-                if ($account->price_include_vat) {
-                    $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
-                    $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
-                    $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
-                } else {
-                    $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
-                    $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
-                    $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
-                }
-
-                break;
-            case 'call':
-                foreach ($data as $r_id=>$reg_data) {
-                    foreach ($reg_data as $r) {
-                       if ($r['is_total'] == false) {
-                            $r['price'] = number_format($r['price'], 2, '.','');
-
-                            $Res[] = [
-                                    'mktime' => $r['mktime'],
-                                    'reg_id' => (isset($all_regions[$r_id]) ? $all_regions[$r_id]->name : $r_id)
-                                ] + $r;
-
-                            if (isset($r['price'])) $rt['price']+=$r['price'];
-                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
-                            if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
-
-                        }
-                    }
-                }
-                array_multisort($Res);
-
-                $rt['ts1']='Итого';
-                $rt['tsf1']='Итого';
-                $rt['num_to']='&nbsp;';
-                $rt['num_from']='&nbsp;';
-                if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
-                $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-
-                if ($account->price_include_vat) {
-                    $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
-                    $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
-                    $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
-                } else {
-                    $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
-                    $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
-                    $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
-                }
-
-                break;
-            default:
-                foreach ($data as $r_id=>$reg_data) {
-                    foreach ($reg_data as $k=>$r) {
-                        if ($r['is_total'] == false) {
-                            if (!isset($Res[$r['ts1']]))
-                                $Res[$r['ts1']] = array(
-                                    'ts1'=>$r['ts1'],
-                                    'tsf1'=>$r['tsf1'],
-                                    'mktime'=>$r['mktime'],
-                                    'geo'=>$r['geo'],
-                                    'reg_id'=>$r_id,
-                                    'cnt'=>0,
-                                    'price'=>0,
-                                    'ts2'=>0
-                                );
-
-                            $Res[$r['ts1']]['cnt'] += $r['cnt'];
-                            $Res[$r['ts1']]['ts2'] += $r['ts2'];
-                            $Res[$r['ts1']]['price'] += $r['price'];
-                            $Res[$r['ts1']]['price'] = number_format($Res[$r['ts1']]['price'], 2, '.','');
-
-                            if ($Res[$r['ts1']]['ts2']>=24*60*60) $d=floor($Res[$r['ts1']]['ts2']/(24*60*60)); else $d=0;
-                            $Res[$r['ts1']]['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$Res[$r['ts1']]['ts2']-$d*24*60*60);
-
-                            if (isset($r['price'])) $rt['price']+=$r['price'];
-                            if (isset($r['cnt'])) $rt['cnt']+=$r['cnt'];
-                            if (isset($r['ts2'])) $rt['ts2']+=$r['ts2'];
-                        }
-                    }
-                }
-                ksort($Res);
-
-                $rt['tsf1']='Итого';
-                if ($rt['ts2']>=24*60*60) $d=floor($rt['ts2']/(24*60*60)); else $d=0;
-                $rt['tsf2']=($d?($d.'d '):'').gmdate("H:i:s",$rt['ts2']-$d*24*60*60);
-
-                if ($account->price_include_vat) {
-                    $rt['price_without_tax'] = number_format($rt['price'] * 100 / (100 + $tax_rate), 2, '.', '');
-                    $rt['price_with_tax'] = number_format($rt['price'], 2, '.', '');
-                    $rt['price'] = $rt['price_with_tax'] . ' (включая НДС)';
-                } else {
-                    $rt['price_without_tax'] = number_format($rt['price'], 2, '.', '');
-                    $rt['price_with_tax'] = number_format($rt['price'] * (100 + $tax_rate) / 100, 2, '.', '');
-                    $rt['price'] = $rt['price_without_tax'] . ' (<b>' . $rt['price_with_tax'] . ' - Сумма с НДС</b>)';
-                }
-
-            break;
-        }
-
-        $Res['total'] = $rt;
-
-        return $Res;
     }
 
     function getUnUsageCalls()

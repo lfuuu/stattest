@@ -46,7 +46,10 @@ class VoipRegistryDao extends Singleton
     public function getPassMap(Registry $registry)
     {
         $numbers = Number::find()
-            ->where(['city_id' => $registry->city_id])
+            ->where([
+                'country_code' => $registry->country_id,
+                'city_id' => $registry->city_id
+            ])
             ->andWhere([
                 'between',
                 'number',

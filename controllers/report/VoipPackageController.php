@@ -88,7 +88,7 @@ class VoipPackageController extends BaseController
                 switch ($filter->mode) {
                     case self::FILTER_VOIP_PACKAGE_BY_PACKAGE: {
                         $report = new ActiveDataProvider([
-                            'query' => ReportUsageDao::getUsageVoipPackagesStatistic($usage->id, $filter->packages),
+                            'query' => ReportUsageDao::me()->getUsageVoipPackagesStatistic($usage->id, $filter->packages),
                             'sort' => false,
                         ]);
                         break;
@@ -96,7 +96,7 @@ class VoipPackageController extends BaseController
                     case self::FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS: {
                         $report = new ArrayDataProvider([
                             'allModels' =>
-                                ReportUsageDao::getUsageVoipStatistic(
+                                ReportUsageDao::me()->getUsageVoipStatistic(
                                     $usage->region,
                                     (new DateTime($filter->date_range_from))->getTimestamp(),
                                     (new DateTime($filter->date_range_to))->getTimestamp(),

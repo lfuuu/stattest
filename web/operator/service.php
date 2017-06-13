@@ -2,6 +2,7 @@
 
 use app\classes\api\ApiCore;
 use app\classes\api\Errors;
+use app\dao\reports\ReportUsageDao;
 use app\models\filter\FreeNumberFilter;
 use app\models\ClientAccount;
 use app\models\TariffVoip;
@@ -300,7 +301,7 @@ if ($action == 'add_client') {
     $dt = new DateTime();
     $dt->setTimeZone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW));
 
-    $a = \app\dao\reports\ReportUsageDao::getUsageVoipStatistic(
+    $a = ReportUsageDao::me()->getUsageVoipStatistic(
         $region,
         $from + $dt->getOffset(),
         $to + $dt->getOffset(),
