@@ -257,6 +257,7 @@ class ClientAccount extends HistoryActiveRecord
             ['credit', 'default', 'value' => self::DEFAULT_CREDIT],
             ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE],
             ['pay_bill_until_days', 'default', 'value' => self::PAY_BILL_UNTIL_DAYS],
+            ['price_type', 'default', 'value' => GoodPriceType::DEFAULT_PRICE_LIST],
         ];
 
         return $rules;
