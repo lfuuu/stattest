@@ -42,7 +42,7 @@ class BillQRCode
 
     public static function decodeNo($no)
     {
-        if (strlen($no) == 15) {
+        if (strlen($no) == 15 || strlen($no) == 13) {
             $type = self::getType(substr($no, 0, 2));
             $number = self::getNumber(substr($no, 2));
 

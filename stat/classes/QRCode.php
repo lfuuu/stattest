@@ -46,7 +46,7 @@ class QRCode
 
     public static function decodeNo($no)
     {
-        if(strlen($no) == 13)
+        if(strlen($no) == 15 || strlen($no) == 13)
         {
             $type = self::_getType(substr($no, 0, 2));
             $number = self::_getNumber(substr($no, 2));
