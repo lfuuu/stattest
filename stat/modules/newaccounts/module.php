@@ -6044,7 +6044,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
         }
 
         $number = get_param_raw("number", "");
-        if (!preg_match("/^201\d{3}[-\/]\d{4}$/", $number)) {
+        if (!preg_match("/^201\d{3}[-\/]\d{4,6}$/", $number)) {
             trigger_error2("Ошибка в номере!");
             return;
         }
