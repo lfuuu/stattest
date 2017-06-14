@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\dao\DidGroupDao;
+use InvalidArgumentException;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\helpers\Url;
@@ -171,6 +172,7 @@ class DidGroup extends ActiveRecord
      * @param int $cityId Не указан - не фильтровать. Больше 0 - если есть такая красивость/служебность у города, то брать ее, иначе от страны. Меньше 0 - только для страны без города.
      * @param int $ndcTypeId
      * @return \string[]
+     * @throws \InvalidArgumentException
      * @internal param int $countryId
      */
     public static function getList(
@@ -188,9 +190,10 @@ class DidGroup extends ActiveRecord
 
             // есть такая красивость/служебность у города, то брать ее, иначе от страны
             if (!$countryId) {
+                // страну взять от города
                 $city = City::findOne(['id' => $cityId]);
                 if (!$city) {
-                    return [];
+                    throw new InvalidArgumentException('Неправильный cityId');
                 }
 
                 $where['country_code'] = $city->country_id;
@@ -205,15 +208,15 @@ class DidGroup extends ActiveRecord
                 ])
                 ->orderBy(new Expression('city_id IS NOT NULL DESC, is_service ASC, beauty_level ASC')); // важно city_id IS NOT NULL DESC! чтобы сначала был город, а потом дефолтный по стране
             $list = [];
-            $isFromCity = []; // нужно для определения, есть ли такая красивость/служебность у города. Если есть - брать ее, иначе от страны
+            $сitiesCache = []; // нужно для определения, есть ли такая красивость/служебность у города. Если есть - брать ее, иначе от страны
             /** @var DidGroup $didGroup */
             foreach ($query->each() as $didGroup) {
 
-                $isFromCityKey = $didGroup->beauty_level . '_' . $didGroup->is_service; // красивость/служебность
+                $сitiesCacheKey = $didGroup->beauty_level . '_' . $didGroup->is_service; // красивость/служебность
                 if ($didGroup->city_id) {
                     // запомнить красивость/служебность города, чтобы такую же у страны не брать
-                    $isFromCity[$isFromCityKey] = true;
-                } elseif (isset($isFromCity[$isFromCityKey])) {
+                    $сitiesCache[$сitiesCacheKey] = true;
+                } elseif (isset($сitiesCache[$сitiesCacheKey])) {
                     // Такую красивость/служебность уже брали у города - такую же у страны не брать!
                     continue;
                 }

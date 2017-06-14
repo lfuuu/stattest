@@ -71,8 +71,10 @@ final class OpenController extends Controller
      * @SWG\Definition(definition = "voipDefaultPackageRecord", type = "object",
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
      *   @SWG\Property(property = "tariff_period_id", type = "integer", description = "ID тарифа/периода"),
+     *   @SWG\Property(property = "price_setup", type = "float", description = "Стоимость подключения тарифа. Надо добавлять к стоимости подключения самого номера"),
      *   @SWG\Property(property = "price_per_period", type = "float", description = "Абонентская плата за месяц"),
-     *   @SWG\Property(property = "cost_per_period", type = "float", description = "Абонентская плата до конца текущего месяца"),
+     *   @SWG\Property(property = "price_min", type = "float", description = "Минимальная плата за месяц"),
+     *   @SWG\Property(property = "cost_per_period", type = "float", description = "Абонентская и минимальная плата до конца текущего месяца"),
      *   @SWG\Property(property = "lines", type = "integer", description = "Количество линий, включенных в пакет"),
      *   @SWG\Property(property = "line_price", type = "float", description = "Плата за доп. канал за месяц"),
      *   @SWG\Property(property = "call_price_mobile", type = "float", description = "Цена звонков на сотовые за минуту"),
@@ -81,7 +83,7 @@ final class OpenController extends Controller
      *
      * @SWG\Definition(definition = "freeNumberRecord", type = "object",
      *   @SWG\Property(property = "number", type = "string", description = "Номер"),
-     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Уровень красоты"),
+     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
      *   @SWG\Property(property = "price", type = "integer", description = "Цена"),
      *   @SWG\Property(property = "currency", type = "string", description = "Код валюты (ISO)"),
      *   @SWG\Property(property = "origin_price", type = "integer", description = "Исходная цена"),
@@ -104,7 +106,7 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name = "ndcType", type = "integer", description = "Тип номеров", in = "query", default = ""),
      *   @SWG\Parameter(name = "minCost", type = "number", description = "Минимальная цена", in = "query", default = ""),
      *   @SWG\Parameter(name = "maxCost", type = "number", description = "Максимальная цена", in = "query", default = ""),
-     *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Уровень красоты", in = "query", default = ""),
+     *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)", in = "query", default = ""),
      *   @SWG\Parameter(name = "like", type = "string", description = "Маска номера телефона. Синтахис: '.' - один символ, '*' - любое кол-во символов", in = "query", default = ""),
      *   @SWG\Parameter(name = "mask", type = "string", description = "Маска номера телефона. Допустимы [A-Z0-9*]", in = "query", default = ""),
      *   @SWG\Parameter(name = "offset", type = "integer", description = "Смещение результатов поиска", in = "query", default = ""),
@@ -202,9 +204,12 @@ final class OpenController extends Controller
         foreach ($numbers->result($limit) as $freeNumber) {
             $responseNumber = $numbers->formattedNumber($freeNumber, $currency);
 
-            $priceLevelField = 'tariff_status_main' . $priceLevel;
-            $tariffStatusId = $freeNumber->didGroup->{$priceLevelField};
-            $responseNumber->default_tariff = $this->_getDefaultTariff($clientAccount, $tariffStatusId, $freeNumber->city_id);
+            $tariffStatusId = $freeNumber->didGroup->{'tariff_status_main' . $priceLevel};
+            $packageStatusIds = [
+                $freeNumber->didGroup->{'tariff_status_main' . $priceLevel},
+                $freeNumber->didGroup->tariff_status_beauty,
+            ];
+            $responseNumber->default_tariff = $this->_getDefaultTariff($clientAccount, $tariffStatusId, $packageStatusIds, $freeNumber->city_id);
             $responseNumbers[] = $responseNumber;
         }
 
@@ -217,18 +222,20 @@ final class OpenController extends Controller
     /**
      * @param ClientAccount $clientAccount
      * @param int $tariffStatusId
+     * @param int[] $packageStatusIds
      * @param int $voipCityId
      * @return array
      */
-    private function _getDefaultTariff($clientAccount, $tariffStatusId, $voipCityId)
+    private function _getDefaultTariff($clientAccount, $tariffStatusId, $packageStatusIds, $voipCityId)
     {
         if (!$clientAccount) {
             return [];
         }
 
-        if (isset($this->_defaultTariffCache[$tariffStatusId])) {
+        $tariffStatusIdKey = $tariffStatusId . '_' . implode('_', $packageStatusIds);
+        if (isset($this->_defaultTariffCache[$tariffStatusIdKey])) {
             // взять из кэша
-            return $this->_defaultTariffCache[$tariffStatusId];
+            return $this->_defaultTariffCache[$tariffStatusIdKey];
         }
 
         $isDefault = true;
@@ -259,7 +266,7 @@ final class OpenController extends Controller
         /** @var Tariff $tariff */
         $tariff = $tariffQuery->one();
         if (!$tariff) {
-            return $this->_defaultTariffCache[$tariffStatusId] = [];
+            return $this->_defaultTariffCache[$tariffStatusIdKey] = [];
         }
 
         $tariffPeriods = $tariff->tariffPeriods;
@@ -268,9 +275,22 @@ final class OpenController extends Controller
         /** @var TariffResource $tariffResources */
         $tariffResources = $tariff->getTariffResource(Resource::ID_VOIP_LINE)->one();
 
+        $defaultTariff = [
+            'name' => $tariff->name,
+            'tariff_period_id' => $tariffPeriod->id,
+            'price_setup' => $tariffPeriod->price_setup,
+            'price_per_period' => $tariffPeriod->price_per_period,
+            'price_min' => $tariffPeriod->price_min,
+            'cost_per_period' => null,
+            'lines' => $tariffResources->amount,
+            'line_price' => $tariffResources->price_per_unit,
+            'call_price_mobile' => null,
+            'call_price_local' => null,
+        ];
+
+        // дефолтные пакеты, в том числе и за красивость
         $tariffTableName = Tariff::tableName();
-        /** @var Tariff $tariffPackage */
-        $tariffPackage = Tariff::find()
+        $tariffPackagesQuery = Tariff::find()
             ->joinWith('voipCities')
             ->where([
                 $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE,
@@ -278,28 +298,40 @@ final class OpenController extends Controller
                 $tariffTableName . '.currency_id' => $tariff->currency_id,
                 $tariffTableName . '.is_default' => 1,
                 $tariffTableName . '.is_postpaid' => 0,
-                $tariffTableName . '.tariff_status_id' => $tariff->tariff_status_id,
+                $tariffTableName . '.tariff_status_id' => $packageStatusIds,
                 $tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, TariffPerson::ID_NATURAL_PERSON],
                 TariffVoipCity::tableName() . '.city_id' => array_keys($tariff->voipCities),
-            ])->one();
-        $packagePrices = $tariffPackage ? $tariffPackage->packagePrices : null;
+            ]);
+        /** @var Tariff $tariffPackage */
+        foreach ($tariffPackagesQuery->each() as $tariffPackage) {
 
+            // стоимость звонков
+            $packagePrices = $tariffPackage ? $tariffPackage->packagePrices : null;
+            if (count($packagePrices)) {
+                $defaultTariff['call_price_mobile'] = array_shift($packagePrices)->price;
+            }
+
+            if (count($packagePrices)) {
+                $defaultTariff['call_price_local'] = array_shift($packagePrices)->price;
+            }
+
+            // абонентка и минималка
+            $tariffPackagePeriods = $tariffPackage->tariffPeriods;
+            $tariffPackagePeriod = reset($tariffPackagePeriods);
+            $defaultTariff['price_setup'] += $tariffPackagePeriod->price_setup;
+            $defaultTariff['price_per_period'] += $tariffPackagePeriod->price_per_period;
+            $defaultTariff['price_min'] += $tariffPackagePeriod->price_min;
+        }
+
+        // Абонентская и минимальная плата до конца текущего месяца
         $dateTime = new \DateTimeImmutable();
         $daysInMonth = (int)$dateTime->format('t');
         $currentDay = (int)$dateTime->format('j');
         $daysLeft = $daysInMonth - $currentDay + 1; // "+1", потому что текущий день тоже надо считать
         $coefficient = $daysLeft / $daysInMonth;
+        $defaultTariff['cost_per_period'] = ($defaultTariff['price_per_period'] + $defaultTariff['price_min']) * $coefficient;
 
-        return $this->_defaultTariffCache[$tariffStatusId] = [
-            'name' => $tariff->name,
-            'tariff_period_id' => $tariffPeriod->id,
-            'price_per_period' => $tariffPeriod->price_per_period,
-            'cost_per_period' => $tariffPeriod->price_per_period * $coefficient,
-            'lines' => $tariffResources->amount,
-            'line_price' => $tariffResources->price_per_unit,
-            'call_price_mobile' => count($packagePrices) ? array_shift($packagePrices)->price : null,
-            'call_price_local' => count($packagePrices) ? array_shift($packagePrices)->price : null,
-        ];
+        return $this->_defaultTariffCache[$tariffStatusIdKey] = $defaultTariff;
     }
 
     /**
@@ -314,7 +346,7 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name = "ndcType", type = "integer", description = "Тип номеров", in = "query", default = ""),
      *   @SWG\Parameter(name = "minCost", type = "number", description = "Минимальная цена", in = "query", default = ""),
      *   @SWG\Parameter(name = "maxCost", type = "number", description = "Максимальная цена", in = "query", default = ""),
-     *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Уровень красоты", in = "query", default = ""),
+     *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)", in = "query", default = ""),
      *   @SWG\Parameter(name = "like", type = "string", description = "Маска номера телефона. Синтахис: '.' - один символ, '*' - любое кол-во символов", in = "query", default = ""),
      *   @SWG\Parameter(name = "mask", type = "string", description = "Маска номера телефона. Допустимы [A-Z0-9*]", in = "query", default = ""),
      *   @SWG\Parameter(name = "offset", type = "integer", description = "Смещение результатов поиска", in = "query", default = ""),
@@ -411,14 +443,15 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "name", type = "string", description = "Наименование группы"),
      *   @SWG\Property(property = "country_code", type = "integer", description = "Идентификатор страны"),
      *   @SWG\Property(property = "city_id", type = "integer", description = "Идентификатор города"),
-     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Степень красоты"),
+     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
      *   @SWG\Property(property = "ndc_type_id", type = "integer", description = "Тип номеров")
      * ),
      *
      * @SWG\Get(tags = {"Numbers"}, path = "/open/did-groups", summary = "Получение DID групп", operationId = "didGroups",
      *   @SWG\Parameter(name = "id[0]", type = "integer", description = "идентификатор(ы) DID групп", in = "query", default = "",),
      *   @SWG\Parameter(name = "id[1]", type = "integer", description = "идентификатор(ы) DID групп", in = "query", default = ""),
-     *   @SWG\Parameter(name = "id[2]", type = "integer", description = "идентификатор(ы) DID групп", in = "query", default = ""),
+     *   @SWG\Parameter(name="beautyLvl[0]",type="integer",description="Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)",in="query"),
+     *   @SWG\Parameter(name="beautyLvl[1]",type="integer",description="Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)",in="query"),
      *   @SWG\Response(response = 200, description = "Список DID групп", @SWG\Definition(ref = "#/definitions/did_group")),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
      * )

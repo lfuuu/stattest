@@ -495,7 +495,7 @@ class ApiLk
             ->all()
         );
 
-        $didGroupsByCity = DidGroup::dao()->getDidgroupsByCity($clientAccount->country_id);
+        $didGroupsByCity = DidGroup::dao()->getDidGroupsByCity($clientAccount->country_id);
 
         $didGroupsByCityId = [];
 

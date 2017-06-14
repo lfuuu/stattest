@@ -15,6 +15,9 @@ use app\models\billing\Calls;
 class VoipController extends ApiInternalController
 {
 
+    /**
+     * @throws NotImplementedHttpException
+     */
     public function actionIndex()
     {
         throw new NotImplementedHttpException;
@@ -63,6 +66,7 @@ class VoipController extends ApiInternalController
      *     )
      *   )
      * )
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionCalls()
     {

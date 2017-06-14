@@ -122,7 +122,7 @@ if (!$didGroup->isNewRecord) {
     </div>
 
     <div class="row">
-        <div class="col-sm-2 col-sm-offset-1"><label>Цена</label></div>
+        <div class="col-sm-2 col-sm-offset-1"><label>Подключение, ¤</label></div>
         <div class="col-sm-3"><label>Тариф</label></div>
         <div class="col-sm-3"><label>Пакет</label></div>
         <div class="col-sm-3"><label>Пакет за красивость</label></div>

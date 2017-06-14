@@ -91,7 +91,7 @@ class DidGroupDao extends Singleton
      * @param int $ndcTypeId
      * @return array
      */
-    public function getDidgroupsByCity($countryCode, $ndcTypeId = NdcType::ID_GEOGRAPHIC)
+    public function getDidGroupsByCity($countryCode, $ndcTypeId = NdcType::ID_GEOGRAPHIC)
     {
         $didGroupQuery = DidGroup::find()
             ->where([
