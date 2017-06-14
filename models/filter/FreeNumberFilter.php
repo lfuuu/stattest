@@ -3,7 +3,6 @@
 namespace app\models\filter;
 
 use app\models\Currency;
-use app\models\DidGroup;
 use app\models\light_models\NumberLight;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
@@ -217,15 +216,7 @@ class FreeNumberFilter extends Number
     public function setDidGroup($didGroupId)
     {
         if ((int)$didGroupId) {
-            $this->_query->andWhere([
-                parent::tableName() . '.beauty_level' => DidGroup::find()
-                    ->select('beauty_level')
-                    ->where(['id' => (int)$didGroupId])
-            ]);
-
-            if (($didgroupAdditionWhere = DidGroup::dao()->getDidgroupAdditionWhere(null, $didGroupId))) {
-                $this->_query->andWhere($didgroupAdditionWhere);
-            }
+            $this->_query->andWhere(['did_group_id' => $didGroupId]);
         }
 
         return $this;
