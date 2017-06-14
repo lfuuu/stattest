@@ -99,7 +99,7 @@ class AccountTariffEdit
       @ndcType.val('').trigger('change')
 
     if countryId
-      $.get '/uu/voip/get-did-groups', {countryId: countryId, cityId: cityId, isWithEmpty: 1, format: 'options'}, (html) =>
+      $.get '/uu/voip/get-did-groups', {countryId: countryId, cityId: (if cityId then cityId else -1), isWithEmpty: 1, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
         @didGroup.prop('disabled', false)
         @didGroup.val('').trigger('change')

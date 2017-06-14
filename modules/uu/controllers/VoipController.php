@@ -40,10 +40,6 @@ class VoipController extends BaseController
      */
     public function actionGetCities($countryId, $isWithEmpty = false, $format = null)
     {
-        if (!$countryId) {
-            throw new \InvalidArgumentException('Wrong countryId');
-        }
-
         $cities = City::getList((int)$isWithEmpty, $countryId);
         ReturnFormatted::me()->returnFormattedValues($cities, $format);
     }
@@ -53,18 +49,14 @@ class VoipController extends BaseController
      * Используется для динамической подгрузки select2 или selectbox
      *
      * @param int $countryId
-     * @param int $cityId
+     * @param int $cityId Не указан - не фильтровать. Больше 0 - если  есть такая красивость/служебность у города, то брать ее, иначе от страны. Меньше 0 - только для страны без города.
      * @param int|bool $isWithEmpty
      * @param string $format
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetDidGroups($countryId, $cityId = null, $isWithEmpty = false, $format = null)
+    public function actionGetDidGroups($countryId, $cityId, $isWithEmpty = false, $format = null)
     {
-        if (!$countryId) {
-            throw new \InvalidArgumentException('Wrong countryId');
-        }
-
         $didGroups = DidGroup::getList((int)$isWithEmpty, $countryId, $cityId);
         ReturnFormatted::me()->returnFormattedValues($didGroups, $format);
     }
@@ -99,10 +91,6 @@ class VoipController extends BaseController
      */
     public function actionGetOperatorAccounts($countryId, $cityId = null, $isWithEmpty = false, $format = null)
     {
-        if (!$countryId) {
-            throw new \InvalidArgumentException('Wrong countryId');
-        }
-
         $numbers = new FreeNumberFilter;
         $numbers->setCountry($countryId);
         $cityId && $numbers->setCity($cityId);
@@ -163,10 +151,6 @@ class VoipController extends BaseController
             );
         }
 
-        if (!$countryId) {
-            throw new \InvalidArgumentException('Wrong countryId');
-        }
-
         $numbers->setCountry($countryId);
         $cityId && $numbers->setCity($cityId);
         $ndcTypeId && $numbers->setNdcType($ndcTypeId);
@@ -204,10 +188,6 @@ class VoipController extends BaseController
      */
     public function actionGetTariffPeriods($serviceTypeId, $currency, $countryId, $cityId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null, $didGroupId = null)
     {
-        if (!$countryId) {
-            throw new \InvalidArgumentException('Wrong countryId');
-        }
-
         if (!$didGroupId) {
             throw new \InvalidArgumentException('Wrong didGroupId');
         }

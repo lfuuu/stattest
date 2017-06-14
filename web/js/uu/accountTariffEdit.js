@@ -130,7 +130,7 @@
       if (countryId) {
         $.get('/uu/voip/get-did-groups', {
           countryId: countryId,
-          cityId: cityId,
+          cityId: (cityId ? cityId : -1),
           isWithEmpty: 1,
           format: 'options'
         }, (function(_this) {

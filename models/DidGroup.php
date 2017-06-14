@@ -3,8 +3,8 @@
 namespace app\models;
 
 use app\dao\DidGroupDao;
-use app\modules\nnp\models\NdcType;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -168,7 +168,7 @@ class DidGroup extends ActiveRecord
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param int $countryId
-     * @param int $cityId
+     * @param int $cityId Не указан - не фильтровать. Больше 0 - если есть такая красивость/служебность у города, то брать ее, иначе от страны. Меньше 0 - только для страны без города.
      * @param int $ndcTypeId
      * @return \string[]
      * @internal param int $countryId
@@ -177,28 +177,64 @@ class DidGroup extends ActiveRecord
         $isWithEmpty = false,
         $countryId = null,
         $cityId = null,
-        $ndcTypeId = NdcType::ID_GEOGRAPHIC
+        $ndcTypeId = null
     ) {
 
         $where = [];
-
-        /** @var City $city */
-        if ($cityId && ($city = City::findOne(['id' => $cityId]))) {
-            $where = DidGroup::dao()->getQueryWhereByCity($city, $ndcTypeId);
-        } else {
-            $where['city_id'] = null;
-        }
-
         $ndcTypeId && $where['ndc_type_id'] = $ndcTypeId;
         $countryId && $where['country_code'] = $countryId;
 
+        if ($cityId > 0) {
+
+            // есть такая красивость/служебность у города, то брать ее, иначе от страны
+            if (!$countryId) {
+                $city = City::findOne(['id' => $cityId]);
+                if (!$city) {
+                    return [];
+                }
+
+                $where['country_code'] = $city->country_id;
+            }
+
+            $query = self::find()
+                ->where($where)
+                ->andWhere([
+                    'OR',
+                    ['city_id' => $cityId],
+                    ['city_id' => null]
+                ])
+                ->orderBy(new Expression('city_id IS NOT NULL DESC, is_service ASC, beauty_level ASC')); // важно city_id IS NOT NULL DESC! чтобы сначала был город, а потом дефолтный по стране
+            $list = [];
+            $isFromCity = []; // нужно для определения, есть ли такая красивость/служебность у города. Если есть - брать ее, иначе от страны
+            /** @var DidGroup $didGroup */
+            foreach ($query->each() as $didGroup) {
+
+                $isFromCityKey = $didGroup->beauty_level . '_' . $didGroup->is_service; // красивость/служебность
+                if ($didGroup->city_id) {
+                    // запомнить красивость/служебность города, чтобы такую же у страны не брать
+                    $isFromCity[$isFromCityKey] = true;
+                } elseif (isset($isFromCity[$isFromCityKey])) {
+                    // Такую красивость/служебность уже брали у города - такую же у страны не брать!
+                    continue;
+                }
+
+                $list[$didGroup->id] = $didGroup->name;
+            }
+
+            return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull = false) + $list;
+        }
+
+        if ($cityId < 0) {
+            // только для страны без города
+            $where['city_id'] = null;
+        }
 
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull = false,
             $indexBy = 'id',
             $select = 'name',
-            $orderBy = ['is_service' => SORT_DESC, 'beauty_level' => SORT_ASC],
+            $orderBy = ['is_service' => SORT_ASC, 'beauty_level' => SORT_ASC],
             $where
         );
     }

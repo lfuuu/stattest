@@ -1,4 +1,5 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Singleton;
@@ -9,7 +10,6 @@ use app\models\Number;
 use app\modules\nnp\models\NdcType;
 use Yii;
 use yii\db\Expression;
-use yii\db\Query;
 
 /**
  * @method static DidGroupDao me($args = null)
@@ -82,45 +82,6 @@ class DidGroupDao extends Singleton
             ]);
 
         return $query->max('id');
-    }
-
-    /**
-     * Получение DID-групп по городу
-     *
-     * @param City $city
-     * @param int $ndcTypeId
-     * @return array
-     */
-    public function getQueryWhereByCity(City $city, $ndcTypeId = NdcType::ID_GEOGRAPHIC)
-    {
-        if ($city->id == City::MOSCOW) { // исключение
-            $where = [
-                'country_code' => $city->country_id,
-                'city_id' => $city->id
-            ];
-        } else {
-            $query = DidGroup::find()
-                ->select('MAX(id)')
-                ->where([
-                    'AND',
-                    [
-                        'country_code' => $city->country_id,
-                        'ndc_type_id' => $ndcTypeId
-                    ],
-                    [
-                        'OR',
-                        ['city_id' => $city->id],
-                        ['city_id' => null]
-                    ]
-                ])
-                ->groupBy(['beauty_level', 'is_service']);
-
-            $where = [
-                'id' => $query,
-            ];
-        }
-
-        return $where;
     }
 
     /**
