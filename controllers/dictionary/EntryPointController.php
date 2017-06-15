@@ -27,12 +27,12 @@ class EntryPointController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['index'],
-                        'roles' => ['organization.read'],
+                        'roles' => ['dictionary.read'],
                     ],
                     [
                         'allow' => true,
                         'actions' => ['add', 'edit', 'delete'],
-                        'roles' => ['organization.edit'],
+                        'roles' => ['dictionary.entry-point'],
                     ],
                 ],
             ],

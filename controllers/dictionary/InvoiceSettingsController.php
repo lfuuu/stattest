@@ -25,12 +25,12 @@ class InvoiceSettingsController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['index'],
-                        'roles' => ['organization.read'],
+                        'roles' => ['dictionary.read'],
                     ],
                     [
                         'allow' => true,
                         'actions' => ['add', 'edit', 'delete', 'recalculate'],
-                        'roles' => ['organization.edit'],
+                        'roles' => ['dictionary.invoice-settings'],
                     ],
                 ],
             ],

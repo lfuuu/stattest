@@ -8,9 +8,33 @@ use app\classes\BaseController;
 use app\models\CityBillingMethod;
 use app\forms\dictonary\city_billing_method\CityBillingMethodNew;
 use app\forms\dictonary\city_billing_method\CityBillingMethodEdit;
+use yii\filters\AccessControl;
 
 class CityBillingMethodsController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['dictionary.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['dictionary.city-billing-method'],
+                    ],
+                ],
+            ],
+        ];
+    }
 
     /**
      * @return string

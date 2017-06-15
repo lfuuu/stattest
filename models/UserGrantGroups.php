@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 
 class UserGrantGroups extends ActiveRecord
 {
+    const GROUP_ADMIN = 'admin';
 
     public static function tableName()
     {

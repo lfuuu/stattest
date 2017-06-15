@@ -6,9 +6,34 @@ use Yii;
 use app\classes\BaseController;
 use yii\data\ActiveDataProvider;
 use app\models\important_events\ImportantEventsGroups;
+use yii\filters\AccessControl;
 
 class GroupsController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['dictionary.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['dictionary.important-events-groups'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
 
     public function actionIndex()
     {

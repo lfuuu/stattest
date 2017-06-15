@@ -5,9 +5,33 @@ namespace app\controllers\important_events;
 use Yii;
 use app\classes\BaseController;
 use app\models\important_events\ImportantEventsNames;
+use yii\filters\AccessControl;
 
 class NamesController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['dictionary.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['dictionary.important-events-names'],
+                    ],
+                ],
+            ],
+        ];
+    }
 
     public function actionIndex()
     {

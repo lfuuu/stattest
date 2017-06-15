@@ -7,9 +7,33 @@ use app\classes\BaseController;
 use yii\base\InvalidParamException;
 use yii\data\ActiveDataProvider;
 use app\models\dictionary\PublicSite;
+use yii\filters\AccessControl;
 
 class PublicSiteController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['dictionary.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['edit', 'delete'],
+                        'roles' => ['dictionary.public-site'],
+                    ],
+                ],
+            ],
+        ];
+    }
 
     /**
      * @return string

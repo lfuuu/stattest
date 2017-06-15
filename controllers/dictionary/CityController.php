@@ -10,9 +10,34 @@ use app\classes\dictionary\forms\CityFormEdit;
 use app\classes\dictionary\forms\CityFormNew;
 use app\models\filter\CityFilter;
 use Yii;
+use yii\filters\AccessControl;
 
 class CityController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['dictionary.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['dictionary.city'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *

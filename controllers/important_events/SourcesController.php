@@ -6,9 +6,33 @@ use Yii;
 use app\classes\BaseController;
 use yii\data\ActiveDataProvider;
 use app\models\important_events\ImportantEventsSources;
+use yii\filters\AccessControl;
 
 class SourcesController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['dictionary.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['dictionary.important-events-sources'],
+                    ],
+                ],
+            ],
+        ];
+    }
 
     public function actionIndex()
     {

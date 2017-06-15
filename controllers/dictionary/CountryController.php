@@ -9,9 +9,34 @@ use app\classes\BaseController;
 use app\classes\dictionary\forms\CountryFormEdit;
 use app\models\filter\CountryFilter;
 use Yii;
+use yii\filters\AccessControl;
 
 class CountryController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['dictionary.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['edit'],
+                        'roles' => ['dictionary.country'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *
