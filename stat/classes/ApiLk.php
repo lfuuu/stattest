@@ -13,6 +13,7 @@ use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\Country;
 use app\models\DidGroup;
+use app\models\filter\FreeNumberFilter;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
@@ -948,18 +949,19 @@ class ApiLk
 
         $ret = [];
 
-        /** @var \app\models\filter\FreeNumberFilter $numbers */
+        /** @var FreeNumberFilter $numbers */
         $numbers =
-            (new \app\models\filter\FreeNumberFilter)
+            (new FreeNumberFilter)
+                ->setIsService(false)
                 ->setDidGroup($didGroup->id);
 
         if ($cityId == Number::TYPE_7800) {
             $numbers
-                ->getNumbers7800()
+                ->setNdcType(NdcType::ID_FREEPHONE)
                 ->setCountry($account->contragent->country_id);
         } else {
             $numbers
-                ->getNumbers()
+                ->setNdcType(NdcType::ID_GEOGRAPHIC)
                 ->setCity($cityId);
         }
 

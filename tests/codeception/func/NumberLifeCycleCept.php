@@ -24,8 +24,9 @@ $I->assertNotNull($clientAccount);
 
 $freeNumber =
     (new FreeNumberFilter)
+        ->setIsService(false)
         ->setRegions([$clientAccount->region])
-        ->getNumbers()
+        ->setNdcType(NdcType::ID_GEOGRAPHIC)
         ->randomOne();
 
 $number = Number::findOne($freeNumber->number);

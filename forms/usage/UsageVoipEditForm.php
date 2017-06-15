@@ -1,4 +1,5 @@
 <?php
+
 namespace app\forms\usage;
 
 use app\classes\Assert;
@@ -48,8 +49,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $tariffIntern,
         $count_numbers = 1,
         $isMultiAdd = false,
-        $numbers = []
-    ;
+        $numbers = [];
 
     private static $_mapPriceToId = [
         'tariff_group_intern_price' => 'tariff_intern_id',
@@ -156,8 +156,8 @@ class UsageVoipEditForm extends UsageVoipForm
     public function attributeLabels()
     {
         return parent::attributeLabels() + [
-            'count_numbers' => 'Кол-во номеров (для пакетного добавления)',
-        ];
+                'count_numbers' => 'Кол-во номеров (для пакетного добавления)',
+            ];
     }
 
     /**
@@ -321,7 +321,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 if ($this->isMultiAdd) {
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
-                        ->getNumbers()
+                        ->setNdcType(NdcType::ID_GEOGRAPHIC)
                         ->setCity($this->city_id)
                         ->setCountry($this->country_id)
                         ->setDidGroup($this->did_group_id)
@@ -630,18 +630,18 @@ class UsageVoipEditForm extends UsageVoipForm
 
                 }
 
-                if (in_array($this->tariff_main_status,  [TariffVoip::STATUS_7800, TariffVoip::STATUS_7800_TEST])) {
+                if (in_array($this->tariff_main_status, [TariffVoip::STATUS_7800, TariffVoip::STATUS_7800_TEST])) {
                     $this->tariff_main_status = TariffVoip::STATUS_PUBLIC;
                 }
 
                 if ($this->city_id && $this->did_group_id && !$this->did) {
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
-                            ->setType($this->ndc_type_id)
-                            ->setCity($this->city_id)
-                            ->setCountry($this->country_id)
-                            ->setDidGroup($this->did_group_id)
-                            ->randomOne();
+                        ->setNdcType($this->ndc_type_id)
+                        ->setCity($this->city_id)
+                        ->setCountry($this->country_id)
+                        ->setDidGroup($this->did_group_id)
+                        ->randomOne();
 
                     if ($number) {
                         $this->did = $number->number;
@@ -680,8 +680,8 @@ class UsageVoipEditForm extends UsageVoipForm
                 if (!$this->did) {
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
-                            ->getNumbers7800()
-                            ->randomOne();
+                        ->setNdcType(NdcType::ID_FREEPHONE)
+                        ->randomOne();
 
                     if ($number) {
                         $this->did = $number->number;
@@ -816,7 +816,7 @@ class UsageVoipEditForm extends UsageVoipForm
         $tableName = UsageVoip::tableName();
 
         $list = UsageVoip::find()
-            ->select([$tableName . '.E164', $tableName.'.id'])
+            ->select([$tableName . '.E164', $tableName . '.id'])
             ->leftJoin($tableName . ' uv', 'uv.line7800_id = ' . $tableName . '.id')
             ->andWhere([$tableName . '.client' => $clientAccount->client])
             ->andWhere('LENGTH(' . $tableName . '.E164) >= 4')

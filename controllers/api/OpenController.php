@@ -8,6 +8,7 @@ use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
@@ -51,7 +52,8 @@ final class OpenController extends Controller
     public function actionGetFreeNumbers($region = null, $currency = Currency::RUB)
     {
         $numbers = (new FreeNumberFilter)
-            ->getNumbers()
+            ->setNdcType(NdcType::ID_GEOGRAPHIC)
+            ->setIsService(false)
             ->setRegions([$region]);
 
         $response = [];
@@ -164,6 +166,7 @@ final class OpenController extends Controller
         $client_account_id = null
     ) {
         $numbers = (new FreeNumberFilter)
+            ->setIsService(false)
             ->setRegions($regions)
             ->setCountry($countryCode)
             ->setCities($cities)
@@ -182,7 +185,7 @@ final class OpenController extends Controller
         }
 
         if ((int)$ndcType) {
-            $numbers->setType((int)$ndcType);
+            $numbers->setNdcType((int)$ndcType);
         }
 
         $client_account_id = (int)$client_account_id;
@@ -394,6 +397,7 @@ final class OpenController extends Controller
         $ndc = null
     ) {
         $numbers = (new FreeNumberFilter)
+            ->setIsService(false)
             ->setRegions($regions)
             ->setCountry($countryCode)
             ->setCities($cities)
@@ -411,7 +415,7 @@ final class OpenController extends Controller
         }
 
         if ((int)$ndcType) {
-            $numbers->setType((int)$ndcType);
+            $numbers->setNdcType((int)$ndcType);
         }
 
         $response = [];

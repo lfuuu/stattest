@@ -9,6 +9,7 @@ use app\models\TariffVoip;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
 use app\forms\client\ClientCreateExternalForm;
+use app\modules\nnp\models\NdcType;
 use yii\web\BadRequestHttpException;
 
 if (isset($_GET) && isset($_GET["test"])) {
@@ -206,7 +207,8 @@ if ($action == 'add_client') {
 
     $numbersFilter = new FreeNumberFilter;
     $numbersFilter
-        ->getNumbers()
+        ->setIsService(false)
+        ->setNdcType(NdcType::ID_GEOGRAPHIC)
         ->setRegions([$region]);
 
     foreach ($numbersFilter->result(null) as $number) {

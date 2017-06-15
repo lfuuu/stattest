@@ -70,11 +70,17 @@ class CountriesController extends ApiInternalController
         foreach ($cities as $cityId => $city) {
 
             $freeNumbersCount = $withNumbers ?
-                (new FreeNumberFilter)->setCity($cityId)->count() :
+                (new FreeNumberFilter)
+                    ->setIsService(false)
+                    ->setCity($cityId)
+                    ->count() :
                 0;
 
             $ndcs = $withNdcs ?
-                (new FreeNumberFilter)->setCity($cityId)->getDistinct('ndc') :
+                (new FreeNumberFilter)
+                    ->setIsService(false)
+                    ->setCity($cityId)
+                    ->getDistinct('ndc') :
                 [];
 
             $result[] = [

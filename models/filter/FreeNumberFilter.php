@@ -9,10 +9,7 @@ use app\modules\nnp\models\NdcType;
 use yii\db\Expression;
 
 /**
- * Фильтрация для свободных номеров
- *
- * @property FreeNumberFilter $numbers
- * @property FreeNumberFilter $numbers7800
+ * Фильтрация свободных номеров
  */
 class FreeNumberFilter extends Number
 {
@@ -51,41 +48,18 @@ class FreeNumberFilter extends Number
         $this->_query = parent::find()
             ->where([
                 parent::tableName() . '.status' => parent::STATUS_INSTOCK,
-                parent::tableName() . '.is_service' => 0
             ]);
     }
 
     /**
-     * Выборка только стандартных номеров
-     *
+     * @param int $ndcTypeId - константа из NdcType
      * @return $this
      */
-    public function getNumbers()
+    public function setNdcType($ndcTypeId)
     {
-        $this->type = NdcType::ID_GEOGRAPHIC;
-        return $this;
-    }
+        $this->_query->andWhere([parent::tableName() . '.ndc_type_id' => $ndcTypeId]);
 
-    /**
-     * Выборка номеров типа 7800
-     *
-     * @return $this
-     */
-    public function getNumbers7800()
-    {
-        $this->type = NdcType::ID_FREEPHONE;
-        return $this;
-    }
-
-    /**
-     * @param int $ndcType - константа из NdcType
-     * @return $this
-     */
-    public function setType($ndcType = NdcType::ID_GEOGRAPHIC)
-    {
-        $this->_query->andWhere([parent::tableName() . '.ndc_type_id' => $ndcType]);
-
-        if ($ndcType == NdcType::ID_GEOGRAPHIC) {
+        if ($ndcTypeId == NdcType::ID_GEOGRAPHIC) {
             $this->_query->andWhere(new Expression('
                     IF(
                         `' . parent::tableName() . '`.`number` LIKE "7495%",
@@ -120,7 +94,7 @@ class FreeNumberFilter extends Number
     public function setCountry($countryCode = 0)
     {
         if ((int)$countryCode) {
-            $this->_query->andWhere(['country_code' => $countryCode]);
+            $this->_query->andWhere([parent::tableName() . '.country_code' => $countryCode]);
         }
 
         return $this;
@@ -133,6 +107,19 @@ class FreeNumberFilter extends Number
     public function setNumbers(array $numbers)
     {
         $this->_query->andWhere(['IN', parent::tableName() . '.number', $numbers]);
+
+        return $this;
+    }
+
+    /**
+     * @param null|int|bool $isService
+     * @return $this
+     */
+    public function setIsService($isService = null)
+    {
+        if (!is_null($isService)) {
+            $this->_query->andWhere([parent::tableName() . '.is_service' => (int) $isService]);
+        }
 
         return $this;
     }
@@ -216,7 +203,7 @@ class FreeNumberFilter extends Number
     public function setDidGroup($didGroupId)
     {
         if ((int)$didGroupId) {
-            $this->_query->andWhere(['did_group_id' => $didGroupId]);
+            $this->_query->andWhere([parent::tableName() . '.did_group_id' => $didGroupId]);
         }
 
         return $this;
@@ -243,19 +230,6 @@ class FreeNumberFilter extends Number
     {
         if ((int)$cityId) {
             $this->_query->andWhere([parent::tableName() . '.city_id' => (int)$cityId]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param int $ndcTypeId
-     * @return $this
-     */
-    public function setNdcType($ndcTypeId)
-    {
-        if ((int)$ndcTypeId) {
-            $this->_query->andWhere([parent::tableName() . '.ndc_type_id' => (int)$ndcTypeId]);
         }
 
         return $this;

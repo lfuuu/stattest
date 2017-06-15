@@ -1,6 +1,7 @@
 <?php
 
 use app\models\filter\FreeNumberFilter;
+use app\modules\nnp\models\NdcType;
 
 /**
  * 1. Резервирование номера;
@@ -30,7 +31,8 @@ $clientAccountId = app\models\ClientContact::find()->select('client_id')->where(
 
 $freeNumber =
     (new FreeNumberFilter)
-        ->getNumbers()
+        ->setIsService(false)
+        ->setNdcType(NdcType::ID_GEOGRAPHIC)
         ->setRegions([99])
         ->randomOne();
 

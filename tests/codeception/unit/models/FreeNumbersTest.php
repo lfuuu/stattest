@@ -2,6 +2,7 @@
 
 namespace tests\codeception\unit\models;
 
+use app\modules\nnp\models\NdcType;
 use Yii;
 use yii\codeception\TestCase;
 use app\exceptions\web\BadRequestHttpException;
@@ -31,13 +32,13 @@ class FreeNumbersTest extends TestCase
     public function testRegularFreeNumbers()
     {
         $numbers = new FreeNumberFilter;
-        $this->assertEquals(19, count($numbers->numbers->result(null)));
+        $this->assertEquals(19, count($numbers->setNdcType(NdcType::ID_GEOGRAPHIC)->result(null)));
     }
 
     public function test7800FreeNumbers()
     {
         $numbers = new FreeNumberFilter;
-        $this->assertEquals(2, count($numbers->numbers7800->result(null)));
+        $this->assertEquals(2, count($numbers->setNdcType(NdcType::ID_FREEPHONE)->result(null)));
     }
 
     public function testFreeNumbersByRegions()

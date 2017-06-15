@@ -29,6 +29,7 @@ use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\User;
+use app\modules\nnp\models\NdcType;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -585,7 +586,8 @@ class ClientCreateExternalForm extends Form
             } else {
                 $freeNumber
                     = (new FreeNumberFilter)
-                    ->getNumbers()
+                    ->setIsService(false)
+                    ->setNdcType(NdcType::ID_GEOGRAPHIC)
                     ->setCountry(Country::RUSSIA)
                     ->setCity(City::MOSCOW)
                     ->setDidGroup(DidGroup::ID_MOSCOW_STANDART_499)

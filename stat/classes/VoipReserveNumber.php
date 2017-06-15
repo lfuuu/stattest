@@ -9,6 +9,7 @@ use app\models\ClientAccount;
 use app\models\TariffVoip;
 use app\forms\usage\UsageVoipEditForm;
 use app\models\UsageVoip;
+use app\modules\nnp\models\NdcType;
 
 /**
  * Class VoipReserveNumber
@@ -35,7 +36,8 @@ class VoipReserveNumber
 
         $numbersFilter = new FreeNumberFilter();
         $numbersFilter
-            ->getNumbers()
+            ->setIsService(false)
+            ->setNdcType(NdcType::ID_GEOGRAPHIC)
             ->setNumbers((array)$numbers);
 
         foreach ($numbersFilter->result(null) as $number) {
