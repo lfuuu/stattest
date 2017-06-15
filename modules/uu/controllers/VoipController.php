@@ -74,7 +74,6 @@ class VoipController extends BaseController
     public function actionGetNdcTypes($isCityDepended = null, $isWithEmpty = false, $format = null)
     {
         $ndcTypes = NdcType::getList((int)$isWithEmpty, $isWithNullAndNotNull = false, $isCityDepended);
-        $isCityDepended && $ndcTypes[NdcType::ID_LINE] = 'Линия без номера';
         ReturnFormatted::me()->returnFormattedValues($ndcTypes, $format);
     }
 
@@ -138,7 +137,7 @@ class VoipController extends BaseController
         $numbers = new FreeNumberFilter;
 
         if ($ndcTypeId == NdcType::ID_LINE) {
-            // "линия без номера" - это ненастоящий тип NDC
+            // "линия без номера"
             $number = UsageVoip::dao()->getNextLineNumber();
             return Html::checkbox(
                 'numberIds[]',
