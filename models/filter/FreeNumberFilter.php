@@ -2,6 +2,7 @@
 
 namespace app\models\filter;
 
+use app\models\ClientAccount;
 use app\models\Currency;
 use app\models\light_models\NumberLight;
 use app\models\Number;
@@ -399,13 +400,14 @@ class FreeNumberFilter extends Number
     /**
      * @param \app\models\Number $number
      * @param string $currency
+     * @param ClientAccount $clientAccount
      * @return NumberLight
      */
-    public function formattedNumber(\app\models\Number $number, $currency = Currency::RUB)
+    public function formattedNumber(\app\models\Number $number, $currency = Currency::RUB, $clientAccount = null)
     {
         $formattedResult = new NumberLight;
         $formattedResult->setAttributes($number->getAttributes());
-        $formattedResult->setPrices($number, $currency);
+        $formattedResult->setPrices($number, $currency, $clientAccount);
         $formattedResult->country_prefix = $number->country_code ? $number->country->prefix : null;
         $formattedResult->setCommon($number);
 

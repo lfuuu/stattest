@@ -205,7 +205,7 @@ final class OpenController extends Controller
         $responseNumbers = [];
 
         foreach ($numbers->result($limit) as $freeNumber) {
-            $responseNumber = $numbers->formattedNumber($freeNumber, $currency);
+            $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount);
 
             $tariffStatusId = $freeNumber->didGroup->{'tariff_status_main' . $priceLevel};
             $packageStatusIds = [

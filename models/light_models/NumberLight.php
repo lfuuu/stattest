@@ -2,6 +2,7 @@
 
 namespace app\models\light_models;
 
+use app\models\ClientAccount;
 use app\models\Currency;
 use yii\base\Model;
 
@@ -43,11 +44,12 @@ class NumberLight extends Model
     /**
      * @param \app\models\Number $number
      * @param string $currency
+     * @param ClientAccount $clientAccount
      */
-    public function setPrices(\app\models\Number $number, $currency = Currency::RUB)
+    public function setPrices(\app\models\Number $number, $currency = Currency::RUB, $clientAccount = null)
     {
-        $actualPriceWithCurrency = $number->getPriceWithCurrency($currency);
-        $originPriceWithCurrency = $number->getOriginPriceWithCurrency();
+        $actualPriceWithCurrency = $number->getPriceWithCurrency($currency, $clientAccount);
+        $originPriceWithCurrency = $number->getOriginPriceWithCurrency($clientAccount);
 
         $this->price = (float)$actualPriceWithCurrency->formattedPrice;
         $this->currency = $actualPriceWithCurrency->currency;

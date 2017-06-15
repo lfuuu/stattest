@@ -217,14 +217,15 @@ class Number extends ActiveRecord
 
     /**
      * @param string $currency
+     * @param ClientAccount $clientAccount
      * @return NumberPriceLight
      */
-    public function getPriceWithCurrency($currency = Currency::RUB)
+    public function getPriceWithCurrency($currency = Currency::RUB, $clientAccount = null)
     {
         $formattedResult = new NumberPriceLight;
         $formattedResult->setAttributes([
             'currency' => $currency,
-            'price' => $this->getPrice($currency),
+            'price' => $this->getPrice($currency, $clientAccount),
         ]);
         return $formattedResult;
     }
@@ -233,7 +234,7 @@ class Number extends ActiveRecord
      * @param ClientAccount $clientAccount
      * @return float
      */
-    public function getOriginPrice(ClientAccount $clientAccount = null)
+    public function getOriginPrice($clientAccount = null)
     {
         $priceField = 'price' . max(ClientAccount::DEFAULT_PRICE_LEVEL, $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL);
         return (float)$this->didGroup->{$priceField};
@@ -243,7 +244,7 @@ class Number extends ActiveRecord
      * @param ClientAccount $clientAccount
      * @return NumberPriceLight
      */
-    public function getOriginPriceWithCurrency(ClientAccount $clientAccount = null)
+    public function getOriginPriceWithCurrency($clientAccount = null)
     {
         $formattedResult = new NumberPriceLight;
         try {
