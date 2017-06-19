@@ -136,11 +136,11 @@ foreach(OnlimeOrder::find("all", array("conditions" => array("stage = ?", Onlime
 function mail_error($id, $err)
 {
 
-    //
     $headers = "Content-type: text/html; charset=utf-8";
     $subject = "Ошибка экспорта ONLIME";
     $body = "Order onlime ID: ".$id." => [".$err["status"]."] ".$err["message"];
 
     mail("adima123@yandex.ru", "[stat/onlime/get_list] ".$subject, $body, $headers);
     mail("vika@mcn.ru", $subject, $body , $headers);
+    mail("yns@mcn.ru", $subject, $body , $headers);
 }
