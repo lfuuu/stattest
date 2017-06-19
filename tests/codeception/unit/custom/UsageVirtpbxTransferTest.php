@@ -29,7 +29,6 @@ class UsageVirtpbxTransferTest extends \yii\codeception\TestCase
 
         $this->checkLogTariffAfter($this->fromUsage, $this->toUsage);
     }
-
     /**
      * Тест переноса услуги телефонии привязанной к ВАТС
      */
@@ -41,43 +40,7 @@ class UsageVirtpbxTransferTest extends \yii\codeception\TestCase
             });
 
         $this->checkLogTariffAfter($this->fromUsage, $this->toUsage);
-
-        foreach ($this->fromUsage->clientAccount->voipNumbers as $number => $options) {
-            $voipUsage = UsageVoip::findOne([
-                'E164' => $number,
-                'client' => $this->fromUsage->client,
-            ]);
-            $this->assertNotNull($voipUsage, 'See object "VoipUsage" after transfer');
-
-            $fromVoipUsage = $toVoipUsage = null;
-
-            if ((int)$voipUsage->next_usage_id) {
-                $fromVoipUsage = $voipUsage;
-                $toVoipUsage = UsageVoip::findOne($voipUsage->next_usage_id);
-            } else {
-                if ((int)$voipUsage->prev_usage_id) {
-                    $toVoipUsage = $voipUsage;
-                    $fromVoipUsage = UsageVoip::findOne($voipUsage->prev_usage_id);
-                }
-            }
-
-            $this->assertNotNull($fromVoipUsage, 'See object "fromVoipUsage" after transfer');
-            $this->assertNotNull($toVoipUsage, 'See object "toVoipUsage" after transfer');
-
-            $this->checkUsagesAfter($fromVoipUsage, $toVoipUsage);
-            $this->checkLogTariffAfter($fromVoipUsage, $toVoipUsage);
-
-            if ($toVoipUsage->line7800_id) {
-                $fromLine7800 = UsageVoip::findOne($fromVoipUsage->line7800_id);
-                $this->assertNotNull($fromLine7800, 'See object "fromVoipLine7800"');
-
-                $toLine7800 = UsageVoip::findOne($toVoipUsage->line7800_id);
-                $this->assertNotNull($toLine7800, 'See object "toVoipLine7800"');
-
-                $this->checkUsagesAfter($fromLine7800, $toLine7800);
-            }
-        }
-    }
+     }
 
     /**
      * Создание болванки услуги для переноса

@@ -44,6 +44,7 @@ use yii\helpers\Url;
  * @property string $create_params
  * @property int $prev_usage_id
  * @property int $next_usage_id
+ * @property int $ndc_type_id
  *
  * @property TariffVoip $tariff
  * @property ClientAccount $clientAccount

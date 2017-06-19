@@ -2,7 +2,7 @@
 
 namespace tests\codeception\unit\models;
 
-use app\modules\uu\models\Tariff;
+use app\modules\nnp\models\NdcType;
 use app\models\UsageVoip;
 use app\models\LogTarif;
 use app\models\TariffVoip;
@@ -20,10 +20,10 @@ class _UsageVoip extends \app\models\UsageVoip
         $usageLine->setAttributes($this->getAttributes());
         unset($usageLine->id);
         $usageLine->client = $this->client;
-        $usageLine->type_id = Tariff::NUMBER_TYPE_LINE;
+        $usageLine->ndc_type_id = NdcType::ID_MCN_LINE;
         $usageLine->save();
 
-        $this->type_id = Tariff::NUMBER_TYPE_7800;
+        $this->ndc_type_id = NdcType::ID_FREEPHONE;
         $this->line7800_id = $usageLine->id;
         $this->address = 'test address 7800';
         $this->save();

@@ -136,7 +136,7 @@ class VoipController extends BaseController
     ) {
         $numbers = new FreeNumberFilter;
 
-        if ($ndcTypeId == NdcType::ID_LINE) {
+        if ($ndcTypeId == NdcType::ID_MCN_LINE) {
             // "линия без номера"
             $number = UsageVoip::dao()->getNextLineNumber();
             return Html::checkbox(

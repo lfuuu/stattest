@@ -6,6 +6,7 @@ use app\exceptions\ModelValidationException;
 use app\forms\client\ClientCreateExternalForm;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
+use app\modules\nnp\models\NdcType;
 
 
 class _ClientAccount extends \app\models\ClientAccount
@@ -15,7 +16,13 @@ class _ClientAccount extends \app\models\ClientAccount
 
     public function getVoipNumbers()
     {
-        $numbers = UsageVoip::find()->where(['client' => $this->client, 'type_id' => 'number'])->all();
+        $numbers = UsageVoip::find()
+            ->where([
+                'client' => $this->client,
+                'ndc_type_id' => NdcType::ID_GEOGRAPHIC
+            ])
+            ->all();
+
         $result = [];
 
         foreach ($numbers as $number) {

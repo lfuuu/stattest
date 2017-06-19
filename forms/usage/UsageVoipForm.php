@@ -20,7 +20,6 @@ class UsageVoipForm extends Form
     public $city_id;
     public $country_id;
     public $connection_point_id;
-    public $type_id;
     public $status;
     public $did;
     public $did_group_id;
@@ -76,7 +75,7 @@ class UsageVoipForm extends Form
                 ],
                 'integer'
             ],
-            [['type_id', 'did', 'connecting_date', 'tariff_change_date', 'address', 'status'], 'string'],
+            [['did', 'connecting_date', 'tariff_change_date', 'address', 'status'], 'string'],
             [['mass_change_tariff'], 'boolean'],
             [
                 [
@@ -117,7 +116,6 @@ class UsageVoipForm extends Form
             'city_id' => 'Город',
             'country_id' => 'Страна',
             'connection_point_id' => 'Точка присоединения',
-            'type_id' => 'Тип номера',
             'did_group_id' => 'DID-группа',
             'connecting_date' => 'Дата подключения',
             'disconnecting_date' => 'Дата отключения',

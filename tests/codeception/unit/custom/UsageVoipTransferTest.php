@@ -10,10 +10,10 @@ use DateTimeZone;
 use app\models\ClientAccount;
 use app\models\TariffVoip;
 use app\models\UsageVoip;
+use app\modules\nnp\models\NdcType;
 use tests\codeception\unit\models\_UsageVoip;
 use app\models\usages\UsageInterface;
 use app\models\LogTarif;
-use app\modules\uu\models\Tariff;
 
 class UsageVoipTransferTest extends \yii\codeception\TestCase
 {
@@ -66,7 +66,7 @@ class UsageVoipTransferTest extends \yii\codeception\TestCase
         $usage->actual_from = $actualFrom;
         $usage->actual_to = $actualTo;
         $usage->client = $clientAccount->client;
-        $usage->type_id = Tariff::NUMBER_TYPE_NUMBER;
+        $usage->ndc_type_id = NdcType::ID_GEOGRAPHIC;
         $usage->E164 = '123456' . mt_rand(0, 9);
         $usage->address = 'test address';
         $usage->region = Region::MOSCOW;

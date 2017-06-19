@@ -2,7 +2,7 @@
 
 namespace app\helpers\usages;
 
-use app\modules\uu\models\Tariff;
+use app\modules\nnp\models\NdcType;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -43,7 +43,7 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
         $description = '';
         $checkboxOptions = [];
 
-        if ($this->_usage->type_id === Tariff::NUMBER_TYPE_7800) {
+        if ($this->_usage->ndc_type_id === NdcType::ID_FREEPHONE) {
             $line = UsageVoip::findOne(['id' => $this->_usage->line7800_id]);
             if ($line instanceof UsageVoip) {
                 $description = Html::tag(

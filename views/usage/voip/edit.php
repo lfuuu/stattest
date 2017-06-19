@@ -20,8 +20,6 @@ use yii\widgets\Breadcrumbs;
 /** @var $model \app\forms\usage\UsageVoipEditForm */
 /** @var \app\classes\BaseView $this */
 
-$types = \app\modules\uu\models\Tariff::getVoipTypesByCountryId();
-
 $noYes = [
     '0' => 'Нет',
     '1' => 'Да',
@@ -86,8 +84,8 @@ echo Breadcrumbs::widget([
         'attributes' => [
             ['type' => Form::INPUT_RAW, 'value' => '
                 <div class="form-group">
-                    <label class="control-label">Тип</label>
-                    <input type="text" class="form-control" value="' . $types[$usage->type_id] . '" readonly="readonly" />
+                    <label class="control-label">Тип NDC</label>
+                    <input type="text" class="form-control" value="' . NdcType::getList()[$model->ndc_type_id] . '" readonly="readonly" />
                 </div>
             '],
             ['type' => Form::INPUT_RAW, 'value' => '
@@ -111,22 +109,35 @@ echo Breadcrumbs::widget([
         ],
     ]);
 
-    if ($model->type_id == Number::TYPE_NUMBER) {
+    if ($model->ndc_type_id == NdcType::ID_FREEPHONE) {
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 4,
+            'attributes' => [
+                'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
+                'no_of_lines' => ['type' => Form::INPUT_TEXT],
+                'line7800_id' => ['type' => Form::INPUT_TEXT, 'options' => ['disabled' => 'disabled']],
+            ],
+        ]);
+    } elseif ($model->ndc_type_id == NdcType::ID_MCN_LINE) {
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 4,
+            'attributes' => [
+                ['type' => Form::INPUT_RAW],
+                'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
+                'no_of_lines' => ['type' => Form::INPUT_TEXT],
+            ],
+        ]);
+    } else {
         $number = Number::findOne($model->did);
         echo Form::widget([
             'model' => $model,
             'form' => $form,
             'columns' => 4,
             'attributes' => [
-                'ndc_type_id' => [
-                    'type' => Form::INPUT_RAW,
-                    'value' => '
-                        <div class="form-group">
-                            <label class="control-label">Тип номера</label>
-                            <input type="text" class="form-control" value="' . ($model->did? $number->ndcType->name: '') . '" readonly="readonly" />
-                        </div>
-                    ',
-                ],
                 'did_group_id' => [
                     'type' => Form::INPUT_RAW,
                     'value' => '
@@ -147,28 +158,7 @@ echo Breadcrumbs::widget([
                 ],
             ],
         ]);
-    }
-    else if ($model->type_id == Number::TYPE_7800) {
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 4,
-            'attributes' => [
-                'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
-                'no_of_lines' => ['type' => Form::INPUT_TEXT],
-                'line7800_id' => ['type' => Form::INPUT_TEXT, 'options' => ['disabled' => 'disabled']],
-            ],
-        ]);
-    } else { // line
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 4,
-            'attributes' => [
-                'did' => ['type' => Form::INPUT_TEXT, 'options' => ['readonly' => 'readonly']],
-                'no_of_lines' => ['type' => Form::INPUT_TEXT],
-            ],
-        ]);
+
     }
 
     echo Form::widget([

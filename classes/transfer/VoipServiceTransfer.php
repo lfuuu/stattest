@@ -2,12 +2,12 @@
 
 namespace app\classes\transfer;
 
+use app\modules\nnp\models\NdcType;
 use Yii;
 use app\classes\Assert;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 use app\models\UsageVoipPackage;
-use app\modules\uu\models\Tariff;
 use app\models\usages\UsageInterface;
 use yii\db\ActiveRecord;
 
@@ -46,7 +46,7 @@ class VoipServiceTransfer extends ServiceTransfer
 
             foreach ($usages->each() as $usage) {
                 if (
-                    $usage->type_id === Tariff::NUMBER_TYPE_LINE
+                    $usage->ndc_type_id === NdcType::ID_MCN_LINE
                     && UsageVoip::find()->where(['line7800_id' => $usage->id])->count()
                 ) {
                     continue;

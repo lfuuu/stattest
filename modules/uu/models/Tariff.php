@@ -71,10 +71,6 @@ class Tariff extends HistoryActiveRecord
 
     const DELTA = 10000;
 
-    const NUMBER_TYPE_NUMBER = 'number';
-    const NUMBER_TYPE_7800 = '7800';
-    const NUMBER_TYPE_LINE = 'line';
-
     /**
      * @return array
      */
@@ -303,37 +299,6 @@ class Tariff extends HistoryActiveRecord
         }
 
         return false;
-    }
-
-    /**
-     * Вернуть список типов в зависимости от страны
-     *
-     * @param int $countryId
-     * @param bool $isWithEmpty
-     * @return array
-     */
-    public static function getVoipTypesByCountryId($countryId = null, $isWithEmpty = false)
-    {
-        $types = [
-            self::NUMBER_TYPE_NUMBER => 'Номер',
-            self::NUMBER_TYPE_7800 => '7800',
-            self::NUMBER_TYPE_LINE => 'Линия без номера',
-            // 'operator' => 'Оператор',
-        ];
-
-        if ($isWithEmpty) {
-            $types = (['' => '----'] + $types);
-        }
-
-        if ($countryId && $countryId != Country::RUSSIA) {
-            unset($types[self::NUMBER_TYPE_7800]); // 7800 только в России
-        }
-
-        if ($countryId && $countryId == Country::RUSSIA) {
-            unset($types[self::NUMBER_TYPE_LINE]); // линия без номера только не в России
-        }
-
-        return $types;
     }
 
     /**

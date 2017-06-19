@@ -2,7 +2,6 @@
 
 namespace tests\codeception\unit\custom;
 
-use app\forms\client\ClientCreateExternalForm;
 use tests\codeception\unit\models\_ClientAccount;
 use Yii;
 use DateTime;

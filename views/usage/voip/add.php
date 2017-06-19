@@ -22,8 +22,6 @@ if (\app\modules\uu\models\AccountTariff::isUuAccount()) {
     return [];
 }
 
-$types = \app\modules\uu\models\Tariff::getVoipTypesByCountryId();
-
 $noYes = [
     '0' => 'Нет',
     '1' => 'Да',
@@ -72,12 +70,10 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 4,
         'attributes' => [
-            'type_id' => [
+            'ndc_type_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => $types,
-                'options' => [
-                    'class' => 'select2 form-reload'
-                ]
+                'items' => NdcType::getList(),
+                'options' => ['class' => 'select2 form-reload'],
             ],
             'city_id' => NdcType::isCityDependent($model->ndc_type_id) ?
                 [
@@ -105,37 +101,12 @@ echo Breadcrumbs::widget([
         ],
     ]);
 
-    if ($model->type_id === Number::TYPE_NUMBER) {
+    if ($model->ndc_type_id == NdcType::ID_FREEPHONE) {
         echo Form::widget([
             'model' => $model,
             'form' => $form,
             'columns' => 4,
             'attributes' => [
-                'ndc_type_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => NdcType::getList(),
-                    'options' => ['class' => 'select2 form-reload'],
-                ],
-                'did_group_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => DidGroup::getList($isWithEmpty = true, $model->country_id, $model->city_id, $model->ndc_type_id),
-                    'options' => ['class' => 'select2 form-reload'],
-                ],
-                'did' => ['type' => Form::INPUT_TEXT],
-                'no_of_lines' => ['type' => Form::INPUT_TEXT],
-            ],
-        ]);
-    } elseif ($model->type_id == Number::TYPE_7800) {
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 4,
-            'attributes' => [
-                'ndc_type_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => NdcType::getList(),
-                    'options' => ['class' => 'select2 form-reload'],
-                ],
                 'did' => [
                     'type' => Form::INPUT_TEXT
                 ],
@@ -148,17 +119,13 @@ echo Breadcrumbs::widget([
                 ],
             ],
         ]);
-    } else {
+    } elseif ($model->ndc_type_id == NdcType::ID_MCN_LINE) {
         echo Form::widget([
             'model' => $model,
             'form' => $form,
             'columns' => 4,
             'attributes' => [
-                'ndc_type_id' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => NdcType::getList(),
-                    'options' => ['class' => 'select2 form-reload'],
-                ],
+                ['type' => Form::INPUT_RAW],
                 'did' => [
                     'type' => Form::INPUT_TEXT,
                     'options' => [
@@ -168,6 +135,21 @@ echo Breadcrumbs::widget([
                 'no_of_lines' => [
                     'type' => Form::INPUT_TEXT
                 ],
+            ],
+        ]);
+    } else {
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => 4,
+            'attributes' => [
+                'did_group_id' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => DidGroup::getList($isWithEmpty = true, $model->country_id, $model->city_id, $model->ndc_type_id),
+                    'options' => ['class' => 'select2 form-reload'],
+                ],
+                'did' => ['type' => Form::INPUT_TEXT],
+                'no_of_lines' => ['type' => Form::INPUT_TEXT],
             ],
         ]);
     }

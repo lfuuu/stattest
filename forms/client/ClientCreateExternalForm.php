@@ -581,7 +581,7 @@ class ClientCreateExternalForm extends Form
             $form->scenario = 'add';
             $form->initModel($client);
             if ($this->connect_region == Region::HUNGARY) { // в венгрии подключаем только линии без номера
-                $form->type_id = 'line';
+                $form->ndc_type_id = NdcType::ID_MCN_LINE;
                 $form->city_id = City::DEFAULT_USER_CITY_ID;
             } else {
                 $freeNumber

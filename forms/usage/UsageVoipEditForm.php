@@ -67,7 +67,6 @@ class UsageVoipEditForm extends UsageVoipForm
         $rules[] = [['no_of_lines'], 'default', 'value' => 1];
         $rules[] = [
             [
-                'type_id',
                 'client_account_id',
                 'no_of_lines',
                 'did',
@@ -86,7 +85,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'required',
             'on' => 'add',
             'when' => function ($model) {
-                return $model->type_id !== Number::TYPE_7800;
+                return $model->ndc_type_id != NdcType::ID_FREEPHONE;
             }
         ];
         $rules[] = [['did'], 'trim'];
@@ -120,7 +119,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'required',
             'on' => 'add',
             'when' => function ($model) {
-                return $model->type_id === Number::TYPE_NUMBER;
+                return !in_array($model->ndc_type_id, [NdcType::ID_FREEPHONE, NdcType::ID_MCN_LINE]);
             }
         ];
         $rules[] = [
@@ -128,7 +127,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'required',
             'on' => 'add',
             'when' => function ($model) {
-                return $model->type_id === Number::TYPE_7800;
+                return $model->ndc_type_id == NdcType::ID_FREEPHONE;
             }
         ];
         $rules[] = [
@@ -136,7 +135,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'validateNoUsedLine',
             'on' => 'add',
             'when' => function ($model) {
-                return $model->type_id === Number::TYPE_7800;
+                return $model->ndc_type_id == NdcType::ID_FREEPHONE;
             }
         ];
 
@@ -200,9 +199,17 @@ class UsageVoipEditForm extends UsageVoipForm
             return;
         }
 
-        switch ($this->type_id) {
+        switch ($this->ndc_type_id) {
 
-            case '7800': {
+            case NdcType::ID_MCN_LINE: {
+                if (!preg_match('/^\d{4,5}$/', $this->did)) {
+                    $this->addError('did', 'Неверный формат номера');
+                }
+
+                break;
+            }
+
+            case NdcType::ID_FREEPHONE: {
                 if (!preg_match('/^\d{1,2}80\d{6,8}$/', $this->did)) {
                     $this->addError('did', 'Неверный формат номера');
                 }
@@ -210,7 +217,7 @@ class UsageVoipEditForm extends UsageVoipForm
                 // no break;
             }
 
-            case 'number': {
+            default: {
                 if (!preg_match('/^\d+$/', $this->did)) {
                     $this->addError('did', 'Неверный формат номера');
                 }
@@ -238,22 +245,6 @@ class UsageVoipEditForm extends UsageVoipForm
 
                 if ($number && NdcType::isCityDependent($number->ndc_type_id) && $number->city_id != $this->city_id) {
                     $this->addError('did', 'Номер ' . $this->did . ' из другого города');
-                }
-
-                break;
-            }
-
-            case 'line': {
-                if (!preg_match('/^\d{4,5}$/', $this->did)) {
-                    $this->addError('did', 'Неверный формат номера');
-                }
-
-                break;
-            }
-
-            case 'operator': {
-                if (!preg_match('/^\d{3}$/', $this->did)) {
-                    $this->addError('did', 'Неверный формат номера');
                 }
 
                 break;
@@ -322,6 +313,7 @@ class UsageVoipEditForm extends UsageVoipForm
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
                         ->setNdcType(NdcType::ID_GEOGRAPHIC)
+                        ->setIsService(false)
                         ->setCity($this->city_id)
                         ->setCountry($this->country_id)
                         ->setDidGroup($this->did_group_id)
@@ -352,15 +344,15 @@ class UsageVoipEditForm extends UsageVoipForm
                 $usage->region = $region;
                 $usage->actual_from = $actualFrom;
                 $usage->actual_to = $actualTo;
-                $usage->type_id = $this->type_id;
+                $usage->ndc_type_id = $this->ndc_type_id;
                 $usage->client = $this->clientAccount->client;
                 $usage->E164 = $this->did;
                 $usage->no_of_lines = (int)$this->no_of_lines;
                 $usage->status = $this->status;
                 $usage->address = $this->address;
                 $usage->edit_user_id = Yii::$app->user->getId();
-                $usage->line7800_id = $this->type_id === '7800' ? $this->line7800_id : 0;
-                $usage->is_trunk = $this->type_id === 'operator' ? 1 : 0;
+                $usage->line7800_id = $this->ndc_type_id == NdcType::ID_FREEPHONE ? $this->line7800_id : 0;
+                $usage->is_trunk = /*$this->type_id === 'operator' ? 1 : */ 0;
                 $usage->one_sip = 0;
                 $usage->create_params = $this->create_params;
 
@@ -388,32 +380,32 @@ class UsageVoipEditForm extends UsageVoipForm
     public function prepareAdd()
     {
         if ($this->did) {
-            $this->type_id = 'number';
 
-            if (strlen($this->did) >= 4 && strlen($this->did) <= 5) {
-                $this->type_id = 'line';
+            /** @var Number $number */
+            $number = Number::findOne(['number' => $this->did]);
+
+            if ($number) {
+                $this->ndc_type_id = $number->ndc_type_id;
+
+                $this->connection_point_id = $number->region;
+                $this->did_group_id = DidGroup::dao()->getIdByNumber($number);
+                $this->city_id = $number->city_id;
+                $this->country_id = $number->country_code;
+
+            } elseif (strlen($this->did) >= 4 && strlen($this->did) <= 5) {
+                $this->ndc_type_id = NdcType::ID_MCN_LINE;
+            } elseif (preg_match('/^\d{1,2}80\d{6,8}$/', $this->did)) {
+                $this->ndc_type_id = NdcType::ID_FREEPHONE;
             } else {
-                if (substr($this->did, 0, 4) === '7800') {
-                    $this->type_id = '7800';
-                }
+                $this->did = null;
+                $this->ndc_type_id = NdcType::ID_GEOGRAPHIC;
             }
 
-            if ($this->type_id !== 'number') {
+            if (!in_array($this->ndc_type_id, [NdcType::ID_GEOGRAPHIC, NdcType::ID_FREEPHONE])) {
                 $this->did_group_id = null;
-            } else {
-                /** @var \app\models\Number $number */
-                $number = Number::findOne(['number' => $this->did]);
-
-                if ($number) {
-                    $this->connection_point_id = $number->region;
-                    $this->did_group_id = DidGroup::dao()->getIdByNumber($number);
-                    $this->city_id = $number->city_id;
-                } else {
-                    $this->did = null;
-                }
             }
         } else {
-            if ($this->type_id === 'line') {
+            if ($this->ndc_type_id == NdcType::ID_MCN_LINE) {
                 $this->did = UsageVoip::dao()->getNextLineNumber();
             }
         }
@@ -538,6 +530,7 @@ class UsageVoipEditForm extends UsageVoipForm
 
             $this->setAttributes($usage->getAttributes(), false);
             $this->did = $usage->E164;
+            $this->ndc_type_id = $usage->ndc_type_id;
             if ($usage->line7800 !== null) {
                 $this->line7800_id = $usage->line7800->E164;
             }
@@ -586,8 +579,6 @@ class UsageVoipEditForm extends UsageVoipForm
             $tariff = TariffVoip::findOne($this->tariff_main_id);
             // Устанавливает "Тип тарифа" от включенного "Тариф Основной"
             $this->tariff_main_status = $this->tariffMainStatus = $tariff->status;
-
-            $this->ndc_type_id = $usage->voipNumber->ndc_type_id;
         } else {
             $this->connecting_date = $this->today->format(DateTimeZoneHelper::DATE_FORMAT);
         }
@@ -598,7 +589,7 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     protected function preProcess()
     {
-        if ($this->type_id != Number::TYPE_LINE && !NdcType::isCityDependent($this->ndc_type_id)) {
+        if ($this->ndc_type_id != NdcType::ID_MCN_LINE && !NdcType::isCityDependent($this->ndc_type_id)) {
             $this->city_id = null;
         }
 
@@ -611,8 +602,8 @@ class UsageVoipEditForm extends UsageVoipForm
             $this->tariff_main_status = TariffVoip::STATE_DEFAULT;
         }
 
-        if (!$this->type_id) {
-            $this->type_id = 'number';
+        if (!$this->ndc_type_id) {
+            $this->ndc_type_id = NdcType::ID_GEOGRAPHIC;
         }
     }
 
@@ -621,50 +612,24 @@ class UsageVoipEditForm extends UsageVoipForm
      */
     public function processDependenciesNumber()
     {
-        // type_id => [number, line, 7800, operator]
-        switch ($this->type_id) {
-            case 'number': {
-                if ($this->ndc_type_id == NdcType::ID_FREEPHONE) {
-
-                    $this->ndc_type_id = NdcType::ID_GEOGRAPHIC;
-
-                }
-
-                if (in_array($this->tariff_main_status, [TariffVoip::STATUS_7800, TariffVoip::STATUS_7800_TEST])) {
-                    $this->tariff_main_status = TariffVoip::STATUS_PUBLIC;
-                }
-
-                if ($this->city_id && $this->did_group_id && !$this->did) {
-                    /** @var \app\models\Number $number */
-                    $number = (new FreeNumberFilter)
-                        ->setNdcType($this->ndc_type_id)
-                        ->setCity($this->city_id)
-                        ->setCountry($this->country_id)
-                        ->setDidGroup($this->did_group_id)
-                        ->randomOne();
-
-                    if ($number) {
-                        $this->did = $number->number;
-                    }
-                } else {
-                    if ($this->did) {
-                        /** @var \app\models\Number $number */
-                        $number = Number::findOne($this->did);
-
-                        if (!$number) {
-                            $this->did = null;
-                        } else {
-                            $this->city_id = $number->city_id;
-                            $this->did_group_id = DidGroup::dao()->getIdByNumber($number);
-                            $this->ndc_type_id = $number->ndc_type_id;
-                        }
-                    }
-                }
-
-                break;
+        // сброс номера, если параметры формы не соответствуют номеру
+        if ($this->did && $this->ndc_type_id != NdcType::ID_MCN_LINE) {
+            /** @var \app\models\Number $number */
+            $number = Number::find()->where($this->did)->one();
+            if (
+                !$number || (
+                    $number->country_code != $this->country_id
+                    || $number->city_id != $this->city_id
+                    || $number->ndc_type_id != $this->ndc_type_id
+                )
+            ) {
+                $this->did = null;
             }
+        }
 
-            case 'line': {
+        switch ($this->ndc_type_id) {
+
+            case NdcType::ID_MCN_LINE: {
                 $this->did_group_id = null;
                 if (strlen($this->did) < 4 || strlen($this->did) > 5) {
                     $this->did = UsageVoip::dao()->getNextLineNumber();
@@ -673,13 +638,14 @@ class UsageVoipEditForm extends UsageVoipForm
                 break;
             }
 
-            case '7800': {
+            case NdcType::ID_FREEPHONE: {
                 $this->did_group_id = null;
                 $this->ndc_type_id = NdcType::ID_FREEPHONE;
 
                 if (!$this->did) {
                     /** @var \app\models\Number $number */
                     $number = (new FreeNumberFilter)
+                        ->setCountry($this->country_id)
                         ->setNdcType(NdcType::ID_FREEPHONE)
                         ->randomOne();
 
@@ -696,13 +662,34 @@ class UsageVoipEditForm extends UsageVoipForm
                 break;
             }
 
-            case 'operator': {
-                $this->did_group_id = null;
-                if (strlen($this->did) != 3) {
-                    $this->did = UsageVoip::find()
-                        ->select(['number' => 'MAX(CONVERT(E164,UNSIGNED INTEGER))+1'])
-                        ->where('LENGTH(E164)=3')
-                        ->scalar();
+            default: {
+                if (in_array($this->tariff_main_status, [TariffVoip::STATUS_7800, TariffVoip::STATUS_7800_TEST])) {
+                    $this->tariff_main_status = TariffVoip::STATUS_PUBLIC;
+                }
+
+                if (!$this->did && ((NdcType::isCityDependent($this->ndc_type_id)) && $this->city_id || true) && $this->did_group_id) {
+                    /** @var \app\models\Number $number */
+                    $number = (new FreeNumberFilter)
+                        ->setNdcType($this->ndc_type_id)
+                        ->setCity($this->city_id)
+                        ->setCountry($this->country_id)
+                        ->setDidGroup($this->did_group_id)
+                        ->randomOne();
+
+                    if ($number) {
+                        $this->did = $number->number;
+                    }
+                } elseif ($this->did) {
+                    /** @var \app\models\Number $number */
+                    $number = Number::findOne($this->did);
+
+                    if (!$number) {
+                        $this->did = null;
+                    } else {
+                        $this->city_id = $number->city_id;
+                        $this->did_group_id = DidGroup::dao()->getIdByNumber($number);
+                        $this->ndc_type_id = $number->ndc_type_id;
+                    }
                 }
 
                 break;
