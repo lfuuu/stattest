@@ -2,6 +2,7 @@
 namespace app\dao;
 
 use app\models\ClientContract;
+use app\modules\nnp\models\NdcType;
 use Yii;
 use yii\db\Expression;
 use yii\db\Query;
@@ -325,7 +326,7 @@ class ClientDocumentDao extends Singleton
                 $row['minpayments'][] = ['value' => $currentTariff->minpayment_intern, 'variants' => [0, 0, 0, 1,]];
             }
 
-            if ($usage->type_id == '7800') {
+            if ($usage->ndc_type_id == NdcType::ID_FREEPHONE) {
                 $data['voip_7800'][] = $row;
             } else {
                 $data['voip'][] = $row;
