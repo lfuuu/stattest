@@ -2,6 +2,7 @@
 namespace app\classes;
 
 use app\exceptions\ModelValidationException;
+use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\helpers\DateTimeZoneHelper;
@@ -66,7 +67,6 @@ class Event
     const VPBX_BLOCKED = 'vpbx_blocked';
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
 
-
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
         self::ACTUALIZE_NUMBER => 'Актуализировать номер',
@@ -116,15 +116,16 @@ class Event
         self::UU_ACCOUNT_TARIFF_RESOURCE_VOIP => 'UU-ресурс телефонии',
         self::UU_ACCOUNT_TARIFF_RESOURCE_VPBX => 'UU-ресурс ВАТС',
         self::UPDATE_BALANCE => 'Обновление баланса',
-        SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'Добавление услуги в NNP',
-        SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'Удаление услуги из NNP',
+        SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'ННП. Добавление услуги',
+        SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'ННП. Удаление услуги',
         AccountTariffBiller::EVENT_RECALC => 'Билинговать UU-клиента',
         self::ACCOUNT_BLOCKED => 'ЛС заблокирован',
         self::ACCOUNT_UNBLOCKED => 'ЛС разблокирован',
         SyncVmCollocation::EVENT_SYNC => 'API VM manager',
         self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',
         self::VPBX_BLOCKED => 'Блокировка ВАТС',
-        self::VPBX_UNBLOCKED => 'Разблокировка ВАТС'
+        self::VPBX_UNBLOCKED => 'Разблокировка ВАТС',
+        ImportServiceUploaded::EVENT => 'ННП. Импорт страны',
     ];
 
     /**
@@ -134,6 +135,7 @@ class Event
      * @param string|array $param Данные для обработки события
      * @param bool $isForceAdd Принудительное добавления события. (Если событие уже есть в очереди, то оно не добавляется)
      * @return EventQueue
+     * @throws \app\exceptions\ModelValidationException
      */
     public static function go($event, $param = "", $isForceAdd = false)
     {

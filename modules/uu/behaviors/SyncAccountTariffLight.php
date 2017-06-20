@@ -40,6 +40,7 @@ class SyncAccountTariffLight extends Behavior
      *
      * @param Event $event
      * @throws \LogicException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function accountLogPeriodChange(Event $event)
     {
@@ -94,6 +95,7 @@ class SyncAccountTariffLight extends Behavior
      * Триггер при удалении списания абонентки
      *
      * @param Event $event
+     * @throws \app\exceptions\ModelValidationException
      */
     public function accountLogPeriodDelete(Event $event)
     {

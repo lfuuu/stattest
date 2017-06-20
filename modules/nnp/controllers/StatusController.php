@@ -47,11 +47,11 @@ class StatusController extends BaseController
 
         if ($formModel->isSaved) {
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $formModel,
+        ]);
     }
 
     /**
@@ -75,10 +75,10 @@ class StatusController extends BaseController
 
         if ($formModel->isSaved) {
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $formModel,
+        ]);
     }
 }

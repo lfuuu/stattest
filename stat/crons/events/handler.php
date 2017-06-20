@@ -10,6 +10,8 @@ use app\classes\HttpClientLogger;
 use app\classes\partners\RewardCalculate;
 use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
+use app\modules\nnp\media\ImportServiceUploaded;
+use app\modules\nnp\models\CountryFile;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\behaviors\SyncVmCollocation;
@@ -211,6 +213,11 @@ function doEvents()
                 case SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT:
                     // Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
                     SyncAccountTariffLight::deleteFromAccountTariffLight($param);
+                    break;
+
+                case ImportServiceUploaded::EVENT:
+                    // ННП. Импорт страны
+                    $info = CountryFile::importById($param['fileId']);
                     break;
 
                 case AccountTariffBiller::EVENT_RECALC:

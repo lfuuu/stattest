@@ -1,16 +1,17 @@
 <?php
+
 namespace app\controllers;
 
-use Yii;
-use yii\data\ActiveDataProvider;
-use yii\base\Exception;
-use yii\web\Response;
-use yii\filters\AccessControl;
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\models\ClientContract;
 use app\models\media\ClientFiles;
 use app\models\media\TroubleFiles;
-use app\models\ClientContract;
+use Yii;
+use yii\base\Exception;
+use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
+use yii\web\Response;
 
 class FileController extends BaseController
 {
@@ -53,15 +54,22 @@ class FileController extends BaseController
      * @param string $model
      * @param int $id
      * @throws Exception
+     * @throws \yii\base\ExitException
+     * @throws \yii\web\HttpException
      */
     public function actionGetFile($model, $id)
     {
         switch ($model) {
             case 'clients':
+                /** @var ClientFiles $file */
                 $file = ClientFiles::findOne($id);
                 break;
             case 'troubles':
+                /** @var TroubleFiles $file */
                 $file = TroubleFiles::findOne($id);
+                break;
+            default:
+                $file = null;
                 break;
         }
 
@@ -77,6 +85,7 @@ class FileController extends BaseController
      */
     public function actionUploadClientFile($contractId)
     {
+        /** @var ClientContract $model */
         $model = ClientContract::findOne($contractId);
 
         if (!$model) {

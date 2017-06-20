@@ -379,3 +379,7 @@ a.nohover:hover {
 .krajee-datepicker {
     width: 110px !important;
 }
+
+.margin-top-as-label {
+    margin-top: 21px;
+}

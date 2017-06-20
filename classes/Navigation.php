@@ -184,6 +184,7 @@ class Navigation
                 ->addItem('Территории направлений', ['/nnp/land/'], ['tarifs.read'])
                 ->addItem('Статусы направлений', ['/nnp/status/'], ['tarifs.read'])
                 ->addItem('Пакеты', Url::to(['/uu/tariff', 'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE]), ['tarifs.read'])
+                ->addItem('Импорт', ['/nnp/import/'], ['tarifs.read'])
         );
 
         /** @var \app\modules\notifier\Module $module */

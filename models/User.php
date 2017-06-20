@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models;
 
 use app\dao\user\UserDao;
@@ -6,6 +7,8 @@ use app\queries\UserQuery;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
+use yii\helpers\Html;
+use yii\helpers\Url;
 
 /**
  * @property integer $id
@@ -252,5 +255,22 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
             $orderBy = ['name' => SORT_ASC],
             $where = ['enabled' => 'yes']
         );
+    }
+
+    /**
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getUrl()
+    {
+        return Url::to(['/', 'module' => 'employeers', 'user' => $this->user]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a($this->name, $this->getUrl());
     }
 }

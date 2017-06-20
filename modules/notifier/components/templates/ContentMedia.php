@@ -69,7 +69,6 @@ class ContentMedia extends MediaManager
 
     /**
      * @param ActiveRecord $file
-     * @return void
      */
     protected function deleteFileModel(ActiveRecord $file)
     {

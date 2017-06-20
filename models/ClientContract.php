@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models;
 
 use app\classes\behaviors\ClientContractComments;
@@ -10,7 +11,6 @@ use app\classes\behaviors\SetTaxVoip;
 use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContractDao;
-use app\helpers\DateTimeZoneHelper;
 use app\helpers\SetFieldTypeHelper;
 use yii\db\ActiveQuery;
 

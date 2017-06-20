@@ -19,6 +19,8 @@ use app\classes\traits\TagsTrait;
  * @property string $comment
  * @property string $name
  * @property int $is_show_in_lk
+ *
+ * @property ClientMedia $mediaManager
  */
 class ClientFiles extends ActiveRecord
 {

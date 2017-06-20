@@ -36,6 +36,7 @@ class ClientMedia extends MediaManager
      * @param string $content
      * @param string $comment
      * @param int $userId
+     * @param bool $isShowInLk
      * @return ClientFiles|bool
      * @throws \Exception
      */
@@ -67,6 +68,7 @@ class ClientMedia extends MediaManager
      * @param string $name
      * @param string $comment
      * @param int $userId
+     * @param bool $isShowInLk
      * @return ClientFiles
      */
     protected function createFileModel($name, $comment, $userId = null, $isShowInLk = false)
@@ -87,7 +89,6 @@ class ClientMedia extends MediaManager
     /**
      * @param ActiveRecord $fileModel
      * @throws \Exception
-     * @return void
      */
     protected function deleteFileModel(ActiveRecord $fileModel)
     {

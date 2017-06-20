@@ -32,6 +32,7 @@ class OperatorController extends BaseController
      * Создать
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionNew()
     {
@@ -45,11 +46,11 @@ class OperatorController extends BaseController
 
         if ($formModel->isSaved) {
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $formModel,
+        ]);
     }
 
     /**
@@ -57,6 +58,7 @@ class OperatorController extends BaseController
      *
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionEdit($id)
     {
@@ -72,10 +74,10 @@ class OperatorController extends BaseController
 
         if ($formModel->isSaved) {
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $formModel,
+        ]);
     }
 }

@@ -17,6 +17,7 @@ class PrefixController extends BaseController
      * Список
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
     {
@@ -32,6 +33,7 @@ class PrefixController extends BaseController
      * Создать
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionNew()
     {
@@ -45,11 +47,11 @@ class PrefixController extends BaseController
 
         if ($formModel->isSaved) {
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $formModel,
+        ]);
     }
 
     /**
@@ -57,6 +59,7 @@ class PrefixController extends BaseController
      *
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionEdit($id)
     {
@@ -72,10 +75,10 @@ class PrefixController extends BaseController
 
         if ($formModel->isSaved) {
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $formModel,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $formModel,
+        ]);
     }
 }

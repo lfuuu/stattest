@@ -2,6 +2,7 @@
 
 namespace app\classes\media;
 
+use app\exceptions\ModelValidationException;
 use Yii;
 use yii\db\ActiveRecord;
 
@@ -39,19 +40,18 @@ abstract class MediaManager
         'xls',
         'xlsx',
         'ppt',
-        'txt',
-        'html',
         '7z',
     ];
 
     /**
+     * @param string $name
+     * @param string $comment
      * @return ActiveRecord
      */
     protected abstract function createFileModel($name, $comment);
 
     /**
      * @param ActiveRecord $fileModel
-     * @return mixed
      */
     protected abstract function deleteFileModel(ActiveRecord $fileModel);
 
@@ -68,6 +68,7 @@ abstract class MediaManager
     /**
      * @param string $fileField
      * @param string $names
+     * @throws \app\exceptions\ModelValidationException
      */
     public function addFiles($fileField = '', $names = '')
     {
@@ -95,12 +96,13 @@ abstract class MediaManager
      * @param array $file - as $_FILES format
      * @param string $comment
      * @param string $name
-     * @return string
+     * @return ActiveRecord
+     * @throws \app\exceptions\ModelValidationException
      */
     public function addFile(array $file, $comment = '', $name = '')
     {
         if (!file_exists($file['tmp_name']) || !is_file($file['tmp_name'])) {
-            return false;
+            return null;
         }
 
         if (!$name) {
@@ -112,9 +114,15 @@ abstract class MediaManager
         }
 
         $model = $this->createFileModel($name, $comment);
-        move_uploaded_file($file['tmp_name'], $this->getFilePath($model));
+        if (!move_uploaded_file($file['tmp_name'], $this->getFilePath($model))) {
+            if (!$model->delete()) {
+                throw new ModelValidationException($model);
+            }
 
-        return $name;
+            return null;
+        }
+
+        return $model;
     }
 
     /**
@@ -125,7 +133,6 @@ abstract class MediaManager
         $this->deleteFileModel($fileModel);
 
         $filePath = $this->getFilePath($fileModel);
-
         if (file_exists($filePath)) {
             @unlink($filePath);
         }
@@ -148,15 +155,16 @@ abstract class MediaManager
 
     /**
      * @param ActiveRecord $fileModel
-     * @param int $withContent
+     * @param bool $withContent
      * @return array
      */
-    public function getFile(ActiveRecord $fileModel, $withContent = 0)
+    public function getFile(ActiveRecord $fileModel, $withContent = false)
     {
+        $mimeTypes = $this->getMime($fileModel);
         $fileData = [
             'id' => $fileModel->id,
-            'ext' => $this->getMime($fileModel)[0],
-            'mimeType' => $this->getMime($fileModel)[1],
+            'ext' => $mimeTypes[0],
+            'mimeType' => $mimeTypes[1],
             'size' => $this->getSize($fileModel),
             'name' => $fileModel->name,
             'comment' => $fileModel->comment,
@@ -184,7 +192,7 @@ abstract class MediaManager
         if (file_exists($filePath)) {
             $fileData = $this->getFile($fileModel);
 
-            if ($isDownload && in_array($fileData['ext'], $this->downloadable, true)) {
+            if ($isDownload || in_array($fileData['ext'], $this->downloadable, true)) {
                 Yii::$app->response->sendContentAsFile(file_get_contents($filePath), $fileData['name']);
                 Yii::$app->end();
             } else {
@@ -214,7 +222,7 @@ abstract class MediaManager
     }
 
     /**
-     * @param ActiveRecord|\stdClass $file
+     * @param ActiveRecord|\stdClass $fileModel
      * @return array
      */
     protected function getMime($fileModel)
@@ -237,8 +245,25 @@ abstract class MediaManager
      * @param ActiveRecord $fileModel
      * @return string
      */
-    protected function getFilePath(ActiveRecord $fileModel)
+    public function getFilePath(ActiveRecord $fileModel)
     {
         return implode('/', [Yii::$app->params['STORE_PATH'], static::getFolder(), $fileModel->id]);
+    }
+
+    /**
+     * Если это zip, то вернуть путь для чтения одноименного разархивированного файла
+     *
+     * @param ActiveRecord $fileModel
+     * @return string
+     */
+    public function getUnzippedFilePath(ActiveRecord $fileModel)
+    {
+        $filePath = $this->getFilePath($fileModel);
+        $info = pathinfo($fileModel->name);
+        if (strtolower($info['extension']) === 'zip') {
+            return 'zip://' . $filePath . '#' . $info['filename'];
+        }
+
+        return $filePath;
     }
 }
