@@ -4,6 +4,8 @@ namespace app\modules\nnp\media;
 
 use app\classes\Connection;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\nnp\models\Country;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use UnexpectedValueException;
 use Yii;
@@ -19,6 +21,13 @@ abstract class ImportService
     private $_db = null;
 
     protected $log = [];
+
+    /** @var Country */
+    protected $country;
+
+    protected $ndcTypeList = [];
+
+    protected $delimiter = ',';
 
     /**
      * Основной метод
@@ -37,27 +46,38 @@ abstract class ImportService
     protected abstract function callbackRow($i, $row);
 
     /**
+     * @param int $countryCode
+     * @throws \InvalidArgumentException
+     * @throws \LogicException
+     */
+    public function __construct($countryCode)
+    {
+        $this->country = Country::findOne(['code' => $countryCode]);
+        if (!$this->country) {
+            throw new \InvalidArgumentException('Неправильная страна');
+        }
+
+        if (NumberRange::isTriggerEnabled()) {
+            throw new \LogicException('Импорт невозможен, потому что триггер включен');
+        }
+
+        $this->ndcTypeList = NdcType::getList();
+    }
+
+    /**
      * Импортировать
      *
-     * @param int $countryCode
      * @return bool
-     * @throws \LogicException
-     * @throws \yii\db\Exception
      */
-    public function run($countryCode)
+    public function run()
     {
         $this->_db = Yii::$app->dbPgNnp;
         $transaction = $this->_db->beginTransaction();
         try {
-
-            if (NumberRange::isTriggerEnabled()) {
-                throw new \LogicException('Импорт невозможен, потому что триггер включен');
-            }
-
             $this->addLog(PHP_EOL . 'Начало импорта: ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL);
             $this->_preImport();
             $this->callbackMethod();
-            $this->_postImport($countryCode);
+            $this->_postImport();
 
             $transaction->commit();
 
@@ -93,11 +113,13 @@ abstract class ImportService
         $insertValues = [];
 
         $i = 0;
-        while (($row = fgetcsv($handle)) !== false) {
+        while (($row = fgetcsv($handle, $rowLength = 4096, $this->delimiter)) !== false) {
 
             if (count($row) < 6) {
                 throw new \LogicException('Wrong string ' . implode(',', $row));
             }
+
+            $row += array_fill(count($row), 11, null);
 
             // Преобразовать строчку файла в фиксированный массив данных
             $callbackRow = $this->callbackRow($i++, $row);
@@ -167,11 +189,10 @@ SQL;
      * После импорта
      * Из временной таблицы перенести в постоянную
      *
-     * @param string $countryCode
      * @throws \yii\db\Exception
      * @throws \LogicException
      */
-    private function _postImport($countryCode)
+    private function _postImport()
     {
         $this->addLog(PHP_EOL);
 
@@ -185,7 +206,7 @@ SQL;
         AND country_code = :country_code 
         AND (ndc_type_id IS NOT NULL OR operator_id IS NOT NULL OR region_id IS NOT NULL OR ndc IS NOT NULL)
 SQL;
-        $affectedRowsBefore = $this->_db->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $affectedRowsBefore = $this->_db->createCommand($sql, [':country_code' => $this->country->code])->execute();
         $this->addLog(sprintf('Было: %d' . PHP_EOL, $affectedRowsBefore));
 
         // обновить и включить
@@ -260,7 +281,7 @@ SQL;
     FROM
         number_range_tmp
 SQL;
-        $affectedRowsAdded = $this->_db->createCommand($sql, [':country_code' => $countryCode])->execute();
+        $affectedRowsAdded = $this->_db->createCommand($sql, [':country_code' => $this->country->code])->execute();
         $this->addLog(sprintf('Добавлено: %d' . PHP_EOL, $affectedRowsAdded));
 
         $affectedRowsTotal = $affectedRowsUpdated + $affectedRowsAdded;

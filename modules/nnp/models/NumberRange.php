@@ -1,4 +1,5 @@
 <?php
+
 namespace app\modules\nnp\models;
 
 use app\classes\Connection;
@@ -276,41 +277,5 @@ class NumberRange extends ActiveRecord
         }
 
         return $_cache[$countryCode][$cityId];
-    }
-
-    /**
-     * Определение NDC у номера
-     *
-     * @param int $number
-     * @param int $countryPrefix
-     * @param int $countryId
-     * @param int $cityId
-     * @return int
-     */
-    public static function detectNdc($number, $countryPrefix, $countryId, $cityId)
-    {
-        if (strpos($number, (string)$countryPrefix) !== 0) {
-            throw new \LogicException('Неправильный номер: '. $number);
-        }
-
-        if ($cityId == 7800) {
-            return 800;
-        }
-
-        if ($cityId == 3680) {
-            return 80;
-        }
-
-        $numberWithoutCountryPrefix = substr($number, strlen($countryPrefix));
-
-        $ndcList = NumberRange::getNdcList($countryId, $cityId);
-
-        foreach ($ndcList as $ndc) {
-            if (strpos($numberWithoutCountryPrefix, (string)$ndc) === 0) {
-                return $ndc;
-            }
-        }
-
-        throw new \LogicException('NDC не найден для номера:' . $number);
     }
 }

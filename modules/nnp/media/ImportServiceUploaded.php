@@ -2,6 +2,8 @@
 
 namespace app\modules\nnp\media;
 
+use app\modules\nnp\filter\NumberRangeImport;
+
 class ImportServiceUploaded extends ImportService
 {
     const EVENT = 'nnp_import';
@@ -11,16 +13,14 @@ class ImportServiceUploaded extends ImportService
     /**
      * Импортировать
      *
-     * @param int $countryCode
      * @param string $url
-     * @return int
-     * @throws \LogicException
-     * @throws \yii\db\Exception
+     * @return bool
      */
-    public function run($countryCode, $url)
+    public function run($url)
     {
+        $this->delimiter = ';';
         $this->_url = $url;
-        return parent::run($countryCode);
+        return parent::run();
     }
 
     /**
@@ -43,6 +43,7 @@ class ImportServiceUploaded extends ImportService
      * @param int $i Номер строки
      * @param string[] $row ячейки строки csv-файла
      * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number']
+     * @throws \RuntimeException
      */
     protected function callbackRow($i, $row)
     {
@@ -51,27 +52,52 @@ class ImportServiceUploaded extends ImportService
             return [];
         }
 
-        // date_resolution
-        $row[8] = trim($row[8]);
-        if ($row[8]) {
-            $row[8] = str_replace('.', '-', $row[8]); // ГГГГ.ММ.ДД преобразовать в ГГГГ-ММ-ДД. Остальные форматы strtotime распознает сам
-            $row[8] = date('Y-m-d', strtotime($row[8]));
-        }
+        return $this->getNumberRangeByRow($row)
+            ->getSqlData();
+    }
 
-        return
-            [
-                // @todo [2]
-                $row[1] ? (int)$row[1] : null, // ndc
-                (int)$row[4], // number_from
-                (int)$row[5], // number_to
-                (int)$row[3], // ndc_type_id
-                trim($row[7]), // operator_source
-                trim($row[6]), // region_source
-                (int)$row[0] . (int)$row[1] . (int)$row[4], // full_number_from
-                (int)$row[0] . (int)$row[1] . (int)$row[5], // full_number_to
-                $row[8] ?: null, // date_resolution
-                trim($row[9]), // detail_resolution
-                trim($row[10]), // status_number
-            ];
+    /**
+     * @param string[] $row
+     * @return NumberRangeImport
+     */
+    public function getNumberRangeByRow($row)
+    {
+        $row += array_fill(count($row), 11, null);
+
+        $numberRangeImport = new NumberRangeImport;
+        $numberRangeImport->setCountryPrefix($row[0], $this->country);
+        $numberRangeImport->setNdc($row[1]);
+        $numberRangeImport->setNdcTypeSource($row[2]);
+        $numberRangeImport->setNdcTypeId($row[3], $this->ndcTypeList);
+        $numberRangeImport->setNumberFrom($row[4]);
+        $numberRangeImport->setNumberTo($row[5]);
+        $numberRangeImport->setRegionSource($row[6]);
+        $numberRangeImport->setOperatorSource($row[7]);
+        $numberRangeImport->setDateResolution($row[8]);
+        $numberRangeImport->setDetailResolution($row[9]);
+        $numberRangeImport->setStatusNumber($row[10]);
+
+        return $numberRangeImport;
+    }
+
+    /**
+     * @param NumberRangeImport $numberRangeImport
+     * @return bool[] индексы соответствуют $row из getNumberRangeByRow. Значение - hasError
+     */
+    public function getRowHasError($numberRangeImport)
+    {
+        return [
+            $numberRangeImport->hasErrors('country_prefix'),
+            $numberRangeImport->hasErrors('ndc'),
+            $numberRangeImport->hasErrors('ndc_type_source'),
+            $numberRangeImport->hasErrors('ndc_type_id'),
+            $numberRangeImport->hasErrors('number_from'),
+            $numberRangeImport->hasErrors('number_to'),
+            $numberRangeImport->hasErrors('region_source'),
+            $numberRangeImport->hasErrors('operator_source'),
+            $numberRangeImport->hasErrors('date_resolution'),
+            $numberRangeImport->hasErrors('detail_resolution'),
+            $numberRangeImport->hasErrors('status_number'),
+        ];
     }
 }

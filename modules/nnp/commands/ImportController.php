@@ -19,8 +19,8 @@ class ImportController extends Controller
      */
     public function actionRus()
     {
-        (new ImportServiceRossvyaz)
-            ->run(Country::RUSSIA);
+        (new ImportServiceRossvyaz(Country::RUSSIA))
+            ->run();
     }
 
     /**

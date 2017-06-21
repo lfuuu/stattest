@@ -201,8 +201,8 @@ class ImportController extends BaseController
 
             // файл маленький - загрузить сразу
             $filePath = $mediaManager->getUnzippedFilePath($countryFile);
-            $importServiceUploaded = new ImportServiceUploaded;
-            $isOk = $importServiceUploaded->run($countryCode, $filePath);
+            $importServiceUploaded = new ImportServiceUploaded($countryCode);
+            $isOk = $importServiceUploaded->run($filePath);
             $log = $importServiceUploaded->getLogAsString();
             if ($isOk) {
                 Yii::$app->session->addFlash('success', 'Файл успешно импортирован.' . nl2br(PHP_EOL . $log));

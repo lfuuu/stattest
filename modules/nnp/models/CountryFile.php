@@ -102,8 +102,8 @@ class CountryFile extends ActiveRecord
         $country = $countryFile->country;
         $mediaManager = $country->getMediaManager();
         $filePath = $mediaManager->getUnzippedFilePath($countryFile);
-        $importServiceUploaded = new ImportServiceUploaded;
-        $isOk = $importServiceUploaded->run($country->code, $filePath);
+        $importServiceUploaded = new ImportServiceUploaded($country->code);
+        $isOk = $importServiceUploaded->run($filePath);
         $log = $importServiceUploaded->getLogAsString();
         if (!$isOk) {
             throw new \RuntimeException($log);
