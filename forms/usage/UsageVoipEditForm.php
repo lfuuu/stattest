@@ -615,7 +615,7 @@ class UsageVoipEditForm extends UsageVoipForm
         // сброс номера, если параметры формы не соответствуют номеру
         if ($this->did && $this->ndc_type_id != NdcType::ID_MCN_LINE) {
             /** @var \app\models\Number $number */
-            $number = Number::find()->where($this->did)->one();
+            $number = Number::findOne(['number' => $this->did]);
             if (
                 !$number || (
                     $number->country_code != $this->country_id
