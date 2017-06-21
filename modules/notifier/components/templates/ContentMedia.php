@@ -86,7 +86,7 @@ class ContentMedia extends MediaManager
      * @param ActiveRecord $fileModel
      * @return string
      */
-    protected function getFilePath(ActiveRecord $fileModel)
+    public function getFilePath(ActiveRecord $fileModel)
     {
         return implode('/',
             [Yii::$app->params['STORE_PATH'], static::getFolder(), implode('_', $fileModel->primaryKey)]);
