@@ -27,6 +27,8 @@ class Bill extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    const CURRENT_STATEMENT = 'current_statement';
+
     /**
      * @return string
      */
@@ -80,4 +82,24 @@ class Bill extends ActiveRecord
         return Url::to(['/uu/bill', 'BillFilter[id]' => $this->id]);
     }
 
+    /**
+     * Получение несконвертированных проводок
+     *
+     * @param int $accountId
+     * @return ActiveQuery
+     */
+    public static function getUnconvertedAccountEntries($accountId)
+    {
+        $billTableName = self::tableName();
+        $accountEntryTableName = AccountEntry::tableName();
+        $query = AccountEntry::find()
+            ->joinWith('bill')
+            ->where([
+                $billTableName . '.client_account_id' => $accountId,
+                $billTableName . '.is_converted' => 0,
+            ])
+            ->andWhere(['>', $accountEntryTableName . '.price_with_vat', 0]);
+
+        return $query;
+    }
 }

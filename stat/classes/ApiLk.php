@@ -7,6 +7,7 @@ use app\dao\reports\ReportUsageDao;
 use app\exceptions\ModelValidationException;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
 use app\models\BillDocument;
 use app\models\City;
 use app\models\ClientAccount;
@@ -33,6 +34,7 @@ use app\models\UsageVoip;
 use app\models\User;
 use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Bill as uuBill;
 
 class ApiLk
 {
@@ -66,31 +68,41 @@ class ApiLk
 
         list($R, $sum,) = BalanceSimple::get($params);
 
-        /*
-        $cutOffDate = \app\models\HistoryVersion::find()
-            ->andWhere([
-                'model' => ClientAccount::className(),
-                'model_id' => $clientId
-            ])
-            ->orderBy('date DESC')
-            ->one();
-        $cutOffDate->date;
-        */
         $cutOffDate = '2000-01-01';
 
         $bills = [];
+
+        if ($account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+            $bills[] = [
+                'bill_no' => 'current_statement',
+                'bill_date' => (new DateTime('now', new DateTimeZone($account->timezone_name)))->format(DateTimeZoneHelper::DATE_FORMAT),
+                'sum' => number_format(uuBill::getUnconvertedAccountEntries($account->id)->sum('price_with_vat'), 2, '.', ''),
+                'type' => '',
+                'pays' => [],
+                'link' => []
+            ];
+        }
+
         foreach ($R as $r) {
             if (strtotime($r["bill"]["bill_date"]) < $cutOffDate) {
                 continue;
             }
 
             $b = $r["bill"];
+
+            /**
+             * Временно отключаем
+             * $dt = BillDocument::dao()->getByBillNo($b["bill_no"]);
+             * $billModel = Bill::findOne(['bill_no' => $b["bill_no"]]);
+             * $bill['link'] = self::_getBillDocumentLinks($billModel, $dt);
+             */
+
             $bill = [
-                "bill_no" => $b["bill_no"],
-                "bill_date" => $b["bill_date"],
-                "sum" => $b["sum"],
-                "type" => $b["nal"],
-                "pays" => []
+                'bill_no' => $b['bill_no'],
+                'bill_date' => $b['bill_date'],
+                'sum' => $b['sum'],
+                'type' => $b['nal'],
+                'pays' => [],
             ];
 
             foreach ($r["pays"] as $p) {
@@ -105,7 +117,8 @@ class ApiLk
                     "sum" => $p["sum"]
                 ];
             }
-            if ($b["is_show_in_lk"] == '1') {
+
+            if ($b["is_show_in_lk"]) {
                 $bills[] = $bill;
             }
         }
@@ -146,13 +159,13 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
-        $billNo = \app\models\Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum);
+        $billNo = Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum);
 
         if (!$billNo) {
 
             NewBill::createBillOnPay($clientId, $sum, '', true);
 
-            $billNo = \app\models\Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum);
+            $billNo = Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum);
         }
 
         if (!$billNo) {
@@ -254,6 +267,38 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
+        if ($billNo == uuBill::CURRENT_STATEMENT) {
+
+            $lines = [];
+            $sum = 0;
+
+            $query = uuBill::getUnconvertedAccountEntries($account->id);
+            foreach ($query->each() as $uuLine) {
+                $lines[] = [
+                    'item' => $uuLine->getFullName(),
+                    'date_from' => '',
+                    'amount' => 1,
+                    'price' => number_format($uuLine->price_with_vat, 2, '.', ''),
+                    'sum' => number_format($uuLine->price_with_vat, 2, '.', '')
+                ];
+
+                $sum += $uuLine['price_with_vat'];
+            }
+
+            return [
+                "bill" => [
+                    "bill_no" => 'current_statement',
+                    "is_rollback" => 0,
+                    "is_1c" => 0,
+                    "lines" => $lines,
+                    "sum_total" => $sum,
+                    "dtypes" => ['bill_no' => 'current_statement', 'ts' => time()]
+                ],
+                "link" => [
+                ],
+            ];
+        }
+
         $b = NewBill::first(["conditions" => ["client_id" => $clientId, "bill_no" => $billNo, "is_show_in_lk" => "1"]]);
         if (!$b) {
             throw new Exception("bill_not_found");
@@ -271,57 +316,8 @@ class ApiLk
             ];
         }
 
-        include_once INCLUDE_PATH . 'bill.php';
-        include_once PATH_TO_ROOT . "modules/newaccounts/module.php";
-        $curr_bill = new Bill($billNo);
-        $dt = BillDocument::dao()->getByBillNo($curr_bill->GetNo());
-
-        $types = ["bill_no" => $dt["bill_no"], "ts" => $dt["ts"]];
-
-        $billModel = app\models\Bill::findOne(['bill_no' => $billNo]);
-
-        /*
-        $organizationId = 1;
-        if ($billModel)
-        {
-            $contractId = $billModel->clientAccount->contract->id;
-            $c = app\models\ClientContract::findOne(['id' => $contractId])
-                ->loadVersionOnDate($curr_bill->Get("bill_date"));
-
-            if ($c)
-                $organizationId = $c->organization_id;
-        }
-
-
-
-        if ($organizationId == app\models\Organization::MCM_TELEKOM)
-        {
-            $types["a1"] = $dt["a1"];
-            $types["a2"] = $dt["a2"];
-        } else {
-            $billTs = strtotime($curr_bill->Get("bill_date"));
-            $period1 = strtotime("2014-07-01"); // переход на УПД
-            $period2 = strtotime("2017-01-01"); // возврат на с/ф и акт
-
-            if ($billTs >= $period2) {
-                $types["a1"] = $dt["a1"];
-                $types["a2"] = $dt["a2"];
-                $types["i1"] = $dt["a1"];
-                $types["i2"] = $dt["a2"];
-            } else if ($billTs >= $period1)
-            {
-                $types["u1"] = $dt["a1"];
-                $types["u2"] = $dt["a2"];
-                $types["ut"] = $dt["i3"];
-            } else {
-                $types["a1"] = $dt["a1"];
-                $types["a2"] = $dt["a2"];
-                $types["i1"] = $dt["a1"];
-                $types["i2"] = $dt["a2"];
-            }
-        }
-        */
-
+        $dt = BillDocument::dao()->getByBillNo($billNo);
+        $billModel = Bill::findOne(['bill_no' => $billNo]);
 
         $ret = [
             "bill" => [
@@ -330,78 +326,55 @@ class ApiLk
                 "is_1c" => $b->is1C(),
                 "lines" => $lines,
                 "sum_total" => number_format($b->sum, 2, '.', ''),
-                "dtypes" => $types
+                "dtypes" => ["bill_no" => $dt["bill_no"], "ts" => $dt["ts"]]
             ],
-            "link" => [
-                "bill" => API__print_bill_url . Encrypt::encodeArray([
-                        'bill' => $billNo,
-                        'object' => "bill-2-RUB",
-                        "client" => $clientId
-                    ]),
-            ],
+            "link" => self::_getBillDocumentLinks($billModel, $dt),
         ];
 
-        if ($billModel->clientAccount->contragent->country_id != Country::RUSSIA) {
-            return $ret;
-        }
-
-        if (isset($dt["i1"]) && $dt["i1"]) {
-            $ret["link"]["invoice1"] = API__print_bill_url . Encrypt::encodeArray([
-                    'bill' => $billNo,
-                    'object' => "invoice-1",
-                    "client" => $clientId
-                ]);
-        }
-
-        if (isset($dt["i2"]) && $dt["i2"]) {
-            $ret["link"]["invoice2"] = API__print_bill_url . Encrypt::encodeArray([
-                    'bill' => $billNo,
-                    'object' => "invoice-2",
-                    "client" => $clientId
-                ]);
-        }
-
-        if (isset($dt["a1"]) && $dt["a1"]) {
-            $ret["link"]["akt1"] = API__print_bill_url . Encrypt::encodeArray([
-                    'bill' => $billNo,
-                    'object' => "akt-1",
-                    "client" => $clientId
-                ]);
-        }
-
-        if (isset($dt["a2"]) && $dt["a2"]) {
-            $ret["link"]["akt2"] = API__print_bill_url . Encrypt::encodeArray([
-                    'bill' => $billNo,
-                    'object' => "akt-2",
-                    "client" => $clientId
-                ]);
-        }
-
-        if (isset($dt["ia1"]) && $dt["ia1"]) {
-            $ret["link"]["upd1"] = API__print_bill_url . Encrypt::encodeArray([
-                    'bill' => $billNo,
-                    'object' => "upd-1",
-                    "client" => $clientId
-                ]);
-        }
-
-        if (isset($dt["ia2"]) && $dt["ia2"]) {
-            $ret["link"]["upd2"] = API__print_bill_url . Encrypt::encodeArray([
-                    'bill' => $billNo,
-                    'object' => "upd-2",
-                    "client" => $clientId
-                ]);
-        }
-
-        if (isset($dt["i3"]) && $dt["i3"]) {
-            $ret["link"]["updt"] = API__print_bill_url . Encrypt::encodeArray([
-                    'bill' => $billNo,
-                    'object' => "upd-3",
-                    "client" => $clientId
-                ]);
-        }
-
         return $ret;
+    }
+
+    /**
+     * @param Bill $bill
+     * @param int[] $dt
+     * @return array
+     */
+    private static function _getBillDocumentLinks(Bill $bill, $dt)
+    {
+        $data = [
+            'bill' => API__print_bill_url . Encrypt::encodeArray([
+                    'bill' => $bill->bill_no,
+                    'object' => 'bill-2-RUB',
+                    'client' => $bill->client_id
+                ])
+        ];
+
+        if ($bill->clientAccount->contragent->country_id != Country::RUSSIA) {
+            return $data;
+        }
+
+        $conf = [
+            'i1' =>  ['object' => 'invoice-1', 'key' => 'invoice1'],
+            'i2' =>  ['object' => 'invoice-2', 'key' => 'invoice2'],
+            'a1' =>  ['object' => 'akt-1', 'key' => 'akt1'],
+            'a2' =>  ['object' => 'akt-2', 'key' => 'akt2'],
+            'ia1' => ['object' => 'upd-1', 'key' => 'upd1'],
+            'ia2' => ['object' => 'upd-2', 'key' => 'upd2'],
+            'i3' =>  ['object' => 'upd-3', 'key' => 'updt'],
+        ];
+
+
+        foreach ($conf as $dtKey => $dtConf) {
+            if (isset($dt[$dtKey]) && $dt[$dtKey]) {
+                $data[$dtConf['key']] = API__print_bill_url . Encrypt::encodeArray([
+                        'bill' => $bill->bill_no,
+                        'object' => $dtConf['object'],
+                        "client" => $bill->client_id
+                    ]);
+            }
+        }
+
+        return $data;
     }
 
     public static function getDomainList($clientId)

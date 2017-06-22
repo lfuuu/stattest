@@ -1604,42 +1604,26 @@ class UuController extends ApiInternalController
      */
     public function actionGetAccountEntries($client_account_id)
     {
-        $billTableName = Bill::tableName();
-        $accountEntryTableName = AccountEntry::tableName();
-        $query = AccountEntry::find()
-            ->joinWith('bill')
-            ->where([
-                $billTableName . '.client_account_id' => $client_account_id,
-                $billTableName . '.is_converted' => 0,
-            ])
-            ->andWhere(['>', $accountEntryTableName . '.price_with_vat', 0]);
+        $query = Bill::getUnconvertedAccountEntries($client_account_id);
+
         $result = [];
         foreach ($query->each() as $model) {
-            $result[] = $this->_getAccountEntryRecord($model);
+            $result[] = [
+                'name' => $model->getFullName(),
+                'date' => $model->date,
+                'date_from' => $model->date_from,
+                'date_to' => $model->date_to,
+                'account_tariff_id' => $model->account_tariff_id,
+                'tariff_period_id' => $model->tariff_period_id,
+                'type_id' => $model->type_id,
+                'price' => $model->price,
+                'price_without_vat' => $model->price_without_vat,
+                'vat_rate' => $model->vat_rate,
+                'vat' => $model->vat,
+                'price_with_vat' => $model->price_with_vat,
+            ];
         }
 
-        return $result;
     }
 
-    /**
-     * @param AccountEntry $model
-     * @return array
-     */
-    private function _getAccountEntryRecord($model)
-    {
-        return [
-            'name' => $model->getFullName(),
-            'date' => $model->date,
-            'date_from' => $model->date_from,
-            'date_to' => $model->date_to,
-            'account_tariff_id' => $model->account_tariff_id,
-            'tariff_period_id' => $model->tariff_period_id,
-            'type_id' => $model->type_id,
-            'price' => $model->price,
-            'price_without_vat' => $model->price_without_vat,
-            'vat_rate' => $model->vat_rate,
-            'vat' => $model->vat,
-            'price_with_vat' => $model->price_with_vat,
-        ];
-    }
 }
