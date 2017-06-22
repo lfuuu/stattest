@@ -53,6 +53,7 @@ class Navigation
         }
 
         $accountBlock->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit');
+        $accountBlock->addItem('Отчет по платежам (new)', '/report/accounting/pay-report/', 'newaccounts_payments.read');
 
         $this->addBlock($accountBlock);
 

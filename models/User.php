@@ -241,16 +241,18 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
-     * @return string[]
+     * @param string $indexBy
+     * @return \string[]
      */
     public static function getList(
         $isWithEmpty = false,
-        $isWithNullAndNotNull = false
+        $isWithNullAndNotNull = false,
+        $indexBy = 'user'
     ) {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
-            $indexBy = 'user',
+            $indexBy,
             $select = 'CONCAT(name, " (", user, ")")',
             $orderBy = ['name' => SORT_ASC],
             $where = ['enabled' => 'yes']

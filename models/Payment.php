@@ -33,6 +33,7 @@ use Yii;
  *
  * @property Bill $bill счёт
  * @property ClientAccount $client
+ * @property User $addUser
  */
 class Payment extends ActiveRecord
 {
@@ -110,6 +111,32 @@ class Payment extends ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function attributeLabels()
+    {
+        return [
+            'client_id' => 'ЛС',
+            'payment_no' => 'Номер платежа',
+            'bill_no' => 'Счет',
+            'bill_vis_no' => 'Прикрепленый счет',
+            'payment_date' => 'Дата отправки платежа',
+            'oper_date' => 'Дата получения платежа',
+            'payment_rate' => 'Курс конвертации валюты',
+            'type' => 'Тип платежа',
+            'ecash_operator' => 'оператор электронных денег',
+            'sum' => 'Сумма',
+            'currency' => 'Валюта',
+            'original_sum' => 'Оригинальная сумма',
+            'original_currency' => 'Оригинальная валюта',
+            'comment' => 'Комментарий',
+            'add_date' => 'Дата занесения платежа',
+            'add_user' => 'Добавивший пользователь',
+            'bank' => 'Банк'
+        ];
+    }
+
+    /**
      * Получение счета по платежу
      *
      * @return ActiveQuery
@@ -127,6 +154,16 @@ class Payment extends ActiveRecord
     public function getClient()
     {
         return $this->hasOne(ClientAccount::className(), ['id' => 'client_id']);
+    }
+
+    /**
+     * Добавивший платеж пользователь
+     *
+     * @return ActiveQuery
+     */
+    public function getAddUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'add_user']);
     }
 
     /**
