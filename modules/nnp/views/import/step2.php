@@ -50,7 +50,8 @@ use yii\widgets\Breadcrumbs;
             <td>1</td>
             <td>0000000</td>
             <td>0009999</td>
-            <td>Москва</td>
+            <td>Алтайский край</td>
+            <td>Барнаул</td>
             <td>МГТС</td>
             <td>2016.12.31</td>
             <td>Приказ №12345/6</td>
@@ -63,7 +64,8 @@ use yii\widgets\Breadcrumbs;
             <td>2</td>
             <td>0010000</td>
             <td>0019999</td>
-            <td>Москва</td>
+            <td>Алтайский край</td>
+            <td>Барнаул</td>
             <td>ПАО Мегафон</td>
             <td>12/31/2016</td>
             <td></td>
@@ -76,6 +78,7 @@ use yii\widgets\Breadcrumbs;
             <td>6</td>
             <td>112</td>
             <td>112</td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>

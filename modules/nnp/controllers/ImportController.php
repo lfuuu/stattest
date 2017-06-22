@@ -4,6 +4,7 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\classes\Event;
+use app\classes\Html;
 use app\modules\nnp\filter\CountryFilter;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\Country;
@@ -27,15 +28,15 @@ class ImportController extends BaseController
      */
     public function actionIndex()
     {
-        if (NumberRange::isTriggerEnabled()) {
-            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
-        }
-
         $country = new CountryFilter();
         $post = Yii::$app->request->post();
         $country->load($post);
         if ($country->code) {
             return $this->redirect(Url::to(['/nnp/import/step2', 'countryCode' => $country->code]));
+        }
+
+        if (NumberRange::isTriggerEnabled()) {
+            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
         }
 
         return $this->render('index', ['country' => $country]);
@@ -52,10 +53,6 @@ class ImportController extends BaseController
      */
     public function actionStep2($countryCode)
     {
-        if (NumberRange::isTriggerEnabled()) {
-            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
-        }
-
         $country = Country::findOne(['code' => $countryCode]);
         if (!$country || $countryCode == Country::RUSSIA) {
             throw new InvalidParamException('Неправильная страна');
@@ -72,6 +69,10 @@ class ImportController extends BaseController
 
             Yii::$app->session->addFlash('success', 'Файл успешно загружен');
             return $this->redirect(Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id]));
+        }
+
+        if (NumberRange::isTriggerEnabled()) {
+            Yii::$app->session->addFlash('error', $this->_getTriggerErrorMessage());
         }
 
         return $this->render('step2', ['country' => $country]);
@@ -205,6 +206,11 @@ class ImportController extends BaseController
             $isOk = $importServiceUploaded->run($filePath);
             $log = $importServiceUploaded->getLogAsString();
             if ($isOk) {
+                $log .= PHP_EOL . PHP_EOL . Html::a(
+                        'Посмотреть диапазоны номеров',
+                        ['/nnp/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
+                        ['target' => '_blank']
+                    );
                 Yii::$app->session->addFlash('success', 'Файл успешно импортирован.' . nl2br(PHP_EOL . $log));
             } else {
                 Yii::$app->session->addFlash('error', 'Ошибка импорта файла.' . nl2br(PHP_EOL . $log));

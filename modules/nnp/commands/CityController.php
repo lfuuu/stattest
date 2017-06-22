@@ -68,7 +68,7 @@ class CityController extends Controller
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
-                Yii::error('Ошибка Region');
+                Yii::error('Ошибка City');
                 Yii::error($e);
                 printf('%s %s', $e->getMessage(), $e->getTraceAsString());
             }

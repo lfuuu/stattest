@@ -263,7 +263,6 @@ class NumberRangeImport extends NumberRange
     public function getSqlData()
     {
         return [
-            // @todo [2]
             $this->ndc,
             $this->number_from,
             $this->number_to,
@@ -275,6 +274,7 @@ class NumberRangeImport extends NumberRange
             $this->date_resolution,
             $this->detail_resolution,
             $this->status_number,
+            $this->ndc_type_source,
         ];
 
     }

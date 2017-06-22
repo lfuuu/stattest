@@ -64,7 +64,7 @@ $importServiceUploaded = new ImportServiceUploaded($country->code);
                     $newOffset = max(0, $offset - $limit);
                     ?>
                     <tr>
-                        <td colspan="10">
+                        <td colspan="12">
                             <?= $this->render('//layouts/_buttonLink', [
                                 'url' => Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id, 'offset' => $newOffset]),
                                 'text' => sprintf('Проверить предыдущие строки (%d - %d)', $newOffset + 1, $newOffset + $limit),
@@ -82,7 +82,7 @@ $importServiceUploaded = new ImportServiceUploaded($country->code);
                 $newOffset = $offset + $limit;
                 ?>
                 <tr>
-                    <td colspan="10">
+                    <td colspan="12">
                         <?= $this->render('//layouts/_buttonLink', [
                             'url' => Url::to(['/nnp/import/step3', 'countryCode' => $country->code, 'fileId' => $countryFile->id, 'offset' => $newOffset]),
                             'text' => sprintf('Проверить следующие строки (%d - %d)', $newOffset + 1, $newOffset + $limit),

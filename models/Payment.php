@@ -72,7 +72,7 @@ class Payment extends ActiveRecord
 
     public static $ecash = [
         self::ECASH_CYBERPLAT => 'Cyberplat',
-        self::ECASH_YANDEX => 'YandeMoney',
+        self::ECASH_YANDEX => 'YandexMoney',
         self::ECASH_PAYPAL => 'PayPal',
     ];
 

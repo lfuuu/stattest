@@ -42,7 +42,7 @@ class ImportServiceUploaded extends ImportService
      *
      * @param int $i Номер строки
      * @param string[] $row ячейки строки csv-файла
-     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number']
+     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source']
      * @throws \RuntimeException
      */
     protected function callbackRow($i, $row)
@@ -64,6 +64,10 @@ class ImportServiceUploaded extends ImportService
     {
         $row += array_fill(count($row), 11, null);
 
+        $regions = [];
+        $row[6] && $regions[] = $row[6];
+        $row[7] && $regions[] = $row[7];
+
         $numberRangeImport = new NumberRangeImport;
         $numberRangeImport->setCountryPrefix($row[0], $this->country);
         $numberRangeImport->setNdc($row[1]);
@@ -71,11 +75,11 @@ class ImportServiceUploaded extends ImportService
         $numberRangeImport->setNdcTypeId($row[3], $this->ndcTypeList);
         $numberRangeImport->setNumberFrom($row[4]);
         $numberRangeImport->setNumberTo($row[5]);
-        $numberRangeImport->setRegionSource($row[6]);
-        $numberRangeImport->setOperatorSource($row[7]);
-        $numberRangeImport->setDateResolution($row[8]);
-        $numberRangeImport->setDetailResolution($row[9]);
-        $numberRangeImport->setStatusNumber($row[10]);
+        $numberRangeImport->setRegionSource(implode(' | ', $regions));
+        $numberRangeImport->setOperatorSource($row[8]);
+        $numberRangeImport->setDateResolution($row[9]);
+        $numberRangeImport->setDetailResolution($row[10]);
+        $numberRangeImport->setStatusNumber($row[11]);
 
         return $numberRangeImport;
     }
@@ -93,6 +97,7 @@ class ImportServiceUploaded extends ImportService
             $numberRangeImport->hasErrors('ndc_type_id'),
             $numberRangeImport->hasErrors('number_from'),
             $numberRangeImport->hasErrors('number_to'),
+            $numberRangeImport->hasErrors('region_source'),
             $numberRangeImport->hasErrors('region_source'),
             $numberRangeImport->hasErrors('operator_source'),
             $numberRangeImport->hasErrors('date_resolution'),
