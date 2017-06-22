@@ -148,12 +148,20 @@ $filterColumns = [
         'filterType' => GridView::FILTER_SELECT2,
         'filter' => $filterModel->getSortDirection(),
         'class' => DataColumn::className()
-    ]
+    ],
 ];
 
+$dataProvider = $filterModel->search();
+?>
+
+<div class="well">
+    <div class="span12"><b>Итого: <?=$filterModel->total?></b></div>
+</div>
+
+<?php
 
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
     'beforeHeader' => [

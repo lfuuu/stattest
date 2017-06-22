@@ -8,6 +8,7 @@ use app\models\ClientContract;
 use app\models\Currency;
 use app\models\Payment;
 use yii\data\ActiveDataProvider;
+use yii\db\Expression;
 
 /**
  * Class PayReportFilter
@@ -37,6 +38,7 @@ class PayReportFilter extends Payment
     public $add_user = '';
     public $sort_field = self::SORT_ADD_DATE;
     public $sort_direction = SORT_ASC;
+    public $total = '';
 
     /**
      * @return array
@@ -90,6 +92,7 @@ class PayReportFilter extends Payment
             'client_name' => 'Клиент',
             'sort_field' => 'Сортировать по:',
             'sort_direction' => 'Направление сортировки',
+            'total' => 'Итого'
         ];
     }
 
@@ -140,6 +143,8 @@ class PayReportFilter extends Payment
             $query->andWhere(['type' => $type]);
             $ecashOperator && $query->andWhere(['ecash_operator' => $ecashOperator]);
         }
+
+        $this->total = "+" . $query->sum(new Expression('IF(sum > 0, sum, 0)')) . ' / ' . $query->sum(new Expression('IF(sum < 0, sum, 0)')) . ' ' . $this->currency;
 
         return $dataProvider;
     }
