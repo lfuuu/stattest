@@ -2,6 +2,7 @@
 
 namespace app\modules\notifier\models\templates;
 
+use app\exceptions\ModelValidationException;
 use Yii;
 use yii\db\ActiveRecord;
 use app\models\Language;
@@ -15,6 +16,8 @@ use app\modules\notifier\components\templates\ContentMedia;
  * @property int $type
  * @property string $title
  * @property string $file
+ *
+ * @property-read ContentMedia $mediaManager
  */
 class TemplateContent extends ActiveRecord
 {
@@ -100,6 +103,7 @@ class TemplateContent extends ActiveRecord
      * @param boolean|true $runValidation
      * @param null|array $attributeNames
      * @return bool
+     * @throws ModelValidationException
      */
     public function save($runValidation = true, $attributeNames = null)
     {
@@ -107,8 +111,8 @@ class TemplateContent extends ActiveRecord
         $templateContentTypes = Template::$types;
 
         $filenameKey = $this->formNameKey() . '_filename';
-        if (isset($_FILES[$filenameKey]) && ($filename = $this->mediaManager->addFile($_FILES[$filenameKey]))) {
-            $this->filename = $filename;
+        if (isset($_FILES[$filenameKey]) && ($fileContent = $this->mediaManager->addFile($_FILES[$filenameKey]))) {
+            $this->filename = $fileContent->filename;
         }
 
         $saveResult = parent::save($runValidation, $attributeNames);
