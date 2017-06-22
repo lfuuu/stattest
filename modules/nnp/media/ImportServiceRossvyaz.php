@@ -11,6 +11,17 @@ class ImportServiceRossvyaz extends ImportService
     private $_ndcTypeId;
 
     /**
+     * Импортировать
+     *
+     * @return bool
+     */
+    public function run()
+    {
+        $this->delimiter = ';';
+        return parent::run();
+    }
+
+    /**
      * Основной метод
      * Вызывается после _pre и перед _post
      * Внутри себя должен вызвать _importFromTxt

@@ -16,6 +16,7 @@ class OperatorController extends Controller
 
     /**
      * @return int
+     * @throws \yii\db\Exception
      */
     public function actionIndex()
     {

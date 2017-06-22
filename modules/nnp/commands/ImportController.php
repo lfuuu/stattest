@@ -16,6 +16,8 @@ class ImportController extends Controller
      * Импортировать Россию из Россвязи. 2 минуты. Сначала надо disable-trigger, потом enable-trigger
      *
      * @throws \yii\db\Exception
+     * @throws \InvalidArgumentException
+     * @throws \LogicException
      */
     public function actionRus()
     {

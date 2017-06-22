@@ -31,7 +31,7 @@ class ContentMedia extends MediaManager
 
     /**
      * @param int $withContent
-     * @return array
+     * @return array|false
      */
     public function getFile($withContent = 0)
     {
@@ -75,7 +75,7 @@ class ContentMedia extends MediaManager
     }
 
     /**
-     * @return TemplateContent
+     * @return TemplateContent[]
      */
     protected function getFileModels()
     {

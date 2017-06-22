@@ -116,7 +116,11 @@ abstract class ImportService
         while (($row = fgetcsv($handle, $rowLength = 4096, $this->delimiter)) !== false) {
 
             if (count($row) < 6) {
-                throw new \LogicException('Wrong string ' . implode(',', $row));
+                if (count($row) > 1 || $row[0]) {
+                    $this->addLog('Wrong string ' . implode(',', $row));
+                }
+
+                continue;
             }
 
             $row += array_fill(count($row), 11, null);
