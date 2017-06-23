@@ -2,13 +2,15 @@
 
 namespace app\controllers\important_events;
 
-use Yii;
 use app\classes\BaseController;
 use app\models\important_events\ImportantEventsNames;
+use Yii;
+use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 
 class NamesController extends BaseController
 {
+
     /**
      * @return array
      */
@@ -26,13 +28,17 @@ class NamesController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['new', 'edit'],
-                        'roles' => ['dictionary.important-events-names'],
+                        'roles' => ['dictionary-important-event.important-events-names'],
                     ],
                 ],
             ],
         ];
     }
 
+    /**
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionIndex()
     {
         $searchModel = new ImportantEventsNames;
@@ -44,6 +50,11 @@ class NamesController extends BaseController
         ]);
     }
 
+    /**
+     * @param string $id
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionEdit($id = '')
     {
         $eventCode = Yii::$app->request->get('code');
@@ -65,6 +76,11 @@ class NamesController extends BaseController
         ]);
     }
 
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws \Exception
+     */
     public function actionDelete($id)
     {
         $model = ImportantEventsNames::findOne($id);

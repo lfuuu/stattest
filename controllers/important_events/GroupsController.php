@@ -2,14 +2,16 @@
 
 namespace app\controllers\important_events;
 
-use Yii;
 use app\classes\BaseController;
-use yii\data\ActiveDataProvider;
 use app\models\important_events\ImportantEventsGroups;
+use Yii;
+use yii\base\InvalidParamException;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 
 class GroupsController extends BaseController
 {
+
     /**
      * @return array
      */
@@ -27,14 +29,17 @@ class GroupsController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['new', 'edit'],
-                        'roles' => ['dictionary.important-events-groups'],
+                        'roles' => ['dictionary-important-event.important-events-groups'],
                     ],
                 ],
             ],
         ];
     }
 
-
+    /**
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
@@ -47,6 +52,11 @@ class GroupsController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionEdit($id = 0)
     {
         $model = ImportantEventsGroups::findOne($id);
@@ -63,6 +73,11 @@ class GroupsController extends BaseController
         ]);
     }
 
+    /**
+     * @param $group_id
+     * @return \yii\web\Response
+     * @throws \Exception
+     */
     public function actionDelete($group_id)
     {
         $model = ImportantEventsGroups::findOne($group_id);

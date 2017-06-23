@@ -2,14 +2,16 @@
 
 namespace app\controllers\important_events;
 
-use Yii;
 use app\classes\BaseController;
-use yii\data\ActiveDataProvider;
 use app\models\important_events\ImportantEventsSources;
+use Yii;
+use yii\base\InvalidParamException;
+use yii\data\ActiveDataProvider;
 use yii\filters\AccessControl;
 
 class SourcesController extends BaseController
 {
+
     /**
      * @return array
      */
@@ -27,13 +29,17 @@ class SourcesController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['new', 'edit'],
-                        'roles' => ['dictionary.important-events-sources'],
+                        'roles' => ['dictionary-important-event.important-events-sources'],
                     ],
                 ],
             ],
         ];
     }
 
+    /**
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([
@@ -46,6 +52,11 @@ class SourcesController extends BaseController
         ]);
     }
 
+    /**
+     * @param string $id
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionEdit($id = '')
     {
         $model = ImportantEventsSources::findOne($id);
@@ -62,6 +73,11 @@ class SourcesController extends BaseController
         ]);
     }
 
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws \Exception
+     */
     public function actionDelete($id)
     {
         $model = ImportantEventsSources::findOne($id);
