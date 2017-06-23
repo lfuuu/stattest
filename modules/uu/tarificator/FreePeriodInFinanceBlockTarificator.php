@@ -16,23 +16,22 @@ use Yii;
 /**
  * Не списывать абонентку и минималку при финансовой блокировке
  * Ибо ЛС все равно не может пользоваться услугами
+ *
+ *  Надо следить, чтобы не возникала ситуация:
+ * - списали абонентку в минус
+ * - клиент ушел в финансовую блокировку
+ * - отменили абонентку
+ * - клиент вышел из финансовой блокировки
+ * - дальше либо сказка про белого бычка, либо клиент пользуется услугой бесплатно
  */
 class FreePeriodInFinanceBlockTarificator extends Tarificator
 {
     /**
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
+     * @throws \yii\db\Exception
      */
     public function tarificate($accountTariffId = null)
     {
-        // Закрыто до лучших времен
-        // Иначе возникает ситуация:
-        // - списали абонентку в минус
-        // - клиент ушел в финансовую блокировку
-        // - отменили абонентку
-        // - клиент вышел из финансовой блокировку
-        // - дальше либо сказка про белого бычка, либо клиент пользуется услугой бесплатно
-        return;
-
         $db = Yii::$app->db;
         $clientAccountTableName = ClientAccount::tableName();
         $accountTariffTableName = AccountTariff::tableName();
@@ -46,7 +45,7 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
             CREATE TEMPORARY TABLE set_unset_zero_tmp
             SELECT
                 clients.id AS client_id,
-                DATE(set_zero.`date`) AS date_set_zero,
+                DATE(DATE_ADD(set_zero.`date`, INTERVAL 1 DAY)) AS date_set_zero,
                 COALESCE(
                     (
                         SELECT
@@ -75,39 +74,6 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
                 set_zero.`date`
 SQL;
 
-// @todo альтернативный SQL. Для всех клиентов оба работают 10 минут - долго! Надо что-то придумать. Пока сделал только для универсальных клиентов, так работает секунду
-//        $sql = <<<SQL
-//            CREATE TEMPORARY TABLE set_unset_zero_tmp
-//            SELECT
-//                clients.id AS client_id,
-//                DATE(set_zero.`date`) AS date_set_zero,
-//                COALESCE(
-//                    MIN(DATE(unset_zero.`date`)),
-//                    :max_date
-//                ) AS date_unset_zero
-//
-//            FROM
-//                (
-//                {$clientAccountTableName} clients,
-//                {$importantEventsTableName} set_zero
-//                )
-//
-//            LEFT JOIN
-//                {$importantEventsTableName} unset_zero
-//            ON
-//                unset_zero.client_id = clients.id
-//                AND unset_zero.event = :unsetZeroBalance
-//                AND unset_zero.`date` >= set_zero.`date`
-//
-//            WHERE
-//                clients.account_version = :account_version
-//                AND clients.id = set_zero.client_id
-//                AND set_zero.event = :setZeroBalance
-//
-//            GROUP BY
-//                clients.id,
-//                set_zero.`date`
-//SQL;
         $count = $db->createCommand($sql, [
             ':account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ':max_date' => UsageInterface::MAX_POSSIBLE_DATE,
