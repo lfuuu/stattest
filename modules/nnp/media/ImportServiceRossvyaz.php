@@ -55,7 +55,7 @@ class ImportServiceRossvyaz extends ImportService
      *
      * @param int $i Номер строки
      * @param string[] $row ячейки строки csv-файла
-     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number']
+     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source']
      */
     protected function callbackRow($i, $row)
     {
@@ -77,6 +77,7 @@ class ImportServiceRossvyaz extends ImportService
                 null, // date_resolution
                 null, // detail_resolution
                 null, // status_number
+                null, // ndc_type_source
             ];
     }
 

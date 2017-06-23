@@ -152,7 +152,17 @@ SQL;
             UPDATE {$operatorTableName}
             SET cnt = operator_stat.cnt
             FROM 
-                (SELECT operator_id, SUM(number_to - number_from + 1) AS cnt FROM {$numberRangeTableName} WHERE operator_id IS NOT NULL GROUP BY operator_id) operator_stat
+                (
+                    SELECT
+                        operator_id,
+                        COALESCE(SUM(number_to - number_from + 1), 0) AS cnt 
+                    FROM
+                        {$numberRangeTableName} 
+                    WHERE
+                        operator_id IS NOT NULL 
+                    GROUP BY
+                        operator_id
+                ) operator_stat
             WHERE {$operatorTableName}.id = operator_stat.operator_id
 SQL;
         return self::getDb()->createCommand($sql)->execute();

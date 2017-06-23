@@ -41,7 +41,7 @@ abstract class ImportService
      *
      * @param int $i Номер строки
      * @param string[] $row ячейки строки csv-файла
-     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number']
+     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source']
      */
     protected abstract function callbackRow($i, $row);
 
@@ -49,6 +49,7 @@ abstract class ImportService
      * @param int $countryCode
      * @throws \InvalidArgumentException
      * @throws \LogicException
+     * @throws \yii\db\Exception
      */
     public function __construct($countryCode)
     {
@@ -137,7 +138,7 @@ abstract class ImportService
                 $this->addLog('. ');
                 $this->_db->createCommand()->batchInsert(
                     $tableName,
-                    ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number'],
+                    ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source'],
                     $insertValues
                 )->execute();
                 $insertValues = [];
@@ -154,7 +155,7 @@ abstract class ImportService
             $this->addLog('.. ');
             $this->_db->createCommand()->batchInsert(
                 $tableName,
-                ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number'],
+                ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source'],
                 $insertValues
             )->execute();
         }
@@ -183,7 +184,8 @@ CREATE TEMPORARY TABLE number_range_tmp
   full_number_to bigint NOT NULL,
   date_resolution date,
   detail_resolution character varying(255),
-  status_number character varying(255)
+  status_number character varying(255),
+  ndc_type_source character varying(255)
 )
 SQL;
         $this->_db->createCommand($sql)->execute();
@@ -227,6 +229,7 @@ SQL;
         date_resolution = number_range_tmp.date_resolution,
         detail_resolution = number_range_tmp.detail_resolution,
         status_number = number_range_tmp.status_number,
+        ndc_type_source = number_range_tmp.ndc_type_source,
         date_stop = null
     FROM
         number_range_tmp
@@ -266,6 +269,7 @@ SQL;
         date_resolution,
         detail_resolution,
         status_number,
+        ndc_type_source,
         insert_time
     )
     SELECT 
@@ -281,6 +285,7 @@ SQL;
         date_resolution,
         detail_resolution,
         status_number,
+        ndc_type_source,
         NOW()
     FROM
         number_range_tmp
