@@ -160,11 +160,20 @@ class UbillerController extends Controller
     }
 
     /**
-     * Конвертировать счета в старую бухгалтерию. hot 1 секунда / cold 10 мин
+     * Конвертировать новые счета в старую бухгалтерию. 3 секунды
      */
     public function actionBillConverter()
     {
         $this->_tarificate('BillConverterTarificator', 'Конвертировать счета в старую бухгалтерию');
+    }
+
+    /**
+     * Конвертировать все счета в старую бухгалтерию. 30 секунд
+     */
+    public function actionBillReConverter()
+    {
+        Bill::updateAll(['is_converted' => 0]);
+        $this->actionBillConverter();
     }
 
     /**

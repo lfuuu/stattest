@@ -1,4 +1,5 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Language;
@@ -14,7 +15,6 @@ use app\models\Organization;
 use app\models\Transaction;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill as uuBill;
-use app\modules\uu\models\Period;
 use Yii;
 
 
@@ -362,9 +362,20 @@ class BillDao extends Singleton
 
             // была и осталась
             $accountEntry = $accountEntries[$accountEntryId];
-            if ((float)$line->sum != $accountEntry->price_with_vat || $line->item != $accountEntry->fullName) {
+            if (
+                (float)$line->sum != (float)$accountEntry->price_with_vat
+                || (float)$line->amount != (float)$accountEntry->getAmount()
+                || $line->item != $accountEntry->fullName
+            ) {
                 // ... но изменилась. Обновить
                 $line->sum = $accountEntry->price_with_vat;
+                $line->amount = $accountEntry->getAmount();
+                $line->price = $accountEntry->price;
+                if ($line->amount) {
+                    $line->price /= $line->amount; // цена за "1 шт."
+                    $line->price = round($line->price, 2);
+                }
+
                 $line->item = $accountEntry->fullName;
                 $line->save();
 

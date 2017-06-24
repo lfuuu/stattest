@@ -200,7 +200,7 @@ class AccountEntry extends ActiveRecord
         $names = [];
 
         // Например, "ВАТС" или "SMS"
-        // Кроме "Телефония" и "Пакет телефонии". Чтобы было короче. А для них и так помятно, ибо указан номер
+        // Кроме "Телефония" и "Пакет телефонии". Чтобы было короче. А для них и так понятно, ибо указан номер
         if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE])) {
             $serviceType = $accountTariff->serviceType;
             $names[] = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
@@ -241,11 +241,21 @@ class AccountEntry extends ActiveRecord
 
             case self::TYPE_ID_PERIOD:
                 $accountLogPeriods = $this->accountLogPeriods;
-                return reset($accountLogPeriods)->coefficient;
+                $cnt = count($accountLogPeriods);
+                if (!$cnt) {
+                    // слишком старое. Транзакции уже почистили
+                    return 1;
+                }
+                return $cnt * reset($accountLogPeriods)->coefficient;
 
             case self::TYPE_ID_MIN:
                 $accountLogMins = $this->accountLogMins;
-                return reset($accountLogMins)->coefficient;
+                $cnt = count($accountLogMins);
+                if (!$accountLogMins) {
+                    // слишком старое. Транзакции уже почистили
+                    return 1;
+                }
+                return $cnt * reset($accountLogMins)->coefficient;
 
             default:
                 // ресурсы
@@ -279,10 +289,10 @@ class AccountEntry extends ActiveRecord
                                 }
                             ) / count($accountLogResources)
                         );
-                } else {
-                    Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
-                    return 0;
                 }
+
+                Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
+                return 0;
         }
     }
 
@@ -305,16 +315,16 @@ class AccountEntry extends ActiveRecord
                     ($resource = $tariffResource->resource)
                 ) {
                     return Yii::t('models/' . Resource::tableName(), $resource->unit, [], $langCode);
-                } else {
-                    Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
-                    return '';
                 }
-                break;
+
+                Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
+                return '';
         }
     }
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function getUrl()
     {
