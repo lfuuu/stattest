@@ -12,6 +12,7 @@ class BillConverterTarificator extends Tarificator
 {
     /**
      * @param int|null $accountClientId Если указан, то только для этого ЛС. Если не указан - для всех
+     * @throws \Exception
      */
     public function tarificate($accountClientId = null)
     {
