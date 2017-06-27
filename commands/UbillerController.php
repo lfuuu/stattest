@@ -50,6 +50,9 @@ class UbillerController extends Controller
         // счета
         $this->actionBill();
 
+        // Не списывать абонентку и минималку при финансовой блокировке
+        $this->actionFreePeriodInFinanceBlock();
+
         // Конвертировать счета в старую бухгалтерию
         $this->actionBillConverter();
 
@@ -146,6 +149,14 @@ class UbillerController extends Controller
     public function actionBill()
     {
         $this->_tarificate('BillTarificator', 'Счета');
+    }
+
+    /**
+     * Не списывать абонентку и минималку при финансовой блокировке. 1 секунда
+     */
+    public function actionFreePeriodInFinanceBlock()
+    {
+        $this->_tarificate('FreePeriodInFinanceBlockTarificator', 'Не списывать абонентку и минималку при финансовой блокировке');
     }
 
     /**
