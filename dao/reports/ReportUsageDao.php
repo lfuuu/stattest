@@ -81,9 +81,8 @@ class ReportUsageDao extends Singleton
         $direction !== 'both' && $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
         isset($usages) && count($usages) > 0 && $query->andWhere([($region == 'trunk' ? 'trunk_service_id' : 'number_service_id') => $usages]);
         $paidonly && $query->andWhere('ABS(cr.cost) > 0.0001');
-        $region != 'trunk' && $query->andWhere(['cr.server_id' => $region]);
 
-        $query->andWhere([($region == 'trunk' ? 'number_service_id' : 'trunk_service_id') => null]);
+        $region == 'trunk' && $query->andWhere(['number_service_id' => null]); // статистика по транкам - смотрится по транкам. Звонки по услугам могут быть привязаны к мультитранкам.
 
         if ($destination !== 'all') {
             list ($dest, $mobile, $zone) = explode('-', $destination);
