@@ -446,7 +446,6 @@ class UuController extends ApiInternalController
                 // @todo новый алгоритм выбора пакета
                 $defaultPackageRecords = $this->actionGetTariffs(
                     $id_tmp = null,
-                    $parent_id_tmp = $tariff->id,
                     ServiceType::ID_VOIP_PACKAGE,
                     $country_id,
                     $client_account_id,
@@ -456,7 +455,9 @@ class UuController extends ApiInternalController
                     $tariff_status_id_tmp = null,
                     $tariff_person_id,
                     $voip_group_id,
-                    $voip_city_id
+                    $voip_city_id,
+                    $voip_number,
+                    $prev_account_tariff_id
                 );
             } else {
                 $defaultPackageRecords = [];
