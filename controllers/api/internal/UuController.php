@@ -399,10 +399,6 @@ class UuController extends ApiInternalController
                         throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
                     }
 
-                    if ($number->status != Number::STATUS_INSTOCK) {
-                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Телефонный номер уже занят', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
-                    }
-
                     $priceLevelField = 'tariff_status_main' . $clientAccount->price_level;
                     $tariff_status_id = $number->didGroup->{$priceLevelField};
                     break;
