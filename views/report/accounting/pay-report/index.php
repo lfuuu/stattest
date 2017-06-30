@@ -141,6 +141,7 @@ $columns = [
 
     [
         'attribute' => 'uuid_status',
+        'label' => $filterModel->getAttributeLabel('uuid_status'),
         'class' => DropdownColumn::className(),
         'filter' => $filterModel->getUuidStatusList(),
         'headerOptions' => ['style' => 'min-width: 100px'],
@@ -189,6 +190,7 @@ $columns = [
     ],
     [
         'attribute' => 'uuid_log',
+        'label' => $filterModel->getAttributeLabel('uuid_log'),
         'format' => 'raw',
         'class' => StringColumn::className(),
         'contentOptions' => [

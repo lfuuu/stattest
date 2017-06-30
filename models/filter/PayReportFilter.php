@@ -37,8 +37,6 @@ class PayReportFilter extends Payment
     public $payment_no = '';
     public $comment = '';
     public $add_user = '';
-    public $sort_field = self::SORT_ADD_DATE;
-    public $sort_direction = SORT_ASC;
     public $total = '';
     public $uuid = '';
     public $uuid_status = '';
@@ -100,7 +98,10 @@ class PayReportFilter extends Payment
                 'client_name' => 'Клиент',
                 'sort_field' => 'Сортировать по:',
                 'sort_direction' => 'Направление сортировки',
-                'total' => 'Итого'
+                'total' => 'Итого',
+                'uuid' => 'ID в онлайн-кассе',
+                'uuid_status' => 'Статус отправки в онлайн-кассу',
+                'uuid_log' => 'Лог отправки в онлайн-кассу',
             ];
     }
 
@@ -113,11 +114,13 @@ class PayReportFilter extends Payment
     {
         $query = Payment::find()
             ->alias('p')
-            ->orderBy([$this->sort_field => (int)$this->sort_direction]);
+            ->joinWith('paymentAtol');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
+        $paymentAtolTableName = PaymentAtol::tableName();
 
         $this->id !== '' && $query->andWhere(['p.id' => $this->id]);
         $this->client_id !== '' && $query->andWhere(['p.client_id' => $this->client_id]);
@@ -153,9 +156,9 @@ class PayReportFilter extends Payment
             $ecashOperator && $query->andWhere(['ecash_operator' => $ecashOperator]);
         }
 
-        $this->uuid !== '' && $query->andWhere(['p.uuid' => $this->uuid]);
-        $this->uuid_status !== '' && $query->andWhere(['p.uuid_status' => $this->uuid_status]);
-        $this->uuid_log !== '' && $query->andWhere(['LIKE', 'p.uuid_log', $this->uuid_log]);
+        $this->uuid !== '' && $query->andWhere([$paymentAtolTableName . '.uuid' => $this->uuid]);
+        $this->uuid_status !== '' && $query->andWhere([$paymentAtolTableName . '.uuid_status' => $this->uuid_status]);
+        $this->uuid_log !== '' && $query->andWhere(['LIKE', $paymentAtolTableName . '.uuid_log', $this->uuid_log]);
 
         $this->total = "+" . $query->sum(new Expression('IF(sum > 0, sum, 0)')) . ' / ' . $query->sum(new Expression('IF(sum < 0, sum, 0)')) . ' ' . $this->currency;
 
@@ -200,32 +203,5 @@ class PayReportFilter extends Payment
     private function _getTypeAndSubtype($mixType)
     {
         return explode('_', $mixType . '_');
-    }
-
-    /**
-     * Список дат для сортировки
-     *
-     * @return array
-     */
-    public function getSortDateList()
-    {
-        return [
-            self::SORT_ADD_DATE => $this->getAttributeLabel(self::SORT_ADD_DATE),
-            self::SORT_OPER_DATE => $this->getAttributeLabel(self::SORT_OPER_DATE),
-            self::SORT_PAYMENT_DATE => $this->getAttributeLabel(self::SORT_PAYMENT_DATE)
-        ];
-    }
-
-    /**
-     * Направление сортировки
-     *
-     * @return array
-     */
-    public function getSortDirection()
-    {
-        return [
-            SORT_ASC => 'По возрастанию',
-            SORT_DESC => 'По убыванию',
-        ];
     }
 }

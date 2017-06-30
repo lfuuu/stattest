@@ -6,7 +6,7 @@ return [
         'apiVersion' => 'v3',
 
         // URL, на который Атол пришлет результат обработки чека. Если не указывать - не пришлет. Протокол + хост + '/atol/api/'
-        // Например, 'http://stat.mcn.ru/atol/api/'
+        // Например, 'https://stat.mcn.ru/atol/api/'
         'callbackUrl' => '', // @todo надо указать в params.local.php
 
         // Получение токена
