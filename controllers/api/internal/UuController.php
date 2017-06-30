@@ -301,7 +301,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "voip_group_id", type = "integer", description = "ID группы телефонии (местные, междугородние, международные и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_city_id", type = "integer", description = "ID города телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_number", type = "string", description = "Номер телефонии", in = "query", default = ""),
-     *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги ЛС. Если пакеты телефонии, то обязательно. При этом все остальные параметры можно не указывать", in = "query", default = ""),
+     *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги ЛС", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список тарифов",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/tariffRecord"))
@@ -324,7 +324,7 @@ class UuController extends ApiInternalController
      * @param int $voip_group_id
      * @param int $voip_city_id
      * @param string $voip_number
-     * @param int $prev_account_tariff_id
+     * @param int $account_tariff_id
      * @return array
      * @throws HttpException
      */
@@ -341,7 +341,7 @@ class UuController extends ApiInternalController
         $voip_group_id = null,
         $voip_city_id = null,
         $voip_number = null,
-        $prev_account_tariff_id = null
+        $account_tariff_id = null
     ) {
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
@@ -351,24 +351,18 @@ class UuController extends ApiInternalController
         $tariff_person_id = (int)$tariff_person_id;
         $voip_group_id = (int)$voip_group_id;
         $voip_city_id = (int)$voip_city_id;
+        $account_tariff_id = (int)$account_tariff_id;
 
-        if ($service_type_id == ServiceType::ID_VOIP_PACKAGE) {
-            // пакеты
-            // нужно только $prev_account_tariff_id
-            if (!$prev_account_tariff_id) {
-                throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан prev_account_tariff_id', AccountTariff::ERROR_CODE_USAGE_MAIN);
-            }
-
+        if ($account_tariff_id) {
             /** @var AccountTariff $accountTariff */
-            $accountTariff = AccountTariff::find()->where(['id' => (int)$prev_account_tariff_id])->one();
+            $accountTariff = AccountTariff::find()->where(['id' => $account_tariff_id])->one();
             if (!$accountTariff) {
-                throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный prev_account_tariff_id', AccountTariff::ERROR_CODE_USAGE_MAIN);
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный account_tariff_id', AccountTariff::ERROR_CODE_USAGE_MAIN);
             }
 
             $client_account_id = $accountTariff->client_account_id;
             $voip_number = $accountTariff->voip_number;
             $voip_city_id = $accountTariff->city_id;
-            $is_default = false;
         }
 
         if ($client_account_id) {
@@ -397,6 +391,10 @@ class UuController extends ApiInternalController
                     $number = Number::findOne(['number' => $voip_number]);
                     if (!$number) {
                         throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
+                    }
+
+                    if (!$account_tariff_id && $number->status != Number::STATUS_INSTOCK) {
+                        throw new HttpException(ModelValidationException::STATUS_CODE, 'Телефонный номер уже занят', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
                     }
 
                     $priceLevelField = 'tariff_status_main' . $clientAccount->price_level;
@@ -443,7 +441,6 @@ class UuController extends ApiInternalController
         foreach ($tariffQuery->each() as $tariff) {
 
             if ($tariff->service_type_id == ServiceType::ID_VOIP) {
-                // @todo новый алгоритм выбора пакета
                 $defaultPackageRecords = $this->actionGetTariffs(
                     $id_tmp = null,
                     ServiceType::ID_VOIP_PACKAGE,
@@ -457,7 +454,7 @@ class UuController extends ApiInternalController
                     $voip_group_id,
                     $voip_city_id,
                     $voip_number,
-                    $prev_account_tariff_id
+                    $account_tariff_id
                 );
             } else {
                 $defaultPackageRecords = [];
