@@ -17,8 +17,7 @@ use app\classes\Html;
     Html::tag('i', '', [
         'class' => 'glyphicon ' . $glyphicon,
         'aria-hidden' => 'true',
-    ]) . ' ' .
-    $text,
+    ]) . ' ' . $text,
     $url,
     $params
 ) ?>

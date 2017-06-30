@@ -3,8 +3,8 @@
 namespace app\controllers\report\accounting;
 
 use app\classes\BaseController;
+use app\classes\behaviors\SendToOnlineCashRegister;
 use app\helpers\DateTimeZoneHelper;
-use app\models\filter\OperatorPayFilter;
 use app\models\filter\PayReportFilter;
 use Yii;
 
@@ -14,6 +14,14 @@ class PayReportController extends BaseController
      * Вывод списка
      *
      * @return string
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\db\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\Exception
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \LogicException
+     * @throws \InvalidArgumentException
+     * @throws \HttpRequestException
      * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
@@ -29,5 +37,37 @@ class PayReportController extends BaseController
         return $this->render('index', [
             'filterModel' => $filterModel,
         ]);
+    }
+
+    /**
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionSendToAtol($id)
+    {
+        try {
+            $log = SendToOnlineCashRegister::send($id);
+            Yii::$app->session->setFlash('success', $log);
+        } catch (\Exception $e) {
+            Yii::$app->session->setFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
+    }
+
+    /**
+     * @param int $id
+     * @return \yii\web\Response
+     */
+    public function actionRefreshStatus($id)
+    {
+        try {
+            $log = SendToOnlineCashRegister::refreshStatus($id);
+            Yii::$app->session->setFlash('success', $log);
+        } catch (\Exception $e) {
+            Yii::$app->session->setFlash('error', $e->getMessage());
+        }
+
+        return $this->redirect(Yii::$app->request->referrer);
     }
 }

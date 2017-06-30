@@ -40,6 +40,7 @@ class AccountTariffBiller extends Behavior
      * Пересчитать транзакции, проводки и счета
      *
      * @param Event $event
+     * @throws \app\exceptions\ModelValidationException
      */
     public function accountTariffLogChange(Event $event)
     {

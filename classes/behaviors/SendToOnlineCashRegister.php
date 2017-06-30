@@ -1,0 +1,150 @@
+<?php
+
+namespace app\classes\behaviors;
+
+use app\exceptions\ModelValidationException;
+use app\models\ClientContact;
+use app\models\Currency;
+use app\models\Payment;
+use app\models\PaymentAtol;
+use app\modules\atol\classes\Api;
+use Yii;
+use yii\base\Behavior;
+use yii\base\Event;
+use yii\db\ActiveRecord;
+
+
+class SendToOnlineCashRegister extends Behavior
+{
+    const EVENT_SEND = 'send_to_online_cash_register';
+
+    /**
+     * @return array
+     */
+    public function events()
+    {
+        return [
+            ActiveRecord::EVENT_AFTER_INSERT => 'postponeSend',
+            // @todo при update надо оформлять корректирующий чек
+            // @todo при delete надо сторнировать
+        ];
+    }
+
+    /**
+     * В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
+     * Сейчас для надежности, чтобы не задержать основное действие или тем более не сфаталить его, надо как можно меньше действий - максимум поставить в очередь
+     *
+     * @param Event $event
+     * @throws \app\exceptions\ModelValidationException
+     */
+    public function postponeSend(Event $event)
+    {
+        /** @var Payment $payment */
+        $payment = $event->sender;
+
+        \app\classes\Event::go(self::EVENT_SEND, [
+                'paymentId' => $payment->id,
+            ]
+        );
+    }
+
+    /**
+     * В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
+     *
+     * @param int $paymentId
+     * @return string|false
+     * @throws \InvalidArgumentException
+     * @throws \yii\db\Exception
+     * @throws \LogicException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \HttpRequestException
+     */
+    public static function send($paymentId)
+    {
+        $payment = Payment::findOne(['id' => $paymentId]);
+        if (!$payment) {
+            throw new \InvalidArgumentException('Неправильный платеж ' . $paymentId);
+        }
+
+        if (
+            $payment->currency !== Currency::RUB
+            || $payment->type != Payment::TYPE_ECASH
+            || !array_key_exists($payment->ecash_operator, Payment::$ecash)
+            || $payment->ecash_operator == Payment::ECASH_CYBERPLAT
+            || $paymentAtol = $payment->paymentAtol
+        ) {
+            // Отправлять в онлайн-кассу только рублевые электронные платежи за исключением Киберплата
+            return false;
+        }
+
+        $client = $payment->client;
+        $contacts = $client->getOfficialContact();
+
+        list($uuid, $log) = Api::me()->sendSell(
+            $payment->id,
+            reset($contacts[ClientContact::TYPE_EMAIL]),
+            reset($contacts[ClientContact::TYPE_PHONE]),
+            $payment->sum);
+
+        $paymentAtol = new PaymentAtol;
+        $paymentAtol->id = $payment->id;
+        $paymentAtol->uuid = $uuid;
+        $paymentAtol->uuid_status = PaymentAtol::UUID_STATUS_SENT;
+        $paymentAtol->uuid_log = $log;
+        if (!$paymentAtol->save()) {
+            // не фаталить, иначе API-запрос потом будет отправлен повторно
+            Yii::error(implode(' ', $paymentAtol->getFirstErrors()));
+        }
+
+        return $log;
+    }
+
+    /**
+     * Обновить статус из онлайн-кассы
+     *
+     * @param int $paymentId
+     * @return string
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \InvalidArgumentException
+     * @throws \yii\db\Exception
+     * @throws \LogicException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \HttpRequestException
+     */
+    public static function refreshStatus($paymentId)
+    {
+        $paymentAtol = PaymentAtol::findOne(['id' => $paymentId]);
+        if (!$paymentAtol) {
+            throw new \InvalidArgumentException('Неправильный платеж ' . $paymentId);
+        }
+
+        if (!$paymentAtol->uuid) {
+            throw new \LogicException('Платеж не был отправлен в онлайн-кассу ' . $paymentId);
+        }
+
+        list($status, $log) = Api::me()->getStatus($paymentAtol->uuid);
+
+        switch ($status) {
+            case Api::RESPONSE_STATUS_WAIT:
+                $paymentAtol->uuid_status = PaymentAtol::UUID_STATUS_SENT;
+                break;
+            case Api::RESPONSE_STATUS_FAIL:
+                $paymentAtol->uuid_status = PaymentAtol::UUID_STATUS_FAIL;
+                break;
+            case Api::RESPONSE_STATUS_DONE:
+                $paymentAtol->uuid_status = PaymentAtol::UUID_STATUS_SUCCESS;
+                break;
+        }
+
+        $paymentAtol->uuid_log = $log;
+        if (!$paymentAtol->save()) {
+            throw new ModelValidationException($paymentAtol);
+        }
+
+        return $log;
+    }
+}

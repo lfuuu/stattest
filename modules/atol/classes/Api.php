@@ -1,0 +1,418 @@
+<?php
+
+namespace app\modules\atol\classes;
+
+use app\classes\HttpClient;
+use app\classes\Singleton;
+use kartik\base\Config;
+use kartik\base\Module;
+use yii\base\InvalidConfigException;
+use yii\helpers\Json;
+use yii\web\BadRequestHttpException;
+
+/**
+ * @method static Api me($args = null)
+ */
+class Api extends Singleton
+{
+    /** @var Module */
+    private $_module = null;
+
+    private $_token = '';
+
+    const RESPONSE_TOKEN_CODE_OK_NEW = 0; // Выдан новый токен
+    const RESPONSE_TOKEN_CODE_OK_OLD = 1; // Выдан старый токен
+    const RESPONSE_TOKEN_CODE_ERROR = 2; // Этот и все последующие коды - ошибка
+
+    const OPERATION_SELL = 'sell'; // Приход
+    const OPERATION_SELL_REFUND = 'sell_refund'; // Возврат прихода
+    const OPERATION_SELL_CORRECTION = 'sell_correction'; // Коррекция прихода
+    const OPERATION_BUY = 'buy'; // Расход
+    const OPERATION_BUY_REFUND = 'buy_refund'; // Возврат расхода
+    const OPERATION_BUY_CORRECTION = 'buy_correction'; // Коррекция расхода
+
+    const TIMESTAMP_FORMAT = '%d.%m.%Y %H:%i:%s'; // Формат timestamp
+
+    const PAYMENT_TYPE_ECASH = 1;
+
+    // Устанавливает номер налога в ККТ
+    const TAX_NONE = 'none'; // без НДС
+    const TAX_VAT0 = 'vat0'; // НДС по ставке 0%
+    const TAX_VAT10 = 'vat10'; // НДС чека по ставке 10%
+    const TAX_VAT18 = 'vat18'; // НДС чека по ставке 18%
+    const TAX_VAT110 = 'vat110'; // НДС чека по расчетной ставке 10/110
+    const TAX_VAT118 = 'vat118'; // НДС чека по расчетной ставке 18/118
+
+    const RESPONSE_STATUS_WAIT = 'wait';
+    const RESPONSE_STATUS_FAIL = 'fail';
+    const RESPONSE_STATUS_DONE = 'done';
+
+    /**
+     * Инициализация
+     */
+    public function init()
+    {
+        if (!$this->_module) {
+            $this->_module = Config::getModule('atol');
+        }
+    }
+
+    /**
+     * Отправить данные
+     *
+     * @param int $externalId
+     * @param string $email
+     * @param string $phone
+     * @param float $itemPrice
+     * @return string[] [$uuid, $log]
+     *
+     * @throws \HttpRequestException
+     * @throws \LogicException
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @link https://online.atol.ru/
+     */
+    public function sendSell($externalId, $email, $phone, $itemPrice)
+    {
+        $phone = str_replace('+7', '', $phone);
+        if (!$email && $phone && !preg_match('\d{10}', $phone)) {
+            throw new \LogicException('Указан неправильный номер телефона ');
+        }
+
+        if (!$email && !$phone) {
+            throw new \LogicException('Не указаны контакты клиента');
+        }
+
+        $apiVersion = $this->_module->params['apiVersion'];
+        $callbackUrl = $this->_module->params['callbackUrl']; // можно пустое
+        $params = $this->_module->params['buyOrSell'];
+
+        $url = $params['url'];
+        $groupCode = $params['groupCode'];
+        $inn = $params['inn'];
+        $paymentAddress = $params['paymentAddress'];
+        $sno = $params['sno']; // можно пустое
+        $itemName = $params['itemName'];
+        $tax = $params['tax'];
+
+        if (!$apiVersion || !$url || !$groupCode || !$inn || !$paymentAddress || !$itemName || !$tax) {
+            throw new InvalidConfigException('Не настроен конфиг Атол');
+        }
+
+        switch ($tax) {
+
+            case self::TAX_NONE:
+            case self::TAX_VAT0:
+                $itemTaxSum = 0;
+                break;
+
+            case self::TAX_VAT10:
+            case self::TAX_VAT110:
+                $itemTaxSum = $itemPrice * 10 / 110;
+                break;
+
+            case self::TAX_VAT18:
+            case self::TAX_VAT118:
+                $itemTaxSum = $itemPrice * 18 / 118;
+                break;
+
+            default:
+                throw new InvalidConfigException('Не настроен конфиг Атол');
+        }
+
+        $token = $this->_getToken();
+
+        $url = strtr($url, [
+            '<api_version>' => $apiVersion,
+            '<group_code>' => $groupCode,
+            '<operation>' => self::OPERATION_SELL,
+            '<token>' => $token,
+        ]);
+
+        $timestamp = date(self::TIMESTAMP_FORMAT);
+        $itemQuantity = 1;
+        $paymentSum = $total = $itemSum = $itemPrice * $itemQuantity;
+        $paymentType = self::PAYMENT_TYPE_ECASH;
+
+        $data = [
+            // Идентификатор документа внешней системы, уникальный среди всех документов, отправляемых в данную группу ККТ. Тип данных – строка.
+            // Предназначен для защиты от потери документов при разрывах связи – всегда можно подать повторно чек с таким же external_ID.
+            // Если данный external_id известен системе будет возвращен UUID, ранее присвоенный этому чеку, иначе чек добавится в систему с присвоением нового UUID.
+            // Максимальная длина строки – 256 символов.
+            // Например, '17052917561851307'
+            'external_id' => (string)$externalId,
+
+            'receipt' => [
+
+                'attributes' => [
+
+                    // Электронная почта покупателя.
+                    // Максимальная длина строки – 64 символа.
+                    // В запросе обязательно должно быть заполнено заполнено одно одно из полей: email или phone.
+                    'email' => (string)$email,
+
+                    // Телефон покупателя.
+                    // Передается без префикса «+7». Максимальная длина строки – 64 символа.
+                    'phone' => (string)$phone,
+
+                    // Система налогообложения.
+                    // «osn» – общая СН;
+                    // «usn_income» – упрощенная СН (доходы);
+                    // «usn_income_outcome» – упрощенная СН (доходы минус расходы);
+                    // «envd» – единый налог на вмененный доход;
+                    // «esn» – единый сельскохозяйственный налог;
+                    // «patent» – патентная СН.
+                    // Поле необязательно, если у организации один тип налогообложения.
+                    // Например, 'osn'
+                    'sno' => (string)$sno,
+                ],
+
+                // Ограничение по количеству от 1 до 100.
+                'items' => [
+                    [
+                        // Наименование товара.
+                        // Максимальная длина строки – 64 символа.
+                        // Например, 'Название товара 1'
+                        'name' => (string)$itemName,
+
+                        // Цена в рублях:
+                        // целая часть не более 8 знаков;
+                        // дробная часть не более 2 знаков.
+                        // Например, 5000.0
+                        'price' => (float)$itemPrice,
+
+                        // Количество/вес:
+                        // целая часть не более 8 знаков;
+                        // дробная часть не более 3 знаков.
+                        // Например, 1.0
+                        'quantity' => (float)$itemQuantity,
+
+                        // Сумма позиции в рублях:
+                        // целая часть не более 8 знаков;
+                        // дробная часть не более 2 знаков.
+                        // Если значение sum меньше/больше значения (price*quantity), то разница является скидкой/надбавкой на позицию соответственно.
+                        // В этих случаях происходит перерасчёт поля price для равномерного распределения скидки/надбавки по позициям.
+                        // Например, 5000.0
+                        'sum' => (float)$itemSum,
+
+                        // Устанавливает номер налога в ККТ.
+                        // «none» – без НДС;
+                        // «vat0» – НДС по ставке 0%;
+                        // «vat10» – НДС чека по ставке 10%;
+                        // «vat18» – НДС чека по ставке 18%;
+                        // «vat110» – НДС чека по расчетной ставке 10/110;
+                        // «vat118» – НДС чека по расчетной ставке 18/118.
+                        // Например, 'vat10'
+                        'tax' => (string)$tax,
+
+                        // Сумма налога позиции в рублях:
+                        // целая часть не более 8 знаков;
+                        // дробная часть не более 2 знаков.
+                        // Например, 454.55
+                        'tax_sum' => (float)$itemTaxSum,
+                    ],
+                ],
+
+                // Оплата. Ограничение по количеству от 1 до 10.
+                'payments' => [
+                    [
+                        // Сумма к оплате в рублях:
+                        // целая часть не более 8 знаков;
+                        // дробная часть не более 2 знаков.
+                        // Например, 5000.0
+                        'sum' => (float)$paymentSum,
+
+                        // Вид оплаты. Возможные значения:
+                        // «1» – электронный;
+                        // «9» – «9» – расширенные типы оплаты. Для каждого фискального типа оплаты можно указать расширенный тип оплаты.
+                        // Например, 1
+                        'type' => (int)$paymentType,
+                    ],
+                ],
+
+                // Итоговая сумма чека в рублях с заданным в CMS округлением:
+                // целая часть не более 8 знаков;
+                // дробная часть не более 2 знаков.
+                // При регистрации в ККТ происходит расчёт фактической суммы: суммирование значений sum позиций. Допустимо значение total в диапазоне от целой части фактической суммы до точного значения фактической суммы.
+                // Например, 5000.0
+                'total' => (float)$total,
+            ],
+            'service' => [
+                // URL, на который необходимо ответить после обработки документа.
+                // Если поле заполнено, то после обработки документа (успешной или не успешной фискализации в ККТ), ответ будет отправлен POST запросом по URL указанному в данном поле.
+                // Максимальная длина строки – 256 символов.
+                'callback_url' => $callbackUrl,
+
+                // ИНН организации.
+                // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим ИНН (сравнивается со значением в ФН).
+                // Допустимое количество символов 10 или 12.
+                // Например, '331122667723'
+                'inn' => (string)$inn,
+
+                // Адрес места расчетов.
+                // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим адресом места расчёта (сравнивается со значением в ФН).
+                // Максимальная длина строки – 256 символов.
+                // Например, 'magazin.ru'
+                'payment_address' => (string)$paymentAddress,
+            ],
+
+            // Дата и время документа внешней системы в формате: «dd.mm.yyyy HH:MM:SS»
+            // dd – День месяца. Формат DD. Возможные значения от «01» до «31».
+            // mm – Месяц. Формат MM. Возможные значения от «01» до «12».
+            // yyyy – Год. Формат YYYY. Допустимое количество символов – четыре.
+            // HH – Часы. Формат HH. Возможные значения от «00» до «24».
+            // MM – Минуты. Формат MM. Возможные значения от «00» до «59».
+            // SS – Секунды. Формат SS. Возможные значения от «00» до «59».
+            // Например, '29.05.2017 17:56:18'
+            'timestamp' => (string)$timestamp,
+        ];
+
+        $response = (new HttpClient)
+            ->createJsonRequest()
+            ->setUrl($url)
+            ->setMethod('post')
+            ->setData($data)
+            ->send(\app\modules\atol\Module::LOG_CATEGORY);
+
+        $responseData = $response->data;
+        if (is_array($responseData)
+            && isset($responseData['uuid'], $responseData['status'])
+            && $responseData['uuid']
+            && $responseData['status'] == self::RESPONSE_STATUS_WAIT
+        ) {
+            // всё хорошо
+            return [$responseData['uuid'], Json::encode($responseData)];
+        }
+
+        // ошибка
+        if (is_array($responseData)
+            && isset($responseData['error'], $responseData['error']['text'])
+            && $responseData['error']['text']
+        ) {
+            throw new \HttpRequestException($responseData['error']['text']);
+        }
+
+        throw new \HttpRequestException('Неизвестный ответ сервера. ' . Json::encode($responseData));
+    }
+
+    /**
+     * Запросить статус
+     *
+     * @param int $uuid
+     * @return string[] [$status, $log]
+     *
+     * @throws \InvalidArgumentException
+     * @throws \HttpRequestException
+     * @throws \LogicException
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @link https://online.atol.ru/
+     */
+    public function getStatus($uuid)
+    {
+        if (!$uuid) {
+            throw new \InvalidArgumentException();
+        }
+
+        $apiVersion = $this->_module->params['apiVersion'];
+        $groupCode = $this->_module->params['buyOrSell']['groupCode'];
+        $params = $this->_module->params['report'];
+        $url = $params['url'];
+
+        if (!$apiVersion || !$url || !$groupCode) {
+            throw new InvalidConfigException('Не настроен конфиг Атол');
+        }
+
+        $token = $this->_getToken();
+
+        $url = strtr($url, [
+            '<api_version>' => $apiVersion,
+            '<group_code>' => $groupCode,
+            '<uuid>' => $uuid,
+            '<token>' => $token,
+        ]);
+
+        $response = (new HttpClient)
+            ->setResponseFormat(HttpClient::FORMAT_JSON)
+            ->createRequest()
+            ->setUrl($url)
+            ->setMethod('get')
+            ->send(\app\modules\atol\Module::LOG_CATEGORY);
+
+        $responseData = $response->data;
+        if (is_array($responseData)
+            && isset($responseData['status'])
+        ) {
+            // всё хорошо
+            return [$responseData['status'], Json::encode($responseData)];
+        }
+
+        // ошибка
+        if (is_array($responseData)
+            && isset($responseData['error'], $responseData['error']['text'])
+            && $responseData['error']['text']
+        ) {
+            throw new \HttpRequestException($responseData['error']['text'] . '. ' . Json::encode($responseData));
+        }
+
+        throw new \HttpRequestException('Неизвестный ответ сервера. ' . Json::encode($responseData));
+    }
+
+    /**
+     * Получить токен
+     *
+     * @return string
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function _getToken()
+    {
+        if ($this->_token) {
+            return $this->_token;
+        }
+
+        $apiVersion = $this->_module->params['apiVersion'];
+        $params = $this->_module->params['getToken'];
+        $url = $params['url'];
+        $method = $params['method'];
+        $login = $params['login'];
+        $password = $params['password'];
+
+        if (!$apiVersion || !$url || !$method || !$login || !$password) {
+            throw new InvalidConfigException('Не настроен конфиг Атол');
+        }
+
+        $url = strtr($url, [
+            '<api_version>' => $apiVersion,
+        ]);
+
+        $data = [
+            'login' => $login,
+            'pass' => $password,
+        ];
+
+        $response = (new HttpClient)
+            ->createJsonRequest()
+            ->setUrl($url)
+            ->setMethod($method)
+            ->setData($data)
+            ->send(\app\modules\atol\Module::LOG_CATEGORY);
+
+        $responseData = $response->data;
+        $debugInfoResponse = sprintf('Response = %s', Json::encode($response->data)) . PHP_EOL;
+
+        if (!is_array($responseData) || !isset($responseData['code'])) {
+            throw new BadRequestHttpException('Ошибка получения токена.' . PHP_EOL . PHP_EOL . $debugInfoResponse);
+        }
+
+        if ($responseData['code'] >= self::RESPONSE_TOKEN_CODE_ERROR || !$responseData['token']) {
+            throw new BadRequestHttpException('Ошибка получения токена. ' . $responseData['text'] . PHP_EOL . PHP_EOL . $debugInfoResponse);
+        }
+
+        return $this->_token = $responseData['token'];
+    }
+
+}

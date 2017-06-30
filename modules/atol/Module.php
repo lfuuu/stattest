@@ -1,29 +1,30 @@
 <?php
 
-namespace app\modules\glpi;
+namespace app\modules\atol;
 
 use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
- * Работа с GLPI (см. readme)
+ * Работа с онлайн-кассой Атол
+ *
+ * @link https://online.atol.ru/
  */
 class Module extends \yii\base\Module
 {
+    const LOG_CATEGORY = 'atol';
+
     /**
      * @inheritdoc
      */
-    public $controllerNamespace = 'app\modules\glpi\controllers';
+    public $controllerNamespace = 'app\modules\atol\controllers';
 
     /**
-     * Для корректного запуска из консоли
+     * Init
      */
     public function init()
     {
         parent::init();
-        if (Yii::$app instanceof \yii\console\Application) {
-            $this->controllerNamespace = 'app\modules\glpi\commands';
-        }
 
         // подключить конфиги
         $params = require __DIR__ . '/config/params.php';

@@ -4,7 +4,6 @@
  * @var \app\models\filter\PayReportFilter $filterModel
  */
 
-use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\DropdownColumn;
@@ -15,7 +14,9 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\UserColumn;
 use app\classes\grid\GridView;
 use app\models\Payment;
+use app\models\PaymentAtol;
 use yii\helpers\Html;
+use yii\helpers\Json;
 use yii\widgets\Breadcrumbs;
 
 echo app\classes\Html::formLabel($this->title);
@@ -30,22 +31,14 @@ $baseView = $this;
 
 $columns = [
     [
+        'attribute' => 'id',
+        'class' => IntegerColumn::className(),
+    ],
+
+    [
         'attribute' => 'client_id',
         'label' => $filterModel->getAttributeLabel('client_id'),
         'class' => IntegerColumn::className(),
-        'format' => 'raw',
-        'value' => function (Payment $payment) {
-            return Html::a(
-                $payment->client_id,
-                ['client/view', 'id' => $payment->client_id],
-                ['target' => '_blank']
-            );
-        },
-        'headerOptions' => ['style' => 'width: 80px']
-    ],
-    [
-        'attribute' => 'client_name',
-        'label' => $filterModel->getAttributeLabel('client_name'),
         'format' => 'raw',
         'value' => function (Payment $payment) {
             return Html::tag('small',
@@ -56,8 +49,9 @@ $columns = [
                 )
             );
         },
-        'headerOptions' => ['style' => 'width: 140px']
+        'headerOptions' => ['style' => 'width: 140px'],
     ],
+
     [
         'attribute' => 'organization_id',
         'label' => $filterModel->getAttributeLabel('organization_id'),
@@ -66,8 +60,9 @@ $columns = [
         'value' => function (Payment $payment) {
             return $payment->client->contract->organization_id;
         },
-        'headerOptions' => ['style' => 'width: 180px']
+        'headerOptions' => ['style' => 'width: 180px'],
     ],
+
     [
         'attribute' => 'bill_no',
         'format' => 'raw',
@@ -79,13 +74,15 @@ $columns = [
                 ['target' => '_blank']
             ) : '';
         },
-        'headerOptions' => ['style' => 'width: 120px']
+        'headerOptions' => ['style' => 'width: 120px'],
     ],
+
     [
         'attribute' => 'sum',
         'class' => IntegerRangeColumn::className(),
-        'headerOptions' => ['style' => 'width: 100px']
+        'headerOptions' => ['style' => 'width: 100px'],
     ],
+
     [
         'attribute' => 'currency',
         'class' => CurrencyColumn::className(),
@@ -95,34 +92,41 @@ $columns = [
         'attribute' => 'payment_date',
         'class' => DateRangeDoubleColumn::className(),
     ],
+
     [
         'attribute' => 'oper_date',
         'class' => DateRangeDoubleColumn::className(),
     ],
+
     [
         'attribute' => 'add_date',
         'class' => DateRangeDoubleColumn::className(),
     ],
+
     [
         'attribute' => 'type',
         'class' => DropdownColumn::className(),
         'filter' => $filterModel->getTypeList(),
         'value' => function (Payment $payment) {
             return $payment->type == Payment::TYPE_ECASH ? Payment::TYPE_ECASH . '_' . $payment->ecash_operator : $payment->type;
-        }
+        },
+        'headerOptions' => ['style' => 'min-width: 100px'],
     ],
+
     [
         'attribute' => 'payment_no',
         'class' => StringColumn::className(),
     ],
+
     [
         'attribute' => 'comment',
         'format' => 'raw',
         'class' => StringColumn::className(),
         'value' => function (Payment $payment) {
             return Html::tag('small', $payment->comment);
-        }
+        },
     ],
+
     [
         'attribute' => 'add_user',
         'format' => 'raw',
@@ -132,31 +136,102 @@ $columns = [
             return $payment->add_user && $payment->addUser ?
                 Html::tag('div', $payment->addUser->user, ['title' => $payment->addUser->name]) :
                 '';
+        },
+    ],
+
+    [
+        'attribute' => 'uuid_status',
+        'class' => DropdownColumn::className(),
+        'filter' => $filterModel->getUuidStatusList(),
+        'headerOptions' => ['style' => 'min-width: 100px'],
+        'format' => 'raw',
+        'value' => function (Payment $payment, $key, $index, DropdownColumn $that) {
+
+            $paymentAtol = $payment->paymentAtol;
+            if (!$paymentAtol) {
+                return Yii::t('common', '(not set)') .
+                    ' ' .
+                    Html::a(
+                        Html::tag('i', '', [
+                            'class' => 'glyphicon glyphicon-export',
+                            'aria-hidden' => 'true',
+                        ]),
+                        ['/report/accounting/pay-report/send-to-atol/', 'id' => $payment->id],
+                        [
+                            'class' => 'btn btn-xs btn-default',
+                            'title' => 'Отправить в онлайн-кассу',
+                        ]);
+            }
+
+            $value = $paymentAtol->uuid_status;
+
+            if (is_array($that->filter) && isset($that->filter[$value])) {
+                $content = (string)$that->filter[$value];
+            } else {
+                $content = $value;
+            }
+
+            if ($paymentAtol->uuid_status == PaymentAtol::UUID_STATUS_SENT) {
+                $content .= ' ' . Html::a(
+                        Html::tag('i', '', [
+                            'class' => 'glyphicon glyphicon-refresh',
+                            'aria-hidden' => 'true',
+                        ]),
+                        ['/report/accounting/pay-report/refresh-status/', 'id' => $payment->id],
+                        [
+                            'class' => 'btn btn-xs btn-default',
+                            'title' => 'Запросить в онлайн-кассе текущий статус',
+                        ]);
+            }
+
+            return $content;
         }
     ],
-];
+    [
+        'attribute' => 'uuid_log',
+        'format' => 'raw',
+        'class' => StringColumn::className(),
+        'contentOptions' => [
+            'class' => 'popover-width-auto',
+        ],
+        'value' => function (Payment $payment) {
+            $paymentAtol = $payment->paymentAtol;
+            if (!$paymentAtol) {
+                return Yii::t('common', '(not set)');
+            }
 
-$filterColumns = [
-    [
-        'attribute' => 'sort_field',
-        'filterType' => GridView::FILTER_SELECT2,
-        'filter' => $filterModel->getSortDateList(),
-        'class' => DataColumn::className()
-    ],
-    [
-        'attribute' => 'sort_direction',
-        'filterType' => GridView::FILTER_SELECT2,
-        'filter' => $filterModel->getSortDirection(),
-        'class' => DataColumn::className()
+            if (!$paymentAtol->uuid_log) {
+                return '';
+            }
+
+            if ($paymentAtol->uuid_log[0] !== '{') {
+                // не json
+                return $paymentAtol->uuid_log;
+            }
+
+            $logArray = Json::decode($paymentAtol->uuid_log, true);
+            $logString = print_r($logArray, true);
+            return Html::tag(
+                'button',
+                $logString,
+                [
+                    'class' => 'btn btn-xs btn-info event-queue-log-param-button text-overflow-ellipsis',
+                    'data-toggle' => 'popover',
+                    'data-html' => 'true',
+                    'data-placement' => 'bottom',
+                    'data-content' => nl2br(htmlspecialchars($logString)),
+                ]
+            );
+        }
     ],
 ];
 
 $dataProvider = $filterModel->search();
 ?>
 
-<div class="well">
-    <div class="span12"><b>Итого: <?=$filterModel->total?></b></div>
-</div>
+    <div class="well">
+        <div class="span12"><b>Итого: <?= $filterModel->total ?></b></div>
+    </div>
 
 <?php
 
@@ -164,7 +239,13 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
-    'beforeHeader' => [
-        'columns' => $filterColumns,
-    ],
+    'rowOptions' => function (Payment $payment) {
+
+        $paymentAtol = $payment->paymentAtol;
+        if (!$paymentAtol) {
+            return [];
+        }
+
+        return ['class' => $paymentAtol->getCssClass()];
+    }
 ]);

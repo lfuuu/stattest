@@ -1,13 +1,15 @@
 <?php
+
 namespace app\models;
 
-use app\modules\uu\behaviors\RecalcRealtimeBalance;
+use app\classes\behaviors\SendToOnlineCashRegister;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
+use app\modules\uu\behaviors\RecalcRealtimeBalance;
+use Yii;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
-use Yii;
 
 /**
  * Class Payment
@@ -21,7 +23,7 @@ use Yii;
  * @property string $oper_date      дата получения платежа
  * @property float $payment_rate   курс конвертации валюты
  * @property int $type           тип платежа: bank - загружен из банк клиента, prov - введен вручную, ecash - оплата электронными деньгами, neprov - ??
- * @property float $ecash_operator значения: cyberplat, yandex. актуально если type = ecash
+ * @property string $ecash_operator значения: cyberplat, yandex. актуально если type = ecash
  * @property float $sum            сумма платежа. конвертируется из оригинальной суммы платежа в валюту лицевого счета
  * @property string $currency       валюта платежа. выставляется по валюте лицевого счета
  * @property float $original_sum       оригинальная сумма платежа
@@ -31,9 +33,10 @@ use Yii;
  * @property float $add_user       пользователь, добавивший запись о платеже
  * @property float $bank           банк
  *
- * @property Bill $bill счёт
- * @property ClientAccount $client
- * @property User $addUser
+ * @property-read Bill $bill счёт
+ * @property-read ClientAccount $client
+ * @property-read User $addUser
+ * @property-read PaymentAtol $paymentAtol
  */
 class Payment extends ActiveRecord
 {
@@ -74,6 +77,7 @@ class Payment extends ActiveRecord
         self::ECASH_CYBERPLAT => 'Cyberplat',
         self::ECASH_YANDEX => 'YandexMoney',
         self::ECASH_PAYPAL => 'PayPal',
+        self::ECASH_SBERBANK => 'Sberbank',
     ];
 
     /**
@@ -107,6 +111,7 @@ class Payment extends ActiveRecord
     {
         return [
             'RecalcRealtimeBalance' => RecalcRealtimeBalance::className(), // Пересчитать realtime баланс при поступлении платежа
+            'SendToOnlineCashRegister' => SendToOnlineCashRegister::className(), // В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
         ];
     }
 
@@ -116,6 +121,7 @@ class Payment extends ActiveRecord
     public function attributeLabels()
     {
         return [
+            'id' => 'ID',
             'client_id' => 'ЛС',
             'payment_no' => 'Номер платежа',
             'bill_no' => 'Счет',
@@ -132,7 +138,12 @@ class Payment extends ActiveRecord
             'comment' => 'Комментарий',
             'add_date' => 'Дата занесения платежа',
             'add_user' => 'Добавивший пользователь',
-            'bank' => 'Банк'
+            'bank' => 'Банк',
+
+            // из другой таблицы, но все равно в этом отчете
+            'uuid' => 'ID в онлайн-кассе',
+            'uuid_status' => 'Статус отправки в онлайн-кассу',
+            'uuid_log' => 'Лог отправки в онлайн-кассу',
         ];
     }
 
@@ -164,6 +175,14 @@ class Payment extends ActiveRecord
     public function getAddUser()
     {
         return $this->hasOne(User::className(), ['id' => 'add_user']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPaymentAtol()
+    {
+        return $this->hasOne(PaymentAtol::className(), ['id' => 'id']);
     }
 
     /**

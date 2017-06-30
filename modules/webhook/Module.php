@@ -3,6 +3,7 @@
 namespace app\modules\webhook;
 
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * Работа с Webhook
@@ -24,12 +25,15 @@ class Module extends \yii\base\Module
             $this->controllerNamespace = 'app\modules\webhook\commands';
         }
 
-        Yii::configure($this, require __DIR__ . '/config/params.php');
+        // подключить конфиги
+        $params = require __DIR__ . '/config/params.php';
 
         $localConfigFileName = __DIR__ . '/config/params.local.php';
         if (file_exists($localConfigFileName)) {
-            Yii::configure($this, require $localConfigFileName);
+            $params = ArrayHelper::merge($params, require $localConfigFileName);
         }
+
+        Yii::configure($this, $params);
     }
 
 }

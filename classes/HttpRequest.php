@@ -47,21 +47,22 @@ class HttpRequest extends \yii\httpclient\Request
     /**
      * Выполнить запрос
      *
+     * @param string $logCategory
      * @return Response
      * @throws \yii\base\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function send()
+    public function send($logCategory = 'application')
     {
         $debugInfoRequest = 'Request: ' . $this->_getDebugInfo();
-        Yii::info($debugInfoRequest);
+        Yii::info($debugInfoRequest, $logCategory);
         $httpClientLogger = HttpClientLogger::me();
         $httpClientLogger->add($debugInfoRequest);
 
         $response = parent::send();
 
         $debugInfoResponse = sprintf('Response = %s', print_r($response->data, true)) . PHP_EOL;
-        Yii::info($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse);
+        Yii::info($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse, $logCategory);
         $httpClientLogger->add($debugInfoResponse);
 
         if (!$response->getIsOk()) {

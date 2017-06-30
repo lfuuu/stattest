@@ -1,0 +1,84 @@
+<?php
+
+return [
+    'params' => [
+        // Номер версии API. Подставляется в URL
+        'apiVersion' => 'v3',
+
+        // URL, на который Атол пришлет результат обработки чека. Если не указывать - не пришлет. Протокол + хост + '/atol/api/'
+        // Например, 'http://stat.mcn.ru/atol/api/'
+        'callbackUrl' => '', // @todo надо указать в params.local.php
+
+        // Получение токена
+        'getToken' => [
+            // URL. Брать из документации ecr_balancer.pdf (п. 5.1)
+            // "<api_version>" так и надо оставить
+            'url' => 'https://online.atol.ru/possystem/<api_version>/getToken',
+
+            // Метод. Брать из документации ecr_balancer.pdf (п. 5.1)
+            // Например, 'post' или 'get'
+            'method' => 'post',
+
+            // Логин. Брать из ЛК https://online.atol.ru/lk/Account/Login
+            // Например, 'netletest'
+            'login' => '', // @todo надо указать в params.local.php
+
+            // Пароль. Брать из ЛК https://online.atol.ru/lk/Account/Login
+            // Например, 'v2AfscRjr'
+            'password' => '', // @todo надо указать в params.local.php
+        ],
+
+        // Регистрация документа (прихода, расхода, возврата, коррекции) в ККТ
+        'buyOrSell' => [
+            // URL. Брать из документации ecr_balancer.pdf (п. 5.2)
+            // "<api_version>", "<group_code>", "<operation>", "<token>" так и надо оставить
+            'url' => 'https://online.atol.ru/possystem/<api_version>/<group_code>/<operation>?tokenid=<token>',
+
+            // Идентификатор группы ККТ. Брать из ЛК https://online.atol.ru/lk/Account/Login
+            // Например, 'MyCompany_MyShop'
+            'groupCode' => '', // @todo надо указать в params.local.php
+
+            // ИНН организации. Брать из ЛК https://online.atol.ru/lk/Account/Login
+            // Например, '331122667723'
+            // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим ИНН (сравнивается со значением в ФН).
+            // Допустимое количество символов 10 или 12.
+            'inn' => '', // @todo надо указать в params.local.php
+
+            // Адрес места расчетов. Брать из ЛК https://online.atol.ru/lk/Account/Login
+            // Например, 'magazin.ru'
+            // Используется для предотвращения ошибочных регистраций чеков на ККТ зарегистрированных с другим адресом места расчёта (сравнивается со значением в ФН).
+            // Максимальная длина строки – 256 символов.
+            'paymentAddress' => '', // @todo надо указать в params.local.php
+
+            // Система налогообложения.
+            // «osn» – общая СН;
+            // «usn_income» – упрощенная СН (доходы);
+            // «usn_income_outcome» – упрощенная СН (доходы минус расходы);
+            // «envd» – единый налог на вмененный доход;
+            // «esn» – единый сельскохозяйственный налог;
+            // «patent» – патентная СН.
+            // Поле необязательно, если у организации один тип налогообложения.
+            'sno' => '', // @todo надо указать в params.local.php
+
+            // Наименование товара.
+            // Максимальная длина строки – 64 символа.
+            'itemName' => '', // @todo надо указать в params.local.php
+
+            // Устанавливает номер налога в ККТ.
+            // «none» – без НДС;
+            // «vat0» – НДС по ставке 0%;
+            // «vat10» – НДС чека по ставке 10%;
+            // «vat18» – НДС чека по ставке 18%;
+            // «vat110» – НДС чека по расчетной ставке 10/110;
+            // «vat118» – НДС чека по расчетной ставке 18/118.
+            'tax' => '', // @todo надо указать в params.local.php
+        ],
+
+        // Получение результата обработки документа
+        'report' => [
+            // URL. Брать из документации ecr_balancer.pdf (п. 5.3)
+            // "<api_version>", "<group_code>", "<uuid>", "<token>" так и надо оставить
+            'url' => 'https://online.atol.ru/possystem/<api_version>/<group_code>/report/<uuid>?tokenid=<token>',
+        ],
+    ],
+];

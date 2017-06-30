@@ -1,14 +1,17 @@
 <?php
+
 namespace app\classes;
 
+use app\classes\behaviors\SendToOnlineCashRegister;
 use app\exceptions\ModelValidationException;
-use app\modules\nnp\media\ImportServiceUploaded;
-use app\modules\uu\behaviors\AccountTariffBiller;
-use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\helpers\DateTimeZoneHelper;
-use app\modules\uu\behaviors\SyncVmCollocation;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
+use app\modules\nnp\media\ImportServiceUploaded;
+use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\RecalcRealtimeBalance;
+use app\modules\uu\behaviors\SyncAccountTariffLight;
+use app\modules\uu\behaviors\SyncVmCollocation;
 
 class Event
 {
@@ -111,20 +114,24 @@ class Event
         self::USAGE_VOIP__INSERT => 'Услуга телефонии добавлена',
         self::USAGE_VOIP__UPDATE => 'Услуга телефонии изменена',
         self::USAGE_VOIP__DELETE => 'Услуга телефонии удалена',
-        self::UU_ACCOUNT_TARIFF_VOIP => 'UU-услуга телефонии',
-        self::UU_ACCOUNT_TARIFF_VPBX => 'UU-услуга ВАТС',
-        self::UU_ACCOUNT_TARIFF_RESOURCE_VOIP => 'UU-ресурс телефонии',
-        self::UU_ACCOUNT_TARIFF_RESOURCE_VPBX => 'UU-ресурс ВАТС',
         self::UPDATE_BALANCE => 'Обновление баланса',
-        SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'ННП. Добавление услуги',
-        SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'ННП. Удаление услуги',
-        AccountTariffBiller::EVENT_RECALC => 'Билинговать UU-клиента',
         self::ACCOUNT_BLOCKED => 'ЛС заблокирован',
         self::ACCOUNT_UNBLOCKED => 'ЛС разблокирован',
         SyncVmCollocation::EVENT_SYNC => 'API VM manager',
         self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',
         self::VPBX_BLOCKED => 'Блокировка ВАТС',
         self::VPBX_UNBLOCKED => 'Разблокировка ВАТС',
+        SendToOnlineCashRegister::EVENT_SEND => 'Отправить в онлайн-кассу',
+
+        self::UU_ACCOUNT_TARIFF_VOIP => 'УУ телефонии',
+        self::UU_ACCOUNT_TARIFF_VPBX => 'УУ ВАТС',
+        self::UU_ACCOUNT_TARIFF_RESOURCE_VOIP => 'УУ. Ресурс телефонии',
+        self::UU_ACCOUNT_TARIFF_RESOURCE_VPBX => 'УУ. Ресурс ВАТС',
+        AccountTariffBiller::EVENT_RECALC => 'УУ. Билинговать клиента',
+        RecalcRealtimeBalance::EVENT_RECALC => 'УУ. Обновление баланса',
+
+        SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'ННП. Добавление услуги',
+        SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'ННП. Удаление услуги',
         ImportServiceUploaded::EVENT => 'ННП. Импорт страны',
     ];
 
@@ -192,10 +199,10 @@ class Event
         if ($object && $objectId) {
             /** @var EventQueueIndicator $indicator */
             $indicator = EventQueueIndicator::findOne([
-                    'object' => $object,
-                    'object_id' => $objectId,
-                    'section' => $section
-                ]);
+                'object' => $object,
+                'object_id' => $objectId,
+                'section' => $section
+            ]);
 
             // удаляем задачу из очереди, если она не выполнена
             if ($indicator &&

@@ -2,11 +2,11 @@
 
 namespace app\models\filter;
 
-use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\Currency;
 use app\models\Payment;
+use app\models\PaymentAtol;
 use yii\data\ActiveDataProvider;
 use yii\db\Expression;
 
@@ -19,6 +19,7 @@ class PayReportFilter extends Payment
     const SORT_ADD_DATE = 'add_date';
     const SORT_OPER_DATE = 'oper_date';
 
+    public $id = '';
     public $client_id = '';
     public $client_name = '';
     public $bill_no = '';
@@ -39,6 +40,9 @@ class PayReportFilter extends Payment
     public $sort_field = self::SORT_ADD_DATE;
     public $sort_direction = SORT_ASC;
     public $total = '';
+    public $uuid = '';
+    public $uuid_status = '';
+    public $uuid_log = '';
 
     /**
      * @return array
@@ -48,6 +52,7 @@ class PayReportFilter extends Payment
         return [
             [
                 [
+                    'id',
                     'client_id',
                     'organization_id',
                     'user_id',
@@ -56,6 +61,7 @@ class PayReportFilter extends Payment
                     'sum_to',
                     'add_user',
                     'sort_direction',
+                    'uuid_status',
                 ],
                 'integer'
             ],
@@ -76,6 +82,8 @@ class PayReportFilter extends Payment
                     'payment_no',
                     'comment',
                     'sort_field',
+                    'uuid',
+                    'uuid_log',
                 ],
                 'string'
             ],
@@ -88,12 +96,12 @@ class PayReportFilter extends Payment
     public function attributeLabels()
     {
         return parent::attributeLabels() + [
-            'organization_id' => 'Организация',
-            'client_name' => 'Клиент',
-            'sort_field' => 'Сортировать по:',
-            'sort_direction' => 'Направление сортировки',
-            'total' => 'Итого'
-        ];
+                'organization_id' => 'Организация',
+                'client_name' => 'Клиент',
+                'sort_field' => 'Сортировать по:',
+                'sort_direction' => 'Направление сортировки',
+                'total' => 'Итого'
+            ];
     }
 
     /**
@@ -111,6 +119,7 @@ class PayReportFilter extends Payment
             'query' => $query,
         ]);
 
+        $this->id !== '' && $query->andWhere(['p.id' => $this->id]);
         $this->client_id !== '' && $query->andWhere(['p.client_id' => $this->client_id]);
 
         if ($this->organization_id !== '') {
@@ -124,7 +133,7 @@ class PayReportFilter extends Payment
         $this->sum_from !== '' && $query->andWhere(['>=', 'p.sum', $this->sum_from]);
         $this->sum_to !== '' && $query->andWhere(['<=', 'p.sum', $this->sum_to]);
 
-        $this->currency == '' && $this->currency = Currency::RUB;
+        $this->currency === '' && $this->currency = Currency::RUB;
         $query->andWhere(['p.currency' => $this->currency]);
 
         $this->payment_date_from !== '' && $query->andWhere(['>=', 'p.payment_date', $this->payment_date_from]);
@@ -144,6 +153,10 @@ class PayReportFilter extends Payment
             $ecashOperator && $query->andWhere(['ecash_operator' => $ecashOperator]);
         }
 
+        $this->uuid !== '' && $query->andWhere(['p.uuid' => $this->uuid]);
+        $this->uuid_status !== '' && $query->andWhere(['p.uuid_status' => $this->uuid_status]);
+        $this->uuid_log !== '' && $query->andWhere(['LIKE', 'p.uuid_log', $this->uuid_log]);
+
         $this->total = "+" . $query->sum(new Expression('IF(sum > 0, sum, 0)')) . ' / ' . $query->sum(new Expression('IF(sum < 0, sum, 0)')) . ' ' . $this->currency;
 
         return $dataProvider;
@@ -161,11 +174,21 @@ class PayReportFilter extends Payment
             self::TYPE_BANK => 'Банк',
             self::TYPE_PROV => 'Кассовый чек',
             self::TYPE_NEPROV => 'Наличка',
-            self::TYPE_ECASH . '_' . self::ECASH_YANDEX => 'Эл.деньги Яндекс.деньги',
-            self::TYPE_ECASH . '_' . self::ECASH_SBERBANK => 'Эл.деньги Сбербанк',
-            self::TYPE_ECASH . '_' . self::ECASH_PAYPAL => 'Эл.деньги PayPall',
-            self::TYPE_ECASH . '_' . self::ECASH_CYBERPLAT => 'Эл.деньги Cyberplat'
+            self::TYPE_ECASH . '_' . self::ECASH_YANDEX => 'ЭлЯндексДеньги',
+            self::TYPE_ECASH . '_' . self::ECASH_SBERBANK => 'ЭлСбербанк',
+            self::TYPE_ECASH . '_' . self::ECASH_PAYPAL => 'ЭлPayPall',
+            self::TYPE_ECASH . '_' . self::ECASH_CYBERPLAT => 'ЭлCyberplat'
         ];
+    }
+
+    /**
+     * Список статусов
+     *
+     * @return array
+     */
+    public function getUuidStatusList()
+    {
+        return ['' => '----'] + PaymentAtol::$uuidStatus;
     }
 
     /**

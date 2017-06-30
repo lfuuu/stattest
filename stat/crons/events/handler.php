@@ -5,6 +5,7 @@ use app\classes\ActaulizerVoipNumbers;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
+use app\classes\behaviors\SendToOnlineCashRegister;
 use app\classes\Event;
 use app\classes\HttpClientLogger;
 use app\classes\partners\RewardCalculate;
@@ -13,6 +14,7 @@ use app\models\EventQueueIndicator;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
 use app\modules\uu\behaviors\AccountTariffBiller;
+use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\behaviors\SyncVmCollocation;
 use app\modules\uu\models\AccountTariff;
@@ -223,6 +225,16 @@ function doEvents()
                 case AccountTariffBiller::EVENT_RECALC:
                     // Билинговать UU-клиента
                     AccountTariffBiller::recalc($param);
+                    break;
+
+                case RecalcRealtimeBalance::EVENT_RECALC:
+                    // Пересчитать realtime баланс
+                    RecalcRealtimeBalance::recalc($param['accountClientId']);
+                    break;
+
+                case SendToOnlineCashRegister::EVENT_SEND:
+                    // В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
+                    $info = SendToOnlineCashRegister::send($param['paymentId']);
                     break;
 
                 case Event::CHECK_CREATE_CORE_ADMIN:

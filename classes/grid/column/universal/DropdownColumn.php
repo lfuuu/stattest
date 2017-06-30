@@ -5,8 +5,6 @@ namespace app\classes\grid\column\universal;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use kartik\grid\GridView;
-use yii\db\ActiveRecord;
-use Yii;
 
 /**
  * Class DropdownColumn
@@ -16,30 +14,20 @@ use Yii;
 class DropdownColumn extends DataColumn
 {
     // Отображение в ячейке строкового значения из selectbox вместо ID
-    use ListTrait {
-        ListTrait::renderDataCellContent as defaultRenderDataCellContent;
-    }
+    use ListTrait;
 
     public $filterType = GridView::FILTER_SELECT2;
 
     public $filter = ['' => '----'];
 
     /**
-     * Вернуть отображаемое значение ячейки
-     *
-     * @param ActiveRecord $model
-     * @param string $key
-     * @param int $index
-     * @return string
+     * @param array $config
      */
-    protected function renderDataCellContent($model, $key, $index)
+    public function __construct($config = [])
     {
-        $value = $this->getDataCellValue($model, $key, $index);
-        $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        if (is_null($value)) {
-            return Yii::t('common', '(not set)');
-        } else {
-            return $strValue;
-        }
+        parent::__construct($config);
+        !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
+        $this->filterOptions['class'] .= ' dropdown-column';
+        $this->isWriteNotSet = true;
     }
 }
