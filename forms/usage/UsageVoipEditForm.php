@@ -85,7 +85,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'required',
             'on' => 'add',
             'when' => function ($model) {
-                return $model->ndc_type_id != NdcType::ID_FREEPHONE;
+                return NdcType::isCityDependent($model->ndc_type_id);
             }
         ];
         $rules[] = [['did'], 'trim'];
