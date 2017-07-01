@@ -28,8 +28,9 @@ class ApiController extends Controller
     public function actionIndex()
     {
         // @todo Что и в каком формате они присылают - ХЗ. В документации это не описано.
+        // @todo Если так и не будет приходить - выпилить
         $post = Yii::$app->request->post();
-        Yii::error(print_r($post, true), Module::LOG_CATEGORY);
+        Yii::error('AtolAPI ' . print_r($post, true), Module::LOG_CATEGORY);
         return 'Ok';
     }
 }

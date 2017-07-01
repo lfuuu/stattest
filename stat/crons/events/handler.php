@@ -237,6 +237,11 @@ function doEvents()
                     $info = SendToOnlineCashRegister::send($param['paymentId']);
                     break;
 
+                case SendToOnlineCashRegister::EVENT_REFRESH:
+                    // Обновить статус из онлайн-кассы
+                    $info = SendToOnlineCashRegister::refreshStatus($param['paymentId']);
+                    break;
+
                 case Event::CHECK_CREATE_CORE_ADMIN:
                     $isCoreServer && ApiCore::checkCreateCoreAdmin($param);
                     break;
