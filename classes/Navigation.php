@@ -1,12 +1,14 @@
 <?php
+
 namespace app\classes;
 
-use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\TariffPeriod;
+use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Pricelist;
 use app\models\Business;
 use app\models\BusinessProcess;
 use app\models\Country;
+use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\TariffPeriod;
 use Yii;
 use yii\helpers\Url;
 
@@ -53,7 +55,13 @@ class Navigation
         }
 
         $accountBlock->addItem('Реестр неоплаченных счетов поставщиков', '/report/operator-pay/', 'clients.edit');
-        $accountBlock->addItem('Отчет по платежам (new)', '/report/accounting/pay-report/', 'newaccounts_payments.read');
+        $accountBlock->addItem('Платежи',
+            [
+                '/report/accounting/pay-report/',
+                'PayReportFilter[add_date_from]' => (new \DateTimeImmutable)->modify('-2 days')->format(DateTimeZoneHelper::DATE_FORMAT),
+            ],
+            'newaccounts_payments.read'
+        );
 
         $this->addBlock($accountBlock);
 
@@ -126,7 +134,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Межоператорка (Отчеты)')
                 ->addStatModuleItems('voipreports')
-            ->addItem('Загруженность номеров', ['/voipreport/cdr-workload'], ['voipreports.access'])
+                ->addItem('Загруженность номеров', ['/voipreport/cdr-workload'], ['voipreports.access'])
         );
 
         // $this->addBlockForStatModule('voipreports');
@@ -261,8 +269,8 @@ class Navigation
         }
 
         $block = NavigationBlock::create()
-                ->setId($moduleName)
-                ->setTitle($title);
+            ->setId($moduleName)
+            ->setTitle($title);
 
         foreach ($items as $item) {
             $url = substr($item[1], 0, 1) == '/' ? $item[1] : '?' . $item[1];

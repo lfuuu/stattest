@@ -25,7 +25,7 @@ class PayReportController extends BaseController
      */
     public function actionIndex()
     {
-        $this->view->title = 'Отчет по платежам';
+        $this->view->title = 'Платежи';
         $filterModel = new PayReportFilter();
         $filterModel->load(Yii::$app->request->get());
 
