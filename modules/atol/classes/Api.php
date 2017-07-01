@@ -31,7 +31,7 @@ class Api extends Singleton
     const OPERATION_BUY_REFUND = 'buy_refund'; // Возврат расхода
     const OPERATION_BUY_CORRECTION = 'buy_correction'; // Коррекция расхода
 
-    const TIMESTAMP_FORMAT = '%d.%m.%Y %H:%i:%s'; // Формат timestamp
+    const TIMESTAMP_FORMAT = 'd.m.Y H:i:s'; // Формат timestamp
 
     const PAYMENT_TYPE_ECASH = 1;
 

@@ -4,7 +4,6 @@ namespace app\models\filter;
 
 use app\models\ClientAccount;
 use app\models\ClientContract;
-use app\models\Currency;
 use app\models\Payment;
 use app\models\PaymentAtol;
 use yii\data\ActiveDataProvider;
@@ -141,7 +140,7 @@ class PayReportFilter extends Payment
         $this->oper_date_to !== '' && $query->andWhere(['<=', 'p.oper_date', $this->oper_date_to]);
 
         $this->add_date_from !== '' && $query->andWhere(['>=', 'p.add_date', $this->add_date_from]);
-        $this->add_date_to !== '' && $query->andWhere(['<=', 'p.add_date', $this->add_date_to]);
+        $this->add_date_to !== '' && $query->andWhere(['<=', 'p.add_date', $this->add_date_to . ' 23:59:59']);
         $this->payment_no !== '' && $query->andWhere(['p.payment_no' => $this->payment_no]);
         $this->comment !== '' && $query->andWhere(['LIKE', 'p.comment', $this->comment]);
         $this->add_user !== '' && $query->andWhere(['p.add_user' => $this->add_user]);

@@ -89,16 +89,6 @@ $columns = [
     ],
 
     [
-        'attribute' => 'payment_date',
-        'class' => DateRangeDoubleColumn::className(),
-    ],
-
-    [
-        'attribute' => 'oper_date',
-        'class' => DateRangeDoubleColumn::className(),
-    ],
-
-    [
         'attribute' => 'add_date',
         'class' => DateRangeDoubleColumn::className(),
     ],
@@ -115,7 +105,13 @@ $columns = [
 
     [
         'attribute' => 'payment_no',
+        'format' => 'raw',
         'class' => StringColumn::className(),
+        'value' => function (Payment $payment) {
+            return $payment->payment_no ?
+                Html::tag('small', $payment->payment_no) :
+                '';
+        },
     ],
 
     [
@@ -127,17 +123,19 @@ $columns = [
         },
     ],
 
-    [
-        'attribute' => 'add_user',
-        'format' => 'raw',
-        'class' => UserColumn::className(),
-        'indexBy' => 'id',
-        'value' => function (Payment $payment) {
-            return $payment->add_user && $payment->addUser ?
-                Html::tag('div', $payment->addUser->user, ['title' => $payment->addUser->name]) :
-                '';
-        },
-    ],
+    /*
+        [
+            'attribute' => 'add_user',
+            'format' => 'raw',
+            'class' => UserColumn::className(),
+            'indexBy' => 'id',
+            'value' => function (Payment $payment) {
+                return $payment->add_user && $payment->addUser ?
+                    Html::tag('div', $payment->addUser->user, ['title' => $payment->addUser->name]) :
+                    '';
+            },
+        ],
+    */
 
     [
         'attribute' => 'uuid_status',
