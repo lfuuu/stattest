@@ -4,7 +4,6 @@ namespace app\controllers\report\accounting;
 
 use app\classes\BaseController;
 use app\classes\behaviors\SendToOnlineCashRegister;
-use app\helpers\DateTimeZoneHelper;
 use app\models\filter\PayReportFilter;
 use Yii;
 
@@ -27,11 +26,7 @@ class PayReportController extends BaseController
     public function actionIndex()
     {
         $this->view->title = 'Отчет по платежам';
-        $filterModel = new PayReportFilter([
-            'add_date_from' => (new \DateTime('now'))->modify('-2 day')->format(DateTimeZoneHelper::DATE_FORMAT),
-            'add_date_to' => (new \DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT)
-        ]);
-
+        $filterModel = new PayReportFilter();
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', [

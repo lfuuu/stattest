@@ -1,7 +1,7 @@
 <?php
 
-use app\classes\monitoring\MonitoringInterface;
 use app\classes\Html;
+use app\classes\monitoring\MonitoringInterface;
 use yii\bootstrap\Tabs;
 
 echo Html::formLabel('Мониторинг ключевых событий');
@@ -16,9 +16,8 @@ foreach ($monitors as $monitor) {
 
     if ($monitor->key == $current->key) {
         $tab['active'] = true;
-        $tab['content'] = $this->render('grid', ['monitor' => $monitor]);
-    }
-    else {
+        $tab['content'] = $this->render('_indexGrid', ['monitor' => $monitor]);
+    } else {
         $tab['url'] = ['/monitoring', 'monitor' => $monitor->key];
     }
 

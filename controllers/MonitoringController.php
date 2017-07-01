@@ -23,10 +23,12 @@ class MonitoringController extends BaseController
      *
      * @param string $monitor
      * @return string
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex($monitor = 'usages_lost_tariffs')
     {
-        return $this->render('default', [
+        return $this->render('index', [
             'monitors' => MonitorFactory::me()->getAll(),
             'current' => MonitorFactory::me()->getOne($monitor),
         ]);
@@ -37,6 +39,7 @@ class MonitoringController extends BaseController
      *
      * @param bool $isCurrentOnly
      * @return string
+     * @throws \yii\base\InvalidParamException
      * @throws \yii\base\Exception
      */
     public function actionTransferedUsages($isCurrentOnly = true)
@@ -51,7 +54,7 @@ class MonitoringController extends BaseController
             $listing[(new $serviceClass)->helper->title] = MonitoringDao::transferedUsages($serviceClass, $clientAccount);
         }
 
-        return $this->render('transfer', [
+        return $this->render('transferUsages', [
             'result' => $listing,
             'clientAccount' => $clientAccount,
         ]);
@@ -61,6 +64,7 @@ class MonitoringController extends BaseController
      * Очередь событий
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionEventQueue()
     {
@@ -82,7 +86,7 @@ class MonitoringController extends BaseController
         $filterModel = new EventQueueFilter();
         $filterModel->load($get);
 
-        return $this->render('event-queue/index', [
+        return $this->render('eventQueue', [
             'filterModel' => $filterModel,
         ]);
     }

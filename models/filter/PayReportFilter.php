@@ -15,10 +15,6 @@ use yii\db\Expression;
  */
 class PayReportFilter extends Payment
 {
-    const SORT_PAYMENT_DATE = 'payment_date';
-    const SORT_ADD_DATE = 'add_date';
-    const SORT_OPER_DATE = 'oper_date';
-
     public $id = '';
     public $client_id = '';
     public $client_name = '';
@@ -58,7 +54,6 @@ class PayReportFilter extends Payment
                     'sum_from',
                     'sum_to',
                     'add_user',
-                    'sort_direction',
                     'uuid_status',
                 ],
                 'integer'
@@ -79,7 +74,6 @@ class PayReportFilter extends Payment
                     'type',
                     'payment_no',
                     'comment',
-                    'sort_field',
                     'uuid',
                     'uuid_log',
                 ],
@@ -96,8 +90,6 @@ class PayReportFilter extends Payment
         return parent::attributeLabels() + [
                 'organization_id' => 'Организация',
                 'client_name' => 'Клиент',
-                'sort_field' => 'Сортировать по:',
-                'sort_direction' => 'Направление сортировки',
                 'total' => 'Итого',
                 'uuid' => 'ID в онлайн-кассе',
                 'uuid_status' => 'Статус отправки в онлайн-кассу',
@@ -118,6 +110,11 @@ class PayReportFilter extends Payment
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'id' => SORT_DESC,
+                ]
+            ],
         ]);
 
         $paymentAtolTableName = PaymentAtol::tableName();
@@ -136,8 +133,7 @@ class PayReportFilter extends Payment
         $this->sum_from !== '' && $query->andWhere(['>=', 'p.sum', $this->sum_from]);
         $this->sum_to !== '' && $query->andWhere(['<=', 'p.sum', $this->sum_to]);
 
-        $this->currency === '' && $this->currency = Currency::RUB;
-        $query->andWhere(['p.currency' => $this->currency]);
+        $this->currency !== '' && $query->andWhere(['p.currency' => $this->currency]);
 
         $this->payment_date_from !== '' && $query->andWhere(['>=', 'p.payment_date', $this->payment_date_from]);
         $this->payment_date_to !== '' && $query->andWhere(['<=', 'p.payment_date', $this->payment_date_to]);
