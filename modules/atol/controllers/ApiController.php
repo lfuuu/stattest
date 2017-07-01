@@ -2,6 +2,7 @@
 
 namespace app\modules\atol\controllers;
 
+use app\modules\atol\Module;
 use Yii;
 use yii\web\Controller;
 
@@ -27,7 +28,8 @@ class ApiController extends Controller
     public function actionIndex()
     {
         // @todo Что и в каком формате они присылают - ХЗ. В документации это не описано.
-        Yii::error(Yii::$app->request->post(), 'atol');
+        $post = Yii::$app->request->post();
+        Yii::error(print_r($post, true), Module::LOG_CATEGORY);
         return 'Ok';
     }
 }
