@@ -105,7 +105,7 @@ class SendToOnlineCashRegister extends Behavior
      * Обновить статус из онлайн-кассы
      *
      * @param int $paymentId
-     * @return string
+     * @return string $status
      * @throws \app\exceptions\ModelValidationException
      * @throws \InvalidArgumentException
      * @throws \yii\db\Exception
@@ -145,6 +145,6 @@ class SendToOnlineCashRegister extends Behavior
             throw new ModelValidationException($paymentAtol);
         }
 
-        return $log;
+        return $status;
     }
 }

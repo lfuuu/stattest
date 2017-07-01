@@ -57,8 +57,8 @@ class PayReportController extends BaseController
     public function actionRefreshStatus($id)
     {
         try {
-            $log = SendToOnlineCashRegister::refreshStatus($id);
-            Yii::$app->session->setFlash('success', $log);
+            $status = SendToOnlineCashRegister::refreshStatus($id);
+            Yii::$app->session->setFlash('success', $status);
         } catch (\Exception $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
         }
