@@ -122,6 +122,7 @@ class Event
         self::VPBX_BLOCKED => 'Блокировка ВАТС',
         self::VPBX_UNBLOCKED => 'Разблокировка ВАТС',
         SendToOnlineCashRegister::EVENT_SEND => 'Отправить в онлайн-кассу',
+        SendToOnlineCashRegister::EVENT_REFRESH => 'Обновить статус онлайн-кассы',
 
         self::UU_ACCOUNT_TARIFF_VOIP => 'УУ телефонии',
         self::UU_ACCOUNT_TARIFF_VPBX => 'УУ ВАТС',

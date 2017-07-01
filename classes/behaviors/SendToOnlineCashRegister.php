@@ -17,6 +17,7 @@ use yii\db\ActiveRecord;
 class SendToOnlineCashRegister extends Behavior
 {
     const EVENT_SEND = 'send_to_online_cash_register';
+    const EVENT_REFRESH = 'refresh_online_cash_register';
 
     /**
      * @return array
@@ -42,6 +43,7 @@ class SendToOnlineCashRegister extends Behavior
         /** @var Payment $payment */
         $payment = $event->sender;
 
+        // поставить в очередь для отправки
         \app\classes\Event::go(self::EVENT_SEND, [
                 'paymentId' => $payment->id,
             ]
@@ -53,6 +55,7 @@ class SendToOnlineCashRegister extends Behavior
      *
      * @param int $paymentId
      * @return string|false
+     * @throws \app\exceptions\ModelValidationException
      * @throws \InvalidArgumentException
      * @throws \yii\db\Exception
      * @throws \LogicException
@@ -97,6 +100,12 @@ class SendToOnlineCashRegister extends Behavior
             // не фаталить, иначе API-запрос потом будет отправлен повторно
             Yii::error(implode(' ', $paymentAtol->getFirstErrors()));
         }
+
+        // поставить в очередь для обновления статуса
+        \app\classes\Event::go(self::EVENT_REFRESH, [
+                'paymentId' => $payment->id,
+            ]
+        );
 
         return $log;
     }
