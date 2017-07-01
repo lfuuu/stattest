@@ -10,7 +10,7 @@ if (count($result)):
         'dataProvider' => $result,
         'filterModel' => $monitor,
         'columns' => $monitor->columns,
-        'toolbar'=> [],
+        'toolbar' => [],
         'panel' => [
             'type' => GridView::TYPE_DEFAULT,
             'heading' => $monitor->description,
@@ -31,8 +31,8 @@ else: ?>
 <?php endif; ?>
 
 <style type="text/css">
-.panel-heading .panel-title {
-    font-size: 12px;
-    margin-top: 4px;
-}
+    .panel-heading .panel-title {
+        font-size: 12px;
+        margin-top: 4px;
+    }
 </style>

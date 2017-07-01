@@ -5,6 +5,9 @@ namespace app\classes\monitoring;
 use app\classes\Assert;
 use app\classes\Singleton;
 
+/**
+ * @method static MonitorFactory me($args = null)
+ */
 class MonitorFactory extends Singleton
 {
 

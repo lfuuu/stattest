@@ -120,6 +120,9 @@ return [
         'notifier' => [
             'class' => 'app\modules\notifier\Module',
         ],
+        'atol' => [
+            'class' => 'app\modules\atol\Module',
+        ],
     ],
     'params' => $params,
 ];
