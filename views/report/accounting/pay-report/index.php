@@ -11,8 +11,8 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\OrganizationColumn;
 use app\classes\grid\column\universal\StringColumn;
-use app\classes\grid\column\universal\UserColumn;
 use app\classes\grid\GridView;
+use app\models\Currency;
 use app\models\Payment;
 use app\models\PaymentAtol;
 use yii\helpers\Html;
@@ -147,7 +147,14 @@ $columns = [
         'value' => function (Payment $payment, $key, $index, DropdownColumn $that) {
 
             $paymentAtol = $payment->paymentAtol;
-            if (!$paymentAtol) {
+
+            if (
+                !$paymentAtol
+                && $payment->currency === Currency::RUB
+                && $payment->type === Payment::TYPE_ECASH
+                && array_key_exists($payment->ecash_operator, Payment::$ecash)
+                && $payment->ecash_operator !== Payment::ECASH_CYBERPLAT
+            ) {
                 return Yii::t('common', '(not set)') .
                     ' ' .
                     Html::a(

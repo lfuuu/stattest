@@ -279,7 +279,7 @@ class Api extends Singleton
         if (is_array($responseData)
             && isset($responseData['uuid'], $responseData['status'])
             && $responseData['uuid']
-            && $responseData['status'] == self::RESPONSE_STATUS_WAIT
+            // && $responseData['status'] == self::RESPONSE_STATUS_WAIT // если первый запрос обработался, но упал, то повторный отвечает ошибкой, но с нужными данными
         ) {
             // всё хорошо
             return [$responseData['uuid'], Json::encode($responseData)];
