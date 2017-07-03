@@ -2,6 +2,7 @@
 
 namespace app\classes\behaviors;
 
+use app\exceptions\ModelValidationException;
 use yii\base\Event;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
@@ -26,6 +27,7 @@ class PartnerRewardsCalculation extends Behavior
     /**
      * @param Event $event
      * @return bool
+     * @throws ModelValidationException
      */
     public function calculateRewards(Event $event)
     {

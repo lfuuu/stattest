@@ -1,16 +1,15 @@
 <?php
 namespace app\models;
 
-use app\classes\behaviors\PartnerRewards;
-use app\classes\Utils;
-use Yii;
 use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\CheckBillPaymentOverdue;
 use app\classes\behaviors\PartnerRewardsCalculation;
 use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\HistoryActiveRecord;
+use app\classes\Utils;
 use app\dao\BillDao;
 use app\queries\BillQuery;
+use Yii;
 use yii\helpers\Url;
 
 /**

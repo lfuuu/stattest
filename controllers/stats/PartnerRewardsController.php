@@ -2,9 +2,10 @@
 
 namespace app\controllers\stats;
 
-use Yii;
 use app\classes\BaseController;
 use app\models\filter\PartnerRewardsFilter;
+use Yii;
+use yii\base\InvalidParamException;
 
 class PartnerRewardsController extends BaseController
 {
@@ -28,14 +29,13 @@ class PartnerRewardsController extends BaseController
     /**
      * @param bool $isExtends
      * @return string
+     * @throws InvalidParamException
      */
     public function actionIndex($isExtends = false)
     {
-        return $this->render('index',
-            [
-                'filterModel' => (new PartnerRewardsFilter($isExtends))->load(),
-            ]
-        );
+        return $this->render('index', [
+            'filterModel' => (new PartnerRewardsFilter($isExtends))->load(),
+        ]);
     }
 
 }
