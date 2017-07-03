@@ -9,6 +9,8 @@ use yii\web\BadRequestHttpException;
 
 class HttpRequest extends \yii\httpclient\Request
 {
+    private $_isCheckOk = true;
+
     /**
      * Добавить авторизацию
      *
@@ -65,7 +67,7 @@ class HttpRequest extends \yii\httpclient\Request
         Yii::info($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse, $logCategory);
         $httpClientLogger->add($debugInfoResponse);
 
-        if (!$response->getIsOk()) {
+        if ($this->_isCheckOk && !$response->getIsOk()) {
             throw new BadRequestHttpException($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse);
         }
 
@@ -148,6 +150,16 @@ class HttpRequest extends \yii\httpclient\Request
     {
         $this->setContent(null);
         return parent::setData($data);
+    }
+
+    /**
+     * @param bool $isCheckOk
+     * @return $this
+     */
+    public function setIsCheckOk($isCheckOk)
+    {
+        $this->_isCheckOk = $isCheckOk;
+        return $this;
     }
 
 }

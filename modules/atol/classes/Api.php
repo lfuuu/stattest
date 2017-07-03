@@ -273,13 +273,13 @@ class Api extends Singleton
             ->setUrl($url)
             ->setMethod('post')
             ->setData($data)
+            ->setIsCheckOk(false) // если первый запрос обработался, но упал, то повторный отвечает ошибкой, но с нужными данными
             ->send(\app\modules\atol\Module::LOG_CATEGORY);
 
         $responseData = $response->data;
         if (is_array($responseData)
-            && isset($responseData['uuid'], $responseData['status'])
+            && isset($responseData['uuid'])
             && $responseData['uuid']
-            // && $responseData['status'] == self::RESPONSE_STATUS_WAIT // если первый запрос обработался, но упал, то повторный отвечает ошибкой, но с нужными данными
         ) {
             // всё хорошо
             return [$responseData['uuid'], Json::encode($responseData)];
