@@ -79,6 +79,7 @@ class BillFactory
                 ->andWhere(['>=', 'transaction_date', $this->billerPeriodFrom->format(DateTimeZoneHelper::DATETIME_FORMAT)])
                 ->andWhere(['<=', 'transaction_date', $this->billerPeriodTo->format(DateTimeZoneHelper::DATETIME_FORMAT)])
                 ->andWhere('bill_id IS NULL')
+                ->orderBy(['id' => SORT_ASC])
                 ->all();
 
         if (!count($transactions)) {
