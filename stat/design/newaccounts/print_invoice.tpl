@@ -145,7 +145,7 @@
     ИНН/КПП покупателя: <strong>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</strong><br>
     Дополнение: <strong>к счету N: {$bill.bill_no}</strong><br>
     {if $inv_is_new3}Валюта: наименование Российский рубль, код 643{/if}
-    {if '2017-07-01' < $bill.bill_date}<br>Идентификатор государственного контракта, договора (соглашения):
+    {*'2017-07-01' = 1498867200*}{if 1498867200 <= $inv_date}<br>Идентификатор государственного контракта, договора (соглашения):
     <br/>{if $client_contract}Договор N: {$client_contract}{else}-----{/if}{/if}</td>
 
     <td align=right valign="top" width="45%">
