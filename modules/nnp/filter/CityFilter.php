@@ -12,6 +12,8 @@ class CityFilter extends City
 {
     public $name = '';
     public $country_code = '';
+    public $cnt_from = '';
+    public $cnt_to = '';
 
     /**
      * @return array
@@ -20,7 +22,7 @@ class CityFilter extends City
     {
         return [
             [['name'], 'string'],
-            [['country_code'], 'integer'],
+            [['country_code', 'cnt_from', 'cnt_to'], 'integer'],
         ];
     }
 
@@ -39,6 +41,9 @@ class CityFilter extends City
 
         $this->name && $query->andWhere(['LIKE', $cityTableName . '.name', $this->name]);
         $this->country_code && $query->andWhere([$cityTableName . '.country_code' => $this->country_code]);
+
+        $this->cnt_from !== '' && $query->andWhere(['>=', $cityTableName . '.cnt', $this->cnt_from]);
+        $this->cnt_to !== '' && $query->andWhere(['<=', $cityTableName . '.cnt', $this->cnt_to]);
 
         return $dataProvider;
     }

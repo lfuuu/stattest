@@ -67,13 +67,31 @@ if (!$numberRange->isNewRecord) {
         <?php // Дата добавления ?>
         <div class="col-sm-2">
             <label><?= $numberRange->getAttributeLabel('insert_time') ?></label>
-            <div><?= $numberRange->insert_time ? Yii::$app->formatter->asDate($numberRange->insert_time, 'medium') : '' ?></div>
+            <div>
+                <?= $numberRange->insert_time ?
+                    Yii::$app->formatter->asDate($numberRange->insert_time, 'medium') :
+                    Yii::t('common', '(not set)') ?>
+            </div>
+        </div>
+
+        <?php // Дата редактирования ?>
+        <div class="col-sm-2">
+            <label><?= $numberRange->getAttributeLabel('update_time') ?></label>
+            <div>
+                <?= $numberRange->insert_time ?
+                    Yii::$app->formatter->asDate($numberRange->update_time, 'medium') :
+                    Yii::t('common', '(not set)') ?>
+            </div>
         </div>
 
         <?php // Дата выключения ?>
         <div class="col-sm-2">
             <label><?= $numberRange->getAttributeLabel('date_stop') ?></label>
-            <div><?= $numberRange->date_stop ? Yii::$app->formatter->asDate($numberRange->date_stop, 'medium') : '' ?></div>
+            <div><?=
+                $numberRange->date_stop ?
+                    Yii::$app->formatter->asDate($numberRange->date_stop, 'medium') :
+                    Yii::t('common', '(not set)') ?>
+            </div>
         </div>
 
     </div>

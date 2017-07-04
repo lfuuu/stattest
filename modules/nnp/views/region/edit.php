@@ -52,6 +52,12 @@ if (!$region->isNewRecord) {
             <?= $form->field($region, 'name')->textInput() ?>
         </div>
 
+        <?php // Кол-во ?>
+        <div class="col-sm-2">
+            <label><?= $region->getAttributeLabel('cnt') ?></label>
+            <div><?= $region->cnt ?></div>
+        </div>
+
     </div>
 
     <?php // кнопки ?>

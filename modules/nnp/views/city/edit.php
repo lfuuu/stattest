@@ -52,6 +52,12 @@ if (!$city->isNewRecord) {
             <?= $form->field($city, 'name')->textInput() ?>
         </div>
 
+        <?php // Кол-во ?>
+        <div class="col-sm-2">
+            <label><?= $city->getAttributeLabel('cnt') ?></label>
+            <div><?= $city->cnt ?></div>
+        </div>
+
     </div>
 
     <?php // кнопки ?>

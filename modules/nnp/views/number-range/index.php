@@ -6,6 +6,7 @@
  * @var NumberRangeFilter $filterModel
  */
 
+use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\MonthColumn;
@@ -109,7 +110,7 @@ $columns = [
         'class' => StringColumn::className(),
         'value' => function (NumberRange $numberRange) {
             return str_replace('|', ', ', $numberRange->region_source);
-        }
+        },
     ],
     [
         'attribute' => 'region_id',
@@ -144,20 +145,41 @@ $columns = [
             }
 
             return implode('<br/>', $htmlArray);
-        }
+        },
     ],
     [
+        'attribute' => 'date_resolution',
+        'class' => DateRangeDoubleColumn::className(),
+        'value' => function (NumberRange $numberRange) {
+            return $numberRange->date_resolution ?
+                Yii::$app->formatter->asDate($numberRange->date_resolution, 'medium') :
+                Yii::t('common', '(not set)');
+        },
+    ],
+    [
+        'label' => 'Создано / редактировано / выключено',
         'attribute' => 'insert_time',
         'class' => MonthColumn::className(),
-        'filterOptions' => [
-            'colspan' => 2, // фильтр на оба столбца
-        ],
-    ],
-    [
-        'attribute' => 'date_stop',
-        'filterOptions' => [
-            'class' => 'collapse',
-        ],
+        'format' => 'html',
+        'value' => function (NumberRange $numberRange) {
+            $htmlArray = [];
+
+            if ($numberRange->insert_time) {
+                $htmlArray[] = Yii::$app->formatter->asDate($numberRange->insert_time, 'medium');
+            }
+
+            if ($numberRange->update_time) {
+                $htmlArray[] = Yii::$app->formatter->asDate($numberRange->update_time, 'medium');
+            }
+
+            if ($numberRange->date_stop) {
+                $htmlArray[] = Yii::$app->formatter->asDate($numberRange->date_stop, 'medium');
+            }
+
+            return $htmlArray ?
+                implode('<br/>', $htmlArray) :
+                Yii::t('common', '(not set)');
+        },
     ],
 ];
 

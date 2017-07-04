@@ -1,19 +1,19 @@
 <?php
-namespace app\modules\nnp\commands;
 
+namespace app\modules\nnp\classes;
+
+use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Region;
-use Yii;
-use yii\console\Controller;
+use app\modules\nnp\Module;
 use yii\db\Expression;
 
 /**
- * Группировка регионов
+ * @method static RegionLinker me($args = null)
  */
-class RegionController extends Controller
+class RegionLinker extends Singleton
 {
-
     const FUNC_PREG_REPLACE = 'preg_replace'; // замена с помощью регулярного выражения
     const FUNC_STR_REPLACE = 'str_replace'; // строчная замена
     const FUNC_STRPOS = 'strpos'; // замена, если есть вхождение
@@ -62,10 +62,59 @@ class RegionController extends Controller
     ];
 
     /**
-     * @return int
+     * Актуализировать привязку к регионам
+     *
+     * @return string
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \LogicException
+     * @throws \yii\db\Exception
      */
-    public function actionIndex()
+    public function run()
     {
+        if (NumberRange::isTriggerEnabled()) {
+            throw new \LogicException('Линковка невозможна, потому что триггер включен');
+        }
+
+        $log = '';
+        $log .= $this->_setNull();
+        $log .= $this->_link();
+        $log .= $this->_updateCnt();
+
+        return $log;
+    }
+
+    /**
+     * Сбросить привязанные
+     *
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    private function _setNull()
+    {
+        NumberRange::updateAll(['region_id' => null], ['region_source' => '']);
+    }
+
+    /**
+     * Привязать к регионам
+     *
+     * @return string
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \LogicException
+     * @throws \yii\db\Exception
+     */
+    private function _link()
+    {
+        $numberRangeQuery = NumberRange::find()
+            ->andWhere('region_id IS NULL')
+            ->andWhere(['IS NOT', 'region_source', null])
+            ->andWhere(['!=', 'region_source', '']);
+
+        if (!$numberRangeQuery->count()) {
+            return 'ok';
+        }
+
+        $log = '';
+
         // Группированные значение
         $regionSourceToId = Region::find()
             ->select([
@@ -88,79 +137,62 @@ class RegionController extends Controller
             ->indexBy('name')
             ->column();
 
-        $numberRangeQuery = NumberRange::find()
-            // ->where('is_active')
-            ->andWhere('region_id IS NULL')
-            ->andWhere(['IS NOT', 'region_source', null])
-            ->andWhere(['!=', 'region_source', '']);
         $i = 0;
 
         /** @var NumberRange $numberRange */
         foreach ($numberRangeQuery->each() as $numberRange) {
 
             if ($i++ % 1000 === 0) {
-                echo '. ';
+                $log .= '. ';
             }
 
-            $transaction = Yii::$app->db->beginTransaction();
-            try {
+            if (
+                ($key1 = $numberRange->country_code . $numberRange->region_source) &&
+                isset($regionSourceToId[$key1])
+            ) {
 
-                if (
-                    ($key1 = $numberRange->country_code . $numberRange->region_source) &&
-                    isset($regionSourceToId[$key1])
-                ) {
+                // оригинальный "исходный регион"
+                $numberRange->region_id = $regionSourceToId[$key1];
 
-                    // оригинальный "исходный регион"
-                    $numberRange->region_id = $regionSourceToId[$key1];
+            } elseif (
+                ($regionSource = $this->preProcessing($numberRange->region_source)) &&
+                ($key2 = $numberRange->country_code . $regionSource) &&
+                isset($regionSourceToId[$key2])
+            ) {
 
-                } elseif (
-                    ($regionSource = $this->preProcessing($numberRange->region_source)) &&
-                    ($key2 = $numberRange->country_code . $regionSource) &&
-                    isset($regionSourceToId[$key2])
-                ) {
+                // обработанный "исходный регион"
+                $numberRange->region_id = $regionSourceToId[$key2];
 
-                    // обработанный "исходный регион"
-                    $numberRange->region_id = $regionSourceToId[$key2];
+            } else {
 
-                } else {
-
-                    // ничего не нашли - создать новый
-                    $region = new Region();
-                    $region->name = $regionSource;
-                    $region->country_code = $numberRange->country_code;
-                    if (!$region->save()) {
-                        throw new ModelValidationException($region);
-                    }
-
-                    $numberRange->region_id = $region->id;
-
-                    // добавить в кэш
-                    if (isset($key1)) {
-                        $regionSourceToId[$key1] = $region->id;
-                    }
-
-                    if (isset($key2)) {
-                        $regionSourceToId[$key2] = $region->id;
-                    }
+                // ничего не нашли - создать новый
+                $region = new Region();
+                $region->name = $regionSource;
+                $region->country_code = $numberRange->country_code;
+                if (!$region->save()) {
+                    throw new ModelValidationException($region);
                 }
 
-                unset($key1, $key2);
+                $numberRange->region_id = $region->id;
 
-                if (!$numberRange->save()) {
-                    throw new ModelValidationException($numberRange);
+                // добавить в кэш
+                if (isset($key1)) {
+                    $regionSourceToId[$key1] = $region->id;
                 }
 
-                $transaction->commit();
-            } catch (\Exception $e) {
-                $transaction->rollBack();
-                Yii::error('Ошибка Region');
-                Yii::error($e);
-                printf('%s %s', $e->getMessage(), $e->getTraceAsString());
+                if (isset($key2)) {
+                    $regionSourceToId[$key2] = $region->id;
+                }
+            }
+
+            unset($key1, $key2);
+
+            if (!$numberRange->save()) {
+                throw new ModelValidationException($numberRange);
             }
         }
 
-        echo PHP_EOL;
-        return Controller::EXIT_CODE_NORMAL;
+        return $log;
     }
 
     /**
@@ -192,5 +224,56 @@ class RegionController extends Controller
 
         $value = trim($value);
         return $value;
+    }
+
+    /**
+     * Обновить столбец cnt
+     *
+     * @return string
+     * @throws \yii\db\Exception
+     */
+    private function _updateCnt()
+    {
+        $log = '';
+
+        $log .= Module::transaction(
+            function () {
+                $db = Region::getDb();
+                $numberRangeTableName = NumberRange::tableName();
+                $regionTableName = Region::tableName();
+
+                $sql = <<<SQL
+            UPDATE {$regionTableName} SET cnt = 0
+SQL;
+                $db->createCommand($sql)->execute();
+
+                $sql = <<<SQL
+            UPDATE {$regionTableName}
+            SET cnt = region_stat.cnt
+            FROM 
+                (
+                    SELECT
+                        region_id,
+                        COALESCE(SUM(number_to - number_from + 1), 1) AS cnt 
+                    FROM
+                        {$numberRangeTableName} 
+                    WHERE
+                        region_id IS NOT NULL 
+                    GROUP BY
+                        region_id
+                ) region_stat
+            WHERE {$regionTableName}.id = region_stat.region_id
+SQL;
+                $db->createCommand($sql)->execute();
+            }
+        );
+
+        $log .= Module::transaction(
+            function () {
+                Region::deleteAll(['cnt' => 0]);
+            }
+        );
+
+        return $log;
     }
 }

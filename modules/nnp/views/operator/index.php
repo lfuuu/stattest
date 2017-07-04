@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\filter\OperatorFilter;
 use app\modules\nnp\models\Operator;
@@ -62,11 +63,9 @@ $columns = [
         'class' => IntegerRangeColumn::className(),
         'format' => 'html',
         'value' => function (Operator $operator) use ($baseView) {
-            return $baseView->render('//layouts/_link', [
-                    'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[operator_id]' => $operator->id]),
-                    'text' => $operator->cnt,
-                    'glyphicon' => 'glyphicon-list-alt',
-                ]
+            return Html::a(
+                $operator->cnt,
+                Url::to(['/nnp/number-range/', 'NumberRangeFilter[operator_id]' => $operator->id])
             );
         }
     ],

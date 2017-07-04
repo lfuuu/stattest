@@ -6,9 +6,11 @@
  * @var CityFilter $filterModel
  */
 
-use app\modules\nnp\column\CountryColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
+use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\filter\CityFilter;
 use app\modules\nnp\models\City;
 use kartik\grid\ActionColumn;
@@ -57,14 +59,13 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
-        'label' => 'Диапазон номеров',
+        'attribute' => 'cnt',
+        'class' => IntegerRangeColumn::className(),
         'format' => 'html',
         'value' => function (City $city) use ($baseView) {
-            return $baseView->render('//layouts/_link', [
-                    'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[city_id]' => $city->id]),
-                    'text' => Yii::t('common', 'Show'),
-                    'glyphicon' => 'glyphicon-list-alt',
-                ]
+            return Html::a(
+                $city->cnt,
+                Url::to(['/nnp/number-range/', 'NumberRangeFilter[city_id]' => $city->id])
             );
         }
     ],

@@ -12,12 +12,17 @@ class RegionFilter extends Region
 {
     public $name = '';
     public $country_code = '';
+    public $cnt_from = '';
+    public $cnt_to = '';
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         return [
             [['name'], 'string'],
-            [['country_code'], 'integer'],
+            [['country_code', 'cnt_from', 'cnt_to'], 'integer'],
         ];
     }
 
@@ -36,6 +41,9 @@ class RegionFilter extends Region
 
         $this->name && $query->andWhere(['LIKE', $regionTableName . '.name', $this->name]);
         $this->country_code && $query->andWhere([$regionTableName . '.country_code' => $this->country_code]);
+
+        $this->cnt_from !== '' && $query->andWhere(['>=', $regionTableName . '.cnt', $this->cnt_from]);
+        $this->cnt_to !== '' && $query->andWhere(['<=', $regionTableName . '.cnt', $this->cnt_to]);
 
         return $dataProvider;
     }

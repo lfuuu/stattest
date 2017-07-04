@@ -12,6 +12,7 @@ use yii\helpers\Url;
  * @property string $name
  * @property int $country_code
  * @property int $region_id
+ * @property int $cnt
  *
  * @property Country $country
  * @property Region $region
@@ -22,6 +23,8 @@ class City extends ActiveRecord
     use \app\classes\traits\GetListTrait {
         getList as getListTrait;
     }
+
+    const MIN_CNT = 1000;
 
     /**
      * Имена полей
@@ -34,7 +37,8 @@ class City extends ActiveRecord
             'id' => 'ID',
             'name' => 'Название',
             'country_code' => 'Страна',
-            'region_id' => 'Регион'
+            'region_id' => 'Регион',
+            'cnt' => 'Кол-во номеров',
         ];
     }
 
@@ -96,6 +100,7 @@ class City extends ActiveRecord
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function getUrl()
     {
@@ -105,6 +110,7 @@ class City extends ActiveRecord
     /**
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public static function getUrlById($id)
     {
@@ -118,13 +124,15 @@ class City extends ActiveRecord
      * @param bool $isWithNullAndNotNull
      * @param int|int[] $countryCodes
      * @param int|int[] $regionIds
+     * @param int $minCnt
      * @return \string[]
      */
     public static function getList(
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
         $countryCodes = null,
-        $regionIds = null
+        $regionIds = null,
+        $minCnt = self::MIN_CNT
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -135,7 +143,8 @@ class City extends ActiveRecord
             $where = [
                 'AND',
                 $countryCodes ? ['country_code' => $countryCodes] : [],
-                $regionIds ? ['region_id' => $regionIds] : []
+                $regionIds ? ['region_id' => $regionIds] : [],
+                $minCnt ? ['>=', 'cnt', $minCnt] : []
             ]
         );
     }

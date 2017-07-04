@@ -212,6 +212,10 @@ class ImportController extends BaseController
                         ['target' => '_blank']
                     );
                 Yii::$app->session->addFlash('success', 'Файл успешно импортирован.' . nl2br(PHP_EOL . $log));
+
+                // поставить в очередь для пересчета операторов, регионов и городов
+                Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+
             } else {
                 Yii::$app->session->addFlash('error', 'Ошибка импорта файла.' . nl2br(PHP_EOL . $log));
             }

@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp;
 
+use app\classes\Connection;
 use Yii;
 
 /**
@@ -32,6 +33,8 @@ use Yii;
  */
 class Module extends \yii\base\Module
 {
+    const EVENT_LINKER = 'nnp_linker';
+
     /**
      * @inheritdoc
      */
@@ -48,4 +51,25 @@ class Module extends \yii\base\Module
         }
     }
 
+    /**
+     * @param \Closure $callback
+     * @return string Пустая строка - ok, непустая - текст ошибки
+     * @throws \yii\db\Exception
+     */
+    public static function transaction($callback)
+    {
+        /** @var Connection $dbPgNnp */
+        $dbPgNnp = Yii::$app->dbPgNnp;
+        $transaction = $dbPgNnp->beginTransaction();
+        try {
+            $callback();
+            $transaction->commit();
+            return '';
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+            return sprintf('%s %s', $e->getMessage(), $e->getTraceAsString());
+        }
+
+    }
 }

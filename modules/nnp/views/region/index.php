@@ -6,8 +6,10 @@
  * @var RegionFilter $filterModel
  */
 
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\filter\RegionFilter;
 use app\modules\nnp\models\Region;
@@ -57,14 +59,13 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
-        'label' => 'Диапазон номеров',
+        'attribute' => 'cnt',
+        'class' => IntegerRangeColumn::className(),
         'format' => 'html',
         'value' => function (Region $region) use ($baseView) {
-            return $baseView->render('//layouts/_link', [
-                    'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[region_id]' => $region->id]),
-                    'text' => Yii::t('common', 'Show'),
-                    'glyphicon' => 'glyphicon-list-alt',
-                ]
+            return Html::a(
+                $region->cnt,
+                Url::to(['/nnp/number-range/', 'NumberRangeFilter[region_id]' => $region->id])
             );
         }
     ],

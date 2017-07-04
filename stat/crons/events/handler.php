@@ -11,6 +11,9 @@ use app\classes\HttpClientLogger;
 use app\classes\partners\RewardCalculate;
 use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
+use app\modules\nnp\classes\CityLinker;
+use app\modules\nnp\classes\OperatorLinker;
+use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
 use app\modules\uu\behaviors\AccountTariffBiller;
@@ -220,6 +223,16 @@ function doEvents()
                 case ImportServiceUploaded::EVENT:
                     // ННП. Импорт страны
                     $info = CountryFile::importById($param['fileId']);
+
+                    // поставить в очередь для пересчета операторов, регионов и городов
+                    Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+                    break;
+
+                case \app\modules\nnp\Module::EVENT_LINKER:
+                    // ННП. Линковка исходных к ID
+                    $info .= 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
+                    $info .= 'Города: ' . CityLinker::me()->run() . PHP_EOL;
+                    $info .= 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
                     break;
 
                 case AccountTariffBiller::EVENT_RECALC:

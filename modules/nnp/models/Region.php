@@ -1,16 +1,16 @@
 <?php
+
 namespace app\modules\nnp\models;
 
-use app\classes\Connection;
 use Yii;
 use yii\db\ActiveRecord;
-use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
  * @property int $id
  * @property string $name
  * @property int $country_code
+ * @property int $cnt
  *
  * @property Country $country
  */
@@ -20,6 +20,8 @@ class Region extends ActiveRecord
     use \app\classes\traits\GetListTrait {
         getList as getListTrait;
     }
+
+    const MIN_CNT = 1000;
 
     /**
      * Имена полей
@@ -32,6 +34,7 @@ class Region extends ActiveRecord
             'id' => 'ID',
             'name' => 'Название',
             'country_code' => 'Страна',
+            'cnt' => 'Кол-во номеров',
         ];
     }
 
@@ -85,6 +88,7 @@ class Region extends ActiveRecord
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function getUrl()
     {
@@ -94,6 +98,7 @@ class Region extends ActiveRecord
     /**
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public static function getUrlById($id)
     {
@@ -106,12 +111,14 @@ class Region extends ActiveRecord
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
      * @param int|int[] $countryCodes
+     * @param int $minCnt
      * @return string[]
      */
     public static function getList(
         $isWithEmpty = false,
         $isWithNullAndNotNull = false,
-        $countryCodes = null
+        $countryCodes = null,
+        $minCnt = self::MIN_CNT
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -119,7 +126,11 @@ class Region extends ActiveRecord
             $indexBy = 'id',
             $select = 'name',
             $orderBy = ['name' => SORT_ASC],
-            $where = ($countryCodes ? ['country_code' => $countryCodes] : [])
+            $where = [
+                'AND',
+                $countryCodes ? ['country_code' => $countryCodes] : [],
+                $minCnt ? ['>=', 'cnt', $minCnt] : []
+            ]
         );
     }
 }

@@ -25,17 +25,21 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
      * @param string $date
      * @param string $format
      * @param bool|true $showTimezoneName
-     * @return DateTime|string|void
+     * @return DateTime|string
      */
     public static function getDateTime($date, $format = self::DATETIME_FORMAT, $showTimezoneName = true)
     {
         if (!$date) {
-            return;
+            return null;
         }
+
         $datetime = (new DateTime($date))->setTimezone(new DateTimeZone(self::getUserTimeZone()));
         if ($format !== false) {
-            return $showTimezoneName ? $datetime->format($format) . ' (' . static::getTimezoneDescription() . ')' : $datetime->format($format);
+            return $showTimezoneName ?
+                $datetime->format($format) . ' (' . static::getTimezoneDescription() . ')' :
+                $datetime->format($format);
         }
+
         return $datetime;
     }
 

@@ -71,16 +71,18 @@ class Country extends ActiveRecord
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
+     * @param int $indexBy
      * @return string[]
      */
     public static function getList(
         $isWithEmpty = false,
-        $isWithNullAndNotNull = false
+        $isWithNullAndNotNull = false,
+        $indexBy = 'code'
     ) {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
-            $indexBy = 'code',
+            $indexBy,
             $select = 'name_rus',
             $orderBy = ['name_rus' => SORT_ASC],
             $where = []

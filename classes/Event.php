@@ -134,6 +134,7 @@ class Event
         SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'ННП. Добавление услуги',
         SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'ННП. Удаление услуги',
         ImportServiceUploaded::EVENT => 'ННП. Импорт страны',
+        \app\modules\nnp\Module::EVENT_LINKER => 'ННП. Линковка исходных к ID',
     ];
 
     /**

@@ -84,8 +84,8 @@ class NumberRange extends ActiveRecord
             'ndc_type_source' => 'Исходный тип NDC',
             'ndc_type_id' => 'Тип NDC',
             'date_stop' => 'Дата выключения',
-            'date_resolution' => 'Дата принятия решения о выделении диапазона',
-            'detail_resolution' => 'Комментарий о выделении диапазона',
+            'date_resolution' => 'Дата выделения диапазона',
+            'detail_resolution' => 'Комментарий',
             'status_number' => 'Статус номера',
 
             'insert_time' => 'Когда создал',
