@@ -8,7 +8,6 @@
 
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
-use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
@@ -54,6 +53,20 @@ $filterColumns = [
         'indexBy' => 'code',
     ],
     [
+        'attribute' => 'operator_source',
+        'class' => StringColumn::className(),
+    ],
+    [
+        'attribute' => 'region_source',
+        'class' => StringColumn::className(),
+    ],
+    [
+        'attribute' => 'region_id',
+        'class' => RegionColumn::className(),
+        'countryCodes' => $filterModel->country_code,
+        'isWithNullAndNotNull' => true,
+    ],
+    [
         'attribute' => 'ndc',
         'class' => IntegerColumn::className(),
     ],
@@ -63,12 +76,14 @@ $filterColumns = [
         'class' => StringColumn::className(),
     ],
     [
-        'label' => 'Кол-во номеров',
-        'attribute' => 'numbers_count',
-        'class' => IntegerRangeColumn::className(),
-        'value' => function (NumberRange $numberRange) {
-            return 1 + $numberRange->number_to - $numberRange->number_from;
-        }
+        'label' => 'Кол-во номеров от',
+        'attribute' => 'numbers_count_from',
+        'class' => IntegerColumn::className(),
+    ],
+    [
+        'label' => 'Кол-во номеров до',
+        'attribute' => 'numbers_count_to',
+        'class' => IntegerColumn::className(),
     ],
 ];
 
@@ -87,7 +102,7 @@ $columns = [
         'hAlign' => GridView::ALIGN_CENTER,
     ],
     [
-        'label' => 'Полный номер',
+        'label' => 'Номер',
         'attribute' => 'full_number_from',
         'class' => IntegerColumn::className(),
         'format' => 'html',
@@ -96,29 +111,13 @@ $columns = [
         }
     ],
     [
-        'attribute' => 'operator_source',
-        'class' => StringColumn::className(),
-    ],
-    [
         'attribute' => 'operator_id',
         'class' => OperatorColumn::className(),
         'countryCode' => $filterModel->country_code,
         'isWithNullAndNotNull' => true,
     ],
     [
-        'attribute' => 'region_source',
-        'class' => StringColumn::className(),
-        'value' => function (NumberRange $numberRange) {
-            return str_replace('|', ', ', $numberRange->region_source);
-        },
-    ],
-    [
-        'attribute' => 'region_id',
-        'class' => RegionColumn::className(),
-        'countryCodes' => $filterModel->country_code,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
+        'label' => 'Регион / город',
         'attribute' => 'city_id',
         'class' => CityColumn::className(),
         'isWithNullAndNotNull' => true,

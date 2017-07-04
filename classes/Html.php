@@ -1,4 +1,5 @@
 <?php
+
 namespace app\classes;
 
 class Html extends \yii\helpers\Html
@@ -43,4 +44,23 @@ class Html extends \yii\helpers\Html
         return parent::tag('legend', $text, $options);
     }
 
+    /**
+     * Вернуть текст с многоточием
+     *
+     * @param string $text
+     * @param string $width
+     * @return string
+     */
+    public static function ellipsis($text, $width = '110px')
+    {
+        return self::tag(
+            'span',
+            $text,
+            [
+                'class' => 'text-overflow-ellipsis',
+                'title' => strip_tags($text),
+                'style' => 'width: ' . $width,
+            ]
+        );
+    }
 }

@@ -91,12 +91,10 @@ $columns = [
     [
         'label' => 'Диапазон номеров',
         'format' => 'html',
-        'value' => function (Prefix $prefix) use ($baseView) {
-            return $baseView->render('//layouts/_link', [
-                    'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[prefix_id]' => $prefix->id]),
-                    'text' => Yii::t('common', 'Show'),
-                    'glyphicon' => 'glyphicon-list-alt',
-                ]
+        'value' => function (Prefix $prefix) {
+            return Html::a(
+                Yii::t('common', 'Show'),
+                Url::to(['/nnp/number-range/', 'NumberRangeFilter[prefix_id]' => $prefix->id])
             );
         }
     ],

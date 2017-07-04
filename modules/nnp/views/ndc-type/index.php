@@ -10,6 +10,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\modules\nnp\filter\NdcTypeFilter;
 use app\modules\nnp\models\NdcType;
 use kartik\grid\ActionColumn;
@@ -63,12 +64,10 @@ $columns = [
     [
         'label' => 'Диапазон номеров',
         'format' => 'html',
-        'value' => function (NdcType $ndcType) use ($baseView) {
-            return $baseView->render('//layouts/_link', [
-                    'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[ndc_type_id]' => $ndcType->id]),
-                    'text' => Yii::t('common', 'Show'),
-                    'glyphicon' => 'glyphicon-list-alt',
-                ]
+        'value' => function (NdcType $ndcType) {
+            return Html::a(
+                Yii::t('common', 'Show'),
+                Url::to(['/nnp/number-range/', 'NumberRangeFilter[ndc_type_id]' => $ndcType->id])
             );
         }
     ],

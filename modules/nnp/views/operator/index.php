@@ -62,7 +62,7 @@ $columns = [
         'attribute' => 'cnt',
         'class' => IntegerRangeColumn::className(),
         'format' => 'html',
-        'value' => function (Operator $operator) use ($baseView) {
+        'value' => function (Operator $operator) {
             return Html::a(
                 $operator->cnt,
                 Url::to(['/nnp/number-range/', 'NumberRangeFilter[operator_id]' => $operator->id])

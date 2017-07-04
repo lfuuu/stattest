@@ -160,6 +160,7 @@ a.nohover:hover {
     min-width: 80px;
 }
 
+.prefix-column,
 .account-version-column,
 .event-queue-status-column,
 .country-column,
@@ -310,6 +311,7 @@ a.nohover:hover {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    display: inline-block;
 }
 
 .account-tariff-voip .well {

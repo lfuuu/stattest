@@ -62,7 +62,7 @@ $columns = [
         'attribute' => 'cnt',
         'class' => IntegerRangeColumn::className(),
         'format' => 'html',
-        'value' => function (Region $region) use ($baseView) {
+        'value' => function (Region $region) {
             return Html::a(
                 $region->cnt,
                 Url::to(['/nnp/number-range/', 'NumberRangeFilter[region_id]' => $region->id])

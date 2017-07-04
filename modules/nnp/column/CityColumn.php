@@ -4,11 +4,12 @@ namespace app\modules\nnp\column;
 
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
+use app\classes\Html;
 use app\modules\nnp\models\City;
+use app\modules\nnp\models\NumberRange;
 use kartik\grid\GridView;
 use Yii;
 use yii\db\ActiveRecord;
-use yii\helpers\Html;
 
 class CityColumn extends DataColumn
 {
@@ -45,12 +46,33 @@ class CityColumn extends DataColumn
     {
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        if (is_null($value)) {
-            return Yii::t('common', '(not set)');
-        } elseif ($this->isAddLink) {
-            return Html::a($strValue, City::getUrlById($value));
-        } else {
-            return $strValue;
+
+        if ($strValue && is_numeric($strValue) && $strValue == $value) {
+            // посколько городов очень много, в селект попадают не все. Чтобы не выводить некрасивых id несколько лишних раз поднимем связанные модели
+            $strValue = $model->city->name;
         }
+
+        $htmlArray = [];
+
+        if ($model instanceof NumberRange) {
+            if ($model->region_source) {
+                $htmlArray[] = Html::ellipsis(str_replace('|', ', ', $model->region_source));
+            }
+
+            if ($model->region_id) {
+                $region = $model->region;
+                $htmlArray[] = Html::ellipsis(Html::a($region->name, $region->getUrl()));
+            }
+        }
+
+        if (is_null($value)) {
+            $htmlArray[] = Yii::t('common', '(not set)');
+        } elseif ($this->isAddLink) {
+            $htmlArray[] = Html::ellipsis(Html::a($strValue, City::getUrlById($value)));
+        } else {
+            $htmlArray[] = Html::ellipsis($strValue);
+        }
+
+        return implode('<br>', $htmlArray);
     }
 }

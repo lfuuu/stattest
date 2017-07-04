@@ -8,6 +8,7 @@
 
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\modules\nnp\filter\CountryFilter;
 use app\modules\nnp\models\Country;
 use yii\helpers\Url;
@@ -44,12 +45,10 @@ $columns = [
     [
         'label' => 'Диапазон номеров',
         'format' => 'html',
-        'value' => function (Country $country) use ($baseView) {
-            return $baseView->render('//layouts/_link', [
-                    'url' => Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $country->code]),
-                    'text' => Yii::t('common', 'Show'),
-                    'glyphicon' => 'glyphicon-list-alt',
-                ]
+        'value' => function (Country $country) {
+            return Html::a(
+                Yii::t('common', 'Show'),
+                Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $country->code])
             );
         }
     ]

@@ -14,8 +14,8 @@ use yii\db\ActiveRecord;
 
 class CountryMedia extends MediaManager
 {
-    const SIZE_SMALL_CSV = 1000000;// текст считается маленьким, если он менее 1Мб
-    const SIZE_SMALL_ZIP = 100000; // архив считается маленьким, если он менее 100Кб
+    const SIZE_SMALL_CSV = 5000000;// текст считается маленьким, если он менее 5Мб
+    const SIZE_SMALL_ZIP = 500000; // архив считается маленьким, если он менее 500Кб
 
     /** @var Country */
     private $_country;

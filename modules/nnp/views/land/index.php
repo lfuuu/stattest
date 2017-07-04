@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
 use app\modules\nnp\filter\LandFilter;
 use app\modules\nnp\models\Land;
 use kartik\grid\ActionColumn;
@@ -58,12 +59,10 @@ $columns = [
     [
         'label' => 'Направления',
         'format' => 'html',
-        'value' => function (Land $land) use ($baseView) {
-            return $baseView->render('//layouts/_link', [
-                    'url' => Url::to(['/nnp/destination/', 'DestinationFilter[land_id]' => $land->id]),
-                    'text' => Yii::t('common', 'Show'),
-                    'glyphicon' => 'glyphicon-list-alt',
-                ]
+        'value' => function (Land $land) {
+            return Html::a(
+                Yii::t('common', 'Show'),
+                Url::to(['/nnp/destination/', 'DestinationFilter[land_id]' => $land->id])
             );
         }
     ],
