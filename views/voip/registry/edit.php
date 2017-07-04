@@ -129,8 +129,11 @@ $readonlyOptions = [
                 'options' => [
                         'class' => 'form-control',
                     ] + ($isEditable ? [] : $readonlyOptions),
-            ]
+            ],
         ];
+
+        $model->number_from = ' ' . trim($model->number_from);
+        $model->number_to = ' ' . trim($model->number_to);
 
         $line2attributes = [
             'ndc_type_id' => [

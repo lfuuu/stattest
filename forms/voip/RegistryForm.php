@@ -172,8 +172,8 @@ class RegistryForm extends Form
      */
     private function _prepareNumbesFromPost()
     {
-        $this->number_from = substr($this->number_from, $this->city_number_format_length);
-        $this->number_to = substr($this->number_to, $this->city_number_format_length);
+        $this->number_from = str_replace('_', '', substr($this->number_from, $this->city_number_format_length));
+        $this->number_to = str_replace('_', '', substr($this->number_to, $this->city_number_format_length));
     }
 
     /**
@@ -202,10 +202,10 @@ class RegistryForm extends Form
             return;
         }
 
-        $this->city_number_format = str_replace(["9", "0"], ["\\9", "\\0"],
-                $country->prefix . " " . $this->ndc) . " 999999[9][9][9]";
+        $this->city_number_format = str_replace(['9', '0'], ['\\9', '\\0'],
+                $country->prefix . ' ' . $this->ndc) . ' 999999[9][9][9]';
 
-        $this->city_number_format_length = strlen($country->prefix . " " . $this->ndc) + 1;
+        $this->city_number_format_length = strlen($country->prefix . ' ' . $this->ndc) + 1;
     }
 
     /**
