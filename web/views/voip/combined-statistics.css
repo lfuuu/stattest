@@ -1,0 +1,83 @@
+.no_display {
+    display: none;
+}
+
+.clickable:hover {
+    border-bottom: 1px dashed black;
+    cursor: pointer;
+}
+
+.white {
+    background: white !important;
+}
+
+.pre {
+    white-space: pre;
+}
+
+.incoming:before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    content: "";
+    display: inline-block;
+    height: 16px;
+    max-height: 256px;
+    max-width: 256px;
+    width: 24px;
+    background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjMycHgiIGhlaWdodD0iMzJweCIgdmlld0JveD0iMCAwIDI2OC44MzIgMjY4LjgzMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMjY4LjgzMiAyNjguODMyOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPHBhdGggZD0iTTI2NS4xNzEsMTI1LjU3N2wtODAtODBjLTQuODgxLTQuODgxLTEyLjc5Ny00Ljg4MS0xNy42NzgsMGMtNC44ODIsNC44ODItNC44ODIsMTIuNzk2LDAsMTcuNjc4bDU4LjY2MSw1OC42NjFIMTIuNSAgIGMtNi45MDMsMC0xMi41LDUuNTk3LTEyLjUsMTIuNWMwLDYuOTAyLDUuNTk3LDEyLjUsMTIuNSwxMi41aDIxMy42NTRsLTU4LjY1OSw1OC42NjFjLTQuODgyLDQuODgyLTQuODgyLDEyLjc5NiwwLDE3LjY3OCAgIGMyLjQ0LDIuNDM5LDUuNjQsMy42NjEsOC44MzksMy42NjFzNi4zOTgtMS4yMjIsOC44MzktMy42NjFsNzkuOTk4LTgwQzI3MC4wNTMsMTM4LjM3MywyNzAuMDUzLDEzMC40NTksMjY1LjE3MSwxMjUuNTc3eiIgZmlsbD0iIzYwYTEzMiIvPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=);
+}
+
+.outgoing:before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    content: "";
+    display: inline-block;
+    height: 16px;
+    max-height: 256px;
+    max-width: 256px;
+    width: 24px;
+    background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjMycHgiIGhlaWdodD0iMzJweCIgdmlld0JveD0iMCAwIDI2OC44MzMgMjY4LjgzMyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMjY4LjgzMyAyNjguODMzOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxnPgoJPHBhdGggZD0iTTI1Ni4zMzMsMTIxLjkxNkg0Mi42NzlsNTguNjU5LTU4LjY2MWM0Ljg4Mi00Ljg4Miw0Ljg4Mi0xMi43OTYsMC0xNy42NzhjLTQuODgzLTQuODgxLTEyLjc5Ny00Ljg4MS0xNy42NzgsMGwtNzkuOTk4LDgwICAgYy00Ljg4Myw0Ljg4Mi00Ljg4MywxMi43OTYsMCwxNy42NzhsODAsODBjMi40MzksMi40MzksNS42NCwzLjY2MSw4LjgzOSwzLjY2MXM2LjM5Ny0xLjIyMiw4LjgzOS0zLjY2MSAgIGM0Ljg4Mi00Ljg4Miw0Ljg4Mi0xMi43OTYsMC0xNy42NzhsLTU4LjY2MS01OC42NjFoMjEzLjY1NGM2LjkwMywwLDEyLjUtNS41OTgsMTIuNS0xMi41ICAgQzI2OC44MzMsMTI3LjUxMywyNjMuMjM2LDEyMS45MTYsMjU2LjMzMywxMjEuOTE2eiIgZmlsbD0iI0Q4MDAyNyIvPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=);
+}
+
+.five_class_table {
+    width: 100%;
+}
+
+.five_class_table td {
+    border-left: 1px solid #ccc;
+    padding: 10px;
+    min-width: 160px;
+}
+
+.five_class_table td:first-child {
+    border-left: none;
+}
+
+thead .five_class_table td {
+    border: 1px solid #ddd;
+    border-bottom: 0;
+}
+
+thead .five_class_table tr:first-child td {
+    border-bottom: 1px solid #ddd;
+    border-top: 0;
+}
+
+.table td span.vpbx, .table td span.phone {
+    background-size: contain;
+    height: 16px;
+    width: 32px;
+    display: inline-block;
+}
+
+.table td span.vpbx {
+    background-image: url(vpbx.png);
+}
+
+.table td span.phone {
+    background-image: url(phone.png);
+}
+
+.five_class_table tr.block {
+    border-top: 1px solid #ddd;
+}

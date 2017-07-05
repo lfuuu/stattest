@@ -115,9 +115,9 @@ class CTEQuery extends Query
         }
 
         $main->limit(-1)->offset(-1)->orderBy([]);
-        $main_command = $main->createCommand($db);
-        $sql = $main->createCommand($db)->getSql();
-        $first_row = $db->createCommand("EXPLAIN $sql", $main_command->params)->queryScalar();
+        $mainCommand = $main->createCommand($db);
+        $sql = $mainCommand->getSql();
+        $first_row = $db->createCommand("EXPLAIN $sql", $mainCommand->params)->queryScalar();
         preg_match('/rows=(\d+)/', $first_row, $matches);
         return $matches[1];
     }
