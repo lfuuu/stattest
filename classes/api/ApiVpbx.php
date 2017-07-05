@@ -114,6 +114,7 @@ class ApiVpbx extends Singleton
             'create',
             [
                 'client_id' => (int)$clientId,
+                'account_version' => ClientAccount::findOne(['id' => $clientId])->account_version,
                 'stat_product_id' => (int)$usageId,
                 'numbers' => [],
                 'phones' => $tariff['num_ports'],
@@ -269,6 +270,7 @@ class ApiVpbx extends Singleton
             'update',
             [
                 'client_id' => (int)$clientId,
+                'account_version' => ClientAccount::findOne(['id' => $clientId])->account_version,
                 'stat_product_id' => (int)$usageId,
                 'phones' => $tariff['num_ports'],
                 'faxes' => $tariff['is_fax'] ? 5 : 0,
