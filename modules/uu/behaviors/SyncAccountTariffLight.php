@@ -52,11 +52,6 @@ class SyncAccountTariffLight extends Behavior
             return;
         }
 
-        if ($accountTariff->id < AccountTariff::DELTA) {
-            // только для новых
-            return;
-        }
-
         $clientTimezone = $accountTariff->clientAccount->getTimezone();
         $utcTimezone = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
 

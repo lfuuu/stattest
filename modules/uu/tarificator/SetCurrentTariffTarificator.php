@@ -47,8 +47,6 @@ class SetCurrentTariffTarificator extends Tarificator
                 ) AS new_tariff_period_id
             FROM
                 {$accountTariffTableName} account_tariff
-            WHERE
-                account_tariff.id >= :delta
 SQL;
         if ($accountTariffId) {
             // только конкретную услугу, даже если не надо менять тариф
@@ -61,7 +59,6 @@ SQL;
         $query = $db->createCommand(
             $sql,
             [
-                ':delta' => AccountTariff::DELTA, // только новые, а не сконвертированные
                 ':now' => DateTimeZoneHelper::getUtcDateTime()
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT)
             ]
@@ -161,8 +158,6 @@ SQL;
      */
     protected function checkBalance(AccountTariff $accountTariff)
     {
-        $clientAccount = $accountTariff->clientAccount;
-
         ob_start();
         (new AccountLogSetupTarificator)->tarificateAccountTariff($accountTariff);
         (new AccountLogPeriodTarificator)->tarificateAccountTariff($accountTariff);
@@ -170,8 +165,12 @@ SQL;
         (new AccountLogMinTarificator)->tarificate($accountTariff->id);
         (new AccountEntryTarificator)->tarificate($accountTariff->id);
         (new BillTarificator)->tarificate($accountTariff->id);
-        (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
+        (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
         ob_end_clean();
+
+        // баланс изменился, надо перезагрузить clientAccount
+        $accountTariff->refresh();
+        $clientAccount = $accountTariff->clientAccount;
 
         $credit = $clientAccount->credit; // кредитный лимит
         $realtimeBalance = $clientAccount->balance; // $clientAccount->billingCounters->getRealtimeBalance()
