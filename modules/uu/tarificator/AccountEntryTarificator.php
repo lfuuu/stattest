@@ -139,6 +139,7 @@ SQL;
                 AND account_entry.date = DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, "%Y-%m-01")
                 AND account_entry.type_id = {$typeId}
                 AND account_entry.account_tariff_id = account_log.account_tariff_id
+                AND account_entry.tariff_period_id = account_log.tariff_period_id
                 AND account_log.account_tariff_id = account_tariff.id
                 AND account_tariff.client_account_id = client_account.id
                 {$sqlAndWhere}
