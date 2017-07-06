@@ -23,7 +23,7 @@ class TicketForm extends Form
         return [
             [['id'], TicketIdValidator::className()],
             [['client_account_id'], AccountIdValidator::className()],
-            [['user_id'], 'string', 'length' => 24],
+            [['user_id'], 'integer'],
             [['department'], EnumValidator::className(), 'enum' => DepartmentEnum::className()],
             [['subject'], 'string', 'max' => 1000],
             [['description'], 'string'],

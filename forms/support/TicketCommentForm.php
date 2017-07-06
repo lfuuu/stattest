@@ -19,7 +19,7 @@ class TicketCommentForm extends Form
         return [
             [['id'], 'integer'],
             [['ticket_id'], TicketIdValidator::className(), 'ticket' => 'ticket'],
-            [['user_id'], 'string', 'length' => 24],
+            [['user_id'], 'integer'],
             [['text'], 'string'],
         ];
     }
