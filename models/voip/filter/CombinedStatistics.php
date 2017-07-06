@@ -125,7 +125,7 @@ class CombinedStatistics extends Model
 
         $this->account_id
         && $cte->andWhere(['OR', ['src_account_id' => $this->account_id], ['dst_account_id' => $this->account_id]])
-        && $sub_query1->andWhere(['OR', ['ll.start_account_id' => $this->account_id, 'll.end_account_id' => $this->account_id]]);
+        && $sub_query1->andWhere(['OR', ['ll.start_account_id' => $this->account_id], ['ll.end_account_id' => $this->account_id]]);
 
         $this->dateStart
         && $cte->andWhere(['>=', 'connect_time', $this->dateStart])
@@ -134,8 +134,6 @@ class CombinedStatistics extends Model
         $this->dateEnd
         && $cte->andWhere(['<', 'connect_time', $this->dateEnd])
         && $sub_query1->andWhere(['<', 'll.connect_time', $this->dateEnd]);
-
-        $count = $sub_query1->liteRowCount(Yii::$app->dbPgSlaveCache);
 
         $sub_query2 = new CTEQuery();
 
@@ -200,6 +198,8 @@ class CombinedStatistics extends Model
          ->leftJoin('nspd n2', 'n2.src_signalling_call_id = ll.dst_signalling_call_id::uuid')
          ->orderBy(['ll.connect_time' => SORT_DESC])
          ->addWith(['nspd' => $cte]);
+
+        $count = $sub_query2->liteRowCount(Yii::$app->dbPgSlaveCache);
 
         return new ActiveDataProvider(
             [
