@@ -27,12 +27,18 @@ use yii\helpers\Url;
     </thead>
     <tbody>
         <?php foreach ($details as $record) :
-            /**  @var RewardsInterface $usageClass */
-            $usageClass = RewardCalculate::$services[$record['usage_type']];
-            $usage = $usageClass::getUsage($record['usage_id'], $record['account_version']);
-            if (!$usage) {
+            /**  @var RewardsInterface $rewardsHandler */
+            $rewardsHandler = new RewardCalculate::$services[$record['usage_type']]([
+                'clientAccountVersion' => $record['account_version'],
+            ]);
+
+            if ($rewardsHandler->isExcludeService($record['usage_id'])) {
+                // Услуга исключена из вознаграждений
                 continue;
             }
+
+            // @todo Нужно сделать декоратор для получения данных об услуге
+            $service = $rewardsHandler->getService($record['usage_id']);
             ?>
             <tr>
                 <td>
@@ -46,13 +52,13 @@ use yii\helpers\Url;
                     </a>
                 </td>
                 <td>
-                    <a href="<?= $usage->helper->editLink ?>" target="_blank"><?= $usage->helper->description[0] ?></a>
+                    <a href="<?= $service->helper->editLink ?>" target="_blank"><?= $service->helper->description[0] ?></a>
                 </td>
                 <td>
-                    <a href="<?= $usage->tariff->helper->editLink ?>" target="_blank"><?= $usage->tariff->helper->title ?></a>
+                    <a href="<?= $service->tariff->helper->editLink ?>" target="_blank"><?= $service->tariff->helper->title ?></a>
                 </td>
                 <td class="text-center">
-                    <?= $usage->activation_dt ?>
+                    <?= $service->activation_dt ?>
                 </td>
                 <td class="text-center">
                     <?= $record['usage_paid'] ?>

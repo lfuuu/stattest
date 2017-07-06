@@ -32,6 +32,7 @@ abstract class RewardCalculate
      */
     public static function run($clientAccountId, $billId, $createdAt)
     {
+        /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
         Assert::isObject($clientAccount);
         Assert::isNotEmpty($clientAccount->contract->contragent->partner_contract_id);
@@ -86,7 +87,15 @@ abstract class RewardCalculate
             }
 
             // Определение обработчика начисления вознаграждения
-            $rewardsClass = self::$services[$line->service];
+            /** @var RewardsInterface $rewardsHandler */
+            $rewardsHandler = new self::$services[$line->service]([
+                'clientAccountVersion' => $clientAccount->account_version,
+            ]);
+
+            if ($rewardsHandler->isExcludeService($line->id_service)) {
+                // Услуга исключена из вознаграждений
+                continue;
+            }
 
             $reward = PartnerRewards::findOne(['bill_id' => $bill, 'line_pk' => $line->pk]);
             if (is_null($reward)) {
@@ -97,7 +106,7 @@ abstract class RewardCalculate
 
             $reward->created_at = $createdAt;
 
-            foreach ($rewardsClass::$availableRewards as $rewardClass) {
+            foreach ($rewardsHandler->getAvailableRewards() as $rewardClass) {
                 /** @var Reward $rewardClass */
                 $rewardClass::calculate($reward, $line, $rewardsSettingsByType);
             }

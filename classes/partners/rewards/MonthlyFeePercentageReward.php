@@ -23,12 +23,19 @@ abstract class MonthlyFeePercentageReward implements Reward
      * @param PartnerRewards $reward
      * @param BillLine $line
      * @param array $settings
+     * @return bool
      */
     public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
     {
-        if ($line->type !== Transaction::TYPE_RESOURCE && isset($settings[self::getField()])) {
+        if (!array_key_exists(self::getField(), $settings)) {
+            return false;
+        }
+
+        if ($line->type !== Transaction::TYPE_RESOURCE) {
             $reward->percentage_of_fee = $settings[self::getField()] * $line->sum / 100;
         }
+
+        return true;
     }
 
 }

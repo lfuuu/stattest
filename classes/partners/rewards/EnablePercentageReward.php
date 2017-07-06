@@ -24,29 +24,45 @@ abstract class EnablePercentageReward
      * @param PartnerRewards $reward
      * @param BillLine $line
      * @param array $settings
+     * @return bool
      */
     public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
     {
-        if (
-            $line->bill->biller_version === ClientAccount::VERSION_BILLER_UNIVERSAL &&
-            !PartnerRewards::find()
-                ->where([
-                    'bill_id' => $line->bill->id,
-                    'line_pk' => $line->pk,
-                ])
-                ->count() &&
-            isset($settings[self::getField()])
-        ) {
-            $setupSummary =
-                AccountLogSetup::find()
-                    ->select('SUM(price)')
-                    ->where(['account_entry_id' => $line->uu_account_entry_id])
-                    ->scalar();
+        if (!array_key_exists(self::getField(), $settings)) {
+            return false;
+        }
 
-            if ($setupSummary) {
-                $reward->percentage_once = $settings[self::getField()] * $setupSummary / 100;
+        switch ($line->bill->biller_version) {
+            case ClientAccount::VERSION_BILLER_USAGE: {
+                // @todo regular service (maybe never need)
+                break;
+            }
+
+            case ClientAccount::VERSION_BILLER_UNIVERSAL: {
+                $calculatedRewards = PartnerRewards::find()
+                    ->where([
+                        'bill_id' => $line->bill->id,
+                        'line_pk' => $line->pk,
+                    ])
+                    ->count();
+
+                if (!$calculatedRewards) {
+                    // Если вознаграждение еще не рассчитано
+                    $setupSummary =
+                        AccountLogSetup::find()
+                            ->select('SUM(price)')
+                            ->where(['account_entry_id' => $line->uu_account_entry_id])
+                            ->scalar();
+
+                    if ($setupSummary) {
+                        $reward->percentage_once = $settings[self::getField()] * $setupSummary / 100;
+                    }
+                }
+                break;
             }
         }
+
+        return true;
     }
 
 }

@@ -2,32 +2,64 @@
 
 namespace app\classes\partners;
 
+use app\classes\Assert;
 use app\classes\partners\rewards\MarginPercentageReward;
 use app\classes\partners\rewards\ResourcePercentageReward;
 use app\models\ClientAccount;
-use app\models\usages\UsageInterface;
 use app\models\UsageTrunk;
+use yii\base\Model;
 
-abstract class TrunkRewards implements RewardsInterface
+class TrunkRewards extends Model implements RewardsInterface
 {
 
-    public static
-        $availableRewards = [
+    /**
+     * @var int
+     */
+    public $clientAccountVersion = ClientAccount::VERSION_BILLER_USAGE;
+
+    /**
+     * @return array
+     */
+    public function getAvailableRewards()
+    {
+        return [
             ResourcePercentageReward::class,
             MarginPercentageReward::class,
         ];
+    }
 
     /**
-     * @param int $usageId
-     * @param int $accountVersion
-     * @return null|UsageInterface
+     * @param int $serviceId
+     * @return mixed
      */
-    public static function getUsage($usageId, $accountVersion = ClientAccount::VERSION_BILLER_USAGE)
+    public function getService($serviceId)
     {
-        if ((int)$accountVersion === ClientAccount::VERSION_BILLER_USAGE) {
-            return UsageTrunk::findOne(['id' => $usageId]);
+        $service = null;
+
+        switch ($this->clientAccountVersion) {
+            case ClientAccount::VERSION_BILLER_USAGE: {
+                $service = UsageTrunk::findOne(['id' => $serviceId]);
+                break;
+            }
+
+            case ClientAccount::VERSION_BILLER_UNIVERSAL: {
+                // @todo universal service
+                return null;
+            }
         }
-        return null;
+
+        Assert::isObject($service);
+
+        return $service;
+    }
+
+    /**
+     * @param int $serviceId
+     * @return bool
+     */
+    public function isExcludeService($serviceId)
+    {
+        return false;
     }
 
 }

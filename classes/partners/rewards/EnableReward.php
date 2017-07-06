@@ -22,21 +22,27 @@ abstract class EnableReward
      * @param PartnerRewards $reward
      * @param BillLine $line
      * @param array $settings
+     * @return bool
      */
     public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
     {
-        if (isset($settings[self::getField()])) {
-            if (
-                !PartnerRewards::find()
-                ->where([
-                    'bill_id' => $line->bill->id,
-                    'line_pk' => $line->pk,
-                ])
-                ->count()
-            ) {
-                $reward->once = $settings[self::getField()];
-            }
+        if (!array_key_exists(self::getField(), $settings)) {
+            return false;
         }
+
+        $calculatedRewards = PartnerRewards::find()
+            ->where([
+                'bill_id' => $line->bill->id,
+                'line_pk' => $line->pk,
+            ])
+            ->count();
+
+        if (!$calculatedRewards) {
+            // Если вознаграждение еще не рассчитано
+            $reward->once = $settings[self::getField()];
+        }
+
+        return true;
     }
 
 }

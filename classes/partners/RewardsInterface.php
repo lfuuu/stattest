@@ -2,16 +2,24 @@
 
 namespace app\classes\partners;
 
-use app\models\ClientAccount;
-
 interface RewardsInterface
 {
 
     /**
-     * @param int $usageId
-     * @param int $accountVersion
+     * @return array
+     */
+    public function getAvailableRewards();
+
+    /**
+     * @param int $serviceId
      * @return mixed
      */
-    public static function getUsage($usageId, $accountVersion = ClientAccount::VERSION_BILLER_USAGE);
+    public function getService($serviceId);
+
+    /**
+     * @param int $serviceId
+     * @return bool
+     */
+    public function isExcludeService($serviceId);
 
 }

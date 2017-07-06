@@ -2,36 +2,68 @@
 
 namespace app\classes\partners;
 
+use app\classes\Assert;
 use app\classes\partners\rewards\EnableReward;
 use app\classes\partners\rewards\EnablePercentageReward;
 use app\classes\partners\rewards\MonthlyFeePercentageReward;
 use app\classes\partners\rewards\ResourcePercentageReward;
 use app\models\ClientAccount;
-use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
+use yii\base\Model;
 
-abstract class VirtpbxRewards implements RewardsInterface
+class VirtpbxRewards extends Model implements RewardsInterface
 {
 
-    public static
-        $availableRewards = [
+    /**
+     * @var int
+     */
+    public $clientAccountVersion = ClientAccount::VERSION_BILLER_USAGE;
+
+    /**
+     * @return array
+     */
+    public function getAvailableRewards()
+    {
+        return [
             EnableReward::class,
             EnablePercentageReward::class,
             MonthlyFeePercentageReward::class,
             ResourcePercentageReward::class,
         ];
+    }
 
     /**
-     * @param int $usageId
-     * @param int $accountVersion
-     * @return null|UsageInterface
+     * @param int $serviceId
+     * @return mixed
      */
-    public static function getUsage($usageId, $accountVersion = ClientAccount::VERSION_BILLER_USAGE)
+    public function getService($serviceId)
     {
-        if ((int)$accountVersion === ClientAccount::VERSION_BILLER_USAGE) {
-            return UsageVirtpbx::findOne(['id' => $usageId]);
+        $service = null;
+
+        switch ($this->clientAccountVersion) {
+            case ClientAccount::VERSION_BILLER_USAGE: {
+                $service = UsageVirtpbx::findOne(['id' => $serviceId]);
+                break;
+            }
+
+            case ClientAccount::VERSION_BILLER_UNIVERSAL: {
+                // @todo universal service
+                return null;
+            }
         }
-        return null;
+
+        Assert::isObject($service);
+
+        return $service;
+    }
+
+    /**
+     * @param int $serviceId
+     * @return bool
+     */
+    public function isExcludeService($serviceId)
+    {
+        return false;
     }
 
 }

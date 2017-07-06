@@ -32,23 +32,38 @@ abstract class MarginPercentageReward
      * @param PartnerRewards $reward
      * @param BillLine $line
      * @param array $settings
+     * @return bool
+     * @throws \yii\base\Exception
      */
     public static function calculate(PartnerRewards $reward, BillLine $line, array $settings)
     {
-        if (isset($settings[self::getField()])) {
-            if ($line->bill->biller_version === ClientAccount::VERSION_BILLER_USAGE) {
+        if (!array_key_exists(self::getField(), $settings)) {
+            return false;
+        }
+
+        switch ($line->bill->biller_version) {
+
+            case ClientAccount::VERSION_BILLER_USAGE: {
                 switch ($line->service) {
                     case Transaction::SERVICE_VOIP:
-                        self::usageVoip($reward, $line, $settings[self::getField()]);
+                        self::processVoipService($reward, $line, $settings[self::getField()]);
                         break;
 
                     case Transaction::SERVICE_TRUNK:
-                        self::usageTrunk($reward, $line, $settings[self::getField()]);
+                        self::processVoipTrunkService($reward, $line, $settings[self::getField()]);
                         break;
                 }
+                break;
             }
+
+            case ClientAccount::VERSION_BILLER_UNIVERSAL: {
+                // @todo universal service
+                break;
+            }
+
         }
 
+        return true;
     }
 
     /**
@@ -57,35 +72,35 @@ abstract class MarginPercentageReward
      * @param int $percentage
      * @throws \yii\base\Exception
      */
-    private static function usageVoip(PartnerRewards $reward, BillLine $line, $percentage = 0)
+    private static function processVoipService(PartnerRewards $reward, BillLine $line, $percentage = 0)
     {
-        $usage = UsageVoip::findOne(['id' => $line->id_service]);
-        Assert::isObject($usage);
+        /** @var UsageVoip $service */
+        $service = UsageVoip::findOne(['id' => $line->id_service]);
+        Assert::isObject($service);
 
-        $query  = new Query;
+        $query  = (new Query)
+            ->select([
+                'service_number.did',
+                'service_number.client_account_id',
+                'calls_raw.number_service_id',
+                'orig' => new Expression('SUM(CASE WHEN calls_raw.orig = true THEN -calls_raw.cost ELSE 0 END)'),
+                'term' => new Expression('SUM(CASE WHEN calls_raw.orig = false THEN -calls_raw.cost ELSE 0 END)'),
+            ])
 
-        $query->select([
-            'service_number.did',
-            'service_number.client_account_id',
-            'calls_raw.number_service_id',
-            'orig' => new Expression('SUM(CASE WHEN calls_raw.orig = true THEN -calls_raw.cost ELSE 0 END)'),
-            'term' => new Expression('SUM(CASE WHEN calls_raw.orig = false THEN -calls_raw.cost ELSE 0 END)'),
-        ]);
+            ->from(ServiceNumber::tableName())
+            ->leftJoin(Calls::tableName(), 'calls_raw.number_service_id = service_number.id')
 
-        $query->from(ServiceNumber::tableName());
-        $query->leftJoin(Calls::tableName(), 'calls_raw.number_service_id = service_number.id');
+            ->where(new Expression('NOW() BETWEEN service_number.activation_dt AND service_number.expire_dt'))
+            ->andWhere(['>=', 'calls_raw.connect_time', $line->date_from])
+            ->andWhere(['<=', 'calls_raw.connect_time', $line->date_to])
+            ->andWhere(['service_number.did' => $service->E164])
+            ->andWhere(['service_number.client_account_id' => $line->bill->client_id])
 
-        $query->where(new Expression('NOW() BETWEEN service_number.activation_dt AND service_number.expire_dt'));
-        $query->andWhere(['>=', 'calls_raw.connect_time', $line->date_from]);
-        $query->andWhere(['<=', 'calls_raw.connect_time', $line->date_to]);
-        $query->andWhere(['service_number.did' => $usage->E164]);
-        $query->andWhere(['service_number.client_account_id' => $line->bill->client_id]);
-
-        $query->groupBy([
-            'calls_raw.number_service_id',
-            'service_number.did',
-            'service_number.client_account_id',
-        ]);
+            ->groupBy([
+                'calls_raw.number_service_id',
+                'service_number.did',
+                'service_number.client_account_id',
+            ]);
 
         $margin = 0;
 
@@ -105,33 +120,32 @@ abstract class MarginPercentageReward
      * @param int $percentage
      * @throws \yii\base\Exception
      */
-    private static function usageTrunk(PartnerRewards $reward, BillLine $line, $percentage = 0)
+    private static function processVoipTrunkService(PartnerRewards $reward, BillLine $line, $percentage = 0)
     {
-        $usage = UsageTrunk::findOne(['id' => $line->id_service]);
-        Assert::isObject($usage);
+        /** @var UsageTrunk $service */
+        $service = UsageTrunk::findOne(['id' => $line->id_service]);
+        Assert::isObject($service);
 
-        $query  = new Query;
+        $query = (new Query)
+            ->select([
+                'service_trunk.trunk_id',
+                'service_trunk.client_account_id',
+                'orig' => new Expression('SUM(CASE WHEN calls_raw.orig = true THEN -calls_raw.cost ELSE 0 END)'),
+                'term' => new Expression('SUM(CASE WHEN calls_raw.orig = false THEN -calls_raw.cost ELSE 0 END)'),
+            ])
+            ->from(ServiceTrunk::tableName())
+            ->leftJoin(Calls::tableName(), 'calls_raw.trunk_id = service_trunk.trunk_id')
 
-        $query->select([
-            'service_trunk.trunk_id',
-            'service_trunk.client_account_id',
-            'orig' => new Expression('SUM(CASE WHEN calls_raw.orig = true THEN -calls_raw.cost ELSE 0 END)'),
-            'term' => new Expression('SUM(CASE WHEN calls_raw.orig = false THEN -calls_raw.cost ELSE 0 END)'),
-        ]);
+            ->where(new Expression('NOW() BETWEEN service_trunk.activation_dt AND service_trunk.expire_dt'))
+            ->andWhere(['>=', 'calls_raw.connect_time', $line->date_from])
+            ->andWhere(['<=', 'calls_raw.connect_time', $line->date_to])
+            ->andWhere(['service_trunk.trunk_id' => $service->trunk_id])
+            ->andWhere(['service_trunk.client_account_id' => $line->bill->client_id])
 
-        $query->from(ServiceTrunk::tableName());
-        $query->leftJoin(Calls::tableName(), 'calls_raw.trunk_id = service_trunk.trunk_id');
-
-        $query->where(new Expression('NOW() BETWEEN service_trunk.activation_dt AND service_trunk.expire_dt'));
-        $query->andWhere(['>=', 'calls_raw.connect_time', $line->date_from]);
-        $query->andWhere(['<=', 'calls_raw.connect_time', $line->date_to]);
-        $query->andWhere(['service_trunk.trunk_id' => $usage->trunk_id]);
-        $query->andWhere(['service_trunk.client_account_id' => $line->bill->client_id]);
-
-        $query->groupBy([
-            'service_trunk.trunk_id',
-            'service_trunk.client_account_id',
-        ]);
+            ->groupBy([
+                'service_trunk.trunk_id',
+                'service_trunk.client_account_id',
+            ]);
 
         $margin = 0;
 
