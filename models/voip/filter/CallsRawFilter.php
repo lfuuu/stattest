@@ -94,6 +94,10 @@ class CallsRawFilter extends Model
         'dst_region_name' => 'Регион номера В',
         'src_city_name' => 'Город номера А',
         'dst_city_name' => 'Город номера В',
+        'src_ndc_type_id' => 'Тип номера А',
+        'dst_ndc_type_id' => 'Тип номера B',
+        'round(sale::numeric, 2) AS sale' => 'Продажа',
+        'round(cost_price::numeric, 2) AS cost_price' => 'Себестоимость'
     ];
 
     public $aggrConst = [
@@ -344,6 +348,18 @@ class CallsRawFilter extends Model
     }
 
     /**
+     * Вернуть поле группировки и его алиас
+     * 
+     * @param $groupKey
+     * @return array
+     */
+    public function getGroupKeyParts($groupKey)
+    {
+        $result = explode(' AS ', $groupKey);
+        return count($result) > 1 ? [$result[0], $result[1]] : [$result[0], $result[0]];
+    }
+
+    /**
      * Проверка на наличие обязательных фильтров
      *
      * @return bool
@@ -410,25 +426,30 @@ class CallsRawFilter extends Model
      * @param $param
      * @return CTEQuery
      */
-    private function setDestinationCondition(CTEQuery $query, $destination, $number_type, $param)
+    private function setDestinationCondition(CTEQuery $query, $destination, $number_type, $param, $isGroup, $alias)
     {
-        if ($destination || $number_type) {
-            $condition = [];
+        if ($destination || $number_type || $isGroup) {
+            $query5 = new Query();
+            $query5->select(
+                    [
+                        "{$alias}_number_range_id" => 'number_range_id',
+                        "{$alias}_ndc_type_id" => 'ndc_type_id',
+                        "{$alias}_destination_id" => 'destination_id'
+                    ]
+                    )
+                    ->from("nnp.number_range_destination")
+                    ->andWhere("number_range_id = $param")
+                    ->limit(1);
 
             $destination
-            && $query->andWhere(['nrd.destination_id' => $destination])
-            && $condition[] = ['nrd.destination_id' => $destination];
+            && $query->andWhere(["{$alias}_nrd.{$alias}_destination_id" => $destination])
+            && $query5->andWhere(["destination_id" => $destination]);
 
             $number_type
-            && $query->andWhere(['nrd.ndc_type_id' => $number_type])
-            && $condition[] = ['nrd.ndc_type_id' => $number_type];
-
-            $condition = count($condition) == 2 ? ['AND', $condition[0], $condition[1]] : $condition[0];
-            $query5 = new Query();
-            $query5->from('nnp.number_range_destination nrd')
-                ->andWhere(['AND', $param . ' = nrd.number_range_id', $condition])
-                ->limit(1);
-            $query->join('LEFT JOIN LATERAL', ['nrd' => $query5], $param . ' = nrd.number_range_id');
+            && $query->andWhere(["{$alias}_nrd.{$alias}_ndc_type_id" => $number_type])
+            && $query5->andWhere(["ndc_type_id" => $number_type]);
+            
+            $query->join('LEFT JOIN LATERAL', ["{$alias}_nrd" => $query5], "{$alias}_nrd.{$alias}_number_range_id = $param");
         }
 
         return $query;
@@ -467,14 +488,16 @@ class CallsRawFilter extends Model
             }
 
             $fields = array_merge($fields, $this->group, array_intersect_key($this->aggrConst, array_flip($this->aggr)));
-            $groups = array_merge($groups, $this->group);
+            $groups = array_merge($groups, array_map(function ($value) {
+                return $this->getGroupKeyParts($value)[0];
+            }, $this->group));
 
             $sort = [];
             foreach ($fields as $key => $value) {
                 if (!is_int($key)) {
                     $sort[] = $key;
                 } else {
-                    $sort[] = $value;
+                    $sort[] = $this->getGroupKeyParts($value)[1];
                 }
             }
 

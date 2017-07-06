@@ -45,7 +45,7 @@ trait CallsRawCacheReport
                 'dst_contract_name',
                 'cost_price',
                 'term_rate',
-                'margin'
+                'margin',
             ]
         )
             ->from('calls_raw_cache.calls_raw_cache');
@@ -81,8 +81,11 @@ trait CallsRawCacheReport
             ->reportCondition('dst_nnp_country_code', $this->dst_countries_ids)
             ->reportCondition('disconnect_cause', $this->disconnect_causes);
 
-        $query = $this->setDestinationCondition($query, $this->src_destinations_ids, $this->src_number_type_ids, 'src_nnp_number_range_id');
-        $query = $this->setDestinationCondition($query, $this->dst_destinations_ids, $this->dst_number_type_ids, 'dst_nnp_number_range_id');
+        $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group) ? true : false;
+        $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group) ? true : false;
+
+        $query = $this->setDestinationCondition($query, $this->src_destinations_ids, $this->src_number_type_ids, 'src_nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
+        $query = $this->setDestinationCondition($query, $this->dst_destinations_ids, $this->dst_number_type_ids, 'dst_nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
 
         $this->is_success_calls
         && $query->andWhere(['or', 'session_time > 0', ['disconnect_cause' => DisconnectCause::$successCodes]]);

@@ -10,6 +10,7 @@ use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\GridView;
 use app\models\voip\filter\CallsRawFilter;
 use yii\widgets\Breadcrumbs;
+use app\modules\nnp\column\NdcTypeColumn;
 
 if (!isset(Yii::$app->request->get()['_pjax'])) {
     echo app\classes\Html::formLabel($this->title = 'Отчет по данным calls_raw');
@@ -49,11 +50,25 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     }
 
     if ($filterModel->group) {
-        foreach ($filterModel->group as $value) {
-            $columns[] = [
-                'label' => $filterModel->groupConst[$value],
-                'attribute' => $value
+        foreach ($filterModel->group as $key => $value) {
+            $attr = $filterModel->getGroupKeyParts($value)[1];
+            $column = [
+                    'label' => $filterModel->groupConst[$value],
+                    'attribute' => $attr,
             ];
+
+            if ($attr == 'sale' || $attr == 'cost_price') {
+                $column['value'] = function ($model) use ($attr, $filterModel) {
+                    return $model[$attr] / $filterModel->currency_rate;
+                };
+                $column['format'] = ['decimal', 2];
+            }
+
+            if ($attr == 'src_ndc_type_id' || $attr == 'dst_ndc_type_id') {
+                $column['class'] = NdcTypeColumn::className();
+            }
+
+            $columns[] = $column;
         }
     }
 
