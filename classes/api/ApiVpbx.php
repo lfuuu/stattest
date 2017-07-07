@@ -119,6 +119,7 @@ class ApiVpbx extends Singleton
                 'numbers' => [],
                 'phones' => $tariff['num_ports'],
                 'faxes' => (int)$tariff['is_fax'] ? 5 : 0,
+                'ext_did' => (int)$tariff['ext_did'],
                 'record' => (bool)$tariff['is_record'],
                 'enable_web_call' => (bool)$tariff['is_web_call'],
                 'disk_space' => (int)$tariff['space'],
@@ -274,6 +275,7 @@ class ApiVpbx extends Singleton
                 'stat_product_id' => (int)$usageId,
                 'phones' => $tariff['num_ports'],
                 'faxes' => $tariff['is_fax'] ? 5 : 0,
+                'ext_did' => (int)$tariff['ext_did'],
                 'record' => (bool)$tariff['is_record'],
                 'disk_space' => (int)$tariff['space'],
                 'enable_web_call' => (bool)$tariff['is_web_call'],
@@ -388,6 +390,7 @@ class ApiVpbx extends Singleton
                     t.space,
                     t.is_record,
                     t.is_fax,
+                    t.ext_did_count as ext_did,
                     t.is_web_call,
                     region,
                     0 as enable_geo,
@@ -440,6 +443,7 @@ SQL;
             'space' => 0, // $accountTariff->getResourceValue(Resource::ID_VPBX_DISK) * 1024, // трафик устанавливается не заранее, а по факту
             'is_record' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_RECORD),
             'is_fax' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_FAX),
+            'ext_did' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_EXT_DID),
             'is_web_call' => 0, // "звонок-чат". Во-первых, он вообще не из ВАТС, а из отдельной услуги. Во-вторых, он всегда всем включен и не выключается.
             'region' => $accountTariff->region_id,
             'enable_geo' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_GEO_ROUTE),
