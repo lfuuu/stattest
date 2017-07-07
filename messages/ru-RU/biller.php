@@ -3,8 +3,6 @@
 return [
 
     // Base biller
-    'serial_number' => '(серийный номер {value}',
-    'pledge' => 'Залог за {value}',
     'date_once' => ', {0, date, dd}',
 
     'date_range_month' => ' с{0, date, dd} по {1, date, dd MMMM}',
@@ -39,7 +37,7 @@ return [
 
     'test' => '',
 
-    'paypal_payment_description' => 'Пополнение лицевого счета {account} на сумму {sum} {currency}',
+    'Replenishment of the account {account} for the amount of {sum} {currency}' => 'Пополнение лицевого счета {account} на сумму {sum} {currency}',
     'RUB' => 'руб.',
     'HUF' => 'Ft',
     'USD' => '$',

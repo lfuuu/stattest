@@ -72,13 +72,15 @@ class PayPal {
    public function getPaymentToken($accountId, $sum, $currency, $lang)
    {
        $descr = \Yii::t(
-               'biller', 'paypal_payment_description',
-               [
-                   'account' => $accountId, 
-                   'sum' => $sum,
-                   'currency' => \Yii::t('biller', $currency, [], $lang)
-               ], $lang);
-
+           'biller',
+           'Replenishment of the account {account} for the amount of {sum} {currency}',
+           [
+               'account' => $accountId,
+               'sum' => $sum,
+               'currency' => \Yii::t('biller', $currency, [], $lang)
+           ],
+           $lang
+       );
 
        $response = $this -> request('SetExpressCheckout', 
            $this -> _requestParams + 

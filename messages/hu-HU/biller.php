@@ -3,8 +3,6 @@
 return [
 
     // Base biller
-    'serial_number' => '(Sorszám: {value}',
-    'pledge' => '{value} előlege',
     'date_once' => ', {0, date, dd}',
 
     'date_range_month' => ' {0, date, yyyy.MM.dd}-{1, date,yyyy.MM.dd} periódusra',
@@ -37,8 +35,7 @@ return [
     //Call_chat
     'call_chat_service' => '{tariff}{date_range}',
 
-    'paypal_payment_description' => '{account} ügyfélszámú egyenleg feltöltés {sum} {currency} összeggel',
-    'RUB' => 'rub',
+    'Replenishment of the account {account} for the amount of {sum} {currency}' => '{account} ügyfélszámú egyenleg feltöltés {sum} {currency} összeggel',
     'HUF' => 'Ft',
     'USD' => '$',
 
