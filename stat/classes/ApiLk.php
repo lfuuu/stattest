@@ -58,7 +58,6 @@ class ApiLk
             throw new Exception("account_is_bad");
         }
 
-
         $account = self::getAccount($clientId);
         if (!$account) {
             throw new Exception("account_not_found");
@@ -90,12 +89,8 @@ class ApiLk
 
             $b = $r["bill"];
 
-            /**
-             * Временно отключаем
-             * $dt = BillDocument::dao()->getByBillNo($b["bill_no"]);
-             * $billModel = Bill::findOne(['bill_no' => $b["bill_no"]]);
-             * $bill['link'] = self::_getBillDocumentLinks($billModel, $dt);
-             */
+            $dt = BillDocument::dao()->getByBillNo($b["bill_no"]);
+            $billModel = Bill::findOne(['bill_no' => $b["bill_no"]]);
 
             $bill = [
                 'bill_no' => $b['bill_no'],
@@ -103,6 +98,7 @@ class ApiLk
                 'sum' => $b['sum'],
                 'type' => $b['nal'],
                 'pays' => [],
+                'link' => self::_getBillDocumentLinks($billModel, $dt)
             ];
 
             foreach ($r["pays"] as $p) {
