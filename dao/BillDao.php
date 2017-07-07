@@ -370,7 +370,7 @@ class BillDao extends Singleton
                 // ... но изменилась. Обновить
                 $line->sum = $accountEntry->price_with_vat;
                 $line->amount = $accountEntry->getAmount();
-                $line->price = $accountEntry->price;
+                $line->price = $accountEntry->price_with_vat;
                 if ($line->amount) {
                     $line->price /= $line->amount; // цена за "1 шт."
                     $line->price = round($line->price, 2);

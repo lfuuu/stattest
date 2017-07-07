@@ -48,6 +48,8 @@ class AccountEntry extends ActiveRecord
     const TYPE_ID_PERIOD = -2;
     const TYPE_ID_MIN = -3;
 
+    const AMOUNT_PRECISION = 8;
+
     const NAME_RESOURCES = 'Resource';
 
     public static $names = [
@@ -240,22 +242,28 @@ class AccountEntry extends ActiveRecord
                 return 1;
 
             case self::TYPE_ID_PERIOD:
-                $accountLogPeriods = $this->accountLogPeriods;
+                /** @var AccountLogPeriod[] $accountLogPeriods */
+                $accountLogPeriods = $this->getAccountLogPeriods()->andWhere(['>', 'price', 0])->all();
                 $cnt = count($accountLogPeriods);
                 if (!$cnt) {
                     // слишком старое. Транзакции уже почистили
                     return 1;
                 }
-                return $cnt * reset($accountLogPeriods)->coefficient;
+
+                $amount = $cnt * reset($accountLogPeriods)->coefficient;
+                return round($amount, self::AMOUNT_PRECISION);
 
             case self::TYPE_ID_MIN:
-                $accountLogMins = $this->accountLogMins;
+                /** @var AccountLogMin[] $accountLogMins */
+                $accountLogMins = $this->getAccountLogMins()->andWhere(['>', 'price', 0])->all();
                 $cnt = count($accountLogMins);
                 if (!$accountLogMins) {
                     // слишком старое. Транзакции уже почистили
                     return 1;
                 }
-                return $cnt * reset($accountLogMins)->coefficient;
+
+                $amount = $cnt * reset($accountLogMins)->coefficient;
+                return round($amount, self::AMOUNT_PRECISION);
 
             default:
                 // ресурсы
@@ -268,27 +276,20 @@ class AccountEntry extends ActiveRecord
                         return 1;
                     }
 
-                    $accountLogResources = array_filter(
-                        $this->accountLogResources,
-                        function (AccountLogResource $accountLogResource) {
-                            return $accountLogResource->amount_overhead;
-                        }
-                    );
-
+                    /** @var AccountLogResource[] $accountLogResources */
+                    $accountLogResources = $this->getAccountLogResources()->andWhere(['>', 'amount_overhead', 0])->all();
                     if (!count($accountLogResources)) {
                         return 0;
                     }
 
-                    return
-                        (
-                            array_reduce(
-                                $accountLogResources,
-                                function ($summary, AccountLogResource $accountLogResource) {
-                                    $summary = (float)$summary;
-                                    return ($summary + $accountLogResource->amount_overhead);
-                                }
-                            ) / count($accountLogResources)
-                        );
+                    $amount = array_reduce(
+                            $accountLogResources,
+                            function ($summary, AccountLogResource $accountLogResource) {
+                                $summary = (float)$summary;
+                                return ($summary + $accountLogResource->amount_overhead);
+                            }
+                        ) / count($accountLogResources);
+                    return round($amount, self::AMOUNT_PRECISION);
                 }
 
                 Yii::error('Wrong AccountEntry.Type ' . $this->type_id . ' for ID ' . $this->id);
