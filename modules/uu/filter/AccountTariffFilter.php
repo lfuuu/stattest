@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\filter;
 
+use app\models\Number;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
@@ -19,6 +20,7 @@ class AccountTariffFilter extends AccountTariff
 
     public $service_type_id = '';
     public $tariff_period_id = '';
+    public $beauty_level = '';
 
     /**
      * @param int $serviceTypeId
@@ -40,6 +42,16 @@ class AccountTariffFilter extends AccountTariff
     }
 
     /**
+     * @return array
+     */
+    public function rules()
+    {
+        $rules = parent::rules();
+        $rules[] = [['beauty_level'], 'integer'];
+        return $rules;
+    }
+
+    /**
      * Фильтровать
      *
      * @return ActiveDataProvider
@@ -50,6 +62,12 @@ class AccountTariffFilter extends AccountTariff
             ->joinWith('clientAccount')
             ->joinWith('region')
             ->joinWith('tariffPeriod');
+
+        if ($this->service_type_id == ServiceType::ID_VOIP) {
+            $query
+                ->joinWith('number')
+                ->with('number');
+        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -66,6 +84,9 @@ class AccountTariffFilter extends AccountTariff
         $this->voip_number && $query->andWhere(['LIKE', 'voip_number', $this->voip_number, $isEscape = false]);
 
         $this->service_type_id !== '' && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
+
+        $numberTableName = Number::tableName();
+        $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
 
         switch ($this->tariff_period_id) {
             case '':

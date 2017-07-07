@@ -4,6 +4,7 @@
  *
  * @var \app\classes\BaseView $this
  * @var AccountTariffFilter $filterModel
+ * @var bool $isPersonalForm
  */
 
 use app\modules\uu\filter\AccountTariffFilter;
@@ -24,7 +25,7 @@ $serviceType = $filterModel->getServiceType();
 ]) ?>
 
 <?= $this->render(
-    ($serviceType && $filterModel->client_account_id) ? '_indexVoip' : '_indexMain',
+    ($serviceType && $isPersonalForm) ? '_indexVoip' : '_indexMain',
     [
         'filterModel' => $filterModel,
     ]

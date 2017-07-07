@@ -6,6 +6,7 @@
  * @var AccountTariffFilter $filterModel
  */
 
+use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\RegionColumn;
@@ -44,7 +45,7 @@ $columns = [
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             return Html::encode($accountTariff->getName(false));
-        }
+        },
     ],
     [
         'attribute' => 'client_account_id',
@@ -52,7 +53,7 @@ $columns = [
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             return $accountTariff->clientAccount->getLink();
-        }
+        },
     ],
     [
         'attribute' => 'region_id',
@@ -77,6 +78,14 @@ switch ($serviceType->id) {
             'filterOptions' => [
                 'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
             ],
+        ];
+        $columns[] = [
+            'label' => 'Красивость',
+            'attribute' => 'beauty_level',
+            'class' => BeautyLevelColumn::className(),
+            'value' => function (AccountTariff $accountTariff) {
+                return $accountTariff->number->beauty_level;
+            },
         ];
         break;
 
