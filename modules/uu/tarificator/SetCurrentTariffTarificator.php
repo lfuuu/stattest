@@ -50,7 +50,7 @@ class SetCurrentTariffTarificator extends Tarificator
 SQL;
         if ($accountTariffId) {
             // только конкретную услугу, даже если не надо менять тариф
-            $sql .= " AND account_tariff.id = {$accountTariffId} ";
+            $sql .= " WHERE account_tariff.id = {$accountTariffId} ";
         } else {
             // все услуги, где надо менять тариф
             $sql .= ' HAVING IFNULL(account_tariff.tariff_period_id, 0) != IFNULL(new_tariff_period_id, 0)';
