@@ -207,7 +207,6 @@ $missedPricelists = array_filter($pricelistReportData, function ($row) {
 });
 
 if (count($missedPricelists)) : ?>
-    ?>
     <div class="col-sm-12 label label-danger text-left">
         <?php foreach ($missedPricelists as $id => $row) : ?>
             Прайс-лист #<?= $id ?> на дату <?= $row['date'] ?> не может быть обработан<br />
