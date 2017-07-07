@@ -181,7 +181,6 @@ $this->registerJsVariable('pricelistReportId', $pricelistReportId);
     </div>
 </div>
 
-
 <div id="pricelist-report-tbl-toolbar">
     <form
         id="pricelist-export-frm"
@@ -190,6 +189,7 @@ $this->registerJsVariable('pricelistReportId', $pricelistReportId);
         target="_blank"
     >
         <textarea name="data" class="collapse"></textarea>
+        <textarea name="columns" class="collapse"></textarea>
         <?= $this->render('//layouts/_button', [
             'text' => 'Выгрузить',
             'glyphicon' => 'glyphicon glyphicon-export',
@@ -200,6 +200,20 @@ $this->registerJsVariable('pricelistReportId', $pricelistReportId);
         ]) ?>
     </form>
 </div>
+
+<?php
+$missedPricelists = array_filter($pricelistReportData, function ($row) {
+    return !$row['pricelist'];
+});
+
+if (count($missedPricelists)) : ?>
+    ?>
+    <div class="col-sm-12 label label-danger text-left">
+        <?php foreach ($missedPricelists as $id => $row) : ?>
+            Прайс-лист #<?= $id ?> на дату <?= $row['date'] ?> не может быть обработан<br />
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
 <table id="pricelist-report-tbl">
     <thead>

@@ -164,7 +164,7 @@ class PricelistReport extends ActiveRecord
 
     /**
      * @param int $reportId
-     * @return array
+     * @return Query
      */
     public static function getPricelistData($reportId)
     {
@@ -187,8 +187,7 @@ class PricelistReport extends ActiveRecord
             ->orderBy([
                 'geo.name' => SORT_ASC,
                 'report.prefix' => SORT_ASC,
-            ])
-            ->all(Yii::$app->dbPgSlave);
+            ]);
     }
 
 }

@@ -1,4 +1,4 @@
-+function ($) {
++function ($, pricelistReportId) {
     'use strict';
 
     $(function () {
@@ -10,7 +10,7 @@
             $reportTable = $('#pricelist-report-tbl'),
             $exportBtn = $('#export-btn'),
             $loadingOverlay = $('.fullScreenOverlay'),
-            sourceUrl = '/voipreport/pricelist-report/get-pricelist-data?reportId=' + frontendVariables.voipreportPricelistReportCalculate.pricelistReportId,
+            sourceUrl = '/voipreport/pricelist-report/get-pricelist-data?reportId=' + pricelistReportId,
             delay = $.Deferred(),
             sourceData = [],
             resultCellStyle = function (value, row, index, field) {
@@ -213,6 +213,16 @@
         });
 
         $exportBtn.on('click', function () {
+            var options = $('#pricelist-report-tbl').bootstrapTable('getOptions'),
+                pricelists = options.columns[0].slice(6),
+                dates = options.columns[1],
+                columns = [];
+
+            $.each(pricelists, function (index) {
+                columns[index] = [this.title, dates[index].title];
+            });
+
+            $exportForm.find('[name="columns"]').val(JSON.stringify(columns));
             $exportForm.find('[name="data"]').val(JSON.stringify($reportTable.bootstrapTable('getData')));
             $exportForm.submit();
             return false;

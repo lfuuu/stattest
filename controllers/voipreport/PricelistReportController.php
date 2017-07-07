@@ -8,6 +8,7 @@ use app\classes\traits\PgsqlArrayFieldParseTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\GeoCountry;
 use app\models\billing\GeoRegion;
+use app\models\billing\Pricelist;
 use app\models\billing\PricelistReport;
 use app\models\Currency;
 use app\models\CurrencyRate;
@@ -75,10 +76,11 @@ class PricelistReportController extends BaseController
 
         $pricelistReport->prepareData();
         $pricelistReportData = $pricelistReport->getData();
+        $pricelistQuery = PricelistReport::getPricelistData($reportId);
 
         $result = [];
 
-        foreach (PricelistReport::getPricelistData($reportId) as $dataRow) {
+        foreach ($pricelistQuery->each(1000, Yii::$app->dbPgSlave) as $dataRow) {
             $row = [
                 'prefix' => $dataRow['prefix'],
                 'destination' => $dataRow['destination'],
@@ -101,6 +103,7 @@ class PricelistReportController extends BaseController
                 if (
                     $pricelistId
                     && array_key_exists($pricelistId, $pricelistReportData)
+                    && $pricelistReportData[$pricelistId]['pricelist'] instanceof Pricelist
                 ) {
                     $pricelistCurrency = $pricelistReportData[$pricelistId]['pricelist']->currency_id;
                     $pricelistCurrencyRate = CurrencyRate::dao()->crossRate($pricelistCurrency, $currency);
@@ -134,7 +137,9 @@ class PricelistReportController extends BaseController
             $result[] = $row;
         }
 
-        return ['data' => $result];
+        return [
+            'data' => $result,
+        ];
     }
 
     /**
@@ -146,8 +151,7 @@ class PricelistReportController extends BaseController
     {
         $memorySize = 5 * 1024 * 1024;
 
-        /** @var PricelistReport $pricelistReport */
-        $pricelistReport = PricelistReport::findOne($reportId);
+        $exportColumns = Json::decode(Yii::$app->request->post('columns'));
         $exportData = Json::decode(Yii::$app->request->post('data'));
 
         $firstRow = [
@@ -157,12 +161,9 @@ class PricelistReportController extends BaseController
             '', '', '', '', '', '',
         ];
 
-        foreach ($pricelistReport::getPricelists($pricelistReport->getPricelistsIds()) as $pricelist) {
-            $firstRow[] = $pricelist->name;
-        }
-
-        foreach ($pricelistReport->getDatesArray() as $date) {
-            $secondRow[] = $date;
+        foreach ($exportColumns as $column) {
+            $firstRow[] = $column[0];
+            $secondRow[] = $column[1];
         }
 
         $csv = fopen('php://temp/maxmemory:'. $memorySize, 'r+');
@@ -181,7 +182,7 @@ class PricelistReportController extends BaseController
                 array_key_exists('modify_result', $row) ? $this->_numberValueForExcel($row['modify_result']) : null
             ];
 
-            foreach ($pricelistReport->getDatesArray() as $index => $date) {
+            foreach ($exportColumns as $index => $date) {
                 $csvRow[] = $this->_numberValueForExcel($row['price_' . $index]);
             }
 
