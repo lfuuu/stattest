@@ -19,6 +19,7 @@ use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\filter\AccountLogResourceFilter;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
+use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
 $accountTariffTableName = AccountTariff::tableName();
@@ -133,14 +134,20 @@ $filterColumns = [
         'class' => ServiceTypeColumn::className(),
     ],
 ];
-?>
 
-<?= GridView::widget([
-    'dataProvider' => $filterModel->search(),
+$dataProvider = $filterModel->search();
+
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
     'beforeHeader' => [ // фильтры вне грида
         'columns' => $filterColumns,
     ],
     'resizableColumns' => false, // все равно не влезает на экран
-]) ?>
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
+]);

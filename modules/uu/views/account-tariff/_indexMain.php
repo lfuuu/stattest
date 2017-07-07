@@ -17,6 +17,7 @@ use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 
 $serviceType = $filterModel->getServiceType();
@@ -97,11 +98,18 @@ switch ($serviceType->id) {
         break;
 }
 
+$dataProvider = $filterModel->search();
+
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'extraButtons' => $serviceType->id == ServiceType::ID_VOIP_PACKAGE ?
         '' :
         $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]),
     'columns' => $columns,
-]) ?>
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
+]);

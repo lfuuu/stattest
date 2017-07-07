@@ -35,7 +35,7 @@ class GridViewExport extends GridView
         $dataProvider,
         $filterModel,
         $columns = [],
-        $batchSize = 0,
+        $batchSize = 1000,
 
         $timeout = 0,
         $columnSelectorEnabled = true;

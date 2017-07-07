@@ -15,6 +15,7 @@ use app\classes\Html;
 use app\modules\uu\filter\BillFilter;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill;
+use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -26,66 +27,81 @@ use yii\widgets\Breadcrumbs;
     ],
 ]) ?>
 
-<?= GridView::widget([
-    'dataProvider' => $filterModel->search(),
+<?php
+$columns = [
+    [
+        'attribute' => 'id',
+        'class' => IntegerColumn::className(),
+    ],
+    [
+        'attribute' => 'is_converted',
+        'class' => YesNoColumn::className(),
+    ],
+    [
+        'attribute' => 'date',
+        'class' => MonthColumn::className(),
+        'value' => function (Bill $bill) {
+            return datefmt_format_object(
+                new DateTime($bill->date),
+                'LLL Y',
+                Yii::$app->formatter->locale
+            ); // нативный php date не поддерживает LLL/LLLL
+        }
+    ],
+    [
+        'attribute' => 'client_account_id',
+        'class' => IntegerColumn::className(),
+        'format' => 'html',
+        'value' => function (Bill $bill) {
+            return $bill->clientAccount->getLink();
+        }
+    ],
+    [
+        'attribute' => 'price',
+        'class' => IntegerRangeColumn::className(),
+    ],
+    [
+        'attribute' => 'is_show_all_entry',
+        'class' => YesNoColumn::className(),
+        'label' => 'Проводки, ¤',
+        'format' => 'raw',
+        'contentOptions' => [
+            'class' => 'text-nowrap',
+        ],
+        'value' => function (Bill $bill) {
+
+            $accountEntries = $bill->accountEntries;
+            array_walk($accountEntries, function (&$accountEntry) {
+                /** @var AccountEntry $accountEntry */
+                $accountEntry
+                    // Например, "Номер 74956387777. Абонентская плата. Тариф «Москва Базовый»"
+                    = $accountEntry->getFullName() . ' ' .
+
+                    // Например, "249.00"
+                    Html::a(
+                        sprintf('%.2f', $accountEntry->price),
+                        $accountEntry->getUrl()
+                    );
+            });
+
+            return implode('<br />', $accountEntries);
+
+        }
+    ],
+];
+
+$dataProvider = $filterModel->search();
+
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'extraButtons' =>
         $this->render('/invoice/_ico', ['clientAccountId' => $filterModel->client_account_id]) . ' ' .
         $this->render('/balance/_ico', ['clientAccountId' => $filterModel->client_account_id]),
-    'columns' => [
-        [
-            'attribute' => 'id',
-            'class' => IntegerColumn::className(),
-        ],
-        [
-            'attribute' => 'is_converted',
-            'class' => YesNoColumn::className(),
-        ],
-        [
-            'attribute' => 'date',
-            'class' => MonthColumn::className(),
-            'value' => function (Bill $bill) {
-                return datefmt_format_object(new DateTime($bill->date), 'LLL Y', Yii::$app->formatter->locale); // нативный php date не поддерживает LLL/LLLL
-            }
-        ],
-        [
-            'attribute' => 'client_account_id',
-            'class' => IntegerColumn::className(),
-            'format' => 'html',
-            'value' => function (Bill $bill) {
-                return $bill->clientAccount->getLink();
-            }
-        ],
-        [
-            'attribute' => 'price',
-            'class' => IntegerRangeColumn::className(),
-        ],
-        [
-            'attribute' => 'is_show_all_entry',
-            'class' => YesNoColumn::className(),
-            'label' => 'Проводки, ¤',
-            'format' => 'raw',
-            'contentOptions' => [
-                'class' => 'text-nowrap',
-            ],
-            'value' => function (Bill $bill) {
-
-                $accountEntries = $bill->accountEntries;
-                array_walk($accountEntries, function (&$accountEntry) {
-                    /** @var AccountEntry $accountEntry */
-                    $accountEntry
-                        // Например, "Номер 74956387777. Абонентская плата. Тариф «Москва Базовый»"
-                        = $accountEntry->getFullName() . ' ' .
-
-                        // Например, "249.00"
-                        Html::a(
-                            sprintf('%.2f', $accountEntry->price),
-                            $accountEntry->getUrl()
-                        );
-                });
-                return implode('<br />', $accountEntries);
-
-            }
-        ],
-    ],
+    'columns' => $columns,
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
 ]);

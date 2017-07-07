@@ -9,6 +9,7 @@
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\GridView;
 use app\models\voip\filter\CallsRawFilter;
+use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 use app\modules\nnp\column\NdcTypeColumn;
 
@@ -102,11 +103,11 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     $columns = require '_indexColumns.php';
 }
 
-$report = $filterModel->getReport();
+$dataProvider = $filterModel->getReport();
 
 try {
     GridView::separateWidget([
-        'dataProvider' => $report,
+        'dataProvider' => $dataProvider,
         'filterModel' => $filterModel,
         'beforeHeader' => [
             'columns' => $filter
@@ -126,11 +127,10 @@ try {
                     Yii::t('yii', 'No results found.') :
                     'Выберите время начала разговора и хотя бы еще одно поле'
             ),
-        'exportWidget' => \app\widgets\GridViewExport\GridViewExport::widget([
-            'dataProvider' => $report,
+        'exportWidget' => GridViewExport::widget([
+            'dataProvider' => $dataProvider,
             'filterModel' => $filterModel,
             'columns' => $columns,
-            'batchSize' => 1000,
         ]),
     ]);
 } catch (yii\db\Exception $e) {

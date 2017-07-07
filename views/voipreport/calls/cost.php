@@ -21,6 +21,7 @@ use app\classes\grid\column\universal\UsageTrunkColumn;
 use app\classes\grid\GridView;
 use app\models\billing\Calls;
 use app\models\filter\CallsFilter;
+use app\widgets\GridViewExport\GridViewExport;
 use yii\db\ActiveQuery;
 use yii\widgets\Breadcrumbs;
 
@@ -234,8 +235,11 @@ $filterColumns = [
 ];
 ?>
 
-<?= GridView::widget([
-    'dataProvider' => $filterModel->searchCost(),
+<?php
+$dataProvider = $filterModel->searchCost();
+
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
 //    'resizableColumns' => false, // все равно не влезает на экран
@@ -249,11 +253,10 @@ $filterColumns = [
             'columns' => $summaryColumns,
         ]
     ],
-    'exportWidget' => \app\widgets\GridViewExport\GridViewExport::widget([
-        'dataProvider' => $filterModel->searchCost(),
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
         'filterModel' => $filterModel,
         'columns' => $columns,
-        'batchSize' => 5000,
     ]),
-]) ?>
+]);
 

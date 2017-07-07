@@ -22,6 +22,7 @@ use app\modules\uu\models\Resource;
 use app\modules\uu\monitor\AccountLogPeriodMonitor;
 use app\modules\uu\monitor\AccountLogResourceMonitor;
 use app\modules\uu\monitor\AccountLogSetupMonitor;
+use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -187,7 +188,6 @@ if ($monthDateTime) {
 
         $columns[] = $column;
     }
-
 } else {
 
     $columns[] = [
@@ -202,9 +202,16 @@ if ($monthDateTime) {
 
 }
 
+$dataProvider = $filterModel->search();
+
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
     'resizableColumns' => false, // все равно не влезает на экран
-]) ?>
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
+]);

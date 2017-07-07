@@ -26,6 +26,7 @@ use app\classes\grid\GridView;
 use app\models\billing\Calls;
 use app\models\filter\CallsFilter;
 use app\modules\nnp\column\OperatorColumn;
+use app\widgets\GridViewExport\GridViewExport;
 use yii\db\ActiveQuery;
 use yii\widgets\Breadcrumbs;
 use app\modules\nnp\column\CityColumn;
@@ -310,8 +311,11 @@ $summaryColumns = [
 ];
 ?>
 
-<?= GridView::widget([
-    'dataProvider' => $filterModel->search(),
+<?php
+$dataProvider = $filterModel->search();
+
+echo GridView::widget([
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
     'resizableColumns' => false, // все равно не влезает на экран
@@ -322,11 +326,10 @@ $summaryColumns = [
             'columns' => $summaryColumns,
         ]
     ],
-    'exportWidget' => \app\widgets\GridViewExport\GridViewExport::widget([
-        'dataProvider' => $filterModel->search(),
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
         'filterModel' => $filterModel,
         'columns' => $columns,
-        'batchSize' => 5000,
     ]),
-]) ?>
+]);
 
