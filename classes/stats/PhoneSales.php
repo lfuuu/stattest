@@ -39,10 +39,11 @@ class PhoneSales
               AND uu.user = :manager_name
               AND uvi.actual_from >= CAST(:date_from AS DATE)
 
+            HAVING type = :type_name
+            
             ORDER BY
               actual_from ASC,
               ccagnt.name_full ASC
-            HAVING type = :type_name
             ")
             ->bindValue(':manager_name', $manager)
             ->bindValue(':date_from', $from)
