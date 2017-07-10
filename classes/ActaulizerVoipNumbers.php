@@ -280,15 +280,9 @@ class ActaulizerVoipNumbers extends Singleton
     {
         /** @var UsageVoip $usage */
         $usage = UsageVoip::find()->phone($data['number'])->actual()->one();
-        $params = '{}';
-        if ($usage) {
-            $params = $usage->create_params;
-        }
-
-        $params = json_decode($params, true);
-        if (!$params) {
-            $params = [];
-        }
+        $params = $usage ?
+            (json_decode($usage->create_params, true) ?: []) :
+            [];
 
         ApiPhone::me()->addDid(
             (int)$data['client_id'],
@@ -383,6 +377,8 @@ class ActaulizerVoipNumbers extends Singleton
                 (int)$new['client_id'],
                 $number,
                 (int)$new['call_count'],
+                null,
+                null,
                 isset($changedFields['region']) ? (int)$changedFields['region'] : null,
                 isset($changedFields['number7800']) ? $changedFields['number7800'] : null
             );

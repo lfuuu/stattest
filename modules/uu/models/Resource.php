@@ -36,6 +36,7 @@ class Resource extends \yii\db\ActiveRecord
 
     const ID_VOIP_LINE = 7; // Телефония. Линия
     const ID_VOIP_CALLS = 8; // Телефония. Звонки
+    const ID_VOIP_FMC = 38; // Телефония. FMC
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 

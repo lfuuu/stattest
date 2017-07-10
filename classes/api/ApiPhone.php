@@ -149,6 +149,8 @@ class ApiPhone extends Singleton
      * @param int $clientAccountId
      * @param string $number
      * @param int $lines
+     * @param int $isFmcActive
+     * @param int $isFmcEditable
      * @param int $region
      * @param string $number7800
      * @return array
@@ -156,13 +158,21 @@ class ApiPhone extends Singleton
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidCallException
      */
-    public function editDid($clientAccountId, $number, $lines, $region = null, $number7800 = null)
+    public function editDid($clientAccountId, $number, $lines, $isFmcActive = null, $isFmcEditable = null, $region = null, $number7800 = null)
     {
         $params = [
             'client_id' => $clientAccountId,
             'did' => $number,
             'cl' => (int)$lines,
         ];
+
+        if ($isFmcActive !== null) {
+            $params['is_fmc_active'] = (int)$isFmcActive;
+        }
+
+        if ($isFmcEditable !== null) {
+            $params['is_fmc_editable'] = (int)$isFmcEditable;
+        }
 
         if ($region) {
             $params['region'] = (int)$region;

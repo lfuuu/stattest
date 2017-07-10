@@ -308,6 +308,7 @@ class Number extends ActiveRecord
      * Получаем лог изменений состояния номера
      *
      * @return array
+     * @throws \yii\db\Exception
      */
     public function getChangeStatusLog()
     {
@@ -315,12 +316,32 @@ class Number extends ActiveRecord
     }
 
     /**
-     * Является ли номер, номером 7800
+     * Мобильный и непортированный - значит, наш. Тогда FMC можно включить/выключить по желанию юзера
      *
      * @return bool
      */
-    public function is7800()
+    public function isFmcEditable()
     {
-        return (strpos($this->number, "7800") === 0);
+        return $this->ndc_type_id == NdcType::ID_MOBILE && !$this->is_ported;
+    }
+
+    /**
+     * Мобильный и портированный - FMC всегда включен.
+     *
+     * @return bool
+     */
+    public function isFmcAlwaysActive()
+    {
+        return $this->ndc_type_id == NdcType::ID_MOBILE && $this->is_ported;
+    }
+
+    /**
+     * Немобильный - FMC всегда выключен.
+     *
+     * @return bool
+     */
+    public function isFmcAlwaysInactive()
+    {
+        return $this->ndc_type_id != NdcType::ID_MOBILE;
     }
 }

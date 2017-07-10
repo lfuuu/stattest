@@ -61,7 +61,15 @@ class FillAccountTariffResourceLog extends Behavior
             $accountTariffResourceLog->account_tariff_id = $accountTariffLog->account_tariff_id;
             $accountTariffResourceLog->actual_from_utc = $accountTariffLog->actual_from_utc;
             $accountTariffResourceLog->resource_id = $tariffResource->resource_id;
-            $accountTariffResourceLog->amount = $tariffResource->amount;
+
+            /** @var \app\models\Number $number */
+            if ($tariffResource->resource_id == Resource::ID_VOIP_FMC && ($number = $accountTariff->number) && $number->isFmcAlwaysActive()) {
+                // Костыль для FMC. Включенность этого ресурса зависит от типа телефонного номера
+                $accountTariffResourceLog->amount = 1;
+            } else {
+                $accountTariffResourceLog->amount = $tariffResource->amount;
+            }
+
             if (!$accountTariffResourceLog->save()) {
                 throw new ModelValidationException($accountTariffResourceLog);
             }

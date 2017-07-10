@@ -297,7 +297,13 @@ function doEvents()
 
                 case Event::UU_ACCOUNT_TARIFF_RESOURCE_VOIP:
                     // Отправить измененные ресурсы телефонии на платформу и другим поставщикам услуг
-                    $isCoreServer && ApiPhone::me()->editDid($param['account_id'], $param['number'], $param['lines']);
+                    $isCoreServer && ApiPhone::me()->editDid(
+                        $param['account_id'],
+                        $param['number'],
+                        $param['lines'],
+                        $param['is_fmc_active'],
+                        $param['is_fmc_editable']
+                    );
                     break;
 
                 case Event::UU_ACCOUNT_TARIFF_RESOURCE_VPBX:

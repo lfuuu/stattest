@@ -7,6 +7,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use DateTimeZone;
@@ -178,6 +179,12 @@ trait AccountTariffBoolTrait
 
         if (!$resource->isEditable()) {
             // ресурс нередактируемый
+            return false;
+        }
+
+        /** @var \app\models\Number $number */
+        if ($resource->id == Resource::ID_VOIP_FMC && ($number = $this->number) && !$number->isFmcEditable()) {
+            // Костыль для FMC. Редактируемость этого ресурса зависит от типа телефонного номера
             return false;
         }
 

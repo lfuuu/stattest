@@ -5,6 +5,7 @@ use app\classes\Assert;
 use app\classes\Form;
 use app\models\ClientAccount;
 use app\models\Number;
+use app\modules\nnp\models\NdcType;
 
 class NumberForm extends Form
 {
@@ -68,7 +69,7 @@ class NumberForm extends Form
                 Number::dao()->stopNotSell($number);
             } elseif ($this->scenario == 'toRelease') {
                 Number::dao()->toRelease($number);
-            } elseif ($this->scenario == 'setTechNumber' && $number->is7800()) {
+            } elseif ($this->scenario == 'setTechNumber' && $number->ndc_type_id == NdcType::ID_FREEPHONE) {
                 $number->number_tech = $this->number_tech;
                 $number->save();
                 \Yii::$app->session->addFlash('success', 'Технический номер сохранен');

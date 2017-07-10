@@ -8,9 +8,10 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\Number;
 use app\models\NumberLog;
+use app\modules\nnp\models\NdcType;
 use kartik\widgets\ActiveForm;
 
-echo app\classes\Html::formLabel($this->title = 'Номер '. $number->number);
+echo app\classes\Html::formLabel($this->title = 'Номер ' . $number->number);
 
 echo \yii\widgets\Breadcrumbs::widget([
     'links' => [
@@ -43,25 +44,25 @@ echo \yii\widgets\Breadcrumbs::widget([
                     <th><?= Number::$statusList[$number->status] ?></th>
                 </tr>
                 <?php if ($number->client_id): ?>
-                <tr>
-                    <td>Лицевой счет</td>
-                    <th>
-                        <?php
-                        $clientAccount = ClientAccount::findOne($number->client_id);
-                        echo Html::a($clientAccount->id . ' ' . $clientAccount->company, '/client/view?id=' . $clientAccount->id);
-                        ?>
-                    </th>
-                </tr>
+                    <tr>
+                        <td>Лицевой счет</td>
+                        <th>
+                            <?php
+                            $clientAccount = ClientAccount::findOne($number->client_id);
+                            echo Html::a($clientAccount->id . ' ' . $clientAccount->company, '/client/view?id=' . $clientAccount->id);
+                            ?>
+                        </th>
+                    </tr>
                 <?php endif; ?>
                 <?php if ($number->status == Number::STATUS_NOTACTIVE_HOLD): ?>
-                <tr>
-                    <td>В остойнике до:</td>
-                    <th>
-                    <?php
-                        echo DateTimeZoneHelper::getDateTime($number->hold_to);
-                    ?>
-                    </th>
-                </tr>
+                    <tr>
+                        <td>В остойнике до:</td>
+                        <th>
+                            <?php
+                            echo DateTimeZoneHelper::getDateTime($number->hold_to);
+                            ?>
+                        </th>
+                    </tr>
                 <?php endif; ?>
             </table>
 
@@ -105,11 +106,11 @@ echo \yii\widgets\Breadcrumbs::widget([
                     break;
             }
 
-            if ($number->is7800()) {
+            if ($number->ndc_type_id == NdcType::ID_FREEPHONE) {
                 echo "<br />";
 
                 ?>
-                <br />
+                <br/>
                 <div class="well" style="width: 500px;">
                     <fieldset>
                         <label>Тех номер</label>
@@ -139,7 +140,7 @@ echo \yii\widgets\Breadcrumbs::widget([
                     <tr>
                         <th colspan='2'>Операции с номером</th>
                     </tr>
-                    <?php foreach($logList as $log): ?>
+                    <?php foreach ($logList as $log): ?>
                         <tr>
                             <td style='text-align:center;font-weight:bolder;color:#555'><?= DateTimeZoneHelper::getDateTime($log['human_time']) ?></td>
                             <td>
@@ -151,7 +152,7 @@ echo \yii\widgets\Breadcrumbs::widget([
                                     case NumberLog::ACTION_FIX:
                                         ?>
                                         <b>зафиксирован</b> за клиентом
-                                        <?=Html::a($log['client'], ['/client/view', 'id' => $log['client']], ['style' => 'text-decoration:none;font-weight:bold']) ?>
+                                        <?= Html::a($log['client'], ['/client/view', 'id' => $log['client']], ['style' => 'text-decoration:none;font-weight:bold']) ?>
                                         <?php break;
                                     case NumberLog::ACTION_UNFIX:
                                         ?>
@@ -175,22 +176,23 @@ echo \yii\widgets\Breadcrumbs::widget([
                                         }
                                         if ($log['client_id']) {
                                             ?>, Л/С: <a href='/client/view?id=<?= $log['client_id'] ?>'
-                                                     style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
+                                                        style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
                                             <?php
                                         };
                                         break;
                                     case NumberLog::ACTION_ACTIVE:
                                         if ($log['addition'] == NumberLog::ACTION_ADDITION_TESTED) {
                                             ?><b><?= Number::$statusList[Number::STATUS_ACTIVE_TESTED] ?></b><?php
-                                        } else
-                                        if ($log['addition'] == NumberLog::ACTION_ADDITION_COMMERCIAL) {
-                                            ?><b><?= Number::$statusList[Number::STATUS_ACTIVE_COMMERCIAL] ?></b><?php
                                         } else {
-                                            ?><b>Используется</b><?php
+                                            if ($log['addition'] == NumberLog::ACTION_ADDITION_COMMERCIAL) {
+                                                ?><b><?= Number::$statusList[Number::STATUS_ACTIVE_COMMERCIAL] ?></b><?php
+                                            } else {
+                                                ?><b>Используется</b><?php
+                                            }
                                         }
                                         if ($log['client_id']) {
                                             ?>, Л/С: <a href='/client/view?id=<?= $log['client_id'] ?>'
-                                                     style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
+                                                        style='text-decoration:none;font-weight:bold'><?= $log['client_id'] ?></a>
                                             <?php
                                         };
 
