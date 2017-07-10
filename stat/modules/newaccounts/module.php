@@ -552,7 +552,7 @@ class m_newaccounts extends IModule
                 $sum[$r['currency']]['bill'] += $r['sum'];
                 $sum[$r['currency']]['delta'] -= $v['delta'];
             }
-            $R[$r['bill_no']] = $v;
+            $R[$r['bill_no'] . '-' . $r['bill_date']] = $v;
         }
         foreach ($R2 as $r2) {
             if ($r2['sum_pay'] == '' || $r2['sum_pay'] == 0) {
