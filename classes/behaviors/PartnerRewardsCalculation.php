@@ -31,11 +31,13 @@ class PartnerRewardsCalculation extends Behavior
      */
     public function calculateRewards(Event $event)
     {
-        if (!$event->sender->is_payed) {
+        $bill = $event->sender;
+
+        if (!$bill->is_payed) {
             return false;
         }
 
-        $clientAccount = ClientAccount::findOne(['id' => $event->sender->client_id]);
+        $clientAccount = ClientAccount::findOne(['id' => $bill->client_id]);
         if (!$clientAccount) {
             return false;
         }
@@ -43,9 +45,9 @@ class PartnerRewardsCalculation extends Behavior
         if ($clientAccount->contract->contragent->partner_contract_id) {
             OwnEvent::go(OwnEvent::PARTNER_REWARD, [
                 'client_id' => $clientAccount->id,
-                'bill_id' => $event->sender->id,
+                'bill_id' => $bill->id,
                 'created_at' =>
-                    (new \DateTime('now', new \DateTimeZone('UTC')))
+                    (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
                         ->format(DateTimeZoneHelper::DATETIME_FORMAT),
             ]);
         }

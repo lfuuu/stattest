@@ -38,7 +38,7 @@ abstract class RewardCalculate
         Assert::isNotEmpty($clientAccount->contract->contragent->partner_contract_id);
 
         $bill = Bill::findOne(['id' => $billId]);
-        Assert::isObject($bill);
+        Assert::isObject($bill, 'Bill #' . $billId . ' not found');
 
         // Список используемых настроек вознаграждений
         $contractRewards =
