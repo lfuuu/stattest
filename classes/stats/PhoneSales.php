@@ -1,6 +1,7 @@
 <?php
 namespace app\classes\stats;
 
+use app\modules\nnp\models\NdcType;
 use Yii;
 
 class PhoneSales
@@ -16,7 +17,7 @@ class PhoneSales
               uvi.id,
               uvi.actual_from,
               uvi.client,
-              uvi.type_id,
+              " . self::_getSqlType() . ",
               uvi.E164,
               uvi.no_of_lines,
               uvi.status,
@@ -37,11 +38,11 @@ class PhoneSales
                   ccont.account_manager = :manager_name
               AND uu.user = :manager_name
               AND uvi.actual_from >= CAST(:date_from AS DATE)
-              AND uvi.type_id = :type_name
 
             ORDER BY
               actual_from ASC,
               ccagnt.name_full ASC
+            HAVING type = :type_name
             ")
             ->bindValue(':manager_name', $manager)
             ->bindValue(':date_from', $from)
@@ -73,9 +74,9 @@ class PhoneSales
                         WHERE ds.status = 'done'
                     UNION ALL
                         SELECT `client`, `no_of_lines` AS `count`, `actual_from` AS `dateFrom`,
-                        IF(`type_id` = 'line', 'line_free', IF(`type_id` = '7800', 'number_8800', `type_id`)) AS `type`
+                        " . self::_getSqlType() . "
                         FROM usage_voip
-                        WHERE `status` = 'working' AND `prev_usage_id` = 0 AND `type_id` != 'operator'
+                        WHERE `status` = 'working' AND `prev_usage_id` = 0
                     UNION ALL
                         SELECT `client`, `amount` AS `count`, `actual_from` AS `dateFrom`, 'vpbx' AS `type`
                         FROM usage_virtpbx
@@ -167,9 +168,9 @@ class PhoneSales
                         WHERE ds.status = 'done'
                     UNION ALL
                         SELECT `client`, `no_of_lines` AS `count`, `actual_from` AS `dateFrom`,
-                        IF(`type_id` = 'line', 'line_free', IF(`type_id` = '7800', 'number_8800', `type_id`)) AS `type`
+                        " . self::_getSqlType() . "
                         FROM usage_voip
-                        WHERE `status` = 'working' AND `prev_usage_id` = 0 AND `type_id` != 'operator'
+                        WHERE `status` = 'working' AND `prev_usage_id` = 0
                     UNION ALL
                         SELECT `client`, `amount` AS `count`, `actual_from` AS `dateFrom`, 'vpbx' AS `type`
                         FROM usage_virtpbx
@@ -223,5 +224,25 @@ class PhoneSales
         return array_filter($partners, function ($partner) {
             return array_sum($partner['data']) > 0;
         });
+    }
+
+    /**
+     * SQL-вставка получения типа номера в услуге
+     *
+     * @return string
+     */
+    private static function _getSqlType()
+    {
+        return "
+            IF(
+                `ndc_type_id` = ".NdcType::ID_MCN_LINE.", 
+                'line_free', 
+                IF(
+                    `ndc_type_id` = " . NdcType::ID_FREEPHONE . ", 
+                    'number_8800', 
+                    'number'
+                )
+            ) AS `type`
+            ";
     }
 }
