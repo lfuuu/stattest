@@ -26,8 +26,8 @@ class FinanceBlockTarificator extends Tarificator
         $dateTimeString = (new \DateTimeImmutable())->modify('-' . self::DAYS_LIMIT . ' days')->format('c');
         $clientAccountTableName = ClientAccount::tableName();
         $importantEventsTableName = ImportantEvents::tableName();
-        $setZeroBalance = ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE;
-        $unsetZeroBalance = ImportantEventsNames::IMPORTANT_EVENT_UNSET_ZERO_BALANCE;
+        $setZeroBalance = ImportantEventsNames::ZERO_BALANCE;
+        $unsetZeroBalance = ImportantEventsNames::UNSET_ZERO_BALANCE;
 
         $selectSQL = <<<SQL
             SELECT

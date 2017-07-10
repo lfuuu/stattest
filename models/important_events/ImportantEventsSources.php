@@ -7,12 +7,10 @@ use yii\db\ActiveRecord;
 class ImportantEventsSources extends ActiveRecord
 {
     const SOURCE_STAT = 'stat';
-
-    const IMPORTANT_EVENT_SOURCE_STAT = 'stat';
-    const IMPORTANT_EVENT_SOURCE_LK = 'lk';
-    const IMPORTANT_EVENT_SOURCE_BILLING = 'billing';
-    const IMPORTANT_EVENT_SOURCE_CORE = 'core';
-    const IMPORTANT_EVENT_SOURCE_PLATFORM = 'platform';
+    const SOURCE_LK = 'lk';
+    const SOURCE_BILLING = 'billing';
+    const SOURCE_CORE = 'core';
+    const SOURCE_PLATFORM = 'platform';
 
     /**
      * @return string

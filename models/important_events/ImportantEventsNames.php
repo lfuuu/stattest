@@ -3,8 +3,8 @@
 namespace app\models\important_events;
 
 use app\classes\traits\TagsTrait;
-use yii\db\ActiveRecord;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveRecord;
 
 /**
  * @property int $id
@@ -19,65 +19,72 @@ class ImportantEventsNames extends ActiveRecord
     use TagsTrait;
 
     // Custom
-    const IMPORTANT_EVENT_ADD_PAY_NOTIF = 'add_pay_notif';
-    const IMPORTANT_EVENT_DAY_LIMIT = 'day_limit';
-    const IMPORTANT_EVENT_UNSET_DAY_LIMIT = 'unset_day_limit';
-    const IMPORTANT_EVENT_DAY_LIMIT_MN = 'day_limit_mn';
-    const IMPORTANT_EVENT_UNSET_DAY_LIMIT_MN = 'unset_day_limit_mn';
-    const IMPORTANT_EVENT_MIN_DAY_LIMIT = 'min_day_limit';
-    const IMPORTANT_EVENT_UNSET_MIN_DAY_LIMIT = 'unset_min_day_limit';
-    const IMPORTANT_EVENT_MIN_BALANCE = 'min_balance';
-    const IMPORTANT_EVENT_UNSET_MIN_BALANCE = 'unset_min_balance';
-    const IMPORTANT_EVENT_ZERO_BALANCE = 'zero_balance';
-    const IMPORTANT_EVENT_UNSET_ZERO_BALANCE = 'unset_zero_balance';
-    const IMPORTANT_EVENT_CR_TOKEN = 'cr_token';
-    const IMPORTANT_EVENT_CHANGE_MIN_DAY_LIMIT = 'change_min_day_limit';
-    const IMPORTANT_EVENT_SET_LOCAL_BLOCK = 'set_local_block';
-    const IMPORTANT_EVENT_UNSET_LOCAL_BLOCK = 'unset_local_block';
+    const ADD_PAY_NOTIF = 'add_pay_notif';
+    const DAY_LIMIT = 'day_limit';
+    const UNSET_DAY_LIMIT = 'unset_day_limit';
+    const DAY_LIMIT_MN = 'day_limit_mn';
+    const UNSET_DAY_LIMIT_MN = 'unset_day_limit_mn';
+    const MIN_DAY_LIMIT = 'min_day_limit';
+    const UNSET_MIN_DAY_LIMIT = 'unset_min_day_limit';
+    const MIN_BALANCE = 'min_balance';
+    const UNSET_MIN_BALANCE = 'unset_min_balance';
+    const ZERO_BALANCE = 'zero_balance';
+    const UNSET_ZERO_BALANCE = 'unset_zero_balance';
+    const CR_TOKEN = 'cr_token';
+    const CHANGE_MIN_DAY_LIMIT = 'change_min_day_limit';
+    const SET_LOCAL_BLOCK = 'set_local_block';
+    const UNSET_LOCAL_BLOCK = 'unset_local_block';
 
-    const IMPORTANT_EVENT_FORECASTING_7DAY = 'forecasting_7day';
-    const IMPORTANT_EVENT_FORECASTING_3DAY = 'forecasting_3day';
-    const IMPORTANT_EVENT_FORECASTING_1DAY = 'forecasting_1day';
+    const FORECASTING_7DAY = 'forecasting_7day';
+    const FORECASTING_3DAY = 'forecasting_3day';
+    const FORECASTING_1DAY = 'forecasting_1day';
 
     // Payment
-    const IMPORTANT_EVENT_PAYMENT_ADD = 'payment_add';
-    const IMPORTANT_EVENT_PAYMENT_DELETE = 'payment_del';
+    const PAYMENT_ADD = 'payment_add';
+    const PAYMENT_DELETE = 'payment_del';
 
     // ClientAccount
-    const IMPORTANT_EVENT_NEW_ACCOUNT = 'new_account';
-    const IMPORTANT_EVENT_ACCOUNT_CHANGED = 'account_changed';
-    const IMPORTANT_EVENT_EXTEND_ACCOUNT_CONTRACT = 'extend_account_contract';
-    const IMPORTANT_EVENT_CONTRACT_TRANSFER = 'contract_transfer';
-    const IMPORTANT_EVENT_ACCOUNT_CONTRACT_CHANGED = 'account_contract_changed';
-    const IMPORTANT_EVENT_TRANSFER_CONTRAGENT = 'transfer_contragent';
-    const IMPORTANT_EVENT_CHANGE_CREDIT_LIMIT = 'change_credit_limit';
+    const NEW_ACCOUNT = 'new_account';
+    const ACCOUNT_CHANGED = 'account_changed';
+    const EXTEND_ACCOUNT_CONTRACT = 'extend_account_contract';
+    const CONTRACT_TRANSFER = 'contract_transfer';
+    const ACCOUNT_CONTRACT_CHANGED = 'account_contract_changed';
+    const TRANSFER_CONTRAGENT = 'transfer_contragent';
+    const CHANGE_CREDIT_LIMIT = 'change_credit_limit';
 
     // Troubles
-    const IMPORTANT_EVENT_CREATED_TROUBLE = 'created_trouble';
-    const IMPORTANT_EVENT_CLOSED_TROUBLE = 'closed_trouble';
-    const IMPORTANT_EVENT_SET_STATE_TROUBLE = 'set_state_trouble';
-    const IMPORTANT_EVENT_SET_RESPONSIBLE_TROUBLE = 'set_responsible_trouble';
-    const IMPORTANT_EVENT_NEW_COMMENT_TROUBLE = 'new_comment_trouble';
+    const CREATED_TROUBLE = 'created_trouble';
+    const CLOSED_TROUBLE = 'closed_trouble';
+    const SET_STATE_TROUBLE = 'set_state_trouble';
+    const SET_RESPONSIBLE_TROUBLE = 'set_responsible_trouble';
+    const NEW_COMMENT_TROUBLE = 'new_comment_trouble';
 
     // Usages
-    const IMPORTANT_EVENT_ENABLED_USAGE = 'enabled_usage';
-    const IMPORTANT_EVENT_DISABLED_USAGE = 'disabled_usage';
-    const IMPORTANT_EVENT_CREATED_USAGE = 'created_usage';
-    const IMPORTANT_EVENT_UPDATED_USAGE = 'updated_usage';
-    const IMPORTANT_EVENT_DELETED_USAGE = 'deleted_usage';
-    const IMPORTANT_EVENT_TRANSFER_USAGE = 'transfer_usage';
+    const ENABLED_USAGE = 'enabled_usage';
+    const DISABLED_USAGE = 'disabled_usage';
+    const CREATED_USAGE = 'created_usage';
+    const UPDATED_USAGE = 'updated_usage';
+    const DELETED_USAGE = 'deleted_usage';
+    const TRANSFER_USAGE = 'transfer_usage';
 
     // Flags
-    const IMPORTANT_EVENT_NOTIFIED_7DAYS = 'notified_7days';
-    const IMPORTANT_EVENT_RESET_NOTIFIED_7DAYS = 'reset_notified_7days';
-    const IMPORTANT_EVENT_NOTIFIED_3DAYS = 'notified_3days';
-    const IMPORTANT_EVENT_RESET_NOTIFIED_3DAYS = 'reset_notified_3days';
-    const IMPORTANT_EVENT_NOTIFIED_1DAYS = 'notified_1days';
-    const IMPORTANT_EVENT_RESET_NOTIFIED_1DAYS = 'reset_notified_1days';
+    const NOTIFIED_7DAYS = 'notified_7days';
+    const RESET_NOTIFIED_7DAYS = 'reset_notified_7days';
+    const NOTIFIED_3DAYS = 'notified_3days';
+    const RESET_NOTIFIED_3DAYS = 'reset_notified_3days';
+    const NOTIFIED_1DAYS = 'notified_1days';
+    const RESET_NOTIFIED_1DAYS = 'reset_notified_1days';
 
-    // overdue
-    const IMPORTANT_EVENT_INVOCE_PAYMENT_DELAY = 'invoce_payment_delay';
-    const IMPORTANT_EVENT_INVOICE_PAYMENT_DONE = 'invoice_payment_done';
+    // Overdue
+    const INVOCE_PAYMENT_DELAY = 'invoce_payment_delay';
+    const INVOICE_PAYMENT_DONE = 'invoice_payment_done';
+
+    // УУ
+    const UU_CREATED = 'uu_created'; // создана
+    const UU_SWITCHED_ON = 'uu_switched_on'; // включена
+    const UU_UPDATED = 'uu_updated'; // изменен тариф с одного на другой
+    const UU_SWITCHED_OFF = 'uu_switched_off'; // выключена
+    const UU_DELETED = 'uu_deleted'; // удалена, если она еще не начала действовать
 
     /**
      * @return string
@@ -94,7 +101,7 @@ class ImportantEventsNames extends ActiveRecord
     {
         return [
             [['code', 'value', 'group_id'], 'required'],
-            [['code', 'value', 'comment', ], 'trim'],
+            [['code', 'value', 'comment',], 'trim'],
             ['group_id', 'integer'],
             [['code', 'value', 'comment',], 'string'],
             [['code', 'group_id'], 'unique', 'targetAttribute' => ['code', 'group_id']],

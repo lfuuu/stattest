@@ -333,7 +333,7 @@ abstract class AccountGridFolder extends Model
             ->select(new Expression('MAX(l.date) ' . ($tzOffset > 0 ? "+" : "-") . ' INTERVAL ' . abs($tzOffset) . ' SECOND'))
             ->from(['l' => ImportantEvents::tableName()])
             ->where('l.client_id = c.id')
-            ->andWhere(['l.event' => ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE])
+            ->andWhere(['l.event' => ImportantEventsNames::ZERO_BALANCE])
             ->groupBy(['l.client_id']);
     }
 

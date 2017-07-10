@@ -24,7 +24,7 @@ class ZeroBalanceNotificationProcessorTest extends \yii\codeception\TestCase
 
     private function init()
     {
-        $this->event = ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE;
+        $this->event = ImportantEventsNames::ZERO_BALANCE;
 
         $this->transaction = Yii::$app->getDb()->beginTransaction();
 

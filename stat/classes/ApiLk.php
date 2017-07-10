@@ -2089,9 +2089,9 @@ class ApiLk
             if (!isset($res[$tmp[1]])) {
                 $res[$tmp[1]] = [
                     'client_contact_id' => $tmp[1],
-                    ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 0,
-                    ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => 0,
-                    ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 0,
+                    ImportantEventsNames::MIN_BALANCE => 0,
+                    ImportantEventsNames::MIN_DAY_LIMIT => 0,
+                    ImportantEventsNames::ADD_PAY_NOTIF => 0,
                 ];
             }
 
@@ -2114,16 +2114,16 @@ class ApiLk
             }
 
             $noticeSettings->setAttribute(
-                ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
-                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE] : 0
+                ImportantEventsNames::MIN_BALANCE,
+                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::MIN_BALANCE] : 0
             );
             $noticeSettings->setAttribute(
-                ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT,
-                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT] : 0
+                ImportantEventsNames::MIN_DAY_LIMIT,
+                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::MIN_DAY_LIMIT] : 0
             );
             $noticeSettings->setAttribute(
-                ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
-                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF] : 0
+                ImportantEventsNames::ADD_PAY_NOTIF,
+                isset($res[$contact->id]) ? $res[$contact->id][ImportantEventsNames::ADD_PAY_NOTIF] : 0
             );
 
             $noticeSettings->save();
@@ -2136,13 +2136,13 @@ class ApiLk
             $clientSettings->client_id = $client_id;
         }
 
-        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = (int)$minBalance;
-        $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = (int)$minDayLimit;
+        $clientSettings->{ImportantEventsNames::MIN_BALANCE} = (int)$minBalance;
+        $clientSettings->{ImportantEventsNames::MIN_DAY_LIMIT} = (int)$minDayLimit;
 
         if (
             $clientSettings->is_min_balance_sent
             &&
-            $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} < $minBalance
+            $clientSettings->{ImportantEventsNames::MIN_BALANCE} < $minBalance
         ) {
             $clientSettings->is_min_balance_sent = 0;
         }
@@ -2150,33 +2150,33 @@ class ApiLk
         if (
             $clientSettings->is_min_day_limit_sent
             &&
-            $clientSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} < $minDayLimit
+            $clientSettings->{ImportantEventsNames::MIN_DAY_LIMIT} < $minDayLimit
         ) {
             $clientSettings->is_min_day_limit_sent = 0;
         }
 
         // Логирование изменения значения критического остатка
-        if ($clientSettings->isAttributeChanged(ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE)) {
+        if ($clientSettings->isAttributeChanged(ImportantEventsNames::MIN_BALANCE)) {
             ImportantEvents::create(
-                $eventName = ImportantEventsNames::IMPORTANT_EVENT_CHANGE_CREDIT_LIMIT,
-                $eventSource = ImportantEventsSources::IMPORTANT_EVENT_SOURCE_LK,
+                $eventName = ImportantEventsNames::CHANGE_CREDIT_LIMIT,
+                $eventSource = ImportantEventsSources::SOURCE_LK,
                 $eventData = [
                     'client_id' => $client_id,
                     'value' => $minBalance,
-                    'before' => $clientSettings->getOldAttribute(ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE),
+                    'before' => $clientSettings->getOldAttribute(ImportantEventsNames::MIN_BALANCE),
                 ]
             );
         }
 
         // Логирование изменения значени суточного лимита
-        if ($clientSettings->isAttributeChanged(ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT)) {
+        if ($clientSettings->isAttributeChanged(ImportantEventsNames::MIN_DAY_LIMIT)) {
             ImportantEvents::create(
-                $eventName = ImportantEventsNames::IMPORTANT_EVENT_CHANGE_MIN_DAY_LIMIT,
-                $eventSource = ImportantEventsSources::IMPORTANT_EVENT_SOURCE_LK,
+                $eventName = ImportantEventsNames::CHANGE_MIN_DAY_LIMIT,
+                $eventSource = ImportantEventsSources::SOURCE_LK,
                 $eventData = [
                     'client_id' => $client_id,
                     'value' => $minDayLimit,
-                    'before' => $clientSettings->getOldAttribute(ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT),
+                    'before' => $clientSettings->getOldAttribute(ImportantEventsNames::MIN_DAY_LIMIT),
                 ]
             );
         }

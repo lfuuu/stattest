@@ -77,8 +77,8 @@ SQL;
         $count = $db->createCommand($sql, [
             ':account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ':max_date' => UsageInterface::MAX_POSSIBLE_DATE,
-            ':setZeroBalance' => ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE,
-            ':unsetZeroBalance' => ImportantEventsNames::IMPORTANT_EVENT_UNSET_ZERO_BALANCE,
+            ':setZeroBalance' => ImportantEventsNames::ZERO_BALANCE,
+            ':unsetZeroBalance' => ImportantEventsNames::UNSET_ZERO_BALANCE,
         ])->execute();
         $this->out('Периодов фин.блокировки = ' . $count . PHP_EOL);
 

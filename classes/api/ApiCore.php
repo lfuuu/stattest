@@ -80,7 +80,7 @@ class ApiCore
      */
     public static function transferContragent($contragentId, $fromClientId, $toClientId)
     {
-        self::exec(ImportantEventsNames::IMPORTANT_EVENT_TRANSFER_CONTRAGENT, [
+        self::exec(ImportantEventsNames::TRANSFER_CONTRAGENT, [
             'from_client_id' => $fromClientId,
             'to_client_id' => $toClientId,
             'contragent_id' => $contragentId,

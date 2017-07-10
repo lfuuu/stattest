@@ -125,7 +125,7 @@ class RenderParams extends Singleton
     private function getClientAccountMinDayLimit($clientAccountId)
     {
         $clientAccount = ClientAccount::findOne($clientAccountId);
-        return $clientAccount->lkSettings->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT};
+        return $clientAccount->lkSettings->{ImportantEventsNames::MIN_DAY_LIMIT};
     }
 
     /**

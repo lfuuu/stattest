@@ -17,9 +17,9 @@ class MonitoringPersonalSchemesForm extends Form
     use FormExceptionTrait;
 
     public static $knownEvents = [
-        ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
-        ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT,
-        ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_ADD => ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF,
+        ImportantEventsNames::MIN_BALANCE => ImportantEventsNames::MIN_BALANCE,
+        ImportantEventsNames::MIN_DAY_LIMIT => ImportantEventsNames::MIN_DAY_LIMIT,
+        ImportantEventsNames::PAYMENT_ADD => ImportantEventsNames::ADD_PAY_NOTIF,
     ];
 
     /**
@@ -31,9 +31,9 @@ class MonitoringPersonalSchemesForm extends Form
             ->select([
                 'contacts.client_id',
                 'contacts.type',
-                ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => new Expression('MAX(min_balance)'),
-                ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => new Expression('MAX(min_day_limit)'),
-                ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_ADD => new Expression('MAX(add_pay_notif)'),
+                ImportantEventsNames::MIN_BALANCE => new Expression('MAX(min_balance)'),
+                ImportantEventsNames::MIN_DAY_LIMIT => new Expression('MAX(min_day_limit)'),
+                ImportantEventsNames::PAYMENT_ADD => new Expression('MAX(add_pay_notif)'),
             ])
             ->innerJoin(['contacts' => ClientContact::tableName()], 'contacts.id = client_contact_id')
             ->where([

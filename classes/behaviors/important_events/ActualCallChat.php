@@ -27,8 +27,8 @@ class ActualCallChat extends Behavior
      */
     public function ActualClassChatAddEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ENABLED_USAGE,
-            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+        ImportantEvents::create(ImportantEventsNames::ENABLED_USAGE,
+            ImportantEventsSources::SOURCE_STAT, [
                 'client_id' => $event->sender->client_id,
                 'usage' => 'usage_call_chat',
                 'usage_id' => $event->sender->usage_id,
@@ -42,8 +42,8 @@ class ActualCallChat extends Behavior
      */
     public function ActualClassChatUpdateEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_UPDATED_USAGE,
-            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+        ImportantEvents::create(ImportantEventsNames::UPDATED_USAGE,
+            ImportantEventsSources::SOURCE_STAT, [
                 'client_id' => $event->sender->client_id,
                 'usage' => 'usage_call_chat',
                 'usage_id' => $event->sender->usage_id,
@@ -57,8 +57,8 @@ class ActualCallChat extends Behavior
      */
     public function ActualClassChatDeleteEvent($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_DISABLED_USAGE,
-            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+        ImportantEvents::create(ImportantEventsNames::DISABLED_USAGE,
+            ImportantEventsSources::SOURCE_STAT, [
                 'client_id' => $event->sender->client_id,
                 'usage' => 'usage_call_chat',
                 'usage_id' => $event->sender->usage_id,

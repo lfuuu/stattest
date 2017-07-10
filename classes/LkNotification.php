@@ -19,9 +19,9 @@ class LkNotification
     /**
      * @var string $type Тип уведомления
      *
-     * @var string $type ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT
-     * @var string $type ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE
-     * @var string $type ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE
+     * @var string $type ImportantEventsNames::DAY_LIMIT
+     * @var string $type ImportantEventsNames::MIN_BALANCE
+     * @var string $type ImportantEventsNames::ZERO_BALANCE
      */
     private $type = null;
 
@@ -105,9 +105,9 @@ class LkNotification
 
         if ($contactType === 'email') {
             if (in_array($this->type, [
-                ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT,
-                ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE,
-                ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE
+                ImportantEventsNames::DAY_LIMIT,
+                ImportantEventsNames::MIN_BALANCE,
+                ImportantEventsNames::ZERO_BALANCE
             ])) {
                 // реклама услуги ""Уведомление о критическом остатке"
                 $message .= $this->design->fetch($path . '__sms_notification.tpl');
@@ -121,10 +121,10 @@ class LkNotification
     private function getSubject()
     {
         switch ($this->type) {
-            case ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE:
-            case ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE:
-            case ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT:
-            case ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF:
+            case ImportantEventsNames::MIN_BALANCE:
+            case ImportantEventsNames::ZERO_BALANCE:
+            case ImportantEventsNames::DAY_LIMIT:
+            case ImportantEventsNames::ADD_PAY_NOTIF:
                 return Yii::t('settings', 'email_subject_' . $this->type,
                     ['organization' => $this->Client->organization], $this->Client->country->lang);
                 break;

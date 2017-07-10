@@ -138,15 +138,15 @@ class BillerController extends Controller
 
         switch($dayToBlock) {
             case 7:
-                $importantEventName = ImportantEventsNames::IMPORTANT_EVENT_FORECASTING_7DAY;
+                $importantEventName = ImportantEventsNames::FORECASTING_7DAY;
                 break;
 
             case 3:
-                $importantEventName = ImportantEventsNames::IMPORTANT_EVENT_FORECASTING_3DAY;
+                $importantEventName = ImportantEventsNames::FORECASTING_3DAY;
                 break;
 
             case 0:
-                $importantEventName = ImportantEventsNames::IMPORTANT_EVENT_FORECASTING_1DAY;
+                $importantEventName = ImportantEventsNames::FORECASTING_1DAY;
                 break;
 
             default:
@@ -180,7 +180,7 @@ class BillerController extends Controller
                         echo " Balance: {$clientAccount->balance} ({$clientAccount->credit} < " . (-$clientAccount->balance + $forecastBillSum) . ")";
 
                         ImportantEvents::create($importantEventName,
-                            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT,
+                            ImportantEventsSources::SOURCE_STAT,
                             [
                                 'client_id' => $clientAccount->id,
                                 'credit' => $clientAccount->credit,

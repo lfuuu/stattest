@@ -157,9 +157,9 @@ class Actions extends Component
         foreach (LkNoticeSetting::$noticeTypes as $type => $typeInLk) {
             $settings = (new Query)
                 ->select([
-                    ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => new Expression('MAX(ns.min_balance)'),
-                    ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => new Expression('MAX(ns.min_day_limit)'),
-                    ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_ADD => new Expression('MAX(ns.add_pay_notif)'),
+                    ImportantEventsNames::MIN_BALANCE => new Expression('MAX(ns.min_balance)'),
+                    ImportantEventsNames::MIN_DAY_LIMIT => new Expression('MAX(ns.min_day_limit)'),
+                    ImportantEventsNames::PAYMENT_ADD => new Expression('MAX(ns.add_pay_notif)'),
                 ])
                 ->from(['ns' => LkNoticeSetting::tableName()])
                 ->leftJoin(['cc' => ClientContact::tableName()], 'cc.id = ns.client_contact_id')

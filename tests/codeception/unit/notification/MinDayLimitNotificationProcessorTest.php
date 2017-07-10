@@ -26,7 +26,7 @@ class MinDayLimitNotificationProcessorTest extends \yii\codeception\TestCase
 
     private function init($isSet = false)
     {
-        $this->event = ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT;
+        $this->event = ImportantEventsNames::MIN_DAY_LIMIT;
 
         $this->transaction = Yii::$app->getDb()->beginTransaction();
 
@@ -55,8 +55,8 @@ class MinDayLimitNotificationProcessorTest extends \yii\codeception\TestCase
 
         $row = new LkClientSettings();
         $row->client_id = $account->id;
-        $row->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = LkClientSettings::DEFAULT_MIN_BALANCE;
-        $row->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = LkClientSettings::DEFAULT_MIN_DAY_LIMIT;
+        $row->{ImportantEventsNames::MIN_BALANCE} = LkClientSettings::DEFAULT_MIN_BALANCE;
+        $row->{ImportantEventsNames::MIN_DAY_LIMIT} = LkClientSettings::DEFAULT_MIN_DAY_LIMIT;
 
         $row->{$this->event . '_sent'} = new Expression('NOW()');
         $row->{'is_' . $this->event . '_sent'} = ($isSet ? 1 : 0);

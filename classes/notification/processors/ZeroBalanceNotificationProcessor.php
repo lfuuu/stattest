@@ -22,7 +22,7 @@ class ZeroBalanceNotificationProcessor extends NotificationProcessor
      */
     public function getEnterEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE;
+        return ImportantEventsNames::ZERO_BALANCE;
     }
 
     /**
@@ -30,7 +30,7 @@ class ZeroBalanceNotificationProcessor extends NotificationProcessor
      */
     public function getLeaveEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_UNSET_ZERO_BALANCE;
+        return ImportantEventsNames::UNSET_ZERO_BALANCE;
     }
 
     /**

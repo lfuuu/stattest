@@ -5,6 +5,9 @@ namespace app\modules\uu\tarificator;
 use app\classes\Event;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\behaviors\SyncVmCollocation;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -107,6 +110,26 @@ SQL;
                 }
 
                 if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
+
+                    if (!$accountTariff->tariff_period_id) {
+                        // не было тарифа - включение услуги
+                        $eventType = ImportantEventsNames::UU_SWITCHED_ON;
+                    } elseif (!$row['new_tariff_period_id']) {
+                        // не будет тарифа - закрытие услуги
+                        $eventType = ImportantEventsNames::UU_SWITCHED_OFF;
+                    } else {
+                        // "Ленин - жил, Ленин - жив, Ленин - будет жить" - смена тарифа
+                        $eventType = ImportantEventsNames::UU_UPDATED;
+                    }
+
+                    // создать важное событие
+                    ImportantEvents::create($eventType,
+                        ImportantEventsSources::SOURCE_STAT, [
+                            'account_tariff_id' => $accountTariff->id,
+                            'service_type_id' => $accountTariff->service_type_id,
+                            'client_account_id' => $accountTariff->client_account_id,
+                        ]);
+
                     // сменить тариф
                     $accountTariff->tariff_period_id = $row['new_tariff_period_id'];
                     if (!$accountTariff->save()) {

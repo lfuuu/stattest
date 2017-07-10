@@ -43,8 +43,8 @@ class TroubleStages extends Behavior
             $trouble->stage->state_id != $event->sender->state_id
             && !in_array($event->sender->state_id, TroubleStage::$closedStates, true)
         ) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_STATE_TROUBLE,
-                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+            ImportantEvents::create(ImportantEventsNames::SET_STATE_TROUBLE,
+                ImportantEventsSources::SOURCE_STAT, [
                     'trouble_id' => $trouble->id,
                     'stage_id' => $trouble->stage->stage_id,
                     'client_id' => $trouble->account->id,
@@ -53,8 +53,8 @@ class TroubleStages extends Behavior
         }
 
         if ($trouble->stage->user_main != $event->sender->user_main) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_SET_RESPONSIBLE_TROUBLE,
-                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+            ImportantEvents::create(ImportantEventsNames::SET_RESPONSIBLE_TROUBLE,
+                ImportantEventsSources::SOURCE_STAT, [
                     'trouble_id' => $trouble->id,
                     'stage_id' => $trouble->stage->stage_id,
                     'client_id' => $trouble->account->id,
@@ -63,8 +63,8 @@ class TroubleStages extends Behavior
         }
 
         if (!empty($trouble->stage->comment)) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_NEW_COMMENT_TROUBLE,
-                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT, [
+            ImportantEvents::create(ImportantEventsNames::NEW_COMMENT_TROUBLE,
+                ImportantEventsSources::SOURCE_STAT, [
                     'trouble_id' => $trouble->id,
                     'stage_id' => $trouble->stage->stage_id,
                     'client_id' => $trouble->account->id,

@@ -26,7 +26,7 @@ class DayLimitNotificationProcessor extends NotificationProcessor
      */
     public function getEnterEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT;
+        return ImportantEventsNames::DAY_LIMIT;
     }
 
     /**
@@ -34,7 +34,7 @@ class DayLimitNotificationProcessor extends NotificationProcessor
      */
     public function getLeaveEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_UNSET_DAY_LIMIT;
+        return ImportantEventsNames::UNSET_DAY_LIMIT;
     }
 
     /**

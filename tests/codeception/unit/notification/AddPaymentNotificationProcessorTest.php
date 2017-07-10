@@ -31,7 +31,7 @@ class AddPaymentNotificationProcessorTest extends \yii\codeception\TestCase
     private function init()
     {
 
-        $this->event = ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF;
+        $this->event = ImportantEventsNames::ADD_PAY_NOTIF;
 
         $this->transaction = Yii::$app->getDb()->beginTransaction();
 

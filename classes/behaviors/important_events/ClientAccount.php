@@ -33,8 +33,8 @@ class ClientAccount extends Behavior
      */
     public function eventClientAccountAdd($event)
     {
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_NEW_ACCOUNT,
-            ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT,
+        ImportantEvents::create(ImportantEventsNames::NEW_ACCOUNT,
+            ImportantEventsSources::SOURCE_STAT,
             [
                 'client_id' => $event->sender->id,
                 'user_id' => Yii::$app->user->id,
@@ -60,8 +60,8 @@ class ClientAccount extends Behavior
     {
         $changed = array_diff_assoc($event->changedAttributes, $event->sender->attributes);
         if (count($changed)) {
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_ACCOUNT_CHANGED,
-                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT,
+            ImportantEvents::create(ImportantEventsNames::ACCOUNT_CHANGED,
+                ImportantEventsSources::SOURCE_STAT,
                 [
                     'client_id' => $event->sender->id,
                     'user_id' => Yii::$app->user->id,
@@ -72,11 +72,11 @@ class ClientAccount extends Behavior
 
         if (isset($event->changedAttributes['voip_disabled'])) {
             $eventName = $event->sender->voip_disabled ?
-                ImportantEventsNames::IMPORTANT_EVENT_SET_LOCAL_BLOCK :
-                ImportantEventsNames::IMPORTANT_EVENT_UNSET_LOCAL_BLOCK;
+                ImportantEventsNames::SET_LOCAL_BLOCK :
+                ImportantEventsNames::UNSET_LOCAL_BLOCK;
 
             ImportantEvents::create($eventName,
-                ImportantEventsSources::IMPORTANT_EVENT_SOURCE_STAT,
+                ImportantEventsSources::SOURCE_STAT,
                 [
                     'client_id' => $event->sender->id,
                     'user_id' => Yii::$app->user->id,

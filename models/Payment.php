@@ -191,7 +191,7 @@ class Payment extends ActiveRecord
         if ($insert) {
             Transaction::dao()->insertByPayment($this);
 
-            ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_ADD,
+            ImportantEvents::create(ImportantEventsNames::PAYMENT_ADD,
                 ImportantEventsSources::SOURCE_STAT, [
                     'client_id' => $this->client_id,
                     'sum' => $this->sum,
@@ -210,7 +210,7 @@ class Payment extends ActiveRecord
     public function beforeDelete()
     {
         Transaction::dao()->deleteByPaymentId($this->id);
-        ImportantEvents::create(ImportantEventsNames::IMPORTANT_EVENT_PAYMENT_DELETE,
+        ImportantEvents::create(ImportantEventsNames::PAYMENT_DELETE,
             ImportantEventsSources::SOURCE_STAT, [
                 'client_id' => $this->client_id,
                 'sum' => $this->sum,

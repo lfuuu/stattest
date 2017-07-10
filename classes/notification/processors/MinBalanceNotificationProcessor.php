@@ -16,7 +16,7 @@ class MinBalanceNotificationProcessor extends NotificationProcessor
      */
     public function getEnterEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE;
+        return ImportantEventsNames::MIN_BALANCE;
     }
 
     /**
@@ -24,7 +24,7 @@ class MinBalanceNotificationProcessor extends NotificationProcessor
      */
     public function getLeaveEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_UNSET_MIN_BALANCE;
+        return ImportantEventsNames::UNSET_MIN_BALANCE;
     }
 
     /**

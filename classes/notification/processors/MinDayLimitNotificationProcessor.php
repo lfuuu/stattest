@@ -16,7 +16,7 @@ class MinDayLimitNotificationProcessor extends NotificationProcessor
      */
     public function getEnterEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT;
+        return ImportantEventsNames::MIN_DAY_LIMIT;
     }
 
     /**
@@ -24,7 +24,7 @@ class MinDayLimitNotificationProcessor extends NotificationProcessor
      */
     public function getLeaveEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_UNSET_MIN_DAY_LIMIT;
+        return ImportantEventsNames::UNSET_MIN_DAY_LIMIT;
     }
 
     /**

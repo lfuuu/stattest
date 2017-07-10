@@ -41,8 +41,8 @@ class LkClientSettings extends ActiveRecord
             if (!$row) {
                 $row = new LkClientSettings;
                 $row->client_id = $client->id;
-                $row->{ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE} = self::DEFAULT_MIN_BALANCE;
-                $row->{ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT} = self::DEFAULT_MIN_DAY_LIMIT;
+                $row->{ImportantEventsNames::MIN_BALANCE} = self::DEFAULT_MIN_BALANCE;
+                $row->{ImportantEventsNames::MIN_DAY_LIMIT} = self::DEFAULT_MIN_DAY_LIMIT;
             }
             $row->{$event . '_sent'} = new Expression('NOW()');
             $row->{'is_' . $event . '_sent'} = 1;

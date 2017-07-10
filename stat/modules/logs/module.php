@@ -80,11 +80,11 @@ class m_logs extends IModule{
 		$design->assign('url', '?' . $url . '&');
 
 		$events_description = array(
-				ImportantEventsNames::IMPORTANT_EVENT_MIN_BALANCE => 'Критический остаток',
-				ImportantEventsNames::IMPORTANT_EVENT_ZERO_BALANCE => 'Финансовая блокировка',
-				ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT => 'Блокировка по суточному лимиту',
-				ImportantEventsNames::IMPORTANT_EVENT_MIN_DAY_LIMIT => 'Минимальный суточный лимит',
-				ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF => 'Зачисление средств',
+				ImportantEventsNames::MIN_BALANCE => 'Критический остаток',
+				ImportantEventsNames::ZERO_BALANCE => 'Финансовая блокировка',
+				ImportantEventsNames::DAY_LIMIT => 'Блокировка по суточному лимиту',
+				ImportantEventsNames::MIN_DAY_LIMIT => 'Минимальный суточный лимит',
+				ImportantEventsNames::ADD_PAY_NOTIF => 'Зачисление средств',
 				'prebil_prepayers_notif' => 'Списание абонентской платы авансовым клиентам'
 				
 			);

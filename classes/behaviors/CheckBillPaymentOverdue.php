@@ -103,8 +103,8 @@ class CheckBillPaymentOverdue extends Behavior
 
         ImportantEvents::create(
             ($account->is_bill_pay_overdue ?
-                ImportantEventsNames::IMPORTANT_EVENT_INVOCE_PAYMENT_DELAY :
-                ImportantEventsNames::IMPORTANT_EVENT_INVOICE_PAYMENT_DONE
+                ImportantEventsNames::INVOCE_PAYMENT_DELAY :
+                ImportantEventsNames::INVOICE_PAYMENT_DONE
             ),
             ImportantEventsSources::SOURCE_STAT,
             [

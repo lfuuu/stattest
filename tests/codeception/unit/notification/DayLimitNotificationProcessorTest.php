@@ -24,7 +24,7 @@ class DayLimitNotificationProcessorTest extends \yii\codeception\TestCase
 
     private function init()
     {
-        $this->event = ImportantEventsNames::IMPORTANT_EVENT_DAY_LIMIT;
+        $this->event = ImportantEventsNames::DAY_LIMIT;
 
         $this->transaction = Yii::$app->getDb()->beginTransaction();
 

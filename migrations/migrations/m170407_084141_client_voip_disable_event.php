@@ -13,13 +13,13 @@ class m170407_084141_client_voip_disable_event extends \app\classes\Migration
     public function safeUp()
     {
         $this->insert(ImportantEventsNames::tableName(), [
-            'code' => ImportantEventsNames::IMPORTANT_EVENT_SET_LOCAL_BLOCK,
+            'code' => ImportantEventsNames::SET_LOCAL_BLOCK,
             'value' => 'Установлена локальная блокировка',
             'group_id' => ImportantEventsGroups::ID_ACCOUNT
         ]);
 
         $this->insert(ImportantEventsNames::tableName(), [
-            'code' => ImportantEventsNames::IMPORTANT_EVENT_UNSET_LOCAL_BLOCK,
+            'code' => ImportantEventsNames::UNSET_LOCAL_BLOCK,
             'value' => 'Снята локальная блокировка',
             'group_id' => ImportantEventsGroups::ID_ACCOUNT
         ]);
@@ -31,8 +31,8 @@ class m170407_084141_client_voip_disable_event extends \app\classes\Migration
     public function safeDown()
     {
         $this->delete(ImportantEventsNames::tableName(), ['code' => [
-            ImportantEventsNames::IMPORTANT_EVENT_SET_LOCAL_BLOCK,
-            ImportantEventsNames::IMPORTANT_EVENT_UNSET_LOCAL_BLOCK
+            ImportantEventsNames::SET_LOCAL_BLOCK,
+            ImportantEventsNames::UNSET_LOCAL_BLOCK
         ]]);
     }
 }

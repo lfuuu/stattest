@@ -41,7 +41,7 @@ class AddPaymentNotificationProcessor extends NotificationProcessor
      */
     public function getEnterEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF;
+        return ImportantEventsNames::ADD_PAY_NOTIF;
     }
 
     /**
@@ -49,7 +49,7 @@ class AddPaymentNotificationProcessor extends NotificationProcessor
      */
     public function getLeaveEvent()
     {
-        return ImportantEventsNames::IMPORTANT_EVENT_ADD_PAY_NOTIF;
+        return ImportantEventsNames::ADD_PAY_NOTIF;
     }
 
 
