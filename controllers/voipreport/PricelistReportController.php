@@ -52,7 +52,7 @@ class PricelistReportController extends BaseController
         $pricelistReport->prepareData();
 
         return $this->render('calculate', [
-            'pricelistReportId' => $pricelistReport->id,
+            'pricelistReport' => $pricelistReport,
             'pricelistReportData' => $pricelistReport->getData(),
             'currencyMap' => Currency::map(),
             'countries' => GeoCountry::getList($isWithEmpty = true),

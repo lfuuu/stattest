@@ -1,7 +1,7 @@
 <?php
 /**
  * @var app\classes\BaseView $this
- * @var int $pricelistReportId
+ * @var \app\models\billing\PricelistReport $pricelistReport
  * @var array $pricelistReportData
  * @var string[] $currencyMap
  * @var array $countries
@@ -27,12 +27,17 @@ echo Breadcrumbs::widget([
     'links' => [
         ['label' => 'Межоператорка (отчеты)'],
         ['label' => 'Анализ прайс-листов', 'url' => '/voipreport/pricelist-report',],
-        ['label' => $title, 'url' => '/voipreport/pricelist-report/calculate?reportId=' . $pricelistReportId],
+        ['label' => $title, 'url' => '/voipreport/pricelist-report/calculate?reportId=' . $pricelistReport->id],
+        $pricelistReport->name ?: 'Без названия',
     ],
 ]);
 
-$this->registerJsVariable('pricelistReportId', $pricelistReportId);
+$this->registerJsVariable('pricelistReportId', $pricelistReport->id);
 ?>
+
+<div class="well col-sm-12 text-center">
+    <b><?= $pricelistReport->name ?: 'Без названия' ?></b>
+</div>
 
 <div class="well col-sm-12">
     <form id="pricelist-report-currency-frm">
@@ -184,7 +189,7 @@ $this->registerJsVariable('pricelistReportId', $pricelistReportId);
 <div id="pricelist-report-tbl-toolbar">
     <form
         id="pricelist-export-frm"
-        action="<?= Url::toRoute(['/voipreport/pricelist-report/get-pricelist-export', 'reportId' => $pricelistReportId]) ?>"
+        action="<?= Url::toRoute(['/voipreport/pricelist-report/get-pricelist-export', 'reportId' => $pricelistReport->id]) ?>"
         method="post"
         target="_blank"
     >
