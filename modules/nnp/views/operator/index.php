@@ -6,6 +6,7 @@
  * @var OperatorFilter $filterModel
  */
 
+use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
@@ -50,12 +51,20 @@ $columns = [
         'hAlign' => GridView::ALIGN_CENTER,
     ],
     [
+        'attribute' => 'id',
+        'class' => IntegerColumn::className(),
+    ],
+    [
         'attribute' => 'country_code',
         'class' => CountryColumn::className(),
         'indexBy' => 'code',
     ],
     [
         'attribute' => 'name',
+        'class' => StringColumn::className(),
+    ],
+    [
+        'attribute' => 'name_translit',
         'class' => StringColumn::className(),
     ],
     [

@@ -17,6 +17,7 @@ class NumberRangeController extends BaseController
      * Список
      *
      * @return string
+     * @throws \app\exceptions\ModelValidationException
      * @throws \yii\db\Exception
      * @throws \yii\base\InvalidParamException
      */
@@ -32,8 +33,13 @@ class NumberRangeController extends BaseController
         $filterModel->load($get);
 
         $post = Yii::$app->request->post();
+
         if (isset($post['Prefix'])) {
             $filterModel->addOrRemoveFilterModelToPrefix($post['Prefix']);
+        }
+
+        if (isset($post['resetOptions']) && $post['resetOptions']) {
+            $filterModel->resetLinks($post['resetOptions']);
         }
 
         if (isset($post['disableTriggerButton'])) {

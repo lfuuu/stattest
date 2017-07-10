@@ -10,6 +10,7 @@ use yii\helpers\Url;
 /**
  * @property int $id
  * @property string $name
+ * @property string $name_translit
  * @property int $country_code
  * @property int $region_id
  * @property int $cnt
@@ -36,6 +37,7 @@ class City extends ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Название',
+            'name_translit' => 'Название транслитом',
             'country_code' => 'Страна',
             'region_id' => 'Регион',
             'cnt' => 'Кол-во номеров',
@@ -58,7 +60,7 @@ class City extends ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'string'],
+            [['name', 'name_translit'], 'string'],
             [['country_code', 'region_id'], 'integer'],
             [['name', 'country_code'], 'required'],
         ];

@@ -4,6 +4,7 @@ namespace app\modules\nnp\classes;
 
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
+use app\helpers\TranslitHelper;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Region;
 use app\modules\nnp\Module;
@@ -79,6 +80,7 @@ class RegionLinker extends Singleton
         $log .= $this->_setNull();
         $log .= $this->_link();
         $log .= $this->_updateCnt();
+        $log .= $this->_transliterate();
 
         return $log;
     }
@@ -254,7 +256,7 @@ SQL;
                 (
                     SELECT
                         region_id,
-                        COALESCE(SUM(number_to - number_from + 1), 1) AS cnt 
+                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 999999999) AS cnt  -- любое большое число, чтобы не было переполнения
                     FROM
                         {$numberRangeTableName} 
                     WHERE
@@ -275,5 +277,20 @@ SQL;
         );
 
         return $log;
+    }
+
+    /**
+     * Транслитировать
+     */
+    private function _transliterate()
+    {
+        $regionQuery = Region::find()->where(['name_translit' => null]);
+        /** @var Region $region */
+        foreach ($regionQuery->each() as $region) {
+            $region->name_translit = TranslitHelper::t($region->name);
+            if (!$region->save()) {
+                throw new ModelValidationException($region);
+            }
+        }
     }
 }

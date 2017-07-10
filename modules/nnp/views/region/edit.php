@@ -48,8 +48,13 @@ if (!$region->isNewRecord) {
         </div>
 
         <?php // Название ?>
-        <div class="col-sm-6">
+        <div class="col-sm-4">
             <?= $form->field($region, 'name')->textInput() ?>
+        </div>
+
+        <?php // Название транслитом ?>
+        <div class="col-sm-4">
+            <?= $form->field($region, 'name_translit')->textInput() ?>
         </div>
 
         <?php // Кол-во ?>

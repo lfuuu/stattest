@@ -10,7 +10,9 @@ use yii\data\ActiveDataProvider;
  */
 class OperatorFilter extends Operator
 {
+    public $id = '';
     public $name = '';
+    public $name_translit = '';
     public $country_code = '';
     public $cnt_from = '';
     public $cnt_to = '';
@@ -21,8 +23,8 @@ class OperatorFilter extends Operator
     public function rules()
     {
         return [
-            [['name'], 'string'],
-            [['country_code', 'cnt_from', 'cnt_to'], 'integer'],
+            [['name', 'name_translit'], 'string'],
+            [['id', 'country_code', 'cnt_from', 'cnt_to'], 'integer'],
         ];
     }
 
@@ -40,6 +42,8 @@ class OperatorFilter extends Operator
         ]);
 
         $this->name && $query->andWhere(['LIKE', $operatorTableName . '.name', $this->name]);
+        $this->name_translit && $query->andWhere(['LIKE', $operatorTableName . '.name_translit', $this->name_translit]);
+        $this->id && $query->andWhere([$operatorTableName . '.id' => $this->id]);
         $this->country_code && $query->andWhere([$operatorTableName . '.country_code' => $this->country_code]);
 
         $this->cnt_from !== '' && $query->andWhere(['>=', $operatorTableName . '.cnt', $this->cnt_from]);

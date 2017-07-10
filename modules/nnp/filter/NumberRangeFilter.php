@@ -3,6 +3,7 @@
 namespace app\modules\nnp\filter;
 
 use app\classes\Connection;
+use app\classes\Event;
 use app\classes\traits\GetListTrait;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\NumberRangePrefix;
@@ -180,6 +181,39 @@ class NumberRangeFilter extends NumberRange
     }
 
     /**
+     * Для всех отфильтрованных записей операторов/регионов/городов отвязать их и автоматически привязать заново.
+     *
+     * @param array $resetOptions
+     * @return bool
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\Exception
+     */
+    public function resetLinks($resetOptions)
+    {
+        $attributes = [];
+        in_array('operator', $resetOptions, true) && $attributes['operator_id'] = null;
+        in_array('region', $resetOptions, true) && $attributes['region_id'] = null;
+        in_array('city', $resetOptions, true) && $attributes['city_id'] = null;
+        if (!$attributes) {
+            return false;
+        }
+
+        /** @var ActiveQuery $query */
+        $query = $this->search()->query;
+        $affectedRows = NumberRange::updateAll($attributes, $query->where);
+
+        Yii::$app->session->setFlash('success',
+            'Сброшено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]) .
+            '. Через несколько минут они привяжутся заново автоматически.'
+        );
+
+        // поставить в очередь для пересчета операторов, регионов и городов
+        Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+
+        return true;
+    }
+
+    /**
      * Добавить/удалить отфильтрованные записи в префикс
      *
      * @param array $postPrefix
@@ -278,6 +312,8 @@ SQL;
                 Yii::$app->session->setFlash('success', 'В префикс добавлено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]));
             }
         );
+
+        return true;
     }
 
     /**
@@ -305,6 +341,8 @@ SQL;
                 Yii::$app->session->setFlash('success', 'Из префикса удалено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]));
             }
         );
+
+        return true;
     }
 
 }

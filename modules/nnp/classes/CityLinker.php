@@ -4,6 +4,7 @@ namespace app\modules\nnp\classes;
 
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
+use app\helpers\TranslitHelper;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\Module;
@@ -37,6 +38,7 @@ class CityLinker extends Singleton
         $log .= $this->_setNull();
         $log .= $this->_link();
         $log .= $this->_updateCnt();
+        $log .= $this->_transliterate();
 
         return $log;
     }
@@ -184,7 +186,7 @@ SQL;
                 (
                     SELECT
                         city_id,
-                        COALESCE(SUM(number_to - number_from + 1), 1) AS cnt 
+                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 999999999) AS cnt  -- любое большое число, чтобы не было переполнения
                     FROM
                         {$numberRangeTableName} 
                     WHERE
@@ -205,5 +207,20 @@ SQL;
         );
 
         return $log;
+    }
+
+    /**
+     * Транслитировать
+     */
+    private function _transliterate()
+    {
+        $cityQuery = City::find()->where(['name_translit' => null]);
+        /** @var City $city */
+        foreach ($cityQuery->each() as $city) {
+            $city->name_translit = TranslitHelper::t($city->name);
+            if (!$city->save()) {
+                throw new ModelValidationException($city);
+            }
+        }
     }
 }

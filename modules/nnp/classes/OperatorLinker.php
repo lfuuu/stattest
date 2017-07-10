@@ -4,6 +4,7 @@ namespace app\modules\nnp\classes;
 
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
+use app\helpers\TranslitHelper;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\Module;
@@ -32,6 +33,7 @@ class OperatorLinker extends Singleton
         $log .= $this->_setNull();
         $log .= $this->_link();
         $log .= $this->_updateCnt();
+        $log .= $this->_transliterate();
 
         return $log;
     }
@@ -150,7 +152,7 @@ SQL;
                 (
                     SELECT
                         operator_id,
-                        COALESCE(SUM(number_to - number_from + 1), 1) AS cnt 
+                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 999999999) AS cnt  -- любое большое число, чтобы не было переполнения
                     FROM
                         {$numberRangeTableName} 
                     WHERE
@@ -171,5 +173,20 @@ SQL;
         );
 
         return $log;
+    }
+
+    /**
+     * Транслитировать
+     */
+    private function _transliterate()
+    {
+        $operatorQuery = Operator::find()->where(['name_translit' => null]);
+        /** @var Operator $operator */
+        foreach ($operatorQuery->each() as $operator) {
+            $operator->name_translit = TranslitHelper::t($operator->name);
+            if (!$operator->save()) {
+                throw new ModelValidationException($operator);
+            }
+        }
     }
 }
