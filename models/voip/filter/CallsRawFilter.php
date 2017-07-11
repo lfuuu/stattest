@@ -96,8 +96,10 @@ class CallsRawFilter extends Model
         'dst_city_name' => 'Город номера В',
         'src_ndc_type_id' => 'Тип номера А',
         'dst_ndc_type_id' => 'Тип номера B',
-        'round(sale::numeric, 2) AS sale' => 'Продажа',
-        'round(cost_price::numeric, 2) AS cost_price' => 'Себестоимость'
+        'round(sale::numeric, 4) AS sale' => 'Продажа',
+        'round(cost_price::numeric, 4) AS cost_price' => 'Себестоимость',
+        'round(orig_rate::numeric, 4) AS orig_rate' => 'Тариф продажи',
+        'round(term_rate::numeric, 4) AS term_rate' => 'Тариф себестоимости'
     ];
 
     public $aggrConst = [
