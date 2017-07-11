@@ -88,7 +88,7 @@ return [
         'value' => function ($model) use ($filterModel) {
             return $model['sale'] / $filterModel->currency_rate;
         },
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'label' => 'Себестоимость',
@@ -96,7 +96,7 @@ return [
         'value' => function ($model) use ($filterModel) {
             return $model['cost_price'] / $filterModel->currency_rate;
         },
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'label' => 'Маржа',
@@ -104,7 +104,7 @@ return [
         'value' => function ($model) use ($filterModel) {
             return $model['margin'] / $filterModel->currency_rate;
         },
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'label' => 'Стоимость минуты: оригинация',
@@ -112,7 +112,7 @@ return [
         'value' => function ($model) use ($filterModel) {
             return $model['orig_rate'] / $filterModel->currency_rate;
         },
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'label' => 'Стоимость минуты: теминация',
@@ -120,7 +120,7 @@ return [
         'value' => function ($model) use ($filterModel) {
             return $model['term_rate'] / $filterModel->currency_rate;
         },
-        'format' => ['decimal', 2],
+        'format' => ['decimal', 4],
     ],
     [
         'label' => 'ПДД',

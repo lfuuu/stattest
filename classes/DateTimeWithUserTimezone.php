@@ -100,7 +100,7 @@ class DateTimeWithUserTimezone extends DateTime
     }
 
     /**
-     * Вернуть значение секунд в формате минуты:секунды
+     * Вернуть значение секунд в формате  минуты,сотая_доля_минуты
      *
      * @param int $value
      *
@@ -109,7 +109,7 @@ class DateTimeWithUserTimezone extends DateTime
      */
     public static function formatSecondsToMinutesAndSeconds($value)
     {
-        return $value !== null ? str_pad(floor($value / 60), 2, '0', STR_PAD_LEFT) . ':' . str_pad($value % 60, 2, '0', STR_PAD_LEFT) : null;
+        return $value !== null ? str_pad(floor($value / 60), 2, '0', STR_PAD_LEFT) . ',' . str_pad(round($value % 60 / 60 * 100), 2, '0', STR_PAD_LEFT) : null;
     }
 
 }

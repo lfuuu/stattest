@@ -26,18 +26,18 @@ if (!isset(Yii::$app->request->get()['_pjax'])) {
 }
 
 $aggrDigitCount = [
-    'sale_sum' => 2,
-    'sale_avg' => 2,
-    'sale_min' => 2,
-    'sale_max' => 2,
-    'cost_price_sum' => 2,
-    'cost_price_avg' => 2,
-    'cost_price_min' => 2,
-    'cost_price_max' => 2,
-    'margin_sum' => 2,
-    'margin_avg' => 2,
-    'margin_min' => 2,
-    'margin_max' => 2,
+    'sale_sum' => 4,
+    'sale_avg' => 4,
+    'sale_min' => 4,
+    'sale_max' => 4,
+    'cost_price_sum' => 4,
+    'cost_price_avg' => 4,
+    'cost_price_min' => 4,
+    'cost_price_max' => 4,
+    'margin_sum' => 4,
+    'margin_avg' => 4,
+    'margin_min' => 4,
+    'margin_max' => 4,
 ];
 
 $columns = [];
@@ -58,11 +58,11 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
                     'attribute' => $attr,
             ];
 
-            if ($attr == 'sale' || $attr == 'cost_price') {
+            if (in_array($attr, ['sale', 'cost_price', 'orig_rate', 'term_rate'])) {
                 $column['value'] = function ($model) use ($attr, $filterModel) {
                     return $model[$attr] / $filterModel->currency_rate;
                 };
-                $column['format'] = ['decimal', 2];
+                $column['format'] = ['decimal', 4];
             }
 
             if ($attr == 'src_ndc_type_id' || $attr == 'dst_ndc_type_id') {
