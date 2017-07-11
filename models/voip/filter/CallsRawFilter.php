@@ -300,7 +300,7 @@ class CallsRawFilter extends Model
          * +
          * Проверяем не составляет ли интервал больше одного месяца
          */
-        if ($this->connect_time_from && $this->connect_time_to) {
+        if ($this->connect_time_from) {
             $this->dateStart = new \DateTime($this->connect_time_from);
             $dateEnd = new \DateTime($this->connect_time_to);
             $dateEnd->modify('-1 second');

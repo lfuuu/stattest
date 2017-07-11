@@ -42,7 +42,6 @@ trait CallsRawSlowReport
                     'sale' => new Expression(self::getMoneyCalculateExpression('@(cr.cost)')),
                     'orig_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
                     'cr.server_id',
-                    'src_ndc_type_id' => 'src_nrd.ndc_type_id',
                 ]
             )
             ->from('calls_raw.calls_raw cr')
@@ -72,7 +71,6 @@ trait CallsRawSlowReport
                 'cost_price' => new Expression(self::getMoneyCalculateExpression('cr.cost')),
                 'term_rate' => new Expression(self::getMoneyCalculateExpression('cr.rate')),
                 'cr.server_id',
-                'dst_ndc_type_id' => 'dst_nrd.ndc_type_id'
             ]
         )
             ->from('calls_raw.calls_raw cr')
@@ -224,6 +222,14 @@ trait CallsRawSlowReport
 
         $query1 = $this->setDestinationCondition($query1, $this->src_destinations_ids, $this->src_number_type_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
         $query2 = $this->setDestinationCondition($query2, $this->dst_destinations_ids, $this->dst_number_type_ids, 'cr.nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
+
+        if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
+            $query1->addSelect(['src_ndc_type_id' => 'src_nrd.ndc_type_id']);
+        }
+
+        if ($isDstNdcTypeGroup || $this->dst_destinations_ids || $this->dst_number_type_ids) {
+            $query2->addSelect(['dst_ndc_type_id' => 'dst_nrd.ndc_type_id']);
+        }
 
         if ($this->is_success_calls) {
             $condition = ['or', 'billed_time > 0', ['disconnect_cause' => DisconnectCause::$successCodes]];

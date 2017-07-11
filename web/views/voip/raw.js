@@ -14,6 +14,9 @@
             .on('pjax:end', 'div[data-pjax-container]', function () {
                 $(this).find('.kv-grid-container > .kv-grid-table').removeClass('kv-grid-loading');
                 $('div[data-pjax-container] > div').yiiGridView({'filterUrl':'', 'filterSelector':'.beforeHeaderFilters input, .beforeHeaderFilters select'});
+
+                $('a[data-uid]').gridViewDrivers();
+
                 $(document).off('change.yiiGridView', '.beforeHeaderFilters input, .beforeHeaderFilters select');
             });
 
