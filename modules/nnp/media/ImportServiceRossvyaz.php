@@ -67,13 +67,13 @@ class ImportServiceRossvyaz extends ImportService
         return
             [
                 (int)$row[0], // ndc
-                (int)$row[1], // number_from
-                (int)$row[2], // number_to
+                trim($row[1]), // number_from
+                trim($row[2]), // number_to
                 ($row[0] == 800) ? NdcType::ID_FREEPHONE : $this->_ndcTypeId, // ndc_type_id
                 $this->_iconv($row[4]), // operator_source
                 $this->_iconv($row[5]), // region_source
-                Country::RUSSIA_PREFIX . ((int)$row[0]) . ((int)$row[1]), // full_number_from
-                Country::RUSSIA_PREFIX . ((int)$row[0]) . ((int)$row[2]), // full_number_to
+                Country::RUSSIA_PREFIX . ((int)$row[0]) . trim($row[1]), // full_number_from
+                Country::RUSSIA_PREFIX . ((int)$row[0]) . trim($row[2]), // full_number_to
                 null, // date_resolution
                 null, // detail_resolution
                 null, // status_number
