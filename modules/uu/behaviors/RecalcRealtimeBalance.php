@@ -39,7 +39,7 @@ class RecalcRealtimeBalance extends Behavior
         $payment = $event->sender;
 
         \app\classes\Event::go(self::EVENT_RECALC, [
-                'accountClientId' => $payment->client_id,
+                'clientAccountId' => $payment->client_id,
             ]
         );
     }

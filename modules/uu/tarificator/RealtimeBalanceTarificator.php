@@ -15,18 +15,18 @@ use Yii;
 class RealtimeBalanceTarificator extends Tarificator
 {
     /**
-     * @param int|null $accountClientId Если указан, то только для этого ЛС. Если не указан - для всех
+     * @param int|null $clientAccountId Если указан, то только для этого ЛС. Если не указан - для всех
      * @throws \yii\db\Exception
      */
-    public function tarificate($accountClientId = null)
+    public function tarificate($clientAccountId = null)
     {
         $db = Yii::$app->db;
 
         $clientAccountTableName = ClientAccount::tableName();
         $versionBillerUniversal = ClientAccount::VERSION_BILLER_UNIVERSAL;
 
-        if ($accountClientId) {
-            $sqlAndWhere = ' AND clients.id = ' . $accountClientId;
+        if ($clientAccountId) {
+            $sqlAndWhere = ' AND clients.id = ' . $clientAccountId;
         } else {
             $sqlAndWhere = '';
         }
@@ -139,40 +139,7 @@ SQL;
         $this->out('. ');
 
 
-        // транзакции за МГП, которые пока не учтены в счете @todo учитывать НДС
-        $accountTariffTableName = AccountTariff::tableName();
-        $accountLogMinTableName = AccountLogMin::tableName();
-        $selectSQL = <<<SQL
-            UPDATE
-                clients_tmp,
-                (
-                    SELECT
-                        clients.id AS client_id,
-                        SUM(COALESCE(account_log.price, 0)) AS balance
-                    FROM
-                        {$clientAccountTableName} clients,
-                        {$accountTariffTableName} account_tariff,
-                        {$accountLogMinTableName} account_log
-                    WHERE
-                        clients.account_version = {$versionBillerUniversal}
-                        AND clients.id = account_tariff.client_account_id
-                        AND account_tariff.id = account_log.account_tariff_id
-                        AND account_log.account_entry_id IS NULL
-                        {$sqlAndWhere}
-                    GROUP BY
-                        clients.id
-                ) t
-            SET
-                clients_tmp.balance = clients_tmp.balance - t.balance
-            WHERE
-                t.client_id = clients_tmp.id
-SQL;
-        $db->createCommand($selectSQL)
-            ->execute();
-        $this->out('. ');
-
-
-        if ($accountClientId) {
+        if ($clientAccountId) {
             // вызов триггером по конкретной модели (смена тарифа прямо сейчас или платеж). Но это не пересчитывает ресурсы, поэтому дату не надо обновлять
             $updateSqlSet = '';
         } else {

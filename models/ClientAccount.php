@@ -40,6 +40,7 @@ use yii\helpers\Url;
  * @property string $nal
  * @property int $balance
  * @property int $credit
+ * @property int $credit_mgp
  * @property int $voip_credit_limit_day
  * @property int $voip_limit_mn_day
  * @property int $voip_disabled
@@ -313,6 +314,7 @@ class ClientAccount extends HistoryActiveRecord
             'form_type' => 'Формирование с/ф',
             'credit' => 'Разрешить кредит',
             'credit_size' => 'Размер кредита',
+            'credit_mgp' => 'Кредит МГП',
             'corr_acc' => 'К/С',
             'pay_acc' => 'Р/С',
             'bank_name' => 'Название банка',

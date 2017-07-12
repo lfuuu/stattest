@@ -62,6 +62,9 @@ class UbillerController extends Controller
         // Месячную финансовую блокировку заменить на постоянную
         $this->actionFinanceBlock();
 
+        // Расчет технического кредита МГП
+        $this->actionCreditMgp();
+
         return Controller::EXIT_CODE_NORMAL;
     }
 
@@ -208,6 +211,14 @@ class UbillerController extends Controller
     public function actionFinanceBlock()
     {
         $this->_tarificate('FinanceBlockTarificator', 'Месячную финансовую блокировку заменить на постоянную');
+    }
+
+    /**
+     * Расчет технического кредита МГП. 1 секунда
+     */
+    public function actionCreditMgp()
+    {
+        $this->_tarificate('CreditMgpTarificator', 'Расчет технического кредита МГП');
     }
 
     /**

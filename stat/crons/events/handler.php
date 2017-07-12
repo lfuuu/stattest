@@ -242,7 +242,7 @@ function doEvents()
 
                 case RecalcRealtimeBalance::EVENT_RECALC:
                     // Пересчитать realtime баланс
-                    RecalcRealtimeBalance::recalc($param['accountClientId']);
+                    RecalcRealtimeBalance::recalc($param['clientAccountId']);
                     break;
 
                 case SendToOnlineCashRegister::EVENT_SEND:

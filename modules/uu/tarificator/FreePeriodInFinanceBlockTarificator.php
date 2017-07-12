@@ -44,7 +44,7 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
         $sql = <<<SQL
             CREATE TEMPORARY TABLE set_unset_zero_tmp
             SELECT
-                clients.id AS client_id,
+                set_zero.client_id AS client_id,
                 DATE(DATE_ADD(set_zero.`date`, INTERVAL 1 DAY)) AS date_set_zero,
                 COALESCE(
                     (
@@ -53,7 +53,7 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
                         FROM
                             {$importantEventsTableName} unset_zero
                         WHERE
-                            unset_zero.client_id = clients.id
+                            unset_zero.client_id = set_zero.client_id
                             AND unset_zero.event = :unsetZeroBalance
                             AND unset_zero.`date` >= set_zero.`date`
                     ),
@@ -61,21 +61,17 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
                 ) AS date_unset_zero
                 
             FROM
-                {$clientAccountTableName} clients,
                 {$importantEventsTableName} set_zero
                
             WHERE
-                clients.account_version = :account_version
-                AND clients.id = set_zero.client_id 
-                AND set_zero.event = :setZeroBalance 
+                set_zero.event = :setZeroBalance 
             
             GROUP BY
-                clients.id,
+                set_zero.client_id,
                 set_zero.`date`
 SQL;
 
         $count = $db->createCommand($sql, [
-            ':account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ':max_date' => UsageInterface::MAX_POSSIBLE_DATE,
             ':setZeroBalance' => ImportantEventsNames::ZERO_BALANCE,
             ':unsetZeroBalance' => ImportantEventsNames::UNSET_ZERO_BALANCE,

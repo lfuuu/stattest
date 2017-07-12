@@ -11,10 +11,10 @@ use app\modules\uu\models\Bill;
 class BillConverterTarificator extends Tarificator
 {
     /**
-     * @param int|null $accountClientId Если указан, то только для этого ЛС. Если не указан - для всех
+     * @param int|null $clientAccountId Если указан, то только для этого ЛС. Если не указан - для всех
      * @throws \Exception
      */
-    public function tarificate($accountClientId = null)
+    public function tarificate($clientAccountId = null)
     {
         $activeQuery = Bill::find()
             ->where(['is_converted' => 0]) // которые не сконвертированы или изменились после конвертирования
@@ -27,9 +27,9 @@ class BillConverterTarificator extends Tarificator
                     ->format(DateTimeZoneHelper::DATE_FORMAT),
             ]);
 
-        if ($accountClientId) {
+        if ($clientAccountId) {
             // только конкретный ЛС
-            $activeQuery->andWhere(['client_account_id' => $accountClientId]);
+            $activeQuery->andWhere(['client_account_id' => $clientAccountId]);
         }
 
         /** @var Bill $bill */

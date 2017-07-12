@@ -3,7 +3,6 @@
 namespace app\modules\uu\tarificator;
 
 use app\helpers\DateTimeZoneHelper;
-use app\models\ClientAccount;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\Tariff;
@@ -24,9 +23,6 @@ class AutoCloseAccountTariffTarificator extends Tarificator
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
         $db = Yii::$app->db;
-        $versionBillerUniversal = ClientAccount::VERSION_BILLER_UNIVERSAL;
-
-        $clientAccountTableName = ClientAccount::tableName();
         $accountTariffTableName = AccountTariff::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
@@ -36,14 +32,11 @@ class AutoCloseAccountTariffTarificator extends Tarificator
                 SELECT
                     account_tariff.id
                 FROM
-                    {$clientAccountTableName} clients,
                     {$accountTariffTableName} account_tariff,
                     {$tariffPeriodTableName} tariff_period,
                     {$tariffTableName} tariff
                 WHERE
-                    clients.account_version = {$versionBillerUniversal}
-                    AND clients.id = account_tariff.client_account_id
-                    AND account_tariff.tariff_period_id = tariff_period.id
+                    account_tariff.tariff_period_id = tariff_period.id
                     AND tariff_period.tariff_id = tariff.id
                     AND tariff.is_autoprolongation = 0
 SQL;
