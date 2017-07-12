@@ -134,8 +134,6 @@ class RegionLinker extends Singleton
                 'name' => new Expression('CONCAT(country_code, region_source)'),
             ])
             ->where('region_id IS NOT NULL')
-            ->andWhere(['IS NOT', 'region_source', null])
-            ->andWhere(['!=', 'region_source', ''])
             ->indexBy('name')
             ->column();
 
@@ -149,7 +147,7 @@ class RegionLinker extends Singleton
             }
 
             if (
-                ($key1 = $numberRange->country_code . $numberRange->region_source) &&
+                ($key1 = $numberRange->country_code . trim($numberRange->region_source)) &&
                 isset($regionSourceToId[$key1])
             ) {
 

@@ -86,8 +86,6 @@ class CityLinker extends Singleton
                 'name' => new Expression('CONCAT(country_code, region_source)'),
             ])
             ->where('city_id IS NOT NULL')
-            ->andWhere(['IS NOT', 'region_source', null])
-            ->andWhere(['!=', 'region_source', ''])
             ->indexBy('name')
             ->column();
 
@@ -124,13 +122,15 @@ class CityLinker extends Singleton
      */
     private function _findCityByRegionSource($countryCode, $regionSource)
     {
+        $regionSource = trim($regionSource);
         if (!$regionSource) {
             return null;
         }
 
-        if (array_key_exists($countryCode . $regionSource, $this->_regionSourceToCityId)) {
+        $key = $countryCode . $regionSource;
+        if (array_key_exists($key, $this->_regionSourceToCityId)) {
             // уже обрабатывали
-            return $this->_regionSourceToCityId[$countryCode . $regionSource];
+            return $this->_regionSourceToCityId[$key];
         }
 
         // поискать вхождения города в регион
@@ -139,12 +139,13 @@ class CityLinker extends Singleton
                 && strpos($regionSource, $city->name) !== false // strpos для быстрого поиска
                 && ($regionSource == $city->name || preg_match('/\b' . $city->name . '\b/ui', $regionSource))  // preg_match для детального уточнения, чтобы не спутать "новосибирск" и "новосибирская область"
             ) {
-                return $this->_regionSourceToCityId[$countryCode . $regionSource] = $city->id;
+                return $this->_regionSourceToCityId[$key] = $city->id;
             }
         }
 
         // создать город из региона
         list($cityName) = explode('|', $regionSource);
+        $cityName = trim($cityName);
         $cityName = str_replace(['г. ', 'город '], '', $cityName);
 
         $city = new City;
@@ -154,7 +155,7 @@ class CityLinker extends Singleton
             throw new ModelValidationException($city);
         }
 
-        return $this->_regionSourceToCityId[$countryCode . $regionSource] = $city->id;
+        return $this->_regionSourceToCityId[$key] = $city->id;
     }
 
     /**

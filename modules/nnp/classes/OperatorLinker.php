@@ -102,6 +102,7 @@ class OperatorLinker extends Singleton
             }
 
             $operatorSource = $numberRange->operator_source;
+            $operatorSource = trim($operatorSource);
 
             if (!isset($operatorSourceToId[$operatorSource])) {
                 $operator = new Operator();
