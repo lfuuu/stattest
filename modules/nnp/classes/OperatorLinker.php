@@ -70,25 +70,23 @@ class OperatorLinker extends Singleton
 
         $log = '';
 
-        // Группированные значение
+        // Уже существующие объекты
         $operatorSourceToId = Operator::find()
             ->select([
                 'id',
-                'name' => new Expression('CONCAT(country_code, name)'),
+                'name' => new Expression('CONCAT(country_code, LOWER(name))'),
             ])
             ->indexBy('name')
             ->column();
 
-        // уже сделанные соответствия
+        // Уже сделанные соответствия
         $operatorSourceToId += NumberRange::find()
             ->distinct()
             ->select([
                 'id' => 'operator_id',
-                'name' => new Expression('CONCAT(country_code, operator_source)'),
+                'name' => new Expression('CONCAT(country_code, LOWER(operator_source))'),
             ])
             ->where('operator_id IS NOT NULL')
-            ->andWhere(['IS NOT', 'operator_source', null])
-            ->andWhere(['!=', 'operator_source', ''])
             ->indexBy('name')
             ->column();
 
@@ -101,21 +99,19 @@ class OperatorLinker extends Singleton
                 $log .= '. ';
             }
 
-            $operatorSource = $numberRange->operator_source;
-            $operatorSource = trim($operatorSource);
-
-            if (!isset($operatorSourceToId[$operatorSource])) {
+            $key = $numberRange->country_code . mb_strtolower($numberRange->operator_source);
+            if (!isset($operatorSourceToId[$key])) {
                 $operator = new Operator();
-                $operator->name = $operatorSource;
+                $operator->name = $numberRange->operator_source;
                 $operator->country_code = $numberRange->country_code;
                 if (!$operator->save()) {
                     throw new ModelValidationException($operator);
                 }
 
-                $operatorSourceToId[$operatorSource] = $operator->id;
+                $operatorSourceToId[$key] = $operator->id;
             }
 
-            $numberRange->operator_id = $operatorSourceToId[$operatorSource];
+            $numberRange->operator_id = $operatorSourceToId[$key];
             if (!$numberRange->save()) {
                 throw new ModelValidationException($numberRange);
             }

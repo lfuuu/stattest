@@ -75,15 +75,24 @@ class CityLinker extends Singleton
 
         $log = '';
 
-        // Группированные значение
         $this->_cities = City::find()->all();
 
-        // уже сделанные соответствия
-        $this->_regionSourceToCityId = NumberRange::find()
+
+        // Уже существующие объекты
+        $this->_regionSourceToCityId = City::find()
+            ->select([
+                'id',
+                'name' => new Expression('CONCAT(country_code, LOWER(name))'),
+            ])
+            ->indexBy('name')
+            ->column();
+
+        // Уже сделанные соответствия
+        $this->_regionSourceToCityId += NumberRange::find()
             ->distinct()
             ->select([
                 'id' => 'city_id',
-                'name' => new Expression('CONCAT(country_code, region_source)'),
+                'name' => new Expression('CONCAT(country_code, LOWER(region_source))'),
             ])
             ->where('city_id IS NOT NULL')
             ->indexBy('name')
@@ -127,7 +136,7 @@ class CityLinker extends Singleton
             return null;
         }
 
-        $key = $countryCode . $regionSource;
+        $key = $countryCode . mb_strtolower($regionSource);
         if (array_key_exists($key, $this->_regionSourceToCityId)) {
             // уже обрабатывали
             return $this->_regionSourceToCityId[$key];
