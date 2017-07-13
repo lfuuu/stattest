@@ -2,6 +2,9 @@
 
 namespace app\modules\nnp\commands;
 
+use app\modules\nnp\classes\CityLinker;
+use app\modules\nnp\classes\OperatorLinker;
+use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\media\ImportServiceRossvyaz;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NumberRange;
@@ -23,6 +26,10 @@ class ImportController extends Controller
     {
         (new ImportServiceRossvyaz(Country::RUSSIA))
             ->run();
+
+        echo 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
+        echo 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
+        echo 'Города: ' . CityLinker::me()->run() . PHP_EOL;
     }
 
     /**

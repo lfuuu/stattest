@@ -143,6 +143,23 @@ class NumberRangeImport extends NumberRange
     }
 
     /**
+     * Исходный город. Можно пустое. Например, Улан-Уде
+     *
+     * @param string|int|null $value
+     * @return bool
+     */
+    public function setCitySource($value)
+    {
+        if ($this->_checkString($value)) {
+            $this->city_source = $value;
+            return true;
+        }
+
+        $this->addError('city_source');
+        return false;
+    }
+
+    /**
      * Исходный оператор. Можно пустое. Например, ПАО Мегафон
      *
      * @param string|int|null $value
@@ -269,6 +286,7 @@ class NumberRangeImport extends NumberRange
             $this->ndc_type_id,
             $this->operator_source,
             $this->region_source,
+            $this->city_source,
             $this->country_prefix . $this->ndc . $this->number_from, // full_number_from
             $this->country_prefix . $this->ndc . $this->number_to, // full_number_to
             $this->date_resolution,

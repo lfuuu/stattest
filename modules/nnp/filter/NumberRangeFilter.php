@@ -26,11 +26,12 @@ class NumberRangeFilter extends NumberRange
     public $operator_id = '';
     public $region_source = '';
     public $region_id = '';
+    public $city_source = '';
+    public $city_id = '';
     public $ndc_type_id = '';
     public $is_active = '';
     public $numbers_count_from = '';
     public $numbers_count_to = '';
-    public $city_id = '';
     public $is_reverse_city_id = '';
     public $insert_time = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это месяц добавления (insert_time) ИЛИ выключения (date_stop)
     public $date_resolution_from = '';
@@ -44,7 +45,7 @@ class NumberRangeFilter extends NumberRange
     public function rules()
     {
         return [
-            [['operator_source', 'region_source', 'full_number_from', 'insert_time', 'full_number_mask'], 'string'],
+            [['operator_source', 'region_source', 'city_source', 'full_number_from', 'insert_time', 'full_number_mask'], 'string'],
             [['country_code', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
             [['date_resolution_from', 'date_resolution_to'], 'string'],
@@ -147,6 +148,7 @@ class NumberRangeFilter extends NumberRange
 
         $this->operator_source && $query->andWhere(['LIKE', $numberRangeTableName . '.operator_source', $this->operator_source]);
         $this->region_source && $query->andWhere(['LIKE', $numberRangeTableName . '.region_source', $this->region_source]);
+        $this->city_source && $query->andWhere(['LIKE', $numberRangeTableName . '.city_source', $this->city_source]);
 
         if ($this->full_number_from) {
             $query->andWhere(['<=', $numberRangeTableName . '.full_number_from', $this->full_number_from]);

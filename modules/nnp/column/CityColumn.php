@@ -54,15 +54,8 @@ class CityColumn extends DataColumn
 
         $htmlArray = [];
 
-        if ($model instanceof NumberRange) {
-            if ($model->region_source) {
-                $htmlArray[] = Html::ellipsis(str_replace('|', ', ', $model->region_source));
-            }
-
-            if ($model->region_id) {
-                $region = $model->region;
-                $htmlArray[] = Html::ellipsis(Html::a($region->name, $region->getUrl()));
-            }
+        if ($model instanceof NumberRange && $model->city_source) {
+            $htmlArray[] = Html::ellipsis($model->city_source);
         }
 
         if (is_null($value)) {

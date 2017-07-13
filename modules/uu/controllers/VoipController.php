@@ -279,6 +279,7 @@ class VoipController extends BaseController
             'operator_source' => $numberRange->operator_source,
             'operator' => $this->_getIdNameRecord($numberRange->operator),
             'region_source' => $numberRange->region_source,
+            'city_source' => $numberRange->city_source,
             'region' => $this->_getIdNameRecord($numberRange->region),
             'city' => $this->_getIdNameRecord($numberRange->city),
             'is_mob' => (int)$numberRange->is_mob,

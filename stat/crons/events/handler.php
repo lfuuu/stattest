@@ -231,8 +231,8 @@ function doEvents()
                 case \app\modules\nnp\Module::EVENT_LINKER:
                     // ННП. Линковка исходных к ID
                     $info .= 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
-                    $info .= 'Города: ' . CityLinker::me()->run() . PHP_EOL;
                     $info .= 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
+                    $info .= 'Города: ' . CityLinker::me()->run() . PHP_EOL;
                     break;
 
                 case AccountTariffBiller::EVENT_RECALC:

@@ -99,6 +99,12 @@ if (!$numberRange->isNewRecord) {
 
     <div class="row">
 
+        <?php // Страна ?>
+        <div class="col-sm-3">
+            <label><?= $numberRange->getAttributeLabel('country_code') ?></label>
+            <div><?= $numberRange->country ? $numberRange->country->name_rus : '' ?></div>
+        </div>
+
         <?php // Статус номера ?>
         <div class="col-sm-3">
             <label><?= $numberRange->getAttributeLabel('status_number') ?></label>
@@ -125,13 +131,13 @@ if (!$numberRange->isNewRecord) {
         <?php // Исходный регион ?>
         <div class="col-sm-3">
             <label><?= $numberRange->getAttributeLabel('region_source') ?></label>
-            <div><?= htmlspecialchars(str_replace('|', ', ', $numberRange->region_source)) ?></div>
+            <div><?= htmlspecialchars($numberRange->region_source) ?></div>
         </div>
 
-        <?php // Страна ?>
+        <?php // Исходный город ?>
         <div class="col-sm-3">
-            <label><?= $numberRange->getAttributeLabel('country_code') ?></label>
-            <div><?= $numberRange->country ? $numberRange->country->name_rus : '' ?></div>
+            <label><?= $numberRange->getAttributeLabel('city_source') ?></label>
+            <div><?= htmlspecialchars($numberRange->city_source) ?></div>
         </div>
 
         <?php // Исходный оператор ?>
@@ -154,21 +160,21 @@ if (!$numberRange->isNewRecord) {
         <?php // Регион ?>
         <div class="col-sm-3">
             <?= $form->field($numberRange, 'region_id')->widget(Select2::className(), [
-                'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
+                'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
         </div>
 
         <?php // Город ?>
         <div class="col-sm-3">
             <?= $form->field($numberRange, 'city_id')->widget(Select2::className(), [
-                'data' => City::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
+                'data' => City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
         </div>
 
         <?php // Оператор ?>
         <div class="col-sm-3">
             <?= $form->field($numberRange, 'operator_id')->widget(Select2::className(), [
-                'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
+                'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
         </div>
 

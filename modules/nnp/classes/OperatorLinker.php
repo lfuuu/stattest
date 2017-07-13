@@ -74,7 +74,7 @@ class OperatorLinker extends Singleton
         $operatorSourceToId = Operator::find()
             ->select([
                 'id',
-                'name' => new Expression('CONCAT(country_code, LOWER(name))'),
+                'name' => new Expression("CONCAT(country_code, '_', LOWER(name))"),
             ])
             ->indexBy('name')
             ->column();
@@ -84,7 +84,7 @@ class OperatorLinker extends Singleton
             ->distinct()
             ->select([
                 'id' => 'operator_id',
-                'name' => new Expression('CONCAT(country_code, LOWER(operator_source))'),
+                'name' => new Expression("CONCAT(country_code, '_', LOWER(operator_source))"),
             ])
             ->where('operator_id IS NOT NULL')
             ->indexBy('name')
@@ -99,7 +99,7 @@ class OperatorLinker extends Singleton
                 $log .= '. ';
             }
 
-            $key = $numberRange->country_code . mb_strtolower($numberRange->operator_source);
+            $key = $numberRange->country_code . '_' . mb_strtolower($numberRange->operator_source);
             if (!isset($operatorSourceToId[$key])) {
                 $operator = new Operator();
                 $operator->name = $numberRange->operator_source;

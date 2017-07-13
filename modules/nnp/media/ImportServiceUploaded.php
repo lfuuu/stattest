@@ -42,7 +42,7 @@ class ImportServiceUploaded extends ImportService
      *
      * @param int $i Номер строки
      * @param string[] $row ячейки строки csv-файла
-     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source']
+     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'city_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source']
      * @throws \RuntimeException
      */
     protected function callbackRow($i, $row)
@@ -64,10 +64,6 @@ class ImportServiceUploaded extends ImportService
     {
         $row += array_fill(count($row), 11, null);
 
-        $regions = [];
-        ($row[7] = trim($row[7])) && $regions[] = $row[7]; // сначала город
-        ($row[6] = trim($row[6])) && $regions[] = $row[6]; // потом регион
-
         $numberRangeImport = new NumberRangeImport;
         $numberRangeImport->setCountryPrefix($row[0], $this->country);
         $numberRangeImport->setNdc($row[1]);
@@ -75,7 +71,8 @@ class ImportServiceUploaded extends ImportService
         $numberRangeImport->setNdcTypeId($row[3], $this->ndcTypeList);
         $numberRangeImport->setNumberFrom($row[4]);
         $numberRangeImport->setNumberTo($row[5]);
-        $numberRangeImport->setRegionSource(implode(' | ', $regions));
+        $numberRangeImport->setRegionSource($row[6]);
+        $numberRangeImport->setCitySource($row[7]);
         $numberRangeImport->setOperatorSource($row[8]);
         $numberRangeImport->setDateResolution($row[9]);
         $numberRangeImport->setDetailResolution($row[10]);
@@ -98,7 +95,7 @@ class ImportServiceUploaded extends ImportService
             $numberRangeImport->hasErrors('number_from'),
             $numberRangeImport->hasErrors('number_to'),
             $numberRangeImport->hasErrors('region_source'),
-            $numberRangeImport->hasErrors('region_source'),
+            $numberRangeImport->hasErrors('city_source'),
             $numberRangeImport->hasErrors('operator_source'),
             $numberRangeImport->hasErrors('date_resolution'),
             $numberRangeImport->hasErrors('detail_resolution'),

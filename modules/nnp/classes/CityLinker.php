@@ -15,9 +15,6 @@ use yii\db\Expression;
  */
 class CityLinker extends Singleton
 {
-    /** @var City[] */
-    private $_cities = [];
-
     private $_regionSourceToCityId = [];
 
     /**
@@ -51,7 +48,7 @@ class CityLinker extends Singleton
      */
     private function _setNull()
     {
-        NumberRange::updateAll(['city_id' => null], ['region_source' => '']);
+        NumberRange::updateAll(['city_id' => null], ['city_source' => '']);
     }
 
     /**
@@ -66,8 +63,8 @@ class CityLinker extends Singleton
     {
         $numberRangeQuery = NumberRange::find()
             ->andWhere('city_id IS NULL')
-            ->andWhere(['IS NOT', 'region_source', null])
-            ->andWhere(['!=', 'region_source', '']);
+            ->andWhere(['IS NOT', 'city_source', null])
+            ->andWhere(['!=', 'city_source', '']);
 
         if (!$numberRangeQuery->count()) {
             return 'ok';
@@ -75,13 +72,11 @@ class CityLinker extends Singleton
 
         $log = '';
 
-        $this->_cities = City::find()->all();
-
         // Уже существующие объекты
         $this->_regionSourceToCityId = City::find()
             ->select([
                 'id',
-                'name' => new Expression('CONCAT(country_code, LOWER(name))'),
+                'name' => new Expression("CONCAT(country_code, '_', region_id, '_', LOWER(name))"),
             ])
             ->indexBy('name')
             ->column();
@@ -91,7 +86,7 @@ class CityLinker extends Singleton
             ->distinct()
             ->select([
                 'id' => 'city_id',
-                'name' => new Expression('CONCAT(country_code, LOWER(region_source))'),
+                'name' => new Expression("CONCAT(country_code, '_', region_id, '_', LOWER(city_source))"),
             ])
             ->where('city_id IS NOT NULL')
             ->indexBy('name')
@@ -106,7 +101,7 @@ class CityLinker extends Singleton
                 $log .= '. ';
             }
 
-            $city_id = $this->_findCityByRegionSource($numberRange->country_code, $numberRange->region_source);
+            $city_id = $this->_findCityByCitySource($numberRange->country_code, $numberRange->region_id, $numberRange->city_source);
             if (!$city_id) {
                 continue;
             }
@@ -124,52 +119,35 @@ class CityLinker extends Singleton
      * Найти город
      *
      * @param string $countryCode
-     * @param string $regionSource
+     * @param int $regionId
+     * @param string $citySource
      * @return int|null
      * @throws \app\exceptions\ModelValidationException
      */
-    private function _findCityByRegionSource($countryCode, $regionSource)
+    private function _findCityByCitySource($countryCode, $regionId, $citySource)
     {
-        $regionSource = trim($regionSource);
-        if (!$regionSource) {
+        $citySource = trim($citySource);
+        $citySource = str_replace(['г. ', 'город '], '', $citySource);
+        if (!$citySource) {
             return null;
         }
 
-        list($cityName) = explode('|', $regionSource);
-        $cityName = trim($cityName);
-        $cityName = str_replace(['г. ', 'город '], '', $cityName);
-
-        $key1 = $countryCode . mb_strtolower($regionSource);
-        if (array_key_exists($key1, $this->_regionSourceToCityId)) {
+        $key = $countryCode . '_' . $regionId . '_' . mb_strtolower($citySource);
+        if (array_key_exists($key, $this->_regionSourceToCityId)) {
             // уже обрабатывали
-            return $this->_regionSourceToCityId[$key1];
+            return $this->_regionSourceToCityId[$key];
         }
 
-        $key2 = $countryCode . mb_strtolower($cityName);
-        if (array_key_exists($key2, $this->_regionSourceToCityId)) {
-            // уже обрабатывали
-            return $this->_regionSourceToCityId[$key2];
-        }
-
-        // поискать вхождения города в регион
-        foreach ($this->_cities as $city) {
-            if ($city->country_code == $countryCode
-                && strpos($regionSource, $city->name) !== false // strpos для быстрого поиска
-                && ($regionSource == $city->name || preg_match('/\b' . $city->name . '\b/ui', $regionSource))  // preg_match для детального уточнения, чтобы не спутать "новосибирск" и "новосибирская область"
-            ) {
-                return $this->_regionSourceToCityId[$key1] = $this->_regionSourceToCityId[$key2] = $city->id;
-            }
-        }
-
-        // создать город из региона
+        // создать город
         $city = new City;
-        $city->name = $cityName;
+        $city->name = $citySource;
         $city->country_code = $countryCode;
+        $city->region_id = $regionId;
         if (!$city->save()) {
             throw new ModelValidationException($city);
         }
 
-        return $this->_regionSourceToCityId[$key1] = $this->_regionSourceToCityId[$key2] = $city->id;
+        return $this->_regionSourceToCityId[$key] = $city->id;
     }
 
     /**

@@ -20,6 +20,7 @@ use yii\helpers\Url;
  * @property string $operator_source
  * @property int $operator_id
  * @property string $region_source
+ * @property string $city_source
  * @property int $region_id
  * @property int $city_id // индекса и FK нет, потому что таблица городов в другой БД
  * @property bool $is_active
@@ -78,6 +79,7 @@ class NumberRange extends ActiveRecord
             'operator_source' => 'Исходный оператор',
             'operator_id' => 'Оператор',
             'region_source' => 'Исходный регион',
+            'city_source' => 'Исходный город',
             'region_id' => 'Регион',
             'city_id' => 'Город',
             'is_active' => 'Вкл.',

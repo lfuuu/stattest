@@ -55,7 +55,7 @@ class ImportServiceRossvyaz extends ImportService
      *
      * @param int $i Номер строки
      * @param string[] $row ячейки строки csv-файла
-     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source']
+     * @return string[] ['ndc', 'number_from', 'number_to', 'ndc_type_id', 'operator_source', 'region_source', 'city_source', 'full_number_from', 'full_number_to', 'date_resolution', 'detail_resolution', 'status_number', 'ndc_type_source']
      */
     protected function callbackRow($i, $row)
     {
@@ -64,6 +64,13 @@ class ImportServiceRossvyaz extends ImportService
             return [];
         }
 
+        $regionSource = $this->_iconv($row[5]);
+        $regionSourceArray = explode('|', $regionSource);
+        $city = $regionSourceArray[0];
+        $region = isset($regionSourceArray[1]) ? $regionSourceArray[1] : '';
+        $region && !$city && $city = $region;
+        $city && !$region && $region = $city;
+
         return
             [
                 (int)$row[0], // ndc
@@ -71,7 +78,8 @@ class ImportServiceRossvyaz extends ImportService
                 trim($row[2]), // number_to
                 ($row[0] == 800) ? NdcType::ID_FREEPHONE : $this->_ndcTypeId, // ndc_type_id
                 $this->_iconv($row[4]), // operator_source
-                $this->_iconv($row[5]), // region_source
+                trim($region), // region_source
+                trim($city), // city_source
                 Country::RUSSIA_PREFIX . ((int)$row[0]) . trim($row[1]), // full_number_from
                 Country::RUSSIA_PREFIX . ((int)$row[0]) . trim($row[2]), // full_number_to
                 null, // date_resolution

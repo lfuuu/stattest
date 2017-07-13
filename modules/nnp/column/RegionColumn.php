@@ -5,6 +5,7 @@ namespace app\modules\nnp\column;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\classes\Html;
+use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Region;
 use kartik\grid\GridView;
 use Yii;
@@ -44,12 +45,26 @@ class RegionColumn extends DataColumn
     {
         $value = $this->getDataCellValue($model, $key, $index);
         $strValue = $this->defaultRenderDataCellContent($model, $key, $index);
-        if (is_null($value)) {
-            return Yii::t('common', '(not set)');
-        } elseif ($this->isAddLink) {
-            return Html::a($strValue, Region::getUrlById($value));
-        } else {
-            return $strValue;
+
+        if ($strValue && is_numeric($strValue) && $strValue == $value) {
+            // посколько регионов очень много, в селект попадают не все. Чтобы не выводить некрасивых id несколько лишних раз поднимем связанные модели
+            $strValue = $model->region->name;
         }
+
+        $htmlArray = [];
+
+        if ($model instanceof NumberRange && $model->region_source) {
+            $htmlArray[] = Html::ellipsis($model->region_source);
+        }
+
+        if (is_null($value)) {
+            $htmlArray[] = Yii::t('common', '(not set)');
+        } elseif ($this->isAddLink) {
+            $htmlArray[] = Html::ellipsis(Html::a($strValue, Region::getUrlById($value)));
+        } else {
+            $htmlArray[] = Html::ellipsis($strValue);
+        }
+
+        return implode('<br>', $htmlArray);
     }
 }

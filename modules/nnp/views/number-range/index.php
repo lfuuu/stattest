@@ -62,10 +62,8 @@ $filterColumns = [
         'class' => StringColumn::className(),
     ],
     [
-        'attribute' => 'region_id',
-        'class' => RegionColumn::className(),
-        'countryCodes' => $filterModel->country_code,
-        'isWithNullAndNotNull' => true,
+        'attribute' => 'city_source',
+        'class' => StringColumn::className(),
     ],
     [
         'attribute' => 'ndc',
@@ -118,7 +116,12 @@ $columns = [
         'isWithNullAndNotNull' => true,
     ],
     [
-        'label' => 'Регион / город',
+        'attribute' => 'region_id',
+        'class' => RegionColumn::className(),
+        'isWithNullAndNotNull' => true,
+        'countryCodes' => $filterModel->country_code,
+    ],
+    [
         'attribute' => 'city_id',
         'class' => CityColumn::className(),
         'isWithNullAndNotNull' => true,
