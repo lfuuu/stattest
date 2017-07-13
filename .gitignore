@@ -7,4 +7,5 @@ web/tst
 web/images/graphs
 xdebug/
 /package.box
+web/operator/_private/health.json
 
