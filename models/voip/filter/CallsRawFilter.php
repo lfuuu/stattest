@@ -506,8 +506,6 @@ class CallsRawFilter extends Model
 
         $query = $this->dateStart >= $last_month ? $this->getCacheReport() : $this->getSlowReport();
 
-        $query->orderBy('connect_time');
-
         if ($this->group || $this->group_period || $this->aggr) {
             $fields = $groups = [];
             if ($this->group_period) {
@@ -583,6 +581,7 @@ class CallsRawFilter extends Model
                 'pagination' => [],
                 'totalCount' => $count,
                 'sort' => [
+                    'defaultOrder' => ['connect_time' => SORT_DESC],
                     'attributes' => $sort,
                 ],
             ]
