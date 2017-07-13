@@ -65,8 +65,8 @@ class ImportServiceUploaded extends ImportService
         $row += array_fill(count($row), 11, null);
 
         $regions = [];
-        $row[6] && $regions[] = $row[6];
-        $row[7] && $regions[] = $row[7];
+        ($row[6] = trim($row[6])) && $regions[] = $row[6];
+        ($row[7] = trim($row[7])) && $regions[] = $row[7];
 
         $numberRangeImport = new NumberRangeImport;
         $numberRangeImport->setCountryPrefix($row[0], $this->country);

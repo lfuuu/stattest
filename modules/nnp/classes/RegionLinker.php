@@ -117,25 +117,23 @@ class RegionLinker extends Singleton
 
         $log = '';
 
-        // Группированные значение
+        // Уже существующие объекты
         $regionSourceToId = Region::find()
             ->select([
                 'id',
-                'name' => new Expression('CONCAT(country_code, name)'),
+                'name' => new Expression('CONCAT(country_code, LOWER(name))'),
             ])
             ->indexBy('name')
             ->column();
 
-        // уже сделанные соответствия
+        // Уже сделанные соответствия
         $regionSourceToId += NumberRange::find()
             ->distinct()
             ->select([
                 'id' => 'region_id',
-                'name' => new Expression('CONCAT(country_code, region_source)'),
+                'name' => new Expression('CONCAT(country_code, LOWER(region_source))'),
             ])
             ->where('region_id IS NOT NULL')
-            ->andWhere(['IS NOT', 'region_source', null])
-            ->andWhere(['!=', 'region_source', ''])
             ->indexBy('name')
             ->column();
 
@@ -149,7 +147,7 @@ class RegionLinker extends Singleton
             }
 
             if (
-                ($key1 = $numberRange->country_code . $numberRange->region_source) &&
+                ($key1 = $numberRange->country_code . mb_strtolower(trim($numberRange->region_source))) &&
                 isset($regionSourceToId[$key1])
             ) {
 
@@ -158,7 +156,7 @@ class RegionLinker extends Singleton
 
             } elseif (
                 ($regionSource = $this->preProcessing($numberRange->region_source)) &&
-                ($key2 = $numberRange->country_code . $regionSource) &&
+                ($key2 = $numberRange->country_code . mb_strtolower($regionSource)) &&
                 isset($regionSourceToId[$key2])
             ) {
 
