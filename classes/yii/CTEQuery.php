@@ -9,8 +9,10 @@
 
 namespace app\classes\yii;
 
+use app\classes\traits\GetListTrait;
 use yii\db\Command;
 use yii\db\Connection;
+use yii\db\Expression;
 use yii\db\Query;
 use Yii;
 use app\classes\McnQueryBuilder;
@@ -131,8 +133,38 @@ class CTEQuery extends Query
      */
     public function reportCondition($param, $property)
     {
-        $property
-        && $this->andWhere([$param => $property]);
+        if ($property) {
+            $condition = [$param => $property];
+            if (is_array($property)) {
+                $nullOrNotNullCondition = [];
+
+                if(($key = array_search(GetListTrait::$isNull, $property)) !== false) {
+                    unset($property[$key]);
+                    $nullOrNotNullCondition = [$param => null];
+                } elseif (($key = array_search(GetListTrait::$isNotNull, $property)) !== false) {
+                    unset($property[$key]);
+                    $nullOrNotNullCondition = ['NOT', [$param => null]];
+                }
+
+                if ($nullOrNotNullCondition) {
+                    if ($property) {
+                        $condition = ['OR', [$param => $property], $nullOrNotNullCondition];
+                    } else {
+                        $condition = $nullOrNotNullCondition;
+                    }
+                }
+            } else {
+                if ($property == GetListTrait::$isNull) {
+                    $condition = [$param => null];
+                }
+
+                if ($property == GetListTrait::$isNotNull) {
+                    $condition = ['NOT', [$param => null]];
+                }
+            }
+
+            $this->andWhere($condition);
+        }
 
         return $this;
     }

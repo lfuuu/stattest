@@ -5,6 +5,7 @@
 
 namespace app\models\voip\filter;
 
+use app\classes\traits\GetListTrait;
 use app\classes\yii\CTEQuery;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Currency;
@@ -14,6 +15,7 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
+use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -398,6 +400,34 @@ class CallsRawFilter extends Model
     }
 
     /**
+     * Проверка на противоречивость элементов, выбранных в фильтрах ННП
+     *
+     * @return bool
+     */
+    public function isNnpFiltersPossible()
+    {
+        $attributes = $this->getAttributes(
+                [
+                    'src_operator_ids',
+                    'dst_operator_ids',
+                    'src_regions_ids',
+                    'dst_regions_ids',
+                    'src_cities_ids',
+                    'dst_cities_ids',
+                    'src_countries_ids',
+                    'dst_countries_ids',
+                ]
+        );
+        foreach ($attributes as $key => $value) {
+            if ($value && is_array($value) && count(array_intersect($value, [GetListTrait::$isNull, GetListTrait::$isNotNull])) == 2) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Метод добавления фильтра по длительности звонка
      *
      * @param CTEQuery $query
@@ -464,7 +494,7 @@ class CallsRawFilter extends Model
      */
     public function getReport()
     {
-        if (!$this->isFilteringPossible()) {
+        if (!$this->isFilteringPossible() || !$this->isNnpFiltersPossible()) {
             return new ArrayDataProvider(
                 [
                     'allModels' => [],

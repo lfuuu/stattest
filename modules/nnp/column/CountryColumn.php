@@ -22,6 +22,7 @@ class CountryColumn extends DataColumn
     public $filterType = GridView::FILTER_SELECT2;
     public $indexBy = 'code';
     public $isWithEmpty = true;
+    public $isWithNullAndNotNull = false;
 
     /**
      * CountryColumn constructor.
@@ -31,7 +32,7 @@ class CountryColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = Country::getList($this->isWithEmpty, $isWithNullAndNotNull = false, $this->indexBy);
+        $this->filter = Country::getList($this->isWithEmpty, $this->isWithNullAndNotNull, $this->indexBy);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' country-column';
     }

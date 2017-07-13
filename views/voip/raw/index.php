@@ -103,6 +103,19 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     $columns = require '_indexColumns.php';
 }
 
+$chooseError = function () use ($filterModel) {
+    !$filterModel->isNnpFiltersPossible()
+    && $error = 'В одном из списков ННП выбраны противоречивые значения';
+
+    !$filterModel->isFilteringPossible()
+    && $error = 'Выберите время начала разговора и хотя бы еще одно поле';
+
+    !isset($error)
+    && $error = Yii::t('yii', 'No results found.');
+
+    return $error;
+};
+
 $dataProvider = $filterModel->getReport();
 
 try {
@@ -120,13 +133,7 @@ try {
         ],
         'columns' => $columns,
         'filterPosition' => '',
-        'emptyText' => isset($emptyText) ?
-            $emptyText :
-            (
-                $filterModel->isFilteringPossible() ?
-                    Yii::t('yii', 'No results found.') :
-                    'Выберите время начала разговора и хотя бы еще одно поле'
-            ),
+        'emptyText' => isset($emptyText) ? $emptyText: $chooseError(),
         'exportWidget' => GridViewExport::widget([
             'dataProvider' => $dataProvider,
             'filterModel' => $filterModel,

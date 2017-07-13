@@ -117,7 +117,7 @@ class RawController extends BaseController
         ReturnFormatted::me()->returnFormattedValues(
             Region::getList(
                 $isWithEmpty = false,
-                $isWithNullAndNotNull = false,
+                $isWithNullAndNotNull = true,
                 array_filter($countryCodes)
             ),
             'options'
@@ -135,7 +135,7 @@ class RawController extends BaseController
         ReturnFormatted::me()->returnFormattedValues(
             City::getList(
                 $isWithEmpty = false,
-                $isWithNullAndNotNull = false,
+                $isWithNullAndNotNull = true,
                 array_filter($countryCodes),
                 array_filter($regionIds)
             ),

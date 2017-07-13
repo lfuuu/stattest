@@ -92,6 +92,7 @@ return [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'dst_operator_ids',
@@ -101,6 +102,7 @@ return [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'session_time',
@@ -129,6 +131,7 @@ return [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'dst_countries_ids',
@@ -138,6 +141,7 @@ return [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'disconnect_causes',
@@ -170,7 +174,7 @@ return [
         ],
         'countryCodes' => $filterModel->src_countries_ids,
         'isWithEmpty' => false,
-        'isWithNullAndNotNull' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'dst_regions_ids',
@@ -181,7 +185,7 @@ return [
         ],
         'countryCodes' => $filterModel->dst_countries_ids,
         'isWithEmpty' => false,
-        'isWithNullAndNotNull' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'is_success_calls',
@@ -209,6 +213,7 @@ return [
         'countryCodes' => $filterModel->src_countries_ids,
         'regionIds' => $filterModel->src_regions_ids,
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'attribute' => 'dst_cities_ids',
@@ -220,6 +225,7 @@ return [
         'countryCodes' => $filterModel->dst_countries_ids,
         'regionIds' => $filterModel->dst_regions_ids,
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
         'class' => WithEmptyFilterColumn::className(),
