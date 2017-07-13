@@ -77,7 +77,6 @@ class CityLinker extends Singleton
 
         $this->_cities = City::find()->all();
 
-
         // Уже существующие объекты
         $this->_regionSourceToCityId = City::find()
             ->select([
@@ -136,10 +135,20 @@ class CityLinker extends Singleton
             return null;
         }
 
-        $key = $countryCode . mb_strtolower($regionSource);
-        if (array_key_exists($key, $this->_regionSourceToCityId)) {
+        list($cityName) = explode('|', $regionSource);
+        $cityName = trim($cityName);
+        $cityName = str_replace(['г. ', 'город '], '', $cityName);
+
+        $key1 = $countryCode . mb_strtolower($regionSource);
+        if (array_key_exists($key1, $this->_regionSourceToCityId)) {
             // уже обрабатывали
-            return $this->_regionSourceToCityId[$key];
+            return $this->_regionSourceToCityId[$key1];
+        }
+
+        $key2 = $countryCode . mb_strtolower($cityName);
+        if (array_key_exists($key2, $this->_regionSourceToCityId)) {
+            // уже обрабатывали
+            return $this->_regionSourceToCityId[$key2];
         }
 
         // поискать вхождения города в регион
@@ -148,15 +157,11 @@ class CityLinker extends Singleton
                 && strpos($regionSource, $city->name) !== false // strpos для быстрого поиска
                 && ($regionSource == $city->name || preg_match('/\b' . $city->name . '\b/ui', $regionSource))  // preg_match для детального уточнения, чтобы не спутать "новосибирск" и "новосибирская область"
             ) {
-                return $this->_regionSourceToCityId[$key] = $city->id;
+                return $this->_regionSourceToCityId[$key1] = $this->_regionSourceToCityId[$key2] = $city->id;
             }
         }
 
         // создать город из региона
-        list($cityName) = explode('|', $regionSource);
-        $cityName = trim($cityName);
-        $cityName = str_replace(['г. ', 'город '], '', $cityName);
-
         $city = new City;
         $city->name = $cityName;
         $city->country_code = $countryCode;
@@ -164,7 +169,7 @@ class CityLinker extends Singleton
             throw new ModelValidationException($city);
         }
 
-        return $this->_regionSourceToCityId[$key] = $city->id;
+        return $this->_regionSourceToCityId[$key1] = $this->_regionSourceToCityId[$key2] = $city->id;
     }
 
     /**
