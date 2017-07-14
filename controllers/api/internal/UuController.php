@@ -933,7 +933,9 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "deactivate_past_date", type = "string", description = "Дата, с которой этот тариф был выключен, и сейчас не действует. Всегда в прошлом. Если null - не был выключен. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "deactivate_future_date", type = "string", description = "Дата, с которой этот тариф будет выключен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа или закрытие? Если в будущем назначена смена тарифа или закрытие"),
-     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
+     *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу? Если null - знаит, неприменимо"),
+     *   @SWG\Property(property = "is_fmc_editable", type = "boolean", description = "Можно ли редактировать ресурс FMC? Если null - знаит, неприменимо"),
+     *   @SWG\Property(property = "is_fmc_active", type = "boolean", description = "Включен ли ресурс FMC?"),
      * ),
      *
      * @SWG\Definition(definition = "accountTariffResourceLogLightRecord", type = "object",
@@ -1031,6 +1033,8 @@ class UuController extends ApiInternalController
      */
     private function _getAccountTariffWithPackagesRecord($accountTariff)
     {
+        $number = $accountTariff->number;
+        $isFmcActive = $accountTariff->getResourceValue(Resource::ID_VOIP_FMC);
         $record = [
             'id' => $accountTariff->id,
             'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
@@ -1041,6 +1045,8 @@ class UuController extends ApiInternalController
             'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
             'is_editable' => $accountTariff->isLogEditable(), // Можно ли сменить тариф или отключить услугу?
             'is_cancelable' => $accountTariff->isLogCancelable(), // Можно ли отменить смену тарифа?
+            'is_fmc_editable' => $number ? $number->isFmcEditable() : null,
+            'is_fmc_active' => $isFmcActive === null ? null : (bool)$isFmcActive,
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
             'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
