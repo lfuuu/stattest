@@ -13,7 +13,6 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\uu\behaviors\SyncVmCollocation;
-use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
@@ -36,6 +35,9 @@ use yii\web\HttpException;
 
 class UuController extends ApiInternalController
 {
+    const DEFAULT_LIMIT = 50;
+    const MAX_LIMIT = 100;
+
     use IdNameRecordTrait;
 
     /**
@@ -694,6 +696,9 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города (только для телефонии)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "query", default = ""),
      *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги ЛС. Если список услуг пакета телефонии, то можно здесь указать ID услуги телефонии", in = "query", default = ""),
+     *   @SWG\Parameter(name = "offset", type = "integer", description = "Сдвиг при пагинации", in = "query", default = "0"),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "Не более 100 записей. Можно только уменьшить", in = "query", default = "50"),
+     *   @SWG\Parameter(name = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0", in = "query", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "Список услуг у ЛС",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/accountTariffRecord"))
@@ -711,6 +716,8 @@ class UuController extends ApiInternalController
      * @param int $city_id
      * @param int $voip_number
      * @param int $prev_account_tariff_id
+     * @param int $limit
+     * @param int $offset
      * @return array
      * @throws HttpException
      */
@@ -721,7 +728,9 @@ class UuController extends ApiInternalController
         $region_id = null,
         $city_id = null,
         $voip_number = null,
-        $prev_account_tariff_id = null
+        $prev_account_tariff_id = null,
+        $limit = self::DEFAULT_LIMIT,
+        $offset = 0
     ) {
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
@@ -739,6 +748,11 @@ class UuController extends ApiInternalController
         $city_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.city_id' => (int)$city_id]);
         $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
         $prev_account_tariff_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.prev_account_tariff_id' => $prev_account_tariff_id]);
+
+        $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
+        $accountTariffQuery->limit($limit);
+        $offset && $accountTariffQuery->offset($offset);
+        $accountTariffQuery->orderBy([$accountTariffTableName . '.id' => SORT_DESC]);
 
         if (!$id && !$service_type_id && !$client_account_id) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id, service_type_id или client_account_id', AccountTariff::ERROR_CODE_SERVICE_TYPE);
@@ -958,6 +972,8 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "id", type = "integer", description = "ID услуги", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "Тип услуги", in = "query", default = ""),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "Не более 100 записей. Можно только уменьшить", in = "query", default = "50"),
+     *   @SWG\Parameter(name = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0", in = "query", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "Список услуг у ЛС с пакетами",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/accountTariffWithPackagesRecord"))
@@ -971,13 +987,17 @@ class UuController extends ApiInternalController
      * @param int $id
      * @param int $client_account_id
      * @param int $service_type_id
+     * @param int $limit
+     * @param int $offset
      * @return array
      * @throws HttpException
      */
     public function actionGetAccountTariffsWithPackages(
         $id = null,
         $client_account_id = null,
-        $service_type_id = null
+        $service_type_id = null,
+        $limit = self::DEFAULT_LIMIT,
+        $offset = 0
     ) {
         if (!$id && !$client_account_id) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
@@ -989,6 +1009,11 @@ class UuController extends ApiInternalController
         $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
         $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
         $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
+
+        $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
+        $accountTariffQuery->limit($limit);
+        $offset && $accountTariffQuery->offset($offset);
+        $accountTariffQuery->orderBy([$accountTariffTableName . '.id' => SORT_DESC]);
 
         $result = [];
         foreach ($accountTariffQuery->each() as $accountTariff) {
