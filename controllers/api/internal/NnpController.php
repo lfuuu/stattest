@@ -297,9 +297,9 @@ class NnpController extends ApiInternalController
      *   @SWG\Parameter(name = "region_id", type = "integer", description = "ID региона. Также можно указать -1 для пустого или -2 для любого", in = "query", default = ""),
      *   @SWG\Parameter(name = "city_id", type = "integer", description = "ID города. Также можно указать -1 для пустого или -2 для любого", in = "query", default = ""),
      *   @SWG\Parameter(name = "ndc_type_id", type = "integer", description = "ID типа NDC", in = "query", default = ""),
-     *   @SWG\Parameter(name = "is_active", type = "integer", description = "Активен? 0 - выключен, 1 - активен", in = "query", default = ""),
-     *   @SWG\Parameter(name = "limit", type = "integer", description = "Не более 1000 записей. Можно только уменьшить", in = "query", default = ""),
-     *   @SWG\Parameter(name = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0", in = "query", default = ""),
+     *   @SWG\Parameter(name = "is_active", type = "integer", description = "Активен? 0 - выключен, 1 - активен", in = "query", default = "1"),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "Не более 1000 записей. Можно только уменьшить", in = "query", default = "1000"),
+     *   @SWG\Parameter(name = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0", in = "query", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "Диапазоны номеров",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/nnpNumberRangeRecord"))
