@@ -124,7 +124,19 @@ $conf = [
         '2' => ['pricelists' => [605, 606]],
         '4' => ['pricelists' => [603], 'mob' => false],
         '5' => ['pricelists' => [603], 'mob' => true],
-    ]
+    ],
+    Region::IZHEVSK => [// Ижевск
+        '1' => ['pricelists' => [597, 598]],
+        '2' => ['pricelists' => [397, 598]],
+        '4' => ['pricelists' => [599], 'mob' => false],
+        '5' => ['pricelists' => [599], 'mob' => true],
+    ],
+    Region::VOLGOGRAD => [// Волгоград
+        '1' => ['pricelists' => [546, 547]],
+        '2' => ['pricelists' => [346, 547]],
+        '4' => ['pricelists' => [548], 'mob' => false],
+        '5' => ['pricelists' => [548], 'mob' => true],
+    ],
 ];
 
 $filter = '';

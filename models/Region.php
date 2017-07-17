@@ -28,8 +28,10 @@ class Region extends ActiveRecord
     const MOSCOW = 99;
     const HUNGARY = 81;
 
-    const RYAZAN = 77;
+    const IZHEVSK = 74;
     const ASTRAKHAN = 75;
+    const RYAZAN = 77;
+    const VOLGOGRAD = 91;
 
     const TYPE_HUB = 0;
     const TYPE_NODE = 1;
