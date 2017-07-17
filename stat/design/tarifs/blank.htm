@@ -103,6 +103,79 @@
     </table>
 {/if}
 
+{if $blank_data.uu}
+    {foreach from=$blank_data.uu item=serviceTypeData}
+    <p>
+        <strong>
+            <em>
+                <span>
+                    Параметры услуги {$serviceTypeData.name}:
+                </span>
+            </em>
+        </strong>
+    </p>
+
+    <table style="border-collapse: collapse;" border="1" class="service_table">
+        <tr>
+            {if $serviceTypeData.is_voip}
+                <th>
+                    <p><span><b>Телефонный<br/>номер</b></span></p>
+                </th>
+            {/if}
+            <th>
+                <p><span><b>Тарифный план</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Период тарифа</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Абонентская плата за период, ¤</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Плата за подключение, ¤</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Минимальный платеж, ¤</b></span></p>
+            </th>
+            <th>
+                <p><span><b>Дата<br/>подключения</b></span></p>
+            </th>
+        </tr>
+        {foreach from=$serviceTypeData.rows item=i}
+        <tr>
+            {if $serviceTypeData.is_voip}
+                <td>
+                    <p><span>{$i.number}</span></p>
+                </td>
+            {/if}
+            <td>
+                <p><span>{$i.tariff_name}</span></p>
+            </td>
+
+            <td>
+                <p><span>{$i.period_charge}</span></p>
+            </td>
+            <td>
+                <p><span>{$i.price_per_period}</span></p>
+            </td>
+            <td>
+                <p><span>{$i.price_per_setup}</span></p>
+            </td>
+            <td>
+                <p><span>{$i.price_per_min}</span></p>
+            </td>
+            <td>
+                <p><span>{$i.from}</span></p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="{if $serviceTypeData.is_voip}7{else}6{/if}" style="font-size: 1pt; padding: 0;">&nbsp;</td>
+        </tr>
+        {/foreach}
+    </table>
+    {/foreach}
+{/if}
+
 {if $blank_data.voip_7800}
     <p>
         <strong>

@@ -1,8 +1,11 @@
 <?php
 namespace app\dao;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
 use app\modules\nnp\models\NdcType;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use Yii;
 use yii\db\Expression;
 use yii\db\Query;
@@ -225,6 +228,7 @@ class ClientDocumentDao extends Singleton
 
         $data = [
             'voip' => [],
+            'uu' => [],
             'ip' => [],
             'colocation' => [],
             'vpn' => [],
@@ -331,6 +335,55 @@ class ClientDocumentDao extends Singleton
             } else {
                 $data['voip'][] = $row;
             }
+        }
+
+        /** @var AccountTariff $accountTariff */
+        foreach (AccountTariff::find()
+                     ->where([
+                         'client_account_id' => $clientAccount->id,
+                     ])
+                     ->andWhere(['NOT', ['tariff_period_id' => null]])
+                     ->orderBy([
+                         'service_type_id' => SORT_ASC,
+                         'id' => SORT_ASC
+                     ])
+                     ->each() as $accountTariff
+        ) {
+
+            if (!($logs = $accountTariff->accountTariffLogs)) {
+                continue;
+            }
+
+            $log = reset($logs);
+            $period = $log->tariffPeriod;
+            $tariff = $period->tariff;
+
+            if (!$tariff) {
+                throw new \LogicException('Тариф не найден!');
+            }
+
+            $row = [
+                'from' => (new \DateTimeImmutable($log->actual_from_utc,
+                    new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
+                    ->setTimezone(new \DateTimeZone($clientAccount->timezone_name))
+                    ->format(DateTimeZoneHelper::DATE_FORMAT),
+                'number' => $accountTariff->voip_number,
+                'period_charge' => $period->chargePeriod->name,
+                'price_per_period' => Yii::$app->formatter->asCurrency($period->price_per_period, $tariff->currency_id),
+                'price_per_setup' => Yii::$app->formatter->asCurrency($period->price_setup, $tariff->currency_id),
+                'price_per_min' => Yii::$app->formatter->asCurrency($period->price_min, $tariff->currency_id),
+                'tariff_name' => $tariff->name,
+            ];
+
+            if (!isset($data['uu'][$accountTariff->service_type_id])) {
+                $data['uu'][$accountTariff->service_type_id] = [
+                    'is_voip' => $accountTariff->service_type_id == ServiceType::ID_VOIP,
+                    'name' => $accountTariff->serviceType->name,
+                    'rows' => [],
+                ];
+            }
+
+            $data['uu'][$accountTariff->service_type_id]['rows'][] = $row;
         }
 
         foreach (\app\models\UsageIpPorts::find()->client($client)->actual()->all() as $usage) {
