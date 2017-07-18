@@ -510,7 +510,7 @@ class CallsRawFilter extends Model
             $fields = $groups = [];
             if ($this->group_period) {
                 $query->rightJoin(
-                    "generate_series ('{$this->connect_time_from}'::timestamp, '{$this->correct_connect_time_to}'::timestamp, '1 {$this->group_period}'::interval) gs",
+                    "generate_series ('{$this->connect_time_from}'::timestamp, " . ($this->correct_connect_time_to ? "'$this->correct_connect_time_to'" : 'now()') . "::timestamp, '1 {$this->group_period}'::interval) gs",
                     "connect_time >= gs.gs AND connect_time <= gs.gs + interval '1 {$this->group_period}'"
                 );
                 $fields['interval'] = "CAST(gs.gs AS varchar) || ' - ' || CAST(gs.gs AS timestamp) + interval '1 {$this->group_period}'";
@@ -581,7 +581,7 @@ class CallsRawFilter extends Model
                 'pagination' => [],
                 'totalCount' => $count,
                 'sort' => [
-                    'defaultOrder' => ['connect_time' => SORT_DESC],
+                    'defaultOrder' => [(isset($sort[0]) ? $sort[0] : 'connect_time') => SORT_DESC],
                     'attributes' => $sort,
                 ],
             ]
