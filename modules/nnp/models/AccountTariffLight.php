@@ -34,7 +34,7 @@ class AccountTariffLight extends ActiveRecord
         return [
             'id' => 'ID', // ID ежемесячного списания за пакет (AccountLogPeriod.id)
             'account_client_id' => 'ЛС', // ID ЛС (AccountClient.id)
-            'tariff_id' => 'Тариф', // ID пакета (Tariff.id, он же nnp.package.id)
+            'tariff_id' => 'Тариф', // ID пакета (Tariff.id, он же nnp.Package.tariff_id)
             'activate_from' => 'С', // Дата начала действия пакета по UTC
             'deactivate_from' => 'По', // Дата окончания действия пакета по UTC
             'coefficient' => 'Коэффициент', // Коэффициент от 0 до 1, если пакет действует меньше месяца. Цену и кол-во доступных минут надо умножать на этот коэффициент

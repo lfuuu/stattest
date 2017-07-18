@@ -9,8 +9,9 @@ use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use UnexpectedValueException;
 use Yii;
+use yii\base\Model;
 
-abstract class ImportService
+abstract class ImportService extends Model
 {
     // Защита от сбоя обновления. Если после обновления осталось менее 70% исходного - не обновлять
     const DELTA_MIN = 0.7;
@@ -22,6 +23,7 @@ abstract class ImportService
 
     protected $log = [];
 
+    public $countryCode;
     /** @var Country */
     protected $country;
 
@@ -46,14 +48,13 @@ abstract class ImportService
     protected abstract function callbackRow($i, $row);
 
     /**
-     * @param int $countryCode
      * @throws \InvalidArgumentException
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    public function __construct($countryCode)
+    public function init()
     {
-        $this->country = Country::findOne(['code' => $countryCode]);
+        $this->country = Country::findOne(['code' => $this->countryCode]);
         if (!$this->country) {
             throw new \InvalidArgumentException('Неправильная страна');
         }

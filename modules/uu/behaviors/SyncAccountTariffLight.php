@@ -6,7 +6,6 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\AccountTariffLight;
 use app\modules\uu\models\AccountLogPeriod;
-use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use DateTimeZone;
 use yii\base\Behavior;

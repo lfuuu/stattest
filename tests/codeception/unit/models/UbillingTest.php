@@ -577,7 +577,6 @@ class UbillingTest extends _TestCase
         // всего должно быть 1 + 2*12 = 25 платных транзакций
 
         $dateTimeFirstDayOfThisMonth = (new DateTimeImmutable())->modify('first day of this month');
-        $dateTimeLastDayOfThisMonth = (new DateTimeImmutable())->modify('last day of this month');
 
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
         $dateTimeLastDayOfPrevMonth = (new DateTimeImmutable())->modify('last day of previous month');
@@ -590,7 +589,7 @@ class UbillingTest extends _TestCase
         $untarificatedResourceOptionPeriodss = $accountTariff->getUntarificatedResourceOptionPeriods();
 
         // всего у ВАТС должен быть 6 ресурсов
-        $this->assertEquals(6, count($untarificatedResourceOptionPeriodss));
+        $this->assertEquals(7, count($untarificatedResourceOptionPeriodss));
 
         // но для тестирования ограничимся только "линиями"
         $this->assertTrue(isset($untarificatedResourceOptionPeriodss[Resource::ID_VPBX_ABONENT]));

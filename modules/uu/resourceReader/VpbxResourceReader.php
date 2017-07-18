@@ -5,6 +5,7 @@ namespace app\modules\uu\resourceReader;
 use app\helpers\DateTimeZoneHelper;
 use app\models\VirtpbxStat;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\TariffPeriod;
 use DateTimeImmutable;
 use Yii;
 use yii\base\Object;
@@ -18,9 +19,10 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
      *
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
+     * @param TariffPeriod $tariffPeriod
      * @return float|null Если null, то данные неизвестны
      */
-    public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
+    public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
         $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         $virtpbxStat = VirtpbxStat::findOne([

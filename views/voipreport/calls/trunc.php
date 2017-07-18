@@ -3,7 +3,7 @@
  * Звонки в транке. Список звонков
  *
  * @var app\classes\BaseView $this
- * @var CallsFilter $filterModel
+ * @var CallsRawFilter $filterModel
  */
 
 use app\classes\grid\column\billing\DestinationColumn;
@@ -23,8 +23,8 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\UsageTrunkColumn;
 use app\classes\grid\GridView;
-use app\models\billing\Calls;
-use app\models\filter\CallsFilter;
+use app\models\billing\CallsRaw;
+use app\models\filter\CallsRawFilter;
 use app\modules\nnp\column\OperatorColumn;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\db\ActiveQuery;
@@ -57,7 +57,7 @@ $columns = [
         'label' => 'Оператор (суперклиент)',
         'class' => TrunkSuperClientColumn::className(),
         'enableSorting' => false,
-        'value' => function (Calls $call) {
+        'value' => function (CallsRaw $call) {
             return $call->trunk_id;
         },
     ],
@@ -124,7 +124,7 @@ $columns = [
     [
         'label' => 'Цена минуты с интерконнектом, ¤',
         'format' => ['decimal', 4],
-        'value' => function (Calls $calls) {
+        'value' => function (CallsRaw $calls) {
             return $calls->rate + $calls->interconnect_rate;
         },
     ],
@@ -141,7 +141,7 @@ $columns = [
     [
         'label' => 'Стоимость с интерконнектом, ¤',
         'format' => ['decimal', 4],
-        'value' => function (Calls $calls) {
+        'value' => function (CallsRaw $calls) {
             return $calls->cost + $calls->interconnect_cost;
         },
     ],
@@ -202,7 +202,7 @@ $columns = [
         'attribute' => 'stats_nnp_package_minute_id',
         'format' => 'html',
         'class' => IntegerRangeColumn::className(),
-        'value' => function (Calls $calls) {
+        'value' => function (CallsRaw $calls) {
             return $calls->stats_nnp_package_minute_id . '<br/>' .
             ($calls->nnp_package_minute_id ? 'минуты' : '') .
             ($calls->nnp_package_price_id ? 'прайс' : '') .
@@ -217,7 +217,7 @@ $columns = [
 $dataProviderSummary = $filterModel->searchCostSummary();
 /** @var ActiveQuery $query */
 $query = $dataProviderSummary->query;
-/** @var Calls $summary */
+/** @var CallsRaw $summary */
 $summary = $query->one();
 $summaryColumns = [
     [

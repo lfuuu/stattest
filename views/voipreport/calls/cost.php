@@ -3,7 +3,7 @@
  * Себестоимость. Отчет по направлениям
  *
  * @var app\classes\BaseView $this
- * @var CallsFilter $filterModel
+ * @var CallsRawFilter $filterModel
  */
 
 use app\classes\grid\column\billing\DestinationColumn;
@@ -19,8 +19,8 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\UsageTrunkColumn;
 use app\classes\grid\GridView;
-use app\models\billing\Calls;
-use app\models\filter\CallsFilter;
+use app\models\billing\CallsRaw;
+use app\models\filter\CallsRawFilter;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\db\ActiveQuery;
 use yii\widgets\Breadcrumbs;
@@ -47,7 +47,7 @@ $columns = [
         'attribute' => 'prefix_name', // любое имя во избежание дубля с предыдущим
         'class' => PrefixColumn::className(), // используется только для замены
         'headerOptions' => ['class' => 'hidden'], // потому что colspan в первом столбце
-        'value' => function (Calls $calls) {
+        'value' => function (CallsRaw $calls) {
             return $calls->prefix;
         }
     ],
@@ -111,7 +111,7 @@ $columns = [
 $dataProviderSummary = $filterModel->searchCostSummary();
 /** @var ActiveQuery $query */
 $query = $dataProviderSummary->query;
-/** @var Calls $summary */
+/** @var CallsRaw $summary */
 $summary = $query->one();
 $summaryColumns = [
     [
@@ -169,7 +169,7 @@ $filterColumns = [
         'label' => 'Оператор (суперклиент)',
         'class' => TrunkSuperClientColumn::className(),
         'enableSorting' => false,
-        'value' => function (Calls $call) {
+        'value' => function (CallsRaw $call) {
             return $call->trunk_id;
         },
     ],

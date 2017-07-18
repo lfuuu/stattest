@@ -201,9 +201,12 @@ class ImportController extends BaseController
         if ($mediaManager->isSmall($countryFile)) {
 
             // файл маленький - загрузить сразу
-            $filePath = $mediaManager->getUnzippedFilePath($countryFile);
-            $importServiceUploaded = new ImportServiceUploaded($countryCode);
-            $isOk = $importServiceUploaded->run($filePath);
+            $importServiceUploaded = new ImportServiceUploaded([
+                'countryCode' => $countryCode,
+                'url' => $mediaManager->getUnzippedFilePath($countryFile),
+                'delimiter' => ';',
+            ]);
+            $isOk = $importServiceUploaded->run();
             $log = $importServiceUploaded->getLogAsString();
             if ($isOk) {
                 $log .= PHP_EOL . PHP_EOL . Html::a(

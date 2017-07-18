@@ -6,7 +6,7 @@
 namespace app\controllers\voipreport;
 
 use app\classes\BaseController;
-use app\models\filter\CallsFilter;
+use app\models\filter\CallsRawFilter;
 use Yii;
 
 class CallsController extends BaseController
@@ -18,7 +18,7 @@ class CallsController extends BaseController
      */
     public function actionTrunc()
     {
-        $filterModel = new CallsFilter();
+        $filterModel = new CallsRawFilter();
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('trunc', [
@@ -33,7 +33,7 @@ class CallsController extends BaseController
      */
     public function actionCost()
     {
-        $filterModel = new CallsFilter();
+        $filterModel = new CallsRawFilter();
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('cost', [

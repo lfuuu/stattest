@@ -9,7 +9,7 @@ use app\classes\Assert;
 use app\classes\Singleton;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
-use app\models\billing\Calls;
+use app\models\billing\CallsRaw;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -91,7 +91,7 @@ class CallsDao extends Singleton
             'abs(cost) as cost',
             'rate',
         ]);
-        $query->from(Calls::tableName());
+        $query->from(CallsRaw::tableName());
 
         $clientAccount = ClientAccount::findOne($accountId);
         Assert::isObject($clientAccount, 'ClientAccount#' . $accountId);
@@ -143,7 +143,7 @@ class CallsDao extends Singleton
         $query->limit($limit > self::CALLS_MAX_LIMIT ? self::CALLS_MAX_LIMIT : $limit);
         $query->orderBy('connect_time');
 
-        return $query->all(Calls::getDb());
+        return $query->all(CallsRaw::getDb());
     }
 
 }

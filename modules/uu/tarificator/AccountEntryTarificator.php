@@ -234,7 +234,7 @@ SQL;
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $tariffResourceTableName = TariffResource::tableName();
-        $resourceIdVoipCalls = implode(', ', [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS]); // стоимость звонков от низкоуровневого биллера уже приходит с НДС
+        $resourceIdVoipCalls = implode(', ', [Resource::ID_VOIP_PACKAGE_CALLS, Resource::ID_TRUNK_CALLS]); // стоимость звонков от низкоуровневого биллера уже приходит с НДС
 
         // нужно знать is_include_vat из тарифа, а это можно получить только через транзакции
         // @todo может быть несколько транзакций на одну проводку. Будет лишнее обновление, но на значения это не влияет

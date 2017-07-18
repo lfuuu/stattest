@@ -147,7 +147,7 @@ class AccountLogResourceTarificator extends Tarificator
 
                 /** @var ResourceReaderInterface $reader */
                 $reader = $this->resourceIdToReader[$resourceId];
-                $amountUse = $reader->read($accountTariff, $dateTime);
+                $amountUse = $reader->read($accountTariff, $dateTime, $tariffPeriod);
                 if ($amountUse === null) {
                     $this->out(PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- ' . $resourceId . PHP_EOL);
                     continue; // нет данных. Пропустить

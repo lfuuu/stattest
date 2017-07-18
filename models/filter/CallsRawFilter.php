@@ -2,7 +2,7 @@
 
 namespace app\models\filter;
 
-use app\models\billing\Calls;
+use app\models\billing\CallsRaw;
 use app\models\UsageTrunk;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -11,7 +11,7 @@ use yii\db\Expression;
 /**
  * Фильтрация для CallsFilter
  */
-class CallsFilter extends Calls
+class CallsRawFilter extends CallsRaw
 {
     const PAGE_SIZE = 50;
     const PAGE_SIZE_COST = 1000;
@@ -194,7 +194,7 @@ class CallsFilter extends Calls
      */
     public function search($pageSize = self::PAGE_SIZE)
     {
-        $query = Calls::find();
+        $query = CallsRaw::find();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => [

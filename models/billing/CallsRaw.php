@@ -52,7 +52,7 @@ use yii\db\ActiveRecord;
  * Связи с другими моделями умышленно не описываю, чтобы не джойнить таблицы. Ибо эта таблица и так огромная, а с джойном будет еще больше тормозить
  * Если надо из id получить название, то см. http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=9142400 (Грид / Column для немногих значений в связанной таблице)
  */
-class Calls extends ActiveRecord
+class CallsRaw extends ActiveRecord
 {
     // псевдо-поля для \app\models\filter\CallsFilter::searchCost
     public $geo_ids = '';

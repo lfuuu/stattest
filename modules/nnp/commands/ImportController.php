@@ -24,7 +24,10 @@ class ImportController extends Controller
      */
     public function actionRus()
     {
-        (new ImportServiceRossvyaz(Country::RUSSIA))
+        (new ImportServiceRossvyaz([
+            'countryCode' => Country::RUSSIA,
+            'delimiter' => ';',
+        ]))
             ->run();
 
         echo 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;

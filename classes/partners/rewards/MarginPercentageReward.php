@@ -13,7 +13,7 @@ use app\models\UsageVoip;
 use app\models\UsageTrunk;
 use app\models\billing\ServiceNumber;
 use app\models\billing\ServiceTrunk;
-use app\models\billing\Calls;
+use app\models\billing\CallsRaw;
 
 abstract class MarginPercentageReward
 {
@@ -88,7 +88,7 @@ abstract class MarginPercentageReward
             ])
 
             ->from(ServiceNumber::tableName())
-            ->leftJoin(Calls::tableName(), 'calls_raw.number_service_id = service_number.id')
+            ->leftJoin(CallsRaw::tableName(), 'calls_raw.number_service_id = service_number.id')
 
             ->where(new Expression('NOW() BETWEEN service_number.activation_dt AND service_number.expire_dt'))
             ->andWhere(['>=', 'calls_raw.connect_time', $line->date_from])
@@ -104,7 +104,7 @@ abstract class MarginPercentageReward
 
         $margin = 0;
 
-        foreach ($query->each(1000, Calls::getDb()) as $marginRow) {
+        foreach ($query->each(1000, CallsRaw::getDb()) as $marginRow) {
             if ($marginRow['client_account_id'] !== $line->bill->client_id) {
                 continue;
             }
@@ -134,7 +134,7 @@ abstract class MarginPercentageReward
                 'term' => new Expression('SUM(CASE WHEN calls_raw.orig = false THEN -calls_raw.cost ELSE 0 END)'),
             ])
             ->from(ServiceTrunk::tableName())
-            ->leftJoin(Calls::tableName(), 'calls_raw.trunk_id = service_trunk.trunk_id')
+            ->leftJoin(CallsRaw::tableName(), 'calls_raw.trunk_id = service_trunk.trunk_id')
 
             ->where(new Expression('NOW() BETWEEN service_trunk.activation_dt AND service_trunk.expire_dt'))
             ->andWhere(['>=', 'calls_raw.connect_time', $line->date_from])
@@ -149,7 +149,7 @@ abstract class MarginPercentageReward
 
         $margin = 0;
 
-        foreach ($query->each(1000, Calls::getDb()) as $marginRow) {
+        foreach ($query->each(1000, CallsRaw::getDb()) as $marginRow) {
             if ($marginRow['client_account_id'] !== $line->bill->client_id) {
                 continue;
             }

@@ -6,7 +6,7 @@ use app\classes\Singleton;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\helpers\DateTimeZoneHelper;
-use app\models\billing\Calls;
+use app\models\billing\CallsRaw;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\Number;
@@ -423,7 +423,7 @@ class NumberDao extends Singleton
             $dtFrom->modify("first day of -3 month, 00:00:00");
         }
 
-        $query = Calls::find()
+        $query = CallsRaw::find()
             ->select([
                 'u' => 'dst_number',
                 'c' => (new Expression('count(*)')),

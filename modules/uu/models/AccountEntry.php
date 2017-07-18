@@ -271,7 +271,7 @@ class AccountEntry extends ActiveRecord
                     ($tariffResource = $this->tariffResource)
                     && ($resource = $tariffResource->resource)
                 ) {
-                    if (in_array($resource->id, [Resource::ID_VOIP_CALLS, Resource::ID_TRUNK_CALLS])) {
+                    if (in_array($resource->id, [Resource::ID_VOIP_PACKAGE_CALLS, Resource::ID_TRUNK_CALLS])) {
                         // В звонках указана стоимость, но не минуты
                         return 1;
                     }

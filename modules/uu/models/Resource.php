@@ -3,8 +3,9 @@
 namespace app\modules\uu\models;
 
 use app\models\Language;
+use app\modules\uu\behaviors\ResourceFiller;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
-use app\modules\uu\resourceReader\VoipCallsResourceReader;
+use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
 use app\modules\uu\resourceReader\VpbxDiskResourceReader;
 use Yii;
 use yii\db\ActiveQuery;
@@ -33,10 +34,12 @@ class Resource extends \yii\db\ActiveRecord
     const ID_VPBX_FAX = 6; // ВАТС. Факс
     const ID_VPBX_MIN_ROUTE = 19; // ВАТС. Маршрутизация по минимальной цене
     const ID_VPBX_GEO_ROUTE = 20; // ВАТС. Маршрутизация по географии
+    const ID_VPBX_SUB_ACCOUNT = 39; // ВАТС. Лимиты по субсчетам
 
     const ID_VOIP_LINE = 7; // Телефония. Линия
-    const ID_VOIP_CALLS = 8; // Телефония. Звонки
     const ID_VOIP_FMC = 38; // Телефония. FMC
+
+    const ID_VOIP_PACKAGE_CALLS = 40; // Пакеты телефонии. Звонки
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 
@@ -59,6 +62,8 @@ class Resource extends \yii\db\ActiveRecord
 
     const DEFAULT_UNIT = '¤';
 
+    public $fillerPricePerUnit = 100;
+
     /**
      * @inheritdoc
      */
@@ -76,6 +81,16 @@ class Resource extends \yii\db\ActiveRecord
             [['min_value', 'max_value'], 'number'],
             [['service_type_id'], 'integer'],
             [['name', 'unit'], 'string', 'max' => 50]
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'ResourceFiller' => ResourceFiller::className(),
         ];
     }
 
@@ -130,7 +145,7 @@ class Resource extends \yii\db\ActiveRecord
             self::ID_VPBX_DISK => VpbxDiskResourceReader::className(),
 
             // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
-            self::ID_VOIP_CALLS => VoipCallsResourceReader::className(),
+            self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::className(),
         ];
     }
 
@@ -271,7 +286,6 @@ class Resource extends \yii\db\ActiveRecord
      */
     public function isEditable()
     {
-        // Если для ресурса есть ридер, значит, он меняется динамически (например, стоимость звонков или трафик), и менять вручную нельзя
-        return !Resource::getReader($this->id);
+        return $this->isOption();
     }
 }

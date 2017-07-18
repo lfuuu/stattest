@@ -15,7 +15,7 @@ use app\classes\Singleton;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
-use app\models\billing\Calls;
+use app\models\billing\CallsRaw;
 use app\models\billing\Geo;
 use app\models\billing\InstanceSettings;
 use app\models\UsageVoipPackage;
@@ -68,7 +68,7 @@ class ReportUsageDao extends Singleton
             ->setTime(23, 59, 59);
 
         $clientAccount = ClientAccount::findOne($clientId);
-        $query = Calls::find()
+        $query = CallsRaw::find()
             ->alias('cr')
             ->andWhere([
                 'BETWEEN',

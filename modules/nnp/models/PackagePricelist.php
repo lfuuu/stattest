@@ -9,7 +9,7 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
 /**
- * Пакеты. Прайслист с МГП (минимальный гарантированный платеж)
+ * Пакеты. Прайслист
  *
  * @property int $id
  * @property int $tariff_id

@@ -10,7 +10,7 @@ use app\classes\ApiInternalController;
 use app\classes\DynamicModel;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\UsageVoipValidator;
-use app\models\billing\Calls;
+use app\models\billing\CallsRaw;
 
 class VoipController extends ApiInternalController
 {
@@ -92,7 +92,7 @@ class VoipController extends ApiInternalController
 
         $result = [];
         foreach (
-            Calls::dao()->getCalls(
+            CallsRaw::dao()->getCalls(
                 $model->account_id,
                 $model->number,
                 $model->year,

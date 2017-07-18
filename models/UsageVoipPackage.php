@@ -13,7 +13,7 @@ use app\helpers\usages\UsageVoipPackageHelper;
 use app\queries\ClientAccountQuery;
 use app\models\usages\UsageInterface;
 use app\models\billing\StatPackage as BillingStatPackage;
-use app\models\billing\Calls as CallsStatPackage;
+use app\models\billing\CallsRaw as CallsStatPackage;
 use app\queries\UsageQuery;
 use app\classes\behaviors\important_events\UsageAction;
 use app\models\important_events\ImportantEvents;

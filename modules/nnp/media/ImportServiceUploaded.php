@@ -8,20 +8,7 @@ class ImportServiceUploaded extends ImportService
 {
     const EVENT = 'nnp_import';
 
-    private $_url;
-
-    /**
-     * Импортировать
-     *
-     * @param string $url
-     * @return bool
-     */
-    public function run($url)
-    {
-        $this->delimiter = ';';
-        $this->_url = $url;
-        return parent::run();
-    }
+    public $url;
 
     /**
      * Основной метод
@@ -34,7 +21,7 @@ class ImportServiceUploaded extends ImportService
      */
     protected function callbackMethod()
     {
-        $this->importFromTxt($this->_url);
+        $this->importFromTxt($this->url);
     }
 
     /**
