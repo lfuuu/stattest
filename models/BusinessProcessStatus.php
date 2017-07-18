@@ -105,6 +105,7 @@ class BusinessProcessStatus extends ActiveRecord
     const OPERATOR_INFRASTRUCTURE_TECH_FAILURE = 69; // Инфраструктура - Техотказ
     const OPERATOR_INFRASTRUCTURE_TRASH = 123; // Инфраструктура - Мусор
     const OPERATOR_INFRASTRUCTURE_MANUAL_BILL = 150; // Инфраструктура - Ручной счет
+    const OPERATOR_INFRASTRUCTURE_ONE_TIME = 151; // Инфраструктура - Разовый
 
     const WELLTIME_MAINTENANCE_COMMISSIONING = 95; // Пуско-наладка
     const WELLTIME_MAINTENANCE_MAINTENANCE = 96; // Техобслуживание
