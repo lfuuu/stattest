@@ -40,7 +40,7 @@ class AccountTariffImportantEvents extends Behavior
             ImportantEventsSources::SOURCE_STAT, [
                 'account_tariff_id' => $accountTariff->id,
                 'service_type_id' => $accountTariff->service_type_id,
-                'client_account_id' => $accountTariff->client_account_id,
+                'client_id' => $accountTariff->client_account_id,
             ]);
     }
 
@@ -60,7 +60,7 @@ class AccountTariffImportantEvents extends Behavior
             ImportantEventsSources::SOURCE_STAT, [
                 'account_tariff_id' => $accountTariff->id,
                 'service_type_id' => $accountTariff->service_type_id,
-                'client_account_id' => $accountTariff->client_account_id,
+                'client_id' => $accountTariff->client_account_id,
             ]);
     }
 }
