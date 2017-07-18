@@ -2,6 +2,7 @@
 
 namespace app\models\filter;
 
+use app\classes\helpers\ArrayHelper;
 use app\models\ClientAccount;
 use app\models\Currency;
 use app\models\light_models\NumberLight;
@@ -16,6 +17,7 @@ class FreeNumberFilter extends Number
 {
 
     const FREE_NUMBERS_LIMIT = 12;
+    const REAL_NUMBER_LENGTH = 7;
 
     /** @var \yii\db\ActiveQuery */
     private $_query;
@@ -119,7 +121,7 @@ class FreeNumberFilter extends Number
     public function setIsService($isService = null)
     {
         if (!is_null($isService)) {
-            $this->_query->andWhere([parent::tableName() . '.is_service' => (int) $isService]);
+            $this->_query->andWhere([parent::tableName() . '.is_service' => (int)$isService]);
         }
 
         return $this;
@@ -314,10 +316,10 @@ class FreeNumberFilter extends Number
      */
     public function result($limit = self::FREE_NUMBERS_LIMIT)
     {
-        $result = $this->_query->all();
+        $result = $this->_query->all(); // @todo each
 
         if ($this->_mask) {
-            $result = $this->_applyMask($result, $this->_mask);
+            $result = array_filter($result, [$this, '_filterByMask']);
         }
 
         if ($this->_similar) {
@@ -415,35 +417,34 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param \app\models\Number[] $numbers
-     * @param string $mask
-     * @return \app\models\Number[]|[]
+     * @param \app\models\Number $number
+     * @return bool
      */
-    private function _applyMask($numbers, $mask)
+    private function _filterByMask($number)
     {
-        $mask = trim($mask);
-        $fromEnd = false;
+        $mask = trim($this->_mask);
+        if (!$mask) {
+            return true;
+        }
 
         // Маска не удовлетворяет требованиям
         if (!preg_match('#^[A-Z0-9\*]+$#', $mask)) {
-            return [];
+            return false;
         }
 
         // Поиск начинать с конца
+        $isFromEnd = false;
         if (strpos($mask, '*') === 0) {
             $mask = substr($mask, 1, strlen($mask));
-            $fromEnd = true;
+            $isFromEnd = true;
         }
 
         // Маска содержит только цифры
-        if (preg_match('#^[0-9]+$#', $mask)) {
-            return array_filter($numbers, function ($number) use ($mask, $fromEnd) {
-                $realNumber = substr($number->number, strlen($number->number) - 7);
-                return
-                    !$fromEnd ?
-                        strpos($realNumber, $mask) !== false :
-                        strrpos($realNumber, $mask) + strlen($mask) === strlen($realNumber);
-            });
+        if (preg_match('#^\d+$#', $mask)) {
+            $realNumber = substr($number->number, strlen($number->number) - self::REAL_NUMBER_LENGTH);
+            return $isFromEnd ?
+                strrpos($realNumber, $mask) + strlen($mask) === strlen($realNumber) :
+                strpos($realNumber, $mask) !== false;
         }
 
         // Построение регулярного выражения на основе маски
@@ -452,11 +453,9 @@ class FreeNumberFilter extends Number
         $unique = [];
         $regexp = '';
 
-        for ($index = 0; $index < $patternLength; $index++) {
-            $symbol = $pattern[$index];
-
-            // Добавление цифр as is
+        foreach ($pattern as $index => $symbol) {
             if (is_numeric($symbol)) {
+                // Добавление цифр as is
                 $regexp .= $symbol;
                 continue;
             }
@@ -469,13 +468,11 @@ class FreeNumberFilter extends Number
             }
         }
 
-        return array_filter($numbers, function ($number) use ($regexp, $patternLength, $fromEnd) {
-            $realNumber = (!$fromEnd) ?
-                substr($number->number, strlen($number->number) - 7, $patternLength) :
-                substr($number->number, strlen($number->number) - $patternLength);
+        $realNumber = $isFromEnd ?
+            substr($number->number, strlen($number->number) - $patternLength) :
+            substr($number->number, strlen($number->number) - self::REAL_NUMBER_LENGTH, $patternLength);
 
-            return preg_match('#' . $regexp . ($fromEnd ? '$' : '') . '#', $realNumber);
-        });
+        return preg_match('#' . $regexp . ($isFromEnd ? '$' : '') . '#', $realNumber);
     }
 
     /**
@@ -485,19 +482,20 @@ class FreeNumberFilter extends Number
      */
     private function _applyLevenshtein($numbers, $similar)
     {
-        array_walk($numbers, function ($row) use ($similar) {
-            $row->levenshtein = levenshtein(substr($row->number, strlen($row->number) - 7), $similar);
-        });
+        $result = [];
+        for ($i = 0; $i <= 15; $i++) {
+            // чтобы индексы были в нужном порядке
+            // 15 - максимальная длина номера по E164
+            $result[$i] = [];
+        }
 
-        usort($numbers, function ($a, $b) {
-            if ($a->levenshtein == $b->levenshtein) {
-                return 0;
-            }
+        foreach ($numbers as $number) {
+            $realNumber = substr($number->number, strlen($number->number) - self::REAL_NUMBER_LENGTH);
+            $levenshtein = levenshtein($realNumber, $similar);
+            $result[$levenshtein][] = $number;
+        };
 
-            return ($a->levenshtein < $b->levenshtein) ? -1 : 1;
-        });
-
-        return $numbers;
+        return ArrayHelper::flatten($result);
     }
 
 }
