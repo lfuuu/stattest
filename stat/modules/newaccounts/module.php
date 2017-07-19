@@ -4706,7 +4706,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
                 WHERE
                     " . MySQLDatabase::Generate($W) . "
-                    AND B.`bill_no` LIKE '20____-____'
+                    AND B.`bill_no` RLIKE '^20[0-9]{4}-[0-9]{4}([0-9]{2})?$'
                     AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
                     AND cr.`contract_type_id` != 6 ## internal office
                     AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
@@ -4773,7 +4773,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                                     INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
                 WHERE
                     t.`bill_no` = B.`bill_no`
-                    AND B.`bill_no` LIKE '20____/____' #только счета с товарами (выставленные через 1С)
+                    AND B.`bill_no` RLIKE '^20[0-9]{4}/[0-9]{4}([0-9]{2})?$' #только счета с товарами (выставленные через 1С)
                     AND
                         " . MySQLDatabase::Generate($W_gds) . "
                 GROUP BY
