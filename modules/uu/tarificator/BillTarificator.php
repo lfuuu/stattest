@@ -101,7 +101,7 @@ SQL;
                 bill.is_converted = 0
             WHERE
                 t.price IS NULL
-                OR bill.price != t.price
+                OR ROUND(bill.price, 2) != ROUND(t.price, 2)
 SQL;
         $db->createCommand($updateSql)
             ->execute();

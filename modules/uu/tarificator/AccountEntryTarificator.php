@@ -152,30 +152,30 @@ SQL;
         $this->out('. ');
         $updateSql = <<<SQL
             UPDATE
-            {$accountEntryTableName} account_entry,
-            (
-                SELECT
-                    account_log.account_entry_id,
-                    SUM(account_log.price) AS price,
-                    MIN(`{$dateFieldNameFrom}`) AS date_from,
-                    MAX(`{$dateFieldNameTo}`) AS date_to
-                FROM
-                    {$accountLogTableName} account_log,
-                    {$accountTariffTableName} account_tariff,
-                    {$clientAccountTableName} client_account
-                WHERE
-                    account_log.account_tariff_id = account_tariff.id
-                    AND account_tariff.client_account_id = client_account.id
-                    {$sqlAndWhere}
-                GROUP BY
-                   account_log.account_entry_id
-            ) t
-         SET
-            account_entry.price = t.price,
-            account_entry.date_from = t.date_from,
-            account_entry.date_to = t.date_to
-         WHERE
-            account_entry.id = t.account_entry_id
+                {$accountEntryTableName} account_entry,
+                (
+                    SELECT
+                        account_log.account_entry_id,
+                        SUM(account_log.price) AS price,
+                        MIN(`{$dateFieldNameFrom}`) AS date_from,
+                        MAX(`{$dateFieldNameTo}`) AS date_to
+                    FROM
+                        {$accountLogTableName} account_log,
+                        {$accountTariffTableName} account_tariff,
+                        {$clientAccountTableName} client_account
+                    WHERE
+                        account_log.account_tariff_id = account_tariff.id
+                        AND account_tariff.client_account_id = client_account.id
+                        {$sqlAndWhere}
+                    GROUP BY
+                       account_log.account_entry_id
+                ) t
+            SET
+                account_entry.price = t.price,
+                account_entry.date_from = t.date_from,
+                account_entry.date_to = t.date_to
+            WHERE
+                account_entry.id = t.account_entry_id
 SQL;
         $db->createCommand($updateSql, $sqlParams)
             ->execute();
