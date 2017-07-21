@@ -92,19 +92,19 @@ try {
                             }
 
                             if ($model['dst_operator_name_first']) {
-                                $content .= ' - ' . $model['src_operator_name_first'];
+                                $content .= ' - ' . $model['dst_operator_name_first'];
                             }
 
                             if ($model['dst_country_name_first']) {
-                                $nnp[] = $model['src_country_name_first'];
+                                $nnp[] = $model['dst_country_name_first'];
                             }
 
                             if ($model['dst_region_name_first']) {
-                                $nnp[] = $model['src_region_name_first'];
+                                $nnp[] = $model['dst_region_name_first'];
                             }
 
                             if ($model['dst_city_name_first']) {
-                                $nnp[] = $model['src_city_name_first'];
+                                $nnp[] = $model['dst_city_name_first'];
                             }
 
                             if ($nnp) {
@@ -150,19 +150,19 @@ try {
                             }
 
                             if ($model['dst_operator_name_last']) {
-                                $content .= ' - ' . $model['src_operator_name_last'];
+                                $content .= ' - ' . $model['dst_operator_name_last'];
                             }
 
                             if ($model['dst_country_name_last']) {
-                                $nnp[] = $model['src_country_name_last'];
+                                $nnp[] = $model['dst_country_name_last'];
                             }
 
                             if ($model['dst_region_name_last']) {
-                                $nnp[] = $model['src_region_name_last'];
+                                $nnp[] = $model['dst_region_name_last'];
                             }
 
                             if ($model['dst_city_name_last']) {
-                                $nnp[] = $model['src_city_name_last'];
+                                $nnp[] = $model['dst_city_name_last'];
                             }
 
                             if ($nnp) {
