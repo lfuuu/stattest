@@ -97,11 +97,11 @@ SQL;
                 ) t
             ON bill.id = t.bill_id
             SET
-                bill.price = COALESCE(t.price, 0),
+                bill.price = ROUND(COALESCE(t.price, 0), 4),
                 bill.is_converted = 0
             WHERE
                 t.price IS NULL
-                OR ROUND(bill.price, 2) != ROUND(t.price, 2)
+                OR bill.price != ROUND(t.price, 4)
 SQL;
         $db->createCommand($updateSql)
             ->execute();
