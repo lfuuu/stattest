@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\light_models\uu;
+namespace app\modules\uu\models_light;
 
 use app\models\ClientAccount;
 use Yii;
