@@ -14,7 +14,7 @@ use app\modules\uu\models\TariffVoipCity;
 use kartik\select2\Select2;
 
 $tariffVoipCities = $formModel->tariffVoipCities;
-$cityList = City::getList($isWithEmpty = false, $formModel->id ? $formModel->tariff->country_id : $formModel->countryId);
+$cityList = City::getList($isWithEmpty = false, $formModel->tariff->country_id);
 $tariff = $formModel->tariff;
 
 $tariffVoipCityTableName = TariffVoipCity::tableName();

@@ -37,6 +37,8 @@ class TariffEditForm extends TariffForm
             throw new \InvalidArgumentException(\Yii::t('common', 'Wrong ID'));
         }
 
+        $this->countryId && $tariff->country_id = $this->countryId;
+
         return $tariff;
     }
 

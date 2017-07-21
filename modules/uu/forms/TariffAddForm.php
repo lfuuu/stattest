@@ -14,7 +14,6 @@ use app\modules\uu\models\TariffVoipCity;
 class TariffAddForm extends TariffForm
 {
     public $serviceTypeId;
-    public $countryId;
 
     /**
      * Конструктор
