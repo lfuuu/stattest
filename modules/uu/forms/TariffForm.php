@@ -471,8 +471,7 @@ abstract class TariffForm extends \app\classes\Form
         $packageMinutes = $this->tariff->packageMinutes;
         $fieldNames = [
             'destination_id',
-            'price',
-            'interconnect_price',
+            'minute',
         ];
         foreach ($packageMinutes as $packageMinute) {
             $packageMinuteCloned = new PackageMinute();
