@@ -8,7 +8,7 @@ namespace app\modules\uu\controllers;
 use app\classes\BaseController;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\models\ClientAccount;
-use app\models\light_models\uu\InvoiceLight;
+use app\modules\uu\models_light\InvoiceLight;
 use app\modules\uu\models\Bill;
 use Yii;
 use yii\base\InvalidParamException;

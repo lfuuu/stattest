@@ -1,6 +1,6 @@
 <?php
 
-use \app\models\light_models\uu\InvoiceLight;
+use \app\modules\uu\models_light\InvoiceLight;
 
 $help = InvoiceLight::getHelp();
 ?>
@@ -16,7 +16,7 @@ $help = InvoiceLight::getHelp();
     <tbody>
         <?php
         /**
-         * @var \app\models\light_models\uu\InvoiceLightInterface $object
+         * @var \app\modules\uu\models_light\InvoiceLightInterface $object
          */
         foreach($help as $object): ?>
             <tr>
