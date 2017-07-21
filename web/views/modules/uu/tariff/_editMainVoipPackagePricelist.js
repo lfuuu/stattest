@@ -9,7 +9,7 @@
                 // событие надо ловить не только для нынешних select, но и для будущих
                 var $this = $(this),
                     id = $this.attr('id').replace('-pricelist_id', '-id'),
-                    $id = $('#' + id),
+                    $id = $('#' + id).next(),
                     $price = $id.next();
 
                 if (!$price.length) {
