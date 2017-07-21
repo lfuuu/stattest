@@ -91,14 +91,15 @@ class TariffController extends BaseController
      * Редактировать
      *
      * @param int $id
+     * @param int $countryId
      * @return string
      * @throws \yii\base\InvalidParamException
      */
-    public function actionEdit($id)
+    public function actionEdit($id, $countryId = null)
     {
         try {
             /** @var TariffEditForm $formModel */
-            $formModel = new TariffEditForm(['id' => $id]);
+            $formModel = new TariffEditForm(['id' => $id, 'countryId' => $countryId]);
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
 

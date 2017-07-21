@@ -30,6 +30,8 @@ abstract class TariffForm extends \app\classes\Form
     /** @var TariffVoipCity[] */
     public $tariffVoipCities;
 
+    public $countryId;
+
     /**
      * @return TariffResource[]
      */
