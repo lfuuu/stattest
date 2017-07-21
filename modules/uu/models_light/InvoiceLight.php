@@ -2,22 +2,22 @@
 
 namespace app\modules\uu\models_light;
 
-use Yii;
+use app\classes\Assert;
+use app\classes\Smarty;
+use app\forms\templates\uu\InvoiceForm;
+use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
+use app\models\InvoiceSettings;
+use app\models\Language;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Bill;
 use DateTime;
+use Yii;
 use yii\base\Component;
 use yii\base\InvalidParamException;
 use yii\db\Expression;
 use yii\db\Query;
-use app\classes\Assert;
-use app\classes\Smarty;
-use app\modules\uu\models\AccountEntry;
-use app\modules\uu\models\AccountTariff;
-use app\forms\templates\uu\InvoiceForm;
-use app\helpers\DateTimeZoneHelper;
-use app\models\ClientAccount;
-use app\models\Language;
-use app\models\InvoiceSettings;
-use app\modules\uu\models\Bill;
 
 class InvoiceLight extends Component
 {
@@ -151,19 +151,7 @@ class InvoiceLight extends Component
             ->from(['bill' => Bill::tableName()])
             ->leftJoin(['entry' => AccountEntry::tableName()], 'entry.bill_id = bill.id')
             ->where(['bill.client_account_id' => $this->_clientAccount->id])
-            ->andWhere([
-                'OR',
-                [
-                    'AND',
-                    new Expression('DATE_FORMAT(bill.date, "%Y-%m") = :thisMonth', ['thisMonth' => $this->_date]),
-                    ['bill.is_default' => 0]
-                ],
-                [
-                    'AND',
-                    new Expression('DATE_FORMAT(bill.date, "%Y-%m") = :prevMonth', ['prevMonth' => $monthAgo]),
-                    ['bill.is_default' => 1]
-                ]
-            ])
+            ->andWhere(['bill.date' => $this->_date . '-01'])
             ->groupBy('bill.id')
             ->having('entries > 0')
             ->all();
