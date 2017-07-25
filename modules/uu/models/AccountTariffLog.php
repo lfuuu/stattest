@@ -16,6 +16,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -78,6 +79,11 @@ class AccountTariffLog extends ActiveRecord
         return [
             'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
             'FillAccountTariffResourceLog' => FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
     }
 

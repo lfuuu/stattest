@@ -8,6 +8,7 @@ use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
 use app\modules\uu\resourceReader\VpbxDiskResourceReader;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 
 /**
@@ -91,6 +92,11 @@ class Resource extends \yii\db\ActiveRecord
     {
         return [
             'ResourceFiller' => ResourceFiller::className(),
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
     }
 

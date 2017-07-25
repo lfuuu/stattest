@@ -4,6 +4,7 @@ namespace app\modules\uu\models;
 
 use app\classes\model\HistoryActiveRecord;
 use Yii;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 
 /**
@@ -43,6 +44,11 @@ class TariffPeriod extends HistoryActiveRecord
     {
         return [
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
 
     }

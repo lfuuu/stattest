@@ -4,6 +4,7 @@ namespace app\modules\uu\models;
 
 use app\classes\model\HistoryActiveRecord;
 use app\models\City;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 
 /**
@@ -28,8 +29,12 @@ class TariffVoipCity extends HistoryActiveRecord
     {
         return [
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
-
     }
 
     /**

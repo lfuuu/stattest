@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\modules\uu\behaviors\SyncAccountTariffLight;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -57,8 +58,14 @@ class AccountLogPeriod extends ActiveRecord
     {
         return [
             'SyncAccountTariffLight' => SyncAccountTariffLight::className(), // Синхронизировать данные в AccountTariffLight
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
     }
+
 
     /**
      * @return ActiveQuery

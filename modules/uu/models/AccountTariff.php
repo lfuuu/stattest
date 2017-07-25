@@ -14,6 +14,7 @@ use app\modules\uu\models\traits\AccountTariffLinkTrait;
 use app\modules\uu\models\traits\AccountTariffPackageTrait;
 use app\modules\uu\models\traits\AccountTariffRelationsTrait;
 use app\modules\uu\models\traits\AccountTariffValidatorTrait;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Универсальная услуга
@@ -105,6 +106,11 @@ class AccountTariff extends HistoryActiveRecord
         return [
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
             'AccountTariffImportantEvents' => AccountTariffImportantEvents::className(),
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
     }
 

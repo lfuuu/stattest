@@ -3,6 +3,7 @@
 namespace app\modules\uu\behaviors;
 
 use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\tarificator\AccountEntryTarificator;
 use app\modules\uu\tarificator\AccountLogMinTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
@@ -45,7 +46,7 @@ class AccountTariffBiller extends Behavior
      */
     public function accountTariffLogChange(Event $event)
     {
-        /** @var AccountTariffLog $accountTariffLog */
+        /** @var AccountTariffLog|AccountTariffResourceLog $accountTariffLog */
         $accountTariffLog = $event->sender;
         $accountTariff = $accountTariffLog->accountTariff;
         $accountTariffId = $accountTariff->id;

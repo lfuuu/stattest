@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\HistoryActiveRecord;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Стоимость ресурса (дисковое пространство, абоненты, линии и пр.)
@@ -29,6 +30,11 @@ class TariffResource extends HistoryActiveRecord
     {
         return [
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
 
     }
@@ -47,7 +53,7 @@ class TariffResource extends HistoryActiveRecord
     public function rules()
     {
         return [
-            [['amount', 'price_per_unit'], 'number'],
+            [['amount', 'price_per_unit', 'price_min'], 'number'],
             [['resource_id', 'tariff_id'], 'integer'],
             [['resource_id', 'amount', 'price_per_unit', 'price_min'], 'required'],
             ['resource_id', 'validateServiceType'],

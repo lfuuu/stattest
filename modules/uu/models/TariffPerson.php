@@ -2,6 +2,8 @@
 
 namespace app\modules\uu\models;
 
+use yii\behaviors\AttributeTypecastBehavior;
+
 /**
  * Для кого действует тариф (для всех, физиков, юриков)
  *
@@ -37,6 +39,20 @@ class TariffPerson extends \yii\db\ActiveRecord
             [['id'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
     }
 }

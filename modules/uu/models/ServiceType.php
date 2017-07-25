@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models;
 
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -110,6 +111,20 @@ class ServiceType extends \yii\db\ActiveRecord
             [['id', 'parent_id', 'close_after_days'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
     }
 

@@ -26,7 +26,7 @@ class FreeNumbersTest extends TestCase
     public function testAllFreeNumbers()
     {
         $numbers = new FreeNumberFilter;
-        $this->assertEquals(22, count($numbers->result(null)));
+        $this->assertEquals(123, count($numbers->result(null)));
     }
 
     public function testRegularFreeNumbers()

@@ -9,6 +9,7 @@ use Yii;
 use yii\base\NotSupportedException;
 use yii\rbac\BaseManager;
 use yii\rbac\Item;
+use yii\rbac\Role;
 
 
 class AuthManager extends BaseManager
@@ -341,5 +342,18 @@ class AuthManager extends BaseManager
     {
         // TODO: Implement canAddChild() method.
         return false;
+    }
+
+    /**
+     * Returns child roles of the role specified. Depth isn't limited.
+     * @param string $roleName name of the role to file child roles for
+     * @return Role[] Child roles. The array is indexed by the role names.
+     * First element is an instance of the parent Role itself.
+     * @throws \yii\base\InvalidParamException if Role was not found that are getting by $roleName
+     * @since 2.0.10
+     */
+    public function getChildRoles($roleName)
+    {
+        // TODO: Implement getChildRoles() method.
     }
 }

@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models;
 
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -48,6 +49,20 @@ class AccountLogMin extends ActiveRecord
             [['id', 'tariff_period_id', 'account_tariff_id'], 'integer'],
             [['period_price', 'coefficient', 'price', 'price_with_coefficient', 'price_resource'], 'double'],
             [['date_from', 'date_to'], 'string', 'max' => 255],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'typecast' => [
+                'class' => AttributeTypecastBehavior::className(),
+                'typecastAfterValidate' => false,
+                'typecastAfterFind' => true,
+            ],
         ];
     }
 
