@@ -2381,7 +2381,7 @@ class m_newaccounts extends IModule
     public static function do_print_prepare_filter(
         $obj,
         $source,
-        &$L,
+        &$billLines,
         $period_date,
         $inv3Full = true,
         $isViewOnly = false,
@@ -2393,7 +2393,7 @@ class m_newaccounts extends IModule
             $origObj = $obj;
         }
 
-        if ($obj == "gds") {
+        if ($obj == BillDocument::TYPE_GDS) {
             $M = array(
                 'all4net' => 0,
                 'service' => 0,
@@ -2403,22 +2403,22 @@ class m_newaccounts extends IModule
                 '_' => 0
             );
         } else {
-            if ($obj == 'bill') {
+            if ($obj == BillDocument::TYPE_BILL) {
                 $M['all4net'] = 1;
                 $M['service'] = 1;
                 $M['zalog'] = 1;
-                $M['zadatok'] = ($source == 2 ? 1 : 0);
+                $M['zadatok'] = ($source == BillDocument::ID_RESOURCE ? 1 : 0);
                 $M['good'] = 1;
                 $M['_'] = 0;
-            } elseif ($obj == 'lading') {
+            } elseif ($obj == BillDocument::TYPE_LADING) {
                 $M['all4net'] = 1;
                 $M['service'] = 0;
                 $M['zalog'] = 0;
                 $M['zadatok'] = 0;
                 $M['good'] = 1;
                 $M['_'] = 0;
-            } elseif ($obj == 'akt') {
-                if ($source == 3) {
+            } elseif ($obj == BillDocument::TYPE_AKT) {
+                if ($source == BillDocument::ID_GOODS) {
                     $M = array(
                         'all4net' => 0,
                         'service' => 0,
@@ -2427,7 +2427,7 @@ class m_newaccounts extends IModule
                         'good' => 0,
                         '_' => 0
                     );
-                } elseif (in_array($source, array(1, 2))) {
+                } elseif (in_array($source, [BillDocument::ID_PERIOD, BillDocument::ID_RESOURCE])) {
                     $M = array(
                         'all4net' => 1,
                         'service' => 1,
@@ -2438,7 +2438,7 @@ class m_newaccounts extends IModule
                     );
                 }
             } else { //invoice
-                if (in_array($source, array(1, 2))) {
+                if (in_array($source, [BillDocument::ID_PERIOD, BillDocument::ID_RESOURCE])) {
                     $M['all4net'] = 1;
                     $M['service'] = 1;
                     $M['zalog'] = 0;
@@ -2453,10 +2453,10 @@ class m_newaccounts extends IModule
                     $M['good'] = $inv3Full ? 1 : 0;
                     $M['_'] = 0;
                 } elseif ($source == 4) {
-                    if (!count($L)) {
+                    if (!count($billLines)) {
                         return array();
                     }
-                    foreach ($L as $val) {
+                    foreach ($billLines as $val) {
                         $bill = $val;
                         break;
                     }
@@ -2536,7 +2536,7 @@ class m_newaccounts extends IModule
                     }
 
                     $R = array();
-                    foreach ($L as $item) {
+                    foreach ($billLines as $item) {
                         if (preg_match("/^\s*Абонентская\s+плата|^\s*Поддержка\s+почтового\s+ящика|^\s*Виртуальная\s+АТС|^\s*Перенос|^\s*Выезд|^\s*Сервисное\s+обслуживание|^\s*Хостинг|^\s*Подключение|^\s*Внутренняя\s+линия|^\s*Абонентское\s+обслуживание|^\s*Услуга\s+доставки|^\s*Виртуальный\s+почтовый|^\s*Размещение\s+сервера|^\s*Настройка[0-9a-zA-Zа-яА-Я]+АТС|^Дополнительный\sIP[\s\-]адрес|^Поддержка\sпервичного\sDNS|^Поддержка\sвторичного\sDNS|^Аванс\sза\sподключение\sинтернет-канала|^Администрирование\sсервер|^Обслуживание\sрабочей\sстанции|^Оптимизация\sсайта/",
                             $item['item'])) {
                             $R[] = $item;
@@ -2550,12 +2550,12 @@ class m_newaccounts extends IModule
         }
 
         // счета из 1С выводим полностью.
-        $Lkeys = array_keys($L);
-        $is1Cbill = $Lkeys && isset($L[$Lkeys[0]]) && isset($L[$Lkeys[0]]["bill_no"]) && preg_match("/^\d{6}\/\d{4}$/i",
-                $L[$Lkeys[0]]["bill_no"]);
+        $Lkeys = array_keys($billLines);
+        $is1Cbill = $Lkeys && isset($billLines[$Lkeys[0]]) && isset($billLines[$Lkeys[0]]["bill_no"]) && preg_match("/^\d{6}\/\d{4}$/i",
+                $billLines[$Lkeys[0]]["bill_no"]);
 
         $R = array();
-        foreach ($L as &$li) {
+        foreach ($billLines as &$li) {
             if ($M[$li['type']] == 1) {
                 if (
                     $M['_'] == 0
@@ -2565,7 +2565,7 @@ class m_newaccounts extends IModule
                     if (
                         $li['sum'] != 0 ||
                         $li["item"] == "S" ||
-                        ($origObj == "gds" && $source == 2) ||
+                        ($origObj == BillDocument::TYPE_GDS && $source == BillDocument::ID_RESOURCE) ||
                         preg_match("/^Аренд/i", $li["item"]) ||
                         ($li["sum"] == 0 && preg_match("|^МГТС/МТС|i", $li["item"])) ||
                         $is1Cbill
@@ -2589,11 +2589,11 @@ class m_newaccounts extends IModule
 
         $design->assign('invoice_source', $source);
         $origObj = $obj;
-        if ($obj == 'gds') {
-            $obj = 'bill';
+        if ($obj == BillDocument::TYPE_GDS) {
+            $obj = BillDocument::TYPE_BILL;
         }
-        if ($source == 4) {
-            $source = 1;
+        if ($source == BillDocument::ID_FOUR) {
+            $source = BillDocument::ID_PERIOD;
             $is_four_order = true;
         } else {
             $is_four_order = false;
@@ -2601,7 +2601,7 @@ class m_newaccounts extends IModule
         $design->assign('is_four_order', $is_four_order);
 
         if (is_null($source)) {
-            $source = 3;
+            $source = BillDocument::ID_GOODS;
         }
 
         $curr = $bill->Get('currency');
@@ -2613,7 +2613,7 @@ class m_newaccounts extends IModule
         // Если счет 1С, на товар, 
         if ($bill->is1CBill()) {
             //то доступны только счета
-            if ($obj == "bill" && in_array($source, array('1', '2'))) {
+            if ($obj == BillDocument::TYPE_BILL && in_array($source, [BillDocument::ID_PERIOD, BillDocument::ID_RESOURCE])) {
                 $inv_date = $bill->GetTs();
             } else {
                 // остальные документы после отггрузки
@@ -2636,16 +2636,16 @@ class m_newaccounts extends IModule
                 $period_date = get_inv_period($inv_date);
             } else {
                 list($inv_date, $period_date) = get_inv_date($bill->GetTs(),
-                    ($bill->Get('inv2to1') && ($source == 2)) ? 1 : $source);
+                    ($bill->Get('inv2to1') && ($source == BillDocument::ID_RESOURCE)) ? 1 : $source);
             }
         } else { // статовские переодичекские счета
             list($inv_date, $period_date) = get_inv_date($bill->GetTs(),
-                ($bill->Get('inv2to1') && ($source == 2)) ? 1 : $source);
+                ($bill->Get('inv2to1') && ($source == BillDocument::ID_RESOURCE)) ? 1 : $source);
         }
 
-        if (in_array($obj, array('invoice', 'akt', 'upd'))) {
-            if (date("Ymd", $inv_date) != date("Ymd", $bill->GetTs())) {
-                $bill->SetClientDate(date("Y-m-d", $inv_date));
+        if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
+            if (date(DateTimeZoneHelper::DATE_FORMAT, $inv_date) != date(DateTimeZoneHelper::DATE_FORMAT, $bill->GetTs())) {
+                $bill->SetClientDate(date(DateTimeZoneHelper::DATE_FORMAT, $inv_date));
             }
         }
 
@@ -2661,8 +2661,11 @@ class m_newaccounts extends IModule
         }
 
 
-        if (in_array($obj, array('invoice', 'upd')) && (in_array($source,
-                    array(1, 3)) || ($source == 2 && $bill->Get('inv2to1'))) && $do_assign
+        if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_UPD]) &&
+            (
+                in_array($source, [BillDocument::ID_PERIOD, BillDocument::ID_GOODS]) ||
+                ($source == BillDocument::ID_RESOURCE && $bill->Get('inv2to1'))
+            ) && $do_assign
         ) {//привязанный к фактуре счет
             //не отображать если оплата позже счета-фактуры
             $query = "
@@ -2735,18 +2738,18 @@ class m_newaccounts extends IModule
             $bill->negative_balance); // если баланс отрицательный - говорим, что недостаточно средств для проведения авансовых платежей
 
         foreach ($L_prev as $k => $li) {
-            if (!($obj == 'bill' || ($li['type'] != 'zadatok' || $is_four_order))) {
+            if (!($obj == BillDocument::TYPE_BILL || ($li['type'] != 'zadatok' || $is_four_order))) {
                 unset($L_prev[$k]);
             }
         }
         unset($li);
 
-        $L = self::do_print_prepare_filter($obj, $source, $L_prev, $period_date,
-            (($obj == "invoice" || $obj == "upd") && $source == 3), $isSellBook ? true : false, $origObj);
+        $billLines = self::do_print_prepare_filter($obj, $source, $L_prev, $period_date,
+            (($obj == BillDocument::TYPE_INVOICE || $obj == BillDocument::TYPE_UPD) && $source == BillDocument::ID_GOODS), $isSellBook ? true : false, $origObj);
 
         if ($is_four_order) {
-            $L =& $L_prev;
-            $bill->refactLinesWithFourOrderFacure($L);
+            $billLines =& $L_prev;
+            $bill->refactLinesWithFourOrderFacure($billLines);
         }
 
         //подсчёт итоговых сумм, получить данные по оборудованию для акта-3
@@ -2759,13 +2762,13 @@ class m_newaccounts extends IModule
 
         $account = $bill->Client();
 
-        foreach ($L as &$li) {
+        foreach ($billLines as &$li) {
 
             $bdata['sum'] += $li['sum'];
             $bdata['sum_without_tax'] += $li['sum_without_tax'];
             $bdata['sum_tax'] += $li['sum_tax'];
 
-            if ($obj == 'akt' && $source == 3 && $do_assign) {            //связь строчка>устройство или строчка>подключение>устройство
+            if ($obj == BillDocument::TYPE_AKT && $source == BillDocument::ID_GOODS && $do_assign) {            //связь строчка>устройство или строчка>подключение>устройство
                 $id = null;
                 if ($li['service'] == 'usage_tech_cpe') {
                     $id = $li['id_service'];
@@ -2793,12 +2796,10 @@ class m_newaccounts extends IModule
         }
         unset($li);
 
-        $b = $bill->GetBill();
-
         if ($do_assign) {
             $design->assign('cpe', $cpe);
             $design->assign('curr', $curr);
-            if (in_array($obj, array('invoice', 'akt', 'upd'))) {
+            if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
                 $design->assign('inv_no', '-' . $source);
                 $design->assign('inv_date', $inv_date);
                 $design->assign('inv_is_new', ($inv_date >= mktime(0, 0, 0, 5, 1, 2006)));
@@ -2812,15 +2813,12 @@ class m_newaccounts extends IModule
             }
             $design->assign('opener', 'interface');
             $design->assign('bill', $bdata);
-            $design->assign('bill_lines', $L);
+            $design->assign('bill_lines', $billLines);
             $total_amount = 0;
-            foreach ($L as $line) {
+            foreach ($billLines as $line) {
                 $total_amount += round($line['amount'], 2);
             }
             $design->assign('total_amount', $total_amount);
-
-            $docDate = $obj == "bill" ? $b["bill_date"] : $inv_date;
-
 
             $clientAccount = ClientAccount::findOne($account['id'])
                 ->loadVersionOnDate($bill->Get('bill_date'));
@@ -2841,15 +2839,15 @@ class m_newaccounts extends IModule
             $design->assign('bill_client', $account);
             return true;
         } else {
-            if (in_array($obj, array('invoice', 'akt', 'upd'))) {
+            if (in_array($obj, [BillDocument::TYPE_INVOICE, BillDocument::TYPE_AKT, BillDocument::TYPE_UPD])) {
                 return array(
                     'bill' => $bdata,
-                    'bill_lines' => $L,
+                    'bill_lines' => $billLines,
                     'inv_no' => $bdata['bill_no'] . '-' . $source,
                     'inv_date' => $inv_date
                 );
             } else {
-                return array('bill' => $bdata, 'bill_lines' => $L);
+                return array('bill' => $bdata, 'bill_lines' => $billLines);
             }
         }
     }

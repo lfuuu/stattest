@@ -350,22 +350,22 @@ class ApiLk
         }
 
         $conf = [
-            'i1' =>  ['object' => 'invoice-1', 'key' => 'invoice1'],
-            'i2' =>  ['object' => 'invoice-2', 'key' => 'invoice2'],
-            'a1' =>  ['object' => 'akt-1', 'key' => 'akt1'],
-            'a2' =>  ['object' => 'akt-2', 'key' => 'akt2'],
-            'ia1' => ['object' => 'upd-1', 'key' => 'upd1'],
-            'ia2' => ['object' => 'upd-2', 'key' => 'upd2'],
-            'i3' =>  ['object' => 'upd-3', 'key' => 'updt'],
+            'i1' =>  [['object' => 'invoice-1', 'key' => 'invoice1']],
+            'i2' =>  [['object' => 'invoice-2', 'key' => 'invoice2']],
+            'a1' =>  [['object' => 'akt-1', 'key' => 'akt1']],
+            'a2' =>  [['object' => 'akt-2', 'key' => 'akt2']],
+            'ia1' => [['object' => 'upd-1', 'key' => 'upd1']],
+            'ia2' => [['object' => 'upd-2', 'key' => 'upd2']],
+            'i3' =>  [['object' => 'upd-3', 'key' => 'updt'], ['object' => 'lading', 'key' => 'lading']],
         ];
 
 
         foreach ($conf as $dtKey => $dtConf) {
             if (isset($dt[$dtKey]) && $dt[$dtKey]) {
-                $data[$dtConf['key']] = API__print_bill_url . Encrypt::encodeArray([
+                $data[$dtConf[$dt[$dtKey]-1]['key']] = API__print_bill_url . Encrypt::encodeArray([
                         'bill' => $bill->bill_no,
-                        'object' => $dtConf['object'],
-                        "client" => $bill->client_id
+                        'object' => $dtConf[$dt[$dtKey]-1]['object'],
+                        'client' => $bill->client_id
                     ]);
             }
         }

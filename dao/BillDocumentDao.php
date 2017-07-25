@@ -34,37 +34,35 @@ class BillDocumentDao extends Singleton
      * Пересчитать сохраненные документы
      *
      * @param string $billNo
-     * @param null $L
+     * @param array $billLines
      * @param bool $returnData
      * @return array|bool
      */
-    public function updateByBillNo($billNo, $L = null, $returnData = false)
+    public function updateByBillNo($billNo, $billLines = null, $returnData = false)
     {
         $bill = new \Bill($billNo);
 
-        $taxRate = $bill->Client()->getTaxRate();
-
         $accountId = $bill->Get('client_id');
 
-        if (!$L) {
-            $L = $bill->GetLines();
+        if (!$billLines) {
+            $billLines = $bill->GetLines();
         }
 
         $billTs = get_inv_date_period($bill->GetTs());
 
-        $p1 = \m_newaccounts::do_print_prepare_filter('invoice', 1, $L, $billTs);
-        $a1 = \m_newaccounts::do_print_prepare_filter('akt', 1, $L, $billTs);
+        $p1 = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_INVOICE, 1, $billLines, $billTs);
+        $a1 = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_AKT, 1, $billLines, $billTs);
 
-        $p2 = \m_newaccounts::do_print_prepare_filter('invoice', 2, $L, $billTs);
-        $a2 = \m_newaccounts::do_print_prepare_filter('akt', 2, $L, $billTs);
+        $p2 = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_INVOICE, 2, $billLines, $billTs);
+        $a2 = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_AKT, 2, $billLines, $billTs);
 
-        $p3 = \m_newaccounts::do_print_prepare_filter('invoice', 3, $L, $billTs, true, true);
-        $a3 = \m_newaccounts::do_print_prepare_filter('akt', 3, $L, $billTs);
+        $p3 = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_INVOICE, 3, $billLines, $billTs, true, true);
+        $a3 = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_AKT, 3, $billLines, $billTs);
 
-        $p4 = \m_newaccounts::do_print_prepare_filter('lading', 1, $L, $billTs);
-        $p5 = \m_newaccounts::do_print_prepare_filter('invoice', 4, $L, $billTs);
+        $p4 = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_LADING, 1, $billLines, $billTs);
+        $p5 = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_INVOICE, 4, $billLines, $billTs);
 
-        $gds = \m_newaccounts::do_print_prepare_filter('gds', 3, $L, $billTs);
+        $gds = \m_newaccounts::do_print_prepare_filter(BillDocument::TYPE_GDS, 3, $billLines, $billTs);
 
         $bill_akts = array(
             1 => $a1,
@@ -93,15 +91,15 @@ class BillDocumentDao extends Singleton
             'ia1' => 0, 'ia2' => 0
         ];
         for ($i = 1; $i <= 3; $i++) {
-            $doctypes['a' . $i] = (int)$this->_isSF($accountId, $billNo, 'akt', $bill_akts[$i]);
+            $doctypes['a' . $i] = (int)$this->_isSF($accountId, $billTs, BillDocument::TYPE_AKT, $bill_akts[$i]);
         }
 
         for ($i = 1; $i <= 7; $i++) {
-            $doctypes['i' . $i] = (int)$this->_isSF($accountId, $billNo, 'inv', $bill_invoices[$i]);
+            $doctypes['i' . $i] = (int)$this->_isSF($accountId, $billTs, BillDocument::TYPE_INVOICE, $bill_invoices[$i], $i);
         }
 
         for ($i = 1; $i <= 2; $i++) {
-            $v = $this->_isSF($accountId, $billNo, 'upd', $bill_invoice_akts[$i]);
+            $v = $this->_isSF($accountId, $billTs, BillDocument::TYPE_UPD, $bill_invoice_akts[$i]);
             $doctypes['ia' . $i] = $v === null ? 0 : (int)!$v;
         }
 
@@ -123,39 +121,39 @@ class BillDocumentDao extends Singleton
      * Доступна ли счет/фактура
      *
      * @param integer $accountId
-     * @param string  $billNo
-     * @param string  $type
-     * @param array   $L
+     * @param int $billTs
+     * @param string $type
+     * @param array $filtredBillLines
+     * @param int $objId
      * @return bool|null
      */
-    private function _isSF($accountId, $billNo, $type, $L)
+    private function _isSF($accountId, $billTs, $type, $filtredBillLines, $objId = null)
     {
         static $cache = [];
 
-        if (!$L) {
+        if (!$filtredBillLines) {
             return null;
         }
 
-        $l = reset($L);
-        $ts = $l['ts_from'];
+        $l = reset($filtredBillLines);
+        $ts = $l['ts_from'] ?: $billTs;
 
-        if (!isset($cache[$billNo]) || !isset($cache[$billNo][$ts])) {
-            try {
+        if (!isset($cache[$accountId]) || !isset($cache[$accountId][$ts])) {
+            /** @var ClientAccount $account */
+            $account = ClientAccount::findOne(['id' => $accountId])
+                ->loadVersionOnDate(date(DateTimeZoneHelper::DATE_FORMAT, $ts));
 
-                /** @var ClientAccount $account */
-                $account = ClientAccount::findOne(['id' => $accountId])
-                    ->loadVersionOnDate($l['date_from']);
-
-                $cache[$billNo][$ts] = $account->getTaxRate();
-            }catch(\Exception $e) {
-                $cache[$billNo][$ts] = 18; // TODO: fix для товарных счетов. Разобраться, почему нет компании.
-            }
+            $cache[$accountId][$ts] = $account->getTaxRate();
         }
 
-        $taxRate = $cache[$billNo][$ts];
+        $taxRate = $cache[$accountId][$ts];
+
+        if ($type == BillDocument::TYPE_INVOICE && $objId == BillDocument::ID_GOODS) { // документ на товар
+            return $taxRate ? BillDocument::SUBID_GOODS_UPD : BillDocument::SUBID_GOODS_LANDING; // 1 - УПДТ, 2 - Товарная накладная
+        }
 
         if (!$taxRate) {
-            if ($type != "akt") { // в упрощенке только акты
+            if ($type != BillDocument::TYPE_AKT) { // в упрощенке только акты
                 return null;
             }
 
@@ -174,7 +172,5 @@ class BillDocumentDao extends Singleton
         } else {
             return true;
         }
-
     }
-
 }
