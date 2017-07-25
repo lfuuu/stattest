@@ -213,7 +213,7 @@ abstract class AccountGridFolder extends Model
      */
     public function queryOrderBy()
     {
-        return ['created' => SORT_DESC];
+        return ['id' => SORT_DESC];
     }
 
     /**
