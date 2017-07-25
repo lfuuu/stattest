@@ -149,7 +149,7 @@ class BillDocumentDao extends Singleton
         $taxRate = $cache[$accountId][$ts];
 
         if ($type == BillDocument::TYPE_INVOICE && $objId == BillDocument::ID_GOODS) { // документ на товар
-            return $taxRate ? BillDocument::SUBID_GOODS_UPD : BillDocument::SUBID_GOODS_LANDING; // 1 - УПДТ, 2 - Товарная накладная
+            return $taxRate ? BillDocument::SUBID_GOODS_UPDT : BillDocument::SUBID_GOODS_LADING; // 1 - УПДТ, 2 - Товарная накладная
         }
 
         if (!$taxRate) {

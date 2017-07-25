@@ -23,8 +23,8 @@ class BillDocument extends ActiveRecord
     const ID_GOODS = 3; // Товары
     const ID_FOUR = 4; // 4ая счет-фактура.
 
-    const SUBID_GOODS_UPD = 1;
-    const SUBID_GOODS_LANDING = 1;
+    const SUBID_GOODS_UPDT = 1;
+    const SUBID_GOODS_LADING = 2;
 
     /**
      * @return string
