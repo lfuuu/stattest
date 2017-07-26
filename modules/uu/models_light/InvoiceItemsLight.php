@@ -11,6 +11,7 @@ use yii\base\Component;
 
 class InvoiceItemsLight extends Component implements InvoiceLightInterface
 {
+    const CODE_MONTH = 362; // код месяца в счет-фактуре
 
     public $items = [];
 
@@ -87,7 +88,7 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
                 'vat_rate' => 0,
                 'vat' => 0,
                 'amount' => 1,
-                'unit_code' => GoodUnit::CODE_MONTH,
+                'unit_code' => self::CODE_MONTH,
                 'unit' => Yii::t('biller', 'Month', $this->_language),
             ];
             foreach ($this->items as $item) {
