@@ -23,10 +23,7 @@ use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use DateTimeImmutable;
 use tests\codeception\unit\custom\_TestCase;
 
-/**
- * Class UbillingTest
- */
-class UbillingTest extends _TestCase
+class UbillerTest extends _TestCase
 {
     protected function setUp()
     {
@@ -561,7 +558,8 @@ class UbillingTest extends _TestCase
         //
         // 3го с 3го увеличил до 3х линий
         // 6го с 7го увеличил линии до 6х
-        // 6го с 8го уменьшил линии до 2х
+        // 6го с 8го уменьшил линии до 2х (не должно учитываться)
+        // с завтра увеличил до 10 линий (не должно учитываться)
 
         // по дневному тарифу:
         //      1-1: 1 линия (бесплатно)

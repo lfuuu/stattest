@@ -218,23 +218,26 @@ class AccountTariffResourceLog extends ActiveRecord
             return;
         }
 
-        /*
-            if (
-                $this->actual_from_utc == $currentDateTimeUtc
-                && self::find()
-                    ->where(['account_tariff_id' => $this->account_tariff_id])
-                    ->andWhere(['=', 'actual_from_utc', $currentDateTimeUtc])
-                    ->count()
-            ) {
-                $this->addError($attribute, 'Сегодня количество ресурса уже меняли. Теперь можно сменить его не ранее завтрашнего дня.');
-                $this->errorCode = AccountTariff::ERROR_CODE_DATE_TODAY;
-                return;
-            }
-        */
+        if (
+            $this->actual_from_utc == $currentDateTimeUtc
+            && self::find()
+                ->where([
+                    'account_tariff_id' => $this->account_tariff_id,
+                    'resource_id' => $this->resource_id,
+                ])
+                ->andWhere(['=', 'actual_from_utc', $currentDateTimeUtc])
+                ->count()
+        ) {
+            $this->addError($attribute, 'Сегодня количество ресурса уже меняли. Теперь можно сменить его не ранее завтрашнего дня.');
+            $this->errorCode = AccountTariff::ERROR_CODE_DATE_TODAY;
+            return;
+        }
 
         if (self::find()
-            ->where(['account_tariff_id' => $this->account_tariff_id])
-            ->andWhere(['resource_id' => $this->resource_id])
+            ->where([
+                'account_tariff_id' => $this->account_tariff_id,
+                'resource_id' => $this->resource_id,
+            ])
             ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
             ->count()
         ) {
@@ -244,14 +247,12 @@ class AccountTariffResourceLog extends ActiveRecord
             return;
         }
 
-        /*
-            $currentAmount = (int)$this->accountTariff->getResourceValue($this->resource_id);
-            if ($this->amount < $currentAmount && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())) {
-                $this->addError($attribute, 'Уменьшить количество ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" можно, начиная с ' . $minEditDate);
-                $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
-                return;
-            }
-        */
+        $currentAmount = (int)$this->accountTariff->getResourceValue($this->resource_id);
+        if ($this->amount < $currentAmount && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())) {
+            $this->addError($attribute, 'Уменьшить количество ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" можно, начиная с ' . $minEditDate);
+            $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
+            return;
+        }
 
         Yii::trace('AccountTariffResourceLog. After validatorFuture', 'uu');
     }

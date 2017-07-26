@@ -268,6 +268,7 @@ trait AccountTariffBillerResourceTrait
 
             $dateFromYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
             $dateToYmd = $accountLogFromToTariff->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
+            $dateCurrentYmd = date(DateTimeZoneHelper::DATE_FORMAT);
 
             $prevDateYmd = $dateFromYmd;
             $prevAmount = null;
@@ -296,6 +297,11 @@ trait AccountTariffBillerResourceTrait
 
                 if ($actualFromYmd > $dateToYmd) {
                     // после
+                    break;
+                }
+
+                if ($actualFromYmd > $dateCurrentYmd) {
+                    // в будущем
                     break;
                 }
 
