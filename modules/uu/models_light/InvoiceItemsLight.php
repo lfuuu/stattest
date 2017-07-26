@@ -2,11 +2,12 @@
 
 namespace app\modules\uu\models_light;
 
-use Yii;
-use yii\base\Component;
-use app\modules\uu\models\AccountEntry;
 use app\models\ClientAccount;
 use app\models\InvoiceSettings;
+use app\modules\uu\models\AccountEntry;
+use GoodUnit;
+use Yii;
+use yii\base\Component;
 
 class InvoiceItemsLight extends Component implements InvoiceLightInterface
 {
@@ -56,6 +57,7 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
             $this->items[] = [
                 'title' => $item->getFullName($billLanguage),
                 'amount' => $itemAmount,
+                'unit_code' => '-',
                 'unit' => $item->getTypeUnitName($billLanguage),
                 'price_per_unit' => ($itemAmount > 0 ? (float)$item->price_without_vat / $itemAmount : ''),
                 'price_without_vat' => $item->price_without_vat,
@@ -79,12 +81,17 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
                     ['contract_number' => $this->_clientAccount->contract->number],
                     $this->_language
                 ),
+                'price_per_unit' => 0,
                 'price_without_vat' => 0,
                 'price_with_vat' => 0,
                 'vat_rate' => 0,
                 'vat' => 0,
+                'amount' => 1,
+                'unit_code' => GoodUnit::CODE_MONTH,
+                'unit' => Yii::t('biller', 'Month', $this->_language),
             ];
             foreach ($this->items as $item) {
+                $billLine['price_per_unit'] += $item['price_without_vat'];
                 $billLine['price_without_vat'] += $item['price_without_vat'];
                 $billLine['price_with_vat'] += $item['price_with_vat'];
                 $billLine['vat_rate'] = $item['vat_rate'];
