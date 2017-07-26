@@ -122,6 +122,29 @@ $columns = [
     ],
 ];
 
+$cityColumn = [
+    'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
+    'attribute' => 'voip_city_id',
+    'format' => 'html',
+    'class' => CityColumn::className(),
+    'isAddLink' => false,
+    'value' => function (Tariff $tariff) {
+        $maxCount = 3;
+        $voipCities = $tariff->voipCities;
+        $count = count($voipCities);
+        if ($count <= $maxCount) {
+            return implode('<br>', $voipCities);
+        }
+
+        return sprintf(
+            '%s<br><abbr title="%s">… %d…</abbr>',
+            implode('<br>', array_slice($voipCities, 0, $maxCount)),
+            implode(PHP_EOL, array_slice($voipCities, $maxCount)),
+            $count - $maxCount
+        );
+    }
+];
+
 // столбцы для конкретной услуги
 switch ($serviceType->id) {
 
@@ -129,27 +152,11 @@ switch ($serviceType->id) {
         break;
 
     case ServiceType::ID_VOIP:
-        $columns[] = [
-            'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
-            'attribute' => 'voip_city_id',
-            'format' => 'html',
-            'class' => CityColumn::className(),
-            'value' => function (Tariff $tariff) {
-                return implode('<br>', $tariff->voipCities);
-            }
-        ];
+        $columns[] = $cityColumn;
         break;
 
     case ServiceType::ID_VOIP_PACKAGE:
-        $columns[] = [
-            'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
-            'attribute' => 'voip_city_id',
-            'format' => 'html',
-            'class' => CityColumn::className(),
-            'value' => function (Tariff $tariff) {
-                return implode('<br>', $tariff->voipCities);
-            }
-        ];
+        $columns[] = $cityColumn;
 
         $columns[] = [
             'label' => Html::encode(Yii::t('models/' . Tariff::tableName(), 'voip_group_id')),
@@ -164,11 +171,22 @@ switch ($serviceType->id) {
             'label' => 'Предоплаченные минуты',
             'format' => 'html',
             'value' => function (Tariff $tariff) {
-                $packageMinutes = $tariff->packageMinutes;
+                $maxCount = 2;
+                $packageMinutes = $tariff->getPackageMinutes()->limit($maxCount + 1)->all();
+                $count = count($packageMinutes);
+                if ($count > $maxCount) {
+                    array_pop($packageMinutes);
+                }
+
                 $echoArray = array_map(function (PackageMinute $packageMinute) {
                     $destination = $packageMinute->destination;
-                    return sprintf('%d %s', $packageMinute->minute, Html::a($destination->name, $destination->getUrl()));
+                    return $packageMinute->minute . ' ' . Html::a($destination->name, $destination->getUrl());
                 }, $packageMinutes);
+
+                if ($count > $maxCount) {
+                    $echoArray[] = '…';
+                }
+
                 return implode('<br/>', $echoArray);
             }
         ];
@@ -177,11 +195,22 @@ switch ($serviceType->id) {
             'label' => 'Цена по направлениям',
             'format' => 'html',
             'value' => function (Tariff $tariff) {
-                $packagePrices = $tariff->packagePrices;
+                $maxCount = 2;
+                $packagePrices = $tariff->getPackagePrices()->limit($maxCount + 1)->all();
+                $count = count($packagePrices);
+                if ($count > $maxCount) {
+                    array_pop($packagePrices);
+                }
+
                 $echoArray = array_map(function (PackagePrice $packagePrice) {
                     $destination = $packagePrice->destination;
-                    return sprintf('%d %s', $packagePrice->price, Html::a($destination->name, $destination->getUrl()));
+                    return $packagePrice->price . ' ' . Html::a($destination->name, $destination->getUrl());
                 }, $packagePrices);
+
+                if ($count > $maxCount) {
+                    $echoArray[] = '…';
+                }
+
                 return implode('<br/>', $echoArray);
             }
         ];
@@ -190,13 +219,24 @@ switch ($serviceType->id) {
             'label' => 'Прайслист с МГП',
             'format' => 'html',
             'value' => function (Tariff $tariff) {
-                $packagePricelists = $tariff->packagePricelists;
+                $maxCount = 2;
+                $packagePricelists = $tariff->getPackagePricelists()->limit($maxCount + 1)->all();
+                $count = count($packagePricelists);
+                if ($count > $maxCount) {
+                    array_pop($packagePricelists);
+                }
+
                 $echoArray = array_map(function (PackagePricelist $packagePricelist) {
                     $pricelist = $packagePricelist->pricelist;
                     return $pricelist ?
                         Html::a($pricelist->name, $pricelist->getUrl()) :
                         '';
                 }, $packagePricelists);
+
+                if ($count > $maxCount) {
+                    $echoArray[] = '…';
+                }
+
                 return implode('<br/>', $echoArray);
             }
         ];
@@ -206,6 +246,10 @@ switch ($serviceType->id) {
 // столбцы с ресурсами
 $resources = Resource::findAll(['service_type_id' => $serviceType->id]);
 foreach ($resources as $resource) {
+    if (in_array($resource->id, [Resource::ID_VOIP_PACKAGE_CALLS, Resource::ID_VOIP_PACKAGE_CALLS])) {
+        continue;
+    }
+
     $columns[] = [
         'label' => Html::encode($resource->name . ($resource->unit ? ', ' . $resource->unit : '')),
         'value' => function (Tariff $tariff) use ($resource) {
