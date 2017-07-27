@@ -39,7 +39,7 @@ if (!$tariff->isNewRecord) {
     <?php
 
     // для postpaid или пакетов - только помесячно
-    $periodList = ($tariff->is_postpaid || in_array($tariff->service_type_id, ServiceType::$packages)) ?
+    $periodList = ($tariff->is_postpaid || array_key_exists($tariff->service_type_id, ServiceType::$packages)) ?
         [Period::ID_MONTH => Period::findOne(['id' => Period::ID_MONTH])] :
         Period::getList();
 

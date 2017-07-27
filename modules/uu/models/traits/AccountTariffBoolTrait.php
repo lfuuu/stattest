@@ -27,7 +27,7 @@ trait AccountTariffBoolTrait
             return false;
         }
 
-        if (in_array($this->service_type_id, ServiceType::$packages) && $this->tariffPeriod->tariff->is_default) {
+        if (array_key_exists($this->service_type_id, ServiceType::$packages) && $this->tariffPeriod->tariff->is_default) {
             // дефолтный пакет нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
             return false;
         }

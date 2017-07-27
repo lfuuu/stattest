@@ -383,7 +383,7 @@ class Tariff extends HistoryActiveRecord
             ->where([
                 $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE,
                 $tariffTableName . '.currency_id' => $this->currency_id,
-                $tariffTableName . '.is_postpaid' => $this->is_postpaid,
+                // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
                 $tariffTableName . '.is_default' => 1,
                 $tariffTableName . '.tariff_status_id' => $tariffStatuses,
                 TariffVoipCity::tableName() . '.city_id' => $cityId,

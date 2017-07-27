@@ -12,6 +12,7 @@ use app\classes\DateTimeWithUserTimezone;
 use app\models\Country;
 use app\models\Currency;
 use app\modules\uu\controllers\TariffController;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffStatus;
 use kartik\select2\Select2;
@@ -90,7 +91,11 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
         <div class="col-sm-2">
             <?= $form->field($tariff, 'is_default')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
-            <?= $form->field($tariff, 'is_postpaid')->checkbox($options) ?>
+            <?php
+            if ($serviceType->id != ServiceType::ID_VOIP_PACKAGE) {
+                $form->field($tariff, 'is_postpaid')->checkbox($options);
+            }
+            ?>
         </div>
 
     </div>

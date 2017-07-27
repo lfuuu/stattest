@@ -16,7 +16,7 @@ use yii\db\ActiveQuery;
 
 /** @var ActiveQuery $query */
 $query = $filterModel->search()->query;
-$query->andWhere(['NOT', ['service_type_id' => ServiceType::$packages]]);
+$query->andWhere(['NOT', ['service_type_id' => array_keys(ServiceType::$packages)]]);
 
 // сгруппировать одинаковые город-тариф-пакеты по строчкам
 $rows = AccountTariff::getGroupedObjectsLight($query);

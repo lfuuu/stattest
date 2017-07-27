@@ -116,11 +116,15 @@ $columns = [
         'attribute' => 'is_default',
         'class' => YesNoColumn::className(),
     ],
-    [
+];
+
+
+if ($serviceType->id != ServiceType::ID_VOIP_PACKAGE) {
+    $columns[] = [
         'attribute' => 'is_postpaid',
         'class' => YesNoColumn::className(),
-    ],
-];
+    ];
+}
 
 $cityColumn = [
     'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),

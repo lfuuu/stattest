@@ -43,7 +43,7 @@ $clientAccount = $accountTariff->clientAccount;
 
     ?>
     <?php
-    $isPackage = in_array($accountTariff->service_type_id, ServiceType::$packages);
+    $isPackage = array_key_exists($accountTariff->service_type_id, ServiceType::$packages);
     $isShowTariffPeriodList = $accountTariff->isNewRecord || !$isPackage;
     if ($isShowTariffPeriodList) :
         ?>

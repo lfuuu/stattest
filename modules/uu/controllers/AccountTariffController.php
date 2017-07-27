@@ -635,7 +635,7 @@ class AccountTariffController extends BaseController
      */
     private function _checkNonPackage($serviceTypeId)
     {
-        if (in_array($serviceTypeId, ServiceType::$packages)) {
+        if (array_key_exists($serviceTypeId, ServiceType::$packages)) {
             // для пакетов услуги подключаются через базовую услугу
             throw new InvalidArgumentException('Пакеты надо подключать через базовую услугу');
         }

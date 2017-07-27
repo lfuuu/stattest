@@ -345,7 +345,7 @@ class Navigation
                 'serviceTypeId' => $serviceType->id,
             ]), ['tarifs.read']);
 
-            if (in_array($serviceType->id, ServiceType::$packages)) {
+            if (array_key_exists($serviceType->id, ServiceType::$packages)) {
                 // для пакетов услуги подключаются через базовую услугу
                 continue;
             }

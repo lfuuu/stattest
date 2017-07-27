@@ -53,9 +53,9 @@ class ServiceType extends ActiveRecord
     const ID_TRUNK_PACKAGE_TERM = 24; // пакет терм-транк
 
     public static $packages = [
-        self::ID_VOIP_PACKAGE,
-        self::ID_TRUNK_PACKAGE_ORIG,
-        self::ID_TRUNK_PACKAGE_TERM,
+        self::ID_VOIP_PACKAGE => self::ID_VOIP,
+        self::ID_TRUNK_PACKAGE_ORIG => self::ID_TRUNK,
+        self::ID_TRUNK_PACKAGE_TERM => self::ID_TRUNK,
     ];
 
     // Перевод названий полей модели
@@ -65,34 +65,6 @@ class ServiceType extends ActiveRecord
     use \app\classes\traits\GetListTrait {
         getList as getListTrait;
     }
-
-    // какие id конвертировать из старых
-    public static $ids = [
-        self::ID_VPBX,
-        self::ID_VOIP,
-        self::ID_VOIP_PACKAGE,
-
-        self::ID_INTERNET,
-        self::ID_COLLOCATION,
-        self::ID_VPN,
-
-        self::ID_IT_PARK,
-        self::ID_DOMAIN,
-        self::ID_MAILSERVER,
-        self::ID_ATS,
-        self::ID_SITE,
-        self::ID_USPD,
-        self::ID_WELLSYSTEM,
-        self::ID_WELLTIME_PRODUCT,
-        self::ID_EXTRA,
-        self::ID_SMS_GATE,
-
-        self::ID_SMS,
-
-        self::ID_WELLTIME_SAAS,
-
-        self::ID_CALL_CHAT,
-    ];
 
     /**
      * @inheritdoc

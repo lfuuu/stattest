@@ -21,7 +21,7 @@ trait AccountTariffPackageTrait
      */
     public function addOrCloseDefaultPackage()
     {
-        if ($this->service_type_id != ServiceType::ID_VOIP) {
+        if (!in_array($this->service_type_id, ServiceType::$packages)) {
             return;
         }
 
