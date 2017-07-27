@@ -12,7 +12,6 @@ use yii\widgets\Breadcrumbs;
  * @var \app\classes\BaseView $this
  * @var ClientAccount $clientAccount
  * @var Currency $currency
- * @var AccountEntry[] $accountEntries
  * @var Payment[] $payments
  * @var uuBill[] $uuBills
  * @var Bill[] $billsUsage
@@ -25,7 +24,6 @@ use yii\widgets\Breadcrumbs;
 $params = [
     'clientAccount' => $clientAccount,
     'currency' => $currency,
-    'accountEntries' => $accountEntries,
     'payments' => $payments,
     'uuBills' => $uuBills,
     'billsUsage' => $billsUsage,

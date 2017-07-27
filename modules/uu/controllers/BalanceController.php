@@ -43,6 +43,7 @@ class BalanceController extends BaseController
     /**
      * @param int $clientAccountId
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionView($clientAccountId = null)
     {
@@ -83,21 +84,6 @@ class BalanceController extends BaseController
                 ->where(['client_id' => $clientAccountId])
                 ->asArray()
                 ->one();
-
-            // Все проводки клиента для грида
-            // $accountEntryTableName = AccountEntry::tableName();
-            $accountEntries = AccountEntry::find()
-                ->joinWith('accountTariff')
-                ->where([$accountTariffTableName . '.client_account_id' => $clientAccountId])
-                // ->andWhere(['>', $accountEntryTableName . '.price', 0])
-                ->orderBy(
-                    [
-                        'date' => SORT_DESC,
-                        'account_tariff_id' => SORT_ASC,
-                        'type_id' => SORT_ASC,
-                    ]
-                )
-                ->all();
 
             // Все универсальные счета клиента
             $uuBills = \app\modules\uu\models\Bill::find()
@@ -167,7 +153,6 @@ class BalanceController extends BaseController
         } else {
             $clientAccount
                 = $currency
-                = $accountEntries
                 = $payments
                 = $uuBills
                 = $billsUsage
@@ -183,7 +168,6 @@ class BalanceController extends BaseController
             [
                 'clientAccount' => $clientAccount,
                 'currency' => $currency,
-                'accountEntries' => $accountEntries,
                 'payments' => $payments,
                 'uuBills' => $uuBills,
                 'billsUsage' => $billsUsage,
