@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 use yii\helpers\Url;
 
 /**
@@ -40,7 +40,7 @@ class CityBillingMethod extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', ], 'integer'],
+            [['id',], 'integer'],
             [['name',], 'string'],
             [['name',], 'required'],
         ];

@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\classes\validators\InnValidator;
 use app\helpers\DateTimeZoneHelper;
-use yii\db\ActiveRecord;
 
 /**
  * Class ClientInn

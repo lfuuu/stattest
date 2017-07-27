@@ -1,10 +1,10 @@
 <?php
+
 namespace app\modules\nnp\models;
 
-use app\classes\Connection;
+use app\classes\model\ActiveRecord;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $prefix_id

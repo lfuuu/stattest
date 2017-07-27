@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models\voip;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 class DestinationPrefixes extends ActiveRecord
 {

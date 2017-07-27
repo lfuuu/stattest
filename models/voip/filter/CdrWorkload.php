@@ -8,8 +8,8 @@ namespace app\models\voip\filter;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\base\Model;
-use yii\data\SqlDataProvider;
 use yii\data\ArrayDataProvider;
+use yii\data\SqlDataProvider;
 
 class CdrWorkload extends Model
 {
@@ -221,7 +221,7 @@ class CdrWorkload extends Model
 
     /**
      * Return a workload report to API client
-     * 
+     *
      * @return array
      */
     public function getNumberWorkload()

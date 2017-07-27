@@ -1,8 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
-use app\classes\validators\ArrayValidator;
+use app\classes\model\ActiveRecord;
 
 /**
  * @property int $person_id

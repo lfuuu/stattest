@@ -1,7 +1,9 @@
 <?php
+
 namespace app\models;
 
 use app\classes\bill\VoipTrunkBiller;
+use app\classes\model\ActiveRecord;
 use app\classes\traits\TagsTrait;
 use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
@@ -11,7 +13,6 @@ use app\models\usages\UsageInterface;
 use app\queries\UsageQuery;
 use DateTime;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

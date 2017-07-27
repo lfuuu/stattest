@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class CoreSyncIds
@@ -13,6 +14,7 @@ use yii\db\ActiveRecord;
 class CoreSyncIds extends ActiveRecord
 {
     const TYPE_SUPER_CLIENT = 'super_client';
+
     /**
      * @return string
      */

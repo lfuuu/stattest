@@ -2,20 +2,19 @@
 
 namespace app\models\important_events;
 
-use Yii;
-use DateTime;
-use DateTimeZone;
-use ReflectionClass;
-use yii\db\ActiveRecord;
-use yii\data\ActiveDataProvider;
-use yii\helpers\ArrayHelper;
+use app\classes\IpUtils;
+use app\classes\model\ActiveRecord;
+use app\classes\traits\TagsTrait;
+use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use app\classes\traits\TagsTrait;
-use app\classes\IpUtils;
-use app\classes\validators\ArrayValidator;
 use app\models\ClientAccount;
 use app\models\TagsResource;
+use DateTime;
+use DateTimeZone;
+use Yii;
+use yii\data\ActiveDataProvider;
+use yii\helpers\ArrayHelper;
 
 /**
  * @property int $id
@@ -56,7 +55,7 @@ class ImportantEvents extends ActiveRecord
             ['source_id', 'integer', 'on' => 'create'],
             [['event', 'source_id', 'tags_filter'], ArrayValidator::className(), 'on' => 'default'],
             ['client_id', 'integer', 'integerOnly' => true],
-            [['comment', 'context',],'string'],
+            [['comment', 'context',], 'string'],
         ];
     }
 
@@ -66,8 +65,8 @@ class ImportantEvents extends ActiveRecord
     public function scenarios()
     {
         return [
-            'create' => ['event', 'source', 'client_id', 'extends_data', ],
-            'default' => ['event', 'client_id', 'date', 'source_id', 'tags_filter', ],
+            'create' => ['event', 'source', 'client_id', 'extends_data',],
+            'default' => ['event', 'client_id', 'date', 'source_id', 'tags_filter',],
         ];
     }
 
@@ -220,10 +219,10 @@ class ImportantEvents extends ActiveRecord
         global $fixclient_data;
 
         $query = self::find()
-                ->joinWith('name')
-                ->joinWith('clientAccount')
-                ->where(['IS NOT', ImportantEventsNames::tableName() . '.id', null])
-                ->orderBy([self::tableName() . '.date' => SORT_DESC]);
+            ->joinWith('name')
+            ->joinWith('clientAccount')
+            ->where(['IS NOT', ImportantEventsNames::tableName() . '.id', null])
+            ->orderBy([self::tableName() . '.date' => SORT_DESC]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -261,12 +260,12 @@ class ImportantEvents extends ActiveRecord
         list($filter_from, $filter_to) = preg_split('#\s\-\s#', $this->date);
 
         $filter_from = (new DateTime($filter_from, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-                ->setTime(0, 0, 0)
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            ->setTime(0, 0, 0)
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $filter_to = (new DateTime($filter_to, new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
-                ->setTime(23, 59, 59)
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            ->setTime(23, 59, 59)
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         $query->andFilterWhere(['BETWEEN', 'date', $filter_from, $filter_to]);
 

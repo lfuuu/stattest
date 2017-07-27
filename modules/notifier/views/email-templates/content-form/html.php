@@ -9,7 +9,7 @@
 
     <div class="form-group">
         <label><?= $model->getAttributeLabel('title') ?></label>
-        <input type="text" name="<?= $model->formName(); ?>[title]" class="form-control" value="<?= $model->title; ?>" />
+        <input type="text" name="<?= $model->formName(); ?>[title]" class="form-control" value="<?= $model->title; ?>"/>
     </div>
 
     <div class="form-group">

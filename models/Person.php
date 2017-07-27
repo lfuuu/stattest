@@ -1,13 +1,14 @@
 <?php
+
 namespace app\models;
 
 use app\classes\DynamicModel;
+use app\classes\model\ActiveRecord;
 use app\classes\traits\I18NGetTrait;
 use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
 use ReflectionClass;
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id
@@ -28,7 +29,10 @@ class Person extends ActiveRecord
 
     // Виртуальные поля для локализации
     private static $_virtualPropertiesI18N = [
-        'name_nominative', 'name_genitive', 'post_nominative', 'post_genitive',
+        'name_nominative',
+        'name_genitive',
+        'post_nominative',
+        'post_genitive',
     ];
 
     /**

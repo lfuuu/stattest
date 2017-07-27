@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\behaviors;
 
+use app\classes\model\ActiveRecord;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariffLog;
@@ -11,7 +12,6 @@ use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use yii\base\Behavior;
 use yii\base\Event;
-use yii\db\ActiveRecord;
 
 
 class ResourceFiller extends Behavior

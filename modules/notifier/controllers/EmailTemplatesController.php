@@ -2,12 +2,12 @@
 
 namespace app\modules\notifier\controllers;
 
-use Yii;
-use yii\data\ActiveDataProvider;
-use app\classes\BaseController;
 use app\classes\Assert;
+use app\classes\BaseController;
 use app\modules\notifier\models\templates\Template;
 use app\modules\notifier\models\templates\TemplateContent;
+use Yii;
+use yii\data\ActiveDataProvider;
 
 class EmailTemplatesController extends BaseController
 {
@@ -47,7 +47,7 @@ class EmailTemplatesController extends BaseController
             $templateContentData = Yii::$app->request->post('TemplateContent');
 
             foreach ($templateContentData as $templateContentKey => $templateContentInput) {
-                list($countryId,, $languageCode, $contentType) = explode(':', $templateContentKey);
+                list($countryId, , $languageCode, $contentType) = explode(':', $templateContentKey);
                 $templateContent = $model->getTemplateContent($countryId, $languageCode, $contentType);
 
                 if ($templateContent->load($templateContentData, $templateContent->formNameKey()) && $templateContent->validate()) {

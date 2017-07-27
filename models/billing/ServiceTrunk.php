@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models\billing;
 
+use app\classes\model\ActiveRecord;
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * Модель таблицы billing.service_trunk
@@ -79,7 +80,7 @@ class ServiceTrunk extends ActiveRecord
         if (isset($params['contractIds']) && $params['contractIds']) {
             $query->andWhere(['st.contract_id' => $params['contractIds']]);
         }
-        
+
         if (isset($params['trunkIds']) && $params['trunkIds']) {
             $query->andWhere(['st.trunk_id' => $params['trunkIds']]);
         }

@@ -15,7 +15,6 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
-use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -63,7 +62,7 @@ use yii\db\Query;
  * @property array $aggr
  * @property string $group_period
  * @property string $sort
- * 
+ *
  * @property string $currency
  * @property float $currency_rate
  * @property float $sale
@@ -353,7 +352,7 @@ class CallsRawFilter extends Model
 
     /**
      * Вернуть поле группировки и его алиас
-     * 
+     *
      * @param $groupKey
      * @return array
      */
@@ -407,16 +406,16 @@ class CallsRawFilter extends Model
     public function isNnpFiltersPossible()
     {
         $attributes = $this->getAttributes(
-                [
-                    'src_operator_ids',
-                    'dst_operator_ids',
-                    'src_regions_ids',
-                    'dst_regions_ids',
-                    'src_cities_ids',
-                    'dst_cities_ids',
-                    'src_countries_ids',
-                    'dst_countries_ids',
-                ]
+            [
+                'src_operator_ids',
+                'dst_operator_ids',
+                'src_regions_ids',
+                'dst_regions_ids',
+                'src_cities_ids',
+                'dst_cities_ids',
+                'src_countries_ids',
+                'dst_countries_ids',
+            ]
         );
         foreach ($attributes as $key => $value) {
             if ($value && is_array($value) && count(array_intersect($value, [GetListTrait::$isNull, GetListTrait::$isNotNull])) == 2) {
@@ -434,7 +433,7 @@ class CallsRawFilter extends Model
      * @param $param
      * @return CTEQuery
      */
-    private function setSessionCondition (CTEQuery $query, $param)
+    private function setSessionCondition(CTEQuery $query, $param)
     {
         ($this->session_time_from || $this->session_time_to)
         && $query->andWhere(
@@ -463,15 +462,15 @@ class CallsRawFilter extends Model
         if ($destination || $number_type || $isGroup) {
             $query5 = new Query();
             $query5->select(
-                    [
-                        "{$alias}_number_range_id" => 'number_range_id',
-                        "{$alias}_ndc_type_id" => 'ndc_type_id',
-                        "{$alias}_destination_id" => 'destination_id'
-                    ]
-                    )
-                    ->from("nnp.number_range_destination")
-                    ->andWhere("number_range_id = $param")
-                    ->limit(1);
+                [
+                    "{$alias}_number_range_id" => 'number_range_id',
+                    "{$alias}_ndc_type_id" => 'ndc_type_id',
+                    "{$alias}_destination_id" => 'destination_id'
+                ]
+            )
+                ->from("nnp.number_range_destination")
+                ->andWhere("number_range_id = $param")
+                ->limit(1);
 
             $destination
             && $query->andWhere(["{$alias}_nrd.{$alias}_destination_id" => $destination])
@@ -480,7 +479,7 @@ class CallsRawFilter extends Model
             $number_type
             && $query->andWhere(["{$alias}_nrd.{$alias}_ndc_type_id" => $number_type])
             && $query5->andWhere(["ndc_type_id" => $number_type]);
-            
+
             $query->join('LEFT JOIN LATERAL', ["{$alias}_nrd" => $query5], "{$alias}_nrd.{$alias}_number_range_id = $param");
         }
 

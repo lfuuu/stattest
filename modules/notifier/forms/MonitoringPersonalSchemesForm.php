@@ -8,7 +8,6 @@ use app\models\important_events\ImportantEventsNames;
 use app\models\LkNoticeSetting;
 use app\modules\notifier\components\traits\FormExceptionTrait;
 use app\modules\notifier\Module as Notifier;
-use Yii;
 use yii\db\Expression;
 
 class MonitoringPersonalSchemesForm extends Form

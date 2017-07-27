@@ -5,10 +5,10 @@ namespace app\modules\nnp\column;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
 use app\classes\Html;
+use app\classes\model\ActiveRecord;
 use app\modules\nnp\models\Destination;
 use kartik\grid\GridView;
 use Yii;
-use yii\db\ActiveRecord;
 
 class DestinationColumn extends DataColumn
 {

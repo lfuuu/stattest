@@ -1,8 +1,8 @@
 <?php
+
 namespace app\models;
 
-use app\helpers\DateTimeZoneHelper;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class ClientContactType

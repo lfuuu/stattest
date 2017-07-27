@@ -2,9 +2,9 @@
 
 namespace app\modules\nnp\models;
 
+use app\classes\model\ActiveRecord;
 use app\modules\nnp\media\CountryMedia;
 use Yii;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**

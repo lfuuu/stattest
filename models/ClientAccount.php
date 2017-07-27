@@ -730,7 +730,7 @@ class ClientAccount extends HistoryActiveRecord
 
     /**
      * @param bool $isActive
-     * @return array|\yii\db\ActiveRecord[]
+     * @return array|\app\classes\model\ActiveRecord[]
      */
     public function getAdditionalInn($isActive = true)
     {

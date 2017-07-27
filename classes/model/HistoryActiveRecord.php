@@ -8,7 +8,6 @@ use app\models\HistoryVersion;
 use app\models\User;
 use Yii;
 use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
 
 /**
  * Class HistoryActiveRecord

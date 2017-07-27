@@ -24,7 +24,7 @@ trait AccountTariffLinkTrait
         }
 
         if ($this->service_type_id == ServiceType::ID_VOIP && $this->voip_number) {
-            
+
             // телефония
             $names[] = Yii::t('uu', 'Number {number}', ['number' => $this->voip_number]);
 

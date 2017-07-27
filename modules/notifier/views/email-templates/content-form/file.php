@@ -15,7 +15,7 @@ use yii\helpers\Url;
 
     <div class="form-group col-sm-12">
         <label><?= $model->getAttributeLabel('title') ?></label>
-        <input type="text" name="<?= $model->formName(); ?>[title]" class="form-control" value="<?= $model->title; ?>" />
+        <input type="text" name="<?= $model->formName(); ?>[title]" class="form-control" value="<?= $model->title; ?>"/>
     </div>
 
     <?php if ($file = $model->mediaManager->getFile()) : ?>
@@ -32,11 +32,11 @@ use yii\helpers\Url;
 
             <div class="col-sm-12">
                 <iframe
-                    src="<?= Url::toRoute(['/notifier/email-templates/email-template-content', 'countryId' => $model->country_id, 'templateId' => $model->template_id, 'langCode' => $model->lang_code]); ?>"
-                    scrolling="auto"
-                    style="border: 1px solid #D0D0D0;"
-                    width="100%"
-                    height="500"
+                        src="<?= Url::toRoute(['/notifier/email-templates/email-template-content', 'countryId' => $model->country_id, 'templateId' => $model->template_id, 'langCode' => $model->lang_code]); ?>"
+                        scrolling="auto"
+                        style="border: 1px solid #D0D0D0;"
+                        width="100%"
+                        height="500"
                 ></iframe>
             </div>
         </div>
@@ -45,7 +45,7 @@ use yii\helpers\Url;
     <div class="form-group col-sm-12">
         <label>Укажите файл с содержанием</label>
         <div class="file_upload form-control input-sm">
-            Выбрать файл <input type="file" name="<?= $model->formNameKey(); ?>_filename" class="media-manager" />
+            Выбрать файл <input type="file" name="<?= $model->formNameKey(); ?>_filename" class="media-manager"/>
         </div>
         <div class="media-manager-block"></div>
     </div>

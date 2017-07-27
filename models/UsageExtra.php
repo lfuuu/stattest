@@ -1,15 +1,16 @@
 <?php
+
 namespace app\models;
 
-use DateTime;
-use app\queries\UsageQuery;
-use yii\db\ActiveRecord;
 use app\classes\bill\ExtraBiller;
+use app\classes\model\ActiveRecord;
+use app\classes\monitoring\UsagesLostTariffs;
 use app\classes\transfer\ExtraServiceTransfer;
 use app\dao\services\ExtraServiceDao;
-use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageExtraHelper;
 use app\models\usages\UsageInterface;
+use app\queries\UsageQuery;
+use DateTime;
 
 /**
  * @property int $id

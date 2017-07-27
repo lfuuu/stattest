@@ -2,12 +2,12 @@
 
 namespace app\modules\uu\behaviors;
 
+use app\classes\model\ActiveRecord;
 use app\models\ClientAccount;
 use app\models\Payment;
 use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use yii\base\Behavior;
 use yii\base\Event;
-use yii\db\ActiveRecord;
 
 
 class RecalcRealtimeBalance extends Behavior

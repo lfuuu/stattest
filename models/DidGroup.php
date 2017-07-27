@@ -2,9 +2,9 @@
 
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\dao\DidGroupDao;
 use InvalidArgumentException;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\helpers\Url;
 

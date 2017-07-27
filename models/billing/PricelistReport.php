@@ -1,11 +1,12 @@
 <?php
+
 namespace app\models\billing;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\classes\traits\PgsqlArrayFieldParseTrait;
 use Yii;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\db\Query;
 
@@ -150,7 +151,7 @@ class PricelistReport extends ActiveRecord
 
     /**
      * @param int[] $pricelistIds
-     * @return \yii\db\ActiveRecord[]
+     * @return \app\classes\model\ActiveRecord[]
      */
     public static function getPricelists(array $pricelistIds)
     {
@@ -170,8 +171,13 @@ class PricelistReport extends ActiveRecord
     {
         return (new Query)
             ->select([
-                'report.prefix', 'report.prices', 'report.orders',
-                'destination' => 'geo.name', 'geo.country', 'geo.region', 'geo.zone',
+                'report.prefix',
+                'report.prices',
+                'report.orders',
+                'destination' => 'geo.name',
+                'geo.country',
+                'geo.region',
+                'geo.zone',
                 'destinations.mob',
                 'pricelist_report.pricelist_ids',
             ])

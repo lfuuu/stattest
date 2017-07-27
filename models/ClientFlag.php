@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models;
 
 use app\classes\behaviors\NotifiedFlagToImportantEvent;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class ClientFlag
@@ -15,6 +16,7 @@ use yii\db\ActiveRecord;
 class ClientFlag extends ActiveRecord
 {
     public $isSetFlag = false;
+
     /**
      * Название таблицы
      *

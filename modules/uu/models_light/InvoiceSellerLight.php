@@ -5,9 +5,8 @@ namespace app\modules\uu\models_light;
 use app\classes\Html;
 use app\helpers\MediaFileHelper;
 use app\models\ClientAccount;
-use Yii;
-use yii\base\Component;
 use app\models\Organization;
+use yii\base\Component;
 
 class InvoiceSellerLight extends Component implements InvoiceLightInterface
 {
@@ -49,11 +48,11 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
         $this->director = (array)(new InvoicePersonLight($organization->director->setLanguage($language)));
         $this->accountant = (array)(new InvoicePersonLight($organization->accountant->setLanguage($language)));
         $this->bank = (array)(new InvoiceBankLight(
-                !is_null($invoiceSetting)
-                    ? $organization->getSettlementAccount($invoiceSetting->settlement_account_type_id)
-                    : $organization->settlementAccount,
-                $clientAccount->currency
-            )
+            !is_null($invoiceSetting)
+                ? $organization->getSettlementAccount($invoiceSetting->settlement_account_type_id)
+                : $organization->settlementAccount,
+            $clientAccount->currency
+        )
         );
 
         if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)) {

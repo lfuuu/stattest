@@ -1,10 +1,10 @@
 <?php
+
 namespace app\models\billing;
 
-use app\classes\Connection;
+use app\classes\model\ActiveRecord;
 use app\dao\billing\TrunkDao;
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

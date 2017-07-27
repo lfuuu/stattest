@@ -2,13 +2,13 @@
 
 namespace app\modules\notifier\behaviors\templates;
 
+use app\classes\model\ActiveRecord;
+use app\modules\notifier\models\templates\TemplateContent;
+use app\modules\notifier\models\templates\TemplateEvents;
 use Yii;
+use yii\base\Behavior;
 use yii\base\Event;
 use yii\db\AfterSaveEvent;
-use yii\base\Behavior;
-use yii\db\ActiveRecord;
-use app\modules\notifier\models\templates\TemplateEvents;
-use app\modules\notifier\models\templates\TemplateContent;
 
 class TemplateEvent extends Behavior
 {

@@ -2,13 +2,13 @@
 
 namespace app\modules\uu\behaviors;
 
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use yii\base\Behavior;
 use yii\base\Event;
-use yii\db\ActiveRecord;
 
 
 class FillAccountTariffResourceLog extends Behavior

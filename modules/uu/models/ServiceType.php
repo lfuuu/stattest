@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use yii\behaviors\AttributeTypecastBehavior;
+use app\classes\model\ActiveRecord;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -17,7 +17,7 @@ use yii\helpers\Url;
  * @property ServiceType $parent
  * @property Resource[] $resources
  */
-class ServiceType extends \yii\db\ActiveRecord
+class ServiceType extends ActiveRecord
 {
     const ID_VPBX = 1; // ВАТС
     const ID_VOIP = 2; // Телефония
@@ -111,20 +111,6 @@ class ServiceType extends \yii\db\ActiveRecord
             [['id', 'parent_id', 'close_after_days'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
         ];
     }
 

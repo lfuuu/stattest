@@ -13,7 +13,6 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
 use yii\web\Controller;
-use yii\web\HttpException;
 
 
 /**

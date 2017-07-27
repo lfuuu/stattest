@@ -2,9 +2,9 @@
 
 namespace app\models\important_events;
 
+use app\classes\model\ActiveRecord;
 use app\classes\traits\TagsTrait;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

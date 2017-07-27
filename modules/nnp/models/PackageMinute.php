@@ -1,11 +1,11 @@
 <?php
+
 namespace app\modules\nnp\models;
 
-use app\classes\Connection;
+use app\classes\model\ActiveRecord;
 use app\modules\uu\models\Tariff;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 
 /**
  * Пакеты. Предоплаченные минуты

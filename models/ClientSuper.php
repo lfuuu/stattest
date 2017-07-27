@@ -1,10 +1,11 @@
 <?php
+
 namespace app\models;
 
 use app\classes\api\ApiCore;
 use app\classes\behaviors\EventQueueAddEvent;
 use app\classes\Event;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class ClientSuper

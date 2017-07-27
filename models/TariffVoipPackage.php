@@ -1,10 +1,11 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
-use app\models\voip\Destination;
-use app\models\billing\Pricelist;
+use app\classes\model\ActiveRecord;
 use app\dao\TariffVoipPackageDao;
+use app\models\billing\Pricelist;
+use app\models\voip\Destination;
 
 /**
  * @property int $id

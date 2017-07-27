@@ -39,7 +39,7 @@ class AccountLogFromToResource
         return
             $this->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT) .
             '_' .
-            $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT).
+            $this->dateTo->format(DateTimeZoneHelper::DATE_FORMAT) .
             '_' .
             $this->account_tariff_resource_log_id;
     }

@@ -1,11 +1,12 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
-use app\dao\UsageTechCpeDao;
-use app\queries\UsageTechCpeQuery;
+use app\classes\model\ActiveRecord;
 use app\classes\transfer\TechCpeTransfer;
+use app\dao\UsageTechCpeDao;
 use app\helpers\usages\UsageTechCpeHelper;
+use app\queries\UsageTechCpeQuery;
 
 /**
  * @property int $id

@@ -2,9 +2,8 @@
 
 namespace app\modules\uu\models_light;
 
-use Yii;
-use yii\base\Component;
 use app\models\Person;
+use yii\base\Component;
 
 class InvoicePersonLight extends Component implements InvoiceLightInterface
 {

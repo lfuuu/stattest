@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models;
 
 use app\classes\model\HistoryActiveRecord;
@@ -211,7 +212,7 @@ class ClientContact extends HistoryActiveRecord
         if ($this->data == '.') {
             return;
         }
-        
+
         list($phoneRemain, $e164Phones) = ClientContact::dao()->getE164($this->data);
         $countE164Phones = count($e164Phones);
 

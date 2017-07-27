@@ -1,11 +1,10 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\classes\traits\GridSortTrait;
 use app\dao\CityDao;
-use app\modules\nnp\models\NdcType;
-use yii\db\ActiveRecord;
-use yii\db\Expression;
 use yii\helpers\Url;
 
 /**

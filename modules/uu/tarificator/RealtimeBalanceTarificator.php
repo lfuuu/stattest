@@ -4,8 +4,6 @@ namespace app\modules\uu\tarificator;
 
 use app\models\ClientAccount;
 use app\models\Payment;
-use app\modules\uu\models\AccountLogMin;
-use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Bill;
 use Yii;
 

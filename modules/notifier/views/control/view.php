@@ -1,12 +1,13 @@
 <?php
 
-use app\modules\notifier\components\decorators\WhiteListEventDecorator;
-use kartik\widgets\ActiveForm;
-use kartik\tabs\TabsX;
-use yii\helpers\Url;
-use yii\widgets\Breadcrumbs;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\notifier\components\decorators\WhiteListEventDecorator;
+use kartik\tabs\TabsX;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
+
 /**
  * @var \app\modules\notifier\forms\ControlForm $dataForm
  */
@@ -21,31 +22,31 @@ echo Breadcrumbs::widget([
 ]);
 ?>
 
-<div class="well">
-    <?php
-    $tabs = [];
+    <div class="well">
+        <?php
+        $tabs = [];
 
-    foreach ($dataForm->getAvailableCountries() as $countryCode => $countryName) {
-        $tabs[] = [
-            'label' => $countryName,
-            'content' => $this->render('_country',
-                [
-                    'dataForm' => $dataForm,
-                    'countryCode' => $countryCode,
-                ]
-            ),
-        ];
-    }
+        foreach ($dataForm->getAvailableCountries() as $countryCode => $countryName) {
+            $tabs[] = [
+                'label' => $countryName,
+                'content' => $this->render('_country',
+                    [
+                        'dataForm' => $dataForm,
+                        'countryCode' => $countryCode,
+                    ]
+                ),
+            ];
+        }
 
-    echo TabsX::widget([
-        'items' => $tabs,
-        'position' => TabsX::POS_ABOVE,
-        'bordered' => true,
-        'encodeLabels' => false,
-    ]);
+        echo TabsX::widget([
+            'items' => $tabs,
+            'position' => TabsX::POS_ABOVE,
+            'bordered' => true,
+            'encodeLabels' => false,
+        ]);
 
-    ?>
-</div>
+        ?>
+    </div>
 
 <?php
 $form = ActiveForm::begin([
@@ -85,7 +86,7 @@ echo GridView::widget([
             'label' => 'Использование',
             'value' => function (WhiteListEventDecorator $data) use ($dataForm) {
                 return Html::checkbox(
-                    $dataForm->formName() . '[whitelist][' . $data->code .']',
+                    $dataForm->formName() . '[whitelist][' . $data->code . ']',
                     $data->isActive
                 );
             },
@@ -108,7 +109,7 @@ echo GridView::widget([
     'panel' => [
         'heading' =>
             Html::beginTag('div', ['class' => 'text-center']) .
-                $whiteListUpdated .
+            $whiteListUpdated .
             Html::endTag('div'),
     ],
 ]);

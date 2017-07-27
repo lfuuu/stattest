@@ -1,11 +1,12 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\helpers\tariffs\TariffVoipHelper;
 use app\models\billing\Pricelist;
 use app\models\tariffs\TariffInterface;
 use app\modules\nnp\models\NdcType;
-use yii\db\ActiveRecord;
 
 /**
  * Class TariffVoip

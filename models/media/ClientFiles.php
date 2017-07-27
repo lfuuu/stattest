@@ -1,13 +1,14 @@
 <?php
+
 namespace app\models\media;
 
-use yii\data\ActiveDataProvider;
-use yii\db\ActiveRecord;
-use app\models\User;
-use app\models\ClientContract;
-use app\classes\validators\ArrayValidator;
 use app\classes\media\ClientMedia;
+use app\classes\model\ActiveRecord;
 use app\classes\traits\TagsTrait;
+use app\classes\validators\ArrayValidator;
+use app\models\ClientContract;
+use app\models\User;
+use yii\data\ActiveDataProvider;
 
 /**
  * Class ClientFiles

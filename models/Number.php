@@ -2,10 +2,10 @@
 
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
 use app\modules\nnp\models\NdcType;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**

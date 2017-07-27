@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models\billing;
 
+use app\classes\model\ActiveRecord;
 use yii;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

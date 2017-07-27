@@ -1,13 +1,14 @@
 <?php
+
 namespace app\modules\nnp\commands;
 
+use app\classes\model\ActiveRecord;
+use app\models\ClientAccount;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
-use app\models\ClientAccount;
 use Yii;
 use yii\console\Controller;
-use yii\db\ActiveRecord;
 
 /**
  * Группировка регионов

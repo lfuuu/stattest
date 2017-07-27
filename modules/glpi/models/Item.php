@@ -1,4 +1,5 @@
 <?php
+
 namespace app\modules\glpi\models;
 
 use yii\base\Model;

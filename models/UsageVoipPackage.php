@@ -1,22 +1,23 @@
 <?php
+
 namespace app\models;
 
+use app\classes\behaviors\important_events\UsageAction;
+use app\classes\bill\VoipPackageBiller;
+use app\classes\DateTimeWithUserTimezone;
+use app\classes\model\ActiveRecord;
+use app\classes\monitoring\UsagesLostTariffs;
+use app\helpers\DateTimeZoneHelper;
+use app\helpers\usages\UsageVoipPackageHelper;
+use app\models\billing\CallsRaw as CallsStatPackage;
+use app\models\billing\StatPackage as BillingStatPackage;
+use app\models\important_events\ImportantEvents;
+use app\models\usages\UsageInterface;
+use app\queries\ClientAccountQuery;
+use app\queries\UsageQuery;
 use DateTime;
 use DateTimeZone;
-use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
-use app\classes\DateTimeWithUserTimezone;
-use app\classes\bill\VoipPackageBiller;
-use app\classes\monitoring\UsagesLostTariffs;
-use app\helpers\usages\UsageVoipPackageHelper;
-use app\queries\ClientAccountQuery;
-use app\models\usages\UsageInterface;
-use app\models\billing\StatPackage as BillingStatPackage;
-use app\models\billing\CallsRaw as CallsStatPackage;
-use app\queries\UsageQuery;
-use app\classes\behaviors\important_events\UsageAction;
-use app\models\important_events\ImportantEvents;
 
 /**
  * @property int $id
@@ -98,7 +99,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     /**
      * @param string $dateRangeFrom
      * @param string $dateRangeTo
-     * @return array|\yii\db\ActiveRecord[]
+     * @return array|\app\classes\model\ActiveRecord[]
      */
     public function getBillingStat($dateRangeFrom = '', $dateRangeTo = '')
     {
@@ -137,7 +138,7 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     /**
      * @param string $dateRangeFrom
      * @param string $dateRangeTo
-     * @return array|\yii\db\ActiveRecord[]
+     * @return array|\app\classes\model\ActiveRecord[]
      */
     public function getCallsStat($dateRangeFrom = '', $dateRangeTo = '')
     {

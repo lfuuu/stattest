@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class BusinessProcessStatus
@@ -173,7 +174,7 @@ class BusinessProcessStatus extends ActiveRecord
      * Получение статуса по ID бизнес процесса
      *
      * @param integer $id
-     * @return array|\yii\db\ActiveRecord[]
+     * @return array|\app\classes\model\ActiveRecord[]
      */
     public static function getStatusesByBusinessId($id)
     {

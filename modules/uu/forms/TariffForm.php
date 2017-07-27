@@ -421,6 +421,8 @@ abstract class TariffForm extends \app\classes\Form
             'destination_id',
             'price',
             'interconnect_price',
+            'connect_price',
+            'weight',
         ];
         foreach ($packagePrices as $packagePrice) {
             $packagePriceCloned = new PackagePrice();

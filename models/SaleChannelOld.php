@@ -1,8 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
-use yii\helpers\ArrayHelper;
+use app\classes\model\ActiveRecord;
 
 class SaleChannelOld extends ActiveRecord
 {

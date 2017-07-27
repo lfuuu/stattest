@@ -2,12 +2,12 @@
 
 namespace app\modules\notifier\models\templates;
 
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
-use Yii;
-use yii\db\ActiveRecord;
-use app\models\Language;
 use app\models\Country;
+use app\models\Language;
 use app\modules\notifier\components\templates\ContentMedia;
+use Yii;
 
 /**
  * @property int $country_id
@@ -119,13 +119,13 @@ class TemplateContent extends ActiveRecord
 
         if (!$saveResult) {
             Yii::$app->session->setFlash('error',
-                    'Не сохранились данные (
+                'Не сохранились данные (
                     Страна: ' . $countries[$this->country_id] . ',
                     Тип сообщения: ' . (
-                        isset($templateContentTypes[$this->type])
-                            ? $templateContentTypes[$this->type]['title']
-                            : 'не определено'
-                    ) . ',
+                isset($templateContentTypes[$this->type])
+                    ? $templateContentTypes[$this->type]['title']
+                    : 'не определено'
+                ) . ',
                     Язык: ' . $this->lang_code . ')'
             );
         }

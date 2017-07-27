@@ -1,23 +1,24 @@
 <?php
+
 namespace app\models;
 
+use app\classes\behaviors\CreatedAt;
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use yii\db\ActiveRecord;
-use app\classes\behaviors\CreatedAt;
 
 /**
  * Class SberbankOrder
  *
  * @property integer id
- * @property string  created_at
- * @property string  order_id
- * @property string  bill_no
+ * @property string created_at
+ * @property string order_id
+ * @property string bill_no
  * @property integer payment_id
  * @property integer status
- * @property string  order_url
- * @property string  info_json
- * @property Bill    bill
+ * @property string order_url
+ * @property string info_json
+ * @property Bill bill
  */
 class SberbankOrder extends ActiveRecord
 {

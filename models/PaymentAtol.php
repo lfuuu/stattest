@@ -2,8 +2,8 @@
 
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id             идентификатор платежа

@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use yii\behaviors\AttributeTypecastBehavior;
+use app\classes\model\ActiveRecord;
 
 /**
  * Группа тарифов телефонии (местные, междугородние, международные и пр.)
@@ -10,7 +10,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property int $id
  * @property string $name
  */
-class TariffVoipGroup extends \yii\db\ActiveRecord
+class TariffVoipGroup extends ActiveRecord
 {
     // Определяет getList (список для selectbox)
     use \app\classes\traits\GetListTrait {
@@ -49,20 +49,6 @@ class TariffVoipGroup extends \yii\db\ActiveRecord
             [['id'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
         ];
     }
 

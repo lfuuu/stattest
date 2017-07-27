@@ -28,7 +28,7 @@ abstract class TariffStatusForm extends Form
 
     /**
      * Конструктор
-     * 
+     *
      * @throws \yii\db\Exception
      */
     public function init()

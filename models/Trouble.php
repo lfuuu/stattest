@@ -3,9 +3,8 @@
 namespace app\models;
 
 use app\classes\media\TroubleMedia;
+use app\classes\model\ActiveRecord;
 use app\dao\TroubleDao;
-use yii\db\ActiveRecord;
-use yii\db\Expression;
 
 /**
  * @property int $id
@@ -35,7 +34,7 @@ class Trouble extends ActiveRecord
 
     const EVENT_AFTER_SAVE = 'afterSave';
 
-    const DEFAULT_SUPPORT_USER =  'nick'; // Михайлов Николай
+    const DEFAULT_SUPPORT_USER = 'nick'; // Михайлов Николай
     const DEFAULT_SUPPORT_SALES = 'ava';      // Ан Владимир
     const DEFAULT_SUPPORT_ACCOUNTING = 'istomina'; // Истомина Ирина
     const DEFAULT_SUPPORT_TECHNICAL = 'nick'; // Михайлов Николай

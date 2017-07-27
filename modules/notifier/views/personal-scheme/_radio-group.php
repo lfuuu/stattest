@@ -9,14 +9,14 @@
     <div class="status">
         <div class="status__text">Вкл.</div>
         <div class="status__radio">
-            <input type="radio" name="<?= $inputName ?>" value="1"<?= ($value === 1 ? ' checked="checked"' : '')?> />
+            <input type="radio" name="<?= $inputName ?>" value="1"<?= ($value === 1 ? ' checked="checked"' : '') ?> />
         </div>
         <div class="status__text"></div>
     </div>
     <div class="status">
         <div class="status__text"></div>
         <div class="status__radio">
-            <input type="radio" name="<?= $inputName ?>" value="-1"<?= ($value === null ? ' checked="checked"' : '')?>" />
+            <input type="radio" name="<?= $inputName ?>" value="-1"<?= ($value === null ? ' checked="checked"' : '') ?>" />
         </div>
         <div class="status__text">
             <?php if (!is_null($globalValue)) : ?>

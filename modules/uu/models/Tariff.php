@@ -9,7 +9,6 @@ use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -77,14 +76,9 @@ class Tariff extends HistoryActiveRecord
      */
     public function behaviors()
     {
-        return [
-            'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
-        ];
+        return parent::behaviors() + [
+                'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            ];
     }
 
     /**
@@ -183,6 +177,7 @@ class Tariff extends HistoryActiveRecord
     public function getPackagePrices()
     {
         return $this->hasMany(PackagePrice::className(), ['tariff_id' => 'id'])
+            ->orderBy(['weight' => SORT_DESC])
             ->indexBy('id');
     }
 

@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 
 /**
@@ -30,7 +31,7 @@ class LkWizardState extends ActiveRecord
     public static $name = [
         self::TYPE_MCN => 'Российский',
         self::TYPE_EURO => 'Европейский',
-        ];
+    ];
 
     const STATE_PROCESS = 'process';
     const STATE_REVIEW = 'review';
@@ -90,8 +91,8 @@ class LkWizardState extends ActiveRecord
     public static function isBPStatusAllow($bpsId, $contractId = 0)
     {
         return in_array($bpsId, [
-            BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
-        ]) || $contractId == 9130;
+                BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
+            ]) || $contractId == 9130;
     }
 
 }

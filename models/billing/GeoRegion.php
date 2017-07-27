@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models\billing;
 
-use Yii;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\dao\billing\GeoRegionDao;
+use Yii;
 
 /**
  * @property int $id

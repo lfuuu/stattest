@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use yii\behaviors\AttributeTypecastBehavior;
+use app\classes\model\ActiveRecord;
 
 /**
  * Для кого действует тариф (для всех, физиков, юриков)
@@ -10,7 +10,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property int $id
  * @property string $name
  */
-class TariffPerson extends \yii\db\ActiveRecord
+class TariffPerson extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -39,20 +39,6 @@ class TariffPerson extends \yii\db\ActiveRecord
             [['id'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
         ];
     }
 }

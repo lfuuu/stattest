@@ -2,13 +2,13 @@
 
 namespace app\modules\uu\behaviors;
 
+use app\classes\model\ActiveRecord;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\models\AccountTariff;
 use yii\base\Behavior;
 use yii\base\Event;
-use yii\db\ActiveRecord;
 
 
 class AccountTariffImportantEvents extends Behavior

@@ -2,10 +2,10 @@
 
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
 use Yii;
-use yii\db\ActiveRecord;
 use yii\db\Query;
 
 /**

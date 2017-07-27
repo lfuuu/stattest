@@ -1,10 +1,9 @@
 <?php
+
 namespace app\modules\nnp\models;
 
-use app\classes\Connection;
+use app\classes\model\ActiveRecord;
 use Yii;
-use yii\db\ActiveRecord;
-use yii\db\Expression;
 use yii\helpers\Url;
 
 /**

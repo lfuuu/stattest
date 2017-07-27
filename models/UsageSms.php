@@ -1,15 +1,16 @@
 <?php
+
 namespace app\models;
 
-use DateTime;
-use yii\db\ActiveRecord;
 use app\classes\bill\SmsBiller;
+use app\classes\model\ActiveRecord;
+use app\classes\monitoring\UsagesLostTariffs;
 use app\classes\transfer\SmsServiceTransfer;
 use app\dao\services\SmsServiceDao;
-use app\queries\UsageQuery;
-use app\classes\monitoring\UsagesLostTariffs;
 use app\helpers\usages\UsageSmsHelper;
 use app\models\usages\UsageInterface;
+use app\queries\UsageQuery;
+use DateTime;
 
 /**
  * @property int $id

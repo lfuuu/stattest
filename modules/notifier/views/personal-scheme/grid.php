@@ -67,10 +67,10 @@ echo GridView::widget([
                 return Html::tag('span', '', [
                     'class' => 'glyphicon ' .
                         (
-                            isset($personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_EMAIL_PERSONAL])
-                            && $personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_EMAIL_PERSONAL] ?
-                                'glyphicon-ok text-success' :
-                                'glyphicon-remove text-danger'
+                        isset($personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_EMAIL_PERSONAL])
+                        && $personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_EMAIL_PERSONAL] ?
+                            'glyphicon-ok text-success' :
+                            'glyphicon-remove text-danger'
                         ),
                 ]);
             },
@@ -100,10 +100,10 @@ echo GridView::widget([
                 return Html::tag('span', '', [
                     'class' => 'glyphicon ' .
                         (
-                            isset($personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_SMS_PERSONAL])
-                            && $personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_SMS_PERSONAL] ?
-                                'glyphicon-ok text-success' :
-                                'glyphicon-remove text-danger'
+                        isset($personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_SMS_PERSONAL])
+                        && $personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_SMS_PERSONAL] ?
+                            'glyphicon-ok text-success' :
+                            'glyphicon-remove text-danger'
                         ),
                 ]);
             },
@@ -118,10 +118,10 @@ echo GridView::widget([
                 return Html::tag('span', '', [
                     'class' => 'glyphicon ' .
                         (
-                            isset($personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_LK])
-                            && $personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_LK] ?
-                                'glyphicon-ok text-success' :
-                                'glyphicon-remove text-danger'
+                        isset($personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_LK])
+                        && $personalScheme[$data->code][Schemes::NOTIFICATION_TYPE_LK] ?
+                            'glyphicon-ok text-success' :
+                            'glyphicon-remove text-danger'
                         ),
                 ]);
             },
@@ -137,11 +137,11 @@ echo GridView::widget([
         'before' =>
             Html::tag('div', 'Язык уведомлений', ['class' => 'col-sm-1 text-bold text-nowrap', 'style' => 'font-weight: bold; margin-right: 20px; min-width: 120px; margin-top: 7px;']) .
             Html::beginTag('div', ['class' => 'col-sm-2']) .
-                Select2::widget([
-                    'name' => 'FormData[language]',
-                    'data' => Language::getList($isWithEmpty = true),
-                    'value' => $mailDeliveryLanguageOption,
-                ]) .
+            Select2::widget([
+                'name' => 'FormData[language]',
+                'data' => Language::getList($isWithEmpty = true),
+                'value' => $mailDeliveryLanguageOption,
+            ]) .
             Html::endTag('div') .
             $this->render('//layouts/_submitButtonSave', ['class' => 'pull-right']),
         'after' =>

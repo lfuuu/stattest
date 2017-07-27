@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\dao\LogBillDao;
-use yii\db\ActiveRecord;
 
 /**
  * Class LogBill

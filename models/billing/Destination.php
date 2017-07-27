@@ -1,10 +1,9 @@
 <?php
+
 namespace app\models\billing;
 
+use app\classes\model\ActiveRecord;
 use Yii;
-use yii\db\ActiveRecord;
-use yii\db\Connection;
-use yii\db\Expression;
 
 /**
  * @property int $id serial NOT NULL

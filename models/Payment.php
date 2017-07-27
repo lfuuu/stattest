@@ -3,13 +3,13 @@
 namespace app\models;
 
 use app\classes\behaviors\SendToOnlineCashRegister;
+use app\classes\model\ActiveRecord;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 
 /**
  * Class Payment

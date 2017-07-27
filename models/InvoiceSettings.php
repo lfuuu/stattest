@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * @property int $doer_organization_id

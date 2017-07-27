@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models\dictionary;
 
+use app\classes\model\ActiveRecord;
 use app\models\Country;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

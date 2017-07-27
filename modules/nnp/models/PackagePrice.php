@@ -1,11 +1,11 @@
 <?php
+
 namespace app\modules\nnp\models;
 
-use app\classes\Connection;
+use app\classes\model\ActiveRecord;
 use app\modules\uu\models\Tariff;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 
 /**
  * Пакеты. Цена по направлениям
@@ -15,6 +15,8 @@ use yii\db\ActiveRecord;
  * @property int $destination_id
  * @property float $price
  * @property float $interconnect_price
+ * @property float $connect_price
+ * @property int $weight
  *
  * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
  * @property Package $package
@@ -34,6 +36,8 @@ class PackagePrice extends ActiveRecord
             'destination_id' => 'Направление',
             'price' => 'Цена',
             'interconnect_price' => 'Цена интерконнекта',
+            'connect_price' => 'Цена коннекта',
+            'weight' => 'Вес',
         ];
     }
 
@@ -54,8 +58,8 @@ class PackagePrice extends ActiveRecord
     {
         return [
             [['tariff_id', 'destination_id', 'price'], 'required'],
-            [['tariff_id', 'destination_id'], 'integer'],
-            [['price', 'interconnect_price'], 'number'],
+            [['tariff_id', 'destination_id', 'weight'], 'integer'],
+            [['price', 'interconnect_price', 'connect_price'], 'number'],
         ];
     }
 

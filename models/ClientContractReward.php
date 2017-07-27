@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use DateTime;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $contract_id
@@ -52,8 +53,13 @@ class ClientContractReward extends ActiveRecord
         return [
             [
                 [
-                    'contract_id', 'once_only', 'percentage_once_only',
-                    'percentage_of_fee', 'percentage_of_over', 'percentage_of_margin', 'period_month'
+                    'contract_id',
+                    'once_only',
+                    'percentage_once_only',
+                    'percentage_of_fee',
+                    'percentage_of_over',
+                    'percentage_of_margin',
+                    'period_month'
                 ],
                 'integer',
                 'integerOnly' => true

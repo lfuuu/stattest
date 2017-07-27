@@ -1,10 +1,10 @@
 <?php
+
 namespace app\models\billing;
 
+use app\classes\model\ActiveRecord;
 use app\dao\billing\GeoDao;
 use Yii;
-use yii\db\ActiveRecord;
-use yii\db\Connection;
 
 /**
  * @property int $id

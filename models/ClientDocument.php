@@ -1,13 +1,14 @@
 <?php
+
 namespace app\models;
 
 use app\classes\BillContract;
 use app\classes\Encrypt;
-use app\helpers\DateTimeZoneHelper;
-use Yii;
-use yii\db\ActiveRecord;
-use app\queries\ClientDocumentQuery;
+use app\classes\model\ActiveRecord;
 use app\dao\ClientDocumentDao;
+use app\helpers\DateTimeZoneHelper;
+use app\queries\ClientDocumentQuery;
+use Yii;
 
 
 /**

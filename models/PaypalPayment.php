@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
 use app\classes\behaviors\CreatedAt;
+use app\classes\model\ActiveRecord;
 
 class PayPalPayment extends ActiveRecord
 {

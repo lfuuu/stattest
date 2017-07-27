@@ -84,11 +84,11 @@ class OperatorPayFilter extends Bill
     public function attributeLabels()
     {
         return parent::attributeLabels() + [
-            'payment_date' => 'Дата платежа',
-            'organization_id' => 'Организация',
-            'bill_type' => 'Тип счета',
-            'checking_bill_state' => 'Состояние счета'
-        ];
+                'payment_date' => 'Дата платежа',
+                'organization_id' => 'Организация',
+                'bill_type' => 'Тип счета',
+                'checking_bill_state' => 'Состояние счета'
+            ];
     }
 
     /**

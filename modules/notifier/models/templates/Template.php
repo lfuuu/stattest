@@ -2,12 +2,11 @@
 
 namespace app\modules\notifier\models\templates;
 
-use Yii;
-use yii\db\ActiveRecord;
-use yii\db\Query;
-use yii\helpers\ArrayHelper;
+use app\classes\model\ActiveRecord;
 use app\models\important_events\ImportantEventsNames;
 use app\modules\notifier\behaviors\templates\TemplateEvent;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 /**
  * @property int $id
@@ -111,11 +110,11 @@ class Template extends ActiveRecord
     public function getTemplateContent($countryId, $languageCode, $contentType)
     {
         if ($templateContent = TemplateContent::findOne([
-                'country_id' => $countryId,
-                'template_id' => $this->id,
-                'lang_code' => $languageCode,
-                'type' => $contentType,
-            ])
+            'country_id' => $countryId,
+            'template_id' => $this->id,
+            'lang_code' => $languageCode,
+            'type' => $contentType,
+        ])
         ) {
             return $templateContent;
         }

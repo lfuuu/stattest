@@ -85,7 +85,7 @@ class DidGroupFilter extends DidGroup
         $this->id !== '' && $query->andWhere([$didGroupTableName . '.id' => $this->id]);
         $this->country_code !== '' && $query->andWhere([$didGroupTableName . '.country_code' => $this->country_code]);
 
-        switch($this->city_id) {
+        switch ($this->city_id) {
             case '':
                 break;
 
@@ -108,8 +108,8 @@ class DidGroupFilter extends DidGroup
         $this->is_service !== '' && $query->andWhere(['is_service' => $this->is_service]);
 
         for ($i = 1; $i <= 9; $i++) {
-            $this->{'price' . $i .'_from'} !== '' && $query->andWhere(['>=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_from'}]);
-            $this->{'price' . $i .'_to'} !== '' && $query->andWhere(['<=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_to'}]);
+            $this->{'price' . $i . '_from'} !== '' && $query->andWhere(['>=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_from'}]);
+            $this->{'price' . $i . '_to'} !== '' && $query->andWhere(['<=', $didGroupTableName . '.price' . $i, $this->{'price' . $i . '_to'}]);
         }
 
         return $dataProvider;

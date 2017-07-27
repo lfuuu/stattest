@@ -50,10 +50,10 @@ echo GridView::widget([
             'value' => function ($clientAccountId) {
                 $clientAccount = ClientAccount::findOne($clientAccountId);
                 return $clientAccountId . ': ' . Html::a(
-                    $clientAccount->contragent->name,
-                    ['client/view', 'id' => $clientAccountId],
-                    ['target' => '_blank']
-                );
+                        $clientAccount->contragent->name,
+                        ['client/view', 'id' => $clientAccountId],
+                        ['target' => '_blank']
+                    );
             },
         ],
     ],

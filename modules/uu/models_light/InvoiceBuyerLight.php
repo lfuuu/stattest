@@ -3,7 +3,6 @@
 namespace app\modules\uu\models_light;
 
 use app\models\ClientAccount;
-use Yii;
 use yii\base\Component;
 
 class InvoiceBuyerLight extends Component implements InvoiceLightInterface
@@ -47,7 +46,7 @@ class InvoiceBuyerLight extends Component implements InvoiceLightInterface
      */
     public static function getTitle()
     {
-            return 'Компания заказчик';
+        return 'Компания заказчик';
     }
 
     /**

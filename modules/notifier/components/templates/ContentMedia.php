@@ -2,10 +2,10 @@
 
 namespace app\modules\notifier\components\templates;
 
-use Yii;
-use yii\db\ActiveRecord;
 use app\classes\media\MediaManager;
+use app\classes\model\ActiveRecord;
 use app\modules\notifier\models\templates\TemplateContent;
+use Yii;
 
 class ContentMedia extends MediaManager
 {

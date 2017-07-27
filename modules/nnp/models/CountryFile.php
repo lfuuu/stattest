@@ -2,11 +2,11 @@
 
 namespace app\modules\nnp\models;
 
+use app\classes\model\ActiveRecord;
 use app\modules\nnp\media\CountryMedia;
 use app\modules\nnp\media\ImportServiceUploaded;
 use Yii;
 use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

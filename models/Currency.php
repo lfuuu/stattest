@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use NumberFormatter;
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * @property string $id

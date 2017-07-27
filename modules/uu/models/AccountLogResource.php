@@ -2,9 +2,8 @@
 
 namespace app\modules\uu\models;
 
-use yii\behaviors\AttributeTypecastBehavior;
+use app\classes\model\ActiveRecord;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
@@ -54,20 +53,6 @@ class AccountLogResource extends ActiveRecord
             [['id', 'tariff_period_id', 'account_tariff_id', 'tariff_resource_id', 'coefficient'], 'integer'],
             [['price'], 'double'],
             [['date_from', 'date_to'], 'string', 'max' => 10],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
         ];
     }
 
@@ -130,7 +115,7 @@ class AccountLogResource extends ActiveRecord
         return
             $this->date_from .
             '_' .
-            $this->date_to.
+            $this->date_to .
             '_' .
             $this->account_tariff_resource_log_id;
     }

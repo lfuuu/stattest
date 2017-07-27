@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models\billing;
 
+use app\classes\model\ActiveRecord;
 use app\dao\billing\CallsAggrDao;
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $server_id integer NOT NULL

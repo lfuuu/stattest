@@ -1,10 +1,11 @@
 <?php
+
 namespace app\models;
 
 use app\classes\behaviors\EventQueueAddEvent;
 use app\classes\Event;
+use app\classes\model\ActiveRecord;
 use app\queries\LkNoticeSettingQuery;
-use yii\db\ActiveRecord;
 
 /**
  * Настройки оповещений клиента в ЛК

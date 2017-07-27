@@ -2,7 +2,7 @@
 
 namespace app\modules\notifier\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * @property string $country_code
@@ -45,8 +45,8 @@ class Schemes extends ActiveRecord
     {
         return [
             [['event',], 'string'],
-            [['country_code', ], 'integer'],
-            [['do_email', 'do_sms', 'do_email_monitoring', 'do_email_operator', ], 'boolean'],
+            [['country_code',], 'integer'],
+            [['do_email', 'do_sms', 'do_email_monitoring', 'do_email_operator',], 'boolean'],
             [['country_code', 'event',], 'required'],
         ];
     }

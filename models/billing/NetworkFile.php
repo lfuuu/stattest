@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models\billing;
 
+use app\classes\model\ActiveRecord;
 use app\dao\billing\NetworkFileDao;
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

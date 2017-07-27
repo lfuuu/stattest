@@ -1,15 +1,16 @@
 <?php
+
 namespace app\models;
 
-use DateTime;
-use app\queries\UsageQuery;
-use yii\db\ActiveRecord;
 use app\classes\bill\CallChatBiller;
+use app\classes\model\ActiveRecord;
+use app\classes\monitoring\UsagesLostTariffs;
 use app\classes\transfer\CallChatServiceTransfer;
+use app\dao\services\CallChatServiceDao;
 use app\helpers\usages\UsageCallChatHelper;
 use app\models\usages\UsageInterface;
-use app\classes\monitoring\UsagesLostTariffs;
-use app\dao\services\CallChatServiceDao;
+use app\queries\UsageQuery;
+use DateTime;
 
 /**
  * @property int $id

@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\dao\user\UserGroupsDao;
-use yii\db\ActiveRecord;
 
 class UserGroups extends ActiveRecord
 {

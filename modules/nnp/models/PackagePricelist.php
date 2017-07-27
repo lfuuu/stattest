@@ -1,12 +1,12 @@
 <?php
+
 namespace app\modules\nnp\models;
 
-use app\classes\Connection;
-use app\modules\uu\models\Tariff;
+use app\classes\model\ActiveRecord;
 use app\models\billing\Pricelist;
+use app\modules\uu\models\Tariff;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 
 /**
  * Пакеты. Прайслист

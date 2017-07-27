@@ -1,19 +1,20 @@
 <?php
+
 namespace app\models;
 
+use app\classes\bill\VirtpbxBiller;
+use app\classes\model\ActiveRecord;
+use app\classes\monitoring\UsagesLostTariffs;
+use app\classes\transfer\VirtpbxServiceTransfer;
+use app\dao\services\VirtpbxServiceDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use DateTime;
-use yii\db\ActiveRecord;
-use app\classes\bill\VirtpbxBiller;
-use app\classes\transfer\VirtpbxServiceTransfer;
-use app\classes\monitoring\UsagesLostTariffs;
-use app\dao\services\VirtpbxServiceDao;
-use app\queries\UsageQuery;
+use app\helpers\usages\LogTariffTrait;
+use app\helpers\usages\UsageVirtpbxHelper;
 use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
-use app\helpers\usages\UsageVirtpbxHelper;
-use app\helpers\usages\LogTariffTrait;
+use app\queries\UsageQuery;
+use DateTime;
 
 /**
  * @property int $id

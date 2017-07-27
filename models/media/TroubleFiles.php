@@ -3,8 +3,8 @@
 namespace app\models\media;
 
 use app\classes\media\TroubleMedia;
+use app\classes\model\ActiveRecord;
 use app\models\Trouble;
-use yii\db\ActiveRecord;
 
 /**
  * @property TroubleMedia $mediaManager

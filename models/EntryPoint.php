@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

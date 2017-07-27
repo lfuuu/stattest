@@ -1,12 +1,13 @@
 <?php
+
 namespace app\models;
 
 use app\classes\behaviors\ContragentCountry;
 use app\classes\behaviors\EffectiveVATRate;
 use app\classes\behaviors\SetTaxVoip;
-use Yii;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\validators\InnKppValidator;
+use Yii;
 
 /**
  * Class ClientContragent
@@ -70,13 +71,13 @@ class ClientContragent extends HistoryActiveRecord
 
     public
         $attributesProtectedForVersioning = [
-            'super_id',
-            'country_id',
-            'lang_code',
-            'comment',
-            'sale_channel_id',
-            'partner_contract_id',
-        ];
+        'super_id',
+        'country_id',
+        'lang_code',
+        'comment',
+        'sale_channel_id',
+        'partner_contract_id',
+    ];
 
 
     /**

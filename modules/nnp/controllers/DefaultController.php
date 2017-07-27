@@ -3,7 +3,6 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use Yii;
 
 /**
  * Default

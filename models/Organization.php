@@ -1,7 +1,9 @@
 <?php
+
 namespace app\models;
 
 use app\classes\DynamicModel;
+use app\classes\model\ActiveRecord;
 use app\classes\traits\I18NGetTrait;
 use app\classes\validators\ArrayValidator;
 use app\dao\OrganizationDao;
@@ -10,7 +12,6 @@ use app\helpers\DateTimeZoneHelper;
 use app\queries\OrganizationQuery;
 use ReflectionClass;
 use Yii;
-use yii\db\ActiveRecord;
 
 
 /**

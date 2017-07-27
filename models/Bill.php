@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models;
 
 use app\classes\behaviors\BillChangeLog;
@@ -266,28 +267,28 @@ class Bill extends HistoryActiveRecord
 
         // First unpaid bill
         $bill = self::find()
+            ->where([
+                'client_id' => $clientAccount->id,
+                'currency' => $clientAccount->currency,
+                'biller_version' => ClientAccount::VERSION_BILLER_USAGE
+            ])
+            ->andWhere(['in', 'is_payed', [self::STATUS_NOT_PAID, self::STATUS_PAID_IN_PART]])
+            ->andWhere(['>', 'bill_date', $fromDate])
+            ->orderBy('bill_date')
+            ->one();
+
+        if ($bill === null) {
+            // Last bill
+            $bill = self::find()
                 ->where([
                     'client_id' => $clientAccount->id,
                     'currency' => $clientAccount->currency,
                     'biller_version' => ClientAccount::VERSION_BILLER_USAGE
                 ])
-                ->andWhere(['in', 'is_payed', [self::STATUS_NOT_PAID, self::STATUS_PAID_IN_PART]])
+                ->andWhere(['is_payed' => 1])
                 ->andWhere(['>', 'bill_date', $fromDate])
-                ->orderBy('bill_date')
+                ->orderBy(['bill_date' => SORT_DESC])
                 ->one();
-
-        if ($bill === null) {
-            // Last bill
-            $bill = self::find()
-                    ->where([
-                        'client_id' => $clientAccount->id,
-                        'currency' => $clientAccount->currency,
-                        'biller_version' => ClientAccount::VERSION_BILLER_USAGE
-                    ])
-                    ->andWhere(['is_payed' => 1])
-                    ->andWhere(['>', 'bill_date', $fromDate])
-                    ->orderBy(['bill_date' => SORT_DESC])
-                    ->one();
         }
 
         return $bill !== null ? $bill : false;
@@ -345,7 +346,7 @@ class Bill extends HistoryActiveRecord
      * @param string $type
      * @return BillLine
      */
-    public function addLine($item, $amount, $price,  $type = BillLine::LINE_TYPE_SERVICE)
+    public function addLine($item, $amount, $price, $type = BillLine::LINE_TYPE_SERVICE)
     {
         $dateFrom = Utils::dateBeginOfPreviousMonth($this->bill_date);
         $dateTo = Utils::dateBeginOfPreviousMonth($this->bill_date);

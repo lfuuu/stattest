@@ -2,8 +2,8 @@
 
 namespace app\models\billing;
 
+use app\classes\model\ActiveRecord;
 use Yii;
-use yii\db\ActiveRecord;
 
 class Clients extends ActiveRecord
 {

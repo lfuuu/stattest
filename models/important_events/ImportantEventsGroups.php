@@ -2,7 +2,7 @@
 
 namespace app\models\important_events;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class ImportantEventsGroups

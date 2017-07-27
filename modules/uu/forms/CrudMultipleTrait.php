@@ -2,8 +2,8 @@
 
 namespace app\modules\uu\forms;
 
+use app\classes\model\ActiveRecord;
 use Yii;
-use yii\db\ActiveRecord;
 use yii\db\IntegrityException;
 
 /**

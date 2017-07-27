@@ -1,23 +1,24 @@
 <?php
+
 namespace app\models;
 
-use DateTime;
-use yii\db\ActiveRecord;
-use app\classes\bill\VoipBiller;
-use app\classes\transfer\VoipServiceTransfer;
-use app\classes\monitoring\UsagesLostTariffs;
-use app\dao\services\VoipServiceDao;
-use app\queries\UsageVoipQuery;
-use app\models\usages\UsageInterface;
-use app\models\usages\UsageLogTariffInterface;
-use app\helpers\usages\LogTariffTrait;
-use app\helpers\usages\UsageVoipHelper;
-use app\classes\behaviors\UsageVoipAddress;
 use app\classes\behaviors\ActualizeNumberByStatus;
 use app\classes\behaviors\ActualizeVoipNumber;
-use app\classes\behaviors\UsageDateTime;
 use app\classes\behaviors\important_events\UsageAction;
+use app\classes\behaviors\UsageDateTime;
 use app\classes\behaviors\UsageVoipActualToDependencyPackage;
+use app\classes\behaviors\UsageVoipAddress;
+use app\classes\bill\VoipBiller;
+use app\classes\model\ActiveRecord;
+use app\classes\monitoring\UsagesLostTariffs;
+use app\classes\transfer\VoipServiceTransfer;
+use app\dao\services\VoipServiceDao;
+use app\helpers\usages\LogTariffTrait;
+use app\helpers\usages\UsageVoipHelper;
+use app\models\usages\UsageInterface;
+use app\models\usages\UsageLogTariffInterface;
+use app\queries\UsageVoipQuery;
+use DateTime;
 use yii\helpers\Url;
 
 /**

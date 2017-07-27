@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models\billing;
 
+use app\classes\model\ActiveRecord;
 use Yii;
-use yii\db\ActiveRecord;
 
 
 class InstanceSettings extends ActiveRecord

@@ -273,7 +273,7 @@ class Api extends Singleton
             ->setUrl($url)
             ->setMethod('post')
             ->setData($data)
-            ->setIsCheckOk(false) // если первый запрос обработался, но упал, то повторный отвечает ошибкой, но с нужными данными
+            ->setIsCheckOk(false)// если первый запрос обработался, но упал, то повторный отвечает ошибкой, но с нужными данными
             ->send(\app\modules\atol\Module::LOG_CATEGORY);
 
         $responseData = $response->data;

@@ -2,13 +2,13 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\model\ActiveRecord;
 use app\models\Language;
 use app\modules\uu\behaviors\ResourceFiller;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
 use app\modules\uu\resourceReader\VpbxDiskResourceReader;
 use Yii;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
 
 /**
@@ -23,7 +23,7 @@ use yii\db\ActiveQuery;
  *
  * @property ServiceType $serviceType
  */
-class Resource extends \yii\db\ActiveRecord
+class Resource extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -90,14 +90,9 @@ class Resource extends \yii\db\ActiveRecord
      */
     public function behaviors()
     {
-        return [
-            'ResourceFiller' => ResourceFiller::className(),
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
-        ];
+        return parent::behaviors() + [
+                'ResourceFiller' => ResourceFiller::className(),
+            ];
     }
 
     /**

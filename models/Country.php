@@ -1,10 +1,11 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\classes\traits\GridSortTrait;
 use app\dao\CountryDao;
 use app\models\dictionary\PublicSiteCountry;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**

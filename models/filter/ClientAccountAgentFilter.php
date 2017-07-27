@@ -2,12 +2,12 @@
 
 namespace app\models\filter;
 
+use app\classes\DateTimeWithUserTimezone;
+use app\classes\DynamicModel;
+use app\classes\stats\AgentReport;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\data\ArrayDataProvider;
-use app\classes\DynamicModel;
-use app\classes\stats\AgentReport;
-use app\classes\DateTimeWithUserTimezone;
 
 class ClientAccountAgentFilter extends DynamicModel
 {

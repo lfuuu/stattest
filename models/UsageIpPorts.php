@@ -1,17 +1,18 @@
 <?php
+
 namespace app\models;
 
-use DateTime;
-use yii\db\ActiveRecord;
 use app\classes\bill\IpPortBiller;
-use app\classes\transfer\IpPortsServiceTransfer;
+use app\classes\model\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
+use app\classes\transfer\IpPortsServiceTransfer;
 use app\dao\services\IpPortsServiceDao;
-use app\queries\UsageQuery;
+use app\helpers\usages\LogTariffTrait;
+use app\helpers\usages\UsageIpPortsHelper;
 use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
-use app\helpers\usages\UsageIpPortsHelper;
-use app\helpers\usages\LogTariffTrait;
+use app\queries\UsageQuery;
+use DateTime;
 
 /**
  * @property int $id

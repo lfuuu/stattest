@@ -2,13 +2,13 @@
 
 namespace app\models\filter;
 
-use yii\db\Query;
-use yii\data\ActiveDataProvider;
-use yii\db\Expression;
+use app\models\billing\Trunk;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\UsageTrunk;
-use app\models\billing\Trunk;
+use yii\data\ActiveDataProvider;
+use yii\db\Expression;
+use yii\db\Query;
 
 class UsageTrunkFilter extends UsageTrunk
 {

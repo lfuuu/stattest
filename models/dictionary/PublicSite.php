@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models\dictionary;
 
+use app\classes\model\ActiveRecord;
 use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
-use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 

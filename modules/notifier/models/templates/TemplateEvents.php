@@ -2,7 +2,7 @@
 
 namespace app\modules\notifier\models\templates;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\models\important_events\ImportantEventsNames;
 
 /**

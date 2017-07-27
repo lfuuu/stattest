@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
-use app\models\tariffs\TariffInterface;
+use app\classes\model\ActiveRecord;
 use app\helpers\tariffs\TariffVirtpbxHelper;
+use app\models\tariffs\TariffInterface;
 
 /**
  * @property int $id

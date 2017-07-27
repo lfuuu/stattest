@@ -49,7 +49,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                             'data' => $destinationList,
                         ],
                     'headerOptions' => [
-                        'class' => 'col-sm-6',
+                        'class' => 'col-sm-5',
                     ],
                 ],
                 [
@@ -57,7 +57,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     'title' => $attributeLabels['price'],
                     'options' => $options,
                     'headerOptions' => [
-                        'class' => 'col-sm-3',
+                        'class' => 'col-sm-2',
                     ],
                 ],
                 [
@@ -65,7 +65,23 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                     'title' => $attributeLabels['interconnect_price'],
                     'options' => $options,
                     'headerOptions' => [
-                        'class' => 'col-sm-3',
+                        'class' => 'col-sm-2',
+                    ],
+                ],
+                [
+                    'name' => 'connect_price',
+                    'title' => $attributeLabels['connect_price'],
+                    'options' => $options,
+                    'headerOptions' => [
+                        'class' => 'col-sm-2',
+                    ],
+                ],
+                [
+                    'name' => 'weight',
+                    'title' => $attributeLabels['weight'],
+                    'options' => [], // всегда можно редактировать
+                    'headerOptions' => [
+                        'class' => 'col-sm-1',
                     ],
                 ],
                 [

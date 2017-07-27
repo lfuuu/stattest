@@ -79,8 +79,7 @@ class CombinedStatistics extends Model
                     Yii::$app->session->addFlash('error', 'Временной период больше одного месяца');
                     return false;
                 }
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 Yii::$app->session->addFlash('error', 'Неправильный формат даты');
                 return false;
             }
@@ -110,7 +109,7 @@ class CombinedStatistics extends Model
                 ]
             );
         }
-        
+
         $query = new CTEQuery();
 
         $sub_query1 = new CTEQuery();
@@ -194,10 +193,10 @@ class CombinedStatistics extends Model
                 'll.vpbx_id',
             ]
         )->from(['ll' => $sub_query2])
-         ->leftJoin('nspd n1', 'n1.dst_signalling_call_id = ll.src_signalling_call_id::uuid')
-         ->leftJoin('nspd n2', 'n2.src_signalling_call_id = ll.dst_signalling_call_id::uuid')
-         ->orderBy(['ll.connect_time' => SORT_DESC])
-         ->addWith(['nspd' => $cte]);
+            ->leftJoin('nspd n1', 'n1.dst_signalling_call_id = ll.src_signalling_call_id::uuid')
+            ->leftJoin('nspd n2', 'n2.src_signalling_call_id = ll.dst_signalling_call_id::uuid')
+            ->orderBy(['ll.connect_time' => SORT_DESC])
+            ->addWith(['nspd' => $cte]);
 
         $count = $sub_query2->liteRowCount(Yii::$app->dbPgSlaveCache);
 

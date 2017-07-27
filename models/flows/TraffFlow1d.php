@@ -1,10 +1,11 @@
 <?php
+
 namespace app\models\flows;
 
 use app\classes\DateFunction;
+use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\db\Query;
 

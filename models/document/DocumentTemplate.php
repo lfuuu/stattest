@@ -1,10 +1,11 @@
 <?php
+
 namespace app\models\document;
 
+use app\classes\model\ActiveRecord;
 use app\classes\Smarty;
 use app\models\ClientDocument;
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * @property int $id

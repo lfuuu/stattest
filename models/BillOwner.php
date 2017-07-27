@@ -1,8 +1,8 @@
 <?php
+
 namespace app\models;
 
-use app\dao\CourierDao;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * @property string $bill_no

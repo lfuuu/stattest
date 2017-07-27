@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\behaviors;
 
+use app\classes\model\ActiveRecord;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\tarificator\AccountEntryTarificator;
@@ -18,7 +19,6 @@ use app\modules\uu\tarificator\SyncResourceTarificator;
 use Yii;
 use yii\base\Behavior;
 use yii\base\Event;
-use yii\db\ActiveRecord;
 
 
 class AccountTariffBiller extends Behavior

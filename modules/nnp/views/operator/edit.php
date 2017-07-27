@@ -6,8 +6,8 @@
  * @var Form $formModel
  */
 
-use app\modules\nnp\models\Country;
 use app\modules\nnp\forms\operator\Form;
+use app\modules\nnp\models\Country;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;

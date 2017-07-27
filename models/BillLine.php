@@ -1,8 +1,8 @@
 <?php
+
 namespace app\models;
 
 use app\classes\model\HistoryActiveRecord;
-use yii\db\ActiveRecord;
 
 /**
  * Class BillLine

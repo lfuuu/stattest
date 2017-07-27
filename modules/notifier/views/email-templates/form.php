@@ -1,18 +1,17 @@
 <?php
 
-use kartik\widgets\ActiveForm;
-use kartik\builder\Form;
-use kartik\tabs\TabsX;
-use yii\widgets\Breadcrumbs;
-use yii\helpers\Url;
+use app\assets\AppAsset;
 use app\assets\TinymceAsset;
 use app\classes\Html;
-use app\assets\AppAsset;
-use app\models\Language;
+use app\classes\important_events\ImportantEventsDetailsFactory;
 use app\models\Country;
 use app\models\important_events\ImportantEventsNames;
-use app\classes\important_events\ImportantEventsDetailsFactory;
+use app\models\Language;
 use app\modules\notifier\models\templates\Template;
+use kartik\tabs\TabsX;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Url;
+use yii\widgets\Breadcrumbs;
 
 /** @var app\classes\BaseView $this */
 /** @var Template $model */
@@ -94,10 +93,10 @@ echo Breadcrumbs::widget([
                             ) .
                             $descr['title'] .
                             (
-                                $templateContentModel->isEmpty()
-                                    ? Html::tag('br') .
-                                      Html::tag('span', 'Не заполненно', ['class' => 'label label-danger'])
-                                    : ''
+                            $templateContentModel->isEmpty()
+                                ? Html::tag('br') .
+                                Html::tag('span', 'Не заполненно', ['class' => 'label label-danger'])
+                                : ''
                             )
                         ,
                         'content' => $this->render('content-form/' . $descr['format'],
@@ -139,20 +138,20 @@ echo Breadcrumbs::widget([
     ActiveForm::end();
     ?>
 
-    <br />
+    <br/>
     <table class="table table-bordered ">
         <colgroup>
-            <col width="20%" />
-            <col width="*" />
+            <col width="20%"/>
+            <col width="*"/>
         </colgroup>
         <thead>
-            <tr>
-                <th colspan="2" class="info">Глобальные свойства</th>
-            </tr>
-            <tr class="info">
-                <th>Переменная</th>
-                <th>Значение</th>
-            </tr>
+        <tr>
+            <th colspan="2" class="info">Глобальные свойства</th>
+        </tr>
+        <tr class="info">
+            <th>Переменная</th>
+            <th>Значение</th>
+        </tr>
         </thead>
         <tbody>
         <?php foreach (\app\helpers\RenderParams::getListOfVariables() as $variable => $descr): ?>
@@ -165,20 +164,20 @@ echo Breadcrumbs::widget([
     </table>
 
     <?php if ($model->getEvent()->event->code) : ?>
-        <br />
+        <br/>
         <table class="table table-bordered ">
             <colgroup>
-                <col width="20%" />
-                <col width="*" />
+                <col width="20%"/>
+                <col width="*"/>
             </colgroup>
             <thead>
-                <tr>
-                    <th colspan="2" class="info">Свойства события</th>
-                </tr>
-                <tr class="info">
-                    <th>Переменная</th>
-                    <th>Значение</th>
-                </tr>
+            <tr>
+                <th colspan="2" class="info">Свойства события</th>
+            </tr>
+            <tr class="info">
+                <th>Переменная</th>
+                <th>Значение</th>
+            </tr>
             </thead>
             <tbody>
             <?php foreach (
@@ -196,57 +195,57 @@ echo Breadcrumbs::widget([
 </div>
 
 <script type="text/javascript">
-$(document).ready(function () {
-    var stopUnload = false;
+    $(document).ready(function () {
+        var stopUnload = false;
 
-    tinymce.init({
-        selector: '.editor',
-        relative_urls: false,
-        height : 350,
-        plugins: [
-            "advlist autolink lists link image charmap print preview anchor",
-            "searchreplace visualblocks code fullscreen",
-            "insertdatetime media table contextmenu paste"
-        ],
-        toolbar: "insertfile undo redo | styleselect fontsizeselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+        tinymce.init({
+            selector: '.editor',
+            relative_urls: false,
+            height: 350,
+            plugins: [
+                "advlist autolink lists link image charmap print preview anchor",
+                "searchreplace visualblocks code fullscreen",
+                "insertdatetime media table contextmenu paste"
+            ],
+            toolbar: "insertfile undo redo | styleselect fontsizeselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image"
+        });
+
+        $('.media-manager').MultiFile({
+            list: 'div.media-manager-block',
+            max: 1,
+            STRING: {
+                remove: '',
+                selected: 'Выбран файл: $file',
+                toomany: 'Достигнуто максимальнное кол-во файлов',
+                duplicate: 'Файл "$file" уже добавлен'
+            },
+            afterFileSelect: function (element, value, master_element) {
+                var $block = master_element.list.find('div.MultiFile-label:last');
+
+                stopUnload = true;
+
+                $block
+                    .find('.MultiFile-label')
+                    .each(function () {
+                        var
+                            originalRemove = $(this).parents('div').find('a.MultiFile-remove');
+                        remove =
+                            $('<a />')
+                                .attr('href', 'javascript:void(0)')
+                                .text('Открепить')
+                                .on('click', function (e) {
+                                    e.preventDefault();
+                                    originalRemove.trigger('click');
+                                });
+
+                        $(this)
+                            .append(
+                                $('<div />')
+                                    .css({'margin-left': '25px'})
+                                    .append(remove)
+                            )
+                    });
+            }
+        });
     });
-
-    $('.media-manager').MultiFile({
-        list: 'div.media-manager-block',
-        max: 1,
-        STRING: {
-            remove: '',
-            selected: 'Выбран файл: $file',
-            toomany: 'Достигнуто максимальнное кол-во файлов',
-            duplicate: 'Файл "$file" уже добавлен'
-        },
-        afterFileSelect: function(element, value, master_element) {
-            var $block = master_element.list.find('div.MultiFile-label:last');
-
-            stopUnload = true;
-
-            $block
-                .find('.MultiFile-label')
-                .each(function() {
-                    var
-                        originalRemove = $(this).parents('div').find('a.MultiFile-remove');
-                    remove =
-                        $('<a />')
-                            .attr('href', 'javascript:void(0)')
-                            .text('Открепить')
-                            .on('click', function(e) {
-                                e.preventDefault();
-                                originalRemove.trigger('click');
-                            });
-
-                    $(this)
-                        .append(
-                        $('<div />')
-                            .css({'margin-left':'25px'})
-                            .append(remove)
-                    )
-                });
-        }
-    });
-});
 </script>

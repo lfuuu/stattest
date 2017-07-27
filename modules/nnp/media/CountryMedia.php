@@ -3,6 +3,7 @@
 namespace app\modules\nnp\media;
 
 use app\classes\media\MediaManager;
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\Country;
@@ -10,7 +11,6 @@ use app\modules\nnp\models\CountryFile;
 use DateTime;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Yii;
-use yii\db\ActiveRecord;
 
 class CountryMedia extends MediaManager
 {

@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models;
 
-use app\dao\PaymentSberOnlineDao;
-use yii\db\ActiveRecord;
 use app\classes\behaviors\CreatedAt;
+use app\classes\model\ActiveRecord;
+use app\dao\PaymentSberOnlineDao;
 
 /**
  * Class PaymentSberOnline
@@ -51,11 +52,11 @@ class PaymentSberOnline extends ActiveRecord
     public function isSaved()
     {
         return self::find()->where([
-            'payment_sent_date' => $this->payment_sent_date,
-            'code1' => $this->code1,
-            'code2' => $this->code2,
-            'code3' => $this->code3,
-        ])->count() > 0;
+                'payment_sent_date' => $this->payment_sent_date,
+                'code1' => $this->code1,
+                'code2' => $this->code2,
+                'code3' => $this->code3,
+            ])->count() > 0;
     }
 
 }

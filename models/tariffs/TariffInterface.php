@@ -1,4 +1,5 @@
 <?php
+
 namespace app\models\tariffs;
 
 use app\helpers\tariffs\TariffHelperInterface;

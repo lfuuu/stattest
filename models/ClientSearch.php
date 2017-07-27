@@ -39,16 +39,16 @@ class ClientSearch extends ClientAccount
     public function attributeLabels()
     {
         return parent::attributeLabels() +
-        [
-            'id' => '#',
-            'companyName' => 'Название компании',
-            'inn' => 'ИНН',
-            'managerName' => 'Менеджер',
-            'channelName' => 'Канал продаж',
-            'contractNo' => '№ договора',
-            'status' => 'Статус',
-            'lastComment' => 'Комментарий',
-        ];
+            [
+                'id' => '#',
+                'companyName' => 'Название компании',
+                'inn' => 'ИНН',
+                'managerName' => 'Менеджер',
+                'channelName' => 'Канал продаж',
+                'contractNo' => '№ договора',
+                'status' => 'Статус',
+                'lastComment' => 'Комментарий',
+            ];
     }
 
     public function getContractNo()

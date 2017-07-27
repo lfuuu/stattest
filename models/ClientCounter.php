@@ -2,10 +2,10 @@
 
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\billing\CachedCounter as BillingCounter;
 use Yii;
-use yii\db\ActiveRecord;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 

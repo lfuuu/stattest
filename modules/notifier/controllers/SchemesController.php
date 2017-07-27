@@ -2,9 +2,9 @@
 
 namespace app\modules\notifier\controllers;
 
-use Yii;
 use app\classes\BaseController;
 use app\modules\notifier\forms\SchemesForm;
+use Yii;
 use yii\base\InvalidParamException;
 
 class SchemesController extends BaseController

@@ -1,13 +1,8 @@
 <?php
+
 namespace app\models\voip;
 
-use app\classes\behaviors\CreatedAt;
-use app\classes\enum\VoipRegistrySourceEnum;
-use app\classes\model\HistoryActiveRecord;
-use app\dao\VoipRegistryDao;
-use app\models\City;
-use app\models\Country;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class StatisticMonth

@@ -2,9 +2,8 @@
 
 namespace app\modules\uu\models_light;
 
-use Yii;
-use yii\base\Component;
 use app\models\OrganizationSettlementAccount;
+use yii\base\Component;
 
 class InvoiceBankLight extends Component implements InvoiceLightInterface
 {

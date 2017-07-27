@@ -1,11 +1,11 @@
 <?php
+
 namespace app\modules\nnp\models;
 
-use app\classes\Connection;
+use app\classes\model\ActiveRecord;
 use app\modules\uu\models\Tariff;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
@@ -121,6 +121,7 @@ class Package extends ActiveRecord
     public function getPackagePrices()
     {
         return $this->hasMany(PackagePrice::className(), ['tariff_id' => 'tariff_id'])
+            ->orderBy(['weight' => SORT_DESC])
             ->indexBy('id');
     }
 

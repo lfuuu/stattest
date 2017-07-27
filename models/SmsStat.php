@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Статистика по использованию юзером ресурсов СМС

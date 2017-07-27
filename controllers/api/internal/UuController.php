@@ -604,6 +604,10 @@ class UuController extends ApiInternalController
         if (is_array($packagePrices)) {
             $result = [];
             foreach ($packagePrices as $packagePrice) {
+                if (!$packagePrice->weight) {
+                    continue;
+                }
+
                 $result[] = $this->_getVoipPackagePriceRecord($packagePrice);
             }
 

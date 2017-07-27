@@ -1,4 +1,5 @@
 <?php
+
 namespace app\modules\glpi\commands;
 
 use app\modules\glpi\classes\Glpi;

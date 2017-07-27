@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use yii\behaviors\AttributeTypecastBehavior;
+use app\classes\model\ActiveRecord;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -15,7 +15,7 @@ use yii\helpers\Url;
  *
  * @property ServiceType $serviceType
  */
-class TariffStatus extends \yii\db\ActiveRecord
+class TariffStatus extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -55,20 +55,6 @@ class TariffStatus extends \yii\db\ActiveRecord
             [['id', 'service_type_id'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
         ];
     }
 

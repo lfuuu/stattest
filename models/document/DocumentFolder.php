@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models\document;
 
+use app\classes\model\ActiveRecord;
 use app\models\ClientDocument;
 use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 class DocumentFolder extends ActiveRecord
@@ -15,10 +16,10 @@ class DocumentFolder extends ActiveRecord
 
     public static
         $orderBy = [
-            'parent_id' => SORT_DESC,
-            'sort' => SORT_DESC,
-            'name' => SORT_ASC,
-        ];
+        'parent_id' => SORT_DESC,
+        'sort' => SORT_DESC,
+        'name' => SORT_ASC,
+    ];
 
     /**
      * @return array
@@ -100,7 +101,7 @@ class DocumentFolder extends ActiveRecord
 
         foreach ($data as $row) {
             $resultRow = [
-                'label' => (string) $row,
+                'label' => (string)$row,
                 'id' => $row->id,
                 'children' => [],
             ];
@@ -116,11 +117,11 @@ class DocumentFolder extends ActiveRecord
                 $resultRow['href'] = Url::toRoute(['/templates/document/folder/edit', 'id' => $row->id]);
 
                 if ($withDocuments === true && count($row->documents)) {
-                    $resultRow['children'] = array_merge($resultRow['children'], (array) $this->populateTreeForWidget($row->documents, $withDocuments));
+                    $resultRow['children'] = array_merge($resultRow['children'], (array)$this->populateTreeForWidget($row->documents, $withDocuments));
                 }
 
                 if (count($row->childs)) {
-                    $resultRow['children'] = array_merge($resultRow['children'], (array) $this->populateTreeForWidget($row->childs, $withDocuments));
+                    $resultRow['children'] = array_merge($resultRow['children'], (array)$this->populateTreeForWidget($row->childs, $withDocuments));
                 }
             }
 

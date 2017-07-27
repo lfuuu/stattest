@@ -2,10 +2,10 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use DateTimeImmutable;
 use LogicException;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Периоды (день, месяц, квартал и т.д.)
@@ -16,7 +16,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property integer $monthscount
  * @property string $name
  */
-class Period extends \yii\db\ActiveRecord
+class Period extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -49,20 +49,6 @@ class Period extends \yii\db\ActiveRecord
             [['id', 'dayscount', 'monthscount'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
         ];
     }
 

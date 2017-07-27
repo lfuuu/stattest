@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use yii\behaviors\AttributeTypecastBehavior;
+use app\classes\model\ActiveRecord;
 
 /**
  * Типы VM
@@ -12,7 +12,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property int $id
  * @property string $name
  */
-class TariffVm extends \yii\db\ActiveRecord
+class TariffVm extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -37,20 +37,6 @@ class TariffVm extends \yii\db\ActiveRecord
             [['id'], 'integer'],
             [['name'], 'string'],
             [['name'], 'required'],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
         ];
     }
 }

@@ -3,10 +3,10 @@
 namespace app\modules\nnp\models;
 
 use app\classes\Connection;
+use app\classes\model\ActiveRecord;
 use app\models\billing\InstanceSettings;
 use Yii;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**

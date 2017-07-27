@@ -1,4 +1,5 @@
 <?php
+
 namespace app\modules\socket\commands;
 
 use app\modules\socket\classes\Socket;

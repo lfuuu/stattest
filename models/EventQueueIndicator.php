@@ -1,8 +1,9 @@
 <?php
+
 namespace app\models;
 
 use app\classes\behaviors\CreatedAt;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class EventQueueIndicator
@@ -18,6 +19,7 @@ use yii\db\ActiveRecord;
 class EventQueueIndicator extends ActiveRecord
 {
     const SECTION_ACCOUNT_BLOCK = 'account_block';
+
     /**
      * Название таблицы
      *

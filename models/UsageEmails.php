@@ -1,14 +1,15 @@
 <?php
+
 namespace app\models;
 
-use DateTime;
 use app\classes\bill\EmailBiller;
+use app\classes\model\ActiveRecord;
 use app\classes\transfer\EmailServiceTransfer;
 use app\dao\services\EmailsServiceDao;
-use yii\db\ActiveRecord;
-use app\queries\UsageQuery;
 use app\helpers\usages\UsageEmailHelper;
 use app\models\usages\UsageInterface;
+use app\queries\UsageQuery;
+use DateTime;
 
 /**
  * @property int $id

@@ -1,9 +1,9 @@
 <?php
+
 namespace app\modules\nnp\models;
 
-use app\classes\Connection;
+use app\classes\model\ActiveRecord;
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * Универсальные услуги для низкоуровневого биллинга
@@ -32,15 +32,24 @@ class AccountTariffLight extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID', // ID ежемесячного списания за пакет (AccountLogPeriod.id)
-            'account_client_id' => 'ЛС', // ID ЛС (AccountClient.id)
-            'tariff_id' => 'Тариф', // ID пакета (Tariff.id, он же nnp.Package.tariff_id)
-            'activate_from' => 'С', // Дата начала действия пакета по UTC
-            'deactivate_from' => 'По', // Дата окончания действия пакета по UTC
-            'coefficient' => 'Коэффициент', // Коэффициент от 0 до 1, если пакет действует меньше месяца. Цену и кол-во доступных минут надо умножать на этот коэффициент
-            'account_tariff_id' => 'Базовая услуга', // ID базовой (не пакет!) универсальной услуги (AccountTariff.id). Для пакетов телефонии (service_type_id = 3) это номер телефона/линии (он же billing.service_number.id). Для пакетов транков (service_type_id = 23, 24) это номер транка (он же billing.service_trunk.id). Чтобы не пересекаться со старыми услугами - больше 100000.
-            'price' => 'Цена пакета', // Цена пакета. Для получения стоимости надо умножить на coefficient
-            'service_type_id' => 'Тип услуги', // ID типа услуги (ServiceType.id). 3 - пакет телефонии. 23 - пакет терм-транк. 24 - пакет ориг-транк
+            'id' => 'ID',
+            // ID ежемесячного списания за пакет (AccountLogPeriod.id)
+            'account_client_id' => 'ЛС',
+            // ID ЛС (AccountClient.id)
+            'tariff_id' => 'Тариф',
+            // ID пакета (Tariff.id, он же nnp.Package.tariff_id)
+            'activate_from' => 'С',
+            // Дата начала действия пакета по UTC
+            'deactivate_from' => 'По',
+            // Дата окончания действия пакета по UTC
+            'coefficient' => 'Коэффициент',
+            // Коэффициент от 0 до 1, если пакет действует меньше месяца. Цену и кол-во доступных минут надо умножать на этот коэффициент
+            'account_tariff_id' => 'Базовая услуга',
+            // ID базовой (не пакет!) универсальной услуги (AccountTariff.id). Для пакетов телефонии (service_type_id = 3) это номер телефона/линии (он же billing.service_number.id). Для пакетов транков (service_type_id = 23, 24) это номер транка (он же billing.service_trunk.id). Чтобы не пересекаться со старыми услугами - больше 100000.
+            'price' => 'Цена пакета',
+            // Цена пакета. Для получения стоимости надо умножить на coefficient
+            'service_type_id' => 'Тип услуги',
+            // ID типа услуги (ServiceType.id). 3 - пакет телефонии. 23 - пакет терм-транк. 24 - пакет ориг-транк
         ];
     }
 

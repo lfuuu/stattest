@@ -2,13 +2,10 @@
 
 namespace app\modules\notifier\components;
 
-use app\classes\Assert;
-use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\important_events\ImportantEventsNames;
 use app\models\LkNoticeSetting;
 use app\models\User;
-use app\modules\notifier\components\decorators\SchemePersonalDecorator;
 use app\modules\notifier\models\Schemes;
 use Exception;
 use yii\base\Component;

@@ -2,18 +2,8 @@
 
 namespace app\modules\uu\models\traits;
 
-use app\exceptions\ModelValidationException;
-use app\helpers\DateTimeZoneHelper;
-use app\models\ClientAccount;
 use app\modules\uu\classes\AccountLogFromToTariff;
-use app\modules\uu\models\AccountLogPeriod;
-use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
-use app\modules\uu\models\AccountTariffLog;
-use app\modules\uu\models\Period;
-use app\modules\uu\models\Resource;
-use DateTime;
-use DateTimeImmutable;
 
 trait AccountTariffBillerSetupTrait
 {

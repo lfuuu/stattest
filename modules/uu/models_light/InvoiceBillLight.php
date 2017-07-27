@@ -2,7 +2,6 @@
 
 namespace app\modules\uu\models_light;
 
-use Yii;
 use yii\base\Component;
 
 class InvoiceBillLight extends Component implements InvoiceLightInterface

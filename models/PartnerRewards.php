@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * @property int $bill_id
@@ -13,7 +14,6 @@ use yii\db\ActiveRecord;
  * @property float $percentage_of_over
  * @property float $percentage_of_margin
  */
-
 class PartnerRewards extends ActiveRecord
 {
 

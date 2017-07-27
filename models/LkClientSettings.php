@@ -2,8 +2,8 @@
 
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\models\important_events\ImportantEventsNames;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 
 /**
@@ -22,7 +22,6 @@ use yii\db\Expression;
  * @property int $is_zero_balance_sent
  * @property string $day_limit_sent
  * @property int $is_day_limit_sent
-
  */
 class LkClientSettings extends ActiveRecord
 {

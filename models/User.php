@@ -2,11 +2,11 @@
 
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\dao\user\UserDao;
 use app\queries\UserQuery;
 use Yii;
 use yii\base\NotSupportedException;
-use yii\db\ActiveRecord;
 use yii\helpers\Html;
 use yii\helpers\Url;
 

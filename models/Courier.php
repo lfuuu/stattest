@@ -1,9 +1,9 @@
 <?php
+
 namespace app\models;
 
+use app\classes\model\ActiveRecord;
 use app\dao\CourierDao;
-use yii\db\ActiveRecord;
-use yii\db\Expression;
 
 /**
  * @property int $id

@@ -1,9 +1,10 @@
 <?php
+
 namespace app\models\support;
 
 use app\classes\behaviors\CreatedAt;
 use app\classes\enum\TicketStatusEnum;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * @property int $id

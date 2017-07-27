@@ -1,11 +1,12 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Class CounterInteropTrunk
- * 
+ *
  * @property int $account_id
  * @property float $income_sum
  * @property float $outcome_sum

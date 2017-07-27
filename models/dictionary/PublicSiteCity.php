@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models\dictionary;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * @property int $public_site_country_id

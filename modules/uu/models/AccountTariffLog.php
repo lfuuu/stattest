@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\Html;
+use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\behaviors\AccountTariffBiller;
@@ -16,9 +17,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Yii;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 
 /**
  * Лог тарифов универсальной услуги
@@ -76,15 +75,10 @@ class AccountTariffLog extends ActiveRecord
      */
     public function behaviors()
     {
-        return [
-            'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
-            'FillAccountTariffResourceLog' => FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
-        ];
+        return parent::behaviors() + [
+                'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
+                'FillAccountTariffResourceLog' => FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
+            ];
     }
 
     /**

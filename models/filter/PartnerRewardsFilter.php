@@ -2,19 +2,19 @@
 
 namespace app\models\filter;
 
+use app\classes\DynamicModel;
 use app\models\Bill;
 use app\models\BillLine;
-use app\models\ClientAccount;
-use app\models\PartnerRewards;
-use Yii;
-use yii\db\Expression;
-use yii\db\Query;
-use yii\data\ArrayDataProvider;
-use app\classes\DynamicModel;
 use app\models\Business;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContractReward;
 use app\models\ClientContragent;
+use app\models\PartnerRewards;
+use Yii;
+use yii\data\ArrayDataProvider;
+use yii\db\Expression;
+use yii\db\Query;
 
 class PartnerRewardsFilter extends DynamicModel
 {

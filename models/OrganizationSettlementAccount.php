@@ -1,7 +1,8 @@
 <?php
+
 namespace app\models;
 
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * @property int $organization_record_id
@@ -27,13 +28,19 @@ class OrganizationSettlementAccount extends ActiveRecord
 
     public static $currencyBySettlementAccountTypeId = [
         self::SETTLEMENT_ACCOUNT_TYPE_RUSSIA => [
-            Currency::RUB, Currency::USD, Currency::EUR,
+            Currency::RUB,
+            Currency::USD,
+            Currency::EUR,
         ],
         self::SETTLEMENT_ACCOUNT_TYPE_SWIFT => [
-            Currency::HUF, Currency::USD, Currency::EUR,
+            Currency::HUF,
+            Currency::USD,
+            Currency::EUR,
         ],
         self::SETTLEMENT_ACCOUNT_TYPE_IBAN => [
-            Currency::HUF, Currency::USD, Currency::EUR,
+            Currency::HUF,
+            Currency::USD,
+            Currency::EUR,
         ],
     ];
 

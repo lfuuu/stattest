@@ -2,13 +2,9 @@
 
 namespace app\models\filter\voip;
 
-use app\classes\Connection;
 use app\classes\traits\GetListTrait;
-use app\models\City;
 use app\models\Number;
-use Yii;
 use yii\data\ActiveDataProvider;
-use yii\db\ActiveQuery;
 
 /**
  * Фильтрация для Number
@@ -71,7 +67,7 @@ class NumberFilter extends Number
 
         $this->number !== '' && $query->andWhere(['LIKE', $numberTableName . '.number', $this->number]);
 
-        switch($this->city_id) {
+        switch ($this->city_id) {
             case '':
                 break;
 

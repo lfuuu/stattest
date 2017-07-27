@@ -2,10 +2,9 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\model\ActiveRecord;
 use app\models\ClientAccount;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\helpers\Url;
 
 /**
@@ -47,20 +46,6 @@ class Bill extends ActiveRecord
             [['client_account_id', 'is_converted'], 'integer'],
             [['price'], 'double'],
             [['date'], 'string', 'max' => 255],
-        ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return [
-            'typecast' => [
-                'class' => AttributeTypecastBehavior::className(),
-                'typecastAfterValidate' => false,
-                'typecastAfterFind' => true,
-            ],
         ];
     }
 
