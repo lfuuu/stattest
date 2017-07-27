@@ -141,4 +141,27 @@ class ServiceType extends ActiveRecord
     {
         return Url::to(['/uu/service-type/edit', 'id' => $id]);
     }
+
+    /**
+     * @return string
+     */
+    public function getColorClass()
+    {
+        switch ($this->id) {
+            case self::ID_VPBX:
+                return 'success';
+
+            case self::ID_VOIP:
+            case self::ID_VOIP_PACKAGE:
+                return 'info';
+
+            case self::ID_TRUNK:
+            case self::ID_TRUNK_PACKAGE_ORIG:
+            case self::ID_TRUNK_PACKAGE_TERM:
+                return 'primary';
+
+            default:
+                return 'warning';
+        }
+    }
 }
