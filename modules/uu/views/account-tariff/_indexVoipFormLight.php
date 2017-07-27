@@ -31,7 +31,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 
 <div class="col-sm-4">
 
-    <div class="panel panel-info account-tariff-voip">
+    <div class="panel panel-<?= $accountTariffFirst->serviceType->getColorClass() ?> account-tariff-voip">
         <div class="panel-heading">
             <?php
             $formModel = new AccountTariffEditForm([
@@ -42,7 +42,13 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
             <h2 class="panel-title">
                 <?= Html::checkbox(null, $checked = true, ['class' => 'check-all collapse', 'title' => 'Отметить всё']) ?>
 
-                <?= $accountTariffFirst->serviceType ? $accountTariffFirst->serviceType->name : '' ?>
+                <?= $accountTariffFirst->serviceType ?
+                    Html::a($accountTariffFirst->serviceType->name, [
+                        '/uu/account-tariff',
+                        'serviceTypeId' => $accountTariffFirst->service_type_id,
+                        'AccountTariffFilter[client_account_id]' => $accountTariffFirst->client_account_id,
+                    ]) :
+                    '' ?>
                 <?= $accountTariffFirst->region ? ' (' . $accountTariffFirst->region->name . ')' : '' ?>
                 <?= $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
 

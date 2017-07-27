@@ -17,7 +17,9 @@ $serviceType = $filterModel->getServiceType();
 
 /** @var ActiveQuery $query */
 $query = $filterModel->search()->query;
-$query->andWhere(['NOT', ['service_type_id' => array_keys(ServiceType::$packages)]]);
+if (!$serviceType) {
+    $query->andWhere(['NOT', ['service_type_id' => array_keys(ServiceType::$packages)]]);
+}
 
 // сгруппировать одинаковые город-тариф-пакеты по строчкам
 $rows = AccountTariff::getGroupedObjects($query);
@@ -31,7 +33,7 @@ $rows = AccountTariff::getGroupedObjects($query);
 foreach ($rows as $row) {
     /** @var AccountTariff $accountTariffFirst */
     $accountTariffFirst = reset($row);
-    if (in_array($accountTariffFirst->service_type_id, ServiceType::$packages)) {
+    if (array_key_exists($accountTariffFirst->service_type_id, ServiceType::$packages)) {
         // пакеты отдельно не выводим. Только в комплекте с базовой услугой
         continue;
     }
