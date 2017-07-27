@@ -126,6 +126,7 @@ $columns = [
         'class' => CityColumn::className(),
         'isWithNullAndNotNull' => true,
         'countryCodes' => $filterModel->country_code,
+        'regionIds' => $filterModel->region_id,
     ],
     [
         'attribute' => 'ndc_type_id',

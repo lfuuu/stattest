@@ -24,6 +24,8 @@ class AccountTariffLight extends ActiveRecord
     // Определяет getList (список для selectbox) и __toString
     use \app\classes\traits\GetListTrait;
 
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * Имена полей
      *

@@ -8,6 +8,7 @@
 
 use app\modules\nnp\forms\city\Form;
 use app\modules\nnp\models\Country;
+use app\modules\nnp\models\Region;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -47,13 +48,19 @@ if (!$city->isNewRecord) {
             ]) ?>
         </div>
 
+        <div class="col-sm-2">
+            <?= $form->field($city, 'region_id')->widget(Select2::className(), [
+                'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $city->country_code),
+            ]) ?>
+        </div>
+
         <?php // Название ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($city, 'name')->textInput() ?>
         </div>
 
         <?php // Название транслитом ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($city, 'name_translit')->textInput() ?>
         </div>
 

@@ -43,6 +43,8 @@ class AccountTariffResourceLog extends ActiveRecord
 
     private $_countLogs = null;
 
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * @return string
      */

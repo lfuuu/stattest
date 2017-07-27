@@ -16,11 +16,12 @@ use yii\console\Controller;
 class ImportController extends Controller
 {
     /**
-     * Импортировать Россию из Россвязи. 2 минуты. Сначала надо disable-trigger, потом enable-trigger
+     * Импортировать Россию из Россвязи. 2 минуты.
      *
      * @throws \yii\db\Exception
      * @throws \InvalidArgumentException
      * @throws \LogicException
+     * @throws \app\exceptions\ModelValidationException
      */
     public function actionRus()
     {
@@ -30,6 +31,19 @@ class ImportController extends Controller
         ]))
             ->run();
 
+        $this->actionLink();
+    }
+
+    /**
+     * Привязать операторы-регионы-города
+     *
+     * @throws \yii\db\Exception
+     * @throws \InvalidArgumentException
+     * @throws \LogicException
+     * @throws \app\exceptions\ModelValidationException
+     */
+    public function actionLink()
+    {
         echo 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
         echo 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
         echo 'Города: ' . CityLinker::me()->run() . PHP_EOL;

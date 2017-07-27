@@ -28,6 +28,8 @@ class AccountLogSetup extends ActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * @return string
      */

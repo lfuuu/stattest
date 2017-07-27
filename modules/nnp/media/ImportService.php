@@ -24,17 +24,18 @@ abstract class ImportService extends Model
     protected $log = [];
 
     public $countryCode;
+
     /** @var Country */
     protected $country;
 
     protected $ndcTypeList = [];
 
-    protected $delimiter = ',';
+    public $delimiter = ',';
 
     /**
      * Основной метод
      * Вызывается после _pre и перед _post
-     * Внутри себя должен вызвать _importFromTxt
+     * Внутри себя должен вызвать _importFromTxtRecalc
      */
     protected abstract function callbackMethod();
 

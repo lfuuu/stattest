@@ -28,6 +28,8 @@ class TariffPeriod extends HistoryActiveRecord
     const IS_NOT_SET = -1;
     const IS_SET = -2;
 
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * @return string
      */

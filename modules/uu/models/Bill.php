@@ -29,6 +29,8 @@ class Bill extends ActiveRecord
 
     const CURRENT_STATEMENT = 'current_statement';
 
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * @return string
      */

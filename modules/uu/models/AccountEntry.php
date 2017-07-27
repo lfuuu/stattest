@@ -61,6 +61,8 @@ class AccountEntry extends ActiveRecord
     protected $dateFrom = null;
     protected $dateTo = null;
 
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * @return string
      */

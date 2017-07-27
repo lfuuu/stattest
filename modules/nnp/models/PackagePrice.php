@@ -24,6 +24,8 @@ use yii\db\ActiveQuery;
  */
 class PackagePrice extends ActiveRecord
 {
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * Имена полей
      *

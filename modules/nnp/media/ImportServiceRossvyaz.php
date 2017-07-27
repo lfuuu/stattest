@@ -56,7 +56,10 @@ class ImportServiceRossvyaz extends ImportService
         $regionSource = $this->_iconv($row[5]);
         $regionSourceArray = explode('|', $regionSource);
         $city = $regionSourceArray[0];
-        $region = isset($regionSourceArray[1]) ? $regionSourceArray[1] : '';
+
+        array_shift($regionSourceArray);
+        $region = count($regionSourceArray) ? implode(', ', $regionSourceArray) : '';
+
         $region && !$city && $city = $region;
         $city && !$region && $region = $city;
 

@@ -22,6 +22,8 @@ class TariffResource extends HistoryActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * @return array
      */

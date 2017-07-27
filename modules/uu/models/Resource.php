@@ -65,6 +65,8 @@ class Resource extends ActiveRecord
 
     public $fillerPricePerUnit = 100;
 
+    protected $isAttributeTypecastBehavior = true;
+
     /**
      * @inheritdoc
      */
