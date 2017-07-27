@@ -8,6 +8,9 @@ class ApiInternalController extends ApiController
 {
     protected $requestData = null;
 
+    /**
+     * Init
+     */
     public function init()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
@@ -18,19 +21,19 @@ class ApiInternalController extends ApiController
      */
     public function getRequestParams()
     {
-        $this->loadRequestData();
+        $this->_loadRequestData();
 
         return $this->requestData;
     }
 
     /**
      * @param string $id
-     * @param string $params
+     * @param string[] $params
      * @return array
      */
     public function runAction($id, $params = [])
     {
-        $this->loadRequestData();
+        $this->_loadRequestData();
 
         try {
             return [
@@ -52,12 +55,11 @@ class ApiInternalController extends ApiController
     /**
      * Получение входящих данных
      */
-    private function loadRequestData()
+    private function _loadRequestData()
     {
         $this->requestData = Yii::$app->request->get();
         if (!$this->requestData) {
             $this->requestData = Yii::$app->request->bodyParams;
         }
     }
-
 }
