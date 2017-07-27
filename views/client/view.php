@@ -12,9 +12,9 @@
  */
 
 use app\assets\AppAsset;
-use app\modules\uu\filter\AccountTariffFilter;
 use app\forms\client\ContractEditForm;
 use app\models\ClientAccount;
+use app\modules\uu\filter\AccountTariffFilter;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -44,7 +44,10 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
         <?= $this->render('block/service', ['account' => $account, 'services' => $services]); ?>
         <?php
         if ($uuFilterModel) {
-            echo $this->render('/../modules/uu/views/account-tariff/_indexVoip',
+            ?>
+            <h2><a href="<?= Url::to(['/uu/account-tariff', 'AccountTariffFilter[client_account_id]' => $account->id]) ?>">Универсальные услуги</a></h2>
+            <?php
+            echo $this->render('/../modules/uu/views/account-tariff/_indexVoipLight',
                 [
                     'filterModel' => $uuFilterModel,
                 ]

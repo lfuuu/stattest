@@ -13,9 +13,9 @@ use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\modules\uu\filter\BillFilter;
-use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill;
 use app\widgets\GridViewExport\GridViewExport;
+use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -61,32 +61,20 @@ $columns = [
         'class' => IntegerRangeColumn::className(),
     ],
     [
-        'attribute' => 'is_show_all_entry',
-        'class' => YesNoColumn::className(),
         'label' => 'Проводки, ¤',
         'format' => 'raw',
-        'contentOptions' => [
-            'class' => 'text-nowrap',
-        ],
         'value' => function (Bill $bill) {
-
-            $accountEntries = $bill->accountEntries;
-            array_walk($accountEntries, function (&$accountEntry) {
-                /** @var AccountEntry $accountEntry */
-                $accountEntry
-                    // Например, "Номер 74956387777. Абонентская плата. Тариф «Москва Базовый»"
-                    = $accountEntry->getFullName() . ' ' .
-
-                    // Например, "249.00"
-                    Html::a(
-                        sprintf('%.2f', $accountEntry->price),
-                        $accountEntry->getUrl()
-                    );
-            });
-
-            return implode('<br />', $accountEntries);
-
-        }
+            return Html::a(
+                    'Все',
+                    Url::to(['/uu/account-entry/', 'AccountEntryFilter[bill_id]' => $bill->id])
+                ) .
+                '. ' .
+                Html::a(
+                    'Ненулевые',
+                    Url::to(['/uu/account-entry/', 'AccountEntryFilter[bill_id]' => $bill->id, 'AccountEntryFilter[price_from]' => 0.01])
+                ) .
+                '.';
+        },
     ],
 ];
 

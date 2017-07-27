@@ -150,12 +150,14 @@ a.nohover:hover {
     text-align: center;
 }
 
+.yes-no-column,
 .currency-column,
 .month-column,
 .integer-column,
 .integer-range-column,
 .string-column,
 .orig-column,
+.tariff-voip-group-column,
 .mob-column {
     min-width: 80px;
 }
@@ -166,7 +168,6 @@ a.nohover:hover {
 .country-column,
 .tariff-status-column,
 .tariff-person-column,
-.tariff-voip-group-column,
 .date-range-double-column {
     min-width: 110px;
 }
@@ -238,6 +239,7 @@ a.nohover:hover {
 .account-tariff-voip-numbers {
     max-height: 200px;
     overflow-y: auto;
+    margin-bottom: 10px;
 }
 
 .loading {

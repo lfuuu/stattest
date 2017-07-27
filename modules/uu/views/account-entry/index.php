@@ -9,7 +9,6 @@
 use app\classes\grid\column\universal\FloatRangeColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
-use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
@@ -157,7 +156,7 @@ $columns = [
     ],
     [
         'attribute' => 'bill_id',
-        'class' => IsNullAndNotNullColumn::className(),
+        'class' => IntegerColumn::className(),
         'format' => 'html',
         'value' => function (AccountEntry $accountEntry) {
             $bill = $accountEntry->bill;

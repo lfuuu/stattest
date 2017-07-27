@@ -34,7 +34,7 @@ trait AccountTariffGroupTrait
     }
 
     /**
-     * Вернуть хеш услуги. Нужно для группировки похожих услуг телефонии по разным номерам.
+     * Вернуть хеш услуги. Нужно для группировки похожих услуг телефонии по разным городам-тарифам-пакетам.
      *
      * @return string
      */
@@ -100,6 +100,47 @@ trait AccountTariffGroupTrait
                 $hashes[] = $accountTariffResourceLogTmp->actual_from;
             }
         }
+
+        return md5(implode('_', $hashes));
+    }
+
+    /**
+     * Сгруппировать одинаковые город-тариф по строчкам
+     *
+     * @param ActiveQuery $query
+     * @return AccountTariff[][]
+     */
+    public static function getGroupedObjectsLight(ActiveQuery $query)
+    {
+        $rows = [];
+
+        /** @var AccountTariff $accountTariff */
+        foreach ($query->each() as $accountTariff) {
+
+            $hash = $accountTariff->getHashLight();
+            !isset($rows[$hash]) && $rows[$hash] = [];
+            $rows[$hash][$accountTariff->id] = $accountTariff;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Вернуть хеш услуги. Нужно для группировки похожих услуг телефонии по разным городам.
+     *
+     * @return string
+     */
+    public function getHashLight()
+    {
+        $dateTimeUtc = DateTimeZoneHelper::getUtcDateTime()
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $hashes = [];
+
+        // город
+        $hashes[] = $this->city_id;
+
+        // лог тариф
+        $hashes[] = $this->tariff_period_id;
 
         return md5(implode('_', $hashes));
     }

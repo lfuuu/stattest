@@ -129,16 +129,16 @@ $cityColumn = [
     'class' => CityColumn::className(),
     'isAddLink' => false,
     'value' => function (Tariff $tariff) {
-        $maxCount = 3;
+        $maxCount = 2;
         $voipCities = $tariff->voipCities;
         $count = count($voipCities);
         if ($count <= $maxCount) {
-            return implode('<br>', $voipCities);
+            return implode('<br/>', $voipCities);
         }
 
         return sprintf(
-            '%s<br><abbr title="%s">… %d…</abbr>',
-            implode('<br>', array_slice($voipCities, 0, $maxCount)),
+            '%s<br/><abbr title="%s">… %d…</abbr>',
+            implode('<br/>', array_slice($voipCities, 0, $maxCount)),
             implode(PHP_EOL, array_slice($voipCities, $maxCount)),
             $count - $maxCount
         );
@@ -187,8 +187,11 @@ switch ($serviceType->id) {
                     $echoArray[] = '…';
                 }
 
-                return implode('<br/>', $echoArray);
-            }
+                return '<p>' . implode('</p><p>', $echoArray) . '</p>';
+            },
+            'options' => [
+                'style' => 'min-width: 200px;',
+            ],
         ];
 
         $columns[] = [
@@ -211,8 +214,11 @@ switch ($serviceType->id) {
                     $echoArray[] = '…';
                 }
 
-                return implode('<br/>', $echoArray);
-            }
+                return '<p>' . implode('</p><p>', $echoArray) . '</p>';
+            },
+            'options' => [
+                'style' => 'min-width: 200px;',
+            ],
         ];
 
         $columns[] = [
@@ -237,8 +243,11 @@ switch ($serviceType->id) {
                     $echoArray[] = '…';
                 }
 
-                return implode('<br/>', $echoArray);
-            }
+                return '<p>' . implode('</p><p>', $echoArray) . '</p>';
+            },
+            'options' => [
+                'style' => 'min-width: 200px;',
+            ],
         ];
         break;
 }

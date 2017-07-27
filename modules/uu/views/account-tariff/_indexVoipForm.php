@@ -31,6 +31,7 @@ $params = [
     'packagesList' => $packagesList,
     'isShowAddPackage' => $isShowAddPackage,
     'form' => $form,
+    'tagName' => 'div',
 ];
 $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 ?>

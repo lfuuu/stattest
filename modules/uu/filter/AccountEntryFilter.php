@@ -116,6 +116,8 @@ class AccountEntryFilter extends AccountEntry
         $this->is_next_month !== '' && $query->andWhere([$accountEntryTableName . '.is_next_month' => $this->is_next_month]);
 
         switch ($this->bill_id) {
+            case '':
+                break;
             case GetListTrait::$isNull:
                 $query->andWhere([$accountEntryTableName . '.bill_id' => null]);
                 break;
@@ -123,6 +125,7 @@ class AccountEntryFilter extends AccountEntry
                 $query->andWhere($accountEntryTableName . '.bill_id IS NOT NULL');
                 break;
             default:
+                $query->andWhere([$accountEntryTableName . '.bill_id' => $this->bill_id]);
                 break;
         }
 

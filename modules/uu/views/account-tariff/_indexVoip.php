@@ -17,6 +17,7 @@ $serviceType = $filterModel->getServiceType();
 
 /** @var ActiveQuery $query */
 $query = $filterModel->search()->query;
+$query->andWhere(['NOT', ['service_type_id' => ServiceType::$packages]]);
 
 // сгруппировать одинаковые город-тариф-пакеты по строчкам
 $rows = AccountTariff::getGroupedObjects($query);

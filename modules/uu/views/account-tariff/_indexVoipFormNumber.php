@@ -6,6 +6,7 @@
  *
  * @var AccountTariff $accountTariffFirst
  * @var AccountTariff[][] $row
+ * @var string $tagName
  */
 
 use app\classes\Html;
@@ -17,20 +18,20 @@ use app\modules\uu\models\ServiceType;
 
 <?php /** @var AccountTariff $accountTariff */ ?>
 <?php foreach ($row as $accountTariff) : ?>
-    <div>
+    <<?= $tagName ?>>
 
-        <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'class' => 'collapse']) ?>
+    <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'class' => 'collapse']) ?>
 
-        <?php if ($accountTariff->service_type_id == ServiceType::ID_TRUNK) : ?>
-            <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
-        <?php else : ?>
-            <?= Html::a(
-                $accountTariff->voip_number ?: 'id' . $accountTariff->id,
-                $accountTariff->getUrl()
-            ) ?>
-        <?php endif ?>
+    <?php if ($accountTariff->service_type_id == ServiceType::ID_TRUNK) : ?>
+        <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
+    <?php else : ?>
+        <?= Html::a(
+            $accountTariff->voip_number ?: 'id' . $accountTariff->id,
+            $accountTariff->getUrl()
+        ) ?>
+    <?php endif ?>
 
-    </div>
+    </<?= $tagName ?>>
 <?php endforeach; ?>
 
 
