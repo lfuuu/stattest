@@ -4,7 +4,7 @@ namespace app\classes\media;
 
 use app\exceptions\ModelValidationException;
 use Yii;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 
 abstract class MediaManager
 {

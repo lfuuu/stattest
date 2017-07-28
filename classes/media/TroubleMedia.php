@@ -5,7 +5,7 @@ namespace app\classes\media;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
 use DateTime;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\models\Trouble;
 use app\models\media\TroubleFiles;
 

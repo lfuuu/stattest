@@ -4,7 +4,7 @@ namespace app\classes\media;
 
 use Yii;
 use DateTime;
-use yii\db\ActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\models\ClientContract;
 use app\models\media\ClientFiles;
 use app\helpers\DateTimeZoneHelper;
