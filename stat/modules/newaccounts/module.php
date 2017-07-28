@@ -847,7 +847,7 @@ class m_newaccounts extends IModule
         $design->assign("store",
             $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '" . $bill_no . "'"));
 
-        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill, 'bill');
+        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill, ['bill', 'shortbill']);
         $documents = [];
         foreach ($availableDocuments as $document) {
             $documents[] = [
