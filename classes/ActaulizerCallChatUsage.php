@@ -228,7 +228,7 @@ class ActaulizerCallChatUsage extends Singleton
     }
 
     /**
-     * Отправка комманды на создание услуги
+     * Отправка команды на создание услуги
      *
      * @param ActualCallChat $callChatRow
      * @return bool|mixed
@@ -250,7 +250,7 @@ class ActaulizerCallChatUsage extends Singleton
     }
 
     /**
-     * Отправка комманды на обновление услуги
+     * Отправка команды на обновление услуги
      *
      * @param ActualCallChat $callChatRow
      * @return bool|mixed
@@ -260,9 +260,10 @@ class ActaulizerCallChatUsage extends Singleton
     {
         /**
          * В данный момент разные тарифы не поддерживаются продуктом.
-         * Ранее применялась для синхронизации названия чата. Названия изменяется внутри самого продукта.
+         * Ранее применялась для синхронизации названия чата. Название изменяется внутри самого продукта.
          * На данный момент функция API ждет названия, которого нет.
          * Будет включена в будущем.
+         * Нет ничего более постоянного, чем временное. В общем, "так исторически сложилось"
          */
 
         return true;
@@ -280,7 +281,7 @@ class ActaulizerCallChatUsage extends Singleton
     }
 
     /**
-     * Отправка комманды на удаление услуги
+     * Отправка команды на удаление услуги
      *
      * @param ActualCallChat $callChatRow
      * @return bool|mixed

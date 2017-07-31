@@ -60,6 +60,7 @@ class Event
     const USAGE_VOIP__UPDATE = 'usage_voip__update';
     const UU_ACCOUNT_TARIFF_VOIP = 'uu_account_tariff_voip';
     const UU_ACCOUNT_TARIFF_VPBX = 'uu_account_tariff_vpbx';
+    const UU_ACCOUNT_TARIFF_CALL_CHAT = 'uu_account_tariff_chat';
     const UU_ACCOUNT_TARIFF_RESOURCE_VOIP = 'uu_account_tariff_resource_voip';
     const UU_ACCOUNT_TARIFF_RESOURCE_VPBX = 'uu_account_tariff_resource_vpbx';
     const YANDEX_PAYMENT = 'yandex_payment';
@@ -126,6 +127,7 @@ class Event
 
         self::UU_ACCOUNT_TARIFF_VOIP => 'УУ телефонии',
         self::UU_ACCOUNT_TARIFF_VPBX => 'УУ ВАТС',
+        self::UU_ACCOUNT_TARIFF_CALL_CHAT => 'УУ call chat',
         self::UU_ACCOUNT_TARIFF_RESOURCE_VOIP => 'УУ. Ресурс телефонии',
         self::UU_ACCOUNT_TARIFF_RESOURCE_VPBX => 'УУ. Ресурс ВАТС',
         AccountTariffBiller::EVENT_RECALC => 'УУ. Билинговать клиента',

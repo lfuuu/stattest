@@ -3,6 +3,7 @@
 use app\classes\ActaulizerCallChatUsage;
 use app\classes\ActaulizerVoipNumbers;
 use app\classes\api\ApiCore;
+use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\behaviors\SendToOnlineCashRegister;
@@ -293,6 +294,10 @@ function doEvents()
                     // Если эта услуга активна - подключить базовый пакет. Если неактивна - закрыть все пакеты.
                     AccountTariff::findOne(['id' => $param['account_tariff_id']])
                         ->addOrCloseDefaultPackage();
+                    break;
+
+                case Event::UU_ACCOUNT_TARIFF_CALL_CHAT:
+                    ApiFeedback::createChat($param['account_id'], $param['account_tariff_id']);
                     break;
 
                 case Event::UU_ACCOUNT_TARIFF_RESOURCE_VOIP:
