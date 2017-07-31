@@ -112,6 +112,7 @@ class BillLine extends HistoryActiveRecord
      */
     public static function compactLines($lines, ClientAccount $clientAccount, $language = Language::LANGUAGE_RUSSIAN)
     {
+        /*
         $billLine = [
             'item' => \Yii::t(
                 'biller',
@@ -132,6 +133,10 @@ class BillLine extends HistoryActiveRecord
         }
 
         return [$billLine];
+
+        */
+
+        return $lines;
     }
 
 }
