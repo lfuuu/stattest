@@ -1,5 +1,4 @@
 <html>
-
 <head>
 <LINK title=default href="{if $is_pdf == '1'}{$WEB_PATH}{else}{$PATH_TO_ROOT}{/if}invoice.css" type=text/css rel=stylesheet>
 <title>СЧЕТ-ФАКТУРА N {$bill.bill_no}{$inv_no} от {$inv_date|mdate:"d.m.Y г."}</title>
@@ -17,6 +16,12 @@
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
+
+    {if $inv_date >= strtotime("2017-08-01")}
+        {assign var="isChanges20170801" value=1}
+    {else}
+        {assign var="isChanges20170801" value=0}
+    {/if}
 
 {if $negative_balance}<h2 style="color:red">Внимание! Не достаточно средств для проведения авансовых платежей!</h2>{/if}
 <div align="center"><center>
@@ -81,7 +86,7 @@
 {elseif $bill_client.firma == "markomnet"}
     <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МАРКОМНЕТ"</strong><br>
     Адрес: <strong>123458, г. Москва, Таллинская ул., д.2, кв. 282</strong><br>
-    Телефон: <strong>(095) 950-5678</strong><br>
+          {if !$isChanges20170801}Телефон: <strong>(095) 950-5678</strong><br>{/if}
     ИНН/КПП продавца: <strong>7734246040&nbsp;/&nbsp;773401001</strong><br>
     Грузоотправитель и его адрес: {if ('2009-06-01' <= $bill.bill_date && $invoice_source <> 3) || $is_four_order}{section loop="40" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МАРКОМНЕТ"</strong><br>
     <strong>123458, г. Москва, Таллинская ул., д.2/282</strong><br>{/if}
@@ -89,7 +94,7 @@
 
     <td valign="top" width="55%" class="ht">Продавец: <strong>{$firm.name}</strong><br>
     Адрес: <strong>{$firm.address}</strong><br>
-    Телефон: <strong>{$firm.phone}</strong><br>
+          {if !$isChanges20170801}Телефон: <strong>{$firm.phone}</strong><br>{/if}
     ИНН/КПП продавца: <strong>{$firm.inn}&nbsp;/&nbsp;{$firm.kpp}</strong><br>
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МСН Телеком"</strong><br>
     <strong>{$firm.address}</strong><br>{/if}
@@ -97,7 +102,7 @@
 {if false}
     <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСН Телеком"</strong><br>
     Адрес: <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>
-    Телефон: <strong>(495) 950-56-78</strong><br>
+          {if !$isChanges20170801}Телефон: <strong>(495) 950-56-78</strong><br>{/if}
     ИНН/КПП продавца: <strong>7727752084&nbsp;/&nbsp;772401001</strong><br>
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "МСН Телеком"</strong><br>
     <strong>115487, г. Москва, 2-й Нагатинский пр-д, д.2, стр.8</strong><br>{/if}
@@ -106,21 +111,21 @@
 {elseif $bill_client.firma == "markomnet_service"}
     <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "Маркомнет сервис"</strong><br>
     Адрес: <strong>117574, Москва, Одоевского проезд, д.3, к.7</strong><br>
-    Телефон: <strong>(495) 638-63-84</strong><br>
+          {if !$isChanges20170801}Телефон: <strong>(495) 638-63-84</strong><br>{/if}
     ИНН/КПП продавца: <strong>7728802130&nbsp;/&nbsp;772801001</strong><br>
     Грузоотправитель и его адрес: {if (('2009-06-01' < $bill.bill_date || ($bill.bill_date eq '2009-06-01' && $invoice_source <> 2)) && $invoice_source <> 3) || $is_four_order}{section loop="41" name="mysec"}&nbsp;{/section}------<br />{else}<strong>ООО "Маркомнет сервис"</strong><br>
     <strong>117574, Москва, Одоевского проезд, д.3, к.7</strong><br>{/if}
 {elseif $bill_client.firma == "mcm"}
     <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МСМ"</strong><br>
     Адрес: <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
-    Телефон: <strong>(495) 950-58-41</strong><br>
+          {if !$isChanges20170801}Телефон: <strong>(495) 950-58-41</strong><br>{/if}
     ИНН/КПП продавца: <strong>7727667833&nbsp;/&nbsp;772701001</strong><br>
     Грузоотправитель и его адрес: <strong>ООО "МСМ"</strong><br>
     <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
 {elseif $bill_client.firma == "markomnet_new"}
     <td valign="top" width="55%" class="ht">Продавец: <strong>ООО "МАРКОМНЕТ"</strong><br>
     Адрес: <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
-    Телефон: <strong>638-638-4</strong><br>
+          {if !$isChanges20170801}Телефон: <strong>638-638-4</strong><br>{/if}
     ИНН/КПП продавца: <strong>7727702076&nbsp;/&nbsp;772701001</strong><br>
     Грузоотправитель и его адрес: <strong>ООО "МАРКОМНЕТ"</strong><br>
     <strong>117218, г. Москва, Б.Черемушкинская ул., д.25, стр.97</strong><br>
@@ -143,7 +148,7 @@
     Покупатель: <strong>{if $bill_client.head_company}{$bill_client.head_company}{else}{$bill_client.company_full}{/if}</strong><br>
     Адрес: <strong>{if $bill_client.head_company_address_jur}{$bill_client.head_company_address_jur}{else}{$bill_client.address_jur}{/if}</strong><br>
     ИНН/КПП покупателя: <strong>{$bill_client.inn}&nbsp;/{$bill_client.kpp}</strong><br>
-    Дополнение: <strong>к счету N: {$bill.bill_no}</strong><br>
+          {if !$isChanges20170801}Дополнение: <strong>к счету N: {$bill.bill_no}</strong><br>{/if}
     {if $inv_is_new3}Валюта: наименование Российский рубль, код 643{/if}
     {*'2017-07-01' = 1498867200*}{if 1498867200 <= $inv_date}<br>Идентификатор государственного контракта, договора (соглашения):
     <br/><br/>{/if}</td>
@@ -435,8 +440,9 @@
       </tr>
 
     {if $inv_is_new5}
+        {if !$isChanges20170801}
       <tr >
-        <td><p align="right">За генерального директора:</td>
+        <td><p align="right">За генерального директора:</p></td>
         <td>
         <br>________________________________<br><br></td>
     <td></td>
@@ -460,6 +466,14 @@
         <td align="center"><small>(подпись)</small></td>
         <td align="center"></td>
       </tr>
+            {else}
+            <tr>
+                <td colspan="7">&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="7">&nbsp;</td>
+            </tr>
+    {/if}
 
 {/if}{*if $inv_is_new5*}
       <tr>
@@ -480,7 +494,7 @@
   </tr>
 </table>
 </center></div>
-<small>Примечание: Первый экземпляр - покупателю, второй экземпляр - продавцу.</small>
+    {if !$isChanges20170801}<small>Примечание: Первый экземпляр - покупателю, второй экземпляр - продавцу.</small>{/if}
 
 {if $stamp == "solop_nm"}
 <img src="{if $is_pdf == '1'}{$WEB_PATH}{/if}images/sign_solop_nm.png" 
