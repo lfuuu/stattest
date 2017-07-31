@@ -107,6 +107,14 @@ SQL;
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         break;
+
+                    case ServiceType::ID_CALL_CHAT:
+                        // call chat
+                        Event::go(Event::UU_ACCOUNT_TARIFF_CALL_CHAT, [
+                            'account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                        break;
                 }
 
                 if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
