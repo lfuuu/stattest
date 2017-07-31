@@ -85,7 +85,7 @@ final class OpenController extends Controller
      *
      * @SWG\Definition(definition = "freeNumberRecord", type = "object",
      *   @SWG\Property(property = "number", type = "string", description = "Номер"),
-     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
+     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Уровень красивости (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
      *   @SWG\Property(property = "price", type = "integer", description = "Цена"),
      *   @SWG\Property(property = "currency", type = "string", description = "Код валюты (ISO)"),
      *   @SWG\Property(property = "origin_price", type = "integer", description = "Исходная цена"),

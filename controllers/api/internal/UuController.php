@@ -683,6 +683,9 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "next_account_tariffs", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(ref = "#/definitions/accountTariffRecord")),
      *   @SWG\Property(property = "comment", type = "string", description = "Комментарий"),
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона"),
+     *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Уровень красивости номера телефонии (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
+     *   @SWG\Property(property = "ndc", type = "integer", description = "NDC номера телефонии"),
      *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие"),
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
      *   @SWG\Property(property = "resources", type = "array", description = "Ресурсы услуги", @SWG\Items(ref = "#/definitions/accountTariffResourceRecord")),
@@ -786,6 +789,7 @@ class UuController extends ApiInternalController
             return $result;
         }
 
+        $number = $accountTariff->number;
         return [
             'id' => $accountTariff->id,
             'client_account_id' => $accountTariff->client_account_id,
@@ -796,6 +800,9 @@ class UuController extends ApiInternalController
             'next_account_tariffs' => $this->_getAccountTariffRecord($accountTariff->nextAccountTariffs),
             'comment' => $accountTariff->comment,
             'voip_number' => $accountTariff->voip_number,
+            'voip_city' => $this->_getIdNameRecord($accountTariff->city),
+            'beauty_level' => $number ? $number->beauty_level : null,
+            'ndc' => $number ? $number->ndc : null,
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs),
             'resources' => $this->_getAccountTariffResourceRecord($accountTariff),
@@ -960,6 +967,8 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "region", type = "object", description = "Регион", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Если 4-5 символов - номер линии, если больше - номер телефона"),
      *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Уровень красивости номера телефонии (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
+     *   @SWG\Property(property = "ndc", type = "integer", description = "NDC номера телефонии"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
      *   @SWG\Property(property = "resources", type = "array", description = "Ресурсы", @SWG\Items(ref = "#/definitions/accountTariffResourceLightRecord")),
      *   @SWG\Property(property = "is_active", type = "boolean", description = "Действует ли?"),
@@ -1041,6 +1050,8 @@ class UuController extends ApiInternalController
             'region' => $this->_getIdNameRecord($accountTariff->region),
             'voip_number' => $accountTariff->voip_number,
             'voip_city' => $this->_getIdNameRecord($accountTariff->city),
+            'beauty_level' => $number ? $number->beauty_level : null,
+            'ndc' => $number ? $number->ndc : null,
             'is_active' => $accountTariff->isActive(), // Действует ли?
             'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
             'is_editable' => $accountTariff->isLogEditable(), // Можно ли сменить тариф или отключить услугу?
