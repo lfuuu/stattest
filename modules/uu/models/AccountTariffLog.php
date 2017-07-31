@@ -152,7 +152,11 @@ class AccountTariffLog extends ActiveRecord
             ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
-        if ($this->actual_from_utc < $currentDateTimeUtc) {
+        if (
+            $accountTariff->tariff_period_id
+            && !$accountTariff->tariffPeriod->tariff->is_default // если нельзя, но очень хочется, то базовые пакеты иногда можно
+            && $this->actual_from_utc < $currentDateTimeUtc
+        ) {
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PREV;
             return;
