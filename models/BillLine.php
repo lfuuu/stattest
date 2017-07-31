@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\model\HistoryActiveRecord;
+use app\modules\uu\models_light\InvoiceItemsLight;
 
 /**
  * Class BillLine
@@ -101,6 +102,36 @@ class BillLine extends HistoryActiveRecord
             $this->sum_tax = round($this->sum_without_tax * $this->tax_rate / 100, 2);
             $this->sum = $this->sum_without_tax + $this->sum_tax;
         }
+    }
+
+    /**
+     * @param array $lines
+     * @param ClientAccount $clientAccount
+     * @param string $language
+     * @return array
+     */
+    public static function compactLines($lines, ClientAccount $clientAccount, $language = Language::LANGUAGE_RUSSIAN)
+    {
+        $billLine = [
+            'item' => \Yii::t(
+                'biller',
+                'Communications services contract #{contract_number}',
+                ['contract_number' => $clientAccount->contract->number],
+                $language
+            ),
+            'amount' => 1,
+            'okvd_code' => InvoiceItemsLight::CODE_MONTH
+        ];
+
+        foreach ($lines as $line) {
+            $billLine['price'] += $line['sum'];
+            $billLine['outprice'] += $line['sum'];
+            $billLine['sum'] += $line['sum'];
+            $billLine['sum_tax'] += $line['sum_tax'];
+            $billLine['sum_without_tax'] += $line['sum_without_tax'];
+        }
+
+        return [$billLine];
     }
 
 }

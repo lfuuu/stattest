@@ -2,6 +2,7 @@
 
 namespace app\classes\documents;
 
+use app\models\BillLine;
 use app\models\ClientAccount;
 use Yii;
 use yii\base\InvalidParamException;
@@ -22,7 +23,6 @@ abstract class DocumentReport extends Object
     const TEMPLATE_PATH = '@app/views/documents/';
 
     const DOC_TYPE_BILL = 'bill';
-    const DOC_TYPE_SHORTBILL = 'shortbill';
     const DOC_TYPE_INVOICE = 'invoice';
 
     /**
@@ -62,9 +62,8 @@ abstract class DocumentReport extends Object
      */
     public function getTemplateFile()
     {
-        return self::TEMPLATE_PATH . $this->getLanguage() . '/' .
-        ($this->templateDocType() ?: $this->getDocType()) . '_' .
-        mb_strtolower($this->getCurrency(), 'UTF-8');
+        return self::TEMPLATE_PATH . $this->getLanguage() . '/' . $this->getDocType() . '_' . mb_strtolower($this->getCurrency(),
+            'UTF-8');
     }
 
     /**
@@ -218,6 +217,10 @@ abstract class DocumentReport extends Object
      */
     protected function postFilterLines()
     {
+        if ($this->bill->clientAccount->type_of_bill == ClientAccount::TYPE_OF_BILL_SIMPLE) {
+            $this->lines = BillLine::compactLines($this->lines, $this->bill->clientAccount, $this->getLanguage());
+        }
+
         return $this;
     }
 
@@ -248,10 +251,4 @@ abstract class DocumentReport extends Object
     abstract public function getDocType();
 
     abstract public function getName();
-
-    public function templateDocType()
-    {
-        return null;
-    }
-
 }

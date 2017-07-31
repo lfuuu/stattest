@@ -847,7 +847,7 @@ class m_newaccounts extends IModule
         $design->assign("store",
             $db->GetValue("SELECT s.name FROM newbills_add_info n, `g_store` s where s.id = n.store_id and n.bill_no = '" . $bill_no . "'"));
 
-        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill, ['bill', 'shortbill']);
+        $availableDocuments = DocumentReportFactory::me()->availableDocuments($newbill, 'bill');
         $documents = [];
         foreach ($availableDocuments as $document) {
             $documents[] = [
@@ -2095,8 +2095,6 @@ class m_newaccounts extends IModule
             $curr = 'RUB';
         }
 
-        $cc = $bill->Client();
-
         if (in_array($obj, array("order", "notice"))) {
             $t = ($obj == "order" ?
                 "Приказ (Телеком) (Пыцкая)" :
@@ -2751,6 +2749,12 @@ class m_newaccounts extends IModule
             $billLines =& $L_prev;
             $bill->refactLinesWithFourOrderFacure($billLines);
         }
+
+        if ($bill->Client('type_of_bill') == ClientAccount::TYPE_OF_BILL_SIMPLE) {
+            $billLines = \app\models\BillLine::compactLines($billLines, $bill->Client());
+        }
+
+
 
         //подсчёт итоговых сумм, получить данные по оборудованию для акта-3
 
