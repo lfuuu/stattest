@@ -127,6 +127,7 @@ class ApiVpbx extends Singleton
                 'region' => $tariff['region'],
                 'enable_geo' => $tariff['enable_geo'],
                 'enable_min_price' => $tariff['enable_min_price'],
+                'enable_sub_accounts' => $tariff['enable_sub_accounts'],
             ]
         );
     }
@@ -282,6 +283,7 @@ class ApiVpbx extends Singleton
                 'region' => (int)$regionId,
                 'enable_geo' => $tariff['enable_geo'],
                 'enable_min_price' => $tariff['enable_min_price'],
+                'enable_sub_accounts' => $tariff['enable_sub_accounts'],
             ]
         );
     }
@@ -394,7 +396,8 @@ class ApiVpbx extends Singleton
                     t.is_web_call,
                     region,
                     0 as enable_geo,
-                    0 as enable_min_price
+                    0 as enable_min_price,
+                    0 as enable_sub_accounts
                 FROM (select (
                         select
                             id_tarif
@@ -448,6 +451,7 @@ SQL;
             'region' => $accountTariff->region_id,
             'enable_geo' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_GEO_ROUTE),
             'enable_min_price' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_MIN_ROUTE),
+            'enable_sub_accounts' => (int)$accountTariff->getResourceValue(Resource::ID_VPBX_SUB_ACCOUNT),
         ];
     }
 }
