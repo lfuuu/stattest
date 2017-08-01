@@ -935,6 +935,7 @@ class UuController extends ApiInternalController
     /**
      * @SWG\Definition(definition = "accountTariffLogLightRecord", type = "object",
      *   @SWG\Property(property = "tariff", type = "object", description = "Тариф/период", @SWG\Items(ref = "#/definitions/tariffRecord")),
+     *   @SWG\Property(property = "activate_initial_date", type = "string", description = "Дата включения услуги. Указана всегда. Может быть как в прошлом, так и в будущем. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "activate_past_date", type = "string", description = "Дата, с которой этот тариф был включен и сейчас действует. Всегда в прошлом. Если null - еще не включен (тогда см. activate_future_date) или уже выключен (deactivate_past_date). ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "activate_future_date", type = "string", description = "Дата, с которой этот тариф будет включен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "deactivate_past_date", type = "string", description = "Дата, с которой этот тариф был выключен, и сейчас не действует. Всегда в прошлом. Если null - не был выключен. ГГГГ-ММ-ДД"),
@@ -1174,6 +1175,10 @@ class UuController extends ApiInternalController
         }
 
         $modelPrev = array_shift($models);
+        $modelFirst = array_pop($models);
+        !$modelFirst && $modelFirst = $modelPrev;
+        !$modelFirst && $modelFirst = $modelLast;
+
         $isCancelable = $modelLast->actual_from > date(DateTimeZoneHelper::DATE_FORMAT);
 
         if ($modelLast->tariff_period_id) {
@@ -1186,6 +1191,7 @@ class UuController extends ApiInternalController
                     // текущий тариф
                     $result[] = [
                         'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
+                        'activate_initial_date' => $modelFirst->actual_from,
                         'activate_past_date' => $modelPrev->actual_from,
                         'activate_future_date' => null,
                         'deactivate_past_date' => null,
@@ -1198,6 +1204,7 @@ class UuController extends ApiInternalController
                 // будущий
                 $result[] = [
                     'tariff' => $this->_getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod),
+                    'activate_initial_date' => $modelFirst->actual_from,
                     'activate_past_date' => null,
                     'activate_future_date' => $modelLast->actual_from,
                     'deactivate_past_date' => null,
@@ -1211,6 +1218,7 @@ class UuController extends ApiInternalController
                 // смена тарифа в прошлом
                 $result[] = [
                     'tariff' => $this->_getTariffRecord($modelLast->tariffPeriod->tariff, $modelLast->tariffPeriod),
+                    'activate_initial_date' => $modelFirst->actual_from,
                     'activate_past_date' => $modelLast->actual_from,
                     'activate_future_date' => null,
                     'deactivate_past_date' => null,
@@ -1228,6 +1236,7 @@ class UuController extends ApiInternalController
                 // закрытие тарифа в будущем
                 $result[] = [
                     'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
+                    'activate_initial_date' => $modelFirst->actual_from,
                     'activate_past_date' => $modelPrev->actual_from,
                     'activate_future_date' => null,
                     'deactivate_past_date' => null,
@@ -1241,6 +1250,7 @@ class UuController extends ApiInternalController
                 // закрытие тарифа в прошлом
                 $result[] = [
                     'tariff' => $this->_getTariffRecord($modelPrev->tariffPeriod->tariff, $modelPrev->tariffPeriod),
+                    'activate_initial_date' => $modelFirst->actual_from,
                     'activate_past_date' => null,
                     'activate_future_date' => null,
                     'deactivate_past_date' => $modelLast->actual_from,
