@@ -2,7 +2,6 @@
 
 namespace app\controllers\api\internal;
 
-use Yii;
 use yii\db\ActiveRecord;
 
 /**
@@ -22,25 +21,22 @@ trait IdNameRecordTrait
     private function _getIdNameRecord($model, $idFieldName = 'id')
     {
         if (is_array($model)) {
-
             $result = [];
             foreach ($model as $subModel) {
                 $result[] = $this->_getIdNameRecord($subModel, $idFieldName);
             }
 
             return $result;
+        }
 
-        } elseif ($model) {
-
+        if ($model) {
             return [
                 'id' => $model->{$idFieldName},
                 'name' => (string)$model,
             ];
 
-        } else {
-
-            return [];
-
         }
+
+        return [];
     }
 }

@@ -30,8 +30,10 @@ class CountriesController extends ApiInternalController
     /**
      * @SWG\Definition(definition = "cityRecord", type = "object",
      *   @SWG\Property(property = "city_id", type = "integer", description = "Идентификатор города"),
-     *   @SWG\Property(property = "city_title", type = "string", description = "Название города"),
+     *   @SWG\Property(property = "city_name", type = "string", description = "Название города"),
+     *   @SWG\Property(property = "region", type = "object", description = "Регион (точка подключения)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "free_numbers_count", type = "integer", description = "Кол-во доступных для покупки номерных ёмкостей"),
+     *   @SWG\Property(property = "weight", type = "integer", description = "Вес"),
      *   @SWG\Property(property = "ndcs", type = "array", description = "NDC", @SWG\Items(type = "integer"))
      * ),
      *
@@ -59,33 +61,39 @@ class CountriesController extends ApiInternalController
         }
 
         $result = [];
-        $cities = City::getList(
-            $isWithEmpty = false,
-            $countryId,
-            $isWithNullAndNotNull = false,
-            $isUsedOnly = true,
-            $isShowInLk = true
-        );
+        /** @var City[] $cities */
+        $cities = City::find()
+            ->where([
+                'in_use' => 1,
+                'is_show_in_lk' => 1
+            ])
+            ->andWhere($countryId ? ['country_id' => $countryId] : [])
+            ->orderBy([
+                'order' => SORT_ASC,
+                'name' => SORT_ASC,
+            ])
+            ->all();
 
-        foreach ($cities as $cityId => $city) {
+        foreach ($cities as $city) {
 
             $freeNumbersCount = $withNumbers ?
                 (new FreeNumberFilter)
                     ->setIsService(false)
-                    ->setCity($cityId)
+                    ->setCity($city->id)
                     ->count() :
                 0;
 
             $ndcs = $withNdcs ?
                 (new FreeNumberFilter)
                     ->setIsService(false)
-                    ->setCity($cityId)
+                    ->setCity($city->id)
                     ->getDistinct('ndc') :
                 [];
 
             $result[] = [
-                'city_id' => $cityId,
-                'city_name' => (string)$city,
+                'city_id' => $city->id,
+                'city_name' => $city->name,
+                'region' => $this->_getIdNameRecord($city->region),
                 'free_numbers_count' => (int)$freeNumbersCount,
                 'weight' => $city->order,
                 'ndcs' => $ndcs,
