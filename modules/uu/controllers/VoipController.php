@@ -196,14 +196,6 @@ class VoipController extends BaseController
             throw new \InvalidArgumentException('Не найдена DID-группа ' . $didGroupId);
         }
 
-        if ($serviceTypeId == ServiceType::ID_VOIP) {
-            $clientAccount = $this->_getCurrentClientAccount();
-            $priceLevel = $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL;
-            $statusId = $didGroup->{'tariff_status_main' . $priceLevel};
-        } else {
-            $statusId = null;
-        }
-
         $tariffPeriods = TariffPeriod::getList(
             $defaultTariffPeriodId,
             $serviceTypeId,
@@ -212,7 +204,7 @@ class VoipController extends BaseController
             $cityId,
             (int)$isWithEmpty,
             $isWithNullAndNotNull = false,
-            $statusId,
+            $statusId = null,
             $isPostpaid
         );
 
