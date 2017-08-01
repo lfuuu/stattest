@@ -150,10 +150,13 @@ class NumberDao extends Singleton
             ->orderBy(['id' => SORT_DESC])
             ->one();
 
+        $accountTariffLog = null;
         /** @var AccountTariffLog $accountTariffLog */
-        $accountTariffLogs = $accountTariff->accountTariffLogs;
-        $accountTariffLog = $accountTariff ? reset($accountTariffLogs) : null;
-        unset($accountTariffLogs);
+        if ($accountTariff) {
+            $accountTariffLogs = $accountTariff->accountTariffLogs;
+            $accountTariffLog = reset($accountTariffLogs);
+            unset($accountTariffLogs);
+        }
 
         $clientAccount = null;
         // если найден "старая" услуга, и не найдена uu-услуга, или uu-услуга старше "старой"
