@@ -166,12 +166,12 @@ if (!empty($title)) {
                     ->dropDownList(
                         Person::find()->indexBy('id')->all(), [
                             'prompt' => 'Выберите директора',
-                            'style' => 'width: 80%;',
+                            'style' => 'width: 75%;',
                         ]
                     )
                     ->label('Директор');
                 ?>
-                <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 120px;">
+                <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 100px;">
                     <i class="glyphicon glyphicon-plus"></i>
                     Добавить
                 </a>
@@ -182,12 +182,12 @@ if (!empty($title)) {
                     ->dropDownList(
                         Person::find()->indexBy('id')->all(), [
                             'prompt' => 'Выберите бухгалтера',
-                            'style' => 'width: 80%;',
+                            'style' => 'width: 75%',
                         ]
                     )
                     ->label('Главный бухгалтер');
                 ?>
-                <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 120px;">
+                <a href="/person/add" target="_blank" class="btn btn-success" style="float: right; margin-top: -50px; width: 100px;">
                     <i class="glyphicon glyphicon-plus"></i>
                     Добавить
                 </a>

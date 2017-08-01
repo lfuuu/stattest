@@ -46,7 +46,7 @@ echo Breadcrumbs::widget([
             ['duplicate', 'id' => $model->organization_id, 'date' => $model->actual_from],
             [
                 'data-pjax' => 0,
-                'class' => 'btn btn-success btn-sm form-lnk',
+                'class' => 'btn btn-success form-lnk',
             ]
         );
         ?>

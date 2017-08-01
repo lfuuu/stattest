@@ -3,10 +3,8 @@
 namespace app\widgets;
 
 use app\helpers\DateTimeZoneHelper;
-use Yii;
 use DateTime;
 use yii\helpers\Html;
-use yii\helpers\ArrayHelper;
 use yii\web\JsExpression;
 
 class DatePicker extends \kartik\date\DatePicker

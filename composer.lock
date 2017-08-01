@@ -389,7 +389,7 @@
                 "reference": "master"
             },
             "type": "library",
-            "time": "2017-07-21 16:37:45"
+            "time": "2017-07-31 14:36:59"
         },
         {
             "name": "cebe/markdown",
@@ -680,7 +680,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/bootstrap-fileinput/zipball/9f3fe0e457e90269d2313b4ed7cce1f8bf4d17f0",
+                "url": "https://api.github.com/repos/kartik-v/bootstrap-fileinput/zipball/58467aa52f167c960874428e464f6e05b8677a8b",
                 "reference": "bdea79210ab646544c9e6f4a6d39e7dd670d45ee",
                 "shasum": ""
             },
@@ -1087,16 +1087,16 @@
         },
         {
             "name": "kartik-v/yii2-datecontrol",
-            "version": "v1.9.4",
+            "version": "v1.9.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kartik-v/yii2-datecontrol.git",
-                "reference": "4e858b5cd38130c37739b2f582b66a044f77c95c"
+                "reference": "0f5d793f788c6fef9c8ba4a6242530858f2320f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/yii2-datecontrol/zipball/4e858b5cd38130c37739b2f582b66a044f77c95c",
-                "reference": "4e858b5cd38130c37739b2f582b66a044f77c95c",
+                "url": "https://api.github.com/repos/kartik-v/yii2-datecontrol/zipball/0f5d793f788c6fef9c8ba4a6242530858f2320f1",
+                "reference": "0f5d793f788c6fef9c8ba4a6242530858f2320f1",
                 "shasum": ""
             },
             "require": {
@@ -1104,6 +1104,11 @@
                 "kartik-v/yii2-krajee-base": "~1.7"
             },
             "type": "yii2-extension",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.9.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "kartik\\datecontrol\\": ""
@@ -1130,7 +1135,7 @@
                 "yii",
                 "yii2"
             ],
-            "time": "2015-07-30 18:30:18"
+            "time": "2017-01-14 11:34:27"
         },
         {
             "name": "kartik-v/yii2-editable",
@@ -1190,7 +1195,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/yii2-grid/zipball/2e2c10b410b2447e4a464f1dc7f86fddd4993381",
+                "url": "https://api.github.com/repos/kartik-v/yii2-grid/zipball/7c43ab0c23305ff67c5bafa185f71f623a4f80ba",
                 "reference": "0de680803dbe09baab83b03f1f13037bd19fa4a4",
                 "shasum": ""
             },
@@ -2303,7 +2308,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kartik-v/yii2-widget-typeahead/zipball/b0c2ee40c6dc5f7bac1246e6346d987a777ea9fe",
+                "url": "https://api.github.com/repos/kartik-v/yii2-widget-typeahead/zipball/5b459d969e45f33d7e66412755d52d0d12fe53b6",
                 "reference": "b0c2ee40c6dc5f7bac1246e6346d987a777ea9fe",
                 "shasum": ""
             },
@@ -2929,7 +2934,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Wisembly/elephant.io/zipball/bc588d7d49ca36719f12b9a365ed6bf1dde4e196",
+                "url": "https://api.github.com/repos/Wisembly/elephant.io/zipball/063919e51f4881496cef4cb5c11fec2bf3954b9f",
                 "reference": "e08dfbf261b759e76ebe403aeed0e4a50b613c7e",
                 "shasum": ""
             },
@@ -3193,7 +3198,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-gii/zipball/1196b29d67a38e1f84374e079de3509254cddb30",
+                "url": "https://api.github.com/repos/yiisoft/yii2-gii/zipball/866727e481350915dc7c0bbc7cacd6a6c94ed151",
                 "reference": "ad215b7f8c679e11e70ff3dc29c7306f28cef576",
                 "shasum": ""
             },
@@ -3246,7 +3251,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-httpclient/zipball/e4eb151908260c0eec8bcdaab4ade53038d51409",
+                "url": "https://api.github.com/repos/yiisoft/yii2-httpclient/zipball/d1ab910c752dbcdfc88fdbde9a4ea0fdc9a10b62",
                 "reference": "6a6bc5e6810e7841c4fe44718ee395f251a4cf29",
                 "shasum": ""
             },
