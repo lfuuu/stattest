@@ -99,7 +99,6 @@ class Tariff extends HistoryActiveRecord
                 [
                     'service_type_id',
                     'tariff_status_id',
-                    'count_of_validity_period',
                     'tariff_person_id',
                     'is_autoprolongation',
                     'is_include_vat',
@@ -116,6 +115,7 @@ class Tariff extends HistoryActiveRecord
             [['currency_id'], 'string', 'max' => 3],
             [['name'], 'required'],
             ['vm_id', 'validatorVm', 'skipOnEmpty' => false],
+            [['count_of_validity_period'], 'integer', 'max' => 30],
             ['count_of_validity_period', 'validatorTest', 'skipOnEmpty' => false],
         ];
     }
