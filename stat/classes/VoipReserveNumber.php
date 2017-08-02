@@ -40,7 +40,7 @@ class VoipReserveNumber
             ->setNdcType(NdcType::ID_GEOGRAPHIC)
             ->setNumbers((array)$numbers);
 
-        foreach ($numbersFilter->result(null) as $number) {
+        foreach ($numbersFilter->result() as $number) {
             $comment .= $number->number . ' - ' . $number->price . '<br />' . PHP_EOL;
         }
 

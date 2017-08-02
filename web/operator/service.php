@@ -211,7 +211,7 @@ if ($action == 'add_client') {
         ->setNdcType(NdcType::ID_GEOGRAPHIC)
         ->setRegions([$region]);
 
-    foreach ($numbersFilter->result(null) as $number) {
+    foreach ($numbersFilter->result() as $number) {
         echo implode(';', [$number->number, $number->beauty_level, $number->price, $number->region]) . "\n";
     }
 

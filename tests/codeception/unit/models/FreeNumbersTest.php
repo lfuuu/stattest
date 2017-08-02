@@ -24,19 +24,19 @@ class FreeNumbersTest extends TestCase
     public function testAllFreeNumbers()
     {
         $numbers = new FreeNumberFilter;
-        $this->assertEquals(126, count($numbers->result(null)));
+        $this->assertEquals(126, count($numbers->setLimit(200)->result()));
     }
 
     public function testRegularFreeNumbers()
     {
         $numbers = new FreeNumberFilter;
-        $this->assertEquals(22, count($numbers->setNdcType(NdcType::ID_GEOGRAPHIC)->result(null)));
+        $this->assertEquals(22, count($numbers->setNdcType(NdcType::ID_GEOGRAPHIC)->setLimit(100)->result()));
     }
 
     public function test7800FreeNumbers()
     {
         $numbers = new FreeNumberFilter;
-        $this->assertEquals(103, count($numbers->setNdcType(NdcType::ID_FREEPHONE)->result(null)));
+        $this->assertEquals(103, count($numbers->setNdcType(NdcType::ID_FREEPHONE)->setLimit(200)->result()));
     }
 
     public function testFreeNumbersByRegions()
@@ -44,17 +44,17 @@ class FreeNumbersTest extends TestCase
         // Москва
         $numbers = new FreeNumberFilter;
         $numbers->regions = [99];
-        $this->assertEquals(123, count($numbers->result(null)));
+        $this->assertEquals(123, count($numbers->setLimit(200)->result()));
 
         // Санкт-Петербург
         $numbers = new FreeNumberFilter;
         $numbers->regions = [81];
-        $this->assertEquals(3, count($numbers->result(null)));
+        $this->assertEquals(3, count($numbers->setLimit(100)->result()));
 
         // Оба
         $numbers = new FreeNumberFilter;
         $numbers->regions = [99, 81];
-        $this->assertEquals(126, count($numbers->result(null)));
+        $this->assertEquals(126, count($numbers->setLimit(200)->result()));
     }
 
     public function testFreeNumbersByCost()
@@ -64,26 +64,26 @@ class FreeNumbersTest extends TestCase
             (new FreeNumberFilter)
                 ->setMinCost(0)
                 ->setMaxCost(1999);
-        $this->assertEquals(20, count($numbers->result(null)));
+        $this->assertEquals(20, count($numbers->setLimit(100)->result()));
 
         // Between
         $numbers =
             (new FreeNumberFilter)
                 ->setMinCost(999)
                 ->setMaxCost(1999);
-        $this->assertEquals(2, count($numbers->result(null)));
+        $this->assertEquals(2, count($numbers->setLimit(100)->result()));
 
         // Greater than minCost
         $numbers =
             (new FreeNumberFilter)
                 ->setMinCost(999);
-        $this->assertEquals(2, count($numbers->result(null)));
+        $this->assertEquals(2, count($numbers->setLimit(100)->result()));
 
         // Less than maxCost
         $numbers =
             (new FreeNumberFilter)
                 ->setMaxCost(999);
-        $this->assertEquals(18, count($numbers->result(null)));
+        $this->assertEquals(18, count($numbers->setLimit(100)->result()));
     }
 
     public function testFreeNumbersByBeautyLvl()
@@ -91,22 +91,22 @@ class FreeNumbersTest extends TestCase
         // Стандартные номера
         $numbers = new FreeNumberFilter;
         $numbers->beautyLvl = [0];
-        $this->assertEquals(121, count($numbers->result(null)));
+        $this->assertEquals(121, count($numbers->setLimit(200)->result()));
 
         // Бронзовые номера
         $numbers = new FreeNumberFilter;
         $numbers->beautyLvl = [4];
-        $this->assertEquals(2, count($numbers->result(null)));
+        $this->assertEquals(2, count($numbers->setLimit(100)->result()));
 
         // Несколько
         $numbers = new FreeNumberFilter;
         $numbers->beautyLvl = [0, 4];
-        $this->assertEquals(123, count($numbers->result(null)));
+        $this->assertEquals(123, count($numbers->setLimit(200)->result()));
 
         // Negative
         $numbers = new FreeNumberFilter;
         $numbers->beautyLvl = [10];
-        $this->assertEquals(0, count($numbers->result(null)));
+        $this->assertEquals(0, count($numbers->setLimit(100)->result()));
     }
 
     public function testFreeNumbersByMask()
@@ -114,70 +114,56 @@ class FreeNumbersTest extends TestCase
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = 'XYZABYZ';
 
-        $this->assertEquals(1, count($numbers->result(null)));
+        $this->assertEquals(1, count($numbers->setLimit(100)->result()));
 
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = 'XYY';
 
-        $this->assertEquals(3, count($numbers->result(null)));
+        $this->assertEquals(3, count($numbers->setLimit(100)->result()));
 
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '000';
 
-        $this->assertEquals(12, count($numbers->result(null)));
+        $this->assertEquals(12, count($numbers->setLimit(100)->result()));
 
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '13000';
 
-        $this->assertEquals(9, count($numbers->result(null)));
+        $this->assertEquals(9, count($numbers->setLimit(100)->result()));
 
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '*002';
 
-        $this->assertEquals(3, count($numbers->result(null)));
+        $this->assertEquals(3, count($numbers->setLimit(100)->result()));
 
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '*XXA';
 
-        $this->assertEquals(28, count($numbers->result(null)));
+        $this->assertEquals(28, count($numbers->setLimit(100)->result()));
 
         $numbers = new FreeNumberFilter;
         $numbers->numberMask = '*XY00XY';
 
-        $this->assertEquals(1, count($numbers->result(null)));
+        $this->assertEquals(1, count($numbers->setLimit(100)->result()));
     }
 
     public function testFreeNumbersOffset()
     {
         $numbers = new FreeNumberFilter;
-        $firstPage = $numbers->result();
+        $firstPage = $numbers->setLimit(FreeNumberFilter::LIMIT + 1)->result();
 
         $numbers = new FreeNumberFilter;
-        $secondPage = $numbers->setOffset(FreeNumberFilter::FREE_NUMBERS_LIMIT)->result();
+        $secondPage = $numbers->setOffset(FreeNumberFilter::LIMIT)->result();
 
-        $this->assertEquals(FreeNumberFilter::FREE_NUMBERS_LIMIT, count($firstPage));
-        $this->assertLessThanOrEqual(FreeNumberFilter::FREE_NUMBERS_LIMIT, count($secondPage));
-    }
-
-    public function testFreeNumbersLimit()
-    {
-        // Лимит 5
-        $numbers = new FreeNumberFilter;
-        $this->assertEquals(5, count($numbers->result(5)));
-
-        // Сколько установлено в FREE_NUMBERS_LIMIT
-        $numbers = new FreeNumberFilter;
-        $this->assertEquals(FreeNumberFilter::FREE_NUMBERS_LIMIT, count($numbers->result()));
-
-        // Всё
-        $numbers = new FreeNumberFilter;
-        $this->assertEquals(126, count($numbers->result(null)));
+        $this->assertEquals(FreeNumberFilter::LIMIT + 1, count($firstPage));
+        $this->assertLessThanOrEqual(FreeNumberFilter::LIMIT, count($secondPage));
+        $this->assertNotEquals(reset($firstPage)->number, reset($secondPage)->number); // offset работает
     }
 
     public function testFreeNumbersSimilar()
     {
         $numbers = new FreeNumberFilter;
-        $result = $numbers->setSimilar(2130003)->result();
+        $result = $numbers->setSimilar(2130003)->setLimit(100)->result();
 
         $firstNumber = array_shift($result);
         $secondNumber = array_shift($result);

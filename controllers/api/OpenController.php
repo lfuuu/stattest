@@ -8,7 +8,6 @@ use app\models\ClientContragent;
 use app\models\Currency;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
-use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
@@ -22,9 +21,6 @@ use yii\web\Controller;
 
 final class OpenController extends Controller
 {
-
-    const FREE_NUMBERS_PREVIEW_MODE = 4;
-
     public $enableCsrfValidation = false;
 
     private $_defaultTariffCache = [];
@@ -38,38 +34,6 @@ final class OpenController extends Controller
     }
 
     /**
-     * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers", summary = "Выбрать список свободных номеров по одному региону", operationId = "getFreeNumbers",
-     *   @SWG\Parameter(name = "region", type = "integer", description = "код региона", in = "query", default = ""),
-     *   @SWG\Parameter(name = "currency", type = "string", description = "код валюты (ISO)", in = "query", default = ""),
-     *   @SWG\Response(response = 200, description = "Выбрать список свободных номеров", @SWG\Items(ref = "#/definitions/freeNumberRecord")),
-     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
-     * )
-     *
-     * @param int $region
-     * @param string $currency
-     * @return array
-     */
-    public function actionGetFreeNumbers($region = null, $currency = Currency::RUB)
-    {
-        $numbers = (new FreeNumberFilter)
-            ->setNdcType(NdcType::ID_GEOGRAPHIC)
-            ->setIsService(false)
-            ->setRegions([$region]);
-
-        $response = [];
-        foreach ($numbers->result(null) as $row) {
-            $response[] = $numbers->formattedNumber($row, $currency);
-        }
-
-        return $response;
-    }
-
-    /**
-     * @SWG\Definition(definition = "freeNumberRecords", type = "object",
-     *   @SWG\Property(property = "total", type = "int", description = "Всего номеров, удовлетворяющих условиям запроса без limit/offset"),
-     *   @SWG\Property(property = "numbers", type = "array", description = "Номер", @SWG\Items(ref = "#/definitions/freeNumberRecord")),
-     * ),
-     *
      * @SWG\Definition(definition = "voipDefaultPackageRecord", type = "object",
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
      *   @SWG\Property(property = "tariff_period_id", type = "integer", description = "ID тарифа/периода"),
@@ -102,17 +66,17 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "default_tariff", type = "object", description = "Дефолтный пакет", ref = "#/definitions/voipDefaultPackageRecord")
      * ),
      *
-     * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers-by-filter", summary = "Выбрать список свободных номеров", operationId = "getFreeNumbersByFilter",
+     * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers", summary = "Список свободных номеров", operationId = "getFreeNumbers",
      *   @SWG\Parameter(name = "regions[0]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
      *   @SWG\Parameter(name = "regions[1]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
      *   @SWG\Parameter(name = "ndcType", type = "integer", description = "Тип номеров", in = "query", default = ""),
      *   @SWG\Parameter(name = "minCost", type = "number", description = "Минимальная цена", in = "query", default = ""),
      *   @SWG\Parameter(name = "maxCost", type = "number", description = "Максимальная цена", in = "query", default = ""),
      *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "like", type = "string", description = "Маска номера телефона. Синтахис: '.' - один символ, '*' - любое кол-во символов", in = "query", default = ""),
+     *   @SWG\Parameter(name = "like", type = "string", description = "Маска номера телефона. Синтаксис: '.' - один символ, '*' - любое кол-во символов", in = "query", default = ""),
      *   @SWG\Parameter(name = "mask", type = "string", description = "Маска номера телефона. Допустимы [A-Z0-9*]", in = "query", default = ""),
      *   @SWG\Parameter(name = "offset", type = "integer", description = "Смещение результатов поиска", in = "query", default = ""),
-     *   @SWG\Parameter(name = "limit", type = "integer", description = "Кол-во записей (default: 12, 'null' для получения всех)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "Кол-во записей", in = "query", default = "12"),
      *   @SWG\Parameter(name = "currency", type = "string", description = "Код валюты (ISO)", in = "query", default = ""),
      *   @SWG\Parameter(name = "countryCode", type = "integer", description = "Код страны", in = "query", default = ""),
      *   @SWG\Parameter(name = "cities[0]", type = "integer", description = "ID города", in = "query", default = ""),
@@ -121,10 +85,9 @@ final class OpenController extends Controller
      *   @SWG\Parameter(name = "ndc", type = "integer", description = "NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "excludeNdcs[0]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
-     *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
      *
-     *   @SWG\Response(response = 200, description = "Выбрать список свободных номеров", @SWG\Definition(ref = "#/definitions/freeNumberRecords")),
+     *   @SWG\Response(response = 200, description = "Список свободных номеров", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/freeNumberRecord"))),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
      * )
      *
@@ -147,7 +110,7 @@ final class OpenController extends Controller
      * @return array
      * @throws \HttpException
      */
-    public function actionGetFreeNumbersByFilter(
+    public function actionGetFreeNumbers(
         array $regions = [],
         $ndcType = null,
         $minCost = null,
@@ -156,7 +119,7 @@ final class OpenController extends Controller
         $like = null,
         $mask = null,
         $offset = 0,
-        $limit = FreeNumberFilter::FREE_NUMBERS_LIMIT,
+        $limit = FreeNumberFilter::LIMIT,
         $currency = Currency::RUB,
         $countryCode = 0,
         array $cities = [],
@@ -178,15 +141,10 @@ final class OpenController extends Controller
             ->setSimilar($similar)
             ->setNdc($ndc)
             ->setExcludeNdcs($excludeNdcs)
+            ->setNdcType($ndcType)
+            ->setOffset($offset)
+            ->setLimit($limit)
             ->orderBy(['number' => SORT_ASC]);
-
-        if ((int)$offset) {
-            $numbers->setOffset((int)$offset);
-        }
-
-        if ((int)$ndcType) {
-            $numbers->setNdcType((int)$ndcType);
-        }
 
         $client_account_id = (int)$client_account_id;
         if ($client_account_id) {
@@ -204,7 +162,7 @@ final class OpenController extends Controller
 
         $responseNumbers = [];
 
-        foreach ($numbers->result($limit) as $freeNumber) {
+        foreach ($numbers->result() as $freeNumber) {
             $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount);
 
             $tariffStatusId = $freeNumber->didGroup->{'tariff_status_main' . $priceLevel};
@@ -220,6 +178,152 @@ final class OpenController extends Controller
             'total' => $numbers->count(),
             'numbers' => $responseNumbers,
         ];
+    }
+
+    /**
+     * @SWG\Definition(definition = "groupedFreeNumberRecord", type = "object",
+     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
+     *   @SWG\Property(property = "price", type = "integer", description = "Цена"),
+     *   @SWG\Property(property = "currency", type = "string", description = "Код валюты (ISO)"),
+     *   @SWG\Property(property = "origin_price", type = "integer", description = "Исходная цена"),
+     *   @SWG\Property(property = "origin_currency", type = "string", description = "Исходный код валюты (ISO)"),
+     *   @SWG\Property(property = "region", type = "integer", description = "ID региона"),
+     *   @SWG\Property(property = "city_id", type = "integer", description = "ID города"),
+     *   @SWG\Property(property = "did_group_id", type = "integer", description = "ID DID-группы"),
+     *   @SWG\Property(property = "ndc_type_id", type = "integer", description = "ID типа номера"),
+     *   @SWG\Property(property = "country_prefix", type = "integer", description = "Префикс страны"),
+     *   @SWG\Property(property = "ndc", type = "integer", description = "NDC"),
+     *   @SWG\Property(property = "common_ndc", type = "integer", description = "Общепринятый NDC"),
+     *   @SWG\Property(property = "default_tariff", type = "object", description = "Дефолтный пакет", ref = "#/definitions/voipDefaultPackageRecord"),
+     *   @SWG\Property(property = "numbers", type = "array", description = "NDC", @SWG\Items(type = "string"))
+     * ),
+     *
+     * @SWG\Get(tags = {"Numbers"}, path = "/open/get-grouped-free-numbers", summary = "Список свободных номеров, сгруппированых по DID-группе", operationId = "getGroupedFreeNumbers",
+     *   @SWG\Parameter(name = "regions[0]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "regions[1]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "ndcType", type = "integer", description = "Тип номеров", in = "query", default = ""),
+     *   @SWG\Parameter(name = "minCost", type = "number", description = "Минимальная цена", in = "query", default = ""),
+     *   @SWG\Parameter(name = "maxCost", type = "number", description = "Максимальная цена", in = "query", default = ""),
+     *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "like", type = "string", description = "Маска номера телефона. Синтаксис: '.' - один символ, '*' - любое кол-во символов", in = "query", default = ""),
+     *   @SWG\Parameter(name = "limit", type = "integer", description = "Кол-во записей во всей выборке", in = "query", default = "10000"),
+     *   @SWG\Parameter(name = "limitPerGroup", type = "integer", description = "Кол-во записей в группе", in = "query", default = "100"),
+     *   @SWG\Parameter(name = "currency", type = "string", description = "Код валюты (ISO)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "countryCode", type = "integer", description = "Код страны", in = "query", default = ""),
+     *   @SWG\Parameter(name = "cities[0]", type = "integer", description = "ID города", in = "query", default = ""),
+     *   @SWG\Parameter(name = "cities[1]", type = "integer", description = "ID города", in = "query", default = ""),
+     *   @SWG\Parameter(name = "ndc", type = "integer", description = "NDC", in = "query", default = ""),
+     *   @SWG\Parameter(name = "excludeNdcs[0]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
+     *   @SWG\Parameter(name = "excludeNdcs[1]", type = "integer", description = "Кроме NDC", in = "query", default = ""),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Список свободных номеров, сгруппированых по DID-группе", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/groupedFreeNumberRecord"))),
+     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
+     * )
+     *
+     * @param array $regions
+     * @param int $ndcType
+     * @param float $minCost
+     * @param float $maxCost
+     * @param int $beautyLvl
+     * @param string $like
+     * @param int $limit
+     * @param int $limitPerGroup
+     * @param string $currency
+     * @param int $countryCode
+     * @param array $cities
+     * @param int $ndc
+     * @param int|int[] $excludeNdcs
+     * @param int $client_account_id
+     * @return array
+     * @throws \HttpException
+     */
+    public function actionGetGroupedFreeNumbers(
+        array $regions = [],
+        $ndcType = null,
+        $minCost = null,
+        $maxCost = null,
+        $beautyLvl = null,
+        $like = null,
+        $limit = FreeNumberFilter::GROUPED_LIMIT,
+        $limitPerGroup = 100,
+        $currency = Currency::RUB,
+        $countryCode = 0,
+        array $cities = [],
+        $ndc = null,
+        array $excludeNdcs = [],
+        $client_account_id = null
+    ) {
+        $numbers = (new FreeNumberFilter)
+            ->setIsService(false)
+            ->setRegions($regions)
+            ->setCountry($countryCode)
+            ->setCities($cities)
+            ->setMinCost($minCost)
+            ->setMaxCost($maxCost)
+            ->setBeautyLvl($beautyLvl)
+            ->setNumberLike($like)
+            // ->setNumberMask($mask)
+            // ->setSimilar($similar)
+            ->setNdc($ndc)
+            ->setExcludeNdcs($excludeNdcs)
+            ->setNdcType($ndcType)
+            // ->setOffset($offset)
+            ->setLimit($limit, FreeNumberFilter::GROUPED_LIMIT)
+            ->orderBy(['number' => SORT_ASC]);
+
+        $client_account_id = (int)$client_account_id;
+        if ($client_account_id) {
+            // взять страну от ЛС
+            $clientAccount = ClientAccount::findOne(['id' => $client_account_id]);
+            if (!$clientAccount) {
+                throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+            }
+
+            $priceLevel = $clientAccount->price_level;
+        } else {
+            $clientAccount = null;
+            $priceLevel = ClientAccount::DEFAULT_PRICE_LEVEL;
+        }
+
+        $response = [];
+
+        foreach ($numbers->result() as $freeNumber) {
+            $groupKey = $freeNumber->city_id . '_' . $freeNumber->did_group_id;
+
+            if (count($response[$groupKey]['numbers']) >= $limitPerGroup) {
+                continue;
+            }
+
+            if (isset($response[$groupKey])) {
+                // добавить номер в существующую группу
+                $response[$groupKey]['numbers'][] = $freeNumber->number;
+                continue;
+            }
+
+            // создать новую группу
+            // для reuse берем другой метод и выкидываем ненужное
+            $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount);
+            $tariffStatusId = $freeNumber->didGroup->{'tariff_status_main' . $priceLevel};
+            $packageStatusIds = [
+                $freeNumber->didGroup->{'tariff_status_main' . $priceLevel},
+                $freeNumber->didGroup->tariff_status_beauty,
+            ];
+            $responseNumber->default_tariff = $this->_getDefaultTariff($clientAccount, $tariffStatusId, $packageStatusIds, $freeNumber->city_id);
+
+            $response[$groupKey] = [];
+            foreach ($responseNumber as $key => $value) {
+                if (in_array($key, ['number', 'number_subscriber', 'common_number_subscriber'], true)) {
+                    continue;
+                }
+
+                $response[$groupKey][$key] = $value;
+            }
+
+            $response[$groupKey]['numbers'] = [$freeNumber->number];
+        }
+
+        return $response;
     }
 
     /**
@@ -338,110 +442,6 @@ final class OpenController extends Controller
     }
 
     /**
-     * @SWG\Definition(definition = "freeNumberNdcRecord", type = "object",
-     *   @SWG\Property(property = "ndc", type = "integer", description = "NDC"),
-     *   @SWG\Property(property = "numbers", type = "array", description = "Номера", @SWG\Items(ref = "#/definitions/freeNumberRecord"))
-     * ),
-     *
-     * @SWG\Get(tags = {"Numbers"}, path = "/open/get-free-numbers-by-ndc", summary = "Выбрать список свободных номеров и сгруппировать по NDC", operationId = "getFreeNumbersByNdc",
-     *   @SWG\Parameter(name = "regions[0]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "regions[1]", type = "integer", description = "Код региона(ов)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "ndcType", type = "integer", description = "Тип номеров", in = "query", default = ""),
-     *   @SWG\Parameter(name = "minCost", type = "number", description = "Минимальная цена", in = "query", default = ""),
-     *   @SWG\Parameter(name = "maxCost", type = "number", description = "Максимальная цена", in = "query", default = ""),
-     *   @SWG\Parameter(name = "beautyLvl", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "like", type = "string", description = "Маска номера телефона. Синтахис: '.' - один символ, '*' - любое кол-во символов", in = "query", default = ""),
-     *   @SWG\Parameter(name = "mask", type = "string", description = "Маска номера телефона. Допустимы [A-Z0-9*]", in = "query", default = ""),
-     *   @SWG\Parameter(name = "offset", type = "integer", description = "Смещение результатов поиска", in = "query", default = ""),
-     *   @SWG\Parameter(name = "limit", type = "integer", description = "Кол-во записей (default: 12, 'null' для получения всех)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "currency", type = "string", description = "Код валюты (ISO)", in = "query", default = ""),
-     *   @SWG\Parameter(name = "countryCode", type = "integer", description = "Код страны", in = "query", default = ""),
-     *   @SWG\Parameter(name = "cities[0]", type = "integer", description = "ID города", in = "query", default = ""),
-     *   @SWG\Parameter(name = "cities[1]", type = "integer", description = "ID города", in = "query", default = ""),
-     *   @SWG\Parameter(name = "similar", type = "string", description = "Значение для подсчета схожести", in = "query", default = ""),
-     *   @SWG\Parameter(name = "ndc", type = "integer", description = "NDC", in = "query", default = ""),
-     *   @SWG\Response(response = 200, description = "Выбрать список свободных номеров  и сгруппировать по NDC", @SWG\Items(ref = "#/definitions/freeNumberNdcRecord")),
-     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
-     * )
-     *
-     * @param array $regions
-     * @param int $ndcType
-     * @param float $minCost
-     * @param float $maxCost
-     * @param int $beautyLvl
-     * @param string $like
-     * @param string $mask
-     * @param int $offset
-     * @param int $limit
-     * @param string $currency
-     * @param int $countryCode
-     * @param array $cities
-     * @param string $similar
-     * @param int $ndc
-     * @return array
-     */
-    public function actionGetFreeNumbersByNdc(
-        array $regions = [],
-        $ndcType = null,
-        $minCost = null,
-        $maxCost = null,
-        $beautyLvl = null,
-        $like = null,
-        $mask = null,
-        $offset = 0,
-        $limit = FreeNumberFilter::FREE_NUMBERS_LIMIT,
-        $currency = Currency::RUB,
-        $countryCode = 0,
-        array $cities = [],
-        $similar = null,
-        $ndc = null
-    ) {
-        $numbers = (new FreeNumberFilter)
-            ->setIsService(false)
-            ->setRegions($regions)
-            ->setCountry($countryCode)
-            ->setCities($cities)
-            ->setMinCost($minCost)
-            ->setMaxCost($maxCost)
-            ->setBeautyLvl($beautyLvl)
-            ->setNumberLike($like)
-            ->setNumberMask($mask)
-            ->setSimilar($similar)
-            ->setNdc($ndc)
-            ->orderBy(['number' => SORT_ASC]);
-
-        if ((int)$offset) {
-            $numbers->setOffset((int)$offset);
-        }
-
-        if ((int)$ndcType) {
-            $numbers->setNdcType((int)$ndcType);
-        }
-
-        $response = [];
-
-        $distinctNdcs = $numbers->getDistinct('ndc');
-        foreach ($distinctNdcs as $distinctNdc) {
-
-            $numbersCloned = clone $numbers;
-            $numbersCloned->setNdc($distinctNdc);
-
-            $responseTmp = [];
-
-            foreach ($numbersCloned->result($limit) as $freeNumberFilter) {
-                $responseTmp[] = $numbersCloned->formattedNumber($freeNumberFilter, $currency);
-            }
-
-            $response[] = [
-                'ndc' => (int)$distinctNdc,
-                'numbers' => $responseTmp,
-            ];
-        }
-
-        return $response;
-    }
-
-    /**
      * @SWG\Definition(definition = "did_group", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "Идентификатор группы"),
      *   @SWG\Property(property = "name", type = "string", description = "Наименование группы"),
@@ -451,11 +451,12 @@ final class OpenController extends Controller
      *   @SWG\Property(property = "ndc_type_id", type = "integer", description = "Тип номеров")
      * ),
      *
-     * @SWG\Get(tags = {"Numbers"}, path = "/open/did-groups", summary = "Получение DID групп", operationId = "didGroups",
-     *   @SWG\Parameter(name = "id[0]", type = "integer", description = "идентификатор(ы) DID групп", in = "query", default = "",),
+     * @SWG\Get(tags = {"Numbers"}, path = "/open/did-groups", summary = "Список DID групп", operationId = "didGroups",
+     *   @SWG\Parameter(name = "id[0]", type = "integer", description = "идентификатор(ы) DID групп", in = "query", default = "", ),
      *   @SWG\Parameter(name = "id[1]", type = "integer", description = "идентификатор(ы) DID групп", in = "query", default = ""),
-     *   @SWG\Parameter(name="beautyLvl[0]",type="integer",description="Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)",in="query"),
-     *   @SWG\Parameter(name="beautyLvl[1]",type="integer",description="Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)",in="query"),
+     *   @SWG\Parameter(name = "beautyLvl[0]", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)", in = "query"),
+     *   @SWG\Parameter(name = "beautyLvl[1]", type = "integer", description = "Красивость (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)", in = "query"),
+     *
      *   @SWG\Response(response = 200, description = "Список DID групп", @SWG\Definition(ref = "#/definitions/did_group")),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
      * )

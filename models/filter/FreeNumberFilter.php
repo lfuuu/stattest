@@ -15,8 +15,13 @@ use yii\db\Expression;
  */
 class FreeNumberFilter extends Number
 {
+    // лимиты для обычной выборки
+    const LIMIT = 12;
+    const MAX_LIMIT = 200;
 
-    const FREE_NUMBERS_LIMIT = 12;
+    // лимиты для сгруппированной выборки
+    const GROUPED_LIMIT = 10000;
+
     const REAL_NUMBER_LENGTH = 7;
 
     /** @var \yii\db\ActiveQuery */
@@ -24,6 +29,9 @@ class FreeNumberFilter extends Number
 
     /** @var int */
     private $_offset = 0;
+
+    /** @var int */
+    private $_limit = self::LIMIT;
 
     /** @var string */
     private $_mask = null;
@@ -60,6 +68,11 @@ class FreeNumberFilter extends Number
      */
     public function setNdcType($ndcTypeId)
     {
+        $ndcTypeId = (int)$ndcTypeId;
+        if (!$ndcTypeId) {
+            return $this;
+        }
+
         $this->_query->andWhere([parent::tableName() . '.ndc_type_id' => $ndcTypeId]);
 
         if ($ndcTypeId == NdcType::ID_GEOGRAPHIC) {
@@ -262,6 +275,21 @@ class FreeNumberFilter extends Number
     }
 
     /**
+     * @param int $limit
+     * @param int $maxLimit
+     * @return $this
+     */
+    public function setLimit($limit = self::LIMIT, $maxLimit = self::MAX_LIMIT)
+    {
+        $limit = (int)$limit;
+        if ($limit > 0 && $limit <= $maxLimit) {
+            $this->_limit = (int)$limit;
+        }
+
+        return $this;
+    }
+
+    /**
      * @param string|null $similar
      * @return $this
      */
@@ -311,25 +339,63 @@ class FreeNumberFilter extends Number
     }
 
     /**
-     * @param int|null $limit
      * @return \app\models\Number[]
      */
-    public function result($limit = self::FREE_NUMBERS_LIMIT)
+    public function result()
     {
-        $result = $this->_query->all(); // @todo each
 
         if ($this->_mask) {
-            $result = array_filter($result, [$this, '_filterByMask']);
+            return $this->_resultByMask();
         }
 
         if ($this->_similar) {
-            $result = $this->_applyLevenshtein($result, $this->_similar);
+            return $this->_resultByLevenshtein();
         }
 
-        $this->_totalCount = count($result);
-        if (!is_null($limit)) {
-            $result = array_slice($result, (int)$this->_offset, $limit);
+        $this->_totalCount = null; // будет посчитано автоматически в $this->count()
+
+        return $this->_query
+            ->offset($this->_offset)
+            ->limit($this->_limit)
+            ->all();
+    }
+
+    /**
+     * @return \app\models\Number[]
+     */
+    private function _resultByMask()
+    {
+        $result = [];
+        $limit = $this->_offset + $this->_limit;
+        $query = $this->_query;
+
+        foreach ($query->each() as $number) {
+            if (!$this->_filterByMask($number)) {
+                continue;
+            }
+
+            $result[] = $number;
+            if (count($result) >= $limit) {
+                break;
+            }
         }
+
+        $this->_totalCount = count($result); // @todo Это неправильное количество, но правильно посчитать слишком ресурсоемко
+        $result = array_slice($result, $this->_offset, $this->_limit);
+
+        return $result;
+    }
+
+    /**
+     * @return \app\models\Number[]
+     */
+    private function _resultByLevenshtein()
+    {
+        $result = $this->_query->all();
+        $result = $this->_applyLevenshtein($result, $this->_similar);
+
+        $this->_totalCount = count($result);
+        $result = array_slice($result, $this->_offset, $this->_limit);
 
         return $result;
     }
@@ -357,7 +423,10 @@ class FreeNumberFilter extends Number
      */
     public function one()
     {
-        return reset($this->result(1));
+        $result = $this
+            ->setLimit(1)
+            ->result();
+        return reset($result);
     }
 
     /**

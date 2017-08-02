@@ -28,12 +28,10 @@ use app\models\Region;
 use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
-use app\models\UsageTrunk;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
 use app\models\User;
 use app\modules\nnp\models\NdcType;
-use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Bill as uuBill;
 
 class ApiLk
@@ -454,15 +452,15 @@ class ApiLk
         $cities = array_merge(
             [['id' => Number::TYPE_7800, 'name' => '800']],
             City::find()
-            ->select(['id', 'name'])
-            ->where([
-                'in_use' => 1,
-                'is_show_in_lk' => 1,
-                'country_id' => $clientAccount->country_id
-            ])
-            ->orderBy(['order' => SORT_ASC])
-            ->asArray()
-            ->all()
+                ->select(['id', 'name'])
+                ->where([
+                    'in_use' => 1,
+                    'is_show_in_lk' => 1,
+                    'country_id' => $clientAccount->country_id
+                ])
+                ->orderBy(['order' => SORT_ASC])
+                ->asArray()
+                ->all()
         );
 
         $didGroupsByCity = DidGroup::dao()->getDidGroupsByCity($clientAccount->country_id);
@@ -937,11 +935,11 @@ class ApiLk
         $countryPrefix = null;
         $cityPostfixLength = null;
 
-        foreach ($numbers->result(null) as $number) {
+        foreach ($numbers->result() as $number) {
 
             if (!$countryPrefix) {
                 $countryPrefix = $number->country->prefix;
-                $cityPostfixLength = $cityId == Number::TYPE_7800 ? NumberBeautyDao::DEFAULT_POSTFIX_LENGTH  : $number->city->postfix_length;
+                $cityPostfixLength = $cityId == Number::TYPE_7800 ? NumberBeautyDao::DEFAULT_POSTFIX_LENGTH : $number->city->postfix_length;
             }
 
             $line = [
@@ -959,8 +957,8 @@ class ApiLk
             $tmp = "";
             do {
                 $tmp = "-" . substr($number, -2) . $tmp;
-                $number = substr($number, 0, strlen($number)-2);
-            } while(strlen($number) > 3);
+                $number = substr($number, 0, strlen($number) - 2);
+            } while (strlen($number) > 3);
 
             $line['number'] = $number . $tmp;
 

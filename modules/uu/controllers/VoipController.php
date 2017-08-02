@@ -131,7 +131,7 @@ class VoipController extends BaseController
         $orderByField = null,
         $orderByType = null,
         $mask = '',
-        $limit = 0,
+        $limit = FreeNumberFilter::LIMIT,
         $ndcTypeId = ''
     ) {
         $numbers = new FreeNumberFilter;
@@ -158,12 +158,12 @@ class VoipController extends BaseController
         $mask && $numbers->setNumberLike($mask);
 
         $orderByField && $orderByType && $numbers->orderBy([$orderByField => (int)$orderByType]);
-        $limit = (int)$limit;
+        $limit && $numbers->setLimit($limit);
 
         return $this->renderPartial(
             'getFreeNumbers',
             [
-                'numbers' => $numbers->result($limit ?: 100),
+                'numbers' => $numbers->result(),
                 'rowClass' => $rowClass,
                 'clientAccount' => $this->_getCurrentClientAccount(),
             ]
