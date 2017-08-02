@@ -10,17 +10,19 @@
 use app\assets\AppAsset;
 use app\classes\Html;
 use app\models\City;
+use app\models\ClientAccount;
 use app\models\Country;
+use app\models\DidGroup;
+use app\models\filter\FreeNumberFilter;
 use app\models\Number;
-use app\modules\uu\models\AccountTariffVoip;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 use yii\helpers\Url;
 
 $clientAccount = $formModel->accountTariff->clientAccount;
-$accountTariffVoip = new AccountTariffVoip();
-$accountTariffVoip->voip_country_id = $clientAccount->country_id;
+$accountTariffVoip = $formModel->accountTariffVoip;
 
 $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset::className()]]);
 ?>
@@ -39,7 +41,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
             <?php // страна ?>
             <?= $form->field($accountTariffVoip, 'voip_country_id')
                 ->widget(Select2::className(), [
-                    'data' => Country::getList(true),
+                    'data' => Country::getList(false),
                     'options' => [
                         'id' => 'voipCountryId',
                     ],
@@ -53,9 +55,12 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                 ->widget(Select2::className(), [
                     'data' => City::getList($isWithEmpty = true, $accountTariffVoip->voip_country_id), // страна выбрана от клиента
                     'options' => [
-                        'disabled' => true,
-                        'id' => 'voipRegions',
-                    ],
+                            'id' => 'voipRegions',
+                        ] +
+                        ($accountTariffVoip->voip_country_id ?
+                            [] :
+                            ['disabled' => true]
+                        ),
                 ]) ?>
         </div>
 
@@ -63,7 +68,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
             <?php // тип номера ?>
             <?= $form->field($accountTariffVoip, 'voip_ndc_type_id')
                 ->widget(Select2::className(), [
-                    'data' => [],
+                    'data' => NdcType::getList($isWithEmpty = true, $isWithNullAndNotNull = false, (bool) $accountTariffVoip->city_id),
                     'options' => [
                         'id' => 'voipNdcType',
                     ],
@@ -74,24 +79,44 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
             <?php // тип красивости ?>
             <?= $form->field($accountTariffVoip, 'voip_did_group')
                 ->widget(Select2::className(), [
-                    'data' => [], // DidGroup::dao()->getList(true, $accountTariffVoip->city_id),
+                    'data' => DidGroup::getList(true, $accountTariffVoip->voip_country_id, $accountTariffVoip->city_id ?: -1),
                     'options' => [
-                        'disabled' => true,
-                        'id' => 'voipDidGroup',
-                    ],
+                            'id' => 'voipDidGroup',
+                        ] +
+                        ($accountTariffVoip->voip_country_id ?
+                            [] :
+                            ['disabled' => true]
+                        ),
                 ])
                 ->label('DID-группа *') ?>
         </div>
 
         <div class="col-sm-2">
             <?php // оператор ?>
+            <?php
+            $numbersTmp = new FreeNumberFilter;
+            $numbersTmp->setCountry($accountTariffVoip->voip_country_id);
+            $accountTariffVoip->city_id && $numbersTmp->setCity($accountTariffVoip->city_id);
+
+            $operatorAccounts = ClientAccount::getListTrait(
+                (int)$isWithEmpty,
+                $isWithNullAndNotNull = false,
+                $indexBy = 'id',
+                $select = 'client',
+                $orderBy = ['id' => SORT_ASC],
+                $where = ['id' => $numbersTmp->getDistinct('operator_account_id')]
+            );
+            ?>
             <?= $form->field($accountTariffVoip, 'operator_account_id')
                 ->widget(Select2::className(), [
-                    'data' => [],
+                    'data' => $operatorAccounts,
                     'options' => [
-                        'disabled' => true,
-                        'id' => 'voipOperatorAccount',
-                    ],
+                            'id' => 'voipOperatorAccount',
+                        ] +
+                        ($accountTariffVoip->voip_country_id ?
+                            [] :
+                            ['disabled' => true]
+                        ),
                 ]) ?>
         </div>
 
@@ -113,7 +138,6 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                         1 => 12,
                     ],
                     'options' => [
-                        // 'disabled' => true,
                         'id' => 'voipNumbersListClass',
                     ],
                 ]) ?>
@@ -129,7 +153,6 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                         'beauty_level' => $number->getAttributeLabel('beauty_level'),
                     ],
                     'options' => [
-                        // 'disabled' => true,
                         'id' => 'voipNumbersListOrderByField',
                     ],
                 ]) ?>
@@ -144,7 +167,6 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                         SORT_DESC => Yii::t('common', 'Descending'),
                     ],
                     'options' => [
-                        // 'disabled' => true,
                         'id' => 'voipNumbersListOrderByType',
                     ],
                 ]) ?>
@@ -179,9 +201,9 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
 
 <?php // список номеров ?>
     <div id="voipNumbersList" class="alert"></div>
-
-
     <br/>
+
+
 <?php // тариф ?>
     <div id="voipTariffDiv" class="collapse">
         <?= $this->render('_editLogInput', [
@@ -194,8 +216,5 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <?= $this->render('//layouts/_buttonCancel', ['url' => Url::to(['/uu/account-tariff', 'serviceTypeId' => $formModel->serviceTypeId])]) ?>
         <?= $this->render('//layouts/_submitButtonCreate') ?>
     </div>
-
-    </div>
-
 
 <?php ActiveForm::end();

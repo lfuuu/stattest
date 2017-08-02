@@ -97,6 +97,7 @@ use yii\helpers\Url;
  * @property string $address_jur
  * @property ClientContact[] $allContacts
  * @property integer $businessId
+ * @property City $city
  */
 class ClientAccount extends HistoryActiveRecord
 {
@@ -601,6 +602,20 @@ class ClientAccount extends HistoryActiveRecord
     public function getUserManager()
     {
         return User::findOne(['user' => $this->contract->manager]);
+    }
+
+    /**
+     * @return City
+     */
+    public function getCity()
+    {
+        $region = $this->accountRegion;
+        if (!$region) {
+            return null;
+        }
+
+        $cities = $region->cities;
+        return reset($cities);
     }
 
     /**

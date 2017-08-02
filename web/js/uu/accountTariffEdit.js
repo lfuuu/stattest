@@ -53,7 +53,6 @@
       this.showNumbersList = bind(this.showNumbersList, this);
       this.onDidGroupChange = bind(this.onDidGroupChange, this);
       this.onCityChange = bind(this.onCityChange, this);
-      this.initCountry = bind(this.initCountry, this);
       this.onCountryChange = bind(this.onCountryChange, this);
       setTimeout((function(_this) {
         return function() {
@@ -76,33 +75,25 @@
           _this.currencyVal = $('#voipCurrency').val();
           _this.isPostpaid = $('#isPostpaid').val();
           $('#addAccountTariffVoipForm').on('submit', _this.onFormSubmit);
-          return _this.initCountry(false);
+          return _this.onDidGroupChange();
         };
       })(this), 200);
     }
 
     AccountTariffEdit.prototype.onCountryChange = function() {
-      return this.initCountry(true);
-    };
-
-    AccountTariffEdit.prototype.initCountry = function(isUpdateCities) {
       var countryVal;
       countryVal = this.country.val();
       if (countryVal) {
-        if (isUpdateCities) {
-          $.get('/uu/voip/get-cities', {
-            countryId: countryVal,
-            isWithEmpty: 1,
-            format: 'options'
-          }, (function(_this) {
-            return function(html) {
-              _this.city.html(html);
-              return _this.city.val('').trigger('change');
-            };
-          })(this));
-        } else {
-          this.city.val('').trigger('change');
-        }
+        $.get('/uu/voip/get-cities', {
+          countryId: countryVal,
+          isWithEmpty: 1,
+          format: 'options'
+        }, (function(_this) {
+          return function(html) {
+            _this.city.html(html);
+            return _this.city.val('').trigger('change');
+          };
+        })(this));
         this.country.parent().parent().removeClass(this.errorClassName);
         return this.city.prop('disabled', false);
       } else {
@@ -116,7 +107,6 @@
       var cityId, countryId;
       countryId = this.country.val();
       cityId = this.city.val();
-      this.didGroup.val('').trigger('change');
       $.get('/uu/voip/get-ndc-types', {
         isCityDepended: (cityId ? 1 : 0),
         isWithEmpty: 1,
@@ -161,11 +151,6 @@
     };
 
     AccountTariffEdit.prototype.onDidGroupChange = function() {
-      if (this.didGroup.val()) {
-        this.didGroup.parent().parent().removeClass(this.errorClassName);
-      } else {
-        this.didGroup.parent().parent().addClass(this.errorClassName);
-      }
       this.reloadTariffList();
       return this.showNumbersList();
     };
@@ -177,33 +162,28 @@
       cityId = this.city.val();
       didGroupId = this.didGroup.val();
       this.numbersList.html('');
-      if (didGroupId) {
-        return $.get('/uu/voip/get-free-numbers', {
-          countryId: countryId,
-          cityId: cityId,
-          didGroupId: didGroupId,
-          operatorAccountId: this.operatorAccount.val(),
-          rowClass: this.numbersListClass.val(),
-          orderByField: this.numbersListOrderByField.val(),
-          orderByType: this.numbersListOrderByType.val(),
-          mask: this.numbersListMask.val(),
-          limit: this.numbersListLimit.val(),
-          ndcTypeId: ndcTypeId
-        }, (function(_this) {
-          return function(html) {
-            _this.numbersList.html(html);
-            if (_this.numbersList.find('input').length > 1) {
-              _this.numbersListSelectAll.show();
-            } else {
-              _this.numbersListSelectAll.hide();
-            }
-            return _this.showTariffDiv();
-          };
-        })(this));
-      } else {
-        this.numbersListSelectAll.hide();
-        return this.showTariffDiv();
-      }
+      return $.get('/uu/voip/get-free-numbers', {
+        countryId: countryId,
+        cityId: cityId,
+        didGroupId: didGroupId,
+        operatorAccountId: this.operatorAccount.val(),
+        rowClass: this.numbersListClass.val(),
+        orderByField: this.numbersListOrderByField.val(),
+        orderByType: this.numbersListOrderByType.val(),
+        mask: this.numbersListMask.val(),
+        limit: this.numbersListLimit.val(),
+        ndcTypeId: ndcTypeId
+      }, (function(_this) {
+        return function(html) {
+          _this.numbersList.html(html);
+          if (_this.numbersList.find('input').length > 1) {
+            _this.numbersListSelectAll.show();
+          } else {
+            _this.numbersListSelectAll.hide();
+          }
+          return _this.showTariffDiv();
+        };
+      })(this));
     };
 
     AccountTariffEdit.prototype.selectAllNumbers = function() {
@@ -237,27 +217,23 @@
     };
 
     AccountTariffEdit.prototype.reloadTariffList = function() {
-      var cityId, countryId, didGroupId;
+      var cityId, countryId;
       countryId = this.country.val();
       cityId = this.city.val();
-      didGroupId = this.didGroup.val();
-      if (didGroupId) {
-        return $.get('/uu/voip/get-tariff-periods', {
-          serviceTypeId: this.voipServiceTypeIdVal,
-          currency: this.currencyVal,
-          countryId: countryId,
-          cityId: cityId,
-          isWithEmpty: 1,
-          format: 'options',
-          isPostpaid: this.isPostpaid,
-          didGroupId: didGroupId
-        }, (function(_this) {
-          return function(html) {
-            _this.tariffPeriod.val('').html(html);
-            return _this.tariffPeriod.trigger('change');
-          };
-        })(this));
-      }
+      return $.get('/uu/voip/get-tariff-periods', {
+        serviceTypeId: this.voipServiceTypeIdVal,
+        currency: this.currencyVal,
+        countryId: countryId,
+        cityId: cityId,
+        isWithEmpty: 1,
+        format: 'options',
+        isPostpaid: this.isPostpaid
+      }, (function(_this) {
+        return function(html) {
+          _this.tariffPeriod.val('').html(html);
+          return _this.tariffPeriod.trigger('change');
+        };
+      })(this));
     };
 
     AccountTariffEdit.prototype.onFormSubmit = function(e) {

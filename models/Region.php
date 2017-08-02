@@ -18,6 +18,7 @@ use yii\helpers\Url;
  *
  * @property Datacenter $datacenter
  * @property Country $country
+ * @property City[] $cities
  */
 class Region extends ActiveRecord
 {
@@ -111,6 +112,15 @@ class Region extends ActiveRecord
     public function getCountry()
     {
         return $this->hasOne(Country::className(), ['code' => 'country_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCities()
+    {
+        return $this->hasMany(City::className(), ['connection_point_id' => 'id'])
+            ->orderBy(['order' => SORT_ASC]);
     }
 
     /**

@@ -181,21 +181,11 @@ class VoipController extends BaseController
      * @param int|bool $isWithEmpty
      * @param string $format
      * @param int $isPostpaid
-     * @param int $didGroupId
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetTariffPeriods($serviceTypeId, $currency, $countryId, $cityId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null, $didGroupId = null)
+    public function actionGetTariffPeriods($serviceTypeId, $currency, $countryId, $cityId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null)
     {
-        if (!$didGroupId) {
-            throw new \InvalidArgumentException('Wrong didGroupId');
-        }
-
-        $didGroup = DidGroup::findOne(['id' => $didGroupId]);
-        if (!$didGroup) {
-            throw new \InvalidArgumentException('Не найдена DID-группа ' . $didGroupId);
-        }
-
         $tariffPeriods = TariffPeriod::getList(
             $defaultTariffPeriodId,
             $serviceTypeId,

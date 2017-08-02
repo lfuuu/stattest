@@ -42,6 +42,9 @@ abstract class AccountTariffForm extends Form
     /** @var string[] */
     public $validateErrors = [];
 
+    /** @var AccountTariffVoip */
+    public $accountTariffVoip = null;
+
     /**
      * @return AccountTariff
      */
@@ -73,6 +76,11 @@ abstract class AccountTariffForm extends Form
         $this->accountTariffLog->actual_from = $this->accountTariff->getDefaultActualFrom();
         $this->accountTariffLog->populateRelation('accountTariff', $this->accountTariff);
 
+        $this->accountTariffVoip = new AccountTariffVoip();
+        $this->accountTariffVoip->voip_country_id = $this->accountTariff->clientAccount->country_id;
+        $city = $this->accountTariff->clientAccount->city;
+        $city && $this->accountTariffVoip->city_id = $city->id;
+
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
     }
@@ -97,21 +105,20 @@ abstract class AccountTariffForm extends Form
 
             // при создании услуги телефонии свой интерфейс, из которого данные надо преобразовать в нужный формат
             Yii::info('AccountTariffForm. Before accountTariffVoip', 'uu');
-            $accountTariffVoip = new AccountTariffVoip();
             if ($isNewRecord && $this->serviceTypeId == ServiceType::ID_VOIP
-                && $accountTariffVoip->load($post)
+                && $this->accountTariffVoip->load($post)
                 && $this->accountTariffLog->load($post)
             ) {
 
-                if (!$accountTariffVoip->validate()) {
-                    $this->validateErrors += $accountTariffVoip->getFirstErrors();
+                if (!$this->accountTariffVoip->validate()) {
+                    $this->validateErrors += $this->accountTariffVoip->getFirstErrors();
                     throw new InvalidArgumentException('');
                 }
 
-                $this->accountTariff->city_id = $accountTariffVoip->city_id;
+                $this->accountTariff->city_id = $this->accountTariffVoip->city_id;
 
                 // каждый выбранный номер телефона - отдельная услуга
-                foreach ($accountTariffVoip->voip_numbers as $voipNumber) {
+                foreach ($this->accountTariffVoip->voip_numbers as $voipNumber) {
 
                     // услуга
                     Yii::info('AccountTariffForm. Before voip $accountTariff->save', 'uu');

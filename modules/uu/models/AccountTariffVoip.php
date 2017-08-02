@@ -30,6 +30,7 @@ class AccountTariffVoip extends AccountTariff
                 'voip_ndc_type_id' => 'Тип NDC',
                 'voip_did_group' => 'DID-группа',
                 'operator_account_id' => 'Оператор',
+                'voip_numbers' => 'Номера',
                 'voip_numbers_list_class' => 'Количество столбцов',
                 'voip_numbers_list_order_by_field' => 'Сортировка по полю',
                 'voip_numbers_list_order_by_type' => 'Тип сортировки',

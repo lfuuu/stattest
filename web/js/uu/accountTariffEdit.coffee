@@ -54,26 +54,18 @@ class AccountTariffEdit
 
       $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
 
-      @initCountry(false)
+      # показать список номеров и обновить тариф
+      @onDidGroupChange()
 
     , 200 # Потому что select2 рендерит чуть позже. @todo
 
 # при изменении страны
   onCountryChange: () =>
-    @initCountry(true)
-
-# при инициализации или изменении страны
-# страна обязательна. Без нее ничего нельзя
-  initCountry: (isUpdateCities) =>
     countryVal = @country.val()
     if countryVal
-
-      if isUpdateCities
 # обновить список городов в зависимости от страны
-        $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: 1, format: 'options'}, (html) =>
-          @city.html(html) # обновить значения
-          @city.val('').trigger('change')
-      else
+      $.get '/uu/voip/get-cities', {countryId: countryVal, isWithEmpty: 1, format: 'options'}, (html) =>
+        @city.html(html) # обновить значения
         @city.val('').trigger('change')
 
       @country.parent().parent().removeClass(@errorClassName)
@@ -89,9 +81,6 @@ class AccountTariffEdit
   onCityChange: =>
     countryId = @country.val()
     cityId = @city.val()
-
-    # сбросить, чтобы не было несколько @showNumbersList
-    @didGroup.val('').trigger('change')
 
     # обновить список типов NDC в зависимости от города. Фактически geo/mob или freephone. Страна не важна
     $.get '/uu/voip/get-ndc-types', {isCityDepended: (if cityId then 1 else 0), isWithEmpty: 1, format: 'options'}, (html) =>
@@ -118,12 +107,6 @@ class AccountTariffEdit
 
 # при изменении DID-группы
   onDidGroupChange: =>
-    # пометить себя красным, если можно выбирать, но не выбран
-    if @didGroup.val()
-      @didGroup.parent().parent().removeClass(@errorClassName)
-    else
-      @didGroup.parent().parent().addClass(@errorClassName)
-
     @reloadTariffList()
     @showNumbersList()
 
@@ -135,28 +118,23 @@ class AccountTariffEdit
     didGroupId = @didGroup.val()
 
     @numbersList.html('')
-    if didGroupId
-      $.get '/uu/voip/get-free-numbers', {
-        countryId: countryId,
-        cityId: cityId,
-        didGroupId: didGroupId,
-        operatorAccountId: @operatorAccount.val(),
-        rowClass: @numbersListClass.val(),
-        orderByField: @numbersListOrderByField.val(),
-        orderByType: @numbersListOrderByType.val()
-        mask: @numbersListMask.val()
-        limit: @numbersListLimit.val()
-        ndcTypeId: ndcTypeId
-      }, (html) =>
-        @numbersList.html(html) # обновить значения
-        if @numbersList.find('input').length > 1 # есть чекбоксы - показать 'выбрать все'
-          @numbersListSelectAll.show()
-        else
-          @numbersListSelectAll.hide()
-        @showTariffDiv()
-
-    else
-      @numbersListSelectAll.hide()
+    $.get '/uu/voip/get-free-numbers', {
+      countryId: countryId,
+      cityId: cityId,
+      didGroupId: didGroupId,
+      operatorAccountId: @operatorAccount.val(),
+      rowClass: @numbersListClass.val(),
+      orderByField: @numbersListOrderByField.val(),
+      orderByType: @numbersListOrderByType.val()
+      mask: @numbersListMask.val()
+      limit: @numbersListLimit.val()
+      ndcTypeId: ndcTypeId
+    }, (html) =>
+      @numbersList.html(html) # обновить значения
+      if @numbersList.find('input').length > 1 # есть чекбоксы - показать 'выбрать все'
+        @numbersListSelectAll.show()
+      else
+        @numbersListSelectAll.hide()
       @showTariffDiv()
 
 # выбрать все / снять выделение
@@ -189,12 +167,10 @@ class AccountTariffEdit
   reloadTariffList: =>
     countryId = @country.val()
     cityId = @city.val()
-    didGroupId = @didGroup.val()
 
-    if didGroupId
-      $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, countryId: countryId, cityId: cityId, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid, didGroupId: didGroupId}, (html) =>
-        @tariffPeriod.val('').html(html) # обновить значения
-        @tariffPeriod.trigger('change')
+    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, countryId: countryId, cityId: cityId, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid}, (html) =>
+      @tariffPeriod.val('').html(html) # обновить значения
+      @tariffPeriod.trigger('change')
 
 # при сабмите формы
   onFormSubmit: (e) =>

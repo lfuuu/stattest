@@ -21,6 +21,7 @@ $clientAccount = $accountTariff->clientAccount;
 
 <div class="row">
     <?php
+    $defaultTariffPeriodId = null;
     $tariffPeriods = $formModel->getAvailableTariffPeriods(
         $defaultTariffPeriodId,
         true,
