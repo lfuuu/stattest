@@ -375,9 +375,16 @@ class UuController extends ApiInternalController
                 throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
             }
 
-            $country_id = $clientAccount->country_id;
-            $currency_id = $clientAccount->country->currency_id;
+            if (!$country_id) {
+                $country_id = $clientAccount->country_id;
+            }
+
+            if (!$currency_id) {
+                $currency_id = $clientAccount->country->currency_id;
+            }
+
             $is_postpaid = $clientAccount->is_postpaid;
+            
             $tariff_person_id = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
                 TariffPerson::ID_NATURAL_PERSON :
                 TariffPerson::ID_LEGAL_PERSON;
