@@ -54,6 +54,11 @@ class TrunkDao extends Singleton
         if (!isset($params['showInStat']) || (isset($params['showInStat']) && $params['showInStat'])) {
             $query->andWhere(['show_in_stat' => true]);
         }
+        if (isset($params['trunkGroupIds']) && $params['trunkGroupIds']) {
+            $query
+                ->leftJoin(['tgi' => 'auth.trunk_group_item'], 'tgi.trunk_id = t.id')
+                ->andWhere(['tgi.trunk_group_id' => $params['trunkGroupIds']]);
+        }
 
         $list = $query
             ->select('t.*')

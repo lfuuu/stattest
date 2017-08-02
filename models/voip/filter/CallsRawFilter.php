@@ -73,6 +73,9 @@ use yii\db\Query;
  *
  * @property \DateTime $dateStart = null;
  * @property Connection $dbConn
+ *
+ * @property array src_trunk_group_ids
+ * @property array dst_trunk_group_ids
  */
 class CallsRawFilter extends Model
 {
@@ -217,6 +220,9 @@ class CallsRawFilter extends Model
 
     public $dbConn = null;
 
+    public $src_trunk_group_ids = null;
+    public $dst_trunk_group_ids = null;
+
     /**
      * Rules set
      *
@@ -267,7 +273,9 @@ class CallsRawFilter extends Model
                     'src_contracts_ids',
                     'dst_contracts_ids',
                     'src_number_type_ids',
-                    'dst_number_type_ids'
+                    'dst_number_type_ids',
+                    'src_trunk_group_ids',
+                    'dst_trunk_group_ids',
                 ],
                 'each',
                 'rule' => ['integer']

@@ -24,6 +24,7 @@ use app\modules\nnp\column\DestinationColumn;
 use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\nnp\column\OperatorColumn;
 use app\modules\nnp\column\RegionColumn;
+use app\classes\grid\column\billing\TrunkGroupColumn;
 
 return [
     [
@@ -37,13 +38,10 @@ return [
         ],
     ],
     [
-        'attribute' => 'src_physical_trunks_ids',
-        'label' => 'Физический транк-оригинатор',
-        'class' => TrunkColumn::className(),
+        'attribute' => 'src_trunk_group_ids',
+        'label' => 'Группа транка-оригинатора',
+        'class' => TrunkGroupColumn::className(),
         'filterByServerIds' => $filterModel->server_ids,
-        'filterByServiceTrunkIds' => $filterModel->src_logical_trunks_ids,
-        'filterByContractIds' => $filterModel->src_contracts_ids,
-        'filterByShowInStat' => false,
         'filterInputOptions' => [
             'multiple' => true,
         ],
@@ -74,15 +72,18 @@ return [
         ],
     ],
     [
-        'attribute' => 'src_logical_trunks_ids',
-        'label' => 'Логический транк-оригинатор',
-        'class' => ServiceTrunkColumn::className(),
+        'attribute' => 'src_physical_trunks_ids',
+        'label' => 'Физический транк-оригинатор',
+        'class' => TrunkColumn::className(),
         'filterByServerIds' => $filterModel->server_ids,
+        'filterByTrunkGroupIds' => $filterModel->src_trunk_group_ids,
+        'filterByServiceTrunkIds' => $filterModel->src_logical_trunks_ids,
         'filterByContractIds' => $filterModel->src_contracts_ids,
-        'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
+        'filterByShowInStat' => false,
         'filterInputOptions' => [
             'multiple' => true,
-        ]
+        ],
+        'isWithEmpty' => false
     ],
     [
         'attribute' => 'src_operator_ids',
@@ -113,15 +114,15 @@ return [
         ],
     ],
     [
-        'attribute' => 'src_contracts_ids',
-        'label' => 'Договор номера А',
-        'class' => ContractColumn::className(),
-        'filterByServiceTrunkIds' => $filterModel->src_logical_trunks_ids,
+        'attribute' => 'src_logical_trunks_ids',
+        'label' => 'Логический транк-оригинатор',
+        'class' => ServiceTrunkColumn::className(),
         'filterByServerIds' => $filterModel->server_ids,
+        'filterByContractIds' => $filterModel->src_contracts_ids,
         'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
         'filterInputOptions' => [
             'multiple' => true,
-        ],
+        ]
     ],
     [
         'attribute' => 'src_countries_ids',
@@ -153,17 +154,15 @@ return [
         'isWithEmpty' => false,
     ],
     [
-        'attribute' => 'dst_physical_trunks_ids',
-        'label' => 'Физический транк-терминатор',
-        'class' => TrunkColumn::className(),
+        'attribute' => 'src_contracts_ids',
+        'label' => 'Договор номера А',
+        'class' => ContractColumn::className(),
+        'filterByServiceTrunkIds' => $filterModel->src_logical_trunks_ids,
         'filterByServerIds' => $filterModel->server_ids,
-        'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
-        'filterByContractIds' => $filterModel->dst_contracts_ids,
-        'filterByShowInStat' => false,
+        'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'isWithEmpty' => false
     ],
     [
         'attribute' => 'src_regions_ids',
@@ -193,15 +192,14 @@ return [
         'class' => CheckboxColumn::className(),
     ],
     [
-        'attribute' => 'dst_logical_trunks_ids',
-        'label' => 'Логический транк-терминатор',
-        'class' => ServiceTrunkColumn::className(),
-        'filterByContractIds' => $filterModel->dst_contracts_ids,
+        'attribute' => 'dst_trunk_group_ids',
+        'label' => 'Группа транка-терминатора',
+        'class' => TrunkGroupColumn::className(),
         'filterByServerIds' => $filterModel->server_ids,
-        'filterByTrunkIds' => $filterModel->dst_physical_trunks_ids,
         'filterInputOptions' => [
             'multiple' => true,
         ],
+        'isWithEmpty' => false
     ],
     [
         'attribute' => 'src_cities_ids',
@@ -231,15 +229,18 @@ return [
         'class' => WithEmptyFilterColumn::className(),
     ],
     [
-        'attribute' => 'dst_contracts_ids',
-        'label' => 'Договор номера B',
-        'class' => ContractColumn::className(),
-        'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
+        'attribute' => 'dst_physical_trunks_ids',
+        'label' => 'Физический транк-терминатор',
+        'class' => TrunkColumn::className(),
         'filterByServerIds' => $filterModel->server_ids,
-        'filterByTrunkIds' => $filterModel->dst_physical_trunks_ids,
+        'filterByTrunkGroupIds' => $filterModel->dst_trunk_group_ids,
+        'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
+        'filterByContractIds' => $filterModel->dst_contracts_ids,
+        'filterByShowInStat' => false,
         'filterInputOptions' => [
             'multiple' => true,
         ],
+        'isWithEmpty' => false
     ],
     [
         'attribute' => 'src_destinations_ids',
@@ -266,7 +267,29 @@ return [
         'isWithEmpty' => false,
     ],
     [
+        'attribute' => 'dst_logical_trunks_ids',
+        'label' => 'Логический транк-терминатор',
+        'class' => ServiceTrunkColumn::className(),
+        'filterByContractIds' => $filterModel->dst_contracts_ids,
+        'filterByServerIds' => $filterModel->server_ids,
+        'filterByTrunkIds' => $filterModel->dst_physical_trunks_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+    ],
+    [
         'class' => WithEmptyFilterColumn::className(),
+    ],
+    [
+        'attribute' => 'dst_contracts_ids',
+        'label' => 'Договор номера B',
+        'class' => ContractColumn::className(),
+        'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
+        'filterByServerIds' => $filterModel->server_ids,
+        'filterByTrunkIds' => $filterModel->dst_physical_trunks_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'src_number_type_ids',

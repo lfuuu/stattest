@@ -5,6 +5,7 @@ namespace app\controllers\voip;
 use app\classes\ReturnFormatted;
 use app\dao\billing\TrunkDao;
 use app\dao\ClientContractDao;
+use app\models\billing\TrunkGroup;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\Region;
 use Yii;
@@ -33,7 +34,15 @@ class RawController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['index', 'get-logical-trunks', 'get-physical-trunks', 'get-contracts', 'get-regions', 'get-cities'],
+                        'actions' => [
+                            'index',
+                            'get-logical-trunks',
+                            'get-physical-trunks',
+                            'get-contracts',
+                            'get-regions',
+                            'get-cities',
+                            'get-trunk-groups'
+                        ],
                         'roles' => ['voip.access'],
                     ],
                 ],
@@ -92,12 +101,13 @@ class RawController extends BaseController
      * @param array $serviceTrunkIds
      * @param array $contractIds
      */
-    public function actionGetPhysicalTrunks(array $serverIds = [], array $serviceTrunkIds = [], array $contractIds = [])
+    public function actionGetPhysicalTrunks(array $serverIds = [], array $trunkGroupIds = [], array $serviceTrunkIds = [], array $contractIds = [])
     {
         ReturnFormatted::me()->returnFormattedValues(
             TrunkDao::me()->getList(
                 [
                     'serverIds' => array_filter($serverIds),
+                    'trunkGroupIds' => array_filter($trunkGroupIds),
                     'serviceTrunkIds' => array_filter($serviceTrunkIds),
                     'contractIds' => array_filter($contractIds),
                     'showInStat' => false,
@@ -139,6 +149,19 @@ class RawController extends BaseController
                 array_filter($countryCodes),
                 array_filter($regionIds)
             ),
+            'options'
+        );
+    }
+
+    /**
+     * Получить группы транков с фильтрацией по серверу
+     *
+     * @param array $serverIds
+     */
+    public function actionGetTrunkGroups(array $serverIds = [])
+    {
+        ReturnFormatted::me()->returnFormattedValues(
+            TrunkGroup::getList($serverIds),
             'options'
         );
     }

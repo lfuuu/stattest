@@ -19,6 +19,7 @@ class TrunkColumn extends DataColumn
     public $filterByContractIds = null;
     public $isWithEmpty = true;
     public $filterByShowInStat = true;
+    public $filterByTrunkGroupIds = null;
 
     public function __construct($config = [])
     {
@@ -29,6 +30,7 @@ class TrunkColumn extends DataColumn
         $this->filter = Trunk::dao()->getList(
             [
                 'serverIds' => $this->filterByServerIds,
+                'trunkGroupIds' => $this->filterByTrunkGroupIds,
                 'serviceTrunkIds' => $this->filterByServiceTrunkIds,
                 'contractIds' => $this->filterByContractIds,
                 'showInStat' => $this->filterByShowInStat,

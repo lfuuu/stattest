@@ -23,12 +23,15 @@
         $('select[name="CallsRawFilter[server_ids][]"], ' +
           'select[name="CallsRawFilter[src_logical_trunks_ids][]"], ' +
           'select[name="CallsRawFilter[src_contracts_ids][]"], ' +
-          'select[name="CallsRawFilter[src_physical_trunks_ids][]"]')
+          'select[name="CallsRawFilter[src_physical_trunks_ids][]"], ' +
+          'select[name="CallsRawFilter[src_trunk_group_ids][]"]')
           .on('change', function () {
-            var server_ids = $('select[name="CallsRawFilter[server_ids][]"]'),
-              src_contracts_ids = $('select[name="CallsRawFilter[src_contracts_ids][]"]'),
-              src_logical_trunks_ids = $('select[name="CallsRawFilter[src_logical_trunks_ids][]"]'),
-              src_physical_trunks_ids = $('select[name="CallsRawFilter[src_physical_trunks_ids][]"]');
+            var
+                server_ids = $('select[name="CallsRawFilter[server_ids][]"]'),
+                src_trunk_group_ids = $('select[name="CallsRawFilter[src_trunk_group_ids][]"]'),
+                src_contracts_ids = $('select[name="CallsRawFilter[src_contracts_ids][]"]'),
+                src_logical_trunks_ids = $('select[name="CallsRawFilter[src_logical_trunks_ids][]"]'),
+                src_physical_trunks_ids = $('select[name="CallsRawFilter[src_physical_trunks_ids][]"]');
 
             if (!$(this).is(src_logical_trunks_ids))
               $.get("/voip/raw/get-logical-trunks", {
@@ -38,6 +41,7 @@
               }, function (data) {
                 src_logical_trunks_ids.html(data).trigger('change.select2');
               });
+
             if (!$(this).is(src_contracts_ids))
               $.get("/voip/raw/get-contracts", {
                 serverIds: server_ids.val(),
@@ -46,25 +50,36 @@
               }, function (data) {
                 src_contracts_ids.html(data).trigger('change.select2');
               });
+
             if (!$(this).is(src_physical_trunks_ids))
               $.get("/voip/raw/get-physical-trunks", {
                 serverIds: server_ids.val(),
+                trunkGroupIds: src_trunk_group_ids.val(),
                 serviceTrunkIds: src_logical_trunks_ids.val(),
                 contractIds: src_contracts_ids.val()
               }, function (data) {
                 src_physical_trunks_ids.html(data).trigger('change.select2');
+              });
+            if (!$(this).is(src_trunk_group_ids))
+              $.get("/voip/raw/get-trunk-groups", {
+                  serverIds: server_ids.val()
+              }, function (data) {
+                  src_trunk_group_ids.html(data).trigger('change.select2');
               });
           });
 
         $('select[name="CallsRawFilter[server_ids][]"], ' +
           'select[name="CallsRawFilter[dst_logical_trunks_ids][]"], ' +
           'select[name="CallsRawFilter[dst_contracts_ids][]"], ' +
-          'select[name="CallsRawFilter[dst_physical_trunks_ids][]"]')
+          'select[name="CallsRawFilter[dst_physical_trunks_ids][]"], ' +
+          'select[name="CallsRawFilter[dst_trunk_group_ids][]"]')
           .on('change', function () {
-            var server_ids = $('select[name="CallsRawFilter[server_ids][]"]'),
-              dst_contracts_ids = $('select[name="CallsRawFilter[dst_contracts_ids][]"]'),
-              dst_logical_trunks_ids = $('select[name="CallsRawFilter[dst_logical_trunks_ids][]"]'),
-              dst_physical_trunks_ids = $('select[name="CallsRawFilter[dst_physical_trunks_ids][]"]');
+            var
+                server_ids = $('select[name="CallsRawFilter[server_ids][]"]'),
+                dst_trunk_group_ids = $('select[name="CallsRawFilter[dst_trunk_group_ids][]"]'),
+                dst_contracts_ids = $('select[name="CallsRawFilter[dst_contracts_ids][]"]'),
+                dst_logical_trunks_ids = $('select[name="CallsRawFilter[dst_logical_trunks_ids][]"]'),
+                dst_physical_trunks_ids = $('select[name="CallsRawFilter[dst_physical_trunks_ids][]"]');
 
             if (!$(this).is(dst_logical_trunks_ids))
               $.get("/voip/raw/get-logical-trunks", {
@@ -85,10 +100,17 @@
             if (!$(this).is(dst_physical_trunks_ids))
               $.get("/voip/raw/get-physical-trunks", {
                 serverIds: server_ids.val(),
+                trunkGroupIds: dst_trunk_group_ids.val(),
                 serviceTrunkIds: dst_logical_trunks_ids.val(),
                 contractIds: dst_contracts_ids.val()
               }, function (data) {
                 dst_physical_trunks_ids.html(data).trigger('change.select2');
+              });
+            if (!$(this).is(dst_trunk_group_ids))
+              $.get("/voip/raw/get-trunk-groups", {
+                  serverIds: server_ids.val()
+              }, function (data) {
+                  dst_trunk_group_ids.html(data).trigger('change.select2');
               });
           });
 
