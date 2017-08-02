@@ -278,20 +278,6 @@ return [
         ],
     ],
     [
-        'class' => WithEmptyFilterColumn::className(),
-    ],
-    [
-        'attribute' => 'dst_contracts_ids',
-        'label' => 'Договор номера B',
-        'class' => ContractColumn::className(),
-        'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
-        'filterByServerIds' => $filterModel->server_ids,
-        'filterByTrunkIds' => $filterModel->dst_physical_trunks_ids,
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-    ],
-    [
         'attribute' => 'src_number_type_ids',
         'label' => 'Тип номера А',
         'class' => NdcTypeColumn::className(),
@@ -310,6 +296,26 @@ return [
         ],
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => false,
+    ],
+    [
+        'class' => WithEmptyFilterColumn::className(),
+    ],
+    [
+        'attribute' => 'dst_contracts_ids',
+        'label' => 'Договор номера B',
+        'class' => ContractColumn::className(),
+        'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
+        'filterByServerIds' => $filterModel->server_ids,
+        'filterByTrunkIds' => $filterModel->dst_physical_trunks_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+    ],
+    [
+        'class' => WithEmptyFilterColumn::className(),
+    ],
+    [
+        'class' => WithEmptyFilterColumn::className(),
     ],
     [
         'attribute' => 'group_period',
