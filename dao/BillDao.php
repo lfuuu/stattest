@@ -271,12 +271,9 @@ class BillDao extends Singleton
 
         $clientAccount = $uuBill->clientAccount;
 
-        $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
-        $newBillNo = $uuBillDateTime->format('ym') .
-            ($uuBillDateTime >= $this->getDateAfterBillNoWithOrganization() ? sprintf('%02d', $clientAccount->contract->organization_id) : '') .
-            $uuBill->id;
-
         if (!$bill) {
+            $uuBillDateTime = new \DateTimeImmutable($uuBill->date);
+
             $bill = new Bill();
             $bill->client_id = $clientAccount->id;
             $bill->currency = $clientAccount->currency;
@@ -288,14 +285,9 @@ class BillDao extends Singleton
             $bill->sum_with_unapproved = $uuBill->price;
             $bill->price_include_vat = $clientAccount->price_include_vat;
             $bill->sum = $uuBill->price;
-            $bill->bill_no = $newBillNo;
+            $bill->bill_no = $this->spawnBillNumber($uuBillDateTime);
             $bill->biller_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
             $bill->uu_bill_id = $uuBill->id;
-            if (!$bill->save()) {
-                throw new ModelValidationException($bill);
-            }
-        } elseif ($bill->bill_no != $newBillNo) {
-            $bill->bill_no = $newBillNo;
             if (!$bill->save()) {
                 throw new ModelValidationException($bill);
             }
