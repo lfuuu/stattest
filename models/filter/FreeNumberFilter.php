@@ -16,8 +16,8 @@ use yii\db\Expression;
 class FreeNumberFilter extends Number
 {
     // лимиты для обычной выборки
-    const LIMIT = 12;
-    const MAX_LIMIT = 200;
+    const LIMIT = 5000; // Старый ЛК не умеет пагинировать, приходится выгружать ему все сразу
+    const MAX_LIMIT = 5000;
 
     // лимиты для сгруппированной выборки
     const GROUPED_LIMIT = 10000;
