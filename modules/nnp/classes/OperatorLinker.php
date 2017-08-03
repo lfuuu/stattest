@@ -99,10 +99,13 @@ class OperatorLinker extends Singleton
                 $log .= '. ';
             }
 
-            $key = $numberRange->country_code . '_' . mb_strtolower($numberRange->operator_source);
+            $operatorName = $numberRange->operator_source;
+            $operatorName = str_replace('ОАО', 'ПАО', $operatorName);
+
+            $key = $numberRange->country_code . '_' . mb_strtolower($operatorName);
             if (!isset($operatorSourceToId[$key])) {
                 $operator = new Operator();
-                $operator->name = $numberRange->operator_source;
+                $operator->name = $operatorName;
                 $operator->country_code = $numberRange->country_code;
                 if (!$operator->save()) {
                     throw new ModelValidationException($operator);
