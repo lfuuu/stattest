@@ -92,8 +92,8 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         <div class="col-sm-2">
             <?= $form->field($tariff, 'is_default')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
             <?php
-            if ($serviceType->id != ServiceType::ID_VOIP_PACKAGE) {
-                $form->field($tariff, 'is_postpaid')->checkbox($options);
+            if ($tariff->service_type_id != ServiceType::ID_VOIP_PACKAGE) {
+                echo $form->field($tariff, 'is_postpaid')->checkbox($options);
             }
             ?>
         </div>
