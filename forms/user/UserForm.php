@@ -20,7 +20,7 @@ class UserForm extends Form
         $user,
         $name,
         $email,
-        $incoming_phone,
+        $incoming_phone = '',
         $phone_work,
         $phone_mobile,
         $icq,
