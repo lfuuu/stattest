@@ -22,8 +22,8 @@ use yii\helpers\Url;
  * @property int $client_id      id лицевого счета
  * @property string $currency       валюта. значения: USD, RUB
  * @property int $is_approved    Признак проведенности счета. 1 - проведен, влияет на балланс. 0 - не проведен, не влияет на баланс.
- * @property string $sum            итоговая сумма, влияющая на баланс. не включает задаток. не включает не проведенные строки
- * @property string $sum_with_unapproved  итоговая сумма. не включает задаток. включает не проведенный строки
+ * @property float $sum            итоговая сумма, влияющая на баланс. не включает задаток. не включает не проведенные строки
+ * @property float $sum_with_unapproved  итоговая сумма. не включает задаток. включает не проведенный строки
  * @property int $is_payed       признак оплаченности счета 0 - не оплачен, 1 - оплачен, 2 - оплачен частично, 3 - ??
  * @property string $comment
  * @property int $inv2to1        ??

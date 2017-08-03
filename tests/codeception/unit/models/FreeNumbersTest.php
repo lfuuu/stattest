@@ -150,13 +150,13 @@ class FreeNumbersTest extends TestCase
     public function testFreeNumbersOffset()
     {
         $numbers = new FreeNumberFilter;
-        $firstPage = $numbers->setLimit(FreeNumberFilter::LIMIT + 1)->result();
+        $firstPage = $numbers->setLimit(21)->result();
 
         $numbers = new FreeNumberFilter;
-        $secondPage = $numbers->setOffset(FreeNumberFilter::LIMIT)->result();
+        $secondPage = $numbers->setOffset(20)->setLimit(20)->result();
 
-        $this->assertEquals(FreeNumberFilter::LIMIT + 1, count($firstPage));
-        $this->assertLessThanOrEqual(FreeNumberFilter::LIMIT, count($secondPage));
+        $this->assertEquals(21, count($firstPage));
+        $this->assertLessThanOrEqual(20, count($secondPage));
         $this->assertNotEquals(reset($firstPage)->number, reset($secondPage)->number); // offset работает
     }
 

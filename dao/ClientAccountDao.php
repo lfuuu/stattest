@@ -1,25 +1,26 @@
 <?php
+
 namespace app\dao;
 
-use app\modules\uu\tarificator\RealtimeBalanceTarificator;
-use app\exceptions\ModelValidationException;
-use app\helpers\DateTimeZoneHelper;
-use app\models\Business;
-use app\models\ClientContract;
-use app\models\ClientContractComment;
-use app\models\ClientContragent;
-use app\models\Param;
-use Yii;
+use app\classes\api\ApiPhone;
 use app\classes\Assert;
 use app\classes\Singleton;
-use app\classes\api\ApiPhone;
+use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\Business;
 use app\models\ClientAccount;
+use app\models\ClientContract;
+use app\models\ClientContragent;
 use app\models\GoodsIncomeOrder;
+use app\models\Param;
+use app\models\Payment;
 use app\models\PaymentOrder;
 use app\models\Saldo;
+use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use DateTime;
 use DateTimeZone;
+use Yii;
 use yii\db\Query;
 
 /**
@@ -114,6 +115,7 @@ class ClientAccountDao extends Singleton
      *
      * @param int $clientAccountId
      * @param bool $isForce
+     * @throws \yii\db\Exception
      */
     public function updateBalance($clientAccountId, $isForce = true)
     {
@@ -128,11 +130,6 @@ class ClientAccountDao extends Singleton
         }
 
         Assert::isObject($clientAccount);
-
-        if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
-            (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
-            return;
-        }
 
         $saldo = $this->_getSaldo($clientAccount);
 
@@ -495,25 +492,32 @@ class ClientAccountDao extends Singleton
             }
         }
 
-        $lastBillDate = ClientAccount::dao()->getLastBillDate($clientAccount);
-        $lastPayedBillMonth = ClientAccount::dao()->getLastPayedBillMonth($clientAccount);
+        if ($clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
 
-        $p = [
-            ':clientAccountId' => $clientAccount->id,
-            ':balance' => $balance,
-            ':lastBillDate' => $lastBillDate,
-            ':lastPayedBillMonth' => $lastPayedBillMonth
-        ];
+            (new RealtimeBalanceTarificator)->tarificate($clientAccount->id);
 
-        ClientAccount::getDb()
-            ->createCommand('
+        } else {
+
+            $lastBillDate = ClientAccount::dao()->getLastBillDate($clientAccount);
+            $lastPayedBillMonth = ClientAccount::dao()->getLastPayedBillMonth($clientAccount);
+
+            $p = [
+                ':clientAccountId' => $clientAccount->id,
+                ':balance' => $balance,
+                ':lastBillDate' => $lastBillDate,
+                ':lastPayedBillMonth' => $lastPayedBillMonth
+            ];
+
+            ClientAccount::getDb()
+                ->createCommand('
                 UPDATE clients
                 SET balance = :balance,
                     last_account_date = :lastBillDate,
                     last_payed_voip_month = :lastPayedBillMonth
                 WHERE id = :clientAccountId', $p
-            )
-            ->execute();
+                )
+                ->execute();
+        }
 
         $transaction->commit();
     }
@@ -563,7 +567,6 @@ class ClientAccountDao extends Singleton
                     B.client_id = :clientAccountId
                     and B.currency = :currency
                     and B.bill_date >= :saldoDate
-                    and B.biller_version = :billerVersion
 
                 UNION
 
@@ -608,10 +611,9 @@ class ClientAccountDao extends Singleton
                 ':clientAccountId' => $clientAccount->id,
                 ':currency' => $clientAccount->currency,
                 ':saldoDate' => $saldoDate,
-                ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE
             ]
         )
-        ->queryAll();
+            ->queryAll();
 
         $result = [];
         foreach ($bills as $bill) {
@@ -633,7 +635,8 @@ class ClientAccountDao extends Singleton
     private function _enumPayments(ClientAccount $clientAccount, $saldoDate)
     {
         $sql = '
-            select P.*, 0 as is_billpay  from newpayments as P
+            select P.*, 0 as is_billpay  
+            from newpayments as P
             left join newbills as B ON P.client_id = B.client_id
             where
                 P.client_id = :clientAccountId
@@ -677,7 +680,6 @@ class ClientAccountDao extends Singleton
                             and B.sum < 0
                             and B.currency = 'RUB'
                             and C.status NOT IN ('operator', 'distr')
-                            and B.biller_version = :billerVersion
         ";
 
         $billPayments = Bill::getDb()->createCommand(
@@ -685,7 +687,6 @@ class ClientAccountDao extends Singleton
             [
                 ':clientAccountId' => $clientAccount->id,
                 ':saldoDate' => $saldoDate,
-                ':billerVersion' => ClientAccount::VERSION_BILLER_USAGE,
             ]
         )->queryAll();
 
@@ -709,7 +710,7 @@ class ClientAccountDao extends Singleton
                 }
 
                 if ($v['sum'] < 0) {
-                    $pay = array(
+                    $pay = [
                         'id' => $v['bill_no'],
                         'client_id' => $v['client_id'],
                         'payment_date' => $v['bill_date'],
@@ -719,7 +720,7 @@ class ClientAccountDao extends Singleton
                         'bill_no' => '',
                         'bill_vis_no' => '',
                         'is_billpay' => 1
-                    );
+                    ];
                     $paymentsById[$v['bill_no']] = $pay;
                 }
             }
@@ -819,4 +820,112 @@ class ClientAccountDao extends Singleton
         return $this->_voipNumbers;
     }
 
+    /**
+     * Перепривязать все платежи к счетам. Для всех аккантов
+     *
+     * @throws ModelValidationException
+     */
+    public function relinkPaymentToBill()
+    {
+        $clientAccountQuery = ClientAccount::find()
+            ->where(['account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]);
+
+        /** @var ClientAccount $clientAccount */
+        foreach ($clientAccountQuery->each() as $clientAccount) {
+            $this->relinkPaymentToBillByAccount($clientAccount);
+        }
+    }
+
+    /**
+     * Перепривязать все платежи к счетам. Для указанного аккаунта
+     *
+     * @param ClientAccount $clientAccount
+     * @throws ModelValidationException
+     */
+    public function relinkPaymentToBillByAccount(ClientAccount $clientAccount)
+    {
+        // "покраснить" счета
+        Bill::updateAll(
+            ['is_payed' => Bill::PAY_NOT_PAYED, 'is_pay_overdue' => Bill::PAY_NOT_PAYED],
+            ['client_id' => $clientAccount->id]
+        );
+
+        /** @var Bill[] $bills */
+        $bills = Bill::find()
+            ->where(['client_id' => $clientAccount->id])
+            ->orderBy(['id' => SORT_ASC])
+            ->all();
+
+        /** @var Payment[] $payments */
+        $payments = Payment::find()
+            ->where(['client_id' => $clientAccount->id])
+            ->orderBy(['id' => SORT_ASC])
+            ->indexBy('id')
+            ->all();
+
+        $balance = 0;
+        foreach ($bills as $bill) {
+
+            if ($bill->sum <= 0) {
+                continue;
+            }
+
+            $balance -= $bill->sum;
+
+            // найти платеж на ту же сумму (в день первого платежа)
+            $foundPayments = [];
+            $paymentDate = null;
+            foreach ($payments as $payment) {
+
+                if (!$paymentDate) {
+                    // дата первого необработанного платежа
+                    $paymentDate = $payment->payment_date;
+                }
+
+                if ($paymentDate != $payment->payment_date) {
+                    // уже другая дата - дальше не ищем
+                    break;
+                }
+
+                if ($payment->sum == -$balance) {
+                    // найден платеж на нужную сумму
+                    $foundPayments[] = $payment;
+                    $balance += $payment->sum;
+                    break;
+                }
+            }
+
+            unset($paymentDate);
+
+            if (!$foundPayments) {
+                // платеж на нужную сумму не найден
+                // привязывать все платежи подряд, пока их сумма не покроет сумму счета
+                foreach ($payments as $payment) {
+                    $foundPayments[] = $payment;
+                    $balance += $payment->sum;
+                    if ($balance >= 0) {
+                        // "горшочек, не вари"
+                        break;
+                    }
+                }
+            }
+
+
+            foreach ($foundPayments as $foundPayment) {
+                // привязать платеж к счету
+                unset($payments[$foundPayment->id]); // исключить платеж из дальнейшего поиска
+                $foundPayment->bill_no
+                    = $foundPayment->bill_vis_no
+                    = $bill ? $bill->bill_no : null;
+                if (!$foundPayment->save()) {
+                    throw new ModelValidationException($foundPayment);
+                }
+
+                // @todo тут могло бы "позеленение" счетов по-новому, но его надо "сертифицировать". Поэтому пока используем по-старому
+            }
+        }
+
+        // "позеленить" счета по-старому
+        ClientAccount::dao()->updateBalance($clientAccount->id);
+    }
 }
