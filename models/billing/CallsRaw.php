@@ -4,7 +4,11 @@ namespace app\models\billing;
 
 use app\classes\model\ActiveRecord;
 use app\dao\billing\CallsDao;
+use app\modules\nnp\models\Operator;
+use app\modules\nnp\models\Region;
+use app\modules\nnp\models\City;
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * @property int $server_id integer NOT NULL
@@ -50,8 +54,9 @@ use Yii;
  * @property int $nnp_package_price_id,
  * @property int $nnp_package_pricelist_id,
  *
- * Связи с другими моделями умышленно не описываю, чтобы не джойнить таблицы. Ибо эта таблица и так огромная, а с джойном будет еще больше тормозить
- * Если надо из id получить название, то см. http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=9142400 (Грид / Column для немногих значений в связанной таблице)
+ * @property Operator $operator
+ * @property Region $region
+ * @property City $city
  */
 class CallsRaw extends ActiveRecord
 {
@@ -174,4 +179,27 @@ class CallsRaw extends ActiveRecord
         return CallsDao::me();
     }
 
+    /**
+     * @return ActiveQuery
+     */
+    public function getOperator()
+    {
+        return $this->hasOne(Operator::className(), ['id' => 'nnp_operator_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getRegion()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'nnp_region_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getCity()
+    {
+        return $this->hasOne(City::className(), ['id' => 'nnp_city_id']);
+    }
 }

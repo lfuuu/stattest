@@ -31,9 +31,9 @@ use yii\helpers\Url;
  * @property string $detail_resolution
  * @property string $status_number
  *
- * @property City $city
  * @property Operator $operator
  * @property Region $region
+ * @property City $city
  * @property NumberRangePrefix[] $numberRangePrefixes
  * @property NdcType $ndcType
  * @property Country $country
@@ -147,14 +147,6 @@ class NumberRange extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getRegion()
-    {
-        return $this->hasOne(Region::className(), ['id' => 'region_id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
     public function getOperator()
     {
         return $this->hasOne(Operator::className(), ['id' => 'operator_id']);
@@ -163,9 +155,9 @@ class NumberRange extends ActiveRecord
     /**
      * @return ActiveQuery
      */
-    public function getNdcType()
+    public function getRegion()
     {
-        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
+        return $this->hasOne(Region::className(), ['id' => 'region_id']);
     }
 
     /**
@@ -174,6 +166,14 @@ class NumberRange extends ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'city_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getNdcType()
+    {
+        return $this->hasOne(NdcType::className(), ['id' => 'ndc_type_id']);
     }
 
     /**
