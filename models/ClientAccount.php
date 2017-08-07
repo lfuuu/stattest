@@ -1178,8 +1178,13 @@ class ClientAccount extends HistoryActiveRecord
     public static function getPriceLevels()
     {
         $priceLevels = [];
-        for ($i = 1; $i <= 9; $i++) {
-            $priceLevels[$i] = ($i <= 2) ? 'Клиент ' . $i : 'ОТТ ' . ($i - 2);
+        for ($i = 1; $i <= 10; $i++) {
+            if ($i <= 2) {
+                $priceLevels[$i] = 'Клиент ' . $i;
+            } else {
+                $priceLevels[$i] = 'ОТТ ' . ($i - 2);
+                $priceLevels[$i + 8] = 'ОТТ ' . ($i - 2) . 'z';
+            }
         }
 
         return $priceLevels;

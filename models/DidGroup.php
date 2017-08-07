@@ -17,39 +17,66 @@ use yii\helpers\Url;
  * @property int $ndc_type_id
  * @property int $is_service
  *
- * @property float $price1
+ * @property float $price1 // Клиент i. Подробнее см. \app\models\ClientAccount::getPriceLevels
  * @property float $price2
- * @property float $price3
- * @property float $price4
- * @property float $price5
- * @property float $price6
- * @property float $price7
- * @property float $price8
- * @property float $price9
+ * @property float $price3 // ОТТ i-2
+ * @property int $price4
+ * @property int $price5
+ * @property int $price6
+ * @property int $price7
+ * @property int $price8
+ * @property int $price9
+ * @property int $price10
+ * @property int $price11 // ОТТz i-10
+ * @property int $price12
+ * @property int $price13
+ * @property int $price14
+ * @property int $price15
+ * @property int $price16
+ * @property int $price17
+ * @property int $price18
  *
- * @property float $tariff_status_main1
- * @property float $tariff_status_main2
- * @property float $tariff_status_main3
- * @property float $tariff_status_main4
- * @property float $tariff_status_main5
- * @property float $tariff_status_main6
- * @property float $tariff_status_main7
- * @property float $tariff_status_main8
- * @property float $tariff_status_main9
+ * @property int $tariff_status_main1 // Клиент i. Подробнее см. \app\models\ClientAccount::getPriceLevels
+ * @property int $tariff_status_main2
+ * @property int $tariff_status_main3 // ОТТ i-2
+ * @property int $tariff_status_main4
+ * @property int $tariff_status_main5
+ * @property int $tariff_status_main6
+ * @property int $tariff_status_main7
+ * @property int $tariff_status_main8
+ * @property int $tariff_status_main9
+ * @property int $tariff_status_main10
+ * @property int $tariff_status_main11 // ОТТz i-10
+ * @property int $tariff_status_main12
+ * @property int $tariff_status_main13
+ * @property int $tariff_status_main14
+ * @property int $tariff_status_main15
+ * @property int $tariff_status_main16
+ * @property int $tariff_status_main17
+ * @property int $tariff_status_main18
  *
- * @property float $tariff_status_package1
- * @property float $tariff_status_package2
- * @property float $tariff_status_package3
- * @property float $tariff_status_package4
- * @property float $tariff_status_package5
- * @property float $tariff_status_package6
- * @property float $tariff_status_package7
- * @property float $tariff_status_package8
- * @property float $tariff_status_package9
+ * @property int $tariff_status_package1 // Клиент i. Подробнее см. \app\models\ClientAccount::getPriceLevels
+ * @property int $tariff_status_package2
+ * @property int $tariff_status_package3 // ОТТ i-2
+ * @property int $tariff_status_package4
+ * @property int $tariff_status_package5
+ * @property int $tariff_status_package6
+ * @property int $tariff_status_package7
+ * @property int $tariff_status_package8
+ * @property int $tariff_status_package9
+ * @property int $tariff_status_package10
+ * @property int $tariff_status_package11 // ОТТz i-10
+ * @property int $tariff_status_package12
+ * @property int $tariff_status_package13
+ * @property int $tariff_status_package14
+ * @property int $tariff_status_package15
+ * @property int $tariff_status_package16
+ * @property int $tariff_status_package17
+ * @property int $tariff_status_package18
  *
- * @property float tariff_status_beauty
+ * @property int tariff_status_beauty
  *
- * @property float $comment
+ * @property string $comment
  *
  * @property City $city
  * @property Country $country
