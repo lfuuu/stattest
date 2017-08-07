@@ -22,7 +22,7 @@ use yii\helpers\Url;
  * @property string $region_source
  * @property string $city_source
  * @property int $region_id
- * @property int $city_id // индекса и FK нет, потому что таблица городов в другой БД
+ * @property int $city_id
  * @property bool $is_active
  * @property string $ndc_type_source
  * @property int $ndc_type_id

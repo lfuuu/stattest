@@ -204,10 +204,12 @@ class NumberRangeFilter extends NumberRange
         $query = $this->search()->query;
         $affectedRows = NumberRange::updateAll($attributes, $query->where);
 
-        Yii::$app->session->setFlash('success',
-            'Сброшено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]) .
-            '. Через несколько минут они привяжутся заново автоматически.'
-        );
+        if (Yii::$app instanceof \yii\web\Application) {
+            Yii::$app->session->setFlash('success',
+                'Сброшено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]) .
+                '. Через несколько минут они привяжутся заново автоматически.'
+            );
+        }
 
         // поставить в очередь для пересчета операторов, регионов и городов
         Event::go(\app\modules\nnp\Module::EVENT_LINKER);
@@ -219,7 +221,7 @@ class NumberRangeFilter extends NumberRange
      * Добавить/удалить отфильтрованные записи в префикс
      *
      * @param array $postPrefix
-     * @return bool
+     * @return string
      * @throws \yii\db\Exception
      */
     public function addOrRemoveFilterModelToPrefix($postPrefix)
@@ -237,8 +239,11 @@ class NumberRangeFilter extends NumberRange
         }
 
         if (!$prefixId && !$prefixName) {
-            Yii::$app->session->setFlash('error', 'Не указан префикс ни существующий, ни новый');
-            return false;
+            $error = 'Не указан префикс ни существующий, ни новый';
+            if (Yii::$app instanceof \yii\web\Application) {
+                Yii::$app->session->setFlash('error', $error);
+            }
+            return $error;
         }
 
         // построить запрос, выбирающий все отфильтрованные записи
@@ -254,8 +259,12 @@ class NumberRangeFilter extends NumberRange
         if (isset($post['dropButton'])) {
             // удалить из префикса
             if (!$prefixId) {
-                Yii::$app->session->setFlash('error', 'Для удаления отфильтрованных записей из префикса выберите его');
-                return false;
+                $error = 'Для удаления отфильтрованных записей из префикса выберите его';
+                if (Yii::$app instanceof \yii\web\Application) {
+                    Yii::$app->session->setFlash('error', $error);
+                }
+
+                return $error;
             }
 
             return $this->removeFilterModelFromPrefix($sql, $prefixId);
@@ -265,15 +274,23 @@ class NumberRangeFilter extends NumberRange
         if ($prefixName) {
             // .. в новый
             if ($prefixId) {
-                Yii::$app->session->setFlash('error', 'Укажите только один префикс: либо существующий, либо новый');
-                return false;
+                $error = 'Укажите только один префикс: либо существующий, либо новый';
+                if (Yii::$app instanceof \yii\web\Application) {
+                    Yii::$app->session->setFlash('error', $error);
+                }
+
+                return $error;
             }
 
             $prefix = new Prefix();
             $prefix->name = $prefixName;
             if (!$prefix->save()) {
-                Yii::$app->session->setFlash('error', 'Ошибка создания нового префикса');
-                return false;
+                $error = 'Ошибка создания нового префикса';
+                if (Yii::$app instanceof \yii\web\Application) {
+                    Yii::$app->session->setFlash('error', $error);
+                }
+
+                return $error;
             }
 
             $prefixId = $prefix->id;
@@ -287,16 +304,19 @@ class NumberRangeFilter extends NumberRange
      *
      * @param string $sql
      * @param int $prefixId
-     * @return bool
+     * @return string
      * @throws \yii\db\Exception
      */
-    protected function addFilterModelToPrefix($sql, $prefixId)
+    public function addFilterModelToPrefix($sql, $prefixId)
     {
         // "чтобы продать что-нибудь не нужное, надо сначала купить что-нибудь ненужное" (С) Матроскин
         // повторное добавление дает ошибку, "on duplicate key" в postresql нет, поэтому проще удалить дубли заранее
-        $this->removeFilterModelFromPrefix($sql, $prefixId);
+        $error = $this->removeFilterModelFromPrefix($sql, $prefixId);
+        if ($error) {
+            return $error;
+        }
 
-        Module::transaction(
+        return Module::transaction(
             function () use ($sql, $prefixId) {
                 /** @var Connection $dbPgNnp */
                 $dbPgNnp = Yii::$app->dbPgNnp;
@@ -311,11 +331,11 @@ FROM
     ( {$sql} ) t
 SQL;
                 $affectedRows = $dbPgNnp->createCommand($sql)->execute();
-                Yii::$app->session->setFlash('success', 'В префикс добавлено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]));
+                if (Yii::$app instanceof \yii\web\Application) {
+                    Yii::$app->session->setFlash('success', 'В префикс добавлено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]));
+                }
             }
         );
-
-        return true;
     }
 
     /**
@@ -323,12 +343,12 @@ SQL;
      *
      * @param string $sql
      * @param int $prefixId
-     * @return bool
+     * @return string
      * @throws \yii\db\Exception
      */
-    protected function removeFilterModelFromPrefix($sql, $prefixId)
+    public function removeFilterModelFromPrefix($sql, $prefixId)
     {
-        Module::transaction(
+        return Module::transaction(
             function () use ($sql, $prefixId) {
                 /** @var Connection $dbPgNnp */
                 $dbPgNnp = Yii::$app->dbPgNnp;
@@ -340,11 +360,11 @@ WHERE
     AND number_range_id IN ( {$sql} )
 SQL;
                 $affectedRows = $dbPgNnp->createCommand($sql)->execute();
-                Yii::$app->session->setFlash('success', 'Из префикса удалено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]));
+                if (Yii::$app instanceof \yii\web\Application) {
+                    Yii::$app->session->setFlash('success', 'Из префикса удалено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]));
+                }
             }
         );
-
-        return true;
     }
 
 }

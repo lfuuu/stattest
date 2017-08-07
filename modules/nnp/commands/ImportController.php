@@ -4,6 +4,7 @@ namespace app\modules\nnp\commands;
 
 use app\modules\nnp\classes\CityLinker;
 use app\modules\nnp\classes\OperatorLinker;
+use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\media\ImportServiceRossvyaz;
 use app\modules\nnp\models\Country;
@@ -32,6 +33,7 @@ class ImportController extends Controller
             ->run();
 
         $this->actionLink();
+        $this->actionPrefix();
     }
 
     /**
@@ -47,6 +49,18 @@ class ImportController extends Controller
         echo 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
         echo 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
         echo 'Города: ' . CityLinker::me()->run() . PHP_EOL;
+    }
+
+    /**
+     * Актуализировать префиксы
+     *
+     * @throws \yii\db\Exception
+     * @throws \InvalidArgumentException
+     * @throws \LogicException
+     */
+    public function actionPrefix()
+    {
+        echo 'Префиксы: ' . RefreshPrefix::me()->run() . PHP_EOL;
     }
 
     /**
