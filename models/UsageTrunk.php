@@ -29,9 +29,12 @@ use yii\db\ActiveQuery;
  * @property int $term_min_payment
  * @property string $description
  *
- * @property ClientAccount $clientAccount
- * @property Region $connectionPoint
- * @property UsageVoipTrunkHelper $helper
+ * @property-read ClientAccount $clientAccount
+ * @property-read Region $connectionPoint
+ * @property-read UsageVoipTrunkHelper $helper
+ * @property-read VoipTrunkBiller $biller
+ * @property-read UsageTrunkSettings $settings
+ * @property-read Trunk $trunk
  */
 class UsageTrunk extends ActiveRecord implements UsageInterface
 {
@@ -60,6 +63,22 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     public static function tableName()
     {
         return 'usage_trunk';
+    }
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [[
+                'client_account_id', 'connection_point_id', 'trunk_id', 'orig_enabled', 'term_enabled', 'orig_min_payment',
+                'term_min_payment', 'operator_id', 'tmp', 'prev_usage_id', 'next_usage_id',
+            ], 'integer'],
+            [[
+                'actual_from', 'actual_to', 'activation_dt', 'expire_dt', 'status', 'description',
+            ], 'string'],
+        ];
     }
 
     /**
@@ -157,15 +176,6 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
         $expireDt = new DateTime($this->expire_dt);
 
         return $activationDt <= $now and $expireDt >= $now;
-    }
-
-    /**
-     * @param UsageInterface $usage
-     * @return TrunkServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new TrunkServiceTransfer($usage);
     }
 
     /**

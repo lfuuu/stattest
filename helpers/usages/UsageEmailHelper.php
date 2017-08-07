@@ -2,6 +2,7 @@
 
 namespace app\helpers\usages;
 
+use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\helpers\Url;
 use app\models\usages\UsageInterface;
@@ -13,14 +14,15 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
 
     use UsageHelperTrait;
 
-    private $usage;
+    /** @var UsageEmails */
+    private $_usage;
 
     /**
      * @param UsageInterface $usage
      */
     public function __construct(UsageInterface $usage)
     {
-        $this->usage = $usage;
+        $this->_usage = $usage;
         parent::__construct();
     }
 
@@ -33,27 +35,36 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
     }
 
     /**
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->_usage->local_part . '@' . $this->_usage->domain;
+    }
+
+    /**
      * @return array
      */
     public function getDescription()
     {
-        return [$this->usage->local_part . '@' . $this->usage->domain, '', ''];
+        return [$this->getValue(), '', ''];
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getHelp()
+    public function getExtendsData()
     {
-        return '';
+        return [];
     }
 
     /**
      * @return string
+     * @throws InvalidParamException
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/pop_services.php', 'table' => UsageEmails::tableName(), 'id' => $this->usage->id]);
+        return Url::toRoute(['/pop_services.php', 'table' => UsageEmails::tableName(), 'id' => $this->_usage->id]);
     }
 
     /**
@@ -61,7 +72,7 @@ class UsageEmailHelper extends Object implements UsageHelperInterface
      */
     public function getTransferedFrom()
     {
-        return UsageEmails::findOne($this->usage->prev_usage_id);
+        return UsageEmails::findOne($this->_usage->prev_usage_id);
     }
 
     /**

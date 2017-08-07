@@ -68,14 +68,14 @@ class ClientCreateExternalForm extends Form
         $country_id,
         $site_name,
 
-        $info = "",
+        $info = '',
         $isCreated = null,
 
-        $ip = "",
+        $ip = '',
         $connect_region = Region::MOSCOW,
-        $account_version = "",
+        $account_version = ClientAccount::VERSION_BILLER_USAGE,
 
-        $entry_point_id = "",
+        $entry_point_id = '',
 
         $troubleId = null;
     /** @var EntryPoint */

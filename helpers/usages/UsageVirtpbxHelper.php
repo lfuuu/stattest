@@ -3,6 +3,7 @@
 namespace app\helpers\usages;
 
 use app\models\UsageVoip;
+use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -15,6 +16,7 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
 
     use UsageHelperTrait;
 
+    /** @var UsageVirtpbx */
     private $_usage;
 
     /**
@@ -35,6 +37,14 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
     }
 
     /**
+     * @return string
+     */
+    public function getValue()
+    {
+        return '';
+    }
+
+    /**
      * @return array
      */
     public function getDescription()
@@ -47,15 +57,16 @@ class UsageVirtpbxHelper extends Object implements UsageHelperInterface
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getHelp()
+    public function getExtendsData()
     {
-        return '';
+        return [];
     }
 
     /**
      * @return string
+     * @throws InvalidParamException
      */
     public function getEditLink()
     {

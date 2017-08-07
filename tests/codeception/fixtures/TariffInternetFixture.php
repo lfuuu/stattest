@@ -1,9 +1,9 @@
 <?php
 namespace app\tests\codeception\fixtures;
 
-use yii\test\ActiveFixture;
+use app\models\TariffInternet;
 
 class TariffInternetFixture extends ActiveFixture
 {
-    public $modelClass = 'app\models\TariffInternet';
+    public $modelClass = TariffInternet::class;
 }

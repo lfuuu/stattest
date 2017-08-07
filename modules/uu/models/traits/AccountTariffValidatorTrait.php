@@ -40,7 +40,7 @@ trait AccountTariffValidatorTrait
      */
     public function validatorServiceType($attribute, $params)
     {
-        if (!$this->isNewRecord && $this->_serviceTypeIdOld != $this->service_type_id) {
+        if (!$this->isNewRecord && $this->_serviceTypeIdOld && $this->_serviceTypeIdOld != $this->service_type_id) {
             $this->addError($attribute, 'Нельзя менять тип услуги');
             $this->errorCode = AccountTariff::ERROR_CODE_SERVICE_TYPE;
             return;

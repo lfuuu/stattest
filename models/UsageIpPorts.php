@@ -5,7 +5,6 @@ namespace app\models;
 use app\classes\bill\IpPortBiller;
 use app\classes\model\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\transfer\IpPortsServiceTransfer;
 use app\dao\services\IpPortsServiceDao;
 use app\helpers\usages\LogTariffTrait;
 use app\helpers\usages\UsageIpPortsHelper;
@@ -140,15 +139,6 @@ class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTarif
         return UsageIpRoutes::find()
             ->where(['port_id' => $this->id])
             ->all();
-    }
-
-    /**
-     * @param $usage
-     * @return IpPortsServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new IpPortsServiceTransfer($usage);
     }
 
     /**

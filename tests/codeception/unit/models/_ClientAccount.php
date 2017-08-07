@@ -36,14 +36,20 @@ class _ClientAccount extends \app\models\ClientAccount
     }
 
     /**
-     * оздает одного клиента для тестирования
+     * Создает одного клиента для тестирования
+     * @params int|null $entryPointCode
      * @return \app\models\ClientAccount
      * @throws \Exception
      */
-    public static function createOne()
+    public static function createOne($entryPointCode = null)
     {
-        $clientForm = new ClientCreateExternalForm();
+        $clientForm = new ClientCreateExternalForm;
         $clientForm->company = 'test account ' . mt_rand(0, 1000);
+
+        if ($entryPointCode !== null) {
+            $clientForm->entry_point_id = $entryPointCode;
+        }
+
         if (!$clientForm->create()) {
             throw new ModelValidationException($clientForm);
         }

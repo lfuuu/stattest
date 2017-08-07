@@ -41,6 +41,20 @@ class UsageTrunkSettings extends ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            [[
+                'usage_id', 'type', 'order', 'src_number_id', 'dst_number_id',
+                'pricelist_id', 'tmp', 'package_id', 'minimum_margin_type', 'minimum_cost', 'minimum_minutes',
+            ], 'integer'],
+            [['minimum_margin',], 'double'],
+        ];
+    }
+
+    /**
      * @return \yii\db\ActiveQuery
      */
     public function getUsage()

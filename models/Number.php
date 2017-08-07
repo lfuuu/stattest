@@ -42,12 +42,14 @@ use yii\helpers\Url;
  * @property int $is_service
  * @property integer $trunk_id
  *
- * @property City $city
- * @property Country $country
- * @property DidGroup $didGroup
- * @property UsageVoip $usage
- * @property ClientAccount $clientAccount
- * @property NdcType $ndcType
+ * @property-read City $city
+ * @property-read Country $country
+ * @property-read DidGroup $didGroup
+ * @property-read UsageVoip $usage
+ * @property-read ClientAccount $clientAccount
+ * @property-read NdcType $ndcType
+ * @property-read Region $regionModel
+ * @property-read City $cityByName
  *
  * @property float $originPrice
  * @property float $price
@@ -190,6 +192,14 @@ class Number extends ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRegionModel()
+    {
+        return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
+
+    /**
      * @param string|null $currency
      * @param ClientAccount $clientAccount
      * @return float|null
@@ -203,7 +213,7 @@ class Number extends ActiveRecord
         }
 
         if (!is_null($currency) && $this->didGroup->country->currency_id != $currency) {
-            if (($tariffCurrencyRate = CurrencyRate::dao()->getRate($this->didGroup->country->currency_id))) {
+            if (($tariffCurrencyRate = CurrencyRate::dao()->getRate($currency))) {
                 $price *= $tariffCurrencyRate;
             }
 
@@ -344,4 +354,18 @@ class Number extends ActiveRecord
     {
         return $this->ndc_type_id != NdcType::ID_MOBILE;
     }
+
+    /**
+     * @return City
+     */
+    public function getCityByNumber()
+    {
+        if ($this->city_id) {
+            return $this->city;
+        }
+
+        $cities = $this->regionModel->cities;
+        return reset($cities);
+    }
+
 }

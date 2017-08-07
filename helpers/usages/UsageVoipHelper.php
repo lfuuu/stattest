@@ -2,19 +2,21 @@
 
 namespace app\helpers\usages;
 
-use app\modules\nnp\models\NdcType;
-use yii\base\Object;
-use yii\db\ActiveRecord;
-use yii\helpers\Url;
 use app\classes\Html;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
+use app\modules\nnp\models\NdcType;
+use yii\base\InvalidParamException;
+use yii\base\Object;
+use yii\db\ActiveRecord;
+use yii\helpers\Url;
 
 class UsageVoipHelper extends Object implements UsageHelperInterface
 {
 
     use UsageHelperTrait;
 
+    /** @var UsageVoip */
     private $_usage;
 
     /**
@@ -32,6 +34,24 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
     public function getTitle()
     {
         return 'Телефония номера';
+    }
+
+    /**
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->_usage->E164;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtendsData()
+    {
+        return [
+            'didGroupId' => $this->_usage->voipNumber->did_group_id,
+        ];
     }
 
     /**
@@ -59,14 +79,7 @@ class UsageVoipHelper extends Object implements UsageHelperInterface
 
     /**
      * @return string
-     */
-    public function getHelp()
-    {
-        return '';
-    }
-
-    /**
-     * @return string
+     * @throws InvalidParamException
      */
     public function getEditLink()
     {

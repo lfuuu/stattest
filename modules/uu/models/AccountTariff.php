@@ -139,7 +139,7 @@ class AccountTariff extends HistoryActiveRecord
             ['service_type_id', 'validatorServiceType'],
             ['client_account_id', 'validatorTrunk', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorTariffPeriod'],
-            ['voip_number', 'validatorVoipNumber', 'skipOnEmpty' => true],
+            ['voip_number', 'validatorVoipNumber', 'skipOnEmpty' => true, 'on' => 'default'],
             [
                 ['city_id', 'voip_number'],
                 'required',
@@ -149,4 +149,21 @@ class AccountTariff extends HistoryActiveRecord
             ],
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+
+        $scenarios['default'] =
+        $scenarios['serviceTransfer'] = [
+            'client_account_id', 'service_type_id', 'region_id', 'city_id',
+            'prev_account_tariff_id', 'tariff_period_id', 'comment', 'voip_number',
+        ];
+
+        return $scenarios;
+    }
+
 }

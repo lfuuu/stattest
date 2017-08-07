@@ -14,6 +14,9 @@ use app\models\important_events\ImportantEventsSources;
 class UsageAction extends Behavior
 {
 
+    /**
+     * @return array
+     */
     public function events()
     {
         return [
@@ -27,6 +30,8 @@ class UsageAction extends Behavior
     /**
      * @param ModelEvent $event
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public function UsageAfterInsert($event)
     {
@@ -42,6 +47,8 @@ class UsageAction extends Behavior
     /**
      * @param ModelEvent $event
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public function UsageAfterUpdate($event)
     {
@@ -62,6 +69,8 @@ class UsageAction extends Behavior
     /**
      * @param ModelEvent $event
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public function UsageAfterDelete($event)
     {
@@ -77,6 +86,8 @@ class UsageAction extends Behavior
     /**
      * @param ModelEvent $event
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public function UsageTransferEvent($event)
     {

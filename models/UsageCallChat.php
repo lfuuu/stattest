@@ -5,7 +5,6 @@ namespace app\models;
 use app\classes\bill\CallChatBiller;
 use app\classes\model\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\transfer\CallChatServiceTransfer;
 use app\dao\services\CallChatServiceDao;
 use app\helpers\usages\UsageCallChatHelper;
 use app\models\usages\UsageInterface;
@@ -104,16 +103,6 @@ class UsageCallChat extends ActiveRecord implements UsageInterface
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
-    }
-
-    /**
-     * @param $usage
-     * @return CallChatServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        /** @todo realize */
-        return new CallChatServiceTransfer($usage);
     }
 
     /**

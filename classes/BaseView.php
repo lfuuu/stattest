@@ -22,6 +22,7 @@ use yii\web\View;
 class BaseView extends View
 {
 
+    const POS_FINALLY_END = 10;
     const ASSET_FRONTEND_DIR = '/views';
 
     private $_viewFile;
@@ -113,9 +114,9 @@ class BaseView extends View
         $url = Yii::getAlias($url);
         $key = $key ?: $url;
         $depends = ArrayHelper::remove($options, 'depends', []);
+        $position = ArrayHelper::remove($options, 'position', self::POS_END);
 
         if (empty($depends)) {
-            $position = ArrayHelper::remove($options, 'position', self::POS_END);
             $this->jsFiles[$position][$key] = Html::jsFile($url, $options);
         } else {
             $this->getAssetManager()->bundles[$key] = new AssetBundle([
@@ -125,7 +126,7 @@ class BaseView extends View
                 'jsOptions' => $options,
                 'depends' => (array)$depends,
             ]);
-            $this->registerAssetBundle($key);
+            $this->registerAssetBundle($key, $position);
         }
     }
 
@@ -190,6 +191,17 @@ class BaseView extends View
 
     }
 
+    protected function renderBodyEndHtml($ajaxMode)
+    {
+        $lines = parent::renderBodyEndHtml($ajaxMode);
+
+        if (!empty($this->jsFiles[self::POS_FINALLY_END])) {
+            $lines .= implode("\n", $this->jsFiles[self::POS_FINALLY_END]);
+        }
+
+        return $lines;
+    }
+
     /**
      * Существует ли форма
      *
@@ -232,7 +244,10 @@ class BaseView extends View
 
             do {
                 if (file_exists(Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . ($assetJsView = $assetViewFile . '.js'))) {
-                    $this->registerJsFile($assetJsView, ['depends' => [AppAsset::className(),]]);
+                    $this->registerJsFile($assetJsView, [
+                        'depends' => [AppAsset::className(),],
+                        'position' => self::POS_FINALLY_END,
+                    ]);
                 }
 
                 if (file_exists(Yii::getAlias('@webroot') . DIRECTORY_SEPARATOR . ($assetCssView = $assetViewFile . '.css'))) {

@@ -11,7 +11,6 @@ use app\classes\behaviors\UsageVoipAddress;
 use app\classes\bill\VoipBiller;
 use app\classes\model\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\transfer\VoipServiceTransfer;
 use app\dao\services\VoipServiceDao;
 use app\helpers\usages\LogTariffTrait;
 use app\helpers\usages\UsageVoipHelper;
@@ -19,11 +18,10 @@ use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
 use app\queries\UsageVoipQuery;
 use DateTime;
+use yii\base\InvalidParamException;
 use yii\helpers\Url;
 
 /**
- * Class UsageVoip
- *
  * @property int $id
  * @property int $region
  * @property string $actual_from
@@ -47,15 +45,15 @@ use yii\helpers\Url;
  * @property int $next_usage_id
  * @property int $ndc_type_id
  *
- * @property TariffVoip $tariff
- * @property ClientAccount $clientAccount
- * @property Region $connectionPoint
- * @property Region $regionName
- * @property Number $voipNumber
- * @property Datacenter $datacenter
- * @property UsageVoip $line7800
- * @property UsageVoipPackage $packages
- * @property UsageVoipHelper $helper
+ * @property-read TariffVoip $tariff
+ * @property-read ClientAccount $clientAccount
+ * @property-read Region $connectionPoint
+ * @property-read Region $regionName
+ * @property-read Number $voipNumber
+ * @property-read Datacenter $datacenter
+ * @property-read UsageVoip $line7800
+ * @property-read UsageVoipPackage $packages
+ * @property-read UsageVoipHelper $helper
  */
 class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
@@ -102,7 +100,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @return \app\dao\services\VoipServiceDao
+     * @return \app\dao\UsageDao
      */
     public static function dao()
     {
@@ -214,15 +212,6 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     }
 
     /**
-     * @param UsageInterface|ActiveRecord $usage
-     * @return VoipServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new VoipServiceTransfer($usage);
-    }
-
-    /**
      * @return UsageVoipHelper
      */
     public function getHelper()
@@ -248,6 +237,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
 
     /**
      * @return string
+     * @throws InvalidParamException
      */
     public function getUrl()
     {
@@ -257,6 +247,7 @@ class UsageVoip extends ActiveRecord implements UsageInterface, UsageLogTariffIn
     /**
      * @param int $id
      * @return string
+     * @throws InvalidParamException
      */
     public static function getUrlById($id)
     {

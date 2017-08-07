@@ -2,6 +2,7 @@
 
 namespace app\helpers\usages;
 
+use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -13,11 +14,15 @@ class UsageExtraHelper extends Object implements UsageHelperInterface
 
     use UsageHelperTrait;
 
-    private $usage;
+    /** @var UsageExtra */
+    private $_usage;
 
+    /**
+     * @param UsageInterface $usage
+     */
     public function __construct(UsageInterface $usage)
     {
-        $this->usage = $usage;
+        $this->_usage = $usage;
         parent::__construct();
     }
 
@@ -30,27 +35,36 @@ class UsageExtraHelper extends Object implements UsageHelperInterface
     }
 
     /**
-     * @return array
-     */
-    public function getDescription()
-    {
-        return [($this->usage->tariff ? $this->usage->tariff->description : 'Описание'), '', ''];
-    }
-
-    /**
      * @return string
      */
-    public function getHelp()
+    public function getValue()
     {
         return '';
     }
 
     /**
+     * @return array
+     */
+    public function getDescription()
+    {
+        return [($this->_usage->tariff ? $this->_usage->tariff->description : 'Описание'), '', ''];
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtendsData()
+    {
+        return [];
+    }
+
+    /**
      * @return string
+     * @throws InvalidParamException
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/pop_services.php', 'table' => UsageExtra::tableName(), 'id' => $this->usage->id]);
+        return Url::toRoute(['/pop_services.php', 'table' => UsageExtra::tableName(), 'id' => $this->_usage->id]);
     }
 
     /**
@@ -58,7 +72,7 @@ class UsageExtraHelper extends Object implements UsageHelperInterface
      */
     public function getTransferedFrom()
     {
-        return UsageExtra::findOne($this->usage->prev_usage_id);
+        return UsageExtra::findOne($this->_usage->prev_usage_id);
     }
 
 }

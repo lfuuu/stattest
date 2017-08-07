@@ -5,7 +5,6 @@ namespace app\models;
 use app\classes\bill\WelltimeBiller;
 use app\classes\model\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\transfer\WelltimeServiceTransfer;
 use app\dao\services\WelltimeServiceDao;
 use app\helpers\usages\UsageWelltimeHelper;
 use app\models\usages\UsageInterface;
@@ -96,15 +95,6 @@ class UsageWelltime extends ActiveRecord implements UsageInterface
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
-    }
-
-    /**
-     * @param $usage
-     * @return WelltimeServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new WelltimeServiceTransfer($usage);
     }
 
     /**

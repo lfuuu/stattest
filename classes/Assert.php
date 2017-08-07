@@ -278,7 +278,7 @@ final class Assert
 
     public static function isInstance($first, $second, $message = null)
     {
-        if (!ClassUtils::isInstanceOf($first, $second)) {
+        if (!($first instanceof $second)) {
             throw new Exception(
                 $message . ', ' . self::dumpOppositeArguments($first, $second)
             );

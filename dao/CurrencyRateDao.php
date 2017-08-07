@@ -31,7 +31,7 @@ class CurrencyRateDao extends Singleton
             ->onDate($date);
 
         $currencyRate = $currencyQuery->one();
-        Assert::isObject($currencyRate);
+        Assert::isObject($currencyRate, 'Missing rate for "' . $currency . '" at date "' . $date . '"');
 
         return $currencyRate->rate;
     }

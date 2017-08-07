@@ -2,6 +2,7 @@
 
 namespace app\helpers\usages;
 
+use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -12,11 +13,15 @@ class UsageTechCpeHelper extends Object implements UsageHelperInterface
 
     use UsageHelperTrait;
 
-    private $usage;
+    /** @var UsageTechCpe  */
+    private $_usage;
 
-    public function __construct($usage)
+    /**
+     * @param UsageTechCpe $usage
+     */
+    public function __construct(UsageTechCpe $usage)
     {
-        $this->usage = $usage;
+        $this->_usage = $usage;
         parent::__construct();
     }
 
@@ -29,27 +34,36 @@ class UsageTechCpeHelper extends Object implements UsageHelperInterface
     }
 
     /**
-     * @return array
-     */
-    public function getDescription()
-    {
-        return [$this->usage->model->vendor . ' ' . $this->usage->model->model, '', ''];
-    }
-
-    /**
      * @return string
      */
-    public function getHelp()
+    public function getValue()
     {
         return '';
     }
 
     /**
+     * @return array
+     */
+    public function getDescription()
+    {
+        return [$this->_usage->model->vendor . ' ' . $this->_usage->model->model, '', ''];
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtendsData()
+    {
+        return [];
+    }
+
+    /**
      * @return string
+     * @throws InvalidParamException
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/', 'module' => 'routers', 'action' => 'd_edit', 'id' => $this->usage->id]);
+        return Url::toRoute(['/', 'module' => 'routers', 'action' => 'd_edit', 'id' => $this->_usage->id]);
     }
 
     /**
@@ -57,7 +71,7 @@ class UsageTechCpeHelper extends Object implements UsageHelperInterface
      */
     public function getTransferedFrom()
     {
-        return UsageTechCpe::findOne($this->usage->prev_usage_id);
+        return UsageTechCpe::findOne($this->_usage->prev_usage_id);
     }
 
 }

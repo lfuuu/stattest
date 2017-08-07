@@ -167,15 +167,6 @@ class UsageVoipPackage extends ActiveRecord implements UsageInterface
     }
 
     /**
-     * @param UsageInterface $usage
-     * @return bool
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return false;
-    }
-
-    /**
      * @return UsageVoipPackageHelper
      */
     public function getHelper()

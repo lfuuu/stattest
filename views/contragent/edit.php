@@ -26,7 +26,7 @@ if ($model->isNewRecord) {
 
         <h2 style="display: inline-block; width: 62%;"><?= ($model->isNewRecord) ? 'Создание' : 'Редактирование' ?> контрагента</h2>
         <?php if (!$model->isNewRecord) : ?>
-            <a href="<?= Url::toRoute(['/contragent/transfer', 'id' => $model->id]) ?>" onClick="return showIframePopup(this)" data-height="500">Переместить</a>
+            <a href="<?= Url::toRoute(['/transfer/contragent', 'contragentId' => $model->id]) ?>" onClick="return showIframePopup(this)" data-height="500">Переместить</a>
         <?php endif; ?>
 
         <?php $f = ActiveForm::begin(); ?>

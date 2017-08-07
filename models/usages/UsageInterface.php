@@ -22,13 +22,12 @@ use DateTime;
  * @property int $prev_usage_id
  * @property int $next_usage_id
  *
- * @property LogTarif $logTariff см. LogTariffTrait
- * @property ClientAccount $clientAccount
- * @property Biller $biller
- * @property string $serviceType
- * @property TariffInterface $tariff
- * @property ServiceTransfer $transferHelper
- * @property UsageHelperInterface $helper
+ * @property-read LogTarif $logTariff см. LogTariffTrait
+ * @property-read ClientAccount $clientAccount
+ * @property-read Biller $biller
+ * @property-read string $serviceType
+ * @property-read TariffInterface $tariff
+ * @property-read UsageHelperInterface $helper
  */
 interface UsageInterface
 {
@@ -57,12 +56,6 @@ interface UsageInterface
     public function getServiceType();
 
     /**
-     * @param null $usage
-     * @return ServiceTransfer
-     */
-    public static function getTransferHelper($usage = null);
-
-    /**
      * @return ClientAccount
      */
     public function getClientAccount();
@@ -71,4 +64,5 @@ interface UsageInterface
      * @return UsageHelperInterface
      */
     public function getHelper();
+
 }

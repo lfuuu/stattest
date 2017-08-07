@@ -129,6 +129,9 @@ return [
         'atol' => [
             'class' => 'app\modules\atol\Module',
         ],
+        'transfer' => [
+            'class' => 'app\modules\transfer\Module',
+        ],
     ],
     'params' => $params,
 ];

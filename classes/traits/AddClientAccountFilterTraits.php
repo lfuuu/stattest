@@ -59,11 +59,17 @@ trait AddClientAccountFilterTraits
     private function _getCurrentClientAccount()
     {
         $accountId = $this->_getCurrentClientAccountId();
-        if (!$accountId) {
+        if (!$accountId || ($clientAccount = ClientAccount::findOne(['id' => $accountId])) === null) {
+            Yii::$app->session->setFlash('error',
+                Yii::t(
+                    'tariff', 'You should {a_start}select a client first{a_finish}',
+                    ['a_start' => '<a href="/">', 'a_finish' => '</a>']
+                )
+            );
             return null;
         }
 
-        return ClientAccount::findOne(['id' => $accountId]);
+        return $clientAccount;
     }
 
     /**

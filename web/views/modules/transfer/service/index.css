@@ -1,0 +1,27 @@
+.ui-autocomplete-loading {
+    background: white url('/images/ajax-loader-small.gif') right center no-repeat;
+}
+.ui-autocomplete {
+    max-height: 145px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.ui-menu-item {
+    white-space: nowrap;
+}
+
+li.autocomplete-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 98% !important;
+}
+
+.tariff-info {
+    font-size: 12px;
+    padding: 2px;
+}
+
+.tariff-info a:hover {
+    text-decoration: none;
+}

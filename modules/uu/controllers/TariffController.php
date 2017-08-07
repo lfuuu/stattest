@@ -5,11 +5,13 @@
 
 namespace app\modules\uu\controllers;
 
+use app\classes\Assert;
 use app\classes\BaseController;
 use app\modules\uu\filter\TariffFilter;
 use app\modules\uu\forms\TariffAddForm;
 use app\modules\uu\forms\TariffEditForm;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\TariffPeriod;
 use Yii;
 use yii\filters\AccessControl;
 
@@ -38,7 +40,7 @@ class TariffController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['new', 'edit'],
+                        'actions' => ['new', 'edit', 'edit-by-tariff-period'],
                         'roles' => ['tarifs.edit'],
                     ],
                 ],
@@ -122,5 +124,17 @@ class TariffController extends BaseController
         }
 
         return $this->render('edit', ['formModel' => $formModel]);
+    }
+
+    /**
+     * @param int $tariffPeriodId
+     */
+    public function actionEditByTariffPeriod($tariffPeriodId)
+    {
+        /** @var TariffPeriod $tariffPeriod */
+        $tariffPeriod = TariffPeriod::findOne(['id' => $tariffPeriodId]);
+        Assert::isObject($tariffPeriod);
+
+        $this->redirect(['edit', 'id' => $tariffPeriod->tariff_id]);
     }
 }

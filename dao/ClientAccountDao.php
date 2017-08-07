@@ -85,19 +85,23 @@ class ClientAccountDao extends Singleton
     }
 
     /**
-     * @param int $clientAccountId
      * @param string $search
+     * @param int|null $exceptClientAccountId
+     * @param int|null $clientAccountVersion
      * @return Query
      */
-    public function clientAccountSearch($clientAccountId, $search)
+    public function clientAccountSearch($search, $exceptClientAccountId = null, $clientAccountVersion = null)
     {
-        return (new Query)
-            ->select(['client.id', 'contragent.name'])
+        $query = (new Query)
+            ->select([
+                'client.id',
+                'contragent.name',
+                'client.account_version',
+            ])
             ->from(['client' => ClientAccount::tableName()])
             ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
             ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
-            ->where(['!=', 'client.id', (int)$clientAccountId])
-            ->andWhere([
+            ->where([
                 'OR',
                 ['LIKE', 'client.client', $search],
                 ['client.id' => $search],
@@ -108,6 +112,11 @@ class ClientAccountDao extends Singleton
                 'client.id' => SORT_DESC,
             ])
             ->limit(10);
+
+        $exceptClientAccountId && $query->andWhere(['!=', 'client.id', (int)$exceptClientAccountId]);
+        $clientAccountVersion && $query->andWhere(['client.account_version' => $clientAccountVersion]);
+
+        return $query;
     }
 
     /**

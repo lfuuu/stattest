@@ -2,17 +2,18 @@
 
 namespace app\controllers;
 
-use app\forms\client\ContragentEditForm;
 use app\classes\BaseController;
-use \Yii;
+use app\forms\client\ContragentEditForm;
+use Yii;
+use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
-use app\models\ClientSuper;
-use app\models\ClientContragent;
-use app\forms\contragent\ContragentTransferForm;
-use app\classes\Assert;
 
 class ContragentController extends BaseController
 {
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -29,6 +30,12 @@ class ContragentController extends BaseController
         ];
     }
 
+    /**
+     * @param int $parentId
+     * @param int|null $childId
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionCreate($parentId, $childId = null)
     {
         $model = new ContragentEditForm(['super_id' => $parentId]);
@@ -39,12 +46,18 @@ class ContragentController extends BaseController
             $this->redirect(['client/view', 'id' => $childId]);
         }
 
-        return $this->render("edit", [
+        return $this->render('edit', [
             'model' => $model
         ]);
-
     }
 
+    /**
+     * @param int $id
+     * @param int|null $childId
+     * @param string|null $date
+     * @return string
+     * @throws InvalidParamException
+     */
     public function actionEdit($id, $childId = null, $date = null)
     {
         $model = new ContragentEditForm(['id' => $id, 'historyVersionRequestedDate' => $date]);
@@ -77,50 +90,11 @@ class ContragentController extends BaseController
             $showLastChanges = true;
         }
 
-        return $this->render("edit", [
+        return $this->render('edit', [
             'model' => $model,
             'showLastChanges' => $showLastChanges,
         ]);
 
-    }
-
-    public function actionTransfer($id)
-    {
-        $contragent = ClientContragent::findOne($id);
-        Assert::isObject($contragent);
-
-        $client = ClientSuper::findOne($contragent->super_id);
-
-        $model = new ContragentTransferForm;
-
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->process()) {
-            $contragent = ClientContragent::findOne($model->sourceClientAccount);
-            Assert::isObject($contragent);
-
-            $this->redirect([
-                'contragent/transfer-success',
-                'id' => $contragent->id,
-            ]);
-        }
-
-        $this->layout = 'minimal';
-        return $this->render('transfer', [
-            'contragent' => $contragent,
-            'client' => $client,
-            'model' => $model,
-        ]);
-    }
-
-    public function actionTransferSuccess($id)
-    {
-        $contragent = ClientContragent::findOne($id);
-        Assert::isObject($contragent);
-
-        $this->layout = 'minimal';
-        return $this->render('transfer_success', [
-            'contragent' => $contragent,
-            'superClient' => ClientSuper::findOne($contragent->super_id),
-        ]);
     }
 
 }

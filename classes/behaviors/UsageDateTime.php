@@ -1,16 +1,20 @@
 <?php
 namespace app\classes\behaviors;
 
-use DateTime;
-use DateTimeZone;
 use app\classes\Assert;
-use yii\base\Behavior;
-use yii\db\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use DateTime;
+use DateTimeZone;
+use yii\base\Behavior;
+use yii\db\ActiveRecord;
 
 class UsageDateTime extends Behavior
 {
+
+    /**
+     * @return array
+     */
     public function events()
     {
         return [
@@ -19,18 +23,23 @@ class UsageDateTime extends Behavior
         ];
     }
 
+    /**
+     * @param \yii\base\ModelEvent $event
+     * @throws \yii\base\Exception
+     */
     public function setActualDateTime($event)
     {
         $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
 
         if (isset($event->sender->client)) {
-            $client =
+            /** @var ClientAccount $clientAccount */
+            $clientAccount =
                 is_numeric($event->sender->client)
                     ? ClientAccount::findOne($event->sender->client)
                     : ClientAccount::findOne(['client' => $event->sender->client]);
-            Assert::isObject($client);
+            Assert::isObject($clientAccount, 'Missing ClientAccount #' . $event->sender->client);
 
-            $timezone = $client->timezone_name;
+            $timezone = $clientAccount->timezone_name;
         }
 
         $event->sender->activation_dt =

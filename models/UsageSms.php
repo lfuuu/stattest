@@ -5,7 +5,6 @@ namespace app\models;
 use app\classes\bill\SmsBiller;
 use app\classes\model\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\transfer\SmsServiceTransfer;
 use app\dao\services\SmsServiceDao;
 use app\helpers\usages\UsageSmsHelper;
 use app\models\usages\UsageInterface;
@@ -95,15 +94,6 @@ class UsageSms extends ActiveRecord implements UsageInterface
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
-    }
-
-    /**
-     * @param $usage
-     * @return SmsServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new SmsServiceTransfer($usage);
     }
 
     /**

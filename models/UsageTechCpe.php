@@ -2,11 +2,10 @@
 
 namespace app\models;
 
-use app\classes\model\ActiveRecord;
-use app\classes\transfer\TechCpeTransfer;
 use app\dao\UsageTechCpeDao;
-use app\helpers\usages\UsageTechCpeHelper;
 use app\queries\UsageTechCpeQuery;
+use app\classes\model\ActiveRecord;
+use app\helpers\usages\UsageTechCpeHelper;
 
 /**
  * @property int $id
@@ -63,15 +62,6 @@ class UsageTechCpe extends ActiveRecord
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
-    }
-
-    /**
-     * @param $usage
-     * @return TechCpeTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new TechCpeTransfer($usage);
     }
 
     /**

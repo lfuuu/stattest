@@ -21,8 +21,11 @@ use app\tests\codeception\fixtures\uu\TariffFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
 use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use DateTimeImmutable;
-use tests\codeception\unit\custom\_TestCase;
+use tests\codeception\unit\_TestCase;
 
+/**
+ * Class UbillingTest
+ */
 class UbillerTest extends _TestCase
 {
     protected function setUp()

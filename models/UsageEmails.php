@@ -4,7 +4,6 @@ namespace app\models;
 
 use app\classes\bill\EmailBiller;
 use app\classes\model\ActiveRecord;
-use app\classes\transfer\EmailServiceTransfer;
 use app\dao\services\EmailsServiceDao;
 use app\helpers\usages\UsageEmailHelper;
 use app\models\usages\UsageInterface;
@@ -84,15 +83,6 @@ class UsageEmails extends ActiveRecord implements UsageInterface
     public function getClientAccount()
     {
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
-    }
-
-    /**
-     * @param $usage
-     * @return EmailServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new EmailServiceTransfer($usage);
     }
 
     /**

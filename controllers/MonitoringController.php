@@ -2,21 +2,29 @@
 
 namespace app\controllers;
 
-use app\exceptions\ModelValidationException;
-use app\helpers\DateTimeZoneHelper;
-use app\models\Param;
-use Yii;
-use yii\db\Expression;
 use app\classes\BaseController;
 use app\classes\monitoring\MonitorFactory;
-use app\models\EventQueue;
-use app\models\ClientAccount;
-use app\models\filter\EventQueueFilter;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\dao\MonitoringDao;
+use app\exceptions\ModelValidationException;
 use app\forms\transfer\ServiceTransferForm;
+use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
+use app\models\filter\EventQueueFilter;
+use app\models\Param;
+use app\modules\transfer\components\services\regular\BasicServiceTransfer as RegularBasicServiceTransfer;
+use app\modules\transfer\components\services\regular\RegularTransfer;
+use app\modules\transfer\components\services\universal\UniversalTransfer;
+use kartik\base\Config;
+use Yii;
+use yii\base\InvalidCallException;
+use yii\base\InvalidValueException;
+use yii\db\Expression;
 
 class MonitoringController extends BaseController
 {
+
+    use AddClientAccountFilterTraits;
 
     /**
      * Index
@@ -41,21 +49,52 @@ class MonitoringController extends BaseController
      * @return string
      * @throws \yii\base\InvalidParamException
      * @throws \yii\base\Exception
+     * @throws InvalidCallException
+     * @throws InvalidValueException
      */
-    public function actionTransferedUsages($isCurrentOnly = true)
+    public function actionTransferredServices($isCurrentOnly = true)
     {
-        global $fixclient_data;
+        $clientAccount = null;
 
-        $services = ServiceTransferForm::getServicesGroups();
-        $clientAccount = ($isCurrentOnly && $fixclient_data instanceof ClientAccount ? $fixclient_data : null);
-
-        $listing = [];
-        foreach ($services as $serviceKey => $serviceClass) {
-            $listing[(new $serviceClass)->helper->title] = MonitoringDao::transferedUsages($serviceClass, $clientAccount);
+        if ($isCurrentOnly) {
+            $clientAccount = $this->_getCurrentClientAccount();
+            if ($clientAccount === null) {
+                return $this->redirect('/');
+            }
         }
 
-        return $this->render('transferUsages', [
-            'result' => $listing,
+        $regularProcessor = new RegularTransfer;
+        $universalProcessor = new UniversalTransfer;
+
+        $knownRegularServices = $regularProcessor->getServices();
+        $regularServices = [];
+        foreach ($knownRegularServices as $serviceCode => $serviceHandler) {
+            /** @var RegularBasicServiceTransfer $serviceHandler */
+            $serviceHandler = $regularProcessor->getHandler($serviceCode);
+
+            if(($service = $serviceHandler->getServiceModelName()) === '') {
+                continue;
+            }
+
+            $regularServices += MonitoringDao::transferredRegularServices($service, $clientAccount);
+        }
+
+        $knownUniversalServices = $universalProcessor->getServices();
+        $universalServices = [];
+        foreach ($knownUniversalServices as $serviceCode => $serviceHandler) {
+            /** @var RegularBasicServiceTransfer $serviceHandler */
+            $serviceHandler = $regularProcessor->getHandler($serviceCode);
+
+            if(!$serviceHandler->getServiceTypeId()) {
+                continue;
+            }
+
+            $universalServices += MonitoringDao::transferredUniversalServices($serviceHandler->getServiceTypeId(), $clientAccount);
+        }
+
+        return $this->render('transferred_services', [
+            'regularServices' => $regularServices,
+            'universalServices' => $universalServices,
             'clientAccount' => $clientAccount,
         ]);
     }
@@ -98,7 +137,7 @@ class MonitoringController extends BaseController
     {
         Param::deleteAll(['param' => [
             Param::NOTIFICATIONS_SWITCH_OFF_DATE,
-            Param::NOTIFICATIONS_SWITCH_ON_DATE
+            Param::NOTIFICATIONS_SWITCH_ON_DATE,
         ]]);
 
         return $this->redirect(\Yii::$app->request->referrer ?: "/");
@@ -106,6 +145,8 @@ class MonitoringController extends BaseController
 
     /**
      * Отключение оповещений
+     *
+     * @throws ModelValidationException
      */
     public function actionNotificationOff()
     {
@@ -130,6 +171,8 @@ class MonitoringController extends BaseController
 
     /**
      * Отключение пересчета баланса при редактировании счета
+     *
+     * @throws ModelValidationException
      */
     public function actionRecalculationBalanceWhenBillEditOff()
     {
@@ -140,9 +183,14 @@ class MonitoringController extends BaseController
 
     /**
      * Включение пересчета баланса при редактировании счета
+     *
+     * @throws ModelValidationException
+     * @throws \yii\db\StaleObjectException
+     * @throws \Exception
      */
     public function actionRecalculationBalanceWhenBillEditOn()
     {
+        /** @var Param $param */
         $param = Param::findOne(Param::DISABLING_RECALCULATION_BALANCE_WHEN_EDIT_BILL);
 
         if ($param) {

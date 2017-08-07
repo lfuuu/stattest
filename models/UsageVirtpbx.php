@@ -5,7 +5,6 @@ namespace app\models;
 use app\classes\bill\VirtpbxBiller;
 use app\classes\model\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\transfer\VirtpbxServiceTransfer;
 use app\dao\services\VirtpbxServiceDao;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
@@ -116,15 +115,6 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
-    }
-
-    /**
-     * @param UsageInterface $usage
-     * @return VirtpbxServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new VirtpbxServiceTransfer($usage);
     }
 
     /**

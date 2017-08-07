@@ -2,6 +2,7 @@
 
 namespace app\helpers\usages;
 
+use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -13,11 +14,15 @@ class UsageIpPortsHelper extends Object implements UsageHelperInterface
 
     use UsageHelperTrait;
 
-    private $usage;
+    /** @var UsageIpPorts  */
+    private $_usage;
 
+    /**
+     * @param UsageInterface $usage
+     */
     public function __construct(UsageInterface $usage)
     {
-        $this->usage = $usage;
+        $this->_usage = $usage;
         parent::__construct();
     }
 
@@ -30,27 +35,36 @@ class UsageIpPortsHelper extends Object implements UsageHelperInterface
     }
 
     /**
-     * @return array
-     */
-    public function getDescription()
-    {
-        return [$this->usage->address, '', ''];
-    }
-
-    /**
      * @return string
      */
-    public function getHelp()
+    public function getValue()
     {
         return '';
     }
 
     /**
-     * @return mixed
+     * @return array
+     */
+    public function getDescription()
+    {
+        return [$this->_usage->address, '', ''];
+    }
+
+    /**
+     * @return array
+     */
+    public function getExtendsData()
+    {
+        return [];
+    }
+
+    /**
+     * @return string
+     * @throws InvalidParamException
      */
     public function getEditLink()
     {
-        return Url::toRoute(['/pop_services.php', 'table' => UsageIpPorts::tableName(), 'id' => $this->usage->id]);
+        return Url::toRoute(['/pop_services.php', 'table' => UsageIpPorts::tableName(), 'id' => $this->_usage->id]);
     }
 
     /**
@@ -58,7 +72,7 @@ class UsageIpPortsHelper extends Object implements UsageHelperInterface
      */
     public function getTransferedFrom()
     {
-        return UsageIpPorts::findOne($this->usage->prev_usage_id);
+        return UsageIpPorts::findOne($this->_usage->prev_usage_id);
     }
 
 }

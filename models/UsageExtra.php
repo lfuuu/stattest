@@ -5,7 +5,6 @@ namespace app\models;
 use app\classes\bill\ExtraBiller;
 use app\classes\model\ActiveRecord;
 use app\classes\monitoring\UsagesLostTariffs;
-use app\classes\transfer\ExtraServiceTransfer;
 use app\dao\services\ExtraServiceDao;
 use app\helpers\usages\UsageExtraHelper;
 use app\models\usages\UsageInterface;
@@ -95,15 +94,6 @@ class UsageExtra extends ActiveRecord implements UsageInterface
     public function getRegionName()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
-    }
-
-    /**
-     * @param $usage
-     * @return ExtraServiceTransfer
-     */
-    public static function getTransferHelper($usage = null)
-    {
-        return new ExtraServiceTransfer($usage);
     }
 
     /**

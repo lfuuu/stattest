@@ -4,7 +4,9 @@ namespace app\classes;
 
 use app\classes\api\ApiPhone;
 use app\models\ActualNumber;
+use app\models\ClientAccount;
 use app\models\UsageVoip;
+use app\modules\uu\models\AccountTariff;
 
 /**
  * Class ActaulizerVoipNumbers
@@ -272,17 +274,39 @@ class ActaulizerVoipNumbers extends Singleton
 
     /**
      * @param array $data
-     * @throws \yii\base\InvalidCallException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
      */
     private function _addEvent($data)
     {
         /** @var UsageVoip $usage */
-        $usage = UsageVoip::find()->phone($data['number'])->actual()->one();
-        $params = $usage ?
-            (json_decode($usage->create_params, true) ?: []) :
-            [];
+        $usage = UsageVoip::find()
+            ->phone($data['number'])
+            ->actual()
+            ->one();
+
+        if (!$usage) {
+            $usage = AccountTariff::find()
+                ->where(['voip_number' => $data['number']])
+                ->andWhere(['IS NOT', 'tariff_period_id', null])
+                ->one();
+        }
+
+        if (!$usage) {
+            throw new \LogicException('Услуга не найдена. Как-так?');
+        }
+
+        if ($usage->prev_usage_id) {
+            throw new \LogicException('Услуга установлена на перенос!');
+        }
+
+        $params = '{}';
+        if ($usage) {
+            $params = $usage->create_params;
+        }
+
+        $params = json_decode($params, true);
+        if (!$params) {
+            $params = [];
+        }
 
         ApiPhone::me()->addDid(
             (int)$data['client_id'],
@@ -303,6 +327,42 @@ class ActaulizerVoipNumbers extends Singleton
      */
     private function _delEvent($data)
     {
+        /** @var ClientAccount $account */
+        $account = ClientAccount::findOne(['id' => $data['client_id']]);
+        if (!$account) {
+            throw new \LogicException('ЛС не найден');
+        }
+
+        /** @var UsageVoip $usage */
+        $usage = UsageVoip::find()
+            ->where([
+                'E164' => $data['number'],
+                'client' => $account->client
+            ])
+            ->orderBy(['actual_from' => SORT_DESC])
+            ->one();
+/*
+        if (!$usage) {
+            $usage = AccountTariff::find()
+                ->where([
+                    'voip_number' => $data['number'],
+                    'client_account_id' => $account->id
+                ])
+                ->orderBy(['id' => SORT_DESC])
+            ->one();
+        }
+        @TODO: доработать правильное определение удаляемой услуги.
+        @TODO: ввести универсальные усулги
+*/
+
+        if (!$usage) {
+            throw new \LogicException('Услуга не найдена. Как-так?');
+        }
+
+        if ($usage->next_usage_id) {
+            throw new \LogicException('Удаление услуги. Услуга установлена на перенос!');
+        }
+
         ApiPhone::me()->disableDid(
             (int)$data['client_id'],
             $data['number']
@@ -326,13 +386,23 @@ class ActaulizerVoipNumbers extends Singleton
         if (isset($changedFields['client_id'])) {
 
             $isMoved = false;
-            $usage = UsageVoip::find()->phone($number)->actual()->one();
+            $usage = UsageVoip::find()
+                ->phone($number)
+                ->actual()
+                ->one();
+
+            if (!$usage) {
+                $usage = AccountTariff::find()
+                    ->where(['voip_number' => $number])
+                    ->andWhere(['IS NOT', 'tariff_period_id', null])
+                    ->one();
+            }
+
             if ($usage) {
                 $isMoved = $usage->prev_usage_id;
             }
 
             if ($isMoved) {
-
                 ApiPhone::me()->editClientId(
                     (int)$old['client_id'],
                     (int)$new['client_id'],
