@@ -94,6 +94,7 @@ class ClientController extends BaseController
 
         $services['voip'] = UsageVoip::find()
             ->where(['client' => $account->client])
+            ->with('voipNumber.city', 'connectionPoint')
             ->orderBy(['status' => SORT_DESC, 'actual_to' => SORT_DESC, 'actual_from' => SORT_ASC])
             ->all();
 

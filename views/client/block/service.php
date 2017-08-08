@@ -279,7 +279,11 @@ if ($has) :
                                             <img class="icon" src="/images/icons/tt_new.gif" alt="Создать заявку">
                                         </a>
                                     </td>
-                                    <td width="10%"><?= $service->regionName->name ?></td>
+                                    <?php
+                                        $voipNumber = $service->voipNumber;
+                                        $connectionPoint = $service->connectionPoint;
+                                    ?>
+                                    <td width="10%"><?= $voipNumber ? ($voipNumber->city_id ? $voipNumber->city->name : $connectionPoint->name) : $connectionPoint->name ?></td>
                                     <td style="font-size: 8pt;" width="15%">
                                         <a href="/usage/voip/edit?id=<?= $service->id ?>"
                                            target="_blank"><?= $service->address ?></a>
