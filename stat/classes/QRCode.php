@@ -1,5 +1,7 @@
 <?php
 
+use app\classes\BillQRCode;
+
 class QRCode
 {
     public static $codes = array(
@@ -46,16 +48,15 @@ class QRCode
 
     public static function decodeNo($no)
     {
-        if(strlen($no) == 15 || strlen($no) == 13)
-        {
+        if (in_array(strlen($no), BillQRCode::NUMBER_FORMAT_LENGTHS)) {
             $type = self::_getType(substr($no, 0, 2));
             $number = self::_getNumber(substr($no, 2));
 
-            if($type)
-            {
-                return array("type" => $type, "number" => $number);
+            if ($type) {
+                return ["type" => $type, "number" => $number];
             }
         }
+
         return false;
     }
 

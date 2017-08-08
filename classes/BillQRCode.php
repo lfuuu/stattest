@@ -4,6 +4,16 @@ namespace app\classes;
 
 class BillQRCode
 {
+    const NUMBER_FORMAT_LENGTH = 15; // new document number format
+    const NUMBER_FORMAT_LENGTH_OLD = 13; // old format
+    const NUMBER_FORMAT_LENGTH_UU = 12; // uu-format
+
+    const NUMBER_FORMAT_LENGTHS = [
+        self::NUMBER_FORMAT_LENGTH,
+        self::NUMBER_FORMAT_LENGTH_OLD,
+        self::NUMBER_FORMAT_LENGTH_UU,
+    ];
+
     public static $codes = [
         "bill" => ["code" => "01", "c" => "bill", "name" => "Счет"],
         "akt-1" => ["code" => "11", "c" => "akt", "s" => 1, "name" => "Акт 1"],
@@ -42,14 +52,15 @@ class BillQRCode
 
     public static function decodeNo($no)
     {
-        if (strlen($no) == 15 || strlen($no) == 13) {
+        if (in_array(strlen($no), self::NUMBER_FORMAT_LENGTHS)) {
             $type = self::getType(substr($no, 0, 2));
             $number = self::getNumber(substr($no, 2));
 
             if ($type) {
-                return array("type" => $type, "number" => $number);
+                return ["type" => $type, "number" => $number];
             }
         }
+
         return false;
     }
 
@@ -92,6 +103,10 @@ class BillQRCode
 
     private static function getNumber($no)
     {
+        if (strlen($no) == self::NUMBER_FORMAT_LENGTH_UU) { //uu document
+            return $no;
+        }
+
         switch ($no[6]) {
             case '1' :
                 $no[6] = "-";
