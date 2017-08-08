@@ -283,6 +283,11 @@ class ActaulizerVoipNumbers extends Singleton
             ->actual()
             ->one();
 
+        $params = [];
+        if ($usage) {
+            $params = json_decode($usage->create_params, true) ?: [];
+        }
+
         if (!$usage) {
             $usage = AccountTariff::find()
                 ->where(['voip_number' => $data['number']])
@@ -296,16 +301,6 @@ class ActaulizerVoipNumbers extends Singleton
 
         if ($usage->prev_usage_id) {
             throw new \LogicException('Услуга установлена на перенос!');
-        }
-
-        $params = '{}';
-        if ($usage) {
-            $params = $usage->create_params;
-        }
-
-        $params = json_decode($params, true);
-        if (!$params) {
-            $params = [];
         }
 
         ApiPhone::me()->addDid(
