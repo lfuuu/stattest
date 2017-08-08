@@ -149,21 +149,4 @@ class AccountTariff extends HistoryActiveRecord
             ],
         ];
     }
-
-    /**
-     * @return array
-     */
-    public function scenarios()
-    {
-        $scenarios = parent::scenarios();
-
-        $scenarios['default'] =
-        $scenarios['serviceTransfer'] = [
-            'client_account_id', 'service_type_id', 'region_id', 'city_id',
-            'prev_account_tariff_id', 'tariff_period_id', 'comment', 'voip_number',
-        ];
-
-        return $scenarios;
-    }
-
 }
