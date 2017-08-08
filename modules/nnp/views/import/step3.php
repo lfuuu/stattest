@@ -45,7 +45,7 @@ if (!$handle) {
 
 $rowNumber = 0;
 $isFileOK = true;
-$importServiceUploaded = new ImportServiceUploaded($country->code);
+$importServiceUploaded = new ImportServiceUploaded(['countryCode' => $country->code]);
 ?>
 
 <?php ob_start() ?>
