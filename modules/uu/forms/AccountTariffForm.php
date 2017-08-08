@@ -117,6 +117,11 @@ abstract class AccountTariffForm extends Form
 
                 $this->accountTariff->city_id = $this->accountTariffVoip->city_id;
 
+                if (!$this->accountTariffVoip->voip_numbers) {
+                    $this->validateErrors[] = 'Не выбраны телефонные номера';
+                    throw new InvalidArgumentException('');
+                }
+
                 // каждый выбранный номер телефона - отдельная услуга
                 foreach ($this->accountTariffVoip->voip_numbers as $voipNumber) {
 
