@@ -4668,7 +4668,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
             $W = array('AND');//,'C.status="work"');
             $W[] = 'B.sum!=0';
             $W[] = 'P.currency="RUB" OR P.currency IS NULL';
-            $W[] = 'biller_version = ' . ClientAccount::VERSION_BILLER_USAGE;
 
             if ($organizationId) {
                 $W[] = 'B.organization_id="' . $organizationId . '"';
@@ -4702,13 +4701,16 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     18 AS min_nds
                 FROM
                     `newbills` B
-                      LEFT JOIN `newpayments` P ON (P.`bill_no` = B.`bill_no` AND P.`client_id` = B.`client_id`)
-                        INNER JOIN `clients` C ON (C.`id` = B.`client_id`)
-                          INNER JOIN `client_contract` cr ON cr.`id` = C.`contract_id`
-                            INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
+                LEFT JOIN `newpayments` P ON (P.`bill_no` = B.`bill_no` AND P.`client_id` = B.`client_id`)
+                INNER JOIN `clients` C ON (C.`id` = B.`client_id`)
+                INNER JOIN `client_contract` cr ON cr.`id` = C.`contract_id`
+                INNER JOIN `client_contragent` cg ON cg.`id` = cr.`contragent_id`
                 WHERE
                     " . MySQLDatabase::Generate($W) . "
-                    AND B.`bill_no` RLIKE '^20[0-9]{4}-[0-9]{4}([0-9]{2})?$'
+                    AND (
+                           B.`bill_no` RLIKE '^20[0-9]{4}-[0-9]{4}([0-9]{2})?$' /*stat old && new format bill */ 
+                        OR B.`bill_no` RLIKE '^[0-9]{10}$' /* uu format*/
+                        )
                     AND IF(B.`sum` < 0, cr.`contract_type_id` =2, true) ### only telekom clients with negative sum
                     AND cr.`contract_type_id` != 6 ## internal office
                     AND cr.`business_process_status_id` NOT IN (22, 28, 99) ## trash, cancel
