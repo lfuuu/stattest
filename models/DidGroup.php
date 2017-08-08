@@ -124,10 +124,11 @@ class DidGroup extends ActiveRecord
             'is_service' => 'Служебная группа',
         ];
 
-        for ($i = 1; $i <= 9; $i++) {
-            $labels['price' . $i] = 'Цена ' . $i;
-            $labels['tariff_status_main' . $i] = 'Тариф ' . $i;
-            $labels['tariff_status_package' . $i] = 'Пакет ' . $i;
+        $priceLevels = ClientAccount::getPriceLevels();
+        foreach ($priceLevels as $i => $priceLevel) {
+            $labels['price' . $i] = 'Цена ' . $priceLevel;
+            $labels['tariff_status_main' . $i] = 'Тариф ' . $priceLevel;
+            $labels['tariff_status_package' . $i] = 'Пакет ' . $priceLevel;
         }
 
         return $labels;
@@ -146,7 +147,8 @@ class DidGroup extends ActiveRecord
             ['tariff_status_beauty', 'number'],
         ];
 
-        for ($i = 1; $i <= 9; $i++) {
+        $priceLevels = ClientAccount::getPriceLevels();
+        foreach ($priceLevels as $i => $priceLevel) {
             $rules[] = ['price' . $i, 'number'];
 
             $rules[] = ['tariff_status_main' . $i, 'number'];
