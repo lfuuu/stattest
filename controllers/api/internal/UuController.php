@@ -384,7 +384,7 @@ class UuController extends ApiInternalController
             }
 
             $is_postpaid = $clientAccount->is_postpaid;
-            
+
             $tariff_person_id = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
                 TariffPerson::ID_NATURAL_PERSON :
                 TariffPerson::ID_LEGAL_PERSON;
@@ -648,6 +648,105 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Definition(definition = "TariffPeriodForExcelRecord", type = "object",
+     *   @SWG\Property(property = "id", type = "integer", description = "ID"),
+     *   @SWG\Property(property = "name", type = "string", description = "Название"),
+     *   @SWG\Property(property = "price_per_period", type = "number", description = "Абонентская плата")
+     * ),
+     *
+     * @SWG\Definition(definition = "AccountTariffForExcelRecord", type = "object",
+     *   @SWG\Property(property = "id", type = "integer", description = "ID"),
+     *   @SWG\Property(property = "date_from", type = "string", description = "Дата включения. Всегда указана. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "date_to", type = "string", description = "Дата выключения. Если не выключено и не планируется - null. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона"),
+     *   @SWG\Property(property = "beauty_level", type = "integer", description = "Уровень красивости номера телефонии (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
+     *   @SWG\Property(property = "ndc", type = "integer", description = "NDC номера телефонии"),
+     *   @SWG\Property(property = "tariff", type = "array", description = "Для включенной услуги - текущий тариф. Для выключенной - последний действующий тариф", @SWG\Items(ref = "#/definitions/TariffPeriodForExcelRecord"))
+     * ),
+     *
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-account-tariffs-for-excel", summary = "Список услуг у ЛС для выгрузки в Excel", operationId = "GetAccountTariffsForExcel",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
+     *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "ID типа услуги (ВАТС, телефония, интернет и пр.)", in = "query", default = "2"),
+     *
+     *   @SWG\Response(response = 200, description = "Список услуг у ЛС для выгрузки в Excel",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/AccountTariffForExcelRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     */
+    /**
+     * @param int $client_account_id
+     * @param int $service_type_id
+     * @return array
+     * @throws HttpException
+     */
+    public function actionGetAccountTariffsForExcel(
+        $client_account_id,
+        $service_type_id
+    ) {
+        $client_account_id = (int)$client_account_id;
+        $service_type_id = (int)$service_type_id;
+
+        !$service_type_id && $service_type_id = ServiceType::ID_VOIP;
+
+        $accountTariffQuery = AccountTariff::find()
+            ->andWhere([
+                'client_account_id' => $client_account_id,
+                'service_type_id' => $service_type_id,
+            ]);
+
+        $result = [];
+        foreach ($accountTariffQuery->each() as $accountTariff) {
+            /** @var AccountTariff $accountTariff */
+            $result[] = $this->_getAccountTariffForExcelRecord($accountTariff);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param AccountTariff $accountTariff
+     * @return array
+     */
+    private function _getAccountTariffForExcelRecord($accountTariff)
+    {
+        $number = $accountTariff->number;
+        $accountTariffLogs = $accountTariff->accountTariffLogs;
+        $accountTariffLogFirst = end($accountTariffLogs); // первый по времени идет последним в этом списке
+        $accountTariffLogLast = array_pop($accountTariffLogs); // последний по времени (как в прошлом, так и в будущем) идет первым в этом списке
+        $lastTariffPeriod = $accountTariffLogLast->tariff_period_id ? // последний непустой тариф/период
+            $accountTariffLogLast->tariffPeriod :
+            array_pop($accountTariffLogs)->tariffPeriod;
+        return [
+            'id' => $accountTariff->id,
+            'date_from' => $accountTariffLogFirst->actual_from,
+            'date_to' => $accountTariffLogLast->tariff_period_id ? null : $accountTariffLogLast->actual_from, // тариф/период есть - значит, закрытия нет
+            'city' => $this->_getIdNameRecord($accountTariff->city),
+            'voip_number' => $accountTariff->voip_number,
+            'beauty_level' => $number ? $number->beauty_level : null,
+            'ndc' => $number ? $number->ndc : null,
+            'tariff' => $this->_getTariffPeriodForExcelRecord($lastTariffPeriod),
+        ];
+    }
+
+    /**
+     * @param TariffPeriod $tariffPeriod
+     * @return array
+     */
+    private function _getTariffPeriodForExcelRecord($tariffPeriod)
+    {
+        $tariff = $tariffPeriod->tariff;
+        return [
+            'id' => $tariff->id,
+            'name' => $tariff->name,
+            'price_per_period' => $tariffPeriod->price_per_period,
+        ];
+    }
+
+    /**
      * @SWG\Definition(definition = "accountTariffLogRecord", type = "object",
      *   @SWG\Property(property = "tariff", type = "object", description = "Тариф/период", @SWG\Items(ref = "#/definitions/tariffRecord")),
      *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД"),
@@ -690,10 +789,9 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "next_account_tariffs", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(ref = "#/definitions/accountTariffRecord")),
      *   @SWG\Property(property = "comment", type = "string", description = "Комментарий"),
      *   @SWG\Property(property = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона"),
-     *   @SWG\Property(property = "voip_city", type = "object", description = "Город", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "beauty_level", type = "integer", description = "Уровень красивости номера телефонии (0 - Стандартный, 1 - Платиновый, 2 - Золотой, 3 - Серебряный, 4 - Бронзовый)"),
      *   @SWG\Property(property = "ndc", type = "integer", description = "NDC номера телефонии"),
-     *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие"),
+     *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
      *   @SWG\Property(property = "resources", type = "array", description = "Ресурсы услуги", @SWG\Items(ref = "#/definitions/accountTariffResourceRecord")),
      * ),
@@ -807,7 +905,6 @@ class UuController extends ApiInternalController
             'next_account_tariffs' => $this->_getAccountTariffRecord($accountTariff->nextAccountTariffs),
             'comment' => $accountTariff->comment,
             'voip_number' => $accountTariff->voip_number,
-            'voip_city' => $this->_getIdNameRecord($accountTariff->city),
             'beauty_level' => $number ? $number->beauty_level : null,
             'ndc' => $number ? $number->ndc : null,
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
@@ -983,7 +1080,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_package_addable", type = "boolean", description = "Можно ли подключить пакет?"),
      *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
      *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа или закрытие? Если в будущем назначена смена тарифа или закрытие"),
-     *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие. И с которой уменьшение количества ресурса повлияет на баланс."),
+     *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие. И с которой уменьшение количества ресурса повлияет на баланс. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "packages", type = "array", description = "Услуги пакета телефонии (если это телефония)", @SWG\Items(type = "array", @SWG\Items(ref = "#/definitions/accountTariffWithPackagesRecord"))),
      * ),
      *
@@ -1628,9 +1725,9 @@ class UuController extends ApiInternalController
     /**
      * @SWG\Definition(definition = "accountEntryRecord", type = "object",
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
-     *   @SWG\Property(property = "date", type = "string", description = "Дата счета"),
-     *   @SWG\Property(property = "date_from", type = "string", description = "Минимальная дата транзакций"),
-     *   @SWG\Property(property = "date_to", type = "string", description = "Максимальная дата транзакций"),
+     *   @SWG\Property(property = "date", type = "string", description = "Дата счета. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "date_from", type = "string", description = "Минимальная дата транзакций. ГГГГ-ММ-ДД"),
+     *   @SWG\Property(property = "date_to", type = "string", description = "Максимальная дата транзакций. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "account_tariff_id", type = "integer", description = "ID услуги"),
      *   @SWG\Property(property = "tariff_period_id", type = "integer", description = "ID периода/тариф"),
      *   @SWG\Property(property = "type_id", type = "integer", description = "-1 - Подключение. -2 - Абонентка. -3 - Минималка. Положительное - Ресурс тарифа"),
@@ -1677,6 +1774,7 @@ class UuController extends ApiInternalController
             ];
         }
 
+        return $result;
     }
 
 }
