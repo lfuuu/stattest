@@ -159,10 +159,13 @@ class RegistryForm extends Form
         $this->_setNDC();
         $this->_setCityNumberFormat();
 
-
         if ($isSaveFromPost) {
             $this->_prepareNumbesFromPost();
+        } else {
+            $this->number_from = $this->registry->number_from;
+            $this->number_to = $this->registry->number_to;
         }
+
 
         return true;
     }
