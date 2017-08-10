@@ -132,14 +132,8 @@ trait AccountTariffGroupTrait
      */
     public function getHashLight()
     {
-        $dateTimeUtc = DateTimeZoneHelper::getUtcDateTime()
-            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $hashes = [];
-
-        // город
         $hashes[] = $this->city_id;
-
-        // лог тариф
         $hashes[] = $this->tariff_period_id;
 
         return md5(implode('_', $hashes));

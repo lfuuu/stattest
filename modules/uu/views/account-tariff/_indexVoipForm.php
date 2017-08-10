@@ -76,17 +76,18 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 
                     <?= $this->render('_indexVoipFormTariffs', $params) ?>
 
-                    <?= isset($packagesList[0]) ?
-                        $this->render('_indexVoipFormTariffs', [
-                            'accountTariffFirst' => reset($packagesList[0]),
+                    <?php foreach ($packagesList[0] as $package) {
+                        echo $this->render('_indexVoipFormTariffs', [
+                            'accountTariffFirst' => $package,
                             'packageServiceTypeIds' => $packageServiceTypeIds,
                             'row' => $row,
                             'serviceType' => $serviceType,
                             'packagesList' => $packagesList,
                             'isShowAddPackage' => false,
                             'form' => $form,
-                        ]) :
-                        '' ?>
+                        ]);
+                    }
+                    ?>
 
                     <?php // ресурсы ?>
                     <?= $this->render('_indexVoipFormResource', $params) ?>
