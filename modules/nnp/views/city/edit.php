@@ -6,10 +6,12 @@
  * @var Form $formModel
  */
 
+use app\classes\Html;
 use app\modules\nnp\forms\city\Form;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\Region;
 use kartik\select2\Select2;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -46,12 +48,22 @@ if (!$city->isNewRecord) {
             <?= $form->field($city, 'country_code')->widget(Select2::className(), [
                 'data' => Country::getList($isWithEmpty = true),
             ]) ?>
+            <div>
+                <?= ($country = $city->country) ?
+                    Html::a($country->name_rus, $country->getUrl()) :
+                    '' ?>
+            </div>
         </div>
 
         <div class="col-sm-2">
             <?= $form->field($city, 'region_id')->widget(Select2::className(), [
                 'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $city->country_code),
             ]) ?>
+            <div>
+                <?= ($region = $city->region) ?
+                    Html::a($region->name, $region->getUrl()) :
+                    '' ?>
+            </div>
         </div>
 
         <?php // Название ?>
@@ -67,7 +79,12 @@ if (!$city->isNewRecord) {
         <?php // Кол-во ?>
         <div class="col-sm-2">
             <label><?= $city->getAttributeLabel('cnt') ?></label>
-            <div><?= $city->cnt ?></div>
+            <div>
+                <?= Html::a(
+                    $city->cnt,
+                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $city->country_code, 'NumberRangeFilter[city_id]' => $city->id])
+                ) ?>
+            </div>
         </div>
 
     </div>

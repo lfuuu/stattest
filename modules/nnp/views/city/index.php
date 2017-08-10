@@ -74,7 +74,7 @@ $columns = [
         'value' => function (City $city) {
             return Html::a(
                 $city->cnt,
-                Url::to(['/nnp/number-range/', 'NumberRangeFilter[city_id]' => $city->id])
+                Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $city->country_code, 'NumberRangeFilter[city_id]' => $city->id])
             );
         }
     ],

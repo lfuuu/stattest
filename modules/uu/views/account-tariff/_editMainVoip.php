@@ -7,6 +7,7 @@
  * @var ActiveForm $form
  */
 
+use app\classes\Html;
 use app\models\City;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
@@ -27,7 +28,11 @@ $accountTariff = $formModel->accountTariff;
     <?php // номер ?>
     <div class="col-sm-2">
         <label><?= $accountTariff->getAttributeLabel('voip_number') ?></label>
-        <div><?= $accountTariff->voip_number ?></div>
+        <div>
+            <?= ($number = $accountTariff->number) ?
+                Html::a($accountTariff->voip_number, $number->getUrl()) :
+                $accountTariff->voip_number ?>
+        </div>
     </div>
 
 </div>

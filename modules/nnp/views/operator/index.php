@@ -74,7 +74,7 @@ $columns = [
         'value' => function (Operator $operator) {
             return Html::a(
                 $operator->cnt,
-                Url::to(['/nnp/number-range/', 'NumberRangeFilter[operator_id]' => $operator->id])
+                Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $operator->country_code, 'NumberRangeFilter[operator_id]' => $operator->id])
             );
         }
     ],

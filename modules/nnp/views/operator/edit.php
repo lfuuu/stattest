@@ -6,9 +6,11 @@
  * @var Form $formModel
  */
 
+use app\classes\Html;
 use app\modules\nnp\forms\operator\Form;
 use app\modules\nnp\models\Country;
 use kartik\select2\Select2;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -45,6 +47,11 @@ if (!$operator->isNewRecord) {
             <?= $form->field($operator, 'country_code')->widget(Select2::className(), [
                 'data' => Country::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $indexBy = 'code'),
             ]) ?>
+            <div>
+                <?= ($country = $operator->country) ?
+                    Html::a($country->name_rus, $country->getUrl()) :
+                    '' ?>
+            </div>
         </div>
 
         <?php // Название ?>
@@ -60,7 +67,12 @@ if (!$operator->isNewRecord) {
         <?php // Кол-во ?>
         <div class="col-sm-2">
             <label><?= $operator->getAttributeLabel('cnt') ?></label>
-            <div><?= $operator->cnt ?></div>
+            <div>
+                <?= Html::a(
+                    $operator->cnt,
+                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $operator->country_code, 'NumberRangeFilter[operator_id]' => $operator->id])
+                ) ?>
+            </div>
         </div>
 
     </div>

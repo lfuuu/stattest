@@ -71,7 +71,7 @@ class Country extends ActiveRecord
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param bool $isWithNullAndNotNull
-     * @param int $indexBy
+     * @param string $indexBy
      * @return string[]
      */
     public static function getList(
@@ -89,13 +89,24 @@ class Country extends ActiveRecord
         );
     }
 
+
     /**
-     * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
-    public static function getUrlById($id)
+    public function getUrl()
     {
-        return Url::to(['/nnp/country/', 'CountryFilter[code]' => $id]);
+        return self::getUrlById($this->code);
+    }
+
+    /**
+     * @param int $code
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public static function getUrlById($code)
+    {
+        return Url::to(['/nnp/country/', 'CountryFilter[code]' => $code]);
     }
 
     /**
