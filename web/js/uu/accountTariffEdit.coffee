@@ -31,7 +31,7 @@ class AccountTariffEdit
     setTimeout () =>
       @country = $('#voipCountryId').on('change', @onCountryChange)
       @city = $('#voipRegions').on('change', @onCityChange)
-      @ndcType = $('#voipNdcType').on('change', @showNumbersList)
+      @ndcType = $('#voipNdcType').on('change', @onNdcTypeChange)
       @didGroup = $('#voipDidGroup').on('change', @onDidGroupChange)
       @operatorAccount = $('#voipOperatorAccount').on('change', @showNumbersList)
 
@@ -87,8 +87,14 @@ class AccountTariffEdit
       @ndcType.html(html) # обновить значения
       @ndcType.val('').trigger('change')
 
+# при изменении типа NDC
+  onNdcTypeChange: =>
+    countryId = @country.val()
+    cityId = @city.val()
+    ndcTypeId = @ndcType.val()
+
     if countryId
-      $.get '/uu/voip/get-did-groups', {countryId: countryId, cityId: (if cityId then cityId else -1), isWithEmpty: 1, format: 'options'}, (html) =>
+      $.get '/uu/voip/get-did-groups', {countryId: countryId, cityId: (if cityId then cityId else -1), ndcTypeId: ndcTypeId, isWithEmpty: 1, format: 'options'}, (html) =>
         @didGroup.html(html) # обновить значения
         @didGroup.prop('disabled', false)
         @didGroup.val('').trigger('change')

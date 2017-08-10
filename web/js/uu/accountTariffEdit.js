@@ -52,13 +52,14 @@
       this.selectAllNumbers = bind(this.selectAllNumbers, this);
       this.showNumbersList = bind(this.showNumbersList, this);
       this.onDidGroupChange = bind(this.onDidGroupChange, this);
+      this.onNdcTypeChange = bind(this.onNdcTypeChange, this);
       this.onCityChange = bind(this.onCityChange, this);
       this.onCountryChange = bind(this.onCountryChange, this);
       setTimeout((function(_this) {
         return function() {
           _this.country = $('#voipCountryId').on('change', _this.onCountryChange);
           _this.city = $('#voipRegions').on('change', _this.onCityChange);
-          _this.ndcType = $('#voipNdcType').on('change', _this.showNumbersList);
+          _this.ndcType = $('#voipNdcType').on('change', _this.onNdcTypeChange);
           _this.didGroup = $('#voipDidGroup').on('change', _this.onDidGroupChange);
           _this.operatorAccount = $('#voipOperatorAccount').on('change', _this.showNumbersList);
           _this.numbersList = $('#voipNumbersList').on('change', 'input', _this.showTariffDiv);
@@ -107,7 +108,7 @@
       var cityId, countryId;
       countryId = this.country.val();
       cityId = this.city.val();
-      $.get('/uu/voip/get-ndc-types', {
+      return $.get('/uu/voip/get-ndc-types', {
         isCityDepended: (cityId ? 1 : 0),
         isWithEmpty: 1,
         format: 'options'
@@ -117,10 +118,18 @@
           return _this.ndcType.val('').trigger('change');
         };
       })(this));
+    };
+
+    AccountTariffEdit.prototype.onNdcTypeChange = function() {
+      var cityId, countryId, ndcTypeId;
+      countryId = this.country.val();
+      cityId = this.city.val();
+      ndcTypeId = this.ndcType.val();
       if (countryId) {
         $.get('/uu/voip/get-did-groups', {
           countryId: countryId,
           cityId: (cityId ? cityId : -1),
+          ndcTypeId: ndcTypeId,
           isWithEmpty: 1,
           format: 'options'
         }, (function(_this) {

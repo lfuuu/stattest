@@ -1133,14 +1133,15 @@ class ClientAccount extends HistoryActiveRecord
 
     /**
      * @param string $delimiter
+     * @param bool $isHtml
      * @return string
      */
-    public function getName($delimiter = ' / ')
+    public function getName($delimiter = ' / ', $isHtml = true)
     {
         return implode($delimiter, [
             $this->contract->contragent->name,
             'Договор № ' . $this->contract->number,
-            $this->getAccountType() . ' № ' . "<b style=\"font-size:120%;\">{$this->id}</b>"
+            $this->getAccountType() . ' № ' . ($isHtml ? "<b style=\"font-size:120%;\">{$this->id}</b>" : $this->id)
         ]);
     }
 
@@ -1211,4 +1212,34 @@ class ClientAccount extends HistoryActiveRecord
         );
     }
 
+    /**
+     * Вернуть список всех доступных значений с именем контрагента
+     * Обычный getList не получается использовать из-за join и PHP-логики getName()
+     *
+     * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
+     * @param bool $isWithNullAndNotNull
+     * @param string $indexBy поле-ключ
+     * @param array $orderBy
+     * @param array $where
+     * @return string[]
+     */
+    public static function getListWithContragent(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false,
+        $indexBy = 'id',
+        $orderBy = ['id' => SORT_ASC],
+        $where = []
+    ) {
+        $models = self::find()
+            ->where($where)
+            ->orderBy($orderBy)
+            ->all();
+
+        $list = [];
+        foreach ($models as $model) {
+            $list[$model->$indexBy] = $model->getName($delimiter = ' / ', $isHtml = false);
+        }
+
+        return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    }
 }

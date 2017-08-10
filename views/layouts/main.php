@@ -67,7 +67,7 @@ $activeClient = isset($fixclient_data['id']) ?
                                     ?>
                                     <h2 class="c-blue-color" title="<?= $str ?>">
                                         <a href="<?= Url::toRoute(['/client/view', 'id' => $activeClient->id, '#' => 'contragent' . $activeClient->contract->contragent_id ]) ?>">
-                                            <?= $activeClient->name ?>
+                                            <?= $activeClient->getName() ?>
                                         </a>
                                     </h2>
                                     <a href="/account/unfix" title="Снять" class="search-unset"><i class="uncheck"></i></a>

@@ -68,7 +68,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
             <?php // тип номера ?>
             <?= $form->field($accountTariffVoip, 'voip_ndc_type_id')
                 ->widget(Select2::className(), [
-                    'data' => NdcType::getList($isWithEmpty = true, $isWithNullAndNotNull = false, (bool) $accountTariffVoip->city_id),
+                    'data' => NdcType::getList($isWithEmpty = true, $isWithNullAndNotNull = false, (bool)$accountTariffVoip->city_id),
                     'options' => [
                         'id' => 'voipNdcType',
                     ],
@@ -79,7 +79,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
             <?php // тип красивости ?>
             <?= $form->field($accountTariffVoip, 'voip_did_group')
                 ->widget(Select2::className(), [
-                    'data' => DidGroup::getList(true, $accountTariffVoip->voip_country_id, $accountTariffVoip->city_id ?: -1),
+                    'data' => DidGroup::getList(true, $accountTariffVoip->voip_country_id, $accountTariffVoip->city_id ?: -1, $accountTariffVoip->voip_ndc_type_id),
                     'options' => [
                             'id' => 'voipDidGroup',
                         ] +
@@ -91,18 +91,17 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
                 ->label('DID-группа *') ?>
         </div>
 
-        <div class="col-sm-2">
+        <div class="col-sm-4">
             <?php // оператор ?>
             <?php
             $numbersTmp = new FreeNumberFilter;
             $numbersTmp->setCountry($accountTariffVoip->voip_country_id);
             $accountTariffVoip->city_id && $numbersTmp->setCity($accountTariffVoip->city_id);
 
-            $operatorAccounts = ClientAccount::getListTrait(
+            $operatorAccounts = ClientAccount::getListWithContragent(
                 (int)$isWithEmpty,
                 $isWithNullAndNotNull = false,
                 $indexBy = 'id',
-                $select = 'client',
                 $orderBy = ['id' => SORT_ASC],
                 $where = ['id' => $numbersTmp->getDistinct('operator_account_id')]
             );
@@ -173,19 +172,19 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         </div>
 
         <div class="col-sm-2">
+            <?php // лимит ?>
+            <?= $form->field($accountTariffVoip, 'voip_numbers_list_limit')
+                ->input('integer', [
+                    'id' => 'voipNumbersListLimit',
+                ]) ?>
+        </div>
+
+        <div class="col-sm-4">
             <?php // маска ?>
             <?= $this->render('//layouts/_helpMysqlLike'); ?>
             <?= $form->field($accountTariffVoip, 'voip_numbers_list_mask')
                 ->input('string', [
                     'id' => 'voipNumbersListMask',
-                ]) ?>
-        </div>
-
-        <div class="col-sm-2">
-            <?php // лимит ?>
-            <?= $form->field($accountTariffVoip, 'voip_numbers_list_limit')
-                ->input('integer', [
-                    'id' => 'voipNumbersListLimit',
                 ]) ?>
         </div>
 

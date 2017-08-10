@@ -50,14 +50,15 @@ class VoipController extends BaseController
      *
      * @param int $countryId
      * @param int $cityId Не указан - не фильтровать. Больше 0 - если  есть такая красивость/служебность у города, то брать ее, иначе от страны. Меньше 0 - только для страны без города.
+     * @param int $ndcTypeId
      * @param int|bool $isWithEmpty
      * @param string $format
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetDidGroups($countryId, $cityId, $isWithEmpty = false, $format = null)
+    public function actionGetDidGroups($countryId, $cityId, $ndcTypeId = null, $isWithEmpty = false, $format = null)
     {
-        $didGroups = DidGroup::getList((int)$isWithEmpty, $countryId, $cityId);
+        $didGroups = DidGroup::getList((int)$isWithEmpty, $countryId, $cityId, $ndcTypeId);
         ReturnFormatted::me()->returnFormattedValues($didGroups, $format);
     }
 
@@ -94,11 +95,10 @@ class VoipController extends BaseController
         $numbers->setCountry($countryId);
         $cityId && $numbers->setCity($cityId);
 
-        $operatorAccounts = ClientAccount::getListTrait(
+        $operatorAccounts = ClientAccount::getListWithContragent(
             (int)$isWithEmpty,
             $isWithNullAndNotNull = false,
             $indexBy = 'id',
-            $select = 'client',
             $orderBy = ['id' => SORT_ASC],
             $where = ['id' => $numbers->getDistinct('operator_account_id')]
         );
