@@ -4459,8 +4459,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $W = array(
             'AND',
             'newbills.client_id="' . $fixclient_data['id'] . '"',
-            'newbills.currency="' . $fixclient_data['currency'] . '"',
-            'newbills.biller_version = ' . ClientAccount::VERSION_BILLER_USAGE
+            'newbills.currency="' . $fixclient_data['currency'] . '"'
         );
         if ($saldo) {
             $W[] = 'newbills.bill_date>="' . $saldo['ts'] . '"';
