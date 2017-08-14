@@ -400,11 +400,10 @@ final class OpenController extends Controller
         $tariffPackagesQuery = Tariff::find()
             ->joinWith('voipCities')
             ->where([
-                $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE,
+                $tariffTableName . '.service_type_id' => array_keys(ServiceType::$packages),
                 $tariffTableName . '.country_id' => $tariff->country_id,
                 $tariffTableName . '.currency_id' => $tariff->currency_id,
                 $tariffTableName . '.is_default' => 1,
-                $tariffTableName . '.is_postpaid' => 0,
                 $tariffTableName . '.tariff_status_id' => $packageStatusIds,
                 $tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, TariffPerson::ID_NATURAL_PERSON],
                 TariffVoipCity::tableName() . '.city_id' => array_keys($tariff->voipCities),

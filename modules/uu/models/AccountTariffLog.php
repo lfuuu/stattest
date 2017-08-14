@@ -66,7 +66,6 @@ class AccountTariffLog extends ActiveRecord
             ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorDoublePackage'],
-            ['tariff_period_id', 'validatorDefaultPackage'],
         ];
     }
 
@@ -303,7 +302,13 @@ class AccountTariffLog extends ActiveRecord
                 return;
             }
 
-            if ($clientAccount->is_postpaid != $tariff->is_postpaid) {
+            if ($tariff->is_default) {
+                // пакеты по умолчанию подключаются/отключаются автоматически. Им можно всё
+                return;
+            }
+
+            if ($clientAccount->is_postpaid != $tariff->is_postpaid && !array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
+                // для пакетов это не надо проверять
                 $this->addError($attribute, 'ЛС и тариф должны быть либо оба предоплатные, либо оба постоплатные.');
                 $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_POSTPAID;
                 return;
@@ -488,14 +493,14 @@ class AccountTariffLog extends ActiveRecord
         }
 
         $accountTariff = $this->accountTariff;
-        if ($accountTariff->service_type_id != ServiceType::ID_VOIP_PACKAGE) {
-            // не пакет телефонии
+        if (!array_key_exists($accountTariff->service_type_id, ServiceType::$packages)) {
+            // не пакет
             return;
         }
 
         $prevAccountTariff = $accountTariff->prevAccountTariff;
         if (!$prevAccountTariff) {
-            $this->addError($attribute, 'Не указана основная услуга телефонии для пакета телефонии');
+            $this->addError($attribute, 'Не указана основная услуга для пакета');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_MAIN;
             return;
         }
@@ -508,7 +513,7 @@ class AccountTariffLog extends ActiveRecord
 
         $prevAccountTariffLog = reset($prevAccountTariffLogs);
         if ($prevAccountTariffLog->actual_from > $this->actual_from) {
-            $this->addError($attribute, sprintf('Пакет телефонии может начать действовать (%s) только после начала действия (%s) основной услуги телефонии', $this->actual_from, $prevAccountTariffLog->actual_from));
+            $this->addError($attribute, sprintf('Пакет может начать действовать (%s) только после начала действия (%s) основной услуги', $this->actual_from, $prevAccountTariffLog->actual_from));
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_TARIFF;
             return;
         }
@@ -624,58 +629,14 @@ class AccountTariffLog extends ActiveRecord
                 [
                     '>=',
                     $accountTariffLogTableName . '.actual_from_utc',
-                    (new DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT)
+                    (new DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT) // "-1 day" для того, чтобы не мучиться с таймзоной клиента, а гарантированно получить нужное
                 ]
-            )// "-1 day" для того, чтобы не мучиться с таймзоной клиента, а гарантированно получить нужное
+            )
             ->count()
         ) {
             $this->addError($attribute, 'Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла.');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_FUTURE;
             return;
-        }
-    }
-
-    /**
-     * Валидировать, что базовый пакет только один
-     *
-     * @param string $attribute
-     * @param array $params
-     */
-    public function validatorDefaultPackage($attribute, $params)
-    {
-        if (!$this->tariff_period_id) {
-            // закрытие услуги всегда можно
-            return;
-        }
-
-        if (!$this->tariffPeriod->tariff->is_default) {
-            // не дефолтный
-            return;
-        }
-
-        $accountTariff = $this->accountTariff;
-
-        // базовая услуга
-        $baseAccountTariff = $accountTariff->prevAccountTariff;
-        if (!$baseAccountTariff) {
-            // не пакет
-            return;
-        }
-
-        // все пакеты
-        $nextAccountTariffs = $baseAccountTariff->nextAccountTariffs;
-        foreach ($nextAccountTariffs as $nextAccountTariff) {
-
-            if ($accountTariff->id == $nextAccountTariff->id) {
-                // с собой не сравниваем
-                continue;
-            }
-
-            if ($nextAccountTariff->tariffPeriod->tariff->is_default) {
-                $this->addError($attribute, 'Нельзя подключить второй базовый пакет на ту же услугу.'); // @todo
-                $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
-                return;
-            }
         }
     }
 }

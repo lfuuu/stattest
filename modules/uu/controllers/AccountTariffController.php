@@ -498,27 +498,19 @@ class AccountTariffController extends BaseController
                     'id' => $id,
                 ]
             );
-        } else {
-            // редактировали много услуг одновременно - на их список
-            switch ($serviceTypeId) {
-                case ServiceType::ID_TRUNK_PACKAGE_ORIG:
-                case ServiceType::ID_TRUNK_PACKAGE_TERM:
-                    $serviceTypeId = ServiceType::ID_TRUNK;
-                    break;
-
-                case ServiceType::ID_VOIP_PACKAGE:
-                case null:
-                    $serviceTypeId = ServiceType::ID_VOIP;
-                    break;
-            }
-
-            return $this->redirect(
-                [
-                    'index',
-                    'serviceTypeId' => $serviceTypeId,
-                ]
-            );
         }
+
+        // редактировали много услуг одновременно - на их список
+        if (array_key_exists($serviceTypeId, ServiceType::$packages)) {
+            $serviceTypeId = ServiceType::$packages[$serviceTypeId];
+        }
+
+        return $this->redirect(
+            [
+                'index',
+                'serviceTypeId' => $serviceTypeId,
+            ]
+        );
     }
 
     /**
