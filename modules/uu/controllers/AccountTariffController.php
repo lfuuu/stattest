@@ -45,12 +45,12 @@ class AccountTariffController extends BaseController
                     [
                         'allow' => true,
                         'actions' => ['index'],
-                        'roles' => ['tarifs.read'],
+                        'roles' => ['services_voip.r'],
                     ],
                     [
                         'allow' => true,
                         'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel'],
-                        'roles' => ['tarifs.edit'],
+                        'roles' => ['services_voip.edit'],
                     ],
                 ],
             ],
