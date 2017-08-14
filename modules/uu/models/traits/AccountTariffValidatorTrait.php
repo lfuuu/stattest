@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models\traits;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
 use app\models\ClientAccount;
@@ -113,17 +114,26 @@ trait AccountTariffValidatorTrait
      *
      * @param string $attribute
      * @param array $params
+     * @throws \app\exceptions\ModelValidationException
      */
     public function validatorVoipNumber($attribute, $params)
     {
-        if (!$this->voip_number) {
+        /** @var \app\models\Number $number */
+        if (!$this->voip_number || !($number = $this->number)) {
             return;
         }
 
-        if ($this->isNewRecord && $this->number->status != Number::STATUS_INSTOCK) {
+        if ($this->isNewRecord && $number->status != Number::STATUS_INSTOCK) {
             $this->addError($attribute, 'Этот телефонный номер нельзя подключить');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK;
             return;
+        }
+
+        // предварительно захватить номер себе, чтобы повторно нельзя было подключить ни на эту, ни на другую услугу
+        // окончательный захват будет в SetCurrentTariffTarificator и \app\models\Number::dao()->actualizeStatusByE164
+        $number->status = Number::STATUS_ACTIVE_CONNECTED;
+        if (!$number->save()) {
+            throw new ModelValidationException($number);
         }
     }
 
