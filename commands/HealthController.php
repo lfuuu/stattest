@@ -25,6 +25,11 @@ class HealthController extends Controller
 
     const HEALTH_JSON_FILE_PATH = '@app/web/operator/_private/health.json';
 
+    const EXTERNAL_JSON_FILES = [
+        'healthSync' => 'http://eridanus.mcn.ru/health/healthSync.json',
+        'healthFullSync' => 'http://eridanus.mcn.ru/health/healthFullSync.json',
+    ];
+
     /**
      * Сбор счетчиков
      */
@@ -61,7 +66,7 @@ class HealthController extends Controller
         $data = [
             'instanceId' => 200,
             'extendedInfo' => 'Statistic for ' . (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_MOSCOW)))
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT)
         ];
 
         $config = self::MONITOR_ICON_CONFIG;
@@ -82,10 +87,54 @@ class HealthController extends Controller
             ];
         }
 
+        $datetimeYesterday = (new \DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        // Добавить внешние JSON
+        foreach (self::EXTERNAL_JSON_FILES as $jsonKey => $jsonUrl) {
+            $jsonString = file_get_contents($jsonUrl);
+            if (!$jsonString) {
+                $data['item' . $count++] = [
+                    'itemId' => $jsonKey,
+                    'itemVal' => 0,
+                    'statusId' => self::STATUS_ERROR,
+                    'statusMessage' => "{$jsonKey} недоступен",
+                ];
+                continue;
+            }
+
+            $jsonArray = json_decode($jsonString, $assoc = true);
+            if (!$jsonArray) {
+                $data['item' . $count++] = [
+                    'itemId' => $jsonKey,
+                    'itemVal' => 0,
+                    'statusId' => self::STATUS_ERROR,
+                    'statusMessage' => "{$jsonKey} невалидный",
+                ];
+                continue;
+            }
+
+            if (!$jsonArray['timestamp'] || $jsonArray['timestamp'] < $datetimeYesterday) {
+                $data['item' . $count++] = [
+                    'itemId' => $jsonKey,
+                    'itemVal' => 0,
+                    'statusId' => self::STATUS_ERROR,
+                    'statusMessage' => "{$jsonKey} неактуальный",
+                ];
+                continue;
+            }
+
+            $data['item' . $count++] = [
+                'itemId' => $jsonArray['itemId'],
+                'itemVal' => $jsonArray['itemVal'],
+                'statusId' => $jsonArray['statusId'],
+                'statusMessage' => $jsonArray['statusMessage'],
+            ];
+        }
+
         $filePath = \Yii::getAlias(self::HEALTH_JSON_FILE_PATH);
 
         if (!is_writable($filePath)) {
-            throw new \InvalidArgumentException('Невозможно записать файл мониторинга (' . $filePath . ')');
+            throw new \RuntimeException('Невозможно записать файл мониторинга (' . $filePath . ')');
         }
 
         file_put_contents($filePath, Json::encode($data));
