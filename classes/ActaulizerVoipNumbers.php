@@ -348,13 +348,13 @@ class ActaulizerVoipNumbers extends Singleton
         }
         @TODO: доработать правильное определение удаляемой услуги.
         @TODO: ввести универсальные усулги
-*/
 
         if (!$usage) {
             throw new \LogicException('Услуга не найдена. Как-так?');
         }
+*/
 
-        if ($usage->next_usage_id) {
+        if ($usage && $usage instanceof UsageVoip && $usage->next_usage_id) {
             throw new \LogicException('Удаление услуги. Услуга установлена на перенос!');
         }
 
