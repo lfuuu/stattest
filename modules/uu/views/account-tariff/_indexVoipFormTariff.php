@@ -32,7 +32,10 @@ use app\modules\uu\models\ServiceType;
         $accountTariffLogs = $accountTariffFirst->accountTariffLogs;
         reset($accountTariffLogs);
         $accountTariffLogNext = next($accountTariffLogs);
-        printf(' (%s)', $accountTariffLogNext->getTariffPeriodLink());
+        if ($accountTariffLogNext) {
+            printf(' (%s)', $accountTariffLogNext->getTariffPeriodLink());
+        }
+
         unset($accountTariffLogs, $accountTariffLogNext);
     }
     ?>
