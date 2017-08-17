@@ -482,8 +482,12 @@ class UuController extends ApiInternalController
      * @param TariffPeriod|TariffPeriod[] $tariffPeriod
      * @return array
      */
-    private function _getTariffRecord(Tariff $tariff, $tariffPeriod)
+    private function _getTariffRecord($tariff, $tariffPeriod)
     {
+        if (!$tariff || !$tariffPeriod) {
+            return null;
+        }
+
         $package = $tariff->package;
         return [
             'id' => $tariff->id,
