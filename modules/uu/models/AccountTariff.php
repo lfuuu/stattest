@@ -4,6 +4,7 @@ namespace app\modules\uu\models;
 
 use app\classes\model\HistoryActiveRecord;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
+use app\modules\uu\behaviors\AccountTariffVoipNumber;
 use app\modules\uu\models\traits\AccountTariffBillerPeriodTrait;
 use app\modules\uu\models\traits\AccountTariffBillerResourceTrait;
 use app\modules\uu\models\traits\AccountTariffBillerSetupTrait;
@@ -105,6 +106,7 @@ class AccountTariff extends HistoryActiveRecord
         return parent::behaviors() + [
                 'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
                 'AccountTariffImportantEvents' => AccountTariffImportantEvents::className(),
+                'AccountTariffVoipNumber' => AccountTariffVoipNumber::className(),
             ];
     }
 

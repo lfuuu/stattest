@@ -86,7 +86,13 @@ switch ($formModel->serviceTypeId) {
             'attribute' => 'city_id',
             'value' => Html::encode($accountTariff->city_id ? $accountTariff->city->name : Yii::t('common', '(not set)')),
         ];
-        $attributes[] = 'voip_number';
+        $attributes[] = [
+            'attribute' => 'voip_number',
+            'format' => 'html',
+            'value' => ($number = $accountTariff->number) ?
+                Html::a($accountTariff->voip_number, $number->getUrl()) :
+                $accountTariff->voip_number
+        ];
         break;
 }
 ?>
