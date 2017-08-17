@@ -31,7 +31,8 @@ class RegistryForm extends Form
         $ndc = NumberRange::DEFAULT_MOSCOW_NDC,
         $ndcList = [],
         $operator = '',
-        $trunk_id = null
+        $fmc_trunk_id = null,
+        $mvno_trunk_id = null
     ;
 
 
@@ -54,14 +55,6 @@ class RegistryForm extends Form
                 'on' => 'save',
                 'when' => function ($model) {
                     return $model->ndc_type_id == NdcType::ID_GEOGRAPHIC;
-                }
-            ],
-            [
-                'trunk_id',
-                'required',
-                'on' => 'save',
-                'when' => function ($model) {
-                    return $model->source == VoipRegistrySourceEnum::OPERATOR_NOT_FOR_SALE;
                 }
             ],
             [
@@ -237,7 +230,8 @@ class RegistryForm extends Form
                      'account_id',
                      'comment',
                      'ndc',
-                     'trunk_id'
+                     'fmc_trunk_id',
+                     'mvno_trunk_id',
                  ] as $field) {
             $this->registry->{$field} = $this->{$field};
         }

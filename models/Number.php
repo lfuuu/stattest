@@ -40,7 +40,8 @@ use yii\helpers\Url;
  * @property int $calls_per_month_2 Кол-во звонков за -2 месяц
  * @property int $is_ported
  * @property int $is_service
- * @property integer $trunk_id
+ * @property integer $fmc_trunk_id
+ * @property integer $mvno_trunk_id
  *
  * @property-read City $city
  * @property-read Country $country

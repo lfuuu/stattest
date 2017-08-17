@@ -75,55 +75,54 @@ $readonlyOptions = [
 
         $this->registerJsVariable('registryFormId', $form->getId());
 
-        $attributes = [
-            'country_id' => [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => $countryList,
-                'options' => [
-                        'class' => 'formReload'
-                    ] + ($isEditable ? [] : $readonlyOptions),
-                'columnOptions' => (!NdcType::isCityDependent($model->ndc_type_id) ? ['colspan' => 2] : [])
-            ],
-            'city_id' => [
+        // строка 1
+        $line1Attributes = [];
+
+        $line1Attributes['country_id'] = [
+            'type' => Form::INPUT_DROPDOWN_LIST,
+            'items' => $countryList,
+            'options' => [
+                    'class' => 'formReload'
+                ] + ($isEditable ? [] : $readonlyOptions),
+        ];
+
+        if (NdcType::isCityDependent($model->ndc_type_id)) {
+            $line1Attributes['city_id'] = [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => $cityList,
                 'options' => [
                         'class' => 'formReload'
                     ] + ($isEditable ? [] : $readonlyOptions),
-            ],
-            'source' => [
-                'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => VoipRegistrySourceEnum::$names,
-                'options' => [
+            ];
+        }
+
+        $line1Attributes['source'] = [
+            'type' => Form::INPUT_DROPDOWN_LIST,
+            'items' => VoipRegistrySourceEnum::$names,
+            'options' => [
                     'class' => 'formReload',
                 ] + ($isEditable ? [] : $readonlyOptions),
 
-            ],
-            'account_id' => [
-                'type' => Form::INPUT_TEXT,
-                'options' => [
-                    'class' => 'formReloadOnLostFocus'
-                ] + ($isEditable ? [] : $readonlyOptions),
-            ]
         ];
 
-        if (!NdcType::isCityDependent($model->ndc_type_id)) {
-            unset($attributes['city_id']);
-        }
+        $line1Attributes['account_id'] = [
+            'type' => Form::INPUT_TEXT,
+            'options' => [
+                    'class' => 'formReloadOnLostFocus'
+                ] + ($isEditable ? [] : $readonlyOptions),
+        ];
 
         echo Form::widget([
             'model' => $model,
             'form' => $form,
-            'columns' => 4,
-            'attributes' => $attributes
+            'columns' => count($line1Attributes),
+            'attributes' => $line1Attributes
         ]);
 
+        // строка 2
         $maskedInputWidgetConfig = [
             'type' => Form::INPUT_WIDGET,
             'widgetClass' => \app\classes\MaskedInput::className(),
-            'columnOptions' => [
-                'colspan' => 3
-            ],
             'options' => [
                 'mask' => $model->city_number_format,
                 'options' => [
@@ -135,12 +134,9 @@ $readonlyOptions = [
         $model->number_from = ' ' . trim($model->number_from);
         $model->number_to = ' ' . trim($model->number_to);
 
-        $line2attributes = [
+        $line2Attributes = [
             'ndc_type_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'columnOptions' => [
-                    'colspan' => 2
-                ],
                 'items' => NdcType::getList(),
                 'options' => [
                         'class' => 'formReload',
@@ -157,40 +153,40 @@ $readonlyOptions = [
             'number_to' => $maskedInputWidgetConfig,
         ];
 
+        echo Form::widget([
+            'model' => $model,
+            'form' => $form,
+            'columns' => count($line2Attributes),
+            'attributes' => $line2Attributes
+        ]);
+
+        // строка 3
+        $line3Attributes = [];
+
+        $line3Attributes['comment'] = [
+            'type' => Form::INPUT_TEXT,
+            'options' => $isEditable ? [] : $readonlyOptions,
+        ];
+
+        $line3Attributes['operator'] = [
+            'type' => Form::INPUT_TEXT,
+            'options' => $readonlyOptions, // определяется автоматически из ННП
+        ];
+
         if ($model->source == VoipRegistrySourceEnum::OPERATOR_NOT_FOR_SALE) {
-            $line2attributes['trunk_id'] = [
+            $line3Attributes['mvno_trunk_id']
+                = $line3Attributes['fmc_trunk_id'] = [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'columnOptions' => [
-                    'colspan' => 3
-                ],
                 'items' => ($model->account_id ? Trunk::dao()->getList(['accountId' => $model->account_id], $isWithEmpty = true) : ['' => '----']),
-                'options' => [
-                    'class' => 'select2'
-                    ] + ($isEditable ? [] : $readonlyOptions)
+                'options' => ($isEditable ? [] : $readonlyOptions)
             ];
         }
 
         echo Form::widget([
             'model' => $model,
             'form' => $form,
-            'columns' => 8,
-            'attributes' => $line2attributes
-        ]);
-
-        echo Form::widget([
-            'model' => $model,
-            'form' => $form,
-            'columns' => 2,
-            'attributes' => [
-                'comment' => [
-                    'type' => Form::INPUT_TEXT,
-                    'options' => $isEditable ? [] : $readonlyOptions,
-                ],
-                'operator' => [
-                    'type' => Form::INPUT_TEXT,
-                    'options' => $readonlyOptions, // опредляется автоматически из ННП
-                ],
-            ]
+            'columns' => count($line3Attributes),
+            'attributes' => $line3Attributes
         ]);
 
 

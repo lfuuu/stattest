@@ -26,7 +26,8 @@ use app\modules\nnp\models\NdcType;
  * @property integer $account_id
  * @property string $created_at
  * @property string $comment
- * @property integer $trunk_id
+ * @property integer $fmc_trunk_id
+ * @property integer $mvno_trunk_id
  * @property City $city
  * @property Country $country
  * @property NdcType $ndcType
@@ -72,7 +73,8 @@ class Registry extends HistoryActiveRecord
             'account_id' => 'ЛС',
             'created_at' => 'Создано',
             'ndc' => 'NDC',
-            'trunk_id' => "FMC транк",
+            'fmc_trunk_id' => 'FMC транк',
+            'mvno_trunk_id' => 'MVNO транк',
         ];
     }
 

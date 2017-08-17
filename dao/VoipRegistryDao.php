@@ -156,7 +156,6 @@ class VoipRegistryDao extends Singleton
         foreach ($registry->getPassMap() as $part) {
             if ($part['filling'] == 'pass') {
                 for ($i = $part['start']; $i <= $part['end']; $i++) {
-                    $filledCount++;
                     $this->_addNumber($registry, $i);
                 }
             }
@@ -200,7 +199,8 @@ class VoipRegistryDao extends Singleton
         $number->date_start = (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $number->is_ported = (int)$registry->isSourcePotability();
         $number->is_service = (int)$registry->isService();
-        $registry->trunk_id && $number->trunk_id = $number->trunk_id;
+        $registry->fmc_trunk_id && $number->fmc_trunk_id = $registry->fmc_trunk_id;
+        $registry->mvno_trunk_id && $number->mvno_trunk_id = $registry->mvno_trunk_id;
 
         $didGroupId = DidGroup::dao()->getIdByNumber($number);
 
