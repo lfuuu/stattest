@@ -30,7 +30,7 @@ class VoipPackageCallsResourceReader extends Object implements ResourceReaderInt
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        if ($this->_accountTariffId !== $accountTariff->id) {
+        if ($this->_accountTariffId !== $accountTariff->prev_account_tariff_id) {
             $this->_setDateToValue($accountTariff, $dateTime);
         }
 
@@ -69,8 +69,8 @@ class VoipPackageCallsResourceReader extends Object implements ResourceReaderInt
      */
     private function _setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
-        $this->_accountTariffId = $accountTariff->id;
-        $this->_callsByPrice = [];
+        $this->_accountTariffId = $accountTariff->prev_account_tariff_id;
+        $this->_callsByPrice = $this->_callsByPriceList = [];
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
@@ -115,10 +115,10 @@ class VoipPackageCallsResourceReader extends Object implements ResourceReaderInt
                     $this->_callsByPrice[$aggrDate] = [];
                 }
 
-                if (!isset($this->_callsByPrice[$aggrDate][$tariffId])) {
-                    $this->_callsByPrice[$aggrDate][$tariffId] = $sumCost;
-                } else {
+                if (isset($this->_callsByPrice[$aggrDate][$tariffId])) {
                     $this->_callsByPrice[$aggrDate][$tariffId] += $sumCost;
+                } else {
+                    $this->_callsByPrice[$aggrDate][$tariffId] = $sumCost;
                 }
 
                 continue;
@@ -129,10 +129,10 @@ class VoipPackageCallsResourceReader extends Object implements ResourceReaderInt
                     $this->_callsByPricelist[$aggrDate] = [];
                 }
 
-                if (!isset($this->_callsByPricelist[$aggrDate][$tariffId])) {
-                    $this->_callsByPricelist[$aggrDate][$tariffId] = $sumCost;
-                } else {
+                if (isset($this->_callsByPricelist[$aggrDate][$tariffId])) {
                     $this->_callsByPricelist[$aggrDate][$tariffId] += $sumCost;
+                } else {
+                    $this->_callsByPricelist[$aggrDate][$tariffId] = $sumCost;
                 }
 
                 continue;
