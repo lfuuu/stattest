@@ -340,15 +340,18 @@ class BillDao extends Singleton
 
         // старые проводки
         $lines = $bill->getLines()
-            ->indexBy('uu_account_entry_id')
             ->all();
 
         /** @var BillLine $line */
-        foreach ($lines as $accountEntryId => $line) {
+        foreach ($lines as $line) {
 
+            $accountEntryId = $line->uu_account_entry_id;
             if (!isset($accountEntries[$accountEntryId])) {
                 // была, но сейчас нет. Удалить
-                $line->delete();
+                if (!$line->delete()) {
+                    throw new ModelValidationException($line);
+                }
+
                 continue;
             }
 
@@ -369,7 +372,9 @@ class BillDao extends Singleton
                 }
 
                 $line->item = $accountEntry->fullName;
-                $line->save();
+                if (!$line->save()) {
+                    throw new ModelValidationException($line);
+                }
 
                 $toRecalculateBillSum = true;
             }
