@@ -70,7 +70,7 @@ class VoipPackageCallsResourceReader extends Object implements ResourceReaderInt
     private function _setDateToValue(AccountTariff $accountTariff, DateTimeImmutable $dateTime)
     {
         $this->_accountTariffId = $accountTariff->prev_account_tariff_id;
-        $this->_callsByPrice = $this->_callsByPriceList = [];
+        $this->_callsByPrice = $this->_callsByPricelist = [];
 
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $clientDateTimeZone = $accountTariff->clientAccount->getTimezone();
