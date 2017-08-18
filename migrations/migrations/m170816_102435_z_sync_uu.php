@@ -11,7 +11,7 @@ class m170816_102435_z_sync_uu extends \app\classes\Migration
         $this->execute("DROP TRIGGER IF EXISTS uu_account_tariff_resource_log_after_upd_tr");
         $sql = <<<SQL
             CREATE TRIGGER uu_account_tariff_resource_log_after_upd_tr AFTER UPDATE ON uu_account_tariff_resource_log FOR EACH ROW BEGIN
-                if
+                IF
                     OLD.sync_time IS NULL
                     AND NEW.sync_time IS NOT NULL
                     AND NEW.resource_id = 7
@@ -28,7 +28,8 @@ SQL;
         $sql = <<<SQL
             CREATE TRIGGER `sync_uu_account_tariff_voip_insert` AFTER INSERT ON `uu_account_tariff` FOR EACH ROW BEGIN
                 IF  NEW.service_type_id = 2 
-                    AND NEW.voip_number IS NOT NULL THEN
+                    AND NEW.voip_number IS NOT NULL
+                THEN
                     CALL z_sync_postgres('uu_account_tariff', NEW.id);
                 END IF;
             END;
