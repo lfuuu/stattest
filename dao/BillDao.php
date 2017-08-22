@@ -23,10 +23,13 @@ use Yii;
  */
 class BillDao extends Singleton
 {
+    const PRICE_PRECISION = 2;
+
     /**
      * Получение следующего номера счета
      *
      * @param \DateTime|string $billDate
+     * @param int $organizationId
      * @return string
      */
     public function spawnBillNumber($billDate, $organizationId = Organization::MCN_TELEKOM)
@@ -176,16 +179,14 @@ class BillDao extends Singleton
     public function getDocumentType($bill_no)
     {
         if (preg_match("/\d{2}-\d{8}/", $bill_no)) {
-
             return ['type' => Bill::DOC_TYPE_INCOMEGOOD];
+        }
 
-        } elseif (preg_match("/20\d{4}\/(\d{2})?\d{4}/", $bill_no)) {
-
+        if (preg_match("/20\d{4}\/(\d{2})?\d{4}/", $bill_no)) {
             return ['type' => Bill::DOC_TYPE_BILL, 'bill_type' => Bill::TYPE_1C];
+        }
 
-        } elseif (preg_match("/20\d{4}-(\d{2})?\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)) {
-
-            // mcn telekom || all4net
+        if (preg_match("/20\d{4}-(\d{2})?\d{4}/", $bill_no) || preg_match("/[4567]\d{5}/", $bill_no)) { // mcn telekom || all4net
             return ['type' => Bill::DOC_TYPE_BILL, 'bill_type' => Bill::TYPE_STAT];
         }
 
@@ -197,6 +198,7 @@ class BillDao extends Singleton
      *
      * @param Bill $bill
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function isClosed(Bill $bill)
     {
@@ -329,7 +331,7 @@ class BillDao extends Singleton
                 },
                 0
             );
-            $billPrice = round($billPrice, 2);
+            $billPrice = round($billPrice, self::PRICE_PRECISION);
             if ($billPrice != $bill->sum) {
                 $bill->sum = $bill->sum_with_unapproved = $billPrice;
                 if (!$bill->save()) {
@@ -357,18 +359,27 @@ class BillDao extends Singleton
 
             // была и осталась
             $accountEntry = $accountEntries[$accountEntryId];
+            $sum = round($accountEntry->price_with_vat, self::PRICE_PRECISION);
+            $sumWithoutTax = round($accountEntry->price_without_vat, self::PRICE_PRECISION);
             if (
-                (float)$line->sum != (float)$accountEntry->price_with_vat
+                (float)$line->sum != $sum
+                || (float)$line->sum_without_tax != $sumWithoutTax
                 || (float)$line->amount != (float)$accountEntry->getAmount()
                 || $line->item != $accountEntry->fullName
             ) {
                 // ... но изменилась. Обновить
-                $line->sum = $accountEntry->price_with_vat;
+                $line->sum = $sum;
+                $line->sum_without_tax = $sumWithoutTax;
                 $line->amount = $accountEntry->getAmount();
-                $line->price = $accountEntry->price_with_vat;
-                if ($line->amount) {
-                    $line->price /= $line->amount; // цена за "1 шт."
-                    $line->price = round($line->price, 2);
+                if ($line->amount > 0 && $line->amount != 1) {
+                    $line->price = $accountEntry->price_with_vat / $line->amount; // цена за "1 шт."
+                    $line->price = round($line->price, self::PRICE_PRECISION);
+                    if ($line->price) {
+                        $line->amount = $line->sum / $line->price; // после округления price и sum надо подкорректировать коэффициент
+                    }
+                } else {
+                    $line->amount = 1;
+                    $line->price = $sum;
                 }
 
                 $line->item = $accountEntry->fullName;
@@ -389,6 +400,8 @@ class BillDao extends Singleton
         foreach ($accountEntries as $accountEntry) {
 
             $billLinePosition++;
+            $sum = round($accountEntry->price_with_vat, self::PRICE_PRECISION);
+            $sumWithoutTax = round($accountEntry->price_without_vat, self::PRICE_PRECISION);
 
             $line = new BillLine();
             $line->sort = $billLinePosition;
@@ -399,20 +412,25 @@ class BillDao extends Singleton
             $line->date_to = $accountEntry->date_to;
             $line->type = BillLine::LINE_TYPE_SERVICE;
             $line->amount = $accountEntry->getAmount();
-            $line->price = $accountEntry->price_with_vat;
-            if ($line->amount) {
-                $line->price /= $line->amount; // цена за "1 шт."
-                $line->price = round($line->price, 2);
-            }
-
             $line->tax_rate = $accountEntry->vat_rate;
-            $line->sum = $accountEntry->price_with_vat;
-            $line->sum_without_tax = $accountEntry->price_without_vat;
+            $line->sum = $sum;
+            $line->sum_without_tax = $sumWithoutTax;
             $line->sum_tax = $accountEntry->vat;
             $line->uu_account_entry_id = $accountEntry->id;
             $line->service = 'uu_account_tariff';
             $line->id_service = $accountEntry->account_tariff_id;
             $line->item_id = null;
+            if ($line->amount > 0 && $line->amount != 1) {
+                $line->price = $accountEntry->price_with_vat / $line->amount; // цена за "1 шт."
+                $line->price = round($line->price, self::PRICE_PRECISION);
+                if ($line->price) {
+                    $line->amount = $line->sum / $line->price; // после округления price надо подкорректировать коэффициент
+                }
+            } else {
+                $line->amount = 1;
+                $line->price = $sum;
+            }
+
             if (!$line->save()) {
                 throw new ModelValidationException($line);
             }
