@@ -252,7 +252,7 @@ class VirtPbx3
     public static function getApi()
     {
         if (!self::$_api) {
-            self::$_api = self::setApi(ApiVpbx::me());
+            self::setApi(ApiVpbx::me());
         }
 
         return self::$_api;
