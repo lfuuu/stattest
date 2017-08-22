@@ -15,6 +15,34 @@ use app\modules\uu\models\AccountTariff;
  */
 class ActaulizerVoipNumbers extends Singleton
 {
+
+    private $_phoneApi = null;
+
+    /**
+     * Получение объекта доступа к Api телфонии
+     *
+     * @return ApiPhone
+     */
+    private function _getPhoneApi()
+    {
+        if (!$this->_phoneApi) {
+            $this->setPhoneApi(ApiPhone::me());
+        }
+
+        return $this->_phoneApi;
+    }
+
+    /**
+     * Установка объекта доступа к Api телфонии
+     *
+     * @param ApiPhone $api
+     */
+    public function setPhoneApi(ApiPhone $api)
+    {
+        if (!$this->_phoneApi) {
+            $this->_phoneApi = $api;
+        }
+    }
     /**
      * @param string $number
      * @return bool
@@ -303,7 +331,7 @@ class ActaulizerVoipNumbers extends Singleton
             throw new \LogicException('Услуга установлена на перенос!');
         }
 
-        ApiPhone::me()->addDid(
+        $this->_getPhoneApi()->addDid(
             (int)$data['client_id'],
             $data['number'],
             (int)$data['call_count'],
@@ -336,7 +364,7 @@ class ActaulizerVoipNumbers extends Singleton
             ])
             ->orderBy(['actual_from' => SORT_DESC])
             ->one();
-/*
+
         if (!$usage) {
             $usage = AccountTariff::find()
                 ->where([
@@ -346,19 +374,14 @@ class ActaulizerVoipNumbers extends Singleton
                 ->orderBy(['id' => SORT_DESC])
             ->one();
         }
-        @TODO: доработать правильное определение удаляемой услуги.
-        @TODO: ввести универсальные усулги
 
-        if (!$usage) {
-            throw new \LogicException('Услуга не найдена. Как-так?');
-        }
-*/
-
-        if ($usage && $usage instanceof UsageVoip && $usage->next_usage_id) {
+        $where = ['prev_usage_id' => $usage->id];
+        $usage = UsageVoip::findOne($where) ?: AccountTariff::findOne($where);
+        if ($usage) {
             throw new \LogicException('Удаление услуги. Услуга установлена на перенос!');
         }
 
-        ApiPhone::me()->disableDid(
+        $this->_getPhoneApi()->disableDid(
             (int)$data['client_id'],
             $data['number']
         );
@@ -398,7 +421,7 @@ class ActaulizerVoipNumbers extends Singleton
             }
 
             if ($isMoved) {
-                ApiPhone::me()->editClientId(
+                $this->_getPhoneApi()->editClientId(
                     (int)$old['client_id'],
                     (int)$new['client_id'],
                     $number
@@ -438,7 +461,7 @@ class ActaulizerVoipNumbers extends Singleton
 
         // change fields
         if ($changedFields) {
-            ApiPhone::me()->editDid(
+            $this->_getPhoneApi()->editDid(
                 (int)$new['client_id'],
                 $number,
                 (int)$new['call_count'],

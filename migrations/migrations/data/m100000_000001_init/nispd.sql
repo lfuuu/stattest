@@ -1772,7 +1772,7 @@ CREATE TABLE `entry_point` (
 
 LOCK TABLES `entry_point` WRITE;
 /*!40000 ALTER TABLE `entry_point` DISABLE KEYS */;
-INSERT INTO `entry_point` VALUES (1,'RU1','Клиентская заявка с mcn.ru','Client #','mcn',643,99,11,2,1,19,'RUB','Europe/Moscow',1,4,0,2000,1000,1),(2,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#','mcn',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,0,0,0,0);
+INSERT INTO `entry_point` VALUES (1,'RU1','Клиентская заявка с mcn.ru','Client #','mcn',643,99,11,2,1,19,'RUB','Europe/Moscow',1,4,0,2000,1000,1),(2,'RU5','Точка входа для создания ЛС с универсальным биллингом','uClient #','mcn',643,99,11,2,1,19,'RUB','Europe/Moscow',1,5,0,2000,1000,0),(3,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#','mcn',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,0,0,0,0);
 /*!40000 ALTER TABLE `entry_point` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -6127,7 +6127,7 @@ CREATE TABLE `tarifs_virtpbx` (
 
 LOCK TABLES `tarifs_virtpbx` WRITE;
 /*!40000 ALTER TABLE `tarifs_virtpbx` DISABLE KEYS */;
-INSERT INTO `tarifs_virtpbx` VALUES (71,'test','Тестовый','month','RUB',0.0000,8,100.0000,50,100.0000,0,0.0000,1,0,1,60,'2015-08-20 11:11:59',1);
+INSERT INTO `tarifs_virtpbx` VALUES (71,'test','Тестовый','month','RUB',0.0000,8,100.0000,50,100.0000,0,0.0000,1,0,1,60,'2015-08-20 11:11:59',1),(81,'public','Старт','month','RUB',390,10,100,100,100,0,190,0,0,0,201,'2016-12-01 13:38:57',1);
 /*!40000 ALTER TABLE `tarifs_virtpbx` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8676,6 +8676,20 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!50003 DROP PROCEDURE IF EXISTS `z_sync_postgres` */;
+DELIMITER ;;
+  /*!50003 CREATE PROCEDURE `z_sync_postgres`(IN p_table VARCHAR(20), IN p_id INTEGER(11))
+  BEGIN
+    DECLARE Continue HANDLER FOR 1062
+    BEGIN
+      UPDATE z_sync_postgres SET rnd=RAND()*2000000000 WHERE tbase='nispd' and tname=p_table and tid=p_id;
+
+    END;
+
+    INSERT INTO z_sync_postgres(tbase, tname, tid, rnd) VALUES ('nispd', p_table, p_id, RAND()*2000000000);
+  END */;;
+DELIMITER ;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

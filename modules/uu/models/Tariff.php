@@ -71,6 +71,10 @@ class Tariff extends HistoryActiveRecord
 
     const DELTA = 10000;
 
+    const TEST_VOIP_ID = 10005;
+    const TEST_VPBX_ID = 10123;
+    const START_VPBX_ID = 10143;
+
     /**
      * @return array
      */

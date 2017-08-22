@@ -59,7 +59,7 @@ class ApiPhone extends Singleton
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidCallException
      */
-    private function _exec($action, $data)
+    protected function _exec($action, $data)
     {
         if (defined('ats3_silent')) {
             return true;

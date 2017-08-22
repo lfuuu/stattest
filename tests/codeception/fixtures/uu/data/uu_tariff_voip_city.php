@@ -9,7 +9,7 @@ return [
         'city_id' => City::DEFAULT_USER_CITY_ID,
     ],
     [
-        'tariff_id' => Tariff::DELTA + 5,
+        'tariff_id' => Tariff::DELTA + 13,
         'city_id' => City::DEFAULT_USER_CITY_ID,
     ],
 ];

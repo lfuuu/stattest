@@ -29,6 +29,7 @@ use app\models\tariffs\TariffInterface;
 class TariffVirtpbx extends ActiveRecord implements TariffInterface
 {
     const TEST_TARIFF_ID = 71;
+    const PUBLIC_START_TARIFF_ID = 81;
 
     public static function tableName()
     {

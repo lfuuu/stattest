@@ -54,7 +54,7 @@ class _ClientAccount extends \app\models\ClientAccount
             throw new ModelValidationException($clientForm);
         }
 
-        return ClientAccount::findOne(['id' => $clientForm->account_id]);
+        return self::findOne(['id' => $clientForm->account_id]);
     }
 
 }

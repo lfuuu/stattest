@@ -2,6 +2,7 @@
 
 use app\modules\uu\models\Period;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffPeriod;
 
 return [
     // Tariff with autoprolongation
@@ -60,7 +61,7 @@ return [
         'price_per_period' => 511,
         'price_setup' => 512,
         'price_min' => 513,
-        'tariff_id' => Tariff::DELTA + 5,
+        'tariff_id' => Tariff::DELTA + 13,
         'charge_period_id' => Period::ID_MONTH,
     ],
     [
@@ -117,6 +118,30 @@ return [
         'price_setup' => 512,
         'price_min' => 513,
         'tariff_id' => Tariff::DELTA + 12,
+        'charge_period_id' => Period::ID_MONTH,
+    ],
+    [
+        'id' => TariffPeriod::TEST_VOIP_ID,
+        'price_per_period' => 0,
+        'price_setup' => 0,
+        'price_min' => 0,
+        'tariff_id' => Tariff::TEST_VOIP_ID,
+        'charge_period_id' => Period::ID_DAY,
+    ],
+    [
+        'id' => TariffPeriod::TEST_VPBX_ID,
+        'price_per_period' => 0,
+        'price_setup' => 0,
+        'price_min' => 0,
+        'tariff_id' => Tariff::TEST_VPBX_ID,
+        'charge_period_id' => Period::ID_DAY,
+    ],
+    [
+        'id' => TariffPeriod::START_VPBX_ID,
+        'price_per_period' => 390,
+        'price_setup' => 0,
+        'price_min' => 0,
+        'tariff_id' => Tariff::START_VPBX_ID,
         'charge_period_id' => Period::ID_MONTH,
     ],
 ];

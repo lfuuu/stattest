@@ -3,7 +3,6 @@
 use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
-use app\classes\ActaulizerVoipNumbers;
 use app\modules\uu\models\AccountTariff;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;
@@ -39,8 +38,8 @@ class VirtPbx3Checker
                     IFNULL((SELECT id_tarif AS id_tarif FROM log_tarif WHERE service='usage_virtpbx' AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1),0) AS tarif_id,
                     u.region as region_id,
                     prev_usage_id,
-                    next_usage_id,
-                    :version_biller_usage  as biller_version
+                    (select ifnull((select id from usage_virtpbx where prev_usage_id = u.id), (select id from uu_account_tariff where prev_usage_id = u.id))) AS next_usage_id,
+                    :version_biller_usage as biller_version
                 FROM
                     usage_virtpbx u, clients c
                 WHERE
@@ -55,8 +54,8 @@ class VirtPbx3Checker
                     account_tariff.client_account_id AS client_id,
                     tariff_period.tariff_id,
                     account_tariff.region_id,
-                    0 AS prev_usage_id,
-                    0 AS next_usage_id,
+                    prev_usage_id,
+                    (select ifnull((select id from usage_virtpbx where prev_usage_id = account_tariff.id), (select id from uu_account_tariff where prev_usage_id = account_tariff.id))) AS next_usage_id,
                     :version_biller_universal AS biller_version
                 FROM
                     uu_account_tariff account_tariff,
@@ -104,14 +103,29 @@ class VirtPbx3Checker
 
         if ($usageId) {
             $usageIds[$usageId] = 1;
-            $usage = UsageVirtpbx::findOne(['id' => $usageId]);
+            $usage = UsageVirtpbx::findOne(['id' => $usageId]) ?: AccountTariff::findOne(['id' => $usageId]);
             if ($usage) {
                 if ($usage->prev_usage_id) {
                     $usageIds[$usage->prev_usage_id] = 1;
                 }
 
-                if ($usage->next_usage_id) {
-                    $usageIds[$usage->next_usage_id] = 1;
+                $nextUsageId = Yii::$app->db->createCommand("
+                    SELECT IFNULL(
+                        (
+                            SELECT id 
+                            FROM uu_account_tariff 
+                            WHERE prev_usage_id = :nextUsageId
+                        ),
+                        (
+                            SELECT id
+                            FROM usage_virtpbx 
+                            WHERE prev_usage_id = :nextUsageId
+                        )
+                    )
+                ", [':nextUsageId' => $usageId])->queryScalar();
+
+                if ($nextUsageId) {
+                    $usageIds[$nextUsageId] = 1;
                 }
             }
         }
@@ -187,6 +201,8 @@ class VirtPbx3Checker
 
 class VirtPbx3
 {
+    private static $_api = null;
+
     /**
      * Входная функция для синхронизации одной ВАТС
      *
@@ -220,6 +236,26 @@ class VirtPbx3
         } else {
             return [];
         }
+    }
+
+    /**
+     * @param ApiVpbx $api
+     */
+    public static function setApi(ApiVpbx $api)
+    {
+        self::$_api = $api;
+    }
+
+    /**
+     * @return null|void
+     */
+    public static function getApi()
+    {
+        if (!self::$_api) {
+            self::$_api = self::setApi(ApiVpbx::me());
+        }
+
+        return self::$_api;
     }
 }
 
@@ -328,6 +364,9 @@ class VirtPbx3Diff
 
 class VirtPbx3Action
 {
+    const ADD = 'add';
+    const DEL = 'del';
+
     public static function add(&$l)
     {
         l::ll(__CLASS__, __FUNCTION__, $l);
@@ -336,6 +375,7 @@ class VirtPbx3Action
             return null;
         }
 
+        $uuUsage = null;
         $usage = UsageVirtpbx::findOne(['id' => $l['usage_id']]);
         if (!$usage) {
             $uuUsage = AccountTariff::findOne(['id' => $l['usage_id']]);
@@ -344,7 +384,7 @@ class VirtPbx3Action
             }
         }
 
-        if ($usage && $usage->isTransfered(true)) {
+        if (self::_checkTransfer(self::ADD, $usage, $uuUsage)) {
             $msg = 'Создается переносимая ВАТС';
 
             l::ll(__CLASS__, __FUNCTION__, $msg);
@@ -352,11 +392,11 @@ class VirtPbx3Action
             throw new LogicException($msg);
         }
 
-        if (ApiVpbx::me()->isAvailable()) {
+        if (VirtPbx3::getApi()->isAvailable()) {
             $exceptionVpbx = null;
             try {
 
-                ApiVpbx::me()->create($l["client_id"], $l["usage_id"], $l['biller_version']);
+                VirtPbx3::getApi()->create($l["client_id"], $l["usage_id"], $l['biller_version']);
 
             } catch (Exception $e) {
                 $exceptionVpbx = $e;
@@ -381,10 +421,11 @@ class VirtPbx3Action
     {
         l::ll(__CLASS__, __FUNCTION__, $l);
 
-        if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX || !ApiVpbx::me()->isAvailable()) {
+        if (!defined("AUTOCREATE_VPBX") || !AUTOCREATE_VPBX || !VirtPbx3::getApi()->isAvailable()) {
             return null;
         }
 
+        $uuUsage = null;
         $usage = UsageVirtpbx::findOne(['id' => $l['usage_id']]);
         if (!$usage) {
             $uuUsage = AccountTariff::findOne(['id' => $l['usage_id']]);
@@ -393,7 +434,7 @@ class VirtPbx3Action
             }
         }
 
-        if ($usage && $usage->isTransfered(false)) {
+        if (self::_checkTransfer(self::DEL, $usage, $uuUsage)) {
             $msg = 'Удаляется переносимая ВАТС';
             l::ll(__CLASS__, __FUNCTION__, $msg);
             Yii::error($msg . PHP_EOL . print_r($l, true));
@@ -401,9 +442,7 @@ class VirtPbx3Action
         }
 
         try {
-
-            ApiVpbx::me()->archiveVpbx($l["client_id"], $l["usage_id"]);
-
+            VirtPbx3::getApi()->archiveVpbx($l["client_id"], $l["usage_id"]);
         } catch (Exception $e) {
             if ($e->getCode() != ApiCore::ERROR_PRODUCT_NOT_EXSISTS) {
                 throw $e;
@@ -422,12 +461,12 @@ class VirtPbx3Action
     {
         l::ll(__CLASS__, __FUNCTION__, $l);
 
-        $toUsage = UsageVirtpbx::findOne($l["usage_id"]);
+        $toUsage = UsageVirtpbx::findOne(['id' => $l["usage_id"]]) ?: AccountTariff::findOne(['id' => $l["usage_id"]]);
         if (!$toUsage) {
             return;
         }
 
-        $fromUsage = UsageVirtpbx::findOne($toUsage->prev_usage_id);
+        $fromUsage = UsageVirtpbx::findOne(['id' => $toUsage->prev_usage_id]) ?: AccountTariff::findOne(['id' => $toUsage->prev_usage_id]);
 
         if (!$fromUsage) {
             return;
@@ -436,13 +475,10 @@ class VirtPbx3Action
         $dbTransaction = Yii::$app->db->beginTransaction();
 
         try {
-
-            $numInfo = [];
-
-            if (ApiVpbx::me()->isAvailable()) {
+            if (VirtPbx3::getApi()->isAvailable()) {
 
                 // $numInfo = ApiPhone::me()->getNumbersInfo($fromUsage->clientAccount);
-                ApiVpbx::me()->transferVpbxOnly(
+                VirtPbx3::getApi()->transferVpbxOnly(
                     $fromUsage->clientAccount->id,
                     $fromUsage->id,
                     $toUsage->clientAccount->id,
@@ -461,16 +497,7 @@ class VirtPbx3Action
                 $row->save();
             }
 
-            /*
-            foreach ($numInfo as $number => $info) {
-                if ($info["stat_product_id"] == $fromUsage->id) {
-                    ActaulizerVoipNumbers::transferNumberWithVpbx($number, $toUsage->clientAccount->id);
-                }
-            }
-            */
-
             $dbTransaction->commit();
-
         } catch (\Exception $e) {
             $dbTransaction->rollBack();
             throw $e;
@@ -482,7 +509,7 @@ class VirtPbx3Action
         l::ll(__CLASS__, __FUNCTION__, $l);
 
         try {
-            ApiVpbx::me()->update($l["client_id"], $l["usage_id"], $l["region_id"], $l['biller_version']);
+            VirtPbx3::getApi()->update($l["client_id"], $l["usage_id"], $l["region_id"], $l['biller_version']);
         } catch (Exception $e) {
             throw $e;
         }
@@ -500,6 +527,34 @@ class VirtPbx3Action
         }
 
         return false;
+    }
+
+    /**
+     * @param string $action
+     * @param UsageVirtpbx $usage
+     * @param AccountTariff $uuUsage
+     * @return bool
+     */
+    private static function _checkTransfer($action, $usage, $uuUsage)
+    {
+        if ($action == self::ADD) {
+            $prevUsageId = $usage ? $usage->prev_usage_id : $uuUsage->prev_usage_id;
+
+            if (!$prevUsageId) {
+                return false;
+            }
+
+            // добавление. Предыдущая услуга ещё работает
+            $where = ['id' => $prevUsageId];
+            return (bool)(UsageVirtpbx::find()->where($where)->actual()->one() ?:
+                AccountTariff::findOne($where + ['IS NOT', 'tariff_period_id', null]));
+        }
+
+        // Удаление переносимой услуги
+        $usageId = $usage ? $usage->id : $uuUsage->id;
+        $where = ['prev_usage_id' => $usageId];
+        return (bool) (UsageVirtpbx::find()->where($where)->exists() ?:
+            AccountTariff::find()->where($where)->exists());
     }
 
 }

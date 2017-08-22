@@ -12,6 +12,7 @@ use app\helpers\usages\LogTariffTrait;
 use app\helpers\usages\UsageVirtpbxHelper;
 use app\models\usages\UsageInterface;
 use app\models\usages\UsageLogTariffInterface;
+use app\modules\uu\models\AccountTariff;
 use app\queries\UsageQuery;
 use DateTime;
 
@@ -131,21 +132,6 @@ class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTarif
     public static function getMissingTariffs()
     {
         return UsagesLostTariffs::intoLogTariff(self::className());
-    }
-
-    /**
-     * Услуга помечена как переносимая на новый ЛС?
-     *
-     * @param bool|null $isAdd это добавляемая услуга
-     * @return bool
-     */
-    public function isTransfered($isAdd = null)
-    {
-        if ($isAdd === null) {
-            return (bool)($this->prev_usage_id || $this->next_usage_id);
-        }
-
-        return (bool)($isAdd ? $this->prev_usage_id : $this->next_usage_id);
     }
 
     /**

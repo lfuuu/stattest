@@ -3,7 +3,76 @@
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\Tariff;
 
-return [
+$vpbxBaseResources = [
+    [
+        'amount' => 0.2,
+        'price_per_unit' => 98,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_DISK,
+    ],
+    [
+        'amount' => 3,
+        'price_per_unit' => 39,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_ABONENT,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_EXT_DID,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_RECORD,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_FAX,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_MIN_ROUTE,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_GEO_ROUTE,
+    ],
+    [
+        'amount' => 0,
+        'price_per_unit' => 9,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
+    ],
+];
+
+$vpbxResources = [];
+
+$v = 0;
+foreach ([
+             Tariff::DELTA + 3,
+             Tariff::TEST_VPBX_ID,
+             Tariff::START_VPBX_ID
+         ] as $tariffId) {
+    $vpbxResourcesTmp = $vpbxBaseResources;
+    foreach ($vpbxResourcesTmp as &$resource) {
+        $resource['tariff_id'] = $tariffId;
+
+        $v++;
+    }
+    $vpbxResources = array_merge($vpbxResources, $vpbxResourcesTmp);
+}
+
+
+$allTariffResources = [
     // тариф 1
     [
         'amount' => 0.04,
@@ -121,65 +190,6 @@ return [
         'tariff_id' => Tariff::DELTA + 2,
     ],
 
-
-    // тариф 3
-    [
-        'amount' => 0.2,
-        'price_per_unit' => 98,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_DISK,
-        'tariff_id' => Tariff::DELTA + 3,
-    ],
-    [
-        'amount' => 3,
-        'price_per_unit' => 39,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_ABONENT,
-        'tariff_id' => Tariff::DELTA + 3,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_EXT_DID,
-        'tariff_id' => Tariff::DELTA + 3,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_RECORD,
-        'tariff_id' => Tariff::DELTA + 3,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_FAX,
-        'tariff_id' => Tariff::DELTA + 3,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_MIN_ROUTE,
-        'tariff_id' => Tariff::DELTA + 3,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_GEO_ROUTE,
-        'tariff_id' => Tariff::DELTA + 3,
-    ],
-    [
-        'amount' => 0,
-        'price_per_unit' => 9,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
-        'tariff_id' => Tariff::DELTA + 3,
-    ],
-
     // Тариф 4
     [
         'amount' => 1,
@@ -272,3 +282,5 @@ return [
         'tariff_id' => Tariff::DELTA + 10,
     ],
 ];
+
+return array_merge($allTariffResources, $vpbxResources);

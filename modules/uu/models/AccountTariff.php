@@ -29,6 +29,7 @@ use app\modules\uu\models\traits\AccountTariffValidatorTrait;
  * @property string $comment
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
  * @property int $vm_elid_id ID VM collocation
+ * @property int $prev_usage_id
  */
 class AccountTariff extends HistoryActiveRecord
 {
@@ -124,7 +125,7 @@ class AccountTariff extends HistoryActiveRecord
     public function rules()
     {
         return [
-            [['client_account_id', 'service_type_id'], 'required'],
+            [['client_account_id', 'service_type_id'], 'required', 'on' => ['default', 'serviceTransfer']],
             [
                 [
                     'client_account_id',
@@ -141,7 +142,7 @@ class AccountTariff extends HistoryActiveRecord
             ['service_type_id', 'validatorServiceType'],
             ['client_account_id', 'validatorTrunk', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorTariffPeriod'],
-            ['voip_number', 'validatorVoipNumber', 'skipOnEmpty' => true, 'on' => 'default'],
+            ['voip_number', 'validatorVoipNumber', 'skipOnEmpty' => true, 'on' => ['default']],
             [
                 ['city_id', 'voip_number'],
                 'required',

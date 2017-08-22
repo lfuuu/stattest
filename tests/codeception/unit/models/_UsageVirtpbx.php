@@ -2,75 +2,74 @@
 
 namespace tests\codeception\unit\models;
 
+use ActiveRecord\DateTime;
 use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
+use app\models\Region;
+use app\models\TariffVirtpbx;
+use app\models\usages\UsageInterface;
+use app\models\UsageVirtpbx;
+use app\models\User;
 use app\modules\nnp\models\NdcType;
 use app\models\UsageVoip;
 use app\models\LogTarif;
 use app\models\TariffVoip;
+use tests\codeception\unit\_TestCase;
 
 class _UsageVirtpbx extends \app\models\UsageVirtpbx
 {
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getClientAccount()
-    {
-        _ClientAccount::$usageId = $this->id;
-        return $this->hasOne(_ClientAccount::className(), ['client' => 'client']);
-    }
-
     /**
      * @inheritdoc
      */
-    public function createUsageVoip()
+    public static function createUsage(_TestCase $testCase, _ClientAccount $account)
     {
-        $tariffId = TariffVoip::find()->select('MAX(id)')->scalar();
+        $usage = new self();
+        $usage->client = $account->client;
+        $usage->actual_from = (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
+        $usage->actual_to = UsageInterface::MAX_POSSIBLE_DATE;
+        $usage->amount = 1;
+        $usage->status = UsageInterface::STATUS_CONNECTING;
+        $usage->region = Region::MOSCOW;
 
-        $line7800 = new UsageVoip;
-        $line7800->actual_from = $this->actual_from;
-        $line7800->actual_to = $this->actual_to;
-        $line7800->client = $this->client;
-        $line7800->ndc_type_id = NdcType::ID_MCN_LINE;
-        $line7800->address = 'test address line 7800';
-        $line7800->region = 99;
-        $line7800->create_params = '';
-        $line7800->E164 = UsageVoip::dao()->getNextLineNumber();
-        if (!$line7800->save()) {
-            throw new ModelValidationException($line7800);
+        if (!$usage->validate()) {
+            $testCase->failOnValidationModel($usage);
         }
+        $testCase->assertTrue($usage->save());
 
-        $logTariff = new LogTarif;
-        $logTariff->service = UsageVoip::tableName();
-        $logTariff->id_service = $line7800->id;
-        $logTariff->id_tarif = $tariffId;
-        $logTariff->date_activation = $line7800->actual_from;
-        if (!$logTariff->save()) {
-            throw new ModelValidationException($logTariff);
-        }
-
-        $usage = new UsageVoip;
-        $usage->actual_from = $this->actual_from;
-        $usage->actual_to = $this->actual_to;
-        $usage->client = $this->client;
-        $usage->ndc_type_id = NdcType::ID_FREEPHONE;
-        $usage->address = 'test address';
-        $usage->E164 = '123456' . mt_rand(0, 9);
-        $usage->line7800_id = $line7800->id;
-        $usage->region = 99;
-        $usage->create_params = '';
-        if (!$usage->save()) {
-            throw new ModelValidationException($usage);
-        }
-
-        $logTariff = new LogTarif;
-        $logTariff->service = UsageVoip::tableName();
+        $logTariff = new LogTarif();
+        $logTariff->service = UsageVirtpbx::tableName();
         $logTariff->id_service = $usage->id;
-        $logTariff->id_tarif = $tariffId;
-        $logTariff->date_activation = $usage->actual_from;
-        if (!$logTariff->save()) {
-            throw new ModelValidationException($logTariff);
+        $logTariff->id_tarif = TariffVirtpbx::TEST_TARIFF_ID;
+        $logTariff->ts = (new DateTime('now'))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        $logTariff->date_activation = (new DateTime('now'))->format(DateTimeZoneHelper::DATE_FORMAT);
+        $logTariff->id_user = User::SYSTEM_USER_ID;
+
+        if (!$logTariff->validate()) {
+            $testCase->failOnValidationModel($logTariff);
         }
+        $testCase->assertTrue($logTariff->save());
+
+        return $usage;
     }
 
+    public function switchOff(_TestCase $testCase)
+    {
+        $this->actual_from = $this->actual_to = date(DateTimeZoneHelper::DATE_FORMAT, strtotime('yesterday'));
+        $this->validateAndSave($testCase);
+    }
+
+    public function validateAndSave(_TestCase $testCase)
+    {
+        if (!$this->validate()) {
+            $testCase->failOnValidationModel($this);
+        }
+        $testCase->assertTrue($this->save());
+    }
+
+    public function getLogTariffDirect()
+    {
+        return $this->hasOne(LogTarif::className(), ['id_service' => 'id'])
+            ->andWhere(['service' => parent::tableName()])
+            ->orderBy(['id' => SORT_DESC]);
+    }
 }

@@ -61,7 +61,7 @@ class ApiVpbx extends Singleton
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      */
-    private function _exec($action, $data, $isSendPost = true)
+    protected function _exec($action, $data, $isSendPost = true)
     {
         if (!$this->isAvailable()) {
             throw new InvalidConfigException('API Vpbx was not configured');

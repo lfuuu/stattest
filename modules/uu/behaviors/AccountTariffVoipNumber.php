@@ -39,6 +39,11 @@ class AccountTariffVoipNumber extends Behavior
             return;
         }
 
+        // не надо захватывать номер с помощью статуса, если номер и так используется. Это позволит иметь правильный статус номера.
+        if (in_array($number->status, Number::$statusGroup[Number::STATUS_GROUP_ACTIVE])) {
+            return;
+        }
+
         $number->status = Number::STATUS_ACTIVE_CONNECTED;
         if (!$number->save()) {
             throw new ModelValidationException($number);

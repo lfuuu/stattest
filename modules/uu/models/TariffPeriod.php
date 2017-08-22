@@ -28,6 +28,10 @@ class TariffPeriod extends HistoryActiveRecord
     const IS_NOT_SET = -1;
     const IS_SET = -2;
 
+    const TEST_VOIP_ID = 5399;
+    const TEST_VPBX_ID = 5670;
+    const START_VPBX_ID = 5694;
+
     protected $isAttributeTypecastBehavior = true;
 
     /**
