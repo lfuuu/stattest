@@ -374,7 +374,7 @@ class ClientController extends BaseController
         Assert::isObject($contact);
 
         Event::goWithIndicator(
-            Event::CORE_CREATE_ADMIN,
+            Event::CORE_CREATE_OWNER,
             ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data],
             ClientSuper::tableName(),
             $account->super_id);

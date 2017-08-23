@@ -52,7 +52,7 @@ class ClientSuper extends ActiveRecord
 
             'CheckCreateCoreAdmin' => [
                 'class' => EventQueueAddEvent::className(),
-                'insertEvent' => Event::CHECK_CREATE_CORE_ADMIN,
+                'insertEvent' => Event::CHECK_CREATE_CORE_OWNER,
                 'isWithIndicator' => true
             ]
         ];

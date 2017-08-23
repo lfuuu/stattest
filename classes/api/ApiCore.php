@@ -181,7 +181,7 @@ class ApiCore
         }
 
         Event::goWithIndicator(
-            Event::CORE_CREATE_ADMIN,
+            Event::CORE_CREATE_OWNER,
             ['id' => $superId, 'account_id' => $account->id, 'email' => $adminEmail->data],
             \app\models\ClientSuper::tableName(),
             $superId);
@@ -194,13 +194,13 @@ class ApiCore
      * @return string
      * @throws ModelValidationException
      */
-    public static function syncCoreAdmin($params)
+    public static function syncCoreOwner($params)
     {
         $accountSync = new CoreSyncIds;
         $accountSync->id = $params['id'];
         $accountSync->type = CoreSyncIds::TYPE_SUPER_CLIENT;
 
-        $info = self::createCoreAdmin($params['id'], $params['account_id'], $params['email']);
+        $info = self::createCoreOwner($params['id'], $params['account_id'], $params['email']);
 
         $accountSync->external_id = $info['user_id'];
 
@@ -219,9 +219,9 @@ class ApiCore
      * @param string $email
      * @return array
      */
-    public static function createCoreAdmin($superClientId, $accountId, $email)
+    public static function createCoreOwner($superClientId, $accountId, $email)
     {
-        $result = ApiCore::exec('create_core_admin', [
+        $result = ApiCore::exec('create_core_owner', [
             'id' => $superClientId,
             'email' => $email,
             'account_id' => $accountId,
@@ -231,6 +231,6 @@ class ApiCore
             return $result['data'];
         }
 
-        throw new InvalidCallException('[core/create_core_admin]', 'Непонятный ответ платформы');
+        throw new InvalidCallException('[core/create_core_owner]', 'Непонятный ответ платформы');
     }
 }

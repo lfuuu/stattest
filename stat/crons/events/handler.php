@@ -256,12 +256,12 @@ function doEvents()
                     $info = SendToOnlineCashRegister::refreshStatus($param['paymentId']);
                     break;
 
-                case Event::CHECK_CREATE_CORE_ADMIN:
+                case Event::CHECK_CREATE_CORE_OWNER:
                     $isCoreServer && ApiCore::checkCreateCoreAdmin($param);
                     break;
 
-                case Event::CORE_CREATE_ADMIN:
-                    $isCoreServer && ($info = ApiCore::syncCoreAdmin($param));
+                case Event::CORE_CREATE_OWNER:
+                    $isCoreServer && ($info = ApiCore::syncCoreOwner($param));
                     break;
 
                 case Event::ADD_ACCOUNT:

@@ -18,7 +18,7 @@ class Event
     const ACTUALIZE_CLIENT = 'actualize_client';
     const ACTUALIZE_NUMBER = 'actualize_number';
     const ADD_SUPER_CLIENT = 'add_super_client';
-    const CHECK_CREATE_CORE_ADMIN = 'check_create_core_admin';
+    const CHECK_CREATE_CORE_OWNER = 'check_create_core_owner';
     const SYNC_CORE_ADMIN = 'sync_core_admin';
     const ADD_ACCOUNT = 'add_account';
     const ADD_PAYMENT = 'add_payment';
@@ -30,7 +30,7 @@ class Event
     const CALL_CHAT__ADD = 'call_chat__add';
     const CALL_CHAT__DEL = 'call_chat__del';
     const CALL_CHAT__UPDATE = 'call_chat__update';
-    const CORE_CREATE_ADMIN = 'core_create_admin';
+    const CORE_CREATE_OWNER = 'core_create_owner';
     const CHECK__CALL_CHAT = 'check__call_chat';
     const CHECK__USAGES = 'check__usages';
     const CHECK__VIRTPBX3 = 'check__virtpbx3';
@@ -75,7 +75,7 @@ class Event
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
         self::ACTUALIZE_NUMBER => 'Актуализировать номер',
         self::ADD_SUPER_CLIENT => 'Добавлен (супер)клиент',
-        self::CHECK_CREATE_CORE_ADMIN => 'Проверяеть необходимость создания администратора в ЛК',
+        self::CHECK_CREATE_CORE_OWNER => 'Проверяеть необходимость создания администратора в ЛК',
         self::SYNC_CORE_ADMIN => 'Создание администратора в ЛК',
         self::ADD_ACCOUNT => 'Добавлен ЛС',
         self::ADD_PAYMENT => 'Платеж добавлен',
@@ -88,7 +88,7 @@ class Event
         self::CALL_CHAT__ADD => 'Услуга звонок-чат добавлена',
         self::CALL_CHAT__DEL => 'Услуга звонок-чат удалена',
         self::CALL_CHAT__UPDATE => 'Услуга звонок-чат изменена',
-        self::CORE_CREATE_ADMIN => 'Создание админа в ЛК',
+        self::CORE_CREATE_OWNER => 'Создание админа в ЛК',
         self::CHECK__CALL_CHAT => 'Проверить услугу звонок-чат',
         self::CHECK__USAGES => 'Проверить "старые" услуги',
         self::CHECK__VIRTPBX3 => 'Проверить услуги ВАТС',
