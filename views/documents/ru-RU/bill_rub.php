@@ -132,7 +132,7 @@ $payerCompany = $document->getPayer();
                 <tr>
                     <td align="right"><?= ($position + 1); ?></td>
                     <td><?= $line['item']; ?></td>
-                    <td align="center"><?= Utils::mround($line['amount'], 4,6); ?></td>
+                    <td align="center"><?= Utils::mround($line['amount'], 4,4); ?></td>
                     <td align="center">
                         <?php
                         if (isset($line['okei_name']))
@@ -146,10 +146,10 @@ $payerCompany = $document->getPayer();
                         ?>
                     </td>
                     <?php if($organization->isNotSimpleTaxSystem()): ?>
-                        <td align="center"><?= Utils::round(round($line['sum_without_tax'] / $line['amount'], 2), 4);?></td>
-                        <td align="center"><?= Utils::round($line['sum_without_tax'], 4); ?></td>
+                        <td align="center"><?= Utils::round(round($line['sum_without_tax'] / $line['amount'], 2), 2);?></td>
+                        <td align="center"><?= Utils::round($line['sum_without_tax'], 2); ?></td>
                     <?php else: ?>
-                        <td align="center"><?= Utils::round($line['price'], 4); ?></td>
+                        <td align="center"><?= Utils::round($line['price'], 2); ?></td>
                     <?php endif; ?>
 
 
