@@ -22,15 +22,7 @@ $clientAccount = $accountTariff->clientAccount;
 <div class="row">
     <?php
     $defaultTariffPeriodId = null;
-    $tariffPeriods = $formModel->getAvailableTariffPeriods(
-        $defaultTariffPeriodId,
-        true,
-        $accountTariff->service_type_id,
-        $clientAccount->country_id,
-        $accountTariff->city_id,
-        $isWithNullAndNotNull = false,
-        $clientAccount->is_postpaid
-    );
+    $tariffPeriods = $formModel->getAvailableTariffPeriods($defaultTariffPeriodId, true);
 
     $accountTariffLog->tariff_period_id = $accountTariff->tariff_period_id; // текущий тариф
     !$accountTariffLog->tariff_period_id && $defaultTariffPeriodId && $accountTariffLog->tariff_period_id = $defaultTariffPeriodId; // иначе (при создании) дефолтный

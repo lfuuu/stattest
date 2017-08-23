@@ -243,13 +243,6 @@ class AccountTariffResourceLog extends ActiveRecord
             return;
         }
 
-        $currentAmount = (int)$this->accountTariff->getResourceValue($this->resource_id);
-        if ($this->amount < $currentAmount && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())) {
-            $this->addError($attribute, 'Уменьшить количество ресурса "' . ($this->resource ? $this->resource->name : $this->resource_id) . '" можно, начиная с ' . $minEditDate);
-            $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
-            return;
-        }
-
         Yii::trace('AccountTariffResourceLog. After validatorFuture', 'uu');
     }
 

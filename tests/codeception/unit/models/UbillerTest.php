@@ -18,6 +18,7 @@ use app\tests\codeception\fixtures\uu\AccountTariffFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffLogFixture;
 use app\tests\codeception\fixtures\uu\AccountTariffResourceLogFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
+use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
 use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use DateTimeImmutable;
@@ -38,6 +39,7 @@ class UbillerTest extends _TestCase
     protected function load()
     {
         (new TariffFixture)->load();
+        (new TariffOrganizationFixture)->load();
         (new TariffPeriodFixture)->load();
         (new TariffResourceFixture)->load();
         (new AccountTariffFixture)->load();
@@ -68,6 +70,7 @@ class UbillerTest extends _TestCase
         (new AccountTariffFixture)->unload();
         (new TariffResourceFixture)->unload();
         (new TariffPeriodFixture)->unload();
+        (new TariffOrganizationFixture)->unload();
         (new TariffFixture)->unload();
     }
 
@@ -628,7 +631,7 @@ class UbillerTest extends _TestCase
         );
 
         // по годовому тарифу. повторить 11 месяцев 1-30 числа +2
-        for ($i =0; $i < 11; $i++) {
+        for ($i = 0; $i < 11; $i++) {
             $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
             $this->assertEquals(2, $untarificatedResourceOptionPeriod->amountOverhead);
             $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);

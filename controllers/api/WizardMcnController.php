@@ -159,10 +159,10 @@ class WizardMcnController extends WizardBaseController
             && $this->account->contragent->tax_regime != ClientContragent::TAX_REGTIME_YCH_VAT0
         ) {
             $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_LEGAL;
-            $organizationId = Organization::MCN_TELEKOM;
+            $organizationId = Organization::MCN_TELECOM;
         } else {
             $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_PERSON;
-            $organizationId = Organization::MCM_TELEKOM;
+            $organizationId = Organization::MCN_TELECOM_RETAIL;
         }
 
         if ($this->account->contract->organization_id != $organizationId) {

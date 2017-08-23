@@ -32,7 +32,7 @@ class BillDao extends Singleton
      * @param int $organizationId
      * @return string
      */
-    public function spawnBillNumber($billDate, $organizationId = Organization::MCN_TELEKOM)
+    public function spawnBillNumber($billDate, $organizationId = Organization::MCN_TELECOM)
     {
         if (is_numeric($billDate)) {
             $timestamp = $billDate;

@@ -10,10 +10,14 @@ use app\models\EntryPoint;
 use app\models\EventQueue;
 use app\models\Number;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffVoipCity;
 use app\tests\codeception\fixtures\NumberFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
+use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
+use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
 use tests\codeception\unit\_TestCase;
 use tests\codeception\unit\models\_AccountTariff;
 use tests\codeception\unit\models\_ClientAccount;
@@ -33,9 +37,13 @@ class Voip extends _TestCase
         $this->_transaction = \Yii::$app->db->beginTransaction();
 
         TariffPeriod::deleteAll();
+        TariffVoipCity::deleteAll();
+        TariffOrganization::deleteAll();
         Tariff::deleteAll();
 
         (new TariffFixture())->load();
+        (new TariffOrganizationFixture())->load();
+        (new TariffVoipCityFixture())->load();
         (new TariffPeriodFixture)->load();
 
         $this->_accountUsage = _ClientAccount::createOne(EntryPoint::RU1);

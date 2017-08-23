@@ -164,4 +164,20 @@ class ServiceType extends ActiveRecord
                 return 'warning';
         }
     }
+
+    /**
+     * @param int $serviceTypeId
+     * @return int[]
+     */
+    public static function getPackageIds($serviceTypeId)
+    {
+        $serviceTypeIds = [];
+        foreach (ServiceType::$packages as $serviceTypeIdPackage => $serviceTypeIdMain) {
+            if ($serviceTypeId == $serviceTypeIdMain) {
+                $serviceTypeIds[] = $serviceTypeIdPackage;
+            }
+        }
+
+        return $serviceTypeIds;
+    }
 }

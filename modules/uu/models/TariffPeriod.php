@@ -133,6 +133,7 @@ class TariffPeriod extends HistoryActiveRecord
      * @param int $statusId
      * @param bool $isPostpaid
      * @param bool $isIncludeVat
+     * @param int $organizationId
      * @return array
      */
     public static function getList(
@@ -145,7 +146,8 @@ class TariffPeriod extends HistoryActiveRecord
         $isWithNullAndNotNull = false,
         $statusId = null,
         $isPostpaid = null,
-        $isIncludeVat = null
+        $isIncludeVat = null,
+        $organizationId = null
     ) {
         $defaultTariffPeriodId = null;
 
@@ -174,10 +176,16 @@ class TariffPeriod extends HistoryActiveRecord
             $activeQuery->andWhere(['tariff.country_id' => $countryId]);
         }
 
-        if ($cityId && ($serviceTypeId == ServiceType::ID_VOIP || $serviceTypeId == ServiceType::ID_VOIP_PACKAGE)) {
+        if ($cityId && isset(ServiceType::$packages[$serviceTypeId])) {
             $activeQuery
-                ->innerJoin(TariffVoipCity::tableName() . ' cities', 'tariff.id = cities.tariff_id')
-                ->andWhere(['cities.city_id' => $cityId]);
+                ->innerJoin(TariffVoipCity::tableName() . ' tariff_cities', 'tariff.id = tariff_cities.tariff_id')
+                ->andWhere(['tariff_cities.city_id' => $cityId]);
+        }
+
+        if ($organizationId) {
+            $activeQuery
+                ->innerJoin(TariffOrganization::tableName() . ' tariff_organizations', 'tariff.id = tariff_organizations.tariff_id')
+                ->andWhere(['tariff_organizations.organization_id' => $organizationId]);
         }
 
         $selectboxItems = [];

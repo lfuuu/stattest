@@ -106,7 +106,7 @@ class VoipServiceTransfer extends BasicServiceTransfer
         return [
             'service_type_id' => $this->getServiceTypeId(),
             'voip_number' => $this->getService()->helper->value,
-            'city_id' => $this->getService()->voipNumber->cityByNumber->id,
+            'city_id' => $this->getService()->voipNumber->getCityByNumber()->id,
         ];
     }
 
@@ -121,8 +121,15 @@ class VoipServiceTransfer extends BasicServiceTransfer
             'resource_id' => Resource::ID_VOIP_LINE,
         ]);
 
+        $fmcResource = new AccountTariffResourceLog;
+        $fmcResource->setAttributes([
+            'amount' => 0,
+            'resource_id' => Resource::ID_VOIP_FMC,
+        ]);
+
         return [
             $lineResource,
+            $fmcResource,
         ];
     }
 

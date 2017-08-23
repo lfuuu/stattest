@@ -32,7 +32,7 @@ class ContractEditForm extends Form
         $contragent_id,
         $number,
         $date,
-        $organization_id = Organization::MCN_TELEKOM,
+        $organization_id = Organization::MCN_TELECOM,
         $manager,
         $comment,
         $account_manager,

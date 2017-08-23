@@ -108,7 +108,7 @@ class HistoryActiveRecord extends ActiveRecord
             [
                 date(DateTimeZoneHelper::DATE_FORMAT) => 'Текущую дату',
                 date('Y-m-01', $prevMonth) => 'С 1го ' . $months[date('m', $prevMonth) - 1],
-                date('Y-m-01')             => 'С 1го ' . $months[date('m') - 1],
+                date('Y-m-01') => 'С 1го ' . $months[date('m') - 1],
                 date('Y-m-01', $nextMonth) => 'С 1го ' . $months[date('m', $nextMonth) - 1],
                 '' => 'выбраную дату'
             ];
@@ -263,7 +263,11 @@ class HistoryActiveRecord extends ActiveRecord
     public static function getHistoryIds($models, $deleteModel = [], $idField = 'id')
     {
         if (!is_array($models)) {
-            $models = [$models];
+            if ($models) {
+                $models = [$models];
+            } else {
+                $models = [];
+            }
         }
 
         $historyIdPhp = [];

@@ -43,7 +43,7 @@ class EntryPoint extends ActiveRecord
         $this->account_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
         $this->wizard_type = LkWizardState::TYPE_MCN;
         $this->currency_id = Currency::RUB;
-        $this->organization_id = Organization::MCN_TELEKOM;
+        $this->organization_id = Organization::MCN_TELECOM;
         $this->country_id = Country::RUSSIA;
         $this->timezone_name = DateTimeZoneHelper::TIMEZONE_MOSCOW;
         $this->is_postpaid = 1;

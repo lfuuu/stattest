@@ -48,7 +48,7 @@ class OperatorPayFilter extends Bill
     public $pay_date = '';
     public $comment = '';
 
-    public $organization_id = Organization::MCM_TELEKOM;
+    public $organization_id = Organization::MCN_TELECOM_RETAIL;
     public $bill_type = self::BILL_TYPE_ALL;
     public $checking_bill_state = self::CHECKING_BILL_PAID_AND_UNVERIFIED;
 

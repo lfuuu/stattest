@@ -43,24 +43,21 @@ use Yii;
  * @property Person $director
  * @property Person $accountant
  * @property OrganizationSettlementAccount $settlementAccount
- * @property
  */
 class Organization extends ActiveRecord
 {
-    // Определяет getList (список для selectbox)
-    use \app\classes\traits\GetListTrait;
-
     use I18NGetTrait;
 
-    const MCN_TELEKOM = 1;
-    const MCM_TELEKOM = 11;
-    const TEL2TEL_KFT = 10;
+    const MCN_TELECOM = 1;
+    const MCN_TELECOM_RETAIL = 11; // ex "MCM Telecom"
+    const TEL2TEL_KFT = 10; // Для некоторых стран это переводится как "TEL2TEL_LTD", но не надо это путать с id=16
     const TEL2TEL_LTD = 16;
+    const TEL2TEL_GMBH = 20;
     const AB_SERVICE_MARCOMNET = 14;
 
     public static $ourLegalEntities = [
-        self::MCN_TELEKOM => 'ООО "МСН Телеком"',
-        self::MCM_TELEKOM => 'ООО "МСМ Телеком"',
+        self::MCN_TELECOM => 'МСН Телеком',
+        self::MCN_TELECOM_RETAIL => 'МСН Телеком Ритейл',
         self::TEL2TEL_KFT => 'Tel2tel Kft.',
         self::TEL2TEL_LTD => 'Tel2Tel Ltd.',
     ];
@@ -402,5 +399,4 @@ class Organization extends ActiveRecord
             '<br /> е-mail: ' . $this->contact_email;
 
     }
-
 }

@@ -23,6 +23,7 @@ use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffResource;
@@ -284,6 +285,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "tarification_min_paid_seconds", type = "integer", description = "Телефония. Минимальная плата, секунд"),
      *   @SWG\Property(property = "voip_group", type = "object", description = "Телефония. Группа (местные, междугородние, международные и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "voip_cities", type = "array", description = "Телефония. Города", @SWG\Items(ref = "#/definitions/idNameRecord")),
+     *   @SWG\Property(property = "organizations", type = "array", description = "Организации", @SWG\Items(ref = "#/definitions/idNameRecord")),
      *   @SWG\Property(property = "voip_package_minute", type = "array", description = "Телефония. Пакет. Предоплаченные минуты", @SWG\Items(ref = "#/definitions/voipPackageMinuteRecord")),
      *   @SWG\Property(property = "voip_package_price", type = "array", description = "Телефония. Пакет. Цена по направлениям", @SWG\Items(ref = "#/definitions/voipPackagePriceRecord")),
      *   @SWG\Property(property = "voip_package_pricelist", type = "array", description = "Телефония. Пакет. Прайслист", @SWG\Items(ref = "#/definitions/voipPackagePricelistRecord")),
@@ -302,6 +304,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_group_id", type = "integer", description = "ID группы телефонии (местные, междугородние, международные и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_city_id", type = "integer", description = "ID города телефонии", in = "query", default = ""),
+     *   @SWG\Parameter(name = "organization_id", type = "integer", description = "ID организации", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_number", type = "string", description = "Номер телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги ЛС", in = "query", default = ""),
      *
@@ -325,6 +328,7 @@ class UuController extends ApiInternalController
      * @param int $tariff_person_id
      * @param int $voip_group_id
      * @param int $voip_city_id
+     * @param int $organization_id
      * @param string $voip_number
      * @param int $account_tariff_id
      * @return array
@@ -342,6 +346,7 @@ class UuController extends ApiInternalController
         $tariff_person_id = null,
         $voip_group_id = null,
         $voip_city_id = null,
+        $organization_id = null,
         $voip_number = null,
         $account_tariff_id = null
     ) {
@@ -353,6 +358,7 @@ class UuController extends ApiInternalController
         $tariff_person_id = (int)$tariff_person_id;
         $voip_group_id = (int)$voip_group_id;
         $voip_city_id = (int)$voip_city_id;
+        $organization_id = (int)$organization_id;
         $account_tariff_id = (int)$account_tariff_id;
 
         if ($account_tariff_id) {
@@ -384,6 +390,7 @@ class UuController extends ApiInternalController
             }
 
             $is_postpaid = $clientAccount->is_postpaid;
+            $organization_id = $clientAccount->contract->organization_id;
 
             $tariff_person_id = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
                 TariffPerson::ID_NATURAL_PERSON :
@@ -445,6 +452,12 @@ class UuController extends ApiInternalController
             $tariffQuery->andWhere([$tariffVoipCityTableName . '.city_id' => $voip_city_id]);
         }
 
+        if ($organization_id) {
+            $tariffQuery->joinWith('organizations');
+            $tariffOrganizationTableName = TariffOrganization::tableName();
+            $tariffQuery->andWhere([$tariffOrganizationTableName . '.organization_id' => $organization_id]);
+        }
+
         $result = [];
         /** @var Tariff $tariff */
         foreach ($tariffQuery->each() as $tariff) {
@@ -453,7 +466,7 @@ class UuController extends ApiInternalController
                 $defaultPackageRecords = $this->actionGetTariffs(
                     $id_tmp = null,
                     ServiceType::ID_VOIP_PACKAGE,
-                    $country_id,
+                    $country_id, // пакеты телефонии - по стране, все остальное - по организации
                     $client_account_id,
                     $currency_id,
                     $is_default_tmp = 1,
@@ -461,6 +474,7 @@ class UuController extends ApiInternalController
                     $tariff_status_id_tmp = null,
                     $tariff_person_id,
                     $voip_group_id,
+                    $organization_id_tmp = null, // пакеты телефонии - по стране, все остальное - по организации
                     $voip_city_id,
                     $voip_number,
                     $account_tariff_id
@@ -511,6 +525,7 @@ class UuController extends ApiInternalController
             'tarification_min_paid_seconds' => $package ? $package->tarification_min_paid_seconds : null,
             'voip_group' => $this->_getIdNameRecord($tariff->voipGroup),
             'voip_cities' => $this->_getIdNameRecord($tariff->voipCities, 'city_id'),
+            'organizations' => $this->_getIdNameRecord($tariff->organizations, 'organization_id'),
             'voip_package_minute' => $this->_getVoipPackageMinuteRecord($tariff->packageMinutes),
             'voip_package_price' => $this->_getVoipPackagePriceRecord($tariff->packagePrices),
             'voip_package_pricelist' => $this->_getVoipPackagePricelistRecord($tariff->packagePricelists),

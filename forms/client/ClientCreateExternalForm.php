@@ -349,7 +349,7 @@ class ClientCreateExternalForm extends Form
             $contract->business_id = Business::TELEKOM;
             $contract->business_process_id = BusinessProcess::TELECOM_SUPPORT;
             $contract->business_process_status_id = BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES;
-            $contract->organization_id = Organization::MCN_TELEKOM;
+            $contract->organization_id = Organization::MCN_TELECOM;
         }
 
         if (!$contract->validate() || !$contract->save()) {

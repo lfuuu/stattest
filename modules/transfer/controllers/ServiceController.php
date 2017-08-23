@@ -167,7 +167,7 @@ class ServiceController extends BaseController
 
                 Assert::isObject($number, 'Number "' . $serviceValue . '" not found');
 
-                $cityId = $number->cityByNumber->id;
+                $cityId = $number->getCityByNumber()->id;
             }
 
             $returnArray = TariffPeriod::getList(

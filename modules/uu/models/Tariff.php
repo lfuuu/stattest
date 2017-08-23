@@ -54,6 +54,7 @@ use yii\helpers\Url;
  *
  * @property TariffVoipGroup $voipGroup
  * @property TariffVoipCity[] $voipCities
+ * @property TariffOrganization[] $organizations
  * @property boolean $isTest
  */
 class Tariff extends HistoryActiveRecord
@@ -289,6 +290,15 @@ class Tariff extends HistoryActiveRecord
     }
 
     /**
+     * @return ActiveQuery
+     */
+    public function getOrganizations()
+    {
+        return $this->hasMany(TariffOrganization::className(), ['tariff_id' => 'id'])
+            ->indexBy('organization_id');
+    }
+
+    /**
      * Есть ли услуги
      *
      * @return bool
@@ -378,6 +388,7 @@ class Tariff extends HistoryActiveRecord
     public function findDefaultPackages($cityId, $tariffStatuses = [])
     {
         if ($this->service_type_id != ServiceType::ID_VOIP) {
+            // пакеты по умолчанию только для телефонии. Даже для пакетов транков их нет
             return null;
         }
 
@@ -386,6 +397,7 @@ class Tariff extends HistoryActiveRecord
             ->joinWith('voipCities')
             ->where([
                 $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE,
+                $tariffTableName . '.country_id' => $this->country_id,
                 $tariffTableName . '.currency_id' => $this->currency_id,
                 // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
                 $tariffTableName . '.is_default' => 1,

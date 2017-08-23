@@ -4643,7 +4643,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $design->assign('date_from_val', $date_from_val = $dateFrom->getTimestamp());
         $design->assign('date_to_val', $date_to_val = $dateTo->getTimestamp());
         $design->assign('organizations', Organization::dao()->getList());
-        $design->assign('organization_id', $organizationId = get_param_protected('organization_id', Organization::MCN_TELEKOM));
+        $design->assign('organization_id', $organizationId = get_param_protected('organization_id', Organization::MCN_TELECOM));
         set_time_limit(0);
 
         $dtFrom = clone $dateFrom->day;

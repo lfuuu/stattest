@@ -10,6 +10,7 @@ use app\modules\nnp\models\PackagePricelist;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
@@ -30,6 +31,9 @@ abstract class TariffForm extends \app\classes\Form
     /** @var TariffVoipCity[] */
     public $tariffVoipCities;
 
+    /** @var TariffOrganization[] */
+    public $tariffOrganizations;
+
     public $countryId;
 
     /**
@@ -46,6 +50,11 @@ abstract class TariffForm extends \app\classes\Form
      * @return TariffVoipCity[]
      */
     abstract public function getTariffVoipCities();
+
+    /**
+     * @return TariffOrganization[]
+     */
+    abstract public function getTariffOrganizations();
 
     /**
      * @return Tariff
@@ -115,6 +124,8 @@ abstract class TariffForm extends \app\classes\Form
                 $this->tariffVoipCities = $this->getTariffVoipCities();
                 break;
         }
+
+        $this->tariffOrganizations = $this->getTariffOrganizations();
 
         // загрузить параметры от юзера
         $transaction = \Yii::$app->db->beginTransaction();
@@ -214,6 +225,10 @@ abstract class TariffForm extends \app\classes\Form
                         $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
                         break;
                 }
+
+                $tariffOrganization = new TariffOrganization();
+                $tariffOrganization->tariff_id = $this->id;
+                $this->tariffOrganizations = $this->crudMultipleSelect2($this->tariffOrganizations, $post, $tariffOrganization, 'organization_id');
             }
 
             if ($this->validateErrors) {

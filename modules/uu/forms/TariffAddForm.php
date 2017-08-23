@@ -6,6 +6,7 @@ use app\models\Country;
 use app\models\Currency;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
@@ -57,6 +58,7 @@ class TariffAddForm extends TariffForm
             $tariffResource->price_min = 0;
             $tariffResources[] = $tariffResource;
         }
+
         return $tariffResources;
     }
 
@@ -74,5 +76,13 @@ class TariffAddForm extends TariffForm
     public function getTariffVoipCities()
     {
         return [new TariffVoipCity()];
+    }
+
+    /**
+     * @return TariffOrganization[]
+     */
+    public function getTariffOrganizations()
+    {
+        return [new TariffOrganization()];
     }
 }

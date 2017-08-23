@@ -12,12 +12,13 @@ use app\modules\uu\models\AccountTariffLog;
 use kartik\grid\GridView;
 use yii\helpers\Html;
 
+$accountTariff = $formModel->accountTariff;
 ?>
 
 <div class="account-tariff-edit-log-form well">
     <?php
     // добавить тариф (только при редактировании)
-    if (!$isReadOnly && !$formModel->accountTariff->isNewRecord && !$formModel->accountTariff->isLogCancelable()) {
+    if (!$isReadOnly && !$accountTariff->isNewRecord && !$accountTariff->isLogCancelable()) {
         echo $this->render('_editLogForm', ['formModel' => $formModel]);
     }
     ?>
@@ -96,4 +97,7 @@ use yii\helpers\Html;
         ?>
     </div>
 
+    <?php if (!$accountTariff->isNewRecord) : ?>
+        <?= $this->render('//layouts/_showHistory', ['model' => $formModel->getAccountTariffLogGrid()->query->all(), 'deleteModel' => [new AccountTariffLog(), 'account_tariff_id', $accountTariff->id], 'title' => 'Лот отмен']) ?>
+    <?php endif; ?>
 </div>

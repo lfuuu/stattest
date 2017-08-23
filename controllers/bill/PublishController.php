@@ -39,7 +39,7 @@ class PublishController extends BaseController
      * @param int $regionId
      * @return string
      */
-    public function actionIndex($organizationId = Organization::MCN_TELEKOM, $regionId = Region::HUNGARY)
+    public function actionIndex($organizationId = Organization::MCN_TELECOM, $regionId = Region::HUNGARY)
     {
         $isNotificationsOff = false;
         $switchOffParam = Param::findOne(Param::NOTIFICATIONS_SWITCH_OFF_DATE);

@@ -24,6 +24,7 @@ use app\tests\codeception\fixtures\EntryPointFixture;
 use app\tests\codeception\fixtures\NumberFixture;
 use app\tests\codeception\fixtures\TariffVoipPackageFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
+use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
 use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
@@ -111,6 +112,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
 
         // Loading fixtures universal fixtures
         (new TariffFixture)->load();
+        (new TariffOrganizationFixture)->load();
         (new TariffVoipCityFixture)->load();
         (new TariffPeriodFixture)->load();
         (new TariffResourceFixture)->load();
@@ -149,6 +151,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
         (new TariffVoipCityFixture)->unload();
         (new TariffPeriodFixture)->unload();
         (new TariffResourceFixture)->unload();
+        (new TariffOrganizationFixture)->unload();
         (new TariffFixture)->unload();
     }
 
@@ -302,14 +305,15 @@ abstract class _BaseService extends \yii\codeception\TestCase
      */
     protected function getUniversalTariff($serviceTypeId, $cityId = null, $didGroup = 0)
     {
+        $universalClientAccountFirst = $this->universalClientAccountFirst;
         $statusId = null;
 
         if ($serviceTypeId === ServiceType::ID_VOIP) {
             // Get service DID group
             $didGroup = DidGroup::findOne(['id' => $didGroup]);
             // Get price level
-            $priceLevel = $this->universalClientAccountFirst ?
-                $this->universalClientAccountFirst->price_level :
+            $priceLevel = $universalClientAccountFirst ?
+                $universalClientAccountFirst->price_level :
                 ClientAccount::DEFAULT_PRICE_LEVEL;
             // Get tariff status
             $statusId = $didGroup->{'tariff_status_main' . $priceLevel};
@@ -319,14 +323,15 @@ abstract class _BaseService extends \yii\codeception\TestCase
         $possibleTariffs = TariffPeriod::getList(
             $defaultTariffPeriodId,
             $serviceTypeId,
-            $this->universalClientAccountFirst->currency,
-            $this->universalClientAccountFirst->country->code,
+            $universalClientAccountFirst->currency,
+            $serviceTypeId == ServiceType::ID_VOIP_PACKAGE ? $universalClientAccountFirst->country_id : null, // пакеты телефонии - по стране, все остальное - по организации
             $cityId,
             $isWithEmpty = false,
             $isWithNullAndNotNull = false,
             $statusId,
-            $this->universalClientAccountFirst->is_postpaid,
-            $this->universalClientAccountFirst->is_voip_with_tax
+            $universalClientAccountFirst->is_postpaid,
+            $universalClientAccountFirst->is_voip_with_tax,
+            $serviceTypeId == ServiceType::ID_VOIP_PACKAGE ? null : $universalClientAccountFirst->contract->organization_id // пакеты телефонии - по стране, все остальное - по организации
         );
 
         if (!count($possibleTariffs)) {

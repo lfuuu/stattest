@@ -367,33 +367,30 @@ abstract class AccountTariffForm extends Form
     /**
      * @param int $defaultTariffPeriodId
      * @param bool $isWithEmpty
-     * @param int $serviceTypeId
-     * @param int $countryId
-     * @param int $cityId
      * @param bool $isWithNullAndNotNull
-     * @param bool $isPostpaid
      * @return array
      */
     public function getAvailableTariffPeriods(
         &$defaultTariffPeriodId,
         $isWithEmpty = false,
-        $serviceTypeId = null,
-        $countryId = null,
-        $cityId = null,
-        $isWithNullAndNotNull = false,
-        $isPostpaid = null
+        $isWithNullAndNotNull = false
     ) {
+        $accountTariff = $this->accountTariff;
+        $clientAccount = $accountTariff->clientAccount;
+        $serviceTypeId = $accountTariff->service_type_id ?: $this->serviceTypeId;
+
         return TariffPeriod::getList(
             $defaultTariffPeriodId,
-            $serviceTypeId ?: $this->serviceTypeId,
-            $this->accountTariff->clientAccount->currency,
-            $countryId,
-            $cityId,
+            $serviceTypeId,
+            $clientAccount->currency,
+            $serviceTypeId == ServiceType::ID_VOIP_PACKAGE ? $clientAccount->country_id : null, // пакеты телефонии - по стране, все остальное - по организации
+            $accountTariff->city_id,
             $isWithEmpty,
             $isWithNullAndNotNull,
             $statusId = null,
-            $isPostpaid,
-            $this->accountTariff->clientAccount->is_voip_with_tax
+            $clientAccount->is_postpaid,
+            $clientAccount->is_voip_with_tax,
+            $serviceTypeId == ServiceType::ID_VOIP_PACKAGE ? null : $clientAccount->contract->organization_id // пакеты телефонии - по стране, все остальное - по организации
         );
     }
 

@@ -3,6 +3,7 @@
 namespace app\modules\uu\forms;
 
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
@@ -65,5 +66,13 @@ class TariffEditForm extends TariffForm
     public function getTariffVoipCities()
     {
         return $this->tariff->voipCities;
+    }
+
+    /**
+     * @return TariffOrganization[]
+     */
+    public function getTariffOrganizations()
+    {
+        return $this->tariff->organizations;
     }
 }

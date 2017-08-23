@@ -4,6 +4,9 @@ namespace app\dao;
 use app\classes\Singleton;
 use app\models\Organization;
 
+/**
+ * @method static OrganizationDao me($args = null)
+ */
 class OrganizationDao extends Singleton
 {
 

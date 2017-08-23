@@ -3,7 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\Html;
-use app\classes\model\ActiveRecord;
+use app\classes\model\HistoryActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\behaviors\AccountTariffBiller;
@@ -31,7 +31,7 @@ use yii\db\ActiveQuery;
  * @property AccountTariff $accountTariff
  * @property string $actual_from
  */
-class AccountTariffLog extends ActiveRecord
+class AccountTariffLog extends HistoryActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
@@ -75,6 +75,7 @@ class AccountTariffLog extends ActiveRecord
     public function behaviors()
     {
         return parent::behaviors() + [
+                'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
                 'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
                 'FillAccountTariffResourceLog' => FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
             ];

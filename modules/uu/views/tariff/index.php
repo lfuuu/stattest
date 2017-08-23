@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\CurrencyColumn;
+use app\classes\grid\column\universal\OrganizationColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
@@ -23,6 +24,7 @@ use app\modules\uu\filter\TariffFilter;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
 use app\widgets\GridViewExport\GridViewExport;
@@ -76,7 +78,7 @@ $columns = [
         'value' => function (Tariff $tariff) {
             $tariffPeriods = $tariff->tariffPeriods;
             $tariffPeriod = reset($tariffPeriods);
-            return sprintf('%d / %d + %d', $tariffPeriod->price_setup, $tariffPeriod->price_min, $tariffPeriod->price_per_period);
+            return sprintf('%d / %d, %d', $tariffPeriod->price_setup, $tariffPeriod->price_min, $tariffPeriod->price_per_period);
         }
     ],
     [
@@ -126,12 +128,41 @@ if ($serviceType->id != ServiceType::ID_VOIP_PACKAGE) {
     ];
 }
 
+$columns[] = [
+    'label' => Html::encode(Yii::t('models/' . TariffOrganization::tableName(), 'organization_id')),
+    'attribute' => 'organization_id',
+    'format' => 'html',
+    'class' => OrganizationColumn::className(),
+    'isAddLink' => false,
+    'contentOptions' => [
+        'class' => 'nowrap',
+    ],
+    'value' => function (Tariff $tariff) {
+        $maxCount = 2;
+        $organizations = $tariff->organizations;
+        $count = count($organizations);
+        if ($count <= $maxCount) {
+            return implode('<br/>', $organizations);
+        }
+
+        return sprintf(
+            '%s<br/><abbr title="%s">… %d…</abbr>',
+            implode('<br/>', array_slice($organizations, 0, $maxCount)),
+            implode(PHP_EOL, array_slice($organizations, $maxCount)),
+            $count - $maxCount
+        );
+    }
+];
+
 $cityColumn = [
     'label' => Html::encode(Yii::t('models/' . TariffVoipCity::tableName(), 'city_id')),
     'attribute' => 'voip_city_id',
     'format' => 'html',
     'class' => CityColumn::className(),
     'isAddLink' => false,
+    'contentOptions' => [
+        'class' => 'nowrap',
+    ],
     'value' => function (Tariff $tariff) {
         $maxCount = 2;
         $voipCities = $tariff->voipCities;
