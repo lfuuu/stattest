@@ -152,20 +152,24 @@ class AccountEntry extends ActiveRecord
      * Например, "Ресурс", "Подключение", "Подключение номера ..."
      *
      * @param string $langCode
+     * @param bool $isFullDocument для полного документа детализация включает номер.
      * @return string
      */
-    public function getName($langCode = Language::LANGUAGE_DEFAULT)
+    public function getName($langCode = Language::LANGUAGE_DEFAULT, $isFullDocument = true)
     {
         $names = [];
 
-        // Например, "Номер ..."
-        $accountTariff = $this->accountTariff;
-        if ($accountTariff->service_type_id == ServiceType::ID_VOIP) {
-            // телефония
-            $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->voip_number], $langCode);
-        } elseif ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE) {
-            // пакет телефонии. Номер взять от телефонии
-            $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->prevAccountTariff->voip_number], $langCode);
+        if ($isFullDocument) {
+            // Например, "Номер ..."
+            $accountTariff = $this->accountTariff;
+            if ($accountTariff->service_type_id == ServiceType::ID_VOIP) {
+                // телефония
+                $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->voip_number], $langCode);
+            } elseif ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE) {
+                // пакет телефонии. Номер взять от телефонии
+                $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->prevAccountTariff->voip_number],
+                    $langCode);
+            }
         }
 
         if ($this->type_id > 0) {
@@ -193,7 +197,7 @@ class AccountEntry extends ActiveRecord
      * @return string
      * @throws \yii\base\InvalidConfigException
      */
-    public function getFullName($langCode = null)
+    public function getFullName($langCode = null, $isFullDocument = true)
     {
         if (is_null($langCode)) {
             $langCode = $this->accountTariff->clientAccount->country->lang;
@@ -211,13 +215,22 @@ class AccountEntry extends ActiveRecord
         }
 
         // Например, "Абонентская плата" или "Подключение" или "Номер 1234567890. Звонки"
-        $names[] = $this->getName($langCode);
+        $names[] = $this->getName($langCode, $isFullDocument);
 
         // Например, "Тариф «Максимальный»"
         // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
         $tariffPeriod = $this->tariffPeriod;
-        $names[] = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariffPeriod->tariff->name], $langCode);
 
+        /** @var Tariff $tariff */
+        $tariff = $tariffPeriod->tariff;
+
+        if (array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
+            // пакет
+            $names[] = Yii::t('uu', 'Package «{tariff}»', ['tariff' => $tariff->name], $langCode);
+        } else {
+            // тариф
+            $names[] = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariff->name], $langCode);
+        }
 
         // Сохранить \yii\i18n\Formatter locale
         $locale = Yii::$app->formatter->locale;

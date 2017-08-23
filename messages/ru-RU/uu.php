@@ -6,4 +6,5 @@ return [
 
     'Number {number}' => 'Номер {number}',
     'Tariff «{tariff}»' => 'Тариф «{tariff}»',
+    'Package «{tariff}»' => 'Пакет «{tariff}»',
 ];

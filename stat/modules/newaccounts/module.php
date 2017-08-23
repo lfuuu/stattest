@@ -2751,7 +2751,7 @@ class m_newaccounts extends IModule
         }
 
         if ($bill->Client('type_of_bill') == ClientAccount::TYPE_OF_BILL_SIMPLE) {
-            $billLines = \app\models\BillLine::compactLines($billLines, $bill->Client());
+            $billLines = \app\models\BillLine::compactLines($billLines, $bill->Client()->country->lang);
         }
 
 

@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\model\HistoryActiveRecord;
+use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models_light\InvoiceItemsLight;
 
 /**
@@ -37,6 +38,7 @@ use app\modules\uu\models_light\InvoiceItemsLight;
  *
  * @property int $type           тип строки. значения: service, zalog, zadatok, good, all4net
  * @property Bill $bill
+ * @property AccountEntry $accountEntry
  */
 class BillLine extends HistoryActiveRecord
 {
@@ -106,37 +108,98 @@ class BillLine extends HistoryActiveRecord
 
     /**
      * @param array $lines
-     * @param ClientAccount $clientAccount
-     * @param string $language
+     * @param string $lang
      * @return array
      */
-    public static function compactLines($lines, ClientAccount $clientAccount, $language = Language::LANGUAGE_RUSSIAN)
+    public static function compactLines($lines, $lang)
     {
-        /*
-        $billLine = [
-            'item' => \Yii::t(
-                'biller',
-                'Communications services contract #{contract_number}',
-                ['contract_number' => $clientAccount->contract->number],
-                $language
-            ),
-            'amount' => 1,
-            'okvd_code' => InvoiceItemsLight::CODE_MONTH
-        ];
+        $data = [];
+        $idx = [];
 
+        $accountTariffIds = [];
+
+        array_walk($lines, function ($line) use (&$accountTariffIds) {
+            if ($line['uu_account_entry_id']) {
+                $accountTariffIds[] = $line['uu_account_entry_id'];
+            }
+        });
+
+        $accountTariffs = AccountEntry::find()
+            ->where(['id' => $accountTariffIds])
+            ->indexBy('id')
+            ->all();
+
+        /** @var BillLine $line */
         foreach ($lines as $line) {
-            $billLine['price'] += $line['sum'];
-            $billLine['outprice'] += $line['sum'];
-            $billLine['sum'] += $line['sum'];
-            $billLine['sum_tax'] += $line['sum_tax'];
-            $billLine['sum_without_tax'] += $line['sum_without_tax'];
+            /** @var AccountEntry $accountEntry */
+            $accountEntry = $line['uu_account_entry_id'] && isset($accountTariffs[$line['uu_account_entry_id']]) ?
+                $accountTariffs[$line['uu_account_entry_id']] :
+                null;
+
+            // Группируем строки счета по ставке НДС, дате начала и конца, по типу записи.
+            // Ресурсы складываем. В подключении, абонентке и минималке - складываем ещё и по цене.
+            $key = $accountEntry ?
+                $accountEntry->vat_rate . '/' .
+                ($accountEntry->type_id > 0 ? 1 : $line['price']) . '/' .
+                $accountEntry->type_id . '/' .
+                $accountEntry->date_from . '/' .
+                $accountEntry->date_to :
+                '';
+
+            if (!isset($idx[$key])) {
+                $idx[$key] = [
+                    'first_line' => $line,
+                    'first_account_entry' => $accountEntry,
+                    'sums' => [
+                        'price_without_vat' => 0,
+                        'price_with_vat' => 0,
+                        'vat' => 0
+                    ]
+                ];
+            }
+
+            $idx[$key]['sums']['amount'] += $line['amount'];
+            $idx[$key]['sums']['sum'] += $line['sum'];
+            $idx[$key]['sums']['sum_without_tax'] += $line['sum_without_tax'];
+            $idx[$key]['sums']['sum_tax'] += $line['sum_tax'];
         }
 
-        return [$billLine];
+        // Сортировка. Сначало подключение, абонентка и минималка. Потом ресурсы. Потом по названию.
+        usort($idx, function ($a, $b) {
+            $aTypeId = abs($a['first_account_entry']['type_id']);
+            $bTypeId = abs($b['first_account_entry']['type_id']);
 
-        */
+            if ($aTypeId != $bTypeId) {
+                return $aTypeId > $bTypeId ? 1 : -1;
+            }
 
-        return $lines;
+            $aLine = $a['first_line'];
+            $bLine = $b['first_line'];
+
+            if ($aLine['item'] != $bLine['item']) {
+                return strcmp($aLine['item'], $bLine['item']);
+            }
+
+            return 0;
+        });
+
+        foreach ($idx as $row) {
+            $line = $row['first_line'];
+            $line['amount'] = $row['sums']['amount'];
+            $line['sum'] = $row['sums']['sum'];
+            $line['sum_without_tax'] = $row['sums']['sum_without_tax'];
+            $line['sum_tax'] = $row['sums']['sum_tax'];
+
+            /** @var AccountEntry $accountEntry */
+            $accountEntry = $row['first_account_entry'];
+            if ($accountEntry) {
+                $line['item'] = $accountEntry->getFullName($lang, false);
+            }
+
+            $data[] = $line;
+        }
+
+        return $data;
     }
 
 }

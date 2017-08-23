@@ -218,7 +218,7 @@ abstract class DocumentReport extends Object
     protected function postFilterLines()
     {
         if ($this->bill->clientAccount->type_of_bill == ClientAccount::TYPE_OF_BILL_SIMPLE) {
-            $this->lines = BillLine::compactLines($this->lines, $this->bill->clientAccount, $this->getLanguage());
+            $this->lines = BillLine::compactLines($this->lines, $this->bill->clientAccount->country->lang);
         }
 
         return $this;

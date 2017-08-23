@@ -28,14 +28,19 @@ class Bill {
         $this->_comment=$s;
     }
 
-    public function Client($v = '') {
+    /**
+     * @param string $field
+     * @return ClientAccount
+     */
+    public function Client($field = '')
+    {
 
         if (!$this->client_data) {
             $this->client_data = ClientAccount::findOne(['id' => $this->client_id])
                 ->loadVersionOnDate($this->bill["bill_date"]);
         }
 
-        return ($v?($this->client_data[$v]):($this->client_data));
+        return ($field ? ($this->client_data[$field]) : ($this->client_data));
     }
 
     public function SetClientDate($date)
