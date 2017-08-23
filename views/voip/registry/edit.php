@@ -174,8 +174,15 @@ $readonlyOptions = [
         ];
 
         if ($model->source == VoipRegistrySourceEnum::OPERATOR_NOT_FOR_SALE) {
-            $line3Attributes['mvno_trunk_id']
-                = $line3Attributes['fmc_trunk_id'] = [
+            $line3Attributes['fmc_trunk_id'] = [
+                'type' => Form::INPUT_DROPDOWN_LIST,
+                'items' => ($model->account_id ? Trunk::dao()->getList(['accountId' => $model->account_id], $isWithEmpty = true) : ['' => '----']),
+                'options' => ($isEditable ? [] : $readonlyOptions)
+            ];
+        }
+
+        if ($model->source == VoipRegistrySourceEnum::REGULATOR) {
+            $line3Attributes['mvno_trunk_id'] = [
                 'type' => Form::INPUT_DROPDOWN_LIST,
                 'items' => ($model->account_id ? Trunk::dao()->getList(['accountId' => $model->account_id], $isWithEmpty = true) : ['' => '----']),
                 'options' => ($isEditable ? [] : $readonlyOptions)
