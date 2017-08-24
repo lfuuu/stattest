@@ -471,7 +471,7 @@ class UuController extends ApiInternalController
                     $currency_id,
                     $is_default_tmp = 1,
                     $is_postpaid_tmp = null,
-                    $tariff_status_id_tmp = null,
+                    $tariff_status_id,
                     $tariff_person_id,
                     $voip_group_id,
                     $voip_city_id,
