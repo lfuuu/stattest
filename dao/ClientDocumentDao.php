@@ -355,6 +355,11 @@ class ClientDocumentDao extends Singleton
             }
 
             $log = reset($logs);
+
+            if (!$log->tariff_period_id) {
+                continue;
+            }
+
             $period = $log->tariffPeriod;
             $tariff = $period->tariff;
 
