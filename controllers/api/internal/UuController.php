@@ -470,12 +470,12 @@ class UuController extends ApiInternalController
                     $client_account_id,
                     $currency_id,
                     $is_default_tmp = 1,
-                    $is_postpaid,
+                    $is_postpaid_tmp = null,
                     $tariff_status_id_tmp = null,
                     $tariff_person_id,
                     $voip_group_id,
-                    $organization_id_tmp = null, // пакеты телефонии - по стране, все остальное - по организации
                     $voip_city_id,
+                    $organization_id_tmp = null, // пакеты телефонии - по стране, все остальное - по организации
                     $voip_number,
                     $account_tariff_id
                 );
