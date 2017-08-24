@@ -58,7 +58,10 @@ use kartik\widgets\ActiveForm;
             <?= $f->field($model, 'lk_balance_view_mode')->dropDownList(ClientAccount::$balanceViewMode) ?>
         </div>
         <div class="col-sm-3">
-            <?= $f->field($model, 'account_version')->dropDownList(ClientAccount::$versions) ?>
+            <?= $f->field($model, 'account_version')->dropDownList(
+                ClientAccount::$versions,
+                $model->clientM->isAbleChangeAccountVersion() ? [] : ['disabled' => 'disabled']
+            ) ?>
         </div>
     </div>
 

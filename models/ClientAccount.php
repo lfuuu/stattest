@@ -19,6 +19,7 @@ use app\classes\Utils;
 use app\dao\ClientAccountDao;
 use app\models\billing\Locks;
 use app\models\voip\StatisticDay;
+use app\modules\uu\models\AccountTariff;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -98,6 +99,16 @@ use yii\helpers\Url;
  * @property ClientContact[] $allContacts
  * @property integer $businessId
  * @property City $city
+ * @property AccountTariff[] $accountTariffs
+ * @property UsageVoip[] $usageVoips
+ * @property UsageTechCpe[] $usageTechCpes
+ * @property UsageWelltime[] $usageWelltimes
+ * @property UsageExtra[] $usageExtras
+ * @property UsageVirtpbx[] $usageVirtpbxs
+ * @property UsageSms[] $usageSmses
+ * @property UsageIpPorts[] $usageIpPorts
+ * @property usageTrunk[] $usageTrunks
+ * @property UsageCallChat[] $usageCallChats
  */
 class ClientAccount extends HistoryActiveRecord
 {
@@ -224,6 +235,9 @@ class ClientAccount extends HistoryActiveRecord
 
     private $_lastComment = false;
 
+    /** @var int */
+    private $_accountVersionOld = null;
+
     /**
      * Название таблицы
      *
@@ -258,6 +272,7 @@ class ClientAccount extends HistoryActiveRecord
             ['region', 'default', 'value' => self::DEFAULT_REGION],
             ['credit', 'default', 'value' => self::DEFAULT_CREDIT],
             ['account_version', 'default', 'value' => self::VERSION_BILLER_USAGE],
+            ['account_version', 'validatorAccountVersion'],
             ['pay_bill_until_days', 'default', 'value' => self::PAY_BILL_UNTIL_DAYS],
             ['price_type', 'default', 'value' => GoodPriceType::DEFAULT_PRICE_LIST],
             ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED],
@@ -742,6 +757,86 @@ class ClientAccount extends HistoryActiveRecord
     public function getContacts()
     {
         return $this->hasMany(ClientContact::className(), ['client_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountTariffs()
+    {
+        return $this->hasMany(AccountTariff::className(), ['client_account_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageVoips()
+    {
+        return $this->hasMany(UsageVoip::className(), ['client' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageTechCpes()
+    {
+        return $this->hasMany(UsageTechCpe::className(), ['client' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageWelltimes()
+    {
+        return $this->hasMany(UsageWelltime::className(), ['client' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageExtras()
+    {
+        return $this->hasMany(UsageExtra::className(), ['client' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageVirtpbxs()
+    {
+        return $this->hasMany(UsageVirtpbx::className(), ['client' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageSmses()
+    {
+        return $this->hasMany(UsageSms::className(), ['client' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageIpPorts()
+    {
+        return $this->hasMany(UsageIpPorts::className(), ['client' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageTrunks()
+    {
+        return $this->hasMany(UsageTrunk::className(), ['client_account_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageCallChats()
+    {
+        return $this->hasMany(UsageCallChat::className(), ['client' => 'id']);
     }
 
     /**
@@ -1241,5 +1336,55 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         return self::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    }
+
+    /**
+     * Запомнить исходное значение account_version
+     */
+    public function afterFind()
+    {
+        parent::afterFind();
+        $this->_accountVersionOld = $this->account_version;
+    }
+
+    /**
+     * Валидировать, что нельзя менять account_version при наличии услуг
+     *
+     * @param string $attribute
+     * @param array $params
+     */
+    public function validatorAccountVersion($attribute, $params)
+    {
+        if (!$this->isNewRecord
+            && $this->_accountVersionOld
+            && $this->_accountVersionOld != $this->account_version
+            && !$this->isAbleChangeAccountVersion()
+        ) {
+            $this->addError($attribute, 'Нельзя менять версию ЛС при наличии услуг');
+            return;
+        }
+    }
+
+    /**
+     * Можно ли менять версию ЛС
+     * Только если нет услуг
+     *
+     * @return bool
+     */
+    public function isAbleChangeAccountVersion()
+    {
+        if ($this->_accountVersionOld == self::VERSION_BILLER_UNIVERSAL) {
+            return !$this->getAccountTariffs()->count();
+        }
+
+        return !$this->getUsageVoips()->count()
+            && !$this->getUsageTechCpes()->count()
+            && !$this->getUsageWelltimes()->count()
+            && !$this->getUsageExtras()->count()
+            && !$this->getUsageVirtpbxs()->count()
+            && !$this->getUsageSmses()->count()
+            && !$this->getUsageIpPorts()->count()
+            && !$this->getUsageTrunks()->count()
+            && !$this->getUsageCallChats()->count();
     }
 }
