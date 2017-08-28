@@ -259,6 +259,7 @@ abstract class TariffForm extends \app\classes\Form
     {
         $tariffCloned = $this->_cloneTariffTariff();
         $this->_cloneTariffVoipCity($tariffCloned);
+        $this->_cloneTariffOrganization($tariffCloned);
         $this->_cloneTariffPeriod($tariffCloned);
         $this->_cloneTariffResource($tariffCloned);
         $this->_cloneTariffPackage($tariffCloned);
@@ -327,6 +328,32 @@ abstract class TariffForm extends \app\classes\Form
             if (!$voipCityCloned->save()) {
                 $this->validateErrors += $voipCityCloned->getFirstErrors();
                 throw new ModelValidationException($voipCityCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. TariffOrganization
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffOrganization(Tariff $tariffCloned)
+    {
+        $organizations = $this->tariff->organizations;
+        $fieldNames = [
+            'organization_id',
+        ];
+        foreach ($organizations as $organization) {
+            $organizationCloned = new TariffOrganization();
+            $organizationCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $organizationCloned->$fieldName = $organization->$fieldName;
+            }
+
+            if (!$organizationCloned->save()) {
+                $this->validateErrors += $organizationCloned->getFirstErrors();
+                throw new ModelValidationException($organizationCloned);
             }
         }
     }
