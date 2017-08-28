@@ -28,6 +28,7 @@ use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
+use app\modules\uu\models\TariffTag;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipGroup;
 use Exception;
@@ -204,6 +205,30 @@ class UuController extends ApiInternalController
     }
 
     /**
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-tariff-tags", summary = "Список тегов", operationId = "GetTariffTags",
+     *
+     *   @SWG\Response(response = 200, description = "Список тегов (хит продаж)",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/idNameRecord"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @return array
+     */
+    public function actionGetTariffTags()
+    {
+        $query = TariffTag::find();
+        $result = [];
+        foreach ($query->each() as $model) {
+            $result[] = $this->_getIdNameRecord($model);
+        }
+
+        return $result;
+    }
+
+    /**
      * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-tariff-voip-groups", summary = "Список групп телефонии", operationId = "GetTariffVoipGroups",
      *
      *   @SWG\Response(response = 200, description = "Список групп телефонии (местные, междугородние, международные и пр.)",
@@ -266,7 +291,7 @@ class UuController extends ApiInternalController
      * @SWG\Definition(definition = "tariffRecord", type = "object",
      *   @SWG\Property(property = "id", type = "integer", description = "ID"),
      *   @SWG\Property(property = "name", type = "string", description = "Название"),
-     *   @SWG\Property(property = "count_of_validity_period", type = "integer", description = "Кол-во периодов продления"),
+     *   @SWG\Property(property = "count_of_validity_period", type = "integer", description = "Кол-во продлений"),
      *   @SWG\Property(property = "is_autoprolongation", type = "integer", description = "Автопролонгация"),
      *   @SWG\Property(property = "is_charge_after_blocking", type = "integer", description = "Списывать после блокировки"),
      *   @SWG\Property(property = "is_include_vat", type = "integer", description = "Включая НДС"),
@@ -277,6 +302,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "country", type = "object", description = "Страна", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_status", type = "object", description = "Статус (публичный, специальный, архивный и пр.)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_person", type = "object", description = "Для кого действует тариф (для всех, физиков, юриков)", ref = "#/definitions/idNameRecord"),
+     *   @SWG\Property(property = "tariff_tag", type = "object", description = "Тэг (хит продаж)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "tariff_resources", type = "array", description = "Ресурсы (дисковое пространство, абоненты, линии и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffResourceRecord")),
      *   @SWG\Property(property = "tariff_periods", type = "array", description = "Периоды (посуточно, помесячно и пр.) и их стоимость", @SWG\Items(ref = "#/definitions/tariffPeriodRecord")),
      *   @SWG\Property(property = "tarification_free_seconds", type = "integer", description = "Телефония. Бесплатно, секунд"),
@@ -302,6 +328,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС (для определения по нему страны, валюты, тарифа и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_status_id", type = "integer", description = "ID статуса (публичный, специальный, архивный и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "tariff_person_id", type = "integer", description = "ID для кого действует тариф (для всех, физиков, юриков)", in = "query", default = ""),
+     *   @SWG\Parameter(name = "tariff_tag_id", type = "integer", description = "ID тега (хит продаж)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_group_id", type = "integer", description = "ID группы телефонии (местные, междугородние, международные и пр.)", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_city_id", type = "integer", description = "ID города телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "organization_id", type = "integer", description = "ID организации", in = "query", default = ""),
@@ -326,6 +353,7 @@ class UuController extends ApiInternalController
      * @param int $is_postpaid
      * @param int $tariff_status_id
      * @param int $tariff_person_id
+     * @param int $tariff_tag_id
      * @param int $voip_group_id
      * @param int $voip_city_id
      * @param int $organization_id
@@ -344,6 +372,7 @@ class UuController extends ApiInternalController
         $is_postpaid = null,
         $tariff_status_id = null,
         $tariff_person_id = null,
+        $tariff_tag_id = null,
         $voip_group_id = null,
         $voip_city_id = null,
         $organization_id = null,
@@ -356,6 +385,7 @@ class UuController extends ApiInternalController
         $client_account_id = (int)$client_account_id;
         $tariff_status_id = (int)$tariff_status_id;
         $tariff_person_id = (int)$tariff_person_id;
+        $tariff_tag_id = (int)$tariff_tag_id;
         $voip_group_id = (int)$voip_group_id;
         $voip_city_id = (int)$voip_city_id;
         $organization_id = (int)$organization_id;
@@ -444,6 +474,7 @@ class UuController extends ApiInternalController
         !is_null($is_postpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$is_postpaid]);
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariff_person_id]]);
+        $tariff_tag_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_tag_id' => $tariff_tag_id]);
         $voip_group_id && $tariffQuery->andWhere([$tariffTableName . '.voip_group_id' => (int)$voip_group_id]);
 
         if ($voip_city_id) {
@@ -473,6 +504,7 @@ class UuController extends ApiInternalController
                     $is_postpaid_tmp = null,
                     $tariff_status_id,
                     $tariff_person_id,
+                    $tariff_tag_id_tmp = null,
                     $voip_group_id,
                     $voip_city_id,
                     $organization_id_tmp = null, // пакеты телефонии - по стране, все остальное - по организации
@@ -517,6 +549,7 @@ class UuController extends ApiInternalController
             'country' => $this->_getIdNameRecord($tariff->country, 'code'),
             'tariff_status' => $this->_getIdNameRecord($tariff->status),
             'tariff_person' => $this->_getIdNameRecord($tariff->person),
+            'tariff_tag' => $this->_getIdNameRecord($tariff->tag),
             'tariff_resources' => $this->_getTariffResourceRecord($tariff->tariffResources),
             'tariff_periods' => $this->_getTariffPeriodRecord($tariffPeriod),
             'tarification_free_seconds' => $package ? $package->tarification_free_seconds : null,

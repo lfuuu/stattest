@@ -15,6 +15,7 @@ class TariffFilter extends Tariff
     public $name = '';
     public $tariff_status_id = '';
     public $tariff_person_id = '';
+    public $tag_id = '';
     public $currency_id = '';
     public $country_id = '';
 
@@ -68,6 +69,7 @@ class TariffFilter extends Tariff
         $this->name !== '' && $query->andWhere(['like', $tariffTableName . '.name', $this->name]);
         $this->tariff_status_id !== '' && $query->andWhere([$tariffTableName . '.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_person_id !== '' && $query->andWhere([$tariffTableName . '.tariff_person_id' => $this->tariff_person_id]);
+        $this->tag_id !== '' && $query->andWhere([$tariffTableName . '.tag_id' => $this->tag_id]);
         $this->currency_id !== '' && $query->andWhere([$tariffTableName . '.currency_id' => $this->currency_id]);
         $this->country_id !== '' && $query->andWhere([$tariffTableName . '.country_id' => $this->country_id]);
         $this->service_type_id !== '' && $query->andWhere([$tariffTableName . '.service_type_id' => $this->service_type_id]);

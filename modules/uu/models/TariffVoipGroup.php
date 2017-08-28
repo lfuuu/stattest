@@ -18,6 +18,10 @@ class TariffVoipGroup extends ActiveRecord
     }
 
     const ID_DEFAULT = 1;
+    const ID_MOB = 1;
+    const ID_LOCAL = 2;
+    const ID_MG = 3;
+    const ID_MN = 4;
 
     /**
      * @return string

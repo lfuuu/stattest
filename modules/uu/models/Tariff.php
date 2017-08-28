@@ -23,12 +23,12 @@ use yii\helpers\Url;
  * @property integer $count_of_validity_period
  * @property integer $country_id
  * @property integer $tariff_person_id
- *
  * @property integer $is_autoprolongation
  * @property integer $is_charge_after_blocking
  * @property integer $is_include_vat
  * @property integer $is_default
  * @property integer $is_postpaid
+ * @property integer $tag_id
  *
  * @property Currency $currency
  * @property TariffResource[] $tariffResources
@@ -38,6 +38,7 @@ use yii\helpers\Url;
  * @property TariffStatus $status
  * @property TariffPerson $person
  * @property TariffPeriod[] $tariffPeriods
+ * @property TariffTag $tag
  *
  * VOIP && VOIP package only!
  * @property integer $voip_group_id
@@ -112,6 +113,7 @@ class Tariff extends HistoryActiveRecord
                     'is_postpaid',
                     'country_id',
                     'vm_id',
+                    'tag_id',
                 ],
                 'integer'
             ],
@@ -270,6 +272,14 @@ class Tariff extends HistoryActiveRecord
     public function getServiceType()
     {
         return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getTag()
+    {
+        return $this->hasOne(TariffTag::className(), ['id' => 'tag_id']);
     }
 
     /**

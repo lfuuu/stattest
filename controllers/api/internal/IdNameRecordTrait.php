@@ -16,7 +16,7 @@ trait IdNameRecordTrait
     /**
      * @param ActiveRecord|ActiveRecord[] $model
      * @param string $idFieldName
-     * @return array
+     * @return array|object
      */
     private function _getIdNameRecord($model, $idFieldName = 'id')
     {
@@ -37,6 +37,6 @@ trait IdNameRecordTrait
 
         }
 
-        return [];
+        return (object)[];
     }
 }

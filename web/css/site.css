@@ -168,6 +168,7 @@ a.nohover:hover {
 .country-column,
 .tariff-status-column,
 .tariff-person-column,
+.tariff-tag-column,
 .date-range-double-column {
     min-width: 110px;
 }

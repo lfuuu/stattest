@@ -19,6 +19,7 @@ use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 use app\modules\uu\column\TariffPersonColumn;
 use app\modules\uu\column\TariffStatusColumn;
+use app\modules\uu\column\TariffTagColumn;
 use app\modules\uu\column\TariffVoipGroupColumn;
 use app\modules\uu\filter\TariffFilter;
 use app\modules\uu\models\Resource;
@@ -100,6 +101,10 @@ $columns = [
     [
         'attribute' => 'tariff_person_id',
         'class' => TariffPersonColumn::className(),
+    ],
+    [
+        'attribute' => 'tag_id',
+        'class' => TariffTagColumn::className(),
     ],
     [
         'label' => 'Продл.',
