@@ -41,7 +41,6 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 <?= $form->field($tariff, 'voip_group_id')
                     ->widget(Select2::className(), [
                         'data' => TariffVoipGroup::getList(true),
-                        'options' => $options,
                     ]) ?>
             </div>
         </div>
