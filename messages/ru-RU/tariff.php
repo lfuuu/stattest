@@ -18,6 +18,7 @@ return [
     'Packages' => 'Пакеты',
     'Service types' => 'Типы услуг',
     'Tariff statuses' => 'Статусы тарифов',
+    'Clear UU-calls' => 'Пересчет УУ-звонков',
 
     'You should enter usage type' => 'Для создания тарифа обязательно нужно указать тип услуги',
     'You should enter tariff' => 'Не указан тариф',

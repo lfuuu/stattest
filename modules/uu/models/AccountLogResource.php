@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
+use app\helpers\DateTimeZoneHelper;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -120,5 +121,38 @@ class AccountLogResource extends ActiveRecord
             $this->date_to .
             '_' .
             $this->account_tariff_resource_log_id;
+    }
+
+    /**
+     * @param string $dateFromModify
+     * @param string $dateToModify
+     * @return int
+     * @throws \yii\db\Exception
+     */
+    public static function clearCalls($dateFromModify, $dateToModify)
+    {
+        $accountLogResourceTableName = AccountLogResource::tableName();
+        $tariffResourceTableName = TariffResource::tableName();
+        $resource1 = Resource::ID_VOIP_PACKAGE_CALLS;
+        $resource2 = Resource::ID_TRUNK_CALLS;
+        $sql = <<<SQL
+            DELETE
+                account_log_resource.*
+            FROM
+                {$accountLogResourceTableName} account_log_resource,
+                {$tariffResourceTableName} tariff_resource
+            WHERE
+                account_log_resource.tariff_resource_id = tariff_resource.id
+                AND tariff_resource.resource_id IN ({$resource1}, {$resource2})
+                AND account_log_resource.date_from BETWEEN :date_from AND :date_to
+SQL;
+
+        return AccountLogResource::getDb()
+            ->createCommand($sql, [
+                ':date_from' => (new \DateTime())->modify($dateFromModify)->format(DateTimeZoneHelper::DATE_FORMAT),
+                ':date_to' => (new \DateTime())->modify($dateToModify)->format(DateTimeZoneHelper::DATE_FORMAT),
+            ])
+            ->execute();
+
     }
 }

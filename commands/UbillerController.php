@@ -1,6 +1,8 @@
 <?php
+
 namespace app\commands;
 
+use app\models\ClientAccount;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
@@ -8,7 +10,6 @@ use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\Bill;
 use app\modules\uu\tarificator\Tarificator;
-use app\models\ClientAccount;
 use Yii;
 use yii\console\Controller;
 
@@ -172,8 +173,10 @@ class UbillerController extends Controller
 
     /**
      * Конвертировать все счета в старую бухгалтерию. 30 секунд
+     *
+     * @deprecated
      */
-    public function actionBillReConverter()
+    private function _actionBillReConverter()
     {
         Bill::updateAll(['is_converted' => 0]);
         $this->actionBillConverter();
@@ -231,80 +234,109 @@ class UbillerController extends Controller
 
     /**
      * Удалить транзакции, проводки, счета. 10 сек
+     *
+     * @deprecated
      */
-    public function actionClear()
+    private function _actionClear()
     {
-        $this->actionClearSetup();
-        $this->actionClearPeriod();
-        $this->actionClearResource();
-        $this->actionClearMin();
-        $this->actionClearEntry();
-        $this->actionClearBill();
+        $this->_actionClearSetup();
+        $this->_actionClearPeriod();
+        $this->_actionClearResource();
+        $this->_actionClearMin();
+        $this->_actionClearEntry();
+        $this->_actionClearBill();
     }
 
     /**
      * Удалить транзакции за подключение. 2 сек
+     *
+     * @deprecated
      */
-    public function actionClearSetup()
+    private function _actionClearSetup()
     {
-        AccountLogSetup::deleteAll();
-        echo '. ' . PHP_EOL;
+        echo AccountLogSetup::deleteAll() . ' ' . PHP_EOL;
     }
 
     /**
      * Удалить транзакции абоненской платы. 2 сек
+     *
+     * @deprecated
      */
-    public function actionClearPeriod()
+    private function _actionClearPeriod()
     {
-        AccountLogPeriod::deleteAll();
-        echo '. ' . PHP_EOL;
+        echo AccountLogPeriod::deleteAll() . ' ' . PHP_EOL;
     }
 
     /**
      * Удалить транзакции за ресурсы. 2 сек
+     *
+     * @deprecated
      */
-    public function actionClearResource()
+    private function _actionClearResource()
     {
-        AccountLogResource::deleteAll();
-        echo '. ' . PHP_EOL;
+        echo AccountLogResource::deleteAll() . ' ' . PHP_EOL;
+    }
+
+    /**
+     * Удалить транзакции за ресурсы-звонки в предыдущем месяце. 5 сек
+     *
+     * @throws \yii\db\Exception
+     */
+    public function actionClearResourceCallsPrevMonth()
+    {
+        echo AccountLogResource::clearCalls('first day of previous month', 'last day of previous month') . ' ' . PHP_EOL;
+    }
+
+    /**
+     * Удалить транзакции за ресурсы-звонки в этом месяце. 1-3 сек
+     *
+     * @throws \yii\db\Exception
+     */
+    public function actionClearResourceCallsThisMonth()
+    {
+        echo AccountLogResource::clearCalls('first day of this month', 'last day of this month') . ' ' . PHP_EOL;
     }
 
     /**
      * Удалить транзакции за минималку. 2 сек
+     *
+     * @deprecated
      */
-    public function actionClearMin()
+    private function _actionClearMin()
     {
-        AccountLogMin::deleteAll();
-        echo '. ' . PHP_EOL;
+        echo AccountLogMin::deleteAll() . ' ' . PHP_EOL;
     }
 
     /**
      * Удалить проводки. 2 сек
+     *
+     * @deprecated
      */
-    public function actionClearEntry()
+    private function _actionClearEntry()
     {
-        AccountLogSetup::updateAll(['account_entry_id' => null]);
-        AccountLogPeriod::updateAll(['account_entry_id' => null]);
-        AccountLogResource::updateAll(['account_entry_id' => null]);
-        AccountLogMin::updateAll(['account_entry_id' => null]);
-        AccountEntry::deleteAll();
+        echo AccountLogSetup::updateAll(['account_entry_id' => null]) . ' ';
+        echo AccountLogPeriod::updateAll(['account_entry_id' => null]) . ' ';
+        echo AccountLogResource::updateAll(['account_entry_id' => null]) . ' ';
+        echo AccountLogMin::updateAll(['account_entry_id' => null]) . ' ';
+        echo AccountEntry::deleteAll();
         echo '. ' . PHP_EOL;
     }
 
     /**
      * Удалить счета. 2 сек
+     *
+     * @deprecated
      */
-    public function actionClearBill()
+    private function _actionClearBill()
     {
         // сначала надо удалить старые сконвертированные счета, иначе они останутся, потому что у них 'on delete set null'
-        \app\models\Bill::deleteAll([
-            'AND',
-            ['biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL],
-            ['IS NOT', 'uu_bill_id', null]
-        ]);
+        echo \app\models\Bill::deleteAll([
+                'AND',
+                ['biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL],
+                ['IS NOT', 'uu_bill_id', null]
+            ]) . ' ';
 
-        AccountEntry::updateAll(['bill_id' => null]);
-        Bill::deleteAll();
-        echo '. ' . PHP_EOL;
+        echo AccountEntry::updateAll(['bill_id' => null]) . ' ';
+        echo Bill::deleteAll() . ' ' . PHP_EOL;
     }
 }

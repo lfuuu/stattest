@@ -193,7 +193,6 @@ class Navigation
                 ->addItem('Направления', ['/nnp/destination/'], ['tarifs.read'])
                 ->addItem('Территории направлений', ['/nnp/land/'], ['tarifs.read'])
                 ->addItem('Статусы направлений', ['/nnp/status/'], ['tarifs.read'])
-                ->addItem('Пакеты', Url::to(['/uu/tariff', 'serviceTypeId' => ServiceType::ID_VOIP_PACKAGE]), ['tarifs.read'])
                 ->addItem('Импорт', ['/nnp/import/'], ['tarifs.read'])
         );
 
@@ -336,7 +335,7 @@ class Navigation
         $block2 = NavigationBlock::create();
         $block2->setTitle(Yii::t('tariff', 'Universal services'));
 
-        // типы услуг в тарифах и услугах
+        // тарифы и услуги
         $serviceTypes = ServiceType::find()->all();
         foreach ($serviceTypes as $serviceType) {
 
@@ -361,7 +360,7 @@ class Navigation
         $this->addBlock($block);
         $this->addBlock($block2);
 
-        // мониторинг
+        // Универсальный тарификатор
         $this->addBlock(
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
@@ -375,6 +374,7 @@ class Navigation
                 ->addItem(Yii::t('tariff', 'Bills'), ['/uu/bill'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Invoice'), ['/uu/invoice/view'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Balance'), ['/uu/balance/view'], ['newaccounts_balance.read'])
+                ->addItem(Yii::t('tariff', 'Clear UU-calls'), ['/uu/resource/clear'], ['services_voip.edit'])
                 ->addItem(Yii::t('tariff', 'Monitoring'), [
                     '/uu/monitor',
                     'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
