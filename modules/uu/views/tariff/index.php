@@ -121,7 +121,7 @@ $columns = [
 ];
 
 
-if ($serviceType->id != ServiceType::ID_VOIP_PACKAGE) {
+if (!array_key_exists($serviceType->id, ServiceType::$packages)) {
     $columns[] = [
         'attribute' => 'is_postpaid',
         'class' => YesNoColumn::className(),
