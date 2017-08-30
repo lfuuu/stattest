@@ -393,6 +393,7 @@ class ActaulizerVoipNumbers extends Singleton
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\web\BadRequestHttpException
+     * @throws \InvalidArgumentException
      */
     private function _changeEvent($number, $data)
     {

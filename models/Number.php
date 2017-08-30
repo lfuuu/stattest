@@ -6,6 +6,8 @@ use app\classes\model\ActiveRecord;
 use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
 use app\modules\nnp\models\NdcType;
+use app\modules\nnp\models\NumberRange;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -198,6 +200,19 @@ class Number extends ActiveRecord
     public function getRegionModel()
     {
         return $this->hasOne(Region::className(), ['id' => 'region']);
+    }
+
+    /**
+     * @return NumberRange
+     */
+    public function getNumberRange()
+    {
+        return NumberRange::find()
+            ->andWhere(['is_active' => true])
+            ->andWhere(['<=', 'full_number_from', $number])
+            ->andWhere(['>=', 'full_number_to', $number])
+            ->orderBy(new Expression('ndc IS NOT NULL DESC'))// чтобы большой диапазон по всей стране типа 0000-9999 был в конце
+            ->one();
     }
 
     /**

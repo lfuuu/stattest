@@ -1,10 +1,12 @@
 <?php
+
 namespace app\classes\api;
 
 use app\classes\HttpClient;
 use app\classes\Singleton;
 use app\models\ClientAccount;
 use app\models\Region;
+use InvalidArgumentException;
 use Yii;
 use yii\base\InvalidConfigException;
 
@@ -116,6 +118,7 @@ class ApiPhone extends Singleton
      * @param string $number7800
      * @param int $vpbxStatProductId
      * @return array
+     * @throws \InvalidArgumentException
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidCallException
@@ -142,6 +145,8 @@ class ApiPhone extends Singleton
             $params['type'] = self::TYPE_VPBX;
         }
 
+        $this->_addNnpInfo($number, $params);
+
         return $this->_exec('add_did', $params);
     }
 
@@ -154,6 +159,7 @@ class ApiPhone extends Singleton
      * @param int $region
      * @param string $number7800
      * @return array
+     * @throws \InvalidArgumentException
      * @throws \yii\web\BadRequestHttpException
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidCallException
@@ -182,7 +188,40 @@ class ApiPhone extends Singleton
             $params['nonumber_phone'] = $number7800;
         }
 
+        $this->_addNnpInfo($number, $params);
+
         return $this->_exec('edit_did', $params);
+    }
+
+    /**
+     * @param string $number
+     * @param array $params
+     * @throws \InvalidArgumentException
+     */
+    private function _addNnpInfo($number, &$params)
+    {
+        $numberModel = \app\models\Number::findOne(['number' => $number]);
+        if (!$numberModel) {
+            return;
+        }
+
+        $nnpNumberRange = $numberModel->getNumberRange();
+        $nnpOperator = $nnpNumberRange ? $nnpNumberRange->operator : null;
+        $nnpCountry = $nnpNumberRange ? $nnpNumberRange->country : null;
+        $nnpRegion = $nnpNumberRange ? $nnpNumberRange->region : null;
+        $nnpCity = $nnpNumberRange ? $nnpNumberRange->city : null;
+
+        $country = $numberModel->country;
+        $regionModel = $numberModel->regionModel;
+        $city = $numberModel->city;
+
+        $params['ndc'] = (int)$numberModel->ndc;
+        $params['ndc_type'] = (int)$numberModel->ndc_type_id;
+        $params['country_name'] = $nnpCountry ? $nnpCountry->name : ($country ? $country->name : null);
+        $params['region_name'] = $nnpRegion ? $nnpRegion->name : ($regionModel ? $regionModel->name : null);
+        $params['city_name'] = $nnpCity ? $nnpCity->name : ($city ? $city->name : null);
+        $params['operator_name'] = $nnpOperator ? $nnpOperator->name : null;
+        $params['number_length'] = $city ? (int)$city->postfix_length : null;
     }
 
     /**
