@@ -33,6 +33,7 @@ use app\models\UsageVoip;
 use app\models\User;
 use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\Bill as uuBill;
+use yii\db\Expression;
 
 class ApiLk
 {
@@ -875,34 +876,32 @@ class ApiLk
         return $ret;
     }
 
+    /**
+     * Дерево тарифов по телефонии
+     *
+     * @param integer $accountId
+     * @return array
+     */
     public static function getVoipTarifs($accountId)
     {
         $account = self::getAccount($accountId);
-        $currency = $account->currency;
-        $status = 'public';
-        $dest = '4';
-        $fields = ['id', 'name', 'month_line', 'month_number', 'once_line', 'once_number', 'free_local_min', 'freemin_for_number', 'connection_point_id'];
-        $ret = [];
-        foreach (NewBill::find_by_sql("
-            SELECT
-                *
-            FROM
-                `tarifs_voip`
-            WHERE
-                `currency_id` = ?
-            AND `status` = ?
-            AND `dest` = ?
-            ORDER BY
-                `name`
-            ", [$currency, $status, $dest]) as $service) {
-            $line = self::_exportModelRow($fields, $service);
 
-            if ($line["free_local_min"] >= 5000) {
-                $line["free_local_min"] = "";
-            }
-            $ret[] = $line;
+        if (!$account) {
+            throw new InvalidArgumentException("account_not_found");
         }
-        return $ret;
+
+        return TariffVoip::find()
+            ->select(['id', 'name', 'month_line', 'month_number', 'once_line', 'once_number', 'freemin_for_number', 'connection_point_id'])
+            ->addSelect(['free_local_min' => new Expression("IF(free_local_min < 5000, free_local_min, '')")])
+            ->where([
+                'status' => TariffVoip::STATUS_PUBLIC,
+                'currency_id' => $account->currency,
+                'ndc_type_id' => NdcType::ID_GEOGRAPHIC,
+                'dest' => 4
+            ])
+            ->orderBy(['name' => SORT_ASC])
+            ->asArray()
+            ->all();
     }
 
     public static function getFreeNumbers($clientId, $cityId, $didGroupId, $isSimple = false)
@@ -2098,7 +2097,7 @@ class ApiLk
 
         $contacts = ClientContact::findAll([
             'client_id' => $client_id,
-            'user_id' => new \yii\db\Expression('(SELECT id FROM user_users WHERE user="AutoLK")'),
+            'user_id' => new Expression('(SELECT id FROM user_users WHERE user="AutoLK")'),
         ]);
 
         foreach ($contacts as $contact) {
