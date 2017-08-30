@@ -15,6 +15,8 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
     const DATE_FORMAT = 'Y-m-d';
     const HUMAN_DATE_FORMAT = 'd MMM y';
 
+    const ISO8601_WITHOUT_TIMEZONE = 'Y-m-d\TH:i:s';
+
     const TIMEZONE_UTC = 'UTC';
     const TIMEZONE_MOSCOW = 'Europe/Moscow';
     const TIMEZONE_DEFAULT = self::TIMEZONE_UTC;
