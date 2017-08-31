@@ -123,7 +123,7 @@ class TariffController extends BaseController
             return $this->redirect(['index', 'serviceTypeId' => $formModel->tariff->service_type_id]);
         }
 
-        return $this->render('edit', ['formModel' => $formModel]);
+        return $this->render('edit', ['formModel' => $formModel, 'clientAccount' => $this->getFixClient()]);
     }
 
     /**

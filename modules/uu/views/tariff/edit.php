@@ -4,6 +4,7 @@
  *
  * @var \app\classes\BaseView $this
  * @var \app\modules\uu\forms\TariffForm $formModel
+ * @var \app\models\ClientAccount $clientAccount
  */
 
 use app\modules\uu\controllers\TariffController;
@@ -41,6 +42,7 @@ if (!$serviceType) {
     $viewParams = [
         'formModel' => $formModel,
         'form' => $form,
+        'clientAccount' => $clientAccount,
     ];
 
     if ($tariff->isHasAccountTariff()) {
@@ -97,3 +99,5 @@ if (!$serviceType) {
 
     <?php ActiveForm::end(); ?>
 </div>
+
+<?= $this->render('_checkAccountTariffAdd', $viewParams) ?>
