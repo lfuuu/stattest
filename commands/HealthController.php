@@ -14,6 +14,7 @@ class HealthController extends Controller
 {
     const MONITOR_ICON_CONFIG = [
         HealthMonitor::QUEUE_PLANED => [10, 20, 30], // warning, critical, error
+        HealthMonitor::QUEUE_STOPPED => [1, 10, 20],
         HealthMonitor::LOAD_AVERAGE => [4, 5, 8],
         HealthMonitor::Z_SYNC_QUEUE_LENGTH => [5, 10, 20]
     ];

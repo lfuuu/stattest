@@ -11,12 +11,14 @@ class HealthMonitor extends Singleton
 {
     const Z_SYNC_QUEUE_LENGTH = 'z_sync_queue_length';
     const QUEUE_PLANED = 'queue_planed';
+    const QUEUE_STOPPED = 'queue_stopped';
     const SERVER_STATUS = 'server_status';
     const LOAD_AVERAGE = 'load_average';
 
     const MONITORS = [
         self::Z_SYNC_QUEUE_LENGTH,
         self::QUEUE_PLANED,
+        self::QUEUE_STOPPED,
         self::LOAD_AVERAGE
     ];
 
@@ -82,13 +84,23 @@ class HealthMonitor extends Singleton
     }
 
     /**
-     * Длина очереди событий
+     * Длина очереди событий. Необработанные
      *
      * @return int
      */
     private function _health_queue_planed()
     {
         return EventQueue::find()->where(['status' => EventQueue::STATUS_PLAN])->count();
+    }
+
+    /**
+     * Длина очереди событий. Ошибки
+     *
+     * @return int
+     */
+    private function _health_queue_stopped()
+    {
+        return EventQueue::find()->where(['status' => EventQueue::STATUS_STOP])->count();
     }
 
     /**
