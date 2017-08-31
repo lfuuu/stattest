@@ -76,7 +76,7 @@ class Api extends Singleton
     public function sendSell($externalId, $email, $phone, $itemPrice)
     {
         $phone = str_replace('+7', '', $phone);
-        if (!$email && $phone && !preg_match('\d{10}', $phone)) {
+        if (!$email && $phone && !preg_match('/\d{10}/', $phone)) {
             throw new \LogicException('Указан неправильный номер телефона ');
         }
 
