@@ -9,6 +9,7 @@ use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\DidGroup;
+use app\models\Number;
 use app\modules\nnp\models\NumberRange;
 use app\modules\transfer\forms\services\BaseForm;
 use app\modules\uu\models\ServiceType;
@@ -156,18 +157,21 @@ class ServiceController extends BaseController
 
             if ($serviceTypeProcessor->getServiceTypeId() === ServiceType::ID_VOIP) {
                 Assert::isNotEmpty($serviceValue);
-                Assert::isNotEmpty($didGroupId);
 
-                $didGroup = DidGroup::findOne(['id' => $didGroupId]);
+                if (!Number::isMcnLine($serviceValue)) {
+                    Assert::isNotEmpty($didGroupId);
 
-                $priceLevel = $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL;
-                $statusId = $didGroup->{'tariff_status_main' . $priceLevel};
+                    $didGroup = DidGroup::findOne(['id' => $didGroupId]);
 
-                $number = \app\models\Number::findOne(['number' => $serviceValue]);
+                    $priceLevel = $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL;
+                    $statusId = $didGroup->{'tariff_status_main' . $priceLevel};
 
-                Assert::isObject($number, 'Number "' . $serviceValue . '" not found');
+                    $number = \app\models\Number::findOne(['number' => $serviceValue]);
 
-                $cityId = $number->getCityByNumber()->id;
+                    Assert::isObject($number, 'Number "' . $serviceValue . '" not found');
+
+                    $cityId = $number->getCityByNumber()->id;
+                }
             }
 
             $returnArray = TariffPeriod::getList(

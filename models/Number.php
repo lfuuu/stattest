@@ -384,4 +384,16 @@ class Number extends ActiveRecord
         return reset($cities);
     }
 
+    /**
+     * Это линия без номера
+     *
+     * @param string $number
+     * @return bool
+     */
+    public static function isMcnLine($number)
+    {
+        $numberLenth = strlen($number);
+        
+        return $numberLenth >= 4 && $numberLenth <= 5;
+    }
 }
