@@ -3,6 +3,7 @@ namespace app\dao;
 
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\exceptions\ModelValidationException;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\helpers\DateTimeZoneHelper;
@@ -29,43 +30,69 @@ class NumberDao extends Singleton
      * @param \app\models\Number $number
      * @param ClientAccount|null $clientAccount
      * @param DateTime|null $stopDate
+     * @throws \Exception
      */
     public function startReserve(
         \app\models\Number $number,
         ClientAccount $clientAccount = null,
         DateTime $stopDate = null
     ) {
-        Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_NOTSALE]);
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $utc = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
+        try {
+            Assert::isInArray($number->status, [Number::STATUS_INSTOCK, Number::STATUS_NOTSALE]);
 
-        $number->client_id = $clientAccount ? $clientAccount->id : null;
-        $number->reserve_from = (new DateTime('now', $utc))->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        $number->reserve_till = $stopDate ? $stopDate->setTimezone($utc)->format(DateTimeZoneHelper::DATETIME_FORMAT) : null;
-        $number->status = Number::STATUS_NOTACTIVE_RESERVED;
-        $number->save();
+            $utc = new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
 
-        Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'Y');
+            $number->client_id = $clientAccount ? $clientAccount->id : null;
+            $number->reserve_from = (new DateTime('now', $utc))->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $number->reserve_till = $stopDate ? $stopDate->setTimezone($utc)->format(DateTimeZoneHelper::DATETIME_FORMAT) : null;
+            $number->status = Number::STATUS_NOTACTIVE_RESERVED;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'Y');
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
      * @param \app\models\Number $number
+     * @throws \Exception
      */
     public function stopReserve(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_NOTACTIVE_RESERVED);
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $number->reserve_from = null;
-        $number->reserve_till = null;
-        $number->save();
+        try {
+            Assert::isEqual($number->status, Number::STATUS_NOTACTIVE_RESERVED);
 
-        Number::dao()->toInstock($number);
+            $number->reserve_from = null;
+            $number->reserve_till = null;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->toInstock($number);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
      * @param \app\models\Number $number
      * @param UsageVoip|null $usage
      * @param AccountTariff|null $uuUsage
+     * @param bool $isInFuture
+     * @throws \Exception
      */
     public function startActive(
         \app\models\Number $number,
@@ -74,44 +101,55 @@ class NumberDao extends Singleton
         $isInFuture = false
     ) {
 
-        if ($usage) {
-            $number->usage_id = $usage->id;
-            $number->client_id = $usage->clientAccount->id;
-            if (!$isInFuture) {
-                $isTest = $usage->tariff->isTest();
-            }
-        } else {
-            // uuUsage
-            $number->uu_account_tariff_id = $uuUsage->id;
-            $number->client_id = $uuUsage->client_account_id;
-            if (!$isInFuture) {
-                $isTest = $uuUsage->tariffPeriod->tariff->isTest;
-            }
-        }
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $newStatus = $isInFuture ?
-            Number::STATUS_ACTIVE_CONNECTED :
-            ($isTest ?
-                Number::STATUS_ACTIVE_TESTED :
-                Number::STATUS_ACTIVE_COMMERCIAL
+        try {
+            if ($usage) {
+                $number->usage_id = $usage->id;
+                $number->client_id = $usage->clientAccount->id;
+                if (!$isInFuture) {
+                    $isTest = $usage->tariff->isTest();
+                }
+            } else {
+                // uuUsage
+                $number->uu_account_tariff_id = $uuUsage->id;
+                $number->client_id = $uuUsage->client_account_id;
+                if (!$isInFuture) {
+                    $isTest = $uuUsage->tariffPeriod->tariff->isTest;
+                }
+            }
+
+            $newStatus = $isInFuture ?
+                Number::STATUS_ACTIVE_CONNECTED :
+                ($isTest ?
+                    Number::STATUS_ACTIVE_TESTED :
+                    Number::STATUS_ACTIVE_COMMERCIAL
+                );
+
+            if ($newStatus == $number->status) {
+                return;
+            }
+
+            $number->reserve_from = null;
+            $number->reserve_till = null;
+            $number->hold_from = null;
+            $number->hold_to = null;
+            $number->status = $newStatus;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log(
+                $number,
+                NumberLog::ACTION_ACTIVE,
+                $newStatus == Number::STATUS_ACTIVE_TESTED ? NumberLog::ACTION_ADDITION_TESTED : NumberLog::ACTION_ADDITION_COMMERCIAL
             );
 
-        if ($newStatus == $number->status) {
-            return;
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
-
-        $number->reserve_from = null;
-        $number->reserve_till = null;
-        $number->hold_from = null;
-        $number->hold_to = null;
-        $number->status = $newStatus;
-        $number->save();
-
-        Number::dao()->log(
-            $number,
-            NumberLog::ACTION_ACTIVE,
-            $newStatus == Number::STATUS_ACTIVE_TESTED ? NumberLog::ACTION_ADDITION_TESTED : NumberLog::ACTION_ADDITION_COMMERCIAL
-        );
     }
 
     /**
@@ -201,112 +239,216 @@ class NumberDao extends Singleton
 
     /**
      * @param \app\models\Number $number
+     * @throws \Exception
      */
     public function toInstock(\app\models\Number $number)
     {
-        $number->client_id = null;
-        $number->usage_id = null;
-        $number->uu_account_tariff_id = null;
-        $number->hold_from = null;
-        $number->hold_to = null;
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $number->status = Number::STATUS_INSTOCK;
-        $number->save();
+        try {
+            $number->client_id = null;
+            $number->usage_id = null;
+            $number->uu_account_tariff_id = null;
+            $number->hold_from = null;
+            $number->hold_to = null;
 
-        Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'N');
+            $number->status = Number::STATUS_INSTOCK;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_INVERTRESERVED, 'N');
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
      * @param \app\models\Number $number
+     * @throws \Exception
      */
     public function toRelease(\app\models\Number $number)
     {
-        $number->client_id = null;
-        $number->usage_id = null;
-        $number->uu_account_tariff_id = null;
-        $number->hold_from = null;
-        $number->hold_to = null;
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $number->status = Number::STATUS_RELEASED;
-        $number->save();
+        try {
+            $number->client_id = null;
+            $number->usage_id = null;
+            $number->uu_account_tariff_id = null;
+            $number->hold_from = null;
+            $number->hold_to = null;
 
-        Number::dao()->log($number, NumberLog::ACTION_CREATE, 'N');
+            $number->status = Number::STATUS_RELEASED;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_CREATE, 'N');
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+
+    /**
+     * @param \app\models\Number $number
+     * @throws \Exception
+     */
+    public function unRelease(\app\models\Number $number)
+    {
+        $transaction = \Yii::$app->db->beginTransaction();
+
+        try {
+            $number->client_id = null;
+            $number->usage_id = null;
+            $number->uu_account_tariff_id = null;
+            $number->hold_from = null;
+            $number->hold_to = null;
+
+            $number->status = Number::STATUS_NOTSALE;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_UNRELEASE);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
      * @param \app\models\Number $number
      * @param DateTime|null $holdTo
+     * @throws \Exception
      */
     public function startHold(\app\models\Number $number, DateTime $holdTo = null)
     {
-        Assert::isInArray($number->status, array_merge([Number::STATUS_INSTOCK, Number::STATUS_NOTACTIVE_HOLD], Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]));
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $number->client_id = null;
-        $number->usage_id = null;
-        $number->uu_account_tariff_id = null;
-        $number->status = Number::STATUS_NOTACTIVE_HOLD;
+        try {
+            Assert::isInArray($number->status, array_merge([Number::STATUS_INSTOCK, Number::STATUS_NOTACTIVE_HOLD],
+                Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]));
 
-        $now = new DateTime('now', new DateTimeZone('UTC'));
-        $number->hold_from = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $number->client_id = null;
+            $number->usage_id = null;
+            $number->uu_account_tariff_id = null;
+            $number->status = Number::STATUS_NOTACTIVE_HOLD;
 
-        if ($holdTo) {
-            $number->hold_to = $holdTo->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        } else {
-            $now->add($number->ndcType->getHold());
-            $number->hold_to = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $now = new DateTime('now', new DateTimeZone('UTC'));
+            $number->hold_from = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+            if ($holdTo) {
+                $number->hold_to = $holdTo->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            } else {
+                $now->add($number->ndcType->getHold());
+                $number->hold_to = $now->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            }
+
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_HOLD);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
-
-        $number->save();
-
-        Number::dao()->log($number, NumberLog::ACTION_HOLD);
     }
 
     /**
      * @param \app\models\Number $number
+     * @throws \Exception
      */
     public function stopHold(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_NOTACTIVE_HOLD);
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $number->status = Number::STATUS_INSTOCK;
-        $number->hold_to = null;
-        $number->save();
+        try {
+            Assert::isEqual($number->status, Number::STATUS_NOTACTIVE_HOLD);
 
-        Number::dao()->log($number, NumberLog::ACTION_UNHOLD);
+            $number->status = Number::STATUS_INSTOCK;
+            $number->hold_to = null;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_UNHOLD);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
      * @param \app\models\Number $number
+     * @throws \Exception
      */
     public function startNotSell(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_INSTOCK);
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $number->client_id = 764;
-        $number->status = Number::STATUS_NOTSALE;
-        $number->save();
+        try {
+            Assert::isEqual($number->status, Number::STATUS_INSTOCK);
 
-        Number::dao()->log($number, NumberLog::ACTION_NOTSALE);
+            $number->client_id = 764;
+            $number->status = Number::STATUS_NOTSALE;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_NOTSALE);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
      * @param \app\models\Number $number
+     * @throws \Exception
      */
     public function stopNotSell(\app\models\Number $number)
     {
-        Assert::isEqual($number->status, Number::STATUS_NOTSALE);
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        $number->client_id = null;
-        $number->status = Number::STATUS_INSTOCK;
-        $number->save();
+        try {
+            Assert::isEqual($number->status, Number::STATUS_NOTSALE);
 
-        Number::dao()->log($number, NumberLog::ACTION_SALE);
+            $number->client_id = null;
+            $number->status = Number::STATUS_INSTOCK;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_SALE);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
      * @param \app\models\Number $number
      * @param string $action
      * @param string $addition
+     * @throws ModelValidationException
      */
     public function log(\app\models\Number $number, $action, $addition = null)
     {
@@ -316,7 +458,9 @@ class NumberDao extends Singleton
         $row->client = $number->client_id;
         $row->user = Yii::$app->user->getId();
         $row->addition = $addition;
-        $row->save();
+        if (!$row->save()) {
+            throw new ModelValidationException($number);
+        }
     }
 
     /**
@@ -445,7 +589,12 @@ class NumberDao extends Singleton
         $dstNumber && $query->andWhere(['dst_number' => $dstNumber]);
 
         if ($dtTo) {
-            $query->andWhere(['BETWEEN', 'connect_time', $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT), $dtTo->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
+            $query->andWhere([
+                'BETWEEN',
+                'connect_time',
+                $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                $dtTo->format(DateTimeZoneHelper::DATETIME_FORMAT)
+            ]);
         } else {
             $query->andWhere(['>=', 'connect_time', $dtFrom->format(DateTimeZoneHelper::DATETIME_FORMAT)]);
         }
