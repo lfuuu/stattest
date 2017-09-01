@@ -37,7 +37,6 @@ class NumberLog extends ActiveRecord
 
     const ACTION_SALE = 'sale';
     const ACTION_NOTSALE = 'notsale';
-    const ACTION_UNRELEASE = 'unrelease';
 
 
     /**

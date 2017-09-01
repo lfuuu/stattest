@@ -31,7 +31,6 @@ class NumberForm extends Form
                     'startNotSell',
                     'stopNotSell',
                     'toRelease',
-                    'unRelease',
                     'setTechNumber'
                 ]
             ],
@@ -70,8 +69,6 @@ class NumberForm extends Form
                 Number::dao()->stopNotSell($number);
             } elseif ($this->scenario == 'toRelease') {
                 Number::dao()->toRelease($number);
-            } elseif ($this->scenario == 'unRelease') {
-                Number::dao()->unRelease($number);
             } elseif ($this->scenario == 'setTechNumber' && $number->ndc_type_id == NdcType::ID_FREEPHONE) {
                 $number->number_tech = $this->number_tech;
                 $number->save();
