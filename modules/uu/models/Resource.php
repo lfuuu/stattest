@@ -31,7 +31,7 @@ class Resource extends ActiveRecord
     const ID_VPBX_DISK = 1; // ВАТС. Дисковое пространство
     const ID_VPBX_ABONENT = 2; // ВАТС. Абоненты
     const ID_VPBX_EXT_DID = 3; // ВАТС. Подключение номера другого оператора
-    const ID_VPBX_RECORD = 4; // ВАТС. Запись звонков с сайта
+    const ID_VPBX_RECORD = 4; // ВАТС. Запись звонков
     const ID_VPBX_FAX = 6; // ВАТС. Факс
     const ID_VPBX_MIN_ROUTE = 19; // ВАТС. Маршрутизация по минимальной цене
     const ID_VPBX_GEO_ROUTE = 20; // ВАТС. Маршрутизация по географии
