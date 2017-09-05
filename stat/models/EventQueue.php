@@ -62,13 +62,19 @@ class EventQueue extends ActiveRecord\Model
     }
 
     /**
-     * Устанавливаем заверешение задачи с ошибкой
+     * Устанавливаем завершение задачи с ошибкой
      *
      * @param Exception|null $e
+     * @param bool $isStop
      */
-    public function setError(Exception $e = null)
+    public function setError(Exception $e = null, $isStop = false)
     {
-        list($this->status, $this->next_start) = self::_setNextStart($this);
+        if ($isStop) {
+            $this->status = \app\models\EventQueue::STATUS_STOP;
+        } else {
+            list($this->status, $this->next_start) = self::_setNextStart($this);
+        }
+
         $this->iteration++;
 
         if ($e) {

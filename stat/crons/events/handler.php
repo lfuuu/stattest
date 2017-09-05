@@ -378,16 +378,16 @@ function doEvents()
             }
 
             $event->setOk($info);
-        } catch (yii\base\InvalidCallException $e) { // для ошибок вызова внешней системы: Повторяем
+
+        } catch (Exception $e) {
+
             echo PHP_EOL . '--------------' . PHP_EOL;
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' +' . $e->getLine();
-            $event->setError($e);
-        } catch (Exception $e) { // Для всех остальных ошибок: завершаем выполнение задачи
-            echo PHP_EOL . '--------------' . PHP_EOL;
-            echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' +' . $e->getLine();
-            $event->setError($e);
-            $event->status = \app\models\EventQueue::STATUS_STOP;
-            $event->save();
+            
+            $isContinue = $e instanceof yii\base\InvalidCallException // для ошибок вызова внешней системы повторяем
+                || $e->getCode() == 40001; // для ошибок "Deadlock found when trying to get lock" повторяем
+            // остальное - завершаем
+            $event->setError($e, !$isContinue);
         }
     }
 }
