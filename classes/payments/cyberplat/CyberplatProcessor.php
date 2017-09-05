@@ -7,6 +7,7 @@ use app\classes\payments\cyberplat\exceptions\AnswerErrorCancel;
 use app\classes\payments\cyberplat\exceptions\AnswerOk;
 use app\classes\payments\cyberplat\exceptions\CyberplatError;
 use app\classes\payments\cyberplat\exceptions\CyberplatOk;
+use yii\base\InvalidConfigException;
 
 class CyberplatProcessor
 {
@@ -22,14 +23,21 @@ class CyberplatProcessor
     private $_answerCode = null;
     private $_answerData = [];
 
+    private $_organizationId = null;
+
     /**
      * Основная функция запуска обработчика
      *
      * @param string $action
      * @return $this
+     * @throws InvalidConfigException
      */
     public function proccessRequest($action = null)
     {
+        if (!$this->_organizationId) {
+            throw new InvalidConfigException('Организация не задана');
+        }
+
         if (!$action) {
             $action = \Yii::$app->request->get('action') ?: \Yii::$app->request->post('action');
         }
@@ -46,9 +54,22 @@ class CyberplatProcessor
             $this->_log("unexcepted error");
             $this->_log($e->getMessage());
 
-            $ee = new CyberplatError("Внутренная ошибка");
-            $this->_answer = $this->_makeErrorAnswer($ee);
+            $e = new CyberplatError("Внутренная ошибка");
+            $this->_answer = $this->_makeErrorAnswer($e);
         }
+
+        return $this;
+    }
+
+    /**
+     * Устанавливаем организацию, принимающую платеж
+     *
+     * @param integer $organizationId
+     * @return $this
+     */
+    public function setOrganization($organizationId)
+    {
+        $this->_organizationId = $organizationId;
 
         return $this;
     }
@@ -57,6 +78,7 @@ class CyberplatProcessor
      * Запуск обработки действия
      *
      * @param string $action
+     * @return exceptions\AnswerOkPayment|void
      * @throws AnswerErrorAction
      */
     private function _doAction($action)
@@ -64,7 +86,7 @@ class CyberplatProcessor
         $this->_load();
         $this->_log($this->_data);
 
-        $this->_actionChecker = new CyberplatActionCheck();
+        $this->_actionChecker = new CyberplatActionCheck($this->_organizationId);
 
         if ($this->_isNeedCheckSign) {
             $this->_actionChecker->assertSign();
@@ -92,10 +114,13 @@ class CyberplatProcessor
      * Установить данные
      *
      * @param array $data
+     * @return $this
      */
     public function setData($data)
     {
         $this->_data = $data;
+
+        return $this;
     }
 
     /**
@@ -104,6 +129,8 @@ class CyberplatProcessor
     public function setNoCheckSign()
     {
         $this->_isNeedCheckSign = false;
+
+        return $this;
     }
 
     /**
@@ -189,7 +216,7 @@ class CyberplatProcessor
         $this->_answerCode = $e->getCode();
         $this->_answerData = [];
 
-        return CyberplatCrypt::me()->sign($str);
+        return CyberplatCrypt::me()->setOrganization($this->_organizationId)->sign($str);
     }
 
     /**
@@ -210,7 +237,7 @@ class CyberplatProcessor
         $this->_answerCode = 0;
         $this->_answerData = $e->data;
 
-        return CyberplatCrypt::me()->sign($str);
+        return CyberplatCrypt::me()->setOrganization($this->_organizationId)->sign($str);
     }
 
     /**

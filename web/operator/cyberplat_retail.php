@@ -7,6 +7,6 @@ include PATH_TO_ROOT . "conf_yii.php";
 
 
 (new CyberplatProcessor())
-    ->setOrganization(Organization::MCN_TELECOM)
+    ->setOrganization(Organization::MCN_TELECOM_RETAIL)
     ->proccessRequest()
     ->echoAnswer();

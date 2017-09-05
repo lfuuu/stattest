@@ -16,12 +16,18 @@ use app\models\Payment;
 
 class CyberplatActionCheck
 {
+    private $_organizationId = null;
+
     /**
      * CyberplatActionCheck constructor.
+     *
+     * @param integer $organizationId
      */
-    public function __construct()
+    public function __construct($organizationId)
     {
-        $this->fieldChecker = new CyberplatFieldCheck();
+        $this->_organizationId = $organizationId;
+
+        $this->fieldChecker = new CyberplatFieldCheck($this->_organizationId);
     }
 
     /**
@@ -141,7 +147,7 @@ class CyberplatActionCheck
     {
         $queryStr = $_SERVER["QUERY_STRING"];
 
-        if (!preg_match("/(action=.*)&sign=(.*)/", $queryStr, $o) || CyberplatCrypt::me()->checkSign($o[1], $o[2])) {
+        if (!preg_match("/(action=.*)&sign=(.*)/", $queryStr, $o) || CyberplatCrypt::me()->setOrganization($this->_organizationId)->checkSign($o[1], $o[2])) {
             throw new AnswerErrorSign();
         }
 
