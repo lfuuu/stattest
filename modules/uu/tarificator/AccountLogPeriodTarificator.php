@@ -28,7 +28,7 @@ class AccountLogPeriodTarificator extends Tarificator
         $minLogDatetime = AccountTariff::getMinLogDatetime();
 
         // в целях оптимизации удалить старые данные
-        AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
+        AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
 
         $accountTariffs = AccountTariff::find();
         $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);

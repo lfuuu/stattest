@@ -171,4 +171,47 @@ class ActiveRecord extends \yii\db\ActiveRecord
         return $filterValues;
 
     }
+
+    /**
+     * Deletes rows in the table using the provided conditions.
+     *
+     * For example, to delete all customers whose status is 3:
+     *
+     * ```php
+     * Customer::deleteAll('status = 3');
+     * ```
+     *
+     * > Warning: If you do not specify any condition, this method will delete **all** rows in the table.
+     *
+     * Note that this method will not trigger any events. If you need [[EVENT_BEFORE_DELETE]] or
+     * [[EVENT_AFTER_DELETE]] to be triggered, you need to [[find()|find]] the models first and then
+     * call [[delete()]] on each of them. For example an equivalent of the example above would be:
+     *
+     * ```php
+     * $models = Customer::find()->where('status = 3')->all();
+     * foreach ($models as $model) {
+     *     $model->delete();
+     * }
+     * ```
+     *
+     * For a large set of models you might consider using [[ActiveQuery::each()]] to keep memory usage within limits.
+     *
+     * @param string|array $condition the conditions that will be put in the WHERE part of the DELETE SQL.
+     * Please refer to [[Query::where()]] on how to specify this parameter.
+     * @param array $params the parameters (name => value) to be bound to the query.
+     * @param string $orderBy
+     * @return int the number of rows deleted
+     */
+    public static function deleteAll($condition = null, $params = [], $orderBy = '')
+    {
+        $command = static::getDb()->createCommand();
+        $command->delete(static::tableName(), $condition, $params);
+
+        if ($orderBy) {
+            $command->setSql($command->getRawSql() . ' ORDER BY ' . $orderBy);
+        }
+
+        return $command->execute();
+    }
+
 }

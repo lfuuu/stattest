@@ -33,7 +33,7 @@ class AccountLogResourceTarificator extends Tarificator
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить старые данные
-        AccountLogResource::deleteAll(['<', 'date_from', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
+        AccountLogResource::deleteAll(['<', 'date_from', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffQuery = AccountTariff::find();

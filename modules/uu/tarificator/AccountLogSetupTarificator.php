@@ -28,7 +28,7 @@ class AccountLogSetupTarificator extends Tarificator
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
         // в целях оптимизации удалить слишком старые данные
-        AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)]);
+        AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
 
         $accountTariffs = AccountTariff::find();
         $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
