@@ -104,6 +104,10 @@ echo \yii\widgets\Breadcrumbs::widget([
                 case Number::STATUS_NOTSALE:
                     echo Html::button('Номер продается', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberSubmitForm('stopNotSell')"]);
                     break;
+
+                case Number::STATUS_RELEASED:
+                    echo Html::button('Вернуть открепленный номер', ['class' => 'btn btn-default col-sm-12', 'onclick' => "numberSubmitForm('unRelease')"]);
+                    break;
             }
 
             if ($number->ndc_type_id == NdcType::ID_FREEPHONE) {
@@ -203,6 +207,12 @@ echo \yii\widgets\Breadcrumbs::widget([
                                         } else {
                                             echo '<b>Номер создан</b>';
                                         }
+                                        break;
+
+                                    case NumberLog::ACTION_UNRELEASE:
+                                        echo '<b>Номер вернули из открепленных</b>';
+
+                                        break;
                                         ?>
                                     <?php } ?>
                             </td>

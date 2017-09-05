@@ -3,6 +3,7 @@ namespace app\dao;
 
 use app\classes\Assert;
 use app\classes\Singleton;
+use app\exceptions\ModelValidationException;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\helpers\DateTimeZoneHelper;
@@ -233,6 +234,34 @@ class NumberDao extends Singleton
         Number::dao()->log($number, NumberLog::ACTION_CREATE, 'N');
     }
 
+    /**
+     * @param \app\models\Number $number
+     * @throws \Exception
+     */
+    public function unRelease(\app\models\Number $number)
+    {
+        $transaction = \Yii::$app->db->beginTransaction();
+        try {
+
+            $number->client_id = null;
+            $number->usage_id = null;
+            $number->uu_account_tariff_id = null;
+            $number->hold_from = null;
+            $number->hold_to = null;
+
+            $number->status = Number::STATUS_NOTSALE;
+            if (!$number->save()) {
+                throw new ModelValidationException($number);
+            }
+
+            Number::dao()->log($number, NumberLog::ACTION_UNRELEASE);
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollback();
+            throw $e;
+        }
+    }
     /**
      * @param \app\models\Number $number
      * @param DateTime|null $holdTo
