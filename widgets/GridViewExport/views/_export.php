@@ -54,7 +54,7 @@ use yii\bootstrap\ButtonDropdown;
             ],
         ],
         'options' => [
-            'class' => 'btn btn-default',
+            'class' => 'btn btn-default grid-export-file-format',
             'title' => 'Выберите формат файла для экспорта',
         ],
         'encodeLabel' => false,

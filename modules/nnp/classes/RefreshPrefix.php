@@ -3,7 +3,9 @@
 namespace app\modules\nnp\classes;
 
 use app\classes\Singleton;
+use app\exceptions\ModelValidationException;
 use app\modules\nnp\filter\NumberRangeFilter;
+use app\modules\nnp\models\FilterQuery;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\NumberRangePrefix;
 use app\modules\nnp\models\Prefix;
@@ -22,37 +24,24 @@ class RefreshPrefix extends Singleton
     ];
 
     /**
-     * Актуализировать префиксы
+     * Попытаться найти фильтр
      *
      * @return string
-     * @throws \yii\db\Exception
+     * @throws \app\exceptions\ModelValidationException
      * @throws \LogicException
+     * @throws \yii\db\Exception
      */
-    public function run()
+    public function refreshByFilter()
     {
         if (NumberRange::isTriggerEnabled()) {
             throw new \LogicException('Обновление префиксов невозможно, потому что триггер включен');
         }
 
         $log = '';
-        $log .= $this->_refreshByRange();
-
-        return $log;
-    }
-
-    /**
-     * Попытаться найти фильтр
-     * Пока не используется, но потом будет
-     *
-     * @return string
-     * @throws \LogicException
-     * @throws \yii\db\Exception
-     */
-    private function _refreshByFilter()
-    {
-        $log = '';
         $numberRangePrefixTableName = NumberRangePrefix::tableName();
         $prefixQuery = Prefix::find(); // ->where(['id' => 18]);
+        $filterQueryModelName = (new NumberRangeFilter)->getClassName();
+        FilterQuery::deleteAll(['model_name' => (new NumberRangePrefix)->getClassName()]);
 
         /** @var Prefix $prefix */
         foreach ($prefixQuery->each() as $prefix) {
@@ -79,8 +68,25 @@ class RefreshPrefix extends Singleton
                 }
             }
 
+            $filterQuery = new FilterQuery();
+            $filterQuery->id = $prefix->id;
+            $filterQuery->name = $prefix->name;
+            $filterQuery->data = [];
+
             foreach ($this->_fields as $field) {
                 $log .= $field . ' = ' . implode(', ', $differentValues[$field]) . PHP_EOL;
+
+                $values = array_values($differentValues[$field]);
+                if (!count($values)) {
+                    continue;
+                }
+
+                $filterQuery->data[$field] = (count($values) == 1) ? reset($values) : $values;
+            }
+
+            $filterQuery->model_name = $filterQueryModelName;
+            if ($filterQuery->data && !$filterQuery->save()) {
+                throw new ModelValidationException($filterQuery);
             }
 
             $log .= PHP_EOL;
@@ -97,8 +103,12 @@ class RefreshPrefix extends Singleton
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    private function _refreshByRange()
+    public function refreshByRange()
     {
+        if (NumberRange::isTriggerEnabled()) {
+            throw new \LogicException('Обновление префиксов невозможно, потому что триггер включен');
+        }
+
         $log = '';
         $numberRangeTableName = NumberRange::tableName();
         $numberRangePrefixTableName = NumberRangePrefix::tableName();

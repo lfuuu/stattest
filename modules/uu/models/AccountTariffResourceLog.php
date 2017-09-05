@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\behaviors\AccountTariffBiller;
@@ -12,7 +13,10 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Лог ресурсов универсальной услуги
@@ -36,7 +40,7 @@ class AccountTariffResourceLog extends ActiveRecord
     use \app\classes\traits\AttributeLabelsTraits;
 
     // Методы для полей insert_time, insert_user_id
-    use \app\classes\traits\InsertUserTrait;
+    use GetInsertUserTrait;
 
     /** @var int Код ошибки для АПИ */
     public $errorCode = null;
@@ -77,6 +81,21 @@ class AccountTariffResourceLog extends ActiveRecord
     {
         return parent::behaviors() + [
                 'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
+                [
+                    // Установить "когда создал"
+                    'class' => TimestampBehavior::className(),
+                    'createdAtAttribute' => 'insert_time',
+                    'updatedAtAttribute' => false,
+                    'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+                ],
+                [
+                    // Установить "кто создал"
+                    'class' => AttributeBehavior::className(),
+                    'attributes' => [
+                        ActiveRecord::EVENT_BEFORE_INSERT => 'insert_user_id',
+                    ],
+                    'value' => Yii::$app->user->getId(),
+                ],
             ];
     }
 

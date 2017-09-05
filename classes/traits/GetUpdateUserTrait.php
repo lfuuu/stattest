@@ -32,7 +32,7 @@ use yii\db\ActiveQuery;
  * // Методы для полей update_time, update_user_id
  * use \app\classes\traits\UpdateUserTrait;
  */
-trait UpdateUserTrait
+trait GetUpdateUserTrait
 {
     /**
      * @return ActiveQuery
@@ -40,21 +40,5 @@ trait UpdateUserTrait
     public function getUpdateUser()
     {
         return $this->hasOne(User::className(), ['id' => 'update_user_id']);
-    }
-
-    /**
-     * @param bool $insert
-     * @return bool
-     */
-    public function beforeSave($insert, $isCallParent = true)
-    {
-        $this->update_time = date(DateTimeZoneHelper::DATETIME_FORMAT); // new CDbExpression('NOW()') // для postgres нет автоинсерта, поэтому надо указывать явно
-        $this->update_user_id = Yii::$app->user->getId();
-
-        if ($isCallParent) {
-            return parent::beforeSave($insert);
-        } else {
-            return true;
-        }
     }
 }

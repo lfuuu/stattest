@@ -12,6 +12,7 @@ use app\classes\Html;
 use app\modules\nnp\column\DestinationColumn;
 use app\modules\nnp\filter\PrefixFilter;
 use app\modules\nnp\models\Prefix;
+use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -100,9 +101,16 @@ $columns = [
     ],
 ];
 
+$dataProvider = $filterModel->search();
+
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/nnp/prefix/new/']),
     'columns' => $columns,
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
 ]);

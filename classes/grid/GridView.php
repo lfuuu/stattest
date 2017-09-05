@@ -1,4 +1,5 @@
 <?php
+
 namespace app\classes\grid;
 
 use app\classes\Html;
@@ -9,6 +10,7 @@ use yii\web\JsExpression;
 
 class GridView extends \kartik\grid\GridView
 {
+    use FilterQueryTrait;
 
     const DEFAULT_HEADER_CLASS = \kartik\grid\GridView::TYPE_INFO; // голубой фон th
 
@@ -48,6 +50,7 @@ class GridView extends \kartik\grid\GridView
         {floatThead}
         {toggleData}
         {export}
+        {filterQuery}
     </div>
     <div class="pull-left">
         {summary}
@@ -71,6 +74,13 @@ HTML;
      * @var bool
      */
     public $isFilterButton = true;
+
+    /**
+     * Показывать ли кнопки сохранения/загрузки фильтров
+     *
+     * @var bool
+     */
+    public $isFilterQuery = true;
 
     /**
      * @var array|string the toolbar content configuration. Can be setup as a string or an array.
@@ -133,18 +143,24 @@ HTML;
     public static function separateWidget(array $config = [])
     {
         $config1 = $config2 = $config;
-        unset($config1['columns'], $config1['exportWidget'], $config2['beforeHeader']);
+        unset(
+            $config1['columns'],
+            $config1['exportWidget'],
+            $config2['beforeHeader'],
+            $config2['panelHeadingTemplate'],
+            $config2['extraButtons']
+        );
         $config1['dataProvider'] = new \yii\data\ArrayDataProvider(
             [
                 'allModels' => [],
             ]
         );
+
         if (!isset(Yii::$app->request->get()['_pjax'])) {
             echo self::widget(
                 [
                     'showTableBody' => false,
                     'showFooter' => false,
-                    'panelHeadingTemplate' => '',
                     'panelTemplate' => '
                 <div class="{prefix}{type}">
                     {panelHeading}
@@ -169,6 +185,7 @@ HTML;
      * @param array|string $data the table rows configuration
      *
      * @return string
+     * @throws \Exception
      */
     protected function generateRows($data)
     {
@@ -227,16 +244,16 @@ HTML;
             ['class' => 'beforeHeaderFilters']
         );
 
-        // чтобы был валидный html, надо раскомментировать, но тогда при скроллинге с фильтрами вся шапка занимает очень много места
         /*
-        $rows = Html::tag(
-            'tr',
-            Html::tag(
-                'td',
-                $rows,
-                ['colspan' => count($this->columns)]
-            )
-        );
+            // чтобы был валидный html, надо раскомментировать, но тогда при скроллинге с фильтрами вся шапка занимает очень много места
+            $rows = Html::tag(
+                'tr',
+                Html::tag(
+                    'td',
+                    $rows,
+                    ['colspan' => count($this->columns)]
+                )
+            );
         */
 
         return $rows;
@@ -269,6 +286,8 @@ HTML;
 
     /**
      * Initalize grid layout
+     *
+     * @throws \yii\base\InvalidParamException
      */
     protected function initLayout()
     {
@@ -277,7 +296,15 @@ HTML;
             [
                 '{floatThead}' => $this->renderFloatTheadButton(),
                 '{extraButtons}' => $this->extraButtons,
-                '{filterButton}' => $this->isFilterButton ? $this->render('//layouts/_buttonFilter') : '',
+                '{filterButton}' => $this->isFilterButton ?
+                    $this->render('//layouts/_buttonFilter') :
+                    '',
+                '{filterQuery}' => $this->isFilterQuery ?
+                    $this->render('//layouts/_filterQueryForm', [
+                        'filterModel' => $this->filterModel,
+                        'columns' => $this->columns, // @todo еще надо $this->beforeHeader['columns'], но это не DataColumn[]
+                    ]) :
+                    '',
             ]
         );
     }
@@ -408,5 +435,4 @@ HTML;
 
         return parent::renderExport();
     }
-
 }

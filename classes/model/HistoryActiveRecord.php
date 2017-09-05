@@ -243,16 +243,6 @@ class HistoryActiveRecord extends ActiveRecord
     }
 
     /**
-     * Подготавливает названия класса для работы с историей
-     *
-     * @return string
-     */
-    public function getClassName()
-    {
-        return get_class($this);
-    }
-
-    /**
      * Вернуть класс + ID
      *
      * @param HistoryActiveRecord|HistoryActiveRecord[] $models Одна или массив моделей, которые надо искать

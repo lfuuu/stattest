@@ -28,6 +28,26 @@ use app\classes\grid\column\billing\TrunkGroupColumn;
 
 return [
     [
+        'attribute' => 'connect_time',
+        'label' => 'Время начала',
+        'class' => DateTimeRangeDoubleColumn::className(),
+        'filterOptions' => [
+            'class' => 'alert-danger'
+        ],
+    ],
+    [
+        'class' => WithEmptyFilterColumn::className(),
+        'filterOptions' => [
+            'class' => 'no_display'
+        ],
+    ],
+    [
+        'class' => WithEmptyFilterColumn::className(),
+        'filterOptions' => [
+            'class' => 'no_display'
+        ],
+    ],
+    [
         'attribute' => 'server_ids',
         'label' => 'Точка присоединения',
         'isWithEmpty' => false,
@@ -64,11 +84,11 @@ return [
         ],
     ],
     [
-        'attribute' => 'connect_time',
-        'label' => 'Время начала',
-        'class' => DateTimeRangeDoubleColumn::className(),
-        'filterOptions' => [
-            'class' => 'alert-danger'
+        'attribute' => 'session_time',
+        'label' => 'Длительность разговора',
+        'class' => IntegerRangeColumn::className(),
+        'options' => [
+            'min' => 0,
         ],
     ],
     [
@@ -106,12 +126,13 @@ return [
         'isWithNullAndNotNull' => true,
     ],
     [
-        'attribute' => 'session_time',
-        'label' => 'Длительность разговора',
-        'class' => IntegerRangeColumn::className(),
-        'options' => [
-            'min' => 0,
+        'attribute' => 'disconnect_causes',
+        'label' => 'Код завершения',
+        'class' => DisconnectCauseColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
         ],
+        'isWithEmpty' => false,
     ],
     [
         'attribute' => 'src_logical_trunks_ids',
@@ -145,13 +166,9 @@ return [
         'isWithNullAndNotNull' => true,
     ],
     [
-        'attribute' => 'disconnect_causes',
-        'label' => 'Код завершения',
-        'class' => DisconnectCauseColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
+        'attribute' => 'is_success_calls',
+        'label' => 'Только успешные попытки',
+        'class' => CheckboxColumn::className(),
     ],
     [
         'attribute' => 'src_contracts_ids',
@@ -187,9 +204,7 @@ return [
         'isWithNullAndNotNull' => true,
     ],
     [
-        'attribute' => 'is_success_calls',
-        'label' => 'Только успешные попытки',
-        'class' => CheckboxColumn::className(),
+        'class' => WithEmptyFilterColumn::className(),
     ],
     [
         'attribute' => 'dst_trunk_group_ids',

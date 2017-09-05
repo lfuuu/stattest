@@ -8,10 +8,10 @@ namespace app\models\voip\filter;
 use app\classes\traits\GetListTrait;
 use app\classes\yii\CTEQuery;
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\CallsRaw;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use Yii;
-use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
@@ -77,7 +77,7 @@ use yii\db\Query;
  * @property array src_trunk_group_ids
  * @property array dst_trunk_group_ids
  */
-class CallsRawFilter extends Model
+class CallsRawFilter extends CallsRaw
 {
     use \app\classes\traits\CallsRawCacheReport;
     use \app\classes\traits\CallsRawSlowReport;
@@ -300,9 +300,9 @@ class CallsRawFilter extends Model
      */
     public function load(array $get)
     {
-        parent::load($get);
-
         $this->sort = Yii::$app->request->get('sort');
+
+        parent::load($get);
 
         /**
          * BETWEEN делать сравнение <= со вторым параметром,

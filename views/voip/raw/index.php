@@ -9,9 +9,9 @@
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\grid\GridView;
 use app\models\voip\filter\CallsRawFilter;
+use app\modules\nnp\column\NdcTypeColumn;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
-use app\modules\nnp\column\NdcTypeColumn;
 
 if (!isset(Yii::$app->request->get()['_pjax'])) {
     echo app\classes\Html::formLabel($this->title = 'Отчет по данным calls_raw');
@@ -54,8 +54,8 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
         foreach ($filterModel->group as $key => $value) {
             $attr = $filterModel->getGroupKeyParts($value)[1];
             $column = [
-                    'label' => $filterModel->groupConst[$value],
-                    'attribute' => $attr,
+                'label' => $filterModel->groupConst[$value],
+                'attribute' => $attr,
             ];
 
             if (in_array($attr, ['sale', 'cost_price', 'orig_rate', 'term_rate'])) {
@@ -133,12 +133,22 @@ try {
         ],
         'columns' => $columns,
         'filterPosition' => '',
-        'emptyText' => isset($emptyText) ? $emptyText: $chooseError(),
+        'emptyText' => isset($emptyText) ? $emptyText : $chooseError(),
         'exportWidget' => GridViewExport::widget([
             'dataProvider' => $dataProvider,
             'filterModel' => $filterModel,
             'columns' => $columns,
         ]),
+        'panelHeadingTemplate' => '<div class="pull-right">
+                                        {extraButtons}
+                                    </div>
+                                    <div class="pull-left">
+                                        {summary}
+                                    </div>
+                                    <h3 class="panel-title">
+                                        {heading}
+                                    </h3>
+                                    <div class="clearfix"></div>'
     ]);
 } catch (yii\db\Exception $e) {
     if ($e->getCode() == 8) {

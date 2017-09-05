@@ -344,7 +344,7 @@ a.nohover:hover {
     left: 0;
     top: 0;
     background-color: #F0F0F0;
-    background-color: rgba(0,0,0, 0.9);
+    background-color: rgba(0, 0, 0, 0.9);
     overflow-x: hidden;
     transition: 0.5s;
     z-index: 99998;
@@ -388,4 +388,9 @@ a.nohover:hover {
 
 .margin-top-as-label {
     margin-top: 21px;
+}
+
+.grid-export-file-format {
+    font-size: 1.22em !important;
+    background: none !important;
 }

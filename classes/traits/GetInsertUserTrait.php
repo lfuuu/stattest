@@ -33,7 +33,7 @@ use yii\db\ActiveQuery;
  * // Методы для полей insert_time, insert_user_id
  * use \app\classes\traits\InsertUserTrait;
  */
-trait InsertUserTrait
+trait GetInsertUserTrait
 {
     /**
      * @return ActiveQuery
@@ -41,30 +41,5 @@ trait InsertUserTrait
     public function getInsertUser()
     {
         return $this->hasOne(User::className(), ['id' => 'insert_user_id']);
-    }
-
-    /**
-     * @param bool $insert
-     * @param bool $isCallParent
-     * @return bool
-     */
-    public function beforeSave($insert, $isCallParent = true)
-    {
-        if ($insert) {
-            if (!$this->insert_time) {
-                $this->insert_time = DateTimeZoneHelper::getUtcDateTime()
-                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
-            }
-
-            if (!$this->insert_user_id) {
-                $this->insert_user_id = Yii::$app->user->getId();
-            }
-        }
-
-        if ($isCallParent) {
-            return parent::beforeSave($insert);
-        } else {
-            return true;
-        }
     }
 }

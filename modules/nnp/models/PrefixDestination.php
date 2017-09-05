@@ -3,8 +3,12 @@
 namespace app\modules\nnp\models;
 
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GetInsertUserTrait;
 use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * @property int $prefix_id
@@ -17,7 +21,7 @@ use yii\db\ActiveQuery;
 class PrefixDestination extends ActiveRecord
 {
     // Методы для полей insert_time, insert_user_id
-    use \app\classes\traits\InsertUserTrait;
+    use GetInsertUserTrait;
 
     /**
      * Имена полей
@@ -30,6 +34,30 @@ class PrefixDestination extends ActiveRecord
             'prefix_id' => 'Префикс',
             'destination_id' => 'Направление',
             'is_addition' => 'Операция',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                // Установить "когда создал"
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'insert_time',
+                'updatedAtAttribute' => false,
+                'value' => new Expression("NOW() AT TIME ZONE 'utc'"), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+            ],
+            [
+                // Установить "кто создал"
+                'class' => AttributeBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'insert_user_id',
+                ],
+                'value' => Yii::$app->user->getId(),
+            ],
         ];
     }
 

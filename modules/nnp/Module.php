@@ -28,7 +28,6 @@ use Yii;
  * Чтобы вынести модуль в другой репозиторий:
  *      из config/web.php и config/console.php скопировать код про "dbPgNnp"
  *      config/db_pg_nnp*
- *      classes/traits/InsertUpdateUserTrait.php
  *      classes/grid/column/universal/   (Integer, String, Country, YesNo)
  */
 class Module extends \yii\base\Module

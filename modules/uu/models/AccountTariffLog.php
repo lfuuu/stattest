@@ -4,6 +4,7 @@ namespace app\modules\uu\models;
 
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
+use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\behaviors\AccountTariffBiller;
@@ -17,7 +18,11 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * Лог тарифов универсальной услуги
@@ -37,7 +42,7 @@ class AccountTariffLog extends HistoryActiveRecord
     use \app\classes\traits\AttributeLabelsTraits;
 
     // Методы для полей insert_time, insert_user_id
-    use \app\classes\traits\InsertUserTrait;
+    use GetInsertUserTrait;
 
     private $_countLogs = null;
 
@@ -78,6 +83,21 @@ class AccountTariffLog extends HistoryActiveRecord
                 'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
                 'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
                 'FillAccountTariffResourceLog' => FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
+                [
+                    // Установить "когда создал"
+                    'class' => TimestampBehavior::className(),
+                    'createdAtAttribute' => 'insert_time',
+                    'updatedAtAttribute' => false,
+                    'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+                ],
+                [
+                    // Установить "кто создал"
+                    'class' => AttributeBehavior::className(),
+                    'attributes' => [
+                        ActiveRecord::EVENT_BEFORE_INSERT => 'insert_user_id',
+                    ],
+                    'value' => Yii::$app->user->getId(),
+                ],
             ];
     }
 

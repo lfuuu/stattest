@@ -52,15 +52,28 @@ class ImportController extends Controller
     }
 
     /**
-     * Актуализировать префиксы
+     * Актуализировать префиксы (диапазоны)
+     *
+     * @throws \yii\db\Exception
+     * @throws \InvalidArgumentException
+     * @throws \LogicException
+     * @throws \app\exceptions\ModelValidationException
+     */
+    public function actionPrefix()
+    {
+        echo 'Префиксы (диапазоны): ' . RefreshPrefix::me()->refreshByRange() . PHP_EOL;
+    }
+
+    /**
+     * Актуализировать префиксы (фильтры)
      *
      * @throws \yii\db\Exception
      * @throws \InvalidArgumentException
      * @throws \LogicException
      */
-    public function actionPrefix()
+    public function actionPrefixFilter()
     {
-        echo 'Префиксы: ' . RefreshPrefix::me()->run() . PHP_EOL;
+        echo 'Префиксы (фильтры): ' . RefreshPrefix::me()->refreshByFilter() . PHP_EOL;
     }
 
     /**

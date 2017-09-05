@@ -56,7 +56,7 @@
                     }
                 },
                 error: function (jqXHR, textStatus) {
-                    that.showError($dialog, 'Ошибка на стороне сервера. Этап № ' + offset + '<br />' + textStatus);
+                    that.showError($dialog, 'Ошибка на стороне сервера. Этап № ' + offset + '. ' + textStatus);
                 }
             });
         };
@@ -89,7 +89,7 @@
                     }
                 },
                 error: function (jqXHR, textStatus) {
-                    that.showError($dialog, 'Ошибка на стороне сервера.<br />' + textStatus);
+                    that.showError($dialog, 'Ошибка на стороне сервера. ' + textStatus);
                 }
             });
         };

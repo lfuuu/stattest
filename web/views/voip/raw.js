@@ -5,7 +5,36 @@
     $(function () {
         $(document).off('change.yiiGridView', '.beforeHeaderFilters input, .beforeHeaderFilters select');
 
-      $('.grid-view:eq(0)').removeAttr('id');
+        $('.grid-view:eq(0)').removeAttr('id');
+
+        $('.beforeHeaderFilters > .row:first-child').after(
+            '<div class="col-sm-12 btn-lg" style="padding: 0; text-align: center;"> ' +
+                '<hr style="margin-bottom: 0;"> ' +
+                '<i id="show_hide" class="glyphicon glyphicon-chevron-up" aria-hidden="true" style="cursor: pointer"></i>' +
+            '</div>'
+        );
+
+        $('#show_hide').click( function () {
+            $(this).parent().nextAll('.row').toggle();
+            $(this).toggleClass('rotate');
+            return false;
+        });
+
+        $('#show_hide').parents('div').nextAll('.row').find('select, input').change( function () {
+            var filter_id = $('select[name="CallsRawFilter[filter_id]"]');
+             if (filter_id.val()) {
+                filter_id.find('option[value=""]').prop('selected', true).end().change();
+             }
+        });
+
+        function hideFilters() {
+            var self = $('#show_hide');
+            if ($('.beforeHeaderFilters select:first').val() && !self.hasClass('rotate')) {
+                self.click();
+            }
+        }
+
+        hideFilters();
 
         $(document)
             .on('pjax:start', 'div[data-pjax-container]', function () {
@@ -18,6 +47,8 @@
                 $('a[data-uid]').gridViewDrivers();
 
                 $(document).off('change.yiiGridView', '.beforeHeaderFilters input, .beforeHeaderFilters select');
+
+                hideFilters();
             });
 
         $('select[name="CallsRawFilter[server_ids][]"], ' +

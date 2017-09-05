@@ -1,3 +1,11 @@
 .beforeHeaderFilters .select2-selection__choice__remove {
     float: none !important;
 }
+
+.no_display {
+    display: none !important;
+}
+
+#show_hide.rotate {
+    transform: rotate(198grad);
+}

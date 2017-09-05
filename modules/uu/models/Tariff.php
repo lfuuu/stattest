@@ -3,13 +3,20 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\HistoryActiveRecord;
+use app\classes\traits\GetInsertUserTrait;
+use app\classes\traits\GetUpdateUserTrait;
 use app\models\Country;
 use app\models\Currency;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
+use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -68,8 +75,8 @@ class Tariff extends HistoryActiveRecord
         getList as getListTrait;
     }
 
-    // Методы для полей insert_time, insert_user_id, update_time, update_user_id
-    use \app\classes\traits\InsertUpdateUserTrait;
+    use GetInsertUserTrait;
+    use GetUpdateUserTrait;
 
     const DELTA = 10000;
 
@@ -84,6 +91,22 @@ class Tariff extends HistoryActiveRecord
     {
         return parent::behaviors() + [
                 'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+                [
+                    // Установить "когда создал" и "когда обновил"
+                    'class' => TimestampBehavior::className(),
+                    'createdAtAttribute' => 'insert_time',
+                    'updatedAtAttribute' => 'update_time',
+                    'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+                ],
+                [
+                    // Установить "кто создал" и "кто обновил"
+                    'class' => AttributeBehavior::className(),
+                    'attributes' => [
+                        ActiveRecord::EVENT_BEFORE_INSERT => ['insert_user_id', 'update_user_id'],
+                        ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',
+                    ],
+                    'value' => Yii::$app->user->getId(),
+                ],
             ];
     }
 

@@ -14,6 +14,7 @@ use app\classes\Html;
 use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\filter\RegionFilter;
 use app\modules\nnp\models\Region;
+use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -80,9 +81,16 @@ $columns = [
     ],
 ];
 
+$dataProvider = $filterModel->search();
+
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/nnp/region/new/']),
     'columns' => $columns,
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
 ]);

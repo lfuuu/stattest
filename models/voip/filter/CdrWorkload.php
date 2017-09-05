@@ -5,13 +5,13 @@
 
 namespace app\models\voip\filter;
 
+use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
-use yii\base\Model;
 use yii\data\ArrayDataProvider;
 use yii\data\SqlDataProvider;
 
-class CdrWorkload extends Model
+class CdrWorkload extends ActiveRecord
 {
     public $number = null;
     public $dateStart = null;

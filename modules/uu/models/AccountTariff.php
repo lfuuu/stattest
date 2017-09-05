@@ -3,6 +3,8 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\HistoryActiveRecord;
+use app\classes\traits\GetInsertUserTrait;
+use app\classes\traits\GetUpdateUserTrait;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
 use app\modules\uu\behaviors\AccountTariffVoipNumber;
 use app\modules\uu\models\traits\AccountTariffBillerPeriodTrait;
@@ -15,6 +17,11 @@ use app\modules\uu\models\traits\AccountTariffLinkTrait;
 use app\modules\uu\models\traits\AccountTariffPackageTrait;
 use app\modules\uu\models\traits\AccountTariffRelationsTrait;
 use app\modules\uu\models\traits\AccountTariffValidatorTrait;
+use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * Универсальная услуга
@@ -36,8 +43,8 @@ class AccountTariff extends HistoryActiveRecord
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
-    // Методы для полей insert_time, insert_user_id, update_time, update_user_id
-    use \app\classes\traits\InsertUpdateUserTrait;
+    use GetInsertUserTrait;
+    use GetUpdateUserTrait;
 
     use AccountTariffRelationsTrait;
     use AccountTariffBillerTrait;
@@ -108,6 +115,22 @@ class AccountTariff extends HistoryActiveRecord
                 'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
                 'AccountTariffImportantEvents' => AccountTariffImportantEvents::className(),
                 'AccountTariffVoipNumber' => AccountTariffVoipNumber::className(),
+                [
+                    // Установить "когда создал" и "когда обновил"
+                    'class' => TimestampBehavior::className(),
+                    'createdAtAttribute' => 'insert_time',
+                    'updatedAtAttribute' => 'update_time',
+                    'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+                ],
+                [
+                    // Установить "кто создал" и "кто обновил"
+                    'class' => AttributeBehavior::className(),
+                    'attributes' => [
+                        ActiveRecord::EVENT_BEFORE_INSERT => ['insert_user_id', 'update_user_id'],
+                        ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',
+                    ],
+                    'value' => Yii::$app->user->getId(),
+                ],
             ];
     }
 

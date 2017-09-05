@@ -14,6 +14,7 @@ use app\modules\nnp\column\PrefixColumn;
 use app\modules\nnp\column\StatusColumn;
 use app\modules\nnp\filter\DestinationFilter;
 use app\modules\nnp\models\Destination;
+use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
@@ -100,9 +101,16 @@ $columns = [
     ],
 ];
 
+$dataProvider = $filterModel->search();
+
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'extraButtons' => $this->render('//layouts/_buttonCreate', ['url' => '/nnp/destination/new/']),
     'columns' => $columns,
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
 ]);

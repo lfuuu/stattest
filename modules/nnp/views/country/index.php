@@ -11,6 +11,7 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use app\modules\nnp\filter\CountryFilter;
 use app\modules\nnp\models\Country;
+use app\widgets\GridViewExport\GridViewExport;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
@@ -54,8 +55,15 @@ $columns = [
     ]
 ];
 
+$dataProvider = $filterModel->search();
+
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
 ]);

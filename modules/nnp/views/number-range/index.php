@@ -21,6 +21,7 @@ use app\modules\nnp\column\PrefixColumn;
 use app\modules\nnp\column\RegionColumn;
 use app\modules\nnp\filter\NumberRangeFilter;
 use app\modules\nnp\models\NumberRange;
+use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
 
@@ -52,6 +53,10 @@ $filterColumns = [
         'attribute' => 'country_code',
         'class' => CountryColumn::className(),
         'indexBy' => 'code',
+        'isWithEmpty' => false,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'operator_source',
@@ -70,7 +75,7 @@ $filterColumns = [
         'class' => IntegerColumn::className(),
     ],
     [
-        'label' => 'Полный номер (маска)&nbsp;' . $this->render('//layouts/_helpMysqlLike'),
+        'label' => 'Полный номер начала диапазона (маска)&nbsp;' . $this->render('//layouts/_helpMysqlLike'),
         'attribute' => 'full_number_mask',
         'class' => StringColumn::className(),
     ],
@@ -113,24 +118,40 @@ $columns = [
         'attribute' => 'operator_id',
         'class' => OperatorColumn::className(),
         'countryCode' => $filterModel->country_code,
-        'isWithNullAndNotNull' => true,
+        // 'isWithNullAndNotNull' => false,
+        'isWithEmpty' => false,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
-        'isWithNullAndNotNull' => true,
+        // 'isWithNullAndNotNull' => true,
         'countryCodes' => $filterModel->country_code,
+        'isWithEmpty' => false,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'city_id',
         'class' => CityColumn::className(),
-        'isWithNullAndNotNull' => true,
+        // 'isWithNullAndNotNull' => true,
         'countryCodes' => $filterModel->country_code,
         'regionIds' => $filterModel->region_id,
+        'isWithEmpty' => false,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'ndc_type_id',
         'class' => NdcTypeColumn::className(),
+        'isWithEmpty' => false,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'is_active',
@@ -187,11 +208,18 @@ $columns = [
     ],
 ];
 
+$dataProvider = $filterModel->search();
+
 echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
     'beforeHeader' => [ // фильтры вне грида
         'columns' => $filterColumns,
     ],
+    'exportWidget' => GridViewExport::widget([
+        'dataProvider' => $dataProvider,
+        'filterModel' => $filterModel,
+        'columns' => $columns,
+    ]),
 ]);

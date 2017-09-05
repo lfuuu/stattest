@@ -4,9 +4,14 @@ namespace app\modules\nnp\models;
 
 use app\classes\Connection;
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GetInsertUserTrait;
+use app\classes\traits\GetUpdateUserTrait;
 use app\models\billing\InstanceSettings;
 use Yii;
+use yii\behaviors\AttributeBehavior;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 /**
@@ -40,8 +45,8 @@ use yii\helpers\Url;
  */
 class NumberRange extends ActiveRecord
 {
-    // Методы для полей insert_time, insert_user_id, update_time, update_user_id
-    use \app\classes\traits\InsertUpdateUserTrait;
+    use GetInsertUserTrait;
+    use GetUpdateUserTrait;
 
     const DEFAULT_MOSCOW_NDC = 495;
 
@@ -94,6 +99,31 @@ class NumberRange extends ActiveRecord
             'insert_user_id' => 'Кто создал',
             'update_time' => 'Когда редактировал',
             'update_user_id' => 'Кто редактировал',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                // Установить "когда создал" и "когда обновил"
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'insert_time',
+                'updatedAtAttribute' => 'update_time',
+                'value' => new Expression("NOW() AT TIME ZONE 'utc'"), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+            ],
+            [
+                // Установить "кто создал" и "кто обновил"
+                'class' => AttributeBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['insert_user_id', 'update_user_id'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => 'update_user_id',
+                ],
+                'value' => Yii::$app->user->getId(),
+            ],
         ];
     }
 

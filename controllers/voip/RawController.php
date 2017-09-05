@@ -6,6 +6,8 @@ use app\classes\ReturnFormatted;
 use app\dao\billing\TrunkDao;
 use app\dao\ClientContractDao;
 use app\models\billing\TrunkGroup;
+use app\exceptions\ModelValidationException;
+use app\modules\nnp\models\FilterQuery;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\Region;
 use Yii;
@@ -41,7 +43,10 @@ class RawController extends BaseController
                             'get-contracts',
                             'get-regions',
                             'get-cities',
-                            'get-trunk-groups'
+                            'get-trunk-groups',
+                            'save-filter',
+                            'get-filters',
+                            'get-saved-filter-data'
                         ],
                         'roles' => ['voip.access'],
                     ],
@@ -151,6 +156,69 @@ class RawController extends BaseController
             ),
             'options'
         );
+    }
+
+    /**
+     * Сохранение набора фильтров для отчета по calls_raw
+     *
+     * @return int
+     * @throws ModelValidationException
+     */
+    public function actionSaveFilter()
+    {
+        $post = Yii::$app->request->post();
+
+        if (!isset($post['name']) || !$post['name']) {
+            return false;
+        }
+
+        $values = [
+            'name' => $post['name'],
+            'data' => json_encode(array_diff($post['CallsRawFilter'], ['filter_id', 'connect_time_from', 'connect_time_to']), JSON_UNESCAPED_UNICODE),
+            'model_name' => CallsRawFilter::className()
+        ];
+
+        $savedFilter = new FilterQuery();
+        $savedFilter->load($values, '');
+
+        if (!($result = $savedFilter->save())) {
+            throw new ModelValidationException($savedFilter);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Вывести список сохраненных фильтров
+     */
+    public function actionGetFilters()
+    {
+        ReturnFormatted::me()->returnFormattedValues(
+            FilterQuery::getList(
+                $isWithEmpty = true,
+                $isWithNullAndNotNull = false,
+                $indexBy = 'id',
+                $select = 'name',
+                $orderBy = ['name' => SORT_ASC],
+                $where = ['model_name' => CallsRawFilter::className()]
+            ),
+            'options'
+        );
+    }
+
+    /**
+     * Получить параметры фильтра
+     *
+     * @param null $id
+     * @return bool
+     */
+    public function actionGetFilterQueryData($id = null)
+    {
+        if (!$id || !($filter = FilterQuery::findOne(['id' => $id]))) {
+            return false;
+        }
+
+        return $filter->data;
     }
 
     /**
