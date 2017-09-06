@@ -331,7 +331,8 @@ SQL;
         $db->createCommand($sql)->execute();
 
 
-        $sql = <<<SQL
+        if ($this->isOption()) {
+            $sql = <<<SQL
             INSERT INTO {$accountTariffResourceLogTableName}
                 (account_tariff_id, resource_id, amount, actual_from_utc, insert_time, insert_user_id)
             SELECT
@@ -351,6 +352,7 @@ SQL;
                 AND {$tariffPeriodTableName}.tariff_id = {$tariffTableName}.id
                 AND {$tariffTableName}.service_type_id = {$serviceTypeId};
 SQL;
-        $db->createCommand($sql)->execute();
+            $db->createCommand($sql)->execute();
+        }
     }
 }
