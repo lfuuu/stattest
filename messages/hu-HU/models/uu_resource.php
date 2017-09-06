@@ -19,7 +19,6 @@ return [
     'Resource #18' => 'One-time service',
     'Resource #19' => 'Minimum price routing',
     'Resource #20' => 'Geo routing',
-    'Resource #21' => 'Hívások',
     'Resource #22' => 'Компьютер', // @todo Надо перевести. А пока лучше хоть на русском, чем безликий номер
     'Resource #23' => 'IP телефон',
     'Resource #24' => 'Оргтехника, формат A4',
@@ -39,6 +38,7 @@ return [
     'Resource #38' => 'FMC',
     'Resource #39' => 'Sub-account',
     'Resource #40' => 'Hívások',
+    'Resource #41' => 'Hívások',
 
     'Resource consumption limit exceedance' => 'Erőforrás-felhasználási limit túllépés',
 ];

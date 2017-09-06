@@ -264,15 +264,6 @@ $allTariffResources = [
         'tariff_id' => Tariff::DELTA + 6,
     ],
 
-    // Тариф 8
-    [
-        'amount' => 1,
-        'price_per_unit' => 39,
-        'price_min' => 0,
-        'resource_id' => Resource::ID_TRUNK_CALLS,
-        'tariff_id' => Tariff::DELTA + 8,
-    ],
-
     // Тариф 10
     [
         'amount' => 1,

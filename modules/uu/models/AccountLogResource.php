@@ -133,8 +133,7 @@ class AccountLogResource extends ActiveRecord
     {
         $accountLogResourceTableName = AccountLogResource::tableName();
         $tariffResourceTableName = TariffResource::tableName();
-        $resource1 = Resource::ID_VOIP_PACKAGE_CALLS;
-        $resource2 = Resource::ID_TRUNK_CALLS;
+        $resourceIdCalls = implode(', ', Resource::$calls);
         $sql = <<<SQL
             DELETE
                 account_log_resource.*
@@ -143,7 +142,7 @@ class AccountLogResource extends ActiveRecord
                 {$tariffResourceTableName} tariff_resource
             WHERE
                 account_log_resource.tariff_resource_id = tariff_resource.id
-                AND tariff_resource.resource_id IN ({$resource1}, {$resource2})
+                AND tariff_resource.resource_id IN ({$resourceIdCalls})
                 AND account_log_resource.date_from BETWEEN :date_from AND :date_to
 SQL;
 

@@ -234,7 +234,7 @@ SQL;
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $tariffResourceTableName = TariffResource::tableName();
-        $resourceIdVoipCalls = implode(', ', [Resource::ID_VOIP_PACKAGE_CALLS, Resource::ID_TRUNK_CALLS]); // стоимость звонков от низкоуровневого биллера уже приходит с НДС
+        $resourceIdCalls = implode(', ', Resource::$calls); // стоимость звонков от низкоуровневого биллера уже приходит с НДС
 
         // нужно знать is_include_vat из тарифа, а это можно получить только через транзакции
         // @todo может быть несколько транзакций на одну проводку. Будет лишнее обновление, но на значения это не влияет
@@ -259,7 +259,7 @@ SQL;
             ON account_entry.type_id = tariff_resource.id
         SET
             account_entry.price_without_vat = IF(
-                tariff.is_include_vat OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id IN ({$resourceIdVoipCalls})),
+                tariff.is_include_vat OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id IN ({$resourceIdCalls})),
                 account_entry.price * 100 / (100 + account_entry.vat_rate),
                 account_entry.price
                )

@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\models\Language;
 use app\modules\uu\behaviors\ResourceFiller;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
+use app\modules\uu\resourceReader\TrunkCallsResourceReader;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
 use app\modules\uu\resourceReader\VpbxDiskResourceReader;
 use Yii;
@@ -56,7 +57,7 @@ class Resource extends ActiveRecord
 
     const ID_ONE_TIME = 18; // Разовая услуга
 
-    const ID_TRUNK_CALLS = 21; // Транк. Звонки
+    const ID_TRUNK_PACKAGE_ORIG_CALLS = 41; // Ориг-пакеты транка. Звонки
 
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
@@ -66,6 +67,11 @@ class Resource extends ActiveRecord
     public $fillerPricePerUnit = 100;
 
     protected $isAttributeTypecastBehavior = true;
+
+    public static $calls = [
+        Resource::ID_VOIP_PACKAGE_CALLS => Resource::ID_VOIP_PACKAGE_CALLS,
+        Resource::ID_TRUNK_PACKAGE_ORIG_CALLS => Resource::ID_TRUNK_PACKAGE_ORIG_CALLS,
+    ];
 
     /**
      * @inheritdoc
@@ -147,8 +153,11 @@ class Resource extends ActiveRecord
             // Дисковое пространство (Гб, float). Берется из virtpbx_stat.use_space
             self::ID_VPBX_DISK => VpbxDiskResourceReader::className(),
 
-            // Звонки (у.е, float). Берется из calls_aggr.calls_aggr
+            // Звонки по пакетам телефонии (у.е, float). Берется из calls_raw
             self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::className(),
+
+            // Звонки по ориг-пакета транка (у.е, float). Берется из calls_raw
+            self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::className(),
         ];
     }
 
