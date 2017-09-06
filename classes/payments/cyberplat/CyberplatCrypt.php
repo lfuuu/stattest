@@ -30,6 +30,10 @@ class CyberplatCrypt extends Singleton
             throw new InvalidConfigException('Организация не задана');
         }
 
+        if (defined('YII_ENV') && YII_ENV == 'test') {
+            return $this;
+        }
+
         if (!isset(\Yii::$app->params['Cyberplat']) || !\Yii::$app->params['Cyberplat'] || !isset(\Yii::$app->params['Cyberplat'][$this->_organizationId])) {
             throw new InvalidConfigException('Cyberplat not configured');
         }
@@ -50,6 +54,7 @@ class CyberplatCrypt extends Singleton
      * @param string $msg
      * @param string $signHex
      * @return bool|int
+     * @throws InvalidConfigException
      */
     public function checkSign($msg, $signHex)
     {
@@ -72,9 +77,14 @@ class CyberplatCrypt extends Singleton
      *
      * @param string $str
      * @return string
+     * @throws InvalidConfigException
      */
     public function sign(&$str)
     {
+        if (defined('YII_ENV') && YII_ENV == 'test') {
+            return $str;
+        }
+
         if (!$this->_organizationId) {
             throw new InvalidConfigException('Организация не задана');
         }
