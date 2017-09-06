@@ -144,7 +144,7 @@ class BillLine extends HistoryActiveRecord
                 $accountEntry->type_id . '/' .
                 $accountEntry->date_from . '/' .
                 $accountEntry->date_to :
-                '';
+                $line['pk']; // если нет привязки к accountEntry - выдаем как есть
 
             if (!isset($idx[$key])) {
                 $idx[$key] = [

@@ -78,7 +78,7 @@ class AccountEditForm extends Form
         $site_name,
         $account_version,
         $is_postpaid,
-        $type_of_bill,
+        $type_of_bill = ClientAccount::TYPE_OF_BILL_DETAILED,
         $effective_vat_rate = 0,
         $pay_bill_until_days = ClientAccount::PAY_BILL_UNTIL_DAYS,
         $price_level = ClientAccount::DEFAULT_PRICE_LEVEL;
