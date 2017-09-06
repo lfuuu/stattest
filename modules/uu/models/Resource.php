@@ -3,8 +3,8 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
+use app\exceptions\ModelValidationException;
 use app\models\Language;
-use app\modules\uu\behaviors\ResourceFiller;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\TrunkCallsResourceReader;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
@@ -64,8 +64,6 @@ class Resource extends ActiveRecord
 
     const DEFAULT_UNIT = '¤';
 
-    public $fillerPricePerUnit = 100;
-
     protected $isAttributeTypecastBehavior = true;
 
     public static $calls = [
@@ -91,16 +89,6 @@ class Resource extends ActiveRecord
             [['service_type_id'], 'integer'],
             [['name', 'unit'], 'string', 'max' => 50]
         ];
-    }
-
-    /**
-     * @return array
-     */
-    public function behaviors()
-    {
-        return parent::behaviors() + [
-                'ResourceFiller' => ResourceFiller::className(),
-            ];
     }
 
     /**
@@ -354,5 +342,29 @@ SQL;
 SQL;
             $db->createCommand($sql)->execute();
         }
+    }
+
+    /**
+     * Удалить этот ресурс из тарифа
+     *
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \Exception
+     */
+    public function deleteTariffResource()
+    {
+        $tariffResources = TariffResource::findAll(['resource_id' => $this->id]);
+        foreach ($tariffResources as $tariffResource) {
+            AccountLogResource::deleteAll(['tariff_resource_id' => $tariffResource->id]);
+            AccountEntry::deleteAll(['type_id' => $tariffResource->id]);
+        }
+
+        TariffResource::deleteAll(['resource_id' => $this->id]);
+
+        AccountTariffResourceLog::deleteAll(['resource_id' => $this->id]);
+
+        if (!$this->delete()) {
+            throw new ModelValidationException($this);
+        }
+
     }
 }
