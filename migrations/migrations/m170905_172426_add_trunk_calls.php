@@ -4,7 +4,6 @@ use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
-use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffResource;
 
 /**
@@ -18,6 +17,7 @@ class m170905_172426_add_trunk_calls extends \app\classes\Migration
      * Up
      *
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\Exception
      */
     public function safeUp()
     {
@@ -33,18 +33,7 @@ class m170905_172426_add_trunk_calls extends \app\classes\Migration
             throw new ModelValidationException($resource);
         }
 
-        $tariffs = Tariff::findAll(['service_type_id' => ServiceType::ID_TRUNK_PACKAGE_ORIG]);
-        foreach ($tariffs as $tariff) {
-            $tariffResource = new TariffResource();
-            $tariffResource->amount = 0;
-            $tariffResource->price_per_unit = 1;
-            $tariffResource->price_min = 0;
-            $tariffResource->resource_id = Resource::ID_TRUNK_PACKAGE_ORIG_CALLS;
-            $tariffResource->tariff_id = $tariff->id;
-            if (!$tariffResource->save()) {
-                throw new ModelValidationException($tariffResource);
-            }
-        }
+        $resource->addTariffResource($amount = 0, $pricePerUnit = 1.0);
     }
 
     /**

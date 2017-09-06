@@ -300,4 +300,57 @@ class Resource extends ActiveRecord
     {
         return $this->isOption();
     }
+
+    /**
+     * Добавить этот ресурс в тариф
+     *
+     * @param float $amount
+     * @param float $pricePerUnit
+     * @param float $priceMin
+     * @throws \yii\db\Exception
+     */
+    public function addTariffResource($amount, $pricePerUnit = 1.0, $priceMin = 0.0)
+    {
+        $db = self::getDb();
+        $resourceId = $this->id;
+        $serviceTypeId = $this->service_type_id;
+
+        $tariffTableName = Tariff::tableName();
+        $tariffPeriodTableName = TariffPeriod::tableName();
+        $tariffResourceTableName = TariffResource::tableName();
+        $accountTariffLogTableName = AccountTariffLog::tableName();
+        $accountTariffResourceLogTableName = AccountTariffResourceLog::tableName();
+
+        $sql = <<<SQL
+            INSERT INTO {$tariffResourceTableName}
+                (amount, price_per_unit, price_min, resource_id, tariff_id)
+            SELECT {$amount}, {$pricePerUnit}, {$priceMin}, {$resourceId}, id
+            FROM {$tariffTableName}
+            WHERE service_type_id = {$serviceTypeId};
+SQL;
+        $db->createCommand($sql)->execute();
+
+
+        $sql = <<<SQL
+            INSERT INTO {$accountTariffResourceLogTableName}
+                (account_tariff_id, resource_id, amount, actual_from_utc, insert_time, insert_user_id)
+            SELECT
+                {$accountTariffLogTableName}.account_tariff_id,
+                {$resourceId},
+                {$amount},
+                {$accountTariffLogTableName}.actual_from_utc,
+                {$accountTariffLogTableName}.insert_time,
+                {$accountTariffLogTableName}.insert_user_id
+            FROM
+                {$accountTariffLogTableName}, 
+                {$tariffPeriodTableName}, 
+                {$tariffTableName}
+            WHERE 
+                {$accountTariffLogTableName}.tariff_period_id IS NOT NULL
+                AND {$accountTariffLogTableName}.tariff_period_id = {$tariffPeriodTableName}.id
+                AND {$tariffPeriodTableName}.tariff_id = {$tariffTableName}.id
+                AND {$tariffTableName}.service_type_id = {$serviceTypeId};
+SQL;
+        $db->createCommand($sql)->execute();
+    }
 }

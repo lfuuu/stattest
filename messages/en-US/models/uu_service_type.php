@@ -27,6 +27,6 @@ return [
     'Type #20' => 'VM collocation',
     'Type #21' => 'One time',
     'Type #22' => 'Trunk',
-    'Type #23' => 'Orig trunk package',
-    'Type #24' => 'Term trunk package',
+    'Type #23' => 'Trunk', // Orig trunk package
+    'Type #24' => 'Trunk', // Term trunk package
 ];
