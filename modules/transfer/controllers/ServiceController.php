@@ -161,11 +161,6 @@ class ServiceController extends BaseController
                 if (!Number::isMcnLine($serviceValue)) {
                     Assert::isNotEmpty($didGroupId);
 
-                    $didGroup = DidGroup::findOne(['id' => $didGroupId]);
-
-                    $priceLevel = $clientAccount ? $clientAccount->price_level : ClientAccount::DEFAULT_PRICE_LEVEL;
-                    $statusId = $didGroup->{'tariff_status_main' . $priceLevel};
-
                     $number = \app\models\Number::findOne(['number' => $serviceValue]);
 
                     Assert::isObject($number, 'Number "' . $serviceValue . '" not found');
