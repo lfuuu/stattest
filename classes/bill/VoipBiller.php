@@ -342,7 +342,7 @@ class VoipBiller extends Biller
     }
 
     /**
-     * Получение значений потребленного траффика по телефонии
+     * Получение значений потребленного трафика по телефонии
      *
      * @param bool $is7800
      * @param LogTarif $logTarif

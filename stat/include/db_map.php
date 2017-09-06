@@ -577,7 +577,7 @@ class Db_map_nispd extends Db_map {
 				'*.type'				=> 'тип обычно надо ставить client',
 				'*.port_type'			=> array('тип порта','обычно dedicated'),
 				'*.tarif'				=> 'тариф',
-				'*.trafcounttype'		=> 'тип учёта траффика всегда agrigate',
+				'*.trafcounttype'		=> 'тип учёта трафика всегда agrigate',
 				'*.description'			=> 'описание',
 				'*.price'				=> 'стоимость',
 				'*.amount'				=> 'количество',

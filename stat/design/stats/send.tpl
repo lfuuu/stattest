@@ -1,4 +1,4 @@
-<H2>Отправка информации о превышении траффика</H2>
+<H2>Отправка информации о превышении трафика</H2>
 {if isset($refresh) && ($refresh!=0)}{literal}
 <script language=javascript>
 function refrfunc(){

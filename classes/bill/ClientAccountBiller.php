@@ -3,6 +3,7 @@ namespace app\classes\bill;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\UsageCallChat;
+use app\modules\uu\models\AccountTariff;
 use Yii;
 use DateTime;
 use app\models\Bill;
@@ -171,6 +172,7 @@ class ClientAccountBiller
             UsageTrunk::find()
                 ->andWhere(['client_account_id' => $this->clientAccount->id])
                 ->andWhere('actual_to >= :from', [':from' => $this->billerPeriodFrom->format(DateTimeZoneHelper::DATE_FORMAT)])
+                ->andWhere(['<', 'id', AccountTariff::DELTA])
                 ->all()
         );
 
