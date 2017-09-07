@@ -34,7 +34,8 @@ class CountriesController extends ApiInternalController
      *   @SWG\Property(property = "region", type = "object", description = "Регион (точка подключения)", ref = "#/definitions/idNameRecord"),
      *   @SWG\Property(property = "free_numbers_count", type = "integer", description = "Кол-во доступных для покупки номерных ёмкостей"),
      *   @SWG\Property(property = "weight", type = "integer", description = "Вес"),
-     *   @SWG\Property(property = "ndcs", type = "array", description = "NDC", @SWG\Items(type = "integer"))
+     *   @SWG\Property(property = "ndcs", type = "array", description = "NDC", @SWG\Items(type = "integer")),
+     *   @SWG\Property(property = "ndc_type_ids", type = "array", description = "Типы NDC", @SWG\Items(type = "integer"))
      * ),
      *
      * @SWG\Post(tags = {"Справочники"}, path = "/internal/countries/get-cities/", summary = "Получение списка городов в стране", operationId = "Получение списка городов в стране",
@@ -90,6 +91,13 @@ class CountriesController extends ApiInternalController
                     ->getDistinct('ndc') :
                 [];
 
+            $ndcTypeIds = $withNdcs ?
+                (new FreeNumberFilter)
+                    ->setIsService(false)
+                    ->setCity($city->id)
+                    ->getDistinct('ndc_type_id') :
+                [];
+
             $result[] = [
                 'city_id' => $city->id,
                 'city_name' => $city->name,
@@ -97,6 +105,7 @@ class CountriesController extends ApiInternalController
                 'free_numbers_count' => (int)$freeNumbersCount,
                 'weight' => $city->order,
                 'ndcs' => $ndcs,
+                'ndc_type_ids' => $ndcTypeIds,
             ];
         }
 
