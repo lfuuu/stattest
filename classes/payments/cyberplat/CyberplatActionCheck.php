@@ -147,7 +147,7 @@ class CyberplatActionCheck
     {
         $queryStr = $_SERVER["QUERY_STRING"];
 
-        if (!preg_match("/(action=.*)&sign=(.*)/", $queryStr, $o) || CyberplatCrypt::me()->setOrganization($this->_organizationId)->checkSign($o[1], $o[2])) {
+        if (!preg_match("/(action=.*)&sign=(.*)/", $queryStr, $o) || !CyberplatCrypt::me()->setOrganization($this->_organizationId)->checkSign($o[1], $o[2])) {
             throw new AnswerErrorSign();
         }
 

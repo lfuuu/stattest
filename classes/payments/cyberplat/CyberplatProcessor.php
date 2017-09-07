@@ -208,7 +208,7 @@ class CyberplatProcessor
         $str = '<?xml version="1.0" encoding="windows-1251"?>' .
             '<response>' .
             '<code>' . $e->getCode() . '</code>' .
-            '<message>' . $e->getMessage() . '</message>' .
+            '<message>' . iconv('utf-8', 'windows-1251//TRANSLIT', $e->getMessage()) . '</message>' .
             '</response>';
 
         $this->_log($str);
@@ -229,8 +229,8 @@ class CyberplatProcessor
     {
         $str = '<?xml version="1.0" encoding="windows-1251"?>' .
             '<response>' .
-            '<code>0</code>\n' . $e->getDataStr() .
-            '<message>' . $e->getMessage() . '</message>' .
+            '<code>0</code>' . $e->getDataStr() .
+            '<message>' . iconv('utf-8', 'windows-1251//TRANSLIT', $e->getMessage()) . '</message>' .
             '</response>';
         $this->_log($str);
 
@@ -249,7 +249,7 @@ class CyberplatProcessor
     {
         header('Content-Type:text/html; charset=windows-1251');
 
-        echo iconv('utf-8', 'windows-1251//TRANSLIT', $this->_answer);
+        echo $this->_answer;
     }
 
     /**
