@@ -71,10 +71,10 @@ class ActiveRecord extends \yii\db\ActiveRecord
      * Вернуть значения этого фильтра
      * getAttributes не подходит, ибо берет только поля БД, а нужно еще дополнительные из filter-модели
      *
+     * @param array $except
      * @return array
-     * @throws \ReflectionException
      */
-    public function getFilterQueryValues()
+    public function getObjectNotEmptyValues($except = [])
     {
         $values = [];
         $reflection = new ReflectionClass($this);
@@ -86,6 +86,11 @@ class ActiveRecord extends \yii\db\ActiveRecord
             }
 
             $attribute = $property->getName();
+
+            if (in_array($attribute, $except)) {
+                continue;
+            }
+
             $value = $this->$attribute;
             if ($value === null || $value === '') {
                 // дефолтное значение. Сохранять не надо
@@ -213,5 +218,4 @@ class ActiveRecord extends \yii\db\ActiveRecord
 
         return $command->execute();
     }
-
 }

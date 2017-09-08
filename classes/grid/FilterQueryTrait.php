@@ -59,7 +59,7 @@ trait FilterQueryTrait
 
         $filterQuery = new FilterQuery();
         $filterQuery->name = $filterQueryName;
-        $filterQuery->data = $filterModel->getFilterQueryValues();
+        $filterQuery->data = $filterModel->getObjectNotEmptyValues();
         $filterQuery->model_name = $filterModel->getClassName();
         if (!$filterQuery->save()) {
             throw new ModelValidationException($filterQuery);
@@ -133,7 +133,7 @@ trait FilterQueryTrait
         $filterModel = $this->filterModel;
 
         $filterQuery = $this->_getFilterQuery();
-        $filterQuery->data = $filterModel->getFilterQueryValues();
+        $filterQuery->data = $filterModel->getObjectNotEmptyValues();
         if (!$filterQuery->save()) {
             throw new ModelValidationException($filterQuery);
         }

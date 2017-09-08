@@ -39,7 +39,7 @@ echo $this->render('//layouts/_toggleButton',
         <dl class="dl-horizontal">
             <?php
             // текущие значения фильтра
-            $filterValues = $filterModel->getFilterQueryValues();
+            $filterValues = $filterModel->getObjectNotEmptyValues();
             foreach ($filterValues as $filterValueKey => $filterValue) :
                 $filterBeautyValue = $filterModel->getBeautyValue($filterValueKey, $filterValue, $columns);
                 ?>

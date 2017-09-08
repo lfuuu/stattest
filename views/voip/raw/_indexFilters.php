@@ -49,23 +49,12 @@ return [
     ],
     [
         'attribute' => 'server_ids',
-        'label' => 'Точка присоединения',
         'isWithEmpty' => false,
         'class' => ServerColumn::className(),
         'value' => $filterModel->server_ids,
         'filterInputOptions' => [
             'multiple' => true,
         ],
-    ],
-    [
-        'attribute' => 'src_trunk_group_ids',
-        'label' => 'Группа транка-оригинатора',
-        'class' => TrunkGroupColumn::className(),
-        'filterByServerIds' => $filterModel->server_ids,
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false
     ],
     [
         'attribute' => 'src_number',
@@ -84,16 +73,27 @@ return [
         ],
     ],
     [
-        'attribute' => 'session_time',
-        'label' => 'Длительность разговора',
-        'class' => IntegerRangeColumn::className(),
-        'options' => [
-            'min' => 0,
+        'attribute' => 'src_trunk_group_ids',
+        'class' => TrunkGroupColumn::className(),
+        'filterByServerIds' => $filterModel->server_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
         ],
+        'isWithEmpty' => false
     ],
     [
+        'attribute' => 'dst_trunk_group_ids',
+        'class' => TrunkGroupColumn::className(),
+        'filterByServerIds' => $filterModel->server_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false
+    ],
+
+
+    [
         'attribute' => 'src_physical_trunks_ids',
-        'label' => 'Физический транк-оригинатор',
         'class' => TrunkColumn::className(),
         'filterByServerIds' => $filterModel->server_ids,
         'filterByTrunkGroupIds' => $filterModel->src_trunk_group_ids,
@@ -106,146 +106,7 @@ return [
         'isWithEmpty' => false
     ],
     [
-        'attribute' => 'src_operator_ids',
-        'label' => 'Оператор номера А',
-        'class' => OperatorColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'attribute' => 'dst_operator_ids',
-        'label' => 'Оператор номера В',
-        'class' => OperatorColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'attribute' => 'disconnect_causes',
-        'label' => 'Код завершения',
-        'class' => DisconnectCauseColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-    ],
-    [
-        'attribute' => 'src_logical_trunks_ids',
-        'label' => 'Логический транк-оригинатор',
-        'class' => ServiceTrunkColumn::className(),
-        'filterByServerIds' => $filterModel->server_ids,
-        'filterByContractIds' => $filterModel->src_contracts_ids,
-        'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
-        'filterInputOptions' => [
-            'multiple' => true,
-        ]
-    ],
-    [
-        'attribute' => 'src_countries_ids',
-        'label' => 'Страна номера А',
-        'class' => CountryColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'attribute' => 'dst_countries_ids',
-        'label' => 'Страна номера B',
-        'class' => CountryColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'attribute' => 'is_success_calls',
-        'label' => 'Только успешные попытки',
-        'class' => CheckboxColumn::className(),
-    ],
-    [
-        'attribute' => 'src_contracts_ids',
-        'label' => 'Договор номера А',
-        'class' => ContractColumn::className(),
-        'filterByServiceTrunkIds' => $filterModel->src_logical_trunks_ids,
-        'filterByServerIds' => $filterModel->server_ids,
-        'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-    ],
-    [
-        'attribute' => 'src_regions_ids',
-        'label' => 'Регион номера А',
-        'class' => RegionColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'countryCodes' => $filterModel->src_countries_ids,
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'attribute' => 'dst_regions_ids',
-        'label' => 'Регион номера B',
-        'class' => RegionColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'countryCodes' => $filterModel->dst_countries_ids,
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'class' => WithEmptyFilterColumn::className(),
-    ],
-    [
-        'attribute' => 'dst_trunk_group_ids',
-        'label' => 'Группа транка-терминатора',
-        'class' => TrunkGroupColumn::className(),
-        'filterByServerIds' => $filterModel->server_ids,
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'isWithEmpty' => false
-    ],
-    [
-        'attribute' => 'src_cities_ids',
-        'label' => 'Город номера А',
-        'class' => CityColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'countryCodes' => $filterModel->src_countries_ids,
-        'regionIds' => $filterModel->src_regions_ids,
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'attribute' => 'dst_cities_ids',
-        'label' => 'Город номера B',
-        'class' => CityColumn::className(),
-        'filterInputOptions' => [
-            'multiple' => true,
-        ],
-        'countryCodes' => $filterModel->dst_countries_ids,
-        'regionIds' => $filterModel->dst_regions_ids,
-        'isWithEmpty' => false,
-        'isWithNullAndNotNull' => true,
-    ],
-    [
-        'class' => WithEmptyFilterColumn::className(),
-    ],
-    [
         'attribute' => 'dst_physical_trunks_ids',
-        'label' => 'Физический транк-терминатор',
         'class' => TrunkColumn::className(),
         'filterByServerIds' => $filterModel->server_ids,
         'filterByTrunkGroupIds' => $filterModel->dst_trunk_group_ids,
@@ -258,32 +119,36 @@ return [
         'isWithEmpty' => false
     ],
     [
-        'attribute' => 'src_destinations_ids',
-        'label' => 'Направление номера А',
-        'class' => DestinationColumn::className(),
+        'attribute' => 'src_operator_ids',
+        'class' => OperatorColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
-        'attribute' => 'dst_destinations_ids',
-        'label' => 'Направление номера В',
-        'class' => DestinationColumn::className(),
+        'attribute' => 'dst_operator_ids',
+        'class' => OperatorColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
     ],
+
     [
-        'attribute' => 'currency',
-        'label' => 'Валюта расчетов',
-        'class' => CurrencyColumn::className(),
-        'isWithEmpty' => false,
+        'attribute' => 'src_logical_trunks_ids',
+        'class' => ServiceTrunkColumn::className(),
+        'filterByServerIds' => $filterModel->server_ids,
+        'filterByContractIds' => $filterModel->src_contracts_ids,
+        'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ]
     ],
     [
         'attribute' => 'dst_logical_trunks_ids',
-        'label' => 'Логический транк-терминатор',
         'class' => ServiceTrunkColumn::className(),
         'filterByContractIds' => $filterModel->dst_contracts_ids,
         'filterByServerIds' => $filterModel->server_ids,
@@ -292,32 +157,37 @@ return [
             'multiple' => true,
         ],
     ],
+
     [
-        'attribute' => 'src_number_type_ids',
-        'label' => 'Тип номера А',
-        'class' => NdcTypeColumn::className(),
+        'attribute' => 'src_countries_ids',
+        'class' => CountryColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
-        'isWithNullAndNotNull' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
-        'attribute' => 'dst_number_type_ids',
-        'label' => 'Тип номера В',
-        'class' => NdcTypeColumn::className(),
+        'attribute' => 'dst_countries_ids',
+        'class' => CountryColumn::className(),
         'filterInputOptions' => [
             'multiple' => true,
         ],
         'isWithEmpty' => false,
-        'isWithNullAndNotNull' => false,
+        'isWithNullAndNotNull' => true,
     ],
     [
-        'class' => WithEmptyFilterColumn::className(),
+        'attribute' => 'src_contracts_ids',
+        'class' => ContractColumn::className(),
+        'filterByServiceTrunkIds' => $filterModel->src_logical_trunks_ids,
+        'filterByServerIds' => $filterModel->server_ids,
+        'filterByTrunkIds' => $filterModel->src_physical_trunks_ids,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'dst_contracts_ids',
-        'label' => 'Договор номера B',
         'class' => ContractColumn::className(),
         'filterByServiceTrunkIds' => $filterModel->dst_logical_trunks_ids,
         'filterByServerIds' => $filterModel->server_ids,
@@ -327,14 +197,115 @@ return [
         ],
     ],
     [
+        'attribute' => 'src_regions_ids',
+        'class' => RegionColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'countryCodes' => $filterModel->src_countries_ids,
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
+    ],
+    [
+        'attribute' => 'dst_regions_ids',
+        'class' => RegionColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'countryCodes' => $filterModel->dst_countries_ids,
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
+    ],
+    [
+        'attribute' => 'src_cities_ids',
+        'class' => CityColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'countryCodes' => $filterModel->src_countries_ids,
+        'regionIds' => $filterModel->src_regions_ids,
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
+    ],
+    [
+        'attribute' => 'dst_cities_ids',
+        'class' => CityColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'countryCodes' => $filterModel->dst_countries_ids,
+        'regionIds' => $filterModel->dst_regions_ids,
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => true,
+    ],
+    [
+        'attribute' => 'src_destinations_ids',
+        'class' => DestinationColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+    ],
+    [
+        'attribute' => 'dst_destinations_ids',
+        'class' => DestinationColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+    ],
+
+    [
+        'attribute' => 'src_number_type_ids',
+        'class' => NdcTypeColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => false,
+    ],
+    [
+        'attribute' => 'dst_number_type_ids',
+        'class' => NdcTypeColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+        'isWithNullAndNotNull' => false,
+    ],
+    [
         'class' => WithEmptyFilterColumn::className(),
     ],
     [
         'class' => WithEmptyFilterColumn::className(),
+    ],
+
+    [
+        'attribute' => 'session_time',
+        'class' => IntegerRangeColumn::className(),
+        'options' => [
+            'min' => 0,
+        ],
+    ],
+    [
+        'attribute' => 'is_success_calls',
+        'class' => CheckboxColumn::className(),
+    ],
+    [
+        'attribute' => 'disconnect_causes',
+        'class' => DisconnectCauseColumn::className(),
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
+        'isWithEmpty' => false,
+    ],
+    [
+        'attribute' => 'currency',
+        'class' => CurrencyColumn::className(),
+        'isWithEmpty' => false,
     ],
     [
         'attribute' => 'group_period',
-        'label' => 'Период группировки',
         'class' => ConstructColumn::className(),
         'filterOptions' => [
             'class' => ' col-sm-4'
@@ -357,7 +328,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'filter' => $filterModel->groupConst,
+        'filter' => $filterModel->attributeLabels(),
         'isWithEmpty' => false,
     ],
     [
@@ -370,7 +341,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'filter' => $filterModel->aggrLabels,
+        'filter' => $filterModel->attributeLabels(),
         'isWithEmpty' => false,
     ],
 ];

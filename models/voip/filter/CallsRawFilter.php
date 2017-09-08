@@ -12,6 +12,7 @@ use app\models\billing\CallsRaw;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use Yii;
+use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
@@ -85,27 +86,6 @@ class CallsRawFilter extends CallsRaw
     const UNATTAINABLE_SESSION_TIME = 2592000;
     const EXACT_COUNT_LIMIT = 5000;
 
-    public $groupConst = [
-        'src_route' => 'Транк-оригинатор',
-        'dst_route' => 'Транк-терминатор',
-        'src_number' => 'Номер А',
-        'dst_number' => 'Номер В',
-        'src_operator_name' => 'Оператор номера А',
-        'dst_operator_name' => 'Оператор номера В',
-        'src_country_name' => 'Страна номера А',
-        'dst_country_name' => 'Страна номера В',
-        'src_region_name' => 'Регион номера А',
-        'dst_region_name' => 'Регион номера В',
-        'src_city_name' => 'Город номера А',
-        'dst_city_name' => 'Город номера В',
-        'src_ndc_type_id' => 'Тип номера А',
-        'dst_ndc_type_id' => 'Тип номера B',
-        'round(sale::numeric, 4) AS sale' => 'Продажа',
-        'round(cost_price::numeric, 4) AS cost_price' => 'Себестоимость',
-        'round(orig_rate::numeric, 4) AS orig_rate' => 'Тариф продажи',
-        'round(term_rate::numeric, 4) AS term_rate' => 'Тариф себестоимости'
-    ];
-
     public $aggrConst = [
         'sale_sum' => 'SUM(@(sale))',
         'sale_avg' => 'AVG(@(NULLIF(sale, 0)))',
@@ -129,31 +109,6 @@ class CallsRawFilter extends CallsRaw
         'asr' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))::real / NULLIF(COUNT(connect_time)::real, 0)',
         'acd_u' => 'SUM(session_time) / NULLIF(SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END)), 0)',
         'asr_u' => 'SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END))::real / NULLIF(COUNT(connect_time)::real, 0)',
-    ];
-
-    public $aggrLabels = [
-        'sale_sum' => 'Продажа: сумма',
-        'sale_avg' => 'Продажа: средняя',
-        'sale_min' => 'Продажа: минимальная',
-        'sale_max' => 'Продажа: максимальная',
-        'cost_price_sum' => 'Себестоимость: сумма',
-        'cost_price_avg' => 'Себестоимость: средняя',
-        'cost_price_min' => 'Себестоимость: минимальная',
-        'cost_price_max' => 'Себестоимость: максимальная',
-        'margin_sum' => 'Маржа: сумма',
-        'margin_avg' => 'Маржа: средняя',
-        'margin_min' => 'Маржа: минимальная',
-        'margin_max' => 'Маржа: максимальная',
-        'session_time_sum' => 'Длительность: сумма',
-        'session_time_avg' => 'Длительность: средняя',
-        'session_time_min' => 'Длительность: минимальная',
-        'session_time_max' => 'Длительность: максимальная',
-        'calls_count' => 'Количество звонков',
-        'nonzero_calls_count' => 'Количество ненулевых звонков',
-        'acd' => 'ACD',
-        'asr' => 'ASR',
-        'acd_u' => 'ACD с кодами (16,17,18,19,21,31)',
-        'asr_u' => 'ASR с кодами (16,17,18,19,21,31)',
     ];
 
     public $server_ids = [];
@@ -292,6 +247,90 @@ class CallsRawFilter extends CallsRaw
     }
 
     /**
+     * Имена полей отчета
+     *
+     * @return array
+     */
+    public function attributeLabels()
+    {
+        return parent::attributeLabels() + [
+            //$groupConst
+            'src_route' => 'Транк-оригинатор',
+            'dst_route' => 'Транк-терминатор',
+            'src_number' => 'Номер А',
+            'dst_number' => 'Номер В',
+            'src_operator_name' => 'Оператор номера А',
+            'dst_operator_name' => 'Оператор номера В',
+            'src_country_name' => 'Страна номера А',
+            'dst_country_name' => 'Страна номера В',
+            'src_region_name' => 'Регион номера А',
+            'dst_region_name' => 'Регион номера В',
+            'src_city_name' => 'Город номера А',
+            'dst_city_name' => 'Город номера В',
+            'src_ndc_type_id' => 'Тип номера А',
+            'dst_ndc_type_id' => 'Тип номера B',
+            'round(sale::numeric, 4) AS sale' => 'Продажа',
+            'round(cost_price::numeric, 4) AS cost_price' => 'Себестоимость',
+            'round(orig_rate::numeric, 4) AS orig_rate' => 'Тариф продажи',
+            'round(term_rate::numeric, 4) AS term_rate' => 'Тариф себестоимости',
+
+            // $aggrLabels
+            'sale_sum' => 'Продажа: сумма',
+            'sale_avg' => 'Продажа: средняя',
+            'sale_min' => 'Продажа: минимальная',
+            'sale_max' => 'Продажа: максимальная',
+            'cost_price_sum' => 'Себестоимость: сумма',
+            'cost_price_avg' => 'Себестоимость: средняя',
+            'cost_price_min' => 'Себестоимость: минимальная',
+            'cost_price_max' => 'Себестоимость: максимальная',
+            'margin_sum' => 'Маржа: сумма',
+            'margin_avg' => 'Маржа: средняя',
+            'margin_min' => 'Маржа: минимальная',
+            'margin_max' => 'Маржа: максимальная',
+            'session_time_sum' => 'Длительность: сумма',
+            'session_time_avg' => 'Длительность: средняя',
+            'session_time_min' => 'Длительность: минимальная',
+            'session_time_max' => 'Длительность: максимальная',
+            'calls_count' => 'Количество звонков',
+            'nonzero_calls_count' => 'Количество ненулевых звонков',
+            'acd' => 'ACD',
+            'asr' => 'ASR',
+            'acd_u' => 'ACD с кодами (16,17,18,19,21,31)',
+            'asr_u' => 'ASR с кодами (16,17,18,19,21,31)',
+
+            // _indexFiler
+            'src_physical_trunks_ids' => 'Физический транк-оригинатор',
+            'src_trunk_group_ids' => 'Группа транка-оригинатора',
+            'session_time' => 'Длительность разговора',
+            'src_operator_ids' => 'Оператор номера А',
+            'dst_operator_ids' => 'Оператор номера В',
+            'disconnect_causes' => 'Код завершения',
+            'src_logical_trunks_ids' => 'Логический транк-оригинатор',
+            'dst_logical_trunks_ids' => 'Логический транк-терминатор',
+            'src_countries_ids' => 'Страна номера А',
+            'dst_countries_ids' => 'Страна номера B',
+            'is_success_calls' => 'Только успешные попытки',
+            'src_contracts_ids' => 'Договор номера А',
+            'dst_contracts_ids' => 'Договор номера B',
+            'src_regions_ids' => 'Регион номера А',
+            'dst_regions_ids' => 'Регион номера B',
+            'dst_trunk_group_ids' => 'Группа транка-терминатора',
+            'src_cities_ids' => 'Город номера А',
+            'dst_cities_ids' => 'Город номера B',
+            'dst_physical_trunks_ids' => 'Физический транк-терминатор',
+            'src_destinations_ids' => 'Направление номера А',
+            'dst_destinations_ids' => 'Направление номера В',
+            'src_number_type_ids' => 'Тип номера А',
+            'dst_number_type_ids' => 'Тип номера В',
+            'group_period' => 'Период группировки',
+            'group' => 'Группировки',
+            'server_ids' => 'Точка присоединения',
+            'currency' => 'Валюта расчетов',
+
+        ];
+    }
+
+    /**
      * Custom data load
      *
      * @param array $get
@@ -378,12 +417,9 @@ class CallsRawFilter extends CallsRaw
     public function isFilteringPossible()
     {
         if ($this->connect_time_from) {
-            $attributes = $this->getAttributes(
-                null,
+            $attributes = $this->getObjectNotEmptyValues(
                 [
-                    'groupConst',
                     'aggrConst',
-                    'aggrLabels',
                     'group',
                     'aggr',
                     'group_period',
@@ -403,7 +439,6 @@ class CallsRawFilter extends CallsRaw
         }
 
         return false;
-
     }
 
     /**
@@ -413,7 +448,7 @@ class CallsRawFilter extends CallsRaw
      */
     public function isNnpFiltersPossible()
     {
-        $attributes = $this->getAttributes(
+        $attributes = $this->getObjectNotEmptyValues(
             [
                 'src_operator_ids',
                 'dst_operator_ids',

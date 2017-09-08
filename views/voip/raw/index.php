@@ -54,7 +54,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
         foreach ($filterModel->group as $key => $value) {
             $attr = $filterModel->getGroupKeyParts($value)[1];
             $column = [
-                'label' => $filterModel->groupConst[$value],
+                'label' => $filterModel->getAttributeLabel($value),
                 'attribute' => $attr,
             ];
 
@@ -76,7 +76,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
     $c = count($columns);
     foreach ($filterModel->aggr as $key => $value) {
         $columns[$key + $c] = [
-            'label' => $filterModel->aggrLabels[$value],
+            'label' => $filterModel->getAttributeLabel($value),
             'attribute' => $value,
         ];
         if (strpos($value, 'session_time') !== false || strpos($value, 'acd') !== false) {
