@@ -69,7 +69,7 @@ class RegistryForm extends Form
             [['number_from', 'number_to', 'account_id'], 'required', 'on' => 'save'],
             ['account_id', 'integer', 'on' => 'save'],
             ['number_from', 'validateNumbersRange'],
-            ['ndc', 'safe']
+            [['ndc', 'mvno_trunk_id', 'fmc_trunk_id'], 'safe']
         ];
     }
 
