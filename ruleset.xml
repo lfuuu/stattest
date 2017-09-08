@@ -9,12 +9,12 @@
         phpcs \-\-version
     PhpStorm
         "Language & Frameworks" / PHP / Code sniffer / Configuration / ... / "/usr/bin/phpcs" / Ok
-        "Language & Frameworks" / Editor / Inspertions / PHP Code Sniffer Validation / включить, "Show sniff name"
+        "Language & Frameworks" / Editor / Inspections / PHP Code Sniffer Validation / включить, "Show sniff name"
         Подробнее см. https://www.jetbrains.com/help/phpstorm/2016.2/using-php-code-sniffer-tool.html
     -->
 
     <!--
-    Название правила указывается, если включить "Show sniff name". Если же название правила не известно, то его можно найти по тексту ошибки:
+    Название правила указывается, если включить "Show sniff name". Если же название правила неизвестно, то его можно найти по тексту ошибки:
         cd /usr/share/php/PHP/CodeSniffer/Standards
         grep СООБЩЕНИЕ * -r
         Если найдено в xml-файле - скопируйте имя правила оттуда

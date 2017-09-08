@@ -404,16 +404,16 @@ class FreeNumberFilter extends Number
      * Вернуть уникальные значения по установленным фильтрам
      *
      * @param string $fieldName
+     * @param string $indexBy
      * @return array
      */
-    public function getDistinct($fieldName)
+    public function getDistinct($fieldName, $indexBy = null)
     {
+        $select = ['value' => new Expression('DISTINCT ' . $fieldName)];
+        $indexBy && $select[] = $indexBy;
         $query = clone $this->_query;
-        return $query->select(
-            [
-                'value' => new Expression('DISTINCT ' . $fieldName),
-            ]
-        )
+        return $query->select($select)
+            ->indexBy($indexBy)
             ->asArray()
             ->column();
     }

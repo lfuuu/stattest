@@ -42,6 +42,7 @@ class CountriesController extends ApiInternalController
      *   @SWG\Parameter(name = "country_id", type = "integer", description = "Идентификатор страны", in = "formData", required  =  true, default = ""),
      *   @SWG\Parameter(name = "with_numbers", type = "integer", description = "Признак возврата кол-ва свободных номеров: 0/1", in = "formData", default = "0"),
      *   @SWG\Parameter(name = "with_ndcs", type = "integer", description = "Признак возврата NDC: 0/1", in = "formData", default = "0"),
+     *   @SWG\Parameter(name = "with_ndc_type_ids", type = "integer", description = "Признак возврата типов NDC: 0/1", in = "formData", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "список городов в запрашиваемой стране", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/cityRecord"))),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
@@ -56,6 +57,7 @@ class CountriesController extends ApiInternalController
         $countryId = isset($requestData['country_id']) ? $requestData['country_id'] : null;
         $withNumbers = isset($requestData['with_numbers']) ? (int)$requestData['with_numbers'] : 0;
         $withNdcs = isset($requestData['with_ndcs']) ? (int)$requestData['with_ndcs'] : 0;
+        $withNdcTypeIds = isset($requestData['with_ndc_type_ids']) ? (int)$requestData['with_ndc_type_ids'] : 0;
 
         if (!$countryId || !($country = Country::findOne($countryId))) {
             throw new BadRequestHttpException;
@@ -91,11 +93,11 @@ class CountriesController extends ApiInternalController
                     ->getDistinct('ndc') :
                 [];
 
-            $ndcTypeIds = $withNdcs ?
+            $ndcTypeIds = $withNdcTypeIds ?
                 (new FreeNumberFilter)
                     ->setIsService(false)
                     ->setCity($city->id)
-                    ->getDistinct('ndc_type_id') :
+                    ->getDistinct('ndc_type_id', 'ndc') :
                 [];
 
             $result[] = [
