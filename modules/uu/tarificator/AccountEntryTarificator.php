@@ -89,10 +89,14 @@ class AccountEntryTarificator extends Tarificator
         }
 
         if ($isSplitByMonths) {
+
             $isNextMonthSql = "(DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, '%d') != '01'";
             if ($dateFieldNameTo !== $dateFieldNameFrom) {
-                $isNextMonthSql .= " OR account_log.`{$dateFieldNameTo}` = account_log.`{$dateFieldNameFrom}`)";
+                $isNextMonthSql .= " OR account_log.`{$dateFieldNameTo}` = account_log.`{$dateFieldNameFrom}`";
             }
+
+            $isNextMonthSql .= ')';
+
         } else {
             $isNextMonthSql = 'true';
         }
