@@ -23,9 +23,8 @@ class OrganizationDao extends Singleton
 
         /** @var Organization[] $organizations */
         $organizations = Organization::find()
+            ->distinct()
             ->select('organization_id')
-            ->groupBy('organization_id')
-            ->orderBy(['actual_from' => SORT_ASC])
             ->all();
         foreach ($organizations as $organization) {
 
