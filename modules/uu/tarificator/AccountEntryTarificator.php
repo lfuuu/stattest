@@ -37,7 +37,7 @@ class AccountEntryTarificator extends Tarificator
         // Подключение
         // Транзакции группировать в проводки следующего месяца
         $this->out('Проводки за подключение');
-        $this->_tarificate(AccountLogSetup::tableName(), new Expression((string)AccountEntry::TYPE_ID_SETUP), 'date', 'date', $accountTariffId, $isSplitByMonths = 0);
+        $this->_tarificate(AccountLogSetup::tableName(), new Expression((string)AccountEntry::TYPE_ID_SETUP), 'date', 'date', $accountTariffId, $isSplitByMonths = 1);
 
         // Абонентская плата
         // Постоплатные: все транзакции группировать в проводки следующего месяца
@@ -89,7 +89,10 @@ class AccountEntryTarificator extends Tarificator
         }
 
         if ($isSplitByMonths) {
-            $isNextMonthSql = "(DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, '%d') != '01' OR account_log.`{$dateFieldNameTo}` = account_log.`{$dateFieldNameFrom}`)";
+            $isNextMonthSql = "(DATE_FORMAT(account_log.`{$dateFieldNameFrom}`, '%d') != '01'";
+            if ($dateFieldNameTo !== $dateFieldNameFrom) {
+                $isNextMonthSql .= " OR account_log.`{$dateFieldNameTo}` = account_log.`{$dateFieldNameFrom}`)";
+            }
         } else {
             $isNextMonthSql = 'true';
         }
