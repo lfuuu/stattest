@@ -4,7 +4,9 @@ namespace app\modules\uu\filter;
 
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipNdcType;
 use yii\data\ActiveDataProvider;
 
 /**
@@ -21,6 +23,8 @@ class TariffFilter extends Tariff
 
     public $voip_group_id = '';
     public $voip_city_id = '';
+    public $voip_ndc_type_id = '';
+    public $organization_id = '';
 
     public $service_type_id = '';
 
@@ -29,6 +33,17 @@ class TariffFilter extends Tariff
     public $is_include_vat = '';
     public $is_default = '';
     public $is_postpaid = '';
+
+
+    /**
+     * @return array
+     */
+    public function rules()
+    {
+        $rules = parent::rules();
+        $rules[] = [['voip_city_id', 'voip_ndc_type_id', 'organization_id'], 'integer'];
+        return $rules;
+    }
 
     /**
      * @param int $serviceTypeId
@@ -83,6 +98,16 @@ class TariffFilter extends Tariff
         if ($this->voip_city_id !== '') {
             $query->joinWith('voipCities');
             $query->andWhere([TariffVoipCity::tableName() . '.city_id' => $this->voip_city_id]);
+        }
+
+        if ($this->voip_ndc_type_id !== '') {
+            $query->joinWith('voipNdcTypes');
+            $query->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $this->voip_ndc_type_id]);
+        }
+
+        if ($this->organization_id !== '') {
+            $query->joinWith('organizations');
+            $query->andWhere([TariffOrganization::tableName() . '.organization_id' => $this->organization_id]);
         }
 
         return $dataProvider;

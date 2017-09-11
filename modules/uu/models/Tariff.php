@@ -63,6 +63,7 @@ use yii\helpers\Url;
  * @property TariffVoipGroup $voipGroup
  * @property TariffVoipCity[] $voipCities
  * @property TariffOrganization[] $organizations
+ * @property TariffVoipCity[] $voipNdcTypes
  * @property boolean $isTest
  */
 class Tariff extends HistoryActiveRecord
@@ -320,6 +321,15 @@ class Tariff extends HistoryActiveRecord
     {
         return $this->hasMany(TariffVoipCity::className(), ['tariff_id' => 'id'])
             ->indexBy('city_id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getVoipNdcTypes()
+    {
+        return $this->hasMany(TariffVoipNdcType::className(), ['tariff_id' => 'id'])
+            ->indexBy('ndc_type_id');
     }
 
     /**

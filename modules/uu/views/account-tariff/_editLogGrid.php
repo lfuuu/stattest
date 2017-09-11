@@ -86,7 +86,7 @@ $accountTariff = $formModel->accountTariff;
                                 Yii::t('common', '(not set)')
                             ) .
                             (
-                            ($accountTariffLog->insert_time && $accountTariffLog->insert_time[0] != '0') ?
+                            ($accountTariffLog->insert_time && is_string($accountTariffLog->insert_time) && $accountTariffLog->insert_time[0] != '0') ?
                                 Html::tag('div', $accountTariffLog->insert_time . ' UTC', ['class' => 'small_grey']) :
                                 ''
                             );

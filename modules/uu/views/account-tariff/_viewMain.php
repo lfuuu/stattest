@@ -57,7 +57,7 @@ $attributes = [
     [
         'attribute' => 'insert_time',
         'format' => 'html',
-        'value' => ($accountTariff->insert_time && $accountTariff->insert_time[0] != '0') ?
+        'value' => ($accountTariff->insert_time && is_string($accountTariff->insert_time) && $accountTariff->insert_time[0] != '0') ?
             (new DateTimeWithUserTimezone($accountTariff->insert_time))->getDateTime() :
             Yii::t('common', '(not set)'),
     ],
@@ -73,7 +73,7 @@ $attributes = [
     [
         'attribute' => 'update_time',
         'format' => 'html',
-        'value' => ($accountTariff->update_time && $accountTariff->update_time[0] != '0') ?
+        'value' => ($accountTariff->update_time && is_string($accountTariff->update_time) && $accountTariff->update_time[0] != '0') ?
             (new DateTimeWithUserTimezone($accountTariff->update_time))->getDateTime() :
             Yii::t('common', '(not set)'),
     ],

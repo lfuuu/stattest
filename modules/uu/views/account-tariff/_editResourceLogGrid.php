@@ -81,7 +81,7 @@ use yii\data\ActiveDataProvider;
                             Yii::t('common', '(not set)')
                         ) .
                         (
-                        ($accountTariffResourceLog->insert_time && $accountTariffResourceLog->insert_time[0] != '0') ?
+                        ($accountTariffResourceLog->insert_time && is_string($accountTariffResourceLog->insert_time) && $accountTariffResourceLog->insert_time[0] != '0') ?
                             Html::tag('div', $accountTariffResourceLog->insert_time . ' UTC', ['class' => 'small_grey']) :
                             ''
                         );

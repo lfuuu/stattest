@@ -63,7 +63,6 @@ if (!$serviceType) {
 
     <?php // свойства тарифа из основной таблицы ?>
     <?= $this->render('_editMain', $viewParams) ?>
-    <?= $this->render('_editMainOrganization', $viewParams) ?>
 
     <?php
     // свойства тарифа конкретного типа услуги (ВАТС, телефония и пр.)

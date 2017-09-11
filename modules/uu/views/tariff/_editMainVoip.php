@@ -8,21 +8,17 @@
  * @var int $editableType
  */
 
-use app\modules\uu\controllers\TariffController;
-
 $tariff = $formModel->tariff;
 
-if ($editableType <= TariffController::EDITABLE_LIGHT) {
-    $options = ['disabled' => 'disabled'];
-} else {
-    $options = [];
-}
+$viewParams = [
+    'formModel' => $formModel,
+    'form' => $form,
+    'editableType' => $editableType,
+];
+
 ?>
 
 <div class="well">
-    <?= $this->render('_editMainVoipCity', [
-        'formModel' => $formModel,
-        'form' => $form,
-        'editableType' => $editableType,
-    ]) ?>
+    <?= $this->render('_editMainVoipCity', $viewParams) ?>
+    <?= $this->render('_editMainVoipNdcType', $viewParams) ?>
 </div>

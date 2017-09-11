@@ -14,6 +14,7 @@ use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipNdcType;
 use InvalidArgumentException;
 
 abstract class TariffForm extends \app\classes\Form
@@ -30,6 +31,9 @@ abstract class TariffForm extends \app\classes\Form
 
     /** @var TariffVoipCity[] */
     public $tariffVoipCities;
+
+    /** @var TariffVoipNdcType[] */
+    public $tariffNdcTypes;
 
     /** @var TariffOrganization[] */
     public $tariffOrganizations;
@@ -50,6 +54,11 @@ abstract class TariffForm extends \app\classes\Form
      * @return TariffVoipCity[]
      */
     abstract public function getTariffVoipCities();
+
+    /**
+     * @return TariffVoipNdcType[]
+     */
+    abstract public function getTariffVoipNdcTypes();
 
     /**
      * @return TariffOrganization[]
@@ -122,6 +131,7 @@ abstract class TariffForm extends \app\classes\Form
             case ServiceType::ID_VOIP_PACKAGE:
                 // только для телефонии
                 $this->tariffVoipCities = $this->getTariffVoipCities();
+                $this->tariffNdcTypes = $this->getTariffVoipNdcTypes();
                 break;
         }
 
@@ -215,6 +225,10 @@ abstract class TariffForm extends \app\classes\Form
                             $tariffVoipCity = new TariffVoipCity();
                             $tariffVoipCity->tariff_id = $this->id;
                             $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+
+                            $tariffVoipNdcType = new TariffVoipNdcType();
+                            $tariffVoipNdcType->tariff_id = $this->id;
+                            $this->tariffNdcTypes = $this->crudMultipleSelect2($this->tariffNdcTypes, $post, $tariffVoipNdcType, 'ndc_type_id');
                         }
                         break;
 
@@ -223,6 +237,10 @@ abstract class TariffForm extends \app\classes\Form
                         $tariffVoipCity = new TariffVoipCity();
                         $tariffVoipCity->tariff_id = $this->id;
                         $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');
+
+                        $tariffVoipNdcType = new TariffVoipNdcType();
+                        $tariffVoipNdcType->tariff_id = $this->id;
+                        $this->tariffNdcTypes = $this->crudMultipleSelect2($this->tariffNdcTypes, $post, $tariffVoipNdcType, 'ndc_type_id');
                         break;
                 }
 

@@ -11,6 +11,7 @@ use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipNdcType;
 
 class TariffAddForm extends TariffForm
 {
@@ -76,6 +77,14 @@ class TariffAddForm extends TariffForm
     public function getTariffVoipCities()
     {
         return [new TariffVoipCity()];
+    }
+
+    /**
+     * @return TariffVoipNdcType[]
+     */
+    public function getTariffVoipNdcTypes()
+    {
+        return [new TariffVoipNdcType()];
     }
 
     /**

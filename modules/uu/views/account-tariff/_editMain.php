@@ -54,7 +54,7 @@ if (!$serviceType) {
             <?php // когда создал ?>
             <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('insert_time') ?></label>
-                <div><?= ($accountTariff->insert_time && $accountTariff->insert_time[0] != '0') ?
+                <div><?= ($accountTariff->insert_time && is_string($accountTariff->insert_time) && $accountTariff->insert_time[0] != '0') ?
                         (new DateTimeWithUserTimezone($accountTariff->insert_time))->getDateTime() :
                         Yii::t('common', '(not set)') ?></div>
             </div>
@@ -72,7 +72,7 @@ if (!$serviceType) {
             <?php // когда редактировал ?>
             <div class="col-sm-3">
                 <label><?= $accountTariff->getAttributeLabel('update_time') ?></label>
-                <div><?= ($accountTariff->update_time && $accountTariff->update_time[0] != '0') ?
+                <div><?= ($accountTariff->update_time && is_string($accountTariff->update_time) && $accountTariff->update_time[0] != '0') ?
                         (new DateTimeWithUserTimezone($accountTariff->update_time))->getDateTime() :
                         Yii::t('common', '(not set)') ?></div>
             </div>

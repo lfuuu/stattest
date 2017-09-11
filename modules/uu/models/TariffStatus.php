@@ -31,12 +31,13 @@ class TariffStatus extends ActiveRecord
     const ID_TEST = 4;
 
     const ID_VOIP_8800 = 5;
+    const ID_VOIP_8800_TEST = 9;
     const ID_VOIP_OPERATOR = 6;
     const ID_VOIP_TRANSIT = 7;
+    const ID_VOIP_FMC = 13;
+    const ID_VOIP_MVNO = 14;
 
     const ID_INTERNET_ADSL = 8;
-
-    const ID_VOIP_8800_TEST = 9;
 
     /**
      * @return string

@@ -134,6 +134,7 @@ class TariffPeriod extends HistoryActiveRecord
      * @param bool $isPostpaid
      * @param bool $isIncludeVat
      * @param int $organizationId
+     * @param int $ndcTypeId
      * @return array
      */
     public static function getList(
@@ -147,7 +148,8 @@ class TariffPeriod extends HistoryActiveRecord
         $statusId = null,
         $isPostpaid = null,
         $isIncludeVat = null,
-        $organizationId = null
+        $organizationId = null,
+        $ndcTypeId = null
     ) {
         $defaultTariffPeriodId = null;
 
@@ -180,6 +182,12 @@ class TariffPeriod extends HistoryActiveRecord
             $activeQuery
                 ->innerJoin(TariffVoipCity::tableName() . ' tariff_cities', 'tariff.id = tariff_cities.tariff_id')
                 ->andWhere(['tariff_cities.city_id' => $cityId]);
+        }
+
+        if ($ndcTypeId) {
+            $activeQuery
+                ->innerJoin(TariffVoipNdcType::tableName() . ' tariff_ndc_type', 'tariff.id = tariff_ndc_type.tariff_id')
+                ->andWhere(['tariff_ndc_type.ndc_type_id' => $ndcTypeId]);
         }
 
         if ($organizationId) {

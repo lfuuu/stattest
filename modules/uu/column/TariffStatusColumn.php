@@ -15,11 +15,12 @@ class TariffStatusColumn extends DataColumn
 
     public $filterType = GridView::FILTER_SELECT2;
     public $serviceTypeId = null;
+    public $isWithEmpty = true;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = TariffStatus::getList($this->serviceTypeId, true);
+        $this->filter = TariffStatus::getList($this->serviceTypeId, $this->isWithEmpty);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' tariff-status-column';
     }

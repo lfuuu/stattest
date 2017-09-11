@@ -25,6 +25,13 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 } else {
     $options = [];
 }
+
+$viewParams = [
+    'formModel' => $formModel,
+    'form' => $form,
+    'clientAccount' => $clientAccount,
+];
+
 ?>
 
 <div class="well">
@@ -44,7 +51,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
             <div class="col-sm-2">
                 <label><?= $tariff->getAttributeLabel('insert_time') ?></label>
-                <div><?= ($tariff->insert_time && $tariff->insert_time[0] != '0') ?
+                <div><?= ($tariff->insert_time && is_string($tariff->insert_time) && $tariff->insert_time[0] != '0') ?
                         (new DateTimeWithUserTimezone($tariff->insert_time))->getDateTime() :
                         Yii::t('common', '(not set)') ?></div>
             </div>
@@ -60,7 +67,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
             <div class="col-sm-2">
                 <label><?= $tariff->getAttributeLabel('update_time') ?></label>
-                <div><?= ($tariff->update_time && $tariff->update_time[0] != '0') ?
+                <div><?= ($tariff->update_time && is_string($tariff->update_time) && $tariff->update_time[0] != '0') ?
                         (new DateTimeWithUserTimezone($tariff->update_time))->getDateTime() :
                         Yii::t('common', '(not set)') ?></div>
             </div>
@@ -138,4 +145,5 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         <?= $this->render('//layouts/_showHistory', ['model' => $tariff]) ?>
     <?php endif; ?>
 
+    <?= $this->render('_editMainOrganization', $viewParams) ?>
 </div>

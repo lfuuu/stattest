@@ -14,6 +14,7 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -28,6 +29,7 @@ use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipNdcType;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 use yii\helpers\Url;
@@ -80,7 +82,7 @@ $columns = [
             $tariffPeriods = $tariff->tariffPeriods;
             $tariffPeriod = reset($tariffPeriods);
             return sprintf('%d / %d, %d', $tariffPeriod->price_setup, $tariffPeriod->price_min, $tariffPeriod->price_per_period);
-        }
+        },
     ],
     [
         'attribute' => 'currency_id',
@@ -96,11 +98,19 @@ $columns = [
         'class' => TariffStatusColumn::className(),
         'value' => function (Tariff $tariff) {
             return $tariff->status->name;
-        }
+        },
+        'isWithEmpty' => false,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'tariff_person_id',
         'class' => TariffPersonColumn::className(),
+        'isWithEmpty' => false,
+        'filterInputOptions' => [
+            'multiple' => true,
+        ],
     ],
     [
         'attribute' => 'tag_id',
@@ -185,6 +195,32 @@ $cityColumn = [
     }
 ];
 
+$ndcTypeColumn = [
+    'label' => Html::encode(Yii::t('models/' . TariffVoipNdcType::tableName(), 'ndc_type_id')),
+    'attribute' => 'voip_ndc_type_id',
+    'format' => 'html',
+    'class' => NdcTypeColumn::className(),
+    'isAddLink' => false,
+    'contentOptions' => [
+        'class' => 'nowrap',
+    ],
+    'value' => function (Tariff $tariff) {
+        $maxCount = 2;
+        $voipNdcTypes = $tariff->voipNdcTypes;
+        $count = count($voipNdcTypes);
+        if ($count <= $maxCount) {
+            return implode('<br/>', $voipNdcTypes);
+        }
+
+        return sprintf(
+            '%s<br/><abbr title="%s">… %d…</abbr>',
+            implode('<br/>', array_slice($voipNdcTypes, 0, $maxCount)),
+            implode(PHP_EOL, array_slice($voipNdcTypes, $maxCount)),
+            $count - $maxCount
+        );
+    }
+];
+
 // столбцы для конкретной услуги
 switch ($serviceType->id) {
 
@@ -193,10 +229,12 @@ switch ($serviceType->id) {
 
     case ServiceType::ID_VOIP:
         $columns[] = $cityColumn;
+        $columns[] = $ndcTypeColumn;
         break;
 
     case ServiceType::ID_VOIP_PACKAGE:
         $columns[] = $cityColumn;
+        $columns[] = $ndcTypeColumn;
 
         $columns[] = [
             'label' => Html::encode(Yii::t('models/' . Tariff::tableName(), 'voip_group_id')),

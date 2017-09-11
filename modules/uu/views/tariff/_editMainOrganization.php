@@ -21,19 +21,22 @@ $tariffOrganizationTableName = TariffOrganization::tableName();
 $tariffTableName = Tariff::tableName();
 ?>
 
-<div class="well">
-    <label><?= Yii::t('models/' . $tariffOrganizationTableName, 'organization_id') ?></label>
-    <?= Select2::widget([
-        'name' => 'TariffOrganization[]',
-        'value' => array_keys($tariffOrganizations),
-        'data' => $organizationList,
-        'options' => [
-            'multiple' => true,
-        ],
-    ]) ?>
+<div class="row">
+    <div class="col-sm-12">
 
-    <?php if (!$tariff->isNewRecord) : ?>
-        <?= $this->render('//layouts/_showHistory', ['model' => $tariffOrganizations, 'deleteModel' => [new TariffOrganization(), 'tariff_id', $tariff->id]]) ?>
-    <?php endif; ?>
+        <label><?= Yii::t('models/' . $tariffOrganizationTableName, 'organization_id') ?></label>
+        <?= Select2::widget([
+            'name' => 'TariffOrganization[]',
+            'value' => array_keys($tariffOrganizations),
+            'data' => $organizationList,
+            'options' => [
+                'multiple' => true,
+            ],
+        ]) ?>
 
+        <?php if (!$tariff->isNewRecord) : ?>
+            <?= $this->render('//layouts/_showHistory', ['model' => $tariffOrganizations, 'deleteModel' => [new TariffOrganization(), 'tariff_id', $tariff->id]]) ?>
+        <?php endif; ?>
+
+    </div>
 </div>
