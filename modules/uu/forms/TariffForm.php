@@ -277,6 +277,7 @@ abstract class TariffForm extends \app\classes\Form
     {
         $tariffCloned = $this->_cloneTariffTariff();
         $this->_cloneTariffVoipCity($tariffCloned);
+        $this->_cloneTariffVoipNdcType($tariffCloned);
         $this->_cloneTariffOrganization($tariffCloned);
         $this->_cloneTariffPeriod($tariffCloned);
         $this->_cloneTariffResource($tariffCloned);
@@ -346,6 +347,32 @@ abstract class TariffForm extends \app\classes\Form
             if (!$voipCityCloned->save()) {
                 $this->validateErrors += $voipCityCloned->getFirstErrors();
                 throw new ModelValidationException($voipCityCloned);
+            }
+        }
+    }
+
+    /**
+     * Клонировать тариф. TariffVoipNdcType
+     *
+     * @param Tariff $tariffCloned
+     * @throws ModelValidationException
+     */
+    private function _cloneTariffVoipNdcType(Tariff $tariffCloned)
+    {
+        $voipNdcTypes = $this->tariff->voipNdcTypes;
+        $fieldNames = [
+            'ndc_type_id',
+        ];
+        foreach ($voipNdcTypes as $voipNdcType) {
+            $voipNdcTypeCloned = new TariffVoipNdcType();
+            $voipNdcTypeCloned->tariff_id = $tariffCloned->id;
+            foreach ($fieldNames as $fieldName) {
+                $voipNdcTypeCloned->$fieldName = $voipNdcType->$fieldName;
+            }
+
+            if (!$voipNdcTypeCloned->save()) {
+                $this->validateErrors += $voipNdcTypeCloned->getFirstErrors();
+                throw new ModelValidationException($voipNdcTypeCloned);
             }
         }
     }
