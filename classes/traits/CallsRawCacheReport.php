@@ -15,7 +15,7 @@ trait CallsRawCacheReport
     /**
      * @return CTEQuery
      */
-    private function getCacheReport()
+    private function _getCacheReport()
     {
         $this->dbConn = Yii::$app->dbPgSlaveCache;
 

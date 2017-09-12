@@ -269,10 +269,10 @@ class CallsRawFilter extends CallsRaw
             'dst_city_name' => 'Город номера В',
             'src_ndc_type_id' => 'Тип номера А',
             'dst_ndc_type_id' => 'Тип номера B',
-            'round(sale::numeric, 4) AS sale' => 'Продажа',
-            'round(cost_price::numeric, 4) AS cost_price' => 'Себестоимость',
-            'round(orig_rate::numeric, 4) AS orig_rate' => 'Тариф продажи',
-            'round(term_rate::numeric, 4) AS term_rate' => 'Тариф себестоимости',
+            'sale' => 'Продажа',
+            'cost_price' => 'Себестоимость',
+            'orig_rate' => 'Тариф продажи',
+            'term_rate' => 'Тариф себестоимости',
 
             // $aggrLabels
             'sale_sum' => 'Продажа: сумма',
@@ -378,6 +378,37 @@ class CallsRawFilter extends CallsRaw
         return $this->validate();
     }
 
+    public function getFilterGroups()
+    {
+        $groups = [];
+
+        // простые именнованые значения
+        foreach ([
+                     'src_route',
+                     'dst_route',
+                     'src_number',
+                     'dst_number',
+                     'src_operator_name',
+                     'dst_operator_name',
+                     'src_country_name',
+                     'dst_country_name',
+                     'src_region_name',
+                     'dst_region_name',
+                     'src_city_name',
+                     'dst_city_name',
+                     'src_ndc_type_id',
+                     'dst_ndc_type_id',
+                     'sale',
+                     'cost_price',
+                     'orig_rate',
+                     'term_rate'
+                 ] as $field) {
+            $groups[$field] = $this->getAttributeLabel($field);
+        }
+
+        return $groups;
+    }
+
     /**
      * Возвращает выражение для пересчета денежных значений из calls_raw в рубли
      *
@@ -400,13 +431,21 @@ class CallsRawFilter extends CallsRaw
     /**
      * Вернуть поле группировки и его алиас
      *
-     * @param $groupKey
+     * @param string $groupKey
      * @return array
      */
     public function getGroupKeyParts($groupKey)
     {
-        $result = explode(' AS ', $groupKey);
-        return count($result) > 1 ? [$result[0], $result[1]] : [$result[0], $result[0]];
+        $groupKeys = [
+            'sale' => 'round(sale::numeric, 4)',
+            'cost_price' => 'round(cost_price::numeric, 4)',
+            'orig_rate' => 'round(orig_rate::numeric, 4)',
+            'term_rate' => 'round(term_rate::numeric, 4)',
+        ];
+
+        return isset($groupKeys[$groupKey]) ?
+            [$groupKey, $groupKeys[$groupKey]] :
+            [$groupKey, $groupKey];
     }
 
     /**
@@ -546,7 +585,7 @@ class CallsRawFilter extends CallsRaw
 
         $last_month = (new \DateTime())->setTimestamp(mktime(0, 0, 0, date('m') - 1, 1));
 
-        $query = $this->dateStart >= $last_month ? $this->getCacheReport() : $this->getSlowReport();
+        $query = $this->dateStart >= $last_month ? $this->_getCacheReport() : $this->_getSlowReport();
 
         if ($this->group || $this->group_period || $this->aggr) {
             $fields = $groups = [];
@@ -569,7 +608,7 @@ class CallsRawFilter extends CallsRaw
                 if (!is_int($key)) {
                     $sort[] = $key;
                 } else {
-                    $sort[] = $this->getGroupKeyParts($value)[1];
+                    $sort[] = $this->getGroupKeyParts($value)[0];
                 }
             }
 

@@ -15,7 +15,7 @@ trait CallsRawSlowReport
     /**
      * @return CTEQuery
      */
-    private function getSlowReport()
+    private function _getSlowReport()
     {
         $this->dbConn = Yii::$app->dbPgSlave;
 
@@ -29,6 +29,7 @@ trait CallsRawSlowReport
                 [
                     'cr.cdr_id',
                     'cr.connect_time',
+                    'cr.billed_time session_time',
                     'cr.disconnect_cause',
                     't.name src_route',
                     'src_number' => new Expression('cr.src_number::varchar'),
@@ -61,7 +62,6 @@ trait CallsRawSlowReport
         $query2->select(
             [
                 'cr.cdr_id',
-                'cr.billed_time session_time',
                 't.name dst_route',
                 'o.name dst_operator_name',
                 'nc.name_rus dst_country_name',
@@ -93,6 +93,7 @@ trait CallsRawSlowReport
             [
                 'cdr_id' => 'cu.id',
                 'date_trunc(\'second\', setup_time) connect_time',
+                'session_time' => $null,
                 'disconnect_cause',
                 'src_route',
                 'src_number',
@@ -107,7 +108,6 @@ trait CallsRawSlowReport
                 'orig_rate' => $null,
                 'cu.server_id',
                 'cdr_id1' => $null,
-                'session_time' => $null,
                 'dst_route',
                 'dst_operator_name' => $null,
                 'dst_country_name' => $null,

@@ -52,7 +52,7 @@ if ($filterModel->group || $filterModel->group_period || $filterModel->aggr) {
 
     if ($filterModel->group) {
         foreach ($filterModel->group as $key => $value) {
-            $attr = $filterModel->getGroupKeyParts($value)[1];
+            $attr = $filterModel->getGroupKeyParts($value)[0];
             $column = [
                 'label' => $filterModel->getAttributeLabel($value),
                 'attribute' => $attr,

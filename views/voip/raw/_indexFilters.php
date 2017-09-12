@@ -328,7 +328,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'filter' => $filterModel->attributeLabels(),
+        'filter' => $filterModel->getFilterGroups(),
         'isWithEmpty' => false,
     ],
     [
