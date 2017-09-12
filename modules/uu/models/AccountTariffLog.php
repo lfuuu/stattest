@@ -314,6 +314,7 @@ class AccountTariffLog extends HistoryActiveRecord
             return;
         }
 
+
         $tariffPeriod = $this->tariffPeriod;
         if ($tariffPeriod) {
             $tariff = $tariffPeriod->tariff;
@@ -323,12 +324,13 @@ class AccountTariffLog extends HistoryActiveRecord
                 return;
             }
 
-            if ($tariff->is_default) {
+            $isPackage = array_key_exists($tariff->service_type_id, ServiceType::$packages);
+            if ($isPackage && $tariff->is_default) {
                 // пакеты по умолчанию подключаются/отключаются автоматически. Им можно всё
                 return;
             }
 
-            if ($clientAccount->is_postpaid != $tariff->is_postpaid && !array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
+            if ($clientAccount->is_postpaid != $tariff->is_postpaid && !$isPackage) {
                 // для пакетов это не надо проверять
                 $this->addError($attribute, 'ЛС и тариф должны быть либо оба предоплатные, либо оба постоплатные.');
                 $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_POSTPAID;
