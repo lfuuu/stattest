@@ -233,20 +233,22 @@ class AccountTariffResourceLog extends ActiveRecord
             return;
         }
 
-        if (
-            $this->actual_from_utc == $currentDateTimeUtc
-            && self::find()
-                ->where([
-                    'account_tariff_id' => $this->account_tariff_id,
-                    'resource_id' => $this->resource_id,
-                ])
-                ->andWhere(['=', 'actual_from_utc', $currentDateTimeUtc])
-                ->count()
-        ) {
-            $this->addError($attribute, 'Сегодня количество ресурса уже меняли. Теперь можно сменить его не ранее завтрашнего дня.');
-            $this->errorCode = AccountTariff::ERROR_CODE_DATE_TODAY;
-            return;
-        }
+        /*
+            if (
+                $this->actual_from_utc == $currentDateTimeUtc
+                && self::find()
+                    ->where([
+                        'account_tariff_id' => $this->account_tariff_id,
+                        'resource_id' => $this->resource_id,
+                    ])
+                    ->andWhere(['=', 'actual_from_utc', $currentDateTimeUtc])
+                    ->count()
+            ) {
+                $this->addError($attribute, 'Сегодня количество ресурса уже меняли. Теперь можно сменить его не ранее завтрашнего дня.');
+                $this->errorCode = AccountTariff::ERROR_CODE_DATE_TODAY;
+                return;
+            }
+        */
 
         if (self::find()
             ->where([
