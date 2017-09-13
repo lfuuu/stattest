@@ -12,12 +12,10 @@ use app\models\dictionary\PublicSite;
 
 $baseView = $this;
 
-echo Html::formLabel('Публичные сайты');
-
 echo Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => 'Публичные сайты', 'url' => '/dictionary/public-site'],
+        ['label' => $this->title = 'Публичные сайты', 'url' => '/dictionary/public-site'],
     ],
 ]);
 

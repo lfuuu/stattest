@@ -6,25 +6,24 @@
  * @var CountryFilter $filterModel
  */
 
-use kartik\grid\ActionColumn;
-use yii\widgets\Breadcrumbs;
+use app\classes\grid\column\universal\CurrencyColumn;
+use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\Country;
 use app\models\filter\CountryFilter;
 use app\widgets\GridViewSequence\GridViewSequence;
-use app\classes\grid\column\universal\CurrencyColumn;
-use app\classes\grid\column\universal\IntegerColumn;
-use app\classes\grid\column\universal\StringColumn;
-use app\classes\grid\column\universal\YesNoColumn;
+use kartik\grid\ActionColumn;
+use yii\widgets\Breadcrumbs;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Страны') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => $this->title, 'url' => '/dictionary/country/'],
+        ['label' => $this->title = 'Страны', 'url' => '/dictionary/country/'],
     ],
 ]) ?>
 

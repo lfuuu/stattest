@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp\classes;
 
+use app\classes\Connection;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\modules\nnp\filter\NumberRangeFilter;
@@ -9,144 +10,114 @@ use app\modules\nnp\models\FilterQuery;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\NumberRangePrefix;
 use app\modules\nnp\models\Prefix;
+use app\modules\nnp\models\PrefixDestination;
+use app\modules\nnp\Module;
+use Yii;
+use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * @method static RefreshPrefix me($args = null)
  */
 class RefreshPrefix extends Singleton
 {
-    private $_fields = [
-        'country_code',
-        'operator_id',
-        'region_id',
-        'city_id',
-        'ndc_type_id'
-    ];
+    const EVENT_FILTER_TO_PREFIX = 'nnp_filter_to_prefix';
 
     /**
-     * Попытаться найти фильтр
+     * Конвертировать фильтры в префиксы
      *
-     * @return string
+     * @return string[]
+     * @throws \yii\db\StaleObjectException
      * @throws \app\exceptions\ModelValidationException
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    public function refreshByFilter()
+    public function filterToPrefix()
     {
         if (NumberRange::isTriggerEnabled()) {
             throw new \LogicException('Обновление префиксов невозможно, потому что триггер включен');
         }
 
-        $log = '';
+        $logs = [];
+
+        /** @var Connection $dbPgNnp */
+        $dbPgNnp = Yii::$app->dbPgNnp;
         $numberRangePrefixTableName = NumberRangePrefix::tableName();
-        $prefixQuery = Prefix::find(); // ->where(['id' => 18]);
-        $filterQueryModelName = (new NumberRangeFilter)->getClassName();
-        FilterQuery::deleteAll(['model_name' => (new NumberRangePrefix)->getClassName()]);
 
-        /** @var Prefix $prefix */
-        foreach ($prefixQuery->each() as $prefix) {
+        $prefixIdToCount = NumberRangePrefix::find()
+            ->select(['count' => new Expression('COUNT(*)'), 'prefix_id'])
+            ->groupBy('prefix_id')
+            ->indexBy('prefix_id')
+            ->asArray()
+            ->column();
 
-            $log .= $prefix->name . ': ' . PHP_EOL;
+        /** @var Prefix[] $prefixes */
+        $prefixes = Prefix::find()
+            ->indexBy('id')
+            ->all();
 
-            $differentValues = [];
-            foreach ($this->_fields as $field) {
-                $differentValues[$field] = [];
-            }
+        $query = FilterQuery::find()
+            ->where([
+                'model_name' => (new NumberRangeFilter)->getClassName(),
+            ]);
+        /** @var FilterQuery $filterQuery */
+        foreach ($query->each() as $filterQuery) {
 
-            $numberRangeQuery = NumberRange::find()
-                ->select(implode(', ', $this->_fields))
-                ->distinct()
-                ->joinWith('numberRangePrefixes', false, 'INNER JOIN')
-                ->andWhere([$numberRangePrefixTableName . '.prefix_id' => $prefix->id])
-                ->asArray();
+            Module::transaction(
+                function () use (&$prefixes, $filterQuery, $dbPgNnp, $numberRangePrefixTableName, &$affectedRows) {
 
-            foreach ($numberRangeQuery->all() as $row) {
-                foreach ($this->_fields as $field) {
-                    if ($row[$field]) {
-                        $differentValues[$field][$row[$field]] = $row[$field];
+                    // очистить старое
+                    if (isset($prefixes[$filterQuery->id])) {
+                        unset($prefixes[$filterQuery->id]);
+                        NumberRangePrefix::deleteAll(['prefix_id' => $filterQuery->id]);
                     }
-                }
-            }
 
-            $filterQuery = new FilterQuery();
-            $filterQuery->id = $prefix->id;
-            $filterQuery->name = $prefix->name;
-            $filterQuery->data = [];
+                    // добавить новое
+                    $filterModel = new NumberRangeFilter();
+                    $filterModel->attributes = $filterQuery->data;;
+                    $dataProvider = $filterModel->search();
+                    /** @var ActiveQuery $dataProviderQuery */
+                    $dataProviderQuery = $dataProvider->query;
+                    $dataProviderQuery->select('id');
 
-            foreach ($this->_fields as $field) {
-                $log .= $field . ' = ' . implode(', ', $differentValues[$field]) . PHP_EOL;
+                    $userId = $filterQuery->update_user_id ?: 'null';
 
-                $values = array_values($differentValues[$field]);
-                if (!count($values)) {
-                    continue;
-                }
-
-                $filterQuery->data[$field] = (count($values) == 1) ? reset($values) : $values;
-            }
-
-            $filterQuery->model_name = $filterQueryModelName;
-            if ($filterQuery->data && !$filterQuery->save()) {
-                throw new ModelValidationException($filterQuery);
-            }
-
-            $log .= PHP_EOL;
-        }
-
-        return $log;
-    }
-
-    /**
-     * Найти новые диапазоны вместо выключенных
-     *
-     * @return string
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \LogicException
-     * @throws \yii\db\Exception
-     */
-    public function refreshByRange()
-    {
-        if (NumberRange::isTriggerEnabled()) {
-            throw new \LogicException('Обновление префиксов невозможно, потому что триггер включен');
-        }
-
-        $log = '';
-        $numberRangeTableName = NumberRange::tableName();
-        $numberRangePrefixTableName = NumberRangePrefix::tableName();
-        $prefixQuery = Prefix::find(); // ->where(['id' => 45]);
-        $numberRangeFilter = new NumberRangeFilter;
-
-        // по всем префиксам
-        /** @var Prefix $prefix */
-        foreach ($prefixQuery->each() as $prefix) {
-
-            $log .= $prefix->name . ' ';
-
-            $sql = <<<SQL
-                SELECT
-                    DISTINCT number_range_active.id
-                FROM
-                    {$numberRangePrefixTableName} number_range_prefix_inactive,
-                    {$numberRangeTableName} number_range_inactive,
-                    {$numberRangeTableName} number_range_active
-                WHERE
-                    number_range_prefix_inactive.prefix_id = {$prefix->id}
-                    AND number_range_prefix_inactive.number_range_id = number_range_inactive.id
-                    AND NOT number_range_inactive.is_active
-                    AND number_range_active.is_active
-                    AND (
-                        number_range_active.full_number_from 
-                            BETWEEN number_range_inactive.full_number_from 
-                            AND number_range_inactive.full_number_to
-                        OR
-                        number_range_active.full_number_to 
-                            BETWEEN number_range_inactive.full_number_from 
-                            AND number_range_inactive.full_number_to
-                        )
+                    $sql = <<<SQL
+INSERT INTO {$numberRangePrefixTableName}
+    (number_range_id, prefix_id, insert_time, insert_user_id)
+SELECT
+    t.id, {$filterQuery->id}, '{$filterQuery->update_time}', {$userId}
+FROM
+    ( {$dataProviderQuery->createCommand()->rawSql} ) t
 SQL;
-            $log .= $numberRangeFilter->addFilterModelToPrefix($sql, $prefix->id);
-            $log .= PHP_EOL;
+                    $affectedRows = $dbPgNnp->createCommand($sql)->execute();
+                }
+            );
+
+            $logs[] = sprintf(
+                'Префикс %s: было %d, стало %d',
+                $filterQuery->name,
+                isset($prefixIdToCount[$filterQuery->id]) ? $prefixIdToCount[$filterQuery->id] : 0,
+                $affectedRows);
         }
 
-        return $log;
+        // удалить
+        foreach ($prefixes as $prefix) {
+
+            Module::transaction(
+                function () use ($prefix, &$logs) {
+
+                    $logs[] = 'Префикс ' . $prefix->name . ' удален';
+                    NumberRangePrefix::deleteAll(['prefix_id' => $prefix->id]);
+                    PrefixDestination::deleteAll(['prefix_id' => $prefix->id]);
+                    if (!$prefix->delete()) {
+                        throw new ModelValidationException($prefix);
+                    }
+
+                }
+            );
+        }
+
+        return $logs;
     }
 }

@@ -33,7 +33,6 @@ class ImportController extends Controller
             ->run();
 
         $this->actionLink();
-        $this->actionPrefix();
     }
 
     /**
@@ -52,28 +51,17 @@ class ImportController extends Controller
     }
 
     /**
-     * Актуализировать префиксы (диапазоны)
+     * Конвертировать фильтры в префиксы
      *
      * @throws \yii\db\Exception
      * @throws \InvalidArgumentException
      * @throws \LogicException
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\StaleObjectException
      */
-    public function actionPrefix()
+    public function actionConvertFilterToPrefix()
     {
-        echo 'Префиксы (диапазоны): ' . RefreshPrefix::me()->refreshByRange() . PHP_EOL;
-    }
-
-    /**
-     * Актуализировать префиксы (фильтры)
-     *
-     * @throws \yii\db\Exception
-     * @throws \InvalidArgumentException
-     * @throws \LogicException
-     */
-    public function actionPrefixFilter()
-    {
-        echo 'Префиксы (фильтры): ' . RefreshPrefix::me()->refreshByFilter() . PHP_EOL;
+        echo implode(PHP_EOL, RefreshPrefix::me()->filterToPrefix()) . PHP_EOL;
     }
 
     /**

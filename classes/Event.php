@@ -7,6 +7,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
+use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
@@ -137,6 +138,7 @@ class Event
         SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'ННП. Удаление услуги',
         ImportServiceUploaded::EVENT => 'ННП. Импорт страны',
         \app\modules\nnp\Module::EVENT_LINKER => 'ННП. Линковка исходных к ID',
+        RefreshPrefix::EVENT_FILTER_TO_PREFIX => 'ННП. Фильтр -> префикс',
     ];
 
     /**

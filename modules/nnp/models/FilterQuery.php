@@ -3,6 +3,7 @@
 namespace app\modules\nnp\models;
 
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GetUpdateUserTrait;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -22,6 +23,8 @@ class FilterQuery extends ActiveRecord
 {
     // Определяет getList (список для selectbox)
     use \app\classes\traits\GetListTrait;
+
+    use GetUpdateUserTrait;
 
     /** @var array */
     public $data;

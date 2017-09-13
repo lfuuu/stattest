@@ -1,6 +1,5 @@
 <?php
 
-use app\classes\Html;
 use app\dao\OrganizationDao;
 use app\models\BusinessProcessStatus;
 use app\models\Country;
@@ -24,11 +23,10 @@ $regions = Region::find()
     ->asArray()
     ->all();
 
-echo Html::formLabel('Точки подключения');
 echo Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => 'Точки подключения', 'url' => $cancelUrl = '/dictionary/entry-point'],
+        ['label' => $this->title = 'Точки подключения', 'url' => $cancelUrl = '/dictionary/entry-point'],
         ($model->id ? 'Редактирование' : 'Добавление')
     ],
 ]);

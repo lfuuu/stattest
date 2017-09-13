@@ -19,11 +19,10 @@ use yii\widgets\Breadcrumbs;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Регионы (точки подключения)') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => $this->title, 'url' => '/dictionary/region/'],
+        ['label' => $this->title = 'Регионы (точки подключения)', 'url' => '/dictionary/region/'],
     ],
 ]) ?>
 

@@ -81,7 +81,7 @@ class Prefix extends ActiveRecord
      */
     public static function getUrlById($id)
     {
-        return Url::to(['/nnp/prefix/edit', 'id' => $id]);
+        return Url::to(['/nnp/prefix', 'PrefixFilter[id]' => $id]);
     }
 
     /**

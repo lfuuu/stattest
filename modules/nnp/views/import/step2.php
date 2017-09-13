@@ -12,12 +12,11 @@ use yii\widgets\Breadcrumbs;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = $country->name_rus . '. Загрузить или выбрать файл (шаг 2/3)') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
         ['label' => 'Импорт', 'url' => '/nnp/import/'],
-        ['label' => $this->title],
+        ['label' => $this->title = $country->name_rus . '. Загрузить или выбрать файл (шаг 2/3)'],
     ],
 ]) ?>
 

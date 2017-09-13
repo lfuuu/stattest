@@ -16,11 +16,10 @@ $countries = CountryFilter::getList(true);
 unset($countries[Country::RUSSIA]);
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Импорт. Выбор страны (шаг 1/3)') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
-        ['label' => $this->title, 'url' => '/nnp/import/'],
+        ['label' => $this->title = 'Импорт. Выбор страны (шаг 1/3)', 'url' => '/nnp/import/'],
     ],
 ]) ?>
 

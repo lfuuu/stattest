@@ -13,12 +13,10 @@ use yii\widgets\Breadcrumbs;
 
 $baseView = $this;
 
-echo Html::formLabel('Метки');
-
 echo Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => 'Метки', 'url' => '/dictionary/tags'],
+        ['label' => $this->title = 'Метки', 'url' => '/dictionary/tags'],
     ],
 ]);
 

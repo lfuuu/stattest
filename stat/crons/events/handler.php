@@ -14,6 +14,7 @@ use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
 use app\modules\nnp\classes\CityLinker;
 use app\modules\nnp\classes\OperatorLinker;
+use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
@@ -236,6 +237,11 @@ function doEvents()
                     $info .= 'Города: ' . CityLinker::me()->run() . PHP_EOL;
                     break;
 
+                case RefreshPrefix::EVENT_FILTER_TO_PREFIX:
+                    // ННП. Конвертировать фильтры в префиксы
+                    $info .= implode(PHP_EOL, RefreshPrefix::me()->filterToPrefix()) . PHP_EOL;
+                    break;
+
                 case AccountTariffBiller::EVENT_RECALC:
                     // Билинговать UU-клиента
                     AccountTariffBiller::recalc($param);
@@ -383,7 +389,7 @@ function doEvents()
 
             echo PHP_EOL . '--------------' . PHP_EOL;
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' +' . $e->getLine();
-            
+
             $isContinue = $e instanceof yii\base\InvalidCallException // для ошибок вызова внешней системы повторяем
                 || $e->getCode() == 40001; // для ошибок "Deadlock found when trying to get lock" повторяем
             // остальное - завершаем

@@ -16,6 +16,9 @@ class GridView extends \kartik\grid\GridView
 
     const FLOAT_HEADER_TOP = 85; // px. @todo менять динамически в зависимости от выбрать клиент или нет. По аналогии с позиционированием "floatTableClass":"kv-table-float","floatContainerClass":"kv-thead-float"
 
+    // кол-во фильтров перед гридом, начиная с которого значения их скрывать
+    const MIN_BEFORE_HEADER_FILTER_FOR_HIDE = 5; // то есть больше 1 строки
+
     /**
      * @var boolean whether the grid table will highlight row on `hover`.
      */
@@ -227,6 +230,8 @@ HTML;
             );
         }
 
+        $isHide = count($data['columns']) >= self::MIN_BEFORE_HEADER_FILTER_FOR_HIDE;
+
         // объединить в div class=row
         $rows = '';
         $chunkedFilters = array_chunk($filters, 4);
@@ -241,8 +246,12 @@ HTML;
         $rows = Html::tag(
             'div',
             $rows,
-            ['class' => 'beforeHeaderFilters']
+            ['class' => 'beforeHeaderFilters' . ($isHide ? ' collapse' : '')]
         );
+
+        if ($isHide) {
+            $rows = $this->render('//layouts/_toggleButton', ['divSelector' => '.beforeHeaderFilters', 'title' => 'Доп. фильтры']) . $rows;
+        }
 
         /*
             // чтобы был валидный html, надо раскомментировать, но тогда при скроллинге с фильтрами вся шапка занимает очень много места

@@ -6,6 +6,7 @@
  * @var PrefixFilter $filterModel
  */
 
+use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -13,17 +14,15 @@ use app\modules\nnp\column\DestinationColumn;
 use app\modules\nnp\filter\PrefixFilter;
 use app\modules\nnp\models\Prefix;
 use app\widgets\GridViewExport\GridViewExport;
-use kartik\grid\ActionColumn;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Префиксы') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
-        ['label' => $this->title, 'url' => '/nnp/prefix/'],
+        ['label' => $this->title = 'Префиксы', 'url' => '/nnp/prefix/'],
     ],
 ]) ?>
 
@@ -31,23 +30,8 @@ use yii\widgets\Breadcrumbs;
 $baseView = $this;
 $columns = [
     [
-        'class' => ActionColumn::className(),
-        'template' => '{update} {delete}',
-        'buttons' => [
-            'update' => function ($url, Prefix $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionEdit', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-            'delete' => function ($url, Prefix $model, $key) use ($baseView) {
-                return $baseView->render('//layouts/_actionDrop', [
-                        'url' => $model->getUrl(),
-                    ]
-                );
-            },
-        ],
-        'hAlign' => GridView::ALIGN_CENTER,
+        'attribute' => 'id',
+        'class' => IntegerColumn::className(),
     ],
 
     [

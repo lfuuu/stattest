@@ -214,10 +214,11 @@ class ImportController extends BaseController
                         ['/nnp/number-range', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1],
                         ['target' => '_blank']
                     );
-                Yii::$app->session->addFlash('success', 'Файл успешно импортирован.' . nl2br(PHP_EOL . $log));
 
                 // поставить в очередь для пересчета операторов, регионов и городов
-                Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+                $eventQueue = Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+                Yii::$app->session->addFlash('success', 'Файл успешно импортирован.' . nl2br(PHP_EOL . $log) .
+                    'Пересчет опереаторов, регионов, городов будет через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
 
             } else {
                 Yii::$app->session->addFlash('error', 'Ошибка импорта файла.' . nl2br(PHP_EOL . $log));
@@ -226,11 +227,7 @@ class ImportController extends BaseController
 
             // файл большой - поставить в очередь
             $eventQueue = Event::go(ImportServiceUploaded::EVENT, ['fileId' => $fileId]);
-            $message = sprintf(
-                'Файл поставлен в очередь на загрузку. <a href="%s" target="_blank">Проверить его статус</a>',
-                Url::to(['/monitoring/event-queue', 'EventQueueFilter[id]' => $eventQueue->id])
-            );
-            Yii::$app->session->addFlash('success', $message);
+            Yii::$app->session->setFlash('success', 'Файл поставлен в очередь на загрузку. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 
         return $this->redirect(Url::to(['/nnp/import/step2', 'countryCode' => $country->code]));

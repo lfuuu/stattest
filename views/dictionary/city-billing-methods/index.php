@@ -6,12 +6,10 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\CityBillingMethod;
 
-echo Html::formLabel($this->title = 'Методы биллингования');
-
 echo Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => $this->title, 'url' => '/dictionary/city-billing-methods/'],
+        ['label' => $this->title = 'Методы биллингования', 'url' => '/dictionary/city-billing-methods/'],
     ],
 ]);
 

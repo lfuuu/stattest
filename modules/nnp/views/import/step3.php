@@ -18,13 +18,12 @@ use yii\widgets\Breadcrumbs;
 $country = $countryFile->country;
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Предпросмотр файла (шаг 3/3)') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
         ['label' => 'Импорт', 'url' => '/nnp/import/'],
         ['label' => $country->name_rus, 'url' => Url::to(['/nnp/import/step2/', 'countryCode' => $country->code])],
-        ['label' => $this->title],
+        ['label' => $this->title = 'Предпросмотр файла (шаг 3/3)'],
     ],
 ]) ?>
 

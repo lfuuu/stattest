@@ -27,23 +27,12 @@ use yii\widgets\Breadcrumbs;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Диапазон номеров') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
-        ['label' => $this->title, 'url' => '/nnp/number-range/'],
+        ['label' => $this->title = 'Диапазон номеров', 'url' => '/nnp/number-range/'],
     ],
 ]) ?>
-
-<?php
-if (NumberRange::isTriggerEnabled()) {
-    echo $this->render('_indexTriggerEnabled');
-} else {
-    echo $this->render('_indexPrefix');
-    echo $this->render('_indexReset');
-    echo $this->render('_indexTriggerDisabled');
-}
-?>
 
 <?php
 $baseView = $this;
@@ -223,3 +212,11 @@ echo GridView::widget([
         'columns' => $columns,
     ]),
 ]);
+
+if (NumberRange::isTriggerEnabled()) {
+    echo $this->render('_indexTriggerEnabled');
+} else {
+    echo $this->render('_indexReset');
+    echo $this->render('_indexFilterToPrefix');
+    echo $this->render('_indexTriggerDisabled');
+}

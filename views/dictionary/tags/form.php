@@ -2,7 +2,6 @@
 
 /** @var \app\forms\dictonary\tags\TagsForm $formModel */
 
-use app\classes\Html;
 use kartik\widgets\ActiveForm;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -12,7 +11,7 @@ $this->title = !$model->isNewRecord ?
     $model->name :
     Yii::t('common', 'Create');
 
-echo Html::formLabel($currentStep = (!$model->isNewRecord ? 'Редактирование метки "' . $this->title . '"' : 'Новая метка'));
+$currentStep = (!$model->isNewRecord ? 'Редактирование метки "' . $this->title . '"' : 'Новая метка');
 echo Breadcrumbs::widget([
     'links' => [
         'Справочники',
@@ -40,7 +39,7 @@ $tagsUsedInto = $formModel->resourcesMap($model->resourceNames);
             ?>
         </div>
 
-        <?php if (!empty($tagsUsedInto)) :?>
+        <?php if (!empty($tagsUsedInto)) : ?>
             <div class="col-sm-6">
                 <div class="form-group">
                     <label class="control-label">Используется</label>

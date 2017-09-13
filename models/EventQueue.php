@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
+use yii\helpers\Url;
 
 /**
  * Class EventQueue
@@ -62,5 +63,24 @@ class EventQueue extends ActiveRecord
             'log_error' => 'Лог ошибок',
             'code' => 'Код',
         ];
+    }
+
+    /**
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/monitoring/event-queue/', 'EventQueueFilter[id]' => $id]);
     }
 }

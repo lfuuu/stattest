@@ -2,13 +2,11 @@
 
 namespace app\modules\nnp\filter;
 
-use app\classes\Connection;
 use app\classes\Event;
+use app\classes\Html;
 use app\classes\traits\GetListTrait;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\NumberRangePrefix;
-use app\modules\nnp\models\Prefix;
-use app\modules\nnp\Module;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
@@ -32,7 +30,6 @@ class NumberRangeFilter extends NumberRange
     public $is_active = '';
     public $numbers_count_from = '';
     public $numbers_count_to = '';
-    public $is_reverse_city_id = '';
     public $insert_time = ''; // чтобы не изобретать новое поле, названо как существующее. Хотя фактически это месяц добавления (insert_time) ИЛИ выключения (date_stop)
     public $date_resolution_from = '';
     public $date_resolution_to = '';
@@ -46,22 +43,10 @@ class NumberRangeFilter extends NumberRange
     {
         return [
             [['operator_source', 'region_source', 'city_source', 'full_number_from', 'insert_time', 'full_number_mask'], 'string'],
-            [['country_code', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'is_reverse_city_id', 'prefix_id'], 'integer'],
+            [['country_code', 'ndc', 'ndc_type_id', 'is_active', 'operator_id', 'region_id', 'city_id', 'prefix_id'], 'integer'],
             [['numbers_count_from', 'numbers_count_to'], 'integer'],
             [['date_resolution_from', 'date_resolution_to'], 'string'],
         ];
-    }
-
-    /**
-     * Имена полей
-     *
-     * @return array [полеВТаблице => Перевод]
-     */
-    public function attributeLabels()
-    {
-        return parent::attributeLabels() + [
-                'is_reverse_city_id' => 'Кроме',
-            ];
     }
 
     /**
@@ -134,15 +119,7 @@ class NumberRangeFilter extends NumberRange
                 $query->andWhere($numberRangeTableName . '.city_id IS NOT NULL');
                 break;
             default:
-                if ($this->is_reverse_city_id) {
-                    $query->andWhere([
-                        'OR',
-                        $numberRangeTableName . '.city_id IS NULL',
-                        ['!=', $numberRangeTableName . '.city_id', $this->city_id]
-                    ]);
-                } else {
-                    $query->andWhere([$numberRangeTableName . '.city_id' => $this->city_id]);
-                }
+                $query->andWhere([$numberRangeTableName . '.city_id' => $this->city_id]);
                 break;
         }
 
@@ -202,169 +179,14 @@ class NumberRangeFilter extends NumberRange
 
         /** @var ActiveQuery $query */
         $query = $this->search()->query;
-        $affectedRows = NumberRange::updateAll($attributes, $query->where);
-
-        if (Yii::$app instanceof \yii\web\Application) {
-            Yii::$app->session->setFlash('success',
-                'Сброшено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]) .
-                '. Через несколько минут они привяжутся заново автоматически.'
-            );
-        }
+        NumberRange::updateAll($attributes, $query->where);
 
         // поставить в очередь для пересчета операторов, регионов и городов
-        Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+        $eventQueue = Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+        if (Yii::$app instanceof \yii\web\Application) {
+            Yii::$app->session->setFlash('success', 'Операторы, регионы, города будут пересчитаны через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
+        }
 
         return true;
     }
-
-    /**
-     * Добавить/удалить отфильтрованные записи в префикс
-     *
-     * @param array $postPrefix
-     * @return string
-     * @throws \yii\db\Exception
-     */
-    public function addOrRemoveFilterModelToPrefix($postPrefix)
-    {
-        if (isset($postPrefix['id'])) {
-            $prefixId = (int)$postPrefix['id'];
-        } else {
-            $prefixId = 0;
-        }
-
-        if (isset($postPrefix['name'])) {
-            $prefixName = trim($postPrefix['name']);
-        } else {
-            $prefixName = 0;
-        }
-
-        if (!$prefixId && !$prefixName) {
-            $error = 'Не указан префикс ни существующий, ни новый';
-            if (Yii::$app instanceof \yii\web\Application) {
-                Yii::$app->session->setFlash('error', $error);
-            }
-            return $error;
-        }
-
-        // построить запрос, выбирающий все отфильтрованные записи
-        /** @var ActiveQuery $query */
-        $query = clone $this->search()->query;
-        // обработать все записи, а не только на этой странице
-        $query->offset(0);
-        $query->limit(null);
-        $query->select('id');
-        $sql = $query->createCommand()->rawSql;
-
-
-        if (isset($post['dropButton'])) {
-            // удалить из префикса
-            if (!$prefixId) {
-                $error = 'Для удаления отфильтрованных записей из префикса выберите его';
-                if (Yii::$app instanceof \yii\web\Application) {
-                    Yii::$app->session->setFlash('error', $error);
-                }
-
-                return $error;
-            }
-
-            return $this->removeFilterModelFromPrefix($sql, $prefixId);
-        }
-
-        // добавить в префикс
-        if ($prefixName) {
-            // .. в новый
-            if ($prefixId) {
-                $error = 'Укажите только один префикс: либо существующий, либо новый';
-                if (Yii::$app instanceof \yii\web\Application) {
-                    Yii::$app->session->setFlash('error', $error);
-                }
-
-                return $error;
-            }
-
-            $prefix = new Prefix();
-            $prefix->name = $prefixName;
-            if (!$prefix->save()) {
-                $error = 'Ошибка создания нового префикса';
-                if (Yii::$app instanceof \yii\web\Application) {
-                    Yii::$app->session->setFlash('error', $error);
-                }
-
-                return $error;
-            }
-
-            $prefixId = $prefix->id;
-        }
-
-        return $this->addFilterModelToPrefix($sql, $prefixId);
-    }
-
-    /**
-     * Добавить отфильтрованные записи в префикс
-     *
-     * @param string $sql
-     * @param int $prefixId
-     * @return string
-     * @throws \yii\db\Exception
-     */
-    public function addFilterModelToPrefix($sql, $prefixId)
-    {
-        // "чтобы продать что-нибудь не нужное, надо сначала купить что-нибудь ненужное" (С) Матроскин
-        // повторное добавление дает ошибку, "on duplicate key" в postresql нет, поэтому проще удалить дубли заранее
-        $error = $this->removeFilterModelFromPrefix($sql, $prefixId);
-        if ($error) {
-            return $error;
-        }
-
-        return Module::transaction(
-            function () use ($sql, $prefixId) {
-                /** @var Connection $dbPgNnp */
-                $dbPgNnp = Yii::$app->dbPgNnp;
-                $numberRangePrefixTableName = NumberRangePrefix::tableName();
-                $userId = Yii::$app->user->getId();
-                $sql = <<<SQL
-INSERT INTO {$numberRangePrefixTableName}
-    (number_range_id, prefix_id, insert_time, insert_user_id)
-SELECT
-    t.id, {$prefixId}, NOW(), {$userId}
-FROM 
-    ( {$sql} ) t
-SQL;
-                $affectedRows = $dbPgNnp->createCommand($sql)->execute();
-                if (Yii::$app instanceof \yii\web\Application) {
-                    Yii::$app->session->setFlash('success', 'В префикс добавлено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]));
-                }
-            }
-        );
-    }
-
-    /**
-     * Удалить отфильтрованные записи из префикса
-     *
-     * @param string $sql
-     * @param int $prefixId
-     * @return string
-     * @throws \yii\db\Exception
-     */
-    public function removeFilterModelFromPrefix($sql, $prefixId)
-    {
-        return Module::transaction(
-            function () use ($sql, $prefixId) {
-                /** @var Connection $dbPgNnp */
-                $dbPgNnp = Yii::$app->dbPgNnp;
-                $numberRangePrefixTableName = NumberRangePrefix::tableName();
-                $sql = <<<SQL
-DELETE FROM {$numberRangePrefixTableName}
-WHERE
-    prefix_id = {$prefixId}
-    AND number_range_id IN ( {$sql} )
-SQL;
-                $affectedRows = $dbPgNnp->createCommand($sql)->execute();
-                if (Yii::$app instanceof \yii\web\Application) {
-                    Yii::$app->session->setFlash('success', 'Из префикса удалено ' . Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]));
-                }
-            }
-        );
-    }
-
 }

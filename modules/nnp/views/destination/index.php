@@ -20,11 +20,10 @@ use yii\widgets\Breadcrumbs;
 
 ?>
 
-<?= app\classes\Html::formLabel($this->title = 'Направления') ?>
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => 'Национальный номерной план', 'url' => '/nnp/'],
-        ['label' => $this->title, 'url' => '/nnp/destination/'],
+        ['label' => $this->title = 'Направления', 'url' => '/nnp/destination/'],
     ],
 ]) ?>
 

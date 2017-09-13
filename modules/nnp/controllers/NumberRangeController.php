@@ -3,6 +3,9 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
+use app\classes\Event;
+use app\classes\Html;
+use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\filter\NumberRangeFilter;
 use app\modules\nnp\forms\numberRange\FormEdit;
 use app\modules\nnp\models\NumberRange;
@@ -34,10 +37,6 @@ class NumberRangeController extends BaseController
 
         $post = Yii::$app->request->post();
 
-        if (isset($post['Prefix'])) {
-            $filterModel->addOrRemoveFilterModelToPrefix($post['Prefix']);
-        }
-
         if (isset($post['resetOptions']) && $post['resetOptions']) {
             $filterModel->resetLinks($post['resetOptions']);
         }
@@ -48,6 +47,12 @@ class NumberRangeController extends BaseController
 
         if (isset($post['enableTriggerButton'])) {
             NumberRange::enableTrigger();
+        }
+
+        if (isset($post['filterToPrefixButton'])) {
+            // поставить в очередь
+            $eventQueue = Event::go(RefreshPrefix::EVENT_FILTER_TO_PREFIX);
+            Yii::$app->session->setFlash('success', 'Префиксы будут пересчитаны через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 
         return $this->render('index', [

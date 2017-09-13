@@ -42,18 +42,6 @@ class ActiveRecord extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return FilterQuery[]
-     * @throws ModelValidationException
-     */
-    public function getFilterQueries()
-    {
-        return FilterQuery::find()
-            ->where(['model_name' => $this->getClassName()])
-            ->indexBy('id')
-            ->all();
-    }
-
-    /**
      * @return array
      * @throws ModelValidationException
      */
@@ -73,6 +61,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
      *
      * @param array $except
      * @return array
+     * @throws \ReflectionException
      */
     public function getObjectNotEmptyValues($except = [])
     {

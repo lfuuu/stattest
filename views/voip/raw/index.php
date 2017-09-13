@@ -14,11 +14,10 @@ use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
 if (!isset(Yii::$app->request->get()['_pjax'])) {
-    echo app\classes\Html::formLabel($this->title = 'Отчет по данным calls_raw');
     echo Breadcrumbs::widget([
         'links' => [
             ['label' => 'Телефония'],
-            ['label' => $this->title],
+            ['label' => $this->title = 'Отчет по данным calls_raw'],
         ],
     ]);
 

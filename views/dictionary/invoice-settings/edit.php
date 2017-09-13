@@ -15,11 +15,10 @@ $form = ActiveForm::begin([
     'type' => ActiveForm::TYPE_VERTICAL,
 ]);
 
-echo Html::formLabel('Редактирование настроек платежных документов');
 echo Breadcrumbs::widget([
     'links' => [
         'Справочник',
-        ['label' => 'Настройки платежных документов', 'url' => $cancelUrl = '/dictionary/invoice-settings'],
+        ['label' => $this->title = 'Настройки платежных документов', 'url' => $cancelUrl = '/dictionary/invoice-settings'],
         'Редактирование настроек платежных документов'
     ],
 ]);
