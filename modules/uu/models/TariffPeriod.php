@@ -153,6 +153,13 @@ class TariffPeriod extends HistoryActiveRecord
     ) {
         $defaultTariffPeriodId = null;
 
+        if ($serviceTypeId == ServiceType::ID_VOIP_PACKAGE) {
+            // пакеты телефонии - по стране, все остальное - по организации
+            $organizationId = null;
+        } else {
+            $countryId = null;
+        }
+
         $activeQuery = self::find()
             ->innerJoinWith('tariff tariff')
             ->andWhere(['tariff.service_type_id' => $serviceTypeId])
@@ -184,7 +191,7 @@ class TariffPeriod extends HistoryActiveRecord
                 ->andWhere(['tariff_cities.city_id' => $cityId]);
         }
 
-        if ($ndcTypeId) {
+        if ($serviceTypeId == ServiceType::ID_VOIP && $ndcTypeId) {
             $activeQuery
                 ->innerJoin(TariffVoipNdcType::tableName() . ' tariff_ndc_type', 'tariff.id = tariff_ndc_type.tariff_id')
                 ->andWhere(['tariff_ndc_type.ndc_type_id' => $ndcTypeId]);

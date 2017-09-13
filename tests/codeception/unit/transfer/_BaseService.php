@@ -9,6 +9,7 @@ use app\models\DidGroup;
 use app\models\LogTarif;
 use app\models\TariffVoipPackage;
 use app\models\usages\UsageInterface;
+use app\modules\nnp\models\NdcType;
 use app\modules\transfer\components\services\PreProcessor;
 use app\modules\transfer\components\services\Processor;
 use app\modules\transfer\components\services\regular\RegularTransfer;
@@ -19,6 +20,7 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\models\TariffVoipNdcType;
 use app\tests\codeception\fixtures\DestinationFixture;
 use app\tests\codeception\fixtures\EntryPointFixture;
 use app\tests\codeception\fixtures\NumberFixture;
@@ -28,6 +30,7 @@ use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
 use app\tests\codeception\fixtures\uu\TariffResourceFixture;
 use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
+use app\tests\codeception\fixtures\uu\TariffVoipNdcTypeFixture;
 use DateTime;
 use DateTimeZone;
 use tests\codeception\unit\models\_ClientAccount;
@@ -114,6 +117,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
         (new TariffFixture)->load();
         (new TariffOrganizationFixture)->load();
         (new TariffVoipCityFixture)->load();
+        (new TariffVoipNdcTypeFixture)->load();
         (new TariffPeriodFixture)->load();
         (new TariffResourceFixture)->load();
 
@@ -143,6 +147,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
         AccountTariffLog::deleteAll();
         AccountTariff::deleteAll();
         TariffPeriod::deleteAll();
+        TariffVoipNdcType::deleteAll();
 
         (new EntryPointFixture)->unload();
         (new NumberFixture)->unload();
@@ -301,9 +306,10 @@ abstract class _BaseService extends \yii\codeception\TestCase
      * @param int $serviceTypeId
      * @param int|null $cityId
      * @param int $didGroup
+     * @param int $ndcTypeId
      * @return int
      */
-    protected function getUniversalTariff($serviceTypeId, $cityId = null, $didGroup = 0)
+    protected function getUniversalTariff($serviceTypeId, $cityId = null, $didGroup = null, $ndcTypeId = NdcType::ID_GEOGRAPHIC)
     {
         $universalClientAccountFirst = $this->universalClientAccountFirst;
         $statusId = null;
@@ -324,14 +330,15 @@ abstract class _BaseService extends \yii\codeception\TestCase
             $defaultTariffPeriodId,
             $serviceTypeId,
             $universalClientAccountFirst->currency,
-            $serviceTypeId == ServiceType::ID_VOIP_PACKAGE ? $universalClientAccountFirst->country_id : null, // пакеты телефонии - по стране, все остальное - по организации
+            $universalClientAccountFirst->country_id,
             $cityId,
             $isWithEmpty = false,
             $isWithNullAndNotNull = false,
             $statusId,
             $universalClientAccountFirst->is_postpaid,
             $universalClientAccountFirst->is_voip_with_tax,
-            $serviceTypeId == ServiceType::ID_VOIP_PACKAGE ? null : $universalClientAccountFirst->contract->organization_id // пакеты телефонии - по стране, все остальное - по организации
+            $universalClientAccountFirst->contract->organization_id,
+            $ndcTypeId
         );
 
         if (!count($possibleTariffs)) {

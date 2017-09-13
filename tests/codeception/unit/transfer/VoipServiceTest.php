@@ -270,7 +270,7 @@ class VoipServiceTest extends _BaseService
         // Search free number
         $freeNumber = $this->_getFreeNumber();
         // Search tariff
-        $tariffId = $this->getUniversalTariff(ServiceType::ID_VOIP, $freeNumber->getCityByNumber()->id, $freeNumber->did_group_id);
+        $tariffId = $this->getUniversalTariff(ServiceType::ID_VOIP, $freeNumber->getCityByNumber()->id, $freeNumber->did_group_id, $freeNumber->ndc_type_id);
 
         return $this->createUniversalServiceSimple($clientAccount, ServiceType::ID_VOIP, $tariffId, [
             'voip_number' => $freeNumber->number,
@@ -286,7 +286,7 @@ class VoipServiceTest extends _BaseService
     {
         $this->assertNotNull($service, 'Missing VOIP regular service');
 
-        return $this->getUniversalTariff(ServiceType::ID_VOIP, $service->voipNumber->getCityByNumber()->id, $service->voipNumber->did_group_id);
+        return $this->getUniversalTariff(ServiceType::ID_VOIP, $service->voipNumber->getCityByNumber()->id, $service->voipNumber->did_group_id, $service->voipNumber->ndc_type_id);
     }
 
     /**
@@ -385,7 +385,7 @@ class VoipServiceTest extends _BaseService
         // Search free number
         $freeNumber = $this->_getFreeNumber();
         // Search tariff
-        $tariffId = $this->getUniversalTariff(ServiceType::ID_VOIP, $freeNumber->getCityByNumber()->id, $freeNumber->did_group_id);
+        $tariffId = $this->getUniversalTariff(ServiceType::ID_VOIP, $freeNumber->getCityByNumber()->id, $freeNumber->did_group_id, $freeNumber->ndc_type_id);
 
         $service = $this->createUniversalServiceSimple($clientAccount, ServiceType::ID_VOIP, $tariffId, [
             'voip_number' => $freeNumber->number,

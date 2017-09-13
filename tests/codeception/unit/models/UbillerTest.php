@@ -21,6 +21,8 @@ use app\tests\codeception\fixtures\uu\TariffFixture;
 use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
 use app\tests\codeception\fixtures\uu\TariffResourceFixture;
+use app\tests\codeception\fixtures\uu\TariffVoipCityFixture;
+use app\tests\codeception\fixtures\uu\TariffVoipNdcTypeFixture;
 use DateTimeImmutable;
 use tests\codeception\unit\_TestCase;
 
@@ -40,6 +42,8 @@ class UbillerTest extends _TestCase
     {
         (new TariffFixture)->load();
         (new TariffOrganizationFixture)->load();
+        (new TariffVoipCityFixture)->load();
+        (new TariffVoipNdcTypeFixture)->load();
         (new TariffPeriodFixture)->load();
         (new TariffResourceFixture)->load();
         (new AccountTariffFixture)->load();
@@ -71,6 +75,8 @@ class UbillerTest extends _TestCase
         (new TariffResourceFixture)->unload();
         (new TariffPeriodFixture)->unload();
         (new TariffOrganizationFixture)->unload();
+        (new TariffVoipCityFixture)->unload();
+        (new TariffVoipNdcTypeFixture)->unload();
         (new TariffFixture)->unload();
     }
 

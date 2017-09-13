@@ -53,7 +53,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::DELTA + 13,
@@ -66,7 +66,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::DELTA + 6,
@@ -79,7 +79,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::DELTA + 7,
@@ -92,7 +92,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::DELTA + 8,
@@ -105,7 +105,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::DELTA + 9,
@@ -118,7 +118,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::DELTA + 10,
@@ -131,7 +131,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::DELTA + 11,
@@ -144,7 +144,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::DELTA + 12,
@@ -157,7 +157,7 @@ return [
         'count_of_validity_period' => 1,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::TEST_VOIP_ID,
@@ -170,7 +170,7 @@ return [
         'count_of_validity_period' => 10,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::TEST_VPBX_ID,
@@ -183,7 +183,7 @@ return [
         'count_of_validity_period' => 10,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
     [
         'id' => Tariff::START_VPBX_ID,
@@ -196,7 +196,7 @@ return [
         'count_of_validity_period' => 0,
         'is_charge_after_blocking' => 0,
         'is_include_vat' => 1,
-        'is_postpaid' => 1,
+        'is_postpaid' => 0,
     ],
 
 ];

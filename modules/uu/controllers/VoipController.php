@@ -18,7 +18,6 @@ use app\models\filter\FreeNumberFilter;
 use app\models\UsageVoip;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
-use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use yii\db\Expression;
 
@@ -178,13 +177,16 @@ class VoipController extends BaseController
      * @param string $currency
      * @param int $countryId
      * @param int $cityId
+     * @param int $ndcTypeId
      * @param int|bool $isWithEmpty
      * @param string $format
      * @param int $isPostpaid
+     * @param int $isIncludeVat
+     * @param int $organizationId
      * @throws \InvalidArgumentException
      * @throws \yii\base\ExitException
      */
-    public function actionGetTariffPeriods($serviceTypeId, $currency, $countryId, $cityId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null)
+    public function actionGetTariffPeriods($serviceTypeId, $currency, $countryId, $cityId = null, $ndcTypeId = null, $isWithEmpty = 0, $format = null, $isPostpaid = null, $isIncludeVat = null, $organizationId = null)
     {
         $tariffPeriods = TariffPeriod::getList(
             $defaultTariffPeriodId,
@@ -195,7 +197,10 @@ class VoipController extends BaseController
             (int)$isWithEmpty,
             $isWithNullAndNotNull = false,
             $statusId = null,
-            $isPostpaid
+            $isPostpaid,
+            $isIncludeVat,
+            $organizationId,
+            $ndcTypeId
         );
 
         ReturnFormatted::me()->returnFormattedValues($tariffPeriods, $format, $defaultTariffPeriodId);

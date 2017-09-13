@@ -7,6 +7,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
 use app\models\UsageTrunk;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -79,7 +80,12 @@ abstract class AccountTariffForm extends Form
         $this->accountTariffVoip = new AccountTariffVoip();
         $this->accountTariffVoip->voip_country_id = $this->accountTariff->clientAccount->country_id;
         $city = $this->accountTariff->clientAccount->city;
-        $city && $this->accountTariffVoip->city_id = $city->id;
+        if ($city) {
+            $this->accountTariffVoip->city_id = $city->id;
+            $this->accountTariffVoip->voip_ndc_type_id = NdcType::ID_GEOGRAPHIC;
+        } else {
+            $this->accountTariffVoip->voip_ndc_type_id = NdcType::ID_FREEPHONE;
+        }
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
@@ -376,6 +382,7 @@ abstract class AccountTariffForm extends Form
         $isWithNullAndNotNull = false
     ) {
         $accountTariff = $this->accountTariff;
+        $accountTariffVoip = $this->accountTariffVoip;
         $clientAccount = $accountTariff->clientAccount;
         $serviceTypeId = $accountTariff->service_type_id ?: $this->serviceTypeId;
 
@@ -383,14 +390,15 @@ abstract class AccountTariffForm extends Form
             $defaultTariffPeriodId,
             $serviceTypeId,
             $clientAccount->currency,
-            $serviceTypeId == ServiceType::ID_VOIP_PACKAGE ? $clientAccount->country_id : null, // пакеты телефонии - по стране, все остальное - по организации
+            $clientAccount->country_id,
             $accountTariff->city_id,
             $isWithEmpty,
             $isWithNullAndNotNull,
             $statusId = null,
             $clientAccount->is_postpaid,
             $clientAccount->is_voip_with_tax,
-            $serviceTypeId == ServiceType::ID_VOIP_PACKAGE ? null : $clientAccount->contract->organization_id // пакеты телефонии - по стране, все остальное - по организации
+            $clientAccount->contract->organization_id,
+            $accountTariffVoip->voip_ndc_type_id
         );
     }
 

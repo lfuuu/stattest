@@ -1845,7 +1845,7 @@ CREATE TABLE `entry_point` (
 
 LOCK TABLES `entry_point` WRITE;
 /*!40000 ALTER TABLE `entry_point` DISABLE KEYS */;
-INSERT INTO `entry_point` VALUES (1,'RU1','Клиентская заявка с mcn.ru','Client #','mcn',643,99,11,2,1,19,'RUB','Europe/Moscow',1,4,0,2000,1000,1),(2,'RU5','Точка входа для создания ЛС с универсальным биллингом','uClient #','mcn',643,99,11,2,1,19,'RUB','Europe/Moscow',1,5,0,2000,1000,0),(3,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#','mcn',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,0,0,0,0);
+INSERT INTO `entry_point` VALUES (1,'RU1','Клиентская заявка с mcn.ru','Client #','mcn',643,99,11,2,1,19,'RUB','Europe/Moscow',0,4,0,2000,1000,1),(2,'RU5','Точка входа для создания ЛС с универсальным биллингом','uClient #','mcn',643,99,11,2,1,19,'RUB','Europe/Moscow',0,5,0,2000,1000,0),(3,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#','mcn',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,0,0,0,0);
 /*!40000 ALTER TABLE `entry_point` ENABLE KEYS */;
 UNLOCK TABLES;
 

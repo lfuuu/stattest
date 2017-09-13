@@ -451,6 +451,7 @@ class UuController extends ApiInternalController
 
                     $priceLevelField = 'tariff_status_main' . $clientAccount->price_level;
                     $tariff_status_id = $number->didGroup->{$priceLevelField};
+                    $voip_ndc_type_id = $number->ndc_type_id;
                     break;
 
                 case ServiceType::ID_VOIP_PACKAGE:

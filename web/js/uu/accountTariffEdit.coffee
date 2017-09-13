@@ -22,6 +22,8 @@ class AccountTariffEdit
   voipServiceTypeIdVal: null
   currencyVal: null
   isPostpaid: null
+  isIncludeVat: null
+  organizationId: null
 
   errorClassName: 'alert-danger'
   successClassName: 'alert-success'
@@ -51,11 +53,13 @@ class AccountTariffEdit
       @voipServiceTypeIdVal = $('#voipServiceTypeId').val()
       @currencyVal = $('#voipCurrency').val()
       @isPostpaid = $('#isPostpaid').val()
+      @isIncludeVat = $('#isIncludeVat').val()
+      @organizationId = $('#organizationId').val()
 
       $('#addAccountTariffVoipForm').on('submit', @onFormSubmit)
 
       # показать список номеров и обновить тариф
-      @onDidGroupChange()
+      @onNdcTypeChange()
 
     , 200 # Потому что select2 рендерит чуть позже. @todo
 
@@ -79,7 +83,6 @@ class AccountTariffEdit
 # при изменении города
 # город в качестве доп. фильтра. Но можно и без него, тогда всё остальное (дид-группа, тариф и пр.) только относящиеся ко всей стране
   onCityChange: =>
-    countryId = @country.val()
     cityId = @city.val()
 
     # обновить список типов NDC в зависимости от города. Фактически geo/mob или freephone. Страна не важна
@@ -92,6 +95,11 @@ class AccountTariffEdit
     countryId = @country.val()
     cityId = @city.val()
     ndcTypeId = @ndcType.val()
+
+    if ndcTypeId
+      @ndcType.parent().parent().removeClass(@errorClassName)
+    else
+      @ndcType.parent().parent().addClass(@errorClassName)
 
     if countryId
       $.get '/uu/voip/get-did-groups', {countryId: countryId, cityId: (if cityId then cityId else -1), ndcTypeId: ndcTypeId, isWithEmpty: 1, format: 'options'}, (html) =>
@@ -123,7 +131,10 @@ class AccountTariffEdit
     cityId = @city.val()
     didGroupId = @didGroup.val()
 
-    @numbersList.html('')
+    if !ndcTypeId
+      @showHideTariffDiv('')
+      return
+
     $.get '/uu/voip/get-free-numbers', {
       countryId: countryId,
       cityId: cityId,
@@ -136,17 +147,20 @@ class AccountTariffEdit
       limit: @numbersListLimit.val()
       ndcTypeId: ndcTypeId
     }, (html) =>
-      @numbersList.html(html) # обновить значения
-      if @numbersList.find('input').length > 1 # есть чекбоксы - показать 'выбрать все'
-        @numbersListSelectAll.show()
-      else
-        @numbersListSelectAll.hide()
-      @showTariffDiv()
+      @showHideTariffDiv(html)
 
 # выбрать все / снять выделение
   selectAllNumbers: =>
     isChecked = @numbersListSelectAllCheckbox.is(':checked')
     @numbersList.find('input').prop('checked', isChecked)
+    @showTariffDiv()
+
+  showHideTariffDiv: (html) =>
+    @numbersList.html(html) # обновить значения
+    if @numbersList.find('input').length > 1 # есть чекбоксы - показать 'выбрать все'
+      @numbersListSelectAll.show()
+    else
+      @numbersListSelectAll.hide()
     @showTariffDiv()
 
 # показать/скрыть выбор тарифа
@@ -173,8 +187,23 @@ class AccountTariffEdit
   reloadTariffList: =>
     countryId = @country.val()
     cityId = @city.val()
+    ndcTypeId = @ndcType.val()
 
-    $.get '/uu/voip/get-tariff-periods', {serviceTypeId: @voipServiceTypeIdVal, currency: @currencyVal, countryId: countryId, cityId: cityId, isWithEmpty: 1, format: 'options', isPostpaid: @isPostpaid}, (html) =>
+    if !ndcTypeId
+      return
+
+    $.get '/uu/voip/get-tariff-periods', {
+        serviceTypeId: @voipServiceTypeIdVal,
+        currency: @currencyVal,
+        countryId: countryId,
+        cityId: cityId,
+        ndcTypeId: ndcTypeId,
+        isWithEmpty: 1,
+        format: 'options',
+        isPostpaid: @isPostpaid,
+        isIncludeVat: @isIncludeVat,
+        organizationId: @organizationId
+      }, (html) =>
       @tariffPeriod.val('').html(html) # обновить значения
       @tariffPeriod.trigger('change')
 

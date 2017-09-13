@@ -48,13 +48,14 @@ class SyncResourceTarificator extends Tarificator
 
                         case ServiceType::ID_VOIP:
                             // Телефония
+                            $number = $accountTariff->number;
                             Event::go(Event::UU_ACCOUNT_TARIFF_RESOURCE_VOIP, [
                                 'account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                                 'number' => $accountTariff->voip_number,
                                 'lines' => $accountTariff->getResourceValue(Resource::ID_VOIP_LINE),
-                                'is_fmc_active' => $accountTariff->getResourceValue(Resource::ID_VOIP_FMC),
-                                'is_fmc_editable' => $accountTariff->number->isFmcEditable(),
+                                'is_fmc_active' => $number->isFmcAlwaysActive() || ($number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_FMC)),
+                                'is_fmc_editable' => $number->isFmcEditable(),
                             ]);
                             break;
 

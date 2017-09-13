@@ -35,9 +35,9 @@ class m170908_141819_add_uu_tariff_ndc_type extends \app\classes\Migration
             'id' => $this->primaryKey(),
             'tariff_id' => $this->integer(),
             'ndc_type_id' => $this->integer(),
-        ]);
+        ], 'ENGINE=InnoDB DEFAULT CHARSET=utf8');
 
-        $this->addForeignKey('tariff_id', $tariffVoipNdcTypeTableName, 'tariff_id', $tariffTableName, 'id');
+        $this->addForeignKey($tariffVoipNdcTypeTableName . '_tariff_id', $tariffVoipNdcTypeTableName, 'tariff_id', $tariffTableName, 'id');
 
         // в папке "8-800" проставить тип Freephone
         $sql = <<<SQL

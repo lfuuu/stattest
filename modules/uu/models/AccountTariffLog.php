@@ -71,6 +71,7 @@ class AccountTariffLog extends HistoryActiveRecord
             ['tariff_period_id', 'validatorCreateNotClose', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorDoublePackage'],
+            ['tariff_period_id', 'validatorNdcType'],
         ];
     }
 
@@ -659,6 +660,37 @@ class AccountTariffLog extends HistoryActiveRecord
         ) {
             $this->addError($attribute, 'Этот пакет уже запланирован на подключение на эту же базовую услугу. Повторное подключение не имеет смысла.');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_FUTURE;
+            return;
+        }
+    }
+
+    /**
+     * Валидировать, что телефония может быть подключена только для соответствующего тарифа
+     *
+     * @param string $attribute
+     * @param array $params
+     */
+    public function validatorNdcType($attribute, $params)
+    {
+        if (!$this->tariff_period_id) {
+            // закрытие услуги всегда можно
+            return;
+        }
+
+        $accountTariff = $this->accountTariff;
+        if ($accountTariff->service_type_id != ServiceType::ID_VOIP) {
+            // не телефония
+            return;
+        }
+
+        $number = $accountTariff->number;
+        if (!$number) {
+            return;
+        }
+
+        if (!isset($this->tariffPeriod->tariff->voipNdcTypes[$number->ndc_type_id])) {
+            $this->addError($attribute, 'Этот тариф для другого типа NDC, чем телефонный номер.');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
             return;
         }
     }
