@@ -78,7 +78,7 @@ trait AccountTariffPackageTrait
             // подключить базовый пакет
             $accountTariffPackage = new AccountTariff();
             $accountTariffPackage->client_account_id = $this->client_account_id;
-            $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE;
+            $accountTariffPackage->service_type_id = ServiceType::ID_VOIP_PACKAGE_CALLS;
             $accountTariffPackage->region_id = $this->region_id;
             $accountTariffPackage->city_id = $this->city_id;
             $accountTariffPackage->prev_account_tariff_id = $this->id;

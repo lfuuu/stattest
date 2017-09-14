@@ -26,7 +26,7 @@ class AccountTariffLightController extends Controller
         $clientAccountTableName = ClientAccount::tableName();
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
-        $serviceTypeId = ServiceType::ID_VOIP_PACKAGE;
+        $serviceTypeId = ServiceType::ID_VOIP_PACKAGE_CALLS;
         $versionBillerUniversal = ClientAccount::VERSION_BILLER_UNIVERSAL;
 
         $selectSQL = <<<SQL

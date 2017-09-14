@@ -29,7 +29,7 @@ if (!$packagePricelists) {
 
 switch ($tariff = $formModel->tariff->service_type_id) {
 
-    case ServiceType::ID_VOIP_PACKAGE:
+    case ServiceType::ID_VOIP_PACKAGE_CALLS:
         $pricelistList = Pricelist::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $type = 'client', $orig = true);
         break;
 

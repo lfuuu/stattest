@@ -58,7 +58,7 @@ return [
     [
         'id' => Tariff::DELTA + 13,
         'name' => 'Tariff w/o autoprolongation 3',
-        'service_type_id' => ServiceType::ID_VOIP_PACKAGE,
+        'service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
         'tariff_status_id' => TariffStatus::ID_PUBLIC,
         'country_id' => Country::RUSSIA,
         'tariff_person_id' => TariffPerson::ID_NATURAL_PERSON,

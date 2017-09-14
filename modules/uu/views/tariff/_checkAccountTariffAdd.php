@@ -36,7 +36,7 @@ if ($clientAccount->is_voip_with_tax != $tariff->is_include_vat) {
     $errors[] = 'с/без НДС не совпадает';
 }
 
-if ($tariff->service_type_id != ServiceType::ID_VOIP_PACKAGE
+if ($tariff->service_type_id != ServiceType::ID_VOIP_PACKAGE_CALLS
     && !array_key_exists($clientAccount->contract->organization_id, $tariff->organizations)
 ) {
     $errors[] = 'организация не совпадает';

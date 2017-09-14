@@ -165,7 +165,7 @@ class AccountEntry extends ActiveRecord
             if ($accountTariff->service_type_id == ServiceType::ID_VOIP) {
                 // телефония
                 $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->voip_number], $langCode);
-            } elseif ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE) {
+            } elseif ($accountTariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
                 // пакет телефонии. Номер взять от телефонии
                 $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->prevAccountTariff->voip_number],
                     $langCode);
@@ -209,7 +209,7 @@ class AccountEntry extends ActiveRecord
 
         // Например, "ВАТС" или "SMS"
         // Кроме "Телефония" и "Пакет телефонии". Чтобы было короче. А для них и так понятно, ибо указан номер
-        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE])) {
+        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])) {
             $serviceType = $accountTariff->serviceType;
             $names[] = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
         }

@@ -128,7 +128,7 @@ abstract class TariffForm extends \app\classes\Form
                 break;
 
             case ServiceType::ID_VOIP:
-            case ServiceType::ID_VOIP_PACKAGE:
+            case ServiceType::ID_VOIP_PACKAGE_CALLS:
                 // только для телефонии
                 $this->tariffVoipCities = $this->getTariffVoipCities();
                 $this->tariffNdcTypes = $this->getTariffVoipNdcTypes();
@@ -186,7 +186,7 @@ abstract class TariffForm extends \app\classes\Form
                         // только для ВАТС
                         break;
 
-                    case ServiceType::ID_VOIP_PACKAGE:
+                    case ServiceType::ID_VOIP_PACKAGE_CALLS:
                     case ServiceType::ID_TRUNK_PACKAGE_ORIG:
                     case ServiceType::ID_TRUNK_PACKAGE_TERM:
 
@@ -221,7 +221,7 @@ abstract class TariffForm extends \app\classes\Form
                         $packagePricelist->tariff_id = $this->id;
                         $this->crudMultiple($this->tariff->packagePricelists, $post, $packagePricelist);
 
-                        if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE) {
+                        if ($this->tariff->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
                             $tariffVoipCity = new TariffVoipCity();
                             $tariffVoipCity->tariff_id = $this->id;
                             $this->tariffVoipCities = $this->crudMultipleSelect2($this->tariffVoipCities, $post, $tariffVoipCity, 'city_id');

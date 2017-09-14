@@ -18,7 +18,7 @@ class PackageServiceTransfer extends VoipServiceTransfer
      */
     public function getServiceTypeId()
     {
-        return ServiceType::ID_VOIP_PACKAGE;
+        return ServiceType::ID_VOIP_PACKAGE_CALLS;
     }
 
     /**

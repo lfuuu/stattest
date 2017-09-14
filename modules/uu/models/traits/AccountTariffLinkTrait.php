@@ -28,7 +28,7 @@ trait AccountTariffLinkTrait
             // телефония
             $names[] = Yii::t('uu', 'Number {number}', ['number' => $this->voip_number]);
 
-        } elseif ($this->service_type_id == ServiceType::ID_VOIP_PACKAGE) {
+        } elseif ($this->service_type_id == ServiceType::ID_VOIP_PACKAGE_CALLS) {
 
             // пакет телефонии. Номер взять от телефонии
             /** @var AccountTariff $prevAccountTariff */

@@ -10,6 +10,7 @@ use app\models\Country;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use Yii;
+use yii\db\Expression;
 use yii\helpers\Url;
 
 
@@ -336,7 +337,9 @@ class Navigation
         $block2->setTitle(Yii::t('tariff', 'Universal services'));
 
         // тарифы и услуги
-        $serviceTypes = ServiceType::find()->all();
+        $serviceTypes = ServiceType::find()
+            ->orderBy(new Expression('COALESCE(parent_id, id), id')) // чтобы пакеты были рядом с базовым тарифом
+            ->all();
         foreach ($serviceTypes as $serviceType) {
 
             $block->addItem($serviceType->name, Url::to([

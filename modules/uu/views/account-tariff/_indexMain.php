@@ -90,7 +90,7 @@ switch ($serviceType->id) {
         ];
         break;
 
-    case ServiceType::ID_VOIP_PACKAGE:
+    case ServiceType::ID_VOIP_PACKAGE_CALLS:
         $columns[] = [
             'attribute' => 'city_id',
             'class' => CityColumn::className(),
@@ -103,7 +103,7 @@ $dataProvider = $filterModel->search();
 echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
-    'extraButtons' => $serviceType->id == ServiceType::ID_VOIP_PACKAGE ?
+    'extraButtons' => $serviceType->id == ServiceType::ID_VOIP_PACKAGE_CALLS ?
         '' :
         $this->render('//layouts/_buttonCreate', ['url' => AccountTariff::getUrlNew($serviceType->id)]),
     'columns' => $columns,

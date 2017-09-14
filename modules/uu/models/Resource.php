@@ -5,6 +5,7 @@ namespace app\modules\uu\models;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
+use app\modules\uu\resourceReader\DummyResourceReader;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\TrunkCallsResourceReader;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
@@ -42,6 +43,7 @@ class Resource extends ActiveRecord
     const ID_VOIP_FMC = 38; // Телефония. FMC
 
     const ID_VOIP_PACKAGE_CALLS = 40; // Пакеты телефонии. Звонки
+    const ID_VOIP_PACKAGE_INTERNET = 42; // Пакеты телефонии. Интернет
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 
@@ -143,6 +145,9 @@ class Resource extends ActiveRecord
 
             // Звонки по пакетам телефонии (у.е, float). Берется из calls_raw
             self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::className(),
+
+            // Интернет-трафик по пакетам телефонии (Мб, float). Берется из API MTT
+            self::ID_VOIP_PACKAGE_INTERNET => DummyResourceReader::className(), // @todo
 
             // Звонки по ориг-пакета транка (у.е, float). Берется из calls_raw
             self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::className(),

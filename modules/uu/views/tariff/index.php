@@ -232,7 +232,7 @@ switch ($serviceType->id) {
         $columns[] = $ndcTypeColumn;
         break;
 
-    case ServiceType::ID_VOIP_PACKAGE:
+    case ServiceType::ID_VOIP_PACKAGE_CALLS:
         $columns[] = $cityColumn;
         $columns[] = $ndcTypeColumn;
 

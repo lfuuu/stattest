@@ -21,7 +21,8 @@ class ServiceType extends ActiveRecord
 {
     const ID_VPBX = 1; // ВАТС
     const ID_VOIP = 2; // Телефония
-    const ID_VOIP_PACKAGE = 3; // Телефония. Пакет
+    const ID_VOIP_PACKAGE_CALLS = 3; // Телефония. Пакет звонков
+    const ID_VOIP_PACKAGE_INTERNET = 25; // Телефония. Пакет интернета
 
     const ID_INTERNET = 4; // Интернет
     const ID_COLLOCATION = 5; // Collocation
@@ -52,8 +53,11 @@ class ServiceType extends ActiveRecord
     const ID_TRUNK_PACKAGE_ORIG = 23; // пакет ориг-транк
     const ID_TRUNK_PACKAGE_TERM = 24; // пакет терм-транк
 
+    const CLOSE_AFTER_DAYS = 60;
+
     public static $packages = [
-        self::ID_VOIP_PACKAGE => self::ID_VOIP,
+        self::ID_VOIP_PACKAGE_CALLS => self::ID_VOIP,
+        self::ID_VOIP_PACKAGE_INTERNET => self::ID_VOIP,
         self::ID_TRUNK_PACKAGE_ORIG => self::ID_TRUNK,
         self::ID_TRUNK_PACKAGE_TERM => self::ID_TRUNK,
     ];
@@ -152,7 +156,8 @@ class ServiceType extends ActiveRecord
                 return 'success';
 
             case self::ID_VOIP:
-            case self::ID_VOIP_PACKAGE:
+            case self::ID_VOIP_PACKAGE_CALLS:
+            case self::ID_VOIP_PACKAGE_INTERNET:
                 return 'info';
 
             case self::ID_TRUNK:

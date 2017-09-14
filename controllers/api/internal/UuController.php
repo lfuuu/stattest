@@ -454,7 +454,7 @@ class UuController extends ApiInternalController
                     $voip_ndc_type_id = $number->ndc_type_id;
                     break;
 
-                case ServiceType::ID_VOIP_PACKAGE:
+                case ServiceType::ID_VOIP_PACKAGE_CALLS:
                     if (!$voip_number) {
                         throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан телефонный номер', AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK);
                     }
@@ -509,7 +509,7 @@ class UuController extends ApiInternalController
             if ($tariff->service_type_id == ServiceType::ID_VOIP) {
                 $defaultPackageRecords = $this->actionGetTariffs(
                     $id_tmp = null,
-                    ServiceType::ID_VOIP_PACKAGE,
+                    ServiceType::ID_VOIP_PACKAGE_CALLS,
                     $country_id, // пакеты телефонии - по стране, все остальное - по организации
                     $client_account_id,
                     $currency_id,

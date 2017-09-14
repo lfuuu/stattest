@@ -439,7 +439,7 @@ class Tariff extends HistoryActiveRecord
         return Tariff::find()
             ->joinWith('voipCities')
             ->where([
-                $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE,
+                $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
                 $tariffTableName . '.country_id' => $this->country_id,
                 $tariffTableName . '.currency_id' => $this->currency_id,
                 // $tariffTableName . '.is_postpaid' => $this->is_postpaid,

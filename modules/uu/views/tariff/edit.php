@@ -72,7 +72,7 @@ if (!$serviceType) {
             echo $this->render('_editMainVoip', $viewParams);
             break;
 
-        case ServiceType::ID_VOIP_PACKAGE:
+        case ServiceType::ID_VOIP_PACKAGE_CALLS:
             echo $this->render('_editMainVoipPackage', $viewParams);
             break;
 

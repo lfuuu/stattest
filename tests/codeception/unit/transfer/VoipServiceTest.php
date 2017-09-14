@@ -393,8 +393,8 @@ class VoipServiceTest extends _BaseService
         ]);
 
         // Create package
-        $packageTariffId = $this->getUniversalTariff(ServiceType::ID_VOIP_PACKAGE, $service->city_id);
-        $this->createUniversalServiceSimple($clientAccount, ServiceType::ID_VOIP_PACKAGE, $packageTariffId, [
+        $packageTariffId = $this->getUniversalTariff(ServiceType::ID_VOIP_PACKAGE_CALLS, $service->city_id);
+        $this->createUniversalServiceSimple($clientAccount, ServiceType::ID_VOIP_PACKAGE_CALLS, $packageTariffId, [
             'prev_account_tariff_id' => $service->id,
         ]);
 
