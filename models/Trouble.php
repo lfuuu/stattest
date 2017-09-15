@@ -45,7 +45,9 @@ class Trouble extends ActiveRecord
     const TYPE_TASK = 'task';
     const TYPE_CONSULTATION = 'consultation';
     const TYPE_MONITORING = 'monitoring';
+    const TYPE_CONNECT = 'connect';
     const SUBTYPE_TROUBLE = 'trouble';
+    const SUBTYPE_CONNECT = 'connect';
 
     public $client_name = '';
 

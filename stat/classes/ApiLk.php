@@ -27,6 +27,7 @@ use app\models\Payment as PaymentModel;
 use app\models\Region;
 use app\models\TariffVirtpbx;
 use app\models\TariffVoip;
+use app\models\Trouble;
 use app\models\usages\UsageInterface;
 use app\models\UsageVirtpbx;
 use app\models\UsageVoip;
@@ -2399,8 +2400,8 @@ class ApiLk
     public static function createTT($message = '', $client = '', User $user = null, $service = '', $service_id = 0)
     {
         $R = [
-            'trouble_type' => 'task',
-            'trouble_subtype' => 'task',
+            'trouble_type' => Trouble::TYPE_CONNECT,
+            'trouble_subtype' => Trouble::SUBTYPE_CONNECT,
             'client' => $client,
             'time' => '',
             'date_start' => date('Y-m-d H:i:s'),
