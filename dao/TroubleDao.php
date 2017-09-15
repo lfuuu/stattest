@@ -1,7 +1,10 @@
 <?php
 namespace app\dao;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
 use \yii\db\Expression;
 use app\classes\Assert;
 use app\classes\enum\DepartmentEnum;
@@ -251,6 +254,96 @@ class TroubleDao extends Singleton
         $trouble->cur_stage_id = $stage->stage_id;
         $trouble->save();
         return $stage;
+    }
+
+    /**
+     * Создание заявки
+     *
+     * @param integer $clientAccountId
+     * @param string $type
+     * @param string $subtype
+     * @param string $troubleText
+     * @param string $author
+     * @param string $user
+     * @throws \Exception
+     * @internal param string $department
+     * @internal param string $subject
+     * @internal param string $description
+     * @internal param int $supportTicketId
+     * @internal param bool|string $author
+     */
+    public function createTrouble(
+        $clientAccountId,
+        $type,
+        $subtype,
+        $troubleText,
+        $author = null,
+        $user = null
+    ) {
+        $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
+        Assert::isObject($clientAccount);
+
+        $transaction = Trouble::getDb()->beginTransaction();
+        try {
+            $trouble = new Trouble();
+            $trouble->trouble_type = $type;
+            $trouble->trouble_subtype = $subtype;
+            $trouble->client = $clientAccount->client;
+            $trouble->user_author = $author ?: Trouble::DEFAULT_API_AUTHOR;
+            $trouble->date_creation = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $trouble->problem = $troubleText;
+            $trouble->folder = Trouble::DEFAULT_CONNECT_FOLDER;
+            if (!$trouble->save()) {
+                throw new ModelValidationException($trouble);
+            }
+
+            $stage = new TroubleStage();
+            $stage->trouble_id = $trouble->id;
+            $stage->state_id = Trouble::DEFAULT_CONNECT_STATE;
+            $stage->user_main = $user ?: $trouble->user_author;
+            $stage->date_start = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            $stage->date_finish_desired = $stage->date_start;
+            if (!$stage->save()) {
+                throw new ModelValidationException($stage);
+            }
+
+            $trouble->cur_stage_id = $stage->stage_id;
+            if (!$trouble->save()) {
+                throw new ModelValidationException($trouble);
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Оповещение о создании услуги
+     *
+     * @param AccountTariff $accountTariff
+     * @param AccountTariffLog $accountTariffLog
+     */
+    public function notificateCreateAccountTariff(AccountTariff $accountTariff, AccountTariffLog $accountTariffLog)
+    {
+        $user = User::findOne(['user' => Trouble::DEFAULT_SUPPORT_SALES]);
+
+        $troubleText = 'Создана универсальная услуга на ЛС: ' . $accountTariff->client_account_id;
+        $troubleText .= ' ' . $accountTariff->serviceType->name;
+
+        if ($accountTariff->service_type_id == \app\modules\uu\models\ServiceType::ID_VOIP) {
+            $troubleText .= ', номер: ' . $accountTariff->voip_number;
+        }
+
+        $troubleText .= ', тариф: ' . $accountTariffLog->getName();
+
+        $this->createTrouble($accountTariff->client_account_id, Trouble::TYPE_CONNECT, Trouble::SUBTYPE_CONNECT, $troubleText, null, ($user ? $user->user : null));
+
+        if ($user && $user->email) {
+            mail($user->email, "[UU] Заказ услуги", $troubleText);
+        }
+
     }
 
     /**

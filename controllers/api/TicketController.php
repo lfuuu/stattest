@@ -184,7 +184,7 @@ class TicketController extends ApiController
     {
         $model = new SubmitTicketForm();
         $model->load(Yii::$app->request->bodyParams, '');
-        $model->author = Trouble::DEDAULT_API_AUTHOR;
+        $model->author = Trouble::DEFAULT_API_AUTHOR;
         if ($model->save()) {
             return ['ticket_id' => $model->id];
         } else {

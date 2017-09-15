@@ -37,6 +37,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     const CLIENT_USER_ID = 25;
     const LK_USER_ID = 177;
     const DEFAULT_ACCOUNT_MANAGER_USER_ID = 10; // Владимир Ан
+    const DEFAULT_ACCOUNT_MANAGER_USER = 'ava'; // Владимир Ан
 
     const DEPART_SALES = 28;
     const DEPART_PURCHASE = 29;

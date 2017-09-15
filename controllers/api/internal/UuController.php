@@ -9,6 +9,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\Number;
+use app\models\Trouble;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
@@ -1487,9 +1488,10 @@ class UuController extends ApiInternalController
                 throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
             }
 
+            Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
+
             $transaction->commit();
             return $accountTariff->id;
-
         } catch (Exception $e) {
             $transaction->rollBack();
             throw $e;
