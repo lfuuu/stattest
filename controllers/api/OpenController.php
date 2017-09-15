@@ -16,6 +16,7 @@ use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipNdcType;
 use HttpException;
 use Yii;
 use yii\web\Controller;
@@ -189,7 +190,7 @@ final class OpenController extends Controller
             !$countryId && $countryId = $freeNumber->country_code;
             !$currencyId && $currencyId = $freeNumber->country->currency_id;
 
-            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId);
+            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $freeNumber->did_group_id);
             $responseNumbers[] = $responseNumber;
         }
 
@@ -337,7 +338,7 @@ final class OpenController extends Controller
             $tariffStatusId = $clientAccount ?
                 $freeNumber->didGroup->{'tariff_status_main' . $priceLevel} :
                 TariffStatus::ID_TEST;
-            
+
             $packageStatusIds = [
                 $freeNumber->didGroup->{'tariff_status_main' . $priceLevel},
                 $freeNumber->didGroup->tariff_status_beauty,
@@ -346,7 +347,7 @@ final class OpenController extends Controller
             !$countryId && $countryId = $freeNumber->country_code;
             !$currencyId && $currencyId = $freeNumber->country->currency_id;
 
-            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId);
+            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $freeNumber->did_group_id);
 
             $response[$groupKey] = [];
             foreach ($responseNumber as $key => $value) {
@@ -371,11 +372,12 @@ final class OpenController extends Controller
      * @param int $currencyId
      * @param int $isPostpaid
      * @param int $tariffPersonId
+     * @param int $ndcTypeId
      * @return array
      */
-    private function _getDefaultTariff($tariffStatusId, $packageStatusIds, $voipCityId, $countryId, $currencyId, $isPostpaid, $tariffPersonId)
+    private function _getDefaultTariff($tariffStatusId, $packageStatusIds, $voipCityId, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $ndcTypeId)
     {
-        $tariffStatusIdKey = $tariffStatusId . '_' . implode('_', $packageStatusIds);
+        $tariffStatusIdKey = $tariffStatusId . '_' . implode('_', $packageStatusIds) . '_' . $ndcTypeId;
         if (isset($this->_defaultTariffCache[$tariffStatusIdKey])) {
             // взять из кэша
             return $this->_defaultTariffCache[$tariffStatusIdKey];
@@ -397,8 +399,12 @@ final class OpenController extends Controller
 
         if ($voipCityId) {
             $tariffQuery->joinWith('voipCities');
-            $tariffVoipCityTableName = TariffVoipCity::tableName();
-            $tariffQuery->andWhere([$tariffVoipCityTableName . '.city_id' => $voipCityId]);
+            $tariffQuery->andWhere([TariffVoipCity::tableName() . '.city_id' => $voipCityId]);
+        }
+
+        if ($serviceTypeId == ServiceType::ID_VOIP && $ndcTypeId) {
+            $tariffQuery->joinWith('voipNdcTypes');
+            $tariffQuery->andWhere([TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId]);
         }
 
         /** @var Tariff $tariff */
