@@ -8,6 +8,7 @@ use app\exceptions\ModelValidationException;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;
 use app\models\UsageVirtpbx;
+use app\modules\uu\models\AccountTariff;
 use Yii;
 use yii\filters\AccessControl;
 
@@ -41,31 +42,35 @@ class VpbxController extends BaseController
      */
     public function actionDearchive($accountId, $usageId)
     {
-        $transaction = Yii::$app->db->beginTransaction();
-
         /** @var ClientAccount $account */
         $account = ClientAccount::findOne($accountId);
         Assert::isObject($account);
 
-        /** @var UsageVirtpbx $usage */
-        $usage = UsageVirtpbx::findOne(['id' => $usageId, 'client' => $account->client]);
+        $isUniversalUsage = $usageId >= AccountTariff::DELTA;
+
+        /** @var AccountTariff|UsageVirtpbx $usage */
+        $usage = $isUniversalUsage ?
+            AccountTariff::findOne(['id' => $usageId, 'client_account_id' => $account->id]) :
+            UsageVirtpbx::findOne(['id' => $usageId, 'client' => $account->client]);
+
         Assert::isObject($usage);
 
+        if ($isUniversalUsage ? !$usage->isClosed() : strtotime($usage->expire_dt) > time()) {
+            throw new \LogicException('Услуга не отключена');
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
         try {
-
-            if (strtotime($usage->expire_dt) > time()) {
-                throw new \LogicException('Услуга включена');
-            }
-
             $result = ApiVpbx::me()->dearchiveVpbx($account->id, $usage->id);
 
             if (!$result || !isset($result['success'])) {
-                throw new \LogicException('ВАТС неразархивированна');
+                throw new \LogicException('ВАТС не разархивирована');
             }
 
+            /** @var AccountTariff|UsageVirtpbx $newUsage */
             $newUsage = $usage->reopen();
 
-            $usage->is_dearchived = 1;
+            $usage->is_unzipped = 1;
             if (!$usage->save()) {
                 throw new ModelValidationException($usage);
             }
@@ -73,15 +78,15 @@ class VpbxController extends BaseController
             $actualVirtpbx = ActualVirtpbx::findOne(['usage_id' => $usage->id, 'client_id' => $account->id]);
 
             if ($actualVirtpbx) {
-                $actualVirtpbx->usage_id = $newUsage;
+                $actualVirtpbx->usage_id = $newUsage->id;
             } else {
                 $actualVirtpbx = new ActualVirtpbx();
                 $actualVirtpbx->setAttributes([
                     'usage_id' => $newUsage->id,
                     'client_id' => $account->id,
-                    'tarif_id' => $newUsage->LogTariff->id_tarif,
+                    'tarif_id' => ($isUniversalUsage ? $newUsage->tariffPeriod->tariff_id : $newUsage->LogTariff->id_tarif),
                     'region_id' => $account->region,
-                    'biller_version' => ClientAccount::VERSION_BILLER_USAGE,
+                    'biller_version' => $isUniversalUsage ? ClientAccount::VERSION_BILLER_UNIVERSAL : ClientAccount::VERSION_BILLER_USAGE,
                 ], false);
             }
 

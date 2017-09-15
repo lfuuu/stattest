@@ -13,6 +13,7 @@ use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use yii\helpers\Url;
 
 ?>
 
@@ -28,7 +29,19 @@ use app\modules\uu\models\ServiceType;
         <?= Html::a(
             $accountTariff->voip_number ?: 'id' . $accountTariff->id,
             $accountTariff->getUrl()
-        ) ?>
+        ) .
+            // Отключенную ВАТС можно разархивировать
+        (
+            ($accountTariff->isUnzippable()) ?
+                $this->render('//layouts/_buttonLink', [
+                    'url' => Url::to(['/usage/vpbx/dearchive', 'accountId' => $accountTariff->clientAccount->id, 'usageId' => $accountTariff->id]),
+                    'text' => '',
+                    'title' => 'Разархивировать ВАТС id' . $accountTariff->id,
+                    'glyphicon' => 'glyphicon-upload',
+                    'class' => 'btn-xs btn-default',
+                ]) : ''
+        )
+        ?>
     <?php endif ?>
 
     </<?= $tagName ?>>

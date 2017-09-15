@@ -20,7 +20,7 @@ use DateTime;
  * @property int $id
  * @property int $region
  * @property int $amount
- * @property int $is_dearchived
+ * @property int $is_unzipped
  * @property string $comment
  * @property TariffVirtpbx $tariff
  * @property ClientAccount $clientAccount

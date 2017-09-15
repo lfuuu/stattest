@@ -655,7 +655,7 @@ if ($has) :
                                 <td><?= $service->tariff->description ?></td>
                                 <td><?= $service->tariff->price ?></td>
                                 <td><?= $service->regionName->name ?></td>
-                                <td><?php if (!$service->is_dearchived && strtotime($service->expire_dt) < time()) : ?>
+                                <td><?php if (!$service->is_unzipped && strtotime($service->expire_dt) < time()) : ?>
                                         <?= $this->render('//layouts/_buttonLink', [
                                             'url' => Url::to(['/usage/vpbx/dearchive', 'accountId' => $service->clientAccount->id, 'usageId' => $service->id]),
                                             'text' => 'Разархивировать',

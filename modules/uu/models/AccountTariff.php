@@ -37,6 +37,7 @@ use yii\db\Expression;
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
  * @property int $vm_elid_id ID VM collocation
  * @property int $prev_usage_id
+ * @property int $is_unzipped
  */
 class AccountTariff extends HistoryActiveRecord
 {

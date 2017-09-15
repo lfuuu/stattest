@@ -5,11 +5,13 @@ namespace app\modules\uu\models\traits;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use DateTimeZone;
 use yii\db\ActiveQuery;
 
@@ -251,4 +253,86 @@ trait AccountTariffBoolTrait
             }
         }
     }
+
+    /**
+     * Услуга уже закрыта
+     *
+     * @return bool
+     */
+    public function isClosed()
+    {
+        return !$this->isActive() &&
+        ($lastTariffLog = reset($this->accountTariffLogs)) &&
+        !$lastTariffLog->tariff_period_id;
+    }
+
+    /**
+     * Переоткрытие услуги с сегодня
+     *
+     * @return AccountTariff
+     * @throws \Exception
+     */
+    public function reopen()
+    {
+        if (!$this->isClosed()) {
+            throw new \LogicException('Услуга не закрыта');
+        }
+
+        $transaction = \Yii::$app->db->beginTransaction();
+
+        try {
+
+            $newAccountTariff = new AccountTariff();
+            $newAccountTariff->setAttributes($this->getAttributes(null, ['id']));
+            if (!$newAccountTariff->save()) {
+                throw new ModelValidationException($newAccountTariff);
+            }
+
+            $newAccountTariff->refresh();
+
+            $logs = $this->accountTariffLogs;
+            reset($logs);
+            /** @var AccountTariffLog $lastActiveTariffLog */
+            $lastActiveTariffLog = next($logs);
+
+            if (!$lastActiveTariffLog || !$lastActiveTariffLog->tariff_period_id) {
+                throw new \LogicException('Не найден тариф');
+            }
+
+            $newAccountTariffLog = new AccountTariffLog();
+            $newAccountTariffLog->setAttributes($lastActiveTariffLog->getAttributes(null, ['id', 'account_tariff_id', 'actual_from_utc']));
+            $newAccountTariffLog->account_tariff_id = $newAccountTariff->id;
+            $newAccountTariffLog->actual_from_utc = (new \DateTime('00:00:00', $this->clientAccount->getTimezone()))
+                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+            if (!$newAccountTariffLog->save()) {
+                throw new ModelValidationException($newAccountTariffLog);
+            }
+
+            (new SetCurrentTariffTarificator())->tarificate($newAccountTariff->id);
+
+            $newAccountTariff->refresh();
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        return $newAccountTariff;
+    }
+
+    /**
+     * Можно ли разархивировать ВАТС этой услуги
+     *
+     * @return bool
+     */
+    public function isUnzippable()
+    {
+        return $this->service_type_id == ServiceType::ID_VPBX &&
+        !$this->is_unzipped &&
+        $this->isClosed();
+    }
+
 }
