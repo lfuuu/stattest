@@ -341,7 +341,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'filter' => $filterModel->attributeLabels(),
+        'filter' => $filterModel->getAggrGroups(),
         'isWithEmpty' => false,
     ],
 ];

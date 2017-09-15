@@ -409,6 +409,20 @@ class CallsRawFilter extends CallsRaw
         return $groups;
     }
 
+    public function getAggrGroups()
+    {
+        $fields = array_keys($this->aggrConst);
+
+        $that = $this;
+
+        $fields = array_map(function ($value) use ($that) {
+            return $this->getAttributeLabel($value);
+        }, array_combine($fields, $fields));
+
+        return $fields;
+
+    }
+
     /**
      * Возвращает выражение для пересчета денежных значений из calls_raw в рубли
      *

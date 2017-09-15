@@ -119,6 +119,7 @@ $dataProvider = $filterModel->getReport();
 
 try {
     GridView::separateWidget([
+        'isHideFilters' => false,
         'dataProvider' => $dataProvider,
         'filterModel' => $filterModel,
         'beforeHeader' => [

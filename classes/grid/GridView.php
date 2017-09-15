@@ -121,6 +121,9 @@ HTML;
 
     public $showTableBody = true;
 
+    /** @var null|bool Фильтры в заголовке true/false - всегда показывать/скрывать, null - авто (если много) */
+    public $isHideFilters = null;
+
     /**
      * Переопределенный метод рендеринга таблицы.
      * Дополнительно проверяет нужно ли ее рендерить,
@@ -230,7 +233,7 @@ HTML;
             );
         }
 
-        $isHide = count($data['columns']) >= self::MIN_BEFORE_HEADER_FILTER_FOR_HIDE;
+        $this->isHideFilters = $this->isHideFilters === null ? count($data['columns']) >= self::MIN_BEFORE_HEADER_FILTER_FOR_HIDE : $this->isHideFilters;
 
         // объединить в div class=row
         $rows = '';
@@ -246,10 +249,10 @@ HTML;
         $rows = Html::tag(
             'div',
             $rows,
-            ['class' => 'beforeHeaderFilters' . ($isHide ? ' collapse' : '')]
+            ['class' => 'beforeHeaderFilters' . ($this->isHideFilters ? ' collapse' : '')]
         );
 
-        if ($isHide) {
+        if ($this->isHideFilters) {
             $rows = $this->render('//layouts/_toggleButton', ['divSelector' => '.beforeHeaderFilters', 'title' => 'Доп. фильтры']) . $rows;
         }
 

@@ -19,7 +19,6 @@
 
                 $(document).off('change.yiiGridView', '.beforeHeaderFilters input, .beforeHeaderFilters select');
 
-                hideFilters();
             });
 
         $('select[name="CallsRawFilter[server_ids][]"], ' +
