@@ -14,9 +14,9 @@ use app\classes\model\ActiveRecord;
  * @property string $name
  * @property int $financial_manager_id
  * @property bool $is_lk_exists
- * @property ClientContragent[] $contragents
- * @property ClientContract[] $contracts
- * @property ClientAccount[] $accounts
+ * @property-read ClientContragent[] $contragents
+ * @property-read ClientContract[] $contracts
+ * @property-read ClientAccount[] $accounts
  */
 class ClientSuper extends ActiveRecord
 {

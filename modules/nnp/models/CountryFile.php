@@ -16,8 +16,8 @@ use yii\base\InvalidParamException;
  * @property int $user_id
  * @property string $ts
  *
- * @property Country $country
- * @property CountryMedia $mediaManager
+ * @property-read Country $country
+ * @property-read CountryMedia $mediaManager
  *
  * @method static CountryFile findOne($condition)
  * @method static CountryFile[] findAll($condition)

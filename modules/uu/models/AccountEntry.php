@@ -28,14 +28,14 @@ use yii\helpers\Url;
  * @property string $date_from Минимальная дата транзакций
  * @property string $date_to Максимальная дата транзакций
  *
- * @property Bill $bill
- * @property AccountTariff $accountTariff
- * @property TariffPeriod $tariffPeriod
- * @property TariffResource $tariffResource
- * @property AccountLogSetup[] $accountLogSetups
- * @property AccountLogPeriod[] $accountLogPeriods
- * @property AccountLogResource[] $accountLogResources
- * @property AccountLogMin[] $accountLogMins
+ * @property-read Bill $bill
+ * @property-read AccountTariff $accountTariff
+ * @property-read TariffPeriod $tariffPeriod
+ * @property-read TariffResource $tariffResource
+ * @property-read AccountLogSetup[] $accountLogSetups
+ * @property-read AccountLogPeriod[] $accountLogPeriods
+ * @property-read AccountLogResource[] $accountLogResources
+ * @property-read AccountLogMin[] $accountLogMins
  * @property string $name
  * @property string $fullName
  */

@@ -27,9 +27,9 @@ use yii\helpers\ArrayHelper;
  * @property string $context - JSON formatted
  *
  * @property string $title
- * @property ImportantEventsNames $name
- * @property ClientAccount $clientAccount
- * @property ImportantEventsSources $source
+ * @property-read ImportantEventsNames $name
+ * @property-read ClientAccount $clientAccount
+ * @property-read ImportantEventsSources $source
  * @property array $tags
  * @property array $tagList
  * @property float $balance

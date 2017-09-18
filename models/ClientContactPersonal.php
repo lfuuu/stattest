@@ -15,7 +15,7 @@ use yii\db\Expression;
  * @property string $type_id
  * @property string $contract_id
  * @property string $contact
- * @property ClientContactType $type
+ * @property-read ClientContactType $type
  */
 class ClientContactPersonal extends ActiveRecord
 {

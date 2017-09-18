@@ -11,8 +11,8 @@ use app\models\Country;
  * @property int $country_code
  * @property int $order
  *
- * @property PublicSiteCity[] $publicSiteCities
- * @property Country $country
+ * @property-read PublicSiteCity[] $publicSiteCities
+ * @property-read Country $country
  */
 class PublicSiteCountry extends ActiveRecord
 {

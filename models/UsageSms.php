@@ -13,8 +13,8 @@ use DateTime;
 
 /**
  * @property int $id
- * @property TariffSms $tariff
- * @property UsageSmsHelper $helper
+ * @property-read TariffSms $tariff
+ * @property-read UsageSmsHelper $helper
  */
 class UsageSms extends ActiveRecord implements UsageInterface
 {

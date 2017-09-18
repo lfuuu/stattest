@@ -14,8 +14,8 @@ use yii\db\Expression;
  * @property int $number_range_id
  * @property int $prefix_id
  *
- * @property NumberRange $numberRange
- * @property Prefix $prefix
+ * @property-read NumberRange $numberRange
+ * @property-read Prefix $prefix
  */
 class NumberRangePrefix extends ActiveRecord
 {

@@ -15,7 +15,7 @@ use DateTime;
  * @property int $period_month
  * @property string $period_type
  *
- * @property User $user
+ * @property-read User $user
  */
 class ClientContractReward extends ActiveRecord
 {

@@ -14,7 +14,7 @@ use app\classes\model\ActiveRecord;
  * @property int $event_queue_id
  * @property string $section
  *
- * @property EventQueue $event
+ * @property-read EventQueue $event
  */
 class EventQueueIndicator extends ActiveRecord
 {

@@ -14,7 +14,7 @@ use app\classes\model\ActiveRecord;
  * @property string $data_json
  * @property string $prev_data_json
  *
- * @property User $user
+ * @property-read User $user
  */
 class HistoryChanges extends ActiveRecord
 {

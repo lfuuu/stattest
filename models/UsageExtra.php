@@ -13,8 +13,8 @@ use DateTime;
 
 /**
  * @property int $id
- * @property TariffExtra $tariff
- * @property UsageExtraHelper $helper
+ * @property-read TariffExtra $tariff
+ * @property-read UsageExtraHelper $helper
  */
 class UsageExtra extends ActiveRecord implements UsageInterface
 {

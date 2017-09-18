@@ -13,8 +13,8 @@ use yii\db\ActiveQuery;
  * @property integer $tariff_id
  * @property integer $city_id
  *
- * @property Tariff $tariff
- * @property City $city
+ * @property-read Tariff $tariff
+ * @property-read City $city
  */
 class TariffVoipCity extends HistoryActiveRecord
 {

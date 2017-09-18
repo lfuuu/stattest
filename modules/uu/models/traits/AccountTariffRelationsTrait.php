@@ -17,21 +17,21 @@ use app\modules\uu\models\TariffPeriod;
 use yii\db\ActiveQuery;
 
 /**
- * @property ClientAccount $clientAccount
- * @property ServiceType $serviceType
- * @property \app\modules\uu\models\Resource[] $resources
- * @property Region $region
- * @property City $city
- * @property \app\models\Number $number
- * @property AccountTariff $prevAccountTariff  Основная услуга
- * @property AccountTariff[] $nextAccountTariffs   Пакеты
- * @property AccountTariffLog[] $accountTariffLogs
- * @property AccountTariffResourceLog[] $accountTariffResourceLogs
- * @property TariffPeriod $tariffPeriod
+ * @property-read ClientAccount $clientAccount
+ * @property-read ServiceType $serviceType
+ * @property-read \app\modules\uu\models\Resource[] $resources
+ * @property-read Region $region
+ * @property-read City $city
+ * @property-read \app\models\Number $number
+ * @property-read AccountTariff $prevAccountTariff  Основная услуга
+ * @property-read AccountTariff[] $nextAccountTariffs   Пакеты
+ * @property-read AccountTariffLog[] $accountTariffLogs
+ * @property-read AccountTariffResourceLog[] $accountTariffResourceLogs
+ * @property-read TariffPeriod $tariffPeriod
  *
- * @property AccountLogSetup[] $accountLogSetups
- * @property AccountLogPeriod[] $accountLogPeriods
- * @property AccountLogResource[] $accountLogResources
+ * @property-read AccountLogSetup[] $accountLogSetups
+ * @property-read AccountLogPeriod[] $accountLogPeriods
+ * @property-read AccountLogResource[] $accountLogResources
  *
  * @method ActiveQuery hasMany($class, array $link) see [[BaseActiveRecord::hasMany()]] for more info
  * @method ActiveQuery hasOne($class, array $link) see [[BaseActiveRecord::hasOne()]] for more info

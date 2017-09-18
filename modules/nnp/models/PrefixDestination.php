@@ -15,8 +15,8 @@ use yii\db\Expression;
  * @property int $destination_id
  * @property bool $is_addition true - сложить, false - вычесть префикс
  *
- * @property Prefix $prefix
- * @property Destination $destination
+ * @property-read Prefix $prefix
+ * @property-read Destination $destination
  */
 class PrefixDestination extends ActiveRecord
 {

@@ -10,7 +10,7 @@ use app\queries\LkNoticeSettingQuery;
 /**
  * Настройки оповещений клиента в ЛК
  *
- * @property ClientContact $contact
+ * @property-read ClientContact $contact
  * @property int $client_contact_id
  * @property int $client_id
  * @property int $min_balance

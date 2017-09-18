@@ -14,8 +14,8 @@ use DateTime;
 /**
  * @property int $id
  *
- * @property TariffExtra $tariff
- * @property UsageWelltimeHelper $helper
+ * @property-read TariffExtra $tariff
+ * @property-read UsageWelltimeHelper $helper
  */
 class UsageWelltime extends ActiveRecord implements UsageInterface
 {

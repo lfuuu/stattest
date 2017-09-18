@@ -25,9 +25,9 @@ use app\dao\TroubleDao;
  * @property string $trouble_subtype
  * @property string $date_close
  * @property int $support_ticket_id
- * @property TroubleStage $currentStage
- * @property \app\classes\media\TroubleMedia mediaManager
  *
+ * @property-read TroubleStage $currentStage
+ * @property-read \app\classes\media\TroubleMedia mediaManager
  */
 class Trouble extends ActiveRecord
 {

@@ -13,8 +13,8 @@ use yii\db\ActiveQuery;
  * @property integer $tariff_id
  * @property integer $ndc_type_id
  *
- * @property Tariff $tariff
- * @property NdcType $ndcType
+ * @property-read Tariff $tariff
+ * @property-read NdcType $ndcType
  */
 class TariffVoipNdcType extends HistoryActiveRecord
 {

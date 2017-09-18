@@ -20,7 +20,7 @@ use Yii;
  * @property string $store_filename
  * @property bool $parsed
  *
- * @property NetworkConfig $config
+ * @property-read NetworkConfig $config
  * @property
  */
 class NetworkFile extends ActiveRecord

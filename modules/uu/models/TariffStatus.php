@@ -13,7 +13,7 @@ use yii\helpers\Url;
  * @property string $name
  * @property int $service_type_id Тип услуги. Если null, то для всех
  *
- * @property ServiceType $serviceType
+ * @property-read ServiceType $serviceType
  */
 class TariffStatus extends ActiveRecord
 {

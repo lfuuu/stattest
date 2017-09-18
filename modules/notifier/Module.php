@@ -10,7 +10,7 @@ use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 
 /**
- * @property \app\modules\notifier\components\Actions $actions
+ * @property-read \app\modules\notifier\components\Actions $actions
  */
 class Module extends \yii\base\Module
 {

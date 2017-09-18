@@ -21,7 +21,7 @@ use yii\data\ActiveDataProvider;
  * @property string $name
  * @property int $is_show_in_lk
  *
- * @property ClientMedia $mediaManager
+ * @property-read ClientMedia $mediaManager
  */
 class ClientFiles extends ActiveRecord
 {

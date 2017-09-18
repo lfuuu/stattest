@@ -30,8 +30,8 @@ use yii\db\Expression;
  * @property string $actual_from_utc
  * @property string $sync_time
  *
- * @property AccountTariff $accountTariff
- * @property \app\modules\uu\models\Resource $resource
+ * @property-read AccountTariff $accountTariff
+ * @property-read \app\modules\uu\models\Resource $resource
  * @property string $actual_from
  */
 class AccountTariffResourceLog extends ActiveRecord

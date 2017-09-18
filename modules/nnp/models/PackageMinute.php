@@ -15,9 +15,9 @@ use yii\db\ActiveQuery;
  * @property int $destination_id
  * @property int $minute
  *
- * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
- * @property Package $package
- * @property Destination $destination
+ * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property-read Package $package
+ * @property-read Destination $destination
  */
 class PackageMinute extends ActiveRecord
 {

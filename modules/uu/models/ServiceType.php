@@ -14,8 +14,8 @@ use yii\helpers\Url;
  * @property int $parent_id
  * @property int $close_after_days
  *
- * @property ServiceType $parent
- * @property Resource[] $resources
+ * @property-read ServiceType $parent
+ * @property-read Resource[] $resources
  */
 class ServiceType extends ActiveRecord
 {

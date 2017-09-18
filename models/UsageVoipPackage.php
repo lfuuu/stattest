@@ -31,12 +31,12 @@ use yii\db\ActiveQuery;
  * @property int $usage_trunk_id
  * @property string $status
  *
- * @property Region $connectionPoint
- * @property ClientAccount $clientAccount
- * @property TariffVoipPackage $tariff
- * @property UsageVoip $usageVoip
- * @property UsageVoipPackageHelper $helper
- * @property ActiveQuery $billingStat
+ * @property-read Region $connectionPoint
+ * @property-read ClientAccount $clientAccount
+ * @property-read TariffVoipPackage $tariff
+ * @property-read UsageVoip $usageVoip
+ * @property-read UsageVoipPackageHelper $helper
+ * @property-read ActiveQuery $billingStat
  */
 class UsageVoipPackage extends ActiveRecord implements UsageInterface
 {

@@ -19,9 +19,9 @@ use yii\helpers\Url;
  * @property string $insert_time
  * @property int $account_entry_id
  *
- * @property AccountTariff $accountTariff
- * @property TariffPeriod $tariffPeriod
- * @property AccountEntry $accountEntry
+ * @property-read AccountTariff $accountTariff
+ * @property-read TariffPeriod $tariffPeriod
+ * @property-read AccountEntry $accountEntry
  */
 class AccountLogSetup extends ActiveRecord
 {

@@ -14,8 +14,8 @@ use app\classes\model\HistoryActiveRecord;
  * @property integer $resource_id
  * @property integer $tariff_id
  *
- * @property \app\modules\uu\models\Resource $resource
- * @property Tariff $tariff
+ * @property-read \app\modules\uu\models\Resource $resource
+ * @property-read Tariff $tariff
  */
 class TariffResource extends HistoryActiveRecord
 {

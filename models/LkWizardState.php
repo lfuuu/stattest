@@ -19,7 +19,7 @@ use app\classes\model\ActiveRecord;
  * @property int $is_rules_accept_person
  * @property int $is_contract_accept
  * @property int $client_contragent_person
- * @property Trouble $trouble
+ * @property-read Trouble $trouble
  *
  * @package app\models
  */

@@ -18,8 +18,8 @@ use yii\helpers\Url;
  * @property int $order
  * @property int $postfix_length
  *
- * @property Country $country
- * @property Region $region
+ * @property-read Country $country
+ * @property-read Region $region
  * @property int $ndcTypeId
  */
 class City extends ActiveRecord

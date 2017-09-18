@@ -22,9 +22,9 @@ use DateTime;
  * @property int $amount
  * @property int $is_unzipped
  * @property string $comment
- * @property TariffVirtpbx $tariff
- * @property ClientAccount $clientAccount
- * @property UsageVirtpbxHelper $helper
+ * @property-read TariffVirtpbx $tariff
+ * @property-read ClientAccount $clientAccount
+ * @property-read UsageVirtpbxHelper $helper
  */
 class UsageVirtpbx extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {

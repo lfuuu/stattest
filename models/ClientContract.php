@@ -36,14 +36,14 @@ use yii\db\ActiveQuery;
  * @property int $is_voip_with_tax
  * @property int $is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
  *
- * @property ClientContragent $contragent
- * @property ClientAccount[] $accounts
- * @property Organization $organization
- * @property ClientMedia $mediaManager
- * @property ContractType $contractType
- * @property Business $business
- * @property BusinessProcess $businessProcess
- * @property BusinessProcessStatus $businessProcessStatus
+ * @property-read ClientContragent $contragent
+ * @property-read ClientAccount[] $accounts
+ * @property-read Organization $organization
+ * @property-read ClientMedia $mediaManager
+ * @property-read ContractType $contractType
+ * @property-read Business $business
+ * @property-read BusinessProcess $businessProcess
+ * @property-read BusinessProcessStatus $businessProcessStatus
  * @property string $managerName
  * @property string $accountManagerName
  */

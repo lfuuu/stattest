@@ -19,8 +19,8 @@ use yii\helpers\Url;
  * @property string $update_time
  * @property int $is_converted
  *
- * @property ClientAccount $clientAccount
- * @property AccountEntry[] $accountEntries
+ * @property-read ClientAccount $clientAccount
+ * @property-read AccountEntry[] $accountEntries
  */
 class Bill extends ActiveRecord
 {

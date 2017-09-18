@@ -49,9 +49,9 @@ use yii\helpers\Url;
  * @property string $pay_bill_until
  * @property int $is_pay_overdue
  *
- * @property ClientAccount $clientAccount   ??
- * @property BillLine[] $lines   ??
- * @property Transaction[] $transactions   ??
+ * @property-read ClientAccount $clientAccount   ??
+ * @property-read BillLine[] $lines   ??
+ * @property-read Transaction[] $transactions   ??
  */
 class Bill extends HistoryActiveRecord
 {

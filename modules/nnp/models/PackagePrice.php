@@ -18,9 +18,9 @@ use yii\db\ActiveQuery;
  * @property float $connect_price
  * @property int $weight
  *
- * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
- * @property Package $package
- * @property Destination $destination
+ * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property-read Package $package
+ * @property-read Destination $destination
  */
 class PackagePrice extends ActiveRecord
 {

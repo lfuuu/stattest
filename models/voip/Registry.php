@@ -28,9 +28,9 @@ use app\modules\nnp\models\NdcType;
  * @property string $comment
  * @property integer $fmc_trunk_id
  * @property integer $mvno_trunk_id
- * @property City $city
- * @property Country $country
- * @property NdcType $ndcType
+ * @property-read City $city
+ * @property-read Country $country
+ * @property-read NdcType $ndcType
  * @property string $status
  */
 class Registry extends HistoryActiveRecord

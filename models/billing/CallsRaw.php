@@ -54,9 +54,9 @@ use yii\db\ActiveQuery;
  * @property int $nnp_package_price_id,
  * @property int $nnp_package_pricelist_id,
  *
- * @property Operator $operator
- * @property Region $region
- * @property City $city
+ * @property-read Operator $operator
+ * @property-read Region $region
+ * @property-read City $city
  */
 class CallsRaw extends ActiveRecord
 {

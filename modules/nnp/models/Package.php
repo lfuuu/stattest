@@ -20,10 +20,10 @@ use yii\helpers\Url;
  * @property int $currency_id
  * @property bool $is_include_vat
  *
- * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
- * @property PackageMinute[] $packageMinutes
- * @property PackagePrice[] $packagePrices
- * @property PackagePricelist[] $packagePricelists
+ * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property-read PackageMinute[] $packageMinutes
+ * @property-read PackagePrice[] $packagePrices
+ * @property-read PackagePricelist[] $packagePricelists
  */
 class Package extends ActiveRecord
 {

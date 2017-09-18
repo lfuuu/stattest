@@ -14,11 +14,11 @@ use yii\helpers\Url;
  * @property int $id
  * @property string $name
  *
- * @property Land $land
- * @property Status $status
- * @property PrefixDestination[] $prefixDestinations
- * @property PrefixDestination[] $additionPrefixDestinations
- * @property PrefixDestination[] $subtractionPrefixDestinations
+ * @property-read Land $land
+ * @property-read Status $status
+ * @property-read PrefixDestination[] $prefixDestinations
+ * @property-read PrefixDestination[] $additionPrefixDestinations
+ * @property-read PrefixDestination[] $subtractionPrefixDestinations
  */
 class Destination extends ActiveRecord
 {

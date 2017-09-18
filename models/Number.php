@@ -54,9 +54,9 @@ use yii\helpers\Url;
  * @property-read Region $regionModel
  * @property-read City $cityByName
  *
- * @property float $originPrice
- * @property float $price
- * @property array $priceWithCurrency
+ * @property-read float $originPrice
+ * @property-read float $price
+ * @property-read array $priceWithCurrency
  */
 class Number extends ActiveRecord
 {

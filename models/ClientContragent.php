@@ -36,11 +36,11 @@ use Yii;
  * @property string $comment
  * @property int $sale_channel_id
  * @property int $partner_contract_id
- * @property ClientAccount[] $accounts
- * @property ClientContragentPerson $person
- * @property ClientContract[] $contracts
- * @property Country $country
- * @property ClientSuper $super
+ * @property-read ClientAccount[] $accounts
+ * @property-read ClientContragentPerson $person
+ * @property-read ClientContract[] $contracts
+ * @property-read Country $country
+ * @property-read ClientSuper $super
  */
 class ClientContragent extends HistoryActiveRecord
 {

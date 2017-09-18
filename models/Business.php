@@ -12,7 +12,7 @@ use yii\db\ActiveQuery;
  * @property string $name
  * @property int $sort
  *
- * @property BusinessProcess $BusinessProcesses
+ * @property-read BusinessProcess $BusinessProcesses
  */
 class Business extends ActiveRecord
 {

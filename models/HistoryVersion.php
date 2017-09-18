@@ -12,7 +12,7 @@ use app\classes\model\HistoryActiveRecord;
  * @property string $data_json
  * @property int $user_id
  *
- * @property User $user
+ * @property-read User $user
  */
 class HistoryVersion extends ActiveRecord
 {

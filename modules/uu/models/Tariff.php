@@ -37,33 +37,33 @@ use yii\helpers\Url;
  * @property integer $is_postpaid
  * @property integer $tag_id
  *
- * @property Currency $currency
- * @property TariffResource[] $tariffResources
- * @property TariffResource[] $tariffResourcesIndexedByResourceId
- * @property ServiceType $serviceType
- * @property Country $country
- * @property TariffStatus $status
- * @property TariffPerson $person
- * @property TariffPeriod[] $tariffPeriods
- * @property TariffTag $tag
+ * @property-read Currency $currency
+ * @property-read TariffResource[] $tariffResources
+ * @property-read TariffResource[] $tariffResourcesIndexedByResourceId
+ * @property-read ServiceType $serviceType
+ * @property-read Country $country
+ * @property-read TariffStatus $status
+ * @property-read TariffPerson $person
+ * @property-read TariffPeriod[] $tariffPeriods
+ * @property-read TariffTag $tag
  *
  * VOIP && VOIP package only!
  * @property integer $voip_group_id
  *
  * VOIP package only!
- * @property Package $package
- * @property PackageMinute[] $packageMinutes
- * @property PackagePrice[] $packagePrices
- * @property PackagePricelist[] $packagePricelists
+ * @property-read Package $package
+ * @property-read PackageMinute[] $packageMinutes
+ * @property-read PackagePrice[] $packagePrices
+ * @property-read PackagePricelist[] $packagePricelists
  *
  * VM collocation only!
  * @property integer $vm_id
- * @property TariffVm $vm
+ * @property-read TariffVm $vm
  *
- * @property TariffVoipGroup $voipGroup
- * @property TariffVoipCity[] $voipCities
- * @property TariffOrganization[] $organizations
- * @property TariffVoipCity[] $voipNdcTypes
+ * @property-read TariffVoipGroup $voipGroup
+ * @property-read TariffVoipCity[] $voipCities
+ * @property-read TariffOrganization[] $organizations
+ * @property-read TariffVoipCity[] $voipNdcTypes
  * @property boolean $isTest
  */
 class Tariff extends HistoryActiveRecord

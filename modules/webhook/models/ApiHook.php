@@ -7,7 +7,7 @@ use app\models\ClientContact;
 use yii\base\Model;
 
 /**
- * @property ClientAccount $clientAccount
+ * @property-read ClientAccount $clientAccount
  */
 class ApiHook extends Model
 {

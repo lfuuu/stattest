@@ -19,8 +19,8 @@ use app\modules\uu\models\Tariff;
  * @property float $minimum_margin
  * @property int $minimum_margin_type
  *
- * @property UsageTrunk $usage
- * @property Tariff $package
+ * @property-read UsageTrunk $usage
+ * @property-read Tariff $package
  */
 class UsageTrunkSettings extends ActiveRecord
 {

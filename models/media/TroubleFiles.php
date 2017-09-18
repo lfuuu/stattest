@@ -7,7 +7,7 @@ use app\classes\model\ActiveRecord;
 use app\models\Trouble;
 
 /**
- * @property TroubleMedia $mediaManager
+ * @property-read TroubleMedia $mediaManager
  */
 class TroubleFiles extends ActiveRecord
 {

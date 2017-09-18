@@ -19,7 +19,7 @@ use Yii;
  * @property string $store_filename
  * @property bool $parsed
  *
- * @property Pricelist $pricelist
+ * @property-read Pricelist $pricelist
  */
 class PricelistFile extends ActiveRecord
 {

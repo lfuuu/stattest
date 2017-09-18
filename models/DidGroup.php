@@ -78,8 +78,8 @@ use yii\helpers\Url;
  *
  * @property string $comment
  *
- * @property City $city
- * @property Country $country
+ * @property-read City $city
+ * @property-read Country $country
  */
 class DidGroup extends ActiveRecord
 {

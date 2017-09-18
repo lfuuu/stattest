@@ -14,7 +14,7 @@ use yii\db\Query;
  * @property int $resource_id
  * @property string $feature
  *
- * @property Tags $tag
+ * @property-read Tags $tag
  * @property array $tagList
  */
 class TagsResource extends ActiveRecord

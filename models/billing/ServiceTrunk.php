@@ -23,7 +23,7 @@ use Yii;
  * @property string $contract_number
  * @property int $contract_type_id
  *
- * @property Trunk $trunk
+ * @property-read Trunk $trunk
  *
  * Class ServiceTrunk
  * @package app\models\billing

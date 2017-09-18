@@ -16,9 +16,9 @@ use yii\db\ActiveQuery;
  * @property int $tariff_id
  * @property int $charge_period_id
  *
- * @property Period $chargePeriod
- * @property Tariff $tariff
- * @property AccountTariff[] $accountTariffs
+ * @property-read Period $chargePeriod
+ * @property-read Tariff $tariff
+ * @property-read AccountTariff[] $accountTariffs
  */
 class TariffPeriod extends HistoryActiveRecord
 {

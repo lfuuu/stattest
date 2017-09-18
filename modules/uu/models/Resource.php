@@ -23,7 +23,7 @@ use yii\db\ActiveQuery;
  * @property integer $service_type_id
  * @property string $unit
  *
- * @property ServiceType $serviceType
+ * @property-read ServiceType $serviceType
  */
 class Resource extends ActiveRecord
 {

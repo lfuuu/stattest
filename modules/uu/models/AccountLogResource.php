@@ -26,11 +26,11 @@ use yii\helpers\Url;
  * @property int $account_entry_id
  * @property int $account_tariff_resource_log_id
  *
- * @property AccountTariff $accountTariff
- * @property TariffPeriod $tariffPeriod
- * @property TariffResource $tariffResource
- * @property AccountEntry $accountEntry
- * @property AccountTariffResourceLog $accountTariffResourceLog
+ * @property-read AccountTariff $accountTariff
+ * @property-read TariffPeriod $tariffPeriod
+ * @property-read TariffResource $tariffResource
+ * @property-read AccountEntry $accountEntry
+ * @property-read AccountTariffResourceLog $accountTariffResourceLog
  */
 class AccountLogResource extends ActiveRecord
 {

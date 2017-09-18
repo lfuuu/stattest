@@ -13,7 +13,7 @@ use Yii;
  * @property integer $region
  * @property integer $operator_id
  *
- * @property Geo $geo
+ * @property-read Geo $geo
  */
 class Prefix extends ActiveRecord
 {

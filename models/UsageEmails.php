@@ -12,7 +12,7 @@ use DateTime;
 
 /**
  * @property int $id
- * @property UsageEmailHelper $helper
+ * @property-read UsageEmailHelper $helper
  */
 class UsageEmails extends ActiveRecord implements UsageInterface
 {

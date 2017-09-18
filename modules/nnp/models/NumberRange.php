@@ -36,12 +36,12 @@ use yii\helpers\Url;
  * @property string $detail_resolution
  * @property string $status_number
  *
- * @property Operator $operator
- * @property Region $region
- * @property City $city
- * @property NumberRangePrefix[] $numberRangePrefixes
- * @property NdcType $ndcType
- * @property Country $country
+ * @property-read Operator $operator
+ * @property-read Region $region
+ * @property-read City $city
+ * @property-read NumberRangePrefix[] $numberRangePrefixes
+ * @property-read NdcType $ndcType
+ * @property-read Country $country
  */
 class NumberRange extends ActiveRecord
 {

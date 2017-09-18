@@ -37,8 +37,8 @@ use app\modules\uu\models_light\InvoiceItemsLight;
  * @property int $uu_account_entry_id
  *
  * @property int $type           тип строки. значения: service, zalog, zadatok, good, all4net
- * @property Bill $bill
- * @property AccountEntry $accountEntry
+ * @property-read Bill $bill
+ * @property-read AccountEntry $accountEntry
  */
 class BillLine extends HistoryActiveRecord
 {

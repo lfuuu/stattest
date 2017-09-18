@@ -10,7 +10,7 @@ use Yii;
  * @property int $geo_city_id
  * @property int $geo_operator_id
  *
- * @property Pricelist $pricelist
+ * @property-read Pricelist $pricelist
  */
 class NetworkConfig extends ActiveRecord
 {

@@ -12,8 +12,8 @@ use yii\helpers\ArrayHelper;
  * @property array $items
  * @property array $log
  *
- * @property LogDecorator[] $prettyLog
- * @property ArrayDataProvider $dataProvider
+ * @property-read LogDecorator[] $prettyLog
+ * @property-read ArrayDataProvider $dataProvider
  */
 class WhiteListDecorator extends Model
 {

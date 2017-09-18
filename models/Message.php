@@ -11,8 +11,8 @@ use app\classes\model\ActiveRecord;
  * @property string $create_at
  * @property int $is_read
  *
- * @property MessageText $text
- * @property ClientAccount $account
+ * @property-read MessageText $text
+ * @property-read ClientAccount $account
  */
 class Message extends ActiveRecord
 {

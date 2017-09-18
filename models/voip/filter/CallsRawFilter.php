@@ -72,8 +72,8 @@ use yii\db\Query;
  * @property float $orig_rate
  * @property float $term_rate
  *
- * @property \DateTime $dateStart = null;
- * @property Connection $dbConn
+ * @property-read \DateTime $dateStart = null;
+ * @property-read Connection $dbConn
  *
  * @property array src_trunk_group_ids
  * @property array dst_trunk_group_ids

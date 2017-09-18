@@ -10,7 +10,7 @@ use yii\base\Model;
  * @property array $scheme
  * @property array $log
  *
- * @property LogDecorator[] $prettyLog
+ * @property-read LogDecorator[] $prettyLog
  */
 class SchemeDecorator extends Model
 {

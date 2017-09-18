@@ -22,8 +22,8 @@ use yii\helpers\Url;
  * @property integer $prefix
  * @property integer $order
  * @property integer $default_connection_point_id
- * @property Currency $currency
- * @property PublicSiteCountry[] $publicSiteCountries
+ * @property-read Currency $currency
+ * @property-read PublicSiteCountry[] $publicSiteCountries
  */
 class Country extends ActiveRecord
 {

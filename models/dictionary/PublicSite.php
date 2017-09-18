@@ -13,7 +13,7 @@ use yii\helpers\Url;
  * @property int $title
  * @property int $domain
  *
- * @property PublicSiteCountry[] $publicSiteCountries
+ * @property-read PublicSiteCountry[] $publicSiteCountries
  */
 class PublicSite extends ActiveRecord
 {

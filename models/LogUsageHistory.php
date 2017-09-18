@@ -12,7 +12,7 @@ use app\classes\model\ActiveRecord;
  * @property integer $service_id
  * @property integer $user_id
  * @property string $ts
- * @property LogUsageHistoryFields[] $fields
+ * @property-read LogUsageHistoryFields[] $fields
  */
 class LogUsageHistory extends ActiveRecord
 {

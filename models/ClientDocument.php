@@ -25,7 +25,7 @@ use Yii;
  * @property int $is_active
  * @property string $type
  * @property string $fileContent
- * @property ClientAccount clientAccount
+ * @property-read ClientAccount clientAccount
  */
 class ClientDocument extends ActiveRecord
 {

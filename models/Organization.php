@@ -40,9 +40,9 @@ use Yii;
  * @property int $director_id                    ID записи персон на должность директора
  * @property int $accountant_id                  ID записи персон на должность бухгалтера
  *
- * @property Person $director
- * @property Person $accountant
- * @property OrganizationSettlementAccount $settlementAccount
+ * @property-read Person $director
+ * @property-read Person $accountant
+ * @property-read OrganizationSettlementAccount $settlementAccount
  */
 class Organization extends ActiveRecord
 {

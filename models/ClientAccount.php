@@ -77,38 +77,38 @@ use yii\helpers\Url;
  * @property int $price_type
  * @property int $price_level
  *
- * @property Currency $currencyModel
- * @property ClientSuper $superClient
- * @property ClientContractComment $lastComment
- * @property Country $country
- * @property Region $accountRegion
- * @property DateTimeZone $timezone
- * @property LkClientSettings $lkClientSettings
- * @property LkNoticeSetting $lkNoticeSetting
- * @property ClientFlag $flag
- * @property ClientContact[] $contacts
- * @property ClientContract $contract
- * @property ClientContragent $contragent
- * @property Organization $organization
- * @property User $userAccountManager
- * @property LkWizardState $lkWizardState
- * @property ClientCounter $billingCounters
- * @property ClientCounter $billingCountersFastMass
+ * @property-read Currency $currencyModel
+ * @property-read ClientSuper $superClient
+ * @property-read ClientContractComment $lastComment
+ * @property-read Country $country
+ * @property-read Region $accountRegion
+ * @property-read DateTimeZone $timezone
+ * @property-read LkClientSettings $lkClientSettings
+ * @property-read LkNoticeSetting $lkNoticeSetting
+ * @property-read ClientFlag $flag
+ * @property-read ClientContact[] $contacts
+ * @property-read ClientContract $contract
+ * @property-read ClientContragent $contragent
+ * @property-read Organization $organization
+ * @property-read User $userAccountManager
+ * @property-read LkWizardState $lkWizardState
+ * @property-read ClientCounter $billingCounters
+ * @property-read ClientCounter $billingCountersFastMass
  * @property string $company_full
  * @property string $address_jur
- * @property ClientContact[] $allContacts
+ * @property-read ClientContact[] $allContacts
  * @property integer $businessId
- * @property City $city
- * @property AccountTariff[] $accountTariffs
- * @property UsageVoip[] $usageVoips
- * @property UsageTechCpe[] $usageTechCpes
- * @property UsageWelltime[] $usageWelltimes
- * @property UsageExtra[] $usageExtras
- * @property UsageVirtpbx[] $usageVirtpbxs
- * @property UsageSms[] $usageSmses
- * @property UsageIpPorts[] $usageIpPorts
+ * @property-read City $city
+ * @property-read AccountTariff[] $accountTariffs
+ * @property-read UsageVoip[] $usageVoips
+ * @property-read UsageTechCpe[] $usageTechCpes
+ * @property-read UsageWelltime[] $usageWelltimes
+ * @property-read UsageExtra[] $usageExtras
+ * @property-read UsageVirtpbx[] $usageVirtpbxs
+ * @property-read UsageSms[] $usageSmses
+ * @property-read UsageIpPorts[] $usageIpPorts
  * @property usageTrunk[] $usageTrunks
- * @property UsageCallChat[] $usageCallChats
+ * @property-read UsageCallChat[] $usageCallChats
  */
 class ClientAccount extends HistoryActiveRecord
 {

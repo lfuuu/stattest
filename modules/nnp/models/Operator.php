@@ -13,7 +13,7 @@ use yii\helpers\Url;
  * @property int $country_code
  * @property int $cnt
  *
- * @property Country $country
+ * @property-read Country $country
  */
 class Operator extends ActiveRecord
 {

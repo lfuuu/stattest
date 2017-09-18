@@ -18,7 +18,7 @@ use app\helpers\DateTimeZoneHelper;
  * @property integer status
  * @property string order_url
  * @property string info_json
- * @property Bill bill
+ * @property-read Bill bill
  */
 class SberbankOrder extends ActiveRecord
 {

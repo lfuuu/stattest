@@ -15,9 +15,9 @@ use yii\db\ActiveQuery;
  * @property int $tariff_id
  * @property int $pricelist_id
  *
- * @property Tariff $tariff  FK нет, ибо в таблица в другой БД
- * @property Package $package
- * @property Pricelist $pricelist  FK нет, ибо в таблица в другой БД
+ * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
+ * @property-read Package $package
+ * @property-read Pricelist $pricelist  FK нет, ибо в таблица в другой БД
  */
 class PackagePricelist extends ActiveRecord
 {

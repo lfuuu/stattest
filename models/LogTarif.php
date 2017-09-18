@@ -26,14 +26,14 @@ use app\classes\model\ActiveRecord;
  * @property int $id_tarif_intern
  * @property int $id_tarif_sng
  * @property int $dest_group
- * @property UsageVoip $usageVoip
- * @property TariffVoip $voipTariffMain
- * @property TariffVoip $voipTariffLocalMob
- * @property TariffVoip $voipTariffRussia
- * @property TariffVoip $voipTariffRussiaMob
- * @property TariffVoip $voipTariffIntern
- * @property TariffInternet $internetTariff
- * @property User $user
+ * @property-read UsageVoip $usageVoip
+ * @property-read TariffVoip $voipTariffMain
+ * @property-read TariffVoip $voipTariffLocalMob
+ * @property-read TariffVoip $voipTariffRussia
+ * @property-read TariffVoip $voipTariffRussiaMob
+ * @property-read TariffVoip $voipTariffIntern
+ * @property-read TariffInternet $internetTariff
+ * @property-read User $user
  */
 class LogTarif extends ActiveRecord
 {

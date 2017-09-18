@@ -15,7 +15,7 @@ use DateTime;
 
 /**
  * @property int $id
- * @property UsageIpPortsHelper $helper
+ * @property-read UsageIpPortsHelper $helper
  */
 class UsageIpPorts extends ActiveRecord implements UsageInterface, UsageLogTariffInterface
 {
