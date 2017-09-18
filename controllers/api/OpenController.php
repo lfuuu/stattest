@@ -190,7 +190,7 @@ final class OpenController extends Controller
             !$countryId && $countryId = $freeNumber->country_code;
             !$currencyId && $currencyId = $freeNumber->country->currency_id;
 
-            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $freeNumber->did_group_id);
+            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $freeNumber->ndc_type_id);
             $responseNumbers[] = $responseNumber;
         }
 
@@ -347,7 +347,7 @@ final class OpenController extends Controller
             !$countryId && $countryId = $freeNumber->country_code;
             !$currencyId && $currencyId = $freeNumber->country->currency_id;
 
-            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $freeNumber->did_group_id);
+            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $freeNumber->ndc_type_id);
 
             $response[$groupKey] = [];
             foreach ($responseNumber as $key => $value) {
