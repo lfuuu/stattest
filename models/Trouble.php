@@ -42,7 +42,7 @@ class Trouble extends ActiveRecord
     const DEFAULT_SUPPORT_FOLDER = 257;
     const DEFAULT_SUPPORT_STATE = 1;
     const DEFAULT_CONNECT_FOLDER = 137438953473;
-    const DEFAULT_CONNECT_STATE = 137438953472;
+    const DEFAULT_CONNECT_STATE = 41;
     const TYPE_TROUBLE = 'trouble';
     const TYPE_TASK = 'task';
     const TYPE_CONSULTATION = 'consultation';
