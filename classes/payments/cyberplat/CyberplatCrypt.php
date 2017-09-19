@@ -1,6 +1,6 @@
 <?php
 
-namespace  app\classes\payments\cyberplat;
+namespace app\classes\payments\cyberplat;
 
 use app\classes\Singleton;
 use yii\base\InvalidConfigException;
@@ -8,42 +8,50 @@ use yii\base\InvalidConfigException;
 class CyberplatCrypt extends Singleton
 {
 
-    private $_organizationId = null;
-
     private $_privateKey = "";
     private $_publicKey = "";
     private $_passhare = "";
     private $_cyberplatPublicKey = "";
 
     /**
-     * Устанавливаем организацию
+     * Инициализация
      *
-     * @param integer $organizationId
      * @return $this
      * @throws InvalidConfigException
      */
-    public function setOrganization($organizationId)
+    public function init()
     {
-        $this->_organizationId = $organizationId;
-
-        if (!$organizationId) {
-            throw new InvalidConfigException('Организация не задана');
-        }
-
         if (defined('YII_ENV') && YII_ENV == 'test') {
             return $this;
         }
 
-        if (!isset(\Yii::$app->params['Cyberplat']) || !\Yii::$app->params['Cyberplat'] || !isset(\Yii::$app->params['Cyberplat'][$this->_organizationId])) {
+        if (!isset(\Yii::$app->params['Cyberplat']) || !\Yii::$app->params['Cyberplat']) {
             throw new InvalidConfigException('Cyberplat not configured');
         }
 
-        $organizationConfig = \Yii::$app->params['Cyberplat'][$this->_organizationId];
+        foreach ([
+                     '_cyberplatPublicKey' => 'public_key',
+                     '_privateKey' => 'mcn_private_key',
+                     '_publicKey' => 'mcn_public_key',
+                     '_passhare' => 'mcn_passhare'
+                 ] as $property => $confKey) {
 
-        $this->_privateKey = file_get_contents(STORE_PATH . "keys/" . $organizationConfig['private_key']);
-        $this->_publicKey = file_get_contents(STORE_PATH . "keys/" . $organizationConfig['public_key']);
-        $this->_passhare = file_get_contents(STORE_PATH . "keys/" . $organizationConfig['passhare']);
-        $this->_cyberplatPublicKey = file_get_contents(STORE_PATH . "keys/" . \Yii::$app->params['Cyberplat']['public_key']);
+            if (!isset(\Yii::$app->params['Cyberplat'][$confKey])) {
+                throw new InvalidConfigException('Cyberplat not configured (' . $confKey . ')');
+            }
+
+            $filePath = STORE_PATH . "keys/" . \Yii::$app->params['Cyberplat'][$confKey];
+
+            if (!is_file($filePath) || !is_readable($filePath)) {
+                throw new InvalidConfigException('Cyberplat not configured (file read error: ' . $confKey . ')');
+            }
+
+            $this->{$property} = file_get_contents($filePath);
+
+            if (!$this->{$property}) {
+                throw new InvalidConfigException('Cyberplat not configured (empty file: ' . $confKey . ')');
+            }
+        }
 
         return $this;
     }
@@ -58,10 +66,6 @@ class CyberplatCrypt extends Singleton
      */
     public function checkSign($msg, $signHex)
     {
-        if (!$this->_organizationId) {
-            throw new InvalidConfigException('Организация не задана');
-        }
-
         $msg = trim($msg);
         if (!($sign = @pack("H*", $signHex))) {
             return false;
@@ -83,10 +87,6 @@ class CyberplatCrypt extends Singleton
     {
         if (defined('YII_ENV') && YII_ENV == 'test') {
             return $str;
-        }
-
-        if (!$this->_organizationId) {
-            throw new InvalidConfigException('Организация не задана');
         }
 
         $pk = openssl_pkey_get_private($this->_privateKey, trim($this->_passhare));

@@ -16,16 +16,17 @@ class CyberplatFieldCheck
     const PAYMENT_SUM_MIN = 10;
     const PAYMENT_SUM_MAX = 15000;
 
-    private $_organizationId = null;
+    private $_organizationIds = null;
+    public $organizationId = null;
 
     /**
      * CyberplatFieldCheck constructor.
      *
-     * @param integer $organizationId
+     * @param integer[] $organizationIds
      */
-    public function __construct($organizationId)
+    public function __construct($organizationIds)
     {
-        $this->_organizationId = $organizationId;
+        $this->_organizationIds = $organizationIds;
     }
 
     /**
@@ -77,9 +78,11 @@ class CyberplatFieldCheck
         $account = ClientAccount::findOne([(is_numeric($data["number"]) ? 'id' : 'client') => ($data["number"])]);
 
         // Не найден ЛС или организация не совпадает
-        if (!$account || !$account->contract || $account->contract->organization_id != $this->_organizationId) {
+        if (!$account || !$account->contract || !in_array($account->contract->organization_id, $this->_organizationIds)) {
             throw new AnswerErrorClientNotFound();
         }
+
+        $this->organizationId = $account->contract->organization_id;
 
         return $account;
     }

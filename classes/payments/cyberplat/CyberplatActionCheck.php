@@ -16,18 +16,21 @@ use app\models\Payment;
 
 class CyberplatActionCheck
 {
-    private $_organizationId = null;
+    private $_organizationIds = null;
+    private $_organizationToAuthCode = null;
 
     /**
      * CyberplatActionCheck constructor.
      *
-     * @param integer $organizationId
+     * @param integer[] $organizationIds
+     * @param integer[] $organizationToAuthCode
      */
-    public function __construct($organizationId)
+    public function __construct($organizationIds, $organizationToAuthCode)
     {
-        $this->_organizationId = $organizationId;
+        $this->_organizationIds = $organizationIds;
+        $this->_organizationToAuthCode = $organizationToAuthCode;
 
-        $this->fieldChecker = new CyberplatFieldCheck($this->_organizationId);
+        $this->fieldChecker = new CyberplatFieldCheck($this->_organizationIds);
     }
 
     /**
@@ -42,7 +45,10 @@ class CyberplatActionCheck
         $this->fieldChecker->assertAmount($data);
         $this->fieldChecker->assertNumber($data);
 
-        return new AnswerOk("Абонент найден");
+        $answer = new AnswerOk("Абонент найден");
+        $answer->authcode = $this->_organizationToAuthCode[$this->fieldChecker->organizationId];
+
+        return $answer;
     }
 
     /**
@@ -58,6 +64,7 @@ class CyberplatActionCheck
         $this->fieldChecker->assertType($data);
         $this->fieldChecker->assertAmount($data);
         $this->fieldChecker->assertReceipt($data);
+
         $paymentDate = $this->fieldChecker->assertDate($data);
         $client = $this->fieldChecker->assertNumber($data);
 
@@ -65,10 +72,10 @@ class CyberplatActionCheck
             $payment = Payment::findOne(["payment_no" => $data["receipt"]]);
 
             $answer = new AnswerOkPayment();
-            $answer->setData(array(
+            $answer->setData([
                     "authcode" => $payment->id,
                     "date" => date(DateTimeZoneHelper::ISO8601_WITHOUT_TIMEZONE, strtotime($payment->add_date))
-                )
+                ]
             );
 
             return $answer;
@@ -147,7 +154,7 @@ class CyberplatActionCheck
     {
         $queryStr = $_SERVER["QUERY_STRING"];
 
-        if (!preg_match("/(action=.*)&sign=(.*)/", $queryStr, $o) || !CyberplatCrypt::me()->setOrganization($this->_organizationId)->checkSign($o[1], $o[2])) {
+        if (!preg_match("/(action=.*)&sign=(.*)/", $queryStr, $o) || !CyberplatCrypt::me()->checkSign($o[1], $o[2])) {
             throw new AnswerErrorSign();
         }
 

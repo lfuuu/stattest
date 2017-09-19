@@ -7,6 +7,7 @@ use app\classes\payments\cyberplat\exceptions\AnswerErrorCancel;
 use app\classes\payments\cyberplat\exceptions\AnswerOk;
 use app\classes\payments\cyberplat\exceptions\CyberplatError;
 use app\classes\payments\cyberplat\exceptions\CyberplatOk;
+use app\models\Organization;
 use yii\base\InvalidConfigException;
 
 class CyberplatProcessor
@@ -23,7 +24,12 @@ class CyberplatProcessor
     private $_answerCode = null;
     private $_answerData = [];
 
-    private $_organizationId = null;
+    private $_organizationIds = [];
+
+    private $_organizationToAuthCode = [
+        Organization::MCN_TELECOM => 3445,
+        Organization::MCN_TELECOM_RETAIL => 4173
+    ];
 
     /**
      * Основная функция запуска обработчика
@@ -34,7 +40,7 @@ class CyberplatProcessor
      */
     public function proccessRequest($action = null)
     {
-        if (!$this->_organizationId) {
+        if (!$this->_organizationIds) {
             throw new InvalidConfigException('Организация не задана');
         }
 
@@ -64,12 +70,26 @@ class CyberplatProcessor
     /**
      * Устанавливаем организацию, принимающую платеж
      *
-     * @param integer $organizationId
+     * @param integer[] $organizationIds
      * @return $this
+     * @internal param \integer[] $organizationId
      */
-    public function setOrganization($organizationId)
+    public function setOrganization($organizationIds)
     {
-        $this->_organizationId = $organizationId;
+        if (!is_array($organizationIds)) {
+            $organizationIds = [$organizationIds];
+        }
+
+        foreach ($organizationIds as $organizationId) {
+
+            if (!isset($this->_organizationToAuthCode[$organizationId])) {
+                throw new \InvalidArgumentException('Настройки организации "' . $organizationId . '" не найдены');
+            }
+
+            if (!array_search($organizationId, $this->_organizationIds)) {
+                $this->_organizationIds[] = $organizationId;
+            }
+        }
 
         return $this;
     }
@@ -86,7 +106,7 @@ class CyberplatProcessor
         $this->_load();
         $this->_log($this->_data);
 
-        $this->_actionChecker = new CyberplatActionCheck($this->_organizationId);
+        $this->_actionChecker = new CyberplatActionCheck($this->_organizationIds, $this->_organizationToAuthCode);
 
         if ($this->_isNeedCheckSign) {
             $this->_actionChecker->assertSign();
@@ -216,7 +236,7 @@ class CyberplatProcessor
         $this->_answerCode = $e->getCode();
         $this->_answerData = [];
 
-        return CyberplatCrypt::me()->setOrganization($this->_organizationId)->sign($str);
+        return CyberplatCrypt::me()->sign($str);
     }
 
     /**
@@ -224,6 +244,7 @@ class CyberplatProcessor
      *
      * @param CyberplatOk $e
      * @return string
+     * @throws InvalidConfigException
      */
     private function _makeOkAnswer(CyberplatOk $e)
     {
@@ -231,13 +252,14 @@ class CyberplatProcessor
             '<response>' .
             '<code>0</code>' . $e->getDataStr() .
             '<message>' . iconv('utf-8', 'windows-1251//TRANSLIT', $e->getMessage()) . '</message>' .
+            '<authcode>' . $e->authcode . '</authcode>' .
             '</response>';
         $this->_log($str);
 
         $this->_answerCode = 0;
         $this->_answerData = $e->data;
 
-        return CyberplatCrypt::me()->setOrganization($this->_organizationId)->sign($str);
+        return CyberplatCrypt::me()->sign($str);
     }
 
     /**

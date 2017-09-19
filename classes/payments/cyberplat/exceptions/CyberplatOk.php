@@ -6,7 +6,11 @@ abstract class CyberplatOk
 {
     public $code = 0;
     public $message = "";
-    public $data = array();
+    public $data = [];
+
+    public $authcode = null;
+
+    private $_organizationId = null;
 
     /**
      * CyberplatOk constructor.
