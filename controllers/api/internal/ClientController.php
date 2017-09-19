@@ -307,7 +307,7 @@ class ClientController extends ApiInternalController
                             'id' => $account->id,
                             'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
                             'is_blocked' => (bool)$account->is_blocked,
-                            'is_finance_block' => false,
+                            'is_finance_block' => ($account->credit >= 0 && $account->billingCounters->realtimeBalance + $account->credit < 0),
                             'is_overran_block' => false,
                             'is_bill_pay_overdue' => (bool)$account->is_bill_pay_overdue,
                             'is_postpaid' => (bool)$account->is_postpaid,
