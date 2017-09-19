@@ -24,4 +24,5 @@ return [
         'url' => '',
         'authinfo' => '',
     ],
+    'HEALTH_JSON_URLS' => [],
 ];

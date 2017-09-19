@@ -4,6 +4,7 @@ namespace app\commands;
 
 use app\classes\HealthMonitor;
 use app\helpers\DateTimeZoneHelper;
+use Yii;
 use yii\console\Controller;
 use yii\helpers\Json;
 
@@ -15,7 +16,6 @@ class HealthController extends Controller
     const MONITOR_ICON_CONFIG = [
         HealthMonitor::QUEUE_PLANED => [10, 20, 30], // warning, critical, error
         HealthMonitor::QUEUE_STOPPED => [1, 10, 20],
-        HealthMonitor::LOAD_AVERAGE => [4, 5, 8],
         HealthMonitor::Z_SYNC_QUEUE_LENGTH => [5, 10, 20]
     ];
 
@@ -25,11 +25,6 @@ class HealthController extends Controller
     const STATUS_ERROR = 'STATUS_ERROR';
 
     const HEALTH_JSON_FILE_PATH = '@app/web/operator/_private/health.json';
-
-    const EXTERNAL_JSON_FILES = [
-        'healthSync' => 'http://eridanus.mcn.ru/health/healthSync.json',
-        'healthFullSync' => 'http://eridanus.mcn.ru/health/healthFullSync.json',
-    ];
 
     /**
      * Сбор счетчиков
@@ -91,8 +86,9 @@ class HealthController extends Controller
         $datetimeYesterday = (new \DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         // Добавить внешние JSON
-        foreach (self::EXTERNAL_JSON_FILES as $jsonKey => $jsonUrl) {
-            $jsonString = file_get_contents($jsonUrl);
+        $healthJsonUrls = isset(Yii::$app->params['HEALTH_JSON_URLS']) ? Yii::$app->params['HEALTH_JSON_URLS'] : [];
+        foreach ($healthJsonUrls as $jsonKey => $jsonUrl) {
+            $jsonString = @file_get_contents($jsonUrl);
             if (!$jsonString) {
                 $data['item' . $count++] = [
                     'itemId' => $jsonKey,
