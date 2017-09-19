@@ -94,10 +94,10 @@ use yii\helpers\Url;
  * @property-read LkWizardState $lkWizardState
  * @property-read ClientCounter $billingCounters
  * @property-read ClientCounter $billingCountersFastMass
- * @property string $company_full
- * @property string $address_jur
+ * @property-read string $company_full
+ * @property-read string $address_jur
  * @property-read ClientContact[] $allContacts
- * @property integer $businessId
+ * @property-read integer $businessId
  * @property-read City $city
  * @property-read AccountTariff[] $accountTariffs
  * @property-read UsageVoip[] $usageVoips
@@ -107,7 +107,7 @@ use yii\helpers\Url;
  * @property-read UsageVirtpbx[] $usageVirtpbxs
  * @property-read UsageSms[] $usageSmses
  * @property-read UsageIpPorts[] $usageIpPorts
- * @property usageTrunk[] $usageTrunks
+ * @property-read UsageTrunk[] $usageTrunks
  * @property-read UsageCallChat[] $usageCallChats
  */
 class ClientAccount extends HistoryActiveRecord

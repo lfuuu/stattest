@@ -120,6 +120,7 @@ class Region extends ActiveRecord
     public function getCities()
     {
         return $this->hasMany(City::className(), ['connection_point_id' => 'id'])
+            ->andWhere(['in_use' => 1])
             ->orderBy(['order' => SORT_ASC]);
     }
 
