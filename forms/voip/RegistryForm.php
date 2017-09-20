@@ -32,8 +32,7 @@ class RegistryForm extends Form
         $ndcList = [],
         $operator = '',
         $fmc_trunk_id = null,
-        $mvno_trunk_id = null
-    ;
+        $mvno_trunk_id = null;
 
 
     /** @var Registry */
@@ -50,7 +49,8 @@ class RegistryForm extends Form
                 'required',
                 'on' => 'save'
             ],
-            ['city_id',
+            [
+                'city_id',
                 'required',
                 'on' => 'save',
                 'when' => function ($model) {
@@ -181,7 +181,11 @@ class RegistryForm extends Form
             $this->city_id = null;
         }
 
-        $this->ndcList = NumberRange::getNdcList($this->country_id, $this->city_id, $this->ndc_type_id);
+        $this->ndcList = NumberRange::getNdcList(
+            $this->country_id,
+            $this->ndc_type_id == NdcType::ID_MOBILE ? null : $this->city_id,
+            $this->ndc_type_id
+        );
 
         if (!isset($this->ndcList[$this->ndc])) {
             $this->ndc = $this->ndcList ? reset($this->ndcList) : '';
