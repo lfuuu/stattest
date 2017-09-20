@@ -23,6 +23,7 @@ use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\behaviors\SyncVmCollocation;
 use app\modules\uu\models\AccountTariff;
+use yii\base\InvalidParamException;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -391,11 +392,12 @@ function doEvents()
             echo PHP_EOL . '--------------' . PHP_EOL;
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $message . ' in ' . $e->getFile() . ' +' . $e->getLine();
 
-            
+
             $isContinue = $e instanceof yii\base\InvalidCallException // ошибка вызова внешней системы
+                || $e instanceof InvalidParamException // Syntax error. В ответ пришел не JSON
                 || strpos($message, 'Operation timed out') !== false // Curl error: #28 - Operation timed out after 30000 milliseconds with 0 bytes received
                 || $e->getCode() == 40001; // Deadlock found when trying to get lock
-            
+
             // остальное - завершаем
             $event->setError($e, !$isContinue);
         }
