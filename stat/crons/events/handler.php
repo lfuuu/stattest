@@ -387,11 +387,15 @@ function doEvents()
 
         } catch (Exception $e) {
 
+            $message = $e->getMessage();
             echo PHP_EOL . '--------------' . PHP_EOL;
-            echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ' +' . $e->getLine();
+            echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $message . ' in ' . $e->getFile() . ' +' . $e->getLine();
 
-            $isContinue = $e instanceof yii\base\InvalidCallException // для ошибок вызова внешней системы повторяем
-                || $e->getCode() == 40001; // для ошибок "Deadlock found when trying to get lock" повторяем
+            
+            $isContinue = $e instanceof yii\base\InvalidCallException // ошибка вызова внешней системы
+                || strpos($message, 'Operation timed out') !== false // Curl error: #28 - Operation timed out after 30000 milliseconds with 0 bytes received
+                || $e->getCode() == 40001; // Deadlock found when trying to get lock
+            
             // остальное - завершаем
             $event->setError($e, !$isContinue);
         }
