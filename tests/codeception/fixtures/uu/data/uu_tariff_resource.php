@@ -205,6 +205,13 @@ $allTariffResources = [
         'resource_id' => Resource::ID_VOIP_FMC,
         'tariff_id' => Tariff::DELTA + 4,
     ],
+    [
+        'amount' => 1,
+        'price_per_unit' => 99,
+        'price_min' => 0,
+        'resource_id' => Resource::ID_VOIP_MOBILE_OUTBOUND,
+        'tariff_id' => Tariff::DELTA + 4,
+    ],
 
     // Тариф 6
     [

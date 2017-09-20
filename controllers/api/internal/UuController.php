@@ -1145,8 +1145,10 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "is_package_addable", type = "boolean", description = "Можно ли подключить пакет?"),
      *   @SWG\Property(property = "is_cancelable", type = "boolean", description = "Можно ли отменить смену тарифа или закрытие? Если в будущем назначена смена тарифа или закрытие"),
      *   @SWG\Property(property = "is_editable", type = "boolean", description = "Можно ли сменить тариф или отключить услугу?"),
-     *   @SWG\Property(property = "is_fmc_editable", type = "boolean", description = "Можно ли редактировать ресурс FMC? Если null - знаит, неприменимо"),
+     *   @SWG\Property(property = "is_fmc_editable", type = "boolean", description = "Можно ли редактировать ресурс FMC? Если null - неприменимо"),
      *   @SWG\Property(property = "is_fmc_active", type = "boolean", description = "Включен ли ресурс FMC?"),
+     *   @SWG\Property(property = "is_mobile_outbound_editable", type = "boolean", description = "Можно ли редактировать ресурс Исх.моб.связь? Если null - неприменимо"),
+     *   @SWG\Property(property = "is_mobile_outbound_active", type = "boolean", description = "Включен ли ресурс Исх.моб.связь?"),
      *   @SWG\Property(property = "log", type = "array", description = "Сокращенный лог тарифов (только текущий и будущий). По убыванию даты", @SWG\Items(ref = "#/definitions/accountTariffLogLightRecord")),
      *   @SWG\Property(property = "resources", type = "array", description = "Ресурсы", @SWG\Items(ref = "#/definitions/accountTariffResourceLightRecord")),
      *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие. И с которой уменьшение количества ресурса повлияет на баланс. ГГГГ-ММ-ДД"),
@@ -1217,7 +1219,18 @@ class UuController extends ApiInternalController
     private function _getAccountTariffWithPackagesRecord($accountTariff)
     {
         $number = $accountTariff->number;
-        $isFmcActive = $accountTariff->getResourceValue(Resource::ID_VOIP_FMC);
+
+        if ($number) {
+            $isFmcEditable = $number->isMobileOutboundEditable();
+            $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_FMC));
+
+            $isMobileOutboundEditable = $number->isMobileOutboundEditable();
+            $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_MOBILE_OUTBOUND));
+        } else {
+            $isFmcEditable = $isFmcActive = null;
+            $isMobileOutboundEditable = $isMobileOutboundActive = null;
+        }
+
         $record = [
             'id' => $accountTariff->id,
             'service_type' => $this->_getIdNameRecord($accountTariff->serviceType),
@@ -1231,8 +1244,10 @@ class UuController extends ApiInternalController
             'is_package_addable' => $accountTariff->isPackageAddable(), // Можно ли подключить пакет?
             'is_cancelable' => $accountTariff->isLogCancelable(), // Можно ли отменить смену тарифа?
             'is_editable' => $accountTariff->isLogEditable(), // Можно ли сменить тариф или отключить услугу?
-            'is_fmc_editable' => $number ? $number->isFmcEditable() : null,
-            'is_fmc_active' => $isFmcActive === null ? null : (bool)$isFmcActive,
+            'is_fmc_editable' => $isFmcEditable,
+            'is_fmc_active' => $isFmcActive,
+            'is_mobile_outbound_editable' => $isMobileOutboundEditable,
+            'is_mobile_outbound_active' => $isMobileOutboundActive,
             'log' => $this->_getAccountTariffLogLightRecord($accountTariff->accountTariffLogs),
             'resources' => $this->_getAccountTariffResourceLightRecord($accountTariff),
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),

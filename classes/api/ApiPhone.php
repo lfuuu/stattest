@@ -6,7 +6,6 @@ use app\classes\HttpClient;
 use app\classes\Singleton;
 use app\models\ClientAccount;
 use app\models\Region;
-use InvalidArgumentException;
 use Yii;
 use yii\base\InvalidConfigException;
 
@@ -156,6 +155,8 @@ class ApiPhone extends Singleton
      * @param int $lines
      * @param int $isFmcActive
      * @param int $isFmcEditable
+     * @param int $isMobileOutboundActive
+     * @param int $isMobileOutboundEditable
      * @param int $region
      * @param string $number7800
      * @return array
@@ -164,8 +165,17 @@ class ApiPhone extends Singleton
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidCallException
      */
-    public function editDid($clientAccountId, $number, $lines, $isFmcActive = null, $isFmcEditable = null, $region = null, $number7800 = null)
-    {
+    public function editDid(
+        $clientAccountId,
+        $number,
+        $lines,
+        $isFmcActive = null,
+        $isFmcEditable = null,
+        $isMobileOutboundActive = null,
+        $isMobileOutboundEditable = null,
+        $region = null,
+        $number7800 = null
+    ) {
         $params = [
             'client_id' => $clientAccountId,
             'did' => $number,
@@ -178,6 +188,14 @@ class ApiPhone extends Singleton
 
         if ($isFmcEditable !== null) {
             $params['is_fmc_editable'] = (int)$isFmcEditable;
+        }
+
+        if ($isMobileOutboundActive !== null) {
+            $params['is_mobile_outbound_active'] = (int)$isMobileOutboundActive;
+        }
+
+        if ($isMobileOutboundEditable !== null) {
+            $params['is_mobile_outbound_editable'] = (int)$isMobileOutboundEditable;
         }
 
         if ($region) {

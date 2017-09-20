@@ -127,9 +127,16 @@ class VoipServiceTransfer extends BasicServiceTransfer
             'resource_id' => Resource::ID_VOIP_FMC,
         ]);
 
+        $mobileOutboudResource = new AccountTariffResourceLog;
+        $mobileOutboudResource->setAttributes([
+            'amount' => 0,
+            'resource_id' => Resource::ID_VOIP_MOBILE_OUTBOUND,
+        ]);
+
         return [
             $lineResource,
             $fmcResource,
+            $mobileOutboudResource,
         ];
     }
 

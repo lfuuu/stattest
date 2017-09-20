@@ -199,7 +199,7 @@ class VoipServiceTest extends _BaseService
             $resultResources[] = $accountTariffResourceLog->getAttributes();
         }
 
-        $this->assertEquals(2, count($resultResources));
+        $this->assertEquals(3, count($resultResources));
 
         $transaction->rollBack();
     }

@@ -468,6 +468,8 @@ class ActaulizerVoipNumbers extends Singleton
                 (int)$new['call_count'],
                 null,
                 null,
+                null,
+                null,
                 isset($changedFields['region']) ? (int)$changedFields['region'] : null,
                 isset($changedFields['number7800']) ? $changedFields['number7800'] : null
             );

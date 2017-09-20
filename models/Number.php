@@ -372,6 +372,36 @@ class Number extends ActiveRecord
     }
 
     /**
+     * Мобильный и непортированный - значит, наш. Тогда "Исх. моб. связь" можно включить/выключить по желанию юзера
+     *
+     * @return bool
+     */
+    public function isMobileOutboundEditable()
+    {
+        return $this->isFmcEditable();
+    }
+
+    /**
+     * Мобильный и портированный - "Исх. моб. связь" всегда включен.
+     *
+     * @return bool
+     */
+    public function isMobileOutboundAlwaysActive()
+    {
+        return $this->isFmcAlwaysActive();
+    }
+
+    /**
+     * Немобильный - "Исх. моб. связь" всегда выключен.
+     *
+     * @return bool
+     */
+    public function isMobileOutboundAlwaysInactive()
+    {
+        return $this->isFmcAlwaysInactive();
+    }
+
+    /**
      * @return City
      */
     public function getCityByNumber()

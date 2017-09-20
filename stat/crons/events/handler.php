@@ -314,7 +314,9 @@ function doEvents()
                         $param['number'],
                         $param['lines'],
                         $param['is_fmc_active'],
-                        $param['is_fmc_editable']
+                        $param['is_fmc_editable'],
+                        $param['is_mobile_outbound_active'],
+                        $param['is_mobile_outbound_editable']
                     );
                     break;
 

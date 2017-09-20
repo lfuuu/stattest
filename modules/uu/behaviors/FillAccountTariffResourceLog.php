@@ -47,6 +47,8 @@ class FillAccountTariffResourceLog extends Behavior
             return;
         }
 
+        /** @var \app\models\Number $number */
+        $number = $number = $accountTariff->number;
         $readerNames = Resource::getReaderNames();
         $tariff = $accountTariffLog->tariffPeriod->tariff;
         $tariffResources = $tariff->tariffResources;
@@ -62,10 +64,16 @@ class FillAccountTariffResourceLog extends Behavior
             $accountTariffResourceLog->actual_from_utc = $accountTariffLog->actual_from_utc;
             $accountTariffResourceLog->resource_id = $tariffResource->resource_id;
 
-            /** @var \app\models\Number $number */
-            if ($tariffResource->resource_id == Resource::ID_VOIP_FMC && ($number = $accountTariff->number) && $number->isFmcAlwaysActive()) {
+            if ($tariffResource->resource_id == Resource::ID_VOIP_FMC && $number) {
                 // Костыль для FMC. Включенность этого ресурса зависит от типа телефонного номера
-                $accountTariffResourceLog->amount = 1;
+                $isFmcActive = $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $tariffResource->amount);
+                $accountTariffResourceLog->amount = (int) $isFmcActive;
+
+            } elseif ($tariffResource->resource_id == Resource::ID_VOIP_MOBILE_OUTBOUND && $number) {
+                // Костыль для Исх.Моб.Связь. Включенность этого ресурса зависит от типа телефонного номера
+                $isMobileOutboundActive = $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $tariffResource->amount);
+                $accountTariffResourceLog->amount = (int) $isMobileOutboundActive;
+
             } else {
                 $accountTariffResourceLog->amount = $tariffResource->amount;
             }

@@ -56,6 +56,8 @@ class SyncResourceTarificator extends Tarificator
                                 'lines' => $accountTariff->getResourceValue(Resource::ID_VOIP_LINE),
                                 'is_fmc_active' => $number->isFmcAlwaysActive() || (!$number->isFmcAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_FMC)),
                                 'is_fmc_editable' => $number->isFmcEditable(),
+                                'is_mobile_outbound_active' => $number->isMobileOutboundAlwaysActive() || (!$number->isMobileOutboundAlwaysInactive() && $accountTariff->getResourceValue(Resource::ID_VOIP_MOBILE_OUTBOUND)),
+                                'is_mobile_outbound_editable' => $number->isMobileOutboundEditable(),
                             ]);
                             break;
 

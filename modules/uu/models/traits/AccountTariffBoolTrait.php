@@ -190,6 +190,11 @@ trait AccountTariffBoolTrait
             return false;
         }
 
+        if ($resource->id == Resource::ID_VOIP_MOBILE_OUTBOUND && ($number = $this->number) && !$number->isMobileOutboundEditable()) {
+            // Костыль для Исх.Моб.Связь. Редактируемость этого ресурса зависит от типа телефонного номера
+            return false;
+        }
+
         return !$this->isResourceCancelable($resource);
     }
 
