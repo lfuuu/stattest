@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\usage;
 
+use app\exceptions\ModelValidationException;
 use app\models\usages\UsageInterface;
 use Yii;
 use DateTimeZone;
@@ -29,9 +30,8 @@ class UsageTrunkEditForm extends UsageTrunkForm
     {
         $rules = parent::rules();
         $rules[] = [['connection_point_id', 'client_account_id', 'trunk_id', 'actual_from'], 'required', 'on' => 'add'];
-        $rules[] = [['trunk_id'], 'validateTrunkId', 'on' => 'add'];
         $rules[] = [['orig_min_payment', 'term_min_payment', 'trunk_id',], 'required', 'on' => 'edit'];
-        $rules[] = [['trunk_id'], 'validateTrunkId', 'on' => 'edit'];
+        $rules[] = [['trunk_id'], 'validateTrunkId', 'on' => ['edit', 'add']];
         return $rules;
     }
 
@@ -61,11 +61,14 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->orig_min_payment = $this->orig_min_payment;
         $usage->term_min_payment = $this->term_min_payment;
         $usage->description = $this->description;
+        $usage->ip = $this->ip;
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
 
-            $usage->save();
+            if (!$usage->save()) {
+                throw new ModelValidationException($usage);
+            }
 
             $transaction->commit();
         } catch (\Exception $e) {
@@ -102,12 +105,15 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->orig_min_payment = $this->orig_enabled ? $this->orig_min_payment : 0;
         $usage->term_min_payment = $this->term_enabled ? $this->term_min_payment : 0;
         $usage->description = $this->description;
+        $usage->ip = $this->ip;
         $usage->actual_to = $actualTo->format(DateTimeZoneHelper::DATE_FORMAT);
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
 
-            $usage->save();
+            if (!$usage->save()) {
+                throw new ModelValidationException($usage);
+            }
 
             $transaction->commit();
         } catch (\Exception $e) {

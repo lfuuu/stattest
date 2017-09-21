@@ -28,6 +28,7 @@ use yii\db\ActiveQuery;
  * @property int $orig_min_payment
  * @property int $term_min_payment
  * @property string $description
+ * @property string $ip
  *
  * @property-read ClientAccount $clientAccount
  * @property-read Region $connectionPoint
@@ -76,7 +77,7 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
                 'term_min_payment', 'operator_id', 'tmp', 'prev_usage_id', 'next_usage_id',
             ], 'integer'],
             [[
-                'actual_from', 'actual_to', 'activation_dt', 'expire_dt', 'status', 'description',
+                'actual_from', 'actual_to', 'activation_dt', 'expire_dt', 'status', 'description', 'ip'
             ], 'string'],
         ];
     }

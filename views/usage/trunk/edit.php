@@ -148,13 +148,16 @@ echo Breadcrumbs::widget([
     <div class="row">
         <div class="col-sm-12">
             <div class="col-sm-4">
-                <?= Html::label('Оператор:') . ' (' . Html::a($clientAccount->id, ['client/view', 'id' => $clientAccount->id]) . ') ' . $clientAccount->company ?>
+                <?= $form->field($model, 'ip')->textInput() ?>
             </div>
             <div class="col-sm-4">
-                <div class="col-sm-6">
+                <div class="col-sm-4">
+                    <?= Html::label('Оператор:') . ' (' . Html::a($clientAccount->id, ['client/view', 'id' => $clientAccount->id]) . ') ' . $clientAccount->company ?>
+                </div>
+                <div class="col-sm-4">
                     <?= $form->field($model, 'orig_enabled')->checkbox()->label('') ?>
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                     <?= $form->field($model, 'term_enabled')->checkbox()->label('') ?>
                 </div>
             </div>
