@@ -67,7 +67,8 @@ class PublicSite extends ActiveRecord
      */
     public function loadDefaultValues($skipIfSet = true)
     {
-        foreach ($this->countries as $index => $publicSiteCountry) {
+        $publicSiteCountries = $this->publicSiteCountries;
+        foreach ($publicSiteCountries as $index => $publicSiteCountry) {
             $this->data[$index]['order'] = $publicSiteCountry->order;
             $this->data[$index]['country_code'] = $publicSiteCountry->country_code;
             $this->data[$index]['city_ids'] = ArrayHelper::getColumn($publicSiteCountry->publicSiteCities, 'city_id');
