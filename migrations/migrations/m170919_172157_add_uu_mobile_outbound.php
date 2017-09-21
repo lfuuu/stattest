@@ -65,7 +65,12 @@ class m170919_172157_add_uu_mobile_outbound extends \app\classes\Migration
         $sql = <<<SQL
             INSERT INTO {$tariffResourceTableName}
                 (amount, price_per_unit, price_min, resource_id, tariff_id)
-            SELECT IF(id=10775, 1, 0) AS amount, IF(id=10775, 149, 0) AS pricePerUnit, 0 AS priceMin, {$resourceId}, id
+            SELECT 
+                IF(id IN (10238, 10399, 10400, 10737, 10756, 10776, 10781, 10782), 1, 0) AS amount, 
+                IF(id IN (10775, 10755), 149, 0) AS pricePerUnit, 
+                0 AS priceMin,
+                {$resourceId}, 
+                id
             FROM {$tariffTableName}
             WHERE service_type_id = {$serviceTypeId};
 SQL;
