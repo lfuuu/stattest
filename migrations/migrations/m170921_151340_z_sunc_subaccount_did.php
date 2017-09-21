@@ -10,6 +10,8 @@ class m170921_151340_z_sunc_subaccount_did extends \app\classes\Migration
      */
     public function safeUp()
     {
+        $this->execute('DROP TRIGGER `to_postgres_client_subaccount_after_update`');
+        
         $sql = <<<SQL
 CREATE TRIGGER `to_postgres_client_subaccount_after_update` AFTER UPDATE ON `client_subaccount` FOR EACH ROW BEGIN
                 if
@@ -41,6 +43,8 @@ SQL;
      */
     public function safeDown()
     {
+        $this->execute('DROP TRIGGER `to_postgres_client_subaccount_after_update`');
+
         $sql = <<<SQL
 CREATE TRIGGER `to_postgres_client_subaccount_after_update` AFTER UPDATE ON `client_subaccount` FOR EACH ROW BEGIN
                 if
