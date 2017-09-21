@@ -13,6 +13,7 @@ use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 
 $accountTariff = $formModel->accountTariff;
+$number = $accountTariff->number;
 ?>
 
 <div class="row">
@@ -21,7 +22,7 @@ $accountTariff = $formModel->accountTariff;
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'city_id')
             ->widget(Select2::className(), [
-                'data' => City::getList($isWithEmpty = true, $formModel->accountTariff->clientAccount->country_id),
+                'data' => City::getList($isWithEmpty = true, $number ? $number->country_code : null),
             ]) ?>
     </div>
 

@@ -39,7 +39,7 @@ $this->registerJsFile('@web/js/uu/accountTariffEdit.js', ['depends' => [AppAsset
         <?= Html::hiddenInput('', $clientAccount->is_voip_with_tax, ['id' => 'isIncludeVat']) ?>
         <?= Html::hiddenInput('', $clientAccount->contract->organization_id, ['id' => 'organizationId']) ?>
 
-        <div class="col-sm-2" title="Страна берётся от страны клиента">
+        <div class="col-sm-2">
             <?php // страна ?>
             <?= $form->field($accountTariffVoip, 'voip_country_id')
                 ->widget(Select2::className(), [
