@@ -162,19 +162,23 @@ class CountriesController extends ApiInternalController
 
     /**
      * @SWG\Get(tags = {"Справочники"}, path = "/internal/countries/get-countries", summary = "Получение списка стран", operationId = "Получение списка стран",
+     *   @SWG\Parameter(name = "is_with_site_only", type = "integer", description = "Только имеющие сайт", in = "query", default = "0"),
      *
      *   @SWG\Response(response = 200, description = "Список стран", @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/countryRecord"))),
      *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
      * )
      *
+     * @param int $is_with_site_only
      * @return array
      * @throws BadRequestHttpException
      */
-    public function actionGetCountries()
+    public function actionGetCountries($is_with_site_only = null)
     {
         $countries = Country::find()
             ->where(['in_use' => 1])
             ->orderBy(['order' => SORT_ASC]);
+        $is_with_site_only && $countries->joinWith('publicSiteCountries', true, 'INNER JOIN');
+
         $result = [];
 
         foreach ($countries->each() as $country) {
