@@ -77,12 +77,13 @@
          */
         $('.account-tariff-voip-resource-button-edit')
             .on('click', function () {
+                var $this = $(this);
 
                 // показать форму смены количества ресурса
-                $('.account-tariff-voip-resource-div').show();
+                $this.parents('.well').find('.account-tariff-voip-resource-div').show();
 
                 // перейти в режим редактирования
-                togglePanelEdit($(this));
+                togglePanelEdit($this);
             });
 
         /**

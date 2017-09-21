@@ -46,7 +46,9 @@ $dateTimeNow = $accountTariffFirst->clientAccount->getDatetimeWithTimezone(); //
                 $accountTariffResourceLog = null;
                 foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLogTmp) {
 
-                    $accountTariffResourceLog = $accountTariffResourceLogTmp;
+                    if (!$accountTariffResourceLog) {
+                        $accountTariffResourceLog = $accountTariffResourceLogTmp;
+                    }
                     ?>
                     <div>
                         <b><?= $accountTariffResourceLogTmp->getAmount() ?></b>
@@ -129,7 +131,7 @@ $dateTimeNow = $accountTariffFirst->clientAccount->getDatetimeWithTimezone(); //
                 <?php else : ?>
 
                     <div class="account-tariff-voip-resource-div collapse">
-                        Уже запланирована смена
+                        Нельзя сменить
                     </div>
 
                 <?php endif ?>
