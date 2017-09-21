@@ -81,6 +81,7 @@ class SubAccountController extends ApiInternalController
      *     @SWG\Property(property = "sub_account", type = "integer", description = "ID субаккаунта ВАТС"),
      *     @SWG\Property(property = "is_sub_account_enable", type = "boolean", description = "Субаккаунт включен"),
      *     @SWG\Property(property = "number", type = "integer", description = "Внутренний номер"),
+     *     @SWG\Property(property = "did", type = "string", description = "Номер прикрепленного мобильного телефона"),
      *     @SWG\Property(property = "name", type = "string", description = "Описание номера", default = ""),
      *     @SWG\Property(property = "balance", type = "number", description = "Баланс субаккаунта"),
      *     @SWG\Property(property = "credit", type = "number", description = "Кредитный лимит"),
@@ -141,7 +142,7 @@ class SubAccountController extends ApiInternalController
             $model = DynamicModel::validateData(
                 $subAccountRow,
                 [
-                    [['id', 'sub_account', 'is_sub_account_enable', 'number'], 'required'],
+                    [['id', 'sub_account', 'is_sub_account_enable', 'number', 'did'], 'required'],
                     [['id', 'sub_account'], 'integer', 'min' => 1],
                     ['is_sub_account_enable', 'boolean'],
                     ['name', FormFieldValidator::className()],

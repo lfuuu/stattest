@@ -23,6 +23,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property int $voip_limit_mn_month
  * @property int $is_voip_orig_disabled
  * @property int $is_voip_blocked
+ * @property string $did
  */
 class ClientSubAccount extends HistoryActiveRecord
 {
@@ -64,7 +65,7 @@ class ClientSubAccount extends HistoryActiveRecord
                 ],
                 'boolean'
             ],
-            [['name'], 'string'],
+            [['name', 'did'], 'string'],
             [['balance', 'credit'], 'number'],
             ['amount_date', 'datetime', 'format' => 'php:' . DateTimeZoneHelper::DATETIME_FORMAT]
         ];
