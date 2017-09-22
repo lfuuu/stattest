@@ -125,6 +125,7 @@ class CountriesController extends ApiInternalController
      *   @SWG\Property(property = "country_weight", type = "string", description = "Порядок вывода"),
      *   @SWG\Property(property = "country_prefix", type = "string", description = "Телефонный префикс"),
      *   @SWG\Property(property = "country_alpha_3", type = "string", description = "3-буквенный код страницы"),
+     *   @SWG\Property(property = "country_site", type = "string", description = "URL сайта"),
      *   @SWG\Property(property = "regions", type = "array", @SWG\Items(type = "integer"))
      * ),
      *
@@ -175,9 +176,13 @@ class CountriesController extends ApiInternalController
     public function actionGetCountries($is_with_site_only = null)
     {
         $countries = Country::find()
-            ->where(['in_use' => 1])
+            ->where([
+                'in_use' => 1,
+                'is_show_in_lk' => 1,
+            ])
             ->orderBy(['order' => SORT_ASC]);
-        $is_with_site_only && $countries->joinWith('publicSiteCountries', true, 'INNER JOIN');
+
+        $is_with_site_only && $countries->andWhere(['>', 'site', '']);
 
         $result = [];
 
@@ -210,6 +215,7 @@ class CountriesController extends ApiInternalController
             'country_weight' => $country->order,
             'country_prefix' => $country->prefix,
             'country_alpha_3' => $country->alpha_3,
+            'country_site' => $country->site,
             'regions' => $regions,
         ];
     }

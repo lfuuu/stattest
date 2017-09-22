@@ -74,6 +74,10 @@ $columns = [
         'class' => YesNoColumn::className(),
     ],
     [
+        'attribute' => 'is_show_in_lk',
+        'class' => YesNoColumn::className(),
+    ],
+    [
         'attribute' => 'lang',
         'class' => StringColumn::className(),
     ],

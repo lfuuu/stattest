@@ -16,6 +16,7 @@ class CountryFilter extends Country
     public $name_rus = '';
     public $name_rus_full = '';
     public $in_use = '';
+    public $is_show_in_lk = '';
     public $lang = '';
     public $currency_id = '';
     public $prefix = '';
@@ -30,7 +31,7 @@ class CountryFilter extends Country
             [['code'], 'string'],
             [['alpha_3'], 'string'],
             [['name'], 'string'],
-            [['in_use'], 'integer'],
+            [['in_use', 'is_show_in_lk'], 'integer'],
             [['lang'], 'string'],
             [['currency_id'], 'string'],
             [['prefix'], 'integer'],
@@ -58,6 +59,7 @@ class CountryFilter extends Country
         $this->name_rus !== '' && $query->andWhere(['LIKE', 'name_rus', $this->name_rus]);
         $this->name_rus_full !== '' && $query->andWhere(['LIKE', 'name_rus_full', $this->name_rus_full]);
         $this->in_use !== '' && $query->andWhere(['in_use' => $this->in_use]);
+        $this->is_show_in_lk !== '' && $query->andWhere(['is_show_in_lk' => $this->is_show_in_lk]);
         $this->lang !== '' && $query->andWhere(['LIKE', 'lang', $this->lang]);
         $this->currency_id !== '' && $query->andWhere(['currency_id' => $this->currency_id]);
         $this->prefix !== '' && $query->andWhere(['prefix' => $this->prefix]);

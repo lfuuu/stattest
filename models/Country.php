@@ -18,10 +18,13 @@ use yii\helpers\Url;
  * @property string $name_rus_full
  * @property int $in_use
  * @property string $lang
+ * @property string $site
  * @property string $currency_id
  * @property integer $prefix
  * @property integer $order
  * @property integer $default_connection_point_id
+ * @property int $is_show_in_lk
+ *
  * @property-read Currency $currency
  * @property-read PublicSiteCountry[] $publicSiteCountries
  */
@@ -61,7 +64,8 @@ class Country extends ActiveRecord
             'currency_id' => 'Валюта',
             'prefix' => 'Префикс',
             'site' => 'URL сайта',
-            'default_connection_point_id' => 'Точка по-умолчанию для негеографических номеров'
+            'default_connection_point_id' => 'Точка подключения mobile',
+            'is_show_in_lk' => 'Показывать в ЛК',
         ];
     }
 
@@ -72,7 +76,7 @@ class Country extends ActiveRecord
     {
         return [
             [['alpha_3', 'name', 'currency_id', 'lang', 'site', 'name_rus', 'name_rus_full'], 'string'],
-            [['code', 'in_use', 'prefix', 'default_connection_point_id'], 'integer'],
+            [['code', 'in_use', 'prefix', 'default_connection_point_id', 'is_show_in_lk'], 'integer'],
             [['code', 'name', 'in_use', 'lang', 'default_connection_point_id'], 'required'],
         ];
     }

@@ -107,25 +107,34 @@ if (!$country->isNewRecord) {
             ]) ?>
         </div>
 
+        <?php // вкл ?>
+        <div class="col-sm-2">
+            <?= $form->field($country, 'is_show_in_lk')->widget(Select2::className(), [
+                'data' => YesNoTraits::getYesNoList($isWithEmpty = false),
+            ]) ?>
+        </div>
+
         <?php // префикс ?>
         <div class="col-sm-2">
             <?= $form->field($country, 'prefix')->textInput(['type' => 'number']) ?>
         </div>
 
-        <?php // URL сайта ?>
-        <div class="col-sm-2">
-            <?= $form->field($country, 'site')->textInput() ?>
-        </div>
-
     </div>
 
     <div class="row">
+
         <?php // точка подключения по-умолчанию ?>
         <div class="col-sm-6">
             <?= $form->field($country, 'default_connection_point_id')->widget(Select2::className(), [
                 'data' => Region::getList($isWithEmpty = $country->isNewRecord),
             ]) ?>
         </div>
+
+        <?php // URL сайта ?>
+        <div class="col-sm-6">
+            <?= $form->field($country, 'site')->textInput() ?>
+        </div>
+
     </div>
 
     <?php // кнопки ?>

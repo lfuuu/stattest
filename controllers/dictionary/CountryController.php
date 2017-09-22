@@ -41,6 +41,7 @@ class CountryController extends BaseController
      * Список
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
     {
@@ -50,6 +51,7 @@ class CountryController extends BaseController
         if (!isset($get['CountryFilter'])) {
             $get['CountryFilter']['in_use'] = 1; // по-умолчанию только "вкл."
         }
+
         $filterModel->load($get);
 
         return $this->render('index', [
@@ -62,6 +64,7 @@ class CountryController extends BaseController
      *
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionEdit($id)
     {
@@ -73,10 +76,10 @@ class CountryController extends BaseController
         if ($form->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $form,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $form,
+        ]);
     }
 }
