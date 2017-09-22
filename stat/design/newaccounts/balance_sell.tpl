@@ -26,7 +26,22 @@
         {/literal}
     </head>
 
+        {if strtotime($date_from) >= strtotime("2017-10-01")}
+            {assign var="isChanges20171001" value=1}
+        {else}
+            {assign var="isChanges20171001" value=0}
+        {/if}
+
     <body bgcolor="#FFFFFF" style="BACKGROUND: #FFFFFF" >
+    {if $isChanges20171001}
+    <div class="w100" style="text-align: right">
+    Приложение № 5<br />
+    к постановлению Правительства<br />
+    Российской Федерации<br />
+    от 26 декабря 2011 г. № 1137<br />
+    (в ред. Постановления Правительства РФ от 19.08.2017 № 981)<br />
+    </div>
+    {/if}
         <h2>КНИГА ПРОДАЖ</h2>
         Продавец     __________________________________________________________________________________________________________<br />
         Идентификационный номер и код причины постановки на учет налогоплательщика-продавца     __________________________________________________________________________________________________________<br>
@@ -56,6 +71,10 @@
                 <td width="5%" rowspan="4" class="s">№<br />п/п</td>
                 <td width="5%" rowspan="4" class="s">Код<br />вида<br />опера-<br />ции</td>
                 <td width="10%" rowspan="4" class="s">Дата и номер счета-фактуры продавца</td>
+                {if $isChanges20171001}
+                    <td width="*" rowspan="4">Регистра-<br/>ционный<br/> номер<br/> тамо-<br/>женной<br/> декла-<br/> рации</td>
+                    <td width="*" rowspan="4">Код<br/> вида<br/> товара</td>
+                {/if}
                 <td width="*" rowspan="4">Наименование покупателя</td>
                 <td width="5%" rowspan="4">ИНН/КПП<br />покупателя</td>
                 <td width="5%" rowspan="4">Тип ЛС</td>
@@ -91,6 +110,10 @@
                     <td>{$index}</td>
                     <td>01</td>
                     <td><nobr>{$r.inv_no};</nobr> <nobr>{$r.inv_date|mdate:"d.m.Y"}</nobr></td>
+                    {if $isChanges20171001}
+                        <td class="s">{$r.gtd}</td>
+                        <td class="s">-</td>
+                    {/if}
                     <td class="s">{$r.company_full}&nbsp;</td>
                     <td>{if $r.inn}{$r.inn}{if $r.type == 'org'}/{if $r.kpp}{$r.kpp}{/if}{/if}{else}&nbsp;{/if}</td>
                     <td>{$r.type}</td>

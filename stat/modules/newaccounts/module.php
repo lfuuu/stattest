@@ -4750,7 +4750,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                             nl.`item_id` != ''
                             AND nl.`bill_no` = B.`bill_no`
                             AND `item_id` = g.`id`
-                    ) AS min_nds
+                    ) AS min_nds,
+                    (select GROUP_CONCAT(distinct gtd) from `newbill_lines` nl where nl.`bill_no` = B.`bill_no` AND gtd > '') as gtd
                 FROM
                     (
                         SELECT DISTINCT `bill_no`
@@ -4836,6 +4837,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         $A['bill']['contract'] = $c->contract->contractType ?: $c->contract->business;
                         $A['bill']['contract_status'] = $c->contract->businessProcessStatus;
                         $A['bill']['payments'] = $p['payments'];
+                        $A['bill']['gtd'] = $p['gtd'];
 
                         $p['company_full'] = trim($c['company_full']);
                         $p['inn'] = $c['inn'];
@@ -4902,10 +4904,7 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
         $fullscreen = get_param_protected('fullscreen', 0);
         $design->assign('fullscreen', $fullscreen);
         if ($fullscreen == 1) {
-            $design->ProcessEx('newaccounts/pop_header.tpl');
-            $design->ProcessEx('newaccounts/errors.tpl');
             $design->ProcessEx('newaccounts/balance_sell.tpl');
-            $design->ProcessEx('newaccounts/pop_footer.tpl');
         } else {
             $design->AddMain('newaccounts/balance_sell.tpl');
         }

@@ -23,6 +23,12 @@
         {assign var="isChanges20170801" value=0}
     {/if}
 
+    {if $inv_date >= strtotime("2017-10-01")}
+        {assign var="isChanges20171001" value=1}
+    {else}
+        {assign var="isChanges20171001" value=0}
+    {/if}
+
 {if $negative_balance}<h2 style="color:red">Внимание! Не достаточно средств для проведения авансовых платежей!</h2>{/if}
 <div align="center"><center>
 <table border="0" cellpadding="0" cellspacing="15">
@@ -157,7 +163,10 @@
     <small>    Приложение N1<br>
     {if $inv_is_new3}к постановлению Правительства<br>Российской Федерации<br>
 		от 26 декабря 2011 г. N 1137
-        {*'2017-07-01' = 1498867200*}{if 1498867200 <= $inv_date}<br><small class="sm">(в ред. Постановления Правительства РФ от 25.05.2017 N625):</small>{/if}{else}к Правилам ведения журналов учета полученных и выставленных счетов-фактур,<br>
+        {if $isChanges20171001}<br/> (в ред. Постановления Правительства РФ от 19.08.2017 № 981){/if}
+        {*'2017-07-01' = 1498867200*}
+        {if 1498867200 <= $inv_date}<br><small class="sm">(в ред. Постановления Правительства РФ от 25.05.2017 N625):</small>{/if}
+    {else}к Правилам ведения журналов учета полученных и выставленных счетов-фактур,<br>
     книг покупок и книг продаж при расчетах но налогу на добавленную стоимость,<br>
     утвержденным постановлением правительства Российской Федерации от 2 декабря 2000 г. N 914<br>
     (в редакции постановлений Правительства Российской Федерации<br>
@@ -184,6 +193,7 @@
     <div align="center"><center><table border="1" cellpadding="3" cellspacing="0" width="100%">
       <tr>
         <th{if $inv_is_new3} rowspan=2{/if}>Наименование<br>товара<br>(описание выполненных работ, оказанных услуг){if $inv_is_new},<br>имущественного права{/if}</th>
+          {if $isChanges20171001}<th rowspan=2>Код<br/> вида<br/> товара</th>{/if}
         {if !$inv_is_new3}<th>Еди-<br>ница<br>изме-<br>рения</th>{else}<th colspan=2>Единица<br>измерения</th>{/if}
         <th{if $inv_is_new3} rowspan=2{/if}>
             Коли-<br>чество{if $inv_is_new6}<br>(объем){/if}
@@ -223,7 +233,12 @@
 
         {/if}</th>
         {if !$inv_is_new3}<th>Стра-<br>на проис-<br> хожде-<br> ния</th>{else}<th colspan=2>Страна<br>происхождения<br>товара</th>{/if}
-        <th{if $inv_is_new3} rowspan=2{/if}>Номер<br> тамо-<br> женной<br> декла-<br> рации</th>
+        <th{if $inv_is_new3} rowspan=2{/if}>
+            {if $isChanges20171001}
+                Регистра-<br/>ционный<br/> номер<br/> тамо-<br/>женной<br/> декла-<br/> рации
+            {else}
+                Номер<br> тамо-<br> женной<br> декла-<br> рации
+            {/if}</th>
       </tr>
       {if $inv_is_new3}<tr>
       	<th>к<br>о<br>д</th>
@@ -233,6 +248,9 @@
       </tr>{/if}
       <tr>
         <td align="center">1</td>
+        {if $isChanges20171001}
+          <td align="center">1а</td>
+        {/if}
         <td align="center">2</td>
         {if $inv_is_new3}<td align="center">2а</td>{/if}
         <td align="center">3</td>
@@ -249,6 +267,9 @@
 {foreach from=$bill_lines item=row key=key}
       <tr>
         <td>{$row.item}</td>
+          {if $isChanges20171001}
+              <td align="center">-</td>
+          {/if}
         {if $inv_is_new3}
         <td align="center">
 
@@ -379,7 +400,7 @@
 {/foreach}
      <tr>
      	{if $inv_is_new4}
-     	<td colspan={if $inv_is_new3}5{else}4{/if}><b>Всего к оплате<b></td>
+     	<td colspan={if $isChanges20171001}6{else}{if $inv_is_new3}5{else}4{/if}{/if}><b>Всего к оплате<b></td>
      	<td align="center">{if $is_four_order}-{else}{$bill.sum_without_tax|round:2}{/if}</td>
      	<td>&nbsp;</td>
      	<td>&nbsp;</td>
