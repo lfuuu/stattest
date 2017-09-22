@@ -15,10 +15,10 @@ use app\models\Param;
 use app\modules\transfer\components\services\regular\BasicServiceTransfer as RegularBasicServiceTransfer;
 use app\modules\transfer\components\services\regular\RegularTransfer;
 use app\modules\transfer\components\services\universal\UniversalTransfer;
-use kartik\base\Config;
 use Yii;
 use yii\base\InvalidCallException;
 use yii\base\InvalidValueException;
+use yii\db\ActiveQuery;
 use yii\db\Expression;
 
 class MonitoringController extends BaseController
@@ -72,7 +72,7 @@ class MonitoringController extends BaseController
             /** @var RegularBasicServiceTransfer $serviceHandler */
             $serviceHandler = $regularProcessor->getHandler($serviceCode);
 
-            if(($service = $serviceHandler->getServiceModelName()) === '') {
+            if (($service = $serviceHandler->getServiceModelName()) === '') {
                 continue;
             }
 
@@ -85,7 +85,7 @@ class MonitoringController extends BaseController
             /** @var RegularBasicServiceTransfer $serviceHandler */
             $serviceHandler = $regularProcessor->getHandler($serviceCode);
 
-            if(!$serviceHandler->getServiceTypeId()) {
+            if (!$serviceHandler->getServiceTypeId()) {
                 continue;
             }
 
@@ -108,22 +108,32 @@ class MonitoringController extends BaseController
     public function actionEventQueue()
     {
         $get = Yii::$app->request->get();
-
-        if (isset($get['submitButtonRepeatStopped'])) {
-            EventQueue::updateAll(
-                [
-                    'status' => EventQueue::STATUS_PLAN,
-                    'iteration' => EventQueue::ITERATION_MAX_VALUE - 1,
-                    'next_start' => new Expression('NOW()'),
-                ],
-                [
-                    'status' => EventQueue::STATUS_STOP,
-                ]
-            );
-        }
+        $post = Yii::$app->request->post();
 
         $filterModel = new EventQueueFilter();
         $filterModel->load($get);
+
+        if (isset($post['planButton'])) {
+            /** @var ActiveQuery $query */
+            $query = $filterModel->search()->query;
+            $affectedRows = EventQueue::updateAll([
+                'status' => EventQueue::STATUS_PLAN,
+                'iteration' => EventQueue::ITERATION_MAX_VALUE - 1,
+                'next_start' => new Expression('NOW()'),
+            ], $query->where);
+
+            Yii::$app->session->setFlash('success', Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]) . ' будут обработаны повторно');
+        }
+
+        if (isset($post['okButton'])) {
+            /** @var ActiveQuery $query */
+            $query = $filterModel->search()->query;
+            $affectedRows = EventQueue::updateAll([
+                'status' => EventQueue::STATUS_OK,
+            ], $query->where);
+
+            Yii::$app->session->setFlash('success', Yii::t('common', '{n, plural, one{# entry} other{# entries}}', ['n' => $affectedRows]) . ' больше не будут обрабатываться');
+        }
 
         return $this->render('eventQueue', [
             'filterModel' => $filterModel,
@@ -135,10 +145,12 @@ class MonitoringController extends BaseController
      */
     public function actionNotificationOn()
     {
-        Param::deleteAll(['param' => [
-            Param::NOTIFICATIONS_SWITCH_OFF_DATE,
-            Param::NOTIFICATIONS_SWITCH_ON_DATE,
-        ]]);
+        Param::deleteAll([
+            'param' => [
+                Param::NOTIFICATIONS_SWITCH_OFF_DATE,
+                Param::NOTIFICATIONS_SWITCH_ON_DATE,
+            ]
+        ]);
 
         return $this->redirect(\Yii::$app->request->referrer ?: "/");
     }

@@ -16,6 +16,7 @@ use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\EventQueue;
 use app\models\filter\EventQueueFilter;
+use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
 ?>
@@ -149,22 +150,41 @@ $columns = [
     ],
 ];
 
-if ($filterModel->status == EventQueue::STATUS_STOP) {
-    $extraButtons = $this->render('//layouts/_link', [
-        'url' => '/monitoring/event-queue/?submitButtonRepeatStopped=1',
-        'text' => 'Ошибочные обработать повторно',
-        'glyphicon' => 'glyphicon-repeat',
-        'params' => [
-            'class' => 'btn btn-warning',
-        ],
-    ]);
-} else {
-    $extraButtons = '';
-}
-
 echo GridView::widget([
     'dataProvider' => $filterModel->search(),
     'filterModel' => $filterModel,
     'columns' => $columns,
-    'extraButtons' => $extraButtons,
 ]);
+
+?>
+<div class="well">
+    <?php
+    ActiveForm::begin();
+    echo 'Отфильтрованные записи ';
+
+    echo ' ' . $this->render('//layouts/_submitButton', [
+            'text' => 'обработать повторно',
+            'glyphicon' => 'glyphicon-repeat',
+            'params' => [
+                'name' => 'planButton',
+                'value' => 1,
+                'class' => 'btn btn-warning',
+                'aria-hidden' => 'true',
+            ],
+        ]);
+
+    echo ' ' . $this->render('//layouts/_submitButton', [
+            'text' => 'больше не обрабатывать',
+            'glyphicon' => 'glyphicon-trash',
+            'params' => [
+                'name' => 'okButton',
+                'value' => 1,
+                'class' => 'btn btn-danger',
+                'aria-hidden' => 'true',
+            ],
+        ]);
+
+    ActiveForm::end();
+    ?>
+
+</div>

@@ -4,6 +4,7 @@
  *
  * @var app\classes\BaseView $this
  */
+
 use kartik\form\ActiveForm;
 
 ?>
@@ -16,12 +17,7 @@ use kartik\form\ActiveForm;
     </p>
     <?php
     $form = ActiveForm::begin();
-    $viewParams = [
-        'form' => $form,
-    ];
-    ?>
-
-    <?= $this->render('//layouts/_submitButton', [
+    echo $this->render('//layouts/_submitButton', [
         'text' => 'Синхронизировать данные в биллер и включить триггер',
         'glyphicon' => 'glyphicon-off',
         'params' => [
@@ -31,7 +27,8 @@ use kartik\form\ActiveForm;
             'aria-hidden' => 'true',
             'onClick' => sprintf('return confirm("%s");', 'Полностью синхронизировать все данные в биллер? Это очень ресурсоемкая операция, поэтому выполнять можно не более 1-2 раза в день!'),
         ],
-    ]) ?>
-    <?php ActiveForm::end(); ?>
+    ]);
+    ActiveForm::end();
+    ?>
 
 </div>
