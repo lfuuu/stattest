@@ -168,7 +168,7 @@ class AccountTariff extends HistoryActiveRecord
             ['tariff_period_id', 'validatorTariffPeriod'],
             ['voip_number', 'validatorVoipNumber', 'skipOnEmpty' => true, 'on' => ['default']],
             [
-                ['city_id', 'voip_number'],
+                ['voip_number'],
                 'required',
                 'when' => function (AccountTariff $accountTariff) {
                     return $accountTariff->service_type_id == ServiceType::ID_VOIP;
