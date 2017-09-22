@@ -82,6 +82,16 @@ class RefreshPrefix extends Singleton
 
                     $userId = $filterQuery->update_user_id ?: 'null';
 
+                    if (!isset($prefixIdToCount[$filterQuery->id]) && !Prefix::findOne(['id' => $filterQuery->id])) {
+                        // ранее такого префикса не было
+                        $prefix = new Prefix;
+                        $prefix->id = $filterQuery->id;
+                        $prefix->name = $filterQuery->name;
+                        if (!$prefix->save()) {
+                            throw new ModelValidationException($prefix);
+                        }
+                    }
+
                     $sql = <<<SQL
 INSERT INTO {$numberRangePrefixTableName}
     (number_range_id, prefix_id, insert_time, insert_user_id)
@@ -97,7 +107,7 @@ SQL;
             $logs[] = sprintf(
                 'Префикс %s: было %d, стало %d',
                 $filterQuery->name,
-                isset($prefixIdToCount[$filterQuery->id]) ? $prefixIdToCount[$filterQuery->id] : 0,
+                isset($prefixIdToCount[$filterQuery->id]) ? $prefixIdToCount[$filterQuery->id] : '-',
                 $affectedRows);
         }
 
