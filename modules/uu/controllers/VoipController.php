@@ -139,12 +139,12 @@ class VoipController extends BaseController
             // "линия без номера"
             $number = UsageVoip::dao()->getNextLineNumber();
             return Html::checkbox(
-                'numberIds[]',
+                'AccountTariffVoip[voip_numbers][]',
                 true,
                 [
                     'value' => $number,
                     'label' => $number,
-                    'disabled' => 'disabled',
+                    'class' => 'disabled',
                 ]
             );
         }
