@@ -23,6 +23,7 @@ class ImportController extends Controller
      * @throws \InvalidArgumentException
      * @throws \LogicException
      * @throws \app\exceptions\ModelValidationException
+     * @throws \yii\db\StaleObjectException
      */
     public function actionRus()
     {
@@ -33,6 +34,7 @@ class ImportController extends Controller
             ->run();
 
         $this->actionLink();
+        $this->actionConvertFilterToPrefix();
     }
 
     /**
