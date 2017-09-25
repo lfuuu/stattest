@@ -98,14 +98,13 @@ abstract class BasePricelistLoader extends BaseLoader
                 $row['deleting'] = 0;
             }
 
-            if (!preg_match('#^\d+(\.\d+)?$#', $row['rate'])) {
-                throw new InvalidParamException('В строке ' . $key . ' неправильная цена ' . $row['rate']);
-            }
-
             if ($row['rate'] === 'DEL') {
                 $row['deleting'] = 1;
                 $row['rate'] = 0;
+            } elseif (!preg_match('#^\d+(\.\d+)?$#', $row['rate'])) {
+                throw new InvalidParamException('В строке ' . $key . ' неправильная цена ' . $row['rate']);
             }
+
 
             $deleting = isset($row['deleting']) && $row['deleting'] ? 'TRUE' : 'FALSE';
 
