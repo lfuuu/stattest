@@ -2,11 +2,10 @@
 
 namespace app\classes\voip;
 
-use app\classes\Event;
 use app\helpers\DateTimeZoneHelper;
-use Yii;
 use app\models\billing\PricelistFile;
-use yii\base\Object;
+use Yii;
+use yii\base\InvalidParamException;
 
 abstract class BasePricelistLoader extends BaseLoader
 {
@@ -86,7 +85,7 @@ abstract class BasePricelistLoader extends BaseLoader
     {
         $q = "INSERT INTO voip.raw_price (rawfile_id, ndef, deleting, price, mob) VALUES ";
         $is_first = true;
-        foreach ($new_rows as $row) {
+        foreach ($new_rows as $key => $row) {
             if ($is_first == false) {
                 $q .= ",";
             } else {
@@ -97,6 +96,10 @@ abstract class BasePricelistLoader extends BaseLoader
 
             if (!isset($row['deleting'])) {
                 $row['deleting'] = 0;
+            }
+
+            if (!preg_match('#^\d+(\.\d+)?$#', $row['rate'])) {
+                throw new InvalidParamException('В строке ' . $key . ' неправильная цена ' . $row['rate']);
             }
 
             if ($row['rate'] === 'DEL') {

@@ -72,7 +72,7 @@ abstract class BaseLoader extends Object
             $emptyColsCount = 0;
             foreach ($row->getCellIterator() as $cell) {
                 /** @var \PHPExcel_Cell $cell */
-                $value = $cell->getFormattedValue();
+                $value = $cell->getValue();
 
                 $data[] = $value;
 
