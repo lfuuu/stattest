@@ -49,9 +49,11 @@ class VoipServiceDao extends UsageDao
      */
     public function getNextLineNumber()
     {
-        return Yii::$app->db->createCommand("
-            select max(CONVERT(E164,UNSIGNED INTEGER))+1 as number from usage_voip where LENGTH(E164)>=4 and LENGTH(E164)<=5 and E164 not in ('7495', '7499')
-            ")->queryScalar() ?: "1000";
+        return
+            (int) max(
+                Yii::$app->db->createCommand("SELECT MAX(CONVERT(E164,UNSIGNED INTEGER))+1 AS number FROM usage_voip WHERE LENGTH(E164) BETWEEN 4 AND 5 AND E164 NOT IN ('7495', '7499')")->queryScalar() ?: 1000,
+                Yii::$app->db->createCommand("SELECT MAX(CONVERT(voip_number,UNSIGNED INTEGER))+1 AS NUMBER FROM uu_account_tariff WHERE LENGTH(voip_number) BETWEEN 4 AND 5")->queryScalar() ?: 1000
+                );
     }
 
     /**
