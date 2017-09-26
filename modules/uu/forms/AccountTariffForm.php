@@ -87,6 +87,11 @@ abstract class AccountTariffForm extends Form
             $this->accountTariffVoip->voip_ndc_type_id = NdcType::ID_FREEPHONE;
         }
 
+        // TODO: ^^^^ неправильная установка voip_ndc_type_id
+        if ($this->accountTariff->service_type_id == ServiceType::ID_VOIP && ($number = $this->accountTariff->number)) {
+            $this->accountTariffVoip->voip_ndc_type_id = $number->ndc_type_id;
+        }
+
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();
     }
