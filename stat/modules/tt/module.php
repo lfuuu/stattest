@@ -310,19 +310,18 @@ class m_tt extends IModule{
 // todo: переделать на bill::getDocumentType
 
 
-        if($trouble["bill_no"] && ($trouble["trouble_type"] == "shop_orders" || $trouble["trouble_type"] == "shop" || $trouble["trouble_type"] == "mounting_orders"))
-        {
+        if ($trouble["bill_no"] && ($trouble["trouble_type"] == "shop_orders" || $trouble["trouble_type"] == "shop" || $trouble["trouble_type"] == "mounting_orders")) {
             $bill = \app\models\Bill::findOne(['bill_no' => $trouble["bill_no"]]);
 
-            if($trouble['state_id'] == 15){
+            if ($trouble['state_id'] == 15) {
                 $bill->dao()->setManager($bill->bill_no, Yii::$app->user->getId());
             }
 
             // проводим если новая стадия: закрыт, отгружен, к отгрузке
-            if(in_array($R['state_id'], array(28, 23, 18, 7, 4,  17, 2, 20 ))){
+            if (in_array($R['state_id'], array_merge(TroubleState::$closedStates, [28, 23, 18, 4, 17]))) {
                 $bill->is_approved = 1;
                 $bill->sum = $bill->sum_with_unapproved;
-            }else{
+            } else {
                 $bill->is_approved = 0;
                 $bill->sum = 0;
             }
@@ -331,6 +330,7 @@ class m_tt extends IModule{
             ClientAccount::dao()->updateBalance($bill->client_id);
 
         }
+
         if($trouble["bill_no"] && $trouble["trouble_original_client"] == "onlime")
         {
             $onlimeOrder = OnlimeOrder::find_by_bill_no($trouble["bill_no"]);
@@ -1673,10 +1673,10 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                     $data_to_open['date_finish_desired'] = $r2;
             }
         }
-        if(in_array($data_to_open['state_id'],array(2,20,21,39,40,48))){
+        if (TroubleState::isClose($data_to_open['state_id'])) {
             $data_to_open['date_finish_desired'] = date(DateTimeZoneHelper::DATETIME_FORMAT);;
             $data_to_open['date_edit'] = date(DateTimeZoneHelper::DATETIME_FORMAT);
-            $data_to_open['user_edit'] = $user_edit?$user_edit:$user->Get('user');
+            $data_to_open['user_edit'] = $user_edit ? $user_edit : $user->Get('user');
         }
         $trouble = YiiTrouble::findOne($trouble_id);
         $data_to_open['trouble_id']=$trouble->id;
@@ -1690,7 +1690,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         $trouble->folder = $state->folder;
 
 
-        if(in_array($data_to_open["state_id"], array(2,20,7,8,48))){
+        if (TroubleState::isClose($data_to_open['state_id'])) {
             // to close
             $trouble->date_close = date(DateTimeZoneHelper::DATETIME_FORMAT);
         }
@@ -2152,11 +2152,9 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         $design->assign("state_filter_selected", $state_filter);
 
-        if($state_filter == "null")
+        if($state_filter == "null" || TroubleState::isClose($state_filter))
         {
-            $state_filter = " not in (2,20,21,39,40,48)";
-        }elseif($state_filter == 2 || $state_filter == 20){
-            $state_filter = " in (2,20,39,40,48)";
+            $state_filter = " not in (" . implode(',', TroubleState::$closedStates). ")";
         }else{
             $state_filter = ' = "'.$state_filter.'"';
         }

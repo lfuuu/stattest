@@ -2,6 +2,7 @@
 
 namespace app\classes\behaviors\important_events;
 
+use app\models\TroubleState;
 use Yii;
 use yii\base\Behavior;
 use yii\base\ModelEvent;
@@ -53,7 +54,7 @@ class Troubles extends Behavior
                 &&
             $trouble->currentStage->state_id != $event->sender->currentStage->state_id
                 &&
-            !in_array($event->sender->currentStage->state_id, TroubleStage::$closedStates, true)
+            !TroubleState::isClose($event->sender->currentStage->state_id)
         ) {
             ImportantEvents::create(ImportantEventsNames::CLOSED_TROUBLE,
                 ImportantEventsSources::SOURCE_STAT, [

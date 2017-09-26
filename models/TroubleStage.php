@@ -23,7 +23,6 @@ class TroubleStage extends ActiveRecord
 {
 
     public $dif_time = '00:00';
-    public static $closedStates = [2, 20, 7, 8, 48];
 
     /**
      * @return array
