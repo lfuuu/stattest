@@ -303,6 +303,11 @@ function doEvents()
                         ->addOrCloseDefaultPackage();
                     break;
 
+                case Event::UU_ACCOUNT_TARIFF_VOIP_INTERNET:
+                    // Пакет интернета (только для включения)
+                    throw new \http\Exception\BadMethodCallException('Необходимо обработать вручную. Обращайтесь к Денису.');
+                    break;
+
                 case Event::UU_ACCOUNT_TARIFF_CALL_CHAT:
                     ApiFeedback::createChat($param['account_id'], $param['account_tariff_id']);
                     break;

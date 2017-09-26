@@ -42,7 +42,7 @@ foreach ($rows as $row) {
 
     switch ($accountTariffFirst->service_type_id) {
         case ServiceType::ID_VOIP:
-            $packageServiceTypeIds = [ServiceType::ID_VOIP_PACKAGE_CALLS];
+            $packageServiceTypeIds = [ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_VOIP_PACKAGE_INTERNET];
             break;
         case ServiceType::ID_TRUNK:
             $packageServiceTypeIds = [ServiceType::ID_TRUNK_PACKAGE_ORIG, ServiceType::ID_TRUNK_PACKAGE_TERM];

@@ -21,6 +21,9 @@ trait AccountTariffValidatorTrait
     /** @var int */
     private $_serviceTypeIdOld = null;
 
+    /** @var int */
+    public $tariffPeriodIdOld = null;
+
     /**
      * This method is called when the AR object is created and populated with the query result.
      * The default implementation will trigger an [[EVENT_AFTER_FIND]] event.
@@ -31,6 +34,7 @@ trait AccountTariffValidatorTrait
     {
         parent::afterFind();
         $this->_serviceTypeIdOld = $this->service_type_id;
+        $this->tariffPeriodIdOld = $this->tariff_period_id;
     }
 
     /**

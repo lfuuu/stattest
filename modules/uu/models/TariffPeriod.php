@@ -153,10 +153,20 @@ class TariffPeriod extends HistoryActiveRecord
     ) {
         $defaultTariffPeriodId = null;
 
-        if ($serviceTypeId == ServiceType::ID_VOIP_PACKAGE_CALLS) {
-            // пакеты телефонии - по стране, все остальное - по организации
+        if ($serviceTypeId == ServiceType::ID_VOIP_PACKAGE_INTERNET) {
+
+            // пакеты интернета - по стране
             $organizationId = null;
+            $cityId = null;
+
+        } elseif ($serviceTypeId == ServiceType::ID_VOIP_PACKAGE_CALLS) {
+
+            // пакеты телефонии - по стране
+            $organizationId = null;
+
         } else {
+
+            // все остальное - по организации
             $countryId = null;
         }
 

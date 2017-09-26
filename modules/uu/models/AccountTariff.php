@@ -115,6 +115,7 @@ class AccountTariff extends HistoryActiveRecord
         return parent::behaviors() + [
                 'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
                 'AccountTariffImportantEvents' => AccountTariffImportantEvents::className(),
+                'AccountTariffVoipInternet' => \app\modules\uu\behaviors\AccountTariffVoipInternet::className(),
                 'AccountTariffVoipNumber' => AccountTariffVoipNumber::className(),
                 [
                     // Установить "когда создал" и "когда обновил"
