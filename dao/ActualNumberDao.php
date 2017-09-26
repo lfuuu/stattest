@@ -138,15 +138,17 @@ class ActualNumberDao extends Singleton
 
         $data = ActualNumber::getDb()->createCommand("
                 SELECT 
-                    client_id, number, region, call_count, 
-                    number_type, number7800,
-                    is_blocked, is_disabled
+                    a.client_id, a.number, a.region, a.call_count, 
+                    a.number_type, a.number7800,
+                    a.is_blocked, a.is_disabled
                 FROM 
                     actual_number a
-                WHERE number not like '7800%'
+                LEFT JOIN clients c ON (a.client_id = c.id)
+                WHERE 
+                if (number like '7800%' , c.account_version = 5, true)
                 " . ($number ? "and number = :number" : "") . "
                 " . ($clientId ? "and client_id = :client_id" : "") . "
-                ORDER BY id", $params)->queryAll();
+                ORDER BY a.id", $params)->queryAll();
 
         $d = array();
         foreach ($data as $l) {
