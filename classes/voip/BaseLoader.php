@@ -76,7 +76,7 @@ abstract class BaseLoader extends Object
 
                 $data[] = $value;
 
-                if ($value == '') {
+                if ($value === '') {
                     $emptyColsCount++;
                     if ($emptyColsCount == 5) {
                         break;
