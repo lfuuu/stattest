@@ -174,9 +174,13 @@ class AccountTariffLog extends HistoryActiveRecord
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if (
-            $accountTariff->tariff_period_id
-            && !$accountTariff->tariffPeriod->tariff->is_default // если нельзя, но очень хочется, то базовые пакеты иногда можно
-            && $this->actual_from_utc < $currentDateTimeUtc
+            $this->actual_from_utc < $currentDateTimeUtc
+            && !(
+                // если нельзя, но очень хочется, то базовые пакеты иногда можно
+                array_key_exists($accountTariff->service_type_id, ServiceType::$packages)
+                && $this->tariff_period_id
+                && $this->tariffPeriod->tariff->is_default
+            )
         ) {
             $this->addError($attribute, 'Нельзя менять тариф задним числом.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PREV;
