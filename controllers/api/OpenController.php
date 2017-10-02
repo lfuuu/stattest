@@ -9,6 +9,7 @@ use app\models\Currency;
 use app\models\DidGroup;
 use app\models\filter\FreeNumberFilter;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
@@ -414,7 +415,20 @@ final class OpenController extends Controller
         }
 
         $tariffPeriods = $tariff->tariffPeriods;
-        $tariffPeriod = reset($tariffPeriods);
+        $tariffPeriod = null;
+        foreach ($tariffPeriods as $tariffPeriodTmp) {
+
+            if (!$tariffPeriod) {
+                // хоть что-нибудь
+                $tariffPeriod = $tariffPeriodTmp;
+            }
+
+            if ($tariffPeriodTmp->charge_period_id == Period::ID_MONTH) {
+                // по умолчанию - помесячный, если есть
+                $tariffPeriod = $tariffPeriodTmp;
+                break;
+            }
+        }
 
         /** @var TariffResource $tariffResources */
         $tariffResources = $tariff->getTariffResource(Resource::ID_VOIP_LINE)->one();
