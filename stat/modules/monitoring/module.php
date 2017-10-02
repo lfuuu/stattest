@@ -488,7 +488,6 @@ class m_monitoring {
                 [
                     'C.status' => 'work',
                     'B.currency' => Currency::RUB,
-                    'biller_version' => ClientAccount::VERSION_BILLER_USAGE,
                 ]
             ])
             ->groupBy(['region', 'month'])
