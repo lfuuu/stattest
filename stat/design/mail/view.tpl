@@ -7,6 +7,7 @@
 	<input type=text name=subject style='width:100%' value='{$template.template_subject}'><br>
 	<textarea name=body id=body style='width:100%;height:250px'>{$template.template_body}</textarea><br>
 	<DIV align=center ><INPUT id=submit class=button type=submit value="Изменить"></DIV>
+				<div style="width:300px">Отправить с ящика: {html_options options=$emails selected=$template.from_email name='from_email'}</div>
 </TD><TD valign=top>
 <a href='#' onclick='form.body.value+="\n%CLIENT%";return false;'>логин клиента</a><br><br>
 <a href='#' onclick='form.body.value+="\n%CLIENT_NAME%";return false;'>полное название компании</a><br><br>
@@ -21,7 +22,12 @@
 <a href='#' onclick='form.body.value+="\n%NOTICE_MCM_TELEKOM%";return false;'>Уведомление о передаче прав (МСН Телеком => МСН Телеком Ретайл)</a><br><br>
 <a href='#' onclick='form.body.value+="\n%SOGL_MCM_TELEKOM%";return false;'>Соглашение о передаче прав (МСН Телеком => МСМ Телеком)</a><br>
 <a href='#' onclick='form.body.value+="\n%SOGL_MCN_TELEKOM%";return false;'>Соглашение о передаче прав (МСН Телеком => МСН Телеком Ретайл)</a><br>
-</TD></TR></FORM></TABLE>
+<a href='#' onclick='form.body.value+="\n%APDFBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>счета клиента за месяц в PDF</a><br><br>
+<a href='#' onclick='form.body.value+="\n%UPDFBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Полностью неоплаченные(красные) в PDF</a><br><br>
+<a href='#' onclick='form.body.value+="\n%PPDFBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Оплаченные не полностью(желтые) в PDF</a><br><br>
+<a href='#' onclick='form.body.value+="\n%NPDFBILL"+prompt("Год-месяц","{$smarty.now|date_format:"%Y-%m"}")+"%";return false;'>Не полностью оплаченные(красные и желтые) в PDF</a><br><br>
+
+			</TD></TR></FORM></TABLE>
 
 {if $template.job_id}
 <H3>Отправка письма</H3>

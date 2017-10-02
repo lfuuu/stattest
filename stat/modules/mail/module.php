@@ -1,5 +1,6 @@
 <?php
 use app\models\ClientAccount;
+use app\models\mail\MailJob as MailJobModel;
 use app\models\User;
 
 class m_mail{
@@ -73,41 +74,35 @@ class m_mail{
 		$design->AddMain('mail/list.tpl');
 	}
 	function mail_edit(){
-		global $db,$design,$user;
+		global $design,$user;
 		$id=get_param_integer('id');
 
-		$R = array(
-			'template_body'=>get_param_raw('body'),
-			'template_subject'=>get_param_raw('subject')
-		);
+        $data = [
+            'template_body' => get_param_raw('body'),
+            'template_subject' => get_param_raw('subject'),
+            'date_edit' => new \yii\db\Expression('NOW()'),
+            'user_edit' => $user->Get('user'),
+            'from_email' => get_param_raw('from_email')
+        ];
 
-		$R['date_edit'] = array('NOW()');
-		$R['user_edit'] = $user->Get('user');
+        $mailJob = null;
 
-		if($id){
-			$query = '
-				UPDATE
-					`mail_job` `mj`
-				SET
-					`mj`.`template_body` = "'.$db->escape($R['template_body']).'",
-					`mj`.`template_subject` = "'.$db->escape($R['template_subject']).'",
-					`mj`.`date_edit` = NOW(),
-					`mj`.`user_edit` = "'.$R['user_edit'].'"
-				WHERE
-					`mj`.`job_id` = '.$id;
-			$db->Query($query);
-		}else{
-			$query = '
-				INSERT INTO	`mail_job`
-					(`template_subject`,`template_body`,`date_edit`,`user_edit`)
-				VALUES
-					("'.$db->escape($R['template_subject']).'","'.$db->escape($R['template_body']).'",NOW(),"'.$R['user_edit'].'")
-			';
-			$db->Query($query);
-			$id = $db->GetInsertId();
+        if($id) {
+            $mailJob = MailJobModel::findOne(['job_id' => $id]);
+        }
+
+		if (!$mailJob) {
+			$mailJob = new MailJobModel();
 		}
+
+		$mailJob->setAttributes($data, false);
+        if (!$mailJob->save()) {
+            throw new \app\exceptions\ModelValidationException($mailJob);
+        }
+        $mailJob->refresh();
+
 		if($design->ProcessEx('errors.tpl')) {
-            header('Location: ?module=mail&action=view&id=' . $id);
+            header('Location: ?module=mail&action=view&id=' . $mailJob->job_id);
             exit;
         }
 	}
@@ -119,7 +114,8 @@ class m_mail{
 				array(
 					'template_body'=>'Текст письма',
 					'template_subject'=>'Тема письма',
-					'job_id'=>null
+					'job_id'=>null,
+					'from_email' => end($this->_getFromEmails()),
 				)
 			);
 		}else{
@@ -166,7 +162,14 @@ class m_mail{
 			$design->assign('job_id', $id);
 		}
 
+		$design->assign('emails', $this->_getFromEmails());
+
 		$design->AddMain('mail/view.tpl');
+	}
+
+	private function _getFromEmails()
+	{
+        return ['info@mcn.ru' => 'info@mcn.ru', 'bill@wellsystems.ru' => 'bill@wellsystems.ru'];
 	}
 	function mail_remove(){
 		global $db,$design;

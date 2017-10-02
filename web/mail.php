@@ -42,7 +42,7 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
         $bill = Bill::findOne(['bill_no' => $R['bill']]);
 
         $report = DocumentReportFactory::me()->getReport($bill, DocumentReport::DOC_TYPE_BILL, $sendEmail = 1);
-        echo $report->render();
+        echo isset($o['is_pdf']) && $o['is_pdf'] ? $report->renderAsPDF() : $report->render();
     } else {
         if (in_array($R['obj'], ['notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom'])) {
             $bill = Bill::find()->where(['client_id' => $R['bill']])->orderBy(['bill_date' => SORT_DESC])->one();
@@ -51,7 +51,7 @@ if (isset($o["object_type"]) && $o["object_type"] && in_array($o["object_type"],
         } else {
             $design->assign('emailed', 1);
             $_GET = $R;
-            \app\classes\StatModule::newaccounts()->newaccounts_bill_print('');
+            \app\classes\StatModule::newaccounts()->newaccounts_bill_print('', ['is_pdf' => $o['is_pdf']]);
             $design->Process();
         }
     }

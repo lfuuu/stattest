@@ -77,7 +77,7 @@ class MailJob {
 		);
 		return substr($k,0,8);
 	}
-	public function get_object_link($object_type,$object_param, $source = 2){
+	public function get_object_link($object_type,$object_param, $source = 2, $isPDF = false){
 		global $db;
 		$v = array();
 		$v['job_id'] = $this->data['job_id'];
@@ -85,16 +85,16 @@ class MailJob {
 		$v['object_type'] = $object_type;
 		$v['object_param'] = $object_param;
         $v["source"] = $source;
+        $v['is_pdf'] = (int)$isPDF;
+
 		$ins = false;
 		while(!($r = $db->QuerySelectRow('mail_object',$v))){
 			if($ins)
-				throw new Exception("Can't create object ".print_r($object,true));
+				throw new Exception("Can't create object ".print_r($v,true));
 			$ins = true;
 			$v['object_id'] = $db->QueryInsert('mail_object',$v);
 		}
-		$k = self::get_object_key($r);
-		//return WEB_ADDRESS.WEB_PATH.'mail.php?o='.$r['object_id'].'&k='.$k;
-        return Yii::$app->params['LK_PATH'].'docs/?o='.$r['object_id'].'&k='.$k;
+        return Yii::$app->params['LK_PATH'].'docs/?o='.$r['object_id'].'&k='.self::get_object_key($r);
 	}
 
     public function _get_assignments($match)
@@ -180,8 +180,11 @@ class MailJob {
 			$pay_flag = 'AND `is_payed`= 2';
 		}elseif($match[1]=='N') {
 			$pay_flag = 'AND (`is_payed`= 2 OR `is_payed`= 0)';
-		} else
-			$pay_flag = '';
+		} else {
+            $pay_flag = '';
+        }
+
+        $isPDF = (bool)$match[2];
 
 		$query = "
 			SELECT
@@ -193,8 +196,7 @@ class MailJob {
 			AND 
 				`sum` > 0 
 			AND 
-					`bill_date` BETWEEN '" . $match[2] . "-1' AND DATE_ADD(DATE_ADD('" . $match[2] . "-1', INTERVAL 1 MONTH), INTERVAL -1 DAY)
-				AND biller_version = '" . \app\models\ClientAccount::VERSION_BILLER_USAGE . "' 
+					`bill_date` BETWEEN '" . $match[3] . "-1' AND DATE_ADD(DATE_ADD('" . $match[3] . "-1', INTERVAL 1 MONTH), INTERVAL -1 DAY)
 			".$pay_flag;
 
 		$rows = $db->AllRecords($query,null,MYSQL_ASSOC);
@@ -209,12 +211,10 @@ class MailJob {
                 date('d.m.Y', strtotime($r['bill_date'])) . // дата счета
                 $s2 . // г.
                 $this->get_object_link('bill',
-                    $r['bill_no']); // вот тут косяк. Здешняя библиотека sql не готова к таким зигзагам. Если счетов больше чем 1 - будет выход из цикла.
+                    $r['bill_no'],2, $isPDF); // вот тут косяк. Здешняя библиотека sql не готова к таким зигзагам. Если счетов больше чем 1 - будет выход из цикла.
 
             $bill = new Bill($r["bill_no"]);
             $modelBill = \app\models\Bill::findOne(['bill_no' => $r['bill_no']]);
-
-            $organization = $modelBill->clientAccount->getOrganization($r['bill_date']);
 
             list($b_akt, $b_sf, $b_upd) = m_newaccounts::get_bill_docs_static($bill);
             /*
@@ -225,34 +225,14 @@ class MailJob {
             if($b_sf[6]) $T .="\nСчет-фактура ".$r['bill_no']."-5: ".$this->get_object_link('invoice',$r['bill_no'],6);
             */
 
-            if ($b_sf[1]) {
-                $T .= "\nСчет-фактура " . $r['bill_no'] . "-1: " . $this->get_object_link('invoice', $r['bill_no'], 1);
-            }
-
-            if ($b_sf[2]) {
-                $T .= "\nСчет-фактура " . $r['bill_no'] . "-2: " . $this->get_object_link('invoice', $r['bill_no'], 2);
-            }
-
-            if ($b_akt[1]) {
-                $T .= "\nАкт " . $r['bill_no'] . "-1: " . $this->get_object_link('akt', $r['bill_no'], 1);
-            }
-
-            if ($b_akt[2]) {
-                $T .= "\nАкт " . $r['bill_no'] . "-2: " . $this->get_object_link('akt', $r['bill_no'], 2);
-            }
-
+            $b_sf[1] && $T .= "\nСчет-фактура " . $r['bill_no'] . "-1: " . $this->get_object_link('invoice', $r['bill_no'], 1, $isPDF);
+            $b_sf[2] &&  $T .= "\nСчет-фактура " . $r['bill_no'] . "-2: " . $this->get_object_link('invoice', $r['bill_no'], 2, $isPDF);
+            $b_akt[1] &&  $T .= "\nАкт " . $r['bill_no'] . "-1: " . $this->get_object_link('akt', $r['bill_no'], 1, $isPDF);
+            $b_akt[2] && $T .= "\nАкт " . $r['bill_no'] . "-2: " . $this->get_object_link('akt', $r['bill_no'], 2, $isPDF);
             //if($b_akt[3]) $T .="\nАкт ".$r['bill_no']."-3: ".$this->get_object_link('akt',$r['bill_no'],3);
-
-            if ($b_upd[1]) {
-                $T .= "\nУПД " . $r['bill_no'] . "-1: " . $this->get_object_link('upd', $r['bill_no'], 1);
-            }
-
-            if ($b_upd[2]) {
-                $T .= "\nУПД " . $r['bill_no'] . "-2: " . $this->get_object_link('upd', $r['bill_no'], 2);
-            }
-
-
-            if($b_sf[4]) $T .="\nТоварная накладная ".$r['bill_no'].": ".$this->get_object_link('lading',$r['bill_no']);
+            $b_upd[1] && $T .= "\nУПД " . $r['bill_no'] . "-1: " . $this->get_object_link('upd', $r['bill_no'], 1, $isPDF);
+            $b_upd[2] && $T .= "\nУПД " . $r['bill_no'] . "-2: " . $this->get_object_link('upd', $r['bill_no'], 2, $isPDF);
+            $b_sf[4] && $T .="\nТоварная накладная ".$r['bill_no'].": ".$this->get_object_link('lading',$r['bill_no'], $isPDF);
 
             $T .="\n";
 		}
@@ -271,10 +251,10 @@ class MailJob {
 			array($this->client['client'],$this->client['company_full']),
 			$text
 		);
-		$text = preg_replace_callback('/%(A)BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
-		$text = preg_replace_callback('/%(U)BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
-		$text = preg_replace_callback('/%(P)BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
-		$text = preg_replace_callback('/%(N)BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
+		$text = preg_replace_callback('/%(A)(PDF)?BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
+		$text = preg_replace_callback('/%(U)(PDF)?BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
+		$text = preg_replace_callback('/%(P)(PDF)?BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
+		$text = preg_replace_callback('/%(N)(PDF)?BILL(\d{4}-\d{2}(?:-\d+)?)%/',array($this,'_get_bills'),$text);
 		$text = preg_replace_callback('/%(NOTICE)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(ORDER)_TELEKOM%/',array($this,'_get_assignments'),$text);
 		$text = preg_replace_callback('/%(DIRECTOR)_TELEKOM%/',array($this,'_get_assignments'),$text);
