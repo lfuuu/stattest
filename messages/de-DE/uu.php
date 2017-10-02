@@ -1,6 +1,6 @@
 <?php
 return [
-    'Connection' => 'Verbindung',
+    'Setup' => 'Verbindung',
     'Subscription fee' => 'Abonnementsgebühr',
     'Minimal fee' => 'Minimalpreis',
 ];

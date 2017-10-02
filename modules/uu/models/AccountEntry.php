@@ -53,7 +53,7 @@ class AccountEntry extends ActiveRecord
     const NAME_RESOURCES = 'Resource';
 
     public static $names = [
-        self::TYPE_ID_SETUP => 'Connection',
+        self::TYPE_ID_SETUP => 'Setup',
         self::TYPE_ID_PERIOD => 'Subscription fee',
         self::TYPE_ID_MIN => 'Minimal fee',
     ];

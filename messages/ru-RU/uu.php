@@ -1,6 +1,6 @@
 <?php
 return [
-    'Connection' => 'Подключение',
+    'Setup' => 'Подключение',
     'Subscription fee' => 'Абонентская плата',
     'Minimal fee' => 'Минимальная плата',
 
