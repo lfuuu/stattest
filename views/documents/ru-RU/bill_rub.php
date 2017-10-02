@@ -321,7 +321,7 @@ $payerCompany = $document->getPayer();
             </tbody>
         </table>
 
-        <?php if (!in_array($document->bill->clientAccount->firma, ['ooocmc', 'ooomcn','all4net'])): ?>
+        <?php if (!in_array($document->bill->clientAccount->firma, ['ooocmc', 'ooomcn', 'all4net', 'ab.service_marcomnet'])): ?>
             <small>
                 Примечание:
                 При отсутствии оплаты счета до конца текущего месяца услуги по договору будут приостановлены до полного погашения задолженности.
