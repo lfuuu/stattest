@@ -40,12 +40,22 @@ padding:0cm 2.4pt 0cm 2.4pt;
 .td_item {height: {/literal}{$print_upd.row_size}{literal}px;}
 .to_client td{ font: normal 8pt sans-serif;text-decoration: underline; }
 
+table.contract_table td {
+	padding: 0;
+}
 {/literal}
 </style>
 
 </head>
 
 <body marginwidth=5 marginheight=5>
+
+{if $inv_date >= strtotime("2017-10-01")}
+    {assign var="isChanges20171001" value=1}
+{else}
+    {assign var="isChanges20171001" value=0}
+{/if}
+
 
 <div align="center"><center>
 {include file="newaccounts/details_for_print.tpl"}
@@ -74,7 +84,10 @@ padding:0cm 2.4pt 0cm 2.4pt;
                             <table border=0 cellspacing=0 cellpadding=0>
                                 <tr>
                                     <td colspan=6><p style='text-align:right'><span style='font-size:6.5pt;'>
-                                    Приложение N 1 к письму ФНС России от 21.10.2013 N ММВ-20-3/96@</span></p></td>
+												{if !$isChanges20171001}
+													Приложение N 1 к письму ФНС России от 21.10.2013 N ММВ-20-3/96@
+												{/if}
+											</span></p></td>
                                 </tr>
                                 <tr>
                                     <td style='width:100pt;'><p><span>Счет-фактура N</span></p></td>
@@ -93,7 +106,13 @@ padding:0cm 2.4pt 0cm 2.4pt;
                                     </span></p></td>
                                     <td style='width:20pt;'><p style='text-align:center'><span>(1)</span></p></td>
                                     <td rowspan="2" valign=top style='width:460pt;'><p style='text-align:right'><span style='font-size:6.5pt;'>
-                                    Приложение N 1<br>к постановлению Правительства Российской Федерации<br>от 26 декабря 2011 г. N 1137</span></p></td>
+												{if $isChanges20171001}
+													Приложение №1 к постановлению Правительства от 26 декабря 2011г. № 1113<br/>
+													(в редакции постановления Правительства Российской Федерации <br/> от 19 августа 2017 г. №981)
+												{else}
+													Приложение N 1<br>к постановлению Правительства Российской Федерации<br>от 26 декабря 2011 г. N 1137
+												{/if}
+									</span></p></td>
                                 </tr>
                                 <tr>
                                     <td><p><span>Исправление N</span></p></td>
@@ -154,6 +173,18 @@ padding:0cm 2.4pt 0cm 2.4pt;
                                     <td style='border-bottom:solid windowtext 1.0pt;'><p><span>Российский рубль, 643</span></p></td>
                                     <td><p style='text-align:right'><span>(7)</span></p></td>
                                 </tr>
+								{if $isChanges20171001}
+									<tr>
+										<td colspan="3">
+											<table width="100%" border=0 cellspacing=0 cellpadding=0 class="contract_table">
+												<td width="30%"><p><span>Идентификатор&nbsp;государственного&nbsp;контракта,&nbsp;договора&nbsp;(соглашения)&nbsp;(при&nbsp;наличии):&nbsp;</span>
+													</p></td>
+												<td width="69%" style='border-bottom:solid windowtext 1.0pt;'>&nbsp;</td>
+												<td  width="1%"><p style='text-align:right'><span>(8)</span></p></td>
+											</table>
+										</td>
+									</tr>
+                                {/if}
                             </table>
                         </td>
                         <td align=center style="width: 100pt;">
@@ -174,6 +205,11 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		<td rowspan=2 style='border:solid windowtext 1.0pt;mso-border-left-alt: solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>Наименование товара (описание выполненных работ, оказанных услуг), имущественного права</span></p>
 		</td>
+		{if $isChanges20171001}
+			<td rowspan=2 style='border:solid windowtext 1.0pt;mso-border-left-alt: solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>Код<br>вида<br>това-<br>ра</span></p>
+			</td>
+		{/if}
 		<td colspan=2 style='border:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>Единица<br>измерения</span></p>
 		</td>
@@ -202,7 +238,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 			<p style='text-align:center'><span>Страна<br> происхождения товара</span></p>
 		</td>
 		<td rowspan=2 style='border:solid windowtext 1.0pt;' nowrap>
-			<p style='text-align:center'><span>Номер<br>таможен<br>ной<br>декла<br>рации</span></p>
+			<p style='text-align:center'><span>{if $isChanges20171001}Регистраци-<br>онный номер<br>таможенной<br>декларации{else}Номер<br>таможен<br>ной<br>декла<br>рации{/if}</span></p>
 		</td>
 	</tr>
 	<tr class='tr_h50'>
@@ -229,6 +265,11 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>1</span></p>
 		</td>
+		{if $isChanges20171001}
+			<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+				<p style='text-align:center'><span>1a</span></p>
+			</td>
+		{/if}
 		<td style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p style='text-align:center'><span>2</span></p>
 		</td>
@@ -269,7 +310,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 {foreach from=$bill_lines item=row key=key name='list'}
 	{if $print_upd.newPageLineIndex.$key}
 		<tr class='tr_h15' style="page-break-after: always;">
-			<td colspan="15" style="height: {$print_upd.newPageLineIndex.$key}px;"><p ><span>&nbsp;</span></p></td>
+			<td colspan="{if $isChanges20171001}16{else}15{/if}" style="height: {$print_upd.newPageLineIndex.$key}px;"><p ><span>&nbsp;</span></p></td>
 		</tr>
 	{/if}
 	<tr class='tr_h15'>
@@ -282,6 +323,11 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;' class="td_item">
 			<p ><span>{$row.item}</span></p>
 		</td>
+		{if $isChanges20171001}
+			<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+				<p ><span>--</span></p>
+			</td>
+		{/if}
 		<td valign=top style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><span>
                 {if $is_four_order}
@@ -408,7 +454,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 		<td colspan="2" valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.5pt;'>
 			<p  align=right style='text-align:right'><span>&nbsp;</span></p>
 		</td>
-		<td colspan=5 valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
+		<td colspan={if $isChanges20171001}6{else}5{/if} valign=bottom style='border-left:solid windowtext 1.0pt;border-bottom:solid windowtext 1.0pt;'>
 			<p ><b><span>Всего к оплате</span></b></p>
 		</td>
 		<td valign=bottom style='border:solid windowtext 1.0pt;'>
@@ -498,7 +544,7 @@ padding:0cm 2.4pt 0cm 2.4pt;
 	</tr>
 	<tr class='tr_h20'>
 		<td valign=bottom>
-			<p ><span>Индивидуальный предприниматель</span></p>
+			<p ><span>Индивидуальный&nbsp;предприниматель{if $isChanges20171001} или<br />иное уполномоченное лицо{/if}</span></p>
 		</td>
 		<td valign=bottom style='border-bottom:solid windowtext 1.0pt;'>
 			<p ><span>&nbsp;</span></p>
