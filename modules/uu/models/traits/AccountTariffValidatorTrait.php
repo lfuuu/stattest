@@ -79,12 +79,6 @@ trait AccountTariffValidatorTrait
             $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_TRUNK_SINGLE;
             return;
         }
-
-        if (!in_array($this->clientAccount->contract->business_id, [Business::OPERATOR, Business::OTT])) {
-            $this->addError($attribute, 'Универсальную услугу транка можно добавить только ЛС с договором Межоператорка или ОТТ.');
-            $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_TRUNK;
-            return;
-        }
     }
 
     /**
