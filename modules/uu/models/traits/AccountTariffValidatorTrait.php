@@ -7,6 +7,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Business;
 use app\models\ClientAccount;
 use app\models\Number;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -124,6 +125,12 @@ trait AccountTariffValidatorTrait
         if ($this->isNewRecord && $number->status != Number::STATUS_INSTOCK) {
             $this->addError($attribute, 'Этот телефонный номер нельзя подключить');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK;
+            return;
+        }
+
+        if ($number->ndc_type_id == NdcType::ID_FREEPHONE && !$this->region_id) {
+            $this->addError($attribute, 'Для freephone надо указать точку присоединения');
+            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_CONNECTION_POINT;
             return;
         }
     }
