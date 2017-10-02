@@ -32,15 +32,15 @@ define("print_sql", 1);
 	foreach($R as $job_id=>$R2){
 		$idx = 0;
 		$job = new MailJob($job_id);
-		if(in_array($job->data['job_state'],array('ready','test','news'))){
+		if(in_array($job->data['job_state'],array('ready','test'))){
 			$test = (defined('MAIL_TEST_ONLY') && (MAIL_TEST_ONLY==1));
 			$test = $test || $job->data['job_state']=='test';
 			foreach($R2 as $r){
-				if (($idx % 10) == 0 && !in_array($job->get_cur_state(), array('ready','test','news'))) break 1;
+				if (($idx % 10) == 0 && !in_array($job->get_cur_state(), array('ready','test'))) break 1;
 				
 				$job->assign_client($r['client']);
 				
-				echo 'Sending '.$job_id.' to '.$r['client'].'..';
+				echo 'Sending '.$job_id.' ('.$job->data['from_email'].') to '.$r['client'].'..';
 				$res = $job->Send($test?ADMIN_EMAIL:null);
 				if($res!==true){
 					echo "error\n";

@@ -37,8 +37,6 @@
 {elseif $template.job_state=='stop'}
 <a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=test'>Тестовая отправка писем</a><br>
 <a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=ready'>Реальная отправка писем</a><br>
-<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=PM'>Сделать сообщением</a><br><br>
-<a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=news'>Отправка новостей</a><br>
 {else}
 <a href='{$LINK_START}module=mail&action=state&id={$template.job_id}&state=stop'>Запретить отправку</a><br>
 {/if}

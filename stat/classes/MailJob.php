@@ -286,7 +286,7 @@ class MailJob {
 		$Mail = new PHPMailer();
 		$Mail->SetLanguage("ru","include/");
 		$Mail->CharSet = $this->encoding;
-		$Mail->From = ($this->data['job_state']=='news')?'news@mcn.ru':"info@mcn.ru";
+		$Mail->From = $this->data['from_email'];;
 		$Mail->FromName="MCN";
 		$Mail->Mailer='smtp';
 		$Mail->Host=SMTP_SERVER;
