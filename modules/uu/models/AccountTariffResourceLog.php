@@ -30,9 +30,10 @@ use yii\db\Expression;
  * @property string $actual_from_utc
  * @property string $sync_time
  *
+ * @property string $actual_from
+ *
  * @property-read AccountTariff $accountTariff
  * @property-read \app\modules\uu\models\Resource $resource
- * @property string $actual_from
  */
 class AccountTariffResourceLog extends ActiveRecord
 {
@@ -418,11 +419,13 @@ class AccountTariffResourceLog extends ActiveRecord
             return null;
         }
 
+
+        $maxPaidAmount = $accountTariff->getMaxPaidAmount($tariffPeriod->tariff, $this->resource_id);
         $accountLogFromToResource = new AccountLogFromToResource;
         $accountLogFromToResource->dateFrom = new DateTimeImmutable($this->actual_from);
         $accountLogFromToResource->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToResource->dateFrom);
         $accountLogFromToResource->tariffPeriod = $tariffPeriod;
-        $accountLogFromToResource->amountOverhead = $this->amount;
+        $accountLogFromToResource->amountOverhead = max(0, $this->amount - $maxPaidAmount);
         $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $this->resource_id);
         $priceResources = $accountLogResource->price;
 

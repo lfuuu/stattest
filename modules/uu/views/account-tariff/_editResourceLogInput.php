@@ -31,7 +31,6 @@ if ($tariffPeriod) {
     $tariffResources = [];
 }
 
-list($dateFrom,) = $accountTariff->getLastLogPeriod();
 $currentDate = date(DateTimeZoneHelper::DATE_FORMAT);
 
 $accountTariffResourceLog = new AccountTariffResourceLog(); // пустышка
@@ -119,25 +118,9 @@ $resourceTableName = Resource::tableName();
 
             <div class="col-sm-1">
                 <?php
-                $maxPaidAmount = $tariffResource ? $tariffResource->amount : 0;
-
-                /** @var AccountTariffResourceLog $accountTariffResourceLogTmp */
-                $accountTariffResourceLogsQuery = $accountTariff->getAccountTariffResourceLogs($resource->id);
-                foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLogTmp) {
-                    if ($accountTariffResourceLogTmp->actual_from > $currentDate) {
-                        // еще не действует
-                        continue;
-                    }
-
-                    $maxPaidAmount = max($maxPaidAmount, $accountTariffResourceLogTmp->amount);
-
-                    if ($accountTariffResourceLogTmp->actual_from < $dateFrom) {
-                        // все старые уже не действуют
-                        break;
-                    }
-                }
-
-                unset($accountTariffResourceLogsQuery, $accountTariffResourceLogTmp);
+                $maxPaidAmount = $tariffPeriod ?
+                    $accountTariff->getMaxPaidAmount($tariffPeriod->tariff, $resource->id) :
+                    0;
 
                 echo $resource->isNumber() ?
                     $maxPaidAmount :

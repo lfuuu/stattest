@@ -1794,14 +1794,14 @@ class UuController extends ApiInternalController
             $transaction->commit();
 
             return [
-                'amount_use' => $accountLogResource->amount_use,
-                'amount_free' => $accountLogResource->amount_free,
-                'amount_overhead' => $accountLogResource->amount_overhead,
-                'price_per_unit' => $accountLogResource->price_per_unit,
-                'coefficient' => $accountLogResource->coefficient,
-                'price' => $accountLogResource->price,
-                'actual_from' => $accountLogResource->date_from,
-                'actual_to' => $accountLogResource->date_to,
+                'amount_use' => $accountLogResource ? $accountLogResource->amount_use : null,
+                'amount_free' => $accountLogResource ? $accountLogResource->amount_free : null,
+                'amount_overhead' => $accountLogResource ? $accountLogResource->amount_overhead : null,
+                'price_per_unit' => $accountLogResource ? $accountLogResource->price_per_unit : null,
+                'coefficient' => $accountLogResource ? $accountLogResource->coefficient : null,
+                'price' => $accountLogResource ? $accountLogResource->price : null,
+                'actual_from' => $accountLogResource ? $accountLogResource->date_from : null,
+                'actual_to' => $accountLogResource ? $accountLogResource->date_to : null,
             ];
 
         } catch (Exception $e) {

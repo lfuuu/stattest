@@ -32,9 +32,10 @@ use yii\db\Expression;
  * @property int $tariff_period_id если null, то закрыто
  * @property string $actual_from_utc
  *
+ * @property string $actual_from
+ *
  * @property-read TariffPeriod $tariffPeriod
  * @property-read AccountTariff $accountTariff
- * @property string $actual_from
  */
 class AccountTariffLog extends HistoryActiveRecord
 {

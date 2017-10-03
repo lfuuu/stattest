@@ -7,6 +7,8 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\Tariff;
+use app\modules\uu\models\TariffResource;
 use DateTime;
 use yii\db\ActiveQuery;
 
@@ -168,5 +170,42 @@ trait AccountTariffGroupTrait
             ->format(DateTimeZoneHelper::DATE_FORMAT);
 
         return [$actualFrom, $actualTo];
+    }
+
+    /**
+     * Сколько ресурсов уже оплачено (или входит в тариф) до минимальной даты
+     *
+     * @param Tariff $tariff
+     * @param int $resourceId
+     * @return float|int
+     */
+    public function getMaxPaidAmount($tariff, $resourceId)
+    {
+        list($dateFrom,) = $this->getLastLogPeriod();
+        $currentDate = date(DateTimeZoneHelper::DATE_FORMAT);
+
+        // входит в тариф
+        /** @var TariffResource $tariffResource */
+        $tariffResource = $tariff->getTariffResource($resourceId)->one();
+        $maxPaidAmount = $tariffResource ? $tariffResource->amount : 0;
+
+        // оплачено
+        /** @var AccountTariffResourceLog $accountTariffResourceLogTmp */
+        $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs($resourceId);
+        foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLogTmp) {
+            if ($accountTariffResourceLogTmp->actual_from > $currentDate) {
+                // еще не действует
+                continue;
+            }
+
+            $maxPaidAmount = max($maxPaidAmount, $accountTariffResourceLogTmp->amount);
+
+            if ($accountTariffResourceLogTmp->actual_from < $dateFrom) {
+                // все старые уже не действуют
+                break;
+            }
+        }
+
+        return $maxPaidAmount;
     }
 }
