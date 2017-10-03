@@ -476,6 +476,7 @@ abstract class TariffForm extends \app\classes\Form
 
         $fieldNames = [
             'service_type_id',
+            'is_termination',
             'tarification_free_seconds',
             'tarification_interval_seconds',
             'tarification_type',

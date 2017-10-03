@@ -35,12 +35,18 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
     <div class="well">
         
         <div class="row">
+
             <div class="col-sm-3">
                 <?= $form->field($tariff, 'voip_group_id')
                     ->widget(Select2::className(), [
                         'data' => TariffVoipGroup::getList(true),
                     ]) ?>
             </div>
+
+            <div class="col-sm-3">
+                <?= $form->field($package, 'is_termination')->checkbox($options) ?>
+            </div>
+
         </div>
 
         <?= $this->render('_editMainTarification', ['form' => $form, 'package' => $package, 'options' => $options]) ?>

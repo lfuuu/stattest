@@ -13,6 +13,7 @@ use yii\helpers\Url;
  *
  * @property int $tariff_id
  * @property int $service_type_id
+ * @property int $is_termination 0 (по умолчанию) - плата за исходящие звонкие, 1 (обычно только для freephone) - плата за входящие звонки
  * @property int $tarification_free_seconds
  * @property int $tarification_interval_seconds
  * @property int $tarification_type
@@ -40,6 +41,7 @@ class Package extends ActiveRecord
         return [
             'tariff_id' => 'Тариф',
             'service_type_id' => 'Тип услуги',
+            'is_termination' => 'Плата за входящие',
             'tarification_free_seconds' => 'Бесплатно, сек.',
             'tarification_interval_seconds' => 'Интервал билингования, сек.',
             'tarification_type' => 'Тип округления',
@@ -70,6 +72,7 @@ class Package extends ActiveRecord
             [
                 [
                     'tariff_id',
+                    'is_termination',
                     'tarification_free_seconds',
                     'tarification_interval_seconds',
                     'tarification_type',
