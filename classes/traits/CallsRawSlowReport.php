@@ -129,7 +129,7 @@ trait CallsRawSlowReport
                 '(@(cr1.sale)) - cr2.cost_price margin',
             ]
         )->from('cr1')
-            ->join('JOIN', 'cr2', ['AND', 'cr1.cdr_id = cr2.cdr_id', 'cr1.server_id = cr2.server_id']);
+            ->join('JOIN', 'cr2', ['AND', 'cr1.cdr_id = cr2.cdr_id']);
 
         if ($this->server_ids) {
             $condition = ['cr.server_id' => $this->server_ids];

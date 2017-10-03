@@ -597,9 +597,13 @@ class CallsRawFilter extends CallsRaw
             );
         }
 
+        /*
         $last_month = (new \DateTime())->setTimestamp(mktime(0, 0, 0, date('m') - 1, 1));
 
         $query = $this->dateStart >= $last_month ? $this->_getCacheReport() : $this->_getSlowReport();
+        */
+
+        $query = $this->_getSlowReport();
 
         if ($this->group || $this->group_period || $this->aggr) {
             $fields = $groups = [];
