@@ -436,17 +436,20 @@ class Tariff extends HistoryActiveRecord
         }
 
         $tariffTableName = Tariff::tableName();
+        $where = [
+            $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
+            $tariffTableName . '.country_id' => $this->country_id,
+            $tariffTableName . '.currency_id' => $this->currency_id,
+            // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
+            $tariffTableName . '.is_default' => 1,
+            $tariffTableName . '.tariff_status_id' => $tariffStatuses,
+        ];
+
+        $cityId && $where[TariffVoipCity::tableName() . '.city_id'] = $cityId;
+
         return Tariff::find()
             ->joinWith('voipCities')
-            ->where([
-                $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
-                $tariffTableName . '.country_id' => $this->country_id,
-                $tariffTableName . '.currency_id' => $this->currency_id,
-                // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
-                $tariffTableName . '.is_default' => 1,
-                $tariffTableName . '.tariff_status_id' => $tariffStatuses,
-                TariffVoipCity::tableName() . '.city_id' => $cityId,
-            ])
+            ->where($where)
             ->all();
     }
 }

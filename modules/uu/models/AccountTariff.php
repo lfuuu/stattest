@@ -96,7 +96,6 @@ class AccountTariff extends HistoryActiveRecord
     const ERROR_CODE_USAGE_DEFAULT = 46; // Нельзя подключить второй базовый пакет на ту же услугу
     const ERROR_CODE_USAGE_NOT_EDITABLE = 47; // Услуга нередактируемая
     const ERROR_CODE_USAGE_NUMBER_NOT_IN_STOCK = 48; // Этот телефонный номер нельзя подключить
-    const ERROR_CODE_USAGE_CONNECTION_POINT = 49; // Для freephone надо указать точку присоединения
 
     // Ошибки ресурса
     const ERROR_CODE_RESOURCE_WRONG = 51; // Указан несуществующий ресурс

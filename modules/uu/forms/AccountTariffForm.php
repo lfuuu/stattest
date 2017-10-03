@@ -141,6 +141,7 @@ abstract class AccountTariffForm extends Form
                     $accountTariff = clone $this->accountTariff;
                     $accountTariff->voip_number = $voipNumber;
                     $accountTariff->id = 0;
+                    unset($accountTariff->number); // populateRelation
                     if (!$accountTariff->save()) {
                         $this->validateErrors += $accountTariff->getFirstErrors();
                         throw new ModelValidationException($accountTariff);

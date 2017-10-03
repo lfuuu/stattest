@@ -2,9 +2,7 @@
 
 namespace app\modules\uu\models\traits;
 
-use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
-use app\models\Business;
 use app\models\ClientAccount;
 use app\models\Number;
 use app\modules\nnp\models\NdcType;
@@ -129,9 +127,7 @@ trait AccountTariffValidatorTrait
         }
 
         if ($number->ndc_type_id == NdcType::ID_FREEPHONE && !$this->region_id) {
-            $this->addError($attribute, 'Для freephone надо указать точку присоединения');
-            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_CONNECTION_POINT;
-            return;
+            $this->region_id = $number->region ?: $number->country->default_connection_point_id;
         }
     }
 
