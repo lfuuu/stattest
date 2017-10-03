@@ -92,7 +92,7 @@ class ActualNumberDao extends Singleton
             select
                 account_tariff.client_account_id as client_id,
                 account_tariff.voip_number as number,
-                number.region,
+                COALESCE(number.region, account_tariff.region_id, city.connection_point_id) as region,
                 1 as call_count,
                 IF(LENGTH(account_tariff.voip_number) > 5,'number','nonumber') AS number_type,
                 '' as number7800,
@@ -100,12 +100,16 @@ class ActualNumberDao extends Singleton
                 c.voip_disabled as is_disabled,
                 " . ClientAccount::VERSION_BILLER_UNIVERSAL . " as biller_version
             from
-                uu_account_tariff account_tariff,
-                voip_numbers number,
-                clients c
+                clients c,
+                uu_account_tariff account_tariff
+            left join
+                voip_numbers number
+                on account_tariff.voip_number = number.number
+            left join
+                city
+                on account_tariff.city_id = city.id
             where
-                number.number = account_tariff.voip_number
-                and tariff_period_id is not null
+                tariff_period_id is not null
                 and voip_number is not null
                 and c.id = account_tariff.client_account_id
                 " . ($number ? "and account_tariff.voip_number = :number" : "") . "

@@ -118,7 +118,7 @@ class MonitoringController extends BaseController
             $query = $filterModel->search()->query;
             $affectedRows = EventQueue::updateAll([
                 'status' => EventQueue::STATUS_PLAN,
-                'iteration' => EventQueue::ITERATION_MAX_VALUE - 1,
+                'iteration' => 0,
                 'next_start' => new Expression('NOW()'),
             ], $query->where);
 

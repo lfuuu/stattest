@@ -297,10 +297,7 @@ function doEvents()
                 case Event::UU_ACCOUNT_TARIFF_VOIP:
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
                     $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
-
-                    // Если эта услуга активна - подключить базовый пакет. Если неактивна - закрыть все пакеты.
-                    AccountTariff::findOne(['id' => $param['account_tariff_id']])
-                        ->addOrCloseDefaultPackage();
+                    AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;
 
                 case Event::UU_ACCOUNT_TARIFF_VOIP_INTERNET:

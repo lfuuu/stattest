@@ -15,6 +15,16 @@ use Yii;
 trait AccountTariffPackageTrait
 {
     /**
+     * @param int $accountTariffId
+     * @throws \Exception
+     */
+    public static function actualizeDefaultPackages($accountTariffId)
+    {
+        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+        $accountTariff->addOrCloseDefaultPackage();
+    }
+
+    /**
      * Если эта услуга активна - подключить базовый пакет. Если неактивна - закрыть все пакеты.
      *
      * @throws \Exception
