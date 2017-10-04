@@ -201,7 +201,7 @@ class TariffPeriod extends HistoryActiveRecord
                 ->andWhere(['tariff_cities.city_id' => $cityId]);
         }
 
-        if ($serviceTypeId == ServiceType::ID_VOIP && $ndcTypeId) {
+        if (in_array($serviceTypeId, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS]) && $ndcTypeId) {
             $activeQuery
                 ->innerJoin(TariffVoipNdcType::tableName() . ' tariff_ndc_type', 'tariff.id = tariff_ndc_type.tariff_id')
                 ->andWhere(['tariff_ndc_type.ndc_type_id' => $ndcTypeId]);
