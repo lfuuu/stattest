@@ -115,7 +115,7 @@ class m_mail{
 					'template_body'=>'Текст письма',
 					'template_subject'=>'Тема письма',
 					'job_id'=>null,
-					'from_email' => end($this->_getFromEmails()),
+					'from_email' => reset($this->_getFromEmails()),
 				)
 			);
 		}else{
@@ -242,7 +242,7 @@ class m_mail{
 						$W[] = 'B.bill_date>="'.addslashes($p[1]).'"';
 						$W[] = 'B.bill_date<="'.addslashes($p[2]).'"';
 						$W[] = 'B.`sum` > 0';
-						$J[] = 'INNER JOIN newbills as B ON B.client_id=C.id AND B.biller_version = ' . ClientAccount::VERSION_BILLER_USAGE;
+						$J[] = 'INNER JOIN newbills as B ON B.client_id=C.id';
 						switch ($p[0])
 						{
 							case 2: 
