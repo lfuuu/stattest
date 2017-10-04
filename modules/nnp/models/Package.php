@@ -68,11 +68,10 @@ class Package extends ActiveRecord
     {
         return [
             [['tariff_id'], 'required'],
-            [['is_include_vat'], 'boolean'],
+            [['is_termination', 'is_include_vat'], 'boolean'],
             [
                 [
                     'tariff_id',
-                    'is_termination',
                     'tarification_free_seconds',
                     'tarification_interval_seconds',
                     'tarification_type',
