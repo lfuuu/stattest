@@ -8,7 +8,6 @@ use yii\helpers\ArrayHelper;
 
 /**
  * @method static UserRightDao me($args = null)
- * @property
  */
 class UserRightDao extends Singleton
 {

@@ -32,7 +32,6 @@ use app\dao\TransactionDao;
  * @property int $bill_id
  * @property int $bill_line_id
  * @property int $deleted
- * @property
  */
 class Transaction extends ActiveRecord
 {

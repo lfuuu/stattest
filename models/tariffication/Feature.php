@@ -8,7 +8,6 @@ use app\classes\model\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property string $service_type_id
- * @property
  */
 class Feature extends ActiveRecord
 {

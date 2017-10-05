@@ -19,7 +19,6 @@ use app\models\voip\Destination;
  * @property double $periodical_fee
  * @property int $min_payment
  * @property int $minutes_count
- * @property
  */
 class TariffVoipPackage extends ActiveRecord
 {

@@ -14,7 +14,6 @@ use DateTime;
 /**
  * @property int $id
  * @property-read TariffCallChat $tariff
- * @property
  */
 class UsageCallChat extends ActiveRecord implements UsageInterface
 {

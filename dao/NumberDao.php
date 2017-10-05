@@ -21,7 +21,6 @@ use yii\db\Expression;
 
 /**
  * @method static NumberDao me($args = null)
- * @property
  */
 class NumberDao extends Singleton
 {

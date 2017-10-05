@@ -7,7 +7,6 @@ use app\models\ClientAccount;
 
 /**
  * @method static ActualNumberDao me($args = null)
- * @property
  */
 class ActualNumberDao extends Singleton
 {

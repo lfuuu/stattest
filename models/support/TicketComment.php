@@ -11,7 +11,6 @@ use app\classes\model\ActiveRecord;
  * @property string $user_id
  * @property string $text
  * @property string $created_at
- * @property
  */
 class TicketComment extends ActiveRecord
 {

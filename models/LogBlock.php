@@ -6,7 +6,6 @@ use app\classes\model\ActiveRecord;
 
 /**
  * @property int $id
- * @property
  */
 class LogBlock extends ActiveRecord
 {

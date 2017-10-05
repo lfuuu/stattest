@@ -5,7 +5,6 @@ namespace app\models;
 use app\classes\model\ActiveRecord;
 
 /**
- * @property
  */
 class GoodsIncomeOrder extends ActiveRecord
 {

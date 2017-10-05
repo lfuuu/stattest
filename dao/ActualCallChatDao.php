@@ -11,7 +11,6 @@ use yii\helpers\ArrayHelper;
 
 /**
  * @method static ActualCallChatDao me($args = null)
- * @property
  */
 class ActualCallChatDao extends Singleton
 {

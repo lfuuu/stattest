@@ -21,7 +21,6 @@ use Yii;
  * @property bool $parsed
  *
  * @property-read NetworkConfig $config
- * @property
  */
 class NetworkFile extends ActiveRecord
 {

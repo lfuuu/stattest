@@ -5,7 +5,6 @@ use app\models\UsageVoip;
 
 /**
  * @method UsageVoip[] all($db = null)
- * @property
  */
 class UsageVoipQuery extends UsageQuery
 {

@@ -9,7 +9,6 @@ use app\models\Bill;
 
 /**
  * @method static DocumentReportFactory me($args = null)
- * @property
  */
 class DocumentReportFactory extends Singleton
 {

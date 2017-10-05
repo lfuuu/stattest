@@ -24,7 +24,6 @@ use app\classes\Singleton;
 
 /**
  * @method static GridFactory me($args = null)
- * @property
  */
 class GridFactory extends Singleton
 {

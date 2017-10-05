@@ -6,7 +6,6 @@ use yii\db\ActiveQuery;
 
 /**
  * @method LkNoticeSetting[] all($db = null)
- * @property
  */
 class LkNoticeSettingQuery extends ActiveQuery
 {

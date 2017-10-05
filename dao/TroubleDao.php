@@ -19,7 +19,6 @@ use app\models\User;
  * Class TroubleDao
  *
  * @method static TroubleDao me($args = null)
- * @property
  */
 class TroubleDao extends Singleton
 {

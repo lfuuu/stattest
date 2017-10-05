@@ -8,7 +8,6 @@ use app\classes\model\ActiveRecord;
  * @property int $id
  * @property int $service_id
  * @property int $feature_id
- * @property
  */
 class ServiceFeatureItem extends ActiveRecord
 {

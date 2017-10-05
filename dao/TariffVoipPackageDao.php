@@ -7,7 +7,6 @@ use app\models\TariffVoipPackage;
 
 /**
  * @method static TariffVoipPackageDao me($args = null)
- * @property
  */
 class TariffVoipPackageDao extends Singleton
 {

@@ -13,7 +13,6 @@ use app\models\User;
  * Class LogBillDao
  *
  * @method static LogBillDao me($args = null)
- * @property
  */
 class LogBillDao extends Singleton
 {

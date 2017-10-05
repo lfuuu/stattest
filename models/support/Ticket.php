@@ -15,7 +15,6 @@ use app\classes\model\ActiveRecord;
  * @property string $department
  * @property string $created_at
  * @property string $updated_at
- * @property
  */
 class Ticket extends ActiveRecord
 {

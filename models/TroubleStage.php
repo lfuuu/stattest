@@ -17,7 +17,6 @@ use app\classes\model\ActiveRecord;
  * @property string $date_finish_desired
  * @property int $rating
  * @property string $user_rating
- * @property
  */
 class TroubleStage extends ActiveRecord
 {

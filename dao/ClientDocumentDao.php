@@ -22,7 +22,6 @@ use app\models\TariffVoip;
 
 /**
  * @method static ClientDocumentDao me($args = null)
- * @property
  */
 class ClientDocumentDao extends Singleton
 {

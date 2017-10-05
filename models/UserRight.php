@@ -11,7 +11,6 @@ use app\dao\user\UserRightDao;
  * @property string $values
  * @property string $values_desc
  * @property int $order
- * @property
  */
 class UserRight extends ActiveRecord
 {

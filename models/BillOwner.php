@@ -7,7 +7,6 @@ use app\classes\model\ActiveRecord;
 /**
  * @property string $bill_no
  * @property int $owner_id
- * @property
  */
 class BillOwner extends ActiveRecord
 {

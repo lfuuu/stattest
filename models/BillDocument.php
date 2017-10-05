@@ -8,7 +8,6 @@ use app\dao\BillDocumentDao;
 /**
  * @property string $bill_no
  * @property string $ts
- * @property
  */
 class BillDocument extends ActiveRecord
 {

@@ -9,7 +9,6 @@ use app\classes\model\ActiveRecord;
  * Class app\models\LkNotificationLog
  * Лог оповещений клиента
  *
- * @property
  * @property int $id
  * @property string $date
  * @property int $client_id

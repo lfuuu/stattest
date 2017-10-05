@@ -11,7 +11,6 @@ use DateTimeZone;
 
 /**
  * @method static PaymentSberOnlineDao me($args = null)
- * @property
  */
 class PaymentSberOnlineDao extends Singleton
 {

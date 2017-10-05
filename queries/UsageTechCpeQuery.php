@@ -6,7 +6,6 @@ use yii\db\ActiveQuery;
 
 /**
  * @method UsageTechCpeQuery[] all($db = null)
- * @property
  */
 class UsageTechCpeQuery extends ActiveQuery
 {

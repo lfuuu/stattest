@@ -15,7 +15,6 @@ use app\models\Bill;
 
 /**
  * @property Organization $organization
- * @property
  */
 abstract class DocumentReport extends Object
 {

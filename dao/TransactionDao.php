@@ -10,7 +10,6 @@ use app\models\Transaction;
 
 /**
  * @method static TransactionDao me($args = null)
- * @property
  */
 class TransactionDao extends Singleton
 {
