@@ -64,7 +64,7 @@
                 // показать форму
                 $div.show()
                     .addClass('loading')
-                    .load('/uu/account-tariff/edit-voip?id=' + $this.data('id') + '&cityId=' + $this.data('city_id') + '&serviceTypeId=' + $this.data('service_type_id'), function () {
+                    .load('/uu/account-tariff/edit-voip?id=' + $this.data('id') + '&cityId=' + $this.data('city_id') + '&ndcTypeId=' + $this.data('ndc_type_id') + '&serviceTypeId=' + $this.data('service_type_id'), function () {
                         $div.removeClass('loading');
                     });
 

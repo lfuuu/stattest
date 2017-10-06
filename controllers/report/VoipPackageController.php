@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers\report;
 
+use app\classes\traits\AddClientAccountFilterTraits;
 use Yii;
 use DateTime;
 use yii\filters\AccessControl;
@@ -16,6 +17,7 @@ use app\dao\reports\ReportUsageDao;
 
 class VoipPackageController extends BaseController
 {
+    use AddClientAccountFilterTraits;
 
     const FILTER_VOIP_PACKAGE_BY_PACKAGE = 'by_package';
     const FILTER_VOIP_PACKAGE_BY_PACKAGE_CALLS = 'by_package_calls';
@@ -44,9 +46,7 @@ class VoipPackageController extends BaseController
      */
     public function actionUseReport()
     {
-        global $fixclient_data;
-
-        if (!($fixclient_data instanceof ClientAccount)) {
+        if (!$this->_getCurrentClientAccountId()) {
             Yii::$app->session->addFlash('error', 'Выберите клиента');
         }
 

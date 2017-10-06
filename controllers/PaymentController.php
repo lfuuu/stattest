@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\classes\Assert;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\forms\buh\PaymentAddForm;
 use app\forms\buh\PaymentYandexTransfer;
 use app\helpers\DateTimeZoneHelper;
@@ -13,6 +14,11 @@ use app\classes\BaseController;
 
 class PaymentController extends BaseController
 {
+    use AddClientAccountFilterTraits;
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -39,6 +45,12 @@ class PaymentController extends BaseController
         return $behaviors;
     }
 
+    /**
+     * @param int $clientAccountId
+     * @param int $billId
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionAdd($clientAccountId, $billId = 0)
     {
         $client = ClientAccount::findOne($clientAccountId);
@@ -67,6 +79,9 @@ class PaymentController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $paymentId
+     */
     public function actionDelete($paymentId)
     {
         $payment = Payment::findOne($paymentId);
@@ -79,15 +94,16 @@ class PaymentController extends BaseController
         $this->redirect(Yii::$app->request->referrer);
     }
 
+    /**
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionYandexTransfer()
     {
-        global $fixclient_data;
-
-        if (!$fixclient_data || !isset($fixclient_data['id'])) {
-            Yii::$app->session->addFlash('error', 'ЛС не выбран');
+        $account = $this->_getCurrentClientAccount();
+        if (!$account) {
+            return '';
         }
-
-        $account = ClientAccount::findOne(['id' => $fixclient_data['id']]);
 
         $model = new PaymentYandexTransfer();
         $model->from_client_id = $account->id;

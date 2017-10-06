@@ -40,6 +40,7 @@ foreach ($packageServiceTypeIds as $packageServiceTypeId) {
     }
 
     if ($isShowAddPackage) {
+        $numberFirst = $accountTariffFirst->number;
         echo Html::button(
             Html::tag('i', '', [
                 'class' => 'glyphicon glyphicon-plus',
@@ -52,6 +53,7 @@ foreach ($packageServiceTypeIds as $packageServiceTypeId) {
                 'data-id' => 0,
                 'data-city_id' => (int)$accountTariffFirst->city_id,
                 'data-service_type_id' => (int)$packageServiceTypeId,
+                'data-ndc_type_id' => $numberFirst ? $numberFirst->ndc_type_id : 0,
             ]
         );
     }

@@ -4,6 +4,7 @@ namespace app\models\important_events;
 
 use app\classes\IpUtils;
 use app\classes\model\ActiveRecord;
+use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\traits\TagsTrait;
 use app\classes\validators\ArrayValidator;
 use app\exceptions\ModelValidationException;
@@ -39,6 +40,7 @@ class ImportantEvents extends ActiveRecord
 {
 
     use TagsTrait;
+    use AddClientAccountFilterTraits;
 
     const ROWS_PER_PAGE = 50;
 
@@ -216,8 +218,6 @@ class ImportantEvents extends ActiveRecord
      */
     public function search($params)
     {
-        global $fixclient_data;
-
         $query = self::find()
             ->joinWith('name')
             ->joinWith('clientAccount')
@@ -233,8 +233,9 @@ class ImportantEvents extends ActiveRecord
         ]);
 
         if (!($this->load($params) && $this->validate())) {
-            if ($fixclient_data) {
-                $this->client_id = $fixclient_data['id'];
+
+            $this->client_id = $this->_getCurrentClientAccountId();
+            if ($this->client_id) {
                 $query->andFilterWhere([
                     'client_id' => $this->client_id,
                 ]);

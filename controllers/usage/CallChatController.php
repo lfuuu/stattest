@@ -1,19 +1,24 @@
 <?php
+
 namespace app\controllers\usage;
 
 use app\classes\Assert;
+use app\classes\BaseController;
+use app\classes\traits\AddClientAccountFilterTraits;
+use app\forms\usage\UsageCallChatEditForm;
+use app\forms\usage\UsageCallChatListForm;
 use app\models\UsageCallChat;
 use Yii;
-use app\models\ClientAccount;
 use yii\filters\AccessControl;
-use app\classes\BaseController;
-
-use app\forms\usage\UsageCallChatListForm;
-use app\forms\usage\UsageCallChatEditForm;
 
 
 class CallChatController extends BaseController
 {
+    use AddClientAccountFilterTraits;
+
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -29,18 +34,15 @@ class CallChatController extends BaseController
         ];
     }
 
+    /**
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionIndex()
     {
-        global $fixclient_data;
-
-        $clientAccountId = null;
-        if ($fixclient_data && isset($fixclient_data['id'])) {
-            $clientAccountId = $fixclient_data['id'];
-        }
-        $clientAccount = ClientAccount::findOne($clientAccountId);
+        $clientAccount = $this->_getCurrentClientAccount();
 
         $model = new UsageCallChatListForm();
-
         if ($clientAccount) {
             $model->client = $clientAccount->client;
         }
@@ -53,18 +55,13 @@ class CallChatController extends BaseController
         ]);
     }
 
+    /**
+     * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionAdd()
     {
-        global $fixclient_data;
-
-        $clientAccountId = null;
-
-        if ($fixclient_data && isset($fixclient_data['id'])) {
-            $clientAccountId = $fixclient_data['id'];
-        }
-
-        $clientAccount = ClientAccount::findOne($clientAccountId);
-
+        $clientAccount = $this->_getCurrentClientAccount();
         Assert::isObject($clientAccount);
 
         $model = new UsageCallChatEditForm();
@@ -83,22 +80,23 @@ class CallChatController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionEdit($id)
     {
         $usage = UsageCallChat::findOne($id);
         $clientAccount = $usage->clientAccount;
 
-
         $model = new UsageCallChatEditForm();
         $model->initModel($clientAccount, $usage);
 
-        if ($model->load(Yii::$app->request->post())) {
-            if ($model->validate() && $model->edit()) {
-                Yii::$app->session->addFlash('success', 'Услуга сохранена');
-                return $this->redirect(['edit', 'id' => $usage->id]);
-            }
+        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->edit()) {
+            Yii::$app->session->addFlash('success', 'Услуга сохранена');
+            return $this->redirect(['edit', 'id' => $usage->id]);
         }
-
 
         return $this->render('edit', [
             'model' => $model,

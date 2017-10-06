@@ -12,18 +12,8 @@ class AccountTariffAddForm extends AccountTariffForm
     /** @var int ID клиента */
     public $clientAccountId = null;
 
-    /**
-     * Конструктор
-     */
-    public function init()
-    {
-        global $fixclient_data;
-        if (isset($fixclient_data['id']) && $fixclient_data['id'] > 0) {
-            $this->clientAccountId = $fixclient_data['id'];
-        }
-
-        parent::init();
-    }
+    /** @var int */
+    public $cityId = null;
 
     /**
      * @return AccountTariff
@@ -33,6 +23,7 @@ class AccountTariffAddForm extends AccountTariffForm
         $accountTariff = new AccountTariff();
         $accountTariff->client_account_id = $this->clientAccountId;
         $accountTariff->service_type_id = $this->serviceTypeId;
+        $accountTariff->city_id = $this->cityId;
         return $accountTariff;
     }
 

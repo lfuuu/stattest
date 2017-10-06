@@ -7,7 +7,6 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\usages\UsageInterface;
 use app\models\UsageTrunk;
-use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -46,6 +45,9 @@ abstract class AccountTariffForm extends Form
     /** @var AccountTariffVoip */
     public $accountTariffVoip = null;
 
+    /** @var int */
+    public $ndcTypeId = null;
+
     /**
      * @return AccountTariff
      */
@@ -79,18 +81,8 @@ abstract class AccountTariffForm extends Form
 
         $this->accountTariffVoip = new AccountTariffVoip();
         $this->accountTariffVoip->voip_country_id = $this->accountTariff->clientAccount->country_id;
-        $city = $this->accountTariff->clientAccount->city;
-        if ($city) {
-            $this->accountTariffVoip->city_id = $city->id;
-            $this->accountTariffVoip->voip_ndc_type_id = NdcType::ID_GEOGRAPHIC;
-        } else {
-            $this->accountTariffVoip->voip_ndc_type_id = NdcType::ID_FREEPHONE;
-        }
-
-        // TODO: ^^^^ неправильная установка voip_ndc_type_id
-        if ($this->accountTariff->service_type_id == ServiceType::ID_VOIP && ($number = $this->accountTariff->number)) {
-            $this->accountTariffVoip->voip_ndc_type_id = $number->ndc_type_id;
-        }
+        $this->accountTariffVoip->city_id = $this->accountTariff->city_id;
+        $this->accountTariffVoip->voip_ndc_type_id = $this->ndcTypeId;
 
         // Обработать submit (создать, редактировать, удалить)
         $this->loadFromInput();

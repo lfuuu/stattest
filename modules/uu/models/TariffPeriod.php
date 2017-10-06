@@ -179,6 +179,11 @@ class TariffPeriod extends HistoryActiveRecord
             $activeQuery->andWhere(['tariff.currency_id' => $currency]);
         }
 
+        if (array_key_exists($serviceTypeId, ServiceType::$packages)) {
+            // для пакетов не делить prepaid/postpaid
+            $isPostpaid = null;
+        }
+
         if (!is_null($isPostpaid)) {
             $activeQuery->andWhere(['tariff.is_postpaid' => $isPostpaid]);
         }
@@ -187,7 +192,7 @@ class TariffPeriod extends HistoryActiveRecord
             $activeQuery->andWhere(['tariff.tariff_status_id' => $statusId]);
         }
 
-        if ($isIncludeVat) {
+        if (!is_null($isIncludeVat)) {
             $activeQuery->andWhere(['tariff.is_include_vat' => $isIncludeVat]);
         }
 

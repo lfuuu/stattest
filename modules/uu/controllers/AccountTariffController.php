@@ -10,6 +10,7 @@ use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\UsageTrunkSettings;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\forms\AccountTariffAddForm;
 use app\modules\uu\forms\AccountTariffEditForm;
@@ -88,7 +89,15 @@ class AccountTariffController extends BaseController
     public function actionNew($serviceTypeId)
     {
         $this->_checkNonPackage($serviceTypeId);
-        $formModel = new AccountTariffAddForm(['serviceTypeId' => $serviceTypeId]);
+
+        $clientAccount = $this->_getCurrentClientAccount();
+        $cityId = $clientAccount ? $clientAccount->city : null;
+        $formModel = new AccountTariffAddForm([
+            'serviceTypeId' => $serviceTypeId,
+            'clientAccountId' => $clientAccount ? $clientAccount->id : null,
+            'cityId' => $cityId,
+            'ndcTypeId' => $cityId ? NdcType::ID_GEOGRAPHIC : NdcType::ID_FREEPHONE,
+        ]);
 
         if (!$formModel->isSaved) {
             return $this->render('edit', ['formModel' => $formModel]);
@@ -144,24 +153,29 @@ class AccountTariffController extends BaseController
      *
      * @param int $id
      * @param int $cityId
+     * @param int $ndcTypeId
      * @param int $serviceTypeId
      * @return string
      * @throws \yii\base\InvalidParamException
      */
-    public function actionEditVoip($id = null, $cityId = null, $serviceTypeId = null)
+    public function actionEditVoip($id = null, $cityId = null, $ndcTypeId = null, $serviceTypeId = null)
     {
         $this->layout = '@app/views/layouts/minimal';
 
         try {
             $formModel = $id ?
-                new AccountTariffEditForm(['id' => $id]) : // редактировать телефонию или пакет телефонии
-                new AccountTariffAddForm(['serviceTypeId' => $serviceTypeId]); // добавить пакет телефонии
 
-            $cityId = (int)$cityId;
-            if ($cityId && !$formModel->accountTariff->city_id) {
-                // при добавлении пакета нужен город для фильтрации доступных пакетов
-                $formModel->accountTariff->city_id = $cityId;
-            }
+                // редактировать телефонию или пакет телефонии
+                new AccountTariffEditForm(['id' => $id]) :
+
+                // добавить пакет телефонии
+                new AccountTariffAddForm([
+                    'serviceTypeId' => $serviceTypeId,
+                    'clientAccountId' => $this->_getCurrentClientAccountId(),
+                    'cityId' => $cityId ?: null,
+                    'ndcTypeId' => $ndcTypeId ?: null,
+                ]);
+
         } catch (\InvalidArgumentException $e) {
             Yii::$app->session->setFlash('error', $e->getMessage());
 

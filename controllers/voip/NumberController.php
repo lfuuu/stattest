@@ -21,6 +21,9 @@ class NumberController extends BaseController
     // Вернуть текущего клиента, если он есть
     use AddClientAccountFilterTraits;
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -56,6 +59,7 @@ class NumberController extends BaseController
      * Список
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
     {
@@ -64,7 +68,6 @@ class NumberController extends BaseController
         $get = Yii::$app->request->get();
         $className = $filterModel->formName();
         !isset($get[$className]['country_id']) && $get[$className]['country_id'] = Country::RUSSIA;
-//        !isset($get[$className]['ndc_type_id']) && $get[$className]['ndc_type_id'] = NdcType::ID_GEOGRAPHIC;
 
         $this->_addClientAccountFilter($filterModel, $get);
 
@@ -78,6 +81,7 @@ class NumberController extends BaseController
      * Создать
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionNew()
     {
@@ -87,11 +91,11 @@ class NumberController extends BaseController
         if ($form->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was created successfully'));
             return $this->redirect(['index']);
-        } else {
-            return $this->render('edit', [
-                'formModel' => $form,
-            ]);
         }
+
+        return $this->render('edit', [
+            'formModel' => $form,
+        ]);
     }
 
     /**
@@ -99,6 +103,7 @@ class NumberController extends BaseController
      *
      * @param int $did
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionView($did)
     {
@@ -120,8 +125,7 @@ class NumberController extends BaseController
 
         $actionForm->scenario = 'default';
         $actionForm->did = $did;
-        global $fixclient_data;
-        $actionForm->client_account_id = $fixclient_data ? $fixclient_data['id'] : null;
+        $actionForm->client_account_id = $this->_getCurrentClientAccountId();
 
         return $this->render('view', [
             'number' => $number,
