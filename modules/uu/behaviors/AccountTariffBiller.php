@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\behaviors;
 
+use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
@@ -104,6 +105,6 @@ class AccountTariffBiller extends Behavior
         Yii::info('AccountTariffBiller. Before CreditMgpTarificator', 'uu');
         (new CreditMgpTarificator)->tarificate($clientAccountId);
 
-        ob_end_clean();
+        HandlerLogger::me()->add(ob_get_clean());
     }
 }

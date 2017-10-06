@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models\traits;
 
+use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
@@ -51,6 +52,7 @@ trait AccountTariffPackageTrait
         } catch (\Exception $e) {
             $transaction->rollBack();
             Yii::error($e);
+            HandlerLogger::me()->add($e->getMessage());
             throw $e;
         }
 

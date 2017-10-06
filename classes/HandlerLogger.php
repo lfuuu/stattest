@@ -7,9 +7,9 @@
 namespace app\classes;
 
 /**
- * @method static HttpClientLogger me()
+ * @method static HandlerLogger me()
  */
-class HttpClientLogger extends Singleton
+class HandlerLogger extends Singleton
 {
     /** @var string[] */
     private $_logs = [];

@@ -8,7 +8,7 @@ use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\behaviors\SendToOnlineCashRegister;
 use app\classes\Event;
-use app\classes\HttpClientLogger;
+use app\classes\HandlerLogger;
 use app\classes\partners\RewardCalculate;
 use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
@@ -62,7 +62,7 @@ function doEvents()
 {
     /** @var \EventQueue $event */
     foreach ((EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents()) as $event) {
-        HttpClientLogger::me()->clear();
+        HandlerLogger::me()->clear();
 
         $info = '';
 

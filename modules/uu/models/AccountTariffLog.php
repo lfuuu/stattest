@@ -457,10 +457,10 @@ class AccountTariffLog extends HistoryActiveRecord
 
         if ($realtimeBalanceWithCredit < $tariffPrice) {
             $error = sprintf(
-                'На ЛС %.2f %s и кредит %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f + абонентка %.2f + ресурсы %.2f + минималка %.2f)',
+                'На ЛС %.2f и кредит %.2f = %.2f %s, что меньше первичного платежа по тарифу, который составляет %.2f %s (подключение %.2f + абонентка %.2f + ресурсы %.2f + минималка %.2f)',
                 $realtimeBalance,
-                $clientAccount->currency,
                 $credit,
+                $realtimeBalanceWithCredit,
                 $clientAccount->currency,
                 $tariffPrice,
                 $clientAccount->currency,

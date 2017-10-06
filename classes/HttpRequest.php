@@ -58,14 +58,14 @@ class HttpRequest extends \yii\httpclient\Request
     {
         $debugInfoRequest = 'Request: ' . $this->_getDebugInfo();
         Yii::info($debugInfoRequest, $logCategory);
-        $httpClientLogger = HttpClientLogger::me();
-        $httpClientLogger->add($debugInfoRequest);
+        $handlerLogger = HandlerLogger::me();
+        $handlerLogger->add($debugInfoRequest);
 
         $response = parent::send();
 
         $debugInfoResponse = sprintf('Response = %s', print_r($response->data, true)) . PHP_EOL;
         Yii::info($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse, $logCategory);
-        $httpClientLogger->add($debugInfoResponse);
+        $handlerLogger->add($debugInfoResponse);
 
         if ($this->_isCheckOk && !$response->getIsOk()) {
             throw new BadRequestHttpException($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse);

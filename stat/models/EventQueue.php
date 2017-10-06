@@ -1,5 +1,5 @@
 <?php
-use app\classes\HttpClientLogger;
+use app\classes\HandlerLogger;
 
 /**
  * @property int $id
@@ -51,8 +51,7 @@ class EventQueue extends ActiveRecord\Model
             $this->log_error = $info;
         }
 
-        $httpClientLogger = HttpClientLogger::me();
-        $logs = $httpClientLogger->get();
+        $logs = HandlerLogger::me()->get();
         if ($logs) {
             $this->trace = implode(PHP_EOL . PHP_EOL, $logs);
         }
@@ -80,8 +79,7 @@ class EventQueue extends ActiveRecord\Model
         if ($e) {
             $this->log_error = $e->getCode() . ': ' . $e->getMessage();
 
-            $httpClientLogger = HttpClientLogger::me();
-            $logs = $httpClientLogger->get();
+            $logs = HandlerLogger::me()->get();
             if ($logs) {
                 $this->trace = implode(PHP_EOL . PHP_EOL, $logs) . PHP_EOL . PHP_EOL;
             } else {

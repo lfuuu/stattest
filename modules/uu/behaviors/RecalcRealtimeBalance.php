@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\behaviors;
 
+use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\models\ClientAccount;
 use app\models\Payment;
@@ -64,6 +65,6 @@ class RecalcRealtimeBalance extends Behavior
 
         ob_start();
         (new RealtimeBalanceTarificator)->tarificate($clientAcccount->id);
-        ob_end_clean();
+        HandlerLogger::me()->add(ob_get_clean());
     }
 }

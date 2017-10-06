@@ -3,6 +3,7 @@
 namespace app\modules\uu\tarificator;
 
 use app\classes\Event;
+use app\classes\HandlerLogger;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\important_events\ImportantEvents;
@@ -152,6 +153,8 @@ SQL;
                 $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
 
+                HandlerLogger::me()->add($e->getMessage());
+
                 // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
                 $isWithTransaction && $transaction = $db->beginTransaction();
                 $accountTariffLogs = $accountTariff->accountTariffLogs;
@@ -197,7 +200,7 @@ SQL;
         (new AccountEntryTarificator)->tarificate($accountTariff->id);
         (new BillTarificator)->tarificate($accountTariff->id);
         (new RealtimeBalanceTarificator)->tarificate($accountTariff->client_account_id);
-        ob_end_clean();
+        HandlerLogger::me()->add(ob_get_clean());
 
         // баланс изменился, надо перезагрузить clientAccount
         $accountTariff->refresh();

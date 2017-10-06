@@ -23,9 +23,7 @@ $accountTariff = $formModel->accountTariff;
     }
     ?>
 
-    <?= $this->render('//layouts/_toggleButton', ['divSelector' => '#account-tariff-log-grid', 'title' => 'Лог тарифов']) ?>
-
-    <div id="account-tariff-log-grid" class="collapse">
+    <div id="account-tariff-log-grid">
         <?= GridView::widget([
             'dataProvider' => $formModel->getAccountTariffLogGrid(),
             'columns' => [
@@ -98,6 +96,6 @@ $accountTariff = $formModel->accountTariff;
     </div>
 
     <?php if (!$accountTariff->isNewRecord) : ?>
-        <?= $this->render('//layouts/_showHistory', ['model' => $formModel->getAccountTariffLogGrid()->query->all(), 'deleteModel' => [new AccountTariffLog(), 'account_tariff_id', $accountTariff->id], 'title' => 'Лог отмен']) ?>
+        <?= $this->render('//layouts/_showHistory', ['model' => $formModel->getAccountTariffLogGrid()->query->all(), 'deleteModel' => [new AccountTariffLog(), 'account_tariff_id', $accountTariff->id], 'title' => 'История изменений']) ?>
     <?php endif; ?>
 </div>
