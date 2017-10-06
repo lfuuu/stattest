@@ -388,8 +388,21 @@ class Tariff extends HistoryActiveRecord
      */
     public function getIsTest()
     {
-        return $this->tariff_status_id == TariffStatus::ID_TEST ||
-            $this->tariff_status_id == TariffStatus::ID_VOIP_8800_TEST;
+        return array_key_exists($this->tariff_status_id, self::getTestStatuses());
+
+    }
+
+    /**
+     * Тестовые статусы
+     *
+     * @return int[]
+     */
+    public static function getTestStatuses()
+    {
+        return [
+            TariffStatus::ID_TEST => TariffStatus::ID_TEST,
+            TariffStatus::ID_VOIP_8800_TEST => TariffStatus::ID_VOIP_8800_TEST,
+        ];
 
     }
 

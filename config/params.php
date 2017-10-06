@@ -24,5 +24,9 @@ return [
         'url' => '',
         'authinfo' => '',
     ],
-    'HEALTH_JSON_URLS' => [],
+
+    'health' => [
+        'externalUrls' => [],
+        'export' => '@app/web/operator/_private/health.json',
+    ],
 ];

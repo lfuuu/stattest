@@ -2,62 +2,30 @@
 
 namespace app\commands;
 
-use app\classes\HealthMonitor;
+use app\health\Monitor;
 use app\helpers\DateTimeZoneHelper;
+use InvalidArgumentException;
+use ReflectionClass;
 use Yii;
 use yii\console\Controller;
 use yii\helpers\Json;
 
-/**
- * Class HealthController
- */
 class HealthController extends Controller
 {
-    const MONITOR_ICON_CONFIG = [
-        HealthMonitor::QUEUE_PLANED => [10, 20, 30], // warning, critical, error
-        HealthMonitor::QUEUE_STOPPED => [1, 10, 20],
-        HealthMonitor::Z_SYNC_QUEUE_LENGTH => [5, 10, 20]
-    ];
-
     const STATUS_OK = 'STATUS_OK';
     const STATUS_WARNING = 'STATUS_WARNING';
     const STATUS_CRITICAL = 'STATUS_CRITICAL';
     const STATUS_ERROR = 'STATUS_ERROR';
 
-    const HEALTH_JSON_FILE_PATH = '@app/web/operator/_private/health.json';
-
     /**
      * Сбор счетчиков
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \yii\base\InvalidParamException
+     * @throws \ReflectionException
      */
     public function actionIndex()
-    {
-        $monitorValues = HealthMonitor::me()->getMonitorsValues();
-        foreach ($monitorValues as $healthType => $healthValue) {
-            $this->_logHeals($healthType, $healthValue);
-        }
-
-        $this->_makeHealthIconJsonFile($monitorValues);
-    }
-
-    /**
-     * Логирование
-     *
-     * @param string $healsType
-     * @param string|int $value
-     */
-    private function _logHeals($healsType, $value)
-    {
-        $message = 'Heals for ' . $healsType . ': ' . $value;
-        \Yii::info($message, 'heals');
-        echo PHP_EOL . date(DateTimeZoneHelper::DATETIME_FORMAT) . ': ' . $message;
-    }
-
-    /**
-     * Создание JSON файла для иконки мониторинга
-     *
-     * @param int[] $monitorValues
-     */
-    private function _makeHealthIconJsonFile($monitorValues)
     {
         $data = [
             'instanceId' => 200,
@@ -65,96 +33,149 @@ class HealthController extends Controller
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT)
         ];
 
-        $config = self::MONITOR_ICON_CONFIG;
-
-        $count = 0;
-        foreach ($monitorValues as $type => $value) {
-
-            if (!isset($config[$type])) {
-                continue;
-            }
-
-            $status = $this->_getStatus($config[$type], $value);
-            $data['item' . $count++] = [
-                'itemId' => $type,
-                'itemVal' => $value,
-                'statusId' => $status,
-                'statusMessage' => $type . ' is ' . $value,
-            ];
-        }
-
-        $datetimeYesterday = (new \DateTime())->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        // Добавить внутренние JSON
+        $data += $this->_getInternalClassesData();
 
         // Добавить внешние JSON
-        $healthJsonUrls = isset(Yii::$app->params['HEALTH_JSON_URLS']) ? Yii::$app->params['HEALTH_JSON_URLS'] : [];
-        foreach ($healthJsonUrls as $jsonKey => $jsonUrl) {
-            $jsonString = @file_get_contents($jsonUrl);
-            if (!$jsonString) {
-                $data['item' . $count++] = [
-                    'itemId' => $jsonKey,
-                    'itemVal' => 0,
-                    'statusId' => self::STATUS_ERROR,
-                    'statusMessage' => "{$jsonKey} недоступен",
-                ];
-                continue;
-            }
+        $data += $this->_getExternalUrlsData();
 
-            $jsonArray = json_decode($jsonString, $assoc = true);
-            if (!$jsonArray) {
-                $data['item' . $count++] = [
-                    'itemId' => $jsonKey,
-                    'itemVal' => 0,
-                    'statusId' => self::STATUS_ERROR,
-                    'statusMessage' => "{$jsonKey} невалидный",
-                ];
-                continue;
-            }
-
-            if (!$jsonArray['timestamp'] || $jsonArray['timestamp'] < $datetimeYesterday) {
-                $data['item' . $count++] = [
-                    'itemId' => $jsonKey,
-                    'itemVal' => 0,
-                    'statusId' => self::STATUS_ERROR,
-                    'statusMessage' => "{$jsonKey} неактуальный",
-                ];
-                continue;
-            }
-
-            $data['item' . $count++] = [
-                'itemId' => $jsonArray['itemId'],
-                'itemVal' => $jsonArray['itemVal'],
-                'statusId' => $jsonArray['statusId'],
-                'statusMessage' => $jsonArray['statusMessage'],
-            ];
-        }
-
-        $filePath = \Yii::getAlias(self::HEALTH_JSON_FILE_PATH);
-
+        $filePath = \Yii::getAlias(Yii::$app->params['health']['export']);
         if (!is_writable($filePath)) {
-            throw new \RuntimeException('Невозможно записать файл мониторинга (' . $filePath . ')');
+            throw new \RuntimeException('Невозможно записать файл мониторинга ' . $filePath);
         }
 
         file_put_contents($filePath, Json::encode($data));
     }
 
     /**
+     * Логирование
+     *
+     * @param string $itemId
+     * @param int $itemValue
+     */
+    private function _logHealth($itemId, $itemValue)
+    {
+        $message = 'Health for ' . $itemId . ': ' . $itemValue;
+        \Yii::info($message, 'health');
+        echo date(DateTimeZoneHelper::DATETIME_FORMAT) . ': ' . $message . PHP_EOL;
+    }
+
+    /**
+     * Добавить внутренние JSON
+     *
+     * @throws \InvalidArgumentException
+     * @throws \ReflectionException
+     */
+    private function _getInternalClassesData()
+    {
+        $data = [];
+
+        $internalClasses = Monitor::getAvailableMonitors();
+        foreach ($internalClasses as $className) {
+
+            if (!class_exists($className, true)) {
+                throw new InvalidArgumentException('Class ' . $className . ' does not exists');
+            }
+
+            /** @var Monitor $monitor */
+            $monitor = new $className;
+
+            $itemId = (new ReflectionClass($monitor))->getShortName();
+            $itemId = str_replace('Monitor', '', $itemId);
+            $itemValue = $monitor->getValue();
+            $limits = $monitor->getLimits();
+
+            $data[$itemId] = [
+                'itemId' => $itemId,
+                'itemVal' => $itemValue,
+                'statusId' => $this->_getStatus($limits, $itemValue),
+                'statusMessage' => $itemId . ' is ' . $itemValue,
+            ];
+            $this->_logHealth($itemId, $itemValue);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Добавить внешние JSON
+     */
+    private function _getExternalUrlsData()
+    {
+        $data = [];
+
+        $datetimeYesterday = (new \DateTime())
+            ->modify('-1 day')
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+
+        /** @var string[] $externalUrls */
+        $externalUrls = Yii::$app->params['health']['externalUrls'];
+        foreach ($externalUrls as $jsonKey => $jsonUrl) {
+            $jsonString = @file_get_contents($jsonUrl);
+            if (!$jsonString) {
+                $data[$jsonKey] = [
+                    'itemId' => $jsonKey,
+                    'itemVal' => 0,
+                    'statusId' => self::STATUS_ERROR,
+                    'statusMessage' => "{$jsonKey} недоступен",
+                ];
+                $this->_logHealth($jsonKey, 'недоступен');
+                continue;
+            }
+
+            $jsonArray = json_decode($jsonString, $assoc = true);
+            if (!$jsonArray) {
+                $data[$jsonKey] = [
+                    'itemId' => $jsonKey,
+                    'itemVal' => 0,
+                    'statusId' => self::STATUS_ERROR,
+                    'statusMessage' => "{$jsonKey} невалидный",
+                ];
+                $this->_logHealth($jsonKey, 'невалидный');
+                continue;
+            }
+
+            if (!$jsonArray['timestamp'] || $jsonArray['timestamp'] < $datetimeYesterday) {
+                $data[$jsonKey] = [
+                    'itemId' => $jsonKey,
+                    'itemVal' => 0,
+                    'statusId' => self::STATUS_ERROR,
+                    'statusMessage' => "{$jsonKey} неактуальный",
+                ];
+                $this->_logHealth($jsonKey, 'неактуальный');
+                continue;
+            }
+
+            $data[$jsonKey] = [
+                'itemId' => $jsonArray['itemId'],
+                'itemVal' => $jsonArray['itemVal'],
+                'statusId' => $jsonArray['statusId'],
+                'statusMessage' => $jsonArray['statusMessage'],
+            ];
+            $this->_logHealth($jsonKey, $jsonArray['itemVal']);
+        }
+
+        return $data;
+    }
+
+    /**
      * Получение статуса по значению монитора
      *
-     * @param int[] $config
+     * @param int[] $limits
      * @param float|int $value
      * @return string
      */
-    private function _getStatus($config, $value)
+    private function _getStatus($limits, $value)
     {
-        if ($value >= $config[2]) { // error
+        if ($value >= $limits[2]) { // error
             return self::STATUS_ERROR;
         }
 
-        if ($value >= $config[1]) { // critical
+        if ($value >= $limits[1]) { // critical
             return self::STATUS_CRITICAL;
         }
 
-        if ($value >= $config[0]) { // warning
+        if ($value >= $limits[0]) { // warning
             return self::STATUS_WARNING;
         }
 

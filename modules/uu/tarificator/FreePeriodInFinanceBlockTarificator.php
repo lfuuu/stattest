@@ -33,7 +33,6 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
     public function tarificate($accountTariffId = null)
     {
         $db = Yii::$app->db;
-        $clientAccountTableName = ClientAccount::tableName();
         $accountTariffTableName = AccountTariff::tableName();
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
