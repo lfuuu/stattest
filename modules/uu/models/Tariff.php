@@ -435,34 +435,45 @@ class Tariff extends HistoryActiveRecord
     }
 
     /**
-     * Найти и вернуть дефолтный пакет
+     * Найти и вернуть дефолтные пакеты
      *
      * @param int $cityId
+     * @param int $ndcTypeId
      * @param int[] $tariffStatuses
      * @return Tariff[]|null
      */
-    public function findDefaultPackages($cityId, $tariffStatuses = [])
+    public function findDefaultPackages($cityId, $ndcTypeId, $tariffStatuses = [])
     {
-        if ($this->service_type_id != ServiceType::ID_VOIP) {
+        if ($this->service_type_id != ServiceType::ID_VOIP || !$ndcTypeId) {
             // пакеты по умолчанию только для телефонии. Даже для пакетов транков их нет
             return null;
         }
 
-        $tariffTableName = Tariff::tableName();
-        $where = [
-            $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
-            $tariffTableName . '.country_id' => $this->country_id,
-            $tariffTableName . '.currency_id' => $this->currency_id,
-            // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
-            $tariffTableName . '.is_default' => 1,
-            $tariffTableName . '.tariff_status_id' => $tariffStatuses,
-        ];
+        $tariffTableName = self::tableName();
+        $query = self::find()
+            ->where([
+                $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
+                $tariffTableName . '.country_id' => $this->country_id,
+                $tariffTableName . '.currency_id' => $this->currency_id,
+                // $tariffTableName . '.is_postpaid' => $this->is_postpaid,
+                $tariffTableName . '.is_default' => 1,
+                $tariffTableName . '.tariff_status_id' => $tariffStatuses,
+            ]);
 
-        $cityId && $where[TariffVoipCity::tableName() . '.city_id'] = $cityId;
+        if ($cityId) {
+            $query->joinWith('voipCities')
+                ->andWhere([
+                    TariffVoipCity::tableName() . '.city_id' => $cityId,
+                ]);
+        }
 
-        return Tariff::find()
-            ->joinWith('voipCities')
-            ->where($where)
-            ->all();
+        if ($ndcTypeId) {
+            $query->joinWith('voipNdcTypes')
+                ->andWhere([
+                    TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId,
+                ]);
+        }
+
+        return $query->all();
     }
 }

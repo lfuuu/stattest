@@ -71,7 +71,9 @@ trait AccountTariffPackageTrait
         /** @var TariffPeriod $tariffPeriod */
         $tariffPeriod = $this->tariffPeriod;
         $tariffStatuses = $this->_getPackageTariffStatuses();
-        $defaultPackages = $tariffPeriod->tariff->findDefaultPackages($this->city_id, $tariffStatuses);
+        /** @var \app\models\Number $number */
+        $number = $this->number;
+        $defaultPackages = $tariffPeriod->tariff->findDefaultPackages($this->city_id, $number ? $number->ndc_type_id : null, $tariffStatuses);
         if (!$defaultPackages) {
             Yii::error('Не найден базовый пакет для услуги ' . $this->id, 'uu');
             return;
