@@ -3,7 +3,7 @@
 namespace app\health;
 
 use app\models\HistoryChanges;
-use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
 
 /**
  * УУ. Смена тарифа на услуге не должна долго откладываться
@@ -19,26 +19,30 @@ class MonitorUuShiftTariff extends Monitor
     public function getValue()
     {
         $historyChangesTableName = HistoryChanges::tableName();
+        $accountTariffLogTableName = AccountTariffLog::tableName();
 
         $sql = <<<SQL
             SELECT COUNT(*) as cnt
             FROM
-            (
-                SELECT model_id
-                FROM
-                    {$historyChangesTableName} history_changes
-                WHERE
-                    model = :model
-                    AND action = :action
-                GROUP BY
-                    model_id
-                HAVING
-                    COUNT(*) > 2
-            ) t
+                {$accountTariffLogTableName} account_tariff_log,
+                (
+                    SELECT model_id
+                    FROM
+                        {$historyChangesTableName}
+                    WHERE
+                        model = :model
+                        AND action = :action
+                    GROUP BY
+                        model_id
+                    HAVING
+                        COUNT(*) > 2
+                ) t
+            WHERE
+	            account_tariff_log.id = t.model_id
 SQL;
-        $db = AccountTariff::getDb();
+        $db = AccountTariffLog::getDb();
         return $db->createCommand($sql, [
-            ':model' => AccountTariff::className(),
+            ':model' => AccountTariffLog::className(),
             ':action' => HistoryChanges::ACTION_UPDATE,
         ])->queryScalar();
     }
