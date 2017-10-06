@@ -2381,7 +2381,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
                         FROM
                             `newbills` `nb`
                         INNER JOIN `courier` `cr` ON `cr`.`id` = `nb`.`courier_id`".$doer_filter."
-                        INNER JOIN `history_changes` `ln` ON nl.model='app\\\\models\\\\Bill' and `ln`.`model_id` = `nb`.`id`
+                        INNER JOIN `history_changes` `ln` ON ln.model='app\\\\models\\\\Bill' and `ln`.`model_id` = `nb`.`id`
                             and ln.data_json like concat('%\"courier_id\":\"',cr.id,'\"%')
                         LEFT JOIN `newbill_lines` `nbl` ON `nbl`.`bill_no` = `nb`.`bill_no`
                             AND `nbl`.`type` = 'zadatok'
