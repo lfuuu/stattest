@@ -17,6 +17,8 @@ class HealthController extends Controller
     const STATUS_CRITICAL = 'STATUS_CRITICAL';
     const STATUS_ERROR = 'STATUS_ERROR';
 
+    private $_i = 0;
+
     /**
      * Сбор счетчиков
      *
@@ -85,7 +87,7 @@ class HealthController extends Controller
             $itemValue = $monitor->getValue();
             $limits = $monitor->getLimits();
 
-            $data[$itemId] = [
+            $data['item' . $this->_i++] = [
                 'itemId' => $itemId,
                 'itemVal' => $itemValue,
                 'statusId' => $this->_getStatus($limits, $itemValue),
@@ -113,7 +115,7 @@ class HealthController extends Controller
         foreach ($externalUrls as $jsonKey => $jsonUrl) {
             $jsonString = @file_get_contents($jsonUrl);
             if (!$jsonString) {
-                $data[$jsonKey] = [
+                $data['item' . $this->_i++] = [
                     'itemId' => $jsonKey,
                     'itemVal' => 0,
                     'statusId' => self::STATUS_ERROR,
@@ -125,7 +127,7 @@ class HealthController extends Controller
 
             $jsonArray = json_decode($jsonString, $assoc = true);
             if (!$jsonArray) {
-                $data[$jsonKey] = [
+                $data['item' . $this->_i++] = [
                     'itemId' => $jsonKey,
                     'itemVal' => 0,
                     'statusId' => self::STATUS_ERROR,
@@ -136,7 +138,7 @@ class HealthController extends Controller
             }
 
             if (!$jsonArray['timestamp'] || $jsonArray['timestamp'] < $datetimeYesterday) {
-                $data[$jsonKey] = [
+                $data['item' . $this->_i++] = [
                     'itemId' => $jsonKey,
                     'itemVal' => 0,
                     'statusId' => self::STATUS_ERROR,
@@ -146,7 +148,7 @@ class HealthController extends Controller
                 continue;
             }
 
-            $data[$jsonKey] = [
+            $data['item' . $this->_i++] = [
                 'itemId' => $jsonArray['itemId'],
                 'itemVal' => $jsonArray['itemVal'],
                 'statusId' => $jsonArray['statusId'],
