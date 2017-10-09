@@ -4,9 +4,11 @@ namespace app\modules\uu\models\traits;
 
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\usages\UsageInterface;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\Period;
+use app\modules\uu\models\ServiceType;
 use DateTime;
 use DateTimeImmutable;
 
@@ -97,8 +99,15 @@ trait AccountTariffBillerTrait
                 $dateActualFromYmd = $dateActualFrom->format(DateTimeZoneHelper::DATE_FORMAT);
                 $insertTimeYmd = (new DateTimeImmutable($uniqueAccountTariffLog->insert_time))->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($dateActualFromYmd < $insertTimeYmd) {
-                    // $insertTimeYmd = UsageInterface::MIN_DATE; // ну, надо же хоть как-нибудь посчитать этот идиотизм, когда тариф меняют задним числом
-                    throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
+
+                    $isPackage = array_key_exists($this->service_type_id, ServiceType::$packages);
+                    if ($isPackage && (!$uniqueAccountTariffLog->tariffPeriod || $uniqueAccountTariffLog->tariffPeriod->tariff->isTest)) {
+                        // если нельзя, но очень хочется, то можно
+                        // пакеты по умолчанию подключаются/отключаются автоматически. Им можно всё
+                        $insertTimeYmd = UsageInterface::MIN_DATE;
+                    } else {
+                        throw new \LogicException('Тариф нельзя менять задним числом: ' . $uniqueAccountTariffLog->id);
+                    }
                 }
 
                 /** @var DateTimeImmutable $dateFromNext дата теоретического начала (продолжения) старого тарифа. Из нее -1day получается дата окончания его прошлого периода */
