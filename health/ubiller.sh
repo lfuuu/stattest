@@ -1,7 +1,7 @@
 #!/bin/bash
 # По логу ubiller найти количество ошибок и отдать их в мониторинг
 
-logFile="/var/log/ubiller/`date "+%Y.%m.%d"`.log"
+logFile="/var/log/nispd/ubiller/`date "+%Y.%m.%d"`.log"
 
 # Посчитать количество ошибок
 itemVal=`cat $logFile | grep Error | wc -l`
