@@ -85,6 +85,7 @@ SQL;
 
         // обновить стоимость ресурсов
         $this->out('. ');
+        $updateSqlWhereTmp = $accountTariffId ? " WHERE account_log_resource.account_tariff_id = {$accountTariffId}" : '';
         $updateSql = <<<SQL
             UPDATE 
                 {$accountLogMinTableName} account_log_min,
@@ -94,6 +95,7 @@ SQL;
                         DATE_FORMAT(account_log_resource.date_from, "%Y-%m-01") as date,
                         SUM(account_log_resource.price) as price 
                     FROM {$accountLogResourceTableName} account_log_resource
+                    {$updateSqlWhereTmp}
                     GROUP BY
                         account_log_resource.account_tariff_id,
                         DATE_FORMAT(account_log_resource.date_from, "%Y-%m-01") 
@@ -102,7 +104,7 @@ SQL;
                 account_log_min.price_resource = account_log_resource_groupped.price
             WHERE
                  account_log_min.account_tariff_id = account_log_resource_groupped.account_tariff_id
-                 AND account_log_min.date_from = account_log_resource_groupped.date
+                 AND DATE_FORMAT(account_log_min.date_from, "%Y-%m-01") = account_log_resource_groupped.date
 SQL;
         if ($accountTariffId) {
             $updateSql .= " AND account_log_min.account_tariff_id = {$accountTariffId}";
