@@ -366,7 +366,7 @@ class AccountTariffLog extends HistoryActiveRecord
         if ($clientAccount->is_blocked) {
             $error = 'ЛС заблокирован';
             if ($isCountLogs) {
-                // смена тарифа или закрытие услуги
+                // смена тарифа
                 $this->_shiftActualFrom($error);
             } else {
                 // подключение новой услуги
@@ -380,7 +380,7 @@ class AccountTariffLog extends HistoryActiveRecord
         if (isset($warnings[ClientAccount::WARNING_OVERRAN])) {
             $error = 'ЛС заблокирован из-за превышения лимитов';
             if ($isCountLogs) {
-                // смена тарифа или закрытие услуги
+                // смена тарифа
                 $this->_shiftActualFrom($error);
             } else {
                 // подключение новой услуги
@@ -394,7 +394,7 @@ class AccountTariffLog extends HistoryActiveRecord
         if ($realtimeBalanceWithCredit < 0 || isset($warnings[ClientAccount::WARNING_FINANCE]) || isset($warnings[ClientAccount::WARNING_CREDIT])) {
             $error = sprintf('ЛС находится в финансовой блокировке. На счету %.2f %s и кредит %.2f %s', $realtimeBalance, $clientAccount->currency, $credit, $clientAccount->currency);
             if ($isCountLogs) {
-                // смена тарифа или закрытие услуги
+                // смена тарифа
                 $this->_shiftActualFrom($error);
             } else {
                 // подключение новой услуги
@@ -416,8 +416,8 @@ class AccountTariffLog extends HistoryActiveRecord
         //
         // подключение
         $accountLogSetup = (new AccountLogSetupTarificator())->getAccountLogSetup($accountTariff, $accountLogFromToTariff);
-        if ($isCountLogs) {
-            // смена тарифа или закрытие услуги
+        if ($isCountLogs > 1) {
+            // смена тарифа с коммерческого (не с тестового)
             // плата за номер не взимается
             $accountLogSetup->price = max(0, $accountLogSetup->price - $accountLogSetup->price_number);
             $accountLogSetup->price_number = 0;
@@ -470,14 +470,7 @@ class AccountTariffLog extends HistoryActiveRecord
                 $priceMin
             );
 
-            if ($isCountLogs) {
-                // смена тарифа или закрытие услуги
-                $this->_shiftActualFrom($error);
-            } else {
-                // подключение новой услуги
-                $this->addError($attribute, $error);
-            }
-
+            $this->addError($attribute, $error);
             $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_MONEY;
             return;
         }
