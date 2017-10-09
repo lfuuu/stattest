@@ -91,7 +91,7 @@ class AccountTariffController extends BaseController
         $this->_checkNonPackage($serviceTypeId);
 
         $clientAccount = $this->_getCurrentClientAccount();
-        $cityId = $clientAccount ? $clientAccount->city : null;
+        $cityId = $clientAccount ? $clientAccount->city->id : null;
         $formModel = new AccountTariffAddForm([
             'serviceTypeId' => $serviceTypeId,
             'clientAccountId' => $clientAccount ? $clientAccount->id : null,
