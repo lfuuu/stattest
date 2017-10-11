@@ -375,7 +375,7 @@ class BillDao extends Singleton
                     $line->price = ($bill->price_include_vat ? $accountEntry->price_with_vat : $accountEntry->price_without_vat) / $line->amount; // цена за "1 шт."
                     $line->price = round($line->price, self::PRICE_PRECISION);
                     if ($line->price) {
-                        $line->amount = $line->sum / $line->price; // после округления price и sum надо подкорректировать коэффициент
+                        $line->amount = ($bill->price_include_vat ? $line->sum : $line->sum_without_tax) / $line->price; // после округления price и sum надо подкорректировать коэффициент
                     }
                 } else {
                     $line->amount = 1;
@@ -424,7 +424,7 @@ class BillDao extends Singleton
                 $line->price = ($bill->price_include_vat ? $accountEntry->price_with_vat : $accountEntry->price_without_vat) / $line->amount; // цена за "1 шт."
                 $line->price = round($line->price, self::PRICE_PRECISION);
                 if ($line->price) {
-                    $line->amount = $line->sum / $line->price; // после округления price надо подкорректировать коэффициент
+                    $line->amount = ($bill->price_include_vat ? $line->sum : $line->sum_without_tax) / $line->price; // после округления price надо подкорректировать коэффициент
                 }
             } else {
                 $line->amount = 1;
