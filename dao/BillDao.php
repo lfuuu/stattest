@@ -372,14 +372,14 @@ class BillDao extends Singleton
                 $line->sum_without_tax = $sumWithoutTax;
                 $line->amount = $accountEntry->getAmount();
                 if ($line->amount > 0 && $line->amount != 1) {
-                    $line->price = $accountEntry->price_with_vat / $line->amount; // цена за "1 шт."
+                    $line->price = ($bill->price_include_vat ? $accountEntry->price_with_vat : $accountEntry->price_without_vat) / $line->amount; // цена за "1 шт."
                     $line->price = round($line->price, self::PRICE_PRECISION);
                     if ($line->price) {
                         $line->amount = $line->sum / $line->price; // после округления price и sum надо подкорректировать коэффициент
                     }
                 } else {
                     $line->amount = 1;
-                    $line->price = $sum;
+                    $line->price = $bill->price_include_vat ? $sum : $sumWithoutTax;
                 }
 
                 $line->item = $accountEntry->fullName;
@@ -421,14 +421,14 @@ class BillDao extends Singleton
             $line->id_service = $accountEntry->account_tariff_id;
             $line->item_id = null;
             if ($line->amount > 0 && $line->amount != 1) {
-                $line->price = $accountEntry->price_with_vat / $line->amount; // цена за "1 шт."
+                $line->price = ($bill->price_include_vat ? $accountEntry->price_with_vat : $accountEntry->price_without_vat) / $line->amount; // цена за "1 шт."
                 $line->price = round($line->price, self::PRICE_PRECISION);
                 if ($line->price) {
                     $line->amount = $line->sum / $line->price; // после округления price надо подкорректировать коэффициент
                 }
             } else {
                 $line->amount = 1;
-                $line->price = $sum;
+                $line->price = $bill->price_include_vat ? $sum : $sumWithoutTax;
             }
 
             if (!$line->save()) {
