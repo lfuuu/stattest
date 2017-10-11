@@ -96,6 +96,9 @@ $accountTariff = $formModel->accountTariff;
     </div>
 
     <?php if (!$accountTariff->isNewRecord) : ?>
-        <?= $this->render('//layouts/_showHistory', ['model' => $formModel->getAccountTariffLogGrid()->query->all(), 'deleteModel' => [new AccountTariffLog(), 'account_tariff_id', $accountTariff->id], 'title' => 'История изменений']) ?>
+        <?= $this->render('//layouts/_showHistory', [
+                'parentModel' => [new AccountTariffLog(), $accountTariff->id],
+            ]
+        ) ?>
     <?php endif; ?>
 </div>

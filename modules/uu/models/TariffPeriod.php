@@ -92,6 +92,14 @@ class TariffPeriod extends HistoryActiveRecord
     /**
      * @return string
      */
+    public function getLink()
+    {
+        return $this->tariff->getLink();
+    }
+
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->getName();
@@ -268,5 +276,51 @@ class TariffPeriod extends HistoryActiveRecord
             $this->addError($attribute, 'У тестовых тарифов может быть только посуточное списание');
             return;
         }
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'charge_period_id':
+                if ($period = Period::findOne(['id' => $value])) {
+                    return $period->name;
+                }
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return [
+            'id',
+            'tariff_id',
+            'period_id', // это поле уже выпилено, но в истории осталось
+        ];
+    }
+
+    /**
+     * Вернуть parent_model_id для исторических данных
+     *
+     * @return int
+     */
+    public function getHistoryParentField()
+    {
+        return $this->tariff_id;
     }
 }

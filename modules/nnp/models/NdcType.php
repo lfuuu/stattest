@@ -2,6 +2,7 @@
 
 namespace app\modules\nnp\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use Yii;
 use yii\helpers\Url;
@@ -93,6 +94,16 @@ class NdcType extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/nnp/ndc-type/edit', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 
     /**

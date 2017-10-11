@@ -3,7 +3,9 @@
  * Показать ссылку для загрузки истории изменений
  *
  * @var HistoryActiveRecord|HistoryActiveRecord[] $model Одна или массив моделей, которые надо искать
- * @var array $deleteModel list($model, $fieldName, $fieldValue). Исходная модель (можно свежесозданную и несохраненную), поле и значение, которые надо искать среди удаленных моделей
+ * @var array $parentModel list($model, $fieldName, $fieldValue). Исходная модель (можно свежесозданную и несохраненную), поле и значение, которые надо искать среди удаленных моделей
+ * @var string $title
+ * @var string $idField
  * @var app\classes\BaseView $this
  */
 
@@ -14,8 +16,12 @@ if (!Yii::$app->user->can('logs.history_changes')) {
     return '';
 }
 
-if (!isset($deleteModel)) {
-    $deleteModel = [];
+if (!isset($model)) {
+    $model = [];
+}
+
+if (!isset($parentModel)) {
+    $parentModel = [];
 }
 
 if (!isset($idField)) {
@@ -28,7 +34,7 @@ if (!isset($title)) {
 
 ?>
 <div class="showHistoryDiv"
-     onclick="showHistory(this, <?= HistoryActiveRecord::getHistoryIds($model, $deleteModel, $idField) ?>)">
+     onclick="showHistory(this, <?= HistoryActiveRecord::getHistoryIds($model, $parentModel, $idField) ?>)">
     <?= Html::button('∨', ['class' => 'btn btn-default showHistoryButton']); ?>
     <a><?= $title ?></a>
 </div>

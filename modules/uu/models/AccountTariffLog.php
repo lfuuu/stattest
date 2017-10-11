@@ -7,6 +7,7 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\User;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\FillAccountTariffResourceLog;
 use app\modules\uu\classes\AccountLogFromToResource;
@@ -230,7 +231,7 @@ class AccountTariffLog extends HistoryActiveRecord
         Yii::trace('AccountTariffLog. Before validatorCreateNotClose', 'uu');
 
         if (!$this->tariff_period_id && !$this->_getCountLogs()) {
-            $this->addError($attribute, 'Не указан тариф/период.');
+            $this->addError($attribute, 'Не указан тариф / период.');
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
             return;
         }
@@ -358,7 +359,7 @@ class AccountTariffLog extends HistoryActiveRecord
             }
 
             // подключение новой услуги
-            $this->addError($attribute, 'Не указан тариф/период.');
+            $this->addError($attribute, 'Не указан тариф / период.');
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_EMPTY;
             return;
         }
@@ -691,5 +692,56 @@ class AccountTariffLog extends HistoryActiveRecord
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
             return;
         }
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'tariff_period_id':
+                if (!$value) {
+                    return 'Закрыто';
+                }
+
+                if ($tariffPeriod = TariffPeriod::findOne(['id' => $value])) {
+                    return $tariffPeriod->tariff->getLink();
+                }
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return [
+            'id',
+            'account_tariff_id',
+            'insert_user_id',
+            'insert_time',
+        ];
+    }
+
+    /**
+     * Вернуть parent_model_id для исторических данных
+     *
+     * @return int
+     */
+    public function getHistoryParentField()
+    {
+        return $this->account_tariff_id;
     }
 }

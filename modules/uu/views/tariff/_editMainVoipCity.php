@@ -38,5 +38,7 @@ $tariffTableName = Tariff::tableName();
 </div>
 
 <?php if (!$tariff->isNewRecord) : ?>
-    <?= $this->render('//layouts/_showHistory', ['model' => $tariffVoipCities, 'deleteModel' => [new TariffVoipCity(), 'tariff_id', $tariff->id]]) ?>
-<?php endif; ?>
+    <?= $this->render('//layouts/_showHistory', [
+        'parentModel' => [new TariffVoipCity(), $tariff->id],
+    ]) ?>
+<?php endif ?>

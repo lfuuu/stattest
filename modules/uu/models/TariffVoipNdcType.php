@@ -76,4 +76,48 @@ class TariffVoipNdcType extends HistoryActiveRecord
         return $this->ndcType->name;
     }
 
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'ndc_type_id':
+                if ($ndcType = NdcType::findOne(['id' => $value])) {
+                    return $ndcType->getLink();
+                }
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return [
+            'id',
+            'tariff_id',
+        ];
+    }
+
+    /**
+     * Вернуть parent_model_id для исторических данных
+     *
+     * @return int
+     */
+    public function getHistoryParentField()
+    {
+        return $this->tariff_id;
+    }
 }

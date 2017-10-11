@@ -94,7 +94,9 @@ use unclead\widgets\TabularColumn;
     <?php ActiveForm::end(); ?>
 </div>
 
-<?= $this->render('//layouts/_showHistory', ['model' => $contacts, 'deleteModel' => [new ClientContact(), 'client_id', $account->id]]) ?>
+<?= $this->render('//layouts/_showHistory', [
+    'parentModel' => [new ClientContact(), $account->id],
+]) ?>
 
 <style>
     .row-inactive, .row-inactive .select2-selection__rendered, .row-inactive input {

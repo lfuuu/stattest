@@ -246,11 +246,11 @@ class HistoryActiveRecord extends ActiveRecord
      * Вернуть класс + ID
      *
      * @param HistoryActiveRecord|HistoryActiveRecord[] $models Одна или массив моделей, которые надо искать
-     * @param array $deleteModel Исходная модель (можно свежесозданную и несохраненную), поле и значение, которые надо искать среди удаленных моделей
+     * @param array $parentModel Исходная модель (можно свежесозданную и несохраненную) и id родителя
      * @param string $idField
      * @return string
      */
-    public static function getHistoryIds($models, $deleteModel = [], $idField = 'id')
+    public static function getHistoryIds($models, $parentModel = [], $idField = 'id')
     {
         if (!is_array($models)) {
             if ($models) {
@@ -266,12 +266,12 @@ class HistoryActiveRecord extends ActiveRecord
                 continue;
             }
 
-            $historyIdPhp[] = [$model->getClassName(), $model->{$idField}];
+            $historyIdPhp[] = [$model->getClassName(), $model->{$idField}, 0];
         }
 
-        if (count($deleteModel) === 3) {
-            list($model, $fieldName, $fieldValue) = $deleteModel;
-            $historyIdPhp[] = [$model->getClassName(), $fieldName, $fieldValue];
+        if (count($parentModel) === 2) {
+            list($model, $fieldValue) = $parentModel;
+            $historyIdPhp[] = [$model->getClassName(), 0, $fieldValue];
         }
 
         $historyIdJson = json_encode($historyIdPhp);
@@ -410,5 +410,38 @@ class HistoryActiveRecord extends ActiveRecord
         }
 
         unset(self::$_cacheHolder[$className][$id]);
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        return $value;
+    }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return [];
+    }
+
+    /**
+     * Вернуть parent_model_id для исторических данных
+     *
+     * @return int
+     */
+    public function getHistoryParentField()
+    {
+        return null;
     }
 }

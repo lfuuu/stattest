@@ -114,6 +114,7 @@ abstract class TariffForm extends \app\classes\Form
                 $post['Tariff'] = [
                     'name' => $post['Tariff']['name'],
                     'tariff_status_id' => $post['Tariff']['tariff_status_id'],
+                    'tag_id' => $post['Tariff']['tag_id'],
                     'is_default' => $post['Tariff']['is_default'],
                 ];
             }

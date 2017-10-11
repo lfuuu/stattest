@@ -13,6 +13,7 @@ use app\modules\uu\models\traits\AccountTariffBillerSetupTrait;
 use app\modules\uu\models\traits\AccountTariffBillerTrait;
 use app\modules\uu\models\traits\AccountTariffBoolTrait;
 use app\modules\uu\models\traits\AccountTariffGroupTrait;
+use app\modules\uu\models\traits\AccountTariffHistoryTrait;
 use app\modules\uu\models\traits\AccountTariffLinkTrait;
 use app\modules\uu\models\traits\AccountTariffPackageTrait;
 use app\modules\uu\models\traits\AccountTariffRelationsTrait;
@@ -57,6 +58,7 @@ class AccountTariff extends HistoryActiveRecord
     use AccountTariffGroupTrait;
     use AccountTariffPackageTrait;
     use AccountTariffLinkTrait;
+    use AccountTariffHistoryTrait;
 
     const DELTA = 100000;
 
@@ -82,9 +84,9 @@ class AccountTariff extends HistoryActiveRecord
 
     // Ошибки тарифа
     const ERROR_CODE_SERVICE_TYPE = 31; // Нельзя менять тип услуги
-    const ERROR_CODE_TARIFF_EMPTY = 32; // Не указан тариф/период
-    const ERROR_CODE_TARIFF_WRONG = 33; // Неправильный тариф/период
-    const ERROR_CODE_TARIFF_SERVICE_TYPE = 34; // Тариф/период не соответствует типу услуги
+    const ERROR_CODE_TARIFF_EMPTY = 32; // Не указан тариф / период
+    const ERROR_CODE_TARIFF_WRONG = 33; // Неправильный тариф / период
+    const ERROR_CODE_TARIFF_SERVICE_TYPE = 34; // Тариф / период не соответствует типу услуги
     const ERROR_CODE_TARIFF_SAME = 35; // Нет смысла менять на то же самое значение. Выберите другое значение
 
     // Ошибки услуги

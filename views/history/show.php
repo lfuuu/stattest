@@ -1,4 +1,5 @@
 <?php
+
 use app\classes\model\HistoryActiveRecord;
 
 /**
@@ -12,72 +13,110 @@ use app\classes\model\HistoryActiveRecord;
     <?php return ?>
 <?php endif ?>
 
-<table class="table table-condensed table-striped table-bordered" style="width: auto; margin-top: 20px">
-    <tr class="info">
-        <th>Дата</th>
-        <th>Пользователь</th>
-        <th>Поле</th>
-        <th nowrap>Старое значение</th>
-        <th nowrap>Новое значение</th>
-    </tr>
-    <?php foreach ($changes as $k => $change): ?>
-        <?php
-        $newData = json_decode($change->data_json, true);
-        $oldData = json_decode($change->prev_data_json, true);
+<?php
+$prevModelId = null;
+foreach ($changes as $k => $change):
 
-        /** @var array $data */
-        if ($newData) {
-            $data = $newData; // insert, update
-        } elseif ($oldData) {
-            $data = $oldData; // delete
-        } else {
-            continue;
-        }
+    if ($prevModelId != $change->model_id) :
 
-        $firstRow = true;
+        if ($prevModelId) :
+            ?></table><?php
+        endif;
+
         ?>
-        <?php foreach ($data as $field => $value): ?>
-            <tr>
-                <?php if ($firstRow) : ?>
-                    <?php $firstRow = false; ?>
-                    <td nowrap rowspan="<?= count($data) ?>">
-                        <?php
-                        if ($k == 0 || $change->created_at != $changes[$k - 1]->created_at) {
-                            $date = new DateTime($change->created_at, new DateTimeZone('UTC'));
-                            $date->setTimeZone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
-                            echo $date->format('d.m.Y H:i:s');
-                        }
-                        ?>
-                    </td>
-
-                    <td nowrap rowspan="<?= count($data) ?>">
-                        <?= $change->user ? $change->user->name : $change->user_id ?>
-                    </td>
-
-                <?php endif; ?>
-
-
-                <td nowrap>
-                    <?= $models[$change->model]->getAttributeLabel($field) ?>
-                </td>
-
-                <td nowrap>
-                    <?= method_exists($models[$change->model], 'prepareHistoryValue') ?
-                        $models[$change->model]->prepareHistoryValue($field, $oldData[$field]) :
-                        $oldData[$field] ?>
-                </td>
-
-                <td nowrap>
-                    <?php $value = isset($newData[$field]) ? $newData[$field] : '' ?>
-                    <?= method_exists($models[$change->model], 'prepareHistoryValue') ?
-                        $models[$change->model]->prepareHistoryValue($field, $value) :
-                        $value ?>
-                </td>
-
-                <?php
-                $firstRow = false;
-                ?>
+        <table class="table table-condensed table-bordered" style="width: auto; margin-top: 20px">
+            <tr class="info">
+                <th>Что? Кто? Когда?</th>
+                <th>Поле</th>
+                <th nowrap>Старое значение</th>
+                <th nowrap>Новое значение</th>
             </tr>
-        <?php endforeach; ?>
+        <?php
+    endif;
+
+    $prevModelId = $change->model_id;
+    ?>
+
+    <?php
+    $newData = json_decode($change->data_json, true);
+    $oldData = json_decode($change->prev_data_json, true);
+
+    /** @var array $data */
+    if ($newData) {
+        $data = $newData; // insert, update
+    } elseif ($oldData) {
+        $data = $oldData; // delete
+    } else {
+        continue;
+    }
+
+    $firstRow = true;
+    ?>
+    <?php
+    if (method_exists($models[$change->model], 'getHistoryHiddenFields') && $historyHiddenFields = $models[$change->model]::getHistoryHiddenFields($change->action)) {
+        foreach ($historyHiddenFields as $historyHiddenField) {
+            unset($data[$historyHiddenField]);
+        }
+    }
+
+    foreach ($data as $field => $value):
+        ?>
+        <tr class="<?= $change->getColorClass() ?>">
+
+            <?php if ($firstRow) : ?>
+                <?php $firstRow = false; ?>
+                <td nowrap rowspan="<?= count($data) ?>">
+
+                    <?= $change->getActionName() ?>
+                    <br/>
+
+                    <?= $change->user ? $change->user->name : $change->user_id ?>
+                    <br/>
+
+                    <?php
+                    $date = new DateTime($change->created_at, new DateTimeZone('UTC'));
+                    $date->setTimeZone(new DateTimeZone(Yii::$app->user->identity->timezone_name));
+                    echo $date->format('d.m.Y H:i:s');
+                    ?>
+
+                </td>
+            <?php endif; ?>
+
+
+            <td nowrap>
+                <?= $models[$change->model]->getAttributeLabel($field) ?>
+            </td>
+
+            <td nowrap>
+                <?php
+                if ($oldData) {
+                    $value = isset($oldData[$field]) ? $oldData[$field] : null;
+                    if (method_exists($models[$change->model], 'prepareHistoryValue')) {
+                        $value = $models[$change->model]::prepareHistoryValue($field, $value);
+                    }
+
+                    echo $value;
+                }
+                ?>
+            </td>
+
+            <td nowrap>
+                <?php
+                if ($newData) {
+                    $value = isset($newData[$field]) ? $newData[$field] : null;
+                    if (method_exists($models[$change->model], 'prepareHistoryValue')) {
+                        $value = $models[$change->model]::prepareHistoryValue($field, $value);
+                    }
+
+                    echo $value;
+                }
+                ?>
+            </td>
+
+            <?php
+            $firstRow = false;
+            ?>
+        </tr>
+    <?php endforeach; ?>
     <?php endforeach; ?>
 </table>

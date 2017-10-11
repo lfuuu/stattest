@@ -94,13 +94,13 @@ trait AccountTariffValidatorTrait
 
         $tariffPeriod = $this->tariffPeriod;
         if (!$tariffPeriod) {
-            $this->addError($attribute, 'Неправильный тариф/период ' . $this->tariff_period_id);
+            $this->addError($attribute, 'Неправильный тариф / период ' . $this->tariff_period_id);
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_WRONG;
             return;
         }
 
         if ($tariffPeriod->tariff->service_type_id != $this->service_type_id) {
-            $this->addError($attribute, 'Тариф/период ' . $tariffPeriod->tariff->service_type_id . ' не соответствует типу услуги ' . $this->service_type_id);
+            $this->addError($attribute, 'Тариф / период ' . $tariffPeriod->tariff->service_type_id . ' не соответствует типу услуги ' . $this->service_type_id);
             $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SERVICE_TYPE;
             return;
         }

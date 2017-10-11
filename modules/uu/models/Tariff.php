@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
@@ -175,6 +176,16 @@ class Tariff extends HistoryActiveRecord
     public static function getUrlNew($serviceTypeId)
     {
         return Url::to(['/uu/tariff/new', 'serviceTypeId' => $serviceTypeId]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 
     /**
@@ -475,5 +486,62 @@ class Tariff extends HistoryActiveRecord
         }
 
         return $query->all();
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'tariff_status_id':
+                if ($tariffStatus = TariffStatus::findOne(['id' => $value])) {
+                    return $tariffStatus->name;
+                }
+                break;
+
+            case 'tariff_person_id':
+                if ($tariffPerson = TariffPerson::findOne(['id' => $value])) {
+                    return $tariffPerson->name;
+                }
+                break;
+
+            case 'country_id':
+                if ($country = Country::findOne(['code' => $value])) {
+                    return $country->getLink();
+                }
+                break;
+
+            case 'tag_id':
+                if ($tariffTag = TariffTag::findOne(['id' => $value])) {
+                    return $tariffTag->name;
+                }
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return [
+            'id',
+            'insert_user_id',
+            'update_user_id',
+            'insert_time',
+            'update_time',
+            'service_type_id',
+        ];
     }
 }

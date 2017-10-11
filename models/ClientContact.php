@@ -247,4 +247,14 @@ class ClientContact extends HistoryActiveRecord
         return ClientContactDao::me();
     }
 
+
+    /**
+     * Вернуть parent_model_id для исторических данных
+     *
+     * @return int
+     */
+    public function getHistoryParentField()
+    {
+        return $this->client_id;
+    }
 }

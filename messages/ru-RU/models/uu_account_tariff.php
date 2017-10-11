@@ -10,6 +10,7 @@ return [
     'voip_number' => 'Номер',
     'vm_elid_id' => 'ID VM collocation',
     'trunk_id' => 'Транк',
+    'tariff_period_id' => 'Тариф / период',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',

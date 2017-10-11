@@ -787,13 +787,13 @@ class UuController extends ApiInternalController
         $accountTariffLogs = $accountTariff->accountTariffLogs;
         $accountTariffLogFirst = end($accountTariffLogs); // первый по времени идет последним в этом списке
         $accountTariffLogLast = array_pop($accountTariffLogs); // последний по времени (как в прошлом, так и в будущем) идет первым в этом списке
-        $lastTariffPeriod = $accountTariffLogLast->tariff_period_id ? // последний непустой тариф/период
+        $lastTariffPeriod = $accountTariffLogLast->tariff_period_id ? // последний непустой тариф / период
             $accountTariffLogLast->tariffPeriod :
             array_pop($accountTariffLogs)->tariffPeriod;
         return [
             'id' => $accountTariff->id,
             'date_from' => $accountTariffLogFirst->actual_from,
-            'date_to' => $accountTariffLogLast->tariff_period_id ? null : $accountTariffLogLast->actual_from, // тариф/период есть - значит, закрытия нет
+            'date_to' => $accountTariffLogLast->tariff_period_id ? null : $accountTariffLogLast->actual_from, // тариф / период есть - значит, закрытия нет
             'city' => $this->_getIdNameRecord($accountTariff->city),
             'voip_number' => $accountTariff->voip_number,
             'beauty_level' => $number ? $number->beauty_level : null,
@@ -818,7 +818,7 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Definition(definition = "accountTariffLogRecord", type = "object",
-     *   @SWG\Property(property = "tariff", type = "object", description = "Тариф/период", @SWG\Items(ref = "#/definitions/tariffRecord")),
+     *   @SWG\Property(property = "tariff", type = "object", description = "Тариф / период", @SWG\Items(ref = "#/definitions/tariffRecord")),
      *   @SWG\Property(property = "actual_from", type = "string", description = "Дата, с которой этот тариф действует. ГГГГ-ММ-ДД"),
      * ),
      *
@@ -1108,7 +1108,7 @@ class UuController extends ApiInternalController
 
     /**
      * @SWG\Definition(definition = "accountTariffLogLightRecord", type = "object",
-     *   @SWG\Property(property = "tariff", type = "object", description = "Тариф/период", @SWG\Items(ref = "#/definitions/tariffRecord")),
+     *   @SWG\Property(property = "tariff", type = "object", description = "Тариф / период", @SWG\Items(ref = "#/definitions/tariffRecord")),
      *   @SWG\Property(property = "activate_initial_date", type = "string", description = "Дата включения услуги. Указана всегда. Может быть как в прошлом, так и в будущем. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "activate_past_date", type = "string", description = "Дата, с которой этот тариф был включен и сейчас действует. Всегда в прошлом. Если null - еще не включен (тогда см. activate_future_date) или уже выключен (deactivate_past_date). ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "activate_future_date", type = "string", description = "Дата, с которой этот тариф будет включен, и его можно отменить. Всегда в будущем. Если null - в будущем изменений не будет. ГГГГ-ММ-ДД"),

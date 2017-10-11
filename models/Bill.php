@@ -182,11 +182,11 @@ class Bill extends HistoryActiveRecord
      * @param string $value
      * @return string
      */
-    public function prepareHistoryValue($field, $value)
+    public static function prepareHistoryValue($field, $value)
     {
         switch ($field) {
             case 'courier_id':
-                if ($courier = Courier::findOne($value)) {
+                if ($courier = Courier::findOne(['id' => $value])) {
                     /** @var Courier $courier */
                     return $value . ' (' . $courier->name . ')';
                 }

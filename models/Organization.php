@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\classes\DynamicModel;
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\I18NGetTrait;
 use app\classes\validators\ArrayValidator;
@@ -12,6 +13,7 @@ use app\helpers\DateTimeZoneHelper;
 use app\queries\OrganizationQuery;
 use ReflectionClass;
 use Yii;
+use yii\helpers\Url;
 
 
 /**
@@ -398,5 +400,32 @@ class Organization extends ActiveRecord
             (isset($this->contact_fax) && $this->contact_fax ? '<br /> факс: ' . $this->contact_fax : '') .
             '<br /> е-mail: ' . $this->contact_email;
 
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/organization/edit/', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 }

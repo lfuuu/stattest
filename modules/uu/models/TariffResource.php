@@ -104,4 +104,19 @@ class TariffResource extends HistoryActiveRecord
             return $this->amount ? '+' : '-';
         }
     }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return [
+            'id',
+            'tariff_id',
+            'resource_id',
+        ];
+    }
 }

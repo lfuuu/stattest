@@ -8,6 +8,7 @@ use app\classes\model\ActiveRecord;
  * @property int $id
  * @property string $model
  * @property int $model_id
+ * @property int $parent_model_id
  * @property int $user_id
  * @property string $created_at
  * @property string $action
@@ -21,6 +22,18 @@ class HistoryChanges extends ActiveRecord
     const ACTION_INSERT = 'insert';
     const ACTION_UPDATE = 'update';
     const ACTION_DELETE = 'delete';
+
+    const ACTION_TO_NAME = [
+        self::ACTION_INSERT => 'Добавил',
+        self::ACTION_UPDATE => 'Изменил',
+        self::ACTION_DELETE => 'Удалил',
+    ];
+
+    const ACTION_TO_COLOR_CLASS = [
+        self::ACTION_INSERT => 'success',
+        self::ACTION_UPDATE => 'warning',
+        self::ACTION_DELETE => 'danger',
+    ];
 
     /**
      * @return string
@@ -36,5 +49,21 @@ class HistoryChanges extends ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getActionName()
+    {
+        return self::ACTION_TO_NAME[$this->action];
+    }
+
+    /**
+     * @return string
+     */
+    public function getColorClass()
+    {
+        return self::ACTION_TO_COLOR_CLASS[$this->action];
     }
 }

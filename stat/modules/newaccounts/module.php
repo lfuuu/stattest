@@ -1,30 +1,30 @@
 <?php
 
-use app\classes\Encrypt;
-use app\classes\StatModule;
+use app\classes\bill\ClientAccountBiller;
 use app\classes\BillContract;
 use app\classes\BillQRCode;
+use app\classes\documents\DocumentReportFactory;
+use app\classes\Encrypt;
+use app\classes\StatModule;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\BillDocument;
+use app\models\Business;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Courier;
-use app\models\ClientAccount;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use app\models\GoodPriceType;
-use app\models\Payment;
+use app\models\Language;
+use app\models\Organization;
 use app\models\Param;
-use app\models\BillDocument;
+use app\models\Payment;
 use app\models\PaymentSberOnline;
 use app\models\Store;
 use app\models\Transaction;
-use app\classes\documents\DocumentReportFactory;
-use app\classes\bill\ClientAccountBiller;
-use app\models\Organization;
-use app\models\Business;
 use app\models\User;
-use app\models\Language;
 
 class m_newaccounts extends IModule
 {
@@ -871,16 +871,7 @@ class m_newaccounts extends IModule
             $design->assign('listOfInvoices', $listOfInvoices);
         }
 
-        $design->assign("_showHistoryBill", Yii::$app->view->render('//layouts/_showHistory', [
-            'model' => $newbill,
-            'title' => 'История изменений счета'
-        ]));
-        $design->assign("_showHistoryLines", Yii::$app->view->render('//layouts/_showHistory', [
-            'model' => $newbill->lines,
-            'deleteModel' => [new \app\models\BillLine(), 'bill_no', $newbill->bill_no],
-            'idField' => 'pk',
-            'title' => 'История изменений позиций счета'
-        ]));
+        $design->assign("_showHistoryBill", Yii::$app->view->render('//layouts/_showHistory', ['model' => $newbill]));
 
         $design->AddMain('newaccounts/bill_view.tpl');
 

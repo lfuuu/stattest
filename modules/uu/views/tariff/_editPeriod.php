@@ -28,7 +28,9 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
 if (!$tariff->isNewRecord) {
     // это нужно сделать ДО TabularInput, иначе он попортит данные $tariffPeriods
-    $showHistory = $this->render('//layouts/_showHistory', ['model' => $tariffPeriods, 'deleteModel' => [new TariffPeriod(), 'tariff_id', $tariff->id]]);
+    $showHistory = $this->render('//layouts/_showHistory', [
+        'parentModel' => [new TariffPeriod(), $tariff->id],
+    ]);
 } else {
     $showHistory = '';
 }

@@ -1387,4 +1387,52 @@ class ClientAccount extends HistoryActiveRecord
             && !$this->getUsageTrunks()->count()
             && !$this->getUsageCallChats()->count();
     }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'country_id':
+                if ($country = Country::findOne(['code' => $value])) {
+                    return $country->getLink();
+                }
+                break;
+
+            case 'region':
+                if ($region = Region::findOne(['id' => $value])) {
+                    return $region->getLink();
+                }
+                break;
+
+            case 'price_level':
+                $priceLevels = self::getPriceLevels();
+                if (isset($priceLevels[$value])) {
+                    return $priceLevels[$value];
+                }
+                break;
+
+        }
+
+        return $value;
+    }
+
+    /**
+     * Какие поля не показывать в исторических данных
+     *
+     * @param string $action
+     * @return string[]
+     */
+    public static function getHistoryHiddenFields($action)
+    {
+        return [
+            'id',
+        ];
+    }
 }

@@ -1,10 +1,10 @@
 <?php
+
 namespace app\controllers;
 
 use app\classes\BaseController;
 use app\models\ClientContragent;
 use Yii;
-use yii\db\ActiveQuery;
 
 class HistoryController extends BaseController
 {
@@ -52,43 +52,20 @@ class HistoryController extends BaseController
                 $models[$modelName] = new $modelName();
             }
 
-            // формат параметров см. в \app\classes\model\HistoryActiveRecord::getHistoryIds и script.js
-            switch (count($param)) {
-
-                case 2:
-                    // Существующая модель. Класс и ID
-                    list($modelName, $modelId) = $param;
-                    $changesQuery->orWhere(['model' => $modelName, 'model_id' => $modelId]); // insert, update существующих
-                    break;
-
-                case 3:
-                    // Удаленная модель. Класс, поле и значение
-                    list($modelName, $fieldName, $fieldValue) = $param;
-                    $changesQuery->orWhere([
-                        'AND',
-                        ['model' => $modelName],
-                        [
-                            'OR', // LIKE по json-строке - это извращение, но ничего лучше не придумал
-                            ['LIKE', 'data_json', sprintf('"%s":%d,', $fieldName, $fieldValue)], // insert удаленных
-                            ['LIKE', 'prev_data_json', sprintf('"%s":%d,', $fieldName, $fieldValue)], // delete
-                            ['LIKE', 'data_json', sprintf('"%s":"%s",', $fieldName, $fieldValue)], // insert удаленных, строковые значения
-                            ['LIKE', 'prev_data_json', sprintf('"%s":"%s",', $fieldName, $fieldValue)], // delete, строковые значения
-                        ]
-                    ]);
-                    break;
-
-                default:
-                    throw new \InvalidArgumentException('param');
+            list($modelName, $modelId, $parenModelId) = $param;
+            if ($modelId) {
+                $changesQuery->orWhere(['model' => $modelName, 'model_id' => $modelId]);
+            } elseif ($parenModelId) {
+                $changesQuery->orWhere(['model' => $modelName, 'parent_model_id' => $parenModelId]);
             }
         }
 
-        /** @var ActiveQuery $changesQuery */
-        $changesQuery = $changesQuery->orderBy('created_at desc');
-        if (Yii::$app->request->isAjax && isset($getOptions['showLastChanges'])) {
-            $changesQuery = $changesQuery->limit(isset($getOptions['howMany']) ? (int)$getOptions['howMany'] : 1);
-        }
-
         /** @var \app\models\HistoryChanges[] $changes */
+        $changesQuery = $changesQuery->orderBy([
+            'model' => SORT_ASC, // групировать по model + model_id
+            'model_id' => SORT_DESC,
+            'id' => SORT_DESC, // по убыванию
+        ]);
         $changes = $changesQuery->all();
 
         foreach ($changes as &$change) {

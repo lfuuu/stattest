@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GridSortTrait;
 use app\dao\CityDao;
@@ -164,5 +165,15 @@ class City extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/dictionary/city/edit', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 }

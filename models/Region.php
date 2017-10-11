@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use yii\helpers\Url;
@@ -164,6 +165,16 @@ class Region extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/dictionary/region/edit', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 
     /**

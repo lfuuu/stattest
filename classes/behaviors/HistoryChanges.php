@@ -1,19 +1,15 @@
 <?php
 namespace app\classes\behaviors;
 
+use app\classes\model\HistoryActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 
-/**
- * Class HistoryChanges
- *
- * @property ActiveRecord $owner
- */
 class HistoryChanges extends Behavior
 {
-    /** @var ActiveRecord */
+    /** @var HistoryActiveRecord */
     public $owner;
 
     /**
@@ -30,6 +26,8 @@ class HistoryChanges extends Behavior
 
     /**
      * After insert
+     *
+     * @throws \yii\db\Exception
      */
     public function afterInsert()
     {
@@ -38,10 +36,12 @@ class HistoryChanges extends Behavior
 
     /**
      * Before update
+     *
+     * @throws \yii\db\Exception
      */
     public function beforeUpdate()
     {
-        $this->fillChanges($data, $prevData);
+        $this->_fillChanges($data, $prevData);
         if (!empty($data)) {
             $this->_logChanges(\app\models\HistoryChanges::ACTION_UPDATE, $data, $prevData);
         }
@@ -49,6 +49,8 @@ class HistoryChanges extends Behavior
 
     /**
      * After delete
+     *
+     * @throws \yii\db\Exception
      */
     public function afterDelete()
     {
@@ -57,14 +59,16 @@ class HistoryChanges extends Behavior
 
     /**
      * @param string $action
-     * @param string $data
+     * @param mixed $data
      * @param mixed $prevData
+     * @throws \yii\db\Exception
      */
     private function _logChanges($action, $data, $prevData)
     {
         $queryData = [
-            'model' => $this->_getClassName(),
+            'model' => $this->owner->getClassName(),
             'model_id' => $this->owner->primaryKey,
+            'parent_model_id' => $this->owner->getHistoryParentField(),
             'user_id' => Yii::$app->user->getId(),
             'created_at' => date(DateTimeZoneHelper::DATETIME_FORMAT),
             'action' => $action,
@@ -82,7 +86,11 @@ class HistoryChanges extends Behavior
 
     }
 
-    private function fillChanges(&$result, &$resultOld)
+    /**
+     * @param array $result
+     * @param array $resultOld
+     */
+    private function _fillChanges(&$result, &$resultOld)
     {
         $attributes = $this->owner->getAttributes();
         $oldAttributes = $this->owner->getOldAttributes();
@@ -101,15 +109,5 @@ class HistoryChanges extends Behavior
                 $resultOld[$name] = '';
             }
         }
-    }
-
-    /**
-     * Подготавливает названия класса для работы с историей
-     *
-     * @return string
-     */
-    private function _getClassName()
-    {
-        return get_class($this->owner);
     }
 }
