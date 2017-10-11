@@ -16,7 +16,7 @@
             {if !isset($1c_bill_flag)}
                 {assign var="1c_bill_flag" value=0}
             {/if}
-            {if !$all4net_order_number && !$1c_bill_flag}
+            {if !$all4net_order_number && !$1c_bill_flag && !$bill.uu_bill_id}
                 {if !$isClosed}
                     <a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a> /
                     <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a> /
