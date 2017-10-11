@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controllers;
 
 use app\classes\BaseController;
@@ -45,11 +46,11 @@ class VersionController extends BaseController
         $models = [];
         $versionsQuery = HistoryVersion::find();
         foreach ($params as $param) {
-            if (!is_array($param) || count($param) != 2) {
+            if (!is_array($param)) {
                 throw new \InvalidArgumentException('param');
             }
 
-            list($modelName, $modelId) = $param;
+            $modelName = $param[0];
             if (!class_exists($modelName)) {
                 throw new \InvalidArgumentException('Bad model type');
             }
@@ -58,7 +59,12 @@ class VersionController extends BaseController
                 $models[$modelName] = new $modelName();
             }
 
-            $versionsQuery->orWhere(['model' => $modelName, 'model_id' => $modelId]);
+            list($modelName, $modelId, $parenModelId) = $param;
+            if ($modelId) {
+                $versionsQuery->orWhere(['model' => $modelName, 'model_id' => $modelId]);
+            } elseif ($parenModelId) {
+                $versionsQuery->orWhere(['model' => $modelName, 'parent_model_id' => $parenModelId]);
+            }
         }
 
         $versions = $versionsQuery->all();
