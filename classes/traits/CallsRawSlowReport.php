@@ -220,8 +220,8 @@ trait CallsRawSlowReport
         $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group) ? true : false;
         $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group) ? true : false;
 
-        $query1 = $this->setDestinationCondition($query1, $this->src_destinations_ids, $this->src_number_type_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
-        $query2 = $this->setDestinationCondition($query2, $this->dst_destinations_ids, $this->dst_number_type_ids, 'cr.nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
+        $query1 = $this->setDestinationCondition($query1, $query3, $this->src_destinations_ids, $this->src_number_type_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
+        $query2 = $this->setDestinationCondition($query2, $query3, $this->dst_destinations_ids, $this->dst_number_type_ids, 'cr.nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
 
         if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
             $query1->addSelect(['src_ndc_type_id' => 'src_nrd.ndc_type_id']);

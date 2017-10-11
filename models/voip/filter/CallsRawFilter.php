@@ -16,6 +16,7 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
+use yii\db\Expression;
 use yii\db\Query;
 
 /**
@@ -553,14 +554,14 @@ class CallsRawFilter extends CallsRaw
      * @param $param
      * @return CTEQuery
      */
-    private function setDestinationCondition(CTEQuery $query, $destination, $number_type, $param, $isGroup, $alias)
+    private function setDestinationCondition(CTEQuery $query, CTEQuery $query3, $destination, $number_type, $param, $isGroup, $alias)
     {
         if ($destination || $number_type || $isGroup) {
             $query5 = new Query();
             $query5->select(
                 [
                     "{$alias}_number_range_id" => 'number_range_id',
-                    "{$alias}_ndc_type_id" => 'ndc_type_id',
+                    "ndc_type_id" => 'ndc_type_id',
                     "{$alias}_destination_id" => 'destination_id'
                 ]
             )
@@ -577,6 +578,10 @@ class CallsRawFilter extends CallsRaw
             && $query5->andWhere(["ndc_type_id" => $number_type]);
 
             $query->join('LEFT JOIN LATERAL', ["{$alias}_nrd" => $query5], "{$alias}_nrd.{$alias}_number_range_id = $param");
+
+            if ($query3) {
+                $query3->addSelect(["{$alias}_destination_id" => new Expression('NULL')]);
+            }
         }
 
         return $query;
