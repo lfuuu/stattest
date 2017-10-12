@@ -1,4 +1,5 @@
 <?php
+
 namespace app\exceptions;
 
 use yii\base\Model;
@@ -21,7 +22,7 @@ class ModelValidationException extends HttpException
     {
         $this->_model = $model;
         $this->_errors = $model->getErrors();
-        parent::__construct($statusCode, implode(' ', $model->getFirstErrors()), $errorCode);
+        parent::__construct($statusCode, 'Error. ' . implode(' ', $model->getFirstErrors()), $errorCode);
     }
 
     /**

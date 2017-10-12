@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models;
 
+use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use Yii;
 use yii\db\ActiveQuery;
@@ -94,7 +95,10 @@ class TariffPeriod extends HistoryActiveRecord
      */
     public function getLink()
     {
-        return $this->tariff->getLink();
+        return Html::a(
+            Html::encode($this->getName()),
+            $this->getUrl()
+        );
     }
 
     /**

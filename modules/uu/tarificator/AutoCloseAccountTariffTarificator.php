@@ -135,7 +135,7 @@ SQL;
                 $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction && $transaction->rollBack();
-                $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
+                $this->out(PHP_EOL . 'Error. ' . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
                 if ($accountTariffId) {
                     throw $e;

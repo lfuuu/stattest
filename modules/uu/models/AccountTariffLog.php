@@ -2,7 +2,6 @@
 
 namespace app\modules\uu\models;
 
-use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
@@ -139,10 +138,7 @@ class AccountTariffLog extends HistoryActiveRecord
     public function getTariffPeriodLink()
     {
         return $this->tariff_period_id ?
-            Html::a(
-                Html::encode($this->getName()),
-                $this->tariffPeriod->getUrl()
-            ) :
+            $this->tariffPeriod->getLink() :
             Yii::t('common', 'Switched off');
     }
 
@@ -713,7 +709,7 @@ class AccountTariffLog extends HistoryActiveRecord
                 }
 
                 if ($tariffPeriod = TariffPeriod::findOne(['id' => $value])) {
-                    return $tariffPeriod->tariff->getLink();
+                    return $tariffPeriod->getLink();
                 }
                 break;
         }

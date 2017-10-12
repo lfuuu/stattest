@@ -12,6 +12,7 @@ trait AccountTariffBillerSetupTrait
      * В отличии от getUntarificatedPeriodPeriods - в периоде учитывается только начало, а не регулярное списание
      *
      * @return AccountLogFromToTariff[]
+     * @throws \LogicException
      */
     public function getUntarificatedSetupPeriods()
     {
@@ -58,7 +59,7 @@ trait AccountTariffBillerSetupTrait
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            printf(PHP_EOL . 'Error. There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+            throw new \LogicException(printf(PHP_EOL . 'There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs))));
         }
 
         return $untarificatedPeriods;

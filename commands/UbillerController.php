@@ -90,7 +90,7 @@ class UbillerController extends Controller
         } catch (\Exception $e) {
             Yii::error('Ошибка универсального тарификатора');
             Yii::error($e);
-            printf('%s %s', $e->getMessage(), $e->getTraceAsString());
+            printf('Error. %s %s', $e->getMessage(), $e->getTraceAsString());
             return Controller::EXIT_CODE_ERROR;
         }
     }

@@ -185,7 +185,10 @@ class Tariff extends HistoryActiveRecord
      */
     public function getLink()
     {
-        return Html::a(Html::encode($this->name), $this->getUrl());
+        return Html::a(
+            Html::encode($this->name),
+            $this->getUrl()
+        );
     }
 
     /**

@@ -75,7 +75,7 @@ SQL;
             $clientAccount->credit_mgp = $row['credit_mgp'];
             if (!$clientAccount->save()) {
                 // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
-                $this->out(implode('. ', $clientAccount->getFirstErrors()));
+                $this->out('Error. ' . implode('. ', $clientAccount->getFirstErrors()));
             }
         }
 

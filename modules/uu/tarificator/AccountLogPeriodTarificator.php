@@ -56,7 +56,7 @@ class AccountLogPeriodTarificator extends Tarificator
                 $isWithTransaction && $transaction->commit();
             } catch (\Exception $e) {
                 $isWithTransaction && $transaction->rollBack();
-                $this->out(PHP_EOL . $e->getMessage() . PHP_EOL);
+                $this->out(PHP_EOL . 'Error. ' . $e->getMessage() . PHP_EOL);
                 Yii::error($e->getMessage());
                 // не получилось с одной услугой - пойдем считать другую
                 if ($accountTariffId) {

@@ -43,12 +43,12 @@ trait AccountTariffBillerPeriodTrait
                 $accountLog = $accountLogs[$uniqueId];
                 $dateToTmp = $accountLogFromToTariff->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
                 if ($accountLog->date_to !== $dateToTmp) {
-                    throw new \LogicException(sprintf('Error. Calculated accountLogPeriod date %s is not equal %s for accountTariffId %d', $accountLog->date_to, $dateToTmp, $this->id));
+                    throw new \LogicException(sprintf('Calculated accountLogPeriod date %s is not equal %s for accountTariffId %d', $accountLog->date_to, $dateToTmp, $this->id));
                 }
 
                 $tariffPeriodId = $accountLogFromToTariff->tariffPeriod->id;
                 if ($accountLog->tariff_period_id !== $tariffPeriodId) {
-                    throw new \LogicException(sprintf('Error. Calculated accountLogPeriod %s is not equal %s for accountTariffId %d', $accountLog->tariff_period_id, $tariffPeriodId, $this->id));
+                    throw new \LogicException(sprintf('Calculated accountLogPeriod %s is not equal %s for accountTariffId %d', $accountLog->tariff_period_id, $tariffPeriodId, $this->id));
                 }
 
                 unset($accountLogs[$uniqueId]);
@@ -61,7 +61,7 @@ trait AccountTariffBillerPeriodTrait
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            printf(PHP_EOL . 'Error. There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs)));
+            throw new \LogicException(printf(PHP_EOL . 'There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs))));
         }
 
         return $untarificatedPeriods;

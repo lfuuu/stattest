@@ -90,7 +90,7 @@ trait AccountTariffBillerResourceTrait
                     }
 
                     // остался неизвестный период, который уже рассчитан
-                    printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
+                    throw new \LogicException(printf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
                 }
             }
         }
@@ -165,7 +165,7 @@ trait AccountTariffBillerResourceTrait
                     }
 
                     // остался неизвестный период, который уже рассчитан
-                    printf(PHP_EOL . 'Error. There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId);
+                    throw new \LogicException(printf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
                 }
             }
         }

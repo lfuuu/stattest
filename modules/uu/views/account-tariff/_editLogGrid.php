@@ -35,10 +35,7 @@ $accountTariff = $formModel->accountTariff;
                         $accountTariff = $accountTariffLog->accountTariff;
                         return
                             ($accountTariffLog->tariffPeriod ?
-                                Html::a(
-                                    Html::encode($accountTariffLog->tariffPeriod->getName()),
-                                    $accountTariffLog->tariffPeriod->getUrl()
-                                ) :
+                                $accountTariffLog->tariffPeriod->getLink() :
                                 Yii::t('common', 'Switched off')) .
                             ' ' .
 
