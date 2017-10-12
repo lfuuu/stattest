@@ -11,7 +11,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  *
  * @property int $id
  * @property int $account_id
- * @property string $vpbx_subaccount
+ * @property string $sub_account
  * @property int $stat_product_id
  * @property string $number
  * @property float $balance
