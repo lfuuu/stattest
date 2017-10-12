@@ -554,7 +554,7 @@ class CallsRawFilter extends CallsRaw
      * @param $param
      * @return CTEQuery
      */
-    private function setDestinationCondition(CTEQuery $query, CTEQuery $query3, $destination, $number_type, $param, $isGroup, $alias)
+    private function setDestinationCondition(CTEQuery $query, $query3, $destination, $number_type, $param, $isGroup, $alias)
     {
         if ($destination || $number_type || $isGroup) {
             $query5 = new Query();
