@@ -74,7 +74,7 @@ SQL;
             $clientAccount = ClientAccount::findOne(['id' => $row['id']]);
             $clientAccount->credit_mgp = $row['credit_mgp'];
             if (!$clientAccount->save()) {
-                // не фаталиться!
+                // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
                 $this->out(implode('. ', $clientAccount->getFirstErrors()));
             }
         }

@@ -3,11 +3,14 @@
 namespace app\modules\uu\tarificator;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\HistoryChanges;
+use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use Yii;
+use yii\base\InvalidParamException;
 
 /**
  * Автоматически закрыть услугу по истечению тестового периода
@@ -27,6 +30,7 @@ class AutoCloseAccountTariffTarificator extends Tarificator
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
+        $historyChangesTableName = HistoryChanges::tableName();
 
         $sql = <<<SQL
                 SELECT
@@ -85,24 +89,47 @@ SQL;
                     $dateFrom = $dateTo->modify('+1 day');
                 }
 
+                // нельзя закрывать в прошлом, иначе пробиллингованные периоды дадут ошибку
+                $dateFromNow = (new \DateTimeImmutable())
+                    ->setTimezone($accountTariff->clientAccount->getTimezone())
+                    ->setTime(0, 0);
+                if ($dateFrom < $dateFromNow) {
+                    // закрыть сегодняшним числом
+                    $dateFrom = $dateFromNow;
+                }
+
                 // через модель не надо, иначе сработают триггеры и пересчет запустится рекурсивно.
                 // поскольку запуск по крону, то он и так все сразу пересчитает
-                $sql = <<<SQL
-                    INSERT INTO {$accountTariffLogTableName}
-                        (account_tariff_id, tariff_period_id, actual_from_utc, insert_time)
-                    VALUES
-                        (:account_tariff_id, :tariff_period_id, :actual_from_utc, :insert_time)
-SQL;
-                $db->createCommand($sql, [
-                    ':account_tariff_id' => $accountTariff->id,
-                    ':tariff_period_id' => null,
-                    ':actual_from_utc' => $dateFrom
+                $accountTariffLogFields = [
+                    'account_tariff_id' => $accountTariff->id,
+                    'tariff_period_id' => null,
+                    'actual_from_utc' => $dateFrom
                         ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
                         ->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                    ':insert_time' => $dateFrom
+                    'insert_time' => $dateFrom
                         ->modify('-1 day')
                         ->format(DateTimeZoneHelper::DATE_FORMAT . ' 20:59:58'), // 58 секунд специально, чтобы не путать со старым скриптом, в котором 59
-                ])
+                ];
+                $affectedRows = $db->createCommand()
+                    ->insert($accountTariffLogTableName, $accountTariffLogFields)
+                    ->execute();
+                if (!$affectedRows || !($accountTariffLogId = $db->getLastInsertID())) {
+                    throw new InvalidParamException('Ошибка добавления закрытия услуги ' . $accountTariff->id);
+                }
+
+                // записать в историю
+                $queryData = [
+                    'model' => (new AccountTariffLog())->getClassName(),
+                    'model_id' => $accountTariffLogId,
+                    'parent_model_id' => $accountTariff->id,
+                    'user_id' => User::SYSTEM_USER_ID,
+                    'created_at' => date(DateTimeZoneHelper::DATETIME_FORMAT),
+                    'action' => HistoryChanges::ACTION_INSERT,
+                    'data_json' => json_encode($accountTariffLogFields, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                    'prev_data_json' => json_encode(null, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                ];
+                Yii::$app->db->createCommand()
+                    ->insert($historyChangesTableName, $queryData)
                     ->execute();
 
                 $isWithTransaction && $transaction->commit();

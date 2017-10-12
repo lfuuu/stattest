@@ -25,6 +25,8 @@ use yii\db\ActiveQuery;
  * @property-read \app\models\Number $number
  * @property-read AccountTariff $prevAccountTariff  Основная услуга
  * @property-read AccountTariff[] $nextAccountTariffs   Пакеты
+ * @property-read AccountTariff $prevUsage  Перенесено из
+ * @property-read AccountTariff $nextUsage   Перенесено в
  * @property-read AccountTariffLog[] $accountTariffLogs
  * @property-read AccountTariffResourceLog[] $accountTariffResourceLogs
  * @property-read TariffPeriod $tariffPeriod
@@ -69,6 +71,22 @@ trait AccountTariffRelationsTrait
     {
         return $this->hasMany(self::className(), ['prev_account_tariff_id' => 'id'])
             ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPrevUsage()
+    {
+        return $this->hasOne(self::className(), ['id' => 'prev_usage_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getNextUsage()
+    {
+        return $this->hasOne(self::className(), ['prev_usage_id' => 'id']);
     }
 
     /**

@@ -11,6 +11,9 @@ return [
     'vm_elid_id' => 'ID VM collocation',
     'trunk_id' => 'Транк',
     'tariff_period_id' => 'Тариф / период',
+    'prev_usage_id' => 'Перенесено из',
+    'next_usage_id' => 'Перенесено в', // это псевдо-поле
+    'is_unzipped' => 'Разархивировано',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',

@@ -46,6 +46,10 @@ $attributes = [
         'value' => $accountTariff->getNextAccountTariffsAsString(),
     ],
 
+    'is_unzipped',
+
+    'prev_usage_id',
+
     [
         'attribute' => 'insert_user_id',
         'format' => 'html',
