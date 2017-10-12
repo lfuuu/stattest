@@ -7,7 +7,6 @@ use app\classes\model\HistoryActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
-use app\models\User;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\FillAccountTariffResourceLog;
 use app\modules\uu\classes\AccountLogFromToResource;
@@ -240,7 +239,10 @@ class AccountTariffLog extends HistoryActiveRecord
             return;
         }
 
-        if ($this->_getCountLogs() && !$this->accountTariff->isLogEditable()) {
+        if ($this->_getCountLogs()
+            && $this->accountTariff->service_type_id != ServiceType::ID_ONE_TIME // одноразовая услуга создается и сразу же закрывается
+            && !$this->accountTariff->isLogEditable()
+        ) {
             $this->addError($attribute, 'Услуга нередактируемая.');
             $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NOT_EDITABLE;
             return;
