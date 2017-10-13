@@ -8,6 +8,7 @@
  * @var int $editableType
  */
 
+use app\classes\Html;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\uu\controllers\TariffController;
@@ -19,6 +20,7 @@ $packagePrice = new PackagePrice;
 $attributeLabels = $packagePrice->attributeLabels();
 
 $packagePrices = $formModel->tariff->packagePrices;
+$packagePricesCount = count($packagePrices);
 if (!$packagePrices) {
     // нет моделей, но виджет для рендеринга их обязательно требует
     // поэтому рендерим дефолтную модель и сразу ж ее удаляем
@@ -37,6 +39,12 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
 <div class="well package-price">
     <h2>Цена по направлениям</h2>
+    <?php
+    if ($packagePricesCount) {
+        echo Html::a('Скачать все префиксы номеров с ценами', ['/uu/tariff/download', 'id' => $formModel->tariff->id]);
+    }
+    ?>
+
     <?= TabularInput::widget([
             'models' => array_values($packagePrices), // ключ должен быть автоинкрементный
             'allowEmptyList' => true,

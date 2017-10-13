@@ -98,6 +98,14 @@ $columns = [
             return implode('<br />', $htmlArray);
         },
     ],
+
+    [
+        'label' => 'Префиксы номеров',
+        'format' => 'html',
+        'value' => function (Destination $destination) {
+            return Html::a('Скачать', ['/nnp/destination/download', 'id' => $destination->id]);
+        },
+    ],
 ];
 
 $dataProvider = $filterModel->search();

@@ -3,7 +3,10 @@
 namespace app\modules\nnp;
 
 use app\classes\Connection;
+use app\classes\helpers\ArrayHelper;
+use BadMethodCallException;
 use Yii;
+use yii\base\InvalidConfigException;
 
 /**
  * Национальные номерные планы
@@ -45,9 +48,20 @@ class Module extends \yii\base\Module
     public function init()
     {
         parent::init();
+
         if (Yii::$app instanceof \yii\console\Application) {
             $this->controllerNamespace = 'app\modules\nnp\commands';
         }
+
+        // подключить конфиги
+        $params = require __DIR__ . '/config/params.php';
+
+        $localConfigFileName = __DIR__ . '/config/params.local.php';
+        if (file_exists($localConfigFileName)) {
+            $params = ArrayHelper::merge($params, require $localConfigFileName);
+        }
+
+        Yii::configure($this, $params);
     }
 
     /**
@@ -69,6 +83,36 @@ class Module extends \yii\base\Module
             Yii::error($e);
             return sprintf('%s %s', $e->getMessage(), $e->getTraceAsString());
         }
+    }
 
+    /**
+     * @param int $destinationId
+     * @return int[]
+     * @throws \BadMethodCallException
+     * @throws InvalidConfigException
+     */
+    public function getPrefixListByDestinationID($destinationId)
+    {
+        $getPrefixListByDestinationID = $this->params['getPrefixListByDestinationID'];
+        if (!$getPrefixListByDestinationID) {
+            throw new InvalidConfigException('Не настроен getPrefixListByDestinationID');
+        }
+
+        $getPrefixListByDestinationID .= $destinationId;
+        $jsonString = file_get_contents($getPrefixListByDestinationID);
+        if (!$jsonString) {
+            throw new BadMethodCallException($getPrefixListByDestinationID . ' не отвечает');
+        }
+
+        $jsonArray = json_decode($jsonString, true);
+        if (!$jsonArray || !array_key_exists('list', $jsonArray)) {
+            throw new BadMethodCallException('Неправильный ответ от ' . $getPrefixListByDestinationID);
+        }
+
+        if (!is_array($jsonArray['list'])) {
+            return [];
+        }
+
+        return $jsonArray['list'];
     }
 }

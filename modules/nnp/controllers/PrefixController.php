@@ -4,8 +4,6 @@ namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
 use app\modules\nnp\filter\PrefixFilter;
-use app\modules\nnp\forms\prefix\FormEdit;
-use app\modules\nnp\forms\prefix\FormNew;
 use Yii;
 
 /**

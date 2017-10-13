@@ -6,6 +6,7 @@
  * @var Form $formModel
  */
 
+use app\classes\Html;
 use app\modules\nnp\forms\destination\Form;
 use app\modules\nnp\models\Land;
 use app\modules\nnp\models\Prefix;
@@ -101,4 +102,11 @@ if (!$destination->isNewRecord) {
     </div>
 
     <?php ActiveForm::end(); ?>
+
+    <?php
+    if ($destination->id) {
+        echo Html::a('Скачать префиксы номеров', ['/nnp/destination/download', 'id' => $destination->id]);
+    }
+    ?>
+
 </div>

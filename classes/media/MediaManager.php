@@ -197,7 +197,7 @@ abstract class MediaManager
                 Yii::$app->end();
             } else {
                 Yii::$app->response->format = \yii\web\Response::FORMAT_RAW;
-                Header('Content-Type:' . $fileData['mimeType']);
+                header('Content-Type:' . $fileData['mimeType']);
                 echo file_get_contents($filePath);
                 Yii::$app->end();
             }

@@ -11,8 +11,11 @@ use app\modules\uu\filter\TariffFilter;
 use app\modules\uu\forms\TariffAddForm;
 use app\modules\uu\forms\TariffEditForm;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
+use kartik\base\Config;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
 
 
@@ -40,7 +43,7 @@ class TariffController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['new', 'edit', 'edit-by-tariff-period'],
+                        'actions' => ['new', 'edit', 'edit-by-tariff-period', 'download'],
                         'roles' => ['tarifs.edit'],
                     ],
                 ],
@@ -136,5 +139,53 @@ class TariffController extends BaseController
         Assert::isObject($tariffPeriod);
 
         $this->redirect(['edit', 'id' => $tariffPeriod->tariff_id]);
+    }
+
+    /**
+     * Развернуть в префиксы и скачать
+     *
+     * @param int $id
+     * @return string
+     * @throws \LogicException
+     * @throws \yii\web\RangeNotSatisfiableHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \BadMethodCallException
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionDownload($id)
+    {
+        $id = (int)$id;
+        if (!$id) {
+            throw new InvalidParamException('Не указан id');
+        }
+
+        $tariff = Tariff::findOne(['id' => $id]);
+        if (!$tariff) {
+            throw new InvalidParamException('Неправильный id');
+        }
+
+        $packagePrices = $tariff->packagePrices;
+        if (!$packagePrices) {
+            throw new \LogicException('Нет цен по направлениям');
+        }
+
+        $content = '';
+
+        /** @var \app\modules\nnp\Module $nnpModule */
+        $nnpModule = Config::getModule('nnp');
+        foreach ($packagePrices as $packagePrice) {
+
+            $destinationName = $packagePrice->destination->name;
+            $price = $packagePrice->price;
+            $price = str_replace('.', ',', $price);
+
+            $prefixList = $nnpModule->getPrefixListByDestinationID($packagePrice->destination_id);
+            foreach ($prefixList as $prefix) {
+                $content .= $prefix . ';' . $destinationName . ';' . $price . PHP_EOL;
+            }
+        }
+
+        Yii::$app->response->sendContentAsFile($content, $tariff->name . '.csv');
+        Yii::$app->end();
     }
 }
