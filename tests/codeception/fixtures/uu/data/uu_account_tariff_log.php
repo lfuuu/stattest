@@ -7,6 +7,10 @@ $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())
     ->modify('first day of previous month')
     ->setTime(0, 0, 0);
 
+$dateTimeYesterday = (new DateTimeImmutable())
+    ->modify('-1 day')
+    ->setTime(0, 0, 0);
+
 return [
 
     // Tariff with autoprolongation
@@ -56,20 +60,20 @@ return [
 
     // Tariff without autoprolongation
     [
-        // 1го сразу же подключил дневной тариф
-        // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
+        // вчера подключил дневной тариф
+        // по этому тарифу только вчера, потому что должен закрыться автоматически сегодня
         'account_tariff_id' => AccountTariff::DELTA + 3,
         'tariff_period_id' => 4,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
-        // 1го сразу же подключил дневной тариф
-        // по этому тарифу только 1ое и 2ое число прошлого месяца, потому что должен закрыться автоматически через день
+        // вчера подключил дневной тариф
+        // по этому тарифу только вчера и сегодня, потому что должен закрыться автоматически завтра
         'account_tariff_id' => AccountTariff::DELTA + 4,
         'tariff_period_id' => 5,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
 
     // ресурсы при пересекающихся сменах тарифов

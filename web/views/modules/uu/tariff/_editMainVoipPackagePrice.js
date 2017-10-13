@@ -15,7 +15,14 @@
                 if (!$price.length) {
                     $price = $('<a />').html('Скачать префиксы номеров').insertAfter($id);
                 }
-                $price.attr('href', '/nnp/destination/download/?id=' + $this.val());
+
+                var val = $this.val();
+                if (val) {
+                    $price.show();
+                    $price.attr('href', '/nnp/destination/download/?id=' + val);
+                } else {
+                    $price.hide();
+                }
             });
         // при инициализации прайслиста вывести ссылку на его просмотр
         $('.package-price select').trigger('change');

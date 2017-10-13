@@ -400,86 +400,89 @@ class UbillerTest extends _TestCase
     }
 
     /**
-     * Проверить, как смена тарифов конвертируется в "маленькие" диапазоны (с выравниванием по месяцам) для тарифа без автопродления
+     * Проверить, что закрывается тариф без автопродления
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
      */
     public function testAccountLogWithoutAutoprolongation1()
     {
-        $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
+        $dateTimeYesterday = (new DateTimeImmutable())
+            ->modify('-1 day')
+            ->setTime(0, 0, 0);
 
         /** @var AccountTariff $accountTariff */
         $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 3])->one();
         $this->assertNotEmpty($accountTariff);
 
-        $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
-        $this->assertEquals(1, count($accountLogFromToTariffs));
+        $accountTariffLogs = $accountTariff->accountTariffLogs;
+        $this->assertEquals(2, count($accountTariffLogs));
 
-        // 1го сразу же подключил дневной тариф
-        // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
+        // вчера подключил дневной тариф
+        // по этому тарифу только вчера, потому что должен закрыться автоматически сегодня
 
-        // диапазон 0
-        $this->assertNotEmpty($accountLogFromToTariffs[0]->dateFrom);
+        // Вчера открыт
+        $accountTariffLog = array_pop($accountTariffLogs);
         $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $accountLogFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+            $dateTimeYesterday->format(DateTimeZoneHelper::DATE_FORMAT),
+            $accountTariffLog->actual_from
+        );
+        $this->assertEquals(
+            4,
+            $accountTariffLog->tariff_period_id
         );
 
-        $this->assertNotEmpty($accountLogFromToTariffs[0]->dateTo);
+        // Сегодня закрыт
+        $accountTariffLog = array_pop($accountTariffLogs);
         $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $accountLogFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            $dateTimeYesterday->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT),
+            $accountTariffLog->actual_from
         );
-
-        $this->assertEquals(4, $accountLogFromToTariffs[0]->tariffPeriod->id);
+        $this->assertEquals(
+            null,
+            $accountTariffLog->tariff_period_id
+        );
     }
 
     /**
-     * Проверить, как смена тарифов конвертируется в "маленькие" диапазоны (с выравниванием по месяцам) для тарифа с одним автопродлением
+     * Проверить, что закрывается тариф с одним автопродлением
      * см. комментарии в tests/codeception/fixtures/uu/data/uu_account_tariff_log.php
      */
     public function testAccountLogWithoutAutoprolongation2()
     {
-        $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
+        $dateTimeYesterday = (new DateTimeImmutable())
+            ->modify('-1 day')
+            ->setTime(0, 0, 0);
 
         /** @var AccountTariff $accountTariff */
         $accountTariff = AccountTariff::find()->where(['id' => AccountTariff::DELTA + 4])->one();
         $this->assertNotEmpty($accountTariff);
 
-        $accountLogFromToTariffs = $accountTariff->getAccountLogFromToTariffs();
-        $this->assertEquals(2, count($accountLogFromToTariffs));
+        $accountTariffLogs = $accountTariff->accountTariffLogs;
+        $this->assertEquals(2, count($accountTariffLogs));
 
-        // 1го сразу же подключил дневной тариф
-        // по этому тарифу только 1ое число прошлого месяца, потому что должен закрыться автоматически на следующий день
+        // вчера подключил дневной тариф
+        // по этому тарифу только вчера и сегодня, потому что должен закрыться автоматически завтра
 
-        // диапазон 0
-        $this->assertNotEmpty($accountLogFromToTariffs[0]->dateFrom);
+        // Вчера открыт
+        $accountTariffLog = array_pop($accountTariffLogs);
         $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $accountLogFromToTariffs[0]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+            $dateTimeYesterday->format(DateTimeZoneHelper::DATE_FORMAT),
+            $accountTariffLog->actual_from
+        );
+        $this->assertEquals(
+            5,
+            $accountTariffLog->tariff_period_id
         );
 
-        $this->assertNotEmpty($accountLogFromToTariffs[0]->dateTo);
+        // Завтра закрыт
+        $accountTariffLog = array_pop($accountTariffLogs);
         $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $accountLogFromToTariffs[0]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+            $dateTimeYesterday->modify('+2 day')->format(DateTimeZoneHelper::DATE_FORMAT),
+            $accountTariffLog->actual_from
         );
-
-        $this->assertEquals(5, $accountLogFromToTariffs[0]->tariffPeriod->id);
-
-        // диапазон 1
-        $this->assertNotEmpty($accountLogFromToTariffs[1]->dateFrom);
         $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT),
-            $accountLogFromToTariffs[1]->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+            null,
+            $accountTariffLog->tariff_period_id
         );
-
-        $this->assertNotEmpty($accountLogFromToTariffs[1]->dateTo);
-        $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT),
-            $accountLogFromToTariffs[1]->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
-        );
-
-        $this->assertEquals(5, $accountLogFromToTariffs[1]->tariffPeriod->id);
     }
 
     /**

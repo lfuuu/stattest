@@ -342,7 +342,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
         );
 
         if (!count($possibleTariffs)) {
-            $this->fail('Unknown universal tariffs');
+            $this->fail('Available universal tariff not found');
         }
 
         return key(array_pop($possibleTariffs));
@@ -376,6 +376,7 @@ abstract class _BaseService extends \yii\codeception\TestCase
     protected function createClientAccount($isUniversal = false, $credit = null)
     {
         $clientAccount = _ClientAccount::createOne($isUniversal ? $this->entryPointCode : null);
+        $clientAccount->is_voip_with_tax = 1;
 
         // Set credit value for universal services
         if ($credit !== null) {

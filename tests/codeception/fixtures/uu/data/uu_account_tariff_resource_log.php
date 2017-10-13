@@ -7,10 +7,16 @@ use app\modules\uu\models\Resource;
 // начало действиях всех ресурсов должно совпадать с uu_account_tariff_log!
 $dateTimeCurrent = (new DateTimeImmutable())
     ->setTime(0, 0, 0);
+
 $dateTimeFirstTomorrow = $dateTimeCurrent
     ->modify('+1 day');
+
 $dateTimeFirstDayOfPrevMonth = $dateTimeCurrent
     ->modify('first day of previous month');
+
+$dateTimeYesterday = (new DateTimeImmutable())
+    ->modify('-1 day')
+    ->setTime(0, 0, 0);
 
 return [
 
@@ -186,56 +192,56 @@ return [
         'account_tariff_id' => AccountTariff::DELTA + 3,
         'resource_id' => Resource::ID_VPBX_ABONENT,
         'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 3,
         'resource_id' => Resource::ID_VPBX_EXT_DID,
         'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 3,
         'resource_id' => Resource::ID_VPBX_RECORD,
         'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 3,
         'resource_id' => Resource::ID_VPBX_FAX,
         'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 3,
         'resource_id' => Resource::ID_VPBX_MIN_ROUTE,
         'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 3,
         'resource_id' => Resource::ID_VPBX_GEO_ROUTE,
         'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
     [
         // инициализация с 1го
         'account_tariff_id' => AccountTariff::DELTA + 3,
         'resource_id' => Resource::ID_VPBX_SUB_ACCOUNT,
         'amount' => 1,
-        'actual_from_utc' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
-        'insert_time' => $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'actual_from_utc' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        'insert_time' => $dateTimeYesterday->format(DateTimeZoneHelper::DATETIME_FORMAT),
     ],
 
     // ресурсы при пересекающихся сменах тарифов

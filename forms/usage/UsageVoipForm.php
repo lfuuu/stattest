@@ -75,10 +75,11 @@ class UsageVoipForm extends Form
                 ],
                 'integer'
             ],
-            [['did', 'connecting_date', 'tariff_change_date', 'address', 'status'], 'string'],
+            [['connecting_date', 'tariff_change_date', 'address', 'status'], 'string'],
             [['mass_change_tariff'], 'boolean'],
             [
                 [
+                    'did',
                     'tariff_main_id',
                     'tariff_local_mob_id',
                     'tariff_russia_id',
