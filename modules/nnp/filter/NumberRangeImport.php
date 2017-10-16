@@ -20,7 +20,9 @@ class NumberRangeImport extends NumberRange
     {
         if (
             $this->_checkNatural($value, $isEmptyAllowed = false)
-            && in_array($value, $country->getPrefixes())
+            && ($prefixes = $country->getPrefixes())
+            && ($prefix = reset($prefixes))
+            && strpos($prefix, (string) $value) === 0
         ) {
             $this->country_prefix = $value;
             return true;
