@@ -15,6 +15,9 @@ use LogicException;
  * @property integer $dayscount
  * @property integer $monthscount
  * @property string $name
+ *
+ * @method static Period findOne($condition)
+ * @method static Period[] findAll($condition)
  */
 class Period extends ActiveRecord
 {

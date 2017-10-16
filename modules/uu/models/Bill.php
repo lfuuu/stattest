@@ -21,6 +21,9 @@ use yii\helpers\Url;
  *
  * @property-read ClientAccount $clientAccount
  * @property-read AccountEntry[] $accountEntries
+ *
+ * @method static Bill findOne($condition)
+ * @method static Bill[] findAll($condition)
  */
 class Bill extends ActiveRecord
 {

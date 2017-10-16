@@ -13,6 +13,9 @@ use yii\helpers\Url;
  * @property bool $orig
  *
  * @property string $parser_settings
+ *
+ * @method static Pricelist findOne($condition)
+ * @method static Pricelist[] findAll($condition)
  */
 class Pricelist extends ActiveRecord
 {
@@ -129,5 +132,17 @@ class Pricelist extends ActiveRecord
                 ]
             ]
         );
+    }
+
+    /**
+     * Синхронизировать в биллер
+     *
+     * @throws \yii\db\Exception
+     */
+    public static function sync()
+    {
+        $db = self::getDb();
+        $db->createCommand("select event.notify('defs-manual',0)")->execute();
+        $db->createCommand("select event.notify('pricelist-manual',0)")->execute();
     }
 }

@@ -34,6 +34,9 @@ use yii\db\Expression;
  *
  * @property-read AccountTariff $accountTariff
  * @property-read \app\modules\uu\models\Resource $resource
+ *
+ * @method static AccountTariffResourceLog findOne($condition)
+ * @method static AccountTariffResourceLog[] findAll($condition)
  */
 class AccountTariffResourceLog extends ActiveRecord
 {

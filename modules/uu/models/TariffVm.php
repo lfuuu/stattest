@@ -11,6 +11,9 @@ use app\classes\model\ActiveRecord;
  *
  * @property int $id
  * @property string $name
+ *
+ * @method static TariffVm findOne($condition)
+ * @method static TariffVm[] findAll($condition)
  */
 class TariffVm extends ActiveRecord
 {

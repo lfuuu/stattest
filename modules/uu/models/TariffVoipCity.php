@@ -15,6 +15,9 @@ use yii\db\ActiveQuery;
  *
  * @property-read Tariff $tariff
  * @property-read City $city
+ *
+ * @method static TariffVoipCity findOne($condition)
+ * @method static TariffVoipCity[] findAll($condition)
  */
 class TariffVoipCity extends HistoryActiveRecord
 {

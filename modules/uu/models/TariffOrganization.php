@@ -15,6 +15,9 @@ use yii\db\ActiveQuery;
  *
  * @property-read Tariff $tariff
  * @property-read Organization $organization
+ *
+ * @method static TariffOrganization findOne($condition)
+ * @method static TariffOrganization[] findAll($condition)
  */
 class TariffOrganization extends HistoryActiveRecord
 {

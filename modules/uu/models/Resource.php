@@ -24,6 +24,9 @@ use yii\db\ActiveQuery;
  * @property string $unit
  *
  * @property-read ServiceType $serviceType
+ *
+ * @method static Resource findOne($condition)
+ * @method static Resource[] findAll($condition)
  */
 class Resource extends ActiveRecord
 {

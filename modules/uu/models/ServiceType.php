@@ -16,6 +16,9 @@ use yii\helpers\Url;
  *
  * @property-read ServiceType $parent
  * @property-read Resource[] $resources
+ *
+ * @method static ServiceType findOne($condition)
+ * @method static ServiceType[] findAll($condition)
  */
 class ServiceType extends ActiveRecord
 {

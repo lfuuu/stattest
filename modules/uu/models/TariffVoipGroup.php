@@ -9,6 +9,9 @@ use app\classes\model\ActiveRecord;
  *
  * @property int $id
  * @property string $name
+ *
+ * @method static TariffVoipGroup findOne($condition)
+ * @method static TariffVoipGroup[] findAll($condition)
  */
 class TariffVoipGroup extends ActiveRecord
 {

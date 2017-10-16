@@ -20,6 +20,9 @@ use Yii;
  * @property bool $parsed
  *
  * @property-read Pricelist $pricelist
+ *
+ * @method static PricelistFile findOne($condition)
+ * @method static PricelistFile[] findAll($condition)
  */
 class PricelistFile extends ActiveRecord
 {

@@ -35,6 +35,9 @@ use yii\db\Expression;
  *
  * @property-read TariffPeriod $tariffPeriod
  * @property-read AccountTariff $accountTariff
+ *
+ * @method static AccountTariffLog findOne($condition)
+ * @method static AccountTariffLog[] findAll($condition)
  */
 class AccountTariffLog extends HistoryActiveRecord
 {

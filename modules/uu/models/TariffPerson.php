@@ -9,6 +9,9 @@ use app\classes\model\ActiveRecord;
  *
  * @property int $id
  * @property string $name
+ *
+ * @method static TariffPerson findOne($condition)
+ * @method static TariffPerson[] findAll($condition)
  */
 class TariffPerson extends ActiveRecord
 {

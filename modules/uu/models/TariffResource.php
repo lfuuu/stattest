@@ -16,6 +16,9 @@ use app\classes\model\HistoryActiveRecord;
  *
  * @property-read \app\modules\uu\models\Resource $resource
  * @property-read Tariff $tariff
+ *
+ * @method static TariffResource findOne($condition)
+ * @method static TariffResource[] findAll($condition)
  */
 class TariffResource extends HistoryActiveRecord
 {

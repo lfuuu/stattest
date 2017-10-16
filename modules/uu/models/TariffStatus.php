@@ -14,6 +14,9 @@ use yii\helpers\Url;
  * @property int $service_type_id Тип услуги. Если null, то для всех
  *
  * @property-read ServiceType $serviceType
+ *
+ * @method static TariffStatus findOne($condition)
+ * @method static TariffStatus[] findAll($condition)
  */
 class TariffStatus extends ActiveRecord
 {

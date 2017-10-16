@@ -31,6 +31,9 @@ use yii\helpers\Url;
  * @property-read TariffResource $tariffResource
  * @property-read AccountEntry $accountEntry
  * @property-read AccountTariffResourceLog $accountTariffResourceLog
+ *
+ * @method static AccountLogResource findOne($condition)
+ * @method static AccountLogResource[] findAll($condition)
  */
 class AccountLogResource extends ActiveRecord
 {

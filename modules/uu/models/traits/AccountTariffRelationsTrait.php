@@ -37,6 +37,9 @@ use yii\db\ActiveQuery;
  *
  * @method ActiveQuery hasMany($class, array $link) see [[BaseActiveRecord::hasMany()]] for more info
  * @method ActiveQuery hasOne($class, array $link) see [[BaseActiveRecord::hasOne()]] for more info
+ *
+ * @method static AccountTariff findOne($condition)
+ * @method static AccountTariff[] findAll($condition)
  */
 trait AccountTariffRelationsTrait
 {

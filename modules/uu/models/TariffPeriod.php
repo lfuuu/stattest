@@ -20,6 +20,9 @@ use yii\db\ActiveQuery;
  * @property-read Period $chargePeriod
  * @property-read Tariff $tariff
  * @property-read AccountTariff[] $accountTariffs
+ *
+ * @method static TariffPeriod findOne($condition)
+ * @method static TariffPeriod[] findAll($condition)
  */
 class TariffPeriod extends HistoryActiveRecord
 {

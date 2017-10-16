@@ -1,28 +1,32 @@
 <?php
+
 namespace app\controllers\voip;
 
 use app\classes\Assert;
+use app\classes\BaseController;
 use app\classes\voip\BasePricelistLoader;
 use app\classes\voip\MegafonPricelistLoader;
 use app\classes\voip\UniversalPricelistLoader;
+use app\exceptions\ModelValidationException;
 use app\forms\billing\PricelistAddForm;
+use app\forms\billing\PricelistEditForm;
+use app\forms\billing\PricelistForm;
 use app\models\billing\NetworkConfig;
+use app\models\billing\Pricelist;
 use app\models\billing\PricelistFile;
+use app\models\Region;
 use app\models\TariffVoip;
 use app\models\TariffVoipPackage;
 use app\models\UsageTrunkSettings;
 use Yii;
-use app\classes\BaseController;
-use app\forms\billing\PricelistForm;
-use app\forms\billing\PricelistEditForm;
-use app\models\billing\Pricelist;
-use app\models\Region;
-use yii\base\Exception;
-use yii\filters\AccessControl;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 
 class PricelistController extends BaseController
 {
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -31,7 +35,7 @@ class PricelistController extends BaseController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['list', 'files', 'file-download'],
+                        'actions' => ['list', 'files', 'file-download', 'sync'],
                         'roles' => ['voip.access'],
                     ],
                     [
@@ -44,23 +48,31 @@ class PricelistController extends BaseController
         ];
     }
 
+    /**
+     * @param string $type
+     * @param string $orig
+     * @param int $connectionPointId
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionList($type, $orig, $connectionPointId = 0)
     {
         $model = new PricelistForm;
         $model->load(Yii::$app->request->getQueryParams());
-        $query =
-            Pricelist::find()
-                ->orderBy('region desc, name asc');
+        $query = Pricelist::find()
+            ->orderBy('region desc, name asc');
 
         $query->andWhere(['type' => $type]);
         $query->andWhere('orig = ' . ($orig > 0 ? 'true' : 'false'));
         if ($connectionPointId > 0) {
             $query->andWhere(['region' => $connectionPointId]);
         }
+
         if ($model->connection_point_id > 0) {
             $connectionPointId = $model->connection_point_id;
             $query->andWhere(['region' => $model->connection_point_id]);
         }
+
         if ($model->status) {
             $query->andWhere(['status' => $model->status]);
         }
@@ -81,7 +93,23 @@ class PricelistController extends BaseController
         ]);
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
+    public function actionSync()
+    {
+        Pricelist::sync();
+        Yii::$app->session->addFlash('success', 'Прайслисты синхронизированы в биллер');
+        $this->redirect(Yii::$app->request->referrer);
+    }
 
+    /**
+     * @param string $type
+     * @param int $orig
+     * @param int $connectionPointId
+     * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionAdd($type = null, $orig = 0, $connectionPointId = 0)
     {
         $model = new PricelistAddForm();
@@ -102,10 +130,14 @@ class PricelistController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $id
+     * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionEdit($id)
     {
         $pricelist = Pricelist::findOne($id);
-
         Assert::isObject($pricelist);
 
         $model = new PricelistEditForm();
@@ -122,6 +154,11 @@ class PricelistController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $pricelistId
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionFiles($pricelistId)
     {
         $pricelist = Pricelist::findOne($pricelistId);
@@ -140,6 +177,10 @@ class PricelistController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $pricelistId
+     * @return \yii\web\Response
+     */
     public function actionFileUpload($pricelistId)
     {
         $pricelist = Pricelist::findOne($pricelistId);
@@ -156,10 +197,14 @@ class PricelistController extends BaseController
         return $this->redirect(['file-parse', 'fileId' => $file->id]);
     }
 
+    /**
+     * @param int $fileId
+     * @return string|\yii\web\Response
+     * @throws \yii\base\InvalidParamException
+     */
     public function actionFileParse($fileId)
     {
         $file = PricelistFile::findOne($fileId);
-        /** @var PricelistFile $file */
         Assert::isObject($file);
 
         Assert::isFalse($file->parsed);
@@ -200,6 +245,7 @@ class PricelistController extends BaseController
                 if ($fType) {
                     $settings['cols'][$fType] = $n;
                 }
+
                 $n++;
             }
 
@@ -208,12 +254,13 @@ class PricelistController extends BaseController
                     JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                 $file->pricelist->save();
             }
+
             $file->save();
         }
 
+        /** @var BasePricelistLoader $parser */
         $loaderClass = $settings['loader'];
         $parser = new $loaderClass();
-        /** @var BasePricelistLoader $parser */
 
         if (Yii::$app->request->isPost && Yii::$app->request->post('btn_upload') !== null) {
 
@@ -226,16 +273,15 @@ class PricelistController extends BaseController
             if ($settings['compress']) {
                 $data = $parser->compress($data);
             }
+
             $parser->savePrices($file, $data);
 
             return $this->redirect('/index.php?module=voipnew&action=view_raw_file&id=' . $file->id);
 
-        } else {
-            $parser->load($file);
-
-            $data = $parser->readRaw(50);
         }
 
+        $parser->load($file);
+        $data = $parser->readRaw(50);
         $loaders = [
             UniversalPricelistLoader::className() => UniversalPricelistLoader::getName(),
             MegafonPricelistLoader::className() => MegafonPricelistLoader::getName(),
@@ -251,10 +297,12 @@ class PricelistController extends BaseController
         ]);
     }
 
+    /**
+     * @param int $fileId
+     */
     public function actionFileDownload($fileId)
     {
         $file = PricelistFile::findOne($fileId);
-        /** @var PricelistFile $file */
         Assert::isObject($file);
 
         while (ob_get_level()) {
@@ -280,9 +328,13 @@ class PricelistController extends BaseController
         exit;
     }
 
+    /**
+     * @param int $id
+     * @throws \Exception
+     * @throws \yii\db\StaleObjectException
+     */
     public function actionDelete($id)
     {
-        /** @var Pricelist $pricelist */
         $pricelist = Pricelist::findOne($id);
         Assert::isObject($pricelist);
 
@@ -299,8 +351,9 @@ class PricelistController extends BaseController
         if (!empty($trunkSettingsList)) {
             $errors .= "<br/>\nПрайслист используется в настройках транков:<br/>\n";
         }
+
         foreach ($trunkSettingsList as $trunkSettings) {
-            $errors .= $trunkSettings->usage->description . " (" . $trunkSettings->usage_id . ")" . "(ЛС: " . $trunkSettings->usage->clientAccount->id . ")<br/>\n";
+            $errors .= $trunkSettings->usage->description . " (" . $trunkSettings->usage_id . ") (ЛС: " . $trunkSettings->usage->clientAccount->id . ")<br/>\n";
         }
 
         /** @var TariffVoip[] $tariffs */
@@ -308,6 +361,7 @@ class PricelistController extends BaseController
         if (!empty($tariffs)) {
             $errors .= "<br/>\nПрайслист используется в тарифах телефонии:<br/>\n";
         }
+
         foreach ($tariffs as $tariff) {
             $errors .= $tariff->name . " (" . $tariff->id . ")<br/>\n";
         }
@@ -317,6 +371,7 @@ class PricelistController extends BaseController
         if (!empty($tariffs)) {
             $errors .= "<br/>\nПрайслист используется в тарифах на пакеты телефонии:<br/>\n";
         }
+
         foreach ($tariffPackages as $tariffPackage) {
             $errors .= $tariffPackage->name . " (" . $tariffPackage->id . ")<br/>\n";
         }
@@ -326,7 +381,9 @@ class PricelistController extends BaseController
             $this->redirect(Yii::$app->request->referrer);
         }
 
-        $pricelist->delete();
+        if (!$pricelist->delete()) {
+            throw new ModelValidationException($pricelist);
+        }
 
         $this->redirect(['voip/pricelist/list', 'type' => $pricelist->type, 'orig' => $pricelist->orig ? 1 : 0]);
     }

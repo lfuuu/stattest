@@ -36,8 +36,11 @@ use yii\helpers\Url;
  * @property-read AccountLogPeriod[] $accountLogPeriods
  * @property-read AccountLogResource[] $accountLogResources
  * @property-read AccountLogMin[] $accountLogMins
- * @property string $name
- * @property string $fullName
+ * @property-read string $name
+ * @property-read string $fullName
+ *
+ * @method static AccountEntry findOne($condition)
+ * @method static AccountEntry[] findAll($condition)
  */
 class AccountEntry extends ActiveRecord
 {

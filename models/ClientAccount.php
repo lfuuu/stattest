@@ -109,6 +109,9 @@ use yii\helpers\Url;
  * @property-read UsageIpPorts[] $usageIpPorts
  * @property-read UsageTrunk[] $usageTrunks
  * @property-read UsageCallChat[] $usageCallChats
+ *
+ * @method static ClientAccount findOne($condition)
+ * @method static ClientAccount[] findAll($condition)
  */
 class ClientAccount extends HistoryActiveRecord
 {

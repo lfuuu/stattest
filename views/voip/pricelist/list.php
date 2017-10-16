@@ -1,4 +1,5 @@
 <?php
+
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\billing\Pricelist;
@@ -44,7 +45,7 @@ $columns = [
         'buttons' => [
             'delete' => function ($url, $model, $key) {
                 return Html::a(
-                    '<span class="glyphicon glyphicon-trash"></span> Удаление',
+                    '<span class="glyphicon glyphicon-trash"></span>',
                     '/voip/pricelist/delete/?id=' . $model->id,
                     [
                         'title' => Yii::t('kvgrid', 'Delete'),
@@ -163,10 +164,18 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
-    'extraButtons' => $this->render(
-        '//layouts/_buttonCreate',
-        [
-            'url' => Url::toRoute(['add', 'type' => $type, 'orig' => $orig, 'connectionPointId' => $connectionPointId])
-        ]
-    ),
+    'extraButtons' => $this->render('//layouts/_link', [
+            'url' => '/voip/pricelist/sync/',
+            'text' => 'Сихронизировать в биллер',
+            'glyphicon' => 'glyphicon-share-alt',
+            'params' => [
+                'class' => 'btn btn-warning',
+            ],
+        ]) . ' ' .
+        $this->render(
+            '//layouts/_buttonCreate',
+            [
+                'url' => Url::toRoute(['add', 'type' => $type, 'orig' => $orig, 'connectionPointId' => $connectionPointId])
+            ]
+        ),
 ]);

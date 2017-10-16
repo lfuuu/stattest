@@ -65,7 +65,10 @@ use yii\helpers\Url;
  * @property-read TariffVoipCity[] $voipCities
  * @property-read TariffOrganization[] $organizations
  * @property-read TariffVoipCity[] $voipNdcTypes
- * @property boolean $isTest
+ * @property-read boolean $isTest
+ *
+ * @method static Tariff findOne($condition)
+ * @method static Tariff[] findAll($condition)
  */
 class Tariff extends HistoryActiveRecord
 {

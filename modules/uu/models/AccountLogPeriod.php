@@ -24,6 +24,9 @@ use yii\helpers\Url;
  * @property-read AccountTariff $accountTariff
  * @property-read TariffPeriod $tariffPeriod
  * @property-read AccountEntry $accountEntry
+ *
+ * @method static AccountLogPeriod findOne($condition)
+ * @method static AccountLogPeriod[] findAll($condition)
  */
 class AccountLogPeriod extends ActiveRecord
 {

@@ -15,6 +15,9 @@ use yii\db\ActiveQuery;
  *
  * @property-read Tariff $tariff
  * @property-read NdcType $ndcType
+ *
+ * @method static TariffVoipNdcType findOne($condition)
+ * @method static TariffVoipNdcType[] findAll($condition)
  */
 class TariffVoipNdcType extends HistoryActiveRecord
 {
