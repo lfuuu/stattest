@@ -59,7 +59,7 @@ trait AccountTariffBillerSetupTrait
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new \LogicException(printf(PHP_EOL . 'There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs))));
+            throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs))));
         }
 
         return $untarificatedPeriods;

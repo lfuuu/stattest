@@ -571,23 +571,24 @@ class UbillerTest extends _TestCase
         // 2го сразу же подключил месячный тариф
         // 4го сразу же подключил годовой тариф
         //
-        // 3го с 3го увеличил до 3х линий
-        // 6го с 7го увеличил линии до 6х
-        // 6го с 8го уменьшил линии до 2х (не должно учитываться)
+        // 1го с 1го увеличил до 3х линий
+        // 1го с 1го увеличил линии до 6х
+        // 1го с 3го уменьшил линии до 2х (до смены тарифа не должно учитываться, потом - должно)
         // с завтра увеличил до 10 линий (не должно учитываться)
 
         // по дневному тарифу:
         //      1-1: 1 линия (бесплатно)
-        //      2-2: 1 линия (бесплатно)
+        //      1-1: +2 линий
+        //      1-1: +3 линий
         // по месячному тарифу:
         //      2-30: 1 линия (бесплатно)
-        //      3-30: +2 линии
+        //      2-30: +5 линий
         // по годовому тарифу:
         //      4-30: 1 линия (бесплатно)
-        //      4-30: +2 линии и еще 11 месяцев 1-30 числа
-        //      7-30: +3 линии и еще 11 месяцев 1-30 числа
+        //      4-30: +1 линии и еще 11 месяцев 1-30 числа
         //
-        // всего должно быть 1 + 2*12 = 25 платных транзакций
+        // всего должно быть 3 + 12 = 15 платных транзакций
+
 
         $dateTimeFirstDayOfThisMonth = (new DateTimeImmutable())->modify('first day of this month');
 
@@ -610,15 +611,46 @@ class UbillerTest extends _TestCase
         /** @var AccountLogFromToResource[] $untarificatedResourceOptionPeriods */
         $untarificatedResourceOptionPeriods = $untarificatedResourceOptionPeriodss[Resource::ID_VPBX_ABONENT];
 
-        // должно быть 25 диапазонов
-        $this->assertEquals(25, count($untarificatedResourceOptionPeriods));
+        // должно быть 15 платных транзакций
+        $this->assertEquals(15, count($untarificatedResourceOptionPeriods));
 
-        // по месячному тарифу. 3-30: +2 линии
+        // по дневному тарифу:
+        //      1-1: 1 линия (бесплатно)
+        //      1-1: +2 линий
         $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
         $this->assertEquals(2, $untarificatedResourceOptionPeriod->amountOverhead);
+        $this->assertEquals(1 /* дневной */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
+        $this->assertEquals(
+            $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
+            $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+        );
+        $this->assertEquals(
+            $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
+            $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+        );
+
+        // по дневному тарифу:
+        //      1-1: +3 линий
+        $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
+        $this->assertEquals(3, $untarificatedResourceOptionPeriod->amountOverhead);
+        $this->assertEquals(1 /* дневной */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
+        $this->assertEquals(
+            $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
+            $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
+        );
+        $this->assertEquals(
+            $dateTimeFirstDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
+            $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
+        );
+
+        // по месячному тарифу:
+        //      2-30: 1 линия (бесплатно)
+        //      2-30: +5 линий
+        $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
+        $this->assertEquals(5, $untarificatedResourceOptionPeriod->amountOverhead);
         $this->assertEquals(2 /* месячный */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
         $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->modify('+2 day')->format(DateTimeZoneHelper::DATE_FORMAT),
+            $dateTimeFirstDayOfPrevMonth->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT),
             $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
         );
         $this->assertEquals(
@@ -626,9 +658,11 @@ class UbillerTest extends _TestCase
             $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
         );
 
-        // по годовому тарифу. 4-30: +2 линии
+        // по годовому тарифу:
+        //      4-30: 1 линия (бесплатно)
+        //      4-30: +1 линии и еще 11 месяцев 1-30 числа
         $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-        $this->assertEquals(2, $untarificatedResourceOptionPeriod->amountOverhead);
+        $this->assertEquals(1, $untarificatedResourceOptionPeriod->amountOverhead);
         $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
         $this->assertEquals(
             $dateTimeFirstDayOfPrevMonth->modify('+3 day')->format(DateTimeZoneHelper::DATE_FORMAT),
@@ -639,43 +673,10 @@ class UbillerTest extends _TestCase
             $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
         );
 
-        // по годовому тарифу. повторить 11 месяцев 1-30 числа +2
+        // и еще 11 месяцев 1-30 числа
         for ($i = 0; $i < 11; $i++) {
             $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-            $this->assertEquals(2, $untarificatedResourceOptionPeriod->amountOverhead);
-            $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
-            $this->assertEquals(
-                $dateTimeFirstDayOfThisMonth
-                    ->modify('+' . $i . ' month')
-                    ->format(DateTimeZoneHelper::DATE_FORMAT),
-                $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
-            );
-            $this->assertEquals(
-                $dateTimeFirstDayOfThisMonth
-                    ->modify('+' . $i . ' month')
-                    ->modify('last day of this month')
-                    ->format(DateTimeZoneHelper::DATE_FORMAT),
-                $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
-            );
-        }
-
-        // по годовому тарифу. 7-30: +3 линии
-        $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-        $this->assertEquals(3, $untarificatedResourceOptionPeriod->amountOverhead);
-        $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
-        $this->assertEquals(
-            $dateTimeFirstDayOfPrevMonth->modify('+6 day')->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT)
-        );
-        $this->assertEquals(
-            $dateTimeLastDayOfPrevMonth->format(DateTimeZoneHelper::DATE_FORMAT),
-            $untarificatedResourceOptionPeriod->dateTo->format(DateTimeZoneHelper::DATE_FORMAT)
-        );
-
-        // по годовому тарифу. повторить 11 месяцев 1-30 числа 3
-        for ($i = 0; $i < 11; $i++) {
-            $untarificatedResourceOptionPeriod = array_shift($untarificatedResourceOptionPeriods);
-            $this->assertEquals(3, $untarificatedResourceOptionPeriod->amountOverhead);
+            $this->assertEquals(1, $untarificatedResourceOptionPeriod->amountOverhead);
             $this->assertEquals(3 /* годовой */, $untarificatedResourceOptionPeriod->tariffPeriod->id);
             $this->assertEquals(
                 $dateTimeFirstDayOfThisMonth

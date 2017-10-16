@@ -3,6 +3,7 @@
 namespace app\modules\uu\models\traits;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogResource;
@@ -90,7 +91,7 @@ trait AccountTariffBillerResourceTrait
                     }
 
                     // остался неизвестный период, который уже рассчитан
-                    throw new \LogicException(printf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
+                    throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
                 }
             }
         }
@@ -102,6 +103,7 @@ trait AccountTariffBillerResourceTrait
      * Вернуть периоды, по которым не произведен расчет по ресурсам-опциям
      *
      * @return AccountLogFromToResource[][]
+     * @throws \app\exceptions\ModelValidationException
      * @throws \yii\db\StaleObjectException
      * @throws \Exception
      * @throws \LogicException
@@ -165,7 +167,7 @@ trait AccountTariffBillerResourceTrait
                     }
 
                     // остался неизвестный период, который уже рассчитан
-                    throw new \LogicException(printf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
+                    throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
                 }
             }
         }
@@ -251,6 +253,9 @@ trait AccountTariffBillerResourceTrait
                 ])
             ->all();
 
+        /** @var ClientAccount $clientAccount */
+        $clientAccount = $this->clientAccount;
+        $dateCurrentYmd = $clientAccount->getDatetimeWithTimezone()->format(DateTimeZoneHelper::DATE_FORMAT); // по таймзоне клиента
 
         // смена тарифов по периодам оплаты (не всегда по месяцам!)
         if (is_null($this->_accountLogFromToTariffsOption)) {
@@ -268,7 +273,6 @@ trait AccountTariffBillerResourceTrait
 
             $dateFromYmd = $accountLogFromToTariff->dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
             $dateToYmd = $accountLogFromToTariff->dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
-            $dateCurrentYmd = date(DateTimeZoneHelper::DATE_FORMAT);
 
             $prevDateYmd = $dateFromYmd;
             $prevAmount = null;
@@ -288,8 +292,25 @@ trait AccountTariffBillerResourceTrait
 
                 $actualFromYmd = $accountTariffResourceLog->actual_from;
 
-                if ($actualFromYmd <= $dateFromYmd) {
-                    // до
+                if (
+                    (
+                        // строго до начала периода
+                        $actualFromYmd < $dateFromYmd
+                    )
+                    ||
+                    (
+                        // начинает действовать в начало периода...
+                        $actualFromYmd == $dateFromYmd
+                        &&
+                        (
+                            // ... смена произведена заранее
+                            $accountTariffResourceLog->actual_from_utc > $accountTariffResourceLog->insert_time
+                            // или это первоначальное включение ресурса
+                            || null === $prevAmount
+                        )
+                    )
+                ) {
+
                     $prevAmount = $accountTariffResourceLog->amount;
                     $accountTariffResourceLogPrev = $accountTariffResourceLog;
                     continue;
