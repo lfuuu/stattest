@@ -34,9 +34,9 @@ abstract class Monitor extends Component
             MonitorZSyncPostgres::className(),
             MonitorQueuePlanned::className(),
             MonitorQueueStopped::className(),
-            //MonitorUuAccountEntry::className(),
+            // MonitorUuAccountEntry::className(),
             MonitorUuBill::className(),
-            MonitorUuTestTariff::className(),
+            // MonitorUuTestTariff::className(), // менеджеры говорят, что пока это нормально
             MonitorUuShiftTariff::className(),
         ];
     }
