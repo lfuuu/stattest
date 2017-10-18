@@ -196,7 +196,8 @@ class AccountEntry extends ActiveRecord
     /**
      * Вернуть тип текстом
      *
-     * @param string|null $langCode
+     * @param string $langCode
+     * @param bool $isFullDocument
      * @return string
      * @throws \yii\base\InvalidConfigException
      */
@@ -212,13 +213,17 @@ class AccountEntry extends ActiveRecord
 
         // Например, "ВАТС" или "SMS"
         // Кроме "Телефония" и "Пакет телефонии". Чтобы было короче. А для них и так понятно, ибо указан номер
-        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])) {
+        // Кроме "Разовая услуга" - там нужен только комментарий менеджера
+        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_ONE_TIME])) {
             $serviceType = $accountTariff->serviceType;
             $names[] = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
         }
 
         // Например, "Абонентская плата" или "Подключение" или "Номер 1234567890. Звонки"
-        $names[] = $this->getName($langCode, $isFullDocument);
+        // Кроме "Разовая услуга" - там нужен только комментарий менеджера
+        if ($accountTariff->service_type_id != ServiceType::ID_ONE_TIME) {
+            $names[] = $this->getName($langCode, $isFullDocument);
+        }
 
         // Например, "Тариф «Максимальный»"
         // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
@@ -227,7 +232,10 @@ class AccountEntry extends ActiveRecord
         /** @var Tariff $tariff */
         $tariff = $tariffPeriod->tariff;
 
-        if (array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
+        if ($tariff->service_type_id == ServiceType::ID_ONE_TIME) {
+            // "Разовая услуга" - там нужен только комментарий менеджера
+            $names[] = $accountTariff->comment;
+        } elseif (array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
             // пакет
             $names[] = Yii::t('uu', 'Package «{tariff}»', ['tariff' => $tariff->name], $langCode);
         } else {
@@ -241,8 +249,11 @@ class AccountEntry extends ActiveRecord
         Yii::$app->formatter->locale = $langCode;
 
         // Например, "25 марта" или "1-31 окт."
-        $names[] = (($this->date_from != $this->date_to) ? Yii::$app->formatter->asDate($this->date_from, 'php:j') . '-' : '') .
-            Yii::$app->formatter->asDate($this->date_to, 'php:j M');
+        // Кроме "Разовая услуга" - там нужен только комментарий менеджера
+        if ($accountTariff->service_type_id != ServiceType::ID_ONE_TIME) {
+            $names[] = (($this->date_from != $this->date_to) ? Yii::$app->formatter->asDate($this->date_from, 'php:j') . '-' : '') .
+                Yii::$app->formatter->asDate($this->date_to, 'php:j M');
+        }
 
         // Восстановить \yii\i18n\Formatter locale
         Yii::$app->formatter->locale = $locale;

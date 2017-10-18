@@ -48,9 +48,9 @@ $resourceTableName = Resource::tableName();
 <div class="well tariffResources">
     <div class="row">
         <div class="col-sm-3"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'resource_id')) ?></label></div>
-        <div class="col-sm-3"><label>История изменений</label></div>
+        <div class="col-sm-2"><label>Лог</label></div>
         <div class="col-sm-1"><label>Диапазон значений</label></div>
-        <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $accountTariffResourceLogTableName, 'amount')) ?></label></div>
+        <div class="col-sm-2"><label><?= Html::encode(Yii::t('models/' . $accountTariffResourceLogTableName, 'amount')) ?></label></div>
         <div class="col-sm-1">
             <label>
                 Оплачено, ед.
@@ -78,7 +78,7 @@ $resourceTableName = Resource::tableName();
                 <label for="accounttariffresourcelog-<?= $resource->id ?>-amount"><?= Html::encode($resource->name) ?></label>
             </div>
 
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <?= $this->render('_editResourceLogGrid', ['accountTariff' => $accountTariff, 'resource' => $resource]) ?>
             </div>
 
@@ -86,7 +86,7 @@ $resourceTableName = Resource::tableName();
                 <?= $resource->getValueRange() ?>
             </div>
 
-            <div class="col-sm-1">
+            <div class="col-sm-2">
                 <?php
                 $accountTariffResourceLog->amount = $accountTariff->getResourceValue($resource->id);
 

@@ -10,6 +10,7 @@ use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffResource;
 use DateTimeImmutable;
 use yii\db\ActiveQuery;
@@ -48,7 +49,7 @@ trait AccountTariffBillerResourceTrait
         // по которым должен быть произведен расчет
         /** @var AccountLogFromToTariff[] $accountLogFromToTariffs */
         $chargePeriod = Period::findOne(['id' => Period::ID_DAY]); // трафик - посуточно
-        $accountLogFromToTariffs = $this->getAccountLogFromToTariffs($chargePeriod, $isWithCurrent = false);
+        $accountLogFromToTariffs = $this->getAccountLogFromToTariffs($chargePeriod, $isWithCurrent = ($this->service_type_id == ServiceType::ID_ONE_TIME));
 
 
         // по которым не произведен расчет, хотя был должен
@@ -340,7 +341,7 @@ trait AccountTariffBillerResourceTrait
                 }
 
                 // от предыдущего увеличения (или начала периода) до конца периода
-                if ($prevAmount > $amountPaid) {
+                if ($prevAmount > $amountPaid || ($prevAmount < 0 && $amountPaid == 0)) {
                     $hugeAccountLogFromToResource = new AccountLogFromToResource;
                     $hugeAccountLogFromToResource->dateFrom = new DateTimeImmutable($prevDateYmd);
                     $hugeAccountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;
@@ -363,7 +364,7 @@ trait AccountTariffBillerResourceTrait
             }
 
             // от предыдущего увеличения (или начала периода) до конца периода
-            if ($prevAmount > $amountPaid) {
+            if ($prevAmount > $amountPaid || ($prevAmount < 0 && $amountPaid == 0)) {
                 $hugeAccountLogFromToResource = new AccountLogFromToResource;
                 $hugeAccountLogFromToResource->dateFrom = new DateTimeImmutable($prevDateYmd);
                 $hugeAccountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;

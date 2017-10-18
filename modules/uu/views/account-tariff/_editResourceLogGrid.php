@@ -16,7 +16,7 @@ use yii\data\ActiveDataProvider;
 
 ?>
 
-<?= $this->render('//layouts/_toggleButton', ['divSelector' => '#account-tariff-resource-log-grid-' . $resource->id, 'title' => 'История изменений']) ?>
+<?= $this->render('//layouts/_toggleButton', ['divSelector' => '#account-tariff-resource-log-grid-' . $resource->id, 'title' => 'Лог']) ?>
 
 <div id="account-tariff-resource-log-grid-<?= $resource->id ?>" class="collapse">
     <?= GridView::widget([

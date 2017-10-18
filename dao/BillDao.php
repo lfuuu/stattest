@@ -302,7 +302,7 @@ class BillDao extends Singleton
         /** @var AccountEntry[] $accountEntries */
         $accountEntries = $uuBill
             ->getAccountEntries()
-            ->andWhere(['>', 'price', 0])// пустые строки нужны для расчета партнерского вознаграждения
+            ->andWhere(['<>', 'price', 0])
             ->orderBy(['id' => SORT_ASC])
             ->all();
 

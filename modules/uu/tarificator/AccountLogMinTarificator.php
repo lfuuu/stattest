@@ -93,7 +93,7 @@ SQL;
                     SELECT
                         account_log_resource.account_tariff_id,
                         DATE_FORMAT(account_log_resource.date_from, "%Y-%m-01") as date,
-                        SUM(account_log_resource.price) as price 
+                        SUM(GREATEST(0, account_log_resource.price)) as price 
                     FROM {$accountLogResourceTableName} account_log_resource
                     {$updateSqlWhereTmp}
                     GROUP BY

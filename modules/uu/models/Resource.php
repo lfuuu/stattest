@@ -10,6 +10,7 @@ use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\TrunkCallsResourceReader;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
 use app\modules\uu\resourceReader\VpbxDiskResourceReader;
+use app\modules\uu\resourceReader\ZeroResourceReader;
 use Yii;
 use yii\db\ActiveQuery;
 
@@ -25,8 +26,8 @@ use yii\db\ActiveQuery;
  *
  * @property-read ServiceType $serviceType
  *
- * @method static Resource findOne($condition)
- * @method static Resource[] findAll($condition)
+ * @method static \app\modules\uu\models\Resource findOne($condition)
+ * @method static \app\modules\uu\models\Resource[] findAll($condition)
  */
 class Resource extends ActiveRecord
 {
@@ -155,6 +156,9 @@ class Resource extends ActiveRecord
 
             // Звонки по ориг-пакета транка (у.е, float). Берется из calls_raw
             self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::className(),
+
+            // Разовая услуга. Менеджер сам определяет стоимость
+            self::ID_ONE_TIME => ZeroResourceReader::className(),
         ];
     }
 
@@ -254,7 +258,9 @@ class Resource extends ActiveRecord
      */
     public function getMinValue()
     {
-        return $this->isNumber() ? (string)$this->min_value : '';
+        return $this->isNumber() ?
+            (string)($this->min_value ?: '-∞') :
+            '';
     }
 
     /**

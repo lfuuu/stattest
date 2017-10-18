@@ -135,6 +135,7 @@ trait AccountTariffGroupTrait
     public function getHashLight()
     {
         $hashes = [];
+        $hashes[] = $this->service_type_id;
         $hashes[] = $this->city_id;
         $hashes[] = $this->tariff_period_id;
 
