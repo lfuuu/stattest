@@ -27,19 +27,27 @@ use yii\helpers\Url;
         <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
     <?php else : ?>
         <?= Html::a(
-            $accountTariff->voip_number ?: 'id' . $accountTariff->id,
+            $accountTariff->voip_number ?:
+                (
+                ($accountTariff->service_type_id == ServiceType::ID_ONE_TIME && ($accountLogResources = $accountTariff->accountLogResources)) ?
+                    // стоимость разовой услуги
+                    reset($accountLogResources)->price :
+
+                    // id УУ
+                    $accountTariff->id
+                ),
             $accountTariff->getUrl()
         ) .
-            // Отключенную ВАТС можно разархивировать
+        // Отключенную ВАТС можно разархивировать
         (
-            ($accountTariff->isUnzippable()) ?
-                $this->render('//layouts/_buttonLink', [
-                    'url' => Url::to(['/usage/vpbx/dearchive', 'accountId' => $accountTariff->clientAccount->id, 'usageId' => $accountTariff->id]),
-                    'text' => '',
-                    'title' => 'Разархивировать ВАТС id' . $accountTariff->id,
-                    'glyphicon' => 'glyphicon-upload',
-                    'class' => 'btn-xs btn-default',
-                ]) : ''
+        ($accountTariff->isUnzippable()) ?
+            $this->render('//layouts/_buttonLink', [
+                'url' => Url::to(['/usage/vpbx/dearchive', 'accountId' => $accountTariff->clientAccount->id, 'usageId' => $accountTariff->id]),
+                'text' => '',
+                'title' => 'Разархивировать ВАТС id' . $accountTariff->id,
+                'glyphicon' => 'glyphicon-upload',
+                'class' => 'btn-xs btn-default',
+            ]) : ''
         )
         ?>
     <?php endif ?>

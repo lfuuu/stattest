@@ -14,7 +14,7 @@ class DateFunction
      */
     public static function dateReplaceMonth($string, $nMonth)
     {
-        $p = array(
+        $p = [
             'января',
             'февраля',
             'марта',
@@ -27,10 +27,10 @@ class DateFunction
             'октября',
             'ноября',
             'декабря'
-        );
+        ];
         $string = str_replace('месяца', $p[$nMonth - 1], $string);
 
-        $p = array(
+        $p = [
             'январе',
             'феврале',
             'марте',
@@ -43,10 +43,10 @@ class DateFunction
             'октябре',
             'ноябре',
             'декабре'
-        );
+        ];
         $string = str_replace('месяце', $p[$nMonth - 1], $string);
 
-        $p = array(
+        $p = [
             'Январь',
             'Февраль',
             'Март',
@@ -59,10 +59,10 @@ class DateFunction
             'Октябрь',
             'Ноябрь',
             'Декабрь'
-        );
+        ];
         $string = str_replace('Месяц', $p[$nMonth - 1], $string);
 
-        $p = array(
+        $p = [
             'январь',
             'февраль',
             'март',
@@ -75,7 +75,7 @@ class DateFunction
             'октябрь',
             'ноябрь',
             'декабрь'
-        );
+        ];
         $string = str_replace('месяц', $p[$nMonth - 1], $string);
 
         return $string;
@@ -121,6 +121,10 @@ class DateFunction
 
         if ($dateFrom->format('Y') === $dateTo->format('Y')) {
             if ($dateFrom->format('m') === $dateTo->format('m')) {
+                if ($dateFrom->format('d') === $dateTo->format('d')) {
+                    return Yii::$app->formatter->asDate($dateTo, DateTimeZoneHelper::HUMAN_DATE_FORMAT);
+                }
+
                 $format = 'd';
             } else {
                 $format = 'd MMM';

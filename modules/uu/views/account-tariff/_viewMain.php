@@ -85,6 +85,7 @@ $attributes = [
 ];
 
 switch ($formModel->serviceTypeId) {
+
     case ServiceType::ID_VOIP:
         $attributes[] = [
             'attribute' => 'city_id',
@@ -95,7 +96,16 @@ switch ($formModel->serviceTypeId) {
             'format' => 'html',
             'value' => ($number = $accountTariff->number) ?
                 Html::a($accountTariff->voip_number, $number->getUrl()) :
-                $accountTariff->voip_number
+                $accountTariff->voip_number,
+        ];
+        break;
+
+    case ServiceType::ID_ONE_TIME:
+        $accountLogResources = $accountTariff->accountLogResources;
+        $attributes[] = [
+            'label' => 'Стоимость',
+            'format' => 'html',
+            'value' => count($accountLogResources) ? reset($accountLogResources)->price : null,
         ];
         break;
 }
