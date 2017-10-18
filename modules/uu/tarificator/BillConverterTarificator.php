@@ -18,7 +18,7 @@ class BillConverterTarificator extends Tarificator
     {
         $activeQuery = Bill::find()
             ->where(['is_converted' => 0])// которые не сконвертированы или изменились после конвертирования
-            ->andWhere(['>', 'price', 0])// и цена больше нуля
+            ->andWhere(['<>', 'price', 0])// и цена больше нуля
             ->andWhere([ // и за прошлый месяц
                 '<=',
                 'date',

@@ -103,7 +103,7 @@ class Bill extends ActiveRecord
                 $billTableName . '.client_account_id' => $accountId,
                 $billTableName . '.is_converted' => 0,
             ])
-            ->andWhere(['>', $accountEntryTableName . '.price_with_vat', 0]);
+            ->andWhere(['<>', $accountEntryTableName . '.price_with_vat', 0]);
 
         return $query;
     }

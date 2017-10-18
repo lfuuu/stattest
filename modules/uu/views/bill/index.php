@@ -70,8 +70,13 @@ $columns = [
                 ) .
                 '. ' .
                 Html::a(
-                    'Ненулевые',
+                    'Положительные',
                     Url::to(['/uu/account-entry/', 'AccountEntryFilter[bill_id]' => $bill->id, 'AccountEntryFilter[price_from]' => 0.01])
+                ) .
+                '. ' .
+                Html::a(
+                    'Отрицательные',
+                    Url::to(['/uu/account-entry/', 'AccountEntryFilter[bill_id]' => $bill->id, 'AccountEntryFilter[price_to]' => -0.01])
                 ) .
                 '.';
         },
