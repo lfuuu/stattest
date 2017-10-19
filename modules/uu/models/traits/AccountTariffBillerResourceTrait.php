@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models\traits;
 
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\modules\uu\classes\AccountLogFromToResource;
@@ -168,7 +169,11 @@ trait AccountTariffBillerResourceTrait
                     }
 
                     // остался неизвестный период, который уже рассчитан
-                    throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
+                    // Это не ошибка. Такое бывает, когда ресурс-опция за сегодня уже пробилинговался, а потом сегодня же сменили тариф. В результате билингуется по новому тарифу. Ну и пусть.
+                    // throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
+                    if (!$accountLog->delete()) {
+                        throw new ModelValidationException($accountLog);
+                    }
                 }
             }
         }
