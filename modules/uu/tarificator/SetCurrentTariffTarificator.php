@@ -150,20 +150,29 @@ SQL;
 
             } catch (\LogicException $e) {
                 $isWithTransaction && $transaction->rollBack();
-                $this->out(PHP_EOL . 'Error. ' . $e->getMessage() . PHP_EOL);
-                Yii::error($e->getMessage());
 
-                HandlerLogger::me()->add($e->getMessage());
+                $errorMessage = $e->getMessage();
+                $this->out(PHP_EOL . 'Error. ' . $errorMessage . PHP_EOL);
+                Yii::error($errorMessage);
+
+                HandlerLogger::me()->add($errorMessage);
 
                 // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
                 $isWithTransaction && $transaction = $db->beginTransaction();
+
+                $accountTariff->comment .= ($accountTariff->comment ? PHP_EOL : '') . $errorMessage;
+                if (!$accountTariff->save()) {
+                    // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
+                    // throw new ModelValidationException($accountTariff);
+                }
+
                 $accountTariffLogs = $accountTariff->accountTariffLogs;
                 $accountTariffLog = reset($accountTariffLogs);
                 $accountTariffLog->actual_from_utc = (new \DateTimeImmutable($accountTariffLog->actual_from_utc))
                     ->modify('+1 day')
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 if (!$accountTariffLog->save()) {
-                    // здесь нет смысла кидаться исключением
+                    // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
                     // throw new ModelValidationException($accountTariffLog);
                 }
 
