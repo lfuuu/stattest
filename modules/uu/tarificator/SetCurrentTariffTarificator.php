@@ -4,6 +4,7 @@ namespace app\modules\uu\tarificator;
 
 use app\classes\Event;
 use app\classes\HandlerLogger;
+use app\exceptions\FinanceException;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\important_events\ImportantEvents;
@@ -77,7 +78,7 @@ SQL;
             try {
 
                 if ($accountTariff->tariff_period_id && $accountTariff->tariff_period_id != $row['new_tariff_period_id'] && $row['new_tariff_period_id']) {
-                    // Проверить баланс при смене тарифа (но не при закрытии услуги)
+                    // Билинговать с новым тарифом при смене тарифа (но не при закрытии услуги)
                     $this->checkBalance($accountTariff);
                 }
 
@@ -148,7 +149,7 @@ SQL;
 
                 $isWithTransaction && $transaction->commit();
 
-            } catch (\LogicException $e) {
+            } catch (FinanceException $e) {
                 $isWithTransaction && $transaction->rollBack();
 
                 $errorMessage = $e->getMessage();
@@ -190,11 +191,14 @@ SQL;
     }
 
     /**
-     * Проверить баланс при смене тарифа
-     * Если не хватает денег при смене тарифа - откладывать смену по +1 день, пока деньги не появятся, тогда списать.
+     * Билинговать с новым тарифом
      *
      * @param AccountTariff $accountTariff
      * @return bool
+     * @throws \yii\db\StaleObjectException
+     * @throws \RangeException
+     * @throws \app\exceptions\ModelValidationException
+     * @throws \app\exceptions\FinanceException
      * @throws \yii\db\Exception
      * @throws \Exception
      * @throws \LogicException
@@ -220,7 +224,7 @@ SQL;
         $realtimeBalanceWithCredit = $realtimeBalance + $credit;
 
         if ($realtimeBalanceWithCredit < 0) {
-            throw new \LogicException(
+            throw new FinanceException(
                 sprintf('У клиента %d нет денег на смену тарифа по услуге %d. После смены получится на счету %.2f %s и кредит %.2f %s',
                     $accountTariff->client_account_id,
                     $accountTariff->id,
