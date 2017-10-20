@@ -63,39 +63,41 @@ $columns = [
 ];
 
 // столбцы для конкретной услуги
-switch ($serviceType->id) {
+if ($serviceType) {
+    switch ($serviceType->id) {
 
-    case ServiceType::ID_VPBX:
-        break;
+        case ServiceType::ID_VPBX:
+            break;
 
-    case ServiceType::ID_VOIP:
-        $columns[] = [
-            'attribute' => 'city_id',
-            'class' => CityColumn::className(),
-        ];
-        $columns[] = [
-            'attribute' => 'voip_number',
-            'class' => StringColumn::className(),
-            'filterOptions' => [
-                'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
-            ],
-        ];
-        $columns[] = [
-            'label' => 'Красивость',
-            'attribute' => 'beauty_level',
-            'class' => BeautyLevelColumn::className(),
-            'value' => function (AccountTariff $accountTariff) {
-                return $accountTariff->number->beauty_level;
-            },
-        ];
-        break;
+        case ServiceType::ID_VOIP:
+            $columns[] = [
+                'attribute' => 'city_id',
+                'class' => CityColumn::className(),
+            ];
+            $columns[] = [
+                'attribute' => 'voip_number',
+                'class' => StringColumn::className(),
+                'filterOptions' => [
+                    'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)',
+                ],
+            ];
+            $columns[] = [
+                'label' => 'Красивость',
+                'attribute' => 'beauty_level',
+                'class' => BeautyLevelColumn::className(),
+                'value' => function (AccountTariff $accountTariff) {
+                    return $accountTariff->number->beauty_level;
+                },
+            ];
+            break;
 
-    case ServiceType::ID_VOIP_PACKAGE_CALLS:
-        $columns[] = [
-            'attribute' => 'city_id',
-            'class' => CityColumn::className(),
-        ];
-        break;
+        case ServiceType::ID_VOIP_PACKAGE_CALLS:
+            $columns[] = [
+                'attribute' => 'city_id',
+                'class' => CityColumn::className(),
+            ];
+            break;
+    }
 }
 
 $dataProvider = $filterModel->search();

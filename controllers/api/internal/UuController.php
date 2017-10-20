@@ -1511,6 +1511,7 @@ class UuController extends ApiInternalController
             return $accountTariff->id;
         } catch (Exception $e) {
             $transaction->rollBack();
+            \Yii::error($e);
             throw $e;
         }
     }
@@ -1585,6 +1586,7 @@ class UuController extends ApiInternalController
 
         } catch (Exception $e) {
             $transaction->rollBack();
+            \Yii::error($e);
             throw $e;
         }
     }
@@ -1806,6 +1808,7 @@ class UuController extends ApiInternalController
 
         } catch (Exception $e) {
             $transaction->rollBack();
+            \Yii::error($e);
             throw $e;
         }
     }
