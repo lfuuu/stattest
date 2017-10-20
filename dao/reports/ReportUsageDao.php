@@ -4,6 +4,9 @@ namespace app\dao\reports;
 
 use app\models\UsageTrunk;
 use app\models\UsageVoip;
+use app\modules\nnp\models\City;
+use app\modules\nnp\models\NdcType;
+use app\modules\nnp\models\NumberRange;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use Yii;
@@ -203,8 +206,8 @@ class ReportUsageDao extends Singleton
             $query->addSelect([
                 'cr.id',
                 'cr.src_number',
-                'cr.geo_id',
-                'cr.geo_mob',
+                'cr.nnp_city_id',
+                'cr.nnp_is_mob',
                 'cr.dst_number',
                 'cr.orig',
             ]);
@@ -229,6 +232,19 @@ class ReportUsageDao extends Singleton
             ]);
         }
 
+        // Для детализации по звонкам берем названия из NNP
+        if ($detality == 'call') {
+            $query->leftJoin(['nr' => NumberRange::tableName()], 'nr.id = cr.nnp_number_range_id');
+            $query->leftJoin(['nt' => NdcType::tableName()], 'nt.id = nr.ndc_type_id');
+            $query->leftJoin(['c' => City::tableName()], 'c.id = nr.city_id');
+
+            $query->addSelect([
+                'city_name' => 'c.name',
+                'ndc_type_name' => 'nt.name',
+                'ndc_type_id' => 'nr.ndc_type_id',
+            ]);
+        }
+
         if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
             Yii::$app->session->setFlash('error',
                 'Статистика отображается не полностью.' .
@@ -241,24 +257,10 @@ class ReportUsageDao extends Singleton
         $query->orderBy('ts1 ASC');
 
         $rt = ['price' => 0, 'ts2' => 0, 'cnt' => 0, 'is_total' => true];
-        $geo = [];
 
         foreach ($query->asArray()->each() as $record) {
-            $record['geo'] = '';
-
-            if (isset($record['geo_id'])) {
-                if (!isset($geo[$record['geo_id']])) {
-                    $geo[$record['geo_id']] = Geo::find()
-                        ->select('name')
-                        ->where(['id' => (int)$record['geo_id']])
-                        ->scalar();
-                }
-
-                $record['geo'] = $geo[$record['geo_id']];
-                if ($record['geo_mob'] === true) {
-                    $record['geo'] .= ' (mob)';
-                }
-            }
+            $record['geo'] = $record['city_name'] . ($record['ndc_type_id'] != NdcType::ID_GEOGRAPHIC ? ' (' . $record['ndc_type_name'] . ')' : '');
+            unset($record['city_name'], $record['ndc_type_name'], $record['ndc_type_id']);
 
             $ts = new DateTime($record['ts1']);
 
