@@ -266,9 +266,10 @@ trait AccountTariffBoolTrait
      */
     public function isClosed()
     {
-        return !$this->isActive() &&
-        ($lastTariffLog = reset($this->accountTariffLogs)) &&
-        !$lastTariffLog->tariff_period_id;
+        return !$this->isActive()
+            && ($accountTariffLogs = $this->accountTariffLogs)
+            && ($lastTariffLog = reset($accountTariffLogs))
+            && !$lastTariffLog->tariff_period_id;
     }
 
     /**
@@ -335,9 +336,9 @@ trait AccountTariffBoolTrait
      */
     public function isUnzippable()
     {
-        return $this->service_type_id == ServiceType::ID_VPBX &&
-        !$this->is_unzipped &&
-        $this->isClosed();
+        return $this->service_type_id == ServiceType::ID_VPBX
+            && !$this->is_unzipped
+            && $this->isClosed();
     }
 
 }
