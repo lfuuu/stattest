@@ -12,6 +12,9 @@ use yii\helpers\ArrayHelper;
  */
 class Module extends \yii\base\Module
 {
+    const EVENT_SEND = 'atol_send';
+    const EVENT_REFRESH = 'atol_refresh';
+
     const LOG_CATEGORY = 'atol';
 
     /**

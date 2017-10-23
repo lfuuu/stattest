@@ -118,7 +118,7 @@ class HealthController extends Controller
                 $data['item' . $this->_i++] = [
                     'itemId' => $jsonKey,
                     'itemVal' => 0,
-                    'statusId' => self::STATUS_ERROR,
+                    'statusId' => self::STATUS_WARNING,
                     'statusMessage' => "{$jsonKey} недоступен",
                 ];
                 $this->_logHealth($jsonKey, 'недоступен');
@@ -130,7 +130,7 @@ class HealthController extends Controller
                 $data['item' . $this->_i++] = [
                     'itemId' => $jsonKey,
                     'itemVal' => 0,
-                    'statusId' => self::STATUS_ERROR,
+                    'statusId' => self::STATUS_WARNING,
                     'statusMessage' => "{$jsonKey} невалидный",
                 ];
                 $this->_logHealth($jsonKey, 'невалидный');
@@ -141,7 +141,7 @@ class HealthController extends Controller
                 $data['item' . $this->_i++] = [
                     'itemId' => $jsonKey,
                     'itemVal' => 0,
-                    'statusId' => self::STATUS_ERROR,
+                    'statusId' => self::STATUS_WARNING,
                     'statusMessage' => "{$jsonKey} неактуальный",
                 ];
                 $this->_logHealth($jsonKey, 'неактуальный');

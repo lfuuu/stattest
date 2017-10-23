@@ -21,8 +21,6 @@ use yii\db\Expression;
  */
 class RefreshPrefix extends Singleton
 {
-    const EVENT_FILTER_TO_PREFIX = 'nnp_filter_to_prefix';
-
     /**
      * Конвертировать фильтры в префиксы
      *

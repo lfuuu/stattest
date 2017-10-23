@@ -352,6 +352,14 @@ class Number extends ActiveRecord
     }
 
     /**
+     * @return bool
+     */
+    public function isMobileMcn()
+    {
+        return $this->isFmcEditable();
+    }
+
+    /**
      * Мобильный и портированный - FMC всегда включен.
      *
      * @return bool

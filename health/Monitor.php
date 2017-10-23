@@ -14,7 +14,6 @@ abstract class Monitor extends Component
      */
     abstract public function getValue();
 
-
     /**
      * 3 значения, начиная с которого Warning/Critical/Error
      *
@@ -22,7 +21,7 @@ abstract class Monitor extends Component
      */
     public function getLimits()
     {
-        return [1, 10, 20];
+        return [1, 10, 50];
     }
 
     /**

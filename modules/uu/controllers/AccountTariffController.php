@@ -10,6 +10,7 @@ use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\UsageTrunkSettings;
+use app\modules\mtt\classes\MttAdapter;
 use app\modules\nnp\models\NdcType;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\forms\AccountTariffAddForm;
@@ -50,7 +51,7 @@ class AccountTariffController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel'],
+                        'actions' => ['new', 'edit', 'update-mtt-number', 'update-mtt-balance', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel'],
                         'roles' => ['services_voip.edit'],
                     ],
                 ],
@@ -146,6 +147,51 @@ class AccountTariffController extends BaseController
         }
 
         return $this->render('edit', ['formModel' => $formModel]);
+    }
+
+    /**
+     * Обновить МТТ
+     *
+     * @param string $method
+     * @param int $id
+     * @return string|Response
+     * @throws \yii\base\InvalidParamException
+     */
+    private function _updateMtt($method, $id)
+    {
+        $accountTariff = AccountTariff::findOne(['id' => $id]);
+        if (!$accountTariff) {
+            throw new InvalidParamException('Неправильная услуга');
+        }
+
+        MttAdapter::me()->{$method}($accountTariff->voip_number, $accountTariff->id);
+        Yii::$app->session->setFlash('success', 'Запрос в МТТ отправлен. Вероятно, ответ будет через несколько секунд.');
+
+        return $this->redirect(['edit', 'id' => $accountTariff->id]);
+    }
+
+    /**
+     * Обновить баланс МТТ
+     *
+     * @param int $id
+     * @return string|Response
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionUpdateMttBalance($id)
+    {
+        return $this->_updateMtt('getAccountBalance', $id);
+    }
+
+    /**
+     * Обновить номер МТТ
+     *
+     * @param int $id
+     * @return string|Response
+     * @throws \yii\base\InvalidParamException
+     */
+    public function actionUpdateMttNumber($id)
+    {
+        return $this->_updateMtt('getAccountData', $id);
     }
 
     /**

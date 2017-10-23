@@ -27,6 +27,7 @@ class AccountTariffVoipInternet extends Behavior
     /**
      * @param Event $event
      * @throws \app\exceptions\ModelValidationException
+     * @throws \LogicException
      */
     public function addVoipInternetPackage(Event $event)
     {
@@ -40,17 +41,13 @@ class AccountTariffVoipInternet extends Behavior
         // Пакет интернета (только для включения)
         if (!$accountTariff->tariffPeriodIdOld && $accountTariff->tariff_period_id) {
 
-            // основная услуга с номером
-            $prevAccountTariff = $accountTariff->prevAccountTariff;
-
             /** @var TariffResource $internetTraffic */
             $tariff = $accountTariff->tariffPeriod->tariff;
             $internetTraffic = $tariff->getTariffResource(Resource::ID_VOIP_PACKAGE_INTERNET)->one(); // кол-во предоплаченных мегабайт
 
-            \app\classes\Event::go(\app\classes\Event::UU_ACCOUNT_TARIFF_VOIP_INTERNET, [
+            \app\classes\Event::go(\app\modules\uu\Module::EVENT_VOIP_INTERNET, [
                 'account_id' => $accountTariff->client_account_id,
                 'account_tariff_id' => $accountTariff->id,
-                'number' => $prevAccountTariff ? $prevAccountTariff->voip_number : null,
                 'internet_traffic' => $internetTraffic->amount,
             ]);
         }

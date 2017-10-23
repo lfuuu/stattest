@@ -24,7 +24,19 @@ class ElephantController extends Controller
      */
     public function options($actionID)
     {
-        return [Socket::PARAM_TITLE, Socket::PARAM_MESSAGE, Socket::PARAM_TYPE, Socket::PARAM_USER_TO, Socket::PARAM_USER_ID_TO, Socket::PARAM_URL, Socket::PARAM_TIMEOUT];
+        $options = parent::options($actionID);
+        $options = array_merge($options,
+            [
+                Socket::PARAM_TITLE,
+                Socket::PARAM_MESSAGE,
+                Socket::PARAM_TYPE,
+                Socket::PARAM_USER_TO,
+                Socket::PARAM_USER_ID_TO,
+                Socket::PARAM_URL,
+                Socket::PARAM_TIMEOUT,
+            ]
+        );
+        return $options;
     }
 
     /**

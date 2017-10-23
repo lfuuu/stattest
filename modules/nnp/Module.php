@@ -36,6 +36,8 @@ use yii\base\InvalidConfigException;
 class Module extends \yii\base\Module
 {
     const EVENT_LINKER = 'nnp_linker';
+    const EVENT_IMPORT = 'nnp_import';
+    const EVENT_FILTER_TO_PREFIX = 'nnp_filter_to_prefix';
 
     /**
      * @inheritdoc

@@ -13,8 +13,6 @@ use yii\base\Event;
 
 class RecalcRealtimeBalance extends Behavior
 {
-    const EVENT_RECALC = 'uu_recalc_realtime_balance';
-
     /**
      * @return array
      */
@@ -39,7 +37,7 @@ class RecalcRealtimeBalance extends Behavior
         /** @var Payment $payment */
         $payment = $event->sender;
 
-        \app\classes\Event::go(self::EVENT_RECALC, [
+        \app\classes\Event::go(\app\modules\uu\Module::EVENT_RECALC_BALANCE, [
                 'clientAccountId' => $payment->client_id,
             ]
         );

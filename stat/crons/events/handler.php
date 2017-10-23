@@ -6,24 +6,22 @@ use app\classes\api\ApiCore;
 use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
-use app\classes\behaviors\SendToOnlineCashRegister;
 use app\classes\Event;
 use app\classes\HandlerLogger;
 use app\classes\partners\RewardCalculate;
 use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
+use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\modules\nnp\classes\CityLinker;
 use app\modules\nnp\classes\OperatorLinker;
 use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\classes\RegionLinker;
-use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\CountryFile;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\behaviors\SyncVmCollocation;
 use app\modules\uu\models\AccountTariff;
-use yii\base\InvalidParamException;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -106,7 +104,6 @@ function doEvents()
                 case Event::ADD_PAYMENT: {
                     EventHandler::updateBalance($param[1]);
                     // (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
-
                     break;
                 }
 
@@ -120,10 +117,12 @@ function doEvents()
                     // проверка необходимости включать или выключать услуги
                     Event::go(Event::CHECK__USAGES);
 
-                    // каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
-                    /* if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
-                        Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
-                    } */
+                    /*
+                        // каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
+                        if (WorkDays::isWorkDayFromMonthStart(time(), 2)) {
+                            Event::go(Event::MIDNIGHT__LK_BILLS4ALL);
+                        }
+                    */
 
                     // за 4 дня предупреждаем о списании абонентки аваносовым клиентам
                     if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {
@@ -213,56 +212,6 @@ function doEvents()
                     break;
                 }
 
-                case SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT:
-                    // Добавить данные в AccountTariffLight
-                    SyncAccountTariffLight::addToAccountTariffLight($param);
-                    break;
-
-                case SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT:
-                    // Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
-                    SyncAccountTariffLight::deleteFromAccountTariffLight($param);
-                    break;
-
-                case ImportServiceUploaded::EVENT:
-                    // ННП. Импорт страны
-                    $info = CountryFile::importById($param['fileId']);
-
-                    // поставить в очередь для пересчета операторов, регионов и городов
-                    Event::go(\app\modules\nnp\Module::EVENT_LINKER);
-                    break;
-
-                case \app\modules\nnp\Module::EVENT_LINKER:
-                    // ННП. Линковка исходных к ID
-                    $info .= 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
-                    $info .= 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
-                    $info .= 'Города: ' . CityLinker::me()->run() . PHP_EOL;
-                    break;
-
-                case RefreshPrefix::EVENT_FILTER_TO_PREFIX:
-                    // ННП. Конвертировать фильтры в префиксы
-                    $info .= implode(PHP_EOL, RefreshPrefix::me()->filterToPrefix()) . PHP_EOL;
-                    break;
-
-                case AccountTariffBiller::EVENT_RECALC:
-                    // Билинговать UU-клиента
-                    AccountTariffBiller::recalc($param);
-                    break;
-
-                case RecalcRealtimeBalance::EVENT_RECALC:
-                    // Пересчитать realtime баланс
-                    RecalcRealtimeBalance::recalc($param['clientAccountId']);
-                    break;
-
-                case SendToOnlineCashRegister::EVENT_SEND:
-                    // В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
-                    $info = SendToOnlineCashRegister::send($param['paymentId']);
-                    break;
-
-                case SendToOnlineCashRegister::EVENT_REFRESH:
-                    // Обновить статус из онлайн-кассы
-                    $info = SendToOnlineCashRegister::refreshStatus($param['paymentId']);
-                    break;
-
                 case Event::CHECK_CREATE_CORE_OWNER:
                     $isCoreServer && ApiCore::checkCreateCoreAdmin($param);
                     break;
@@ -278,7 +227,6 @@ function doEvents()
                 case Event::USAGE_VIRTPBX__INSERT:
                 case Event::USAGE_VIRTPBX__UPDATE:
                 case Event::USAGE_VIRTPBX__DELETE:
-                case Event::UU_ACCOUNT_TARIFF_VPBX:
                     $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
                     $isCoreServer && VirtPbx3::check($usageId);
                     break;
@@ -288,44 +236,6 @@ function doEvents()
                     $isCoreServer && VirtPbx3::sync($usageId);
                     break;
                 }
-
-                case SyncVmCollocation::EVENT_SYNC:
-                    // Синхронизировать в VM manager
-                    (new SyncVmCollocation)->syncVm($param['account_tariff_id']);
-                    break;
-
-                case Event::UU_ACCOUNT_TARIFF_VOIP:
-                    \app\models\Number::dao()->actualizeStatusByE164($param['number']);
-                    $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
-                    AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
-                    break;
-
-                case Event::UU_ACCOUNT_TARIFF_VOIP_INTERNET:
-                    // Пакет интернета (только для включения)
-                    throw new \http\Exception\BadMethodCallException('Необходимо обработать вручную. Обращайтесь к Денису.');
-                    break;
-
-                case Event::UU_ACCOUNT_TARIFF_CALL_CHAT:
-                    ApiFeedback::createChat($param['account_id'], $param['account_tariff_id']);
-                    break;
-
-                case Event::UU_ACCOUNT_TARIFF_RESOURCE_VOIP:
-                    // Отправить измененные ресурсы телефонии на платформу и другим поставщикам услуг
-                    $isCoreServer && ApiPhone::me()->editDid(
-                        $param['account_id'],
-                        $param['number'],
-                        $param['lines'],
-                        $param['is_fmc_active'],
-                        $param['is_fmc_editable'],
-                        $param['is_mobile_outbound_active'],
-                        $param['is_mobile_outbound_editable']
-                    );
-                    break;
-
-                case Event::UU_ACCOUNT_TARIFF_RESOURCE_VPBX:
-                    // Отправить измененные ресурсы ВАТС на платформу и другим поставщикам услуг
-                    $isCoreServer && ApiVpbx::me()->update($param['account_id'], $param['account_tariff_id'], $regionId = null, ClientAccount::VERSION_BILLER_UNIVERSAL);
-                    break;
 
                 case Event::ACTUALIZE_NUMBER:
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
@@ -386,6 +296,133 @@ function doEvents()
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
                     break;
                 }
+
+                // --------------------------------------------
+                // Универсальные услуги
+                // --------------------------------------------
+                case \app\modules\uu\Module::EVENT_ADD_LIGHT:
+                    // УУ. Добавить данные в AccountTariffLight
+                    SyncAccountTariffLight::addToAccountTariffLight($param);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_DELETE_LIGHT:
+                    // УУ. Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
+                    SyncAccountTariffLight::deleteFromAccountTariffLight($param);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_RECALC_ACCOUNT:
+                    // УУ. Билинговать клиента
+                    AccountTariffBiller::recalc($param);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_RECALC_BALANCE:
+                    // УУ. Пересчитать realtime баланс
+                    RecalcRealtimeBalance::recalc($param['clientAccountId']);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_VM_SYNC:
+                    // УУ. Услуга VM collocation
+                    (new SyncVmCollocation)->syncVm($param['account_tariff_id']);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_VPBX:
+                    // УУ. Услуга ВАТС
+                    $isCoreServer && VirtPbx3::check($param['account_tariff_id']);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_VOIP_CALLS:
+                    // УУ. Услуга телефонии
+                    \app\models\Number::dao()->actualizeStatusByE164($param['number']);
+                    $isCoreServer && ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
+                    AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_VOIP_INTERNET:
+                    // УУ. Услуга пакет интернет-трафика
+                    \app\modules\mtt\Module::addInternetPackage($param['account_tariff_id'], $param['internet_traffic']);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_CALL_CHAT:
+                    // УУ. Услуга call chat
+                    ApiFeedback::createChat($param['account_id'], $param['account_tariff_id']);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_RESOURCE_VOIP:
+                    // УУ. Отправить измененные ресурсы телефонии на платформу
+                    $isCoreServer && ApiPhone::me()->editDid(
+                        $param['account_id'],
+                        $param['number'],
+                        $param['lines'],
+                        $param['is_fmc_active'],
+                        $param['is_fmc_editable'],
+                        $param['is_mobile_outbound_active'],
+                        $param['is_mobile_outbound_editable']
+                    );
+                    break;
+
+                case \app\modules\uu\Module::EVENT_RESOURCE_VPBX:
+                    // УУ. Отправить измененные ресурсы ВАТС на платформу
+                    $isCoreServer && ApiVpbx::me()->update(
+                        $param['account_id'],
+                        $param['account_tariff_id'],
+                        $regionId = null,
+                        ClientAccount::VERSION_BILLER_UNIVERSAL
+                    );
+                    break;
+
+                // --------------------------------------------
+                // АТОЛ
+                // --------------------------------------------
+                case \app\modules\atol\Module::EVENT_SEND:
+                    // АТОЛ. В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
+                    $info = SendToOnlineCashRegister::send($param['paymentId']);
+                    break;
+
+                case \app\modules\atol\Module::EVENT_REFRESH:
+                    // АТОЛ. Обновить статус из онлайн-кассы
+                    $info = SendToOnlineCashRegister::refreshStatus($param['paymentId']);
+                    break;
+
+                // --------------------------------------------
+                // ННП
+                // --------------------------------------------
+                case \app\modules\nnp\Module::EVENT_IMPORT:
+                    // ННП. Импорт страны
+                    $info = CountryFile::importById($param['fileId']);
+
+                    // поставить в очередь для пересчета операторов, регионов и городов
+                    Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+                    break;
+
+                case \app\modules\nnp\Module::EVENT_LINKER:
+                    // ННП. Линковка исходных к ID
+                    $info .= 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
+                    $info .= 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
+                    $info .= 'Города: ' . CityLinker::me()->run() . PHP_EOL;
+                    break;
+
+                case \app\modules\nnp\Module::EVENT_FILTER_TO_PREFIX:
+                    // ННП. Конвертировать фильтры в префиксы
+                    $info .= implode(PHP_EOL, RefreshPrefix::me()->filterToPrefix()) . PHP_EOL;
+                    break;
+
+                // --------------------------------------------
+                // МТТ
+                // --------------------------------------------
+                case \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_BALANCE:
+                    // МТТ. Callback обработчик API-запроса getAccountBalance
+                    \app\modules\mtt\Module::getAccountBalanceCallback($param);
+                    break;
+
+                case \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_DATA:
+                    // МТТ. Callback обработчик API-запроса getAccountData
+                    \app\modules\mtt\Module::getAccountDataCallback($param);
+                    break;
+
+                case \app\modules\mtt\Module::EVENT_CALLBACK_BALANCE_ADJUSTMENT:
+                    // МТТ. Callback обработчик API-запроса balanceAdjustment
+                    \app\modules\mtt\Module::balanceAdjustmentCallback($param);
+                    break;
             }
 
             $event->setOk($info);
@@ -396,14 +433,14 @@ function doEvents()
             echo PHP_EOL . '--------------' . PHP_EOL;
             echo '[' . $event->event . '] Code: ' . $e->getCode() . ': ' . $message . ' in ' . $e->getFile() . ' +' . $e->getLine();
 
+            /*
+                $isContinue = $e instanceof yii\base\InvalidCallException // ошибка вызова внешней системы
+                    || $e instanceof InvalidParamException // Syntax error. В ответ пришел не JSON
+                    || strpos($message, 'Operation timed out') !== false // Curl error: #28 - Operation timed out after 30000 milliseconds with 0 bytes received
+                    || $e->getCode() == 40001; // Deadlock found when trying to get lock
+            */
 
-            $isContinue = $e instanceof yii\base\InvalidCallException // ошибка вызова внешней системы
-                || $e instanceof InvalidParamException // Syntax error. В ответ пришел не JSON
-                || strpos($message, 'Operation timed out') !== false // Curl error: #28 - Operation timed out after 30000 milliseconds with 0 bytes received
-                || $e->getCode() == 40001; // Deadlock found when trying to get lock
-
-            // остальное - завершаем
-            $event->setError($e, !$isContinue);
+            $event->setError($e);
         }
     }
 }

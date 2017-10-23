@@ -2,17 +2,10 @@
 
 namespace app\classes;
 
-use app\classes\behaviors\SendToOnlineCashRegister;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
-use app\modules\nnp\classes\RefreshPrefix;
-use app\modules\nnp\media\ImportServiceUploaded;
-use app\modules\uu\behaviors\AccountTariffBiller;
-use app\modules\uu\behaviors\RecalcRealtimeBalance;
-use app\modules\uu\behaviors\SyncAccountTariffLight;
-use app\modules\uu\behaviors\SyncVmCollocation;
 
 class Event
 {
@@ -59,12 +52,6 @@ class Event
     const USAGE_VOIP__DELETE = 'usage_voip__delete';
     const USAGE_VOIP__INSERT = 'usage_voip__insert';
     const USAGE_VOIP__UPDATE = 'usage_voip__update';
-    const UU_ACCOUNT_TARIFF_VOIP = 'uu_account_tariff_voip';
-    const UU_ACCOUNT_TARIFF_VOIP_INTERNET = 'uu_voip_internet';
-    const UU_ACCOUNT_TARIFF_VPBX = 'uu_account_tariff_vpbx';
-    const UU_ACCOUNT_TARIFF_CALL_CHAT = 'uu_account_tariff_chat';
-    const UU_ACCOUNT_TARIFF_RESOURCE_VOIP = 'uu_account_tariff_resource_voip';
-    const UU_ACCOUNT_TARIFF_RESOURCE_VPBX = 'uu_account_tariff_resource_vpbx';
     const YANDEX_PAYMENT = 'yandex_payment';
     const UPDATE_BALANCE = 'update_balance';
     const ACCOUNT_BLOCKED = 'account_blocked';
@@ -120,27 +107,32 @@ class Event
         self::UPDATE_BALANCE => 'Обновление баланса',
         self::ACCOUNT_BLOCKED => 'ЛС заблокирован',
         self::ACCOUNT_UNBLOCKED => 'ЛС разблокирован',
-        SyncVmCollocation::EVENT_SYNC => 'API VM manager',
         self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',
         self::VPBX_BLOCKED => 'Блокировка ВАТС',
         self::VPBX_UNBLOCKED => 'Разблокировка ВАТС',
-        SendToOnlineCashRegister::EVENT_SEND => 'Отправить в онлайн-кассу',
-        SendToOnlineCashRegister::EVENT_REFRESH => 'Обновить статус онлайн-кассы',
 
-        self::UU_ACCOUNT_TARIFF_VOIP => 'УУ телефонии',
-        self::UU_ACCOUNT_TARIFF_VOIP_INTERNET => 'УУ моб. интернет',
-        self::UU_ACCOUNT_TARIFF_VPBX => 'УУ ВАТС',
-        self::UU_ACCOUNT_TARIFF_CALL_CHAT => 'УУ call chat',
-        self::UU_ACCOUNT_TARIFF_RESOURCE_VOIP => 'УУ. Ресурс телефонии',
-        self::UU_ACCOUNT_TARIFF_RESOURCE_VPBX => 'УУ. Ресурс ВАТС',
-        AccountTariffBiller::EVENT_RECALC => 'УУ. Билинговать клиента',
-        RecalcRealtimeBalance::EVENT_RECALC => 'УУ. Обновление баланса',
+        \app\modules\atol\Module::EVENT_SEND => 'АТОЛ. Отправить',
+        \app\modules\atol\Module::EVENT_REFRESH => 'АТОЛ. Обновить',
 
-        SyncAccountTariffLight::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT => 'ННП. Добавление услуги',
-        SyncAccountTariffLight::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT => 'ННП. Удаление услуги',
-        ImportServiceUploaded::EVENT => 'ННП. Импорт страны',
+        \app\modules\uu\Module::EVENT_VOIP_CALLS => 'УУ. Телефония',
+        \app\modules\uu\Module::EVENT_VOIP_INTERNET => 'УУ. Моб. интернет',
+        \app\modules\uu\Module::EVENT_VPBX => 'УУ. ВАТС',
+        \app\modules\uu\Module::EVENT_CALL_CHAT => 'УУ. Call chat',
+        \app\modules\uu\Module::EVENT_RESOURCE_VOIP => 'УУ. Ресурс телефонии',
+        \app\modules\uu\Module::EVENT_RESOURCE_VPBX => 'УУ. Ресурс ВАТС',
+        \app\modules\uu\Module::EVENT_RECALC_ACCOUNT => 'УУ. Билинговать клиента',
+        \app\modules\uu\Module::EVENT_RECALC_BALANCE => 'УУ. Обновление баланса',
+        \app\modules\uu\Module::EVENT_VM_SYNC => 'УУ. VM manager',
+        \app\modules\uu\Module::EVENT_ADD_LIGHT => 'УУ. Добавить пакет телефонии',
+        \app\modules\uu\Module::EVENT_DELETE_LIGHT => 'УУ. Удалить пакет телефонии',
+
+        \app\modules\nnp\Module::EVENT_IMPORT => 'ННП. Импорт страны',
         \app\modules\nnp\Module::EVENT_LINKER => 'ННП. Линковка исходных к ID',
-        RefreshPrefix::EVENT_FILTER_TO_PREFIX => 'ННП. Фильтр -> префикс',
+        \app\modules\nnp\Module::EVENT_FILTER_TO_PREFIX => 'ННП. Фильтр -> префикс',
+
+        \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_BALANCE => 'МТТ. Получить баланс',
+        \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_DATA => 'МТТ. Получить инфо',
+        \app\modules\mtt\Module::EVENT_CALLBACK_BALANCE_ADJUSTMENT => 'МТТ. Установить баланс',
     ];
 
     /**
@@ -154,7 +146,7 @@ class Event
      */
     public static function go($event, $param = "", $isForceAdd = false)
     {
-        if (is_array($param)) {
+        if (is_array($param) || is_object($param)) {
             $param = json_encode($param);
         }
 

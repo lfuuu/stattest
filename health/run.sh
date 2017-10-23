@@ -6,3 +6,4 @@
 ./apiFreeNumbersSilver.sh > ../web/operator/_private/healthApiFreeNumbersSilver.json
 ./apiFreeNumbersAccount.sh > ../web/operator/_private/healthApiFreeNumbersAccount.json
 ./ubiller.sh > ../web/operator/_private/healthUbiller.json
+./mtt.sh > ../web/operator/_private/healthMtt.json

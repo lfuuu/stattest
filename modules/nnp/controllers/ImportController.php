@@ -226,7 +226,7 @@ class ImportController extends BaseController
         } else {
 
             // файл большой - поставить в очередь
-            $eventQueue = Event::go(ImportServiceUploaded::EVENT, ['fileId' => $fileId]);
+            $eventQueue = Event::go(\app\modules\nnp\Module::EVENT_IMPORT, ['fileId' => $fileId]);
             Yii::$app->session->setFlash('success', 'Файл поставлен в очередь на загрузку. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 

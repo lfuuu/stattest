@@ -24,8 +24,6 @@ use yii\base\Event;
 
 class AccountTariffBiller extends Behavior
 {
-    const EVENT_RECALC = 'uu_account_tariff_biller_recalc';
-
     /**
      * @return array
      */
@@ -52,7 +50,7 @@ class AccountTariffBiller extends Behavior
         $accountTariff = $accountTariffLog->accountTariff;
         $accountTariffId = $accountTariff->id;
 
-        \app\classes\Event::go(self::EVENT_RECALC, [
+        \app\classes\Event::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
                 'accountTariffId' => $accountTariffId,
                 'clientAccountId' => $accountTariff->client_account_id,
             ]

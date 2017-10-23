@@ -3,7 +3,7 @@
 namespace app\controllers\report\accounting;
 
 use app\classes\BaseController;
-use app\classes\behaviors\SendToOnlineCashRegister;
+use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\models\filter\PayReportFilter;
 use Yii;
 

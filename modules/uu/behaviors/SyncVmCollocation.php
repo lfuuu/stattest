@@ -15,8 +15,6 @@ use yii\base\InvalidParamException;
 
 class SyncVmCollocation
 {
-    const EVENT_SYNC = 'uu_vm_collocation_sync';
-
     const CLIENT_ACCOUNT_OPTION_VM_ELID = 'vm_elid'; // ID клиента в VM
     const CLIENT_ACCOUNT_OPTION_VM_PASSWORD = 'vm_password'; // Пароль клиента в VM
 

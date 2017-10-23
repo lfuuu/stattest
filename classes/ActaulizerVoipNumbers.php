@@ -33,7 +33,7 @@ class ActaulizerVoipNumbers extends Singleton
     }
 
     /**
-     * Установка объекта доступа к Api телфонии
+     * Установка объекта доступа к Api телефонии
      *
      * @param ApiPhone $api
      */

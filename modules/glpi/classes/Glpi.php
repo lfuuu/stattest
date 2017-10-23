@@ -6,6 +6,7 @@ use app\classes\HttpClient;
 use app\classes\HttpRequest;
 use app\classes\Singleton;
 use app\modules\glpi\models\Item;
+use app\modules\glpi\Module;
 use kartik\base\Config;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
@@ -16,10 +17,9 @@ use yii\web\BadRequestHttpException;
  */
 class Glpi extends Singleton
 {
-
+    /** @var Module */
     protected $module = null;
     protected $sessionToken = '';
-
 
     /**
      * Инициализовать

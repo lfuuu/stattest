@@ -51,7 +51,7 @@ class NumberRangeController extends BaseController
 
         if (isset($post['filterToPrefixButton'])) {
             // поставить в очередь
-            $eventQueue = Event::go(RefreshPrefix::EVENT_FILTER_TO_PREFIX);
+            $eventQueue = Event::go(\app\modules\nnp\Module::EVENT_FILTER_TO_PREFIX);
             Yii::$app->session->setFlash('success', 'Префиксы будут пересчитаны через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 

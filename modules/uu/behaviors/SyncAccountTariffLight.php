@@ -19,9 +19,6 @@ use yii\db\Expression;
  */
 class SyncAccountTariffLight extends Behavior
 {
-    const EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT = 'add_to_account_tariff_light';
-    const EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT = 'delete_from_account_tariff_light';
-
     /**
      * @return array
      */
@@ -69,7 +66,7 @@ class SyncAccountTariffLight extends Behavior
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
         }
 
-        \app\classes\Event::go(self::EVENT_ADD_TO_ACCOUNT_TARIFF_LIGHT,
+        \app\classes\Event::go(\app\modules\uu\Module::EVENT_ADD_LIGHT,
             [
                 'id' => $accountLogPeriod->id,
                 'account_client_id' => $accountTariff->client_account_id,
@@ -101,7 +98,7 @@ class SyncAccountTariffLight extends Behavior
             return;
         }
 
-        \app\classes\Event::go(self::EVENT_DELETE_FROM_ACCOUNT_TARIFF_LIGHT,
+        \app\classes\Event::go(\app\modules\uu\Module::EVENT_DELETE_LIGHT,
             [
                 'id' => $accountLogPeriod->id,
             ]

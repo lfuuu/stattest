@@ -1,6 +1,6 @@
 <?php
 
-namespace app\classes\behaviors;
+namespace app\modules\atol\behaviors;
 
 use app\exceptions\ModelValidationException;
 use app\models\ClientContact;
@@ -16,9 +16,6 @@ use yii\db\ActiveRecord;
 
 class SendToOnlineCashRegister extends Behavior
 {
-    const EVENT_SEND = 'send_to_online_cash_register';
-    const EVENT_REFRESH = 'refresh_online_cash_register';
-
     /**
      * @return array
      */
@@ -44,7 +41,7 @@ class SendToOnlineCashRegister extends Behavior
         $payment = $event->sender;
 
         // поставить в очередь для отправки
-        \app\classes\Event::go(self::EVENT_SEND, [
+        \app\classes\Event::go(\app\modules\atol\Module::EVENT_SEND, [
                 'paymentId' => $payment->id,
             ]
         );
@@ -102,7 +99,7 @@ class SendToOnlineCashRegister extends Behavior
         }
 
         // поставить в очередь для обновления статуса
-        \app\classes\Event::go(self::EVENT_REFRESH, [
+        \app\classes\Event::go(\app\modules\atol\Module::EVENT_REFRESH, [
                 'paymentId' => $payment->id,
             ]
         );

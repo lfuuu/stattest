@@ -87,7 +87,7 @@ SQL;
 
                     case ServiceType::ID_VOIP:
                         // Телефония
-                        Event::go(Event::UU_ACCOUNT_TARIFF_VOIP, [
+                        Event::go(\app\modules\uu\Module::EVENT_VOIP_CALLS, [
                             'account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                             'number' => $accountTariff->voip_number,
@@ -97,7 +97,7 @@ SQL;
 
                     case ServiceType::ID_VPBX:
                         // ВАТС
-                        Event::go(Event::UU_ACCOUNT_TARIFF_VPBX, [
+                        Event::go(\app\modules\uu\Module::EVENT_VPBX, [
                             'account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);
@@ -105,14 +105,14 @@ SQL;
                         break;
 
                     case ServiceType::ID_VM_COLLOCATION:
-                        Event::go(SyncVmCollocation::EVENT_SYNC, [
+                        Event::go(\app\modules\uu\Module::EVENT_VM_SYNC, [
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         break;
 
                     case ServiceType::ID_CALL_CHAT:
                         // call chat
-                        Event::go(Event::UU_ACCOUNT_TARIFF_CALL_CHAT, [
+                        Event::go(\app\modules\uu\Module::EVENT_CALL_CHAT, [
                             'account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);

@@ -199,6 +199,9 @@ $config = [
         'transfer' => [
             'class' => 'app\modules\transfer\Module',
         ],
+        'mtt' => [
+            'class' => 'app\modules\mtt\Module',
+        ],
     ],
     'params' => $params,
 ];

@@ -6,8 +6,6 @@ use app\modules\nnp\filter\NumberRangeImport;
 
 class ImportServiceUploaded extends ImportService
 {
-    const EVENT = 'nnp_import';
-
     public $url;
 
     /**

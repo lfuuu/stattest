@@ -14,6 +14,8 @@ return [
     'prev_usage_id' => 'Перенесено из',
     'next_usage_id' => 'Перенесено в', // это псевдо-поле
     'is_unzipped' => 'Разархивировано',
+    'mtt_number' => 'Номер МТТ',
+    'mtt_balance' => 'Баланс МТТ',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',

@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\classes\behaviors\SendToOnlineCashRegister;
+use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\classes\model\ActiveRecord;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;

@@ -39,6 +39,8 @@ use yii\db\Expression;
  * @property int $vm_elid_id ID VM collocation
  * @property int $prev_usage_id
  * @property int $is_unzipped
+ * @property string $mtt_number
+ * @property double $mtt_balance
  */
 class AccountTariff extends HistoryActiveRecord
 {
@@ -108,6 +110,8 @@ class AccountTariff extends HistoryActiveRecord
 
     // Ошибка телефонии
     const ERROR_CODE_VOIP_WRONG_STATUS = 72; // Статус тарифа не совпадает со статусом телефонного номера
+
+    protected $isAttributeTypecastBehavior = true;
 
     /**
      * @return array
