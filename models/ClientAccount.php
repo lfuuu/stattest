@@ -20,6 +20,7 @@ use app\dao\ClientAccountDao;
 use app\models\billing\Locks;
 use app\models\voip\StatisticDay;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -1101,7 +1102,19 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getHasVoip()
     {
-        return UsageVoip::find()->andWhere(['client' => $this->client])->actual()->exists();
+        return UsageVoip::find()
+                ->andWhere([
+                    'client' => $this->client
+                ])
+                ->actual()
+                ->exists()
+            || AccountTariff::find()
+                ->where([
+                    'client_account_id' => $this->id,
+                    'service_type_id' => ServiceType::ID_VOIP,
+                ])
+                ->andWhere(['IS NOT', 'tariff_period_id', null])
+                ->exists();
     }
 
     /**
