@@ -61,7 +61,11 @@ class ClientSubAccount extends HistoryActiveRecord
             [
                 [
                     'is_voip_orig_disabled',
-                    'is_voip_blocked'
+                    'is_voip_blocked',
+                    'is_voip_limit_mn_month_enabled',
+                    'is_voip_limit_month_enabled',
+                    'is_voip_limit_day_enabled',
+                    'is_voip_limit_mn_day_enabled'
                 ],
                 'boolean'
             ],

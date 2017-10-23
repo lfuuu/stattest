@@ -92,6 +92,10 @@ class SubAccountController extends ApiInternalController
      *     @SWG\Property(property = "voip_limit_mn_month", type = "number", description = "Месячный лимит на международку", default = 0),
      *     @SWG\Property(property = "is_voip_orig_disabled", type = "boolean", default = false, description = "Заблокированны исходящие звонки"),
      *     @SWG\Property(property = "is_voip_blocked", type = "boolean", default = false, description = "Телефония заблокированна"),
+     *     @SWG\Property(property = "is_voip_limit_month_enabled", type = "boolean", default = false, description = "Установлен месячный лимит на телефонию"),
+     *     @SWG\Property(property = "is_voip_limit_mn_month_enabled", type = "boolean", default = false, description = "Установлен месячный лимит на МГМН "),
+     *     @SWG\Property(property = "is_voip_limit_day_enabled", type = "boolean", default = false, description = "Установлен дневной лимит на телефонию"),
+     *     @SWG\Property(property = "is_voip_limit_mn_day_enabled", type = "boolean", default = false, description = "Установлен лневной димит на МГМН"),
      * ),
      * @SWG\Definition(definition = "batchSubAccountLevel1", type = "object", required = {"account_id", "stat_product_id"},
      *     @SWG\Property(property = "account_id", type = "integer", description = "ID лицевого счета"),
@@ -158,7 +162,7 @@ class SubAccountController extends ApiInternalController
                         ],
                         'number'
                     ],
-                    [['is_voip_orig_disabled', 'is_voip_blocked'], 'boolean'],
+                    [['is_voip_orig_disabled', 'is_voip_blocked', 'is_voip_limit_mn_month_enabled', 'is_voip_limit_month_enabled', 'is_voip_limit_day_enabled', 'is_voip_limit_mn_day_enabled'], 'boolean'],
                     ['amount_date', 'datetime', 'format' => 'php:' . DateTimeZoneHelper::DATETIME_FORMAT]
                 ]
             );
