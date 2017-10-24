@@ -59,7 +59,7 @@ if (!$didGroup->isNewRecord) {
     <div class="row">
 
         <?php // Страна ?>
-        <div class="col-sm-<?= (NdcType::isCityDependent($didGroup->ndc_type_id) && !$didGroup->is_service ? 3 : 6)?>">
+        <div class="col-sm-<?= (NdcType::isCityDependent($didGroup->ndc_type_id) && !$didGroup->is_service ? 3 : 6) ?>">
             <?= $form->field($didGroup, 'country_code')
                 ->widget(Select2::className(), [
                     'data' => Country::getList($isWithEmpty = false),
@@ -113,7 +113,7 @@ if (!$didGroup->isNewRecord) {
         </div>
 
         <?php // Служебная группа? ?>
-        <div class="col-sm-3" >
+        <div class="col-sm-3">
             <?= $form->field($didGroup, 'is_service')->checkbox([
                 'class' => 'formReload'
             ]) ?>
@@ -150,11 +150,17 @@ if (!$didGroup->isNewRecord) {
                     ->label(false) ?>
             </div>
             <div class="col-sm-3">
-                <?= $i == 1 ?
-                    $form->field($didGroup, 'tariff_status_beauty')
+                <?php
+                if ($i < 3) {
+                    echo '-';
+                } elseif ($i == 3) {
+                    echo $form->field($didGroup, 'tariff_status_beauty')
                         ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
-                        ->label(false) :
-                    '' ?>
+                        ->label(false);
+                } else {
+                    echo '—«—';
+                }
+                ?>
             </div>
         </div>
     <?php endforeach; ?>

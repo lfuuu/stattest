@@ -130,7 +130,10 @@ trait AccountTariffPackageTrait
         $priceLevel = $clientAccount->price_level;
         $didGroup = $number->didGroup;
         $tarifStatuses[] = $didGroup->{'tariff_status_package' . $priceLevel}; // пакет с учетом уровня цен
-        $tarifStatuses[] = $didGroup->tariff_status_beauty; // пакет за красивость
+        if ($priceLevel >= 3) {
+            // только для ОТТ (см. ClientAccount::getPriceLevels)
+            $tarifStatuses[] = $didGroup->tariff_status_beauty; // пакет за красивость
+        }
 
         return $tarifStatuses;
     }
