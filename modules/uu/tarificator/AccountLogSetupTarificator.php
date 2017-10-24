@@ -102,11 +102,18 @@ class AccountLogSetupTarificator extends Tarificator
         $accountLogSetup->tariff_period_id = $tariffPeriod->id;
         $accountLogSetup->account_tariff_id = $accountTariff->id;
 
-        $accountLogSetup->price_setup = $tariffPeriod->price_setup;
+        // Стоимость подключения тарифа - только не при переносе
+        $accountLogSetup->price_setup = $accountTariff->prev_usage_id ? 0 : $tariffPeriod->price_setup;
 
-        if ($accountLogFromToTariff->isFirst && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP && $accountTariff->voip_number > Number::NUMBER_MAX_LINE && $accountTariff->number) {
-            // телефонный номер кроме телефонной линии (4-5 знаков)
-            // только первое подключение. При смене тарифа на том же ЛС не считать
+        if ($accountLogFromToTariff->isFirst
+            && !$accountTariff->prev_usage_id
+            && $tariffPeriod->tariff->service_type_id == ServiceType::ID_VOIP
+            && !Number::isMcnLine($accountTariff->voip_number)
+            && $accountTariff->number
+        ) {
+            // Телефонный номер (не телефонная линия).
+            // Только первое подключение (при смене тарифа не считать).
+            // При переносе не считать.
             $accountLogSetup->price_number = $accountTariff->number
                 ->getPrice($tariffPeriod->tariff->currency_id, $accountTariff->clientAccount);
 
