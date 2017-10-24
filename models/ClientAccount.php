@@ -776,7 +776,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageVoips()
     {
-        return $this->hasMany(UsageVoip::className(), ['client' => 'id']);
+        return $this->hasMany(UsageVoip::className(), ['client' => 'client']);
     }
 
     /**
@@ -784,7 +784,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageTechCpes()
     {
-        return $this->hasMany(UsageTechCpe::className(), ['client' => 'id']);
+        return $this->hasMany(UsageTechCpe::className(), ['client' => 'client']);
     }
 
     /**
@@ -792,7 +792,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageWelltimes()
     {
-        return $this->hasMany(UsageWelltime::className(), ['client' => 'id']);
+        return $this->hasMany(UsageWelltime::className(), ['client' => 'client']);
     }
 
     /**
@@ -800,7 +800,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageExtras()
     {
-        return $this->hasMany(UsageExtra::className(), ['client' => 'id']);
+        return $this->hasMany(UsageExtra::className(), ['client' => 'client']);
     }
 
     /**
@@ -808,7 +808,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageVirtpbxs()
     {
-        return $this->hasMany(UsageVirtpbx::className(), ['client' => 'id']);
+        return $this->hasMany(UsageVirtpbx::className(), ['client' => 'client']);
     }
 
     /**
@@ -816,7 +816,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageSmses()
     {
-        return $this->hasMany(UsageSms::className(), ['client' => 'id']);
+        return $this->hasMany(UsageSms::className(), ['client' => 'client']);
     }
 
     /**
@@ -824,7 +824,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageIpPorts()
     {
-        return $this->hasMany(UsageIpPorts::className(), ['client' => 'id']);
+        return $this->hasMany(UsageIpPorts::className(), ['client' => 'client']);
     }
 
     /**
@@ -840,7 +840,7 @@ class ClientAccount extends HistoryActiveRecord
      */
     public function getUsageCallChats()
     {
-        return $this->hasMany(UsageCallChat::className(), ['client' => 'id']);
+        return $this->hasMany(UsageCallChat::className(), ['client' => 'client']);
     }
 
     /**
