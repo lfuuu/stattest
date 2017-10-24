@@ -17,6 +17,7 @@ use DateTime;
  */
 class UsageCallChat extends ActiveRecord implements UsageInterface
 {
+    const DEFAULT_TARIFF_ID = 1;
 
     /**
      * @return array
