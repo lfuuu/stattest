@@ -5,6 +5,7 @@ namespace app\dao\reports;
 use app\models\UsageTrunk;
 use app\models\UsageVoip;
 use app\modules\nnp\models\City;
+use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use app\modules\uu\models\AccountTariff;
@@ -237,9 +238,27 @@ class ReportUsageDao extends Singleton
             $query->leftJoin(['nr' => NumberRange::tableName()], 'nr.id = cr.nnp_number_range_id');
             $query->leftJoin(['nt' => NdcType::tableName()], 'nt.id = nr.ndc_type_id');
             $query->leftJoin(['c' => City::tableName()], 'c.id = nr.city_id');
+            $query->leftJoin(['co' => Country::tableName()], 'co.code = nr.country_code');
 
+            // показываем страну, если страна звонка и страна ЛС не совпадает
+            // ставим точку после страны
+            // показываем город, если есть
             $query->addSelect([
-                'city_name' => 'c.name',
+                'geo_name' =>
+                    new Expression("
+                
+                CASE WHEN 
+                        co.code = " . $clientAccount->contragent->country_id . " 
+                    THEN '' 
+                    ELSE " . ($clientAccount->contragent->country_id == Country::RUSSIA ? "co.name_rus" : "co.name") . " || '. '
+                END  ||
+                
+                CASE WHEN 
+                        c.id IS NULL 
+                    THEN '' 
+                    ELSE " . ($clientAccount->contragent->country_id == Country::RUSSIA ? "c.name" : "c.name_translit") . " 
+                END 
+                "),
                 'ndc_type_name' => 'nt.name',
                 'ndc_type_id' => 'nr.ndc_type_id',
             ]);
@@ -259,8 +278,8 @@ class ReportUsageDao extends Singleton
         $rt = ['price' => 0, 'ts2' => 0, 'cnt' => 0, 'is_total' => true];
 
         foreach ($query->asArray()->each() as $record) {
-            $record['geo'] = $record['city_name'] . ($record['ndc_type_id'] != NdcType::ID_GEOGRAPHIC ? ' (' . $record['ndc_type_name'] . ')' : '');
-            unset($record['city_name'], $record['ndc_type_name'], $record['ndc_type_id']);
+            $record['geo'] = $record['geo_name'] . ($record['ndc_type_id'] != NdcType::ID_GEOGRAPHIC && $record['ndc_type_name'] ? ' (' . $record['ndc_type_name'] . ')' : '');
+            unset($record['geo_name'], $record['ndc_type_name'], $record['ndc_type_id']);
 
             $ts = new DateTime($record['ts1']);
 
