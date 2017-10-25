@@ -58,9 +58,7 @@ class ActualCallChatDao extends Singleton
             ]);
         }
 
-        return $query
-            ->createCommand()
-            ->queryAll();
+        return $query->all();
     }
 
     public function loadSaved($usageId = null)
@@ -77,8 +75,8 @@ class ActualCallChatDao extends Singleton
             ]);
         }
 
-        return $query
-            ->createCommand()
-            ->queryAll();
+        return  $query
+            ->asArray()
+            ->all();
     }
 }
