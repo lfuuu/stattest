@@ -2,6 +2,8 @@
 use app\models\ClientAccount;
 use app\models\mail\MailJob as MailJobModel;
 use app\models\User;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 
 class m_mail{
 	var $is_active = 0;
@@ -277,16 +279,11 @@ class m_mail{
 							{
 								$W[] = "C.region IN ('" . implode("', '", $p) . "')";
 							} elseif ($filter['region_for'][0] == 'tarif') {
-								if (empty($filter['tarifs']))
-								{
-									$J[] = 'LEFT JOIN usage_voip as UV ON UV.client = C.client';
-									$J[] = "LEFT JOIN log_tarif as LT ON UV.id = LT.id_service";
-									$J[] = 'LEFT JOIN tarifs_voip as TV ON TV.id = LT.id_tarif';
-									$W[] = "TV.status != 'archive'";
-									$W[] = "LT.service = 'usage_voip'";
-									$W[] = "CAST(NOW() AS DATE) BETWEEN UV.actual_from AND UV.actual_to";
+								if (!$filter['tarifs']) {
+									$J[] = 'LEFT JOIN usage_voip as UV ON (UV.client = C.client AND CAST(NOW() AS DATE) BETWEEN UV.actual_from AND UV.actual_to)';
 								}
-								$W[] = "TV.connection_point_id IN ('" . implode("', '", $p) . "')";
+								$J[] = 'LEFT JOIN ' . AccountTariff::tableName() . ' as uu ON (uu.client_account_id = C.id AND uu.service_type_id = ' . ServiceType::ID_VOIP. ')';
+								$W[] = "(UV.region IN ('" . implode("', '", $p) . "') OR uu.region_id IN ('" . implode("','", $p) . "'))";
 							}
 						}
 						break;
