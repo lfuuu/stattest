@@ -61,7 +61,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 
         </div>
 
-        <div class="panel-body<?= $accountTariffFirst->tariff_period_id ? '' : ' collapse' ?>" id="<?= $panelBodyId ?>">
+        <div class="panel-body<?= $accountTariffFirst->isActive() ? '' : ' collapse' ?>" id="<?= $panelBodyId ?>">
             <div class="row">
 
                 <div class="col-sm-2 account-tariff-voip-numbers">

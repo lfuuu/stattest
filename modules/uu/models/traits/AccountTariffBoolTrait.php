@@ -131,7 +131,18 @@ trait AccountTariffBoolTrait
      */
     public function isActive()
     {
-        return (bool)$this->tariff_period_id;
+        if ($this->tariff_period_id) {
+            // действует
+            return true;
+        }
+
+        if (count($this->accountTariffLogs) == 1) {
+            // еще не включился
+            return true;
+        }
+
+        // уже выключился
+        return false;
     }
 
     /**
