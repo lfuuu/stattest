@@ -1,6 +1,7 @@
 <?php
 use app\models\ClientAccount;
 use app\models\mail\MailJob as MailJobModel;
+use app\models\Number;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -282,8 +283,9 @@ class m_mail{
 								if (!$filter['tarifs']) {
 									$J[] = 'LEFT JOIN usage_voip as UV ON (UV.client = C.client AND CAST(NOW() AS DATE) BETWEEN UV.actual_from AND UV.actual_to)';
 								}
-								$J[] = 'LEFT JOIN ' . AccountTariff::tableName() . ' as uu ON (uu.client_account_id = C.id AND uu.service_type_id = ' . ServiceType::ID_VOIP. ')';
-								$W[] = "(UV.region IN ('" . implode("', '", $p) . "') OR uu.region_id IN ('" . implode("','", $p) . "'))";
+								$J[] = 'LEFT JOIN ' . AccountTariff::tableName() . ' as uu ON (uu.client_account_id = C.id AND uu.service_type_id = ' . ServiceType::ID_VOIP. ' AND tariff_period_id IS NOT NULL)';
+								$J[] = 'LEFT JOIN ' . Number::tableName() . ' num ON (num.number = uu.voip_number)';
+								$W[] = "(UV.region IN ('" . implode("', '", $p) . "') OR num.region IN ('" . implode("','", $p) . "'))";
 							}
 						}
 						break;
