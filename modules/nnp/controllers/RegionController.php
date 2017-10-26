@@ -7,12 +7,37 @@ use app\modules\nnp\filter\RegionFilter;
 use app\modules\nnp\forms\region\FormEdit;
 use app\modules\nnp\forms\region\FormNew;
 use Yii;
+use yii\filters\AccessControl;
 
 /**
  * Регионы
  */
 class RegionController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['nnp.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['nnp.write'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *

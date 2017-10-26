@@ -4,6 +4,9 @@ namespace app\modules\nnp;
 
 use app\classes\Connection;
 use app\classes\helpers\ArrayHelper;
+use app\classes\Navigation;
+use app\classes\NavigationBlock;
+use app\models\Country;
 use BadMethodCallException;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -116,5 +119,28 @@ class Module extends \yii\base\Module
         }
 
         return $jsonArray['list'];
+    }
+
+    /**
+     * @param Navigation $navigation
+     */
+    public function getNavigation(Navigation $navigation)
+    {
+        $navigation->addBlock(
+            NavigationBlock::create()
+                ->setId('nnp')
+                ->setTitle('ННП')
+                ->addItem('Диапазон номеров', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => Country::RUSSIA, 'NumberRangeFilter[is_active]' => 1], ['nnp.read'])
+                ->addItem('Операторы', ['/nnp/operator/'], ['nnp.read'])
+                ->addItem('Страны', ['/nnp/country/'], ['nnp.read'])
+                ->addItem('Регионы', ['/nnp/region/'], ['nnp.read'])
+                ->addItem('Города', ['/nnp/city/'], ['nnp.read'])
+                ->addItem('Префиксы', ['/nnp/prefix/'], ['nnp.read'])
+                ->addItem('Типы NDC', ['/nnp/ndc-type/'], ['nnp.read'])
+                ->addItem('Направления', ['/nnp/destination/'], ['nnp.read'])
+                ->addItem('Территории направлений', ['/nnp/land/'], ['nnp.read'])
+                ->addItem('Статусы направлений', ['/nnp/status/'], ['nnp.read'])
+                ->addItem('Импорт', ['/nnp/import/'], ['nnp.write'])
+        );
     }
 }

@@ -173,6 +173,8 @@ a.nohover:hover {
     min-width: 110px;
 }
 
+.sim-card-status-column,
+.nnp-status-column,
 .nnp-region-column,
 .nnp-operator-column,
 .event-queue-event-column,
@@ -393,4 +395,9 @@ a.nohover:hover {
 .grid-export-file-format {
     font-size: 1.22em !important;
     background: none !important;
+}
+
+div.required label:after {
+    content: " *";
+    color: red;
 }

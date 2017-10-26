@@ -7,12 +7,37 @@ use app\modules\nnp\filter\StatusFilter;
 use app\modules\nnp\forms\status\FormEdit;
 use app\modules\nnp\forms\status\FormNew;
 use Yii;
+use yii\filters\AccessControl;
 
 /**
  * Статусы
  */
 class StatusController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['nnp.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['nnp.write'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *

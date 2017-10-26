@@ -1,6 +1,8 @@
 <?php
+
 namespace app\classes;
 
+use app\classes\model\ActiveRecord;
 use app\controllers\CompatibilityController;
 use app\models\Bill;
 use app\models\ClientAccount;
@@ -16,6 +18,9 @@ use yii\web\NotFoundHttpException;
 class BaseController extends Controller
 {
     use CrudMultipleTrait;
+
+    /** @var string[] */
+    public $validateErrors = [];
 
     /**
      * @return array
@@ -278,4 +283,57 @@ class BaseController extends Controller
         return false;
     }
 
+
+    /**
+     * Обработать submit (создать, редактировать, удалить)
+     *
+     * @param ActiveRecord $model
+     * @param ActiveRecord[] $childModels
+     * @param ActiveRecord $originalChild
+     * @return bool|int
+     * @throws \yii\db\Exception
+     */
+    protected function loadFromInput(ActiveRecord $model, &$childModels = null, $originalChild = null)
+    {
+        // загрузить параметры от юзера
+        $transaction = $model::getDb()->beginTransaction();
+
+        $isSuccess = false;
+        try {
+            $post = Yii::$app->request->post();
+
+            if (isset($post['dropButton'])) {
+
+                // удалить
+                $model->delete();
+                $isSuccess = true;
+                Yii::$app->session->addFlash('success', 'Объект успешно удален.');
+
+            } elseif ($post && $model->load($post) && $model->save()) {
+
+                // сохранена основная модель
+                //
+                if ($originalChild) {
+                    // сохранить модели детей
+                    $childModels = $this->crudMultiple($childModels, $post, $originalChild);
+
+                    if ($this->validateErrors) {
+                        throw new \LogicException(implode('. ', $this->validateErrors));
+                    }
+                }
+
+                $isSuccess = $model->getPrimaryKey();
+                Yii::$app->session->addFlash('success', 'Объект успешно сохранен.');
+            }
+
+            $transaction->commit();
+
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            Yii::error($e);
+            Yii::$app->session->addFlash('error', $e->getMessage());
+        }
+
+        return $isSuccess;
+    }
 }

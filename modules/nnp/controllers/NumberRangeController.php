@@ -10,12 +10,37 @@ use app\modules\nnp\filter\NumberRangeFilter;
 use app\modules\nnp\forms\numberRange\FormEdit;
 use app\modules\nnp\models\NumberRange;
 use Yii;
+use yii\filters\AccessControl;
 
 /**
  * Диапазон номеров
  */
 class NumberRangeController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['nnp.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['edit'],
+                        'roles' => ['nnp.write'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *

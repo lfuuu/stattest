@@ -69,6 +69,7 @@ class TrunkGroup extends ActiveRecord
         $serverIds = null,
         $isWithEmpty = false
     ) {
+        $serverIds = (int) $serverIds;
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull = false,

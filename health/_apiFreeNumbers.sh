@@ -7,7 +7,7 @@ city=$4
 ndc=$5
 client_account_id=$6
 
-file='./apiFreeNumbers.txt'
+file='../runtime/apiFreeNumbers.txt'
 wget "https://stat.mcn.ru/api/open/get-free-numbers?ndcType=$ndcType&beautyLvl=$beautyLvl&limit=10&cities[0]=$city&ndc=$ndc&client_account_id=$client_account_id" --timeout=3 --output-document=$file  > /dev/null 2> /dev/null
 
 # declare, чтобы было числовое значение, которое инвертируем. То есть в итоге находим кол-во строк, где НЕТ тарифа

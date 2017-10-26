@@ -11,12 +11,37 @@ use app\modules\nnp\Module;
 use kartik\base\Config;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\filters\AccessControl;
 
 /**
  * Направления
  */
 class DestinationController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'download'],
+                        'roles' => ['nnp.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['nnp.write'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *

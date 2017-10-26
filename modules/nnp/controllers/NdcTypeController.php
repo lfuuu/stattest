@@ -7,12 +7,37 @@ use app\modules\nnp\filter\NdcTypeFilter;
 use app\modules\nnp\forms\ndcType\FormEdit;
 use app\modules\nnp\forms\ndcType\FormNew;
 use Yii;
+use yii\filters\AccessControl;
 
 /**
  * Тип префиксов
  */
 class NdcTypeController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['nnp.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['nnp.write'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *

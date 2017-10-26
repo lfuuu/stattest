@@ -1,6 +1,9 @@
 <?php
+
 namespace app\classes;
 
+use app\models\UserGrantGroups;
+use app\models\UserRight;
 use yii\console\Exception;
 
 class Migration extends \yii\db\Migration
@@ -73,5 +76,55 @@ class Migration extends \yii\db\Migration
     private function getFullFileName($fileName)
     {
         return $this->migrationPath . '/data/' . get_class($this) . '/' . $fileName;
+    }
+
+
+    /**
+     * Добавить права
+     *
+     * @param string $resource
+     * @param string $name
+     */
+    protected function addUserRights($resource, $name)
+    {
+        $this->insert(UserRight::tableName(), [
+            'resource' => $resource,
+            'comment' => $name,
+            'values' => 'read,write',
+            'values_desc' => 'чтение,редактирование',
+            'order' => 0,
+        ]);
+
+        $this->insert(UserGrantGroups::tableName(), [
+            'name' => UserGrantGroups::GROUP_MANAGER,
+            'resource' => $resource,
+            'access' => 'read',
+        ]);
+        $this->insert(UserGrantGroups::tableName(), [
+            'name' => UserGrantGroups::GROUP_ACCOUNT_MANAGER,
+            'resource' => $resource,
+            'access' => 'read',
+        ]);
+        $this->insert(UserGrantGroups::tableName(), [
+            'name' => UserGrantGroups::GROUP_ADMIN,
+            'resource' => $resource,
+            'access' => 'read,write',
+        ]);
+    }
+
+    /**
+     * Удалить права
+     *
+     * @param string $resource
+     */
+    protected function dropUserRights($resource)
+    {
+        $this->delete(UserRight::tableName(), [
+            'resource' => $resource
+        ]);
+
+        $this->delete(UserGrantGroups::tableName(), [
+            'resource' => $resource,
+        ]);
     }
 }

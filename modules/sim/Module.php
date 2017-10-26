@@ -1,0 +1,41 @@
+<?php
+
+namespace app\modules\sim;
+
+use app\classes\Navigation;
+use app\classes\NavigationBlock;
+use Yii;
+
+class Module extends \yii\base\Module
+{
+    /**
+     * @inheritdoc
+     */
+    public $controllerNamespace = 'app\modules\sim\controllers';
+
+    /**
+     * Для корректного запуска из консоли
+     */
+    public function init()
+    {
+        parent::init();
+        if (Yii::$app instanceof \yii\console\Application) {
+            $this->controllerNamespace = 'app\modules\sim\commands';
+        }
+    }
+
+    /**
+     * @param Navigation $navigation
+     */
+    public function getNavigation(Navigation $navigation)
+    {
+        $navigation->addBlock(
+            NavigationBlock::create()
+                ->setId('sim')
+                ->setTitle('SIM-карты')
+                ->addItem('SIM-карты', ['/sim/card/'], ['sim.read'])
+                ->addItem('Статусы SIM-карт', ['/sim/card-status/'], ['sim.read'])
+                ->addItem('Статусы IMSI', ['/sim/imsi-status/'], ['sim.read'])
+        );
+    }
+}

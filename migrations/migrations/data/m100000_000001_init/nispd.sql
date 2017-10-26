@@ -8150,9 +8150,7 @@ CREATE TABLE `uu_tariff_organization` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tariff_id` int(11) DEFAULT NULL,
   `organization_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `tariff_id` (`tariff_id`),
-  CONSTRAINT `tariff_id` FOREIGN KEY (`tariff_id`) REFERENCES `uu_tariff` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -8392,9 +8390,7 @@ CREATE TABLE `uu_tariff_voip_ndc_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `tariff_id` int(11) DEFAULT NULL,
   `ndc_type_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `uu_tariff_voip_ndc_type_tariff_id` (`tariff_id`),
-  CONSTRAINT `uu_tariff_voip_ndc_type_tariff_id` FOREIGN KEY (`tariff_id`) REFERENCES `uu_tariff` (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

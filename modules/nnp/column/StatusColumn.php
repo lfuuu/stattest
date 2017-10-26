@@ -33,7 +33,7 @@ class StatusColumn extends DataColumn
         parent::__construct($config);
         $this->filter = Status::getList($this->isWithEmpty, $this->isWithNullAndNotNull);
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
-        $this->filterOptions['class'] .= ' ndc-type-column';
+        $this->filterOptions['class'] .= ' nnp-status-column';
     }
 
     /**

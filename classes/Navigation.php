@@ -178,27 +178,23 @@ class Navigation
                 ->addItem('Универсальные счета-фактуры', ['/templates/uu/invoice'], ['newaccounts_balance.read'])
         );
 
-        $this->_addBlockUniversalUsage();
+        /** @var \app\modules\uu\Module $module */
+        if ($module = Yii::$app->getModule('uu')) {
+            $module->getNavigation($this);
+        }
 
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setId('nnp')
-                ->setTitle('Национальный номерной план')
-                ->addItem('Диапазон номеров', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => Country::RUSSIA, 'NumberRangeFilter[is_active]' => 1], ['tarifs.read'])
-                ->addItem('Операторы', ['/nnp/operator/'], ['tarifs.read'])
-                ->addItem('Страны', ['/nnp/country/'], ['tarifs.read'])
-                ->addItem('Регионы', ['/nnp/region/'], ['tarifs.read'])
-                ->addItem('Города', ['/nnp/city/'], ['tarifs.read'])
-                ->addItem('Префиксы', ['/nnp/prefix/'], ['tarifs.read'])
-                ->addItem('Типы NDC', ['/nnp/ndc-type/'], ['tarifs.read'])
-                ->addItem('Направления', ['/nnp/destination/'], ['tarifs.read'])
-                ->addItem('Территории направлений', ['/nnp/land/'], ['tarifs.read'])
-                ->addItem('Статусы направлений', ['/nnp/status/'], ['tarifs.read'])
-                ->addItem('Импорт', ['/nnp/import/'], ['tarifs.read'])
-        );
+        /** @var \app\modules\nnp\Module $module */
+        if ($module = Yii::$app->getModule('nnp')) {
+            $module->getNavigation($this);
+        }
 
         /** @var \app\modules\notifier\Module $module */
         if ($module = Yii::$app->getModule('notifier')) {
+            $module->getNavigation($this);
+        }
+
+        /** @var \app\modules\sim\Module $module */
+        if ($module = Yii::$app->getModule('sim')) {
             $module->getNavigation($this);
         }
     }
@@ -320,71 +316,4 @@ class Navigation
             $this->addBlock($block);
         }
     }
-
-    /**
-     * Добавить меню универсальных услуг (тарифы, услуги, мониторинг)
-     *
-     * @throws \yii\base\InvalidParamException
-     */
-    private function _addBlockUniversalUsage()
-    {
-        // тарифы
-        $block = NavigationBlock::create();
-        $block->setTitle(Yii::t('tariff', 'Universal tariffs'));
-
-        // услуги
-        $block2 = NavigationBlock::create();
-        $block2->setTitle(Yii::t('tariff', 'Universal services'));
-
-        // тарифы и услуги
-        $serviceTypes = ServiceType::find()
-            ->orderBy(new Expression('COALESCE(parent_id, id), id')) // чтобы пакеты были рядом с базовым тарифом
-            ->all();
-        foreach ($serviceTypes as $serviceType) {
-
-            $block->addItem($serviceType->name, Url::to([
-                '/uu/tariff',
-                'serviceTypeId' => $serviceType->id,
-            ]), ['tarifs.read']);
-
-            if (array_key_exists($serviceType->id, ServiceType::$packages)) {
-                // для пакетов услуги подключаются через базовую услугу
-                continue;
-            }
-
-            $block2->addItem($serviceType->name, Url::to([
-                '/uu/account-tariff',
-                'serviceTypeId' => $serviceType->id,
-                // 'AccountTariffFilter[tariff_period_id]' => TariffPeriod::IS_SET,
-            ]), ['tarifs.read']);
-
-        }
-
-        $this->addBlock($block);
-        $this->addBlock($block2);
-
-        // Универсальный тарификатор
-        $this->addBlock(
-            NavigationBlock::create()
-                ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
-                ->addItem(Yii::t('tariff', 'Tariff statuses'), ['/uu/tariff-status'], ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Service types'), ['/uu/service-type'], ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Setup tariffication'), ['/uu/account-log/setup'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Period tariffication'), ['/uu/account-log/period'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Resource tariffication'), ['/uu/account-log/resource'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Min resource tariffication'), ['/uu/account-log/min'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Account entries'), ['/uu/account-entry'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Bills'), ['/uu/bill'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Invoice'), ['/uu/invoice/view'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Balance'), ['/uu/balance/view'], ['newaccounts_balance.read'])
-                ->addItem(Yii::t('tariff', 'Clear UU-calls'), ['/uu/resource/clear'], ['services_voip.edit'])
-                ->addItem(Yii::t('tariff', 'Monitoring'), [
-                    '/uu/monitor',
-                    'AccountLogMonitorFilter[tariff_period_id]' => TariffPeriod::IS_SET,
-                    'AccountLogMonitorFilter[month]' => date('Y-m'),
-                ],
-                    ['newaccounts_balance.read'])
-        );
-    }
-
 }

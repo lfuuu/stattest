@@ -1,8 +1,8 @@
 <?php
 return [
-    'Universal tariffs' => 'Универсальные тарифы',
-    'Universal services' => 'Универсальные услуги',
-    'Universal tarifficator' => 'Универсальный тарификатор',
+    'Universal tariffs' => 'У-тарифы',
+    'Universal services' => 'У-услуги',
+    'Universal tarifficator' => 'У-тарификатор',
     'Setup tariffication' => 'Транзакции подключения',
     'Period tariffication' => 'Транзакции абонентки',
     'Resource tariffication' => 'Транзакции ресурсов',

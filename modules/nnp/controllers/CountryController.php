@@ -5,12 +5,32 @@ namespace app\modules\nnp\controllers;
 use app\classes\BaseController;
 use app\modules\nnp\filter\CountryFilter;
 use Yii;
+use yii\filters\AccessControl;
 
 /**
  * Страны
  */
 class CountryController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['nnp.read'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *

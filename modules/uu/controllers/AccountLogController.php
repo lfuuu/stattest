@@ -41,6 +41,7 @@ class AccountLogController extends BaseController
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionSetup()
     {
@@ -57,6 +58,7 @@ class AccountLogController extends BaseController
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionPeriod()
     {

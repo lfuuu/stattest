@@ -7,6 +7,7 @@ use app\modules\nnp\filter\OperatorFilter;
 use app\modules\nnp\forms\operator\FormEdit;
 use app\modules\nnp\forms\operator\FormNew;
 use Yii;
+use yii\filters\AccessControl;
 
 /**
  * Операторы
@@ -14,9 +15,34 @@ use Yii;
 class OperatorController extends BaseController
 {
     /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['nnp.read'],
+                    ],
+                    [
+                        'allow' => true,
+                        'actions' => ['new', 'edit'],
+                        'roles' => ['nnp.write'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Список
      *
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function actionIndex()
     {

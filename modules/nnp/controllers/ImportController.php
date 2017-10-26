@@ -12,6 +12,7 @@ use app\modules\nnp\models\CountryFile;
 use app\modules\nnp\models\NumberRange;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\filters\AccessControl;
 use yii\helpers\Url;
 
 /**
@@ -19,6 +20,25 @@ use yii\helpers\Url;
  */
 class ImportController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index', 'step2', 'step3', 'step4', 'unlink', 'download'],
+                        'roles' => ['nnp.write'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Шаг 1. Выбор страны
      *

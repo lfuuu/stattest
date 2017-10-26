@@ -108,33 +108,16 @@ return [
         ],
     ],
     'modules' => [
-        'glpi' => [
-            'class' => 'app\modules\glpi\Module',
-        ],
-        'nnp' => [
-            'class' => 'app\modules\nnp\Module',
-        ],
-        'uu' => [
-            'class' => 'app\modules\uu\Module',
-        ],
-        'socket' => [
-            'class' => 'app\modules\socket\Module',
-        ],
-        'webhook' => [
-            'class' => 'app\modules\webhook\Module',
-        ],
-        'notifier' => [
-            'class' => 'app\modules\notifier\Module',
-        ],
-        'atol' => [
-            'class' => 'app\modules\atol\Module',
-        ],
-        'transfer' => [
-            'class' => 'app\modules\transfer\Module',
-        ],
-        'mtt' => [
-            'class' => 'app\modules\mtt\Module',
-        ],
+        'glpi' => ['class' => 'app\modules\glpi\Module'],
+        'nnp' => ['class' => 'app\modules\nnp\Module'],
+        'uu' => ['class' => 'app\modules\uu\Module'],
+        'socket' => ['class' => 'app\modules\socket\Module'],
+        'webhook' => ['class' => 'app\modules\webhook\Module'],
+        'notifier' => ['class' => 'app\modules\notifier\Module'],
+        'atol' => ['class' => 'app\modules\atol\Module'],
+        'transfer' => ['class' => 'app\modules\transfer\Module'],
+        'mtt' => ['class' => 'app\modules\mtt\Module'],
+        'sim' => ['class' => 'app\modules\sim\Module'],
     ],
     'params' => $params,
 ];

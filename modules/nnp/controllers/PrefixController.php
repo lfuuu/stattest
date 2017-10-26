@@ -5,12 +5,32 @@ namespace app\modules\nnp\controllers;
 use app\classes\BaseController;
 use app\modules\nnp\filter\PrefixFilter;
 use Yii;
+use yii\filters\AccessControl;
 
 /**
  * Префиксы
  */
 class PrefixController extends BaseController
 {
+    /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['nnp.read'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * Список
      *
