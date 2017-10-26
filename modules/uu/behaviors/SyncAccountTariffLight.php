@@ -124,7 +124,7 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->tariff_id = $params['tariff_id'];
         $accountTariffLight->activate_from = new Expression(sprintf("TIMESTAMP '%s'", $params['activate_from']));
         $accountTariffLight->deactivate_from = $params['deactivate_from'] ? new Expression(sprintf("TIMESTAMP '%s'", $params['deactivate_from'])) : null;
-        $accountTariffLight->coefficient = str_replace(',', '.', $params['coefficient']);
+        $accountTariffLight->coefficient = str_replace(',', '.', round($params['coefficient'], AccountTariffLight::COEFFICIENT_PRECISION));
         $accountTariffLight->account_tariff_id = $params['account_tariff_id'];
         $accountTariffLight->price = $params['price'];
         $accountTariffLight->service_type_id = $params['service_type_id'];
