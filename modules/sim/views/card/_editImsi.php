@@ -30,7 +30,7 @@ if (!$imsies) {
 if (!$card->isNewRecord) {
     // это нужно сделать ДО TabularInput, иначе он попортит данные $imsies
     $showHistory = $this->render('//layouts/_showHistory', [
-        'parentModel' => [new Card(), $card->iccid],
+        'parentModel' => [new Imsi(), $card->iccid],
     ]);
 } else {
     $showHistory = '';

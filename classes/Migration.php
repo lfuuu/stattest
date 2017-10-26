@@ -98,12 +98,12 @@ class Migration extends \yii\db\Migration
         $this->insert(UserGrantGroups::tableName(), [
             'name' => UserGrantGroups::GROUP_MANAGER,
             'resource' => $resource,
-            'access' => 'read',
+            'access' => 'read,write',
         ]);
         $this->insert(UserGrantGroups::tableName(), [
             'name' => UserGrantGroups::GROUP_ACCOUNT_MANAGER,
             'resource' => $resource,
-            'access' => 'read',
+            'access' => 'read,write',
         ]);
         $this->insert(UserGrantGroups::tableName(), [
             'name' => UserGrantGroups::GROUP_ADMIN,

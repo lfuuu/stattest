@@ -7,7 +7,7 @@ use Yii;
 
 class UserGrantGroups extends ActiveRecord
 {
-    const GROUP_MANAGER = '	manager';
+    const GROUP_MANAGER = 'manager';
     const GROUP_ACCOUNT_MANAGER = 'account_managers';
     const GROUP_ADMIN = 'admin';
 

@@ -2,6 +2,7 @@
 
 namespace app\modules\sim\models;
 
+use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -80,5 +81,16 @@ class ImsiStatus extends HistoryActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/sim/imsi-status/edit', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 }

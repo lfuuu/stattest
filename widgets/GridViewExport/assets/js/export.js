@@ -1,7 +1,7 @@
 (function ($) {
     "use strict";
 
-    $.fn.gridViewDrivers = function(options) {
+    $.fn.gridViewDrivers = function (options) {
         var that = this,
             gridUrl = window.location.href;
 
@@ -49,7 +49,7 @@
                     } else {
                         $dialog.find('.dialog-step:visible').hide();
                         $dialog.find('.dialog-step[data-step="complete"]').show();
-                        self.location.href = gridUrl + '&action=download&key=' + key + '&driver=' + driver;
+                        self.location.href = gridUrl + (gridUrl.indexOf('?') >= 0 ? '&' : '?') + 'action=download&key=' + key + '&driver=' + driver;
                         setTimeout(function () {
                             $dialog.modal('hide');
                         }, 3000);
@@ -94,7 +94,7 @@
             });
         };
 
-        return this.each(function() {
+        return this.each(function () {
             $(this).off('click').on('click', function (e) {
                 e.preventDefault();
 
@@ -102,11 +102,11 @@
                     columns = [],
                     uid = $(this).data('uid'),
                     driver = $(this).data('export-gridview-format');
-                    $dialog = $('#' + uid + '-export-dialog')
-                        .off('shown.bs.modal')
-                        .off('hide.bs.modal');
+                $dialog = $('#' + uid + '-export-dialog')
+                    .off('shown.bs.modal')
+                    .off('hide.bs.modal');
 
-                $('[data-export-menu="' + uid + '"] ul.export-checkbox-list input[type="checkbox"][data-key]:checked').each(function() {
+                $('[data-export-menu="' + uid + '"] ul.export-checkbox-list input[type="checkbox"][data-key]:checked').each(function () {
                     columns.push($(this).data('key'));
                 });
 

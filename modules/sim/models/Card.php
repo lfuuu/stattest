@@ -2,6 +2,7 @@
 
 namespace app\modules\sim\models;
 
+use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\models\ClientAccount;
 use yii\db\ActiveQuery;
@@ -53,6 +54,7 @@ class Card extends HistoryActiveRecord
         return [
             [['iccid'], 'required'],
             [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id'], 'integer'],
+            ['client_account_id', 'exist', 'skipOnError' => true, 'targetClass' => ClientAccount::className(), 'targetAttribute' => ['client_account_id' => 'id'], 'filter' => ['account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL]],
         ];
     }
 
@@ -108,5 +110,43 @@ class Card extends HistoryActiveRecord
     public static function getUrlById($iccid)
     {
         return Url::to(['/sim/card/edit', 'iccid' => $iccid]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->iccid), $this->getUrl());
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'client_account_id':
+                if ($clientAccount = ClientAccount::findOne(['id' => $value])) {
+                    return $clientAccount->getLink();
+                }
+                break;
+
+            case 'status_id':
+                if ($cardStatus = CardStatus::findOne(['id' => $value])) {
+                    return $cardStatus->getLink();
+                }
+                break;
+        }
+
+        return $value;
     }
 }

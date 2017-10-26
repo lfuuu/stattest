@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\dao\NumberDao;
 use app\models\light_models\NumberPriceLight;
@@ -292,6 +293,7 @@ class Number extends ActiveRecord
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function getUrl()
     {
@@ -303,10 +305,22 @@ class Number extends ActiveRecord
      *
      * @param int $id
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public static function getUrlById($id)
     {
         return Url::to(['/voip/number/view', 'did' => $id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->number), $this->getUrl());
     }
 
     /**

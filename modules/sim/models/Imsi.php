@@ -94,4 +94,35 @@ class Imsi extends HistoryActiveRecord
     {
         return $this->hasOne(ImsiStatus::className(), ['id' => 'status_id']);
     }
+
+    /**
+     * Вернуть parent_model_id для исторических данных
+     *
+     * @return int
+     */
+    public function getHistoryParentField()
+    {
+        return $this->iccid;
+    }
+
+    /**
+     * Подготовка полей для исторических данных
+     *
+     * @param string $field
+     * @param string $value
+     * @return string
+     */
+    public static function prepareHistoryValue($field, $value)
+    {
+        switch ($field) {
+
+            case 'did':
+                if ($number = Number::findOne(['number' => $value])) {
+                    return $number->getLink();
+                }
+                break;
+        }
+
+        return $value;
+    }
 }

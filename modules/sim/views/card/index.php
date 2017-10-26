@@ -12,7 +12,6 @@ use app\classes\grid\GridView;
 use app\modules\sim\columns\CardStatusColumn;
 use app\modules\sim\filters\CardStatusFilter;
 use app\modules\sim\models\Card;
-use app\modules\sim\models\CardStatus;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
 use yii\widgets\Breadcrumbs;
@@ -47,14 +46,63 @@ $columns = [
         ],
         'hAlign' => GridView::ALIGN_CENTER,
     ],
+
     [
         'attribute' => 'iccid',
         'class' => IntegerColumn::className(),
     ],
+
     [
         'attribute' => 'imei',
         'class' => IntegerColumn::className(),
     ],
+
+    [
+        'label' => 'IMSI',
+        'format' => 'raw',
+        'value' => function (Card $card) {
+            $ids = [];
+            $imsies = $card->imsies;
+            foreach ($imsies as $imsi) {
+                $ids[] = $imsi->imsi;
+            }
+
+            if (!$ids) {
+                return Yii::t('common', '(not set)');
+            }
+
+            return implode(' <br>', $ids);
+        },
+    ],
+
+    [
+        'label' => 'MSISDN',
+        'format' => 'raw',
+        'value' => function (Card $card) {
+            $msisdns = [];
+            $imsies = $card->imsies;
+            foreach ($imsies as $imsi) {
+                $msisdns[] = $imsi->msisdn ?: Yii::t('common', '(not set)');
+            }
+
+            return implode(' <br>', $msisdns);
+        },
+    ],
+
+    [
+        'label' => 'DID',
+        'format' => 'raw',
+        'value' => function (Card $card) {
+            $dids = [];
+            $imsies = $card->imsies;
+            foreach ($imsies as $imsi) {
+                $dids[] = $imsi->did ?: Yii::t('common', '(not set)');
+            }
+
+            return implode(' <br>', $dids);
+        },
+    ],
+
     [
         'attribute' => 'client_account_id',
         'class' => IntegerColumn::className(),
@@ -65,10 +113,12 @@ $columns = [
                 Yii::t('common', '(not set)');
         },
     ],
+
     [
         'attribute' => 'is_active',
         'class' => YesNoColumn::className(),
     ],
+
     [
         'attribute' => 'status_id',
         'class' => CardStatusColumn::className(),

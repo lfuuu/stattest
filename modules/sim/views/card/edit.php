@@ -54,6 +54,11 @@ use yii\widgets\Breadcrumbs;
         </div>
 
     </div>
+    <?php
+    if (!$card->isNewRecord) {
+        echo $this->render('//layouts/_showHistory', ['model' => $card, 'idField' => 'iccid']);
+    }
+    ?>
 
     <?= $this->render('_editImsi', ['card' => $card]) ?>
 

@@ -6,7 +6,9 @@
  * @var CardStatus $cardStatus
  */
 
+use app\classes\Html;
 use app\modules\sim\models\CardStatus;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -28,6 +30,14 @@ use yii\widgets\Breadcrumbs;
         <?php // Название ?>
         <div class="col-sm-6">
             <?= $form->field($cardStatus, 'name')->textInput() ?>
+        </div>
+
+        <?php // Сим-карты ?>
+        <div class="col-sm-6">
+            <?= Html::a(
+                Yii::t('common', 'Show'),
+                Url::to(['/sim/card/', 'CardFilter[card_status_id]' => $cardStatus->id])
+            ) ?>
         </div>
 
     </div>
