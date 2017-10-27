@@ -287,8 +287,8 @@ class Navigation
     private function _addBlockNewClients()
     {
         $exclusion = [
-            2 => '?module=tt&action=view_type&type_pk=8',
-            3 => '?module=tt&action=view_type&type_pk=4',
+            2 => '/?module=tt&action=view_type&type_pk=8',
+            3 => '/?module=tt&action=view_type&type_pk=4',
             5 => '/?module=tt&action=view_type&type_pk=7',
         ];
         $businesses = Business::find()
@@ -309,7 +309,7 @@ class Navigation
                 $block->addItem($process->name,
                     isset($exclusion[$process->id]) ?
                         $exclusion[$process->id] :
-                        Url::toRoute(['client/grid', 'businessProcessId' => $process->id])
+                        Url::toRoute(['/client/grid', 'businessProcessId' => $process->id])
                 );
             }
 
