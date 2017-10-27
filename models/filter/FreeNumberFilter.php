@@ -75,18 +75,6 @@ class FreeNumberFilter extends Number
 
         $this->_query->andWhere([parent::tableName() . '.ndc_type_id' => $ndcTypeId]);
 
-        if ($ndcTypeId == NdcType::ID_GEOGRAPHIC) {
-            $this->_query->andWhere(new Expression('
-                    IF(
-                        `' . parent::tableName() . '`.`number` LIKE "7495%",
-                        `' . parent::tableName() . '`.`number` LIKE "74951059%"
-                        OR `' . parent::tableName() . '`.`number` LIKE "74951090%"
-                        OR `' . parent::tableName() . '`.`beauty_level` IN (1,2),
-                        true
-                    )
-                '));
-        }
-
         return $this;
     }
 

@@ -160,7 +160,7 @@ class SimController extends ApiInternalController
     }
 
     /**
-     * @SWG\Put(tags = {"SIM-card"}, path = "/internal/sim/edit-card", summary = "Редактировать SIM-карты", operationId = "EditSimCard",
+     * @SWG\Put(tags = {"SIM-card"}, path = "/internal/sim/edit-card", summary = "Редактировать SIM-карту", operationId = "EditSimCard",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "iccid", type = "integer", description = "ICCID", in = "query", required = true, default = ""),
      *   @SWG\Parameter(name = "imsi", type = "integer", description = "IMSI", in = "query", required = true, default = ""),

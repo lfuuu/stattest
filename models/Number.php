@@ -204,9 +204,10 @@ class Number extends ActiveRecord
     }
 
     /**
+     * @param string $number
      * @return NumberRange
      */
-    public function getNumberRange()
+    public function getNumberRange($number)
     {
         return NumberRange::find()
             ->andWhere(['is_active' => true])

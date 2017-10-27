@@ -223,7 +223,7 @@ class ApiPhone extends Singleton
             return;
         }
 
-        $nnpNumberRange = $numberModel->getNumberRange();
+        $nnpNumberRange = $numberModel->getNumberRange($number);
         $nnpOperator = $nnpNumberRange ? $nnpNumberRange->operator : null;
         $nnpCountry = $nnpNumberRange ? $nnpNumberRange->country : null;
         $nnpRegion = $nnpNumberRange ? $nnpNumberRange->region : null;
