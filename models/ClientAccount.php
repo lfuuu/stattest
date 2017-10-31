@@ -1038,16 +1038,17 @@ class ClientAccount extends HistoryActiveRecord
             $locks = Locks::find()->where(['client_id' => $this->id])->one();
 
             if ($locks) {
+                $lastLock = $locks->getLastLock();
                 if ($locks->is_finance_block) {
-                    $warnings[self::WARNING_FINANCE] = $locks->getLastLock('is_finance_block');
+                    $warnings[self::WARNING_FINANCE] = $lastLock['b_is_finance_block'];
                 }
 
                 if ($locks->is_overran) {
-                    $warnings[self::WARNING_OVERRAN] = $locks->getLastLock('is_overran');
+                    $warnings[self::WARNING_OVERRAN] = $lastLock['b_is_overran'];
                 }
 
                 if ($locks->is_mn_overran) {
-                    $warnings[self::WARNING_MN_OVERRAN] = $locks->getLastLock('is_mn_overran');
+                    $warnings[self::WARNING_MN_OVERRAN] = $lastLock['b_is_mn_overran'];
                 }
             }
         } catch (\Exception $e) {

@@ -39,19 +39,12 @@ class Locks extends ActiveRecord
     /**
      * Получение последней блокировки
      *
-     * @param bool|string $field
-     * @return ClientLockLogs
+     * @return array [b_voip_auto_disabled, b_voip_auto_disabled_local, b_is_overran, b_is_mn_overran, b_is_finance_block]
+     * @throws \yii\db\Exception
      */
-    public function getLastLock($field = true)
+    public function getLastLock()
     {
-        /** @var ClientLockLogs $clientLockLogs */
-        $clientLockLogs = ClientLockLogs::find()
-            ->where([
-                'client_id' => $this->client_id,
-                $field => true
-            ])
-            ->orderBy(['dt' => SORT_DESC])
-            ->one();
-        return $clientLockLogs;
+        $sql = sprintf('SELECT * FROM billing.locks_get(%d)', $this->client_id);
+        return self::getDb()->createCommand($sql)->queryOne();
     }
 }
