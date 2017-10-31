@@ -30,7 +30,7 @@ class FreeNumbersTest extends TestCase
     public function testRegularFreeNumbers()
     {
         $numbers = new FreeNumberFilter;
-        $this->assertEquals(22, count($numbers->setNdcType(NdcType::ID_GEOGRAPHIC)->setLimit(100)->result()));
+        $this->assertEquals(23, count($numbers->setNdcType(NdcType::ID_GEOGRAPHIC)->setLimit(100)->result()));
     }
 
     public function test7800FreeNumbers()
