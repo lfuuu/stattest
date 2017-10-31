@@ -3,14 +3,15 @@
  * SIM-карты. Список
  *
  * @var app\classes\BaseView $this
- * @var CardStatusFilter $filterModel
+ * @var CardFilter $filterModel
  */
 
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\modules\sim\columns\CardStatusColumn;
-use app\modules\sim\filters\CardStatusFilter;
+use app\modules\sim\filters\CardFilter;
 use app\modules\sim\models\Card;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
@@ -49,16 +50,18 @@ $columns = [
 
     [
         'attribute' => 'iccid',
-        'class' => IntegerColumn::className(),
+        'class' => StringColumn::className(),
     ],
 
     [
         'attribute' => 'imei',
-        'class' => IntegerColumn::className(),
+        'class' => StringColumn::className(),
     ],
 
     [
         'label' => 'IMSI',
+        'attribute' => 'imsi',
+        'class' => StringColumn::className(),
         'format' => 'raw',
         'value' => function (Card $card) {
             $ids = [];
@@ -77,6 +80,8 @@ $columns = [
 
     [
         'label' => 'MSISDN',
+        'attribute' => 'msisdn',
+        'class' => StringColumn::className(),
         'format' => 'raw',
         'value' => function (Card $card) {
             $msisdns = [];
@@ -91,6 +96,8 @@ $columns = [
 
     [
         'label' => 'DID',
+        'attribute' => 'did',
+        'class' => StringColumn::className(),
         'format' => 'raw',
         'value' => function (Card $card) {
             $dids = [];
