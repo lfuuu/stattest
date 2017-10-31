@@ -494,7 +494,6 @@ class ApiLk
     {
         $ret = [];
 
-
         $account = self::getAccount($clientId);
 
         if (!$account) {
@@ -1638,7 +1637,7 @@ class ApiLk
 
         $usagesData = ReportUsageDao::me()->getUsageVoipAndTrunks($account);
 
-        $phones = ReportUsageDao::me()->usagesToSelect($usagesData);
+        $phones = ReportUsageDao::me()->usagesToSelect($usagesData, true);
         array_walk($phones, function (&$item, $key) {
             $item = ['id' => $key, 'number' => $item];
         });

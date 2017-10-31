@@ -737,11 +737,16 @@ class ReportUsageDao extends Singleton
      * Конвертирует список услуг в данные для select'а
      *
      * @param array $usagesData
+     * @param bool $isAsTemplate
      * @return string[]
      */
-    public function usagesToSelect($usagesData)
+    public function usagesToSelect($usagesData, $isAsTemplate = false)
     {
-        $convertData = self::me()->prepareToSelect($usagesData, $this->getRegions($usagesData['voip']));
+        $convertData = $this->prepareToSelect($usagesData, $this->getRegions($usagesData['voip']));
+
+        $tr = $isAsTemplate ?
+            function ($str) {return "{" . $str. "}";} : // переводим в шаблоны и переводит ЛК
+            function ($str) {return Yii::t('number', $str);}; // переводим внутри стата
 
         $select = [];
 
@@ -752,12 +757,12 @@ class ReportUsageDao extends Singleton
 
             if ($usage['type'] == 'usage') {
                 if ($usage['is_all']) {
-                    $value = isset($usage['region']) ? $usage['region_name'] . ' (все номера)' : 'Все регионы';
+                    $value = isset($usage['region']) ? $usage['region_name'] . ' (' . $tr('All numbers').')' : $tr('All regions');
                 } else {
                     $value = '&nbsp;&nbsp;' . $usage['value'];
                 }
             } else { // trunk
-                $value = ($usage['is_all'] ? 'Все транки' : 'Транк #' . $usage['id']);
+                $value = ($usage['is_all'] ? $tr('All trunks') : $tr('Trunk') . ' #' . $usage['id']);
             }
 
             $select[$key] = $value;
