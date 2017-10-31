@@ -28,17 +28,17 @@ use yii\widgets\Breadcrumbs;
 
         <?php // iccid ?>
         <div class="col-sm-3">
-            <?= $form->field($card, 'iccid')->textInput(['type' => 'number', 'step' => 1]) ?>
+            <?= $form->field($card, 'iccid')->textInput() ?>
         </div>
 
         <?php // imei ?>
         <div class="col-sm-3">
-            <?= $form->field($card, 'imei')->textInput(['type' => 'number', 'step' => 1]) ?>
+            <?= $form->field($card, 'imei')->textInput() ?>
         </div>
 
         <?php // ЛС ?>
         <div class="col-sm-2">
-            <?= $form->field($card, 'client_account_id')->textInput(['type' => 'number', 'step' => 1]) ?>
+            <?= $form->field($card, 'client_account_id')->textInput() ?>
         </div>
 
         <?php // Статус ?>
