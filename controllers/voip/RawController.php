@@ -2,19 +2,20 @@
 
 namespace app\controllers\voip;
 
+use app\classes\BaseController;
 use app\classes\ReturnFormatted;
 use app\dao\billing\TrunkDao;
 use app\dao\ClientContractDao;
-use app\models\billing\TrunkGroup;
 use app\exceptions\ModelValidationException;
-use app\modules\nnp\models\FilterQuery;
+use app\models\billing\CallsRaw;
+use app\models\billing\ServiceTrunk;
+use app\models\billing\TrunkGroup;
+use app\models\voip\filter\CallsRawFilter;
 use app\modules\nnp\models\City;
+use app\modules\nnp\models\FilterQuery;
 use app\modules\nnp\models\Region;
 use Yii;
-use app\models\voip\filter\CallsRawFilter;
-use app\classes\BaseController;
 use yii\filters\AccessControl;
-use app\models\billing\ServiceTrunk;
 
 /**
  * Контроллер страницы /voip/raw (отчет по calls_raw)
@@ -241,6 +242,8 @@ class RawController extends BaseController
      */
     public function actionIndex()
     {
+        CallsRaw::getDb()->createCommand("set work_mem = '500MB'")->execute();
+
         $model = new CallsRawFilter();
         $model->load(Yii::$app->request->get());
 
