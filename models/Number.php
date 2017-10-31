@@ -204,20 +204,6 @@ class Number extends ActiveRecord
     }
 
     /**
-     * @param string $number
-     * @return NumberRange
-     */
-    public function getNumberRange($number)
-    {
-        return NumberRange::find()
-            ->andWhere(['is_active' => true])
-            ->andWhere(['<=', 'full_number_from', $number])
-            ->andWhere(['>=', 'full_number_to', $number])
-            ->orderBy(new Expression('ndc IS NOT NULL DESC'))// чтобы большой диапазон по всей стране типа 0000-9999 был в конце
-            ->one();
-    }
-
-    /**
      * @param string|null $currency
      * @param ClientAccount $clientAccount
      * @return float|null

@@ -6,6 +6,7 @@ use app\classes\HttpClient;
 use app\classes\Singleton;
 use app\models\ClientAccount;
 use app\models\Region;
+use app\modules\nnp\models\NumberRange;
 use Yii;
 use yii\base\InvalidConfigException;
 
@@ -122,8 +123,15 @@ class ApiPhone extends Singleton
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidCallException
      */
-    public function addDid($clientAccountId, $number, $lines, $region, $isNonumber, $number7800 = null, $vpbxStatProductId = null)
-    {
+    public function addDid(
+        $clientAccountId,
+        $number,
+        $lines,
+        $region,
+        $isNonumber,
+        $number7800 = null,
+        $vpbxStatProductId = null
+    ) {
         $params = [
             'client_id' => $clientAccountId,
             'did' => $number,
@@ -223,7 +231,7 @@ class ApiPhone extends Singleton
             return;
         }
 
-        $nnpNumberRange = $numberModel->getNumberRange($number);
+        $nnpNumberRange = NumberRange::getByNumber($number);
         $nnpOperator = $nnpNumberRange ? $nnpNumberRange->operator : null;
         $nnpCountry = $nnpNumberRange ? $nnpNumberRange->country : null;
         $nnpRegion = $nnpNumberRange ? $nnpNumberRange->region : null;

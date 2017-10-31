@@ -43,6 +43,7 @@ class ActaulizerVoipNumbers extends Singleton
             $this->_phoneApi = $api;
         }
     }
+
     /**
      * @param string $number
      * @return bool
@@ -372,7 +373,7 @@ class ActaulizerVoipNumbers extends Singleton
                     'client_account_id' => $account->id
                 ])
                 ->orderBy(['id' => SORT_DESC])
-            ->one();
+                ->one();
         }
 
         $where = ['prev_usage_id' => $usage->id];
@@ -462,6 +463,7 @@ class ActaulizerVoipNumbers extends Singleton
 
         // change fields
         if ($changedFields) {
+
             $this->_getPhoneApi()->editDid(
                 (int)$new['client_id'],
                 $number,
