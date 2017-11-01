@@ -1478,6 +1478,7 @@ class UuController extends ApiInternalController
      */
     /**
      * @return int
+     * @throws \yii\db\Exception
      * @throws Exception
      * @throws ModelValidationException
      */
@@ -1504,6 +1505,8 @@ class UuController extends ApiInternalController
             if (!$accountTariffLog->save()) {
                 throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
             }
+
+            $this->_checkTariff($accountTariff, $accountTariffLog);
 
             Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
 
@@ -1579,6 +1582,8 @@ class UuController extends ApiInternalController
                 if (!$accountTariffLog->save()) {
                     throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
                 }
+
+                $this->_checkTariff($accountTariff, $accountTariffLog);
             }
 
             $transaction->commit();
@@ -1868,4 +1873,42 @@ class UuController extends ApiInternalController
         return $result;
     }
 
+    /**
+     * Проверить, что тариф разрешен для этого ЛС
+     *
+     * @param AccountTariff $accountTariff
+     * @param AccountTariffLog $accountTariffLog
+     * @throws HttpException
+     */
+    private function _checkTariff($accountTariff, $accountTariffLog)
+    {
+        $tariffs = $this->actionGetTariffs(
+            $idTmp = null,
+            $accountTariff->service_type_id,
+            $countryIdTmp = null,
+            $clientAccountIdTmp = null,
+            $currencyIdTmp = null,
+            $isDefaultTmp = null,
+            $isPostpaidTmp = null,
+            $tariffStatusIdTmp = null,
+            $tariffPersonIdTmp = null,
+            $tariffTagIdTmp = null,
+            $voipGroupIdTmp = null,
+            $voipCityIdTmp = null,
+            $voipNdcTypeIdTmp = null,
+            $organizationIdTmp = null,
+            $voipNumberTmp = null,
+            $accountTariffIdTmp = $accountTariff->id
+        );
+
+        foreach ($tariffs as $tariff) {
+            foreach ($tariff['tariff_periods'] as $tariffPeriod) {
+                if ($tariffPeriod['id'] == $accountTariffLog->tariff_period_id) {
+                    return;
+                }
+            }
+        }
+
+        throw new HttpException(ModelValidationException::STATUS_CODE, 'Тариф недоступен этому ЛС', AccountTariff::ERROR_CODE_TARIFF_WRONG);
+    }
 }
