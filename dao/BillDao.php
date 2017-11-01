@@ -16,6 +16,7 @@ use app\models\Transaction;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill as uuBill;
 use Yii;
+use yii\db\Expression;
 
 
 /**
@@ -262,7 +263,7 @@ class BillDao extends Singleton
             ->where(['uu_bill_id' => $uuBill->id])
             ->one();
 
-        if (!$uuBill->price) {
+        if (!round($uuBill->price, 2)) {
             // нулевые счета не нужны
             if ($bill && !$bill->delete()) {
                 throw new ModelValidationException($bill);
@@ -302,7 +303,7 @@ class BillDao extends Singleton
         /** @var AccountEntry[] $accountEntries */
         $accountEntries = $uuBill
             ->getAccountEntries()
-            ->andWhere(['<>', 'price', 0])
+            ->andWhere(['<>', new Expression('ROUND(price, 2)'), 0])
             ->orderBy(['id' => SORT_ASC])
             ->all();
 
