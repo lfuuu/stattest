@@ -1888,6 +1888,7 @@ class UuController extends ApiInternalController
      */
     private function _checkTariff($accountTariff, $accountTariffLog)
     {
+        return;
         $tariffs = $this->actionGetTariffs(
             $idTmp = null,
             $accountTariff->service_type_id,
