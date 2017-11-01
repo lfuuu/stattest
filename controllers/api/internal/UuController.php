@@ -1485,17 +1485,18 @@ class UuController extends ApiInternalController
     public function actionAddAccountTariff()
     {
         $transaction = Yii::$app->db->beginTransaction();
-        try {
-            $post = Yii::$app->request->post();
+        $accountTariff = new AccountTariff();
+        $accountTariffLog = new AccountTariffLog;
+        $post = Yii::$app->request->post();
 
-            $accountTariff = new AccountTariff();
+        try {
+
             $accountTariff->setAttributes($post);
             if (!$accountTariff->save()) {
                 throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
             }
 
             // записать в лог тарифа
-            $accountTariffLog = new AccountTariffLog;
             $accountTariffLog->account_tariff_id = $accountTariff->id;
             $accountTariffLog->setAttributes($post);
             if (!$accountTariffLog->actual_from_utc) {
@@ -1515,6 +1516,11 @@ class UuController extends ApiInternalController
         } catch (Exception $e) {
             $transaction->rollBack();
             \Yii::error($e);
+
+            $post['error'] = $e->getMessage();
+            $post['file'] = $e->getFile() . ':' . $e->getLine();
+            Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog, $post);
+
             throw $e;
         }
     }

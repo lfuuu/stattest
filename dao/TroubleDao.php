@@ -1,19 +1,20 @@
 <?php
+
 namespace app\dao;
 
-use app\exceptions\ModelValidationException;
-use app\helpers\DateTimeZoneHelper;
-use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\AccountTariffLog;
-use \yii\db\Expression;
 use app\classes\Assert;
 use app\classes\enum\DepartmentEnum;
 use app\classes\Singleton;
+use app\exceptions\ModelValidationException;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\support\Ticket;
 use app\models\Trouble;
 use app\models\TroubleStage;
 use app\models\User;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
+use yii\db\Expression;
 
 /**
  * Class TroubleDao
@@ -323,26 +324,35 @@ class TroubleDao extends Singleton
      *
      * @param AccountTariff $accountTariff
      * @param AccountTariffLog $accountTariffLog
+     * @param array $post
+     * @throws \Exception
      */
-    public function notificateCreateAccountTariff(AccountTariff $accountTariff, AccountTariffLog $accountTariffLog)
+    public function notificateCreateAccountTariff(AccountTariff $accountTariff, AccountTariffLog $accountTariffLog, $post = [])
     {
         $user = User::findOne(['user' => Trouble::DEFAULT_SUPPORT_SALES]);
 
-        $troubleText = 'Создана универсальная услуга на ЛС: ' . $accountTariff->client_account_id;
-        $troubleText .= ' ' . $accountTariff->serviceType->name;
+        $troubleTexts = [];
+
+        $troubleTexts[] = ($post ? 'Ошибка создания УУ' : 'УУ создана');
+        $troubleTexts[] = 'ЛС ' . $accountTariff->client_account_id;
+        $troubleTexts[] = 'Тип ' . $accountTariff->serviceType->name;
+        $troubleTexts[] = 'Тариф ' . $accountTariffLog->getName();
 
         if ($accountTariff->service_type_id == \app\modules\uu\models\ServiceType::ID_VOIP) {
-            $troubleText .= ', номер: ' . $accountTariff->voip_number;
+            $troubleTexts[] = 'Номер ' . $accountTariff->voip_number;
         }
 
-        $troubleText .= ', тариф: ' . $accountTariffLog->getName();
+        if ($post) {
+            $troubleTexts[] = nl2br(print_r($post, true));
+        }
+
+        $troubleText = implode('.<br/>', $troubleTexts);
 
         $this->createTrouble($accountTariff->client_account_id, Trouble::TYPE_CONNECT, Trouble::SUBTYPE_CONNECT, $troubleText, null, ($user ? $user->user : null));
 
         if ($user && $user->email) {
-            mail($user->email, "[UU] Заказ услуги", $troubleText);
+            mail($user->email, $post ? '[UU] Ошибка заказа услуги' : '[UU] Заказ услуги', $troubleText);
         }
-
     }
 
     /**
