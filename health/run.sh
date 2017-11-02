@@ -9,3 +9,4 @@
 ./mttLog.sh > ../web/operator/_private/healthMttLog.json
 ./mttProcess.sh > ../web/operator/_private/healthMttProcess.json
 ./socketProcess.sh > ../web/operator/_private/healthSocketProcess.json
+./uuApiLog.sh > ../web/operator/_private/healthUuApiLog.json

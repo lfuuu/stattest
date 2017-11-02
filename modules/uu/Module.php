@@ -29,6 +29,9 @@ class Module extends \yii\base\Module
     const EVENT_ADD_LIGHT = 'uu_add_light';
     const EVENT_DELETE_LIGHT = 'uu_delete_light';
 
+    const LOG_CATEGORY = 'uu';
+    const LOG_CATEGORY_API = 'uu_api';
+
     /**
      * @inheritdoc
      */

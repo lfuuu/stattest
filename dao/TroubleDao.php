@@ -351,7 +351,13 @@ class TroubleDao extends Singleton
         $this->createTrouble($accountTariff->client_account_id, Trouble::TYPE_CONNECT, Trouble::SUBTYPE_CONNECT, $troubleText, null, ($user ? $user->user : null));
 
         if ($user && $user->email) {
-            mail($user->email, $post ? '[UU] Ошибка заказа услуги' : '[UU] Заказ услуги', $troubleText);
+            \Yii::$app->mailer
+                ->compose()
+                ->setHtmlBody($troubleText)
+                ->setFrom(\Yii::$app->params['adminEmail'])
+                ->setTo($user->email)
+                ->setSubject($post ? '[UU] Ошибка заказа услуги' : '[UU] Заказ услуги')
+                ->send();
         }
     }
 

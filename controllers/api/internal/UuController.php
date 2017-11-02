@@ -33,6 +33,7 @@ use app\modules\uu\models\TariffTag;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipGroup;
 use app\modules\uu\models\TariffVoipNdcType;
+use app\modules\uu\Module;
 use Exception;
 use Yii;
 use yii\web\HttpException;
@@ -1515,7 +1516,7 @@ class UuController extends ApiInternalController
             return $accountTariff->id;
         } catch (Exception $e) {
             $transaction->rollBack();
-            \Yii::error($e);
+            \Yii::error($e, Module::LOG_CATEGORY_API);
 
             $post['error'] = $e->getMessage();
             $post['file'] = $e->getFile() . ':' . $e->getLine();
@@ -1597,7 +1598,7 @@ class UuController extends ApiInternalController
 
         } catch (Exception $e) {
             $transaction->rollBack();
-            \Yii::error($e);
+            \Yii::error($e, Module::LOG_CATEGORY_API);
             throw $e;
         }
     }
@@ -1819,7 +1820,7 @@ class UuController extends ApiInternalController
 
         } catch (Exception $e) {
             $transaction->rollBack();
-            \Yii::error($e);
+            \Yii::error($e, Module::LOG_CATEGORY_API);
             throw $e;
         }
     }
@@ -1888,7 +1889,18 @@ class UuController extends ApiInternalController
      */
     private function _checkTariff($accountTariff, $accountTariffLog)
     {
-        return;
+        if (!$accountTariffLog->tariff_period_id) {
+            // закрыть можно
+           return;
+        }
+
+        if ($accountTariffLog->tariffPeriod->tariff->isTest) {
+            // тестовый можно подключать
+            // @todo на самом деле можно не всем, а только "заказ услуг" и "подключаемый". А вот "включенным" нельзя
+            return;
+        }
+
+        // проверить папку "публичный" (вернее, в соответствии с уровнем цен УЛС)
         $tariffs = $this->actionGetTariffs(
             $idTmp = null,
             $accountTariff->service_type_id,
