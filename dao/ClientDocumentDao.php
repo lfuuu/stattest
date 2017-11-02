@@ -1,9 +1,11 @@
 <?php
 namespace app\dao;
 
+use app\controllers\api\internal\SimController;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContract;
 use app\modules\nnp\models\NdcType;
+use app\modules\sim\models\Card;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use Yii;
@@ -185,6 +187,11 @@ class ClientDocumentDao extends Singleton
             $content = str_replace('{*#blank_zakaz#*}', $this->_makeBlankZakaz($document, $design), $content);
         }
 
+        if (strpos($content, '{*#simcards_table#*}') !== false) {
+            $cc= $this->_makeSimCardsTable($document, $design);
+            $content = str_replace('{*#simcards_table#*}', $cc, $content);
+        }
+
         file_put_contents($file, $content);
         $newDocument = $design->fetch($file);
         return file_put_contents($file, $newDocument);
@@ -213,6 +220,29 @@ class ClientDocumentDao extends Singleton
             );
         }
     }
+
+    /**
+     * Строки в таблицу списка сим карт
+     *
+     * @param ClientDocument $document
+     * @param $design
+     * @return mixed
+     */
+    private function _makeSimCardsTable(ClientDocument $document, &$design)
+    {
+        $simCards = Card::find()
+            ->alias('c')
+            ->select(['c.iccid', 'msisdn'])
+            ->joinWith('imsies')
+            ->where(['client_account_id' => $document->getAccount()])
+            ->asArray()
+            ->all();
+
+        $design->assign('sims', $simCards);
+
+        return $design->fetch('tarifs/simcards.tpl');
+    }
+
 
     /**
      * @param ClientDocument $document
