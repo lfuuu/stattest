@@ -52,6 +52,9 @@ class AccountTariffLog extends HistoryActiveRecord
     /** @var int Код ошибки для АПИ */
     public $errorCode = null;
 
+    /** @var string Это поле только для записи в историю */
+    public $user_info = '';
+
     /**
      * @return string
      */
@@ -75,6 +78,7 @@ class AccountTariffLog extends HistoryActiveRecord
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
             ['tariff_period_id', 'validatorDoublePackage'],
             ['tariff_period_id', 'validatorNdcType'],
+            ['user_info', 'string'],
         ];
     }
 
@@ -103,6 +107,17 @@ class AccountTariffLog extends HistoryActiveRecord
                     'value' => Yii::$app->user->getId(),
                 ],
             ];
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return array_merge(
+            parent::toArray(),
+            ['user_info' => $this->user_info]
+        );
     }
 
     /**

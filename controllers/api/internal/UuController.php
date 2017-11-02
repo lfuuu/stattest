@@ -1468,6 +1468,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "voip_number", type = "integer", description = "Для телефонии: номер линии (если 4-5 символов) или телефона", in = "formData", default = ""),
      *   @SWG\Parameter(name = "comment", type = "string", description = "Комментарий", in = "formData", default = ""),
      *   @SWG\Parameter(name = "prev_account_tariff_id", type = "integer", description = "ID основной услуги ЛС. Если добавляется услуга пакета телефонии, то необходимо здесь указать ID услуги телефонии", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Услуга ЛС добавлена",
      *     @SWG\Schema(type = "integer", description = "ID")
@@ -1532,6 +1533,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
      *   @SWG\Parameter(name = "tariff_period_id", type = "integer", description = "ID нового периода тарифа (например, 100 руб/мес, 1000 руб/год)", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой новый тариф будет действовать. ГГГГ-ММ-ДД. Если не указано - с начала следующего периода (точную дату см. в get-account-tariff/default_actual_from)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Тариф изменен",
      *     @SWG\Schema(type = "boolean", description = "true - успешно")
@@ -1552,7 +1554,8 @@ class UuController extends ApiInternalController
         return $this->editAccountTariff(
             isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [],
             isset($postData['tariff_period_id']) ? $postData['tariff_period_id'] : null,
-            (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null
+            (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null,
+            isset($postData['user_info']) ? $postData['user_info'] : ''
         );
     }
 
@@ -1560,12 +1563,13 @@ class UuController extends ApiInternalController
      * @param int[] $account_tariff_ids
      * @param int $tariff_period_id
      * @param string $actual_from
+     * @param string $user_info
      * @return int
      * @throws HttpException
      * @throws Exception
      * @throws ModelValidationException
      */
-    public function editAccountTariff($account_tariff_ids, $tariff_period_id, $actual_from)
+    public function editAccountTariff($account_tariff_ids, $tariff_period_id, $actual_from, $user_info = '')
     {
         if (!$account_tariff_ids || !is_array($account_tariff_ids)) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Не указан обязательный параметр account_tariff_ids', AccountTariff::ERROR_CODE_USAGE_EMPTY);
@@ -1586,6 +1590,7 @@ class UuController extends ApiInternalController
                 $accountTariffLog->account_tariff_id = $accountTariff->id;
                 $accountTariffLog->tariff_period_id = $tariff_period_id;
                 $accountTariffLog->actual_from = $actual_from ?: $accountTariff->getDefaultActualFrom();
+                $accountTariffLog->user_info = $user_info;
                 if (!$accountTariffLog->save()) {
                     throw new ModelValidationException($accountTariffLog, $accountTariffLog->errorCode);
                 }
@@ -1608,6 +1613,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
      *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата, с которой услуга закрывается. ГГГГ-ММ-ДД. Если не указано - с начала следующего периода (точную дату см. в get-account-tariff/default_actual_from)", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Услуга закрыта",
      *     @SWG\Schema(type = "boolean", description = "true - успешно")
@@ -1627,7 +1633,8 @@ class UuController extends ApiInternalController
         return $this->editAccountTariff(
             isset($postData['account_tariff_ids']) ? $postData['account_tariff_ids'] : [],
             null,
-            (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null
+            (isset($postData['actual_from']) && $postData['actual_from']) ? $postData['actual_from'] : null,
+            isset($postData['user_info']) ? $postData['user_info'] : ''
         );
     }
 
@@ -1635,6 +1642,7 @@ class UuController extends ApiInternalController
      * @SWG\Post(tags = {"UniversalTariffs"}, path = "/internal/uu/cancel-edit-account-tariff", summary = "Отменить последнюю смену тарифа (или закрытие) услуги ЛС", operationId = "CancelEditAccountTariff",
      *   @SWG\Parameter(name = "account_tariff_ids[0]", type = "integer", description = "IDs услуг", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "account_tariff_ids[1]", type = "integer", description = "IDs услуг", in = "formData", default = ""),
+     *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Последняя смена тарифа (в т.ч. закрытие) услуги отменена",
      *     @SWG\Schema(type = "integer", description = "Новый последний tariffPeriodId (идентификатор периода). Если 0 - услуга удалена, ибо больше в логе тарифов ничего нет")
@@ -1678,6 +1686,7 @@ class UuController extends ApiInternalController
             // отменяемый тариф
             /** @var AccountTariffLog $accountTariffLogCancelled */
             $accountTariffLogCancelled = array_shift($accountTariffLogs);
+            $accountTariffLogCancelled->user_info = isset($postData['user_info']) ? $postData['user_info'] : '';
             if (!$accountTariff->isLogCancelable()) {
                 throw new HttpException(ModelValidationException::STATUS_CODE, 'Нельзя отменить уже примененный тариф', AccountTariff::ERROR_CODE_USAGE_CANCELABLE);
             }
@@ -1770,6 +1779,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "amount", type = "integer", description = "Количество ресурса", in = "formData", required = true, default = ""),
      *   @SWG\Parameter(name = "actual_from", type = "string", description = "Дата смены. ГГГГ-ММ-ДД. Если не указано - сейчас", in = "formData", default = ""),
      *   @SWG\Parameter(name = "is_validate_only", type = "integer", description = "Эмуляция без реального действия. 0 - изменить количество ресурса и списать деньги. 1 - не менять и не списывать, но валидировать и посчитать стоимость", in = "formData", default = "0"),
+     *   @SWG\Parameter(name = "user_info", type = "string", description = "Информация о юзере (логин, IP, user-agent)", in = "formData", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Количество ресурса изменено",
      *     @SWG\Schema(ref = "#/definitions/editAccountTariffResourceRecord")

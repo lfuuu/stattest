@@ -53,6 +53,9 @@ class AccountTariffResourceLog extends ActiveRecord
 
     protected $isAttributeTypecastBehavior = true;
 
+    /** @var string Это поле только для записи в историю */
+    public $user_info = '';
+
     /**
      * @return string
      */
@@ -75,6 +78,7 @@ class AccountTariffResourceLog extends ActiveRecord
             ['actual_from', 'date', 'format' => 'php:' . DateTimeZoneHelper::DATE_FORMAT],
             ['actual_from', 'validatorFuture', 'skipOnEmpty' => false],
             ['id', 'validatorBalance', 'skipOnEmpty' => false],
+            ['user_info', 'string'],
         ];
     }
 
@@ -101,6 +105,17 @@ class AccountTariffResourceLog extends ActiveRecord
                     'value' => Yii::$app->user->getId(),
                 ],
             ];
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return array_merge(
+            parent::toArray(),
+            ['user_info' => $this->user_info]
+        );
     }
 
     /**
