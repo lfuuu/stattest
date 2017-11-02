@@ -2,10 +2,10 @@
 
 namespace app\modules\transfer\components\services;
 
+use app\classes\model\ActiveRecord;
 use app\models\ClientAccount;
 use app\modules\transfer\forms\services\decorators\ServiceDecoratorInterface;
 use app\modules\uu\models\AccountTariffResourceLog;
-use yii\db\ActiveRecord;
 
 abstract class ServiceTransfer
 {

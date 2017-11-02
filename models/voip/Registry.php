@@ -4,7 +4,7 @@ namespace app\models\voip;
 
 use app\classes\behaviors\CreatedAt;
 use app\classes\enum\VoipRegistrySourceEnum;
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\dao\VoipRegistryDao;
 use app\models\City;
 use app\models\Country;
@@ -33,7 +33,7 @@ use app\modules\nnp\models\NdcType;
  * @property-read NdcType $ndcType
  * @property string $status
  */
-class Registry extends HistoryActiveRecord
+class Registry extends ActiveRecord
 {
     const STATUS_EMPTY = 'empty';
     const STATUS_PARTLY = 'partly';

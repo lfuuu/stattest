@@ -3,6 +3,7 @@
 namespace app\modules\transfer\components\services\regular;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
@@ -12,7 +13,6 @@ use app\modules\transfer\components\services\PreProcessor;
 use app\modules\transfer\forms\services\decorators\TrunkRegularServiceDecorator;
 use app\modules\uu\models\ServiceType;
 use DateTime;
-use Yii;
 use yii\base\InvalidParamException;
 use yii\base\InvalidValueException;
 
@@ -31,7 +31,7 @@ class TrunkServiceTransfer extends BasicServiceTransfer
     }
 
     /**
-     * @param \yii\db\ActiveRecord $service
+     * @param ActiveRecord $service
      * @return TrunkRegularServiceDecorator
      */
     public function getServiceDecorator($service)

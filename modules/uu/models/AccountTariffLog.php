@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
@@ -20,7 +20,6 @@ use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 
 /**
@@ -39,7 +38,7 @@ use yii\db\Expression;
  * @method static AccountTariffLog findOne($condition)
  * @method static AccountTariffLog[] findAll($condition)
  */
-class AccountTariffLog extends HistoryActiveRecord
+class AccountTariffLog extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

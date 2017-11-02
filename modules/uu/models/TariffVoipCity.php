@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\models\City;
 use yii\db\ActiveQuery;
 
@@ -19,7 +19,7 @@ use yii\db\ActiveQuery;
  * @method static TariffVoipCity findOne($condition)
  * @method static TariffVoipCity[] findAll($condition)
  */
-class TariffVoipCity extends HistoryActiveRecord
+class TariffVoipCity extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

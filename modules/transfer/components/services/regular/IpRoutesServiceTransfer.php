@@ -3,12 +3,12 @@
 namespace app\modules\transfer\components\services\regular;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\UsageIpRoutes;
 use app\models\usages\UsageInterface;
 use app\modules\transfer\components\services\PreProcessor;
 use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
 
 class IpRoutesServiceTransfer extends BasicServiceTransfer
 {

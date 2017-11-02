@@ -2,9 +2,8 @@
 
 namespace app\models;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\modules\uu\models\AccountEntry;
-use app\modules\uu\models_light\InvoiceItemsLight;
 
 /**
  * Class BillLine
@@ -40,7 +39,7 @@ use app\modules\uu\models_light\InvoiceItemsLight;
  * @property-read Bill $bill
  * @property-read AccountEntry $accountEntry
  */
-class BillLine extends HistoryActiveRecord
+class BillLine extends ActiveRecord
 {
 
     const LINE_TYPE_SERVICE = 'service';

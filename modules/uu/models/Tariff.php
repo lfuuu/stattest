@@ -3,7 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\Html;
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\Country;
@@ -16,7 +16,6 @@ use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 use yii\helpers\Url;
 
@@ -70,7 +69,7 @@ use yii\helpers\Url;
  * @method static Tariff findOne($condition)
  * @method static Tariff[] findAll($condition)
  */
-class Tariff extends HistoryActiveRecord
+class Tariff extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

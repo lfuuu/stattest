@@ -6,7 +6,7 @@ use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\CheckBillPaymentOverdue;
 use app\classes\behaviors\PartnerRewardsCalculation;
 use app\classes\behaviors\SetBillPaymentOverdue;
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\classes\Utils;
 use app\dao\BillDao;
 use app\queries\BillQuery;
@@ -53,7 +53,7 @@ use yii\helpers\Url;
  * @property-read BillLine[] $lines   ??
  * @property-read Transaction[] $transactions   ??
  */
-class Bill extends HistoryActiveRecord
+class Bill extends ActiveRecord
 {
     const MINIMUM_BILL_DATE = '2000-01-01';
 

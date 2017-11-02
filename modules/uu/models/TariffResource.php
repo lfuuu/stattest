@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * Стоимость ресурса (дисковое пространство, абоненты, линии и пр.)
@@ -20,7 +20,7 @@ use app\classes\model\HistoryActiveRecord;
  * @method static TariffResource findOne($condition)
  * @method static TariffResource[] findAll($condition)
  */
-class TariffResource extends HistoryActiveRecord
+class TariffResource extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

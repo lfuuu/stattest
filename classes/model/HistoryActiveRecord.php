@@ -243,43 +243,6 @@ class HistoryActiveRecord extends ActiveRecord
     }
 
     /**
-     * Вернуть класс + ID
-     *
-     * @param HistoryActiveRecord|HistoryActiveRecord[] $models Одна или массив моделей, которые надо искать
-     * @param array $parentModel Исходная модель (можно свежесозданную и несохраненную) и id родителя
-     * @param string $idField
-     * @return string
-     */
-    public static function getHistoryIds($models, $parentModel = [], $idField = 'id')
-    {
-        if (!is_array($models)) {
-            if ($models) {
-                $models = [$models];
-            } else {
-                $models = [];
-            }
-        }
-
-        $historyIdPhp = [];
-        foreach ($models as $model) {
-            if ($model->isNewRecord) {
-                continue;
-            }
-
-            $historyIdPhp[] = [$model->getClassName(), $model->{$idField}, 0];
-        }
-
-        if (count($parentModel) === 2) {
-            list($model, $fieldValue) = $parentModel;
-            $historyIdPhp[] = [$model->getClassName(), 0, $fieldValue];
-        }
-
-        $historyIdJson = json_encode($historyIdPhp);
-        $historyIdJson = str_replace('"', "'", $historyIdJson); // чтобы не конфликтовать с кавычками html-атрибута
-        return $historyIdJson;
-    }
-
-    /**
      * Заполняет текущую модель данными из истории
      *
      * @param array $versionData
@@ -410,38 +373,5 @@ class HistoryActiveRecord extends ActiveRecord
         }
 
         unset(self::$_cacheHolder[$className][$id]);
-    }
-
-    /**
-     * Подготовка полей для исторических данных
-     *
-     * @param string $field
-     * @param string $value
-     * @return string
-     */
-    public static function prepareHistoryValue($field, $value)
-    {
-        return $value;
-    }
-
-    /**
-     * Какие поля не показывать в исторических данных
-     *
-     * @param string $action
-     * @return string[]
-     */
-    public static function getHistoryHiddenFields($action)
-    {
-        return [];
-    }
-
-    /**
-     * Вернуть parent_model_id для исторических данных
-     *
-     * @return int
-     */
-    public function getHistoryParentField()
-    {
-        return null;
     }
 }

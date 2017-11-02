@@ -3,7 +3,7 @@
 namespace app\modules\sim\models;
 
 use app\classes\Html;
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\models\ClientAccount;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -25,7 +25,7 @@ use yii\helpers\Url;
  * @method static Card findOne($condition)
  * @method static Card[] findAll($condition)
  */
-class Card extends HistoryActiveRecord
+class Card extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

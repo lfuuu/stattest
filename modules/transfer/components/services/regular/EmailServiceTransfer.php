@@ -3,12 +3,12 @@
 namespace app\modules\transfer\components\services\regular;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\models\ClientAccount;
 use app\models\UsageEmails;
 use app\models\usages\UsageInterface;
 use app\modules\transfer\components\services\PreProcessor;
 use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
 
 class EmailServiceTransfer extends BasicServiceTransfer
 {

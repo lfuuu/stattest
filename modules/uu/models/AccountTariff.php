@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
@@ -21,7 +21,6 @@ use app\modules\uu\models\traits\AccountTariffValidatorTrait;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
-use yii\db\ActiveRecord;
 use yii\db\Expression;
 
 /**
@@ -42,7 +41,7 @@ use yii\db\Expression;
  * @property string $mtt_number
  * @property double $mtt_balance
  */
-class AccountTariff extends HistoryActiveRecord
+class AccountTariff extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

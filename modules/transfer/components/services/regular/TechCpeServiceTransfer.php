@@ -3,12 +3,12 @@
 namespace app\modules\transfer\components\services\regular;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\usages\UsageInterface;
 use app\models\UsageTechCpe;
 use app\modules\transfer\components\services\PreProcessor;
 use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
 
 class TechCpeServiceTransfer extends BasicServiceTransfer
 {

@@ -3,7 +3,7 @@
 namespace app\modules\sim\models;
 
 use app\classes\Html;
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -16,7 +16,7 @@ use yii\helpers\Url;
  * @method static ImsiStatus findOne($condition)
  * @method static ImsiStatus[] findAll($condition)
  */
-class ImsiStatus extends HistoryActiveRecord
+class ImsiStatus extends ActiveRecord
 {
     const ID_DEFAULT = 1;
 

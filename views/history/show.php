@@ -1,10 +1,10 @@
 <?php
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 
 /**
  * @var \app\models\HistoryChanges[] $changes
- * @var HistoryActiveRecord[] $models
+ * @var ActiveRecord[] $models
  */
 ?>
 

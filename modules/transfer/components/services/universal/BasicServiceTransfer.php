@@ -3,6 +3,7 @@
 namespace app\modules\transfer\components\services\universal;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\modules\transfer\components\services\PreProcessor;
@@ -13,7 +14,6 @@ use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use yii\base\InvalidParamException;
 use yii\base\InvalidValueException;
-use yii\db\ActiveRecord;
 
 /**
  * @property-read ActiveRecord[] $possibleToTransfer
@@ -41,7 +41,7 @@ abstract class BasicServiceTransfer extends ServiceTransfer
     }
 
     /**
-     * @param \yii\db\ActiveRecord $service
+     * @param ActiveRecord $service
      * @return UniversalServiceDecorator
      */
     public function getServiceDecorator($service)

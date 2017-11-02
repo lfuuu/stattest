@@ -1,15 +1,14 @@
 <?php
 namespace app\classes\behaviors;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use Yii;
 use yii\base\Behavior;
-use yii\db\ActiveRecord;
 
 class HistoryChanges extends Behavior
 {
-    /** @var HistoryActiveRecord */
+    /** @var ActiveRecord */
     public $owner;
 
     /**

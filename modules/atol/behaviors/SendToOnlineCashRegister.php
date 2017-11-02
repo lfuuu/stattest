@@ -2,6 +2,7 @@
 
 namespace app\modules\atol\behaviors;
 
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\ClientContact;
 use app\models\Currency;
@@ -11,7 +12,6 @@ use app\modules\atol\classes\Api;
 use Yii;
 use yii\base\Behavior;
 use yii\base\Event;
-use yii\db\ActiveRecord;
 
 
 class SendToOnlineCashRegister extends Behavior

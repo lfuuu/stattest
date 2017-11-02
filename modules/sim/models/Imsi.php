@@ -2,7 +2,7 @@
 
 namespace app\modules\sim\models;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\models\Number;
 use yii\db\ActiveQuery;
 
@@ -26,7 +26,7 @@ use yii\db\ActiveQuery;
  * @method static Imsi findOne($condition)
  * @method static Imsi[] findAll($condition)
  */
-class Imsi extends HistoryActiveRecord
+class Imsi extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

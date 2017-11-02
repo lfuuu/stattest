@@ -8,7 +8,6 @@ use app\modules\transfer\components\services\PreProcessor;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
 use yii\base\InvalidParamException;
-use yii\db\ActiveRecord;
 
 class PackageServiceTransfer extends VoipServiceTransfer
 {

@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\models\Organization;
 use yii\db\ActiveQuery;
 
@@ -19,7 +19,7 @@ use yii\db\ActiveQuery;
  * @method static TariffOrganization findOne($condition)
  * @method static TariffOrganization[] findAll($condition)
  */
-class TariffOrganization extends HistoryActiveRecord
+class TariffOrganization extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

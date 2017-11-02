@@ -2,13 +2,13 @@
 
 namespace app\modules\transfer\components\services\regular;
 
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\LogTarif;
 use DateTime;
 use DateTimeZone;
 use yii\base\InvalidValueException;
-use yii\db\ActiveRecord;
 
 abstract class LogTarifTransfer
 {

@@ -2,7 +2,7 @@
 
 namespace app\modules\uu\models;
 
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use app\modules\nnp\models\NdcType;
 use yii\db\ActiveQuery;
 
@@ -19,7 +19,7 @@ use yii\db\ActiveQuery;
  * @method static TariffVoipNdcType findOne($condition)
  * @method static TariffVoipNdcType[] findAll($condition)
  */
-class TariffVoipNdcType extends HistoryActiveRecord
+class TariffVoipNdcType extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

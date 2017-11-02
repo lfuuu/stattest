@@ -3,7 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\Html;
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use Yii;
 use yii\db\ActiveQuery;
 
@@ -24,7 +24,7 @@ use yii\db\ActiveQuery;
  * @method static TariffPeriod findOne($condition)
  * @method static TariffPeriod[] findAll($condition)
  */
-class TariffPeriod extends HistoryActiveRecord
+class TariffPeriod extends ActiveRecord
 {
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;

@@ -3,7 +3,7 @@
 namespace app\modules\sim\models;
 
 use app\classes\Html;
-use app\classes\model\HistoryActiveRecord;
+use app\classes\model\ActiveRecord;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -16,7 +16,7 @@ use yii\helpers\Url;
  * @method static CardStatus findOne($condition)
  * @method static CardStatus[] findAll($condition)
  */
-class CardStatus extends HistoryActiveRecord
+class CardStatus extends ActiveRecord
 {
     const ID_DEFAULT = 1;
 

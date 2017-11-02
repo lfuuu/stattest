@@ -2,6 +2,7 @@
 
 namespace app\modules\transfer\components\services\regular;
 
+use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\usages\UsageInterface;
 use app\modules\transfer\components\services\PreProcessor;
@@ -9,7 +10,6 @@ use app\modules\transfer\components\services\ServiceTransfer;
 use app\modules\transfer\forms\services\decorators\RegularServiceDecorator;
 use yii\base\InvalidParamException;
 use yii\base\InvalidValueException;
-use yii\db\ActiveRecord;
 
 abstract class BasicServiceTransfer extends ServiceTransfer
 {
@@ -20,7 +20,7 @@ abstract class BasicServiceTransfer extends ServiceTransfer
     public abstract function getServiceModelName();
 
     /**
-     * @param \yii\db\ActiveRecord $service
+     * @param ActiveRecord $service
      * @return RegularServiceDecorator
      */
     public function getServiceDecorator($service)
