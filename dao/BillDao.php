@@ -612,7 +612,6 @@ SQL;
                                 b.client_id = :accountId
                             AND l.bill_no = b.bill_no
                             AND is_user_prepay
-                            AND biller_version = :biller_version
                         GROUP BY
                             bill_no
                         HAVING
@@ -626,7 +625,6 @@ SQL;
                     bill_date DESC
                 LIMIT 1
              )a", [
-            ':biller_version' => ClientAccount::VERSION_BILLER_USAGE,
             ':accountId' => $accountId,
             'sum' => $sum
         ])->queryScalar();

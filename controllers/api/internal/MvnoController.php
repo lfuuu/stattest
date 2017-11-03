@@ -106,7 +106,7 @@ class MvnoController extends ApiInternalController
             throw new BadRequestHttpException('invalide messagesCount');
         }
 
-        return $messagesCount < 3; // заглушка
+        return $messagesCount < 5; // заглушка
     }
 
     /**
