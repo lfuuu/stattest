@@ -9,6 +9,15 @@ use yii\web\BadRequestHttpException;
 
 class HttpRequest extends \yii\httpclient\Request
 {
+    const ERROR_CODE_OTHER_ACCOUNT = 514; // Did|Vpbx используется на другом клиенте
+    const ERROR_CODE_WRONG_DID = 539; // Did|Vpbx не найден
+    const ERROR_CODE_DB = 580; // Ошибка сохранения в базу, если возвращается из-за исключения - будет код и сообщение от исключения.
+    const ERROR_CODE_ALREADY = 581; // Услуга уже подключена данному клиенту
+    const ERROR_CODE_WRONG_ACCOUNT = 583; // Клиент (account_id) не найден
+    const ERROR_CODE_OTHER_DID = 584; // Did НЕ MCN
+    const ERROR_CODE_TRANSFER = 585; // Ошибка переноса услуги
+    const ERROR_CODE_WRONG_USAGE = 591; // Did у конкретного клиента не найден
+
     private $_isCheckOk = true;
 
     /**
@@ -118,7 +127,15 @@ class HttpRequest extends \yii\httpclient\Request
                 $msg = '';
             }
 
-            throw new InvalidCallException($msg, is_numeric($code) ? $code : -1);
+            if (!is_numeric($code)) {
+                $code = -1;
+            }
+
+            if ($code != self::ERROR_CODE_ALREADY) {
+                // если услуга уже создана, но предыдущий запрос закончился таймаутом, то это не ошибка
+                // все остальное - ошибка
+                throw new InvalidCallException($msg, $code);
+            }
         }
 
         return $responseData;
