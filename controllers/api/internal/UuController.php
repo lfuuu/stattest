@@ -34,8 +34,10 @@ use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipGroup;
 use app\modules\uu\models\TariffVoipNdcType;
 use app\modules\uu\Module;
+use DateTimeZone;
 use Exception;
 use Yii;
+use yii\base\InvalidParamException;
 use yii\web\HttpException;
 
 class UuController extends ApiInternalController
@@ -1502,7 +1504,9 @@ class UuController extends ApiInternalController
             $accountTariffLog->account_tariff_id = $accountTariff->id;
             $accountTariffLog->setAttributes($post);
             if (!$accountTariffLog->actual_from_utc) {
-                $accountTariffLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+                $accountTariffLog->actual_from_utc = (new \DateTime('00:00:00', $accountTariff->clientAccount->getTimezone()))
+                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
             }
 
             if (!$accountTariffLog->save()) {
@@ -1804,7 +1808,14 @@ class UuController extends ApiInternalController
             $accountTariffResourceLog = new AccountTariffResourceLog();
             $accountTariffResourceLog->setAttributes($post);
             if (!$accountTariffResourceLog->actual_from_utc) {
-                $accountTariffResourceLog->actual_from = date(DateTimeZoneHelper::DATE_FORMAT);
+                $accountTariff = $accountTariffResourceLog->accountTariff;
+                if (!$accountTariff || !$accountTariff->clientAccount) {
+                    throw new InvalidParamException('Неправильная услуга');
+                }
+
+                $accountTariffResourceLog->actual_from_utc = (new \DateTime('00:00:00', $accountTariff->clientAccount->getTimezone()))
+                    ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
             }
 
             if (
