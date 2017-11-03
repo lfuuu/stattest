@@ -322,12 +322,22 @@ class TariffPeriod extends ActiveRecord
     }
 
     /**
-     * Вернуть parent_model_id для исторических данных
+     * Вернуть ID родителя
      *
      * @return int
      */
-    public function getHistoryParentField()
+    public function getParentId()
     {
         return $this->tariff_id;
+    }
+
+    /**
+     * Установить ID родителя
+     *
+     * @param int $parentId
+     */
+    public function setParentId($parentId)
+    {
+        $this->tariff_id = $parentId;
     }
 }

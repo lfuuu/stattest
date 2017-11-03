@@ -67,7 +67,7 @@ class HistoryChanges extends Behavior
         $queryData = [
             'model' => $this->owner->getClassName(),
             'model_id' => $this->owner->primaryKey,
-            'parent_model_id' => $this->owner->getHistoryParentField(),
+            'parent_model_id' => $this->owner->getParentId(),
             'user_id' => Yii::$app->user->getId(),
             'created_at' => date(DateTimeZoneHelper::DATETIME_FORMAT),
             'action' => $action,

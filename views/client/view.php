@@ -28,35 +28,32 @@ $this->registerJsFile('@web/js/behaviors/immediately-print.js', ['depends' => [A
     ],
 ]) ?>
 
+<?= $this->render('block/main', ['client' => $client, 'account' => $account, 'services' => $services]); ?>
+
 <div class="row">
-    <div class="col-sm-12">
-        <?= $this->render('block/main', ['client' => $client, 'account' => $account, 'services' => $services]); ?>
-        <div class="row">
-            <div class="col-sm-10">
-                <?= $this->render('block/status', ['account' => $account, 'contractForm' => $contractForm]); ?>
-                <?= $this->render('block/contactView', ['account' => $account, 'contacts' => $contacts]); ?>
-            </div>
-            <div class="col-sm-2">
-                <?= $this->render('block/rightmenu', ['account' => $account]); ?>
-            </div>
-        </div>
-        <?= $this->render('block/trouble', ['troubles' => $troubles, 'serverTroubles' => $serverTroubles]); ?>
-        <?= $this->render('block/service', ['account' => $account, 'services' => $services]); ?>
-        <?php
-        if ($uuFilterModel) {
-            ?>
-            <h2><a href="<?= Url::to(['/uu/account-tariff', 'AccountTariffFilter[client_account_id]' => $account->id]) ?>">Универсальные услуги</a></h2>
-            <?php
-            echo $this->render('/../modules/uu/views/account-tariff/_indexVoipLight',
-                [
-                    'filterModel' => $uuFilterModel,
-                ]
-            );
-        }
-        ?>
-
+    <div class="col-sm-10">
+        <?= $this->render('block/status', ['account' => $account, 'contractForm' => $contractForm]); ?>
+        <?= $this->render('block/contactView', ['account' => $account, 'contacts' => $contacts]); ?>
     </div>
-
-    <?= $this->render('block/style'); ?>
+    <div class="col-sm-2">
+        <?= $this->render('block/rightmenu', ['account' => $account]); ?>
+    </div>
 </div>
+
+<?= $this->render('block/trouble', ['troubles' => $troubles, 'serverTroubles' => $serverTroubles]); ?>
+
+<?= $this->render('block/service', ['account' => $account, 'services' => $services]); ?>
+
+<div class="row">
+
+    <?php if ($uuFilterModel) : ?>
+        <h2><a href="<?= Url::to(['/uu/account-tariff', 'AccountTariffFilter[client_account_id]' => $account->id]) ?>">Универсальные услуги</a></h2>
+        <?= $this->render('/../modules/uu/views/account-tariff/_indexVoipLight', ['filterModel' => $uuFilterModel,]) ?>
+    <?php endif ?>
+
+    <?= $this->render('/../modules/sim/views/card/_listByClient', ['client_account_id' => $account->id]); ?>
+</div>
+
+<?= $this->render('block/style'); ?>
+
 

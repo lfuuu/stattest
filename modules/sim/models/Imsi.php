@@ -96,13 +96,23 @@ class Imsi extends ActiveRecord
     }
 
     /**
-     * Вернуть parent_model_id для исторических данных
+     * Вернуть ID родителя
      *
      * @return int
      */
-    public function getHistoryParentField()
+    public function getParentId()
     {
         return $this->iccid;
+    }
+
+    /**
+     * Установить ID родителя
+     *
+     * @param int $parentId
+     */
+    public function setParentId($parentId)
+    {
+        $this->iccid = $parentId;
     }
 
     /**

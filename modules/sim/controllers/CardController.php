@@ -75,10 +75,7 @@ class CardController extends BaseController
         $card->status_id = CardStatus::ID_DEFAULT;
 
         $imsies = [];
-        $imsi = new Imsi();
-        $imsi->iccid = $card->iccid; // @todo
-
-        if ($this->loadFromInput($card, $imsies, $imsi)) {
+        if ($this->loadFromInput($card, $imsies, new Imsi())) {
             return $this->redirect(['index']);
         }
 
@@ -105,10 +102,7 @@ class CardController extends BaseController
 
 
         $imsies = $card->imsies;
-        $imsi = new Imsi();
-        $imsi->iccid = $card->iccid;
-
-        if ($this->loadFromInput($card, $imsies, $imsi)) {
+        if ($this->loadFromInput($card, $imsies, new Imsi())) {
             return $this->redirect(['index']);
         }
 

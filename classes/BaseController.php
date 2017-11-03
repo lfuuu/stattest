@@ -315,6 +315,7 @@ class BaseController extends Controller
                 //
                 if ($originalChild) {
                     // сохранить модели детей
+                    $originalChild->setParentId($model->primaryKey);
                     $childModels = $this->crudMultiple($childModels, $post, $originalChild);
 
                     if ($this->validateErrors) {
