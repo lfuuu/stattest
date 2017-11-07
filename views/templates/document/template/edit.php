@@ -327,4 +327,8 @@ $f["name"] . "<br/> Юридический адрес: " . $f["address"] .
                             </pre>
         </td>
     </tr>
+    <tr>
+        <td>{$simcards_table}</td>
+        <td>Таблица с доступными сим картами</td>
+    </tr>
 </table>

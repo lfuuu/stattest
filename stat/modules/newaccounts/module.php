@@ -5188,7 +5188,7 @@ SELECT cr.manager, cr.account_manager FROM clients c
                          INNER JOIN `client_contract` cr ON cr.id=C.contract_id
                          INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                          LEFT JOIN user_users as U ON U.id=P.add_user
-                         LEFT JOIN newbills as B ON (B.bill_no=P.bill_no and B.biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . ')
+                         LEFT JOIN newbills as B ON (B.bill_no=P.bill_no)
                          WHERE ' . $type . '>=FROM_UNIXTIME(' . $from . ') AND ' . $type . '<FROM_UNIXTIME(' . $to . ')
                          AND P.type IN (' . $types . ')' . $filter . ' ORDER BY ' . $order_by . ' LIMIT 5000');
         }

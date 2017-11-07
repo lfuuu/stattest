@@ -18,6 +18,8 @@ class PayReportFilter extends Payment
     public $client_id = '';
     public $client_name = '';
     public $bill_no = '';
+    public $bill_date_from = '';
+    public $bill_date_to = '';
     public $currency = '';
     public $payment_date_from = '';
     public $payment_date_to = '';
@@ -64,6 +66,8 @@ class PayReportFilter extends Payment
                     'date_by',
                     'user_id',
                     'comment',
+                    'bill_date_from',
+                    'bill_date_to',
                     'payment_date_from',
                     'payment_date_to',
                     'oper_date_from',
@@ -90,6 +94,7 @@ class PayReportFilter extends Payment
                 'organization_id' => 'Организация',
                 'client_name' => 'Клиент',
                 'total' => 'Итого',
+                'bill_date' => 'Дата счета',
                 'uuid' => 'ID в онлайн-кассе',
                 'uuid_status' => 'Статус отправки в онлайн-кассу',
                 'uuid_log' => 'Лог отправки в онлайн-кассу',
@@ -105,6 +110,7 @@ class PayReportFilter extends Payment
     {
         $query = Payment::find()
             ->alias('p')
+            ->joinWith('bill b')
             ->joinWith('paymentAtol');
 
         $dataProvider = new ActiveDataProvider([
@@ -129,6 +135,8 @@ class PayReportFilter extends Payment
         }
 
         $this->bill_no !== '' && $query->andWhere(['LIKE', 'p.bill_no', $this->bill_no]);
+        $this->bill_date_from !== '' && $query->andWhere(['>=', 'b.bill_date', $this->bill_date_from]);
+        $this->bill_date_to !== '' && $query->andWhere(['<=', 'b.bill_date', $this->bill_date_to]);
         $this->sum_from !== '' && $query->andWhere(['>=', 'p.sum', $this->sum_from]);
         $this->sum_to !== '' && $query->andWhere(['<=', 'p.sum', $this->sum_to]);
 
@@ -155,7 +163,7 @@ class PayReportFilter extends Payment
         $this->uuid_status !== '' && $query->andWhere([$paymentAtolTableName . '.uuid_status' => $this->uuid_status]);
         $this->uuid_log !== '' && $query->andWhere(['LIKE', $paymentAtolTableName . '.uuid_log', $this->uuid_log]);
 
-        $this->total = "+" . $query->sum(new Expression('IF(sum > 0, sum, 0)')) . ' / ' . $query->sum(new Expression('IF(sum < 0, sum, 0)')) . ' ' . $this->currency;
+        $this->total = "+" . $query->sum(new Expression('IF(p.sum > 0, p.sum, 0)')) . ' / ' . $query->sum(new Expression('IF(p.sum < 0, p.sum, 0)')) . ' ' . $this->currency;
 
         return $dataProvider;
     }

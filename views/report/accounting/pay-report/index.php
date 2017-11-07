@@ -78,6 +78,13 @@ $columns = [
     ],
 
     [
+        'attribute' => 'bill_date',
+        'label' => $filterModel->getAttributeLabel('bill_date'),
+        'class' => DateRangeDoubleColumn::className(),
+        'value' => function(Payment $payment) {return $payment->bill ? $payment->bill->bill_date : '';},
+    ],
+
+    [
         'attribute' => 'sum',
         'class' => IntegerRangeColumn::className(),
         'headerOptions' => ['style' => 'width: 100px'],
