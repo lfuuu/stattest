@@ -10,3 +10,5 @@
 ./mttProcess.sh > ../web/operator/_private/healthMttProcess.json
 ./socketProcess.sh > ../web/operator/_private/healthSocketProcess.json
 ./uuApiLog.sh > ../web/operator/_private/healthUuApiLog.json
+./mailerLog.sh > ../web/operator/_private/healthMailerLog.json
+./mailerProcess.sh > ../web/operator/_private/healthMailerProcess.json
