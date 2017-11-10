@@ -69,8 +69,13 @@ class SubAccountController extends ApiInternalController
 
         // получение данных
         $data = ClientSubAccount::find()
+            ->where(['is_enabled' => true])
             ->andFilterWhere($model->getAttributes())
             ->all();
+
+        foreach ($data as &$row) {
+            unset($row['is_enabled']);
+        }
 
         return $data;
     }
@@ -181,7 +186,7 @@ class SubAccountController extends ApiInternalController
             foreach ($flatData as $row) {
                 $model = new ClientSubAccount();
 
-                $model->setScenario($row['is_sub_account_enable'] ? 'save' : 'delete');
+                $model->setScenario('save');
 
                 // валидация
                 if (!$model->load($row, '') || !$model->validate()) {
@@ -196,20 +201,15 @@ class SubAccountController extends ApiInternalController
                     }
                 );
 
+                $attributes['is_enabled'] = (int)(bool)$row['is_sub_account_enable'];
+
                 /** @var ClientSubAccount $subAccount */
                 $subAccount = ClientSubAccount::findOne(['id' => $model->id]);
 
-                // удаление
-                if (!$row['is_sub_account_enable']) {
-                    if ($subAccount && !$subAccount->delete()) {
-                        throw new ModelValidationException($subAccount);
-                    }
-
-                    continue;
-                }
-
-                // вставка
                 if (!$subAccount) {
+                    if (!$attributes['is_enabled']) {
+                        continue;
+                    }
                     $subAccount = new ClientSubAccount();
                 }
 

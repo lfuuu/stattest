@@ -23,6 +23,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property int $voip_limit_mn_month
  * @property int $is_voip_orig_disabled
  * @property int $is_voip_blocked
+ * @property int $is_enabled
  * @property string $did
  */
 class ClientSubAccount extends HistoryActiveRecord
@@ -41,7 +42,7 @@ class ClientSubAccount extends HistoryActiveRecord
     public function rules()
     {
         return [
-            ['id', 'required', 'on' => ['save', 'delete']],
+            ['id', 'required', 'on' => ['save']],
             ['account_id', AccountIdValidator::className(), 'skipOnEmpty' => true],
             [
                 [
@@ -65,13 +66,15 @@ class ClientSubAccount extends HistoryActiveRecord
                     'is_voip_limit_mn_month_enabled',
                     'is_voip_limit_month_enabled',
                     'is_voip_limit_day_enabled',
-                    'is_voip_limit_mn_day_enabled'
+                    'is_voip_limit_mn_day_enabled',
+                    'is_enabled',
                 ],
                 'boolean'
             ],
             [['name', 'did'], 'string'],
             [['balance', 'credit'], 'number'],
-            ['amount_date', 'datetime', 'format' => 'php:' . DateTimeZoneHelper::DATETIME_FORMAT]
+            ['amount_date', 'datetime', 'format' => 'php:' . DateTimeZoneHelper::DATETIME_FORMAT],
+            ['is_enabled', 'default', 'value' => 1]
         ];
     }
 }
