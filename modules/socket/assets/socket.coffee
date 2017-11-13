@@ -140,7 +140,7 @@ class SocketWebClient
 # "по запросу" - обновить статус, ибо юзер уже мог разрешить или запретить
         @notificationPermission = if Notification then Notification.permission.toLowerCase() else @NOTIFICATION_PERMISSION_DENIED
 
-      if @notificationPermission == @NOTIFICATION_PERMISSION_GRANTED
+      if @notificationPermission == @NOTIFICATION_PERMISSION_GRANTED and json['isNotification'] == 1
 # "разрешено" - отправить уведомление
         notification = new Notification(titleTxt,
 #tag : '',
