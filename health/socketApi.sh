@@ -1,7 +1,7 @@
 #!/bin/bash
 # Проверить, что socket отвечает по API
 
-if wget https://stat.mcn.ru:3000 -q
+if wget https://stat.mcn.ru:3000 -q -O /dev/null
 then
     itemVal=0
 else
