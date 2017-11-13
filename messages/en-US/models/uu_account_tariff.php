@@ -10,6 +10,7 @@ return [
     'voip_number' => 'Number',
     'vm_elid_id' => 'ID VM collocation',
     'trunk_id' => 'Trunk',
+    'trunk_type_id' => 'Mega/multi trunk',
 
     'insert_time' => 'Insert time',
     'insert_user_id' => 'Insert user',

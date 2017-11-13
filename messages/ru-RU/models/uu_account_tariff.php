@@ -16,6 +16,7 @@ return [
     'is_unzipped' => 'Разархивировано',
     'mtt_number' => 'Номер МТТ',
     'mtt_balance' => 'Баланс МТТ',
+    'trunk_type_id' => 'Мега/мульти транк',
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',

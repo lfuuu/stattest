@@ -168,7 +168,7 @@ abstract class AccountTariffForm extends Form
                     $this->isSaved = true;
 
                     if ($this->accountTariff->service_type_id == ServiceType::ID_TRUNK && isset($post['trunkId'])) {
-                        // isset($post['trunkId']) гарантирует, что сюда попадаем только при создании, но не при редактировании
+                        // isset($post['trunkId']) гарантирует, что сюда попадаем только при создании не-мультитранка, но не при редактировании (там return) и не при создании мультитранка (там disabled)
                         if (!(int)$post['trunkId']) {
                             throw new LogicException('Не указан транк');
                         }

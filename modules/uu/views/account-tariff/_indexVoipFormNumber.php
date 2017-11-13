@@ -23,7 +23,7 @@ use yii\helpers\Url;
 
     <?= Html::checkbox('AccountTariff[ids][]', $checked = true, ['value' => $accountTariff->id, 'class' => 'collapse']) ?>
 
-    <?php if ($accountTariff->service_type_id == ServiceType::ID_TRUNK) : ?>
+    <?php if ($accountTariff->service_type_id == ServiceType::ID_TRUNK && $accountTariff->trunk_type_id != AccountTariff::TRUNK_TYPE_MULTITRUNK) : ?>
         <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
     <?php else : ?>
         <?= Html::a(

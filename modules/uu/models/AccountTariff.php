@@ -15,6 +15,7 @@ use app\modules\uu\models\traits\AccountTariffBoolTrait;
 use app\modules\uu\models\traits\AccountTariffGroupTrait;
 use app\modules\uu\models\traits\AccountTariffHistoryTrait;
 use app\modules\uu\models\traits\AccountTariffLinkTrait;
+use app\modules\uu\models\traits\AccountTariffListTrait;
 use app\modules\uu\models\traits\AccountTariffPackageTrait;
 use app\modules\uu\models\traits\AccountTariffRelationsTrait;
 use app\modules\uu\models\traits\AccountTariffValidatorTrait;
@@ -40,6 +41,7 @@ use yii\db\Expression;
  * @property int $is_unzipped
  * @property string $mtt_number
  * @property double $mtt_balance
+ * @property int $trunk_type_id
  */
 class AccountTariff extends ActiveRecord
 {
@@ -59,9 +61,13 @@ class AccountTariff extends ActiveRecord
     use AccountTariffGroupTrait;
     use AccountTariffPackageTrait;
     use AccountTariffLinkTrait;
+    use AccountTariffListTrait;
     use AccountTariffHistoryTrait;
 
     const DELTA = 100000;
+
+    const TRUNK_TYPE_MEGATRUNK = 1;
+    const TRUNK_TYPE_MULTITRUNK = 2; // настраивается на Asterisk и физически не связана с услугой в стате, услуга в стате будет использоваться исключительно для билингации, канальность устанавливается пользователем в стате
 
     // Ошибки ЛС
     const ERROR_CODE_ACCOUNT_EMPTY = 1; // ЛС не указан
@@ -164,6 +170,7 @@ class AccountTariff extends ActiveRecord
                     'city_id',
                     'prev_account_tariff_id',
                     'tariff_period_id',
+                    'trunk_type_id',
                 ],
                 'integer'
             ],
