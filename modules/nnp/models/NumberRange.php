@@ -7,6 +7,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\billing\InstanceSettings;
+use app\models\Number;
 use Yii;
 use yii\behaviors\AttributeBehavior;
 use yii\behaviors\TimestampBehavior;
@@ -323,5 +324,44 @@ class NumberRange extends ActiveRecord
             ->andWhere(['>=', 'full_number_to', $number])
             ->orderBy(new Expression('ndc IS NOT NULL DESC'))// чтобы большой диапазон по всей стране типа 0000-9999 был в конце
             ->one();
+    }
+
+    /**
+     * Получение NNP информации по номеру.
+     *
+     * @param $number string
+     * @return array
+     */
+    public static function getNumberInfo($number)
+    {
+        $numberModel = $number;
+
+        if (!($number instanceof Number)) {
+            $numberModel = Number::findOne(['number' => $number]);
+        }
+
+        if (!$numberModel) {
+            return [];
+        }
+
+        $nnpNumberRange = self::getByNumber($numberModel->number);
+        $nnpOperator = $nnpNumberRange ? $nnpNumberRange->operator : null;
+        $nnpCountry = $nnpNumberRange ? $nnpNumberRange->country : null;
+        $nnpRegion = $nnpNumberRange ? $nnpNumberRange->region : null;
+        $nnpCity = $nnpNumberRange ? $nnpNumberRange->city : null;
+
+        $country = $numberModel->country;
+        $regionModel = $numberModel->regionModel;
+        $city = $numberModel->city;
+
+        return [
+            'ndc' => (int)$numberModel->ndc,
+            'ndc_type' => (int)$numberModel->ndc_type_id,
+            'country_name' => $nnpCountry ? $nnpCountry->name_rus : ($country ? $country->name : null),
+            'region_name' => $nnpRegion ? $nnpRegion->name : ($regionModel ? $regionModel->name : null),
+            'city_name' => $nnpCity ? $nnpCity->name : ($city ? $city->name : null),
+            'operator_name' => $nnpOperator ? $nnpOperator->name : null,
+            'number_length' => $city ? (int)$city->postfix_length : null,
+        ];
     }
 }

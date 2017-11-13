@@ -2,6 +2,10 @@
 
 namespace app\controllers\api\internal;
 
+use app\classes\api\ApiPhone;
+use app\exceptions\ModelValidationException;
+use app\models\Number;
+use app\modules\nnp\models\NumberRange;
 use Yii;
 use DateTime;
 use app\exceptions\web\NotImplementedHttpException;
@@ -11,6 +15,7 @@ use app\classes\DynamicModel;
 use app\classes\validators\AccountIdValidator;
 use app\classes\validators\UsageVoipValidator;
 use app\models\billing\CallsRaw;
+use yii\base\InvalidParamException;
 
 class VoipController extends ApiInternalController
 {
@@ -107,6 +112,54 @@ class VoipController extends ApiInternalController
         }
 
         return $result;
+    }
+
+    /**
+     * @SWG\Get(tags = {"Numbers"}, path = "/internal/voip/number-info/", summary = "Получение информации о номере", operationId = "voip_number_info",
+     *   @SWG\Parameter(name = "number", type = "string", description = "номер телефона", in = "query", default = "", required = true),
+     *   @SWG\Response(response = 200, description = "Получение информации о номере",
+     *     @SWG\Schema(type = "object", required = {"account_balance", "account_balance_available", "subaccount_balance"},
+     *       @SWG\Property(property = "number", type = "string"),
+     *       @SWG\Property(property = "ndc", type = "number"),
+     *       @SWG\Property(property = "ndc_type", type = "number"),
+     *       @SWG\Property(property = "country_name", type = "string"),
+     *       @SWG\Property(property = "region_name", type = "string"),
+     *       @SWG\Property(property = "city_name", type = "string"),
+     *       @SWG\Property(property = "operator_name", type = "string"),
+     *       @SWG\Property(property = "number_length", type = "number")
+     *       )
+     *     )
+     *   )
+     * )
+     */
+    public function actionNumberInfo()
+    {
+        $requestData = Yii::$app->request->get();
+
+        $model = DynamicModel::validateData(
+            $requestData,
+            [
+                ['number', 'string'],
+                ['number', 'trim'],
+                ['number', 'required'],
+            ]
+        );
+
+        if ($model->hasErrors()) {
+            throw new ModelValidationException($model);
+        }
+
+        $number = Number::findOne(['number' => $model['number']]);
+
+        if (!$number) {
+            throw new InvalidParamException('Номер не найден');
+        }
+
+        return array_merge(
+            ['number' => $number->number],
+            NumberRange::getNumberInfo($number)
+        );
+
     }
 
 }
