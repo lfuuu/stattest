@@ -51,6 +51,8 @@ SQL;
         $query = $db->createCommand($sql)
             ->query();
 
+        $utcTimezone = new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC);
+
         foreach ($query as $row) {
 
             $this->out('. ');
@@ -59,6 +61,8 @@ SQL;
             try {
 
                 $accountTariff = AccountTariff::findOne(['id' => $row['id']]);
+                $clientTimezone = $accountTariff->clientAccount->getTimezone();
+
                 $accountLogHugePeriods = $accountTariff->getAccountLogHugeFromToTariffs($isWithFuture = true);
                 $accountLogHugePeriod = end($accountLogHugePeriods); // последний
 
@@ -90,25 +94,30 @@ SQL;
                 }
 
                 // нельзя закрывать в прошлом, иначе пробиллингованные периоды дадут ошибку
-                $dateFromNow = (new \DateTimeImmutable())
-                    ->setTimezone($accountTariff->clientAccount->getTimezone())
-                    ->setTime(0, 0);
+                $dateFromNow = (new \DateTimeImmutable())->setTime(0, 0);
                 if ($dateFrom < $dateFromNow) {
                     // закрыть сегодняшним числом
                     $dateFrom = $dateFromNow;
                 }
+
+                // в $dateFrom таймзона явно не указана - значит, UTC без таймзоны клиента
+                // а надо UTC по таймзоне клиента
+                $dateFromUtc = (new \DateTimeImmutable(
+                    $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT),
+                    $clientTimezone)
+                )
+                    ->setTimezone($utcTimezone);
 
                 // через модель не надо, иначе сработают триггеры и пересчет запустится рекурсивно.
                 // поскольку запуск по крону, то он и так все сразу пересчитает
                 $accountTariffLogFields = [
                     'account_tariff_id' => $accountTariff->id,
                     'tariff_period_id' => null,
-                    'actual_from_utc' => $dateFrom
-                        ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+                    'actual_from_utc' => $dateFromUtc
                         ->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                    'insert_time' => $dateFrom
-                        ->modify('-1 day')
-                        ->format(DateTimeZoneHelper::DATE_FORMAT . ' 20:59:58'), // 58 секунд специально, чтобы не путать со старым скриптом, в котором 59
+                    'insert_time' => $dateFromUtc
+                        ->modify('-2 seconds')
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT),
                 ];
                 $affectedRows = $db->createCommand()
                     ->insert($accountTariffLogTableName, $accountTariffLogFields)

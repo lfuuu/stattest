@@ -151,8 +151,8 @@ class Resource extends ActiveRecord
             // Звонки по пакетам телефонии (у.е, float). Берется из calls_raw
             self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::className(),
 
-            // Интернет-трафик по пакетам телефонии (Мб, float). Берется из API MTT
-            self::ID_VOIP_PACKAGE_INTERNET => DummyResourceReader::className(), // @todo
+            // Интернет-трафик по пакетам телефонии (Мб, float). Не важно, сколько потрачено
+            self::ID_VOIP_PACKAGE_INTERNET => ZeroResourceReader::className(),
 
             // Звонки по ориг-пакета транка (у.е, float). Берется из calls_raw
             self::ID_TRUNK_PACKAGE_ORIG_CALLS => TrunkCallsResourceReader::className(),

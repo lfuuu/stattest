@@ -35,6 +35,10 @@ class UbillerController extends Controller
         // Обязательно после actionSetCurrentTariff (чтобы правильно учесть тариф) и до транзакций (чтобы они правильно посчитали)
         $this->actionAutoCloseAccountTariff();
 
+        // Еще раз обновить AccountTariff.TariffPeriod на основе AccountTariffLog
+        // Второй раз вызываем после actionAutoCloseAccountTariff, чтобы сразу (фактически) закрыть УУ, которые выше решили закрыть (теоретически)
+        $this->actionSetCurrentTariff();
+
         // Отправить измененные ресурсы на платформу и другим поставщикам услуг
         // Обязательно после actionSetCurrentTariff, чтобы измененный тариф сам синхронизировал некоторые ресурсы
         $this->actionSyncResource();
@@ -172,17 +176,6 @@ class UbillerController extends Controller
     }
 
     /**
-     * Конвертировать все счета в старую бухгалтерию. 30 секунд
-     *
-     * @deprecated
-     */
-    private function _actionBillReConverter()
-    {
-        Bill::updateAll(['is_converted' => 0]);
-        $this->actionBillConverter();
-    }
-
-    /**
      * Обновить AccountTariff.TariffPeriod на основе AccountTariffLog. 10 секунд
      * Проверить баланс при смене тарифа. Если денег не хватает - отложить на день.
      * Обязательно это вызывать до транзакций (чтобы они правильно посчитали)
@@ -233,51 +226,6 @@ class UbillerController extends Controller
     }
 
     /**
-     * Удалить транзакции, проводки, счета. 10 сек
-     *
-     * @deprecated
-     */
-    private function _actionClear()
-    {
-        $this->_actionClearSetup();
-        $this->_actionClearPeriod();
-        $this->_actionClearResource();
-        $this->_actionClearMin();
-        $this->_actionClearEntry();
-        $this->_actionClearBill();
-    }
-
-    /**
-     * Удалить транзакции за подключение. 2 сек
-     *
-     * @deprecated
-     */
-    private function _actionClearSetup()
-    {
-        echo AccountLogSetup::deleteAll() . ' ' . PHP_EOL;
-    }
-
-    /**
-     * Удалить транзакции абоненской платы. 2 сек
-     *
-     * @deprecated
-     */
-    private function _actionClearPeriod()
-    {
-        echo AccountLogPeriod::deleteAll() . ' ' . PHP_EOL;
-    }
-
-    /**
-     * Удалить транзакции за ресурсы. 2 сек
-     *
-     * @deprecated
-     */
-    private function _actionClearResource()
-    {
-        echo AccountLogResource::deleteAll() . ' ' . PHP_EOL;
-    }
-
-    /**
      * Удалить транзакции за ресурсы-звонки в предыдущем месяце. 5 сек
      *
      * @throws \yii\db\Exception
@@ -295,48 +243,5 @@ class UbillerController extends Controller
     public function actionClearResourceCallsThisMonth()
     {
         echo AccountLogResource::clearCalls('first day of this month', 'last day of this month') . ' ' . PHP_EOL;
-    }
-
-    /**
-     * Удалить транзакции за минималку. 2 сек
-     *
-     * @deprecated
-     */
-    private function _actionClearMin()
-    {
-        echo AccountLogMin::deleteAll() . ' ' . PHP_EOL;
-    }
-
-    /**
-     * Удалить проводки. 2 сек
-     *
-     * @deprecated
-     */
-    private function _actionClearEntry()
-    {
-        echo AccountLogSetup::updateAll(['account_entry_id' => null]) . ' ';
-        echo AccountLogPeriod::updateAll(['account_entry_id' => null]) . ' ';
-        echo AccountLogResource::updateAll(['account_entry_id' => null]) . ' ';
-        echo AccountLogMin::updateAll(['account_entry_id' => null]) . ' ';
-        echo AccountEntry::deleteAll();
-        echo '. ' . PHP_EOL;
-    }
-
-    /**
-     * Удалить счета. 2 сек
-     *
-     * @deprecated
-     */
-    private function _actionClearBill()
-    {
-        // сначала надо удалить старые сконвертированные счета, иначе они останутся, потому что у них 'on delete set null'
-        echo \app\models\Bill::deleteAll([
-                'AND',
-                ['biller_version' => ClientAccount::VERSION_BILLER_UNIVERSAL],
-                ['IS NOT', 'uu_bill_id', null]
-            ]) . ' ';
-
-        echo AccountEntry::updateAll(['bill_id' => null]) . ' ';
-        echo Bill::deleteAll() . ' ' . PHP_EOL;
     }
 }
