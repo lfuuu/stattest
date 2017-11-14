@@ -65,7 +65,7 @@ function doEvents()
         $info = '';
 
         try {
-            echo PHP_EOL . date('r') . ': event: ' . $event->event . ', ' . $event->param;
+            echo PHP_EOL . $event->event . ', ' . $event->param;
 
             // для того, чтобы при фатале на конкретном событии они при следующем запуске не мешало другим событиям
             $event->setError();

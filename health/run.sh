@@ -13,3 +13,4 @@
 ./uuApiLog.sh > ../web/operator/_private/healthUuApiLog.json
 ./mailerLog.sh > ../web/operator/_private/healthMailerLog.json
 ./mailerProcess.sh > ../web/operator/_private/healthMailerProcess.json
+./handlerProcess.sh > ../web/operator/_private/healthHandlerProcess.json
