@@ -1,7 +1,7 @@
 #!/bin/bash
 # Проверить, что mtt запущен
 
-if [ `ps aux | grep mtt\.sh | grep -v grep | wc -l` -lt 1 ]
+if [ `ps aux | grep mtt/daemon | grep -v grep | wc -l` -lt 4 ]
 then
     itemVal=1
 else
