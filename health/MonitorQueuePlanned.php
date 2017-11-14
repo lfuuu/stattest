@@ -16,7 +16,9 @@ class MonitorQueuePlanned extends Monitor
      */
     public function getValue()
     {
-        return EventQueue::find()->where(['status' => EventQueue::STATUS_PLAN])->count();
+        return EventQueue::find()
+            ->where(['status' => EventQueue::STATUS_PLAN])
+            ->count();
     }
 
     /**

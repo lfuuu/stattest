@@ -60,6 +60,8 @@ class Event
     const VPBX_BLOCKED = 'vpbx_blocked';
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
 
+    const API_IS_SWITCHED_OFF = 'API is switched off';
+
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
         self::ACTUALIZE_NUMBER => 'Актуализировать номер',
@@ -74,11 +76,11 @@ class Event
         self::ATS3__DISABLED_NUMBER => 'Номер временно отключен',
         self::ATS3__SYNC => 'Синхронизировать номер',
         self::ATS3__UNBLOCKED => 'Номер разблокирован',
-        self::CALL_CHAT__ADD => 'Услуга звонок-чат добавлена',
-        self::CALL_CHAT__DEL => 'Услуга звонок-чат удалена',
-        self::CALL_CHAT__UPDATE => 'Услуга звонок-чат изменена',
+        self::CALL_CHAT__ADD => 'Услуга call chat добавлена',
+        self::CALL_CHAT__DEL => 'Услуга call chat удалена',
+        self::CALL_CHAT__UPDATE => 'Услуга call chat изменена',
         self::CORE_CREATE_OWNER => 'Создание админа в ЛК',
-        self::CHECK__CALL_CHAT => 'Проверить услугу звонок-чат',
+        self::CHECK__CALL_CHAT => 'Проверить услугу call chat',
         self::CHECK__USAGES => 'Проверить "старые" услуги',
         self::CHECK__VIRTPBX3 => 'Проверить услуги ВАТС',
         self::SYNC__VIRTPBX3 => 'Синхронизация услуги ВАТС',

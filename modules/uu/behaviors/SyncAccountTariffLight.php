@@ -146,4 +146,12 @@ class SyncAccountTariffLight extends Behavior
             throw new ModelValidationException($accountTariffLight);
         }
     }
+
+    /**
+     * @return bool
+     */
+    public static function isAvailable()
+    {
+        return strpos(AccountTariffLight::getDb()->username, 'readonly') !== false;
+    }
 }

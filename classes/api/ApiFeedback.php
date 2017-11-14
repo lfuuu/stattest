@@ -9,7 +9,7 @@ class ApiFeedback
     /**
      * @return bool
      */
-    private static function _isAvailable()
+    public static function isAvailable()
     {
         return
             isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']
@@ -21,7 +21,7 @@ class ApiFeedback
      */
     private static function _getApiUrl()
     {
-        return self::_isAvailable() ? 'https://' . \Yii::$app->params['FEEDBACK_SERVER'] . '/feedback/api/' : false;
+        return self::isAvailable() ? 'https://' . \Yii::$app->params['FEEDBACK_SERVER'] . '/feedback/api/' : false;
     }
 
     /**
@@ -114,7 +114,7 @@ class ApiFeedback
      */
     private static function _exec($action, $data = null)
     {
-        if (!self::_isAvailable()) {
+        if (!self::isAvailable()) {
             throw new InvalidConfigException('API Feedback was not configured');
         }
 

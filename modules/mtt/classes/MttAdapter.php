@@ -111,13 +111,26 @@ class MttAdapter extends Singleton
     public function init()
     {
         $this->_module = Config::getModule('mtt');
+    }
 
-        $params = $this->_module->params;
-        if (!$params['HOST'] || !$params['PORT'] || !$params['USER'] || !$params['PASS'] || !$params['VHOST']) {
+    /**
+     * Вернуть connection
+     *
+     * @return AMQPStreamConnection
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getConnection()
+    {
+        if ($this->_connection) {
+            return $this->_connection;
+        }
+
+        if (!$this->isAvailable()) {
             throw new InvalidConfigException('Error. Не настроен конфиг');
         }
 
         // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#class.connection
+        $params = $this->_module->params;
         $this->_connection = new AMQPStreamConnection(
             $params['HOST'],
             $params['PORT'],
@@ -125,6 +138,16 @@ class MttAdapter extends Singleton
             $params['PASS'],
             $params['VHOST']
         );
+        return $this->_connection;
+    }
+
+    /**
+     * Конфиг настроен?
+     */
+    public function isAvailable()
+    {
+        $params = $this->_module->params;
+        return $params['HOST'] && $params['PORT'] && $params['USER'] && $params['PASS'] && $params['VHOST'];
     }
 
     /**
@@ -132,7 +155,9 @@ class MttAdapter extends Singleton
      */
     public function __destruct()
     {
-        $this->_connection->close();
+        if ($this->_connection) {
+            $this->_connection->close();
+        }
     }
 
     /**
@@ -143,6 +168,7 @@ class MttAdapter extends Singleton
      *
      * @param string $msisdn
      * @param string $requestId
+     * @throws \yii\base\InvalidConfigException
      */
     public function getAccountBalance($msisdn, $requestId)
     {
@@ -159,6 +185,7 @@ class MttAdapter extends Singleton
      *
      * @param string $msisdn
      * @param string $requestId
+     * @throws \yii\base\InvalidConfigException
      */
     public function getAccountData($msisdn, $requestId)
     {
@@ -169,6 +196,7 @@ class MttAdapter extends Singleton
      * @param string $method
      * @param string $msisdn
      * @param string $requestId
+     * @throws \yii\base\InvalidConfigException
      */
     private function _getAccount($method, $msisdn, $requestId)
     {
@@ -185,6 +213,7 @@ class MttAdapter extends Singleton
      *
      * @param string|array $messageBody
      * @link https://github.com/welltime/mtt-adapter
+     * @throws \yii\base\InvalidConfigException
      */
     public function publishMessage($messageBody)
     {
@@ -198,7 +227,7 @@ class MttAdapter extends Singleton
 
         // очередь
         // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#class.channel
-        $channel = $this->_connection->channel();
+        $channel = $this->getConnection()->channel();
         // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#class.queue
         // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#queue.declare
         $channel->queue_declare($queue, $this->_queuePassive, $this->_queueDurable, $this->_queueExclusive, $this->_queueAutoDelete);
@@ -220,6 +249,7 @@ class MttAdapter extends Singleton
     /**
      * Запустить слушатель
      *
+     * @throws \yii\base\InvalidConfigException
      * @throws \PhpAmqpLib\Exception\AMQPOutOfBoundsException
      * @throws \PhpAmqpLib\Exception\AMQPRuntimeException
      */
@@ -231,7 +261,7 @@ class MttAdapter extends Singleton
 
         // очередь
         // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#class.channel
-        $channel = $this->_connection->channel();
+        $channel = $this->getConnection()->channel();
         // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#class.queue
         // @link http://www.rabbitmq.com/amqp-0-9-1-reference.html#queue.declare
         $channel->queue_declare($queue, $this->_queuePassive, $this->_queueDurable, $this->_queueExclusive, $this->_queueAutoDelete);

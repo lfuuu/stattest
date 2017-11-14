@@ -7,6 +7,7 @@ use app\classes\helpers\ArrayHelper;
 use app\classes\Navigation;
 use app\classes\NavigationBlock;
 use app\models\Country;
+use app\modules\nnp\models\NumberRange;
 use BadMethodCallException;
 use Yii;
 use yii\base\InvalidConfigException;
@@ -142,5 +143,13 @@ class Module extends \yii\base\Module
                 ->addItem('Статусы направлений', ['/nnp/status/'], ['nnp.read'])
                 ->addItem('Импорт', ['/nnp/import/'], ['nnp.write'])
         );
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isAvailable()
+    {
+        return strpos(NumberRange::getDb()->username, 'readonly') !== false;
     }
 }

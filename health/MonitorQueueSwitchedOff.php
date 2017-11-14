@@ -2,12 +2,13 @@
 
 namespace app\health;
 
+use app\classes\Event;
 use app\models\EventQueue;
 
 /**
- * В очереди не должно быть ошибочных записей
+ * В очереди не должно быть пропущенных записей, когда API выключен
  */
-class MonitorQueueStopped extends Monitor
+class MonitorQueueSwitchedOff extends Monitor
 {
     /**
      * 3 значения, начиная с которого Warning/Critical/Error
@@ -16,7 +17,7 @@ class MonitorQueueStopped extends Monitor
      */
     public function getLimits()
     {
-        return [2, 10, 50]; // 1 - это нормально (он сейчас обрабатывается)
+        return [1, 10, 50];
     }
 
     /**
@@ -27,7 +28,7 @@ class MonitorQueueStopped extends Monitor
     public function getValue()
     {
         return EventQueue::find()
-            ->where(['status' => [EventQueue::STATUS_ERROR, EventQueue::STATUS_STOP]])
+            ->where(['log_error' => Event::API_IS_SWITCHED_OFF])
             ->count();
     }
 }

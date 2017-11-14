@@ -58,6 +58,24 @@ class Api extends Singleton
     }
 
     /**
+     * @return bool
+     */
+    public function isAvailable()
+    {
+        $apiVersion = $this->_module->params['apiVersion'];
+        $params = $this->_module->params['buyOrSell'];
+
+        $url = $params['url'];
+        $groupCode = $params['groupCode'];
+        $inn = $params['inn'];
+        $paymentAddress = $params['paymentAddress'];
+        $itemName = $params['itemName'];
+        $tax = $params['tax'];
+
+        return $apiVersion && $url && $groupCode && $inn && $paymentAddress && $itemName && $tax;
+    }
+
+    /**
      * Отправить данные
      *
      * @param int $externalId
@@ -96,7 +114,7 @@ class Api extends Singleton
         $itemName = $params['itemName'];
         $tax = $params['tax'];
 
-        if (!$apiVersion || !$url || !$groupCode || !$inn || !$paymentAddress || !$itemName || !$tax) {
+        if (!$this->isAvailable()) {
             throw new InvalidConfigException('Не настроен конфиг Атол');
         }
 

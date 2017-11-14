@@ -53,6 +53,7 @@ class Module extends \yii\base\Module
      *
      * @param int $accountTariffId ID услуги пакета
      * @param int $internetTraffic Мб
+     * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidParamException
      * @throws \LogicException
      */
