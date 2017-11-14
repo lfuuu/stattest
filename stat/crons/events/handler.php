@@ -366,6 +366,15 @@ function doEvents()
                 case Event::ATS3__BLOCKED:
                 case Event::ADD_ACCOUNT:
                 case Event::ADD_SUPER_CLIENT:
+                case Event::SYNC_CORE_ADMIN:
+                case Event::ATS2_NUMBERS_CHECK:
+                case Event::ATS3__DISABLED_NUMBER:
+                case Event::ATS3__UNBLOCKED:
+                case Event::CLIENT_SET_STATUS:
+                case Event::CYBERPLAT_PAYMENT:
+                case Event::PRODUCT_PHONE_ADD:
+                case Event::PRODUCT_PHONE_REMOVE:
+                case Event::UPDATE_PRODUCTS:
                     break;
 
 
