@@ -2,6 +2,7 @@
 
 namespace app\health;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 
 /**
@@ -16,7 +17,7 @@ class MonitorQueueStopped extends Monitor
      */
     public function getLimits()
     {
-        return [2, 10, 50]; // 1 - это нормально (он сейчас обрабатывается)
+        return [1, 10, 50];
     }
 
     /**
@@ -28,6 +29,13 @@ class MonitorQueueStopped extends Monitor
     {
         return EventQueue::find()
             ->where(['status' => [EventQueue::STATUS_ERROR, EventQueue::STATUS_STOP]])
+            ->andWhere([
+                '<',
+                'date',
+                (new \DateTime())
+                    ->modify('-2 minutes')
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+            ])
             ->count();
     }
 }

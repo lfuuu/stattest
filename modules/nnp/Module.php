@@ -150,6 +150,6 @@ class Module extends \yii\base\Module
      */
     public static function isAvailable()
     {
-        return strpos(NumberRange::getDb()->username, 'readonly') !== false;
+        return strpos(NumberRange::getDb()->username, 'readonly') === false;
     }
 }

@@ -236,10 +236,6 @@ function doEvents()
                     }
                     break;
 
-                case Event::ADD_ACCOUNT:
-                    // Пока ничего не делаем
-                    break;
-
                 case Event::USAGE_VIRTPBX__INSERT:
                 case Event::USAGE_VIRTPBX__UPDATE:
                 case Event::USAGE_VIRTPBX__DELETE:
@@ -368,6 +364,21 @@ function doEvents()
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
                     break;
                 }
+
+                // --------------------------------------------
+                // Псевдо-логирование
+                // @todo выпилить
+                // --------------------------------------------
+                case Event::NEWBILLS__INSERT:
+                case Event::NEWBILLS__UPDATE:
+                case Event::NEWBILLS__DELETE:
+                case Event::DOC_DATE_CHANGED:
+                case Event::YANDEX_PAYMENT:
+                case Event::ATS3__BLOCKED:
+                case Event::ADD_ACCOUNT:
+                case Event::ADD_SUPER_CLIENT:
+                    break;
+
 
                 // --------------------------------------------
                 // Универсальные услуги

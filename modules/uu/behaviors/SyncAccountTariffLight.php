@@ -152,6 +152,6 @@ class SyncAccountTariffLight extends Behavior
      */
     public static function isAvailable()
     {
-        return strpos(AccountTariffLight::getDb()->username, 'readonly') !== false;
+        return strpos(AccountTariffLight::getDb()->username, 'readonly') === false;
     }
 }

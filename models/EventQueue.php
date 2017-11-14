@@ -9,7 +9,7 @@ use yii\helpers\Url;
  * Class EventQueue
  *
  * @property int $id
- * @property string $timestamp
+ * @property string $date
  * @property string $event
  * @property string $param
  * @property string $status
