@@ -10,6 +10,7 @@ use app\classes\api\ApiVpbx;
 use app\classes\Event;
 use app\classes\HandlerLogger;
 use app\classes\partners\RewardCalculate;
+use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
 use app\models\EventQueueIndicator;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
@@ -27,36 +28,23 @@ use app\modules\uu\models\AccountTariff;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
-
 require PATH_TO_ROOT . 'conf_yii.php';
-require INCLUDE_PATH . 'runChecker.php';
 
-echo PHP_EOL . date('r') . ':';
-
-if (runChecker::isRun()) {
-    exit();
-}
+echo PHP_EOL . 'Start ' . date(DateTimeZoneHelper::DATETIME_FORMAT);
 
 $sleepTime = 3;
 $workTime = 120;
-
-runChecker::run();
-
 $counter = 2;
-
-EventQueue::table()->conn->query("SET @@session.time_zone = '+00:00'");
 
 do {
     doEvents();
     sleep($sleepTime);
-    echo '.';
 } while ($counter++ < round($workTime / $sleepTime));
 
-runChecker::stop();
-echo PHP_EOL . 'stop-' . date('r') . ':';
+echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
 
 /**
- * @inheritdoc
+ * Выполнить запланированное
  */
 function doEvents()
 {
@@ -68,6 +56,7 @@ function doEvents()
     $isNnpServer = \app\modules\nnp\Module::isAvailable();
     $isAtolServer = \app\modules\atol\classes\Api::me()->isAvailable();
     $isMttServer = MttAdapter::me()->isAvailable();
+    echo '. ';
 
     /** @var \EventQueue $event */
     foreach ((EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents()) as $event) {
