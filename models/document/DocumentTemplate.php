@@ -23,13 +23,6 @@ class DocumentTemplate extends ActiveRecord
     const ZAKAZ_USLUG = 13;
     const DC_TELEFONIA = 41;
 
-    const DEFAULT_WIZARD_MCN = 102;
-    const DEFAULT_WIZARD_EURO_LEGAL = 133;
-    const DEFAULT_WIZARD_EURO_PERSON = 148;
-
-    const DEFAULT_WIZARD_MCN_LEGAL_LEGAL = 158;
-    const DEFAULT_WIZARD_MCN_LEGAL_PERSON = 159;
-
     const DOCUMENT_ICON_FOLDER = 'glyphicon glyphicon-folder-close';
     const DOCUMENT_ICON_CONTRACT = 'glyphicon glyphicon-book';
     const DOCUMENT_ICON_AGREEMENT = 'glyphicon glyphicon-duplicate';
@@ -55,11 +48,13 @@ class DocumentTemplate extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'content'], 'string'],
+            [['name', 'content', 'language'], 'string'],
             [['folder_id', 'sort',], 'integer'],
             [['name', 'folder_id',], 'required'],
             ['type', 'in', 'range' => array_keys(ClientDocument::$types)],
             ['sort', 'default', 'value' => 0],
+            ['is_legal', 'boolean'],
+            ['is_legal', 'default', 'value' => 1],
         ];
     }
 
@@ -75,6 +70,8 @@ class DocumentTemplate extends ActiveRecord
             'name' => 'Название',
             'content' => 'Содержание',
             'sort' => 'Приоритет',
+            'is_legal' => 'Юр. лицо',
+            'language' => 'Язык документа',
         ];
     }
 
@@ -123,5 +120,25 @@ class DocumentTemplate extends ActiveRecord
         }
 
         return parent::save();
+    }
+
+    /**
+     * Возвращает документ-шаблон договора для Wizard'а
+     *
+     * @param $language string
+     * @param $isLegal boolean
+     * @return DocumentTemplate
+     */
+    public static function getWizardTemplate($language, $isLegal)
+    {
+        return self::find()
+            ->where([
+                'folder_id' => DocumentFolder::WIZARD_CONTRACT_FOLDER_ID,
+                'language' => $language,
+                'is_legal' => (int)(bool)$isLegal,
+                'type' => ClientDocument::DOCUMENT_CONTRACT_TYPE,
+            ])
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
     }
 }

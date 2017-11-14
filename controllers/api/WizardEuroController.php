@@ -2,6 +2,7 @@
 
 namespace app\controllers\api;
 
+use app\exceptions\ModelValidationException;
 use app\forms\lk_wizard\AcceptsForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientContact;
@@ -140,6 +141,8 @@ class WizardEuroController extends WizardBaseController
         $this->account->contract->state = ClientContract::STATE_OFFER;
         $this->account->contract->save();
 
+        $template = DocumentTemplate::getWizardTemplate($this->account->contragent->lang_code, $this->account->contragent->legal_type != ClientContragent::PERSON_TYPE);
+        $templateId = $template ? $template->id : 0;
 
         $contract = new ClientDocument();
         $contract->contract_id = $this->account->contract->id;
@@ -148,8 +151,11 @@ class WizardEuroController extends WizardBaseController
         $contract->contract_date = date(DateTimeZoneHelper::DATE_FORMAT);
         $contract->comment = 'ЛК - wizard';
         $contract->user_id = User::CLIENT_USER_ID;
-        $contract->template_id = ($this->account->contract->contragent->legal_type == ClientContragent::LEGAL_TYPE ? DocumentTemplate::DEFAULT_WIZARD_EURO_LEGAL : DocumentTemplate::DEFAULT_WIZARD_EURO_PERSON);
-        $contract->save();
+        $contract->template_id = $templateId;
+
+        if (!$contract->save()) {
+            throw new ModelValidationException($contract);
+        }
 
         if (!$contract || !$contract->fileContent) {
             $content = "error";

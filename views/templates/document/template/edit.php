@@ -2,8 +2,10 @@
 
 use app\assets\TinymceAsset;
 use app\classes\Html;
+use app\models\ClientDocument;
 use app\models\document\DocumentFolder;
 use app\models\document\DocumentTemplate;
+use app\models\Language;
 use app\widgets\JQTree\JQTreeInput;
 use kartik\widgets\ActiveForm;
 use yii\data\ActiveDataProvider;
@@ -34,10 +36,10 @@ $form = ActiveForm::begin([]);
 ?>
 
 <div class="row">
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <?= $form->field($model, 'name')->textInput() ?>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <?= $form->field($model, 'folder_id')->widget(JQTreeInput::class, [
             'data' => new DocumentFolder,
             'htmlOptions' => [
@@ -46,8 +48,15 @@ $form = ActiveForm::begin([]);
         ])
         ?>
     </div>
-    <div class="col-sm-3">
-        <?= $form->field($model, 'type')->dropDownList(\app\models\ClientDocument::$types) ?>
+    <div class="col-sm-2">
+        <?= $form->field($model, 'type')->dropDownList(ClientDocument::$types) ?>
+    </div>
+    <div class="col-sm-2">
+        <?= $form->field($model, 'language')->dropDownList(Language::getList(false)) ?>
+    </div>
+    <div class="col-sm-1">
+        <?= $form->field($model, 'is_legal')->checkbox() ?>
+        <small>(ИП - не юр. лицо)</small>
     </div>
     <div class="col-sm-1">
         <?= $form->field($model, 'sort')->textInput() ?>

@@ -10,6 +10,8 @@ use yii\helpers\Url;
 class DocumentFolder extends ActiveRecord
 {
 
+    const WIZARD_CONTRACT_FOLDER_ID = 12; // Папка с договорами для wizard'a
+
     public
         $parentIdField = 'parent_id',
         $textField = 'name';

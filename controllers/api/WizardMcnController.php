@@ -153,17 +153,19 @@ class WizardMcnController extends WizardBaseController
         $content = "error";
         $document = null;
 
+        $isLegal = false;
+        $organizationId = Organization::MCN_TELECOM_RETAIL;
         if (
             isset($data['type'])
             && $data['type'] == ClientContragent::LEGAL_TYPE
             && $this->account->contragent->tax_regime != ClientContragent::TAX_REGTIME_YCH_VAT0
         ) {
-            $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_LEGAL;
+            $isLegal = true;
             $organizationId = Organization::MCN_TELECOM;
-        } else {
-            $documentId = DocumentTemplate::DEFAULT_WIZARD_MCN_LEGAL_PERSON;
-            $organizationId = Organization::MCN_TELECOM_RETAIL;
         }
+
+        $template = DocumentTemplate::getWizardTemplate($this->account->contragent->lang_code, $isLegal);
+        $documentId = $template ? $template->id : 0;
 
         if ($this->account->contract->organization_id != $organizationId) {
             $this->account->contract->organization_id = $organizationId;
