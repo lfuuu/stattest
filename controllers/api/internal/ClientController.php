@@ -3,7 +3,6 @@
 namespace app\controllers\api\internal;
 
 use app\classes\ApiInternalController;
-use app\dao\ClientSuperDao;
 use app\exceptions\api\internal\PartnerNotFoundException;
 use app\exceptions\web\BadRequestHttpException;
 use app\forms\client\ClientCreateExternalForm;
@@ -280,156 +279,266 @@ class ClientController extends ApiInternalController
      */
     public function actionGetFullClientStruct()
     {
-        $params = [];
-        foreach(['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $value) {
-            $params[$value] = isset($this->requestData[$value]) ? $this->requestData[$value] : null;
+        $ids = $this->_getIdsForFullClientStruct();
+
+        $fullResult = [];
+        foreach ($ids as $id) {
+            $super = ClientSuper::find()
+                ->where(['id' => $id])
+                ->with('contragents')
+                ->with('contracts')
+                ->with('accounts')
+                ->one();
+
+            $timezone = DateTimeZoneHelper::TIMEZONE_MOSCOW;
+
+            $resultContragents = [];
+            $accountIdxs = [];
+
+            /** @var ClientContragent $contragent */
+            foreach ($super->contragents as $contragent) {
+                $resultContracts = [];
+                /** @var ClientContract $contract */
+                foreach ($contragent->contracts as $contract) {
+                    $resultAccounts = [];
+                    /** @var ClientAccount $account */
+                    foreach ($contract->accounts as $account) {
+                        $resultAccounts[] = [
+                            'id' => $account->id,
+                            'is_disabled' => $contract->business_process_status_id != BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK,
+                            'is_blocked' => (bool)$account->is_blocked,
+                            'is_finance_block' => ($account->credit >= 0 && $account->billingCounters->realtimeBalance + $account->credit < 0),
+                            'is_overran_block' => false,
+                            'is_bill_pay_overdue' => (bool)$account->is_bill_pay_overdue,
+                            'is_postpaid' => (bool)$account->is_postpaid,
+                            'credit' => (int)$account->credit,
+                            'version' => $account->account_version,
+                            'applications' => $this->_getPlatformaServicesCleaned($account->client)
+                        ];
+                        $timezone = $account->timezone_name;
+
+                        $accountIdxs[$account->id] = [
+                            'idx_account' => count($resultAccounts) - 1,
+                            'idx_contragent' => count($resultContragents),
+                            'idx_contract' => count($resultContracts)
+                            ];
+                    }
+
+                    if ($resultAccounts) {
+                        $resultContracts[] = [
+                            'id' => $contract->id,
+                            'number' => $contract->number,
+                            'state' => $contract->state,
+                            'can_login_as_clients' => $contract->is_lk_access,
+                            'partner_id' => $contract->isPartnerAgent(),
+                            'is_partner' => $contract->isPartner(),
+                            'partner_login_allow' => $contract->is_partner_login_allow,
+                            'business_id' => $contract->business_id,
+                            'business_process_id' => $contract->business_process_id,
+                            'business_process_status_id' => $contract->business_process_status_id,
+                            'accounts' => $resultAccounts
+                        ];
+                    }
+                }
+
+                if ($resultContracts) {
+                    $resultContragents[] = [
+                        'id' => $contragent->id,
+                        'name' => $contragent->name,
+                        'country' => $contragent->country->alpha_3,
+                        'country_id' => $contragent->country_id,
+                        'contracts' => $resultContracts
+                    ];
+                }
+            }
+
+            if ($resultContragents) {
+
+                if ($accountIdxs) {
+                    /** @var Locks $lock */
+                    foreach (Locks::find()
+                                 ->where(['client_id' => array_keys($accountIdxs)])
+                                 ->indexBy('client_id')
+                                 ->all() as $accountId => $lock) {
+
+                        if (isset($accountIdxs[$accountId])) {
+                            $idxContragent = $accountIdxs[$accountId]['idx_contragent'];
+                            $idxContract = $accountIdxs[$accountId]['idx_contract'];
+                            $idxAccount = $accountIdxs[$accountId]['idx_account'];
+
+                            if ($lock->is_finance_block) {
+                                $resultContragents[$idxContragent]['contracts'][$idxContract]['accounts'][$idxAccount]['is_finance_block'] = true;
+                            }
+
+                            if ($lock->is_overran || $lock->is_mn_overran) {
+                                $resultContragents[$idxContragent]['contracts'][$idxContract]['accounts'][$idxAccount]['is_overran_block'] = true;
+                            }
+                        }
+                    }
+                }
+
+                $fullResult[$super->id] = [
+                    'id' => $super->id,
+                    'timezone' => $timezone,
+                    'name' => $super->name,
+                    'contragents' => $resultContragents
+                ];
+            }
         }
 
-        $superIds = ClientSuper::dao()->getSuperIds($params['id'], $params['name'], $params['contract_id'], $params['contragent_id'], $params['contragent_name'], $params['account_id']);
-
-        return ClientSuper::dao()->getSuperClientStructByIds($superIds);
+        return $fullResult;
     }
 
-
     /**
-     * @SWG\Definition(definition="get-super-client-struct-applications", type="object", required={"id","name","is_enabled"},
-     *   @SWG\Property(property="id", type="integer", description="Идентификатор"),
-     *   @SWG\Property(property="name", type="string", description="Название"),
-     *   @SWG\Property(property="is_enabled", type="boolean", description="Признак включенного")
-     * ),
+     * Возвращает массив super_client_id
+     * (для функции get-full-client-struct)
      *
-     * @SWG\Definition(definition="get-super-client-struct-account", type="object", required={"id","is_disabled","version","applications"},
-     *   @SWG\Property(property="id", type="integer", description="Идентификатор ЛС"),
-     *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
-     *   @SWG\Property(property="is_blocked", type="boolean", description="ЛС заблокирован полностью"),
-     *   @SWG\Property(property="is_bill_pay_overdue", type="boolean", description="Блокировка по неоплате счета"),
-     *   @SWG\Property(property="is_postpaid", type="boolean", description="Постоплата"),
-     *   @SWG\Property(property="credit", type="integer", description="Лимит кредита"),
-     *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
-     *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-super-client-struct-applications"))
-     * ),
-     *
-     * @SWG\Definition(definition="get-super-client-struct-contract", type="object", required={"id","number","state","is_partner","accounts"},
-     *   @SWG\Property(property="id", type="integer", description="Идентификатор договора"),
-     *   @SWG\Property(property="number", type="string", description="Номер договора"),
-     *   @SWG\Property(property="state", type="string", description="Состояние договора"),
-     *   @SWG\Property(property="can_login_as_clients", type="boolean", description="Признак доступности ЛК"),
-     *   @SWG\Property(property="partner_id", type="integer", description="Идентификатор договора партнера"),
-     *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнерского договора"),
-     *   @SWG\Property(property="partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
-     *   @SWG\Property(property="business_id", type="integer", description="Идентификатор типа договора"),
-     *   @SWG\Property(property="business_process_id", type="integer", description="Идентификатор подразделения"),
-     *   @SWG\Property(property="business_process_status_id", type="integer", description="Идентификатор статуса договора"),
-     *   @SWG\Property(property="accounts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-super-client-struct-account"))
-     * ),
-     *
-     * @SWG\Definition(definition="get-super-client-struct-contragent", type="object", required={"id","name","country","contracts"},
-     *   @SWG\Property(property="id", type="integer", description="Идентификатор контрагента"),
-     *   @SWG\Property(property="name", type="string", description="Имя контагента"),
-     *   @SWG\Property(property="country", type="string", description="Страна"),
-     *   @SWG\Property(property="contracts", type="array", description="Массив ЛС", @SWG\Items(ref="#/definitions/get-super-client-struct-contract"))
-     * ),
-     *
-     * @SWG\Definition(definition="get-super-client-struct", type="object", required={"id","name","timezone","contragents"},
-     *   @SWG\Property(property="id", type="integer", description="Идентификатор супер-клиента"),
-     *   @SWG\Property(property="name", type="string", description="Название супер-клиента"),
-     *   @SWG\Property(property="timezone", type="string", description="Таймзона"),
-     *   @SWG\Property(property="contragents", type="array", description="Массив контрагентов", @SWG\Items(ref="#/definitions/get-super-client-struct-contragent"))
-     * ),
-     *
-     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-super-client-struct/", summary="Получение полной структуры клиента без блокировок", operationId="Получение полной структуры клиента без блокировок",
-     *   @SWG\Parameter(name="id", type="integer", description="идентификатор супер-клиента", in="formData", default=""),
-     *   @SWG\Parameter(name="name", type="string", description="имя супер-клиента", in="formData", default=""),
-     *   @SWG\Parameter(name="contract_id[0]", type="integer", description="идентификатор договора", in="formData", default=""),
-     *   @SWG\Parameter(name="contract_id[1]", type="integer", description="идентификатор договора", in="formData", default=""),
-     *   @SWG\Parameter(name="contragent_id[0]", type="integer", description="идентификатор контрагента", in="formData", default=""),
-     *   @SWG\Parameter(name="contragent_id[1]", type="integer", description="идентификатор контрагента", in="formData", default=""),
-     *   @SWG\Parameter(name="contragent_name", type="string", description="имя контрагента", in="formData", default=""),
-     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData", default=""),
-     *   @SWG\Response(response=200, description="данные о клиенте", @SWG\Schema(ref="#/definitions/get-super-client-struct")),
-     *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
-     * )
+     * @return int[]
      */
-    public function actionGetSuperClientStruct()
+    private function _getIdsForFullClientStruct()
     {
-        $params = [];
-        foreach(['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $value) {
-            $params[$value] = isset($this->requestData[$value]) ? $this->requestData[$value] : null;
+        $id = $name = $contract_id = $contragent_id = $contragent_name = $account_id = null;
+
+        foreach (['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $var) {
+            $$var = isset($this->requestData[$var]) ? $this->requestData[$var] : null;
         }
 
-        $superIds = ClientSuper::dao()->getSuperIds($params['id'], $params['name'], $params['contract_id'], $params['contragent_id'], $params['contragent_name'], $params['account_id']);
+        if ($id) {
+            return is_array($id) ? $id : [$id];
+        }
 
-        return ClientSuper::dao()->getSuperClientStructByIds($superIds, ClientSuperDao::STRUCT_CLIENT_STRUCT);
+        if ($name) {
+            return array_keys(ClientSuper::find()
+                ->andWhere(['name' => $name])
+                ->indexBy('id')
+                ->all());
+        }
+
+        if ($contragent_id) {
+            $contragentIds = array_keys(
+                ClientContragent::find()
+                    ->where(['id' => $contragent_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($contragentIds) {
+                return $contragentIds;
+            }
+        }
+
+        if ($contragent_name) {
+            return array_keys(ClientContragent::find()
+                ->andWhere(['name' => $contragent_name])
+                ->indexBy('super_id')->all());
+        }
+
+        if ($contract_id) {
+            $contractIds = array_keys(
+                ClientContract::find()
+                    ->where(['id' => $contract_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($contractIds) {
+                return $contractIds;
+            }
+        }
+
+        if ($account_id) {
+            $accountIds = array_keys(
+                ClientAccount::find()
+                    ->where(['id' => $account_id])
+                    ->indexBy('super_id')
+                    ->all()
+            );
+            if ($accountIds) {
+                return $accountIds;
+            }
+        }
+
+        return [];
     }
-
 
     /**
-     * @SWG\Definition(definition="get-accounts-locks-data", type="object", required={"account_id","is_finance_block","is_overran_block"},
-     *   @SWG\Property(property="account_id", type="integer", description="Идентификатор ЛС"),
-     *   @SWG\Property(property="is_finance_block", type="boolean", description="Финансовая блокировка"),
-     * ),
-     *
-     * @SWG\Definition(definition="get-accounts-locks", type="object", required={"is_load_complete","data"},
-     *   @SWG\Property(property="is_load_complete", type="boolean", description="Данные загруженны корректно"),
-     *   @SWG\Property(property="data", type="array", description="Данные о блокировках ЛС", @SWG\Items(ref="#/definitions/get-accounts-locks-data"))
-     * ),
-     *
-     * @SWG\Post(tags={"Работа с клиентами"}, path="/internal/client/get-accounts-locks", summary="Получение блокировок ЛС", operationId="Получение блокировок ЛС",
-     *   @SWG\Parameter(name="super_id", type="integer", description="идентификатор супер-клиента", in="formData", default=""),
-     *   @SWG\Parameter(name="account_id", type="integer", description="идентификатор ЛС", in="formData", default=""),
-     *   @SWG\Response(response=200, description="данные о блокировках", @SWG\Schema(ref="#/definitions/get-accounts-locks")),
-     *   @SWG\Response(response="default", description="Ошибки", @SWG\Schema(ref="#/definitions/error_result"))
-     * )
+     * @param int $client
+     * @return array
+     * @throws \yii\db\Exception
      */
-    public function actionGetAccountsLocks()
+    private function _getPlatformaServices($client)
     {
-        $superId = isset($this->requestData['super_id']) ? $this->requestData['super_id'] : null;
-        $accountId = isset($this->requestData['account_id']) ? $this->requestData['account_id'] : null;
-
-        return ClientSuper::dao()->getAccountsLocks($superId, $accountId);
+        return array_map(function ($row) {
+            $row['id'] = (int)$row['id'];
+            $row['is_enabled'] = (bool)$row['enabled']; // TODO: Разобраться кто использует, и перевести с текстового "enabled" на булевое "is_enabled"
+            return $row;
+        },
+            Yii::$app->db->createCommand("
+                select 
+                    `usage_voip`.`client` AS `client`,
+                    `usage_voip`.`id` AS `id`,
+                    'phone' AS `name`,
+                    ((`usage_voip`.`actual_from` <= now()) and (`usage_voip`.`actual_to` >= now())) AS `enabled` 
+                from `usage_voip`  
+                where client = :client
+                
+                union all 
+                select 
+                    `usage_virtpbx`.`client` AS `client`,
+                    `usage_virtpbx`.`id` AS `id`,
+                    'vpbx' AS `name`,
+                    ((`usage_virtpbx`.`actual_from` <= now()) and (`usage_virtpbx`.`actual_to` >= now())) AS `enabled` 
+                from `usage_virtpbx`
+                where client = :client
+                  
+                union all 
+                
+                select 
+                    `usage_call_chat`.`client` AS `client`,
+                    `usage_call_chat`.`id` AS `id`,
+                    'feedback' AS `name`,
+                    ((`usage_call_chat`.`actual_from` <= now()) and (`usage_call_chat`.`actual_to` >= now())) AS `enabled` 
+                from `usage_call_chat`
+                where client = :client
+        ", [":client" => $client])->queryAll());
     }
+
 
     /**
      * Возвращает массив продуктов и их статус у клиента
      *
-     * @param int $client		
-     * @return array		
-     * @throws \yii\db\Exception		
+     * @param string $client
+     * @return array
+     * @throws \yii\db\Exception
      */
-    private function _getPlatformaServices($client)		
+    private function _getPlatformaServicesCleaned($client)
     {
         return array_map(function ($row) {
             $row['id'] = (int)$row['id'];
-            $row['is_enabled'] = (bool)$row['enabled'];
+            $row['is_enabled'] = (bool)$row['is_enabled'];
             return $row;
         },
-            Yii::$app->db->createCommand("		
-                select 		
-                    `usage_voip`.`client` AS `client`,		
-                    `usage_voip`.`id` AS `id`,		
-                    'phone' AS `name`,		
-                    ((`usage_voip`.`actual_from` <= now()) and (`usage_voip`.`actual_to` >= now())) AS `enabled` 		
-                from `usage_voip`  		
-                where client = :client		
-                		
-                union all 		
-                select 		
-                    `usage_virtpbx`.`client` AS `client`,		
-                    `usage_virtpbx`.`id` AS `id`,		
-                    'vpbx' AS `name`,		
-                    ((`usage_virtpbx`.`actual_from` <= now()) and (`usage_virtpbx`.`actual_to` >= now())) AS `enabled` 		
-                from `usage_virtpbx`		
-                where client = :client		
-                  		
-                union all 		
-                		
-                select 		
-                    `usage_call_chat`.`client` AS `client`,		
-                    `usage_call_chat`.`id` AS `id`,		
-                    'feedback' AS `name`,		
-                    ((`usage_call_chat`.`actual_from` <= now()) and (`usage_call_chat`.`actual_to` >= now())) AS `enabled` 		
-                from `usage_call_chat`		
-                where client = :client		
+            Yii::$app->db->createCommand("
+                SELECT 
+                    `usage_voip`.`id` AS `id`,
+                    'phone' AS `name`,
+                    (CAST(NOW() AS DATE) BETWEEN `actual_from` AND `actual_to`) AS `is_enabled` 
+                FROM `usage_voip`  
+                WHERE client = :client
+                
+                UNION ALL 
+                SELECT 
+                    `usage_virtpbx`.`id` AS `id`,
+                    'vpbx' AS `name`,
+                    (CAST(NOW() AS DATE) BETWEEN `actual_from` AND `actual_to`) AS `is_enabled` 
+                FROM `usage_virtpbx`
+                WHERE client = :client
+                  
+                UNION ALL 
+                SELECT 
+                    `usage_call_chat`.`id` AS `id`,
+                    'feedback' AS `name`,
+                    (CAST(NOW() AS DATE) BETWEEN `actual_from` AND `actual_to`) AS `is_enabled` 
+                FROM `usage_call_chat`
+                WHERE client = :client
         ", [":client" => $client])->queryAll());
     }
 
