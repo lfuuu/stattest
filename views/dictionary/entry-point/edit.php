@@ -43,19 +43,24 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
     <fieldset class="col-sm-12">
 
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <?= $form
                     ->field($model, 'code')
                     ->textInput($model->id ? ['readonly' => true] : [])
                 ?>
             </div>
-            <div class="col-sm-7">
+            <div class="col-sm-6">
                 <?= $form
                     ->field($model, 'name')
                 ?>
             </div>
-
-            <div class="col-sm-2">
+            <div class="col-sm-3">
+                <?= $form
+                    ->field($model, 'connect_trouble_user_id')
+                ->dropDownList(\app\models\User::getList(true, false, 'id'))
+                ?>
+            </div>
+            <div class="col-sm-1">
                 <?= $form
                     ->field($model, 'is_postpaid')
                     ->checkbox()
@@ -110,7 +115,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'region_id')
-                    ->dropDownList(Region::getList($isWithEmpty = false, $model->country_id))
+                    ->dropDownList(Region::getList($isWithEmpty = false))
                 ?>
             </div>
         </div>

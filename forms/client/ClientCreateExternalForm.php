@@ -329,6 +329,7 @@ class ClientCreateExternalForm extends Form
 
         if ($this->entryPoint) {
             $contragent->country_id = $this->entryPoint->country_id;
+            $contragent->lang_code = $this->entryPoint->country->lang;
         }
 
         if (!$contragent->validate() || !$contragent->save()) {
@@ -369,6 +370,7 @@ class ClientCreateExternalForm extends Form
         $account->account_version = $this->account_version;
 
         if ($this->entryPoint) {
+            $account->region = $this->entryPoint->region_id;
             $account->currency = $this->entryPoint->currency_id;
             $account->is_postpaid = $this->entryPoint->is_postpaid;
             $account->account_version = $this->entryPoint->account_version;
@@ -482,7 +484,7 @@ class ClientCreateExternalForm extends Form
             'first_comment' => $this->comment . ($this->site_name ? "\nКлиент с сайта: " . $this->site_name : '') . ($this->ip ? "\nIP-адрес: " . $this->ip : '')
         ];
 
-        $this->troubleId = StatModule::tt()->createTrouble($R, "system");
+        $this->troubleId = StatModule::tt()->createTrouble($R, $this->entryPoint->connectTroubleUser->user);
 
         if ($this->entryPoint) {
             LkWizardState::create($this->contract_id, $this->troubleId, $this->entryPoint->wizard_type);

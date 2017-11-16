@@ -24,6 +24,10 @@ use app\helpers\DateTimeZoneHelper;
  * @property int $voip_credit_limit_day
  * @property int $voip_limit_mn_day
  * @property int $is_default
+ * @property int $region_id
+ * @property int $connect_trouble_user_id
+ * @property Country country
+ * @property User connectTroubleUser
  */
 class EntryPoint extends ActiveRecord
 {
@@ -91,7 +95,9 @@ class EntryPoint extends ActiveRecord
                     'voip_limit_mn_day',
                     'client_contract_business_id',
                     'client_contract_business_process_id',
-                    'client_contract_business_process_status_id'
+                    'client_contract_business_process_status_id',
+                    'region_id',
+                    'connect_trouble_user_id'
                 ],
                 'required'
             ],
@@ -141,6 +147,7 @@ class EntryPoint extends ActiveRecord
             'voip_limit_mn_day' => 'Лимит телефонии МН',
             'is_default' => 'По-умолчанию',
             'region_id' => 'Точка подключения',
+            'connect_trouble_user_id' => 'Пользовтель, для создания траблы на подключение',
         ];
     }
 
@@ -157,6 +164,22 @@ class EntryPoint extends ActiveRecord
         }
 
         return parent::beforeSave($insert);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCountry()
+    {
+        return $this->hasOne(Country::className(), ['code' => 'country_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getConnectTroubleUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'connect_trouble_user_id']);
     }
 
     /**
