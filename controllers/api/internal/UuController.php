@@ -1521,7 +1521,10 @@ class UuController extends ApiInternalController
             return $accountTariff->id;
         } catch (Exception $e) {
             $transaction->rollBack();
-            \Yii::error($e, Module::LOG_CATEGORY_API);
+            \Yii::error(
+                print_r(['AddAccountTariff', $e->getMessage(), $post], true),
+                Module::LOG_CATEGORY_API
+            );
 
             $post['error'] = $e->getMessage();
             $post['file'] = $e->getFile() . ':' . $e->getLine();
@@ -1607,7 +1610,10 @@ class UuController extends ApiInternalController
 
         } catch (Exception $e) {
             $transaction->rollBack();
-            \Yii::error($e, Module::LOG_CATEGORY_API);
+            \Yii::error(
+                print_r(['editAccountTariff', $e->getMessage(), $account_tariff_ids, $tariff_period_id, $actual_from, $user_info], true),
+                Module::LOG_CATEGORY_API
+            );
             throw $e;
         }
     }
@@ -1800,8 +1806,8 @@ class UuController extends ApiInternalController
     public function actionEditAccountTariffResource()
     {
         $transaction = Yii::$app->db->beginTransaction();
+        $post = Yii::$app->request->post();
         try {
-            $post = Yii::$app->request->post();
 
             $isValidateOnly = (isset($post['is_validate_only']) && $post['is_validate_only']) ? (boolean)$post['is_validate_only'] : false;
 
@@ -1841,7 +1847,10 @@ class UuController extends ApiInternalController
 
         } catch (Exception $e) {
             $transaction->rollBack();
-            \Yii::error($e, Module::LOG_CATEGORY_API);
+            \Yii::error(
+                print_r(['EditAccountTariffResource', $e->getMessage(), $post], true),
+                Module::LOG_CATEGORY_API
+            );
             throw $e;
         }
     }
@@ -1912,7 +1921,7 @@ class UuController extends ApiInternalController
     {
         if (!$accountTariffLog->tariff_period_id) {
             // закрыть можно
-           return;
+            return;
         }
 
         if ($accountTariffLog->tariffPeriod->tariff->isTest) {
