@@ -410,7 +410,9 @@ class UuController extends ApiInternalController
             }
 
             $client_account_id = $accountTariff->client_account_id;
-            $voip_number = $accountTariff->voip_number;
+            $voip_number = $accountTariff->prev_account_tariff_id ?
+                $accountTariff->prevAccountTariff->voip_number :
+                $accountTariff->voip_number;
             $voip_city_id = $accountTariff->city_id;
         }
 
