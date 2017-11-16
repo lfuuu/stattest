@@ -90,7 +90,6 @@ echo \yii\widgets\Breadcrumbs::widget([
 
                     echo Html::button('Номер не продается', ['class' => 'btn btn-primary col-sm-12', 'onclick' => "numberSubmitForm('startNotSell')"]);
 
-                    echo "<br>" . Html::button('Высвободить номер', ['class' => 'btn btn-danger btn-sm col-sm-3', 'style' => 'margin-top: 200px;', 'onclick' => "numberSubmitForm('toRelease')"]);
                     break;
 
                 case Number::STATUS_NOTACTIVE_RESERVED:
@@ -115,7 +114,7 @@ echo \yii\widgets\Breadcrumbs::widget([
 
                 ?>
                 <br/>
-                <div class="well" style="width: 500px;">
+                <div class="well col-sm-12" style="width: 500px;">
                     <fieldset>
                         <label>Тех номер</label>
                         <div class="col-sm-12">
@@ -133,6 +132,10 @@ echo \yii\widgets\Breadcrumbs::widget([
                 </div>
 
                 <?php
+            }
+
+            if ($number->status == Number::STATUS_INSTOCK) {
+                echo "<br />" . Html::button('Высвободить номер', ['class' => 'btn btn-danger btn-sm col-sm-3', 'style' => 'margin-top: 200px;', 'onclick' => "numberSubmitForm('toRelease')"]);
             }
 
             $form->end();
