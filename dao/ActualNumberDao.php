@@ -1,9 +1,11 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Singleton;
 use app\models\ActualNumber;
 use app\models\ClientAccount;
+use app\modules\uu\models\Resource;
 
 /**
  * @method static ActualNumberDao me($args = null)
@@ -92,7 +94,7 @@ class ActualNumberDao extends Singleton
                 account_tariff.client_account_id as client_id,
                 account_tariff.voip_number as number,
                 COALESCE(number.region, account_tariff.region_id, city.connection_point_id) as region,
-                1 as call_count,
+                COALESCE((SELECT ROUND(amount) FROM uu_account_tariff_resource_log WHERE resource_id =" . Resource::ID_VOIP_LINE . " AND account_tariff_id = account_tariff.id AND actual_from_utc <= UTC_TIMESTAMP() ORDER BY id DESC LIMIT 1), 1) as call_count,
                 IF(LENGTH(account_tariff.voip_number) > 5,'number','nonumber') AS number_type,
                 '' as number7800,
                 c.is_blocked,
@@ -108,8 +110,8 @@ class ActualNumberDao extends Singleton
                 city
                 on account_tariff.city_id = city.id
             where
-                tariff_period_id is not null
-                and voip_number is not null
+                account_tariff.tariff_period_id is not null
+                and account_tariff.voip_number is not null
                 and c.id = account_tariff.client_account_id
                 " . ($number ? "and account_tariff.voip_number = :number" : "") . "
                 " . ($clientId ? "and account_tariff.client_account_id = :client_id" : "") . "
@@ -118,7 +120,7 @@ class ActualNumberDao extends Singleton
 
         $data = ActualNumber::getDb()->createCommand($numbersSQL . ' UNION ' . $uuNumbersSQL, $params)->queryAll();
 
-        $d = array();
+        $d = [];
         foreach ($data as $l) {
             $d[$l["number"]] = $l;
         }
@@ -153,7 +155,7 @@ class ActualNumberDao extends Singleton
                 " . ($clientId ? "and client_id = :client_id" : "") . "
                 ORDER BY a.id", $params)->queryAll();
 
-        $d = array();
+        $d = [];
         foreach ($data as $l) {
             $d[$l["number"]] = $l;
         }

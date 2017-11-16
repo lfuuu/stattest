@@ -432,7 +432,7 @@ function doEvents()
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
 
                     if ($isCoreServer) {
-                        ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
+                        ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
                     } else {
                         $info = Event::API_IS_SWITCHED_OFF;
                     }
