@@ -6,6 +6,7 @@ use app\classes\api\ApiCore;
 use app\classes\behaviors\EventQueueAddEvent;
 use app\classes\Event;
 use app\classes\model\ActiveRecord;
+use app\dao\ClientSuperDao;
 
 /**
  * Class ClientSuper
@@ -56,6 +57,16 @@ class ClientSuper extends ActiveRecord
                 'isWithIndicator' => true
             ]
         ];
+    }
+
+    /**
+     * DAO
+     *
+     * @return ClientSuperDao
+     */
+    public static function dao()
+    {
+        return ClientSuperDao::me();
     }
 
     /**

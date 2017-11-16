@@ -38,6 +38,7 @@ abstract class Monitor extends Component
             MonitorUuBill::className(),
             // MonitorUuTestTariff::className(), // менеджеры говорят, что пока это нормально
             MonitorUuShiftTariff::className(),
+            MonitorSuperClientStruct::className(),
         ];
     }
 }
