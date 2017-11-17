@@ -116,6 +116,7 @@ class Event
         \app\modules\atol\Module::EVENT_SEND => 'АТОЛ. Отправить',
         \app\modules\atol\Module::EVENT_REFRESH => 'АТОЛ. Обновить',
 
+        \app\modules\uu\Module::EVENT_ADD_DEFAULT_PACKAGES => 'УУ. Добавить дефолтные пакеты',
         \app\modules\uu\Module::EVENT_VOIP_CALLS => 'УУ. Телефония',
         \app\modules\uu\Module::EVENT_VOIP_INTERNET => 'УУ. Моб. интернет',
         \app\modules\uu\Module::EVENT_VPBX => 'УУ. ВАТС',

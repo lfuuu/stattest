@@ -1337,7 +1337,7 @@ class UuController extends ApiInternalController
                 'amount' => $modelLast->amount,
                 'activate_past_date' => null,
                 'activate_future_date' => $modelLast->actual_from,
-                'is_cancelable' => true,
+                'is_cancelable' => (bool)$modelPrev, // если есть на что отменять
                 'is_editable' => false,
             ];
 
@@ -1923,6 +1923,7 @@ class UuController extends ApiInternalController
     {
         if (!$accountTariffLog->tariff_period_id) {
             // закрыть можно
+            // @todo дефолтный пакет закрыть нельзя
             return;
         }
 

@@ -55,7 +55,7 @@ foreach ($rows as $row) {
     // сгруппировать пакеты по типу
     $packagesList = [];
     foreach ($accountTariffFirst->nextAccountTariffs as $accountTariffPackage) {
-        $isPackageDefault = $accountTariffPackage->tariff_period_id && $accountTariffPackage->tariffPeriod->tariff->is_default;
+        $isPackageDefault = $accountTariffPackage->getNotNullTariffPeriod()->tariff->is_default;
         $packagesList[$isPackageDefault ? 0 : $accountTariffPackage->service_type_id][] = $accountTariffPackage;
     }
 

@@ -437,6 +437,12 @@ function doEvents()
                         $info = Event::API_IS_SWITCHED_OFF;
                     }
 
+                    // УУ. Добавление/выключение дефолтных пакетов телефонии
+                    AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
+                    break;
+
+                case \app\modules\uu\Module::EVENT_ADD_DEFAULT_PACKAGES:
+                    // УУ. Добавление/выключение дефолтных пакетов телефонии
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;
 

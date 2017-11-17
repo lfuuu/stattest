@@ -5,7 +5,9 @@ namespace app\modules\uu\models;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
+use app\modules\uu\behaviors\AccountTariffAddDefaultPackage;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
+use app\modules\uu\behaviors\AccountTariffVoipInternet;
 use app\modules\uu\behaviors\AccountTariffVoipNumber;
 use app\modules\uu\models\traits\AccountTariffBillerPeriodTrait;
 use app\modules\uu\models\traits\AccountTariffBillerResourceTrait;
@@ -124,10 +126,11 @@ class AccountTariff extends ActiveRecord
     public function behaviors()
     {
         return parent::behaviors() + [
-                'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-                'AccountTariffImportantEvents' => AccountTariffImportantEvents::className(),
-                'AccountTariffVoipInternet' => \app\modules\uu\behaviors\AccountTariffVoipInternet::className(),
-                'AccountTariffVoipNumber' => AccountTariffVoipNumber::className(),
+                \app\classes\behaviors\HistoryChanges::className(),
+                AccountTariffImportantEvents::className(),
+                AccountTariffVoipInternet::className(),
+                AccountTariffVoipNumber::className(),
+                AccountTariffAddDefaultPackage::className(),
                 [
                     // Установить "когда создал" и "когда обновил"
                     'class' => TimestampBehavior::className(),

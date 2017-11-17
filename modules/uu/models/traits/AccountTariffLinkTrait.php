@@ -4,6 +4,7 @@ namespace app\modules\uu\models\traits;
 
 use app\classes\Html;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use Yii;
@@ -38,9 +39,7 @@ trait AccountTariffLinkTrait
             }
         }
 
-        /** @var TariffPeriod $tariffPeriod */
-        $tariffPeriod = $this->tariffPeriod;
-        $names[] = $tariffPeriod ? $tariffPeriod->getName() : Yii::t('common', 'Switched off');
+        $names[] = $this->getNotNullTariffPeriod()->getName();
 
         return implode('. ', $names);
     }
@@ -103,5 +102,38 @@ trait AccountTariffLinkTrait
     public static function getUrlNew($serviceTypeId)
     {
         return Url::to(['/uu/account-tariff/new', 'serviceTypeId' => $serviceTypeId]);
+    }
+
+    /**
+     * Вернуть ненулевой TariffPeriod
+     * Если включен - текущий.
+     * Если уже закрыт - последний активный.
+     * Если еще не включен - запланированный.
+     *
+     * @return TariffPeriod
+     */
+    public function getNotNullTariffPeriod()
+    {
+        /** @var TariffPeriod $tariffPeriod */
+        $tariffPeriod = $this->tariffPeriod;
+        if ($tariffPeriod) {
+            // текущий
+            return $tariffPeriod;
+        }
+
+        // еще не включился или уже выключился
+        /** @var AccountTariffLog[] $accountTariffLogs */
+        $accountTariffLogs = $this->accountTariffLogs;
+        foreach ($accountTariffLogs as $accountTariffLog) {
+            if (!$accountTariffLog->tariff_period_id) {
+                // закрытие услуги
+                continue;
+            }
+
+            return $accountTariffLog->tariffPeriod;
+        }
+
+        // в логе ничего нет
+        throw new \LogicException('У услуги ' . $this->id . ' нет лога смены тарифов.');
     }
 }

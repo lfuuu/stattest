@@ -67,8 +67,10 @@ $resourceTableName = Resource::tableName();
     </div>
 
     <?php
+    $nResourceOptions = 0;
     /** @var \app\modules\uu\models\Resource $resource */
     foreach ($resources as $resource) :
+        $nResourceOptions += (int)$resource->isOption();
         $tariffResource = isset($tariffResources[$resource->id]) ? $tariffResources[$resource->id] : null;
         ?>
 
@@ -144,7 +146,7 @@ $resourceTableName = Resource::tableName();
 
     <?php endforeach ?>
 
-    <?php if (!$isReadOnly && !$accountTariff->isNewRecord) : ?>
+    <?php if ($nResourceOptions && !$isReadOnly && !$accountTariff->isNewRecord) : ?>
         <div class="row">
 
             <div class="col-sm-3">

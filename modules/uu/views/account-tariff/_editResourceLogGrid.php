@@ -14,6 +14,12 @@ use app\modules\uu\models\AccountTariffResourceLog;
 use kartik\grid\GridView;
 use yii\data\ActiveDataProvider;
 
+if (!$resource->isOption()) {
+    // Трафик нельзя поменять заранее
+    return;
+}
+
+$isResourceCancelable = $accountTariff->isResourceCancelable($resource);
 ?>
 
 <?= $this->render('//layouts/_toggleButton', ['divSelector' => '#account-tariff-resource-log-grid-' . $resource->id, 'title' => 'Лог']) ?>
@@ -32,13 +38,13 @@ use yii\data\ActiveDataProvider;
                 'attribute' => 'amount',
                 'noWrap' => true,
                 'format' => 'html',
-                'value' => function (AccountTariffResourceLog $accountTariffResourceLog) {
+                'value' => function (AccountTariffResourceLog $accountTariffResourceLog) use ($isResourceCancelable) {
                     return
                         $accountTariffResourceLog->amount .
                         ' ' .
 
                         (
-                        strtotime($accountTariffResourceLog->actual_from_utc) >= time() ?
+                        ($isResourceCancelable && strtotime($accountTariffResourceLog->actual_from_utc) >= time()) ?
                             Html::a(
                                 Html::tag('i', '', [
                                     'class' => 'glyphicon glyphicon-erase',

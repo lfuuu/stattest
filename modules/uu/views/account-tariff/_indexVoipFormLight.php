@@ -52,7 +52,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                 <?= $accountTariffFirst->region ? ' (' . $accountTariffFirst->region->name . ')' : '' ?>
                 <?= $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
 
-                <?= $accountTariffFirst->tariff_period_id ?
+                <?= $accountTariffFirst->isActive() ?
                     '' :
                     $this->render('//layouts/_toggleButton', ['divSelector' => '#' . $panelBodyId])
                 ?>
@@ -60,7 +60,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 
         </div>
 
-        <div class="panel-body<?= $accountTariffFirst->tariff_period_id ? '' : ' collapse' ?>" id="<?= $panelBodyId ?>">
+        <div class="panel-body<?= $accountTariffFirst->isActive() ? '' : ' collapse' ?>" id="<?= $panelBodyId ?>">
 
             <div class="account-tariff-voip-numbers">
                 <?php // номера ?>

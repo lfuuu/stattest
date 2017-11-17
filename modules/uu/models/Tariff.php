@@ -409,6 +409,17 @@ class Tariff extends ActiveRecord
     }
 
     /**
+     * Дефолтный пакет?
+     *
+     * @return bool
+     */
+    public function getIsDefaultPackage()
+    {
+        return $this->is_default && array_key_exists($this->service_type_id, ServiceType::$packages);
+
+    }
+
+    /**
      * Тестовые статусы
      *
      * @return int[]

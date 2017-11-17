@@ -39,7 +39,7 @@ trait AccountTariffPackageTrait
         $transaction = \Yii::$app->db->beginTransaction();
         try {
 
-            if ($this->tariff_period_id) {
+            if ($this->isActive()) {
                 // подключить базовые пакеты
                 $this->_addDefaultPackage();
             } else {
@@ -71,7 +71,7 @@ trait AccountTariffPackageTrait
         }
 
         /** @var TariffPeriod $tariffPeriod */
-        $tariffPeriod = $this->tariffPeriod;
+        $tariffPeriod = $this->getNotNullTariffPeriod();
         $tariffStatuses = $this->_getPackageTariffStatuses();
         /** @var \app\models\Number $number */
         $number = $this->number;
@@ -149,12 +149,14 @@ trait AccountTariffPackageTrait
         $nextAccountTariffs = $this->nextAccountTariffs;
         foreach ($nextAccountTariffs as $nextAccountTariff) {
 
-            if (!$nextAccountTariff->tariff_period_id) {
+            if (!$nextAccountTariff->isActive()) {
                 // закрытый
                 continue;
             }
 
-            if ($nextAccountTariff->tariffPeriod->tariff->is_default) {
+            /** @var TariffPeriod $tariffPeriod */
+            $tariffPeriod = $nextAccountTariff->getNotNullTariffPeriod();
+            if ($tariffPeriod->tariff->is_default) {
                 return true;
             }
         }
@@ -165,6 +167,7 @@ trait AccountTariffPackageTrait
     /**
      * Закрыть все пакеты.
      *
+     * @throws \yii\db\StaleObjectException
      * @throws \app\exceptions\ModelValidationException
      * @throws \Exception
      */

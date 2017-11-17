@@ -53,7 +53,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
                 <?= $accountTariffFirst->region ? ' (' . $accountTariffFirst->region->name . ')' : '' ?>
                 <?= $accountTariffFirst->city ? ' (' . $accountTariffFirst->city->name . ')' : '' ?>
 
-                <?= $accountTariffFirst->tariff_period_id ?
+                <?= $accountTariffFirst->isActive() ?
                     $this->render('//layouts/_buttonCancel', ['url' => '#', 'class' => 'collapse']) :
                     $this->render('//layouts/_toggleButton', ['divSelector' => '#' . $panelBodyId])
                 ?>

@@ -18,7 +18,7 @@ use yii\db\ActiveQuery;
 trait AccountTariffBoolTrait
 {
     /**
-     * Можно ли сменить редактировать
+     * Можно ли редактировать
      *
      * @return bool
      */
@@ -29,7 +29,7 @@ trait AccountTariffBoolTrait
             return false;
         }
 
-        if (array_key_exists($this->service_type_id, ServiceType::$packages) && $this->tariffPeriod->tariff->is_default) {
+        if (array_key_exists($this->service_type_id, ServiceType::$packages) && $this->getNotNullTariffPeriod()->tariff->is_default) {
             // дефолтный пакет нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
             return false;
         }
@@ -166,10 +166,12 @@ trait AccountTariffBoolTrait
         /** @var ActiveQuery $accountTariffResourceLogsQuery */
         $accountTariffResourceLogsQuery = $this->getAccountTariffResourceLogs($resource->id);
         $accountTariffResourceLogs = $accountTariffResourceLogsQuery->all();
-        $accountTariffResourceLog = reset($accountTariffResourceLogs);
-        if (!$accountTariffResourceLog) {
+        if (count($accountTariffResourceLogs) <= 1) {
+            // нет смен ресурса или это инициализация, которую тоже нельзя отменить
             return false;
         }
+
+        $accountTariffResourceLog = reset($accountTariffResourceLogs);
 
         /** @var ClientAccount $clientAccount */
         $clientAccount = $this->clientAccount;

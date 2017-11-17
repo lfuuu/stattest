@@ -40,7 +40,10 @@ $accountTariff = $formModel->accountTariff;
                             ' ' .
 
                             (
-                            strtotime($accountTariffLog->actual_from_utc) >= time() ?
+                            (
+                                strtotime($accountTariffLog->actual_from_utc) >= time() &&
+                                (!$accountTariffLog->tariff_period_id || !$accountTariffLog->tariffPeriod->tariff->getIsDefaultPackage()) // дефолтные пакеты нельзя вручную менять // @todo добавить проверку на сервере
+                            ) ?
                                 Html::a(
                                     Html::tag('i', '', [
                                         'class' => 'glyphicon glyphicon-erase',
