@@ -329,7 +329,7 @@ class NumberRange extends ActiveRecord
     /**
      * Получение NNP информации по номеру.
      *
-     * @param $number string
+     * @param string $number
      * @return array
      */
     public static function getNumberInfo($number)
@@ -354,10 +354,18 @@ class NumberRange extends ActiveRecord
         $regionModel = $numberModel->regionModel;
         $city = $numberModel->city;
 
+        if ($nnpCountry) {
+            $countryName = ($nnpCountry->code == \app\modules\nnp\models\Country::RUSSIA) ? $nnpCountry->name_rus : $nnpCountry->name;
+        } elseif ($country) {
+            $countryName = ($country->code == \app\models\Country::RUSSIA) ? $country->name_rus : $country->name;
+        } else {
+            $countryName = '';
+        }
+
         return [
             'ndc' => (int)$numberModel->ndc,
             'ndc_type' => (int)$numberModel->ndc_type_id,
-            'country_name' => $nnpCountry ? $nnpCountry->name_rus : ($country ? $country->name : null),
+            'country_name' => $countryName,
             'region_name' => $nnpRegion ? $nnpRegion->name : ($regionModel ? $regionModel->name : null),
             'city_name' => $nnpCity ? $nnpCity->name : ($city ? $city->name : null),
             'operator_name' => $nnpOperator ? $nnpOperator->name : null,
