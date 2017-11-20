@@ -115,9 +115,7 @@ SQL;
                     'tariff_period_id' => null,
                     'actual_from_utc' => $dateFromUtc
                         ->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                    'insert_time' => $dateFromUtc
-                        ->modify('-2 seconds')
-                        ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                    'insert_time' => new \yii\db\Expression('NOW()'),
                 ];
                 $affectedRows = $db->createCommand()
                     ->insert($accountTariffLogTableName, $accountTariffLogFields)
