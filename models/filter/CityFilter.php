@@ -53,6 +53,7 @@ class CityFilter extends City
         $this->connection_point_id !== '' && $query->andWhere(['connection_point_id' => $this->connection_point_id]);
         $this->voip_number_format !== '' && $query->andWhere(['LIKE', 'voip_number_format', $this->voip_number_format]);
         $this->in_use !== '' && $query->andWhere(['in_use' => $this->in_use]);
+        $this->is_show_in_lk !== '' && $query->andWhere(['is_show_in_lk' => $this->is_show_in_lk]);
         $this->billing_method_id !== '' && $query->andWhere(['billing_method_id' => $this->billing_method_id]);
 
         $query->orderBy(['order' => SORT_ASC]);

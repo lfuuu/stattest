@@ -82,6 +82,9 @@ $columns = [
         'attribute' => 'is_show_in_lk',
         'class' => YesNoColumn::className(),
     ],
+    [
+        'attribute' => 'order',
+    ],
 ];
 
 echo GridViewSequence::widget([
