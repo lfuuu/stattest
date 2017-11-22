@@ -124,13 +124,6 @@ trait CallsRawSlowReport
             ->orderBy('connect_time')
             ->limit(500);
 
-        $query4->select(
-            [
-                '*',
-                '(@(cr1.sale)) - cr2.cost_price margin',
-            ]
-        )->from('cr1')
-            ->join('JOIN', 'cr2', ['AND', 'cr1.cdr_id = cr2.cdr_id']);
 
         if ($this->server_ids) {
             $condition = ['cr.server_id' => $this->server_ids];
@@ -287,6 +280,18 @@ trait CallsRawSlowReport
             && $query3->andWhere($condition);
         }
 
+//        $query4->select(['*', '(@(cr1.sale)) - cr2.cost_price margin']
+//        )->from('cr1')
+//            ->join('JOIN', 'cr2', ['AND', 'cr1.cdr_id = cr2.cdr_id']);
+//
+//        $query4->addWith(['cr1' => $query1]);
+//        $query4->addWith(['cr2' => $query2]);
+
+        $query4
+            ->select(['*', '(@(cr1.sale)) - cr2.cost_price margin'])
+            ->from(['cr1' => $query1, 'cr2' => $query2])
+            ->where('cr1.cdr_id = cr2.cdr_id');
+
         // временно отключим этот фунционал
         // $query3 && $query4 = (new CTEQuery())->from(['cr' => $query4->union($query3)]);
 
@@ -296,9 +301,6 @@ trait CallsRawSlowReport
             $query3 && $query3->orderBy([])->limit(-1);
             $query4->orderBy([])->limit(-1);
         }
-
-        $query4->addWith(['cr1' => $query1]);
-        $query4->addWith(['cr2' => $query2]);
 
         return $query4;
     }
