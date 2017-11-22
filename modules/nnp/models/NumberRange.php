@@ -365,7 +365,7 @@ class NumberRange extends ActiveRecord
         $city = $numberModel->city;
 
         if ($nnpCountry) {
-            $countryName = ($nnpCountry->code == \app\modules\nnp\models\Country::RUSSIA) ? $nnpCountry->name_rus : $nnpCountry->name;
+            $countryName = ($nnpCountry->code == \app\modules\nnp\models\Country::RUSSIA) ? $nnpCountry->name_rus : $nnpCountry->name_eng;
         } elseif ($country) {
             $countryName = ($country->code == \app\models\Country::RUSSIA) ? $country->name_rus : $country->name;
         } else {

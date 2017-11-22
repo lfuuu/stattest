@@ -30,8 +30,9 @@ class NnpController extends ApiInternalController
     /**
      * @SWG\Definition(definition = "nnpCountryRecord", type = "object",
      *   @SWG\Property(property = "code", type = "integer", description = "Код"),
-     *   @SWG\Property(property = "name", type = "string", description = "Английское название"),
+     *   @SWG\Property(property = "name", type = "string", description = "Эндоним"),
      *   @SWG\Property(property = "name_rus", type = "string", description = "Русское название"),
+     *   @SWG\Property(property = "name_eng", type = "string", description = "Английское название"),
      *   @SWG\Property(property = "prefixes", type = "string", description = "Префиксы в стиле PostgreSQL int[], то есть в фигурных скобках числа через запятую"),
      * ),
      *
@@ -74,6 +75,7 @@ class NnpController extends ApiInternalController
             'code' => $country->code,
             'name' => $country->name,
             'name_rus' => $country->name_rus,
+            'name_eng' => $country->name_eng,
             'prefixes' => $country->prefixes,
         ];
     }
