@@ -9,6 +9,7 @@ use app\classes\yii\CTEQuery;
 use Yii;
 use yii\db\Expression;
 use app\models\billing\DisconnectCause;
+use yii\db\Query;
 
 trait CallsRawSlowReport
 {
@@ -165,7 +166,7 @@ trait CallsRawSlowReport
             || $this->dst_number_type_ids
             || $this->dst_number
         ) {
-            $query1->limit(-1)->orderBy([]);
+            $query2->limit(-1)->orderBy([]);
             $query3 = null;
         }
 
@@ -179,14 +180,37 @@ trait CallsRawSlowReport
             || $this->src_number_type_ids
             || $this->src_number
         ) {
-            $query2->limit(-1)->orderBy([]);
+            $query1->limit(-1)->orderBy([]);
             $query3 = null;
         }
 
-        $query2 = $this->setSessionCondition($query2, 'cr.billed_time');
+        if ($this->src_trunk_group_ids) {
+            $query1->innerJoin('auth.trunk_group_item tgi', 'tgi.trunk_id = t.id');
+            $query1->andWhere(['tgi.trunk_group_id' => $this->src_trunk_group_ids]);
+        }
+
+        if ($this->dst_trunk_group_ids) {
+            $query = (new Query())
+                ->select('tgi2.trunk_id')
+                ->distinct()
+                ->from([
+                    'tgi' => 'auth.trunk_group_item',
+                    'ttr' => 'auth.trunk_trunk_rule',
+                    'tgi2' => 'auth.trunk_group_item',
+                ])
+                ->where([
+                    'tgi.trunk_group_id' => $this->dst_trunk_group_ids
+                ])
+                ->andWhere('ttr.trunk_id =  tgi.trunk_id')
+                ->andWhere('tgi2.trunk_group_id = ttr.trunk_group_id');
+
+            $query2->andWhere(['t.id' => $query]);
+        }
+
+        $query1 = $this->setSessionCondition($query1, 'cr.billed_time');
 
         if ($this->src_physical_trunks_ids) {
-            $query1->andWhere(['cr.trunk_id' => $this->src_physical_trunks_ids])
+            $query2->andWhere(['cr.trunk_id' => $this->src_physical_trunks_ids])
             && $query3
             && $query3
                 ->leftJoin('auth.trunk t1', 'src_route = t1.trunk_name')
@@ -194,7 +218,7 @@ trait CallsRawSlowReport
         }
 
         if ($this->dst_physical_trunks_ids) {
-            $query2->andWhere(['cr.trunk_id' => $this->dst_physical_trunks_ids])
+            $query1->andWhere(['cr.trunk_id' => $this->dst_physical_trunks_ids])
             && $query3
             && $query3
                 ->leftJoin('auth.trunk t2', 'dst_route = t2.trunk_name')
@@ -202,14 +226,6 @@ trait CallsRawSlowReport
         }
 
         $query1 = $query1
-            ->reportCondition('cr.trunk_service_id', $this->src_logical_trunks_ids)
-            ->reportCondition('st.contract_id', $this->src_contracts_ids)
-            ->reportCondition('cr.nnp_operator_id', $this->src_operator_ids)
-            ->reportCondition('cr.nnp_region_id', $this->src_regions_ids)
-            ->reportCondition('cr.nnp_city_id', $this->src_cities_ids)
-            ->reportCondition('cr.nnp_country_code', $this->src_countries_ids);
-
-        $query2 = $query2
             ->reportCondition('cr.trunk_service_id', $this->dst_logical_trunks_ids)
             ->reportCondition('st.contract_id', $this->dst_contracts_ids)
             ->reportCondition('cr.nnp_operator_id', $this->dst_operator_ids)
@@ -217,18 +233,27 @@ trait CallsRawSlowReport
             ->reportCondition('cr.nnp_city_id', $this->dst_cities_ids)
             ->reportCondition('cr.nnp_country_code', $this->dst_countries_ids);
 
+        $query2 = $query2
+            ->reportCondition('cr.trunk_service_id', $this->src_logical_trunks_ids)
+            ->reportCondition('st.contract_id', $this->src_contracts_ids)
+            ->reportCondition('cr.nnp_operator_id', $this->src_operator_ids)
+            ->reportCondition('cr.nnp_region_id', $this->src_regions_ids)
+            ->reportCondition('cr.nnp_city_id', $this->src_cities_ids)
+            ->reportCondition('cr.nnp_country_code', $this->src_countries_ids);
+
+
         $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group) ? true : false;
         $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group) ? true : false;
 
-        $query1 = $this->setDestinationCondition($query1, $query3, $this->src_destinations_ids, $this->src_number_type_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
-        $query2 = $this->setDestinationCondition($query2, $query3, $this->dst_destinations_ids, $this->dst_number_type_ids, 'cr.nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
-
-        if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
-            $query1->addSelect(['src_ndc_type_id' => 'src_nrd.ndc_type_id']);
-        }
+        $query1 = $this->setDestinationCondition($query1, $query3, $this->dst_destinations_ids, $this->dst_number_type_ids, 'cr.nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
+        $query2 = $this->setDestinationCondition($query2, $query3, $this->src_destinations_ids, $this->src_number_type_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
 
         if ($isDstNdcTypeGroup || $this->dst_destinations_ids || $this->dst_number_type_ids) {
-            $query2->addSelect(['dst_ndc_type_id' => 'dst_nrd.ndc_type_id']);
+            $query1->addSelect(['dst_ndc_type_id' => 'dst_nrd.ndc_type_id']);
+        }
+
+        if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
+            $query2->addSelect(['src_ndc_type_id' => 'src_nrd.ndc_type_id']);
         }
 
         if ($this->is_success_calls) {
@@ -262,7 +287,8 @@ trait CallsRawSlowReport
             && $query3->andWhere($condition);
         }
 
-        $query3 && $query4 = (new CTEQuery())->from(['cr' => $query4->union($query3)]);
+        // временно отключим этот фунционал
+        // $query3 && $query4 = (new CTEQuery())->from(['cr' => $query4->union($query3)]);
 
         if (($this->sort && $this->sort != 'connect_time') || $this->group || $this->group_period || $this->aggr) {
             $query1->orderBy([])->limit(-1);
