@@ -39,6 +39,10 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
+        'attribute' => 'name_eng',
+        'class' => StringColumn::className(),
+    ],
+    [
         'attribute' => 'alpha_3',
         'class' => StringColumn::className(),
     ],

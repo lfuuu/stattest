@@ -11,6 +11,7 @@ use yii\helpers\Url;
  * @property int $code
  * @property string $name
  * @property string $name_rus
+ * @property string $name_eng
  * @property string $alpha_3
  * @property string $prefixes integer[]
  *
@@ -40,8 +41,9 @@ class Country extends ActiveRecord
     {
         return [
             'code' => 'Код',
-            'name' => 'Английское название',
+            'name' => 'Эндоним',
             'name_rus' => 'Русское название',
+            'name_eng' => 'Английское название',
             'prefixes' => 'Префиксы',
             'alpha_3' => '3х-буквенный код',
         ];

@@ -13,6 +13,7 @@ class CountryFilter extends Country
     public $code = '';
     public $name = '';
     public $name_rus = '';
+    public $name_eng = '';
     public $alpha_3 = '';
 
     /**
@@ -22,7 +23,7 @@ class CountryFilter extends Country
     {
         return [
             [['code'], 'integer'],
-            [['name', 'name_rus', 'alpha_3'], 'string'],
+            [['name', 'name_rus', 'name_eng', 'alpha_3'], 'string'],
         ];
     }
 
@@ -42,6 +43,7 @@ class CountryFilter extends Country
         $this->code && $query->andWhere([$cityTableName . '.code' => $this->code]);
         $this->name && $query->andWhere(['LIKE', $cityTableName . '.name', $this->name]);
         $this->name_rus && $query->andWhere(['LIKE', $cityTableName . '.name_rus', $this->name_rus]);
+        $this->name_eng && $query->andWhere(['LIKE', $cityTableName . '.name_eng', $this->name_eng]);
         $this->alpha_3 && $query->andWhere([$cityTableName . '.alpha_3' => $this->alpha_3]);
 
         return $dataProvider;
