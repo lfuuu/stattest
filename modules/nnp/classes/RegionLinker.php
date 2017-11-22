@@ -261,16 +261,20 @@ class RegionLinker extends Singleton
 SQL;
                     $db->createCommand($sqlClear)->execute();
                     unset($sqlClear);
+
+                    $sqlCnt = 'LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999)'; // любое большое число, чтобы не было переполнения
+                } else {
+                    $sqlCnt = '1';
                 }
 
                 $sql = <<<SQL
             UPDATE {$regionTableName}
-            SET cnt = region_stat.cnt
+            SET cnt = cnt + region_stat.cnt
             FROM 
                 (
                     SELECT
                         region_id,
-                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 999999999) AS cnt  -- любое большое число, чтобы не было переполнения
+                        {$sqlCnt} AS cnt
                     FROM
                         {$numberRangeTableName} 
                     WHERE

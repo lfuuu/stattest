@@ -160,16 +160,20 @@ class OperatorLinker extends Singleton
 SQL;
                     $db->createCommand($sqlClear)->execute();
                     unset($sqlClear);
+
+                    $sqlCnt = 'LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999)'; // любое большое число, чтобы не было переполнения
+                } else {
+                    $sqlCnt = '1';
                 }
 
                 $sql = <<<SQL
             UPDATE {$operatorTableName}
-            SET cnt += operator_stat.cnt
+            SET cnt = cnt + operator_stat.cnt
             FROM 
                 (
                     SELECT
                         operator_id,
-                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999) AS cnt  -- любое большое число, чтобы не было переполнения
+                        {$sqlCnt} AS cnt
                     FROM
                         {$numberRangeTableName} 
                     WHERE

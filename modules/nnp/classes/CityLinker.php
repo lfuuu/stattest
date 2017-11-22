@@ -186,16 +186,20 @@ class CityLinker extends Singleton
 SQL;
                     $db->createCommand($sqlClear)->execute();
                     unset($sqlClear);
+
+                    $sqlCnt = 'LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999)'; // любое большое число, чтобы не было переполнения
+                } else {
+                    $sqlCnt = '1';
                 }
 
                 $sql = <<<SQL
             UPDATE {$cityTableName}
-            SET cnt = city_stat.cnt
+            SET cnt = cnt + city_stat.cnt
             FROM 
                 (
                     SELECT
                         city_id,
-                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999) AS cnt  -- любое большое число, чтобы не было переполнения
+                        {$sqlCnt} AS cnt
                     FROM
                         {$numberRangeTableName} 
                     WHERE
