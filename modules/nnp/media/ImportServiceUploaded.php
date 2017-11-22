@@ -2,7 +2,7 @@
 
 namespace app\modules\nnp\media;
 
-use app\modules\nnp\filter\NumberRangeImport;
+use app\modules\nnp\filters\NumberRangeImport;
 
 class ImportServiceUploaded extends ImportService
 {

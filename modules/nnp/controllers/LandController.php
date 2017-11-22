@@ -3,7 +3,7 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use app\modules\nnp\filter\LandFilter;
+use app\modules\nnp\filters\LandFilter;
 use app\modules\nnp\forms\land\FormEdit;
 use app\modules\nnp\forms\land\FormNew;
 use Yii;

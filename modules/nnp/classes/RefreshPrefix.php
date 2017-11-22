@@ -5,7 +5,7 @@ namespace app\modules\nnp\classes;
 use app\classes\Connection;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
-use app\modules\nnp\filter\NumberRangeFilter;
+use app\modules\nnp\filters\NumberRangeFilter;
 use app\modules\nnp\models\FilterQuery;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\NumberRangePrefix;

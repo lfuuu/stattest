@@ -1,6 +1,6 @@
 <?php
 /**
- * Создание/редактирование диапазона номеров
+ * Редактирование диапазона номеров
  *
  * @var \app\classes\BaseView $this
  * @var Form $formModel

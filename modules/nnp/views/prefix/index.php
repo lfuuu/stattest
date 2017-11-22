@@ -11,7 +11,7 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\modules\nnp\column\DestinationColumn;
-use app\modules\nnp\filter\PrefixFilter;
+use app\modules\nnp\filters\PrefixFilter;
 use app\modules\nnp\models\Prefix;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\helpers\Url;

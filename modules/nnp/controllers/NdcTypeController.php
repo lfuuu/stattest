@@ -3,7 +3,7 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use app\modules\nnp\filter\NdcTypeFilter;
+use app\modules\nnp\filters\NdcTypeFilter;
 use app\modules\nnp\forms\ndcType\FormEdit;
 use app\modules\nnp\forms\ndcType\FormNew;
 use Yii;

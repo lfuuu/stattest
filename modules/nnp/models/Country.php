@@ -24,6 +24,7 @@ class Country extends ActiveRecord
     }
 
     const RUSSIA = 643;
+    const GERMANY = 276;
     const RUSSIA_PREFIX = 7;
 
     public static $primaryField = 'code';

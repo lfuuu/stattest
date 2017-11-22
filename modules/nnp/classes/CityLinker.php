@@ -2,10 +2,12 @@
 
 namespace app\modules\nnp\classes;
 
+use app\classes\model\ActiveRecord;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\TranslitHelper;
 use app\modules\nnp\models\City;
+use app\modules\nnp\models\Number;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\Module;
 use yii\db\Expression;
@@ -32,9 +34,16 @@ class CityLinker extends Singleton
         }
 
         $log = '';
-        $log .= $this->_setNull();
-        $log .= $this->_link();
-        $log .= $this->_updateCnt();
+        $object = new NumberRange();
+        $log .= $this->_setNull($object);
+        $log .= $this->_link($object);
+        $log .= $this->_updateCnt($object, true);
+
+        $object = new Number();
+        $log .= $this->_setNull($object);
+        $log .= $this->_link($object);
+        $log .= $this->_updateCnt($object, false);
+
         $log .= $this->_transliterate();
 
         return $log;
@@ -43,25 +52,27 @@ class CityLinker extends Singleton
     /**
      * Сбросить привязанные
      *
+     * @param ActiveRecord $object
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _setNull()
+    private function _setNull(ActiveRecord $object)
     {
-        NumberRange::updateAll(['city_id' => null], ['city_source' => '']);
+        $object::updateAll(['city_id' => null], ['city_source' => '']);
     }
 
     /**
      * Привязать к городам
      *
+     * @param ActiveRecord $object
      * @return string
      * @throws \app\exceptions\ModelValidationException
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    private function _link()
+    private function _link(ActiveRecord $object)
     {
-        $numberRangeQuery = NumberRange::find()
+        $numberRangeQuery = $object::find()
             ->andWhere('city_id IS NULL')
             ->andWhere(['IS NOT', 'city_source', null])
             ->andWhere(['!=', 'city_source', '']);
@@ -82,7 +93,7 @@ class CityLinker extends Singleton
             ->column();
 
         // Уже сделанные соответствия
-        $this->_regionSourceToCityId += NumberRange::find()
+        $this->_regionSourceToCityId += $object::find()
             ->distinct()
             ->select([
                 'id' => 'city_id',
@@ -94,7 +105,7 @@ class CityLinker extends Singleton
 
         $i = 0;
 
-        /** @var NumberRange $numberRange */
+        /** @var NumberRange|Number $numberRange */
         foreach ($numberRangeQuery->each() as $numberRange) {
 
             if ($i++ % 1000 === 0) {
@@ -153,24 +164,29 @@ class CityLinker extends Singleton
     /**
      * Обновить столбец cnt
      *
+     * @param ActiveRecord $object
+     * @param int $isClear
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _updateCnt()
+    private function _updateCnt(ActiveRecord $object, $isClear)
     {
         $log = '';
 
         $log .= Module::transaction(
-            function () {
+            function () use ($object, $isClear) {
                 $db = City::getDb();
 
-                $numberRangeTableName = NumberRange::tableName();
+                $numberRangeTableName = $object::tableName();
                 $cityTableName = City::tableName();
 
-                $sql = <<<SQL
+                if ($isClear) {
+                    $sqlClear = <<<SQL
             UPDATE {$cityTableName} SET cnt = 0
 SQL;
-                $db->createCommand($sql)->execute();
+                    $db->createCommand($sqlClear)->execute();
+                    unset($sqlClear);
+                }
 
                 $sql = <<<SQL
             UPDATE {$cityTableName}
@@ -179,7 +195,7 @@ SQL;
                 (
                     SELECT
                         city_id,
-                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 999999999) AS cnt  -- любое большое число, чтобы не было переполнения
+                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999) AS cnt  -- любое большое число, чтобы не было переполнения
                     FROM
                         {$numberRangeTableName} 
                     WHERE
@@ -193,11 +209,13 @@ SQL;
             }
         );
 
-        $log .= Module::transaction(
-            function () {
-                City::deleteAll(['cnt' => 0]);
-            }
-        );
+        if (!$isClear) {
+            $log .= Module::transaction(
+                function () {
+                    City::deleteAll(['cnt' => 0]);
+                }
+            );
+        }
 
         return $log;
     }

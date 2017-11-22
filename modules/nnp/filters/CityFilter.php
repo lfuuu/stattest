@@ -1,6 +1,6 @@
 <?php
 
-namespace app\modules\nnp\filter;
+namespace app\modules\nnp\filters;
 
 use app\modules\nnp\models\City;
 use yii\data\ActiveDataProvider;

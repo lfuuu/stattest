@@ -3,7 +3,7 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use app\modules\nnp\filter\DestinationFilter;
+use app\modules\nnp\filters\DestinationFilter;
 use app\modules\nnp\forms\destination\FormEdit;
 use app\modules\nnp\forms\destination\FormNew;
 use app\modules\nnp\models\Destination;

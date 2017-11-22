@@ -23,15 +23,20 @@ use yii\helpers\Url;
  * @property int $number_to bigint
  * @property int $full_number_from bigint
  * @property int $full_number_to bigint
+ *
  * @property string $operator_source
  * @property int $operator_id
+ *
  * @property string $region_source
- * @property string $city_source
  * @property int $region_id
+ *
+ * @property string $city_source
  * @property int $city_id
- * @property bool $is_active
+ *
  * @property string $ndc_type_source
  * @property int $ndc_type_id
+ *
+ * @property bool $is_active
  * @property string $date_stop date
  * @property string $date_resolution date
  * @property string $detail_resolution
@@ -82,15 +87,20 @@ class NumberRange extends ActiveRecord
             'number_to' => 'Номер до',
             'full_number_from' => 'Полный номер от',
             'full_number_to' => 'Полный номер до',
+
             'operator_source' => 'Исходный оператор',
             'operator_id' => 'Оператор',
+
             'region_source' => 'Исходный регион',
-            'city_source' => 'Исходный город',
             'region_id' => 'Регион',
+
+            'city_source' => 'Исходный город',
             'city_id' => 'Город',
-            'is_active' => 'Вкл.',
+
             'ndc_type_source' => 'Исходный тип NDC',
             'ndc_type_id' => 'Тип NDC',
+
+            'is_active' => 'Вкл.',
             'date_stop' => 'Дата выключения',
             'date_resolution' => 'Дата выделения диапазона',
             'detail_resolution' => 'Комментарий',

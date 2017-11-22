@@ -5,7 +5,7 @@ namespace app\modules\nnp\controllers;
 use app\classes\BaseController;
 use app\classes\Event;
 use app\classes\Html;
-use app\modules\nnp\filter\CountryFilter;
+use app\modules\nnp\filters\CountryFilter;
 use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\CountryFile;

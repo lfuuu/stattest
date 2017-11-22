@@ -19,7 +19,7 @@ use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\nnp\column\OperatorColumn;
 use app\modules\nnp\column\PrefixColumn;
 use app\modules\nnp\column\RegionColumn;
-use app\modules\nnp\filter\NumberRangeFilter;
+use app\modules\nnp\filters\NumberRangeFilter;
 use app\modules\nnp\models\NumberRange;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;

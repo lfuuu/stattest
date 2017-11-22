@@ -6,7 +6,7 @@
  * @var CountryFilter $country
  */
 
-use app\modules\nnp\filter\CountryFilter;
+use app\modules\nnp\filters\CountryFilter;
 use app\modules\nnp\models\Country;
 use kartik\widgets\Select2;
 use yii\widgets\ActiveForm;

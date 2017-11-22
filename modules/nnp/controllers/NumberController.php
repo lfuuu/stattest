@@ -3,16 +3,16 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use app\modules\nnp\filters\StatusFilter;
-use app\modules\nnp\forms\status\FormEdit;
-use app\modules\nnp\forms\status\FormNew;
+use app\modules\nnp\filters\NumberFilter;
+use app\modules\nnp\models\Number;
 use Yii;
 use yii\filters\AccessControl;
+use yii\web\NotFoundHttpException;
 
 /**
- * Статусы
+ * Номера
  */
-class StatusController extends BaseController
+class NumberController extends BaseController
 {
     /**
      * @return array
@@ -46,7 +46,7 @@ class StatusController extends BaseController
      */
     public function actionIndex()
     {
-        $filterModel = new StatusFilter();
+        $filterModel = new NumberFilter();
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', [
@@ -55,55 +55,27 @@ class StatusController extends BaseController
     }
 
     /**
-     * Создать
-     *
-     * @return string
-     * @throws \yii\base\InvalidParamException
-     */
-    public function actionNew()
-    {
-        /** @var FormNew $formModel */
-        $formModel = new FormNew();
-
-        // сообщение об ошибке
-        if ($formModel->validateErrors) {
-            Yii::$app->session->setFlash('error', $formModel->validateErrors);
-        }
-
-        if ($formModel->isSaved) {
-            return $this->redirect(['index']);
-        }
-
-        return $this->render('edit', [
-            'formModel' => $formModel,
-        ]);
-    }
-
-    /**
      * Редактировать
      *
-     * @param int $id
+     * @param int $full_number
      * @return string
+     * @throws \yii\db\Exception
+     * @throws \yii\web\NotFoundHttpException
      * @throws \yii\base\InvalidParamException
      */
-    public function actionEdit($id)
+    public function actionEdit($full_number)
     {
-        /** @var FormEdit $formModel */
-        $formModel = new FormEdit([
-            'id' => $id
-        ]);
-
-        // сообщение об ошибке
-        if ($formModel->validateErrors) {
-            Yii::$app->session->setFlash('error', $formModel->validateErrors);
+        $number = Number::findOne(['full_number' => $full_number]);
+        if (!$number) {
+            throw new NotFoundHttpException();
         }
 
-        if ($formModel->isSaved) {
+        if ($this->loadFromInput($number)) {
             return $this->redirect(['index']);
         }
 
         return $this->render('edit', [
-            'formModel' => $formModel,
+            'number' => $number,
         ]);
     }
 }

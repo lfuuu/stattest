@@ -11,7 +11,7 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
-use app\modules\nnp\filter\NdcTypeFilter;
+use app\modules\nnp\filters\NdcTypeFilter;
 use app\modules\nnp\models\NdcType;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;

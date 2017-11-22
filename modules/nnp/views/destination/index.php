@@ -12,7 +12,7 @@ use app\classes\Html;
 use app\modules\nnp\column\LandColumn;
 use app\modules\nnp\column\PrefixColumn;
 use app\modules\nnp\column\StatusColumn;
-use app\modules\nnp\filter\DestinationFilter;
+use app\modules\nnp\filters\DestinationFilter;
 use app\modules\nnp\models\Destination;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;

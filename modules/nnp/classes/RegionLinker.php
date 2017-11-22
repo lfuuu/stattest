@@ -2,9 +2,11 @@
 
 namespace app\modules\nnp\classes;
 
+use app\classes\model\ActiveRecord;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\TranslitHelper;
+use app\modules\nnp\models\Number;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Region;
 use app\modules\nnp\Module;
@@ -77,9 +79,16 @@ class RegionLinker extends Singleton
         }
 
         $log = '';
-        $log .= $this->_setNull();
-        $log .= $this->_link();
-        $log .= $this->_updateCnt();
+        $object = new NumberRange();
+        $log .= $this->_setNull($object);
+        $log .= $this->_link($object);
+        $log .= $this->_updateCnt($object, true);
+
+        $object = new Number();
+        $log .= $this->_setNull($object);
+        $log .= $this->_link($object);
+        $log .= $this->_updateCnt($object, false);
+
         $log .= $this->_transliterate();
 
         return $log;
@@ -88,25 +97,27 @@ class RegionLinker extends Singleton
     /**
      * Сбросить привязанные
      *
+     * @param ActiveRecord $object
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _setNull()
+    private function _setNull(ActiveRecord $object)
     {
-        NumberRange::updateAll(['region_id' => null], ['region_source' => '']);
+        $object::updateAll(['region_id' => null], ['region_source' => '']);
     }
 
     /**
      * Привязать к регионам
      *
+     * @param ActiveRecord $object
      * @return string
      * @throws \app\exceptions\ModelValidationException
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    private function _link()
+    private function _link(ActiveRecord $object)
     {
-        $numberRangeQuery = NumberRange::find()
+        $numberRangeQuery = $object::find()
             ->andWhere('region_id IS NULL')
             ->andWhere(['IS NOT', 'region_source', null])
             ->andWhere(['!=', 'region_source', '']);
@@ -127,7 +138,7 @@ class RegionLinker extends Singleton
             ->column();
 
         // Уже сделанные соответствия
-        $regionSourceToId += NumberRange::find()
+        $regionSourceToId += $object::find()
             ->distinct()
             ->select([
                 'id' => 'region_id',
@@ -139,7 +150,7 @@ class RegionLinker extends Singleton
 
         $i = 0;
 
-        /** @var NumberRange $numberRange */
+        /** @var NumberRange|Number $numberRange */
         foreach ($numberRangeQuery->each() as $numberRange) {
 
             if ($i++ % 1000 === 0) {
@@ -229,23 +240,28 @@ class RegionLinker extends Singleton
     /**
      * Обновить столбец cnt
      *
+     * @param ActiveRecord $object
+     * @param int $isClear
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _updateCnt()
+    private function _updateCnt(ActiveRecord $object, $isClear)
     {
         $log = '';
 
         $log .= Module::transaction(
-            function () {
+            function () use ($object, $isClear) {
                 $db = Region::getDb();
-                $numberRangeTableName = NumberRange::tableName();
+                $numberRangeTableName = $object::tableName();
                 $regionTableName = Region::tableName();
 
-                $sql = <<<SQL
+                if ($isClear) {
+                    $sqlClear = <<<SQL
             UPDATE {$regionTableName} SET cnt = 0
 SQL;
-                $db->createCommand($sql)->execute();
+                    $db->createCommand($sqlClear)->execute();
+                    unset($sqlClear);
+                }
 
                 $sql = <<<SQL
             UPDATE {$regionTableName}
@@ -268,11 +284,13 @@ SQL;
             }
         );
 
-        $log .= Module::transaction(
-            function () {
-                Region::deleteAll(['cnt' => 0]);
-            }
-        );
+        if (!$isClear) {
+            $log .= Module::transaction(
+                function () {
+                    Region::deleteAll(['cnt' => 0]);
+                }
+            );
+        }
 
         return $log;
     }

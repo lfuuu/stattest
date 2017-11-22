@@ -1,0 +1,559 @@
+<?php
+
+namespace app\modules\nnp\commands;
+
+use app\helpers\DateTimeZoneHelper;
+use app\modules\nnp\models\Country;
+use app\modules\nnp\models\Number;
+use app\modules\nnp\models\NumberRange;
+use Yii;
+use yii\console\Controller;
+use yii\db\Connection;
+use yii\web\NotFoundHttpException;
+
+class NumberController extends Controller
+{
+    const CHUNK_SIZE = 500000;
+
+    private $_germanyUrl = '@runtime/germany.gz';
+
+    /** @var Connection */
+    private $_db = null;
+
+    private $_operators = [
+        'D088' => '010023 GmbH',
+        'D090' => '010023 GmbH',
+        'D221' => '010090 GmbH',
+        'D199' => '010091 UG (haftungsbeschränkt)',
+        'D247' => '010091 UG (haftungsbeschränkt)',
+        'D161' => '01012 Telecom GmbH',
+        'D122' => '01018 GmbH',
+        'D230' => '01018 GmbH',
+        'D021' => '01024 Telefondienste GmbH',
+        'D227' => '01032 GmbH',
+        'D264' => '01048 Telecom UG (haftungsbeschränkt)',
+        'D033' => '01049 GmbH',
+        'D388' => '01049 GmbH',
+        'D047' => '01051 Telecom GmbH',
+        'D176' => '01051 Telecom GmbH',
+        'D286' => '01051 Telecom GmbH',
+        'D314' => '01051 Telecom GmbH',
+        'D170' => '01057 Protel GmbH',
+        'D139' => '01059 GmbH',
+        'D391' => '01059 GmbH',
+        'D138' => '01066 GmbH',
+        'D392' => '01066 GmbH',
+        'D134 ' => '01071 Telecom GmbH',
+        'D195' => '01071 Telecom GmbH',
+        'D319' => '01071 Telecom GmbH',
+        'D320' => '01071 Telecom GmbH',
+        'D383' => '01072 Telecom GmbH',
+        'D384' => '01072 Telecom GmbH',
+        'D254' => '01073 GmbH',
+        'D385' => '01073 GmbH',
+        'D129' => '01081 Telecom GmbH',
+        'D148' => '01081 Telecom GmbH',
+        'D185' => '01081 Telecom GmbH',
+        'D315' => '01081 Telecom GmbH',
+        'D316' => '01081 Telecom GmbH',
+        'D210' => '01085 GmbH',
+        'D390' => '01085 GmbH',
+        'D201' => '1&1 Internet AG',
+        'D011' => '1&1 Versatel Deutschland GmbH',
+        'D016' => '1&1 Versatel Deutschland GmbH',
+        'D066' => '1&1 Versatel Deutschland GmbH',
+        'D069' => '1&1 Versatel Deutschland GmbH',
+        'D080' => '1&1 Versatel Deutschland GmbH',
+        'D093' => '1&1 Versatel Deutschland GmbH',
+        'D232' => '11 88 0 Internet Services AG',
+        'D233' => '12 88 0 Internet Services AG',
+        'D034' => '11 88 0 Solutions AG',
+        'D229' => '12 88 0 Solutions AG',
+        'D028' => '3U Telecom GmbH',
+        'D107' => '3U Telecom GmbH',
+        'D284' => 'ACARA Telecom GmbH',
+        'D301' => 'Aleando GmbH',
+        'D242' => 'Alnitak GmbH',
+        'D153' => 'amplus AG',
+        'D306' => 'argon networks UG',
+        'D212' => 'AS-Infodienste GmbH',
+        'D043' => 'AugustaKom Telekommunikation M-net Telekommunikations GmbH',
+        'D373' => 'Axxess Solutions GmbH',
+        'D374' => 'Axxess Solutions GmbH',
+        'D403' => 'Belgacom International Carrier Services SA',
+        'D335' => 'Bird & Bird LLP',
+        'D035' => 'BITel Gesellschaft für Telekommunikation mbH',
+        'D353' => 'BITel Gesellschaft für Telekommunikation mbH',
+        'D168' => 'bn:t Blatzheim Networks Telecom GmbH',
+        'D289' => 'bn:t Blatzheim Networks Telecom GmbH',
+        'D053' => 'Breitbandkabelgesellschaft mbH',
+        'D137' => 'Broadnet Services GmbH',
+        'D012' => 'BT Germany GmbH & Co. OHG',
+        'D292' => 'BT Germany GmbH & Co. OHG',
+        'D999' => 'Bundesnetzagentur',
+        'D296' => 'Bungalski',
+        'D131' => 'CALLAX Holding GmbH',
+        'D342' => 'CALLAX Holding GmbH',
+        'D051' => 'Callax Telecom Services GmbH',
+        'D135' => 'Callax Telecom Services GmbH',
+        'D145' => 'Callax Telecom Services GmbH',
+        'D164' => 'Callax Telecom Services GmbH',
+        'D166' => 'Callax Telecom Services GmbH',
+        'D172' => 'Callax Telecom Services GmbH',
+        'D173' => 'Callax Telecom Services GmbH',
+        'D175' => 'Callax Telecom Services GmbH',
+        'D179' => 'Callax Telecom Services GmbH',
+        'D181' => 'Callax Telecom Services GmbH',
+        'D198' => 'Callax Telecom Services GmbH',
+        'D343' => 'Callax Telecom Services GmbH',
+        'D344' => 'Callax Telecom Services GmbH',
+        'D345' => 'Callax Telecom Services GmbH',
+        'D346' => 'Callax Telecom Services GmbH',
+        'D347' => 'Callax Telecom Services GmbH',
+        'D348' => 'Callax Telecom Services GmbH',
+        'D349' => 'Callax Telecom Services GmbH',
+        'D350' => 'Callax Telecom Services GmbH',
+        'D351' => 'Callax Telecom Services GmbH',
+        'D352' => 'Callax Telecom Services GmbH',
+        'D339' => 'CarDeluxe GmbH & Co.KG',
+        'D058' => 'Carrier 1 International AG',
+        'D322' => 'CARRIER-SERVICES.de GmbH',
+        'D159' => 'ccn corporate communication networks GmbH',
+        'D165' => 'CoCall GmbH',
+        'D017' => 'Colt Technology Services GmbH',
+        'D241' => 'Colt Technology Services GmbH',
+        'D381' => 'COMBILE GmbH Mobile System Builders',
+        'D022' => 'Communication Services TELE2 GmbH',
+        'D401' => 'D & T Internet GmbH',
+        'D074' => 'DATA CMR GmbH & Co.KG',
+        'D408' => 'Data Networks Communication and Consulting GmbH',
+        'D081' => 'Daten- und Telekommunikations-GmbH Dessau',
+        'D114' => 'Deutsche Telefon Standard AG',
+        'D183' => 'Discount Telecom S&V GmbH',
+        'D167' => 'DNS:Net Internet Service GmbH',
+        'D032' => 'DOKOM GmbH',
+        'D182' => 'DOKOM GmbH',
+        'D378' => 'Dolphin IT-Systeme e.K.',
+        'D409' => 'Drillisch Netz AG',
+        'D251' => 'Dritte Hansestar GmbH',
+        'D073' => 'dtms GmbH',
+        'D407' => 'dtms GmbH',
+        'D163' => 'dus.net GmbH',
+        'D324' => 'Easy World Call GmbH',
+        'D091' => 'E-Plus Mobilfunk GmbH',
+        'D190' => 'economore GmbH & Co. KG',
+        'D204' => 'eco Service GmbH',
+        'D323' => 'ecotel communication ag',
+        'D109' => 'encoLine GmbH',
+        'D072' => 'ENTEGA Medianet GmbH',
+        'D287' => 'ENTEGA Medianet GmbH',
+        'D046' => 'envia TEL GmbH',
+        'D057' => 'envia TEL GmbH',
+        'D141' => 'envito GmbH & Co.KG',
+        'D288' => 'EPCAN GmbH',
+        'D240' => 'Equada GmbH',
+        'D386' => 'eSTART Telecom GmbH',
+        'D387' => 'eSTART Telecom GmbH',
+        'D013' => 'EWE TEL GmbH',
+        'D031' => 'EWE TEL GmbH',
+        'D048 ' => 'EWE TEL GmbH',
+        'D085' => 'EWE TEL GmbH',
+        'D089  ' => 'EWE TEL GmbH',
+        'D118' => 'EXACOR GmbH',
+        'D277' => 'EXACOR GmbH',
+        'D070' => 'First Communication GmbH',
+        'D274' => 'First Communication GmbH',
+        'D105' => 'FirstMark Communications Deutschland GmbH',
+        'D143' => 'First Telecom GmbH',
+        'D273' => 'First Telecom GmbH',
+        'D211' => 'Fonfriends Telecom GmbH',
+        'D184' => 'Forester GmbH',
+        'D275' => 'FPS InformationsSysteme GmbH',
+        'D015' => 'freenet Cityline GmbH',
+        'D279' => 'Freikom Stefan Frech & Thorsten Reimer GbR',
+        'D299' => 'GDV Dienstleistungsgesellschaft GmbH & Co.KG',
+        'D194' => 'G-FIT Gesellschaft für innovative Telekommunikationsdienste mbH & Co. KG',
+        'D270' => 'G-FIT Gesellschaft für innovative Telekommunikationsdienste mbH & Co. KG',
+        'D100' => 'Goodlines GmbH',
+        'D245' => 'Gossip GmbH',
+        'D098' => 'GöTel GmbH',
+        'D400' => 'GöTel GmbH',
+        'D023' => 'HeLi NET Telekommunikation GmbH & Co. KG',
+        'D365' => 'HeLi NET Telekommunikation GmbH & Co. KG',
+        'D276' => 'Herzo Media GmbH & Co.KG',
+        'D117' => 'HFO Telecom Vertriebs GmbH',
+        'D045' => 'HL komm Telekommunikations GmbH',
+        'D267' => 'HL komm Telekommunikations GmbH',
+        'D050' => 'htp GmbH',
+        'D321' => 'htp GmbH',
+        'D244' => 'IKTel UG',
+        'D280' => 'Ilm-Provider UG (haftungsbeschränkt)',
+        'D202' => 'inexio Informationstechnologie und Telekommunikation KGaA',
+        'D263' => 'inexio Informationstechnologie und Telekommunikation KGaA',
+        'D188' => 'Inocom GmbH',
+        'D113' => 'inopla GmbH',
+        'D025' => 'IN-telegence GmbH ',
+        'D222' => 'IN-telegence GmbH ',
+        'D311' => 'interactive digital media GmbH',
+        'D336' => 'ITS AG',
+        'D262' => 'just digits GmbH',
+        'D157' => 'Kabelfernsehen München',
+        'D259' => 'KADSOFT Computer GmbH Freital Kommunikation-Automation-Datentechnik',
+        'D063' => 'Kube & Au GmbH',
+        'D246' => 'Kube & Au GmbH',
+        'D354' => 'Linea Service GmbH',
+        'D258' => 'LineCall GmbH',
+        'D206' => 'LineCall Telecom GmbH',
+        'D249' => 'Lycamobile Germany GmbH',
+        'D130' => 'Maestro Telecom GmbH',
+        'D147' => 'Maestro Telecom GmbH',
+        'D317' => 'Maestro Telecom GmbH',
+        'D318' => 'Maestro Telecom GmbH',
+        'D356' => 'Mango Office GmbH',
+        'D300' => 'Mass Response Deutschland GmbH',
+        'D358' => 'Matelso GmbH',
+        'D115' => 'MDCC Magdeburg City-Com GmbH',
+        'D075' => 'Median Telecom GmbH',
+        'D216' => 'meetyoo conferencing GmbH',
+        'D395' => 'meetyoo conferencing GmbH',
+        'D086' => 'Mega Communications GmbH',
+        'D398' => 'Mega Communications GmbH',
+        'D239' => 'MEGA MOBILES GmbH',
+        'D312' => 'M.I.T. Media Info Transfer GmbH',
+        'D178' => 'MK Netzdienste GmbH & Co. KG',
+        'D268' => 'MK Netzdienste GmbH & Co. KG',
+        'D007' => 'M-net Telekommunikations GmbH',
+        'D052' => 'M-net Telekommunikations GmbH',
+        'D235' => 'M-net Telekommunikations GmbH',
+        'D410' => 'mobilcom-debitel GmbH',
+        'D223' => 'mobileExtension GmbH',
+        'D332' => 'mobileExtension GmbH',
+        'D333' => 'Mobiquithings',
+        'D095' => 'MPA NET Gesellschaft für Telekommunikation mbH',
+        'D360' => 'MPA NET Gesellschaft für Telekommunikation mbH',
+        'D266' => 'mr. communication GmbH',
+        'D142' => 'net services GmbH & Co. KG',
+        'D020' => 'next id GmbH',
+        'D282' => 'next id GmbH',
+        'D108' => 'mr. next id GmbH & Co.KG',
+        'D260' => 'mr. next id GmbH & Co.KG',
+        'D003' => 'multiConnect GmbH',
+        'D097' => 'multiConnect GmbH',
+        'D370' => 'multiConnect GmbH',
+        'D389' => 'MyShop Services GmbH',
+        'D393' => 'MyShop Services GmbH',
+        'D326' => 'Naka AG',
+        'D298' => 'neon networks UG',
+        'D302' => 'net-and-phone GmbH',
+        'D054' => 'NETAACHEN GmbH',
+        'D004' => 'NETCOLOGNE GmbH',
+        'D234' => 'NETCOLOGNE GmbH',
+        'D297' => 'Netcom Kassel GmbH',
+        'D071' => 'Netcom Kassel GmbH',
+        'D375' => 'Net-Spacy IT-Services GmbH',
+        'D146' => '[netzquadrat] Gesellschaft für Telekommunikation mbH',
+        'D364' => 'Nexiu GmbH',
+        'D125' => 'nexnet GmbH',
+        'D265' => 'Northern Access GmbH',
+        'D156' => 'one4one Services GmbH',
+        'D104' => 'One.Tel GmbH',
+        'D207' => 'OpenNumbers GmbH',
+        'D252' => 'OpenNumbers GmbH',
+        'D208' => 'Orange Business Germany GmbH',
+        'D180' => 'Outbox AG',
+        'D271' => 'Outbox AG',
+        'D215' => 'OVH GmbH',
+        'D272' => 'Payment United GmbH',
+        'D133' => 'Pfalz Kom Gesellschaft für Telekommunikation mbH',
+        'D368' => 'Pfalz Kom Gesellschaft für Telekommunikation mbH',
+        'D160' => 'PGmedia Telecom GmbH',
+        'D154' => 'PLANinterNET VoIP-GmbH',
+        'D359' => 'PLANinterNET VoIP-GmbH',
+        'D363' => 'PLANinterNET VoIP-GmbH',
+        'D278' => 'pop-interactive GmbH',
+        'D406' => 'Portunity GmbH',
+        'D308' => 'PrimaCom Berlin GmbH',
+        'D218' => 'purpur networks GmbH',
+        'D189' => 'PURtel.com GmbH',
+        'D123' => 'QSC AG',
+        'D305' => 'QSC AG',
+        'D411' => 'QuestNet GmbH',
+        'D380' => 'Rack',
+        'D402' => 'RelAix Networks GmbH',
+        'D377' => 'Rottleb',
+        'D309' => 'SBC (Germany) GmbH & Co.KG',
+        'D367' => 'schnell-im-netz.de GmbH & Co. KG',
+        'D399' => 'SCHÖNENBERG-COMPUTER GmbH',
+        'D304' => 'SCHREGO Communications LTD',
+        'D076' => 'SDTelecom Telekommunikation GmbH',
+        'D144' => 'sdt.net AG',
+        'D379' => 'sdt.net AG',
+        'D064' => 'SEC Service AG',
+        'D307' => 'Senel',
+        'D261' => 'Sipgate Wireless GmbH',
+        'D106' => 'smart-DSL GmbH',
+        'D217' => 'Smart Products GmbH',
+        'D213' => 'SNT Greifswald GmbH',
+        'D371' => 'SOCO Network Solutions GmbH',
+        'D094' => 'Spider Telecom GmbH',
+        'D226' => 'Spider Telecom GmbH',
+        'D303' => 'Stadtnetz Bamberg Gesellschaft für Telekommunikation mbH',
+        'D291' => 'Stadtwerke Schwedt GmbH',
+        'D040' => 'Star Communications GmbH',
+        'D382' => 'Star Communications GmbH',
+        'D334' => 'süc // dacor GmbH',
+        'D338' => 'Sunak',
+        'D327' => 'Talk.to FZC',
+        'D253' => 'talkyou telecom UG (haftungsbeschränkt)',
+        'D293' => 'TEFONIX UG (haftungsbeschränkt)',
+        'D340' => 'Tel2Tel Ltd.',
+        'D329' => 'TelcoVillage GmbH',
+        'D281' => 'TELE AG',
+        'D369' => 'TELE AG',
+        'D397' => 'Tele Columbus AG',
+        'D250' => 'Teleflash GmbH',
+        'D019' => 'Telefonica Germany GmbH & Co. OHG',
+        'D061' => 'Telefonica Germany GmbH & Co. OHG',
+        'D065' => 'Telefonica Germany GmbH & Co. OHG',
+        'D341' => 'TeleForte Telekommunikations AG',
+        'D001' => 'Telekom Deutschland GmbH',
+        'D124' => 'Telekom Deutschland GmbH',
+        'D150' => 'Telekom Deutschland GmbH',
+        'D087' => 'TeleNEC Telekommunikation Neustadt GmbH & Co.KG',
+        'D219' => 'Teleservice Company GmbH',
+        'D186' => 'TeleSon Vertriebs GmbH',
+        'D209' => 'Televersa Online GmbH',
+        'D225' => 'TeleVita Kommunikationsdienste GmbH (i.Gr.)',
+        'D412' => 'telkodata GmbH',
+        'D158' => 'Telogic Germany GmbH',
+        'D121' => 'TELTA Citynetz Eberswalde GmbH',
+        'D404' => 'tenios GmbH',
+        'D355' => 'Thüringer Netkom GmbH',
+        'D337' => 'Tismi BV',
+        'D038' => 'TNG Stadtnetz GmbH',
+        'D155' => 'TNG Stadtnetz GmbH',
+        'D171' => 'toplink GmbH',
+        'D310' => 'toplink GmbH',
+        'D205' => 'Truphone GmbH',
+        'D174' => 'T-Systems Business Services GmbH',
+        'D394' => 'Tulp Solutions B.V.',
+        'D248' => 'Umbra Networks Gesellschaft für Telekommunikation mbH',
+        'D127' => 'Unitymedia BW GmbH',
+        'D120' => 'Unitymedia NRW GmbH',
+        'D027' => 'Ventelo GmbH',
+        'D008' => 'Verizon Deutschland GmbH',
+        'D228' => 'Verizon Deutschland GmbH',
+        'D366' => 'Viatel Deutschland GmbH',
+        'D376' => 'Viatel Global Services Deutschland GmbH',
+        'D405' => 'Via-Vox GmbH',
+        'D197' => 'vitroconnect systems GmbH',
+        'D009' => 'Vodafone D2 GmbH',
+        'D056' => 'Vodafone D2 GmbH',
+        'D078' => 'Vodafone D2 GmbH',
+        'D191' => 'Vodafon Kabel Deutschland GmbH',
+        'D396' => 'VoiceOn Telecom Services GmbH',
+        'D220' => 'VOXBONE SA',
+        'D313' => 'VOXBONE SA',
+        'D084' => 'VSE NET GmbH',
+        'D214' => 'VSE NET GmbH',
+        'D224' => 'wel.de Gesellschaft für Informationsdienste mbh',
+        'D101' => 'wilhelm.tel GmbH',
+        'D283' => 'wilhelm.tel GmbH',
+        'D330' => 'willy tel GmbH',
+        'D331' => 'willy tel GmbH',
+        'D037' => 'WOBCOM GmbH Wolfsburg für Telekommunikation und Dienstleistungen',
+        'D328' => 'WOBCOM GmbH Wolfsburg für Telekommunikation und Dienstleistungen',
+        'D231' => 'XConnect GmbH',
+        'D193' => 'YIPL OHG',
+        'D030' => 'Younip Telecom GmbH',
+        'D257' => 'Younip Telecom GmbH',
+        'D290' => 'yuilop s.l.',
+    ];
+
+    /**
+     * Импортировать портированные номера Германии. 20 минут, если без индексов
+     *
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\db\Exception
+     * @throws \LogicException
+     */
+    public function actionGermany()
+    {
+        if (NumberRange::isTriggerEnabled()) {
+            throw new \LogicException('Импорт невозможен, потому что триггер включен');
+        }
+
+        $this->_db = Yii::$app->dbPgNnp;
+        $this->_db->enableLogging = false; // чтобы память не утекала
+        // $transaction = $this->_db->beginTransaction();
+        try {
+            echo PHP_EOL . 'Начало импорта: ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
+
+            $this->_importGermany();
+            // $transaction->commit();
+            echo PHP_EOL . 'Окончание импорта: ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
+            return self::EXIT_CODE_NORMAL;
+
+        } catch (\Exception $e) {
+            // $transaction->rollBack();
+            Yii::error('Ошибка импорта');
+            Yii::error($e);
+            echo 'Ошибка: ' . $e->getMessage();
+            return self::EXIT_CODE_ERROR;
+        }
+
+    }
+
+    /**
+     * Импортировать портированные номера Германии
+     *
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\db\Exception
+     * @throws \LogicException
+     */
+    private function _importGermany()
+    {
+        if (NumberRange::isTriggerEnabled()) {
+            throw new \LogicException('Импорт невозможен, потому что триггер включен');
+        }
+
+        $fileUrl = 'compress.zlib://' . \Yii::getAlias($this->_germanyUrl);
+        $fp = fopen($fileUrl, 'r');
+        if (!$fp) {
+            throw new NotFoundHttpException('Ошибка чтения файла ' . $fileUrl);
+        }
+
+        $insertValues = [];
+        while (($row = fgetcsv($fp, 0)) !== false) {
+
+            if (count($row) != 3) {
+                echo 'Неправильные данные: ' . print_r($row, true) . PHP_EOL;
+            }
+
+            $number = str_replace('+', '', $row[0]);
+            if (!$number || !is_numeric($number)) {
+                throw new \LogicException('Неправильные данные: ' . print_r($row, true));
+            }
+
+            $operatorName = $row[1];
+            if ($operatorName && isset($this->_operators[$operatorName])) {
+                $operatorName = $this->_operators[$operatorName];
+            }
+
+            $insertValues[] = [$number, $operatorName];
+
+            if (count($insertValues) >= self::CHUNK_SIZE) {
+                $this->_import(Country::GERMANY, $insertValues);
+            }
+        }
+
+        fclose($fp);
+
+        if ($insertValues) {
+            $this->_import(Country::GERMANY, $insertValues);
+        }
+
+    }
+
+    /**
+     * Импорт данных
+     *
+     * @param int $countryCode
+     * @param array $insertValues
+     * @throws \yii\db\Exception
+     * @throws \LogicException
+     */
+    private function _import($countryCode, &$insertValues)
+    {
+        echo PHP_EOL;
+
+        // Создать временную таблицу
+        $sql = <<<SQL
+            CREATE TEMPORARY TABLE number_tmp
+            (
+                id serial NOT NULL,
+                full_number bigint NOT NULL,
+                operator_source character varying(255)
+            )
+SQL;
+        // CONSTRAINT number_tmp_pkey PRIMARY KEY (id)
+        $this->_db->createCommand($sql)->execute();
+
+        // Добавить в нее данные
+        $this->_db->createCommand()
+            ->batchInsert('number_tmp', ['full_number', 'operator_source'], $insertValues)
+            ->execute();
+        $insertValues = [];
+
+        // создать индекс
+//        $sql = <<<SQL
+//            CREATE INDEX number_tmp_full_number_idx ON number_tmp USING btree (full_number)
+//SQL;
+//        $this->_db->createCommand($sql)->execute();
+//        echo '# ';
+
+        // удалить дубли
+        $sql = <<<SQL
+            WITH t1 AS (SELECT MAX(id) as max_id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
+            DELETE FROM number_tmp
+            USING t1
+            WHERE number_tmp.full_number = t1.full_number AND number_tmp.id < t1.max_id
+SQL;
+        $affectedRows = $this->_db->createCommand($sql)->execute();
+        echo sprintf('Дублей: %d' . PHP_EOL, $affectedRows);
+
+
+        // обновить
+        $tableName = Number::tableName();
+        $sql = <<<SQL
+            UPDATE
+                {$tableName} number
+            SET
+                operator_source = number_tmp.operator_source,
+                operator_id = CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE NULL END
+            FROM
+                number_tmp
+            WHERE
+                number.full_number = number_tmp.full_number
+SQL;
+        $affectedRows = $this->_db->createCommand($sql)->execute();
+        echo sprintf('Обновлено: %d' . PHP_EOL, $affectedRows);
+
+        // удалить из временной таблицы уже обработанное
+        $sql = <<<SQL
+            DELETE FROM
+                number_tmp
+            USING
+                {$tableName} number
+            WHERE
+                number.full_number = number_tmp.full_number
+SQL;
+        $this->_db->createCommand($sql)->execute();
+
+        // добавить в основную таблицу всё оставшееся из временной
+        $sql = <<<SQL
+            INSERT INTO
+                {$tableName}
+            (
+                country_code,
+                full_number,
+                operator_source
+            )
+            WITH t1 AS (SELECT MAX(id) as id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
+            SELECT 
+                :country_code as country_code, 
+                full_number,
+                operator_source
+            FROM
+                number_tmp
+SQL;
+        $affectedRows = $this->_db->createCommand($sql, [':country_code' => $countryCode])->execute();
+        echo sprintf('Добавлено: %d' . PHP_EOL, $affectedRows);
+
+        $sql = <<<SQL
+            DROP TABLE number_tmp
+SQL;
+        $this->_db->createCommand($sql)->execute();
+    }
+
+}

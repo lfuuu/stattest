@@ -3,7 +3,7 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use app\modules\nnp\filter\CountryFilter;
+use app\modules\nnp\filters\CountryFilter;
 use Yii;
 use yii\filters\AccessControl;
 

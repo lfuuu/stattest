@@ -11,9 +11,6 @@ use app\modules\nnp\models\Country;
 use app\modules\nnp\models\NumberRange;
 use yii\console\Controller;
 
-/**
- * Импорт ННП из справочников
- */
 class ImportController extends Controller
 {
     /**

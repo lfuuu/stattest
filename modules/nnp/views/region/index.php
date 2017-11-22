@@ -12,7 +12,7 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\modules\nnp\column\CountryColumn;
-use app\modules\nnp\filter\RegionFilter;
+use app\modules\nnp\filters\RegionFilter;
 use app\modules\nnp\models\Region;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;

@@ -6,7 +6,7 @@ use app\classes\BaseController;
 use app\classes\Event;
 use app\classes\Html;
 use app\modules\nnp\classes\RefreshPrefix;
-use app\modules\nnp\filter\NumberRangeFilter;
+use app\modules\nnp\filters\NumberRangeFilter;
 use app\modules\nnp\forms\numberRange\FormEdit;
 use app\modules\nnp\models\NumberRange;
 use Yii;

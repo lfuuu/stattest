@@ -2,9 +2,11 @@
 
 namespace app\modules\nnp\classes;
 
+use app\classes\model\ActiveRecord;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\TranslitHelper;
+use app\modules\nnp\models\Number;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use app\modules\nnp\Module;
@@ -30,9 +32,17 @@ class OperatorLinker extends Singleton
         }
 
         $log = '';
-        $log .= $this->_setNull();
-        $log .= $this->_link();
-        $log .= $this->_updateCnt();
+
+        $object = new NumberRange();
+        $log .= $this->_setNull($object);
+        $log .= $this->_link($object);
+        $log .= $this->_updateCnt($object, true);
+
+        $object = new Number();
+        $log .= $this->_setNull($object);
+        $log .= $this->_link($object);
+        $log .= $this->_updateCnt($object, false);
+
         $log .= $this->_transliterate();
 
         return $log;
@@ -41,25 +51,27 @@ class OperatorLinker extends Singleton
     /**
      * Сбросить привязанные
      *
+     * @param ActiveRecord $object
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _setNull()
+    private function _setNull(ActiveRecord $object)
     {
-        NumberRange::updateAll(['operator_id' => null], ['operator_source' => '']);
+        $object::updateAll(['operator_id' => null], ['operator_source' => '']);
     }
 
     /**
      * Привязать к операторам
      *
+     * @param ActiveRecord $object
      * @return string
      * @throws \app\exceptions\ModelValidationException
      * @throws \LogicException
      * @throws \yii\db\Exception
      */
-    private function _link()
+    private function _link(ActiveRecord $object)
     {
-        $numberRangeQuery = NumberRange::find()
+        $numberRangeQuery = $object::find()
             ->andWhere('operator_id IS NULL')
             ->andWhere(['IS NOT', 'operator_source', null])
             ->andWhere(['!=', 'operator_source', '']);
@@ -80,7 +92,7 @@ class OperatorLinker extends Singleton
             ->column();
 
         // Уже сделанные соответствия
-        $operatorSourceToId += NumberRange::find()
+        $operatorSourceToId += $object::find()
             ->distinct()
             ->select([
                 'id' => 'operator_id',
@@ -92,7 +104,7 @@ class OperatorLinker extends Singleton
 
         $i = 0;
 
-        /** @var NumberRange $numberRange */
+        /** @var NumberRange|Number $numberRange */
         foreach ($numberRangeQuery->each() as $numberRange) {
 
             if ($i++ % 1000 === 0) {
@@ -126,33 +138,38 @@ class OperatorLinker extends Singleton
     /**
      * Обновить столбец cnt
      *
+     * @param ActiveRecord $object
+     * @param int $isClear
      * @return string
      * @throws \yii\db\Exception
      */
-    private function _updateCnt()
+    private function _updateCnt(ActiveRecord $object, $isClear)
     {
         $log = '';
 
         $log .= Module::transaction(
-            function () {
+            function () use ($object, $isClear) {
                 $db = Operator::getDb();
 
-                $numberRangeTableName = NumberRange::tableName();
+                $numberRangeTableName = $object::tableName();
                 $operatorTableName = Operator::tableName();
 
-                $sql = <<<SQL
+                if ($isClear) {
+                    $sqlClear = <<<SQL
             UPDATE {$operatorTableName} SET cnt = 0
 SQL;
-                $db->createCommand($sql)->execute();
+                    $db->createCommand($sqlClear)->execute();
+                    unset($sqlClear);
+                }
 
                 $sql = <<<SQL
             UPDATE {$operatorTableName}
-            SET cnt = operator_stat.cnt
+            SET cnt += operator_stat.cnt
             FROM 
                 (
                     SELECT
                         operator_id,
-                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 999999999) AS cnt  -- любое большое число, чтобы не было переполнения
+                        LEAST(COALESCE(SUM(number_to - number_from + 1), 1), 499999999) AS cnt  -- любое большое число, чтобы не было переполнения
                     FROM
                         {$numberRangeTableName} 
                     WHERE
@@ -166,11 +183,13 @@ SQL;
             }
         );
 
-        $log .= Module::transaction(
-            function () {
-                Operator::deleteAll(['cnt' => 0]);
-            }
-        );
+        if (!$isClear) {
+            $log .= Module::transaction(
+                function () {
+                    Operator::deleteAll(['cnt' => 0]);
+                }
+            );
+        }
 
         return $log;
     }

@@ -10,7 +10,7 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
-use app\modules\nnp\filter\LandFilter;
+use app\modules\nnp\filters\LandFilter;
 use app\modules\nnp\models\Land;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;

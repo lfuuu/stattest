@@ -9,7 +9,7 @@
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
-use app\modules\nnp\filter\CountryFilter;
+use app\modules\nnp\filters\CountryFilter;
 use app\modules\nnp\models\Country;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\helpers\Url;

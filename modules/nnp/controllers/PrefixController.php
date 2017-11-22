@@ -3,7 +3,7 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use app\modules\nnp\filter\PrefixFilter;
+use app\modules\nnp\filters\PrefixFilter;
 use Yii;
 use yii\filters\AccessControl;
 

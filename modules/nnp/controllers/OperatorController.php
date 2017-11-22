@@ -3,7 +3,7 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
-use app\modules\nnp\filter\OperatorFilter;
+use app\modules\nnp\filters\OperatorFilter;
 use app\modules\nnp\forms\operator\FormEdit;
 use app\modules\nnp\forms\operator\FormNew;
 use Yii;
