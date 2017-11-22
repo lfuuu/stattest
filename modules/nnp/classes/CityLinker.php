@@ -194,7 +194,7 @@ SQL;
 
                 $sql = <<<SQL
             UPDATE {$cityTableName}
-            SET cnt = cnt + city_stat.cnt
+            SET cnt = {$cityTableName}.cnt + city_stat.cnt
             FROM 
                 (
                     SELECT

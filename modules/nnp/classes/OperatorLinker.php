@@ -168,7 +168,7 @@ SQL;
 
                 $sql = <<<SQL
             UPDATE {$operatorTableName}
-            SET cnt = cnt + operator_stat.cnt
+            SET cnt = {$operatorTableName}.cnt + operator_stat.cnt
             FROM 
                 (
                     SELECT

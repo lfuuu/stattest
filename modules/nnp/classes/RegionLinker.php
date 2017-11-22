@@ -269,7 +269,7 @@ SQL;
 
                 $sql = <<<SQL
             UPDATE {$regionTableName}
-            SET cnt = cnt + region_stat.cnt
+            SET cnt = {$regionTableName}.cnt + region_stat.cnt
             FROM 
                 (
                     SELECT
