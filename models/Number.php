@@ -217,7 +217,7 @@ class Number extends ActiveRecord
         }
 
         if (!is_null($currency) && $this->didGroup->country->currency_id != $currency) {
-            if (($tariffCurrencyRate = CurrencyRate::dao()->getRate($currency))) {
+            if (($tariffCurrencyRate = CurrencyRate::dao()->getRate($this->didGroup->country->currency_id))) {
                 $price *= $tariffCurrencyRate;
             }
 
