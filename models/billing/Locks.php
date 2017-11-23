@@ -17,6 +17,7 @@ use Yii;
  */
 class Locks extends ActiveRecord
 {
+    const TIMEOUT = 3000;
 
     /**
      * @return string
@@ -46,5 +47,19 @@ class Locks extends ActiveRecord
     {
         $sql = sprintf('SELECT * FROM billing.locks_get(%d)', $this->client_id);
         return self::getDb()->createCommand($sql)->queryOne();
+    }
+
+    /**
+     * Установить timeout на любой запрос к billing
+     *
+     * @param int $timeout
+     * @throws \yii\db\Exception
+     */
+    public static function setTimeout($timeout = self::TIMEOUT)
+    {
+        $timeout = (int)$timeout;
+        self::getDb()
+            ->createCommand('SET statement_timeout TO ' . $timeout)
+            ->execute();
     }
 }

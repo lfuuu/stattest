@@ -4,6 +4,7 @@ use app\classes\api\ApiCore;
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\Locks;
 use app\models\billing\LocksLog;
 use app\models\ClientAccount;
 use app\models\ClientContract;
@@ -20,19 +21,19 @@ use yii\helpers\Url;
     <div class="row">
         <div class="col-sm-6">
             <h2 class="c-blue-color no-margin">
-                <?= Html::a($client->name, ['/account/super-client-edit', 'id' => $client->id, 'childId' => $account->id ]) ?>
+                <?= Html::a($client->name, ['/account/super-client-edit', 'id' => $client->id, 'childId' => $account->id]) ?>
             </h2>
         </div>
         <div class="col-sm-4" class="c-blue-color">
             <?php if (ApiCore::isAvailable()) : ?>
-                <?php if ($client->isShowLkLink()) :?>
+                <?php if ($client->isShowLkLink()) : ?>
                     <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
                         Переход в ЛК
                     </a>
                 <?php elseif ($indicator = EventQueueIndicator::findOne(['object' => ClientSuper::tableName(), 'object_id' => $account->super_id])) : ?>
-                    <?= $this->render('//layouts/_eventIndicator', ['indicator' => $indicator])?>
+                    <?= $this->render('//layouts/_eventIndicator', ['indicator' => $indicator]) ?>
                 <?php elseif ($adminEmails = $client->getAdminEmails()) : ?>
-                    <?= $this->render('add_admin_email', ['emails' => $adminEmails, 'account' => $account])?>
+                    <?= $this->render('add_admin_email', ['emails' => $adminEmails, 'account' => $account]) ?>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
@@ -123,12 +124,12 @@ use yii\helpers\Url;
                                         ?>
                                         <div class="edit-lnk<?= $index ? ' indent' : '' ?>">
                                             <a href="<?= Url::toRoute(['/account/edit', 'id' => $contractAccount->id]) ?>">
-                                                <img src="/images/icons/edit.gif" />
+                                                <img src="/images/icons/edit.gif"/>
                                             </a>
                                         </div>
                                         <div
-                                            data-contract-id="<?= $contractAccount->id ?>"
-                                            class="row row-ls<?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? ' active-client-mcm' : ' active-client') : ''; ?><?= $index ? ' indent' : '' ?>"
+                                                data-contract-id="<?= $contractAccount->id ?>"
+                                                class="row row-ls<?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? ' active-client-mcm' : ' active-client') : ''; ?><?= $index ? ' indent' : '' ?>"
                                         >
                                             <span class="col-sm-2 account-type<?= ($contractAccount->is_active) ? ' active' : '' ?>">
                                                 <?= $contractAccount->getAccountTypeAndId() ?>
@@ -138,10 +139,16 @@ use yii\helpers\Url;
                                                 $lastLock = false;
 
                                                 if ($contractAccount->is_blocked) {
-                                                    $lastLock = LocksLog::find()
-                                                        ->where(['client_id' => $account->id, 'is_blocked' => true])
-                                                        ->orderBy(['dt' => SORT_DESC])
-                                                        ->one();
+
+                                                    try {
+                                                        Locks::setTimeout();
+                                                        $lastLock = LocksLog::find()
+                                                            ->where(['client_id' => $account->id, 'is_blocked' => true])
+                                                            ->orderBy(['dt' => SORT_DESC])
+                                                            ->one();
+                                                    } catch (\Exception $e) {
+                                                        $lastLock = null;
+                                                    }
 
                                                     $contractBlockers[] = 'Заблокирован' .
                                                         ($lastLock ?
@@ -257,8 +264,8 @@ use yii\helpers\Url;
                                                     <?php endif; ?>
                                                 <?php endif; ?>
                                                 <button
-                                                    type="button" class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
-                                                    data-id="<?= $contractAccount->id ?>"
+                                                        type="button" class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
+                                                        data-id="<?= $contractAccount->id ?>"
                                                 >
                                                     <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
 
@@ -266,7 +273,7 @@ use yii\helpers\Url;
                                                         'object' => ClientAccount::tableName(),
                                                         'objectId' => $contractAccount->id,
                                                         'section' => EventQueueIndicator::SECTION_ACCOUNT_BLOCK
-                                                    ])?>
+                                                    ]) ?>
                                                 </button>
                                             </div>
                                             <?php if ($warnings) : ?>

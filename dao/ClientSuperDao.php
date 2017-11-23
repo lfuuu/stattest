@@ -205,7 +205,7 @@ class ClientSuperDao extends Singleton
 
         $isLoadComplete = true;
         try {
-            Locks::getDb()->createCommand('SET statement_timeout TO 3000')->execute();
+            Locks::setTimeout();
             $locks = Locks::find()
                 ->where(['client_id' => $accountIds])
                 ->indexBy('client_id')
@@ -213,6 +213,7 @@ class ClientSuperDao extends Singleton
         } catch (\Exception $e) {
             \Yii::error($e);
             $isLoadComplete = false;
+            $locks = [];
         }
 
         $data = [];
