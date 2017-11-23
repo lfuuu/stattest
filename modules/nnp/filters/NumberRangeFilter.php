@@ -3,12 +3,12 @@
 namespace app\modules\nnp\filters;
 
 use app\classes\Event;
+use app\classes\grid\ActiveDataProvider;
 use app\classes\Html;
 use app\classes\traits\GetListTrait;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\NumberRangePrefix;
 use Yii;
-use yii\data\ActiveDataProvider;
 use yii\db\ActiveQuery;
 
 /**
@@ -60,6 +60,7 @@ class NumberRangeFilter extends NumberRange
         $numberRangeTableName = NumberRange::tableName();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'db' => NumberRange::getDb(),
         ]);
 
         $this->country_code && $query->andWhere([$numberRangeTableName . '.country_code' => $this->country_code]);

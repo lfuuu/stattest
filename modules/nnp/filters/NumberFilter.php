@@ -4,7 +4,7 @@ namespace app\modules\nnp\filters;
 
 use app\classes\traits\GetListTrait;
 use app\modules\nnp\models\Number;
-use yii\data\ActiveDataProvider;
+use app\classes\grid\ActiveDataProvider;
 
 /**
  * Фильтрация для Number
@@ -45,6 +45,7 @@ class NumberFilter extends Number
         $numberTableName = Number::tableName();
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'db' => Number::getDb(),
         ]);
 
         $this->full_number && $query->andWhere([$numberTableName . '.full_number' => $this->full_number]);
