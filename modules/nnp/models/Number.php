@@ -56,7 +56,7 @@ class Number extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'nnp.number';
+        return 'nnp_ported.number';
     }
 
     /**
