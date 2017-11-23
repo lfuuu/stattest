@@ -77,7 +77,7 @@ class OperatorLinker extends Singleton
             ->andWhere(['!=', 'operator_source', '']);
 
         if (!$numberRangeQuery->count()) {
-            return 'ok';
+            return 'ok ';
         }
 
         $log = '';

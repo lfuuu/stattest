@@ -78,7 +78,7 @@ class CityLinker extends Singleton
             ->andWhere(['!=', 'city_source', '']);
 
         if (!$numberRangeQuery->count()) {
-            return 'ok';
+            return 'ok ';
         }
 
         $log = '';

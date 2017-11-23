@@ -190,6 +190,13 @@ class AccountTariff extends ActiveRecord
                     return $accountTariff->service_type_id == ServiceType::ID_VOIP;
                 }
             ],
+            [
+                ['region_id'],
+                'required',
+                'when' => function (AccountTariff $accountTariff) {
+                    return $accountTariff->service_type_id == ServiceType::ID_VPBX;
+                }
+            ],
         ];
     }
 }

@@ -123,7 +123,7 @@ class RegionLinker extends Singleton
             ->andWhere(['!=', 'region_source', '']);
 
         if (!$numberRangeQuery->count()) {
-            return 'ok';
+            return 'ok ';
         }
 
         $log = '';

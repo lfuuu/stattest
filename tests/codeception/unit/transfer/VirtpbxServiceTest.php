@@ -56,7 +56,7 @@ class VirtpbxServiceTest extends _BaseService
      */
     protected function createUniversalService(ClientAccount $clientAccount)
     {
-        return $this->createUniversalServiceSimple($clientAccount, ServiceType::ID_VPBX, $this->getTariffForUniversalService());
+        return $this->createUniversalServiceSimple($clientAccount, ServiceType::ID_VPBX, $this->getTariffForUniversalService(), ['region_id' => Region::MOSCOW]);
     }
 
     /**

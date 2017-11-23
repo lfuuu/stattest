@@ -5,6 +5,7 @@ namespace tests\codeception\unit\models;
 use app\helpers\DateTimeZoneHelper;
 use app\models\City;
 use app\models\Number;
+use app\models\Region;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
@@ -42,6 +43,7 @@ class _AccountTariff extends AccountTariff
             'tariff_period_id' => TariffPeriod::TEST_VPBX_ID,
             'actual_from' => date(DateTimeZoneHelper::DATE_FORMAT),
             'city_id' => City::MOSCOW,
+            'region_id' => Region::MOSCOW,
         ];
 
         return self::_create($testCase, $accountTariffData);
