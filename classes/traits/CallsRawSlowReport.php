@@ -203,7 +203,7 @@ trait CallsRawSlowReport
         $query1 = $this->setSessionCondition($query1, 'cr.billed_time');
 
         if ($this->src_physical_trunks_ids) {
-            $query2->andWhere(['cr.trunk_id' => $this->src_physical_trunks_ids])
+            $query1->andWhere(['cr.trunk_id' => $this->src_physical_trunks_ids])
             && $query3
             && $query3
                 ->leftJoin('auth.trunk t1', 'src_route = t1.trunk_name')
@@ -211,7 +211,7 @@ trait CallsRawSlowReport
         }
 
         if ($this->dst_physical_trunks_ids) {
-            $query1->andWhere(['cr.trunk_id' => $this->dst_physical_trunks_ids])
+            $query2->andWhere(['cr.trunk_id' => $this->dst_physical_trunks_ids])
             && $query3
             && $query3
                 ->leftJoin('auth.trunk t2', 'dst_route = t2.trunk_name')
