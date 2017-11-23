@@ -100,7 +100,11 @@ $columns = [
         'class' => IntegerColumn::className(),
         'format' => 'html',
         'value' => function (NumberRange $numberRange) {
-            return sprintf('%s<br>%s', $numberRange->full_number_from, $numberRange->full_number_to);
+            return $numberRange->full_number_from . '<br>' .
+                $numberRange->full_number_to . '<br>' .
+                Html::a('портированные',
+                    ['/nnp/number/', 'NumberFilter[country_code]' => $numberRange->country_code, 'NumberFilter[full_number_from]' => $numberRange->full_number_from, 'NumberFilter[full_number_to]' => $numberRange->full_number_to]
+                );
         }
     ],
     [

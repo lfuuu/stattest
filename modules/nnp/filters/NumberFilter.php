@@ -2,9 +2,9 @@
 
 namespace app\modules\nnp\filters;
 
+use app\classes\grid\ActiveDataProvider;
 use app\classes\traits\GetListTrait;
 use app\modules\nnp\models\Number;
-use app\classes\grid\ActiveDataProvider;
 
 /**
  * Фильтрация для Number
@@ -12,6 +12,9 @@ use app\classes\grid\ActiveDataProvider;
 class NumberFilter extends Number
 {
     public $full_number = '';
+    public $full_number_from = '';
+    public $full_number_to = '';
+
     public $country_code = '';
 
     public $operator_source = '';
@@ -29,7 +32,7 @@ class NumberFilter extends Number
     public function rules()
     {
         return [
-            [['operator_source', 'region_source', 'city_source', 'full_number'], 'string'],
+            [['operator_source', 'region_source', 'city_source', 'full_number', 'full_number_from', 'full_number_to'], 'string'],
             [['country_code', 'operator_id', 'region_id', 'city_id'], 'integer'],
         ];
     }
@@ -49,6 +52,8 @@ class NumberFilter extends Number
         ]);
 
         $this->full_number && $query->andWhere([$numberTableName . '.full_number' => $this->full_number]);
+        $this->full_number_from && $query->andWhere(['>=', $numberTableName . '.full_number', $this->full_number_from]);
+        $this->full_number_to && $query->andWhere(['<=', $numberTableName . '.full_number', $this->full_number_to]);
         $this->country_code && $query->andWhere([$numberTableName . '.country_code' => $this->country_code]);
 
         switch ($this->operator_id) {

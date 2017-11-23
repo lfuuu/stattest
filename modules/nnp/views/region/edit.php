@@ -60,18 +60,23 @@ if (!$region->isNewRecord) {
         </div>
 
         <?php // Название транслитом ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($region, 'name_translit')->textInput() ?>
         </div>
 
         <?php // Кол-во ?>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <label><?= $region->getAttributeLabel('cnt') ?></label>
             <div>
-                <?= Html::a(
-                    $region->cnt,
+                <?= $region->cnt . ' (' .
+                Html::a(
+                    'диапазон',
                     Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $region->country_code, 'NumberRangeFilter[region_id]' => $region->id])
-                ) ?>
+                ) . ', ' .
+                Html::a(
+                    'портированные',
+                    Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $region->country_code, 'NumberFilter[region_id]' => $region->id])
+                ) . ')' ?>
             </div>
         </div>
 

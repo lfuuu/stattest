@@ -72,10 +72,16 @@ $columns = [
         'class' => IntegerRangeColumn::className(),
         'format' => 'html',
         'value' => function (Operator $operator) {
-            return Html::a(
-                $operator->cnt,
-                Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $operator->country_code, 'NumberRangeFilter[operator_id]' => $operator->id])
-            );
+            return
+                $operator->cnt . ' (' .
+                Html::a(
+                    'диапазон',
+                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $operator->country_code, 'NumberRangeFilter[operator_id]' => $operator->id])
+                ) . ', ' .
+                Html::a(
+                    'портированные',
+                    Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $operator->country_code, 'NumberFilter[operator_id]' => $operator->id])
+                ) . ')';
         }
     ],
 ];

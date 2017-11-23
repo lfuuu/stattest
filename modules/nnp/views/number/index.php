@@ -7,6 +7,7 @@
  */
 
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -75,6 +76,11 @@ $columns = [
         'class' => IntegerColumn::className(),
     ],
     [
+        'label' => 'Номер',
+        'attribute' => 'full_number',
+        'class' => IntegerRangeColumn::className(),
+    ],
+    [
         'attribute' => 'operator_id',
         'class' => OperatorColumn::className(),
         'countryCode' => $filterModel->country_code,
@@ -106,10 +112,10 @@ $columns = [
         ],
     ],
     [
-        'label' => 'Диапазон номеров',
+        'label' => '',
         'format' => 'html',
         'value' => function (\app\modules\nnp\models\Number $number) {
-            return Html::a('Показать', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $number->country_code, 'NumberRangeFilter[full_number_from]' => $number->full_number, 'NumberRangeFilter[is_active]' => 1]);
+            return Html::a('диапазон', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $number->country_code, 'NumberRangeFilter[full_number_from]' => $number->full_number, 'NumberRangeFilter[is_active]' => 1]);
         },
     ],
 ];

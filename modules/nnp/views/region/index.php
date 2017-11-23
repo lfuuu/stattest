@@ -72,10 +72,15 @@ $columns = [
         'class' => IntegerRangeColumn::className(),
         'format' => 'html',
         'value' => function (Region $region) {
-            return Html::a(
-                $region->cnt,
-                Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $region->country_code, 'NumberRangeFilter[region_id]' => $region->id])
-            );
+            return $region->cnt . ' (' .
+                Html::a(
+                    'диапазон',
+                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $region->country_code, 'NumberRangeFilter[region_id]' => $region->id])
+                ) . ', ' .
+                Html::a(
+                    'портированные',
+                    Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $region->country_code, 'NumberFilter[region_id]' => $region->id])
+                ) . ')';
         }
     ],
 ];

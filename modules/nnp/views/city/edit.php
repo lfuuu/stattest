@@ -80,10 +80,15 @@ if (!$city->isNewRecord) {
         <div class="col-sm-2">
             <label><?= $city->getAttributeLabel('cnt') ?></label>
             <div>
-                <?= Html::a(
-                    $city->cnt,
+                <?= $city->cnt . ' (' .
+                Html::a(
+                    'диапазон',
                     Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $city->country_code, 'NumberRangeFilter[city_id]' => $city->id])
-                ) ?>
+                ) . ', ' .
+                Html::a(
+                    'портированные',
+                    Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $city->country_code, 'NumberFilter[city_id]' => $city->id])
+                ) . ')' ?>
             </div>
         </div>
 

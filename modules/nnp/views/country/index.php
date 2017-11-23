@@ -47,13 +47,17 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
-        'label' => 'Диапазон номеров',
+        'label' => '',
         'format' => 'html',
         'value' => function (Country $country) {
             return Html::a(
-                Yii::t('common', 'Show'),
-                Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $country->code])
-            );
+                    'диапазон',
+                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $country->code])
+                ) . ', ' .
+                Html::a(
+                    'портированные',
+                    Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $country->code])
+                );
         }
     ]
 ];

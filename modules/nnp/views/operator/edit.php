@@ -60,18 +60,23 @@ if (!$operator->isNewRecord) {
         </div>
 
         <?php // Название транслитом ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($operator, 'name_translit')->textInput() ?>
         </div>
 
         <?php // Кол-во ?>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
             <label><?= $operator->getAttributeLabel('cnt') ?></label>
             <div>
-                <?= Html::a(
-                    $operator->cnt,
+                <?= $operator->cnt . ' (' .
+                Html::a(
+                    'диапазон',
                     Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $operator->country_code, 'NumberRangeFilter[operator_id]' => $operator->id])
-                ) ?>
+                ) . ', ' .
+                Html::a(
+                    'портированные',
+                    Url::to(['/nnp/number/', 'NumberFilter[country_code]' => $operator->country_code, 'NumberFilter[operator_id]' => $operator->id])
+                ) . ')' ?>
             </div>
         </div>
 
