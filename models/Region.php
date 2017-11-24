@@ -28,6 +28,8 @@ class Region extends ActiveRecord
         getList as getListTrait;
     }
 
+    const ID_NON_RUSSIA = 20; // Если не Россия, то Европа (Франкфурт)
+
     const MOSCOW = 99;
     const HUNGARY = 81;
 

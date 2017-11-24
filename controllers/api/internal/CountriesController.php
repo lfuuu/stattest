@@ -268,7 +268,13 @@ class CountriesController extends ApiInternalController
             $country_id = $clientAccount->country_id;
         }
 
-        $country_id && $regions->andWhere(['country_id' => (int)$country_id]);
+        if ($country_id) {
+            if ($country_id == Country::RUSSIA) {
+                $regions->andWhere(['country_id' => (int)$country_id]);
+            } else {
+                $regions->andWhere(['id' => Region::ID_NON_RUSSIA]); // @todo переделать без костылей
+            }
+        }
 
         $result = [];
 
