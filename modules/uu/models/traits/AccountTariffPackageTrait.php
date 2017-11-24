@@ -6,6 +6,7 @@ use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
+use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
@@ -242,5 +243,21 @@ trait AccountTariffPackageTrait
         }
 
         return Yii::t('common', '(not set)');
+    }
+
+    /**
+     * Вернуть кол-во потраченных минут по пакету минут
+     *
+     * @return array [[i_nnp_package_minute_id, i_used_seconds]]
+     * @throws \yii\db\Exception
+     */
+    public function getMinuteStatistic()
+    {
+        /** @var AccountLogPeriod $accountLogPeriod */
+        $accountLogPeriod = $this->getAccountLogPeriods()
+            ->orderBy(['id' => SORT_DESC])
+            ->one();
+
+        return $accountLogPeriod ? $accountLogPeriod->getMinuteStatistic() : [];
     }
 }

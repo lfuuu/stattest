@@ -1,6 +1,6 @@
 <?php
 /**
- * свойства услуги для телефонии. Пакеты
+ * Свойства услуги для телефонии. Пакеты
  *
  * @var \app\classes\BaseView $this
  * @var \app\modules\uu\forms\AccountTariffForm $formModel
@@ -8,6 +8,7 @@
  */
 
 use app\models\City;
+use app\modules\nnp\models\PackageMinute;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 
@@ -24,6 +25,21 @@ $number = $accountTariffParent ? $accountTariffParent->number : null;
             ->widget(Select2::className(), [
                 'data' => City::getList($isWithEmpty = true, $number ? $number->country_code : null),
             ]) ?>
+    </div>
+
+    <?php // кол-во потраченных минут по пакету минут ?>
+    <div class="col-sm-10">
+        <?php
+        $minutesStatistic = $accountTariff->getMinuteStatistic();
+        foreach ($minutesStatistic as $minuteStatistic) {
+            $packageMinuteId = $minuteStatistic['i_nnp_package_minute_id'];
+            $minute = (int)($minuteStatistic['i_used_seconds'] / 60);
+            $second = $minuteStatistic['i_used_seconds'] % 60;
+
+            $packageMinute = PackageMinute::findOne(['id' => $packageMinuteId]);
+            printf('Направление <b>%s</b>: потрачено <b>%d</b> мин. %d сек. из <b>%d</b> мин.', $packageMinute->destination->name, $minute, $second, $packageMinute->minute);
+        }
+        ?>
     </div>
 
 </div>

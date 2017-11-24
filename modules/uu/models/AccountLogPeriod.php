@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
+use app\modules\nnp\models\AccountTariffLight;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -107,5 +108,18 @@ class AccountLogPeriod extends ActiveRecord
     public function getUniqueId()
     {
         return $this->date_from . '_' . $this->tariff_period_id;
+    }
+
+    /**
+     * Вернуть кол-во потраченных минут по пакету минут
+     *
+     * @return array [[i_nnp_package_minute_id, i_used_seconds]]
+     * @throws \yii\db\Exception
+     */
+    public function getMinuteStatistic()
+    {
+        return AccountTariffLight::getDb()
+            ->createCommand('SELECT i_nnp_package_minute_id, i_used_seconds FROM billing.used_package_minutes_get('.$this->id.')')
+            ->queryAll();
     }
 }
