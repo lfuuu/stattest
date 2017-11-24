@@ -26,10 +26,10 @@ class WizardEuroController extends WizardBaseController
 
     /**
      * @SWG\Post(
-     *   tags={"Работа с европейским визардом"},
+     *   tags={"LkWizard"},
      *   path="/wizard-euro/save/",
-     *   summary="Сохранение состояния визарда",
-     *   operationId="Сохранение состояния визарда",
+     *   summary="Венгерский визард. Сохранение состояния.",
+     *   operationId="wizard-euro-save",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
      *   @SWG\Parameter(name="step1",type="array",items="#/definitions/step1",description="информация по первому шагу",in="formData"),
      *   @SWG\Parameter(name="step2",type="array",items="#/definitions/step2",description="информация по второму шагу",in="formData"),
@@ -90,7 +90,7 @@ class WizardEuroController extends WizardBaseController
                 if ($this->wizard->step == $this->lastStep && $this->wizard->state == LkWizardState::STATE_REVIEW) {
                     $manager = $this->makeNotify();
 
-                    $this->wizard->trouble->addStage(
+                    $this->wizard->trouble && $this->wizard->trouble->addStage(
                         TroubleState::CONNECT__VERIFICATION_OF_DOCUMENTS,
                         "Клиент ожидает проверки документов. ЛК - Wizard",
                         ($manager ? $manager->id : null),
@@ -107,10 +107,10 @@ class WizardEuroController extends WizardBaseController
 
     /**
      * @SWG\Post(
-     *   tags={"Работа с европейским визардом"},
-     *   path="/wizard-euro/get_contract/",
-     *   summary="Получение договора",
-     *   operationId="Получение договора",
+     *   tags={"LkWizard"},
+     *   path="/wizard-euro/get_contract",
+     *   summary="Венгерский визард. Получение договора",
+     *   operationId="wizard-euro-get_contract",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
      *   @SWG\Response(
      *     response=200,
@@ -189,7 +189,7 @@ class WizardEuroController extends WizardBaseController
      *
      * @return array
      */
-    private function _getOrganizationInformation()
+    protected function _getOrganizationInformation()
     {
         $contact = $this->getContact();
 
@@ -245,7 +245,7 @@ class WizardEuroController extends WizardBaseController
      * @return array|bool
      * @throws yii\db\Exception
      */
-    private function _saveStep1($stepData)
+    protected function _saveStep1($stepData)
     {
         $form = new WizardContragentEuroForm();
         $contactForm = new ContactForm();
@@ -253,10 +253,12 @@ class WizardEuroController extends WizardBaseController
 
         $contactForm->setScenario('euro');
 
-        $stepData['fio'] = ($stepData['legal_type'] == 'legal' ?
-            (isset($stepData['fio']) ? $stepData['fio'] : '') :
-            ($stepData['last_name'] . ' ' . $stepData['first_name'])
-        );
+        if ($stepData['legal_type'] != ClientContragent::IP_TYPE) {
+            $stepData['fio'] = ($stepData['legal_type'] == ClientContragent::LEGAL_TYPE ?
+                (isset($stepData['fio']) ? $stepData['fio'] : '') :
+                ($stepData['last_name'] . ' ' . $stepData['first_name'])
+            );
+        }
 
         if (!$form->load($stepData, "") || !$contactForm->load($stepData, "") || !$acceptForm->load($stepData, "")) {
             return ['errors' => ['' => 'load error']];

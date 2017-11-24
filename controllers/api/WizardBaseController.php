@@ -122,10 +122,10 @@ abstract class WizardBaseController extends ApiController
      *   @SWG\Property(property="step_state",type="integer",description="статус шага"),
      * ),
      * @SWG\Post(
-     *   tags={"Работа с визардом"},
-     *   path="/wizard-mcn/state/",
-     *   summary="Получение статуса, в котором находится визард",
-     *   operationId="Получение статуса, в котором находится визард",
+     *   tags={"LkWizard"},
+     *   path="/wizard-mcn/state",
+     *   summary="Российский визард. Получение состояния",
+     *   operationId="wizard-mcn-state",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
      *   @SWG\Response(
      *     response=200,
@@ -164,10 +164,10 @@ abstract class WizardBaseController extends ApiController
      *   @SWG\Property(property="state",type="object",description="текущий шаг"),
      * ),
      * @SWG\Post(
-     *   tags={"Работа с визардом"},
-     *   path="/wizard-mcn/read/",
-     *   summary="Получение всей необходимой информации для визарда",
-     *   operationId="Получение всей необходимой информации для визарда",
+     *   tags={"LkWizard"},
+     *   path="/wizard-mcn/read",
+     *   summary="Российский визард. Получение информации",
+     *   operationId="wizard-mcn-read",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
      *   @SWG\Response(
      *     response=200,

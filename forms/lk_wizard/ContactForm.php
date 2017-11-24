@@ -24,7 +24,7 @@ class ContactForm extends Form
 
         $rules[] = [['contact_phone'], 'required', 'message' => 'wizard_fill_field'];
         $rules[] = ['contact_fio', 'required', 'on' => 'mcn', 'message' => 'wizard_fill_field'];
-        $rules[] = ['fio', 'required', 'on' => 'euro', 'message' => 'wizard_fill_field'];
+        $rules[] = ['fio', 'required', 'on' => ['euro', 'slovak'], 'message' => 'wizard_fill_field'];
 
         return $rules;
     }

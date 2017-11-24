@@ -4,14 +4,17 @@ namespace app\forms\lk_wizard;
 
 use app\classes\Form;
 use app\classes\validators\FormFieldValidator;
+use app\exceptions\ModelValidationException;
 use app\models\ClientContragent;
 use app\models\ClientAccount;
+use app\models\ContractType;
 
 /**
  * Class WizardContragentEuroForm
  */
 class WizardContragentEuroForm extends Form
 {
+    /** Hungary && Slovak wizard */
     public $is_inn = null;
     public $legal_type;
     public $name;
@@ -27,6 +30,10 @@ class WizardContragentEuroForm extends Form
     public $birthday;
     public $address;
 
+    /** Only Slovak */
+    public $ogrn;
+    public $passport_number;
+
     /**
      * @return array
      */
@@ -36,7 +43,7 @@ class WizardContragentEuroForm extends Form
 
         $rules[] = [['legal_type'], 'required', 'message' => 'wizard_fill_field'];
         $rules[] = [['middle_name'], 'safe'];
-        $rules[] = [['legal_type'], 'in', 'range' => [ClientContragent::LEGAL_TYPE, ClientContragent::PERSON_TYPE], 'message' => 'format_error'];
+        $rules[] = [['legal_type'], 'in', 'range' => [ClientContragent::LEGAL_TYPE, ClientContragent::PERSON_TYPE, ClientContragent::IP_TYPE], 'message' => 'format_error'];
 
         $rules[] = [['address_post'], FormFieldValidator::className()];
 
@@ -75,6 +82,33 @@ class WizardContragentEuroForm extends Form
                     $validator,
                     "when" => function ($model) {
                         return $model->legal_type == ClientContragent::PERSON_TYPE;
+                    }
+                ] + $validatorMessageRuleAdd;
+
+            $rules[] = [
+                    'ogrn',
+                    $validator,
+                    'on' => 'slovak',
+                    'when' => function ($model) {
+                        return in_array($model->legal_type, [ClientContragent::IP_TYPE, ClientContragent::LEGAL_TYPE]);
+                    }
+                ] + $validatorMessageRuleAdd;
+
+            $rules[] = [
+                    'passport_number',
+                    $validator,
+                    'on' => 'slovak',
+                    'when' => function ($model) {
+                        return $model->legal_type == ClientContragent::PERSON_TYPE;
+                    }
+                ] + $validatorMessageRuleAdd;
+
+            $rules[] = [
+                    ['name', 'last_name', 'first_name', 'inn', 'address_jur', 'fio'],
+                    $validator,
+                    'on' => 'slovak',
+                    'when' => function ($model) {
+                        return $model->legal_type == ClientContragent::IP_TYPE;
                     }
                 ] + $validatorMessageRuleAdd;
         }
@@ -125,11 +159,34 @@ class WizardContragentEuroForm extends Form
 
         $account->address_post = $this->address_post;
 
-        $account->save(false);
-        $contragent->save(false);
+        if ($this->scenario == 'slovak') {
+            $contragent->ogrn = $this->ogrn;
+            $person->passport_number = $this->passport_number;
 
-        if ($contragent->legal_type == ClientContragent::PERSON_TYPE) {
-            $person->save(false);
+            $contragent->name = $this->name;
+            $person->first_name = $this->first_name;
+            $person->last_name = $this->last_name;
+            $contragent->inn = $this->inn;
+            $contragent->fio = $this->fio;
+            $contragent->address_jur = $this->address_jur;
+        }
+
+        if (!$account->save(false)) {
+            throw new ModelValidationException($account);
+        }
+
+        if (!$contragent->save(false)) {
+            throw new ModelValidationException($contragent);
+        }
+
+        if (
+            $contragent->legal_type == ClientContragent::PERSON_TYPE
+            || ($this->scenario == 'slovak' && ClientContragent::IP_TYPE)
+        ) {
+            if (!$person->save(false)) {
+                throw new ModelValidationException($person);
+            }
+
             $contragent->refresh();
         }
 

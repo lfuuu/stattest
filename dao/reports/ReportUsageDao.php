@@ -250,7 +250,7 @@ class ReportUsageDao extends Singleton
                 CASE WHEN 
                         co.code = " . $clientAccount->contragent->country_id . " 
                     THEN '' 
-                    ELSE " . ($clientAccount->contragent->country_id == Country::RUSSIA ? "co.name_rus" : "co.name") . " || '. '
+                    ELSE " . ($clientAccount->contragent->country_id == Country::RUSSIA ? "co.name_rus" : "co.name_eng") . " || '. '
                 END  ||
                 
                 CASE WHEN 

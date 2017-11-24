@@ -57,12 +57,6 @@ echo GridView::widget([
             'attribute' => 'name'
         ],
         [
-            'attribute' => 'wizard_type',
-            'value' => function (\app\models\EntryPoint $model) {
-                return \app\models\LkWizardState::$name[$model->wizard_type];
-            }
-        ],
-        [
             'attribute' => 'organization_id',
             'class' => OrganizationColumn::class,
         ],

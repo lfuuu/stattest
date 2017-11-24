@@ -29,10 +29,10 @@ class WizardMcnController extends WizardBaseController
 
     /**
      * @SWG\Post(
-     *   tags={"Работа с визардом"},
+     *   tags={"LkWizard"},
      *   path="/wizard-mcn/save/",
-     *   summary="Сохранение состояния визарда",
-     *   operationId="Сохранение состояния визарда",
+     *   summary="Российский визард. Сохранение.",
+     *   operationId="wizard-mcn-save",
      *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData"),
      *   @SWG\Parameter(name="step1",type="array",items="#/definitions/step1",description="информация по первому шагу",in="formData"),
      *   @SWG\Parameter(name="step2",type="array",items="#/definitions/step2",description="информация по второму шагу",in="formData"),

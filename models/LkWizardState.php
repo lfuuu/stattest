@@ -17,6 +17,7 @@ use app\classes\model\ActiveRecord;
  * @property int $is_on
  * @property int $is_rules_accept_legal
  * @property int $is_rules_accept_person
+ * @property int $is_rules_accept_ip
  * @property int $is_contract_accept
  * @property int $client_contragent_person
  * @property-read Trouble $trouble
@@ -25,12 +26,14 @@ use app\classes\model\ActiveRecord;
  */
 class LkWizardState extends ActiveRecord
 {
-    const TYPE_MCN = 'mcn';
-    const TYPE_EURO = 'euro';
+    const TYPE_RUSSIA = 'mcn';
+    const TYPE_HUNGARY = 'euro';
+    const TYPE_SLOVAK = 'slovak';
 
     public static $name = [
-        self::TYPE_MCN => 'Российский',
-        self::TYPE_EURO => 'Европейский',
+        self::TYPE_RUSSIA => 'Российский',
+        self::TYPE_HUNGARY => 'Венгерский',
+        self::TYPE_SLOVAK => 'Словацкий',
     ];
 
     const STATE_PROCESS = 'process';
@@ -48,17 +51,41 @@ class LkWizardState extends ActiveRecord
         return $this->hasOne(Trouble::className(), ["id" => "trouble_id"]);
     }
 
-    public static function create($contractId, $troubleId = 0, $type = 'mcn')
+    /**
+     * Создание состояния визарда
+     *
+     * @param int $contractId
+     * @param int $troubleId
+     * @param int $countryCode
+     * @return bool
+     */
+    public static function create($contractId, $troubleId = 0, $countryCode = Country::RUSSIA)
     {
         $wizard = new self();
         $wizard->contract_id = $contractId;
         $wizard->step = 1;
         $wizard->state = "process";
         $wizard->trouble_id = $troubleId;
-        $wizard->type = $type;
+        $wizard->type = self::_getWizardTypeByCountryCode($countryCode);
         $wizard->is_on = 1;
 
         return $wizard->save();
+    }
+
+    private static function _getWizardTypeByCountryCode($countryId)
+    {
+        switch ($countryId) {
+
+            case Country::HUNGARY:
+                return LkWizardState::TYPE_HUNGARY;
+                break;
+
+            case Country::SLOVAKIA:
+                return LkWizardState::TYPE_SLOVAK;
+
+            default:
+                return LkWizardState::TYPE_RUSSIA;
+        }
     }
 
     public function getStepName()

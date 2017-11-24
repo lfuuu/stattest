@@ -10,7 +10,6 @@ use app\helpers\DateTimeZoneHelper;
  * @property string $code
  * @property string $name
  * @property string $super_client_prefix
- * @property string $wizard_type
  * @property int $country_id
  * @property int $organization_id
  * @property int $client_contract_business_id
@@ -45,7 +44,6 @@ class EntryPoint extends ActiveRecord
         $this->voip_limit_mn_day = 0;
 
         $this->account_version = ClientAccount::VERSION_BILLER_UNIVERSAL;
-        $this->wizard_type = LkWizardState::TYPE_MCN;
         $this->currency_id = Currency::RUB;
         $this->organization_id = Organization::MCN_TELECOM;
         $this->country_id = Country::RUSSIA;
@@ -83,7 +81,6 @@ class EntryPoint extends ActiveRecord
                 [
                     'code',
                     'name',
-                    'wizard_type',
                     'country_id',
                     'organization_id',
                     'currency_id',
@@ -102,7 +99,6 @@ class EntryPoint extends ActiveRecord
                 'required'
             ],
 
-            ['wizard_type', 'in', 'range' => array_keys(LkWizardState::$name)],
             ['country_id', 'in', 'range' => array_keys(Country::getList())],
             ['region_id', 'in', 'range' => array_keys(Region::getList())],
             ['organization_id', 'in', 'range' => array_keys(Organization::dao()->getList())],
@@ -132,7 +128,6 @@ class EntryPoint extends ActiveRecord
             'code' => 'ID (code)',
             'name' => 'Название точки входа',
             'super_client_prefix' => 'СуперКлиент префикс',
-            'wizard_type' => "Тип Wizard'a",
             'country_id' => 'Страна',
             'organization_id' => 'Организация',
             'client_contract_business_id' => 'Подразделение',

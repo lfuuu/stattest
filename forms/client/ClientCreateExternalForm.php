@@ -486,11 +486,11 @@ class ClientCreateExternalForm extends Form
 
         $this->troubleId = StatModule::tt()->createTrouble($R, $this->entryPoint->connectTroubleUser->user);
 
-        if ($this->entryPoint) {
-            LkWizardState::create($this->contract_id, $this->troubleId, $this->entryPoint->wizard_type);
-        } else {
-            LkWizardState::create($this->contract_id, $this->troubleId);
-        }
+        LkWizardState::create(
+            $this->contract_id,
+            $this->troubleId,
+            $this->entryPoint ? $this->entryPoint->country_id : Country::RUSSIA
+        );
 
         return true;
     }

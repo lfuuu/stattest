@@ -82,7 +82,7 @@ class AccountController extends BaseController
                     LkWizardState::create(
                         $account->contract->id,
                         0,
-                        ($account->contract->contragent->country_id != Country::RUSSIA ? LkWizardState::TYPE_EURO : LkWizardState::TYPE_MCN)
+                        $account->contract->contragent->country_id
                     );
                 }
             } else {

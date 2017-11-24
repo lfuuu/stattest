@@ -17,6 +17,7 @@ class AcceptsForm extends Form
 
     public $is_rules_accept_legal;
     public $is_rules_accept_person;
+    public $is_rules_accept_ip;
     public $is_contract_accept;
 
     /**
@@ -45,6 +46,27 @@ class AcceptsForm extends Form
             }
         ];
 
+        $rules[] = [
+            'is_rules_accept_ip',
+            'required',
+            'message' => 'wizard_fill_field',
+            'on' => 'slovak',
+            'when' => function ($model, $attribute) {
+                return $this->isNeedCheck($attribute);
+            }
+        ];
+
+        $rules[] = [
+            'is_rules_accept_ip',
+            'boolean',
+            'message' => 'format_error',
+            'on' => 'slovak',
+            'when' => function ($model, $attribute) {
+                return $this->isNeedCheck($attribute);
+            }
+        ];
+
+
         return $rules;
     }
 
@@ -56,6 +78,7 @@ class AcceptsForm extends Form
         return [
             "is_rules_accept_legal" => "Согласие с правилами (организация)",
             "is_rules_accept_person" => "Согласие с правилами (частное лицо)",
+            "is_rules_accept_ip" => "Согласие с правилами (ИП)",
             "is_contract_accept" => "Принятие условий договора"
         ];
     }
@@ -74,6 +97,9 @@ class AcceptsForm extends Form
             }
             case 'is_rules_accept_person': {
                 return $this->step == 1 && $this->legal_type == ClientContragent::PERSON_TYPE;
+            }
+            case 'is_rules_accept_ip': {
+                return $this->step == 1 && $this->legal_type == ClientContragent::IP_TYPE;
             }
             case 'is_contract_accept': {
                 return $this->step == 2;
@@ -96,6 +122,10 @@ class AcceptsForm extends Form
 
         if ($this->isNeedCheck('is_rules_accept_person')) {
             $wizard->is_rules_accept_person = $this->is_rules_accept_person;
+        }
+
+        if ($this->isNeedCheck('is_rules_accept_ip')) {
+            $wizard->is_rules_accept_ip = $this->is_rules_accept_ip;
         }
 
         if ($this->isNeedCheck('is_contract_accept')) {
