@@ -246,16 +246,19 @@ class TariffPeriod extends ActiveRecord
 
         /** @var TariffPeriod $tariffPeriod */
         foreach ($activeQuery->each() as $tariffPeriod) {
-            $status = $tariffPeriod->tariff->status->name; // @todo надо бы заджойнить таблицу status
-            if ($tariffPeriod->tariff->is_default) {
+
+            $tariff = $tariffPeriod->tariff;
+            $status = $tariff->status; // @todo надо бы заджойнить таблицу status
+
+            if ($tariff->is_default && !$defaultTariffPeriodId && $status->id != TariffStatus::ID_ARCHIVE) {
                 $defaultTariffPeriodId = $tariffPeriod->id;
             }
 
-            if (!isset($selectboxItems[$status])) {
-                $selectboxItems[$status] = [];
+            if (!isset($selectboxItems[$status->name])) {
+                $selectboxItems[$status->name] = [];
             }
 
-            $selectboxItems[$status][$tariffPeriod->id] = $tariffPeriod->getName();
+            $selectboxItems[$status->name][$tariffPeriod->id] = (($status->id == TariffStatus::ID_PUBLIC) ? '' : $status->name . '. ') . $tariffPeriod->getName();
         }
 
         return $selectboxItems;
