@@ -17,6 +17,8 @@ use app\models\Param;
 use app\models\Payment;
 use app\models\PaymentOrder;
 use app\models\Saldo;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use DateTime;
 use DateTimeZone;
@@ -936,5 +938,22 @@ class ClientAccountDao extends Singleton
 
         // "позеленить" счета по-старому
         ClientAccount::dao()->updateBalance($clientAccount->id);
+    }
+
+    /**
+     * Есть ли мультитранк на ЛС
+     *
+     * @param integer $accountId
+     * @return bool
+     */
+    public function isMultitrunkAccount($accountId)
+    {
+        if ($accountId instanceof ClientAccount) {
+            $accountId = $accountId->id;
+        }
+
+        return AccountTariff::isServiceExists($accountId, ServiceType::ID_VOIP)
+            && AccountTariff::isServiceExists($accountId, ServiceType::ID_TRUNK);
+
     }
 }

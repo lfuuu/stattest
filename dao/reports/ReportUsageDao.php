@@ -27,6 +27,9 @@ use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
 
+/**
+ * @method static ReportUsageDao me($args = null)
+ */
 class ReportUsageDao extends Singleton
 {
 
@@ -40,7 +43,7 @@ class ReportUsageDao extends Singleton
      * @param string $from
      * @param string $to
      * @param string $detality
-     * @param int $clientId
+     * @param int $accountId
      * @param array $usages
      * @param int $paidonly
      * @param string $destination
@@ -55,7 +58,7 @@ class ReportUsageDao extends Singleton
         $from,
         $to,
         $detality,
-        $clientId,
+        $accountId,
         $usages = [],
         $paidonly = 0,
         $destination = 'all',
@@ -71,7 +74,7 @@ class ReportUsageDao extends Singleton
             ->setTimestamp($to)
             ->setTime(23, 59, 59);
 
-        $clientAccount = ClientAccount::findOne($clientId);
+        $clientAccount = ClientAccount::findOne(['id' => $accountId]);
         $query = CallsRaw::find()
             ->alias('cr')
             ->andWhere([
@@ -80,13 +83,26 @@ class ReportUsageDao extends Singleton
                 $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
                 $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
             ])
-            ->andWhere(['account_id' => $clientId]);
+            ->andWhere(['account_id' => $accountId]);
 
         $direction !== 'both' && $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
         isset($usages) && count($usages) > 0 && $query->andWhere([($region == 'trunk' ? 'trunk_service_id' : 'number_service_id') => $usages]);
         $paidonly && $query->andWhere('ABS(cr.cost) > 0.0001');
 
         $region == 'trunk' && $query->andWhere(['number_service_id' => null]); // статистика по транкам - смотрится по транкам. Звонки по услугам могут быть привязаны к мультитранкам.
+
+        // Если есть мультитанк, то фильтруем входящие по транку клиента
+        ClientAccount::dao()->isMultitrunkAccount($accountId) && $query
+            ->andWhere([
+                'OR',
+                'cr.orig',
+                [
+                    'trunk_service_id' => UsageTrunk::find()
+                        ->andWhere(['client_account_id' => $accountId])
+                        ->select('id')
+                        ->column()
+                ]
+            ]);
 
         if ($destination !== 'all') {
             list ($dest, $mobile, $zone) = explode('-', $destination);
@@ -557,6 +573,8 @@ class ReportUsageDao extends Singleton
      */
     public function getUsageVoipAndTrunks(ClientAccount $account)
     {
+        $usages = [];
+
         $trunks = UsageTrunk::find()
             ->select(['id', 'trunk_id'])
             ->where(['client_account_id' => $account->id])
@@ -835,5 +853,4 @@ class ReportUsageDao extends Singleton
 
         return [$usageIds, array_keys($regions), $isTrunk];
     }
-
 }

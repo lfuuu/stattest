@@ -354,4 +354,22 @@ trait AccountTariffBoolTrait
             && $this->isClosed();
     }
 
+    /**
+     * Есть ли включенные услуги на данном УЛС определенного типа
+     *
+     * @param integer $clientAccountId
+     * @param integer $serviceTypeId
+     * @return bool
+     */
+    public static function isServiceExists($clientAccountId, $serviceTypeId)
+    {
+        return AccountTariff::find()
+            ->where([
+                'client_account_id' => $clientAccountId,
+                'service_type_id' => $serviceTypeId,
+            ])
+            ->andWhere(['IS NOT', 'tariff_period_id', null])
+            ->exists();
+    }
+
 }

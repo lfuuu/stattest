@@ -9,14 +9,16 @@
             <FORM action="?" method=get>
             <input type=hidden name=module value=stats>
             <input type=hidden name=action value=voip>
-            <SELECT name=phone>
-                {if $regions_cnt > 1}<option value='all_regions'{if $phone=='all_regions'} selected{/if}>Все регионы</option>{/if}
-                {foreach from=$phones key=key item=item}<option value='{$key}'{if $phone==$key} selected{/if}>{$item}</option>{/foreach}
-            </SELECT>
+            <div style="width:350px;">
+            	<SELECT name=phone class="select2">
+                	{if $regions_cnt > 1}<option value='all_regions'{if $phone=='all_regions'} selected{/if}>Все регионы</option>{/if}
+                	{foreach from=$phones key=key item=item}<option value='{$key}'{if $phone==$key} selected{/if}>{$item}</option>{/foreach}
+            	</SELECT>
+            </div>
         <TR>
           <TD class=left>Дата начала отчёта</TD>
           <TD>
-		<input class="datepicker-input" type=text class="" name="date_from" value="{$date_from}" id="date_from">
+		<input class="datepicker-input" type=text name="date_from" value="{$date_from}" id="date_from">
 		По:<input class="datepicker-input" type=text name="date_to" value="{$date_to}" id="date_to">
                   <select name=timezone>
                       {foreach from=$timezones item=item}
