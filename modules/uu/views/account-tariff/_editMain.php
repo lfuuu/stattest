@@ -150,6 +150,9 @@ if (!$serviceType) {
             echo $this->render('_editMainOneTime', $viewParams);
             break;
 
+        case ServiceType::ID_INFRASTRUCTURE:
+            echo $this->render('_editMainInfrastructure', $viewParams);
+            break;
     }
     ?>
 

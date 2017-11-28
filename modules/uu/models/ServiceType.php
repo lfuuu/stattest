@@ -56,6 +56,8 @@ class ServiceType extends ActiveRecord
     const ID_TRUNK_PACKAGE_ORIG = 23; // пакет ориг-транк
     const ID_TRUNK_PACKAGE_TERM = 24; // пакет терм-транк
 
+    const ID_INFRASTRUCTURE = 26; // Инфраструктура
+
     const CLOSE_AFTER_DAYS = 60;
 
     public static $packages = [

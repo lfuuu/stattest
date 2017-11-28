@@ -11,6 +11,9 @@ return [
     'vm_elid_id' => 'ID VM collocation',
     'trunk_id' => 'Trunk',
     'trunk_type_id' => 'Mega/multi trunk',
+    'infrastructure_project' => 'Project', // Инфраструктура
+    'infrastructure_level' => 'Level', // Инфраструктура
+    'price' => 'Price', // Инфраструктура
 
     'insert_time' => 'Insert time',
     'insert_user_id' => 'Insert user',

@@ -16,6 +16,7 @@ use app\modules\uu\models\traits\AccountTariffBillerTrait;
 use app\modules\uu\models\traits\AccountTariffBoolTrait;
 use app\modules\uu\models\traits\AccountTariffGroupTrait;
 use app\modules\uu\models\traits\AccountTariffHistoryTrait;
+use app\modules\uu\models\traits\AccountTariffInfrastructure;
 use app\modules\uu\models\traits\AccountTariffLinkTrait;
 use app\modules\uu\models\traits\AccountTariffListTrait;
 use app\modules\uu\models\traits\AccountTariffPackageTrait;
@@ -44,6 +45,9 @@ use yii\db\Expression;
  * @property string $mtt_number
  * @property double $mtt_balance
  * @property int $trunk_type_id
+ * @property int $infrastructure_project
+ * @property int $infrastructure_level
+ * @property int $price
  */
 class AccountTariff extends ActiveRecord
 {
@@ -65,6 +69,7 @@ class AccountTariff extends ActiveRecord
     use AccountTariffLinkTrait;
     use AccountTariffListTrait;
     use AccountTariffHistoryTrait;
+    use AccountTariffInfrastructure;
 
     const DELTA = 100000;
 
@@ -188,14 +193,28 @@ class AccountTariff extends ActiveRecord
                 'required',
                 'when' => function (AccountTariff $accountTariff) {
                     return $accountTariff->service_type_id == ServiceType::ID_VOIP;
-                }
+                },
+                'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
             [
                 ['region_id'],
                 'required',
                 'when' => function (AccountTariff $accountTariff) {
                     return $accountTariff->service_type_id == ServiceType::ID_VPBX;
-                }
+                },
+                'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
+            ],
+
+            [['infrastructure_project', 'infrastructure_level', 'price'], 'integer'],
+            [
+                ['price'],
+                'integer',
+                'min' => 1,
+                'skipOnEmpty' => false,
+                'when' => function (AccountTariff $accountTariff) {
+                    return $accountTariff->service_type_id == ServiceType::ID_INFRASTRUCTURE;
+                },
+                'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
         ];
     }

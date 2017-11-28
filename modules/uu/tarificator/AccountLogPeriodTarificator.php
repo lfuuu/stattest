@@ -8,6 +8,7 @@ use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\ServiceType;
 use RangeException;
 use Yii;
 
@@ -121,10 +122,15 @@ class AccountLogPeriodTarificator extends Tarificator
             ->days;
         $accountLogPeriod->coefficient /= $days;
 
-        if ($tariffPeriod->tariff->getIsTest()) {
+        if ($tariffPeriod->tariff->service_type_id === ServiceType::ID_INFRASTRUCTURE) {
+            // инфраструктура - цена берется из услуги!
+            $accountLogPeriod->price = $accountTariff->price * $accountLogPeriod->coefficient;
+
+        } elseif ($tariffPeriod->tariff->getIsTest()) {
             // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
             // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
             $accountLogPeriod->price = 0;
+
         } else {
             $accountLogPeriod->price = $accountLogPeriod->period_price * $accountLogPeriod->coefficient;
         }

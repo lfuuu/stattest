@@ -97,6 +97,24 @@ if ($serviceType) {
                 'class' => CityColumn::className(),
             ];
             break;
+
+        case ServiceType::ID_INFRASTRUCTURE:
+            $columns[] = [
+                'attribute' => 'infrastructure_project',
+                'value' => function (AccountTariff $accountTariff) {
+                    return $accountTariff->getProjectName();
+                },
+            ];
+            $columns[] = [
+                'attribute' => 'infrastructure_level',
+                'value' => function (AccountTariff $accountTariff) {
+                    return $accountTariff->getLevelName();
+                },
+            ];
+            $columns[] = [
+                'attribute' => 'price',
+            ];
+            break;
     }
 }
 

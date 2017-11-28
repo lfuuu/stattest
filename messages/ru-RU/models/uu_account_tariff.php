@@ -17,6 +17,9 @@ return [
     'mtt_number' => 'Номер МТТ',
     'mtt_balance' => 'Баланс МТТ',
     'trunk_type_id' => 'Мега/мульти транк',
+    'infrastructure_project' => 'Проект', // Инфраструктура
+    'infrastructure_level' => 'Уровень', // Инфраструктура
+    'price' => 'Цена', // Инфраструктура
 
     'insert_time' => 'Когда создал',
     'insert_user_id' => 'Кто создал',
