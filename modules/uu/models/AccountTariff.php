@@ -208,8 +208,7 @@ class AccountTariff extends ActiveRecord
             [['infrastructure_project', 'infrastructure_level', 'price'], 'integer'],
             [
                 ['price'],
-                'integer',
-                'min' => 1,
+                'required',
                 'skipOnEmpty' => false,
                 'when' => function (AccountTariff $accountTariff) {
                     return $accountTariff->service_type_id == ServiceType::ID_INFRASTRUCTURE;

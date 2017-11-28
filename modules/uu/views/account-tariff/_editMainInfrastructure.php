@@ -43,7 +43,7 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
     </div>
 
     <?php // цена ?>
-    <div class="col-sm-2">
+    <div class="col-sm-6">
         <?= $form->field($accountTariff, 'price')
             ->input('number', ['step' => 1]) ?>
     </div>

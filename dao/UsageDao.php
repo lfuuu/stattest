@@ -1,14 +1,15 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Assert;
-use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ServiceType;
+use app\classes\Singleton;
 use app\models\Business;
 use app\models\ClientAccount;
 use app\models\UsageTrunk;
 use app\models\UsageVoip;
-use app\classes\Singleton;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 
 /**
  * Class UsageDao
@@ -102,14 +103,14 @@ class UsageDao extends Singleton
 
             case Business::OPERATOR: {
                 return $this->_returnValue(
-                    $serviceTypeId == ServiceType::ID_TRUNK,
-                    'Для ЛС с подразделением Межоператорка можно добавить только транки'
+                    in_array($serviceTypeId, [ServiceType::ID_TRUNK, ServiceType::ID_INFRASTRUCTURE]),
+                    'Для ЛС с подразделением Межоператорка можно добавить только транки или инфраструктуру'
                 );
             }
 
             default: {
                 // или транк, или телефония. Что-то одно
-                switch($serviceTypeId) {
+                switch ($serviceTypeId) {
                     case ServiceType::ID_TRUNK: {
                         return $this->_returnValue(
                             !$this->_hasService(ServiceType::ID_VOIP),
