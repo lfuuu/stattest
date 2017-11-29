@@ -75,7 +75,7 @@ class AccountTariffController extends BaseController
         $this->_addClientAccountFilter($filterModel);
 
         return $this->render('index', [
-            'isPersonalForm' => (bool)$this->_getCurrentClientAccountId(),
+            'isPersonalForm' => $serviceTypeId != ServiceType::ID_INFRASTRUCTURE && $this->_getCurrentClientAccountId(),
             'filterModel' => $filterModel,
         ]);
     }

@@ -60,6 +60,13 @@ $columns = [
         'attribute' => 'region_id',
         'class' => RegionColumn::className(),
     ],
+    [
+        'attribute' => 'comment',
+        'format' => 'html',
+        'value' => function (AccountTariff $accountTariff) {
+            return nl2br(Html::encode($accountTariff->comment));
+        },
+    ],
 ];
 
 // столбцы для конкретной услуги
