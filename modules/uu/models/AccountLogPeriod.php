@@ -4,6 +4,7 @@ namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
 use app\modules\nnp\models\AccountTariffLight;
+use app\modules\uu\behaviors\AccountTariffVoipInternet;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
@@ -62,7 +63,8 @@ class AccountLogPeriod extends ActiveRecord
     public function behaviors()
     {
         return parent::behaviors() + [
-                'SyncAccountTariffLight' => SyncAccountTariffLight::className(), // Синхронизировать данные в AccountTariffLight
+                SyncAccountTariffLight::className(), // Синхронизировать данные в AccountTariffLight
+                AccountTariffVoipInternet::className(), // Синхронизировать данные в MTT
             ];
     }
 
