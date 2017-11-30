@@ -415,12 +415,20 @@ function doEvents()
 
                 case \app\modules\uu\Module::EVENT_RECALC_ACCOUNT:
                     // УУ. Билинговать клиента
-                    AccountTariffBiller::recalc($param);
+                    if (Yii::$app->params['eventQueueIsUnderTheHighLoad']) {
+                        $info = Event::HANDLER_IS_SWITCHED_OFF;
+                    } else {
+                        AccountTariffBiller::recalc($param);
+                    }
                     break;
 
                 case \app\modules\uu\Module::EVENT_RECALC_BALANCE:
                     // УУ. Пересчитать realtime баланс
-                    RecalcRealtimeBalance::recalc($param['client_account_id']);
+                    if (Yii::$app->params['eventQueueIsUnderTheHighLoad']) {
+                        $info = Event::HANDLER_IS_SWITCHED_OFF;
+                    } else {
+                        RecalcRealtimeBalance::recalc($param['client_account_id']);
+                    }
                     break;
 
                 case \app\modules\uu\Module::EVENT_VM_SYNC:

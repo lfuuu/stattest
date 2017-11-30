@@ -61,6 +61,7 @@ class Event
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
+    const HANDLER_IS_SWITCHED_OFF = 'eventQueueIsUnderTheHighLoad';
 
     public static $names = [
         self::ACTUALIZE_CLIENT => 'Актуализировать клиента',
