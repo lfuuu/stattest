@@ -305,6 +305,7 @@ class MttAdapter extends Singleton
 
         // поставить в очередь Стата
         $mttResponse->result->requestId = $mttResponse->requestId;
+        // EVENT_CALLBACK_GET_ACCOUNT_BALANCE, EVENT_CALLBACK_GET_ACCOUNT_DATA, EVENT_CALLBACK_BALANCE_ADJUSTMENT
         Event::go(Module::EVENT_PREFIX . $mttResponse->method, $mttResponse->result);
 
         // ACK

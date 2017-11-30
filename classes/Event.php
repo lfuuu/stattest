@@ -118,7 +118,6 @@ class Event
 
         \app\modules\uu\Module::EVENT_ADD_DEFAULT_PACKAGES => 'УУ. Добавить дефолтные пакеты',
         \app\modules\uu\Module::EVENT_VOIP_CALLS => 'УУ. Телефония',
-        \app\modules\uu\Module::EVENT_VOIP_INTERNET => 'УУ. Моб. интернет',
         \app\modules\uu\Module::EVENT_VPBX => 'УУ. ВАТС',
         \app\modules\uu\Module::EVENT_CALL_CHAT => 'УУ. Call chat',
         \app\modules\uu\Module::EVENT_RESOURCE_VOIP => 'УУ. Ресурс телефонии',
@@ -136,6 +135,8 @@ class Event
         \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_BALANCE => 'МТТ. Получить баланс',
         \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_DATA => 'МТТ. Получить инфо',
         \app\modules\mtt\Module::EVENT_CALLBACK_BALANCE_ADJUSTMENT => 'МТТ. Установить баланс',
+        \app\modules\mtt\Module::EVENT_ADD_INTERNET => 'МТТ. Добавить интернет',
+        \app\modules\mtt\Module::EVENT_CLEAR_INTERNET => 'МТТ. Сжечь интернет',
     ];
 
     /**
@@ -149,6 +150,13 @@ class Event
      */
     public static function go($event, $param = "", $isForceAdd = false)
     {
+        if (is_array($param) && isset($param['account_tariff_id'])) {
+            $accountTariffId = $param['account_tariff_id'];
+            unset($param['account_tariff_id']);
+        } else {
+            $accountTariffId = null;
+        }
+
         if (is_array($param) || is_object($param)) {
             $param = json_encode($param);
         }
@@ -169,6 +177,7 @@ class Event
             $eventQueue = new EventQueue();
             $eventQueue->event = $event;
             $eventQueue->param = $param;
+            $eventQueue->account_tariff_id = $accountTariffId;
             $eventQueue->code = $code;
             $eventQueue->log_error = '';
             $eventQueue->insert_time = date(DateTimeZoneHelper::DATETIME_FORMAT);

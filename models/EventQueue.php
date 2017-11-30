@@ -6,8 +6,6 @@ use app\classes\model\ActiveRecord;
 use yii\helpers\Url;
 
 /**
- * Class EventQueue
- *
  * @property int $id
  * @property string $date
  * @property string $event
@@ -19,6 +17,7 @@ use yii\helpers\Url;
  * @property string $code
  * @property string $insert_time
  * @property string $trace
+ * @property integer $account_tariff_id
  */
 class EventQueue extends ActiveRecord
 {
@@ -62,6 +61,7 @@ class EventQueue extends ActiveRecord
             'iteration' => 'Кол-во попыток',
             'log_error' => 'Лог ошибок',
             'code' => 'Код',
+            'account_tariff_id' => 'Услуга',
         ];
     }
 

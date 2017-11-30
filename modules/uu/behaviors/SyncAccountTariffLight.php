@@ -69,7 +69,7 @@ class SyncAccountTariffLight extends Behavior
         \app\classes\Event::go(\app\modules\uu\Module::EVENT_ADD_LIGHT,
             [
                 'id' => $accountLogPeriod->id,
-                'account_client_id' => $accountTariff->client_account_id,
+                'client_account_id' => $accountTariff->client_account_id,
                 'tariff_id' => $accountLogPeriod->tariffPeriod->tariff_id,
                 'activate_from' => $activateFrom,
                 'deactivate_from' => $deactivateFrom,
@@ -101,6 +101,7 @@ class SyncAccountTariffLight extends Behavior
         \app\classes\Event::go(\app\modules\uu\Module::EVENT_DELETE_LIGHT,
             [
                 'id' => $accountLogPeriod->id,
+                'account_tariff_id' => $accountTariff->id,
             ]
         );
 
@@ -120,7 +121,7 @@ class SyncAccountTariffLight extends Behavior
             $accountTariffLight->id = $params['id'];
         }
 
-        $accountTariffLight->account_client_id = $params['account_client_id'];
+        $accountTariffLight->account_client_id = $params['client_account_id'];
         $accountTariffLight->tariff_id = $params['tariff_id'];
         $accountTariffLight->activate_from = new Expression(sprintf("TIMESTAMP '%s'", $params['activate_from']));
         $accountTariffLight->deactivate_from = $params['deactivate_from'] ? new Expression(sprintf("TIMESTAMP '%s'", $params['deactivate_from'])) : null;

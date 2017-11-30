@@ -88,7 +88,7 @@ SQL;
                     case ServiceType::ID_VOIP:
                         // Телефония
                         Event::go(\app\modules\uu\Module::EVENT_VOIP_CALLS, [
-                            'account_id' => $accountTariff->client_account_id,
+                            'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                             'number' => $accountTariff->voip_number,
                         ]);
@@ -98,7 +98,7 @@ SQL;
                     case ServiceType::ID_VPBX:
                         // ВАТС
                         Event::go(\app\modules\uu\Module::EVENT_VPBX, [
-                            'account_id' => $accountTariff->client_account_id,
+                            'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         // Из VirtPbx3Action::add/dataChanged передаются все текущие ресурсы. Больше ничего не надо
@@ -106,6 +106,7 @@ SQL;
 
                     case ServiceType::ID_VM_COLLOCATION:
                         Event::go(\app\modules\uu\Module::EVENT_VM_SYNC, [
+                            'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         break;
@@ -113,7 +114,7 @@ SQL;
                     case ServiceType::ID_CALL_CHAT:
                         // call chat
                         Event::go(\app\modules\uu\Module::EVENT_CALL_CHAT, [
-                            'account_id' => $accountTariff->client_account_id,
+                            'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);
                         break;

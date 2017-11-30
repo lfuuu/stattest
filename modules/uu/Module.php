@@ -19,7 +19,6 @@ class Module extends \yii\base\Module
 {
     const EVENT_ADD_DEFAULT_PACKAGES = 'uu_add_default_packages';
     const EVENT_VOIP_CALLS = 'uu_voip_calls';
-    const EVENT_VOIP_INTERNET = 'uu_voip_internet';
     const EVENT_VPBX = 'uu_vpbx';
     const EVENT_CALL_CHAT = 'uu_chat';
     const EVENT_RESOURCE_VOIP = 'uu_resource_voip';

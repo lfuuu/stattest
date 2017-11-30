@@ -90,6 +90,20 @@ function doEvents()
                 json_encode($param, (JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT))
             );
 
+            if ($event->account_tariff_id) {
+                // все запросы по одной услуге надо выполнять строго последовательно
+                if (\app\models\EventQueue::find()
+                    ->where([
+                        'account_tariff_id' => $event->account_tariff_id,
+                        'status' => [\app\models\EventQueue::STATUS_PLAN, \app\models\EventQueue::STATUS_ERROR, \app\models\EventQueue::STATUS_STOP],
+                    ])
+                    ->andWhere(['<', 'id', $event->id])// строго меньше
+                    ->exists()
+                ) {
+                    throw new LogicException('Еще не выполнен предыдущий запрос по этой услуге');
+                }
+            }
+
             switch ($event->event) {
                 case Event::USAGE_VOIP__INSERT:
                 case Event::USAGE_VOIP__UPDATE:
@@ -406,7 +420,7 @@ function doEvents()
 
                 case \app\modules\uu\Module::EVENT_RECALC_BALANCE:
                     // УУ. Пересчитать realtime баланс
-                    RecalcRealtimeBalance::recalc($param['clientAccountId']);
+                    RecalcRealtimeBalance::recalc($param['client_account_id']);
                     break;
 
                 case \app\modules\uu\Module::EVENT_VM_SYNC:
@@ -446,19 +460,10 @@ function doEvents()
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;
 
-                case \app\modules\uu\Module::EVENT_VOIP_INTERNET:
-                    // УУ. Услуга пакет интернет-трафика
-                    if ($isMttServer) {
-                        \app\modules\mtt\Module::addInternetPackage($param['account_tariff_id'], $param['internet_traffic']);
-                    } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
-                    }
-                    break;
-
                 case \app\modules\uu\Module::EVENT_CALL_CHAT:
                     // УУ. Услуга call chat
                     if ($isFeedbackServer) {
-                        ApiFeedback::createChat($param['account_id'], $param['account_tariff_id']);
+                        ApiFeedback::createChat($param['client_account_id'], $param['account_tariff_id']);
                     } else {
                         $info = Event::API_IS_SWITCHED_OFF;
                     }
@@ -468,7 +473,7 @@ function doEvents()
                     // УУ. Отправить измененные ресурсы телефонии на платформу
                     if ($isCoreServer) {
                         ApiPhone::me()->editDid(
-                            $param['account_id'],
+                            $param['client_account_id'],
                             $param['number'],
                             $param['lines'],
                             $param['is_fmc_active'],
@@ -485,7 +490,7 @@ function doEvents()
                     // УУ. Отправить измененные ресурсы ВАТС на платформу
                     if ($isCoreServer) {
                         ApiVpbx::me()->update(
-                            $param['account_id'],
+                            $param['client_account_id'],
                             $param['account_tariff_id'],
                             $regionId = null,
                             ClientAccount::VERSION_BILLER_UNIVERSAL
@@ -554,6 +559,24 @@ function doEvents()
                 // --------------------------------------------
                 // МТТ
                 // --------------------------------------------
+                case \app\modules\mtt\Module::EVENT_ADD_INTERNET:
+                    // МТТ. Добавить интернет
+                    if ($isMttServer) {
+                        \app\modules\mtt\Module::addInternetPackage($param['package_account_tariff_id'], $param['internet_traffic']);
+                    } else {
+                        $info = Event::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+                case \app\modules\mtt\Module::EVENT_CLEAR_INTERNET:
+                    // МТТ. Сжечь интернет
+                    if ($isMttServer) {
+                        \app\modules\mtt\Module::clearInternet($param['account_tariff_id']);
+                    } else {
+                        $info = Event::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
                 case \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_BALANCE:
                     // МТТ. Callback обработчик API-запроса getAccountBalance
                     if ($isMttServer) {

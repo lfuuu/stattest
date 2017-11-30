@@ -18,6 +18,9 @@ class Module extends \yii\base\Module
     const EVENT_CALLBACK_GET_ACCOUNT_DATA = self::EVENT_PREFIX . 'getAccountData';
     const EVENT_CALLBACK_BALANCE_ADJUSTMENT = self::EVENT_PREFIX . 'balanceAdjustment';
 
+    const EVENT_ADD_INTERNET = 'mtt_add_internet';
+    const EVENT_CLEAR_INTERNET = 'mtt_clear_internet';
+
     // Цена 1 мегабайта, руб.
     // Юзер покупает пакет мегабайт, а на счет МТТ зачисляем деньги. Причем фикс по этому курсу, а не маркетинговую цену пакета.
     const MEGABYTE_COST = 0.2;
@@ -51,20 +54,20 @@ class Module extends \yii\base\Module
     /**
      * Подключить пакет интернет-трафика
      *
-     * @param int $accountTariffId ID услуги пакета
+     * @param int $packageAccountTariffId ID услуги пакета
      * @param int $internetTraffic Мб
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidParamException
      * @throws \LogicException
      */
-    public static function addInternetPackage($accountTariffId, $internetTraffic)
+    public static function addInternetPackage($packageAccountTariffId, $internetTraffic)
     {
-        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
-        if (!$accountTariff) {
+        $packageAccountTariff = AccountTariff::findOne(['id' => $packageAccountTariffId]);
+        if (!$packageAccountTariff) {
             throw new InvalidParamException('Неправильный ID услуги');
         }
 
-        $prevAccountTariff = $accountTariff->prevAccountTariff;
+        $prevAccountTariff = $packageAccountTariff->prevAccountTariff;
         if (!$prevAccountTariff) {
             throw new InvalidParamException('Не найдена основная услуга пакета интернета');
         }
@@ -73,25 +76,75 @@ class Module extends \yii\base\Module
             throw new InvalidParamException('У основной услуги пакета интернета не указан номер телефона');
         }
 
-        if ($prevAccountTariff->mtt_number) {
-            // все хорошо, MTT ID юзера известен
-            $message = [
-                'requestId' => $prevAccountTariff->id,
-                'method' => 'balanceAdjustment',
-                'parameters' => [
-                    'name' => $prevAccountTariff->mtt_number,
-                    'amount' => $internetTraffic * self::MEGABYTE_COST,
-                    'comment' => 'Package ' . $accountTariffId,
-                ],
-            ];
-            MttAdapter::me()->publishMessage($message);
+        if (!$prevAccountTariff->mtt_number) {
+            // MTT ID юзера неизвестен. Надо сначала его узнать
+            MttAdapter::me()->getAccountData($prevAccountTariff->voip_number, $prevAccountTariff->id);
+            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим.');
+        }
+
+        // все хорошо, MTT ID юзера известен
+        $message = [
+            'requestId' => $prevAccountTariff->id,
+            'method' => 'balanceAdjustment',
+            'parameters' => [
+                'name' => $prevAccountTariff->mtt_number,
+                'amount' => $internetTraffic * self::MEGABYTE_COST,
+                'comment' => 'Package ' . $packageAccountTariffId,
+            ],
+        ];
+        MttAdapter::me()->publishMessage($message);
+    }
+
+    /**
+     * Сжечь интернет-трафик по всем пакетам
+     *
+     * @param int $prevAccountTariffId ID услуги пакета
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\InvalidParamException
+     * @throws \LogicException
+     */
+    public static function clearInternet($prevAccountTariffId)
+    {
+        $prevAccountTariff = AccountTariff::findOne(['id' => $prevAccountTariffId]);
+        if (!$prevAccountTariff) {
+            throw new InvalidParamException('Неправильный ID услуги');
+        }
+
+        if (!$prevAccountTariff->voip_number || Number::isMcnLine($prevAccountTariff->voip_number)) {
+            throw new InvalidParamException('У основной услуги пакета интернета не указан номер телефона');
+        }
+
+        if (!$prevAccountTariff->mtt_number) {
+            // MTT ID юзера неизвестен. Надо сначала его узнать
+            MttAdapter::me()->getAccountData($prevAccountTariff->voip_number, $prevAccountTariff->id);
+            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим.');
+        }
+
+        if ($prevAccountTariff->mtt_balance === null) {
+            // MTT баланс юзера неизвестен. Надо сначала его узнать
+            // 1. не путайте, когда он известен и равен 0!
+            // 2. перед постановкой clearInternetPackage в очередь надо сбросить баланс!
+            MttAdapter::me()->getAccountBalance($prevAccountTariff->voip_number, $prevAccountTariff->id);
+            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим.');
+        }
+
+        if ($prevAccountTariff->mtt_balance <= 0) {
+            // и так все сброшено
             return;
         }
 
-        // MTT ID юзера неизвестен. Надо сначала его узнать
-        MttAdapter::me()->getAccountData($prevAccountTariff->voip_number, $prevAccountTariff->id);
-
-        throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим.');
+        // все хорошо, MTT ID юзера и его юаланс известны
+        $message = [
+            'requestId' => $prevAccountTariff->id,
+            'method' => 'balanceAdjustment',
+            'parameters' => [
+                'name' => $prevAccountTariff->mtt_number,
+                'amount' => -$prevAccountTariff->mtt_balance, // скорректировать на отрицательную сумму
+                'overdraft' => true, // можно немного загнать в минус, если за время после обновления баланса он что-то уже потратил
+                'comment' => 'Clear',
+            ],
+        ];
+        MttAdapter::me()->publishMessage($message);
     }
 
     /**

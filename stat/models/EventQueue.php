@@ -3,15 +3,17 @@ use app\classes\HandlerLogger;
 
 /**
  * @property int $id
- * @property string $date timestamp
+ * @property string $date
  * @property string $event
  * @property string $param
- * @property string $status    enum('plan','ok','error','stop')
+ * @property string $status
  * @property int $iteration
- * @property string $next_start timestamp
+ * @property string $next_start
  * @property string $log_error
  * @property string $code
+ * @property string $insert_time
  * @property string $trace
+ * @property integer $account_tariff_id
  */
 class EventQueue extends ActiveRecord\Model
 {

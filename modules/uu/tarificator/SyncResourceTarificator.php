@@ -50,7 +50,7 @@ class SyncResourceTarificator extends Tarificator
                             // Телефония
                             $number = $accountTariff->number;
                             Event::go(\app\modules\uu\Module::EVENT_RESOURCE_VOIP, [
-                                'account_id' => $accountTariff->client_account_id,
+                                'client_account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                                 'number' => $accountTariff->voip_number,
                                 'lines' => $accountTariff->getResourceValue(Resource::ID_VOIP_LINE),
@@ -64,7 +64,7 @@ class SyncResourceTarificator extends Tarificator
                         case ServiceType::ID_VPBX:
                             // ВАТС
                             Event::go(\app\modules\uu\Module::EVENT_RESOURCE_VPBX, [
-                                'account_id' => $accountTariff->client_account_id,
+                                'client_account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                             ]);
                             break;

@@ -51,8 +51,8 @@ class AccountTariffBiller extends Behavior
         $accountTariffId = $accountTariff->id;
 
         \app\classes\Event::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
-                'accountTariffId' => $accountTariffId,
-                'clientAccountId' => $accountTariff->client_account_id,
+                'account_tariff_id' => $accountTariffId,
+                'client_account_id' => $accountTariff->client_account_id,
             ]
         );
     }
@@ -67,8 +67,8 @@ class AccountTariffBiller extends Behavior
     {
         ob_start();
 
-        $accountTariffId = $params['accountTariffId'];
-        $clientAccountId = $params['clientAccountId'];
+        $accountTariffId = $params['account_tariff_id'];
+        $clientAccountId = $params['client_account_id'];
 
         Yii::info('AccountTariffBiller. Before SetCurrentTariffTarificator', 'uu');
         (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
