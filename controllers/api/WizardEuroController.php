@@ -251,6 +251,7 @@ class WizardEuroController extends WizardBaseController
         $contactForm = new ContactForm();
         $acceptForm = new AcceptsForm();
 
+        $form->setScenario('euro');
         $contactForm->setScenario('euro');
 
         if ($stepData['legal_type'] != ClientContragent::IP_TYPE) {

@@ -70,9 +70,18 @@ class WizardContragentEuroForm extends Form
                 ] + $validatorMessageRuleAdd;
 
             $rules[] = [
-                    ['name', 'address_jur', 'position', 'fio'],
+                    ['name', 'address_jur', 'fio'],
                     $validator,
-                    "when" => function ($model) {
+                    'when' => function ($model) {
+                        return $model->legal_type == ClientContragent::LEGAL_TYPE;
+                    }
+                ] + $validatorMessageRuleAdd;
+
+            $rules[] = [
+                    ['position'],
+                    $validator,
+                    'on' => 'euro',
+                    'when' => function ($model) {
                         return $model->legal_type == ClientContragent::LEGAL_TYPE;
                     }
                 ] + $validatorMessageRuleAdd;
@@ -80,7 +89,7 @@ class WizardContragentEuroForm extends Form
             $rules[] = [
                     ['last_name', 'first_name', 'address_birth', 'birthday', 'address'],
                     $validator,
-                    "when" => function ($model) {
+                    'when' => function ($model) {
                         return $model->legal_type == ClientContragent::PERSON_TYPE;
                     }
                 ] + $validatorMessageRuleAdd;
