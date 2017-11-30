@@ -12,7 +12,7 @@ class Language extends ActiveRecord
     }
 
     const LANGUAGE_RUSSIAN = 'ru-RU';
-    const LANGUAGE_ENGLISH = 'en-EN';
+    const LANGUAGE_ENGLISH = 'en-US';
     const LANGUAGE_MAGYAR = 'hu-HU';
     const LANGUAGE_GERMANY = 'de-DE';
     const LANGUAGE_SLOVAK = 'sk-SK';

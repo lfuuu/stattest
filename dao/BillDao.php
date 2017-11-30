@@ -10,6 +10,7 @@ use app\models\Bill;
 use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
+use app\models\Currency;
 use app\models\LogBill;
 use app\models\Organization;
 use app\models\Transaction;
@@ -590,7 +591,7 @@ SQL;
      * @param float $sum
      * @return null|Bill
      */
-    public function getPrepayedBillNoOnSumFromDB($accountId, $sum)
+    public function getPrepayedBillNoOnSumFromDB($accountId, $sum, $currency = Currency::RUB)
     {
         return \Yii::$app->db->createCommand(
             "SELECT
@@ -611,6 +612,7 @@ SQL;
                         WHERE
                                 b.client_id = :accountId
                             AND l.bill_no = b.bill_no
+                            AND b.currency = :currency
                             AND is_user_prepay
                         GROUP BY
                             bill_no
@@ -626,7 +628,8 @@ SQL;
                 LIMIT 1
              )a", [
             ':accountId' => $accountId,
-            'sum' => $sum
+            ':sum' => $sum,
+            ':currency' => $currency,
         ])->queryScalar();
 
     }

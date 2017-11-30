@@ -34,8 +34,11 @@ if (
 ) {
     $bill = Bill::findOne(['bill_no' => $R['bill']]);
 
-    $report = DocumentReportFactory::me()->getReport($bill,
-        (!isset($R['doc_type']) ? DocumentReport::DOC_TYPE_BILL : $R['doc_type']), get_param_raw('emailed', 1));
+    $report = DocumentReportFactory::me()->getReport(
+        $bill,
+        (!isset($R['doc_type']) ? DocumentReport::DOC_TYPE_BILL : $R['doc_type']),
+        get_param_raw('emailed', 1)
+    );
     if (isset($R['is_pdf']) && $R['is_pdf'] == 1) {
         echo $report->renderAsPDF();
     } else {

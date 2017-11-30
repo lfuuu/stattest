@@ -52,6 +52,7 @@ use yii\helpers\Url;
  * @property-read ClientAccount $clientAccount   ??
  * @property-read BillLine[] $lines   ??
  * @property-read Transaction[] $transactions   ??
+ * @property-read Currency $currencyModel
  */
 class Bill extends ActiveRecord
 {
@@ -245,6 +246,14 @@ class Bill extends ActiveRecord
     public function getExtendsInfo()
     {
         return $this->hasOne(BillExtendsInfo::className(), ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCurrencyModel()
+    {
+        return $this->hasOne(Currency::className(), ['id' => 'currency']);
     }
 
     /**

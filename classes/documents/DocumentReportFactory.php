@@ -24,6 +24,7 @@ class DocumentReportFactory extends Singleton
             DocNoticeMCMTelekom::className(),
             DocSoglMCMTelekom::className(),
             DocSoglMCNTelekom::className(),
+            ProformaDocument::className(),
         ];
     }
 
@@ -62,11 +63,11 @@ class DocumentReportFactory extends Singleton
                 continue;
             }
 
-            if ($language !== null && $documentReport->getLanguage() != $language) {
+            if (!$documentReport->isAllLanguages && $language !== null && $documentReport->getLanguage() != $language) {
                 continue;
             }
 
-            if ($currency !== null && $documentReport->getCurrency() != $currency) {
+            if (!$documentReport->isMultiCurrencyDocument && $currency !== null && $documentReport->getCurrency() != $currency) {
                 continue;
             }
 

@@ -155,13 +155,13 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
-        $billNo = Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum);
+        $billNo = Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum, $account->currency);
 
         if (!$billNo) {
 
-            NewBill::createBillOnPay($clientId, $sum, '', true);
+            NewBill::createBillOnPay($clientId, $sum, $account->currency, true);
 
-            $billNo = Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum);
+            $billNo = Bill::dao()->getPrepayedBillNoOnSumFromDB($clientId, $sum, $account->currency);
         }
 
         if (!$billNo) {
@@ -173,7 +173,7 @@ class ApiLk
 
     public static function getBillUrl($billNo)
     {
-        $bill = NewBill::first(["bill_no" => $billNo]);
+        $bill = Bill::findOne(["bill_no" => $billNo]);
         if (!$bill) {
             throw new Exception("bill_not_found");
         }
@@ -182,7 +182,15 @@ class ApiLk
             throw new Exception("Не установлена ссылка на печать документов");
         }
 
-        $R = ['bill' => $billNo, 'object' => "bill-2-RUB", 'client' => $bill->client_id];
+        $R = [
+                'bill' => $billNo,
+                'object' => 'bill-2-RUB',
+                'client' => $bill->client_id
+            ] + (
+            $bill->clientAccount->contragent->country_id != Country::RUSSIA ?
+                ['doc_type' => \app\classes\documents\DocumentReport::DOC_TYPE_PROFORMA] :
+                []
+            );
         return API__print_bill_url . Encrypt::encodeArray($R);
     }
 

@@ -23,6 +23,7 @@ abstract class DocumentReport extends Object
 
     const DOC_TYPE_BILL = 'bill';
     const DOC_TYPE_INVOICE = 'invoice';
+    const DOC_TYPE_PROFORMA = 'proforma';
 
     /**
      * @var Bill
@@ -30,6 +31,9 @@ abstract class DocumentReport extends Object
     public $bill;
     public $sendEmail;
     public $lines = [];
+
+    public $isAllLanguages = false;
+    public $isMultiCurrencyDocument = false;
 
     public
         $sum,
@@ -61,8 +65,10 @@ abstract class DocumentReport extends Object
      */
     public function getTemplateFile()
     {
-        return self::TEMPLATE_PATH . $this->getLanguage() . '/' . $this->getDocType() . '_' . mb_strtolower($this->getCurrency(),
-            'UTF-8');
+        return self::TEMPLATE_PATH .
+            $this->getLanguage() . '/' .
+            $this->getDocType() .
+            ($this->isMultiCurrencyDocument ? '' : '_' . mb_strtolower($this->getCurrency(), 'UTF-8'));
     }
 
     /**
