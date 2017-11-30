@@ -137,7 +137,7 @@ class Country extends ActiveRecord
             $isWithEmpty,
             $isWithNullAndNotNull = false,
             $indexBy,
-            $select = 'name',
+            $select = 'name_rus',
             $orderBy = ['order' => SORT_ASC],
             $where = ['in_use' => 1]
         );
