@@ -152,7 +152,6 @@ class Event
     {
         if (is_array($param) && isset($param['account_tariff_id'])) {
             $accountTariffId = $param['account_tariff_id'];
-            unset($param['account_tariff_id']);
         } else {
             $accountTariffId = null;
         }
