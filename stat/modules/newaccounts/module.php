@@ -165,7 +165,6 @@ class m_newaccounts extends IModule
             from newbills b, newbill_lines l
             where
                     client_id = '" . $fixclient_data["id"] . "'
-                and biller_version = '" . ClientAccount::VERSION_BILLER_USAGE . "'
                 and b.bill_no = l.bill_no
                 and state_1c != 'Отказ'
             group by l.type, b.currency") as $s) {
@@ -407,7 +406,6 @@ class m_newaccounts extends IModule
                 left join tt_stages ts on  (ts.stage_id = t. cur_stage_id)
             where
                 client_id=' . $fixclient_data['id'] . '
-                and biller_version = ' . $clientAccount->account_version . '
                 ' . ($isMulty && !$isViewCanceled ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
                 ) bills  ' .
             (($get_income_goods_on_bill_list) ? 'union
@@ -3559,7 +3557,7 @@ where cg.inn = '" . $inn . "'";
     {
         global $db;
 
-        $where = "sum < 0 and client_id in ('" . implode("','", $clientsIds) . "')  and biller_version = " . ClientAccount::VERSION_BILLER_USAGE;
+        $where = "sum < 0 and client_id in ('" . implode("','", $clientsIds) . "')";
 
         $v = array();
 
@@ -3612,7 +3610,7 @@ where c.pay_acc = '" . $acc . "'";
 
         $r = $db->GetRow("select client_id from newbills b, clients c
  INNER JOIN `client_contract` cr ON cr.id=c.contract_id
-where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_id in ('" . implode("','", $organizations) . "') and biller_version = " . ClientAccount::VERSION_BILLER_USAGE);
+where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_id in ('" . implode("','", $organizations) . "')");
         return $r ? array($r["client_id"]) : false;
 
     }
@@ -3845,7 +3843,6 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             $W1 = array("and", "~~where_owner~~");
 
             $W1[] = 'newbills.sum > 0';
-            $W1[] = 'newbills.biller_version = ' . ClientAccount::VERSION_BILLER_USAGE;
 
             if ($cl_status) {
                 $W1[] = 'status in ("' . implode('", "', $cl_status) . '")';
@@ -4000,7 +3997,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
         } else {
             $sum[$fixclient_data['currency']] = array('delta' => 0, 'bill' => 0, 'ts' => '');
         }
-        $R1 = $db->AllRecords('select *,' . ($sum[$fixclient_data['currency']]['ts'] ? 'IF(bill_date>="' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)' : '1') . ' as in_sum from newbills where client_id=' . $fixclient_data['id'] . '  and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . ' order by bill_no desc');
+        $R1 = $db->AllRecords('select *,' . ($sum[$fixclient_data['currency']]['ts'] ? 'IF(bill_date>="' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)' : '1') . ' as in_sum from newbills where client_id=' . $fixclient_data['id'] . ' order by bill_no desc');
         $R2 = $db->AllRecords('select P.*,U.user as user_name,' . ($sum[$fixclient_data['currency']]['ts'] ? 'IF(P.payment_date>="' . $sum[$fixclient_data['currency']]['ts'] . '",1,0)' : '1') . ' as in_sum from newpayments as P LEFT JOIN user_users as U on U.id=P.add_user where P.client_id=' . $fixclient_data['id'] . ' order by P.payment_date desc');
 
         foreach ($R1 as $r) {
@@ -4118,7 +4115,6 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             }
             $W1[] = "newbills.nal in ('" . implode("','", array_keys($nal)) . "')";
             $W1[] = 'is_payed in (0,2)';
-            $W1[] = 'newbills.biller_version = ' . ClientAccount::VERSION_BILLER_USAGE;
 
             if (!$cl_off) {
                 $W1[] = 'status="work"';
@@ -4240,7 +4236,7 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                     INNER JOIN clients c ON (clients.id=newbills.client_id)
                      INNER JOIN `client_contract` cr ON cr.id=c.contract_id
                      INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
-                    WHERE bill_no LIKE "' . $search . '%" OR bill_no_ext LIKE "' . $search . '%" and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . ' ORDER BY client,bill_no LIMIT 1000');
+                    WHERE bill_no LIKE "' . $search . '%" OR bill_no_ext LIKE "' . $search . '%" ORDER BY client,bill_no LIMIT 1000');
 
             if (!$R) {
                 $R = $db->AllRecords(
@@ -4250,7 +4246,6 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                          INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
                         WHERE c.id=b.client_id
                         and b.bill_no = i.bill_no and i.req_no = "' . $search . '"
-                        and biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . '
                         ORDER BY c.client, b.bill_no LIMIT 1000');
             }
 
@@ -4290,7 +4285,6 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
                 'newbills.currency=clients.currency',
                 'saldo_ts IS NULL OR newbills.bill_date>=saldo_ts'
             );
-            $W1[] = ['AND', 'biller_version = ' . ClientAccount::VERSION_BILLER_USAGE];
 
             $W2 = array('AND', 'P.client_id=clients.id');
             $W2[] = array(
@@ -4521,7 +4515,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                 newbills b, newbill_lines l
             where
                     b.bill_no = l.bill_no
-                and biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
                 and client_id = '" . $fixclient_data['id'] . "'
                 and type='zalog'
                 and b.bill_date<='" . $date_to . "'") as $z) {
@@ -4749,7 +4742,6 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         FROM `newbills`
                         WHERE
                             `doc_date` BETWEEN '" . $date_from . "' AND '" . $date_to . "'  #выбор счетов-фактур с утановленной датой документа
-                             and biller_version = " . ClientAccount::VERSION_BILLER_USAGE . "
 
                         UNION 
                         
@@ -5248,7 +5240,6 @@ SELECT cr.manager, cr.account_manager FROM clients c
           INNER JOIN `client_contragent` cg ON cg.id=cr.contragent_id
           where 
                   postreg = "' . date('Y-m-d', $from) . '"
-              and B.biller_version = ' . ClientAccount::VERSION_BILLER_USAGE . '
           group by C.id order by B.bill_no');
         foreach ($R as &$r) {
             $r['ord'] = ++$ord;
