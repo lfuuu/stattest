@@ -1,4 +1,6 @@
 <?php
+
+use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
 use app\models\mail\MailJob as MailJobModel;
 use app\models\Number;
@@ -191,6 +193,8 @@ class m_mail{
 		$clients = get_param_raw('clients',array());
 		$flag = get_param_raw('flag',array());
 		$flag2 = get_param_raw('flag2',array());
+        $ack = get_param_raw('ack', 0);
+
 		if(is_array($clients)){
 			$V = array();
 			$db->Query('select client from mail_letter where job_id='.$id);
@@ -230,9 +234,6 @@ class m_mail{
 		foreach($filter as $type=>$p)
 			if($p[0]!='NO')
 				switch($type){
-					case 'status':
-						$W[] = 'C.status="'.addslashes($p[0]).'"';
-						break;
 					case 'manager':
 						$W[] = 'CC.manager="'.addslashes($p[0]).'"';
 						break;
@@ -351,7 +352,7 @@ class m_mail{
 		$design->assign('f_regions', $f_regions);
 		$design->assign('f_tarifs', $f_tarifs);
 		$J[] = 'LEFT JOIN client_contacts as M ON M.type="email" AND M.client_id=C.id AND M.is_official=1';
-		$ack = get_param_raw('ack',0);
+
 		$C = array();
 		$R = $db->AllRecords('
 			select
@@ -371,6 +372,10 @@ class m_mail{
 				selected desc,
 				C.client asc
 		');
+
+        if ($ack) {
+            $W[] = 'CC.business_process_status_id = ' . BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK;
+        }
 		
 		foreach($R as $r)
 			$C[$r['id']] = $r;
@@ -383,9 +388,9 @@ class m_mail{
 					IF(M.data="",0,1) as filtered
 				from
 					clients as C
-				'.implode(' ',$J).'
+				' . implode(' ', $J) . '
 				WHERE
-				'.MySQLDatabase::Generate($W).'
+				' . MySQLDatabase::Generate($W) . '
 				GROUP BY
 					C.id
 				ORDER BY

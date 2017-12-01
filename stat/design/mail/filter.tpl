@@ -7,7 +7,6 @@
 <input type=hidden name=id value={$mail_id}>
 <input type=hidden name=module value=mail>
 <input type="hidden" name="filter[organization][0]" value="{$mail_filter.organization.0}">
-<input type="hidden" name="filter[status][0]" value="{$mail_filter.status.0}">
 <input type="hidden" name="filter[region_for][0]" value="{$mail_filter.region_for.0}">
 <input type="hidden" name="filter[manager][0]" value="{$mail_filter.manager.0}">
 <input type="hidden" name="filter[bill][0]" value="{$mail_filter.bill.0}">
@@ -43,6 +42,7 @@
 </TR>
 {/if}{/foreach}
 </TBODY></TABLE>
+	<div>Количество: {$smarty.foreach.outer.iteration}</div>
 <INPUT id=submit class=button type=submit value="Добавить всех этих клиентов в список на отправку">
 </FORM>
 <script>
@@ -78,7 +78,7 @@ function check_all2(){ldelim}
 </select>
 </td></tr>
 <TR><TD>Статус клиента</TD><TD>
-<select name='filter[status][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_status item=r key=k}<option value={$k} {if $mail_filter.status.0 == $k}selected="selected"{/if}>{$r.name}</option>{/foreach}</select>
+Включенный
 </td></tr>
 <TR><TD>Менеджер</TD><TD>
 <select name='filter[manager][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$mail_filter.manager.0} selected="selected"{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
