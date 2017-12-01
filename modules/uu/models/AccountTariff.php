@@ -203,7 +203,8 @@ class AccountTariff extends ActiveRecord
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
 
-            [['infrastructure_project', 'infrastructure_level', 'price'], 'integer'],
+            [['infrastructure_project', 'infrastructure_level'], 'integer'],
+            [['price'], 'number'],
             [
                 ['price'],
                 'required',
