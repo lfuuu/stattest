@@ -19,10 +19,6 @@ class m_services extends IModule
 {
     function GetMain($action, $fixclient)
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
         if (!isset($this->actions[$action])) {
             return;
         }
@@ -83,11 +79,8 @@ class m_services extends IModule
 
     function services_in_report()
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
         global $design, $db;
+
         $def = getdate();
         $from = param_load_date('from_', $def);
         $to = param_load_date('to_', $def);
@@ -335,11 +328,8 @@ class m_services extends IModule
 
     function services_in_view($fixclient)
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
         global $design, $db, $user;
+
         if (!$this->fetch_client($fixclient)) {
             $R = [];
             $db->Query('select router from tech_routers');
@@ -372,50 +362,8 @@ class m_services extends IModule
         }
     }
 
-    function services_in_view_ind($fixclient)
-    {
-        global $design;
-        /*
-        $connections=array();
-        $ports=$this->get_ports($fixclient,0,'(usage_ip_ports.node REGEXP "^[0-9]{7}") and (usage_ip_ports.port="mgts")');
-        foreach ($ports as $id_port=>$port) if ($port['actual2']){
-            $connections[$id_port]['nets']=$this->get_nets($id_port,'(actual_to>NOW())');
-            $connections[$id_port]['data']=$port;
-        };
-
-        $design->assign('services_conn',$connections);
-        $design->assign('show_client',1);
-        $design->assign('internet_suffix','internet');
-        $design->AddMain('services/internet_tiny.tpl'); */
-        trigger_error2('TODO9 - временно отключено');
-    }
-
-    function services_in_view_routed($fixclient)
-    {
-        /*        global $design;
-        $router=get_param_protected('router','');
-        if (!$router) {trigger_error2('Не выбран роутер'); return;}
-        $connections=array();
-        $ports=$this->get_ports($fixclient,0,'(usage_ip_ports.node="'.$router.'") and (usage_ip_ports.port!="mgts")');
-        foreach ($ports as $id_port=>$port) if ($port['actual2']){
-            $connections[$id_port]['nets']=$this->get_nets($id_port,'(actual_to>NOW())');
-            $connections[$id_port]['data']=$port;
-        };
-
-        $design->assign('services_conn',$connections);
-        $design->assign('show_client',1);
-        $design->assign('internet_suffix','internet');
-        $design->AddMain('services/internet_tiny.tpl'); */
-        trigger_error2('TODO9 - временно отключено');
-    }
-
     function services_in_add($fixclient, $suffix = "internet", $tarif_type = "")
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
-        global $design, $db;
         if (!$this->fetch_client($fixclient)) {
             trigger_error2('Не выбран клиент');
             return;
@@ -438,9 +386,7 @@ class m_services extends IModule
 
     function services_in_apply($fixclient, $suffix = 'internet', $suffix2 = 'in')
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
+        global $design;
 
         if (!$this->fetch_client($fixclient)) {
             trigger_error2('Не выбран клиент');
@@ -462,11 +408,8 @@ class m_services extends IModule
 
     function services_in_add2($fixclient, $id = '', $suffix = "internet")
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
+        global $db;
 
-        global $db, $design;
         if (!$this->fetch_client($fixclient)) {
             trigger_error2('Не выбран клиент');
             return;
@@ -495,10 +438,6 @@ class m_services extends IModule
 
     function services_in_apply2($fixclient, $suffix = 'internet', $suffix2 = 'in')
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
         if (!$this->fetch_client($fixclient)) {
             trigger_error2('Не выбран клиент');
             return;
@@ -524,11 +463,8 @@ class m_services extends IModule
 
     function services_in_act($fixclient, $suffix = "internet")
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
         global $design, $db;
+
         $id = get_param_protected('id');
         if ($id == '') {
             return;
@@ -585,11 +521,8 @@ class m_services extends IModule
 
     function services_in_act_pon($fixclient, $suffix = "internet")
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
         global $design, $db;
+
         $id = get_param_protected('id');
         if ($id == '') {
             return;
@@ -642,45 +575,6 @@ class m_services extends IModule
             exit();
         }
         $design->ProcessEx('../store/acts/' . $suffix . '_act_pon.tpl');
-    }
-
-    function services_in_close($fixclient, $suffix = 'internet')
-    {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
-        global $design, $db;
-
-        trigger_error2("<h1><b>Вы сделали недопустимое действие! За вами выехали!</b></h1>");
-        mail("dga@mcn.ru", "error in_close", "error in_close\n look logs");
-
-        if (false) {
-            if (!$this->fetch_client($fixclient)) {
-                trigger_error2('Не выбран клиент');
-                return;
-            }
-            $id = get_param_integer('id', '');
-            if (!$id) {
-                return;
-            }
-            $db->Query('select usage_ip_ports.*,tech_ports.port_name from usage_ip_ports LEFT JOIN tech_ports on tech_ports.id=usage_ip_ports.port_id where usage_ip_ports.id=' . $id);
-            if (!$r = $db->NextRecord()) {
-                return;
-            }
-
-            $block = 0;
-            $db->Query('update usage_ip_routes set actual_to=NOW() where (port_id=' . $id . ') and (actual_to>NOW())');
-            $db->Query('update usage_ip_ports set actual_to=NOW() where (id=' . $id . ') and (actual_to>NOW())');
-
-            $this->routes_check($r['client']);
-        }
-
-        if ($suffix == 'internet') {
-            $this->services_in_view($fixclient);
-        } else {
-            $this->services_co_view($fixclient);
-        }
     }
 
 // =========================================================================================================================================
@@ -3194,11 +3088,8 @@ class m_services extends IModule
 
     function get_ports($client, $C, $wh = '', $select = '', $join = '', $order = 'usage_ip_ports.id ASC')
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
         global $db;
+
         $cidT = is_numeric($client) ? 'c.id' : 'c.client';
         $db->Query($q = '
             SELECT
@@ -3267,11 +3158,8 @@ class m_services extends IModule
 
     function get_nets($port, $whsql = '')
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
-
         global $db;
+
         $db->Query($q = '
             SELECT
                 *,
@@ -3289,11 +3177,8 @@ class m_services extends IModule
 
     function fetch_client($fixclient)
     {
-        if (AccountTariff::isUuAccount()) {
-            return [];
-        }
+        global $design;
 
-        global $db, $design;
         if (isset($this->fetched_client)) {
             return 1;
         }
