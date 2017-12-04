@@ -12,10 +12,11 @@ class RegionColumn extends DataColumn
     public $value = 'region.name';
     public $label = 'Регион';
     public $filterType = GridView::FILTER_SELECT2;
+    public $typeId = null;
 
     public function __construct($config = [])
     {
-        $this->filter = Region::getList($isWithEmpty = true);
         parent::__construct($config);
+        $this->filter = Region::getList($isWithEmpty = true, $countryId = null, $this->typeId);
     }
 }

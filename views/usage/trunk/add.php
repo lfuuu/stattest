@@ -44,7 +44,7 @@ echo Breadcrumbs::widget([
             <div class="col-sm-4">
                 <?= $form
                     ->field($model, 'connection_point_id')
-                    ->dropDownList(Region::getList($isWithEmpty = true), ['class' => 'select2 form-reload'])
+                    ->dropDownList(Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_POINT]), ['class' => 'select2 form-reload'])
                 ?>
             </div>
             <div class="col-sm-4">

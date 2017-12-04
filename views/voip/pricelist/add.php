@@ -36,7 +36,7 @@ echo Breadcrumbs::widget([
         'columns' => 4,
         'attributes' => [
             'name' => ['type' => Form::INPUT_TEXT],
-            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::getList($isWithEmpty = true), 'options' => ['class' => 'select2']],
+            'connection_point_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=> Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_POINT]), 'options' => ['class' => 'select2']],
             'currency_id' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['class' => 'select2']],
             'status' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items'=>['' => '----'] + Pricelist::$states, 'options' => ['class' => 'select2']],
         ],

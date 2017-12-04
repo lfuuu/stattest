@@ -132,11 +132,13 @@ class Region extends ActiveRecord
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
      * @param int $countryId
+     * @param int[] $typeId
      * @return string[]
      */
     public static function getList(
         $isWithEmpty = false,
-        $countryId = null
+        $countryId = null,
+        $typeId = null
     ) {
         return self::getListTrait(
             $isWithEmpty,
@@ -146,7 +148,7 @@ class Region extends ActiveRecord
             $orderBy = ['name' => SORT_ASC],
             $where = [
                 'AND',
-                ['type_id' => [self::TYPE_NODE, self::TYPE_POINT]],
+                ['type_id' => $typeId?:[self::TYPE_NODE, self::TYPE_POINT]],
                 $countryId ? ['country_id' => $countryId] : []
             ]
         );

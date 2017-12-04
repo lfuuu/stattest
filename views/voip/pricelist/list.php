@@ -3,6 +3,7 @@
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\billing\Pricelist;
+use app\models\Region;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 
@@ -62,6 +63,7 @@ $columns = [
         'class' => \app\classes\grid\column\RegionColumn::className(),
         'attribute' => 'connection_point_id',
         'label' => 'Точка присоединения',
+        'typeId' => [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_POINT],
         'value' => function ($data) use ($connectionPoints) {
             return $connectionPoints[$data->region];
         },
