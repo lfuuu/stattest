@@ -116,10 +116,11 @@ abstract class TariffForm extends \app\classes\Form
                     'tariff_status_id' => $post['Tariff']['tariff_status_id'],
                     'tag_id' => $post['Tariff']['tag_id'],
                     'is_default' => $post['Tariff']['is_default'],
+                    'is_charge_after_blocking' => $post['Tariff']['is_charge_after_blocking'],
                 ];
             }
 
-            unset($post['TariffPeriod'], $post['TariffResource']);
+            unset($post['TariffPeriod'], $post['TariffResource'], $post['Package']);
         }
 
         switch ($this->tariff->service_type_id) {

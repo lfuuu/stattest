@@ -137,7 +137,7 @@ $viewParams = [
         </div>
 
         <div class="col-sm-4">
-            <?= $form->field($tariff, 'is_charge_after_blocking')->checkbox($options) ?>
+            <?= $form->field($tariff, 'is_charge_after_blocking')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
         </div>
     </div>
 
