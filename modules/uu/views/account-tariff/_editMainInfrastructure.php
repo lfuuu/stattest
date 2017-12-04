@@ -22,7 +22,13 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
     <div class="col-sm-2">
         <?= $form->field($accountTariff, 'city_id')
             ->widget(Select2::className(), [
-                'data' => City::getList($isWithEmpty = true),
+                'data' => City::getList(
+                    $isWithEmpty = true,
+                    $countryId = null,
+                    $isWithNullAndNotNull = false,
+                    $isUsedOnly = false,
+                    $isShowInLk = false
+                ),
             ]) ?>
     </div>
 
