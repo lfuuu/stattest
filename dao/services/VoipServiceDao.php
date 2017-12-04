@@ -3,6 +3,8 @@
 namespace app\dao\services;
 
 use app\dao\UsageDao;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use Yii;
 use app\models\TariffVoip;
 use app\models\ClientAccount;
@@ -68,6 +70,28 @@ class VoipServiceDao extends UsageDao
             ->client($client->client)
             ->actual()
             ->count() > 0;
+    }
+
+    /**
+     * Включена ли хоть одна услуга номера на ЛС
+     *
+     * @param integer|ClientAccount $account
+     * @return bool
+     */
+    public function isVoipExists($account)
+    {
+        if (!($account instanceof ClientAccount)) {
+            $account = ClientAccount::findOne(['id' => (int)$account]);
+        }
+
+        if (!$account) {
+            throw new \LogicException('account not found');
+        }
+
+        return
+            UsageVoip::find()->where(['client' => $account->client])->exists()
+            || AccountTariff::isServiceExists($account->id, ServiceType::ID_VOIP);
+
     }
 
 }

@@ -6,6 +6,8 @@ use app\classes\Singleton;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;
+use app\models\UsageVirtpbx;
+use app\models\UsageVoip;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
@@ -184,6 +186,10 @@ class ApiVpbx extends Singleton
             'to_account_id' => $toAccountId,
             'to_stat_product_id' => $toUsageId
         ];
+
+        if (UsageVirtpbx::dao()->isVpbxExists($toAccountId) && UsageVoip::dao()->isVoipExists($toAccountId)) {
+            return $this->_exec('transfer', $query);
+        }
 
         return $this->_exec('transfer_vpbx_only', $query);
     }
