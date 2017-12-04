@@ -9,6 +9,7 @@ use app\modules\nnp\models\Region;
 use app\modules\nnp\models\City;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\db\Query;
 
 /**
  * @property int $server_id integer NOT NULL
@@ -60,6 +61,7 @@ use yii\db\ActiveQuery;
  */
 class CallsRaw extends ActiveRecord
 {
+    const CALL_RAWS_REPORT_CACHE_KEY = 'call_raws_repor_cache_key';
     // псевдо-поля для \app\models\filter\CallsFilter::searchCost
     public $geo_ids = '';
 
@@ -201,5 +203,62 @@ class CallsRaw extends ActiveRecord
     public function getCity()
     {
         return $this->hasOne(City::className(), ['id' => 'nnp_city_id']);
+    }
+
+    /**
+     * Получаем уникальный ключ отчета
+     *
+     * @param Query $query
+     * @return string
+     */
+    public static function getCacheKey(Query $query)
+    {
+        return 'calls_raws_cache_' . md5($query->createCommand(CallsRaw::getDb())->rawSql);
+    }
+
+    /**
+     * Добавляем ключ отчета в список закешированного
+     *
+     * @param string $key
+     * @return bool
+     */
+    public static function addReportCacheKey($key)
+    {
+        $cache = Yii::$app->cache;
+
+        if (!$cache->exists(self::CALL_RAWS_REPORT_CACHE_KEY)) {
+            $cache->set(self::CALL_RAWS_REPORT_CACHE_KEY, []);
+        }
+
+        $keys = $cache->get(self::CALL_RAWS_REPORT_CACHE_KEY);
+
+        if (isset($keys[$key])) { // ключ уже добавлен
+            return true;
+        }
+
+        $keys[$key] = true;
+
+        return $cache->set(self::CALL_RAWS_REPORT_CACHE_KEY, $keys);
+    }
+
+    /**
+     * Удаляем закешированные данные
+     *
+     * @return bool
+     */
+    public static function clearReportCache()
+    {
+        $cache = Yii::$app->cache;
+        if (!$cache->exists(self::CALL_RAWS_REPORT_CACHE_KEY)) { // нечего очищать
+            return true;
+        }
+
+        foreach ($cache->get(self::CALL_RAWS_REPORT_CACHE_KEY) as $key => $value) {
+            $cache->delete($key);
+        }
+
+        $cache->delete(self::CALL_RAWS_REPORT_CACHE_KEY);
+
+        return true;
     }
 }

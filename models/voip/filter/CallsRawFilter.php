@@ -639,7 +639,6 @@ class CallsRawFilter extends CallsRaw
                 ->groupBy($groups)
                 ->orderBy($sort[0]);
 
-            $count = $query->liteRowCount($this->dbConn);
         } else {
             $sort = [
                 'connect_time',
@@ -666,22 +665,26 @@ class CallsRawFilter extends CallsRaw
                 'term_rate',
                 'pdd',
             ];
+        }
 
-            $count = $query->liteRowCount($this->dbConn);
+        $queryCacheKey = CallsRaw::getCacheKey($query);
 
-            /**
-             * Метод получения количества записей на основе статистики неточен.
-             * Посему не следуют его использовать, если его неточность может повлить на вычисление количества страниц.
-             */
-            if ($count < self::EXACT_COUNT_LIMIT) {
-                $count = $query->rowCount($this->dbConn);
+        if (Yii::$app->cache->exists($queryCacheKey)) {
+            $result = Yii::$app->cache->get($queryCacheKey);
+        } else {
+            $result = $query->createCommand(CallsRaw::getDb())->queryAll();
+            if ($result !== false) {
+                Yii::$app->cache->set($queryCacheKey, $result);
+                CallsRaw::addReportCacheKey($queryCacheKey);
             }
         }
 
-        return new ActiveDataProvider(
+        $count = count($result);
+
+
+        return new ArrayDataProvider(
             [
-                'db' => $this->dbConn,
-                'query' => $query,
+                'allModels' => $result,
                 'pagination' => [],
                 'totalCount' => $count,
                 'sort' => [
