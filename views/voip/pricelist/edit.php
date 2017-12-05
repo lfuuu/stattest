@@ -40,7 +40,7 @@ echo Breadcrumbs::widget([
             'name' => ['type' => Form::INPUT_TEXT],
             'connection_point_id' => [
                 'type' => Form::INPUT_DROPDOWN_LIST,
-                'items' => Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_POINT]),
+                'items' => Region::getList($isWithEmpty = true, $countryId = null, [Region::TYPE_HUB, Region::TYPE_POINT, Region::TYPE_NODE]),
                 'options' => ['disabled' => true]
             ],
             'currency_id' => [
