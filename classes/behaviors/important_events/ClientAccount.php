@@ -12,6 +12,9 @@ use yii\base\Behavior;
 use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
 
+/**
+ * Class ClientAccount
+ */
 class ClientAccount extends Behavior
 {
 

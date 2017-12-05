@@ -25,6 +25,19 @@ return [
     'SberbankApi' => [
         'user' => '',
         'password' => ''
-    ]
+    ],
+
+    'PayPal' => [
+        'default' => [ // TEL2TEL_KFT || TEL2TEL_LTD
+            'user' => '',
+            'password' => '',
+            'signature' => '',
+        ],
+        \app\models\Organization::TEL2TEL_GMBH => [
+            'user' => '',
+            'password' => '',
+            'signature' => '',
+        ]
+    ],
 
 ];

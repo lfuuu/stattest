@@ -178,11 +178,7 @@ class YandexProcessor
         $objNow = new ActiveRecord\DateTime();
         $now = $objNow->format("db");
 
-        $b = NewBill::getLastUnpayedBill($client->id);
-
-        if (!$b) {
-            $b = NewBill::createBillOnPay($client->id, $this->data["orderSumAmount"]);
-        }
+        $b = \app\models\Bill::dao()->getPrepayedBillOnSum($client->id, $this->data["orderSumAmount"], \app\models\Currency::RUB);
 
         $payment = new \app\models\Payment();
         $payment->client_id = $client->id;

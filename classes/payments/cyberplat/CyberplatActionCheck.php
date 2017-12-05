@@ -83,7 +83,7 @@ class CyberplatActionCheck
 
         $now = new \DateTime();
 
-        $b = Bill::dao()->getPrepayedBillOnSum($client->id, $data["amount"]);
+        $b = Bill::dao()->getPrepayedBillOnSum($client->id, $data["amount"], Currency::RUB);
 
         $payment = new Payment();
         $payment->client_id = $client->id;

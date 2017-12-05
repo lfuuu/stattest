@@ -62,9 +62,5 @@ return array(
     "AUTOCREATE_SIP_ACCOUNT" => 0, //автоматическое создание учеток при заведении номера
     "AUTOCREATE_VPBX" => 0, // автоматическое создание vpbx после включения услуги
 
-  'paypal_user' => '',
-  'paypal_password' => '',
-  'paypal_signature' => '',
-
   'WELLTIME_INTEGRATION' => false
 );

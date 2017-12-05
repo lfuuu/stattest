@@ -568,20 +568,21 @@ SQL;
      *
      * @param int $accountId
      * @param float $sum
+     * @param string $currency
      * @param bool $isForceCreate
      * @return Bill
      */
-    public function getPrepayedBillOnSum($accountId, $sum, $isForceCreate = false)
+    public function getPrepayedBillOnSum($accountId, $sum, $currency = Currency::RUB, $isForceCreate = false)
     {
         if (!$isForceCreate) {
-            $billNo = $this->getPrepayedBillNoOnSumFromDB($accountId, $sum);
+            $billNo = $this->getPrepayedBillNoOnSumFromDB($accountId, $sum, $currency);
 
             if ($billNo) {
                 return Bill::findOne(['bill_no' => $billNo]);
             }
         }
 
-        return $this->createBillOnSum($accountId, $sum);
+        return $this->createBillOnSum($accountId, $sum, $currency);
     }
 
     /**
@@ -589,7 +590,8 @@ SQL;
      *
      * @param int $accountId
      * @param float $sum
-     * @return null|Bill
+     * @param string $currency
+     * @return Bill|null
      */
     public function getPrepayedBillNoOnSumFromDB($accountId, $sum, $currency = Currency::RUB)
     {
@@ -643,17 +645,19 @@ SQL;
      * @throws \Exception
      * @internal param bool|false $createAutoLkLog
      */
-    public function createBillOnSum($accountId, $sum)
+    public function createBillOnSum($accountId, $sum, $currency)
     {
         $clientAccount = ClientAccount::findOne(['id' => $accountId]);
 
         $transaction = Yii::$app->db->beginTransaction();
         try {
 
-            $bill = self::me()->createBill($clientAccount);
+            $bill = self::me()->createBill($clientAccount, $currency);
 
             $bill->is_user_prepay = 1;
-            $bill->save();
+            if (!$bill->save()) {
+                throw new ModelValidationException($bill);
+            }
 
             $bill->addLine(
                 Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->country->lang)),
@@ -677,18 +681,21 @@ SQL;
      * Создание пустого счета
      *
      * @param ClientAccount $clientAccount
-     * @param \DateTime|null $date
+     * @param string $currency
      * @return Bill
+     * @internal param \DateTime|null $date
      */
-    public function createBill(ClientAccount $clientAccount, \DateTime $date = null)
+    public function createBill(ClientAccount $clientAccount, $currency = null)
     {
-        if (!$date) {
-            $date = new \DateTime('now', new \DateTimeZone($clientAccount->timezone_name));
+        $date = new \DateTime('now', new \DateTimeZone($clientAccount->timezone_name));
+
+        if (!$currency) {
+            $currency = $clientAccount->currency;
         }
 
         $bill = new Bill();
         $bill->client_id = $clientAccount->id;
-        $bill->currency = $clientAccount->currency;
+        $bill->currency = $currency;
         $bill->bill_no = self::me()->spawnBillNumber($date, $clientAccount->contract->organization_id);
         $bill->bill_date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         $bill->nal = $clientAccount->nal;

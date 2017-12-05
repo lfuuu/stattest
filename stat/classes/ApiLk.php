@@ -1,4 +1,6 @@
 <?php
+
+use app\classes\api\PayPal;
 use app\classes\Assert;
 use app\classes\Encrypt;
 use app\classes\Language;
@@ -2511,14 +2513,14 @@ class ApiLk
 
         $lang = Language::normalizeLang($lang);
 
-        $paypal = new \PayPal();
+        $paypal = new PayPal();
         $paypal->setHost($host);
         return $paypal->getPaymentToken($accountId, $sum, $account->currency, $lang);
     }
 
     public static function paypalApply($token, $payerId)
     {
-        $paypal = new \PayPal();
+        $paypal = new PayPal();
         return ['result' => $paypal->paymentApply($token, $payerId)];
     }
 }
