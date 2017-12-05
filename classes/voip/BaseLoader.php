@@ -2,9 +2,6 @@
 
 namespace app\classes\voip;
 
-use app\classes\Event;
-use Yii;
-use app\models\billing\PricelistFile;
 use yii\base\Object;
 
 abstract class BaseLoader extends Object
@@ -322,16 +319,16 @@ abstract class BaseLoader extends Object
         });
 
         $definfo = new DefInfo();
-        $defs2 = array();
+        $defs2 = [];
         $pre_def = '';
         $pre_country_id = '';
         $pre_city_region_id = '';
         $pre_price = '';
         $pre_l = 0;
-        $m_def = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-        $m_country_id = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-        $m_city_region_id = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
-        $m_price = array('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
+        $m_def = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+        $m_country_id = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+        $m_city_region_id = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
+        $m_price = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
         foreach ($defs as $k => $v) {
 
             $def = $v['prefix'];
@@ -399,8 +396,8 @@ abstract class BaseLoader extends Object
         while ($nnn > 0) {
             $nnn = 0;
             $defs2 = $defs3;
-            $defs3 = array();
-            $m = array();
+            $defs3 = [];
+            $m = [];
             $pre_len = 0;
             $pre_subdef = '';
             $pre_country_id = '';
@@ -429,7 +426,7 @@ abstract class BaseLoader extends Object
                         $nnn = $nnn + 1;
                     }
 
-                    $m = array($v);
+                    $m = [$v];
                 } else {
                     $m[] = $v;
                 }

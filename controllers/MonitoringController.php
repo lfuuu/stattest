@@ -7,7 +7,6 @@ use app\classes\monitoring\MonitorFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\dao\MonitoringDao;
 use app\exceptions\ModelValidationException;
-use app\forms\transfer\ServiceTransferForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\models\filter\EventQueueFilter;

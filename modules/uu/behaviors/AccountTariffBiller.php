@@ -4,6 +4,7 @@ namespace app\modules\uu\behaviors;
 
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
+use app\models\EventQueue;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\tarificator\AccountEntryTarificator;
@@ -50,7 +51,7 @@ class AccountTariffBiller extends Behavior
         $accountTariff = $accountTariffLog->accountTariff;
         $accountTariffId = $accountTariff->id;
 
-        \app\classes\Event::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
+        EventQueue::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
                 'account_tariff_id' => $accountTariffId,
                 'client_account_id' => $accountTariff->client_account_id,
             ]

@@ -2,9 +2,9 @@
 
 namespace app\classes\behaviors;
 
-use app\classes\Event;
-use yii\db\ActiveRecord;
+use app\models\EventQueue;
 use yii\base\Behavior;
+use yii\db\ActiveRecord;
 
 class ClientAccountSyncEvent extends Behavior
 {
@@ -23,7 +23,7 @@ class ClientAccountSyncEvent extends Behavior
             &&
             $event->changedAttributes['is_blocked'] != $event->sender->is_blocked
         ) {
-            Event::go($event->sender->is_blocked ? Event::ACCOUNT_BLOCKED : Event::ACCOUNT_UNBLOCKED, ['account_id' => $event->sender->id]);
+            EventQueue::go($event->sender->is_blocked ? EventQueue::ACCOUNT_BLOCKED : EventQueue::ACCOUNT_UNBLOCKED, ['account_id' => $event->sender->id]);
         }
     }
 }

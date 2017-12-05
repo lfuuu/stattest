@@ -2,12 +2,9 @@
 
 namespace app\classes\behaviors;
 
-use app\models\ClientAccount;
-use app\models\ContractType;
-use app\models\Country;
+use app\models\EventQueue;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
-use app\classes\Event;
 
 
 class ActualizeClientVoip extends Behavior
@@ -27,7 +24,7 @@ class ActualizeClientVoip extends Behavior
 
                 //TODO: need log event
 
-                Event::go(Event::ACTUALIZE_CLIENT, ["client_id" => $event->sender->id]);
+                EventQueue::go(EventQueue::ACTUALIZE_CLIENT, ["client_id" => $event->sender->id]);
 
             }
         }

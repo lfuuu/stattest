@@ -2,7 +2,7 @@
 
 namespace app\classes\behaviors;
 
-use app\classes\Event;
+use app\models\EventQueue;
 use app\models\UsageVirtpbx;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
@@ -33,7 +33,7 @@ class UpdateTask extends Behavior
         }
 
         $isRealChanged = false;
-        foreach($event->changedAttributes as $attr => $value) {
+        foreach ($event->changedAttributes as $attr => $value) {
             if ($event->sender->{$attr} != $value) {
                 $isRealChanged = true;
                 break;
@@ -41,11 +41,11 @@ class UpdateTask extends Behavior
         }
 
         if (!$isRealChanged) {
-            return ;
+            return;
         }
 
         if ($this->model == UsageVirtpbx::tableName()) {
-            Event::go(Event::CHECK__VIRTPBX3, [
+            EventQueue::go(EventQueue::CHECK__VIRTPBX3, [
                 'client_id' => $event->sender->clientAccount->id,
                 'usage_id' => $event->sender->id,
             ]);

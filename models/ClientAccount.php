@@ -12,7 +12,6 @@ use app\classes\behaviors\SetOldStatus;
 use app\classes\behaviors\SetTaxVoip;
 use app\classes\BillContract;
 use app\classes\DateTimeWithUserTimezone;
-use app\classes\Event;
 use app\classes\Html;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\Utils;
@@ -301,7 +300,7 @@ class ClientAccount extends HistoryActiveRecord
             'ClientAccountSyncEvent' => ClientAccountSyncEvent::className(),
             'EventQueueAddEvent' => [
                 'class' => EventQueueAddEvent::className(),
-                'insertEvent' => Event::ADD_ACCOUNT
+                'insertEvent' => EventQueue::ADD_ACCOUNT
             ],
             'EffectiveVATRate' => EffectiveVATRate::className(),
             'SetTaxVoip' => SetTaxVoip::className(),

@@ -8,7 +8,7 @@ use app\models\EventQueue;
 /**
  * В очереди не должно быть ошибочных записей
  */
-class MonitorQueueStopped extends Monitor
+class MonitorQueue extends Monitor
 {
     /**
      * 3 значения, начиная с которого Warning/Critical/Error
@@ -28,10 +28,10 @@ class MonitorQueueStopped extends Monitor
     public function getValue()
     {
         return EventQueue::find()
-            ->where(['status' => [EventQueue::STATUS_ERROR, EventQueue::STATUS_STOP]])
+            ->where(['status' => [EventQueue::STATUS_PLAN, EventQueue::STATUS_ERROR, EventQueue::STATUS_STOP]])
             ->andWhere([
-                '<',
-                'date',
+                '<=',
+                'next_start',
                 (new \DateTime())
                     ->modify('-2 minutes')
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT)

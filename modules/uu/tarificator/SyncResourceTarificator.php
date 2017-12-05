@@ -2,8 +2,8 @@
 
 namespace app\modules\uu\tarificator;
 
-use app\classes\Event;
 use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
@@ -49,7 +49,7 @@ class SyncResourceTarificator extends Tarificator
                         case ServiceType::ID_VOIP:
                             // Телефония
                             $number = $accountTariff->number;
-                            Event::go(\app\modules\uu\Module::EVENT_RESOURCE_VOIP, [
+                            EventQueue::go(\app\modules\uu\Module::EVENT_RESOURCE_VOIP, [
                                 'client_account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                                 'number' => $accountTariff->voip_number,
@@ -63,7 +63,7 @@ class SyncResourceTarificator extends Tarificator
 
                         case ServiceType::ID_VPBX:
                             // ВАТС
-                            Event::go(\app\modules\uu\Module::EVENT_RESOURCE_VPBX, [
+                            EventQueue::go(\app\modules\uu\Module::EVENT_RESOURCE_VPBX, [
                                 'client_account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                             ]);

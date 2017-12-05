@@ -1,9 +1,8 @@
 <?php
 
-namespace  app\classes\payments\cyberplat;
+namespace app\classes\payments\cyberplat;
 
 
-use app\classes\Event;
 use app\classes\payments\cyberplat\exceptions\AnswerErrorSign;
 use app\classes\payments\cyberplat\exceptions\AnswerErrorStatus;
 use app\classes\payments\cyberplat\exceptions\AnswerOk;
@@ -12,6 +11,7 @@ use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
 use app\models\Currency;
+use app\models\EventQueue;
 use app\models\Payment;
 
 class CyberplatActionCheck
@@ -105,7 +105,7 @@ class CyberplatActionCheck
             throw new ModelValidationException($payment);
         }
 
-        Event::go(Event::CYBERPLAT_PAYMENT,
+        EventQueue::go(EventQueue::CYBERPLAT_PAYMENT,
             ["client_id" => $client->id, "payment_id" => $payment->id]); // for start update balance
 
         $answer = new AnswerOkPayment();
@@ -135,10 +135,10 @@ class CyberplatActionCheck
         }
 
         $answer = new AnswerOkPayment();
-        $answer->setData(array(
+        $answer->setData([
                 "authcode" => $pay->id,
                 "date" => date(DateTimeZoneHelper::ISO8601_WITHOUT_TIMEZONE, strtotime($pay->add_date))
-            )
+            ]
         );
 
         return $answer;

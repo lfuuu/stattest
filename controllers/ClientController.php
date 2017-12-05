@@ -1,9 +1,9 @@
 <?php
+
 namespace app\controllers;
 
 use app\classes\Assert;
 use app\classes\BaseController;
-use app\classes\Event;
 use app\classes\grid\GridFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\forms\client\AccountEditForm;
@@ -13,6 +13,7 @@ use app\models\ClientAccount;
 use app\models\ClientContact;
 use app\models\ClientSearch;
 use app\models\ClientSuper;
+use app\models\EventQueue;
 use app\models\Number;
 use app\models\Saldo;
 use app\models\Trouble;
@@ -373,8 +374,8 @@ class ClientController extends BaseController
 
         Assert::isObject($contact);
 
-        Event::goWithIndicator(
-            Event::CORE_CREATE_OWNER,
+        EventQueue::goWithIndicator(
+            EventQueue::CORE_CREATE_OWNER,
             ['id' => $account->super_id, 'account_id' => $account->id, 'email' => $contact->data],
             ClientSuper::tableName(),
             $account->super_id);

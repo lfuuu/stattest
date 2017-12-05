@@ -3,11 +3,11 @@
 use app\classes\api\ApiCore;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
-use app\modules\uu\models\AccountTariff;
 use app\models\ActualVirtpbx;
 use app\models\ClientAccount;
+use app\models\EventQueue;
 use app\models\UsageVirtpbx;
-use app\classes\Event;
+use app\modules\uu\models\AccountTariff;
 
 class VirtPbx3Checker
 {
@@ -91,7 +91,7 @@ class VirtPbx3Checker
                 throw new Exception("Unknown type");
         }
 
-        $d = array();
+        $d = [];
         $query = Yii::$app->getDb()->createCommand($sql);
 
         if ($type == self::LOAD_ACTUAL) {
@@ -149,12 +149,12 @@ class VirtPbx3Checker
         l::ll(__CLASS__, __FUNCTION__,/*$saved, $actual,*/
             "...", "...");
 
-        $d = array(
+        $d = [
             "added" => [],
             "deleted" => [],
             "changed_data" => [],
             "changed_client" => []
-        );
+        ];
 
         foreach (array_diff(array_keys($saved), array_keys($actual)) as $l) {
             $d["deleted"][$l] = ['action' => 'del'] + $saved[$l];
@@ -293,9 +293,9 @@ class VirtPbx3Diff
      */
     public static function makeEvents($diff)
     {
-        foreach($diff as $type => $data) {
+        foreach ($diff as $type => $data) {
             foreach ($data as $value) {
-                Event::go(Event::SYNC__VIRTPBX3, $value);
+                EventQueue::go(EventQueue::SYNC__VIRTPBX3, $value);
             }
         }
     }
@@ -553,7 +553,7 @@ class VirtPbx3Action
         // Удаление переносимой услуги
         $usageId = $usage ? $usage->id : $uuUsage->id;
         $where = ['prev_usage_id' => $usageId];
-        return (bool) (UsageVirtpbx::find()->where($where)->exists() ?:
+        return (bool)(UsageVirtpbx::find()->where($where)->exists() ?:
             AccountTariff::find()->where($where)->exists());
     }
 

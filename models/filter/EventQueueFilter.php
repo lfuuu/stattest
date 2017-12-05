@@ -11,12 +11,10 @@ use yii\data\ActiveDataProvider;
 class EventQueueFilter extends EventQueue
 {
     public $id = '';
+    public $account_tariff_id = '';
 
     public $insert_time_from = '';
     public $insert_time_to = '';
-
-    public $date_from = '';
-    public $date_to = '';
 
     public $event = '';
     public $status = '';
@@ -33,9 +31,8 @@ class EventQueueFilter extends EventQueue
     public function rules()
     {
         return [
-            [['id'], 'integer'],
+            [['id', 'account_tariff_id'], 'integer'],
             [['insert_time_from', 'insert_time_to'], 'string'],
-            [['date_from', 'date_to'], 'string'],
             [['next_start_from', 'next_start_to'], 'string'],
             [['event', 'status'], 'string'],
             [['iteration_from', 'iteration_to'], 'integer'],
@@ -61,12 +58,10 @@ class EventQueueFilter extends EventQueue
         ]);
 
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
+        $this->account_tariff_id !== '' && $query->andWhere(['account_tariff_id' => $this->account_tariff_id]);
 
         $this->insert_time_from !== '' && $query->andWhere(['>=', 'insert_time', $this->insert_time_from]);
         $this->insert_time_to !== '' && $query->andWhere(['<=', 'insert_time', $this->insert_time_to]);
-
-        $this->date_from !== '' && $query->andWhere(['>=', 'date', $this->date_from]);
-        $this->date_to !== '' && $query->andWhere(['<=', 'date', $this->date_to]);
 
         $this->next_start_from !== '' && $query->andWhere(['>=', 'next_start', $this->next_start_from]);
         $this->next_start_to !== '' && $query->andWhere(['<=', 'next_start', $this->next_start_to]);

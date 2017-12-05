@@ -5,6 +5,7 @@ namespace app\modules\uu\behaviors;
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\models\ClientAccount;
+use app\models\EventQueue;
 use app\models\Payment;
 use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use yii\base\Behavior;
@@ -37,7 +38,7 @@ class RecalcRealtimeBalance extends Behavior
         /** @var Payment $payment */
         $payment = $event->sender;
 
-        \app\classes\Event::go(\app\modules\uu\Module::EVENT_RECALC_BALANCE, [
+        EventQueue::go(\app\modules\uu\Module::EVENT_RECALC_BALANCE, [
                 'client_account_id' => $payment->client_id,
             ]
         );

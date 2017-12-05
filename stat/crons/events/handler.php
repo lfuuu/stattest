@@ -7,11 +7,11 @@ use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
 use app\classes\api\ApiVmCollocation;
 use app\classes\api\ApiVpbx;
-use app\classes\Event;
 use app\classes\HandlerLogger;
 use app\classes\partners\RewardCalculate;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\EventQueue;
 use app\models\EventQueueIndicator;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
 use app\modules\mtt\classes\MttAdapter;
@@ -58,8 +58,9 @@ function doEvents()
     $isMttServer = MttAdapter::me()->isAvailable();
     echo '. ';
 
-    /** @var \EventQueue $event */
-    foreach ((EventQueue::getPlanedEvents() + EventQueue::getPlanedErrorEvents()) as $event) {
+    $activeQuery = EventQueue::getPlannedQuery();
+    /** @var EventQueue $event */
+    foreach ($activeQuery->each() as $event) {
         HandlerLogger::me()->clear();
 
         $info = '';
@@ -92,41 +93,34 @@ function doEvents()
 
             if ($event->account_tariff_id) {
                 // все запросы по одной услуге надо выполнять строго последовательно
-                if (\app\models\EventQueue::find()
-                    ->where([
-                        'account_tariff_id' => $event->account_tariff_id,
-                        'status' => [\app\models\EventQueue::STATUS_PLAN, \app\models\EventQueue::STATUS_ERROR, \app\models\EventQueue::STATUS_STOP],
-                    ])
-                    ->andWhere(['<', 'id', $event->id])// строго меньше
-                    ->exists()
-                ) {
+                if ($event->hasPrevEvent()) {
                     throw new LogicException('Еще не выполнен предыдущий запрос по этой услуге');
                 }
             }
 
             switch ($event->event) {
-                case Event::USAGE_VOIP__INSERT:
-                case Event::USAGE_VOIP__UPDATE:
-                case Event::USAGE_VOIP__DELETE: {
+                case EventQueue::USAGE_VOIP__INSERT:
+                case EventQueue::USAGE_VOIP__UPDATE:
+                case EventQueue::USAGE_VOIP__DELETE: {
                     // ats2Numbers::check();
                     break;
                 }
 
-                case Event::ADD_PAYMENT: {
+                case EventQueue::ADD_PAYMENT: {
                     EventHandler::updateBalance($param[1]);
                     // (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
                     break;
                 }
 
-                case Event::UPDATE_BALANCE: {
+                case EventQueue::UPDATE_BALANCE: {
                     EventHandler::updateBalance($param);
                     break;
                 }
 
-                case Event::MIDNIGHT: {
+                case EventQueue::MIDNIGHT: {
 
                     // проверка необходимости включать или выключать услуги
-                    Event::go(Event::CHECK__USAGES);
+                    EventQueue::go(EventQueue::CHECK__USAGES);
 
                     /*
                         // каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
@@ -137,65 +131,62 @@ function doEvents()
 
                     // за 4 дня предупреждаем о списании абонентки аваносовым клиентам
                     if (WorkDays::isWorkDayFromMonthEnd(time(), 4)) {
-                        Event::go(Event::MIDNIGHT__MONTHLY_FEE_MSG);
+                        EventQueue::go(EventQueue::MIDNIGHT__MONTHLY_FEE_MSG);
                     }
 
                     // очистка предоплаченных счетов
-                    Event::go(Event::MIDNIGHT__CLEAN_PRE_PAYED_BILLS);
+                    EventQueue::go(EventQueue::MIDNIGHT__CLEAN_PRE_PAYED_BILLS);
 
                     // очистка очереди событий
-                    Event::go(Event::MIDNIGHT__CLEAN_EVENT_QUEUE);
+                    EventQueue::go(EventQueue::MIDNIGHT__CLEAN_EVENT_QUEUE);
 
                     break;
                 }
 
-                case Event::CHECK__USAGES: {
+                case EventQueue::CHECK__USAGES: {
                     // проверка необходимости включить или выключить услугу UsageVoip
-                    Event::go(Event::CHECK__VOIP_OLD_NUMBERS);
+                    EventQueue::go(EventQueue::CHECK__VOIP_OLD_NUMBERS);
 
                     // проверка необходимости включить или выключить услугу в новой схеме
-                    Event::go(Event::CHECK__VOIP_NUMBERS);
+                    EventQueue::go(EventQueue::CHECK__VOIP_NUMBERS);
 
                     // проверка необходимости включить или выключить услугу UsageVirtPbx
-                    Event::go(Event::CHECK__VIRTPBX3);
+                    EventQueue::go(EventQueue::CHECK__VIRTPBX3);
 
                     // проверка необходимости включить или выключить улугу UsageCallChat
-                    Event::go(Event::CHECK__CALL_CHAT);
+                    EventQueue::go(EventQueue::CHECK__CALL_CHAT);
 
                     break;
                 }
 
                 // проверка необходимости включить или выключить услугу UsageVoip
-                case Event::CHECK__VOIP_OLD_NUMBERS: {
+                case EventQueue::CHECK__VOIP_OLD_NUMBERS: {
                     voipNumbers::check();
-                    echo '...voipNumbers::check()';
                     break;
                 }
 
                 // проверка необходимости включить или выключить услугу UsageVirtPbx
-                case Event::CHECK__VIRTPBX3: {
+                case EventQueue::CHECK__VIRTPBX3: {
                     $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
                     VirtPbx3::check($usageId);
-                    echo '...VirtPbx3::check()';
                     break;
                 }
 
                 // проверка необходимости включить или выключить услугу UsageCallChat
                 // @todo перенести в новый демон
-                case Event::CHECK__CALL_CHAT: {
+                case EventQueue::CHECK__CALL_CHAT: {
                     ActaulizerCallChatUsage::me()->actualizeUsages();
-                    echo '...ActaulizerCallChatUsage::actualizeUsages()';
                     break;
                 }
 
                 // каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
-                case Event::MIDNIGHT__LK_BILLS4ALL: {
+                case EventQueue::MIDNIGHT__LK_BILLS4ALL: {
                     NewBill::setLkShowForAll();
                     break;
                 }
 
                 // за 4 дня предупреждаем о списании абонентки аваносовым клиентам
-                case Event::MIDNIGHT__MONTHLY_FEE_MSG: {
+                case EventQueue::MIDNIGHT__MONTHLY_FEE_MSG: {
                     // $execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
                     // echo " exec: ".$execStr;
                     // exec($execStr);
@@ -203,167 +194,165 @@ function doEvents()
                 }
 
                 // очистка предоплаченных счетов
-                case Event::MIDNIGHT__CLEAN_PRE_PAYED_BILLS: {
+                case EventQueue::MIDNIGHT__CLEAN_PRE_PAYED_BILLS: {
                     Bill::cleanOldPrePayedBills();
-                    echo '... clear prebilled bills';
                     break;
                 }
 
                 // очистка очереди событий
-                case Event::MIDNIGHT__CLEAN_EVENT_QUEUE: {
+                case EventQueue::MIDNIGHT__CLEAN_EVENT_QUEUE: {
                     EventQueue::clean();
-                    echo '...EventQueue::clean()';
                     break;
                 }
 
-                case Event::LK_SETTINGS_TO_MAILER: {
+                case EventQueue::LK_SETTINGS_TO_MAILER: {
                     /** @var \app\modules\notifier\Module $notifier */
                     $notifier = Yii::$app->getModule('notifier');
                     $notifier->actions->applySchemePersonalSubscribe($param);
                     break;
                 }
 
-                case Event::CHECK_CREATE_CORE_OWNER:
+                case EventQueue::CHECK_CREATE_CORE_OWNER:
                     if ($isCoreServer) {
                         ApiCore::checkCreateCoreAdmin($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::CORE_CREATE_OWNER:
+                case EventQueue::CORE_CREATE_OWNER:
                     if ($isCoreServer) {
                         $info = ApiCore::syncCoreOwner($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::USAGE_VIRTPBX__INSERT:
-                case Event::USAGE_VIRTPBX__UPDATE:
-                case Event::USAGE_VIRTPBX__DELETE:
+                case EventQueue::USAGE_VIRTPBX__INSERT:
+                case EventQueue::USAGE_VIRTPBX__UPDATE:
+                case EventQueue::USAGE_VIRTPBX__DELETE:
                     $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
                     if ($isCoreServer) {
                         VirtPbx3::check($usageId);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::SYNC__VIRTPBX3:
+                case EventQueue::SYNC__VIRTPBX3:
                     $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
                     if ($isCoreServer) {
                         VirtPbx3::sync($usageId);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::ACTUALIZE_NUMBER:
+                case EventQueue::ACTUALIZE_NUMBER:
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
                     if ($isCoreServer) {
                         ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::ACTUALIZE_CLIENT:
+                case EventQueue::ACTUALIZE_CLIENT:
                     if ($isCoreServer) {
                         ActaulizerVoipNumbers::me()->actualizeByClientId($param['client_id']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::CHECK__VOIP_NUMBERS:
+                case EventQueue::CHECK__VOIP_NUMBERS:
                     if ($isCoreServer) {
                         ActaulizerVoipNumbers::me()->actualizeAll();
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::ATS3__SYNC:
+                case EventQueue::ATS3__SYNC:
                     if ($isCoreServer) {
                         ActaulizerVoipNumbers::me()->sync($param['number']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::CALL_CHAT__ADD:
-                case Event::CALL_CHAT__UPDATE:
-                case Event::CALL_CHAT__DEL:
+                case EventQueue::CALL_CHAT__ADD:
+                case EventQueue::CALL_CHAT__UPDATE:
+                case EventQueue::CALL_CHAT__DEL:
                     // события услуги звонок_чат
                     if ($isFeedbackServer) {
                         ActaulizerCallChatUsage::me()->actualizeUsage($param['usage_id']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::ACCOUNT_BLOCKED:
+                case EventQueue::ACCOUNT_BLOCKED:
                     if ($isVpbxServer) {
-                        Event::goWithIndicator(
-                            Event::VPBX_BLOCKED,
+                        EventQueue::goWithIndicator(
+                            EventQueue::VPBX_BLOCKED,
                             $param['account_id'],
                             ClientAccount::tableName(),
                             $param['account_id'],
                             EventQueueIndicator::SECTION_ACCOUNT_BLOCK
                         );
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
 
                     // Синхронизировать в VM manager
                     if ($isVmServer) {
                         (new SyncVmCollocation)->disableAccount($param['account_id']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::ACCOUNT_UNBLOCKED:
+                case EventQueue::ACCOUNT_UNBLOCKED:
                     if ($isVpbxServer) {
-                        Event::goWithIndicator(
-                            Event::VPBX_UNBLOCKED,
+                        EventQueue::goWithIndicator(
+                            EventQueue::VPBX_UNBLOCKED,
                             $param['account_id'],
                             ClientAccount::tableName(),
                             $param['account_id'],
                             EventQueueIndicator::SECTION_ACCOUNT_BLOCK
                         );
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
 
                     // Синхронизировать в VM manager
                     if ($isVmServer) {
                         (new SyncVmCollocation)->enableAccount($param['account_id']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::VPBX_BLOCKED:
+                case EventQueue::VPBX_BLOCKED:
                     // Синхронизировать в Vpbx. Блокировка
                     if ($isVpbxServer) {
                         ApiVpbx::me()->lockAccount($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::VPBX_UNBLOCKED:
+                case EventQueue::VPBX_UNBLOCKED:
                     // Синхронизировать в Vpbx. Разблокировка
                     if ($isVpbxServer) {
                         ApiVpbx::me()->unlockAccount($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case Event::PARTNER_REWARD: {
+                case EventQueue::PARTNER_REWARD: {
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
                     break;
                 }
@@ -372,23 +361,23 @@ function doEvents()
                 // Псевдо-логирование
                 // @todo выпилить
                 // --------------------------------------------
-                case Event::NEWBILLS__INSERT:
-                case Event::NEWBILLS__UPDATE:
-                case Event::NEWBILLS__DELETE:
-                case Event::DOC_DATE_CHANGED:
-                case Event::YANDEX_PAYMENT:
-                case Event::ATS3__BLOCKED:
-                case Event::ADD_ACCOUNT:
-                case Event::ADD_SUPER_CLIENT:
-                case Event::SYNC_CORE_ADMIN:
-                case Event::ATS2_NUMBERS_CHECK:
-                case Event::ATS3__DISABLED_NUMBER:
-                case Event::ATS3__UNBLOCKED:
-                case Event::CLIENT_SET_STATUS:
-                case Event::CYBERPLAT_PAYMENT:
-                case Event::PRODUCT_PHONE_ADD:
-                case Event::PRODUCT_PHONE_REMOVE:
-                case Event::UPDATE_PRODUCTS:
+                case EventQueue::NEWBILLS__INSERT:
+                case EventQueue::NEWBILLS__UPDATE:
+                case EventQueue::NEWBILLS__DELETE:
+                case EventQueue::DOC_DATE_CHANGED:
+                case EventQueue::YANDEX_PAYMENT:
+                case EventQueue::ATS3__BLOCKED:
+                case EventQueue::ADD_ACCOUNT:
+                case EventQueue::ADD_SUPER_CLIENT:
+                case EventQueue::SYNC_CORE_ADMIN:
+                case EventQueue::ATS2_NUMBERS_CHECK:
+                case EventQueue::ATS3__DISABLED_NUMBER:
+                case EventQueue::ATS3__UNBLOCKED:
+                case EventQueue::CLIENT_SET_STATUS:
+                case EventQueue::CYBERPLAT_PAYMENT:
+                case EventQueue::PRODUCT_PHONE_ADD:
+                case EventQueue::PRODUCT_PHONE_REMOVE:
+                case EventQueue::UPDATE_PRODUCTS:
                     break;
 
 
@@ -400,7 +389,7 @@ function doEvents()
                     if ($isAccountTariffLightServer) {
                         SyncAccountTariffLight::addToAccountTariffLight($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -409,14 +398,14 @@ function doEvents()
                     if ($isAccountTariffLightServer) {
                         SyncAccountTariffLight::deleteFromAccountTariffLight($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
                 case \app\modules\uu\Module::EVENT_RECALC_ACCOUNT:
                     // УУ. Билинговать клиента
                     if (Yii::$app->params['eventQueueIsUnderTheHighLoad']) {
-                        $info = Event::HANDLER_IS_SWITCHED_OFF;
+                        $info = EventQueue::HANDLER_IS_SWITCHED_OFF;
                     } else {
                         AccountTariffBiller::recalc($param);
                     }
@@ -425,7 +414,7 @@ function doEvents()
                 case \app\modules\uu\Module::EVENT_RECALC_BALANCE:
                     // УУ. Пересчитать realtime баланс
                     if (Yii::$app->params['eventQueueIsUnderTheHighLoad']) {
-                        $info = Event::HANDLER_IS_SWITCHED_OFF;
+                        $info = EventQueue::HANDLER_IS_SWITCHED_OFF;
                     } else {
                         RecalcRealtimeBalance::recalc($param['client_account_id']);
                     }
@@ -436,7 +425,7 @@ function doEvents()
                     if ($isVmServer) {
                         (new SyncVmCollocation)->syncVm($param['account_tariff_id']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -445,7 +434,7 @@ function doEvents()
                     if ($isCoreServer) {
                         VirtPbx3::check($param['account_tariff_id']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -456,7 +445,7 @@ function doEvents()
                     if ($isCoreServer) {
                         ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
 
                     // УУ. Добавление/выключение дефолтных пакетов телефонии
@@ -473,7 +462,7 @@ function doEvents()
                     if ($isFeedbackServer) {
                         ApiFeedback::createChat($param['client_account_id'], $param['account_tariff_id']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -490,7 +479,7 @@ function doEvents()
                             $param['is_mobile_outbound_editable']
                         );
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -504,7 +493,7 @@ function doEvents()
                             ClientAccount::VERSION_BILLER_UNIVERSAL
                         );
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -516,7 +505,7 @@ function doEvents()
                     if ($isAtolServer) {
                         $info = SendToOnlineCashRegister::send($param['paymentId']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -525,7 +514,7 @@ function doEvents()
                     if ($isAtolServer) {
                         $info = SendToOnlineCashRegister::refreshStatus($param['paymentId']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -538,9 +527,9 @@ function doEvents()
                         $info = CountryFile::importById($param['fileId']);
 
                         // поставить в очередь для пересчета операторов, регионов и городов
-                        Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+                        EventQueue::go(\app\modules\nnp\Module::EVENT_LINKER);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -551,7 +540,7 @@ function doEvents()
                         $info .= 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
                         $info .= 'Города: ' . CityLinker::me()->run() . PHP_EOL;
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -560,7 +549,7 @@ function doEvents()
                     if ($isNnpServer) {
                         $info .= implode(PHP_EOL, RefreshPrefix::me()->filterToPrefix()) . PHP_EOL;
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -572,7 +561,7 @@ function doEvents()
                     if ($isMttServer) {
                         \app\modules\mtt\Module::addInternetPackage($param['package_account_tariff_id'], $param['internet_traffic']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -581,7 +570,7 @@ function doEvents()
                     if ($isMttServer) {
                         \app\modules\mtt\Module::clearInternet($param['account_tariff_id']);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -590,7 +579,7 @@ function doEvents()
                     if ($isMttServer) {
                         \app\modules\mtt\Module::getAccountBalanceCallback($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -599,7 +588,7 @@ function doEvents()
                     if ($isMttServer) {
                         \app\modules\mtt\Module::getAccountDataCallback($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
@@ -608,13 +597,13 @@ function doEvents()
                     if ($isMttServer) {
                         \app\modules\mtt\Module::balanceAdjustmentCallback($param);
                     } else {
-                        $info = Event::API_IS_SWITCHED_OFF;
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
                 default:
                     // неизвестное событие
-                    $info = Event::API_IS_SWITCHED_OFF;
+                    $info = EventQueue::API_IS_SWITCHED_OFF;
                     break;
             }
 

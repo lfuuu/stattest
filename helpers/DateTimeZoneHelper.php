@@ -136,7 +136,7 @@ class DateTimeZoneHelper extends \yii\helpers\FileHelper
     /**
      * Вернуть DateTime в таймзоне UTC
      *
-     * @param string $date в дефолтной (московской?) таймзоне
+     * @param string $date в дефолтной таймзоне
      * @return DateTimeImmutable
      */
     public static function getUtcDateTime($date = 'now')

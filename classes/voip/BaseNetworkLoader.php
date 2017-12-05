@@ -2,13 +2,11 @@
 
 namespace app\classes\voip;
 
-use app\classes\Event;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\NetworkConfig;
 use app\models\billing\NetworkFile;
-use Yii;
 use app\models\billing\PricelistFile;
-use yii\base\Object;
+use Yii;
 
 abstract class BaseNetworkLoader extends BaseLoader
 {
@@ -94,12 +92,12 @@ abstract class BaseNetworkLoader extends BaseLoader
         $transaction = Yii::$app->dbPg->beginTransaction();
         try {
 
-            $new_rows = array();
+            $new_rows = [];
             foreach ($data as $row) {
                 $new_rows[] = $row;
                 if (count($new_rows) >= 10000) {
                     $this->insertPrices($file, $new_rows);
-                    $new_rows = array();
+                    $new_rows = [];
                 }
             }
             if (count($new_rows) >= 0) {

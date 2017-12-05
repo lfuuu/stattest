@@ -1,7 +1,8 @@
 <?php
+
 namespace app\classes\behaviors;
 
-use app\classes\Event;
+use app\models\EventQueue;
 use yii\base\Behavior;
 use yii\base\Model;
 use yii\db\ActiveRecord;
@@ -65,9 +66,9 @@ class EventQueueAddEvent extends Behavior
         }
 
         if ($this->isWithIndicator) {
-            Event::goWithIndicator($this->insertEvent, $this->owner->{$this->idField}, $this->_getTableName(), $this->owner->{$this->idField});
+            EventQueue::goWithIndicator($this->insertEvent, $this->owner->{$this->idField}, $this->_getTableName(), $this->owner->{$this->idField});
         } else {
-            Event::go($this->insertEvent, $this->owner->{$this->idField});
+            EventQueue::go($this->insertEvent, $this->owner->{$this->idField});
         }
     }
 
@@ -81,9 +82,9 @@ class EventQueueAddEvent extends Behavior
         }
 
         if ($this->isWithIndicator) {
-            Event::goWithIndicator($this->updateEvent, $this->owner->{$this->idField}, $this->_getTableName(), $this->owner->{$this->idField});
+            EventQueue::goWithIndicator($this->updateEvent, $this->owner->{$this->idField}, $this->_getTableName(), $this->owner->{$this->idField});
         } else {
-            Event::go($this->updateEvent, $this->owner->{$this->idField});
+            EventQueue::go($this->updateEvent, $this->owner->{$this->idField});
         }
     }
 
@@ -97,9 +98,9 @@ class EventQueueAddEvent extends Behavior
         }
 
         if ($this->isWithIndicator) {
-            Event::goWithIndicator($this->deleteEvent, $this->owner->{$this->idField}, $this->_getTableName(), $this->owner->{$this->idField});
+            EventQueue::goWithIndicator($this->deleteEvent, $this->owner->{$this->idField}, $this->_getTableName(), $this->owner->{$this->idField});
         } else {
-            Event::go($this->deleteEvent, $this->owner->{$this->idField});
+            EventQueue::go($this->deleteEvent, $this->owner->{$this->idField});
         }
     }
 

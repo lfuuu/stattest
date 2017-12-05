@@ -2,16 +2,15 @@
 
 namespace app\classes\behaviors\important_events;
 
+use app\forms\client\ClientAccountOptionsForm;
+use app\models\ClientAccountOptions;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
+use app\models\important_events\ImportantEventsSources;
 use Yii;
 use yii\base\Behavior;
 use yii\base\ModelEvent;
 use yii\db\ActiveRecord;
-use app\classes\Event;
-use app\models\important_events\ImportantEvents;
-use app\models\important_events\ImportantEventsNames;
-use app\models\important_events\ImportantEventsSources;
-use app\models\ClientAccountOptions;
-use app\forms\client\ClientAccountOptionsForm;
 
 class ClientAccount extends Behavior
 {
@@ -43,9 +42,9 @@ class ClientAccount extends Behavior
 
         // Сохранение настройки "Язык уведомлений" для Mailer
         $option = (new ClientAccountOptionsForm)
-                ->setClientAccountId($event->sender->id)
-                ->setOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE)
-                ->setValue($event->sender->country->lang);
+            ->setClientAccountId($event->sender->id)
+            ->setOption(ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE)
+            ->setValue($event->sender->country->lang);
 
         if (!$option->save($deleteExisting = false)) {
             Yii::error('Option "' . ClientAccountOptions::OPTION_MAIL_DELIVERY_LANGUAGE . '" not saved for client #' . $event->sender->id . ': ' . implode(',', (array)$option->getFirstErrors()) . PHP_EOL);

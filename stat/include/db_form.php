@@ -1,8 +1,7 @@
 <?php
+
 use app\classes\StatModule;
 use app\models\ClientAccount;
-use app\classes\Assert;
-use app\classes\Event;
 use app\models\TechPort;
 
 class DbForm {

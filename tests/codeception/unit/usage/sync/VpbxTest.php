@@ -3,8 +3,6 @@
 namespace tests\codeception\unit\usage\sync;
 
 
-use app\classes\ActaulizerVoipNumbers;
-use app\classes\Event;
 use app\models\ClientAccount;
 use app\models\EntryPoint;
 use app\models\EventQueue;
@@ -23,7 +21,6 @@ use tests\codeception\unit\_TestCase;
 use tests\codeception\unit\models\_AccountTariff;
 use tests\codeception\unit\models\_ClientAccount;
 use tests\codeception\unit\models\_UsageVirtpbx;
-use tests\codeception\unit\models\_UsageVoip;
 
 class Vpbx extends _TestCase
 {
@@ -254,7 +251,7 @@ class Vpbx extends _TestCase
         $this->assertNotNull($event);
         $this->assertInstanceOf(EventQueue::className(), $event);
 
-        $this->assertEquals($event->event, Event::SYNC__VIRTPBX3);
+        $this->assertEquals($event->event, EventQueue::SYNC__VIRTPBX3);
 
         $eventData = json_decode($event->param, true);
 

@@ -1,19 +1,19 @@
 <?php
 
 use app\classes\Assert;
-use app\classes\Event;
-use app\modules\uu\models\AccountTariff;
 use app\dao\services\EmailsServiceDao;
 use app\dao\services\ExtraServiceDao;
 use app\dao\services\SmsServiceDao;
 use app\dao\services\WelltimeServiceDao;
 use app\models\ClientAccount;
+use app\models\EventQueue;
 use app\models\Number;
 use app\models\Organization;
 use app\models\TariffVoip;
 use app\models\TechPort;
 use app\models\UsageVoip;
 use app\models\User;
+use app\modules\uu\models\AccountTariff;
 
 class m_services extends IModule
 {
@@ -1487,7 +1487,7 @@ class m_services extends IModule
         }
         $result = $dbf->Process();
 
-        Event::go(Event::ATS2_NUMBERS_CHECK);
+        EventQueue::go(EventQueue::ATS2_NUMBERS_CHECK);
 
         if ($result == 'delete') {
             header('Location: /?module=services&action=vo_view');
@@ -1533,7 +1533,7 @@ class m_services extends IModule
             ]
         );
 
-        Event::go(Event::ATS2_NUMBERS_CHECK);
+        EventQueue::go(EventQueue::ATS2_NUMBERS_CHECK);
 
         trigger_error2('Номер отключен, создайте заявку на отключение');
 

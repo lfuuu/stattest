@@ -3,12 +3,12 @@
 namespace app\classes\behaviors;
 
 use app\exceptions\ModelValidationException;
-use yii\base\Event;
-use yii\base\Behavior;
-use yii\db\ActiveRecord;
-use app\classes\Event as OwnEvent;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\EventQueue as OwnEvent;
+use yii\base\Behavior;
+use yii\base\Event;
+use yii\db\ActiveRecord;
 
 class PartnerRewardsCalculation extends Behavior
 {

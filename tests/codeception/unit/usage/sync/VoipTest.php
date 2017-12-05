@@ -4,17 +4,14 @@ namespace tests\codeception\unit\usage\sync;
 
 
 use app\classes\ActaulizerVoipNumbers;
-use app\classes\Event;
 use app\models\ClientAccount;
 use app\models\EntryPoint;
 use app\models\EventQueue;
-use app\models\Number;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffOrganization;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\models\TariffVoipCity;
 use app\modules\uu\models\TariffVoipNdcType;
-use app\tests\codeception\fixtures\NumberFixture;
 use app\tests\codeception\fixtures\uu\TariffFixture;
 use app\tests\codeception\fixtures\uu\TariffOrganizationFixture;
 use app\tests\codeception\fixtures\uu\TariffPeriodFixture;
@@ -229,7 +226,7 @@ class Voip extends _TestCase
         $this->assertNotNull($event);
         $this->assertInstanceOf(EventQueue::className(), $event);
 
-        $this->assertEquals($event->event, Event::ATS3__SYNC);
+        $this->assertEquals($event->event, EventQueue::ATS3__SYNC);
 
         $eventData = json_decode($event->param, true);
 

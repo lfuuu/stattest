@@ -5,6 +5,7 @@ namespace app\classes;
 use app\classes\api\ApiPhone;
 use app\models\ActualNumber;
 use app\models\ClientAccount;
+use app\models\EventQueue;
 use app\models\UsageVoip;
 use app\modules\uu\models\AccountTariff;
 
@@ -132,7 +133,7 @@ class ActaulizerVoipNumbers extends Singleton
                 $line = UsageVoip::findOne(['id' => $n->line7800_id]);
 
                 if ($line) {
-                    Event::go(Event::ACTUALIZE_NUMBER, ['number' => $line->E164]);
+                    EventQueue::go(EventQueue::ACTUALIZE_NUMBER, ['number' => $line->E164]);
                     return true;
                 }
             }
@@ -184,7 +185,7 @@ class ActaulizerVoipNumbers extends Singleton
     private function _diffToSync($diff)
     {
         foreach ($diff as $data) {
-            Event::go(Event::ATS3__SYNC, $data);
+            EventQueue::go(EventQueue::ATS3__SYNC, $data);
         }
     }
 
@@ -441,9 +442,9 @@ class ActaulizerVoipNumbers extends Singleton
         if (isset($changedFields['is_blocked'])) {
 
             if ($new['is_blocked']) {
-                Event::go(Event::ATS3__BLOCKED, $new);
+                EventQueue::go(EventQueue::ATS3__BLOCKED, $new);
             } else {
-                Event::go(Event::ATS3__UNBLOCKED, $new);
+                EventQueue::go(EventQueue::ATS3__UNBLOCKED, $new);
             }
 
             unset($changedFields['is_blocked']);
@@ -456,7 +457,7 @@ class ActaulizerVoipNumbers extends Singleton
                 'number' => $number
             ];
 
-            Event::go(Event::ATS3__DISABLED_NUMBER, $s);
+            EventQueue::go(EventQueue::ATS3__DISABLED_NUMBER, $s);
 
             unset($changedFields['is_disabled']);
         }

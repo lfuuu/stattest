@@ -3,7 +3,6 @@
 namespace app\models;
 
 use app\classes\behaviors\EventQueueAddEvent;
-use app\classes\Event;
 use app\classes\model\ActiveRecord;
 use app\queries\LkNoticeSettingQuery;
 
@@ -42,8 +41,8 @@ class LkNoticeSetting extends ActiveRecord
         return [
             'EventQueueAddEvent' => [
                 'class' => EventQueueAddEvent::className(),
-                'insertEvent' => Event::LK_SETTINGS_TO_MAILER,
-                'updateEvent' => Event::LK_SETTINGS_TO_MAILER,
+                'insertEvent' => EventQueue::LK_SETTINGS_TO_MAILER,
+                'updateEvent' => EventQueue::LK_SETTINGS_TO_MAILER,
                 'idField' => 'client_id',
             ],
         ];

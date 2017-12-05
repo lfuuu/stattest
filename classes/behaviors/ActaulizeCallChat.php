@@ -2,12 +2,9 @@
 
 namespace app\classes\behaviors;
 
-use app\models\ClientAccount;
-use app\models\ContractType;
-use app\models\Country;
+use app\models\EventQueue;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
-use app\classes\Event;
 
 
 class ActaulizeCallChat extends Behavior
@@ -23,7 +20,7 @@ class ActaulizeCallChat extends Behavior
     public function actualizeCallChat($event)
     {
         if ($event->changedAttributes) {
-            Event::go(Event::CHECK__CALL_CHAT);
+            EventQueue::go(EventQueue::CHECK__CALL_CHAT);
         }
     }
 

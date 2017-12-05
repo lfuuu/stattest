@@ -5,6 +5,7 @@ namespace app\modules\uu\behaviors;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use app\modules\nnp\models\AccountTariffLight;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\ServiceType;
@@ -66,7 +67,7 @@ class SyncAccountTariffLight extends Behavior
             throw new \LogicException('Универсальная услуга ' . $accountTariff->id . ' пакета телефонии не привязана к основной услуге телефонии');
         }
 
-        \app\classes\Event::go(\app\modules\uu\Module::EVENT_ADD_LIGHT,
+        EventQueue::go(\app\modules\uu\Module::EVENT_ADD_LIGHT,
             [
                 'id' => $accountLogPeriod->id,
                 'client_account_id' => $accountTariff->client_account_id,
@@ -98,7 +99,7 @@ class SyncAccountTariffLight extends Behavior
             return;
         }
 
-        \app\classes\Event::go(\app\modules\uu\Module::EVENT_DELETE_LIGHT,
+        EventQueue::go(\app\modules\uu\Module::EVENT_DELETE_LIGHT,
             [
                 'id' => $accountLogPeriod->id,
                 'account_tariff_id' => $accountTariff->id,

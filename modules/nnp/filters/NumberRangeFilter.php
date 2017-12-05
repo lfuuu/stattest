@@ -2,10 +2,10 @@
 
 namespace app\modules\nnp\filters;
 
-use app\classes\Event;
 use app\classes\grid\ActiveDataProvider;
 use app\classes\Html;
 use app\classes\traits\GetListTrait;
+use app\models\EventQueue;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\NumberRangePrefix;
 use Yii;
@@ -183,7 +183,7 @@ class NumberRangeFilter extends NumberRange
         NumberRange::updateAll($attributes, $query->where);
 
         // поставить в очередь для пересчета операторов, регионов и городов
-        $eventQueue = Event::go(\app\modules\nnp\Module::EVENT_LINKER);
+        $eventQueue = EventQueue::go(\app\modules\nnp\Module::EVENT_LINKER);
         if (Yii::$app instanceof \yii\web\Application) {
             Yii::$app->session->setFlash('success', 'Операторы, регионы, города будут пересчитаны через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }

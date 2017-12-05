@@ -4,6 +4,7 @@ namespace app\classes;
 
 use app\classes\api\ApiCore;
 use app\exceptions\ModelValidationException;
+use app\models\EventQueue;
 use app\models\ProductState;
 use Exception;
 use yii\base\InvalidConfigException;
@@ -102,19 +103,19 @@ class ActaulizerCallChatUsage extends Singleton
     {
         if (isset($diff['add'])) {
             foreach ($diff['add'] as $row) {
-                Event::go(Event::CALL_CHAT__ADD, $row);
+                EventQueue::go(EventQueue::CALL_CHAT__ADD, $row);
             }
         }
 
         if (isset($diff['change'])) {
             foreach ($diff['change'] as $row) {
-                Event::go(Event::CALL_CHAT__UPDATE, $row);
+                EventQueue::go(EventQueue::CALL_CHAT__UPDATE, $row);
             }
         }
 
         if (isset($diff['del'])) {
             foreach ($diff['del'] as $row) {
-                Event::go(Event::CALL_CHAT__DEL, $row);
+                EventQueue::go(EventQueue::CALL_CHAT__DEL, $row);
             }
         }
     }

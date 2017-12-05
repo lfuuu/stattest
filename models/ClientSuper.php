@@ -4,7 +4,6 @@ namespace app\models;
 
 use app\classes\api\ApiCore;
 use app\classes\behaviors\EventQueueAddEvent;
-use app\classes\Event;
 use app\classes\model\ActiveRecord;
 use app\dao\ClientSuperDao;
 
@@ -48,12 +47,12 @@ class ClientSuper extends ActiveRecord
         return [
             'EventQueueAddEvent' => [
                 'class' => EventQueueAddEvent::className(),
-                'insertEvent' => Event::ADD_SUPER_CLIENT
+                'insertEvent' => EventQueue::ADD_SUPER_CLIENT
             ],
 
             'CheckCreateCoreAdmin' => [
                 'class' => EventQueueAddEvent::className(),
-                'insertEvent' => Event::CHECK_CREATE_CORE_OWNER,
+                'insertEvent' => EventQueue::CHECK_CREATE_CORE_OWNER,
                 'isWithIndicator' => true
             ]
         ];

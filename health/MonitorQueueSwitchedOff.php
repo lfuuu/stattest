@@ -2,7 +2,6 @@
 
 namespace app\health;
 
-use app\classes\Event;
 use app\models\EventQueue;
 
 /**
@@ -28,7 +27,7 @@ class MonitorQueueSwitchedOff extends Monitor
     public function getValue()
     {
         return EventQueue::find()
-            ->where(['log_error' => Event::API_IS_SWITCHED_OFF])
+            ->where(['log_error' => EventQueue::API_IS_SWITCHED_OFF])
             ->count();
     }
 }

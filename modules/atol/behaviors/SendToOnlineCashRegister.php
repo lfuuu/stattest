@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\ClientContact;
 use app\models\Currency;
+use app\models\EventQueue;
 use app\models\Payment;
 use app\models\PaymentAtol;
 use app\modules\atol\classes\Api;
@@ -41,7 +42,7 @@ class SendToOnlineCashRegister extends Behavior
         $payment = $event->sender;
 
         // поставить в очередь для отправки
-        \app\classes\Event::go(\app\modules\atol\Module::EVENT_SEND, [
+        EventQueue::go(\app\modules\atol\Module::EVENT_SEND, [
                 'paymentId' => $payment->id,
             ]
         );
@@ -99,7 +100,7 @@ class SendToOnlineCashRegister extends Behavior
         }
 
         // поставить в очередь для обновления статуса
-        \app\classes\Event::go(\app\modules\atol\Module::EVENT_REFRESH, [
+        EventQueue::go(\app\modules\atol\Module::EVENT_REFRESH, [
                 'paymentId' => $payment->id,
             ]
         );

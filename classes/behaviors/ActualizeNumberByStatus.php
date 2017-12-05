@@ -4,7 +4,6 @@ namespace app\classes\behaviors;
 
 use app\models\Number;
 use yii\base\Behavior;
-use app\classes\Event;
 use yii\db\ActiveRecord;
 
 

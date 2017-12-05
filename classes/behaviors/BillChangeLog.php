@@ -6,12 +6,9 @@ use app\dao\LogBillDao;
 use app\models\Bill;
 use app\models\Currency;
 use app\models\User;
-use yii\base\Event;
 use yii\base\Behavior;
+use yii\base\Event;
 use yii\db\ActiveRecord;
-use app\classes\Event as OwnEvent;
-use app\helpers\DateTimeZoneHelper;
-use app\models\ClientAccount;
 
 /**
  * Class BillChangeLog
@@ -82,7 +79,7 @@ class BillChangeLog extends Behavior
             $message = "Счет обновлен.";
         }
 
-        $message .= "Сумма: ". Currency::formatCurrency($bill->sum, $bill->currency);
+        $message .= "Сумма: " . Currency::formatCurrency($bill->sum, $bill->currency);
 
         LogBillDao::me()->log($bill->bill_no, $message, $userUserId);
 

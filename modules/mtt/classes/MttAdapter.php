@@ -2,8 +2,8 @@
 
 namespace app\modules\mtt\classes;
 
-use app\classes\Event;
 use app\classes\Singleton;
+use app\models\EventQueue;
 use app\modules\mtt\Module;
 use kartik\base\Config;
 use PhpAmqpLib\Channel\AMQPChannel;
@@ -306,7 +306,7 @@ class MttAdapter extends Singleton
         // поставить в очередь Стата
         $mttResponse->result->requestId = $mttResponse->requestId;
         // EVENT_CALLBACK_GET_ACCOUNT_BALANCE, EVENT_CALLBACK_GET_ACCOUNT_DATA, EVENT_CALLBACK_BALANCE_ADJUSTMENT
-        Event::go(Module::EVENT_PREFIX . $mttResponse->method, $mttResponse->result);
+        EventQueue::go(Module::EVENT_PREFIX . $mttResponse->method, $mttResponse->result);
 
         // ACK
         /** @var AMQPChannel $channel */

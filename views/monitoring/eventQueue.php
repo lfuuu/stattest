@@ -6,7 +6,6 @@
  * @var EventQueueFilter $filterModel
  */
 
-use app\classes\Event;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\DateTimeRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
@@ -40,10 +39,6 @@ $columns = [
         'class' => DateTimeRangeDoubleColumn::className(),
     ],
     [
-        'attribute' => 'date',
-        'class' => DateRangeDoubleColumn::className(),
-    ],
-    [
         'attribute' => 'next_start',
         'class' => DateRangeDoubleColumn::className(),
         'value' => function (EventQueue $eventQueue) {
@@ -56,9 +51,9 @@ $columns = [
             'class' => 'event-queue-event-column',
         ],
         'filterType' => GridView::FILTER_SELECT2,
-        'filter' => ['' => '----'] + Event::$names,
+        'filter' => ['' => '----'] + EventQueue::$names,
         'value' => function (EventQueue $eventQueue) {
-            return isset(Event::$names[$eventQueue->event]) ? Event::$names[$eventQueue->event] : $eventQueue->event;
+            return isset(EventQueue::$names[$eventQueue->event]) ? EventQueue::$names[$eventQueue->event] : $eventQueue->event;
         }
     ],
     [
@@ -75,6 +70,15 @@ $columns = [
     [
         'attribute' => 'iteration',
         'class' => IntegerRangeColumn::className(),
+    ],
+    [
+        'attribute' => 'account_tariff_id',
+        'class' => IntegerColumn::className(),
+        'format' => 'html',
+        'value' => function (EventQueue $eventQueue) {
+            $accountTariff = $eventQueue->accountTariff;
+            return $accountTariff ? $accountTariff->getLink() : '';
+        },
     ],
     [
         'attribute' => 'log_error',

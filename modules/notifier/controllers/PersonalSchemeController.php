@@ -3,9 +3,9 @@
 namespace app\modules\notifier\controllers;
 
 use app\classes\BaseController;
-use app\classes\Event;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
+use app\models\EventQueue;
 use app\modules\notifier\forms\MonitoringPersonalSchemesForm;
 use app\modules\notifier\forms\PersonalSchemeForm;
 use Yii;
@@ -59,7 +59,7 @@ class PersonalSchemeController extends BaseController
             && is_array($clientAccountIds)
         ) {
             foreach ($clientAccountIds as $clientAccountId) {
-                Event::go(Event::LK_SETTINGS_TO_MAILER, $clientAccountId);
+                EventQueue::go(EventQueue::LK_SETTINGS_TO_MAILER, $clientAccountId);
             }
             Yii::$app->session->addFlash('success', 'Данные для синхронизации добавлены в очередь, обработка может занять некоторое время');
             return $this->refresh();

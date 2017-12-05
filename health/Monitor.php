@@ -31,8 +31,7 @@ abstract class Monitor extends Component
     {
         return [
             MonitorZSyncPostgres::className(),
-            MonitorQueuePlanned::className(),
-            MonitorQueueStopped::className(),
+            MonitorQueue::className(),
             MonitorQueueSwitchedOff::className(),
             // MonitorUuAccountEntry::className(),
             MonitorUuBill::className(),

@@ -2,15 +2,14 @@
 
 namespace app\modules\uu\tarificator;
 
-use app\classes\Event;
 use app\classes\HandlerLogger;
 use app\exceptions\FinanceException;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\EventQueue;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
-use app\modules\uu\behaviors\SyncVmCollocation;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
@@ -87,7 +86,7 @@ SQL;
 
                     case ServiceType::ID_VOIP:
                         // Телефония
-                        Event::go(\app\modules\uu\Module::EVENT_VOIP_CALLS, [
+                        EventQueue::go(\app\modules\uu\Module::EVENT_VOIP_CALLS, [
                             'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                             'number' => $accountTariff->voip_number,
@@ -97,7 +96,7 @@ SQL;
 
                     case ServiceType::ID_VPBX:
                         // ВАТС
-                        Event::go(\app\modules\uu\Module::EVENT_VPBX, [
+                        EventQueue::go(\app\modules\uu\Module::EVENT_VPBX, [
                             'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);
@@ -105,7 +104,7 @@ SQL;
                         break;
 
                     case ServiceType::ID_VM_COLLOCATION:
-                        Event::go(\app\modules\uu\Module::EVENT_VM_SYNC, [
+                        EventQueue::go(\app\modules\uu\Module::EVENT_VM_SYNC, [
                             'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);
@@ -113,7 +112,7 @@ SQL;
 
                     case ServiceType::ID_CALL_CHAT:
                         // call chat
-                        Event::go(\app\modules\uu\Module::EVENT_CALL_CHAT, [
+                        EventQueue::go(\app\modules\uu\Module::EVENT_CALL_CHAT, [
                             'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);

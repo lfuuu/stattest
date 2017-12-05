@@ -2,7 +2,7 @@
 namespace app\classes\api;
 
 use app\classes\Assert;
-use app\classes\Event;
+use app\models\EventQueue;
 use app\classes\HttpClient;
 use app\exceptions\ModelValidationException;
 use app\models\Business;
@@ -180,8 +180,8 @@ class ApiCore
             return;
         }
 
-        Event::goWithIndicator(
-            Event::CORE_CREATE_OWNER,
+        EventQueue::goWithIndicator(
+            EventQueue::CORE_CREATE_OWNER,
             ['id' => $superId, 'account_id' => $account->id, 'email' => $adminEmail->data],
             \app\models\ClientSuper::tableName(),
             $superId);

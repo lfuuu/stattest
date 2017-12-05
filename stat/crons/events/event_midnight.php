@@ -1,10 +1,11 @@
 <?php
 
+use app\models\EventQueue;
+
 define("PATH_TO_ROOT", "../../");
-include PATH_TO_ROOT."conf_yii.php";
-include INCLUDE_PATH."runChecker.php";
+include PATH_TO_ROOT . "conf_yii.php";
+include INCLUDE_PATH . "runChecker.php";
 
-echo "\n".date("r").":";
+echo "\n" . date("r") . ":";
 
-
-\app\classes\Event::go(\app\classes\Event::MIDNIGHT);
+EventQueue::go(EventQueue::MIDNIGHT);

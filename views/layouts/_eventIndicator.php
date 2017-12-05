@@ -43,7 +43,7 @@ if (!$indicator->event) {
 
 $colorClass = $titleInfo = "";
 
-$titleInfo = ": " . \app\classes\Event::$names[$indicator->event->event] . " ";
+$titleInfo = ": " . EventQueue::$names[$indicator->event->event] . " ";
 switch($indicator->event->status) {
     case EventQueue::STATUS_PLAN:
         $colorClass = "warning";
