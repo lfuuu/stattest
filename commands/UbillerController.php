@@ -65,7 +65,7 @@ class UbillerController extends Controller
         $this->actionRealtimeBalance();
 
         // Месячную финансовую блокировку заменить на постоянную
-        $this->actionFinanceBlock();
+        // $this->actionFinanceBlock();
 
         // Расчет технического кредита МГП
         $this->actionCreditMgp();
