@@ -141,7 +141,7 @@ use yii\helpers\Url;
                                                 if ($contractAccount->is_blocked) {
 
                                                     try {
-                                                        Locks::setTimeout();
+                                                        Locks::setPgTimeout();
                                                         $lastLock = LocksLog::find()
                                                             ->where(['client_id' => $account->id, 'is_blocked' => true])
                                                             ->orderBy(['dt' => SORT_DESC])

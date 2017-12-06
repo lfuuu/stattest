@@ -7,6 +7,8 @@ use yii\base\Component;
 
 abstract class Monitor extends Component
 {
+    const ERROR_EXECUTE_VALUE = 999999;
+
     /**
      * Текущее значение
      *
@@ -38,6 +40,7 @@ abstract class Monitor extends Component
             // MonitorUuTestTariff::className(), // менеджеры говорят, что пока это нормально
             MonitorUuShiftTariff::className(),
             MonitorSuperClientStruct::className(),
+            BacklogSlaveServer::className(),
         ];
     }
 }

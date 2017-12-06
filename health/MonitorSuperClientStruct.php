@@ -13,7 +13,6 @@ use yii\db\Exception;
  */
 class MonitorSuperClientStruct extends Monitor
 {
-    const ERROR_EXECUTE_VALUE = 999;
     /**
      * Текущее значение
      *

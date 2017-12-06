@@ -205,7 +205,7 @@ class ClientSuperDao extends Singleton
 
         $isLoadComplete = true;
         try {
-            Locks::setTimeout();
+            Locks::setPgTimeout();
             $locks = Locks::find()
                 ->where(['client_id' => $accountIds])
                 ->indexBy('client_id')

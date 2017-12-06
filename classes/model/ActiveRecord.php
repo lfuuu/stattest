@@ -8,9 +8,12 @@ use app\modules\nnp\models\FilterQuery;
 use ReflectionClass;
 use ReflectionProperty;
 use yii\behaviors\AttributeTypecastBehavior;
+use yii\db\Connection;
 
 class ActiveRecord extends \yii\db\ActiveRecord
 {
+    const PG_TIMEOUT = 3000;
+
     protected $isAttributeTypecastBehavior = false;
 
     /**
@@ -284,5 +287,25 @@ class ActiveRecord extends \yii\db\ActiveRecord
      */
     public function setParentId($parentId)
     {
+    }
+
+
+    /**
+     * Установить timeout на любой запрос к billing
+     *
+     * @param int $timeout
+     * @param Connection $db
+     */
+    public static function setPgTimeout($timeout = self::PG_TIMEOUT, $db = null)
+    {
+        $timeout = (int)$timeout;
+
+        if (!$db) {
+            $db = self::getDb();
+        }
+
+        $db
+            ->createCommand('SET statement_timeout TO ' . $timeout)
+            ->execute();
     }
 }
