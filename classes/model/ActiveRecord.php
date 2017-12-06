@@ -301,7 +301,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
         $timeout = (int)$timeout;
 
         if (!$db) {
-            $db = self::getDb();
+            $db = static::getDb();
         }
 
         $db
