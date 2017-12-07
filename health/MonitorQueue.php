@@ -28,14 +28,18 @@ class MonitorQueue extends Monitor
     public function getValue()
     {
         return EventQueue::find()
-            ->where(['status' => [EventQueue::STATUS_PLAN, EventQueue::STATUS_ERROR, EventQueue::STATUS_STOP]])
-            ->andWhere([
-                '<=',
-                'next_start',
-                (new \DateTime())
-                    ->modify('-2 minutes')
-                    ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+            ->where([
+                'AND',
+                ['status' => EventQueue::STATUS_PLAN],
+                [
+                    '<=',
+                    'next_start',
+                    (new \DateTime())
+                        ->modify('-2 minutes')
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+                ]
             ])
+            ->orWhere(['status' => [EventQueue::STATUS_ERROR, EventQueue::STATUS_STOP]])
             ->count();
     }
 }
