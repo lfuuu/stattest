@@ -31,7 +31,7 @@ $panelBodyId = 'panel-body-' . $accountTariffFirst->id;
 
 <div class="col-sm-4">
 
-    <div class="panel panel-<?= $accountTariffFirst->serviceType->getColorClass() ?> account-tariff-voip">
+    <div class="panel panel-<?= $accountTariffFirst->tariff_period_id ? $accountTariffFirst->serviceType->getColorClass() : 'default' ?> account-tariff-voip">
         <div class="panel-heading">
             <?php
             $formModel = new AccountTariffEditForm([
