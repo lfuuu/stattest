@@ -6,6 +6,7 @@ use app\models\ClientAccountOptions;
 use app\models\Currency;
 use app\models\GoodPriceType;
 use app\models\Region;
+use app\modules\uu\models\TariffStatus;
 use kartik\widgets\ActiveForm;
 
 /** @var ActiveForm $f */
@@ -90,6 +91,9 @@ use kartik\widgets\ActiveForm;
         </div>
         <div class="col-sm-3">
             <?= $f->field($model, 'price_level')->dropDownList(ClientAccount::getPriceLevels()) ?>
+        </div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'uu_tariff_status_id')->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true)) ?>
         </div>
     </div>
 

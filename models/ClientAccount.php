@@ -20,6 +20,7 @@ use app\models\billing\Locks;
 use app\models\voip\StatisticDay;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\TariffStatus;
 use app\queries\ClientAccountQuery;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -76,6 +77,7 @@ use yii\helpers\Url;
  * @property int $is_voip_with_tax
  * @property int $price_type
  * @property int $price_level
+ * @property int $uu_tariff_status_id
  *
  * @property-read Currency $currencyModel
  * @property-read ClientSuper $superClient
@@ -109,6 +111,7 @@ use yii\helpers\Url;
  * @property-read UsageIpPorts[] $usageIpPorts
  * @property-read UsageTrunk[] $usageTrunks
  * @property-read UsageCallChat[] $usageCallChats
+ * @property-read TariffStatus $tariffStatus
  *
  * @method static ClientAccount findOne($condition)
  * @method static ClientAccount[] findAll($condition)
@@ -268,7 +271,7 @@ class ClientAccount extends HistoryActiveRecord
     {
         $rules = [
             ['country_id', 'required'],
-            ['country_id', 'integer'],
+            [['country_id', 'uu_tariff_status_id'], 'integer'],
             ['voip_credit_limit_day', 'default', 'value' => self::DEFAULT_VOIP_CREDIT_LIMIT_DAY],
             ['voip_is_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_DAY_CALC],
             ['voip_is_mn_day_calc', 'default', 'value' => self::DEFAULT_VOIP_IS_MN_DAY_CALC],
@@ -380,6 +383,7 @@ class ClientAccount extends HistoryActiveRecord
             'pay_bill_until_days' => 'Срок оплаты счетов (в днях)',
             'is_bill_pay_overdue' => 'Блокировка по неоплате счета',
             'price_level' => 'Уровень цен',
+            'uu_tariff_status_id' => 'УУ-пакет',
         ];
     }
 
@@ -867,6 +871,14 @@ class ClientAccount extends HistoryActiveRecord
     public function getLkClientSettings()
     {
         return $this->hasOne(LkClientSettings::className(), ['client_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTariffStatus()
+    {
+        return $this->hasOne(TariffStatus::className(), ['id' => 'uu_tariff_status_id']);
     }
 
     /**
