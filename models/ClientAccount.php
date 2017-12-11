@@ -1061,7 +1061,8 @@ class ClientAccount extends HistoryActiveRecord
                     $warnings[self::WARNING_MN_OVERRAN] = $lock['b_is_mn_overran'];
                 }
 
-                if ($lock['dt_last_dt']) {
+                if ($lock['dt_last_dt'] && count($warnings)) {
+                    // дата последней блокировки есть почти всегда. Но выводить ее надо только при блокировке
                     $warnings[self::WARNING_LAST_DT] = $lock['dt_last_dt'];
                 }
             }
