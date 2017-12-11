@@ -80,6 +80,8 @@ class CheckBillPaymentOverdue extends Behavior
      *
      * @param ClientAccount $account
      * @param bool $isOverdue
+     * @throws \yii\db\Exception
+     * @throws \Exception
      * @throws ModelValidationException
      */
     private function _checkClientAccount(ClientAccount $account, $isOverdue)
@@ -89,7 +91,9 @@ class CheckBillPaymentOverdue extends Behavior
                 'client_id' => $account->id
             ])
             ->andWhere([
-                '!=', 'id', $this->owner->id
+                '!=',
+                'id',
+                $this->owner->id
             ])
             ->max('is_pay_overdue'));
 
@@ -112,15 +116,18 @@ class CheckBillPaymentOverdue extends Behavior
             ]
         );
 
-        if ($isSetPayOverdue) {
-            // $account->voip_disabled = 1; // временно отключим саму блокировку
-        } else {
-            $lock = Locks::findOne(['client_id' => $account->id]);
-
-            if (!$lock || (!$lock->is_overran && !$lock->is_mn_overran)) { // снимаем блокировку, если нет других
-                // $account->voip_disabled = 0;
+        /*
+            if ($isSetPayOverdue) {
+                $account->voip_disabled = 1; // временно отключим саму блокировку
+            } else {
+                Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+                $lastLock = Locks::getLock($account->id);
+                if (!$lastLock['b_is_overran'] && !$lastLock['b_is_mn_overran']) {
+                    // снимаем блокировку, если нет других
+                    $account->voip_disabled = 0;
+                }
             }
-        }
+        */
 
         if (!$account->save()) {
             throw new ModelValidationException($account);

@@ -37,14 +37,37 @@ class Locks extends ActiveRecord
     }
 
     /**
-     * Получение последней блокировки
+     * Получение блокировки
      *
-     * @return array [b_voip_auto_disabled, b_voip_auto_disabled_local, b_is_overran, b_is_mn_overran, b_is_finance_block]
+     * @param int $clientAccountId
+     * @return array [b_voip_auto_disabled, b_voip_auto_disabled_local, b_is_overran, b_is_mn_overran, b_is_finance_block, dt_last_dt]
      * @throws \yii\db\Exception
      */
-    public function getLastLock()
+    public static function getLock($clientAccountId)
     {
-        $sql = sprintf('SELECT * FROM billing.locks_get(%d)', $this->client_id);
+        $sql = sprintf('SELECT * FROM billing.locks_get(%d)', $clientAccountId);
         return self::getDb()->createCommand($sql)->queryOne();
+    }
+
+    /**
+     * Получение клиентов с блокировками VOIP (voip_auto_disabled, voip_auto_disabled_local)
+     *
+     * @return int[]
+     * @throws \yii\db\Exception
+     */
+    public static function getVoipLocks()
+    {
+        return self::getDb()->createCommand('SELECT * FROM billing.lock_clients_voip_get()')->queryColumn();
+    }
+
+    /**
+     * Получение клиентов с финансовыми блокировками (is_finance_block, is_overran, is_mn_overran)
+     *
+     * @return int[]
+     * @throws \yii\db\Exception
+     */
+    public static function getFinanceLocks()
+    {
+        return self::getDb()->createCommand('SELECT * FROM billing.lock_clients_finance_get()')->queryColumn();
     }
 }

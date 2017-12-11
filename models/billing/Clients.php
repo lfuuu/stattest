@@ -33,13 +33,4 @@ class Clients extends ActiveRecord
     {
         return $this->hasOne(CachedCounter::className(), ['client_id' => 'id']);
     }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getLock()
-    {
-        return $this->hasOne(Locks::className(), ['client_id' => 'id']);
-    }
-
 }

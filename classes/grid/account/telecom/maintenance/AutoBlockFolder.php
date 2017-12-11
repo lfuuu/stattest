@@ -1,13 +1,11 @@
 <?php
+
 namespace app\classes\grid\account\telecom\maintenance;
 
-use yii\db\Expression;
-use yii\db\Query;
 use app\classes\grid\account\AccountGridFolder;
-use app\models\BusinessProcessStatus;
-use app\models\billing\Clients;
-use app\models\billing\CachedCounter;
 use app\models\billing\Locks;
+use app\models\BusinessProcessStatus;
+use yii\db\Query;
 
 class AutoBlockFolder extends AccountGridFolder
 {
@@ -51,31 +49,13 @@ class AutoBlockFolder extends AccountGridFolder
         $query->andWhere(['cr.business_process_status_id' => BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK]);
         $query->andWhere(['c.is_blocked' => 0]);
 
-        $billingQuery = (new Query)
-            ->select('clients.id')
-            ->from(['clients' => Clients::tableName()])
-            ->innerJoin(['counter' => CachedCounter::tableName()], 'counter.client_id = clients.id')
-            ->leftJoin(['lock' => Locks::tableName()], 'lock.client_id = clients.id')
-            ->where(new Expression('TRUE IN (lock.is_finance_block, lock.is_overran, lock.is_mn_overran)'))
-            ->orWhere([
-                'OR',
-                new Expression('clients.credit < -clients.balance'),
-                [
-                    'OR',
-                    [
-                        'AND',
-                        'clients.voip_limit_day < counter.amount_day_sum',
-                        'clients.voip_limit_day > 0'
-                    ],
-                    [
-                        'AND',
-                        'clients.voip_limit_mn_day < counter.amount_mn_day_sum',
-                        'clients.voip_limit_mn_day > 0'
-                    ]
-                ]
-            ]);
+        try {
+            Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+            $clientsIDs = Locks::getFinanceLocks();
+        } catch (\Exception $e) {
+            $clientsIDs = [];
+        }
 
-        $clientsIDs = $billingQuery->column(Clients::getDb());
         if (count($clientsIDs)) {
             $query->andWhere(['IN', 'c.id', $clientsIDs]);
         }

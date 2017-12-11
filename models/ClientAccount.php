@@ -168,6 +168,7 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_LIMIT_DAY = 'lock.limit_day'; // Превышен дневной лимит
     const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
     const WARNING_BILL_PAY_OVERDUE = 'lock.bill_pay_overdue'; // Просрочка оплаты счета
+    const WARNING_LAST_DT = 'locks_log.dt'; // Дата последней блокировки
 
     const PAY_BILL_UNTIL_DAYS = 30;
 
@@ -1045,22 +1046,23 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         try {
-            Locks::setPgTimeout();
-            /** @var Locks $locks */
-            $locks = Locks::find()->where(['client_id' => $this->id])->one();
-
-            if ($locks) {
-                $lastLock = $locks->getLastLock();
-                if ($locks->is_finance_block) {
-                    $warnings[self::WARNING_FINANCE] = $lastLock['b_is_finance_block'];
+            Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+            $lock = Locks::getLock($this->id);
+            if ($lock) {
+                if ($lock['b_is_finance_block']) {
+                    $warnings[self::WARNING_FINANCE] = $lock['b_is_finance_block'];
                 }
 
-                if ($locks->is_overran) {
-                    $warnings[self::WARNING_OVERRAN] = $lastLock['b_is_overran'];
+                if ($lock['b_is_overran']) {
+                    $warnings[self::WARNING_OVERRAN] = $lock['b_is_overran'];
                 }
 
-                if ($locks->is_mn_overran) {
-                    $warnings[self::WARNING_MN_OVERRAN] = $lastLock['b_is_mn_overran'];
+                if ($lock['b_is_mn_overran']) {
+                    $warnings[self::WARNING_MN_OVERRAN] = $lock['b_is_mn_overran'];
+                }
+
+                if ($lock['dt_last_dt']) {
+                    $warnings[self::WARNING_LAST_DT] = $lock['dt_last_dt'];
                 }
             }
         } catch (\Exception $e) {

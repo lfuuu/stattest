@@ -175,6 +175,7 @@ class ClientSuperDao extends Singleton
     /**
      * Получение блокировок в ЛС
      * по супер-клиентам и ЛС
+     *
      * @param array|null $superIds
      * @param array|null $accountIds
      * @return array
@@ -203,27 +204,25 @@ class ClientSuperDao extends Singleton
             $accountIds = [$accountIds];
         }
 
-        $isLoadComplete = true;
-        try {
-            Locks::setPgTimeout();
-            $locks = Locks::find()
-                ->where(['client_id' => $accountIds])
-                ->indexBy('client_id')
-                ->all();
-        } catch (\Exception $e) {
-            \Yii::error($e);
-            $isLoadComplete = false;
-            $locks = [];
-        }
-
         $data = [];
+        $isLoadComplete = true;
         foreach ($accountIds as $accountId) {
-            /** @var Locks $lock */
-            $lock = isset($locks[$accountId]) ? $locks[$accountId] : null;
+
+
+            try {
+                Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+                $lock = Locks::getLock($accountId);
+            } catch (\Exception $e) {
+                $isLoadComplete = false;
+                $lock = [];
+            }
+
             $data[$accountId] = [
                 'account_id' => $accountId,
-                'is_finance_block' => $lock && $lock->is_finance_block,
-                'is_overran_block' => $lock && ($lock->is_overran || $lock->is_mn_overran)
+                'is_finance_block' => isset($lock['b_is_finance_block']) && $lock['b_is_finance_block'],
+                'is_overran_block' =>
+                    (isset($lock['b_is_overran']) && $lock['b_is_overran'])
+                    || (isset($lock['b_is_mn_overran']) && $lock['b_is_mn_overran']),
             ];
         }
 
@@ -235,7 +234,7 @@ class ClientSuperDao extends Singleton
      *
      * (для функции get-full-client-struct)
      *
-     * @param integer $superId
+     * @param integer|array $superId
      * @param integer $superName
      * @param integer $contractId
      * @param integer $contragentId

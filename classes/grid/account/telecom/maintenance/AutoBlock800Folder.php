@@ -1,15 +1,13 @@
 <?php
+
 namespace app\classes\grid\account\telecom\maintenance;
 
+use app\classes\grid\account\AccountGridFolder;
+use app\models\billing\Locks;
+use app\models\BusinessProcessStatus;
 use app\models\UsageVoip;
-use Yii;
 use yii\db\Expression;
 use yii\db\Query;
-use app\classes\grid\account\AccountGridFolder;
-use app\models\BusinessProcessStatus;
-use app\models\billing\Clients;
-use app\models\billing\CachedCounter;
-use app\models\billing\Locks;
 
 class AutoBlock800Folder extends AccountGridFolder
 {
@@ -55,14 +53,12 @@ class AutoBlock800Folder extends AccountGridFolder
         $query->andWhere(['c.is_blocked' => 0]);
         $query->andWhere('uv.line7800_id');
 
-        $billingQuery = (new Query)
-            ->select('clients.id')
-            ->from(['clients' => Clients::tableName()])
-            ->innerJoin(['counter' => CachedCounter::tableName()], 'counter.client_id = clients.id')
-            ->leftJoin(['lock' => Locks::tableName()], 'lock.client_id = clients.id')
-            ->where(new Expression('TRUE IN (lock.voip_auto_disabled, lock.voip_auto_disabled_local)'));
-
-        $clientsIDs = $billingQuery->column(Clients::getDb());
+        try {
+            Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+            $clientsIDs = Locks::getVoipLocks();
+        } catch (\Exception $e) {
+            $clientsIDs = [];
+        }
 
         if (count($clientsIDs)) {
             $query->andWhere(['IN', 'c.id', $clientsIDs]);

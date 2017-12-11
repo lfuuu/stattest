@@ -5,7 +5,6 @@ use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\Locks;
-use app\models\billing\LocksLog;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientSuper;
@@ -117,6 +116,7 @@ use yii\helpers\Url;
                                     <?php foreach ($contract->accounts as $index => $contractAccount): ?>
                                         <?php
                                         $warnings = $contractAccount->voipWarnings;
+                                        $isLastDt = isset($warnings[ClientAccount::WARNING_LAST_DT]) && $warnings[ClientAccount::WARNING_LAST_DT];
                                         $contractBlockers = [];
 
                                         $lockByCredit = isset($warnings[ClientAccount::WARNING_CREDIT]) || isset($warnings[ClientAccount::WARNING_FINANCE]);
@@ -136,35 +136,20 @@ use yii\helpers\Url;
                                             </span>
                                             <span class="col-sm-2 locks">
                                                 <?php
-                                                $lastLock = false;
-
                                                 if ($contractAccount->is_blocked) {
-
-                                                    try {
-                                                        Locks::setPgTimeout();
-                                                        $lastLock = LocksLog::find()
-                                                            ->where(['client_id' => $account->id, 'is_blocked' => true])
-                                                            ->orderBy(['dt' => SORT_DESC])
-                                                            ->one();
-                                                    } catch (\Exception $e) {
-                                                        $lastLock = null;
-                                                    }
-
                                                     $contractBlockers[] = 'Заблокирован' .
-                                                        ($lastLock ?
-                                                            ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y') :
+                                                        ($isLastDt ?
+                                                            ': ' . (new DateTimeWithUserTimezone($warnings[ClientAccount::WARNING_LAST_DT], $account->timezone))->format('H:i:s d.m.Y') :
                                                             ''
                                                         );
                                                 }
 
                                                 if (isset($warnings[ClientAccount::WARNING_OVERRAN])) {
-                                                    $lastLock = $warnings[ClientAccount::WARNING_OVERRAN];
-
                                                     $contractBlockers[] = Html::tag('abbr',
                                                         'Блок превышение' .
                                                         (
-                                                        $lastLock ?
-                                                            ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y') :
+                                                        $isLastDt ?
+                                                            ': ' . (new DateTimeWithUserTimezone($warnings[ClientAccount::WARNING_LAST_DT], $account->timezone))->format('H:i:s d.m.Y') :
                                                             ''
                                                         ),
                                                         [
@@ -174,13 +159,11 @@ use yii\helpers\Url;
                                                 }
 
                                                 if (isset($warnings[ClientAccount::WARNING_MN_OVERRAN])) {
-                                                    $lastLock = $warnings[ClientAccount::WARNING_MN_OVERRAN];
-
                                                     $contractBlockers[] = Html::tag('abbr',
                                                         'Блок превышение МН' .
                                                         (
-                                                        $lastLock ?
-                                                            ': ' . (new DateTimeWithUserTimezone($lastLock->dt, $account->timezone))->format('H:i:s d.m.Y') :
+                                                        $isLastDt ?
+                                                            ': ' . (new DateTimeWithUserTimezone($warnings[ClientAccount::WARNING_LAST_DT], $account->timezone))->format('H:i:s d.m.Y') :
                                                             ''
                                                         ),
                                                         [

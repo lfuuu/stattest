@@ -12,7 +12,8 @@ use yii\db\Connection;
 
 class ActiveRecord extends \yii\db\ActiveRecord
 {
-    const PG_TIMEOUT = 3000;
+    const PG_ACCOUNT_TIMEOUT = 1000;
+    const PG_DEFAULT_TIMEOUT = 3000;
 
     protected $isAttributeTypecastBehavior = false;
 
@@ -57,7 +58,7 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 continue;
             }
 
-            $historyIdPhp[] = [$model->getClassName(), (string) $model->{$idField}, 0];
+            $historyIdPhp[] = [$model->getClassName(), (string)$model->{$idField}, 0];
         }
 
         if (count($parentModel) === 2) {
@@ -295,17 +296,16 @@ class ActiveRecord extends \yii\db\ActiveRecord
      *
      * @param int $timeout
      * @param Connection $db
+     * @throws \yii\db\Exception
      */
-    public static function setPgTimeout($timeout = self::PG_TIMEOUT, $db = null)
+    public static function setPgTimeout($timeout = self::PG_DEFAULT_TIMEOUT, $db = null)
     {
         $timeout = (int)$timeout;
-
         if (!$db) {
             $db = static::getDb();
         }
 
-        $db
-            ->createCommand('SET statement_timeout TO ' . $timeout)
+        $db->createCommand('SET statement_timeout TO ' . $timeout)
             ->execute();
     }
 }
