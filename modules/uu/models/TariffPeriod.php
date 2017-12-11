@@ -215,7 +215,7 @@ class TariffPeriod extends ActiveRecord
             $activeQuery->andWhere(['tariff.country_id' => $countryId]);
         }
 
-        if ($cityId) {
+        if ($cityId && in_array($serviceTypeId, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])) {
             $activeQuery
                 ->innerJoin(TariffVoipCity::tableName() . ' tariff_cities', 'tariff.id = tariff_cities.tariff_id')
                 ->andWhere(['tariff_cities.city_id' => $cityId]);
