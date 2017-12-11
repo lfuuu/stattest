@@ -118,7 +118,7 @@ class HttpRequest extends \yii\httpclient\Request
                     $msg = $responseData['errors'][0]['message'];
                     $code = $responseData['errors'][0]['code'];
                 } else {
-                    $msg = '';
+                    $msg = print_r($responseData, true);
                     $code = 500;
                 }
             }
