@@ -1,6 +1,7 @@
 <?php
 
 /** @var $number app\models\Number */
+
 /** @var \app\classes\BaseView $this */
 
 use app\classes\Html;
@@ -37,13 +38,14 @@ echo \yii\widgets\Breadcrumbs::widget([
                 </tr>
                 <tr>
                     <td>DID группа</td>
-                    <th><?= $number->didGroup->name ?></th>
+                    <th><?= $number->didGroup->getLink() ?></th>
                 </tr>
                 <tr>
                     <td>Статус</td>
                     <th><?= Number::$statusList[$number->status] ?></th>
                 </tr>
-                <?php if ($number->client_id): ?>
+
+                <?php if ($number->client_id) : ?>
                     <tr>
                         <td>Лицевой счет</td>
                         <th>
@@ -54,7 +56,8 @@ echo \yii\widgets\Breadcrumbs::widget([
                         </th>
                     </tr>
                 <?php endif; ?>
-                <?php if ($number->status == Number::STATUS_NOTACTIVE_HOLD): ?>
+
+                <?php if ($number->status == Number::STATUS_NOTACTIVE_HOLD) : ?>
                     <tr>
                         <td>В остойнике до:</td>
                         <th>
@@ -64,6 +67,7 @@ echo \yii\widgets\Breadcrumbs::widget([
                         </th>
                     </tr>
                 <?php endif; ?>
+
             </table>
 
             <?php

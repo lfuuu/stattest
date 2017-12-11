@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\classes\Html;
 use app\classes\model\ActiveRecord;
 use app\dao\DidGroupDao;
 use InvalidArgumentException;
@@ -288,5 +289,16 @@ class DidGroup extends ActiveRecord
     public static function getUrlById($id)
     {
         return Url::to(['/tariff/did-group/edit', 'id' => $id]);
+    }
+
+    /**
+     * Вернуть html: имя + ссылка
+     *
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getLink()
+    {
+        return Html::a(Html::encode($this->name), $this->getUrl());
     }
 }

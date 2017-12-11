@@ -24,6 +24,7 @@ $number = $accountTariffParent ? $accountTariffParent->number : null;
         <?= $form->field($accountTariff, 'city_id')
             ->widget(Select2::className(), [
                 'data' => City::getList($isWithEmpty = true, $number ? $number->country_code : null),
+                'disabled' => true,
             ]) ?>
     </div>
 
