@@ -430,7 +430,7 @@ class UuController extends ApiInternalController
             }
 
             if (!$currency_id) {
-                $currency_id = $clientAccount->country->currency_id;
+                $currency_id = $clientAccount->currency;
             }
 
             $is_postpaid = $clientAccount->is_postpaid;
