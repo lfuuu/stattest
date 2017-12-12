@@ -53,7 +53,7 @@ class Imsi extends ActiveRecord
     public function rules()
     {
         return [
-            [['imsi', 'iccid', 'msisdn'], 'required'],
+            [['imsi', 'iccid'], 'required'],
             [['imsi', 'iccid', 'msisdn', 'did', 'is_active', 'is_anti_cli', 'is_roaming', 'status_id'], 'integer'],
             [['actual_from'], 'date', 'format' => 'php:Y-m-d'],
             ['did', 'default', 'value' => null], // иначе пустая строка получается, ибо в БД это поле varchar
