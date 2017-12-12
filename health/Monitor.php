@@ -41,6 +41,7 @@ abstract class Monitor extends Component
             MonitorUuShiftTariff::className(),
             MonitorSuperClientStruct::className(),
             BacklogSlaveServer::className(),
+            MonitorNnpPrefix::className(),
         ];
     }
 }
