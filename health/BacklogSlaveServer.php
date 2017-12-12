@@ -50,7 +50,7 @@ class BacklogSlaveServer extends Monitor
      */
     public function getLimits()
     {
-        return [60, 180, 600];
+        return [600, 1200, 3600];
     }
 
 }
