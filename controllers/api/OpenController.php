@@ -159,7 +159,7 @@ final class OpenController extends Controller
 
             $priceLevel = $clientAccount->price_level;
             $countryId = $clientAccount->country_id;
-            $currencyId = $clientAccount->country->currency_id;
+            $currencyId = $clientAccount->currency;
             $isPostpaid = $clientAccount->is_postpaid;
             $tariffPersonId = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
                 TariffPerson::ID_NATURAL_PERSON :
