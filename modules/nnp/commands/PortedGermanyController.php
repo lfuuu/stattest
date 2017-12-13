@@ -2,24 +2,11 @@
 
 namespace app\modules\nnp\commands;
 
-use app\helpers\DateTimeZoneHelper;
 use app\modules\nnp\models\Country;
-use app\modules\nnp\models\Number;
-use app\modules\nnp\models\NumberRange;
-use Yii;
-use yii\console\Controller;
-use yii\db\Connection;
 use yii\web\NotFoundHttpException;
 
-class NumberController extends Controller
+class PortedGermanyController extends PortedController
 {
-    const CHUNK_SIZE = 500000;
-
-    private $_germanyUrl = '@runtime/germany.gz';
-
-    /** @var Connection */
-    private $_db = null;
-
     private $_operators = [
         'D088' => '010023 GmbH',
         'D090' => '010023 GmbH',
@@ -371,53 +358,15 @@ class NumberController extends Controller
     ];
 
     /**
-     * Импортировать портированные номера Германии. 20 минут, если без индексов
-     *
+     * @inheritdoc
+     * @throws \yii\base\InvalidParamException
      * @throws \yii\web\NotFoundHttpException
      * @throws \yii\db\Exception
      * @throws \LogicException
      */
-    public function actionGermany()
+    protected function readData()
     {
-        if (NumberRange::isTriggerEnabled()) {
-            throw new \LogicException('Импорт невозможен, потому что триггер включен');
-        }
-
-        $this->_db = Yii::$app->dbPgNnp;
-        $this->_db->enableLogging = false; // чтобы память не утекала
-        // $transaction = $this->_db->beginTransaction();
-        try {
-            echo PHP_EOL . 'Начало импорта: ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
-
-            $this->_importGermany();
-            // $transaction->commit();
-            echo PHP_EOL . 'Окончание импорта: ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
-            return self::EXIT_CODE_NORMAL;
-
-        } catch (\Exception $e) {
-            // $transaction->rollBack();
-            Yii::error('Ошибка импорта');
-            Yii::error($e);
-            echo 'Ошибка: ' . $e->getMessage();
-            return self::EXIT_CODE_ERROR;
-        }
-
-    }
-
-    /**
-     * Импортировать портированные номера Германии
-     *
-     * @throws \yii\web\NotFoundHttpException
-     * @throws \yii\db\Exception
-     * @throws \LogicException
-     */
-    private function _importGermany()
-    {
-        if (NumberRange::isTriggerEnabled()) {
-            throw new \LogicException('Импорт невозможен, потому что триггер включен');
-        }
-
-        $fileUrl = 'compress.zlib://' . \Yii::getAlias($this->_germanyUrl);
+        $fileUrl = 'compress.zlib://' . \Yii::getAlias('@runtime/' . $this->fileName);
         $fp = fopen($fileUrl, 'r');
         if (!$fp) {
             throw new NotFoundHttpException('Ошибка чтения файла ' . $fileUrl);
@@ -432,7 +381,7 @@ class NumberController extends Controller
 
             $number = str_replace('+', '', $row[0]);
             if (!$number || !is_numeric($number)) {
-                throw new \LogicException('Неправильные данные: ' . print_r($row, true));
+                throw new \LogicException('Неправильный номер: ' . print_r($row, true));
             }
 
             $operatorName = $row[1];
@@ -443,117 +392,14 @@ class NumberController extends Controller
             $insertValues[] = [$number, $operatorName];
 
             if (count($insertValues) >= self::CHUNK_SIZE) {
-                $this->_import(Country::GERMANY, $insertValues);
+                $this->insertValues(Country::GERMANY, $insertValues);
             }
         }
 
         fclose($fp);
 
         if ($insertValues) {
-            $this->_import(Country::GERMANY, $insertValues);
+            $this->insertValues(Country::GERMANY, $insertValues);
         }
-
     }
-
-    /**
-     * Импорт данных
-     *
-     * @param int $countryCode
-     * @param array $insertValues
-     * @throws \yii\db\Exception
-     * @throws \LogicException
-     */
-    private function _import($countryCode, &$insertValues)
-    {
-        echo PHP_EOL;
-
-        // Создать временную таблицу
-        $sql = <<<SQL
-            CREATE TEMPORARY TABLE number_tmp
-            (
-                id serial NOT NULL,
-                full_number bigint NOT NULL,
-                operator_source character varying(255)
-            )
-SQL;
-        // CONSTRAINT number_tmp_pkey PRIMARY KEY (id)
-        $this->_db->createCommand($sql)->execute();
-
-        // Добавить в нее данные
-        $this->_db->createCommand()
-            ->batchInsert('number_tmp', ['full_number', 'operator_source'], $insertValues)
-            ->execute();
-        $insertValues = [];
-
-        // создать индекс
-//        $sql = <<<SQL
-//            CREATE INDEX number_tmp_full_number_idx ON number_tmp USING btree (full_number)
-//SQL;
-//        $this->_db->createCommand($sql)->execute();
-//        echo '# ';
-
-        // удалить дубли
-        $sql = <<<SQL
-            WITH t1 AS (SELECT MAX(id) as max_id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
-            DELETE FROM number_tmp
-            USING t1
-            WHERE number_tmp.full_number = t1.full_number AND number_tmp.id < t1.max_id
-SQL;
-        $affectedRows = $this->_db->createCommand($sql)->execute();
-        echo sprintf('Дублей: %d' . PHP_EOL, $affectedRows);
-
-
-        // обновить
-        $tableName = Number::tableName();
-        $sql = <<<SQL
-            UPDATE
-                {$tableName} number
-            SET
-                operator_source = number_tmp.operator_source,
-                operator_id = CASE WHEN number.operator_source = number_tmp.operator_source THEN number.operator_id ELSE NULL END
-            FROM
-                number_tmp
-            WHERE
-                number.full_number = number_tmp.full_number
-SQL;
-        $affectedRows = $this->_db->createCommand($sql)->execute();
-        echo sprintf('Обновлено: %d' . PHP_EOL, $affectedRows);
-
-        // удалить из временной таблицы уже обработанное
-        $sql = <<<SQL
-            DELETE FROM
-                number_tmp
-            USING
-                {$tableName} number
-            WHERE
-                number.full_number = number_tmp.full_number
-SQL;
-        $this->_db->createCommand($sql)->execute();
-
-        // добавить в основную таблицу всё оставшееся из временной
-        $sql = <<<SQL
-            INSERT INTO
-                {$tableName}
-            (
-                country_code,
-                full_number,
-                operator_source
-            )
-            WITH t1 AS (SELECT MAX(id) as id, full_number FROM number_tmp GROUP BY full_number HAVING COUNT(*) > 1)
-            SELECT 
-                :country_code as country_code, 
-                full_number,
-                operator_source
-            FROM
-                number_tmp
-SQL;
-        $affectedRows = $this->_db->createCommand($sql, [':country_code' => $countryCode])->execute();
-        echo sprintf('Добавлено: %d' . PHP_EOL, $affectedRows);
-
-        $sql = <<<SQL
-            DROP TABLE number_tmp
-SQL;
-        $this->_db->createCommand($sql)->execute();
-    }
-
 }
