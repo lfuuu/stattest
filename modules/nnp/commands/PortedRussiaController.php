@@ -38,7 +38,7 @@ class PortedRussiaController extends PortedController
      */
     protected function readData()
     {
-        $fileUrl = 'compress.zlib://' . \Yii::getAlias('@runtime/' . $this->fileName);
+        $fileUrl = 'zip://' . \Yii::getAlias('@runtime/' . $this->fileName);
         $fp = fopen($fileUrl, 'r');
         if (!$fp) {
             throw new NotFoundHttpException('Ошибка чтения файла ' . $fileUrl);

@@ -132,7 +132,7 @@ class Module extends \yii\base\Module
                 ->setId('nnp')
                 ->setTitle('ННП')
                 ->addItem('Диапазон номеров', ['/nnp/number-range/', 'NumberRangeFilter[country_code]' => Country::RUSSIA, 'NumberRangeFilter[is_active]' => 1], ['nnp.read'])
-                ->addItem('Портированные номера', ['/nnp/number/', 'NumberFilter[country_code]' => Country::GERMANY], ['nnp.read'])
+                ->addItem('Портированные номера', ['/nnp/number/', 'NumberFilter[country_code]' => Country::RUSSIA], ['nnp.read'])
                 ->addItem('Операторы', ['/nnp/operator/'], ['nnp.read'])
                 ->addItem('Страны', ['/nnp/country/'], ['nnp.read'])
                 ->addItem('Регионы', ['/nnp/region/'], ['nnp.read'])

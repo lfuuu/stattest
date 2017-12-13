@@ -19,6 +19,17 @@ abstract class PortedController extends Controller
     public $fileName = '';
 
     /**
+     * Список возможных параметров при вызове метода
+     *
+     * @param string $actionID
+     * @return string[]
+     */
+    public function options($actionID)
+    {
+        return array_merge(parent::options($actionID), ['fileName']);
+    }
+
+    /**
      * Импортировать данные
      *
      * @return int
