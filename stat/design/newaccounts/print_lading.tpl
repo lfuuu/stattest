@@ -149,7 +149,7 @@ bgColor="#FFFFFF">
 {*** to ***}
 {capture name=to}
 {$bill_client.company_full}, {$bill_client.address_post}<br />
-{$bill_client.bank_properties}<br /> ИНН/КПП {$bill_client.inn}/{$bill_client.kpp} БИК {$bill_client.bik}
+{if $bill_client.bank_properties}{$bill_client.bank_properties}{else}р/с {$bill_client.corr_acc}, в {$bill_client.bank_name} ({$bill_client.bank_city}), к/с {$bill_client.corr_acc}{/if}, БИК&nbsp;{$bill_client.bik}, ИНН{if $bill_client.kpp}/КПП{/if} {$bill_client.inn}{if $bill_client.kpp}/{$bill_client.kpp}{/if}
 {/capture}
 
 {*** from_send ***}
@@ -190,11 +190,6 @@ bgColor="#FFFFFF">
 {/if}
 {/capture}
 
-{*** to_pay ***}
-{capture name=to_pay}
-{$bill_client.company_full}, {$bill_client.address_jur}<br />
-{$bill_client.bank_properties}<br />ИНН/КПП {$bill_client.inn}/{$bill_client.kpp} БИК {$bill_client.bik}
-{/capture}
 
 {if $bill.is_rollback}{$smarty.capture.to}{else}{$smarty.capture.from}{/if}
 </td>
@@ -235,7 +230,7 @@ bgColor="#FFFFFF">
 </tr>
 <tr>
 <td align="right" rowspan=4>Поставщик:</td>
-<td colspan="5" rowspan=4>{if $bill.is_rollback}{$smarty.capture.to_pay}{else}{$smarty.capture.from_send}{/if}</td>
+<td colspan="5" rowspan=4>{if $bill.is_rollback}{$smarty.capture.to}{else}{$smarty.capture.from_send}{/if}</td>
 </tr>
 <tr>
 <td align="right">&nbsp;</td>
@@ -251,7 +246,7 @@ bgColor="#FFFFFF">
 </tr>
 <tr>
 <td align="right" rowspan=4>Плательщик:</td>
-<td colspan="5" rowspan=4>{if !$bill.is_rollback}{$smarty.capture.to_pay}{else}{$smarty.capture.from_send}{/if}</td>
+<td colspan="5" rowspan=4>{if !$bill.is_rollback}{$smarty.capture.to}{else}{$smarty.capture.from_send}{/if}</td>
 </tr>
 <tr>
 <td align="right">&nbsp;</td>
