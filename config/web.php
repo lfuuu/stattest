@@ -185,6 +185,7 @@ $config = [
         'transfer' => ['class' => 'app\modules\transfer\Module'],
         'mtt' => ['class' => 'app\modules\mtt\Module'],
         'sim' => ['class' => 'app\modules\sim\Module'],
+        'payments' => ['class' => 'app\modules\payments\Module'],
     ],
     'params' => $params,
 ];

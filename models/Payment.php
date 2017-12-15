@@ -56,6 +56,7 @@ class Payment extends ActiveRecord
     const ECASH_YANDEX = 'yandex';
     const ECASH_PAYPAL = 'paypal';
     const ECASH_SBERBANK = 'sberbank';
+    const ECASH_QIWI = 'qiwi';
 
     public static $types = [
         self::TYPE_PROV => 'Check',
@@ -78,6 +79,7 @@ class Payment extends ActiveRecord
         self::ECASH_YANDEX => 'YandexMoney',
         self::ECASH_PAYPAL => 'PayPal',
         self::ECASH_SBERBANK => 'Sberbank',
+        self::ECASH_QIWI => 'Qiwi',
     ];
 
     /**
