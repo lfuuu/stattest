@@ -23,7 +23,7 @@ trait AccountTariffBillerTrait
      */
     public static function getMinLogDatetime()
     {
-        return (new DateTime())->setTime(0, 0, 0)->modify('first day of this month -6 months');
+        return (new DateTime())->setTime(0, 0, 0)->modify('first day of previous month');
     }
 
     /**
