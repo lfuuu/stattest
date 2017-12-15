@@ -217,6 +217,7 @@ class AccountTariffLog extends ActiveRecord
             ->where(['account_tariff_id' => $this->account_tariff_id])
             ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
             ->count()
+            && count($accountTariff->accountTariffLogs) > 1 // исключим проблему при смене таймзоны клиента на тестовом тарифе (менеджеры говорят, что это нормально)
         ) {
             $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.');
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_FUTURE;
