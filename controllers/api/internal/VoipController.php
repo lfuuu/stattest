@@ -5,6 +5,7 @@ namespace app\controllers\api\internal;
 use app\classes\api\ApiPhone;
 use app\exceptions\ModelValidationException;
 use app\models\Number;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\NumberRange;
 use Yii;
 use DateTime;
@@ -159,7 +160,23 @@ class VoipController extends ApiInternalController
             ['number' => $number->number],
             NumberRange::getNumberInfo($number)
         );
-
     }
 
+    /**
+     * @SWG\Get(tags = {"Numbers"}, path = "/internal/voip/get-mvno-number-list/", summary = "Получение списка MVNO номеров", operationId = "get-mvno-number-list",
+     *   @SWG\Response(response = 200, description = "данные о клиентах партнёра",
+     *     @SWG\Schema(type = "array", @SWG\Items(type = "string", description = "Номер телефона"))
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
+     * )
+     */
+    public function actionGetMvnoNumberList()
+    {
+        return Number::find()
+            ->where(['ndc_type_id' => NdcType::ID_MOBILE])
+            ->select('number')
+            ->orderBy(['number' => SORT_ASC])
+            ->asArray()
+            ->column();
+    }
 }

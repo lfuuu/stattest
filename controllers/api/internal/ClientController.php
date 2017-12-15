@@ -14,6 +14,8 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientSuper;
+use app\models\Business;
+use app\models\BusinessProcess;
 use Exception;
 use Yii;
 
@@ -134,7 +136,8 @@ class ClientController extends ApiInternalController
         $contragent_id = null,
         $contragent_name = null,
         $account_id = null
-    ) {
+    )
+    {
 
         foreach (['id', 'name', 'contragent_id', 'contragent_name', 'account_id'] as $var) {
             $$var = isset($this->requestData[$var]) ? $this->requestData[$var] : null;
@@ -281,7 +284,7 @@ class ClientController extends ApiInternalController
     public function actionGetFullClientStruct()
     {
         $params = [];
-        foreach(['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $value) {
+        foreach (['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $value) {
             $params[$value] = isset($this->requestData[$value]) ? $this->requestData[$value] : null;
         }
 
@@ -353,7 +356,7 @@ class ClientController extends ApiInternalController
     public function actionGetSuperClientStruct()
     {
         $params = [];
-        foreach(['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $value) {
+        foreach (['id', 'name', 'contract_id', 'contragent_id', 'contragent_name', 'account_id'] as $value) {
             $params[$value] = isset($this->requestData[$value]) ? $this->requestData[$value] : null;
         }
 
@@ -392,11 +395,11 @@ class ClientController extends ApiInternalController
     /**
      * Возвращает массив продуктов и их статус у клиента
      *
-     * @param int $client		
-     * @return array		
-     * @throws \yii\db\Exception		
+     * @param int $client
+     * @return array
+     * @throws \yii\db\Exception
      */
-    private function _getPlatformaServices($client)		
+    private function _getPlatformaServices($client)
     {
         return array_map(function ($row) {
             $row['id'] = (int)$row['id'];
@@ -404,32 +407,32 @@ class ClientController extends ApiInternalController
             return $row;
         },
             Yii::$app->db->createCommand("		
-                select 		
+                SELECT 		
                     `usage_voip`.`client` AS `client`,		
                     `usage_voip`.`id` AS `id`,		
                     'phone' AS `name`,		
-                    ((`usage_voip`.`actual_from` <= now()) and (`usage_voip`.`actual_to` >= now())) AS `enabled` 		
-                from `usage_voip`  		
-                where client = :client		
+                    ((`usage_voip`.`actual_from` <= now()) AND (`usage_voip`.`actual_to` >= now())) AS `enabled` 		
+                FROM `usage_voip`  		
+                WHERE client = :client		
                 		
-                union all 		
-                select 		
+                UNION ALL 		
+                SELECT 		
                     `usage_virtpbx`.`client` AS `client`,		
                     `usage_virtpbx`.`id` AS `id`,		
                     'vpbx' AS `name`,		
-                    ((`usage_virtpbx`.`actual_from` <= now()) and (`usage_virtpbx`.`actual_to` >= now())) AS `enabled` 		
-                from `usage_virtpbx`		
-                where client = :client		
+                    ((`usage_virtpbx`.`actual_from` <= now()) AND (`usage_virtpbx`.`actual_to` >= now())) AS `enabled` 		
+                FROM `usage_virtpbx`		
+                WHERE client = :client		
                   		
-                union all 		
+                UNION ALL 		
                 		
-                select 		
+                SELECT 		
                     `usage_call_chat`.`client` AS `client`,		
                     `usage_call_chat`.`id` AS `id`,		
                     'feedback' AS `name`,		
-                    ((`usage_call_chat`.`actual_from` <= now()) and (`usage_call_chat`.`actual_to` >= now())) AS `enabled` 		
-                from `usage_call_chat`		
-                where client = :client		
+                    ((`usage_call_chat`.`actual_from` <= now()) AND (`usage_call_chat`.`actual_to` >= now())) AS `enabled` 		
+                FROM `usage_call_chat`		
+                WHERE client = :client		
         ", [":client" => $client])->queryAll());
     }
 
@@ -544,5 +547,80 @@ class ClientController extends ApiInternalController
         ClientAccount::updateAll(['timezone_name' => $timezone], ['super_id' => $client->id]);
 
         return true;
+    }
+
+    /**
+     * @SWG\Definition(definition = "business", type = "object", required = {"id", "name"},
+     *   @SWG\Property(property = "id", type = "integer",description = "ID"),
+     *   @SWG\Property(property = "name", type = "string",description = "Название подразделения")
+     * ),
+     * @SWG\Get(tags = {"Справочники"}, path = "/internal/client/get-business-list/", summary = "Получение списка подразделений", operationId = "get-business-list",
+     *   @SWG\Response(response = 200, description = "данные о подразделениях",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/business")
+     *     )
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
+     * )
+     */
+    public function actionGetBusinessList()
+    {
+        return Business::find()
+            ->select(['id', 'name'])
+            ->orderBy(['sort' => SORT_ASC])
+            ->asArray()
+            ->all();
+    }
+
+    /**
+     * @SWG\Definition(definition = "business_process", type = "object",required = {"id", "business_id", "name"},
+     *   @SWG\Property(property = "id", type = "integer",description = "ID бизнес процесса"),
+     *   @SWG\Property(property = "business_id", type = "integer",description = "ID подразделения"),
+     *   @SWG\Property(property = "name", type = "string",description = "Название подразделения")
+     * ),
+     * @SWG\Get(tags = {"Справочники"}, path = "/internal/client/get-business-process-list/", summary = "Получение списка бизнес процессов", operationId = "get-business-process-list",
+     *   @SWG\Response(response = 200, description = "данные о бизнес процессах",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/business_process")
+     *     )
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
+     * )
+     */
+    public function actionGetBusinessProcessList()
+    {
+        return BusinessProcess::find()
+            ->select(['id', 'business_id', 'name'])
+            ->where(['show_as_status' => '1'])
+            ->orderBy([
+                'business_id' => SORT_ASC,
+                'sort' => SORT_ASC,
+            ])
+            ->asArray()
+            ->all();
+    }
+
+    /**
+     * @SWG\Definition(definition = "business_process_status", type = "object",required = {"id", "business_process_id", "name"},
+     *   @SWG\Property(property = "id", type = "integer",description = "ID статуса"),
+     *   @SWG\Property(property = "business_process_id", type = "integer",description = "ID бизнес процесса"),
+     *   @SWG\Property(property = "name", type = "string",description = "Название статуса")
+     * ),
+     * @SWG\Get(tags = {"Справочники"}, path = "/internal/client/get-business-process-status-list/", summary = "Получение списка стаусов бизнес процессов", operationId = "get-business-process-status-list",
+     *   @SWG\Response(response = 200, description = "данные о статусах бизнес процессов",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/business_process_status")
+     *     )
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки", @SWG\Schema(ref = "#/definitions/error_result"))
+     * )
+     */
+    public function actionGetBusinessProcessStatusList()
+    {
+        return BusinessProcessStatus::find()
+            ->select(['id', 'business_process_id', 'name'])
+            ->orderBy([
+                'business_process_id' => SORT_ASC,
+                'sort' => SORT_ASC,
+            ])
+            ->asArray()
+            ->all();
     }
 }
