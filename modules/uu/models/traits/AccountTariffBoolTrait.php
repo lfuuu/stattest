@@ -89,9 +89,10 @@ trait AccountTariffBoolTrait
             ->format(DateTimeZoneHelper::DATETIME_FORMAT);
 
         if (AccountTariffLog::find()
-            ->where(['account_tariff_id' => $this->id])
-            ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
-            ->count()
+                ->where(['account_tariff_id' => $this->id])
+                ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
+                ->count()
+            && count($this->accountTariffLogs) > 1 // исключим проблему при смене таймзоны клиента на тестовом тарифе (менеджеры говорят, что это нормально)
         ) {
             // Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.
             return false;
