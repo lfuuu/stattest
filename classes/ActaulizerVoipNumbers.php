@@ -47,15 +47,16 @@ class ActaulizerVoipNumbers extends Singleton
 
     /**
      * @param string $number
+     * @param int $accountTariffId
      * @return bool
      */
-    public function actualizeByNumber($number)
+    public function actualizeByNumber($number, $accountTariffId = null)
     {
         if ($this->_check7800($number)) {
             return true;
         }
 
-        $this->_checkSync($number);
+        $this->_checkSync($number, null, $accountTariffId);
     }
 
     /**
@@ -77,8 +78,9 @@ class ActaulizerVoipNumbers extends Singleton
     /**
      * @param string $number
      * @param int $clientId
+     * @param int $accountTariffId
      */
-    private function _checkSync($number = null, $clientId = null)
+    private function _checkSync($number = null, $clientId = null, $accountTariffId = null)
     {
         if (
         $diff = $this->_checkDiff(
@@ -86,7 +88,7 @@ class ActaulizerVoipNumbers extends Singleton
             ActualNumber::dao()->collectFromUsages($number, $clientId)
         )
         ) {
-            $this->_diffToSync($diff);
+            $this->_diffToSync($diff, $accountTariffId);
         }
 
     }
@@ -181,10 +183,12 @@ class ActaulizerVoipNumbers extends Singleton
 
     /**
      * @param array $diff
+     * @param int $accountTariffId
      */
-    private function _diffToSync($diff)
+    private function _diffToSync($diff, $accountTariffId = null)
     {
         foreach ($diff as $data) {
+            $accountTariffId && $data['account_tariff_id'] = $accountTariffId;
             EventQueue::go(EventQueue::ATS3__SYNC, $data);
         }
     }

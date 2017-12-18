@@ -252,10 +252,19 @@ class EventQueue extends ActiveRecord
         return self::find()
             ->where([
                 'account_tariff_id' => $this->account_tariff_id,
-                'status' => [self::STATUS_PLAN, self::STATUS_ERROR, self::STATUS_STOP],
             ])
-            ->andWhere(['<=', 'next_start', DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT)])
             ->andWhere(['<', 'id', $this->id])// строго меньше
+            ->andWhere([
+                'OR',
+                [
+                    // запланированные, которые надо выполнить сейчас
+                    'AND',
+                    ['status' => self::STATUS_PLAN],
+                    ['<=', 'next_start', DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT)]
+                ],
+                // ошибочные с любой датой
+                ['status' => [self::STATUS_ERROR, self::STATUS_STOP]]
+            ])
             ->exists();
     }
 

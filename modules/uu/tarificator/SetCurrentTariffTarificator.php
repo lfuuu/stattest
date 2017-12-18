@@ -96,7 +96,7 @@ SQL;
 
                         $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
                         if ($isCoreServer) {
-                            ActaulizerVoipNumbers::me()->actualizeByNumber($accountTariff->voip_number); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
+                            ActaulizerVoipNumbers::me()->actualizeByNumber($accountTariff->voip_number, $accountTariff->id); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
                         }
                         break;
 

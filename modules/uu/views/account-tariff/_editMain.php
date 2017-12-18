@@ -70,7 +70,7 @@ if (!$serviceType) {
             </div>
 
             <?php // когда редактировал ?>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('update_time') ?></label>
                 <div><?= ($accountTariff->update_time && is_string($accountTariff->update_time) && $accountTariff->update_time[0] != '0') ?
                         (new DateTimeWithUserTimezone($accountTariff->update_time))->getDateTime() :
@@ -78,9 +78,15 @@ if (!$serviceType) {
             </div>
 
             <?php // ЛС ?>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <label><?= $accountTariff->getAttributeLabel('client_account_id') ?></label>
                 <div><?= $accountTariff->clientAccount->getLink() ?></div>
+            </div>
+
+            <?php // Очередь ?>
+            <div class="col-sm-2">
+                <label>Очередь событий</label>
+                <div><?= Html::a('Показать', ['/monitoring/event-queue', 'EventQueueFilter[account_tariff_id]' => $accountTariff->id]) ?></div>
             </div>
 
         </div>
