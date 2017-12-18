@@ -14,6 +14,7 @@ use Yii;
 use DateTime;
 use DateTimeZone;
 use yii\db\ActiveQuery;
+use yii\db\Connection;
 use yii\db\Expression;
 use app\classes\Singleton;
 use app\classes\Html;
@@ -26,6 +27,7 @@ use app\models\UsageVoipPackage;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
+use yii\db\Query;
 
 /**
  * @method static ReportUsageDao me($args = null)
@@ -65,7 +67,8 @@ class ReportUsageDao extends Singleton
         $direction = 'both',
         $isFull = false,
         $packages = []
-    ) {
+    )
+    {
         $from = (new DateTime('now', new DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))
             ->setTimestamp($from)
             ->setTime(0, 0, 0);
@@ -77,12 +80,6 @@ class ReportUsageDao extends Singleton
         $clientAccount = ClientAccount::findOne(['id' => $accountId]);
         $query = CallsRaw::find()
             ->alias('cr')
-            ->andWhere([
-                'BETWEEN',
-                'cr.connect_time',
-                $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
-                $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
-            ])
             ->andWhere(['account_id' => $accountId]);
 
         $direction !== 'both' && $query->andWhere(['cr.orig' => ($direction === 'in' ? 'false' : 'true')]);
@@ -140,10 +137,10 @@ class ReportUsageDao extends Singleton
 
         switch ($detality) {
             case 'dest':
-                return $this->_voipStatisticByDestination($query, $clientAccount);
+                return $this->_voipStatisticByDestination($query, $clientAccount, $from, $to);
                 break;
             default:
-                return $this->_voipStatistic($query, $clientAccount, $from, $packages, $detality, $paidonly, $isFull);
+                return $this->_voipStatistic($query, $clientAccount, $from, $to, $packages, $detality, $paidonly, $isFull);
                 break;
         }
     }
@@ -158,8 +155,8 @@ class ReportUsageDao extends Singleton
     public function getUsageVoipPackagesStatistic($usageId, $packageId = 0)
     {
         $query = UsageVoipPackage::find()
-                ->actual()
-                ->andWhere(['usage_voip_id' => $usageId]);
+            ->actual()
+            ->andWhere(['usage_voip_id' => $usageId]);
 
         if ((int)$packageId) {
             $query->andWhere(['id' => $packageId]);
@@ -174,6 +171,7 @@ class ReportUsageDao extends Singleton
      * @param ActiveQuery $query
      * @param ClientAccount $clientAccount
      * @param DateTime $from
+     * @param DateTime $to
      * @param array $packages
      * @param string $detality
      * @param int $paidOnly
@@ -185,11 +183,13 @@ class ReportUsageDao extends Singleton
         ActiveQuery $query,
         ClientAccount $clientAccount,
         DateTime $from,
+        DateTime $to,
         $packages = [],
         $detality = '',
         $paidOnly = 0,
         $isFull = false
-    ) {
+    )
+    {
         $offset = $from->getOffset();
 
         if (isset($packages) && count($packages) > 0) {
@@ -280,20 +280,12 @@ class ReportUsageDao extends Singleton
             ]);
         }
 
-        if ($query->count() >= self::REPORT_MAX_VIEW_ITEMS) {
-            Yii::$app->session->setFlash('error',
-                'Статистика отображается не полностью.' .
-                Html::tag('br') . PHP_EOL .
-                ' Сделайте ее менее детальной или сузьте временной период'
-            );
-        }
-
-        $query->limit($isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS);
         $query->orderBy('ts1 ASC');
+
 
         $rt = ['price' => 0, 'ts2' => 0, 'cnt' => 0, 'is_total' => true];
 
-        foreach ($query->asArray()->each() as $record) {
+        $callBackProcessRecord = function ($record) use ($isWithPackageDetail, &$result, &$rt) {
             $record['geo'] = $record['geo_name'] . ($record['ndc_type_id'] != NdcType::ID_GEOGRAPHIC && $record['ndc_type_name'] ? ' (' . $record['ndc_type_name'] . ')' : '');
             unset($record['geo_name'], $record['ndc_type_name'], $record['ndc_type_id']);
 
@@ -320,7 +312,9 @@ class ReportUsageDao extends Singleton
             $rt['price'] += $record['price'];
             $rt['cnt'] += $record['cnt'];
             $rt['ts2'] += $record['ts2'];
-        }
+        };
+
+        $this->_processRecords($query, $from, $to, $isFull, $callBackProcessRecord);
 
         $rt['ts1'] = null;
         $rt['tsf1'] = 'Итого';
@@ -341,6 +335,117 @@ class ReportUsageDao extends Singleton
         return $result;
     }
 
+
+    /**
+     * Создаем Reader
+     *
+     * @param Query $queryOrig
+     * @param DateTime $from
+     * @param DateTime $to
+     * @param Connection $db
+     * @param boolean $isFull
+     * @param integer $inCount
+     * @return \yii\db\DataReader
+     */
+    public function _makeReader(Query $queryOrig, DateTime $from, DateTime $to, Connection $db, $isFull, &$inCount)
+    {
+
+        $limit = $isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS;
+
+        if (($limit - $inCount) <= 0) { // лимит получения записей исчерпан
+            return null;
+        }
+
+        $limit -= $inCount;
+
+        $query = clone $queryOrig;
+
+        $query
+            ->andWhere([
+                'BETWEEN',
+                'cr.connect_time',
+                $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                $to->format(DateTimeZoneHelper::DATETIME_FORMAT . '.999999')
+            ])
+            ->limit($limit)
+            ->createCommand($db);
+
+
+        $countAll = $query->count();
+        $inCount += $countAll >= $limit ? $limit : $countAll;
+
+        if ($inCount >= $limit) {
+            Yii::$app->session->setFlash('error',
+                'Статистика отображается не полностью.' .
+                Html::tag('br') . PHP_EOL .
+                ' Сделайте ее менее детальной или сузьте временной период'
+            );
+        }
+
+        return $query->createCommand($db)->query();
+    }
+
+    /**
+     * Получение даты разделения статистики
+     *
+     * @return DateTime
+     */
+    private function _getSeparationDate()
+    {
+        $query = Yii::$app->dbPgStatistic
+            ->createCommand('SELECT tablename FROM pg_tables WHERE (tablename LIKE \'calls_raw_20%\') ORDER BY tablename DESC LIMIT 1')
+            ->queryScalar();
+
+        if (!$query || !preg_match('/calls_raw_(\d{4})(\d{2})/', $query, $matches)) {
+            throw new \LogicException('Невозможно получить данные с сервера статистики');
+        }
+
+
+        return (
+            new DateTime($matches[1] . '-' . $matches[2] . '-01 00:00:00',
+                new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
+            )
+        )->modify("+1 month"); // данные в последней таблица есть за весь месяц
+    }
+
+
+    /**
+     * Получение, разбивка и обработка данных статистики
+     *
+     * @param Query $query
+     * @param DateTime $from
+     * @param DateTime $to
+     * @param boolean $isFull
+     * @param callable $callBackRecordProcessor
+     */
+    private function _processRecords(Query $query, DateTime $from, DateTime $to, $isFull, $callBackRecordProcessor)
+    {
+        $dateStatisticsSeparation = $this->_getSeparationDate();
+        $callCount = 0;
+
+        // разбиваем период на части
+        if ($from < $dateStatisticsSeparation && $to > $dateStatisticsSeparation)
+        {
+            $query1 = $this->_makeReader($query, $from, $dateStatisticsSeparation, Yii::$app->dbPgStatistic, $isFull, $callCount);
+            $query2 = $this->_makeReader($query, $dateStatisticsSeparation, $to, CallsRaw::getDb(), $isFull, $callCount);
+        } else {
+            $connector = $from < $dateStatisticsSeparation ? Yii::$app->dbPgStatistic : CallsRaw::getDb();
+            $query1 = $this->_makeReader($query, $from, $to, $connector, $isFull, $callCount);
+            $query2 = null;
+        }
+
+        foreach ($query1 as $record) {
+            $callBackRecordProcessor($record);
+        }
+
+        if ($query2) {
+            foreach ($query2 as $record) {
+                $callBackRecordProcessor($record);
+            }
+        }
+    }
+
+
     /**
      * Вспомогательная функция. Статистика по направлениям
      *
@@ -348,7 +453,7 @@ class ReportUsageDao extends Singleton
      * @param ClientAccount $clientAccount
      * @return array
      */
-    private function _voipStatisticByDestination(ActiveQuery $query, ClientAccount $clientAccount)
+    private function _voipStatisticByDestination(ActiveQuery $query, ClientAccount $clientAccount, DateTime $from, DateTime $to)
     {
         $query->select([
             'dest' => 'cr.destination_id',
@@ -398,7 +503,7 @@ class ReportUsageDao extends Singleton
             ],
         ];
 
-        foreach ($query->asArray()->each() as $record) {
+        $callBackRecordProcessing = function ($record) use (&$result) {
             if ($record['dest'] <= 0 && $record['mob'] === false) {
                 $result['mos_loc']['len'] += $record['len'];
                 $result['mos_loc']['price'] += $record['price'];
@@ -420,7 +525,9 @@ class ReportUsageDao extends Singleton
                 $result['int']['price'] += $record['price'];
                 $result['int']['cnt'] += $record['cnt'];
             }
-        }
+        };
+
+        $this->_processRecords($query, $from, $to, true, $callBackRecordProcessing);
 
         $cnt = 0;
         $len = 0;
@@ -485,7 +592,7 @@ class ReportUsageDao extends Singleton
 
     /**
      * Добавляет к строке детализации звонка данные по использованным пакетам
-     * 
+     *
      * @param array $record
      */
     private function _admixedPackageDetails(&$record)
@@ -627,11 +734,11 @@ class ReportUsageDao extends Singleton
             }
 
             /**
-            * ->orderBy([
-            *     'region'                     => SORT_DESC,
-            *     'account_tariff.voip_number' => SORT_ASC,
-            * ]);
-            */
+             * ->orderBy([
+             *     'region'                     => SORT_DESC,
+             *     'account_tariff.voip_number' => SORT_ASC,
+             * ]);
+             */
             usort($usages, function ($a, $b) {
                 if ($a['region'] == $b['region']) {
                     if ($a['phone_num'] == $b['phone_num']) {
@@ -763,8 +870,12 @@ class ReportUsageDao extends Singleton
         $convertData = $this->prepareToSelect($usagesData, $this->getRegions($usagesData['voip']));
 
         $tr = $isAsTemplate ?
-            function ($str) {return "{" . $str. "}";} : // переводим в шаблоны и переводит ЛК
-            function ($str) {return Yii::t('number', $str);}; // переводим внутри стата
+            function ($str) {
+                return "{" . $str . "}";
+            } : // переводим в шаблоны и переводит ЛК
+            function ($str) {
+                return Yii::t('number', $str);
+            }; // переводим внутри стата
 
         $select = [];
 
@@ -775,7 +886,7 @@ class ReportUsageDao extends Singleton
 
             if ($usage['type'] == 'usage') {
                 if ($usage['is_all']) {
-                    $value = isset($usage['region']) ? $usage['region_name'] . ' (' . $tr('All numbers').')' : $tr('All regions');
+                    $value = isset($usage['region']) ? $usage['region_name'] . ' (' . $tr('All numbers') . ')' : $tr('All regions');
                 } else {
                     $value = '&nbsp;&nbsp;' . $usage['value'];
                 }
@@ -804,8 +915,8 @@ class ReportUsageDao extends Singleton
 
         if ($value == 'all') {
             return $data + [
-                'is_all' => true
-            ] + ($region ? ['region' => $region] : []);
+                    'is_all' => true
+                ] + ($region ? ['region' => $region] : []);
         }
 
         $data['is_all'] = false;
