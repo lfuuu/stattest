@@ -442,12 +442,6 @@ function doEvents()
                     // УУ. Услуга телефонии
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
 
-                    if ($isCoreServer) {
-                        ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
-
                     // УУ. Добавление/выключение дефолтных пакетов телефонии
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;

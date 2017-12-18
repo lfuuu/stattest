@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\tarificator;
 
+use app\classes\ActaulizerVoipNumbers;
 use app\classes\HandlerLogger;
 use app\exceptions\FinanceException;
 use app\exceptions\ModelValidationException;
@@ -86,12 +87,17 @@ SQL;
 
                     case ServiceType::ID_VOIP:
                         // Телефония
+                        // \app\dao\ActualNumberDao::collectFromUsages ресурс "линии" всегда передает 1. Надо дополнительно отправить запрос про ресурсы
                         EventQueue::go(\app\modules\uu\Module::EVENT_VOIP_CALLS, [
                             'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                             'number' => $accountTariff->voip_number,
                         ]);
-                        // \app\dao\ActualNumberDao::collectFromUsages ресурс "линии" всегда передает 1. Надо дополнительно отправить запрос про ресурсы
+
+                        $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
+                        if ($isCoreServer) {
+                            ActaulizerVoipNumbers::me()->actualizeByNumber($accountTariff->voip_number); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
+                        }
                         break;
 
                     case ServiceType::ID_VPBX:
