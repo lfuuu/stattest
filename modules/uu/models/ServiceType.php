@@ -58,6 +58,8 @@ class ServiceType extends ActiveRecord
 
     const ID_INFRASTRUCTURE = 26; // Инфраструктура
 
+    const ID_NNP = 27; // ННП
+
     const CLOSE_AFTER_DAYS = 60;
 
     public static $packages = [

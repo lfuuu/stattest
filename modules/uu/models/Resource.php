@@ -5,7 +5,7 @@ namespace app\modules\uu\models;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
-use app\modules\uu\resourceReader\DummyResourceReader;
+use app\modules\uu\resourceReader\NmpNumberResourceReader;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\TrunkCallsResourceReader;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
@@ -65,6 +65,8 @@ class Resource extends ActiveRecord
     const ID_ONE_TIME = 18; // Разовая услуга
 
     const ID_TRUNK_PACKAGE_ORIG_CALLS = 41; // Ориг-пакеты транка. Звонки
+
+    const ID_NNP_NUMBERS = 44; // ННП. Кол-во номеров
 
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
@@ -159,6 +161,9 @@ class Resource extends ActiveRecord
 
             // Разовая услуга. Менеджер сам определяет стоимость
             self::ID_ONE_TIME => ZeroResourceReader::className(),
+
+            // ННП. Кол-во номеров
+            self::ID_NNP_NUMBERS => NmpNumberResourceReader::className(),
         ];
     }
 

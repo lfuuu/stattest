@@ -129,7 +129,9 @@ class AccountTariff extends ActiveRecord
      */
     public function behaviors()
     {
-        return parent::behaviors() + [
+        return array_merge(
+            parent::behaviors(),
+            [
                 \app\classes\behaviors\HistoryChanges::className(),
                 AccountTariffImportantEvents::className(),
                 AccountTariffVoipNumber::className(),
@@ -150,7 +152,8 @@ class AccountTariff extends ActiveRecord
                     ],
                     'value' => Yii::$app->user->getId(),
                 ],
-            ];
+            ]
+        );
     }
 
     /**

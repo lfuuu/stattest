@@ -50,9 +50,12 @@ class CardStatus extends ActiveRecord
      */
     public function behaviors()
     {
-        return parent::behaviors() + [
-                'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-            ];
+        return array_merge(
+            parent::behaviors(),
+            [
+                \app\classes\behaviors\HistoryChanges::className(),
+            ]
+        );
     }
 
     /**

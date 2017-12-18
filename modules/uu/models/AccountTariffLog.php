@@ -86,10 +86,12 @@ class AccountTariffLog extends ActiveRecord
      */
     public function behaviors()
     {
-        return parent::behaviors() + [
-                'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
-                'AccountTariffBiller' => AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
-                'FillAccountTariffResourceLog' => FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
+        return array_merge(
+            parent::behaviors(),
+            [
+                \app\classes\behaviors\HistoryChanges::className(),
+                AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
+                FillAccountTariffResourceLog::className(), // Создать лог ресурсов при создании услуги. Удалить при удалении
                 [
                     // Установить "когда создал"
                     'class' => TimestampBehavior::className(),
@@ -105,7 +107,8 @@ class AccountTariffLog extends ActiveRecord
                     ],
                     'value' => Yii::$app->user->getId(),
                 ],
-            ];
+            ]
+        );
     }
 
     /**
@@ -214,9 +217,9 @@ class AccountTariffLog extends ActiveRecord
         }
 
         if (self::find()
-            ->where(['account_tariff_id' => $this->account_tariff_id])
-            ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
-            ->count()
+                ->where(['account_tariff_id' => $this->account_tariff_id])
+                ->andWhere(['>', 'actual_from_utc', $currentDateTimeUtc])
+                ->count()
             && count($accountTariff->accountTariffLogs) > 1 // исключим проблему при смене таймзоны клиента на тестовом тарифе (менеджеры говорят, что это нормально)
         ) {
             $this->addError($attribute, 'Уже назначена смена тарифа в будущем. Если вы хотите установить новый тариф - сначала отмените эту смену.');

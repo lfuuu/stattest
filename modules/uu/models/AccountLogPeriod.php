@@ -62,10 +62,13 @@ class AccountLogPeriod extends ActiveRecord
      */
     public function behaviors()
     {
-        return parent::behaviors() + [
+        return array_merge(
+            parent::behaviors(),
+            [
                 SyncAccountTariffLight::className(), // Синхронизировать данные в AccountTariffLight
                 AccountTariffVoipInternet::className(), // Синхронизировать данные в MTT
-            ];
+            ]
+        );
     }
 
 
@@ -121,7 +124,7 @@ class AccountLogPeriod extends ActiveRecord
     public function getMinuteStatistic()
     {
         return AccountTariffLight::getDb()
-            ->createCommand('SELECT i_nnp_package_minute_id, i_used_seconds FROM billing.used_package_minutes_get('.$this->id.')')
+            ->createCommand('SELECT i_nnp_package_minute_id, i_used_seconds FROM billing.used_package_minutes_get(' . $this->id . ')')
             ->queryAll();
     }
 }
