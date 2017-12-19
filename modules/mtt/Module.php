@@ -89,7 +89,7 @@ class Module extends \yii\base\Module
             'method' => 'balanceAdjustment',
             'parameters' => [
                 'name' => $prevAccountTariff->mtt_number,
-                'amount' => $internetTraffic * self::MEGABYTE_COST,
+                'amount' => round($internetTraffic * self::MEGABYTE_COST, 2),
                 'comment' => 'Package ' . $packageAccountTariffId,
             ],
         ];
@@ -143,7 +143,7 @@ class Module extends \yii\base\Module
             'method' => 'balanceAdjustment',
             'parameters' => [
                 'name' => $prevAccountTariff->mtt_number,
-                'amount' => -$prevAccountTariff->mtt_balance, // скорректировать на отрицательную сумму
+                'amount' => -round($prevAccountTariff->mtt_balance, 2), // скорректировать на отрицательную сумму
                 'overdraft' => true, // можно немного загнать в минус, если за время после обновления баланса он что-то уже потратил
                 'comment' => 'Clear',
             ],
