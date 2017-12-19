@@ -377,6 +377,7 @@ class PortedGermanyController extends PortedController
 
             if (count($row) != 3) {
                 echo 'Неправильные данные: ' . print_r($row, true) . PHP_EOL;
+                continue;
             }
 
             $number = str_replace('+', '', $row[0]);

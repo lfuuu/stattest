@@ -51,6 +51,7 @@ class PortedRussiaController extends PortedController
 
             if (count($row) < 7) {
                 echo 'Неправильные данные: ' . print_r($row, true) . PHP_EOL;
+                continue;
             }
 
             $number = $row[0];

@@ -25,8 +25,14 @@ class Country extends ActiveRecord
     }
 
     const RUSSIA = 643;
+    const HUNGARY = 348;
     const GERMANY = 276;
+    const SLOVAKIA = 703;
+    const AUSTRIA = 40;
+    const CZECH = 203;
+
     const RUSSIA_PREFIX = 7;
+    const HUNGARY_PREFIX = 36;
 
     public static $primaryField = 'code';
 
