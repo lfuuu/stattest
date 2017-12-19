@@ -14,7 +14,6 @@ use Yii;
 use DateTime;
 use DateTimeZone;
 use yii\db\ActiveQuery;
-use yii\db\Connection;
 use yii\db\Expression;
 use app\classes\Singleton;
 use app\classes\Html;
@@ -37,6 +36,23 @@ class ReportUsageDao extends Singleton
 
     const REPORT_MAX_ITEMS = 50000;
     const REPORT_MAX_VIEW_ITEMS = 5000;
+
+    const CONNECT_MAIN_AND_FAST = 1;
+    const CONNECT_SLOW_AND_BIG = 2;
+
+    const DETALITY_DEST = 'dest';
+    const DETALITY_CALL = 'call';
+
+    const DETALITY_DAY = 'day';
+    const DETALITY_MONTH = 'month';
+    const DETALITY_YEAR = 'year';
+
+    /** @var ClientAccount */
+    private $_account = null;
+
+    private $_isFull = false;
+
+    private $_isNeedFillNnp = false;
 
     /**
      * Статистика по телефонии
@@ -77,7 +93,9 @@ class ReportUsageDao extends Singleton
             ->setTimestamp($to)
             ->setTime(23, 59, 59);
 
-        $clientAccount = ClientAccount::findOne(['id' => $accountId]);
+        $this->_account = ClientAccount::findOne(['id' => $accountId]);
+        $this->_isFull = $isFull;
+
         $query = CallsRaw::find()
             ->alias('cr')
             ->andWhere(['account_id' => $accountId]);
@@ -136,11 +154,11 @@ class ReportUsageDao extends Singleton
         }
 
         switch ($detality) {
-            case 'dest':
-                return $this->_voipStatisticByDestination($query, $clientAccount, $from, $to);
+            case self::DETALITY_DEST:
+                return $this->_voipStatisticByDestination($query, $from, $to);
                 break;
             default:
-                return $this->_voipStatistic($query, $clientAccount, $from, $to, $packages, $detality, $paidonly, $isFull);
+                return $this->_voipStatistic($query, $from, $to, $packages, $detality, $paidonly);
                 break;
         }
     }
@@ -169,25 +187,21 @@ class ReportUsageDao extends Singleton
      * Вспомогательная функция статистики по телефонии
      *
      * @param ActiveQuery $query
-     * @param ClientAccount $clientAccount
      * @param DateTime $from
      * @param DateTime $to
      * @param array $packages
      * @param string $detality
      * @param int $paidOnly
-     * @param boolean $isFull
      * @return array
      * @throws \Exception
      */
     private function _voipStatistic(
         ActiveQuery $query,
-        ClientAccount $clientAccount,
         DateTime $from,
         DateTime $to,
         $packages = [],
         $detality = '',
-        $paidOnly = 0,
-        $isFull = false
+        $paidOnly = 0
     )
     {
         $offset = $from->getOffset();
@@ -197,9 +211,9 @@ class ReportUsageDao extends Singleton
         }
 
         switch ($detality) {
-            case 'day':
-            case 'year':
-            case 'month': {
+            case self::DETALITY_DAY:
+            case self::DETALITY_MONTH:
+            case self::DETALITY_YEAR: {
                 $groupBy = new Expression("DATE_TRUNC('" . $detality . "', cr.connect_time + '" . $offset . " second'::interval)");
                 $query->addSelect([
                     'ts1' => new Expression("DATE_TRUNC('" . $detality . "', cr.connect_time + '" . $offset . " second'::interval)"),
@@ -227,6 +241,7 @@ class ReportUsageDao extends Singleton
                 'cr.nnp_is_mob',
                 'cr.dst_number',
                 'cr.orig',
+                'cr.nnp_number_range_id'
             ]);
         }
 
@@ -237,7 +252,7 @@ class ReportUsageDao extends Singleton
         ]);
 
         $isWithPackageDetail = false;
-        if (!$groupBy && $clientAccount->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
+        if (!$groupBy && $this->_account->account_version == ClientAccount::VERSION_BILLER_UNIVERSAL) {
             $isWithPackageDetail = true;
 
             $query->addSelect([
@@ -249,36 +264,6 @@ class ReportUsageDao extends Singleton
             ]);
         }
 
-        // Для детализации по звонкам берем названия из NNP
-        if ($detality == 'call') {
-            $query->leftJoin(['nr' => NumberRange::tableName()], 'nr.id = cr.nnp_number_range_id');
-            $query->leftJoin(['nt' => NdcType::tableName()], 'nt.id = nr.ndc_type_id');
-            $query->leftJoin(['c' => City::tableName()], 'c.id = nr.city_id');
-            $query->leftJoin(['co' => Country::tableName()], 'co.code = nr.country_code');
-
-            // показываем страну, если страна звонка и страна ЛС не совпадает
-            // ставим точку после страны
-            // показываем город, если есть
-            $query->addSelect([
-                'geo_name' =>
-                    new Expression("
-                
-                CASE WHEN 
-                        co.code = " . $clientAccount->contragent->country_id . " 
-                    THEN '' 
-                    ELSE " . ($clientAccount->contragent->country_id == Country::RUSSIA ? "co.name_rus" : "co.name_eng") . " || '. '
-                END  ||
-                
-                CASE WHEN 
-                        c.id IS NULL 
-                    THEN '' 
-                    ELSE " . ($clientAccount->contragent->country_id == Country::RUSSIA ? "c.name" : "c.name_translit") . " 
-                END 
-                "),
-                'ndc_type_name' => 'nt.name',
-                'ndc_type_id' => 'nr.ndc_type_id',
-            ]);
-        }
 
         $query->orderBy('ts1 ASC');
 
@@ -314,7 +299,7 @@ class ReportUsageDao extends Singleton
             $rt['ts2'] += $record['ts2'];
         };
 
-        $this->_processRecords($query, $from, $to, $isFull, $callBackProcessRecord);
+        $this->_processRecords($query, $from, $to, $callBackProcessRecord, $detality);
 
         $rt['ts1'] = null;
         $rt['tsf1'] = 'Итого';
@@ -328,13 +313,27 @@ class ReportUsageDao extends Singleton
         }
 
         $rt['tsf2'] = ($d ? $d . 'd ' : '') . gmdate('H:i:s', $rt['ts2'] - $d * 24 * 60 * 60);
-        $rt = self::_getTotalPrices($clientAccount, $rt);
+        $rt = $this->_getTotalPrices($rt);
 
         $result['total'] = $rt;
 
         return $result;
     }
 
+    /**
+     * Получение коннектора по id
+     *
+     * @param integer $connectId
+     * @return \yii\db\Connection
+     */
+    private function _getConnectingById($connectId)
+    {
+        if ($connectId == self::CONNECT_MAIN_AND_FAST) {
+            return CallsRaw::getDb();
+        }
+
+        return Yii::$app->dbPgStatistic;
+    }
 
     /**
      * Создаем Reader
@@ -342,15 +341,23 @@ class ReportUsageDao extends Singleton
      * @param Query $queryOrig
      * @param DateTime $from
      * @param DateTime $to
-     * @param Connection $db
-     * @param boolean $isFull
+     * @param integer $connectId
      * @param integer $inCount
+     * @param boolean $isByCalls
      * @return \yii\db\DataReader
      */
-    public function _makeReader(Query $queryOrig, DateTime $from, DateTime $to, Connection $db, $isFull, &$inCount)
+    public function _makeReader(
+        Query $queryOrig,
+        DateTime $from,
+        DateTime $to,
+        $connectId,
+        &$inCount,
+        $isByCalls
+    )
     {
+        $db = $this->_getConnectingById($connectId);
 
-        $limit = $isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS;
+        $limit = $this->_isFull ? self::REPORT_MAX_ITEMS : self::REPORT_MAX_VIEW_ITEMS;
 
         if (($limit - $inCount) <= 0) { // лимит получения записей исчерпан
             return null;
@@ -359,6 +366,14 @@ class ReportUsageDao extends Singleton
         $limit -= $inCount;
 
         $query = clone $queryOrig;
+
+        if ($isByCalls) {
+            if ($connectId == self::CONNECT_MAIN_AND_FAST) {
+                $this->_addNnpInfoInQuery($query);
+            } else {
+                $this->_isNeedFillNnp = true;
+            }
+        }
 
         $query
             ->andWhere([
@@ -402,9 +417,9 @@ class ReportUsageDao extends Singleton
 
 
         return (
-            new DateTime($matches[1] . '-' . $matches[2] . '-01 00:00:00',
-                new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
-            )
+        new DateTime($matches[1] . '-' . $matches[2] . '-01 00:00:00',
+            new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)
+        )
         )->modify("+1 month"); // данные в последней таблица есть за весь месяц
     }
 
@@ -415,34 +430,109 @@ class ReportUsageDao extends Singleton
      * @param Query $query
      * @param DateTime $from
      * @param DateTime $to
-     * @param boolean $isFull
      * @param callable $callBackRecordProcessor
      */
-    private function _processRecords(Query $query, DateTime $from, DateTime $to, $isFull, $callBackRecordProcessor)
+    private function _processRecords(Query $query, DateTime $from, DateTime $to, $callBackRecordProcessor, $detality)
     {
+        $isByCalls = $detality == self::DETALITY_CALL;
+
         $dateStatisticsSeparation = $this->_getSeparationDate();
         $callCount = 0;
 
         // разбиваем период на части
-        if ($from < $dateStatisticsSeparation && $to > $dateStatisticsSeparation)
-        {
-            $query1 = $this->_makeReader($query, $from, $dateStatisticsSeparation, Yii::$app->dbPgStatistic, $isFull, $callCount);
-            $query2 = $this->_makeReader($query, $dateStatisticsSeparation, $to, CallsRaw::getDb(), $isFull, $callCount);
+        if ($from < $dateStatisticsSeparation && $to > $dateStatisticsSeparation) {
+            $query1 = $this->_makeReader($query, $from, $dateStatisticsSeparation, self::CONNECT_SLOW_AND_BIG, $callCount, $isByCalls);
+            $query2 = $this->_makeReader($query, $dateStatisticsSeparation, $to, self::CONNECT_MAIN_AND_FAST, $callCount, $isByCalls);
         } else {
-            $connector = $from < $dateStatisticsSeparation ? Yii::$app->dbPgStatistic : CallsRaw::getDb();
-            $query1 = $this->_makeReader($query, $from, $to, $connector, $isFull, $callCount);
+            $connector = $from > $dateStatisticsSeparation ? self::CONNECT_MAIN_AND_FAST : self::CONNECT_SLOW_AND_BIG;
+            $query1 = $this->_makeReader($query, $from, $to, $connector, $callCount, $isByCalls);
             $query2 = null;
         }
 
+
         foreach ($query1 as $record) {
+            if ($this->_isNeedFillNnp) {
+                $this->_addNnpInfoInRecord($record);
+            }
             $callBackRecordProcessor($record);
         }
 
         if ($query2) {
             foreach ($query2 as $record) {
+                if ($this->_isNeedFillNnp) {
+                    $this->_addNnpInfoInRecord($record);
+                }
                 $callBackRecordProcessor($record);
             }
         }
+    }
+
+    /**
+     * Добавляем поля с NNP информацией
+     *
+     * @param Query $query
+     * @return Query
+     */
+    private function _addNnpInfoInQuery(Query $query = null)
+    {
+        // Для детализации по звонкам берем названия из NNP
+        if ($query) {
+            $query->leftJoin(['nr' => NumberRange::tableName()], 'nr.id = cr.nnp_number_range_id');
+        } else {
+            $query = (new Query())
+                ->from(['nr' => NumberRange::tableName()]);
+        }
+        $query->leftJoin(['nt' => NdcType::tableName()], 'nt.id = nr.ndc_type_id');
+        $query->leftJoin(['c' => City::tableName()], 'c.id = nr.city_id');
+        $query->leftJoin(['co' => Country::tableName()], 'co.code = nr.country_code');
+
+        // показываем страну, если страна звонка и страна ЛС не совпадает
+        // ставим точку после страны
+        // показываем город, если есть
+        $query->addSelect([
+            'geo_name' =>
+                new Expression("
+                
+                CASE WHEN 
+                        co.code = " . $this->_account->contragent->country_id . " 
+                    THEN '' 
+                    ELSE " . ($this->_account->contragent->country_id == Country::RUSSIA ? "co.name_rus" : "co.name_eng") . " || '. '
+                END  ||
+                
+                CASE WHEN 
+                        c.id IS NULL 
+                    THEN '' 
+                    ELSE " . ($this->_account->contragent->country_id == Country::RUSSIA ? "c.name" : "c.name_translit") . " 
+                END 
+                "),
+            'ndc_type_name' => 'nt.name',
+            'ndc_type_id' => 'nr.ndc_type_id',
+        ]);
+
+        return $query;
+    }
+
+    /**
+     * Добавлем NNP информацию полученную отдельно от запроса
+     *
+     * @param array $record
+     */
+    private function _addNnpInfoInRecord(&$record)
+    {
+        static $cache = [];
+
+        if (!array_key_exists($record['nnp_number_range_id'], $cache)) {
+            $cache[$record['nnp_number_range_id']] = $this
+                ->_addNnpInfoInQuery()
+                ->where(['nr.id' => $record['nnp_number_range_id']])
+                ->createCommand($this->_getConnectingById(self::CONNECT_MAIN_AND_FAST))
+                ->queryOne();
+
+        }
+
+        $record['geo_name'] = $cache[$record['nnp_number_range_id']]['geo_name'];
+        $record['ndc_type_name'] = $cache[$record['nnp_number_range_id']]['ndc_type_name'];
+        $record['ndc_type_id'] = $cache[$record['nnp_number_range_id']]['ndc_type_id'];
     }
 
 
@@ -450,10 +540,9 @@ class ReportUsageDao extends Singleton
      * Вспомогательная функция. Статистика по направлениям
      *
      * @param ActiveQuery $query
-     * @param ClientAccount $clientAccount
      * @return array
      */
-    private function _voipStatisticByDestination(ActiveQuery $query, ClientAccount $clientAccount, DateTime $from, DateTime $to)
+    private function _voipStatisticByDestination(ActiveQuery $query, DateTime $from, DateTime $to)
     {
         $query->select([
             'dest' => 'cr.destination_id',
@@ -527,7 +616,7 @@ class ReportUsageDao extends Singleton
             }
         };
 
-        $this->_processRecords($query, $from, $to, true, $callBackRecordProcessing);
+        $this->_processRecords($query, $from, $to, $callBackRecordProcessing, self::DETALITY_DEST);
 
         $cnt = 0;
         $len = 0;
@@ -558,7 +647,7 @@ class ReportUsageDao extends Singleton
         }
 
         $total_row['tsf2'] = ($delta ? $delta . 'd ' : '') . gmdate('H:i:s', $len - $delta * 24 * 60 * 60);
-        $total_row = self::_getTotalPrices($clientAccount, $total_row);
+        $total_row = $this->_getTotalPrices($total_row);
         $total_row['cnt'] = $cnt;
 
         $result['total'] = $total_row;
@@ -569,15 +658,14 @@ class ReportUsageDao extends Singleton
     /**
      * Формирование итоговых значений
      *
-     * @param ClientAccount $clientAccount
      * @param array $row
      * @return array
      */
-    private static function _getTotalPrices(ClientAccount $clientAccount, array $row = [])
+    private function _getTotalPrices(array $row = [])
     {
-        $taxRate = $clientAccount->getTaxRate();
+        $taxRate = $this->_account->getTaxRate();
 
-        if ($clientAccount->price_include_vat) {
+        if ($this->_account->price_include_vat) {
             $row['price_without_tax'] = number_format($row['price'] * 100 / (100 + $taxRate), 2, '.', '');
             $row['price_with_tax'] = number_format($row['price'], 2, '.', '');
             $row['price'] = $row['price_with_tax'] . ' (включая НДС)';
