@@ -442,6 +442,12 @@ function doEvents()
                     // УУ. Услуга телефонии
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
 
+                    if ($isCoreServer) {
+                        ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+
                     // УУ. Добавление/выключение дефолтных пакетов телефонии
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;
@@ -553,7 +559,7 @@ function doEvents()
                 case \app\modules\mtt\Module::EVENT_ADD_INTERNET:
                     // МТТ. Добавить интернет
                     if ($isMttServer) {
-                        \app\modules\mtt\Module::addInternetPackage($param['package_account_tariff_id'], $param['internet_traffic']);
+                        $info = \app\modules\mtt\Module::addInternetPackage($param['package_account_tariff_id'], $param['internet_traffic']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
@@ -562,7 +568,7 @@ function doEvents()
                 case \app\modules\mtt\Module::EVENT_CLEAR_INTERNET:
                     // МТТ. Сжечь интернет
                     if ($isMttServer) {
-                        \app\modules\mtt\Module::clearInternet($param['account_tariff_id']);
+                        $info = \app\modules\mtt\Module::clearInternet($param['account_tariff_id']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }

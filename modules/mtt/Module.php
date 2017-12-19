@@ -56,6 +56,7 @@ class Module extends \yii\base\Module
      *
      * @param int $packageAccountTariffId ID услуги пакета
      * @param int $internetTraffic Мб
+     * @return string
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidParamException
      * @throws \LogicException
@@ -78,8 +79,8 @@ class Module extends \yii\base\Module
 
         if (!$prevAccountTariff->mtt_number) {
             // MTT ID юзера неизвестен. Надо сначала его узнать
-            MttAdapter::me()->getAccountData($prevAccountTariff->voip_number, $prevAccountTariff->id);
-            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим.');
+            $info = MttAdapter::me()->getAccountData($prevAccountTariff->voip_number, $prevAccountTariff->id);
+            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим. ' . $info);
         }
 
         // все хорошо, MTT ID юзера известен
@@ -93,12 +94,15 @@ class Module extends \yii\base\Module
             ],
         ];
         MttAdapter::me()->publishMessage($message);
+
+        return print_r($message, true);
     }
 
     /**
      * Сжечь интернет-трафик по всем пакетам
      *
      * @param int $prevAccountTariffId ID услуги пакета
+     * @return string
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\base\InvalidParamException
      * @throws \LogicException
@@ -116,21 +120,21 @@ class Module extends \yii\base\Module
 
         if (!$prevAccountTariff->mtt_number) {
             // MTT ID юзера неизвестен. Надо сначала его узнать
-            MttAdapter::me()->getAccountData($prevAccountTariff->voip_number, $prevAccountTariff->id);
-            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим.');
+            $info = MttAdapter::me()->getAccountData($prevAccountTariff->voip_number, $prevAccountTariff->id);
+            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим. ' . $info);
         }
 
         if ($prevAccountTariff->mtt_balance === null) {
             // MTT баланс юзера неизвестен. Надо сначала его узнать
             // 1. не путайте, когда он известен и равен 0!
             // 2. перед постановкой clearInternetPackage в очередь надо сбросить баланс!
-            MttAdapter::me()->getAccountBalance($prevAccountTariff->voip_number, $prevAccountTariff->id);
-            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим.');
+            $info = MttAdapter::me()->getAccountBalance($prevAccountTariff->voip_number, $prevAccountTariff->id);
+            throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим. ' . $info);
         }
 
         if ($prevAccountTariff->mtt_balance <= 0) {
             // и так все сброшено
-            return;
+            return 'Balance: ' . $prevAccountTariff->mtt_balance;
         }
 
         // все хорошо, MTT ID юзера и его юаланс известны
@@ -145,6 +149,8 @@ class Module extends \yii\base\Module
             ],
         ];
         MttAdapter::me()->publishMessage($message);
+
+        return print_r($message, true);
     }
 
     /**

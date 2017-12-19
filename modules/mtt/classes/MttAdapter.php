@@ -168,11 +168,12 @@ class MttAdapter extends Singleton
      *
      * @param string $msisdn
      * @param string $requestId
+     * @return string
      * @throws \yii\base\InvalidConfigException
      */
     public function getAccountBalance($msisdn, $requestId)
     {
-        $this->_getAccount('getAccountBalance', $msisdn, $requestId);
+        return $this->_getAccount('getAccountBalance', $msisdn, $requestId);
     }
 
     /**
@@ -185,17 +186,19 @@ class MttAdapter extends Singleton
      *
      * @param string $msisdn
      * @param string $requestId
+     * @return string
      * @throws \yii\base\InvalidConfigException
      */
     public function getAccountData($msisdn, $requestId)
     {
-        $this->_getAccount('getAccountData', $msisdn, $requestId);
+        return $this->_getAccount('getAccountData', $msisdn, $requestId);
     }
 
     /**
      * @param string $method
      * @param string $msisdn
      * @param string $requestId
+     * @return string
      * @throws \yii\base\InvalidConfigException
      */
     private function _getAccount($method, $msisdn, $requestId)
@@ -206,6 +209,8 @@ class MttAdapter extends Singleton
             'parameters' => ['msisdn' => $msisdn],
         ];
         $this->publishMessage($message);
+
+        return print_r($message, true);
     }
 
     /**
