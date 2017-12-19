@@ -329,22 +329,16 @@ class EventQueue extends ActiveRecord
     {
         switch ($this->iteration) {
             case 0:
+            case 1:
+            case 2:
+            case 3:
                 $time = '+1 minute';
                 break;
-            case 1:
-                $time = '+2 minute';
-                break;
-            case 2:
-                $time = '+3 minute';
-                break;
-            case 3:
+            case 4:
                 $time = '+5 minute';
                 break;
-            case 4:
-                $time = '+10 minute';
-                break;
             case 5:
-                $time = '+20 minute';
+                $time = '+10 minute';
                 break;
             case 6:
                 $time = '+30 minute';
