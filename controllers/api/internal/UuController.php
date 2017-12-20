@@ -419,7 +419,6 @@ class UuController extends ApiInternalController
 
         if ($client_account_id) {
 
-            // все страну от ЛС
             $clientAccount = ClientAccount::findOne(['id' => $client_account_id]);
             if (!$clientAccount) {
                 throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);

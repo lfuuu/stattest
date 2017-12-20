@@ -388,7 +388,7 @@ abstract class AccountTariffForm extends Form
             $defaultTariffPeriodId,
             $serviceTypeId,
             $clientAccount->currency,
-            $clientAccount->country_id,
+            null, // $clientAccount->country_id,
             $accountTariff->city_id,
             $isWithEmpty,
             $isWithNullAndNotNull,
