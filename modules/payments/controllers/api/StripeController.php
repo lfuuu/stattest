@@ -181,6 +181,7 @@ class StripeController extends ApiController
                 'description' => $description,
                 'source' => $tokenId
             ])
+            ->addOptions([CURLOPT_SSLVERSION => 1])
             ->setIsCheckOk(false);
 
         try {
