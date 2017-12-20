@@ -342,8 +342,8 @@ class PortedHungaryController extends PortedController
         $insertValues = [];
         while (($row = fgets($fp)) !== false) {
 
-            if (strlen($row) < 20) {
-                echo 'Неправильные данные: ' . $row . PHP_EOL;
+            $row = str_replace(['<list_item>', '</list_item>'], '', $row);
+            if (!$row) {
                 continue;
             }
 
@@ -353,14 +353,14 @@ class PortedHungaryController extends PortedController
                 continue;
             }
 
-            $number = (string) $xml->phone_number;
+            $number = (string)$xml->phone_number;
             if (!$number || !is_numeric($number)) {
                 throw new \LogicException('Неправильный номер: ' . $row);
             }
 
             $number = Country::HUNGARY_PREFIX . $number;
 
-            $operatorName = (string) $xml->actual_provider;
+            $operatorName = (string)$xml->actual_provider;
             if ($operatorName && isset($this->_operators[$operatorName]) && $this->_operators[$operatorName]) {
                 $operatorName = $this->_operators[$operatorName];
             }
