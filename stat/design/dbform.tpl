@@ -147,7 +147,7 @@
                         {if isset($item.with_hidden) && $item.with_hidden}
                             <input type="hidden" name="dbform[{$key}]" value="">
                         {/if}
-                        <select id={$key} name=dbform[{$key}]{$item.add} {if !$visible}disabled{/if}>
+                        <select id={$key} class="select2" name=dbform[{$key}]{$item.add} {if !$visible}disabled{/if}>
                             {foreach from=$item.enum item=var name=inner}
                                 <option value='{$var}'{if $item.value==$var} selected{/if}>{$var}</option>
                             {/foreach}
