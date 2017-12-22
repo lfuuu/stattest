@@ -42,6 +42,7 @@ abstract class Monitor extends Component
             MonitorSuperClientStruct::className(),
             BacklogSlaveServer::className(),
             MonitorNnpPrefix::className(),
+            MonitorSormClients::className(),
         ];
     }
 }
