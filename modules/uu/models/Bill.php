@@ -105,8 +105,8 @@ class Bill extends ActiveRecord
             ])
             ->andWhere(['<>', $accountEntryTableName . '.price_with_vat', 0])
             ->orderBy([
-                $accountEntryTableName . '.date' => SORT_DESC,
-                $accountEntryTableName . '.id' => SORT_DESC,
+                $accountEntryTableName . '.date' => SORT_ASC,
+                $accountEntryTableName . '.id' => SORT_ASC,
             ]);
 
         return $query;

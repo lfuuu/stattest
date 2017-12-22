@@ -436,9 +436,16 @@ class AccountTariffLog extends ActiveRecord
         //
         // подключение
         $accountLogSetup = (new AccountLogSetupTarificator())->getAccountLogSetup($accountTariff, $accountLogFromToTariff);
-        if ($isCountLogs > 1) {
-            // смена тарифа с коммерческого (не с тестового)
-            // плата за номер не взимается
+        if (
+            $isCountLogs > 1 // Это уже не первая смена тарифа. Плату за подключение уже взимали раньше
+            || (
+                // первая смена с не-тестового. Плату за подключение уже взимали раньше
+                $isCountLogs == 1
+                && ($accountTariffLogPrev = self::findOne(['account_tariff_id' => $this->account_tariff_id]))
+                && !$accountTariffLogPrev->tariffPeriod->tariff->getIsTest()
+            )
+        ) {
+            // Плата за номер не взимается
             $accountLogSetup->price = max(0, $accountLogSetup->price - $accountLogSetup->price_number);
             $accountLogSetup->price_number = 0;
         }
