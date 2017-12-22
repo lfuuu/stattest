@@ -40,6 +40,11 @@ class BillFilter extends Bill
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'date' => SORT_DESC,
+                ]
+            ],
         ]);
 
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
