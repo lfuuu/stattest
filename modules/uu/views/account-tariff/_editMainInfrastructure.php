@@ -8,6 +8,7 @@
  */
 
 use app\models\City;
+use app\models\Datacenter;
 use app\modules\uu\models\AccountTariff;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
@@ -48,8 +49,16 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
             ]) ?>
     </div>
 
+    <?php // тех. площадка ?>
+    <div class="col-sm-2">
+        <?= $form->field($accountTariff, 'datacenter_id')
+            ->widget(Select2::className(), [
+                'data' => Datacenter::getList($isWithEmpty = true),
+            ]) ?>
+    </div>
+
     <?php // цена ?>
-    <div class="col-sm-6">
+    <div class="col-sm-4">
         <?= $form->field($accountTariff, 'price')
             ->input('number', ['step' => 0.01]) ?>
     </div>

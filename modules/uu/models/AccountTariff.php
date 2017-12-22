@@ -47,6 +47,7 @@ use yii\db\Expression;
  * @property int $infrastructure_project
  * @property int $infrastructure_level
  * @property int $price
+ * @property int $datacenter_id
  */
 class AccountTariff extends ActiveRecord
 {
@@ -180,6 +181,7 @@ class AccountTariff extends ActiveRecord
                     'prev_account_tariff_id',
                     'tariff_period_id',
                     'trunk_type_id',
+                    'datacenter_id',
                 ],
                 'integer'
             ],

@@ -14,6 +14,7 @@ return [
     'infrastructure_project' => 'Project', // Инфраструктура
     'infrastructure_level' => 'Level', // Инфраструктура
     'price' => 'Price', // Инфраструктура
+    'datacenter_id' => 'Datacenter', // Инфраструктура
 
     'insert_time' => 'Insert time',
     'insert_user_id' => 'Insert user',

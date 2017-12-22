@@ -4,6 +4,7 @@ namespace app\modules\uu\models\traits;
 
 use app\models\City;
 use app\models\ClientAccount;
+use app\models\Datacenter;
 use app\models\Region;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
@@ -30,6 +31,7 @@ use yii\db\ActiveQuery;
  * @property-read AccountTariffLog[] $accountTariffLogs
  * @property-read AccountTariffResourceLog[] $accountTariffResourceLogs
  * @property-read TariffPeriod $tariffPeriod
+ * @property-read Datacenter $datacenter
  *
  * @property-read AccountLogSetup[] $accountLogSetups
  * @property-read AccountLogPeriod[] $accountLogPeriods
@@ -122,6 +124,14 @@ trait AccountTariffRelationsTrait
     public function getServiceType()
     {
         return $this->hasOne(ServiceType::className(), ['id' => 'service_type_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getDatacenter()
+    {
+        return $this->hasOne(Datacenter::className(), ['id' => 'datacenter_id']);
     }
 
     /**
