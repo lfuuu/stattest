@@ -75,7 +75,7 @@ if ($serviceType->id == ServiceType::ID_VOIP && $accountTariff->isNewRecord) {
 } else {
 
     // типовая форма
-    echo $this->render($isLogReadOnly ? '_viewMain' : '_editMain', $viewParams);
+    echo $this->render($accountTariff->isEditable() ? '_editMain' : '_viewMain', $viewParams);
 
     // лог тарифов
     echo $accountTariff->isNewRecord ? '' : $this->render('_editLogGrid', $viewParams);
