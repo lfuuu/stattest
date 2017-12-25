@@ -19,7 +19,7 @@ class MonitorSormClients extends Monitor
      */
     public function getLimits()
     {
-        return [10, 20, 50];
+        return [1, 20, 500];
     }
 
     /**
