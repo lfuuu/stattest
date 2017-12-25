@@ -443,7 +443,11 @@ function doEvents()
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
 
                     if ($isCoreServer) {
-                        ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
+                        if (AccountTariff::hasTrunk($param['client_account_id'])) {
+                            $info = 'Мегатранк';
+                        } else {
+                            ActaulizerVoipNumbers::me()->actualizeByNumber($param['number']); // @todo выпилить этот костыль и использовать напрямую ApiPhone::me()->addDid/editDid
+                        }
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }

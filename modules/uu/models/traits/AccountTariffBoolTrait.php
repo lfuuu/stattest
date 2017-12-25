@@ -373,4 +373,21 @@ trait AccountTariffBoolTrait
             ->exists();
     }
 
+    /**
+     * Мегатранк?
+     * Предполагается, что есть действующая услуга телефонии, а здесь проверяется только наличие услуги транка
+     *
+     * @param int $clientAccountId
+     * @return bool
+     */
+    public static function hasTrunk($clientAccountId)
+    {
+        return AccountTariff::find()
+            ->where([
+                'client_account_id' => $clientAccountId,
+                'service_type_id' => ServiceType::ID_TRUNK,
+            ])
+            ->andWhere(['IS NOT', 'tariff_period_id', null])
+            ->exists();
+    }
 }
