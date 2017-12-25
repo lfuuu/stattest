@@ -180,6 +180,7 @@ class PayReportFilter extends Payment
             self::TYPE_BANK => 'Банк',
             self::TYPE_PROV => 'Кассовый чек',
             self::TYPE_NEPROV => 'Наличка',
+            self::TYPE_CREDITNOTE => 'Credit Note',
             self::TYPE_ECASH . '_' . self::ECASH_YANDEX => 'ЭлЯндексДеньги',
             self::TYPE_ECASH . '_' . self::ECASH_SBERBANK => 'ЭлСбербанк',
             self::TYPE_ECASH . '_' . self::ECASH_PAYPAL => 'ЭлPayPall',

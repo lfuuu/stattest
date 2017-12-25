@@ -6,7 +6,8 @@
             $paymentSummary = $('#payment_sum'),
             $paymentType = $('#payment_type'),
             $paymentCurrency = $('#payment_original_currency'),
-            $paymentOriginalSummary = $('#payment_original_sum');
+            $paymentOriginalSummary = $('#payment_original_sum'),
+            $paymentNo = $('#payment_no');
 
         $paymentCurrency.on('change', function(){
             var originalCurrency = $paymentCurrency.val(),
@@ -56,6 +57,12 @@
                 $paymentECash.removeAttr('disabled');
             } else {
                 $paymentECash.attr('disabled','disabled');
+            }
+
+            if (type == 'creditnote') {
+              $paymentNo.attr('disabled','disabled').val('');
+            } else {
+              $paymentNo.removeAttr('disabled');
             }
         }).trigger('change');
     })

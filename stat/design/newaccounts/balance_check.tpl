@@ -80,6 +80,8 @@
 	{/if} <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.inv_no})</nobr>
 {elseif $item.type=='pay'}
 	Оплата <nobr>({$item.date|mdate:"d.m.Y"},</nobr> <nobr>&#8470;{$item.pay_no})</nobr>
+{elseif $item.type=='creditnote'}
+	Кредит-нота от <nobr>{$item.date|mdate:"d.m.Y"}</nobr>
 {elseif $item.type=='total'}
 	Обороты за период
 {/if}

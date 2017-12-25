@@ -44,6 +44,7 @@ class Payment extends ActiveRecord
     const TYPE_PROV = 'prov';
     const TYPE_NEPROV = 'neprov';
     const TYPE_ECASH = 'ecash';
+    const TYPE_CREDITNOTE = 'creditnote';
 
     const BANK_CITI = 'citi';
     const BANK_MOS = 'mos';
@@ -64,6 +65,7 @@ class Payment extends ActiveRecord
         self::TYPE_NEPROV => 'Cash',
         self::TYPE_BANK => 'Bank transfer',
         self::TYPE_ECASH => 'Electronic money',
+        self::TYPE_CREDITNOTE => 'Credit Note',
     ];
 
     public static $banks = [

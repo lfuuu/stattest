@@ -48,7 +48,7 @@ echo Breadcrumbs::widget([
         'form' => $form,
         'columns' => 3,
         'attributes' => [
-            'payment_no' => ['type' => Form::INPUT_TEXT],
+            'payment_no' => ['type' => Form::INPUT_TEXT, 'options' => ['id' => 'payment_no']],
             'bill_no' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => ['' => '-- Привязать к счету --'] + $model->getAvailableBills(), 'options' => ['class' => 'select2']],
             'currency' => ['type' => Form::INPUT_DROPDOWN_LIST, 'items' => Currency::map(), 'options' => ['id' => 'payment_currency', 'disabled'=>'disabled']],
         ],

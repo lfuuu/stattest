@@ -54,6 +54,7 @@ use yii\helpers\Url;
  * @property-read BillLine[] $lines   ??
  * @property-read Transaction[] $transactions   ??
  * @property-read Currency $currencyModel
+ * @property-read Payment $creditNote
  */
 class Bill extends ActiveRecord
 {
@@ -255,6 +256,15 @@ class Bill extends ActiveRecord
     public function getCurrencyModel()
     {
         return $this->hasOne(Currency::className(), ['id' => 'currency']);
+    }
+
+    /**
+     * @return Payment
+     */
+    public function getCreditNote()
+    {
+        return self::dao()->getCreditNote($this);
+
     }
 
     /**

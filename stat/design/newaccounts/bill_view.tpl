@@ -364,6 +364,11 @@
                     <input type="checkbox" value="1" name="sogl_mcm_telekom" id="wm112" />
                     <label for="wm112">Договор переуступки c МСН Телеком на МСМ Телеком</label><br />
                 {/if}
+
+                {if $bill_is_credit_note}
+                    <input type="checkbox" value="1" name="credit_note" id="label_credit_note" />
+                    <label for="label_credit_note">Credit Note</label><br />
+                {/if}
             </td>
             <td valign="top">
                 Почтовый реестр: {$bill.postreg}

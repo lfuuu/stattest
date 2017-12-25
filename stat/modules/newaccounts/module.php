@@ -763,6 +763,7 @@ class m_newaccounts extends IModule
         $design->assign('bill_lines', $L = $bill->GetLines());
         $design->assign('bill_bonus', $this->getBillBonus($bill->GetNo()));
         $design->assign('bill_is_new_company', Bill::dao()->isBillNewCompany($newbill));
+        $design->assign('bill_is_credit_note', Bill::dao()->isBillWithCreditNote($newbill));
 
         /*
            счет-фактура(1)-абонен.плата
@@ -1619,22 +1620,14 @@ class m_newaccounts extends IModule
 
         $documentReports = get_param_raw('document_reports', array());
 
-        $L = array('envelope', 'bill-1-RUB', 'bill-2-RUB', 'lading', 'lading', 'gds', 'gds-2', 'gds-serial');
-        $L = array_merge($L, array(
-            'invoice-1',
-            'invoice-2',
-            'invoice-3',
-            'invoice-4',
-            'invoice-5',
-            'akt-1',
-            'akt-2',
-            'akt-3',
-            'upd-1',
-            'upd-2',
-            'upd-3'
-        ));
-        $L = array_merge($L, array('akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3'));
-        $L = array_merge($L, array('nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom'));
+        $L = ['envelope', 'bill-1-RUB', 'bill-2-RUB', 'lading', 'lading', 'gds', 'gds-2', 'gds-serial'];
+        $L = array_merge($L, [
+            'invoice-1', 'invoice-2', 'invoice-3', 'invoice-4', 'invoice-5',
+            'akt-1', 'akt-2', 'akt-3',
+            'upd-1', 'upd-2', 'upd-3'
+        ]);
+        $L = array_merge($L, ['akt-1', 'akt-2', 'akt-3', 'order', 'notice', 'upd-1', 'upd-2', 'upd-3']);
+        $L = array_merge($L, ['nbn_deliv', 'nbn_modem', 'nbn_gds', 'notice_mcm_telekom', 'sogl_mcm_telekom', 'sogl_mcn_telekom', 'credit_note']);
 
         if ($isFromImport2) {
             return $this->importOnDocType($bills, $is_pdf);
@@ -2011,6 +2004,7 @@ class m_newaccounts extends IModule
                 $this->_print_receipt();
                 break;
             }
+            case 'credit_note':
             case 'notice_mcm_telekom':
             case 'sogl_mcm_telekom':
             case 'sogl_mcn_telekom': {
@@ -4435,7 +4429,8 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     'sum_outcome' => $sum_outcome,
                     'sum_income' => $sum_income,
                     'pay_no' => $A['payment_no'],
-                    'bill_no' => $A['bill_no']
+                    'bill_no' => $A['bill_no'],
+                    'type' => $A['type'],
                 );
             $B[$A['bill_no']] = 1;
         }

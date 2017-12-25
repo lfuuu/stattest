@@ -12,6 +12,7 @@ use app\classes\media\ClientMedia;
 use app\classes\model\HistoryActiveRecord;
 use app\dao\ClientContractDao;
 use app\helpers\SetFieldTypeHelper;
+use app\models\ClientDocument;
 use yii\db\ActiveQuery;
 
 /**
@@ -44,6 +45,7 @@ use yii\db\ActiveQuery;
  * @property-read Business $business
  * @property-read BusinessProcess $businessProcess
  * @property-read BusinessProcessStatus $businessProcessStatus
+ * @property-read ClientDocument $contractInfo
  * @property string $managerName
  * @property string $accountManagerName
  */
@@ -226,7 +228,7 @@ class ClientContract extends HistoryActiveRecord
      * Документ, на основании которого действуем. Используется для выставления счетов и документов
      *
      * @param \DateTime|null $date
-     * @return null|\app\models\ClientDocument
+     * @return null|ClientDocument
      */
     public function getContractInfo(\DateTime $date = null)
     {

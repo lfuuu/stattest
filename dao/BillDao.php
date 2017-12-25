@@ -15,6 +15,7 @@ use app\models\ClientAccount;
 use app\models\Currency;
 use app\models\LogBill;
 use app\models\Organization;
+use app\models\Payment;
 use app\models\Transaction;
 use app\models\UsageTrunk;
 use app\models\voip\filter\CallsRawFilter;
@@ -712,6 +713,48 @@ SQL;
         $bill->refresh();
 
         return $bill;
+    }
+
+    /**
+     * Существует ли у счета платеж типа credit note
+     *
+     * @param Bill $bill
+     * @return bool
+     */
+    public function isBillWithCreditNote(Bill $bill)
+    {
+        return $this
+            ->_getBillCreditNoteQuery($bill)
+            ->exists();
+    }
+
+    /**
+     * Получение credit note по счету
+     *
+     * @param Bill $bill
+     * @return Payment
+     */
+    public function getCreditNote(Bill $bill)
+    {
+        return $this
+            ->_getBillCreditNoteQuery($bill)
+            ->one();
+    }
+
+    /**
+     * Получение Query-объекта на получение платежа типа credit note по счету
+     *
+     * @param Bill $bill
+     * @return Query
+     */
+    public function _getBillCreditNoteQuery(Bill $bill)
+    {
+        return Payment::find()
+            ->where([
+                'type' => Payment::TYPE_CREDITNOTE,
+                'bill_no' => $bill->bill_no,
+            ])
+            ->orderBy(['id' => SORT_ASC]);
     }
 
     /**
