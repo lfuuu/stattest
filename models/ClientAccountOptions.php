@@ -24,6 +24,19 @@ class ClientAccountOptions extends ActiveRecord
     const OPTION_VOIP_CREDIT_LIMIT_DAY_MN_WHEN = 'voip_credit_limit_day_mn_when';
     const OPTION_VOIP_CREDIT_LIMIT_DAY_MN_VALUE = 'voip_credit_limit_day_mn_value';
 
+    const OPTION_SETTINGS_ADVANCE_INVOICE = 'settings_advance_invoice';
+    const SETTINGS_ADVANCE_NOT_SET = '';
+    const SETTINGS_ADVANCE_1_AND_15 = '1_and_15';
+    const SETTINGS_ADVANCE_EVERY_WEEK_ON_MONDAY = 'every_week_on_monday';
+
+    public static $settingsAdvance = [
+        self::SETTINGS_ADVANCE_NOT_SET => 'Не выставляются автоматически',
+        self::SETTINGS_ADVANCE_1_AND_15 => 'Выставляются каждого 1 и 15 числа',
+        self::SETTINGS_ADVANCE_EVERY_WEEK_ON_MONDAY => 'Выставлять по понедельникам',
+    ];
+
+
+
     public static function tableName()
     {
         return 'client_account_options';

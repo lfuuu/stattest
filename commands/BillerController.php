@@ -1,8 +1,12 @@
 <?php
+
 namespace app\commands;
 
 use app\classes\api\SberbankApi;
+use app\classes\HandlerLogger;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
+use app\models\ClientAccountOptions;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
@@ -136,7 +140,7 @@ class BillerController extends Controller
 
         $importantEventName = null;
 
-        switch($dayToBlock) {
+        switch ($dayToBlock) {
             case 7:
                 $importantEventName = ImportantEventsNames::FORECASTING_7DAY;
                 break;
@@ -279,6 +283,52 @@ class BillerController extends Controller
 
                 echo PHP_EOL . date("r") . ': ' . $order->bill_no . ' - payed';
             }
+        }
+    }
+
+    /**
+     * Выставление авансовых счетов операторам
+     */
+    public function actionAdvanceAccounts()
+    {
+        $today = new \DateTimeImmutable('now');
+        $nowZeroTime = $today->setTime(0, 0, 0);
+        $periodEnd = $nowZeroTime;
+
+        $logger = HandlerLogger::me();
+
+        $clientAccountQuery = ClientAccount::find()
+            ->joinWith('options o')->where([
+            'o.option' => ClientAccountOptions::OPTION_SETTINGS_ADVANCE_INVOICE,
+            ]);
+
+        // выставление авансовых счетов по понедельникам
+        if ($today->format('w') == 1) {
+            $logger->add(date('r') . ': Advance invoicing on Mondays');
+            $clientAccountQuery->where(['o.value' => ClientAccountOptions::SETTINGS_ADVANCE_EVERY_WEEK_ON_MONDAY]);
+            $periodStart = $nowZeroTime->modify('-7 days');
+            Bill::dao()->advanceAccounts($clientAccountQuery, $periodStart, $periodEnd);
+        }
+
+        // выставление каждого 1 и 15 числа
+        $todayDayNumber = $today->format('d');
+        if (in_array($todayDayNumber, [1, 15])) {
+
+            $logger->add(date('r') . ': Advance invoicing on ' . $todayDayNumber);
+
+            // 1 число
+            if ($todayDayNumber == 1) {
+                $periodStart = $nowZeroTime->modify('-1 month')->modify('+14 days');
+            } else { // 15 число
+                $periodStart = $nowZeroTime->modify('first day of this month');
+            }
+
+            $clientAccountQuery->where(['o.value' => ClientAccountOptions::SETTINGS_ADVANCE_1_AND_15]);
+            Bill::dao()->advanceAccounts($clientAccountQuery, $periodStart, $periodEnd);
+        }
+
+        if ($logs = $logger->get()) {
+            echo implode(PHP_EOL, $logs) . PHP_EOL;
         }
     }
 }

@@ -2,11 +2,13 @@
 
 namespace app\dao;
 
+use app\classes\HandlerLogger;
 use app\classes\Language;
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
+use app\models\billing\Trunk;
 use app\models\BillLine;
 use app\models\BillOwner;
 use app\models\ClientAccount;
@@ -14,10 +16,13 @@ use app\models\Currency;
 use app\models\LogBill;
 use app\models\Organization;
 use app\models\Transaction;
+use app\models\UsageTrunk;
+use app\models\voip\filter\CallsRawFilter;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill as uuBill;
 use Yii;
 use yii\db\Expression;
+use yii\db\Query;
 
 
 /**
@@ -207,7 +212,7 @@ class BillDao extends Singleton
         $stateId = Yii::$app->db->createCommand('
                     SELECT state_id
                     FROM tt_troubles t, tt_stages s
-                    WHERE bill_no = :billNo and  t.cur_stage_id = s.stage_id
+                    WHERE bill_no = :billNo AND  t.cur_stage_id = s.stage_id
                 ', [':billNo' => $bill->bill_no]
         )->queryScalar();
 
@@ -503,9 +508,9 @@ ESQL;
     public function getNewCompanyDate($accountId)
     {
         $sql = <<<SQL
-            select 
+            SELECT 
                 date 
-            from (
+            FROM (
                 SELECT
                     model,
                     model_id,
@@ -519,14 +524,14 @@ ESQL;
                      client_id
                 FROM (
                     SELECT
-                    h1.*,c.id as client_id,
+                    h1.*,c.id AS client_id,
                     (SELECT data_json
                      FROM history_version h2
                      WHERE h2.model = 'app\\\\models\\\\ClientContract' AND h2.date < h1.date AND h1.model_id = h2.model_id
                      ORDER BY date DESC
                      LIMIT 1) h2_json
                     FROM history_version h1, clients c
-                    WHERE h1.model = 'app\\\\models\\\\ClientContract' and c.id = :accountId and h1.model_id = c.contract_id
+                    WHERE h1.model = 'app\\\\models\\\\ClientContract' AND c.id = :accountId AND h1.model_id = c.contract_id
                     ) a
                                             
                 HAVING new_org_id = 11 AND old_org_id = 1
@@ -622,7 +627,7 @@ SQL;
                                 count_lines = 1
                             AND l_sum = :sum
                 ) b
-                LEFT JOIN newpayments p ON (p.client_id = b.client_id and (b.bill_no = p.bill_no OR b.bill_no = p.bill_vis_no))
+                LEFT JOIN newpayments p ON (p.client_id = b.client_id AND (b.bill_no = p.bill_no OR b.bill_no = p.bill_vis_no))
                 HAVING
                     p.payment_no IS NULL
                 ORDER BY
@@ -707,5 +712,109 @@ SQL;
         $bill->refresh();
 
         return $bill;
+    }
+
+    /**
+     * Выставление авансовых счетов операторам
+     *
+     * @param Query $query
+     * @param \DateTimeImmutable $periodStart
+     * @param \DateTimeImmutable $periodEnd
+     */
+    public function advanceAccounts(Query $query, \DateTimeImmutable $periodStart, \DateTimeImmutable $periodEnd)
+    {
+        foreach ($query->each() as $account) {
+            $this->_advanceAccount($account, $periodStart, $periodEnd);
+        }
+    }
+
+    /**
+     * Реализация выставления авансовых счетов операторам
+     *
+     * @param ClientAccount $account
+     * @param \DateTimeImmutable $periodStart
+     * @param \DateTimeImmutable $periodEnd
+     * @throws ModelValidationException
+     */
+    private function _advanceAccount(ClientAccount $account, \DateTimeImmutable $periodStart, \DateTimeImmutable $periodEnd)
+    {
+        $physicalTrunkIds = UsageTrunk::find()
+            ->select('trunk_id')
+            ->where(['client_account_id' => $account->id])
+            ->actual()
+            ->column();
+
+        if (!$physicalTrunkIds) {
+            return;
+        }
+
+        $trunkNamesStr = '';
+        $trunks = Trunk::find()
+            ->select('name')
+            ->where(['id' => $physicalTrunkIds])
+            ->column();
+
+        if ($trunks) {
+            $trunkNamesStr = implode(", ", $trunks);
+        }
+
+        $report = new CallsRawFilter();
+
+        if (!$report->load(
+            [
+                'CallsRawFilter' => [
+                    'connect_time_from' => $periodStart->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                    'connect_time_to' => $periodEnd->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                    'src_physical_trunks_ids' => $physicalTrunkIds,
+                    'currency' => $account->currency,
+                    'aggr' => ['sale_sum', 'session_time_sum']
+                ]
+            ]
+        )) {
+            throw new \LogicException('CallsRawFilter not load parameters');
+        }
+
+        $result = $report->getReport(false);
+
+        if (!$result) {
+            return;
+        }
+
+        $result = reset($result);
+
+        $result['sale_sum'] = -$result['sale_sum'];
+        $result['session_time_sum'] /= 60;
+
+        $sum = $result['sale_sum'];
+        $billedTime = $result['session_time_sum'];
+
+        $lineItem = Yii::t(
+            'biller',
+            'Prepayment for traffic on the trunk: {trunk}',
+            ['trunk' => $trunkNamesStr],
+            Language::normalizeLang($account->country->lang)
+        );
+
+        $bill = $this->createBill($account);
+
+        HandlerLogger::me()->add(date('r') . ': accountId: ' . $account->id . ': ' .
+            $bill->bill_no . ' ' . $lineItem . ' ' .
+            str_replace(["\n", "\r"], '', print_r($result, true))
+        );
+
+        $bill->addLine(
+            $lineItem,
+            $billedTime,
+            $sum / $billedTime,
+            BillLine::LINE_TYPE_ZADATOK,
+            $periodStart,
+            $periodEnd->modify('-1 day')
+        );
+
+        $bill->sum = round($sum, 2);
+
+        if (!$bill->save()) {
+            throw new ModelValidationException($bill);
+        }
     }
 }

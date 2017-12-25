@@ -5,6 +5,7 @@ use app\classes\api\ApiCore;
 use app\classes\Form;
 use app\classes\validators\ArrayValidator;
 use app\classes\validators\BikValidator;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bik;
 use app\models\ClientAccount;
@@ -82,7 +83,9 @@ class AccountEditForm extends Form
         $effective_vat_rate = 0,
         $pay_bill_until_days = ClientAccount::PAY_BILL_UNTIL_DAYS,
         $price_level = ClientAccount::DEFAULT_PRICE_LEVEL,
-        $uu_tariff_status_id;
+        $uu_tariff_status_id,
+        $settings_advance_invoice
+    ;
 
     /**
      * Правила
@@ -160,6 +163,7 @@ class AccountEditForm extends Form
                     'type_of_bill',
                     'price_level',
                     'uu_tariff_status_id',
+                    'settings_advance_invoice',
                 ],
                 'integer'
             ],
@@ -201,7 +205,8 @@ class AccountEditForm extends Form
             [['options',], ArrayValidator::className()],
             ['account_version', 'default', 'value' => ClientAccount::VERSION_BILLER_USAGE],
             ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED],
-            ['pay_bill_until_days', 'integer', 'min' => 20, 'max' => 1000]
+            ['pay_bill_until_days', 'integer', 'min' => 20, 'max' => 1000],
+            ['settings_advance_invoice', 'default', 'value' => ClientAccountOptions::SETTINGS_ADVANCE_NOT_SET],
         ];
         return $rules;
     }
@@ -316,58 +321,69 @@ class AccountEditForm extends Form
      * Сохранение формы
      *
      * @return bool
+     * @throws \Exception
      */
     public function save()
     {
-        $client = $this->clientM;
+        $transaction = \Yii::$app->db->beginTransaction();
 
-        if ($this->getIsNewRecord()) {
-            $this->is_active = 0;
-        }
+        try {
 
-        if ($this->credit < 0) {
-            $this->credit = 0;
-        }
+            $client = $this->clientM;
 
-        if ($this->site_name) {
-            $client->site_name = $this->site_name;
-        }
+            if ($this->getIsNewRecord()) {
+                $this->is_active = 0;
+            }
 
-        $this->is_agent = ($this->is_agent) ? 'Y' : 'N';
+            if ($this->credit < 0) {
+                $this->credit = 0;
+            }
 
-        $client->setAttributes($this->getAttributes(null, ['historyVersionRequestedDate', 'id']), false);
-        if ($client && $this->historyVersionStoredDate) {
-            $client->setHistoryVersionStoredDate($this->historyVersionStoredDate);
-        }
+            if ($this->site_name) {
+                $client->site_name = $this->site_name;
+            }
 
-        $contract = ClientContract::findOne($client->contract_id);
-        $contragent = ClientContragent::findOne($contract->contragent_id);
-        $client->country_id = $contragent->country_id;
+            $this->is_agent = $this->is_agent ? 'Y' : 'N';
 
-        if (!$this->custom_properties) {
-            if (
-                !empty($this->bik) &&
-                (empty($client->corr_acc) || empty($client->bank_name) || empty($client->bank_city))
-            ) {
-                $bik = Bik::findOne(['bik' => $this->bik]);
+            $client->setAttributes($this->getAttributes(null, ['historyVersionRequestedDate', 'id']), false);
+            if ($client && $this->historyVersionStoredDate) {
+                $client->setHistoryVersionStoredDate($this->historyVersionStoredDate);
+            }
 
-                if ($bik) {
-                    $client->bik = $bik->bik;
-                    $client->corr_acc = $bik->corr_acc;
-                    $client->bank_name = $bik->bank_name;
-                    $client->bank_city = $bik->bank_city;
+            $contract = ClientContract::findOne($client->contract_id);
+            $contragent = ClientContragent::findOne($contract->contragent_id);
+            $client->country_id = $contragent->country_id;
 
-                    $client->bank_properties = 'р/с ' . ($client->pay_acc ?: '') . "\n" .
-                        $client->bank_name . ' ' . $client->bank_city .
-                        ($client->corr_acc ? "\nк/с " . $client->corr_acc : '');
+            if (!$this->custom_properties) {
+                if (
+                    !empty($this->bik) &&
+                    (empty($client->corr_acc) || empty($client->bank_name) || empty($client->bank_city))
+                ) {
+                    $bik = Bik::findOne(['bik' => $this->bik]);
+
+                    if ($bik) {
+                        $client->bik = $bik->bik;
+                        $client->corr_acc = $bik->corr_acc;
+                        $client->bank_name = $bik->bank_name;
+                        $client->bank_city = $bik->bank_city;
+
+                        $client->bank_properties = 'р/с ' . ($client->pay_acc ?: '') . "\n" .
+                            $client->bank_name . ' ' . $client->bank_city .
+                            ($client->corr_acc ? "\nк/с " . $client->corr_acc : '');
+                    }
                 }
             }
-        }
 
-        if ($client->save()) {
+            if (!$client->save()) {
+                throw new ModelValidationException($client);
+            }
+
             if (!$client->client) {
                 $client->client = 'id' . $client->id;
-                $client->save();
+                if (!$client->save()) {
+                    throw new ModelValidationException($client);
+                }
+
             }
 
             if ($this->admin_email) {
@@ -375,38 +391,40 @@ class AccountEditForm extends Form
                 $contact->addEmail($this->admin_email);
                 $contact->is_official = 1;
 
-                if ($contact->validate()) {
-                    $contact->save();
+                if (!$contact->save()) {
+                    throw new ModelValidationException($contact);
+                }
 
-                    $client->admin_contact_id = $contact->id;
-                    $client->save();
-                } else {
-                    $this->addErrors($contact->getErrors());
+                $client->admin_contact_id = $contact->id;
+                if (!$client->save()) {
+                    throw new ModelValidationException($client);
                 }
             }
 
             $this->setAttributes($client->getAttributes(), false);
 
             if (is_array($this->options)) {
-                ClientAccountOptions::deleteAll([
-                    'and',
-                    'client_account_id = :clientAccountId',
-                    ['in', 'option', array_keys($this->options)]
-                ],
+                ClientAccountOptions::deleteAll(
+                    [
+                        'and',
+                        'client_account_id = :clientAccountId',
+                        ['in', 'option', array_keys($this->options)]
+                    ],
                     [
                         ':clientAccountId' => $client->id,
                     ]);
 
-                foreach ($this->options as $option => $value) {
-                    if (is_array($value)) {
-                        foreach ($value as $record) {
-                            (new ClientAccountOptionsForm)
-                                ->setClientAccountId($client->id)
-                                ->setOption($option)
-                                ->setValue($record)
-                                ->save($deleteExisting = false);
+                foreach ($this->options as $option => $values) {
+
+                    if (!is_array($values)) {
+                        $values = [$values];
+                    }
+
+                    foreach ($values as $value) {
+                        if ($value === '') {
+                            continue;
                         }
-                    } else {
+
                         (new ClientAccountOptionsForm)
                             ->setClientAccountId($client->id)
                             ->setOption($option)
@@ -416,12 +434,12 @@ class AccountEditForm extends Form
                 }
             }
 
+            $transaction->commit();
             return true;
-        } else {
-            $this->addErrors($client->getErrors());
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
-
-        return false;
     }
 
     /**

@@ -172,7 +172,6 @@ class ClientAccount extends HistoryActiveRecord
 
     const PAY_BILL_UNTIL_DAYS = 30;
 
-
     public static $statuses = [
         'negotiations' => ['name' => 'в стадии переговоров', 'color' => '#C4DF9B'],
         'testing' => ['name' => 'тестируемый', 'color' => '#6DCFF6'],
@@ -385,6 +384,7 @@ class ClientAccount extends HistoryActiveRecord
             'is_bill_pay_overdue' => 'Блокировка по неоплате счета',
             'price_level' => 'Уровень цен',
             'uu_tariff_status_id' => 'УУ-пакет',
+            'settings_advance_invoice' => 'Настройки выставления авансовых счетов',
         ];
     }
 

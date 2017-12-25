@@ -6,13 +6,13 @@
 namespace app\models\voip\filter;
 
 use app\classes\traits\GetListTrait;
+use app\classes\WebApplication;
 use app\classes\yii\CTEQuery;
 use app\helpers\DateTimeZoneHelper;
 use app\models\billing\CallsRaw;
 use app\models\Currency;
 use app\models\CurrencyRate;
 use Yii;
-use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
@@ -112,6 +112,12 @@ class CallsRawFilter extends CallsRaw
         'asr_u' => 'SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END))::real / NULLIF(COUNT(connect_time)::real, 0)',
     ];
 
+    public $currencyDependentFields = [
+        'sale_sum', 'sale_avg', 'sale_min', 'sale_max', 
+        'cost_price_sum', 'cost_price_avg', 'cost_price_min','cost_price_max',
+        'margin_sum', 'margin_avg', 'margin_min', 'margin_max',
+    ];
+
     public $server_ids = [];
     public $connect_time_from = null;
     public $connect_time_to = null;
@@ -192,7 +198,6 @@ class CallsRawFilter extends CallsRaw
                     'is_success_calls',
                     'session_time_from',
                     'session_time_to',
-                    'currency_rate',
                 ],
                 'integer'
             ],
@@ -335,12 +340,16 @@ class CallsRawFilter extends CallsRaw
      * Custom data load
      *
      * @param array $get
-     *
+     * @param string $sort
      * @return bool
      */
-    public function load(array $get)
+    public function load(array $get, $sort = null)
     {
-        $this->sort = Yii::$app->request->get('sort');
+        if ($sort) {
+            $this->sort = $sort;
+        }elseif (Yii::$app instanceof WebApplication) {
+            $this->sort = Yii::$app->request->get('sort');
+        }
 
         parent::load($get);
 
@@ -592,14 +601,16 @@ class CallsRawFilter extends CallsRaw
      *
      * @return ActiveDataProvider|ArrayDataProvider
      */
-    public function getReport()
+    public function getReport($isGetDataProvider = true)
     {
+        if ($this->currency != Currency::RUB && $this->currency_rate) {
+            $this->currency_rate = CurrencyRate::dao()->getRate($this->currency, date(DateTimeZoneHelper::DATE_FORMAT));
+        }
+
         if (!$this->isFilteringPossible() || !$this->isNnpFiltersPossible()) {
-            return new ArrayDataProvider(
-                [
-                    'allModels' => [],
-                ]
-            );
+            return $isGetDataProvider
+                ? new ArrayDataProvider(['allModels' => [],])
+                : [];
         }
 
         /*
@@ -679,8 +690,13 @@ class CallsRawFilter extends CallsRaw
             }
         }
 
+
         $count = count($result);
 
+        if (!$isGetDataProvider) {
+            $this->_setCurrencyRate($result);
+            return $result;
+        }
 
         return new ArrayDataProvider(
             [
@@ -693,5 +709,21 @@ class CallsRawFilter extends CallsRaw
                 ],
             ]
         );
+    }
+
+    /**
+     * Устанавливаем стоимость с учетом курса валют
+     *
+     * @param array $result
+     */
+    private function _setCurrencyRate(&$result)
+    {
+        foreach ($result as &$row) {
+            foreach ($this->currencyDependentFields as $field) {
+                if (isset($row[$field])) {
+                    $row[$field] /= $this->currency_rate;
+                }
+            }
+        }
     }
 }

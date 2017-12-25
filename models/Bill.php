@@ -9,6 +9,7 @@ use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\ActiveRecord;
 use app\classes\Utils;
 use app\dao\BillDao;
+use app\helpers\DateTimeZoneHelper;
 use app\queries\BillQuery;
 use Yii;
 use yii\helpers\Url;
@@ -353,12 +354,23 @@ class Bill extends ActiveRecord
      * @param float $amount
      * @param float $price
      * @param string $type
+     * @param \DateTime|\DateTimeImmutable|string $dateFrom
+     * @param \DateTime|\DateTimeImmutable|string $dateTo
      * @return BillLine
      */
-    public function addLine($item, $amount, $price, $type = BillLine::LINE_TYPE_SERVICE)
+    public function addLine($item, $amount, $price, $type = BillLine::LINE_TYPE_SERVICE, $dateFrom = null, $dateTo = null)
     {
-        $dateFrom = Utils::dateBeginOfPreviousMonth($this->bill_date);
-        $dateTo = Utils::dateBeginOfPreviousMonth($this->bill_date);
+        if (!$dateFrom) {
+            $dateFrom = Utils::dateBeginOfPreviousMonth($this->bill_date);
+        } elseif ($dateFrom instanceof \DateTimeImmutable || $dateFrom instanceof \DateTime) {
+            $dateFrom =  $dateFrom->format(DateTimeZoneHelper::DATE_FORMAT);
+        }
+
+        if (!$dateTo) {
+            $dateTo = Utils::dateBeginOfPreviousMonth($this->bill_date);
+        } elseif ($dateTo instanceof \DateTimeImmutable || $dateTo instanceof \DateTime) {
+            $dateTo =  $dateTo->format(DateTimeZoneHelper::DATE_FORMAT);
+        }
 
         $line = new BillLine();
         $line->bill_no = $this->bill_no;

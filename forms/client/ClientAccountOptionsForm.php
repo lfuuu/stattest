@@ -1,6 +1,7 @@
 <?php
 namespace app\forms\client;
 
+use app\exceptions\ModelValidationException;
 use Yii;
 use app\classes\Form;
 use app\models\ClientAccountOptions;
@@ -59,7 +60,7 @@ class ClientAccountOptionsForm extends Form
     /**
      * @param bool|true $deleteExisting
      * @return bool
-     * @throws \yii\db\Exception
+     * @throws \Exception
      */
     public function save($deleteExisting = true)
     {
@@ -80,13 +81,15 @@ class ClientAccountOptionsForm extends Form
             $record = new ClientAccountOptions;
             $record->setAttributes($this->getAttributes());
 
-            if ($record->save()) {
-                $transaction->commit();
+            if (!$record->save()) {
+                throw new ModelValidationException($record);
             }
+
+            $transaction->commit();
         }
         catch (\Exception $e) {
             $transaction->rollBack();
-            return false;
+            throw $e;
         }
 
         return true;
