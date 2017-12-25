@@ -173,6 +173,7 @@ a.nohover:hover {
     min-width: 110px;
 }
 
+.datacenter-column,
 .sim-card-status-column,
 .nnp-status-column,
 .nnp-region-column,

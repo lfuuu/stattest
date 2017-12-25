@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\model\ActiveRecord;
 use yii\db\ActiveQuery;
+use yii\helpers\Url;
 
 /**
  * Class Datacenter
@@ -33,5 +34,22 @@ class Datacenter extends ActiveRecord
     public function getDatacenterRegion()
     {
         return $this->hasOne(Region::className(), ["id" => "region"]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/', 'module' => 'routers', 'action' => 'datacenter_apply', 'id' => $id]);
     }
 }

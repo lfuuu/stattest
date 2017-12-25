@@ -21,6 +21,7 @@ class AccountTariffFilter extends AccountTariff
     public $service_type_id = '';
     public $tariff_period_id = '';
     public $beauty_level = '';
+    public $datacenter_id = '';
 
     /**
      * @param int $serviceTypeId
@@ -84,6 +85,7 @@ class AccountTariffFilter extends AccountTariff
         $this->voip_number && $query->andWhere(['LIKE', 'voip_number', $this->voip_number, $isEscape = false]);
 
         $this->service_type_id && $query->andWhere([$accountTariffTableName . '.service_type_id' => $this->service_type_id]);
+        $this->datacenter_id && $query->andWhere([$accountTariffTableName . '.datacenter_id' => $this->datacenter_id]);
 
         $numberTableName = Number::tableName();
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);

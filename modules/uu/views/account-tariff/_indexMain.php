@@ -13,6 +13,7 @@ use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\uu\column\DatacenterColumn;
 use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
@@ -117,6 +118,10 @@ if ($serviceType) {
                 'value' => function (AccountTariff $accountTariff) {
                     return $accountTariff->getLevelName();
                 },
+            ];
+            $columns[] = [
+                'attribute' => 'datacenter_id',
+                'class' => DataCenterColumn::className(),
             ];
             $columns[] = [
                 'attribute' => 'price',
