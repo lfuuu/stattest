@@ -23,7 +23,7 @@ $documentDateFormat = function ($dateStr) {
 };
 
 
-$contragent = $document->bill->clientAccount->contragent;
+$director = $document->bill->clientAccount->contract->organization->director;
 
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5.0 Transitional//EN">
 <html>
@@ -85,7 +85,7 @@ $contragent = $document->bill->clientAccount->contragent;
 </p>
 <p style="margin-bottom: 0cm; line-height: 100%">&nbsp;&nbsp;&nbsp;&nbsp;</p>
 <p style="margin-bottom: 0cm; line-height: 100%">
-    <?= $contragent->position ?> _____________ /_<?= $contragent->fio ?>_/</p>
+    <?= $director->post_nominative ?> _____________ /<?= $director->name_nominative ?>/</p>
 <p style="margin-bottom: 0cm; line-height: 100%; padding-left: 170px;">(подпись)&nbsp;&nbsp;&nbsp;</p>
 <p style="margin-bottom: 0cm; line-height: 100%"><br/>
 
