@@ -4424,13 +4424,12 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
 
             $R[$A['payment_date'] + ($Rc++)] =
                 array(
-                    'type' => 'pay',
+                    'type' => $A['type'] == Payment::TYPE_CREDITNOTE ? $A['type'] : 'pay',
                     'date' => $A['payment_date'],
                     'sum_outcome' => $sum_outcome,
                     'sum_income' => $sum_income,
                     'pay_no' => $A['payment_no'],
                     'bill_no' => $A['bill_no'],
-                    'type' => $A['type'],
                 );
             $B[$A['bill_no']] = 1;
         }
