@@ -4,12 +4,14 @@
 $note = $document->bill->creditNote;
 
 if (!$note) {
+    echo 'Credit Note не найден';
     return;
 }
 
 $contractInfo = $document->bill->clientAccount->contract->contractInfo;
 
 if (!$contractInfo) {
+    echo 'Не найден договор';
     return;
 }
 
