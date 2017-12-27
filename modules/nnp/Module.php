@@ -143,6 +143,7 @@ class Module extends \yii\base\Module
                 ->addItem('Территории направлений', ['/nnp/land/'], ['nnp.read'])
                 ->addItem('Статусы направлений', ['/nnp/status/'], ['nnp.read'])
                 ->addItem('Импорт', ['/nnp/import/'], ['nnp.write'])
+                ->addItem('ННП-демон', 'https://stat.mcn.ru:3001/number/79165307667')
         );
     }
 
