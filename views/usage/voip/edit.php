@@ -358,7 +358,9 @@ echo Breadcrumbs::widget([
                     $model->connection_point_id,
                     $clientAccount->currency,
                     $model->tariff_main_status,
-                    $model->ndc_type_id
+                    $model->ndc_type_id,
+                    $model->country_id,
+                    $model->tariff_main_id
                 ),
                 'options' => ['class' => 'select2'],
                 'hint' => !$model->tariff_main_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
@@ -378,8 +380,11 @@ echo Breadcrumbs::widget([
                     $isPriceIncludeVat,
                     $isWithEmpty = false,
                     $model->connection_point_id,
-                    $clientAccount->currency
-                    //$model->ndc_type_id
+                    $clientAccount->currency,
+                    null,
+                    $model->ndc_type_id,
+                    $model->country_id,
+                    $model->tariff_local_mob_id
                 ),
                 'options' => [
                     'class' => 'select2 form-reload2',
@@ -407,8 +412,11 @@ echo Breadcrumbs::widget([
                     $isPriceIncludeVat,
                     $isWithEmpty = false,
                     $model->connection_point_id,
-                    $clientAccount->currency
-                    //$model->ndc_type_id
+                    $clientAccount->currency,
+                    null,
+                    $model->ndc_type_id,
+                    $model->country_id,
+                    $model->tariff_russia_id
                 ),
                 'options' => [
                     'class' => 'select2 form-reload2'
@@ -436,8 +444,11 @@ echo Breadcrumbs::widget([
                     $isPriceIncludeVat,
                     $isWithEmpty = false,
                     $model->connection_point_id,
-                    $clientAccount->currency
-                    //$model->ndc_type_id
+                    $clientAccount->currency,
+                    null,
+                    $model->ndc_type_id,
+                    $model->country_id,
+                    $model->tariff_russia_mob_id
                 ),
                 'options' => ['class' => 'select2'],
                 'hint' => !$model->tariff_russia_mob_id ? Html::tag('span', 'Текущее значение тарифа не установлено!',
@@ -453,8 +464,11 @@ echo Breadcrumbs::widget([
                     $isPriceIncludeVat,
                     $isWithEmpty = false,
                     $model->connection_point_id,
-                    $clientAccount->currency
-                    //$model->ndc_type_id
+                    $clientAccount->currency,
+                    null,
+                    $model->ndc_type_id,
+                    $model->country_id,
+                    $model->tariff_intern_id
                 ),
                 'options' => [
                     'class' => 'select2 form-reload2'

@@ -44,6 +44,7 @@ use app\modules\nnp\models\NdcType;
  * @property int $is_virtual
  * @property int $is_testing
  * @property int $price_include_vat
+ * @property int $ndc_type_id
  */
 class TariffVoip extends ActiveRecord implements TariffInterface
 {
@@ -141,6 +142,9 @@ class TariffVoip extends ActiveRecord implements TariffInterface
      * @param int $connectingPointId
      * @param string $currencyId
      * @param int $status
+     * @param int $ndcTypeId
+     * @param int $countryId
+     * @param int $tariffId
      * @return string[]
      */
     public static function getList(
@@ -150,25 +154,52 @@ class TariffVoip extends ActiveRecord implements TariffInterface
         $connectingPointId = null,
         $currencyId = null,
         $status = null,
-        $ndcTypeId = NdcType::ID_GEOGRAPHIC
-    ) {
+        $ndcTypeId = NdcType::ID_GEOGRAPHIC,
+        $countryId = null,
+        $tariffId = null
+    )
+    {
+
+        // Тарифы для FREEPHONE для доп.опций брать из точки подключения по умолчанию.
+        if ($ndcTypeId == NdcType::ID_FREEPHONE) {
+            $country = Country::findOne($countryId);
+
+            if (!$country) {
+                throw new \LogicException('Страна не установленна');
+            }
+            $connectingPointId = $country->default_connection_point_id;
+
+            $dest != self::DEST_LOCAL_FIXED && $ndcTypeId = NdcType::ID_GEOGRAPHIC;
+        }
+
+        // для линии без номера брать тарифи из географических номеров, кроме основного тарифа
+        if ($ndcTypeId == NdcType::ID_MCN_LINE && $dest != self::DEST_LOCAL_FIXED) {
+            $ndcTypeId = NdcType::ID_GEOGRAPHIC;
+        }
+
+        $where = [
+            'AND',
+            [
+                'dest' => $dest,
+                'price_include_vat' => $priceIncludeVat,
+                'ndc_type_id' => $ndcTypeId ?: NdcType::ID_GEOGRAPHIC,
+            ],
+            $status ? ['status' => $status] : [],
+            $connectingPointId ? ['connection_point_id' => $connectingPointId] : [],
+            $currencyId ? ['currency_id' => $currencyId] : [],
+        ];
+
+        if ($tariffId) {
+            $where = ['OR', ['id' => $tariffId], $where];
+        }
+        
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull = false,
             $indexBy = 'id',
-            $select = 'CONCAT(name, " (", month_number, " - ", month_line, ")")',
+            $select = 'CONCAT(name, " (", month_number, " - ", month_line, ") - ", IFNULL((SELECT name FROM regions r WHERE r.id = ' . self::tableName() . '.connection_point_id LIMIT 1), ""))',
             $orderBy = ['status' => SORT_ASC, 'month_min_payment' => SORT_ASC],
-            $where = [
-                'AND',
-                [
-                    'dest' => $dest,
-                    'price_include_vat' => $priceIncludeVat,
-                    'ndc_type_id' => $ndcTypeId ?: NdcType::ID_GEOGRAPHIC,
-                ],
-                $status ? ['status' => $status] : [],
-                $connectingPointId ? ['connection_point_id' => $connectingPointId] : [],
-                $currencyId ? ['currency_id' => $currencyId] : [],
-            ]
+            $where
         );
     }
 }

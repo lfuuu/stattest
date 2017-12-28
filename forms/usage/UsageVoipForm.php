@@ -1,8 +1,11 @@
 <?php
+
 namespace app\forms\usage;
 
 use app\classes\Form;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Number;
+use app\models\TariffVoip;
 use app\models\usages\UsageInterface;
 use app\models\UsageVoip;
 use app\modules\nnp\models\NdcType;
@@ -104,7 +107,18 @@ class UsageVoipForm extends Form
             [['connecting_date'], 'validateUsageDate'],
             [['disconnecting_date'], 'validateDependPackagesDate', 'on' => 'edit'],
             [['disconnecting_date'], 'validateDisconnectingDate', 'on' => 'edit'],
-            ['tariff_change_date', 'validateChangeTariff', 'on' => 'change-tariff'],
+            ['tariff_change_date', 'validateChangeTariffDate', 'on' => 'change-tariff'],
+            [
+                ['tariff_main_id',
+                    'tariff_local_mob_id',
+                    'tariff_russia_id',
+                    'tariff_russia_mob_id',
+                    'tariff_intern_id'
+                ],
+                'validateChangeTariff',
+                'on' => ['add', 'change-tariff']
+
+            ]
         ];
     }
 
@@ -209,7 +223,7 @@ class UsageVoipForm extends Form
                 'service_type_id' => ServiceType::ID_VOIP,
                 'voip_number' => $this->did,
             ])
-        ->with('accountTariffLogs');
+            ->with('accountTariffLogs');
 
         $now = DateTimeZoneHelper::getUtcDateTime();
 
@@ -255,7 +269,7 @@ class UsageVoipForm extends Form
     /**
      * Валидация даты изменения тарифа
      */
-    public function validateChangeTariff()
+    public function validateChangeTariffDate()
     {
         if ($this->tariff_change_date > ($this->disconnecting_date ?: UsageInterface::MAX_POSSIBLE_DATE) || $this->tariff_change_date < $this->connecting_date) {
             $this->addError('tariff_change_date', 'Дата начала тарифа должна быть во время действия услуги');
@@ -268,7 +282,42 @@ class UsageVoipForm extends Form
         if ($tariffDate < $firstDayOfThisMonth) {
             $this->addError('tariff_change_date', 'Разрешено изменение даты тарифа не раньше начала текущего месяца');
         }
+    }
 
+    /**
+     * Валидация тарифа
+     *
+     * @param $attr
+     */
+    public function validateChangeTariff($attr)
+    {
+        $tariff = TariffVoip::findOne(['id' => $this->$attr]);
+
+        if (!$tariff) {
+            $this->addError($attr, 'Тариф не найден');
+            return;
+        }
+
+        if (NdcType::isCityDependent($this->ndc_type_id) && $tariff->connection_point_id != $this->connection_point_id) {
+            $this->addError($attr, 'Регион услуги и тарифа не совпадают');
+            return;
+        }
+
+        if ($tariff->currency_id != $this->clientAccount->currency) {
+            $this->addError($attr, 'Валюта ЛС и тарифа не совпадает');
+            return;
+        }
+
+        // Ошибка, если NDC тарифа и номера не совпадают.
+        // Исключение, если это номер FREEPHONE и тариф GEOGRAPHIC
+        if (
+            ($number = Number::findOne(['number' => $this->did]))
+            && $tariff->ndc_type_id != $number->ndc_type_id &&
+            ($number->ndc_type_id != NdcType::ID_FREEPHONE || $tariff->ndc_type_id != NdcType::ID_GEOGRAPHIC)
+        ) {
+            $this->addError($attr, 'Не совпадает NDC у номера и тарифа');
+            return;
+        }
     }
 
     /**

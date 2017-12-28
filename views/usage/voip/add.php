@@ -206,7 +206,8 @@ echo Breadcrumbs::widget([
                     $model->connection_point_id,
                     $clientAccount->currency,
                     $model->tariff_main_status,
-                    $model->ndc_type_id
+                    $model->ndc_type_id,
+                    $model->country_id
                 ),
                 'options' => ['class' => 'select2']
             ],
@@ -224,8 +225,10 @@ echo Breadcrumbs::widget([
                     $isPriceIncludeVat,
                     $isWithEmpty = false,
                     $model->connection_point_id,
-                    $clientAccount->currency
-                    //$model->ndc_type_id
+                    $clientAccount->currency,
+                    null,
+                    $model->ndc_type_id,
+                    $model->country_id
                 ),
                 'options' => [
                     'class' => 'select2 form-reload'
@@ -251,8 +254,10 @@ echo Breadcrumbs::widget([
                     $isPriceIncludeVat,
                     $isWithEmpty = false,
                     $model->connection_point_id,
-                    $clientAccount->currency
-                    //$model->ndc_type_id
+                    $clientAccount->currency,
+                    null,
+                    $model->ndc_type_id,
+                    $model->country_id
                 ),
                 'options' => [
                     'class' => 'select2 form-reload'
@@ -278,8 +283,10 @@ echo Breadcrumbs::widget([
                     $isPriceIncludeVat,
                     $isWithEmpty = false,
                     $model->connection_point_id,
-                    $clientAccount->currency
-                    //$model->ndc_type_id
+                    $clientAccount->currency,
+                    null,
+                    $model->ndc_type_id,
+                    $model->country_id
                 ),
                 'options' => ['class' => 'select2']
             ],
@@ -293,8 +300,10 @@ echo Breadcrumbs::widget([
                     $isPriceIncludeVat,
                     $isWithEmpty = false,
                     $model->connection_point_id,
-                    $clientAccount->currency
-                    //$model->ndc_type_id
+                    $clientAccount->currency,
+                    null,
+                    $model->ndc_type_id,
+                    $model->country_id
                 ),
                 'options' => [
                     'class' => 'select2 form-reload'
