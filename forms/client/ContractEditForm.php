@@ -2,12 +2,14 @@
 namespace app\forms\client;
 
 use app\classes\Form;
+use app\exceptions\ModelValidationException;
 use app\forms\comment\ClientContractCommentForm;
 use app\helpers\DateTimeZoneHelper;
 use app\helpers\SetFieldTypeHelper;
 use app\models\BusinessProcess;
 use app\models\BusinessProcessStatus;
 use app\models\ClientAccount;
+use app\models\ClientAccountComment;
 use app\models\ClientContract;
 use app\models\ClientContractComment;
 use app\models\ClientContractReward;
@@ -30,11 +32,13 @@ class ContractEditForm extends Form
         $id,
         $super_id,
         $contragent_id,
+        $account_id,
         $number,
         $date,
         $organization_id = Organization::MCN_TELECOM,
         $manager,
         $comment,
+        $account_comment,
         $account_manager,
         $business_process_id,
         $business_process_status_id,
@@ -68,7 +72,7 @@ class ContractEditForm extends Form
     public function rules()
     {
         $rules = [
-            [['date', 'manager', 'account_manager', 'comment', 'historyVersionStoredDate',], 'string'],
+            [['date', 'manager', 'account_manager', 'comment', 'account_comment', 'historyVersionStoredDate',], 'string'],
             [
                 [
                     'contragent_id',
@@ -90,7 +94,7 @@ class ContractEditForm extends Form
                 'default',
                 'value' => BusinessProcessStatus::TELEKOM_MAINTENANCE_ORDER_OF_SERVICES
             ],
-            [['public_comment', 'save_comment_stage'], 'safe'],
+            [['public_comment', 'save_comment_stage', 'account_id'], 'safe'],
             ['financial_type', 'in', 'range' => array_keys(ClientContract::$financialTypes)],
             [
                 'federal_district',
@@ -134,7 +138,10 @@ class ContractEditForm extends Form
      */
     public function attributeLabels()
     {
-        return ((new ClientContract())->attributeLabels() + ['comment' => 'Комментарий']);
+        return ((new ClientContract())->attributeLabels() + [
+                'comment' => 'Комментарий к договору',
+                'account_comment' => 'Комментарий к ЛС'
+            ]);
     }
 
     /**
@@ -224,14 +231,22 @@ class ContractEditForm extends Form
                     $comment->is_publish = 0;
                 }
 
-                $comment->save();
+                if (!$comment->save()) {
+                    throw new ModelValidationException($comment);
+                }
             }
 
             if ($this->comment) {
                 $comment = new ClientContractCommentForm;
                 $comment->comment = $this->comment;
                 $comment->contract_id = $this->id;
-                $comment->save();
+                if (!$comment->save()) {
+                    throw new ModelValidationException($comment);
+                }
+            }
+
+            if ($this->account_comment) {
+                ClientAccountComment::addComment($this->account_id, $this->account_comment);
             }
         }
 

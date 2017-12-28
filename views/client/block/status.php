@@ -1,6 +1,7 @@
 <?php
 
 /** @var \app\classes\BaseView $this */
+/** @var \app\forms\client\ContractEditForm $contractForm */
 
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
@@ -79,12 +80,19 @@ $currentBusinessProcessStatus = BusinessProcessStatus::findOne($contractForm->bu
         </div>
     </div>
     <div class="row" id="statuses">
-        <div class="col-sm-12">
+        <div class="col-sm-6"><small>Комментарии к договору</small>:
             <?php foreach ($account->contract->comments as $comment): ?>
                 <div class="col-sm-12">
                     <input type="checkbox"
                            name="ContractEditForm[public_comment][<?= $comment->id ?>]" <?= $comment->is_publish ? 'checked' : '' ?> />
                     <b><?= $comment->user ?> <?= DateTimeZoneHelper::getDateTime($comment->ts) ?>: </b><?= $comment->comment ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <div class="col-sm-6"><small>Комментарии к ЛС:</small>
+            <?php foreach ($account->comments as $comment): ?>
+                <div class="col-sm-12">
+                    <b><?= $comment->user->user ?> <?= DateTimeZoneHelper::getDateTime($comment->created_at) ?>: </b><?= $comment->comment ?>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -132,7 +140,8 @@ $currentBusinessProcessStatus = BusinessProcessStatus::findOne($contractForm->bu
                 'class' => 'col-sm-6'
             ],
             'attributes' => [
-                'comment' => ['type' => Form::INPUT_TEXTAREA, 'options' => ['style' => 'height:108px;'], 'container' => ['class' => 'col-sm-12']],
+                'comment' => ['type' => Form::INPUT_TEXTAREA, 'options' => ['class' => 'comment_on_account_form comment_contract'], 'container' => ['class' => 'col-sm-12']],
+                'account_comment' => ['type' => Form::INPUT_TEXTAREA, 'options' => ['class' => 'comment_on_account_form comment_account'], 'container' => ['class' => 'col-sm-12']],
             ],
         ]);
         ?>
@@ -140,7 +149,8 @@ $currentBusinessProcessStatus = BusinessProcessStatus::findOne($contractForm->bu
         <div class="col-sm-12">
             <div class="col-sm-12 form-group">
                 <?= Html::hiddenInput('ContractEditForm[save_comment_stage]', true); ?>
-                <?= Html::submitButton('Изменить', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
+                <?= Html::hiddenInput('ContractEditForm[account_id]', $account->id); ?>
+                <?= Html::submitButton('Добавить комментарий', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
             </div>
         </div>
     </div>

@@ -26,7 +26,8 @@ use yii\helpers\Url;
         <div class="col-sm-4" class="c-blue-color">
             <?php if (ApiCore::isAvailable()) : ?>
                 <?php if ($client->isShowLkLink()) : ?>
-                    <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>" target="_blank">
+                    <a href="https://<?= Yii::$app->params['CORE_SERVER']; ?>/core/support/login_under_core_admin?stat_client_id=<?= $client->id ?>"
+                       target="_blank">
                         Переход в ЛК
                     </a>
                 <?php elseif ($indicator = EventQueueIndicator::findOne(['object' => ClientSuper::tableName(), 'object_id' => $account->super_id])) : ?>
@@ -88,16 +89,19 @@ use yii\helpers\Url;
                                     <span><?= $contract->business ?></span>&nbsp;
                                     <?php /*/&nbsp;<?= $contract->businessProcess ?></span>&nbsp;*/
                                     ?>
-                                    /&nbsp;<b style="background:<?= isset($bps['color']) ? $bps['color'] : '' ?>;"><?= isset($bps['name']) ? $bps['name'] : '' ?></b>
+                                    /&nbsp;<b
+                                            style="background:<?= isset($bps['color']) ? $bps['color'] : '' ?>;"><?= isset($bps['name']) ? $bps['name'] : '' ?></b>
                                 </div>
                                 <div class="col-sm-4">
                                     <?php if ($contract->managerName) : ?>
-                                        <span class="pull-left" style="background-color: <?= $contract->managerColor ?>;">
+                                        <span class="pull-left"
+                                              style="background-color: <?= $contract->managerColor ?>;">
                                             М: <?= $contract->managerName ?>
                                         </span>
                                     <?php endif; ?>
                                     <?php if ($contract->accountManagerName) : ?>
-                                        <span class="pull-right" style="background-color: <?= $contract->accountManagerColor ?>;">
+                                        <span class="pull-right"
+                                              style="background-color: <?= $contract->accountManagerColor ?>;">
                                             Ак.М: <?= $contract->accountManagerName ?>
                                         </span>
                                     <?php endif; ?>
@@ -113,6 +117,9 @@ use yii\helpers\Url;
                                     } ?>
                                 </div>
                                 <div class="col-sm-12">
+                                    <?php
+                                    $lastAccountComment = null;
+                                    ?>
                                     <?php foreach ($contract->accounts as $index => $contractAccount): ?>
                                         <?php
                                         $warnings = $contractAccount->voipWarnings;
@@ -127,9 +134,15 @@ use yii\helpers\Url;
                                                 <img src="/images/icons/edit.gif"/>
                                             </a>
                                         </div>
+                                        <?php
+                                        $accountBlockClasses = ['row', 'row-ls'];
+                                        $account && $account->id == $contractAccount->id && $accountBlockClasses[] = ($account->contract->organization->vat_rate == 0 ? 'active-client-mcm' : 'active-client');
+                                        $index && $accountBlockClasses[] = 'indent';
+                                        $lastAccountComment && $accountBlockClasses[] = 'indent_with_comment';
+                                        ?>
                                         <div
                                                 data-contract-id="<?= $contractAccount->id ?>"
-                                                class="row row-ls<?= ($account && $account->id == $contractAccount->id) ? ($account->getContract()->getOrganization()->vat_rate == 0 ? ' active-client-mcm' : ' active-client') : ''; ?><?= $index ? ' indent' : '' ?>"
+                                                class="<?= implode(' ', $accountBlockClasses) ?>"
                                         >
                                             <span class="col-sm-2 account-type<?= ($contractAccount->is_active) ? ' active' : '' ?>">
                                                 <?= $contractAccount->getAccountTypeAndId() ?>
@@ -203,14 +216,16 @@ use yii\helpers\Url;
                                             <span class="col-sm-2 text-right">
                                                 <?php if ($contract->business_id == \app\models\Business::OPERATOR) : ?>
                                                     <abbr
-                                                            title="Реалтаймовый счетчик стоимости всех входящих звонков по ЛС" class="text-nowrap"
+                                                            title="Реалтаймовый счетчик стоимости всех входящих звонков по ЛС"
+                                                            class="text-nowrap"
                                                             style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
                                                     >
                                                         Ориг.: <?= abs($contractAccount->interopCounter->outcome_sum); ?> <?= $contractAccount->currency; ?>
                                                     </abbr>
                                                     <br/>
                                                     <abbr
-                                                            title="Реалтаймовое счетчик стоимости всех исходящих звонков по ЛС" class="text-nowrap"
+                                                            title="Реалтаймовое счетчик стоимости всех исходящих звонков по ЛС"
+                                                            class="text-nowrap"
                                                             style="color:<?= ($lockByDayLimit ? 'red' : 'green'); ?>;"
                                                     >
                                                         Терм.: <?= abs($contractAccount->interopCounter->income_sum); ?> <?= $contractAccount->currency; ?>
@@ -237,7 +252,8 @@ use yii\helpers\Url;
                                                 <?php if ($contractAccount->hasVoip) : ?>
                                                     <?php if ($contractAccount->voip_disabled /*&& !isset($warnings[ClientAccount::WARNING_BILL_PAY_OVERDUE])*/) : ?>
                                                         <button
-                                                                type="button" class="btn btn-sm set-voip-disabled <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
+                                                                type="button"
+                                                                class="btn btn-sm set-voip-disabled <?= $contractAccount->voip_disabled ? 'btn-danger' : 'btn-success' ?>"
                                                                 style="width: 120px;padding: 3px 10px;"
                                                                 data-id="<?= $contractAccount->id ?>"
                                                                 title="<?= $contractAccount->voip_disabled ? 'Выключить локальную блокировку' : 'Включить локальную блокировку' ?>"
@@ -247,7 +263,8 @@ use yii\helpers\Url;
                                                     <?php endif; ?>
                                                 <?php endif; ?>
                                                 <button
-                                                        type="button" class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
+                                                        type="button"
+                                                        class="btn btn-sm set-block <?= $contractAccount->is_blocked ? 'btn-danger' : 'btn-success' ?>"
                                                         data-id="<?= $contractAccount->id ?>"
                                                 >
                                                     <?= $contractAccount->is_blocked ? 'Разблокировать' : 'Заблокировать' ?>
@@ -269,6 +286,14 @@ use yii\helpers\Url;
                                                 </div>
                                             <?php endif; ?>
                                         </div>
+                                        <?php
+                                        if ($lastAccountComment = $contractAccount->lastAccountComment): ?>
+                                            <div class="col-sm-12">
+                                                <?= $lastAccountComment->user ?> <?= DateTimeZoneHelper::getDateTime($lastAccountComment->created_at) ?>
+                                                : <?= $lastAccountComment ?>
+                                            </div>
+                                        <?php endif; ?>
+
                                     <?php endforeach; ?>
                                 </div>
                             </div>

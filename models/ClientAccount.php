@@ -112,6 +112,8 @@ use yii\helpers\Url;
  * @property-read UsageTrunk[] $usageTrunks
  * @property-read UsageCallChat[] $usageCallChats
  * @property-read TariffStatus $tariffStatus
+ * @property-read ClientAccountComment[] $comments
+ * @property-read ClientAccountComment $lastAccountComment
  *
  * @method static ClientAccount findOne($condition)
  * @method static ClientAccount[] findAll($condition)
@@ -626,6 +628,22 @@ class ClientAccount extends HistoryActiveRecord
     public function getUserManager()
     {
         return User::findOne(['user' => $this->contract->manager]);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getComments()
+    {
+        return $this->hasMany(ClientAccountComment::className(), ['account_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getLastAccountComment()
+    {
+        return $this->hasOne(ClientAccountComment::className(), ['account_id' => 'id'])->orderBy(['created_at' => SORT_DESC])->limit(1);
     }
 
     /**

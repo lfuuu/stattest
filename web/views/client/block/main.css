@@ -29,8 +29,13 @@
     margin-top: 10px;
 }
 
+.contragent-wrap .indent_with_comment {
+    margin-top: 25px;
+}
+
 .contragent-wrap .row-ls {
     position: relative;
+    padding-right: 10px;
 }
 
 .contragent-wrap .row-ls .account-type {

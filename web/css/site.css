@@ -402,3 +402,7 @@ div.required label:after {
     content: " *";
     color: red;
 }
+
+textarea.comment_on_account_form {
+    height: 35px;
+}
