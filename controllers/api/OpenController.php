@@ -450,6 +450,7 @@ final class OpenController extends Controller
         $tariffTableName = Tariff::tableName();
         $tariffPackagesQuery = Tariff::find()
             ->joinWith('voipCities')
+            ->joinWith('voipNdcTypes')
             ->where([
                 $tariffTableName . '.service_type_id' => array_keys(ServiceType::$packages),
                 $tariffTableName . '.country_id' => $tariff->country_id,
@@ -457,6 +458,7 @@ final class OpenController extends Controller
                 $tariffTableName . '.is_default' => 1,
                 $tariffTableName . '.tariff_status_id' => $packageStatusIds,
                 $tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, TariffPerson::ID_NATURAL_PERSON],
+                TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId,
                 TariffVoipCity::tableName() . '.city_id' => array_keys($tariff->voipCities),
             ]);
         /** @var Tariff $tariffPackage */

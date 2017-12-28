@@ -8,6 +8,7 @@ use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\Country;
 use app\models\Currency;
+use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
@@ -63,7 +64,7 @@ use yii\helpers\Url;
  * @property-read TariffVoipGroup $voipGroup
  * @property-read TariffVoipCity[] $voipCities
  * @property-read TariffOrganization[] $organizations
- * @property-read TariffVoipCity[] $voipNdcTypes
+ * @property-read TariffVoipNdcType[] $voipNdcTypes
  * @property-read boolean $isTest
  *
  * @method static Tariff findOne($condition)
