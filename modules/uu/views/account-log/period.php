@@ -6,17 +6,22 @@
  * @var AccountLogPeriodFilter $filterModel
  */
 
+use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\uu\column\DatacenterColumn;
+use app\modules\uu\column\InfrastructureLevelColumn;
+use app\modules\uu\column\InfrastructureProjectColumn;
 use app\modules\uu\column\ServiceTypeColumn;
 use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\filter\AccountLogPeriodFilter;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\widgets\Breadcrumbs;
 
@@ -46,12 +51,25 @@ $columns = [
         'class' => DateRangeDoubleColumn::className(),
     ],
     [
+        'attribute' => 'account_entry_id',
+        'class' => IsNullAndNotNullColumn::className(),
+        'format' => 'html',
+        'value' => function (AccountLogPeriod $accountLogPeriod) {
+            $accountEntry = $accountLogPeriod->accountEntry;
+            if (!$accountEntry) {
+                return Yii::t('common', '(not set)');
+            }
+
+            return Html::a($accountEntry->date, $accountEntry->getUrl());
+        },
+    ],
+    [
         'label' => 'Тип услуги',
         'attribute' => 'service_type_id',
         'class' => ServiceTypeColumn::className(),
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->serviceType->name;
-        }
+        },
     ],
     [
         'label' => Yii::t('models/' . $accountLogPeriodTableName, 'account_tariff_id'),
@@ -65,7 +83,7 @@ $columns = [
                 Html::encode($accountLogPeriod->tariffPeriod->getName()), // $accountTariff->getName(false)
                 $accountTariff->getUrl()
             );
-        }
+        },
     ],
     [
         'label' => Yii::t('models/' . $accountTariffTableName, 'client_account_id'),
@@ -74,7 +92,7 @@ $columns = [
         'format' => 'html',
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->clientAccount->getLink();
-        }
+        },
     ],
     [
         'attribute' => 'period_price',
@@ -87,21 +105,55 @@ $columns = [
     [
         'attribute' => 'price',
         'class' => IntegerRangeColumn::className(),
-    ],
-    [
-        'attribute' => 'account_entry_id',
-        'class' => IsNullAndNotNullColumn::className(),
-        'format' => 'html',
-        'value' => function (AccountLogPeriod $accountLogPeriod) {
-            $accountEntry = $accountLogPeriod->accountEntry;
-            if (!$accountEntry) {
-                return Yii::t('common', '(not set)');
-            }
-
-            return Html::a($accountEntry->date, $accountEntry->getUrl());
-        }
+        'pageSummary' => true,
+        'pageSummaryFunc' => GridView::F_SUM,
     ],
 ];
+
+if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
+    $columns[] = [
+        'label' => Yii::t('models/' . $accountTariffTableName, 'price'),
+        'attribute' => 'account_tariff_price',
+        'class' => IntegerRangeColumn::className(),
+        'value' => function (AccountLogPeriod $accountLogPeriod) {
+            return $accountLogPeriod->accountTariff->price;
+        },
+        'pageSummary' => true,
+        'pageSummaryFunc' => GridView::F_SUM,
+    ];
+    $columns[] = [
+        'label' => Yii::t('models/' . $accountTariffTableName, 'infrastructure_project'),
+        'attribute' => 'account_tariff_infrastructure_project',
+        'class' => InfrastructureProjectColumn::className(),
+        'value' => function (AccountLogPeriod $accountLogPeriod) {
+            return $accountLogPeriod->accountTariff->infrastructure_project;
+        },
+    ];
+    $columns[] = [
+        'label' => Yii::t('models/' . $accountTariffTableName, 'infrastructure_level'),
+        'attribute' => 'account_tariff_infrastructure_level',
+        'class' => InfrastructureLevelColumn::className(),
+        'value' => function (AccountLogPeriod $accountLogPeriod) {
+            return $accountLogPeriod->accountTariff->infrastructure_level;
+        },
+    ];
+    $columns[] = [
+        'label' => Yii::t('models/' . $accountTariffTableName, 'datacenter_id'),
+        'attribute' => 'account_tariff_datacenter_id',
+        'class' => DatacenterColumn::className(),
+        'value' => function (AccountLogPeriod $accountLogPeriod) {
+            return $accountLogPeriod->accountTariff->datacenter_id;
+        },
+    ];
+    $columns[] = [
+        'label' => Yii::t('models/' . $accountTariffTableName, 'city_id'),
+        'attribute' => 'account_tariff_city_id',
+        'class' => CityColumn::className(),
+        'value' => function (AccountLogPeriod $accountLogPeriod) {
+            return $accountLogPeriod->accountTariff->city_id;
+        },
+    ];
+}
 
 $dataProvider = $filterModel->search();
 
@@ -114,4 +166,5 @@ echo GridView::widget([
         'filterModel' => $filterModel,
         'columns' => $columns,
     ]),
+    'showPageSummary' => true,
 ]);

@@ -181,7 +181,6 @@ class AccountTariff extends ActiveRecord
                     'prev_account_tariff_id',
                     'tariff_period_id',
                     'trunk_type_id',
-                    'datacenter_id',
                 ],
                 'integer'
             ],
@@ -208,7 +207,7 @@ class AccountTariff extends ActiveRecord
                 'whenClient' => 'function(attribute, value) { return false; }', // не проверять на клиенте
             ],
 
-            [['infrastructure_project', 'infrastructure_level'], 'integer'],
+            [['infrastructure_project', 'infrastructure_level', 'datacenter_id'], 'integer'],
             [['price'], 'number'],
             [
                 ['price'],

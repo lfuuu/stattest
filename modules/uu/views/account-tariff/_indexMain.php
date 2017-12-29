@@ -9,11 +9,14 @@
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\modules\uu\column\DatacenterColumn;
+use app\modules\uu\column\InfrastructureLevelColumn;
+use app\modules\uu\column\InfrastructureProjectColumn;
 use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
@@ -109,22 +112,23 @@ if ($serviceType) {
         case ServiceType::ID_INFRASTRUCTURE:
             $columns[] = [
                 'attribute' => 'infrastructure_project',
-                'value' => function (AccountTariff $accountTariff) {
-                    return $accountTariff->getProjectName();
-                },
+                'class' => InfrastructureProjectColumn::className(),
             ];
             $columns[] = [
                 'attribute' => 'infrastructure_level',
-                'value' => function (AccountTariff $accountTariff) {
-                    return $accountTariff->getLevelName();
-                },
+                'class' => InfrastructureLevelColumn::className(),
             ];
             $columns[] = [
                 'attribute' => 'datacenter_id',
-                'class' => DataCenterColumn::className(),
+                'class' => DatacenterColumn::className(),
+            ];
+            $columns[] = [
+                'attribute' => 'city_id',
+                'class' => CityColumn::className(),
             ];
             $columns[] = [
                 'attribute' => 'price',
+                'class' => IntegerRangeColumn::className(),
             ];
             break;
     }

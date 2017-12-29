@@ -37,6 +37,13 @@ class AccountLogPeriodFilter extends AccountLogPeriod
     public $service_type_id = '';
     public $tariff_period_id = '';
 
+    public $account_tariff_infrastructure_project = '';
+    public $account_tariff_infrastructure_level = '';
+    public $account_tariff_datacenter_id = '';
+    public $account_tariff_city_id = '';
+    public $account_tariff_price_from = '';
+    public $account_tariff_price_to = '';
+
     /**
      * @return array
      */
@@ -50,6 +57,18 @@ class AccountLogPeriodFilter extends AccountLogPeriod
 
             [['date_from_from', 'date_to_from'], 'string', 'max' => 10],
             [['date_from_to', 'date_to_to'], 'string', 'max' => 10],
+
+            [
+                [
+                    'account_tariff_infrastructure_project',
+                    'account_tariff_infrastructure_level',
+                    'account_tariff_datacenter_id',
+                    'account_tariff_city_id',
+                    'account_tariff_price_from',
+                    'account_tariff_price_to',
+                ],
+                'integer'
+            ],
         ];
     }
 
@@ -89,6 +108,12 @@ class AccountLogPeriodFilter extends AccountLogPeriod
         $this->price_to !== '' && $query->andWhere(['<=', $accountLogPeriodTableName . '.price', $this->price_to]);
 
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
+        $this->account_tariff_infrastructure_project !== '' && $query->andWhere([$accountTariffTableName . '.infrastructure_project' => $this->account_tariff_infrastructure_project]);
+        $this->account_tariff_infrastructure_level !== '' && $query->andWhere([$accountTariffTableName . '.infrastructure_level' => $this->account_tariff_infrastructure_level]);
+        $this->account_tariff_datacenter_id !== '' && $query->andWhere([$accountTariffTableName . '.datacenter_id' => $this->account_tariff_datacenter_id]);
+        $this->account_tariff_city_id !== '' && $query->andWhere([$accountTariffTableName . '.city_id' => $this->account_tariff_city_id]);
+        $this->account_tariff_price_from !== '' && $query->andWhere(['>=', $accountTariffTableName . '.price', $this->account_tariff_price_from]);
+        $this->account_tariff_price_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.price', $this->account_tariff_price_to]);
 
         switch ($this->account_entry_id) {
             case GetListTrait::$isNull:
