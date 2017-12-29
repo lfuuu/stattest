@@ -854,7 +854,7 @@ SQL;
             $periodEnd->modify('-1 day')
         );
 
-        $bill->sum = round($sum, 2);
+        $bill->comment  = 'Авансовый автоматический счет на ' . round($sum, 2) . ' ' . $account->currency;
 
         if (!$bill->save()) {
             throw new ModelValidationException($bill);
