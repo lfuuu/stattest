@@ -10,6 +10,8 @@ class MonitorSormClients extends Monitor
 {
     const MESSAGE_LENGTH = 50;
 
+    public $monitorGroup = self::GROUP_FOR_MANAGERS;
+
     private $_data = [];
 
     /**

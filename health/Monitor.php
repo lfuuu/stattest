@@ -9,6 +9,18 @@ abstract class Monitor extends Component
 {
     const ERROR_EXECUTE_VALUE = 999999;
 
+    const GROUP_MAIN = 'main';
+    const GROUP_FOR_MANAGERS = 'for_managers';
+
+    const DEFAULT_MONITOR_GROUP = self::GROUP_MAIN;
+
+    const INSTANCE = [
+        self::GROUP_MAIN => 200,
+        self::GROUP_FOR_MANAGERS => 201,
+    ];
+
+    public $monitorGroup = self::GROUP_MAIN;
+
     /**
      * Текущее значение
      *
@@ -43,6 +55,7 @@ abstract class Monitor extends Component
             BacklogSlaveServer::className(),
             MonitorNnpPrefix::className(),
             MonitorSormClients::className(),
+            MonitorBrokenRegionInVoip::className(),
         ];
     }
 }

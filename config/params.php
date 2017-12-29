@@ -26,8 +26,13 @@ return [
     ],
 
     'health' => [
-        'externalUrls' => [],
-        'export' => '@app/web/operator/_private/health.json',
+        'externalUrls' => [
+            'main' => [
+            ]
+        ],
+        'export' => [
+            'main' => '@app/web/operator/_private/health.json',
+        ],
     ],
 
     // false - нормальная обработка очереди
