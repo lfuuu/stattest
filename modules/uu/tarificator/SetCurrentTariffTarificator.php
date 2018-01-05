@@ -163,7 +163,7 @@ SQL;
                 $isWithTransaction && $transaction->rollBack();
 
                 $errorMessage = $e->getMessage();
-                $this->out(PHP_EOL . 'Error. ' . $errorMessage . PHP_EOL);
+                $this->out(PHP_EOL . $errorMessage . PHP_EOL);
                 Yii::error($errorMessage);
 
                 HandlerLogger::me()->add($errorMessage);
@@ -179,8 +179,11 @@ SQL;
 
                 $accountTariffLogs = $accountTariff->accountTariffLogs;
                 $accountTariffLog = reset($accountTariffLogs);
-                $accountTariffLog->actual_from_utc = (new \DateTimeImmutable($accountTariffLog->actual_from_utc))
+                $accountTariffLog->actual_from_utc = $accountTariff->clientAccount
+                ->getDatetimeWithTimezone()
                     ->modify('+1 day')
+                    ->setTime(0, 0)
+                    ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
                     ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 if (!$accountTariffLog->save()) {
                     // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
