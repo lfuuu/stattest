@@ -33,7 +33,7 @@ class HttpRequest extends \yii\httpclient\Request
         }
 
         switch ($config['method']) {
-            case 'basic': {
+            case 'basic':
                 $this->addOptions([
                     CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
                     CURLOPT_USERPWD =>
@@ -42,14 +42,12 @@ class HttpRequest extends \yii\httpclient\Request
                         (isset($config['passwd']) ? $config['passwd'] : ''),
                 ]);
                 break;
-            }
 
-            case 'bearer': {
+            case 'bearer':
                 $this->addHeaders([
                     'Authorization' => 'Bearer ' . (isset($config['token']) ? $config['token'] : ''),
                 ]);
                 break;
-            }
         }
 
         return $this;
@@ -72,7 +70,13 @@ class HttpRequest extends \yii\httpclient\Request
 
         $response = parent::send();
 
-        $debugInfoResponse = sprintf('Response = %s', print_r($response->data, true)) . PHP_EOL;
+        try {
+            $debugInfoResponse = sprintf('Response = %s', print_r($response->getData(), true)) . PHP_EOL;
+        } catch (\Exception $e) {
+            // сюда попадаем, когда data не может распарситься как JSON. Тогда сохраняем весь response
+            $debugInfoResponse = sprintf('Response = %s', $response->getContent()) . PHP_EOL;
+        }
+
         Yii::info($debugInfoRequest . PHP_EOL . PHP_EOL . $debugInfoResponse, $logCategory);
         $handlerLogger->add($debugInfoResponse);
 

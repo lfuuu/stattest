@@ -14,6 +14,20 @@ class MonitorUuTestTariff extends Monitor
     // позволим менеджерам увеличивать базовый срок тестового тарифа на несколько дней
     const DELTA_DAYS = 10;
 
+    public $monitorGroup = self::GROUP_FOR_MANAGERS;
+
+    private $_message = '';
+
+    /**
+     * Получение сообщения для статуса
+     *
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->_message;
+    }
+
     /**
      * Текущее значение
      *
@@ -33,7 +47,9 @@ class MonitorUuTestTariff extends Monitor
         }
 
         $sql = <<<SQL
-            SELECT COUNT(*) as cnt
+            SELECT
+                COUNT(*) as cnt,
+                GROUP_CONCAT(account_tariff.id) AS message
             FROM
                 {$accountTariffTableName} account_tariff,
                 {$tariffPeriodTableName} tariff_period,
@@ -45,6 +61,9 @@ class MonitorUuTestTariff extends Monitor
                 AND account_tariff.insert_time + INTERVAL tariff.count_of_validity_period day + INTERVAL {$deltaDays} day < NOW()
 SQL;
         $db = AccountTariff::getDb();
-        return $db->createCommand($sql)->queryScalar();
+        $row = $db->createCommand($sql)->queryOne();
+        $this->_message = $row['message'];
+
+        return $row['cnt'];
     }
 }

@@ -17,7 +17,7 @@ class MonitorQueue extends Monitor
      */
     public function getLimits()
     {
-        return [1, 10, 50];
+        return [1, 50, 100];
     }
 
     /**

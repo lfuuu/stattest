@@ -10,6 +10,20 @@ use app\modules\uu\models\AccountTariffLog;
  */
 class MonitorUuShiftTariff extends Monitor
 {
+    public $monitorGroup = self::GROUP_FOR_MANAGERS;
+
+    private $_message = '';
+
+    /**
+     * Получение сообщения для статуса
+     *
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->_message;
+    }
+
     /**
      * Текущее значение
      *
@@ -22,7 +36,9 @@ class MonitorUuShiftTariff extends Monitor
         $accountTariffLogTableName = AccountTariffLog::tableName();
 
         $sql = <<<SQL
-            SELECT COUNT(*) as cnt
+            SELECT
+                COUNT(*) as cnt,
+                GROUP_CONCAT(account_tariff_log.account_tariff_id) AS message
             FROM
                 {$accountTariffLogTableName} account_tariff_log,
                 (
@@ -41,9 +57,12 @@ class MonitorUuShiftTariff extends Monitor
 	            account_tariff_log.id = t.model_id
 SQL;
         $db = AccountTariffLog::getDb();
-        return $db->createCommand($sql, [
+        $row = $db->createCommand($sql, [
             ':model' => AccountTariffLog::className(),
             ':action' => HistoryChanges::ACTION_UPDATE,
-        ])->queryScalar();
+        ])->queryOne();
+        $this->_message = $row['message'];
+
+        return $row['cnt'];
     }
 }

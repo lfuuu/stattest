@@ -127,7 +127,7 @@ class HealthController extends Controller
                 'itemId' => $itemId,
                 'itemVal' => $itemValue,
                 'statusId' => $this->_getStatus($limits, $itemValue),
-                'statusMessage' => method_exists($monitor, 'getMessage') ? $monitor->getMessage() : $itemId . ' is ' . $itemValue,
+                'statusMessage' => method_exists($monitor, 'getMessage') ? $monitor->getMessage() : $itemValue,
             ];
             $this->_logHealth($itemId, $itemValue);
         }

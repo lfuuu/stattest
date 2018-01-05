@@ -27,8 +27,7 @@ return [
 
     'health' => [
         'externalUrls' => [
-            'main' => [
-            ]
+            'main' => [],
         ],
         'export' => [
             'main' => '@app/web/operator/_private/health.json',

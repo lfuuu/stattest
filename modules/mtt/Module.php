@@ -164,11 +164,11 @@ class Module extends \yii\base\Module
     {
         $accountTariff = AccountTariff::findOne(['id' => $params['requestId']]);
         if (!$accountTariff) {
-            throw new InvalidParamException('Неправильный ID услуги');
+            throw new InvalidParamException('Неправильный ID услуги: ' . print_r($params, true));
         }
 
         if (!isset($params['balance'])) {
-            throw new InvalidParamException('Неправильный баланс MTT');
+            throw new InvalidParamException('Неправильный баланс MTT: ' . print_r($params, true));
         }
 
         $accountTariff->mtt_balance = $params['balance'];
@@ -203,14 +203,14 @@ class Module extends \yii\base\Module
     {
         $accountTariff = AccountTariff::findOne(['id' => $params['requestId']]);
         if (!$accountTariff) {
-            throw new InvalidParamException('Неправильный ID услуги');
+            throw new InvalidParamException('Неправильный ID услуги: ' . print_r($params, true));
         }
 
         if (
             !isset($params['data']['customer_name'])
             || !($accountTariff->mtt_number = $params['data']['customer_name'])
         ) {
-            throw new InvalidParamException('Неправильный MTT ID');
+            throw new InvalidParamException('Неправильный MTT ID: ' . print_r($params, true));
         }
 
         if (!$accountTariff->save()) {

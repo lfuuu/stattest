@@ -28,6 +28,7 @@ class MonitorSormClients extends Monitor
      * Текущее значение
      *
      * @return int
+     * @throws \yii\db\Exception
      */
     public function getValue()
     {
@@ -43,6 +44,7 @@ class MonitorSormClients extends Monitor
             if ($a['count_numbers'] == $b['count_numbers']) {
                 return 0;
             }
+
             return $a['count_numbers'] < $b['count_numbers'] ? 1 : -1;
         });
 
