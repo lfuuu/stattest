@@ -105,9 +105,25 @@ $columns = [
     [
         'attribute' => 'price',
         'class' => IntegerRangeColumn::className(),
-        'pageSummary' => true,
-        'pageSummaryFunc' => GridView::F_SUM,
     ],
+];
+
+// отображаемые колонки Итого в гриде
+$summary = $filterModel->searchSummary();
+$summaryColumns = [
+    [
+        'content' => Yii::t('common', 'Summary'),
+        'options' => ['colspan' => 9],
+    ],
+    ['options' => ['class' => 'hidden']], // потому что colspan в первом столбце
+    ['options' => ['class' => 'hidden']], // потому что colspan в первом столбце
+    ['options' => ['class' => 'hidden']], // потому что colspan в первом столбце
+    ['options' => ['class' => 'hidden']], // потому что colspan в первом столбце
+    ['options' => ['class' => 'hidden']], // потому что colspan в первом столбце
+    ['options' => ['class' => 'hidden']], // потому что colspan в первом столбце
+    ['options' => ['class' => 'hidden']], // потому что colspan в первом столбце
+    ['options' => ['class' => 'hidden']], // потому что colspan в первом столбце
+    ['content' => $summary['account_log_period_price']],
 ];
 
 if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
@@ -118,9 +134,9 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
         'value' => function (AccountLogPeriod $accountLogPeriod) {
             return $accountLogPeriod->accountTariff->price;
         },
-        'pageSummary' => true,
-        'pageSummaryFunc' => GridView::F_SUM,
     ];
+    $summaryColumns[] = ['content' => $summary['account_tariff_price']];
+
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'infrastructure_project'),
         'attribute' => 'account_tariff_infrastructure_project',
@@ -129,6 +145,8 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
             return $accountLogPeriod->accountTariff->infrastructure_project;
         },
     ];
+    $summaryColumns[] = [];
+
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'infrastructure_level'),
         'attribute' => 'account_tariff_infrastructure_level',
@@ -137,6 +155,8 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
             return $accountLogPeriod->accountTariff->infrastructure_level;
         },
     ];
+    $summaryColumns[] = [];
+
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'datacenter_id'),
         'attribute' => 'account_tariff_datacenter_id',
@@ -145,6 +165,8 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
             return $accountLogPeriod->accountTariff->datacenter_id;
         },
     ];
+    $summaryColumns[] = [];
+
     $columns[] = [
         'label' => Yii::t('models/' . $accountTariffTableName, 'city_id'),
         'attribute' => 'account_tariff_city_id',
@@ -153,6 +175,7 @@ if ($filterModel->service_type_id == ServiceType::ID_INFRASTRUCTURE) {
             return $accountLogPeriod->accountTariff->city_id;
         },
     ];
+    $summaryColumns[] = [];
 }
 
 $dataProvider = $filterModel->search();
@@ -161,10 +184,15 @@ echo GridView::widget([
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
+    'afterHeader' => [ // итого
+        [
+            'options' => ['class' => \kartik\grid\GridView::TYPE_WARNING], // желтый фон
+            'columns' => $summaryColumns,
+        ]
+    ],
     'exportWidget' => GridViewExport::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $filterModel,
         'columns' => $columns,
     ]),
-    'showPageSummary' => true,
 ]);

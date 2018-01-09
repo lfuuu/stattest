@@ -7,6 +7,7 @@ use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\TariffPeriod;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveQuery;
 
 /**
  * Фильтрация AccountLogPeriod
@@ -143,5 +144,26 @@ class AccountLogPeriodFilter extends AccountLogPeriod
         }
 
         return $dataProvider;
+    }
+
+    /**
+     * Итого
+     *
+     * @return array
+     */
+    public function searchSummary()
+    {
+        $dataProvider = $this->search();
+        $accountLogPeriodTableName = AccountLogPeriod::tableName();
+        $accountTariffTableName = AccountTariff::tableName();
+
+        /** @var ActiveQuery $query */
+        $query = $dataProvider->query;
+        return $query->select([
+            'account_log_period_price' => 'SUM(' . $accountLogPeriodTableName . '.price)',
+            'account_tariff_price' => 'SUM(' . $accountTariffTableName . '.price)',
+        ])
+        ->asArray()
+        ->one();
     }
 }
