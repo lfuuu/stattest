@@ -158,7 +158,7 @@ final class OpenController extends Controller
             }
 
             $priceLevel = $clientAccount->price_level;
-            $countryId = $clientAccount->country_id;
+            !$countryCode && $countryCode = $clientAccount->country_id;
             $currencyId = $clientAccount->currency;
             $isPostpaid = $clientAccount->is_postpaid;
             $tariffPersonId = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
@@ -168,7 +168,6 @@ final class OpenController extends Controller
         } else {
             $clientAccount = null;
             $priceLevel = ClientAccount::DEFAULT_PRICE_LEVEL;
-            $countryId = null;
             $currencyId = null;
             $isPostpaid = false;
             $tariffPersonId = TariffPerson::ID_LEGAL_PERSON;
@@ -188,10 +187,16 @@ final class OpenController extends Controller
                 $freeNumber->didGroup->tariff_status_beauty,
             ];
 
-            !$countryId && $countryId = $freeNumber->country_code;
-            !$currencyId && $currencyId = $freeNumber->country->currency_id;
-
-            $responseNumber->default_tariff = $this->_getDefaultTariff($tariffStatusId, $packageStatusIds, $freeNumber->city_id, $countryId, $currencyId, $isPostpaid, $tariffPersonId, $freeNumber->ndc_type_id);
+            $responseNumber->default_tariff = $this->_getDefaultTariff(
+                $tariffStatusId,
+                $packageStatusIds,
+                $freeNumber->city_id,
+                $countryCode ?: $freeNumber->country_code,
+                $currencyId ?: $freeNumber->country->currency_id,
+                $isPostpaid,
+                $tariffPersonId,
+                $freeNumber->ndc_type_id
+            );
             $responseNumbers[] = $responseNumber;
         }
 
