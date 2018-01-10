@@ -80,7 +80,7 @@ class TariffPeriod extends ActiveRecord
     {
         $tariff = $this->tariff;
         return sprintf(
-            '%s %d %s %s',
+            '%s %s %s %s',
             $tariff->name,
             $this->price_per_period,
             $tariff->currency->symbol,

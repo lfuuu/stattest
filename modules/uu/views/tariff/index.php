@@ -81,7 +81,7 @@ $columns = [
         'value' => function (Tariff $tariff) {
             $tariffPeriods = $tariff->tariffPeriods;
             $tariffPeriod = reset($tariffPeriods);
-            return sprintf('%d / %d, %d', $tariffPeriod->price_setup, $tariffPeriod->price_min, $tariffPeriod->price_per_period);
+            return sprintf('%s / %s, %s', $tariffPeriod->price_setup, $tariffPeriod->price_min, $tariffPeriod->price_per_period);
         },
     ],
     [
