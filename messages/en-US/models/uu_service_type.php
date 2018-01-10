@@ -29,4 +29,7 @@ return [
     'Type #22' => 'Trunk',
     'Type #23' => 'Trunk', // Orig trunk package
     'Type #24' => 'Trunk', // Term trunk package
+    'Type #25' => 'Mobile internet',
+    'Type #26' => '', // Infrastructure
+    'Type #27' => 'NNP access',
 ];
