@@ -65,7 +65,7 @@ $id = $model->clientM->id;
                         <label class="control-label" for="deferred-date-input">Выберите дату</label>
                         <?= DatePicker::widget(
                             [
-                                'name' => 'kartik-date-3',
+                                'name' => 'AccountEditForm[historyVersionStoredDateSelected]',
                                 'value' => Yii::$app->request->get('date') ? Yii::$app->request->get('date') : date(DateTimeZoneHelper::DATE_FORMAT),
                                 'removeButton' => false,
                                 'pluginOptions' => [

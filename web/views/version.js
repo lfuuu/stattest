@@ -12,7 +12,7 @@
                     };
 
                 $.getJSON('/version/delete', params, function (data) {
-                    if (data['status'] == 'ok') {
+                    if ('status' in data && data.status == 'ok') {
                         window.location.reload(true);
                     } else {
                         alert('Ошибка удаления версии');

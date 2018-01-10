@@ -3,6 +3,7 @@ namespace app\forms\client;
 
 use app\classes\api\ApiCore;
 use app\classes\Form;
+use app\classes\model\ActiveRecord;
 use app\classes\validators\ArrayValidator;
 use app\classes\validators\BikValidator;
 use app\exceptions\ModelValidationException;
@@ -28,7 +29,8 @@ class AccountEditForm extends Form
     public $clientM = null;
 
     public $historyVersionRequestedDate = null;
-    public $historyVersionStoredDate = null;
+    public $historyVersionStoredDate = null; // сохранение на дату из dropdown'а
+    public $historyVersionStoredDateSelected = null; // сохранение на выбранную дату
 
     public $id,
         $super_id,
@@ -113,6 +115,7 @@ class AccountEditForm extends Form
                     'bank_city',
                     'bank_properties',
                     'historyVersionStoredDate',
+                    'historyVersionStoredDateSelected'
                 ],
                 'string'
             ],
@@ -234,6 +237,20 @@ class AccountEditForm extends Form
     public function getModel()
     {
         return $this->clientM;
+    }
+
+    /**
+     * Инициализация данных после загрузки
+     *
+     * @return bool
+     */
+    public function beforeValidate()
+    {
+        if (!$this->historyVersionStoredDate && $this->historyVersionStoredDateSelected) {
+            $this->historyVersionStoredDate = $this->historyVersionStoredDateSelected;
+        }
+
+        return true;
     }
 
     /**

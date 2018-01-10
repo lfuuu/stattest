@@ -19,6 +19,8 @@ $links = [
     <?php return ?>
 <?php endif ?>
 
+<script src="views/version.js"></script>
+
 <table class="table table-condensed table-striped table-bordered" style="width: auto; margin-top: 20px">
     <tr class="info">
         <th>Дата</th>
