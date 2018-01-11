@@ -570,7 +570,7 @@ class CallsRawFilter extends CallsRaw
             $query5->select(
                 [
                     "{$alias}_number_range_id" => 'number_range_id',
-                    "ndc_type_id" => 'ndc_type_id',
+                    "{$alias}_ndc_type_id" => 'ndc_type_id',
                     "{$alias}_destination_id" => 'destination_id'
                 ]
             )
