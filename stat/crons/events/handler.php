@@ -101,24 +101,20 @@ function doEvents()
             switch ($event->event) {
                 case EventQueue::USAGE_VOIP__INSERT:
                 case EventQueue::USAGE_VOIP__UPDATE:
-                case EventQueue::USAGE_VOIP__DELETE: {
+                case EventQueue::USAGE_VOIP__DELETE:
                     // ats2Numbers::check();
                     break;
-                }
 
-                case EventQueue::ADD_PAYMENT: {
+                case EventQueue::ADD_PAYMENT:
                     EventHandler::updateBalance($param[1]);
                     // (new AddPaymentNotificationProcessor($param[1], $param[0]))->makeSingleClientNotification();
                     break;
-                }
 
-                case EventQueue::UPDATE_BALANCE: {
+                case EventQueue::UPDATE_BALANCE:
                     EventHandler::updateBalance($param);
                     break;
-                }
 
-                case EventQueue::MIDNIGHT: {
-
+                case EventQueue::MIDNIGHT:
                     // проверка необходимости включать или выключать услуги
                     EventQueue::go(EventQueue::CHECK__USAGES);
 
@@ -141,9 +137,8 @@ function doEvents()
                     EventQueue::go(EventQueue::MIDNIGHT__CLEAN_EVENT_QUEUE);
 
                     break;
-                }
 
-                case EventQueue::CHECK__USAGES: {
+                case EventQueue::CHECK__USAGES:
                     // проверка необходимости включить или выключить услугу UsageVoip
                     EventQueue::go(EventQueue::CHECK__VOIP_OLD_NUMBERS);
 
@@ -157,60 +152,51 @@ function doEvents()
                     EventQueue::go(EventQueue::CHECK__CALL_CHAT);
 
                     break;
-                }
 
                 // проверка необходимости включить или выключить услугу UsageVoip
-                case EventQueue::CHECK__VOIP_OLD_NUMBERS: {
+                case EventQueue::CHECK__VOIP_OLD_NUMBERS:
                     voipNumbers::check();
                     break;
-                }
 
                 // проверка необходимости включить или выключить услугу UsageVirtPbx
-                case EventQueue::CHECK__VIRTPBX3: {
+                case EventQueue::CHECK__VIRTPBX3:
                     $usageId = isset($param[0]) ? $param[0] : (isset($param['usage_id']) ? $param['usage_id'] : 0);
                     VirtPbx3::check($usageId);
                     break;
-                }
 
                 // проверка необходимости включить или выключить услугу UsageCallChat
                 // @todo перенести в новый демон
-                case EventQueue::CHECK__CALL_CHAT: {
+                case EventQueue::CHECK__CALL_CHAT:
                     ActaulizerCallChatUsage::me()->actualizeUsages();
                     break;
-                }
 
                 // каждый 2-ой рабочий день, помечаем, что все счета показываем в LK
-                case EventQueue::MIDNIGHT__LK_BILLS4ALL: {
+                case EventQueue::MIDNIGHT__LK_BILLS4ALL:
                     NewBill::setLkShowForAll();
                     break;
-                }
 
                 // за 4 дня предупреждаем о списании абонентки аваносовым клиентам
-                case EventQueue::MIDNIGHT__MONTHLY_FEE_MSG: {
+                case EventQueue::MIDNIGHT__MONTHLY_FEE_MSG:
                     // $execStr = "cd ".PATH_TO_ROOT."crons/stat/; php -c /etc/ before_billing.php >> /var/log/nispd/cron_before_billing.php";
                     // echo " exec: ".$execStr;
                     // exec($execStr);
                     break;
-                }
 
                 // очистка предоплаченных счетов
-                case EventQueue::MIDNIGHT__CLEAN_PRE_PAYED_BILLS: {
+                case EventQueue::MIDNIGHT__CLEAN_PRE_PAYED_BILLS:
                     Bill::cleanOldPrePayedBills();
                     break;
-                }
 
                 // очистка очереди событий
-                case EventQueue::MIDNIGHT__CLEAN_EVENT_QUEUE: {
+                case EventQueue::MIDNIGHT__CLEAN_EVENT_QUEUE:
                     EventQueue::clean();
                     break;
-                }
 
-                case EventQueue::LK_SETTINGS_TO_MAILER: {
+                case EventQueue::LK_SETTINGS_TO_MAILER:
                     /** @var \app\modules\notifier\Module $notifier */
                     $notifier = Yii::$app->getModule('notifier');
                     $notifier->actions->applySchemePersonalSubscribe($param);
                     break;
-                }
 
                 case EventQueue::CHECK_CREATE_CORE_OWNER:
                     if ($isCoreServer) {
@@ -352,10 +338,9 @@ function doEvents()
                     }
                     break;
 
-                case EventQueue::PARTNER_REWARD: {
+                case EventQueue::PARTNER_REWARD:
                     RewardCalculate::run($param['client_id'], $param['bill_id'], $param['created_at']);
                     break;
-                }
 
                 // --------------------------------------------
                 // Псевдо-логирование
@@ -472,7 +457,9 @@ function doEvents()
 
                 case \app\modules\uu\Module::EVENT_RESOURCE_VOIP:
                     // УУ. Отправить измененные ресурсы телефонии на платформу
-                    if ($isCoreServer) {
+                    if (AccountTariff::hasTrunk($param['account_tariff_id'])) {
+                        HandlerLogger::me()->add('Мегатранк');
+                    } elseif ($isCoreServer) {
                         ApiPhone::me()->editDid(
                             $param['client_account_id'],
                             $param['number'],
