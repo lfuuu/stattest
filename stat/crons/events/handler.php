@@ -457,7 +457,7 @@ function doEvents()
 
                 case \app\modules\uu\Module::EVENT_RESOURCE_VOIP:
                     // УУ. Отправить измененные ресурсы телефонии на платформу
-                    if (AccountTariff::hasTrunk($param['account_tariff_id'])) {
+                    if (AccountTariff::hasTrunk($param['client_account_id'])) {
                         HandlerLogger::me()->add('Мегатранк');
                     } elseif ($isCoreServer) {
                         ApiPhone::me()->editDid(
