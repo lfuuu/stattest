@@ -291,43 +291,56 @@ class BillerController extends Controller
      */
     public function actionAdvanceAccounts()
     {
-        $today = new \DateTimeImmutable('now');
-        $nowZeroTime = $today->setTime(0, 0, 0);
-        $periodEnd = $nowZeroTime;
-
+        $isProcessed = false;
         $logger = HandlerLogger::me();
+
+        $today = (new \DateTimeImmutable('now'))
+            ->setTime(0, 0, 0);
+
+        $logger->add('today: ' . $today->format('r'));
+
+        $periodEnd = $today;
 
         $clientAccountQuery = ClientAccount::find()
             ->joinWith('options o')->where([
-            'o.option' => ClientAccountOptions::OPTION_SETTINGS_ADVANCE_INVOICE,
+                'o.option' => ClientAccountOptions::OPTION_SETTINGS_ADVANCE_INVOICE,
             ]);
 
         // выставление авансовых счетов по понедельникам
         if ($today->format('w') == 1) {
+            $isProcessed = true;
             $logger->add(date('r') . ': Advance invoicing on Mondays');
             $clientAccountQuery->where(['o.value' => ClientAccountOptions::SETTINGS_ADVANCE_EVERY_WEEK_ON_MONDAY]);
-            $periodStart = $nowZeroTime->modify('-7 days');
+            $periodStart = $today->modify('-7 days');
+
+            $logger->add('Period start: ' . $periodStart->format('r'));
+            $logger->add('Period end:   ' . $periodEnd->format('r'));
             Bill::dao()->advanceAccounts($clientAccountQuery, $periodStart, $periodEnd);
         }
 
         // выставление каждого 1 и 15 числа
         $todayDayNumber = $today->format('d');
-        if (in_array($todayDayNumber, [1, 15])) {
+        if (in_array($todayDayNumber, [1, 16])) {
 
+            $isProcessed = true;
             $logger->add(date('r') . ': Advance invoicing on ' . $todayDayNumber);
 
             // 1 число
             if ($todayDayNumber == 1) {
-                $periodStart = $nowZeroTime->modify('-1 month')->modify('+14 days');
+                $periodStart = $today->modify('-1 month')->modify('+15 days');
             } else { // 15 число
-                $periodStart = $nowZeroTime->modify('first day of this month');
+                $periodStart = $today->modify('first day of this month');
             }
 
             $clientAccountQuery->where(['o.value' => ClientAccountOptions::SETTINGS_ADVANCE_1_AND_15]);
+
+            $logger->add('Period start: ' . $periodStart->format('r'));
+            $logger->add('Period end:   ' . $periodEnd->format('r'));
+
             Bill::dao()->advanceAccounts($clientAccountQuery, $periodStart, $periodEnd);
         }
 
-        if ($logs = $logger->get()) {
+        if ($isProcessed && ($logs = $logger->get())) {
             echo implode(PHP_EOL, $logs) . PHP_EOL;
         }
     }
