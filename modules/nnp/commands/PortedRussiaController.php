@@ -6,6 +6,14 @@ use app\modules\nnp\models\Country;
 use yii\web\NotFoundHttpException;
 
 /**
+ * 1. Скачать по FTP с mnctel01@prod-sftp.numlex.ru:3232/numlex/Port_All последний файл. Пароль можно узнать у Бориса Коробкова, Сергея Кошелева или у шефа
+ * 2. Сохранить файл в /home/jenkins/stat/runtime/portedRussia.zip
+ * 3. ./yii nnp/import/disable-trigger
+ * 4. ./yii nnp/ported-russia/import --fileName=portedRussia.zip#Port_All_201801150000_1517.csv     Подставить текущее название. Импортировать файл в БД. Работает минут 10
+ * 5. ./yii nnp/import/link         Привязать к ID оператора по его имени. Работает минут 10-20
+ * 6. ./yii nnp/import/enable-trigger
+ * 7. cd /home/jenkins/nnp-ported; node --max_old_space_size=5000 indexSaveToRedis              Сохранить из БД в Redis. Работает минут 30, сильно грузит сервер
+ *
  * Port_All_201710010000_1299.csv
  * Number,OwnerId,MNC,Route,RegionCode,PortDate,RowCount
  * 9000000000,mMEGAFON,02,D2502,25,2016-09-07T12:00:17+03:00,6021751
