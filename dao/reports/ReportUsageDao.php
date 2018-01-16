@@ -444,7 +444,7 @@ class ReportUsageDao extends Singleton
             $query1 = $this->_makeReader($query, $from, $dateStatisticsSeparation, self::CONNECT_SLOW_AND_BIG, $callCount, $isByCalls);
             $query2 = $this->_makeReader($query, $dateStatisticsSeparation, $to, self::CONNECT_MAIN_AND_FAST, $callCount, $isByCalls);
         } else {
-            $connector = $from > $dateStatisticsSeparation ? self::CONNECT_MAIN_AND_FAST : self::CONNECT_SLOW_AND_BIG;
+            $connector = $from >= $dateStatisticsSeparation ? self::CONNECT_MAIN_AND_FAST : self::CONNECT_SLOW_AND_BIG;
             $query1 = $this->_makeReader($query, $from, $to, $connector, $callCount, $isByCalls);
             $query2 = null;
         }
