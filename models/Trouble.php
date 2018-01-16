@@ -43,37 +43,48 @@ class Trouble extends ActiveRecord
     const DEFAULT_SUPPORT_STATE = 1;
     const DEFAULT_CONNECT_FOLDER = 137438953473;
     const DEFAULT_CONNECT_STATE = 41;
+
     const TYPE_TROUBLE = 'trouble';
     const TYPE_TASK = 'task';
-    const TYPE_CONSULTATION = 'consultation';
-    const TYPE_MONITORING = 'monitoring';
     const TYPE_CONNECT = 'connect';
+    const TYPE_INCOMEGOODS = 'incomegoods';
+    const TYPE_MOUNTING_ORDERS = 'mounting_orders';
+    const TYPE_OUT = 'out';
+    const TYPE_SHOP_ORDERS = 'shop_orders';
+    const TYPE_SUPPORT_WELLTIME = 'support_welltime';
+
     const SUBTYPE_TROUBLE = 'trouble';
     const SUBTYPE_CONNECT = 'connect';
+    const SUBTYPE_MONITORING = 'monitoring';
+    const SUBTYPE_INCOMEGOODS = 'incomegoods';
+    const SUBTYPE_SHOP = 'shop';
+    const SUBTYPE_REMINDER = 'reminder';
+    const SUBTYPE_TASK = 'task';
+    const SUBTYPE_CONSULTATION = 'consultation';
 
     public $client_name = '';
 
     public static $types = [
-        'connect' => 'Подключение',
-        'incomegoods' => 'Заказ поставщику',
-        'mounting_orders' => '',
-        'out' => '',
-        'shop_orders' => 'Заказ',
-        'support_welltime' => '',
-        'task' => 'Задание',
-        'trouble' => 'Трабл',
+        self::TYPE_CONNECT => 'Подключение',
+        self::TYPE_INCOMEGOODS => 'Заказ поставщику',
+        self::TYPE_MOUNTING_ORDERS => '',
+        self::TYPE_OUT => '',
+        self::TYPE_SHOP_ORDERS => 'Заказ',
+        self::TYPE_SUPPORT_WELLTIME => '',
+        self::TYPE_TASK => 'Задание',
+        self::TYPE_TROUBLE => 'Трабл',
     ];
 
     public static $subTypes = [
-        'connect' => 'Подключение',
-        'incomegoods' => 'Заказ поставщику',
-        'monitoring' => 'Мониторинг',
+        self::SUBTYPE_CONNECT => 'Подключение',
+        self::SUBTYPE_INCOMEGOODS => 'Заказ поставщику',
+        self::SUBTYPE_MONITORING => 'Мониторинг',
         '' => '',
-        'shop' => 'Заказ',
-        'reminder' => 'Напоминание',
-        'task' => 'Задание',
-        'trouble' => 'Трабл',
-        'consultation' => 'Консультация',
+        self::SUBTYPE_SHOP => 'Заказ',
+        self::SUBTYPE_REMINDER => 'Напоминание',
+        self::SUBTYPE_TASK => 'Задание',
+        self::SUBTYPE_TROUBLE => 'Трабл',
+        self::SUBTYPE_CONSULTATION => 'Консультация',
     ];
 
     public $tt_files = [];

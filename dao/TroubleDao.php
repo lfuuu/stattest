@@ -333,7 +333,9 @@ class TroubleDao extends Singleton
 
         $troubleTexts = [];
 
-        $troubleTexts[] = ($post ? 'Ошибка создания УУ' : 'УУ создана');
+        $troubleTexts[] = $accountTariffLog->tariff_period_id ?
+            ($post ? 'Ошибка создания УУ' : 'УУ создана') : // создание. А редактирование сюда вообще не попадает
+            'УУ закрыта'; // закрытие
         $troubleTexts[] = 'ЛС ' . $accountTariff->client_account_id;
         $troubleTexts[] = 'Тип ' . $accountTariff->serviceType->name;
         $troubleTexts[] = 'Тариф ' . $accountTariffLog->getName();
@@ -350,7 +352,8 @@ class TroubleDao extends Singleton
 
         $this->createTrouble($accountTariff->client_account_id, Trouble::TYPE_CONNECT, Trouble::SUBTYPE_CONNECT, $troubleText, null, ($user ? $user->user : null));
 
-        if ($user && $user->email) {
+        if ($user && $user->email && $accountTariffLog->tariff_period_id) {
+            // отправить письмо только при создании, но не при закрытии
             \Yii::$app->mailer
                 ->compose()
                 ->setHtmlBody($troubleText)

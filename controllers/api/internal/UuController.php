@@ -1516,7 +1516,6 @@ class UuController extends ApiInternalController
      * @return int
      * @throws \yii\db\Exception
      * @throws Exception
-     * @throws ModelValidationException
      */
     public function actionAddAccountTariff()
     {
@@ -1637,7 +1636,13 @@ class UuController extends ApiInternalController
                 $this->_checkTariff($accountTariff, $accountTariffLog);
             }
 
+            if (!$tariff_period_id) {
+                // Только при закрытии. А при редактировании - не надо
+                Trouble::dao()->notificateCreateAccountTariff($accountTariff, $accountTariffLog);
+            }
+
             $transaction->commit();
+
             return true;
 
         } catch (Exception $e) {
