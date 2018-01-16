@@ -10,6 +10,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\Utils;
 use app\dao\BillDao;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\uu\models\Bill as uuBill;
 use app\queries\BillQuery;
 use Yii;
 use yii\helpers\Url;
@@ -55,6 +56,7 @@ use yii\helpers\Url;
  * @property-read Transaction[] $transactions   ??
  * @property-read Currency $currencyModel
  * @property-read Payment $creditNote
+ * @property-read uuBill $universalBill
  */
 class Bill extends ActiveRecord
 {
@@ -256,6 +258,14 @@ class Bill extends ActiveRecord
     public function getCurrencyModel()
     {
         return $this->hasOne(Currency::className(), ['id' => 'currency']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUniversalBill()
+    {
+        return $this->hasOne(uuBill::className(), ['id' => 'uu_bill_id']);
     }
 
     /**

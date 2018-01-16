@@ -32,6 +32,8 @@ use yii\db\Query;
 class BillDao extends Singleton
 {
     const PRICE_PRECISION = 2;
+    const ADMISSIBLE_COMPUTATION_ERROR_AMOUNT  = 0.0001;
+    const ADMISSIBLE_COMPUTATION_ERROR_SUM  = 0.01;
 
     /**
      * Получение следующего номера счета
@@ -370,14 +372,15 @@ class BillDao extends Singleton
             $sum = round($accountEntry->price_with_vat, self::PRICE_PRECISION);
             $sumWithoutTax = round($accountEntry->price_without_vat, self::PRICE_PRECISION);
             if (
-                (float)$line->sum != $sum
-                || (float)$line->sum_without_tax != $sumWithoutTax
-                || (float)$line->amount != (float)$accountEntry->getAmount()
+                abs((float)$line->sum_without_tax - (float)$accountEntry->price_without_vat) > self::ADMISSIBLE_COMPUTATION_ERROR_SUM
+                || abs((float)$line->amount - (float)$accountEntry->getAmount()) > self::ADMISSIBLE_COMPUTATION_ERROR_AMOUNT
                 || $line->item != $accountEntry->fullName
             ) {
                 // ... но изменилась. Обновить
                 $line->sum = $sum;
                 $line->sum_without_tax = $sumWithoutTax;
+                $line->sum_tax = round($accountEntry->vat, self::PRICE_PRECISION);
+
                 $line->amount = $accountEntry->getAmount();
                 if ($line->amount > 0 && $line->amount != 1) {
                     $line->price = ($bill->price_include_vat ? $accountEntry->price_with_vat : $accountEntry->price_without_vat) / $line->amount; // цена за "1 шт."
@@ -389,6 +392,8 @@ class BillDao extends Singleton
                     $line->amount = 1;
                     $line->price = $bill->price_include_vat ? $sum : $sumWithoutTax;
                 }
+
+                $line->calculateSum($bill->price_include_vat);
 
                 $line->item = $accountEntry->fullName;
                 if (!$line->save()) {
@@ -438,6 +443,8 @@ class BillDao extends Singleton
                 $line->amount = 1;
                 $line->price = $bill->price_include_vat ? $sum : $sumWithoutTax;
             }
+
+            $line->calculateSum($bill->price_include_vat);
 
             if (!$line->save()) {
                 throw new ModelValidationException($line);
