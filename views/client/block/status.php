@@ -150,7 +150,7 @@ $currentBusinessProcessStatus = BusinessProcessStatus::findOne($contractForm->bu
             <div class="col-sm-12 form-group">
                 <?= Html::hiddenInput('ContractEditForm[save_comment_stage]', true); ?>
                 <?= Html::hiddenInput('ContractEditForm[account_id]', $account->id); ?>
-                <?= Html::submitButton('Добавить комментарий', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
+                <?= Html::submitButton('Сохранить', ['class' => 'btn btn-primary', 'id' => 'buttonSave', 'style' => 'float:right;']); ?>
             </div>
         </div>
     </div>
