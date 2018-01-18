@@ -202,7 +202,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => $filterModel->src_countries_ids,
+        'countryCodes' => -1,//$filterModel->src_countries_ids,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
@@ -212,7 +212,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => $filterModel->dst_countries_ids,
+        'countryCodes' => -1, //$filterModel->dst_countries_ids,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
@@ -222,8 +222,8 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => $filterModel->src_countries_ids,
-        'regionIds' => $filterModel->src_regions_ids,
+        'countryCodes' => -1,//$filterModel->src_countries_ids,
+        'regionIds' => -1,//$filterModel->src_regions_ids,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
@@ -233,8 +233,8 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => $filterModel->dst_countries_ids,
-        'regionIds' => $filterModel->dst_regions_ids,
+        'countryCodes' => -1,//$filterModel->dst_countries_ids,
+        'regionIds' => -1,//$filterModel->dst_regions_ids,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
