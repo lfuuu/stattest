@@ -5,6 +5,7 @@ namespace app\models;
 use app\classes\media\TroubleMedia;
 use app\classes\model\ActiveRecord;
 use app\dao\TroubleDao;
+use yii\helpers\Url;
 
 /**
  * @property int $id
@@ -193,6 +194,19 @@ class Trouble extends ActiveRecord
     public function getMediaManager()
     {
         return new TroubleMedia($this);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return Url::to([
+            '/',
+            'module' => 'tt',
+            'action' => 'view',
+            'id' => $this->id
+        ]);
     }
 
 }

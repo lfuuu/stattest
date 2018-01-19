@@ -329,7 +329,12 @@ class Bill extends ActiveRecord
      */
     public function getUrl()
     {
-        return Url::toRoute(['/', 'module' => 'newaccounts', 'action' => 'bill_view', 'bill' => $this->bill_no]);
+        return Url::toRoute([
+            '/',
+            'module' => 'newaccounts',
+            'action' => 'bill_view',
+            'bill' => $this->bill_no
+        ]);
     }
 
     /**

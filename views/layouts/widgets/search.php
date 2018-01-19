@@ -57,6 +57,9 @@ $request = Yii::$app->request->get();
                 <button type="submit" class="btn btn-default btn-xs" data-search="adsl"
                         data-placeholder="ADSL">ADSL
                 </button>
+                <button type="submit" class="btn btn-default btn-xs" data-search="troubleText"
+                        data-placeholder="Текст заявки">Текст заявки
+                </button>
             </div>
         </div>
     </form>

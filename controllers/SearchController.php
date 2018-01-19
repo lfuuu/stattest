@@ -27,18 +27,19 @@ class SearchController extends BaseController
 
             case 'clients':
                 // Дополнительный поиск по счетам
-                if (null !== $model = Bill::findOne(['bill_no' => trim($search)])) {
+                $bill = Bill::findOne(['bill_no' => trim($search)]);
+                if ($bill) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         return [
                             [
-                                'url' => '/index.php?module=newaccounts&action=bill_view&bill=' . trim($search),
-                                'value' => $model->bill_no,
+                                'url' => $bill->getUrl(),
+                                'value' => $bill->bill_no,
                                 'type' => 'bill',
                             ]
                         ];
                     } else {
-                        return $this->redirect('/index.php?module=newaccounts&action=bill_view&bill=' . trim($search));
+                        return $this->redirect($bill->getUrl());
                     }
                 }
 
@@ -66,56 +67,77 @@ class SearchController extends BaseController
                 break;
 
             case 'bills':
-                if (null !== $model = Bill::findOne(['bill_no' => trim($search)])) {
+
+                $bill = Bill::findOne(['bill_no' => trim($search)]);
+
+                if ($bill) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         return [
                             [
-                                'url' => '/index.php?module=newaccounts&action=bill_view&bill=' . trim($search),
-                                'value' => $model->bill_no,
+                                'url' => $bill->getUrl(),
+                                'value' => $bill->bill_no,
                                 'type' => 'bill',
                             ]
                         ];
                     } else {
-                        return $this->redirect('/index.php?module=newaccounts&action=bill_view&bill=' . trim($search));
+                        return $this->redirect($bill->getUrl());
                     }
-                } else {
-                    return $this->render('result', ['message' => 'Счет № ' . $search . ' не найден']);
                 }
 
-            case 'troubles':
-                $model = Trouble::findOne($search);
+                return $this->render('result', ['message' => 'Счет № ' . $search . ' не найден']);
 
-                if ($model) {
+            case 'troubles':
+                $trouble = Trouble::findOne($search);
+
+                if ($trouble) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
-                        return [['url' => '/index.php?module=tt&action=view&id=' . $model->id, 'value' => $model->id]];
+                        return [['url' => $trouble->getUrl(), 'value' => $trouble->id]];
                     } else {
-                        return $this->redirect('/index.php?module=tt&action=view&id=' . $model->id);
+                        return $this->redirect($trouble->getUrl());
                     }
-                } else {
+                }
 
-                    $model = GoodsIncomeOrder::find()
-                        ->where(['number' => $search])
-                        ->orderBy('date desc')
-                        ->limit(1)
-                        ->one();
-                    if (!$model) {
-                        return $this->render('result', ['message' => 'Заявка № ' . $search . ' не найдена']);
-                    }
+                $goodsIncomeOrder = GoodsIncomeOrder::find()
+                    ->where(['number' => $search])
+                    ->orderBy(['date' => SORT_DESC])
+                    ->limit(1)
+                    ->one();
 
+                if ($goodsIncomeOrder) {
                     if (Yii::$app->request->isAjax) {
                         Yii::$app->response->format = Response::FORMAT_JSON;
                         return [
                             [
-                                'url' => '/index.php?module=incomegoods&action=order_view&id=' . $model->id,
-                                'value' => $model->id,
+                                'url' => $goodsIncomeOrder->getUrl(),
+                                'value' => $goodsIncomeOrder->id,
                             ]
                         ];
                     } else {
-                        return $this->redirect('/index.php?module=incomegoods&action=order_view&id=' . $model->id);
+                        return $this->redirect($goodsIncomeOrder->getUrl());
                     }
                 }
+
+                return $this->render('result', ['message' => 'Заявка № ' . $search . ' не найдена']);
+
+            case 'troubleText':
+                /** @var Trouble $model */
+                $trouble = Trouble::find()
+                    ->where(['LIKE', 'problem', $search])
+                    ->orderBy(['id' => SORT_DESC])
+                    ->one();
+
+                if ($trouble) {
+                    if (Yii::$app->request->isAjax) {
+                        Yii::$app->response->format = Response::FORMAT_JSON;
+                        return [['url' => $trouble->getUrl(), 'value' => $trouble->id]];
+                    }
+                    return $this->redirect($trouble->getUrl());
+                }
+
+                return $this->render('result', ['message' => 'Ничего не найдено']);
+                break;
 
             case 'ip':
                 $params['ip'] = trim($search);
