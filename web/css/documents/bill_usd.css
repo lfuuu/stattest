@@ -1,0 +1,35 @@
+BODY, TD, FONT {
+    FONT-FAMILY: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+    font-size: 60%;
+}
+
+td {
+    vertical-align: top;
+}
+
+h1 {
+    padding-top: 50px;
+    text-align: center;
+    font-weight: bold;
+}
+
+h2 {
+    text-align: center;
+}
+
+th {
+    font-size: 80%;
+}
+
+.lines_table, .lines_table td, .lines_table th {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.lines_table {
+    padding-left: 20px;
+}
+
+.lines_table td, .lines_table th {
+    padding: 5px;
+}
