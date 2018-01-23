@@ -16,11 +16,13 @@
             {if !isset($1c_bill_flag)}
                 {assign var="1c_bill_flag" value=0}
             {/if}
-            {if !$all4net_order_number && !$1c_bill_flag && !$bill.uu_bill_id}
+            {if !$all4net_order_number && !$1c_bill_flag}
                 {if !$isClosed}
                     <a href='{$LINK_START}module=newaccounts&action=bill_edit&bill={$bill.bill_no}'>редактировать</a> /
-                    <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a> /
-                    <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a> /
+                    {if !$bill.uu_bill_id}
+                        <a href='{$LINK_START}module=newaccounts&action=bill_delete&bill={$bill.bill_no}'>удалить</a> /
+                        <a href='{$LINK_START}module=newaccounts&action=bill_clear&bill={$bill.bill_no}'>очистить</a> /
+                    {/if}
                 {/if}
             {elseif $1c_bill_flag}
                 {if !$isClosed}

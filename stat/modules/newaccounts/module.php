@@ -1044,23 +1044,8 @@ class m_newaccounts extends IModule
         if (!$bill_no) {
             return;
         }
-        $item = get_param_raw("item");
-        if (!$item) {
-            return;
-        }
-        $amount = get_param_raw("amount");
-        if (!$amount) {
-            return;
-        }
-        $price = get_param_raw("price");
-        if (!$price) {
-            return;
-        }
-        $type = get_param_raw("type");
-        if (!$type) {
-            return;
-        }
-        $del = get_param_raw("del", array());
+
+
         $bill_nal = get_param_raw("nal");
         $billCourier = get_param_raw("courier");
         $bill_no_ext = get_param_raw("bill_no_ext");
@@ -1092,6 +1077,19 @@ class m_newaccounts extends IModule
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
 
+
+
+        $item = get_param_raw("item");
+        $amount = get_param_raw("amount");
+        $price = get_param_raw("price");
+        $type = get_param_raw("type");
+
+        if (!$item || !$amount || !$price || !$type) { // Сохранение только "шапки" счета
+            $bill->Save();
+            header("Location: ?module=newaccounts&action=bill_view&bill=" . $bill_no);
+            exit();
+        }
+
         $lines = $bill->GetLines();
         $lines[$bill->GetMaxSort() + 1] = array();
         $lines[$bill->GetMaxSort() + 2] = array();
@@ -1106,27 +1104,7 @@ class m_newaccounts extends IModule
             }
         }
         $bill->Save();
-        /*
-        $move = get_param_raw("move",false);
-        $move_bill = get_param_raw('move_bill',false);
-        if($move && $move_bill && preg_match('/^\d+-\d+(?:-\d+)?$/',$move_bill)){
-            $mv = array();
-            foreach($move as $sort=>$v){
-                $mv[] = $sort;
-            }
-            $db->Query("
-                update
-                    `newbill_lines`
-                set
-                    `bill_no` = '".$move_bill."'
-                where
-                    `bill_no` = '".$bill_no."'
-                and
-                    `sort` in (".implode(',',$mv).")
-            ");
-        }
-        $bill->Save();
-        */
+
         ClientAccount::dao()->updateBalance($bill->Client('id'), false);
         unset($bill);
         if ($design->ProcessEx('errors.tpl')) {

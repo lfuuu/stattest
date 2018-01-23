@@ -111,6 +111,11 @@
         </div>
     </div>
 
+    {assign var="isDisabledLines" value=false}
+    {if $bill.uu_bill_id}
+        {assign var="isDisabledLines" value=true}
+    {/if}
+
 	<table class="table table-condensed table-striped">
 		<tr>
 			<th width=1%>&#8470;</th>
@@ -120,29 +125,29 @@
 			<th>Тип</th>
 			<th>
 				Удаление
-				<input type="checkbox" id="mark_del" onchange="if (this.checked) $('input.mark_del').attr('checked','checked'); else $('input.mark_del').removeAttr('checked');" />
+				<input type="checkbox" id="mark_del" onchange="if (this.checked) $('input.mark_del').attr('checked','checked'); else $('input.mark_del').removeAttr('checked');"{if isDisabledLines} disabled{/if}/>
 			</th>
 		</tr>
 		{foreach from=$bill_lines item=item key=key name=outer}
 		<tr>
 			<td>{$smarty.foreach.outer.iteration}.</td>
-			<td><input class="form-control input-sm" value="{if isset($item.item)}{$item.item|escape:"input_value_quotes"}{/if}" name=item[{$key}]></td>
-			<td><input class="form-control input-sm" style="width: 100px" value="{if isset($item.amount)}{$item.amount}{/if}" name=amount[{$key}]></td>
-			<td><input class="form-control input-sm" style="width: 80px" value="{if isset($item.price)}{$item.price}{/if}" name=price[{$key}] ></td>
+			<td><input class="form-control input-sm" value="{if isset($item.item)}{$item.item|escape:"input_value_quotes"}{/if}" name=item[{$key}]{if isDisabledLines} disabled{/if}></td>
+			<td><input class="form-control input-sm" style="width: 100px" value="{if isset($item.amount)}{$item.amount}{/if}" name=amount[{$key}]{if isDisabledLines} disabled{/if}></td>
+			<td><input class="form-control input-sm" style="width: 80px" value="{if isset($item.price)}{$item.price}{/if}" name=price[{$key}]{if isDisabledLines} disabled{/if}></td>
 			<td>
-				<select class="form-control input-sm" style="width: 90px" name=type[{$key}]>
+				<select class="form-control input-sm" style="width: 90px" name=type[{$key}]{if isDisabledLines} disabled{/if}>
 					<option value='service'{if isset($item.type) && $item.type=='service'} selected{/if}>услуга &nbsp; &nbsp; &nbsp;обычная</option>
 					<option value='zalog'{if isset($item.type) && $item.type=='zalog'} selected{/if}>залог &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;(попадает в с/ф-3)</option>
 					<option value='zadatok'{if isset($item.type) && $item.type=='zadatok'} selected{/if}>задаток &nbsp; (не попадает в с/ф)</option>
 					<option value='good'{if isset($item.type) && $item.type=='good'} selected{/if}>товар</option>
 				</select>
 			</td>
-			<td><input type="checkbox" class="mark_del" name="del[{$key}]" value="1" /></td>
+			<td><input type="checkbox" class="mark_del" name="del[{$key}]" value="1"{if isDisabledLines} disabled{/if}/></td>
 		</tr>
 		{/foreach}
 	</table>
 	<div style="text-align: center">
-		<input id='submit' class='btn btn-primary' type='submit' value="Сохранить">
+		<input id='submit' class='btn btn-primary' type='submit' value="Сохранить"{if isDisabledLines} disabled{/if}>
 	</div>
 </form>
 
