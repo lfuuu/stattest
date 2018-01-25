@@ -63,6 +63,7 @@ trait CallsRawSlowReport
         $query2->select(
             [
                 'cr.cdr_id',
+                'cr.connect_time',
                 't.name dst_route',
                 'o.name src_operator_name',
                 'nc.name_rus src_country_name',
