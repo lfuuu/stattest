@@ -1053,6 +1053,11 @@ class ClientAccount extends HistoryActiveRecord
     public function getVoipWarnings()
     {
         $warnings = [];
+
+        if (defined("YII_ENV") && YII_ENV === 'test') {
+            return $warnings;
+        }
+
         $counters = $this->billingCounters;
 
         if ($counters->isLocal) {
