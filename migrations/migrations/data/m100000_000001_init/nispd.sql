@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.20, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
 --
 -- Host: localhost    Database: nispd_test
 -- ------------------------------------------------------
--- Server version	5.7.20-0ubuntu0.16.04.1
+-- Server version	5.7.21-0ubuntu0.16.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -426,6 +426,36 @@ CREATE TABLE `client_account_options` (
 LOCK TABLES `client_account_options` WRITE;
 /*!40000 ALTER TABLE `client_account_options` DISABLE KEYS */;
 /*!40000 ALTER TABLE `client_account_options` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `client_comment`
+--
+
+DROP TABLE IF EXISTS `client_comment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_comment` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_id` int(11) NOT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk-client_comment-user_id-user_users-id` (`user_id`),
+  KEY `idx-client_comment-account_id` (`account_id`,`created_at`),
+  CONSTRAINT `fk-client_comment-account_id-clients-id` FOREIGN KEY (`account_id`) REFERENCES `clients` (`id`),
+  CONSTRAINT `fk-client_comment-user_id-user_users-id` FOREIGN KEY (`user_id`) REFERENCES `user_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `client_comment`
+--
+
+LOCK TABLES `client_comment` WRITE;
+/*!40000 ALTER TABLE `client_comment` DISABLE KEYS */;
+/*!40000 ALTER TABLE `client_comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1167,13 +1197,16 @@ CREATE TABLE `clients` (
   `is_voip_with_tax` int(11) NOT NULL DEFAULT '0',
   `price_level` int(11) NOT NULL DEFAULT '1',
   `credit_mgp` int(11) NOT NULL DEFAULT '0',
+  `uu_tariff_status_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `_1c_uk` (`cli_1c`,`con_1c`),
   KEY `client` (`client`),
   KEY `status` (`status`),
   KEY `super_id` (`super_id`),
   KEY `contract_id` (`contract_id`),
-  KEY `clients__is_active` (`is_active`)
+  KEY `clients__is_active` (`is_active`),
+  KEY `fk-uu_tariff_status_id` (`uu_tariff_status_id`),
+  CONSTRAINT `fk-uu_tariff_status_id` FOREIGN KEY (`uu_tariff_status_id`) REFERENCES `uu_tariff_status` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=35800 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1884,7 +1917,7 @@ CREATE TABLE `entry_point` (
 
 LOCK TABLES `entry_point` WRITE;
 /*!40000 ALTER TABLE `entry_point` DISABLE KEYS */;
-INSERT INTO `entry_point` VALUES (1,'RU1','Клиентская заявка с mcn.ru','Client #',643,99,11,2,1,19,'RUB','Europe/Moscow',0,4,0,2000,1000,1,10),(2,'RU5','Точка входа для создания ЛС с универсальным биллингом','uClient #',643,99,11,2,1,19,'RUB','Europe/Moscow',0,5,0,2000,1000,0,10),(3,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,0,0,0,0,10);
+INSERT INTO `entry_point` VALUES (1,'RU1','Клиентская заявка с mcn.ru','Client #',643,99,11,2,1,19,'RUB','Europe/Moscow',0,4,100500,2000,1000,1,10),(2,'RU5','Точка входа для создания ЛС с универсальным биллингом','uClient #',643,99,11,2,1,19,'RUB','Europe/Moscow',0,5,100500,2000,1000,0,10),(3,'RU_PARTNER','Анкета Партнера с mcn.ru','Partner#',643,99,1,7,8,126,'RUB','Europe/Moscow',1,4,100500,2000,1000,0,10);
 /*!40000 ALTER TABLE `entry_point` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1940,7 +1973,8 @@ CREATE TABLE `event_queue_indicator` (
   PRIMARY KEY (`id`),
   KEY `idx-object-object_id` (`object`,`object_id`),
   KEY `fk-event_queue-id` (`event_queue_id`),
-  CONSTRAINT `fk-event_queue-id` FOREIGN KEY (`event_queue_id`) REFERENCES `event_queue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk-event_queue-id` FOREIGN KEY (`event_queue_id`) REFERENCES `event_queue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fx-event_queue_indicator-event_queue_id-event_queue-id` FOREIGN KEY (`event_queue_id`) REFERENCES `event_queue` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4278,8 +4312,8 @@ CREATE TABLE `newpayments` (
   `payment_date` date NOT NULL DEFAULT '1970-01-02',
   `oper_date` date NOT NULL DEFAULT '1970-01-02',
   `payment_rate` decimal(8,4) NOT NULL DEFAULT '0.0000',
-  `type` enum('bank','prov','ecash','neprov') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bank',
-  `ecash_operator` enum('cyberplat','paypal','yandex','sberbank') DEFAULT NULL,
+  `type` enum('bank','prov','ecash','neprov','creditnote') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bank',
+  `ecash_operator` enum('cyberplat','paypal','yandex','sberbank','qiwi','stripe') DEFAULT NULL,
   `sum` decimal(11,2) NOT NULL DEFAULT '0.00',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
   `original_sum` decimal(11,2) DEFAULT NULL,
@@ -4787,6 +4821,35 @@ CREATE TABLE `payment_sber_online` (
 LOCK TABLES `payment_sber_online` WRITE;
 /*!40000 ALTER TABLE `payment_sber_online` DISABLE KEYS */;
 /*!40000 ALTER TABLE `payment_sber_online` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payment_stripe`
+--
+
+DROP TABLE IF EXISTS `payment_stripe`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `payment_stripe` (
+  `payment_id` int(11) unsigned NOT NULL,
+  `token_id` varchar(255) NOT NULL,
+  `account_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `sum` decimal(12,2) NOT NULL,
+  `currency` char(3) NOT NULL,
+  `token_data` text,
+  UNIQUE KEY `uidx-paymentt_id` (`payment_id`),
+  CONSTRAINT `fk-payments-id` FOREIGN KEY (`payment_id`) REFERENCES `newpayments` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payment_stripe`
+--
+
+LOCK TABLES `payment_stripe` WRITE;
+/*!40000 ALTER TABLE `payment_stripe` DISABLE KEYS */;
+/*!40000 ALTER TABLE `payment_stripe` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -7844,7 +7907,7 @@ CREATE TABLE `uu_account_entry` (
   `date_to` date NOT NULL,
   `is_next_month` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq-date-type_id-account_tariff_id-tariff_period_id` (`date`,`type_id`,`account_tariff_id`,`tariff_period_id`),
+  UNIQUE KEY `uniq-date-type_id-account_tariff_id-tariff_period_id` (`date`,`type_id`,`account_tariff_id`,`tariff_period_id`,`is_next_month`),
   KEY `fk-uu_account_entry-account_tariff_id` (`account_tariff_id`),
   KEY `idx-uu_account_entry-type_id` (`type_id`),
   KEY `fk-uu_account_entry-bill_id` (`bill_id`),
@@ -8050,6 +8113,7 @@ CREATE TABLE `uu_account_tariff` (
   `infrastructure_project` int(11) DEFAULT NULL,
   `infrastructure_level` int(11) DEFAULT NULL,
   `price` decimal(13,2) DEFAULT NULL,
+  `datacenter_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk-uu_account_tariff-client_account_id` (`client_account_id`),
   KEY `fk-uu_account_tariff-service_type_id` (`service_type_id`),
@@ -8061,6 +8125,8 @@ CREATE TABLE `uu_account_tariff` (
   KEY `fk-uu_account_tariff-prev_account_tariff_id` (`prev_account_tariff_id`),
   KEY `idx-uu_account_tariff-voip_number-tariff_period_id` (`voip_number`,`tariff_period_id`),
   KEY `idx-prev_usage_id` (`prev_usage_id`),
+  KEY `datacenter_id-fk` (`datacenter_id`),
+  CONSTRAINT `datacenter_id-fk` FOREIGN KEY (`datacenter_id`) REFERENCES `datacenter` (`id`),
   CONSTRAINT `fk-uu_account_tariff-city_id` FOREIGN KEY (`city_id`) REFERENCES `city` (`id`),
   CONSTRAINT `fk-uu_account_tariff-client_account_id` FOREIGN KEY (`client_account_id`) REFERENCES `clients` (`id`),
   CONSTRAINT `fk-uu_account_tariff-insert_user_id` FOREIGN KEY (`insert_user_id`) REFERENCES `user_users` (`id`) ON DELETE SET NULL,
@@ -8181,6 +8247,32 @@ LOCK TABLES `uu_bill` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `uu_nnp_log`
+--
+
+DROP TABLE IF EXISTS `uu_nnp_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `uu_nnp_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account_tariff_id` int(11) DEFAULT NULL,
+  `insert_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account_tariff_id` (`account_tariff_id`),
+  CONSTRAINT `account_tariff_id` FOREIGN KEY (`account_tariff_id`) REFERENCES `uu_account_tariff` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `uu_nnp_log`
+--
+
+LOCK TABLES `uu_nnp_log` WRITE;
+/*!40000 ALTER TABLE `uu_nnp_log` DISABLE KEYS */;
+/*!40000 ALTER TABLE `uu_nnp_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `uu_period`
 --
 
@@ -8223,7 +8315,7 @@ CREATE TABLE `uu_resource` (
   PRIMARY KEY (`id`),
   KEY `fk-uu_resource-service_type_id` (`service_type_id`),
   CONSTRAINT `fk-uu_resource-service_type_id` FOREIGN KEY (`service_type_id`) REFERENCES `uu_service_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8232,7 +8324,7 @@ CREATE TABLE `uu_resource` (
 
 LOCK TABLES `uu_resource` WRITE;
 /*!40000 ALTER TABLE `uu_resource` DISABLE KEYS */;
-INSERT INTO `uu_resource` VALUES (1,'Дисковое пространство','Gb',0.000000,NULL,1),(2,'Абоненты','Unit',0.000000,NULL,1),(3,'Подключение номера другого оператора','Unit',0.000000,NULL,1),(4,'Запись звонков','',0.000000,1.000000,1),(6,'Факс','',0.000000,1.000000,1),(7,'Линии','Unit',1.000000,NULL,2),(9,'Трафик','Mb',0.000000,NULL,4),(10,'Трафик','Mb',0.000000,NULL,5),(13,'Трафик','Mb',0.000000,NULL,6),(14,'СМС','Unit',0.000000,NULL,17),(15,'Процессор','Hz',0.000000,NULL,20),(16,'Дисковое пространство','Mb',0.000000,NULL,20),(17,'Оперативная память','Mb',0.000000,NULL,20),(18,'Стоимость','¤',0.000000,NULL,21),(19,'Маршрутизация по минимальной цене','',0.000000,1.000000,1),(20,'Маршрутизация по географии','',0.000000,1.000000,1),(38,'FMC','',0.000000,1.000000,2),(39,'Лимиты по субсчетам','',0.000000,1.000000,1),(40,'Звонки','¤',0.000000,NULL,3),(41,'Звонки','¤',0.000000,NULL,23),(42,'Трафик','Mb',0.000000,NULL,25),(43,'Исх. моб. связь','',0.000000,1.000000,2);
+INSERT INTO `uu_resource` VALUES (1,'Дисковое пространство','Gb',0.000000,NULL,1),(2,'Абоненты','Unit',0.000000,NULL,1),(3,'Подключение номера другого оператора','Unit',0.000000,NULL,1),(4,'Запись звонков','',0.000000,1.000000,1),(6,'Факс','',0.000000,1.000000,1),(7,'Линии','Unit',1.000000,NULL,2),(9,'Трафик','Mb',0.000000,NULL,4),(10,'Трафик','Mb',0.000000,NULL,5),(13,'Трафик','Mb',0.000000,NULL,6),(14,'СМС','Unit',0.000000,NULL,17),(15,'Процессор','Hz',0.000000,NULL,20),(16,'Дисковое пространство','Mb',0.000000,NULL,20),(17,'Оперативная память','Mb',0.000000,NULL,20),(18,'Стоимость','¤',0.000000,NULL,21),(19,'Маршрутизация по минимальной цене','',0.000000,1.000000,1),(20,'Маршрутизация по географии','',0.000000,1.000000,1),(38,'FMC','',0.000000,1.000000,2),(39,'Лимиты по субсчетам','',0.000000,1.000000,1),(40,'Звонки','¤',0.000000,NULL,3),(41,'Звонки','¤',0.000000,NULL,23),(42,'Трафик','Mb',0.000000,NULL,25),(43,'Исх. моб. связь','',0.000000,1.000000,2),(44,'Номера','Unit',0.000000,NULL,27);
 /*!40000 ALTER TABLE `uu_resource` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8251,7 +8343,7 @@ CREATE TABLE `uu_service_type` (
   PRIMARY KEY (`id`),
   KEY `fk-uu_service_type-parent_id` (`parent_id`),
   CONSTRAINT `fk-uu_service_type-parent_id` FOREIGN KEY (`parent_id`) REFERENCES `uu_service_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8260,7 +8352,7 @@ CREATE TABLE `uu_service_type` (
 
 LOCK TABLES `uu_service_type` WRITE;
 /*!40000 ALTER TABLE `uu_service_type` DISABLE KEYS */;
-INSERT INTO `uu_service_type` VALUES (1,'ВАТС',NULL,60),(2,'Телефония',NULL,60),(3,'Телефония. Пакет звонков',2,60),(4,'Интернет',NULL,60),(5,'Collocation',NULL,60),(6,'VPN',NULL,60),(7,'IT Park',NULL,60),(8,'Регистрация доменов',NULL,60),(9,'Виртуальный почтовый сервер',NULL,60),(10,'Старый ВАТС',NULL,60),(11,'Сайт',NULL,60),(12,'Провайдер',NULL,60),(13,'Wellsystem',NULL,60),(14,'Welltime как продукт',NULL,60),(15,'Дополнительные услуги',NULL,60),(16,'SMS Gate',NULL,60),(17,'SMS',NULL,60),(18,'Welltime как сервис',NULL,60),(19,'Звонок-чат',NULL,60),(20,'VM collocation',NULL,60),(21,'Разовая услуга',NULL,60),(22,'Транк',NULL,60),(23,'Транк. Пакет оригинации',22,60),(24,'Транк. Пакет терминации',22,60),(25,'Телефония. Пакет интернета',2,60),(26,'Инфраструктура',NULL,60);
+INSERT INTO `uu_service_type` VALUES (1,'ВАТС',NULL,60),(2,'Телефония',NULL,60),(3,'Телефония. Пакет звонков',2,60),(4,'Интернет',NULL,60),(5,'Collocation',NULL,60),(6,'VPN',NULL,60),(7,'IT Park',NULL,60),(8,'Регистрация доменов',NULL,60),(9,'Виртуальный почтовый сервер',NULL,60),(10,'Старый ВАТС',NULL,60),(11,'Сайт',NULL,60),(12,'Провайдер',NULL,60),(13,'Wellsystem',NULL,60),(14,'Welltime как продукт',NULL,60),(15,'Дополнительные услуги',NULL,60),(16,'SMS Gate',NULL,60),(17,'SMS',NULL,60),(18,'Welltime как сервис',NULL,60),(19,'Звонок-чат',NULL,60),(20,'VM collocation',NULL,60),(21,'Разовая услуга',NULL,60),(22,'Транк',NULL,60),(23,'Транк. Пакет оригинации',22,60),(24,'Транк. Пакет терминации',22,60),(25,'Телефония. Пакет интернета',2,60),(26,'Инфраструктура',NULL,60),(27,'ННП',NULL,60);
 /*!40000 ALTER TABLE `uu_service_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -9008,4 +9100,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-12-11 15:21:57
+-- Dump completed on 2018-01-25 13:02:52
