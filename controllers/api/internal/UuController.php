@@ -1188,6 +1188,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "id", type = "integer", description = "ID услуги", in = "query", default = ""),
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
      *   @SWG\Parameter(name = "service_type_id", type = "integer", description = "Тип услуги", in = "query", default = ""),
+     *   @SWG\Parameter(name = "voip_number", type = "string", description = "Номер телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "limit", type = "integer", description = "Не более 100 записей. Можно только уменьшить", in = "query", default = "50"),
      *   @SWG\Parameter(name = "offset", type = "integer", description = "Сдвиг при пагинации. Если не указано - 0", in = "query", default = "0"),
      *
@@ -1203,6 +1204,7 @@ class UuController extends ApiInternalController
      * @param int $id
      * @param int $client_account_id
      * @param int $service_type_id
+     * @param string $voip_number
      * @param int $limit
      * @param int $offset
      * @return array
@@ -1212,6 +1214,7 @@ class UuController extends ApiInternalController
         $id = null,
         $client_account_id = null,
         $service_type_id = null,
+        $voip_number = null,
         $limit = self::DEFAULT_LIMIT,
         $offset = 0
     ) {
@@ -1225,6 +1228,7 @@ class UuController extends ApiInternalController
         $id && $accountTariffQuery->andWhere([$accountTariffTableName . '.id' => (int)$id]);
         $client_account_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.client_account_id' => (int)$client_account_id]);
         $service_type_id && $accountTariffQuery->andWhere([$accountTariffTableName . '.service_type_id' => (int)$service_type_id]);
+        $voip_number && $accountTariffQuery->andWhere([$accountTariffTableName . '.voip_number' => $voip_number]);
 
         $limit = min($limit ?: self::DEFAULT_LIMIT, self::MAX_LIMIT);
         $accountTariffQuery->limit($limit);
