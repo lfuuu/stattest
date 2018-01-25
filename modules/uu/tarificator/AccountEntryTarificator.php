@@ -266,7 +266,7 @@ SQL;
             ON account_entry.type_id = tariff_resource.id
         SET
             account_entry.price_without_vat = IF(
-                tariff.is_include_vat OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id IN ({$resourceIdCalls})),
+                tariff.is_include_vat OR (tariff_resource.resource_id IS NOT NULL AND tariff_resource.resource_id IN ({$resourceIdCalls}) AND account_entry.date < '2018-01-01'),
                 account_entry.price * 100 / (100 + account_entry.vat_rate),
                 account_entry.price
                )
