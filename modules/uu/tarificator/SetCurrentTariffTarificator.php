@@ -82,6 +82,36 @@ SQL;
                     $this->checkBalance($accountTariff);
                 }
 
+                if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
+
+                    if (!$accountTariff->tariff_period_id) {
+                        // не было тарифа - включение услуги
+                        $eventType = ImportantEventsNames::UU_SWITCHED_ON;
+                    } elseif (!$row['new_tariff_period_id']) {
+                        // не будет тарифа - закрытие услуги
+                        $eventType = ImportantEventsNames::UU_SWITCHED_OFF;
+                    } else {
+                        // "Ленин - жил, Ленин - жив, Ленин - будет жить" - смена тарифа
+                        $eventType = ImportantEventsNames::UU_UPDATED;
+                    }
+
+                    // создать важное событие
+                    ImportantEvents::create($eventType,
+                        ImportantEventsSources::SOURCE_STAT, [
+                            'account_tariff_id' => $accountTariff->id,
+                            'service_type_id' => $accountTariff->service_type_id,
+                            'client_id' => $accountTariff->client_account_id,
+                        ]);
+
+                    // сменить тариф
+                    $accountTariff->tariff_period_id = $row['new_tariff_period_id'];
+                    if (!$accountTariff->save()) {
+                        throw new ModelValidationException($accountTariff);
+                    }
+                } else {
+                    $eventType = null;
+                }
+
                 // доп. обработка в зависимости от типа услуги
                 switch ($accountTariff->service_type_id) {
 
@@ -122,39 +152,28 @@ SQL;
 
                     case ServiceType::ID_CALL_CHAT:
                         // call chat
-                        EventQueue::go(\app\modules\uu\Module::EVENT_CALL_CHAT, [
-                            'client_account_id' => $accountTariff->client_account_id,
-                            'account_tariff_id' => $accountTariff->id,
-                        ]);
+                        switch ($eventType) {
+                            case ImportantEventsNames::UU_SWITCHED_ON:
+                                // создать
+                                EventQueue::go(\app\modules\uu\Module::EVENT_CALL_CHAT_CREATE, [
+                                    'client_account_id' => $accountTariff->client_account_id,
+                                    'account_tariff_id' => $accountTariff->id,
+                                ]);
+                                break;
+
+                            case ImportantEventsNames::UU_SWITCHED_OFF:
+                                // удалить
+                                EventQueue::go(\app\modules\uu\Module::EVENT_CALL_CHAT_REMOVE, [
+                                    'client_account_id' => $accountTariff->client_account_id,
+                                    'account_tariff_id' => $accountTariff->id,
+                                ]);
+                                break;
+
+                            default:
+                                // сменить тариф
+                                break;
+                        }
                         break;
-                }
-
-                if ($accountTariff->tariff_period_id != $row['new_tariff_period_id']) {
-
-                    if (!$accountTariff->tariff_period_id) {
-                        // не было тарифа - включение услуги
-                        $eventType = ImportantEventsNames::UU_SWITCHED_ON;
-                    } elseif (!$row['new_tariff_period_id']) {
-                        // не будет тарифа - закрытие услуги
-                        $eventType = ImportantEventsNames::UU_SWITCHED_OFF;
-                    } else {
-                        // "Ленин - жил, Ленин - жив, Ленин - будет жить" - смена тарифа
-                        $eventType = ImportantEventsNames::UU_UPDATED;
-                    }
-
-                    // создать важное событие
-                    ImportantEvents::create($eventType,
-                        ImportantEventsSources::SOURCE_STAT, [
-                            'account_tariff_id' => $accountTariff->id,
-                            'service_type_id' => $accountTariff->service_type_id,
-                            'client_id' => $accountTariff->client_account_id,
-                        ]);
-
-                    // сменить тариф
-                    $accountTariff->tariff_period_id = $row['new_tariff_period_id'];
-                    if (!$accountTariff->save()) {
-                        throw new ModelValidationException($accountTariff);
-                    }
                 }
 
                 $isWithTransaction && $transaction->commit();
@@ -180,7 +199,7 @@ SQL;
                 $accountTariffLogs = $accountTariff->accountTariffLogs;
                 $accountTariffLog = reset($accountTariffLogs);
                 $accountTariffLog->actual_from_utc = $accountTariff->clientAccount
-                ->getDatetimeWithTimezone()
+                    ->getDatetimeWithTimezone()
                     ->modify('+1 day')
                     ->setTime(0, 0)
                     ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))

@@ -446,10 +446,19 @@ function doEvents()
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;
 
-                case \app\modules\uu\Module::EVENT_CALL_CHAT:
-                    // УУ. Услуга call chat
+                case \app\modules\uu\Module::EVENT_CALL_CHAT_CREATE:
+                    // УУ. Услугу call chat создать
                     if ($isFeedbackServer) {
                         ApiFeedback::createChat($param['client_account_id'], $param['account_tariff_id']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+                case \app\modules\uu\Module::EVENT_CALL_CHAT_REMOVE:
+                    // УУ. Услугу call chat удалить
+                    if ($isFeedbackServer) {
+                        ApiFeedback::removeChat($param['client_account_id'], $param['account_tariff_id']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
