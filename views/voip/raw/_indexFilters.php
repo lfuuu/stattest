@@ -274,10 +274,12 @@ return [
         'isWithNullAndNotNull' => false,
     ],
     [
-        'class' => WithEmptyFilterColumn::className(),
+        'attribute' => 'is_exclude_internal_trunk_term',
+        'class' => CheckboxColumn::className(),
     ],
     [
-        'class' => WithEmptyFilterColumn::className(),
+        'attribute' => 'is_exclude_internal_trunk_orig',
+        'class' => CheckboxColumn::className(),
     ],
 
     [

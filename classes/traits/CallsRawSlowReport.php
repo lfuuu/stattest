@@ -6,6 +6,7 @@
 namespace app\classes\traits;
 
 use app\classes\yii\CTEQuery;
+use app\models\Organization;
 use Yii;
 use yii\db\Expression;
 use app\models\billing\DisconnectCause;
@@ -199,6 +200,19 @@ trait CallsRawSlowReport
                 ->andWhere('tgi2.trunk_group_id = ttr.trunk_group_id');
 
             $query2->andWhere(['t.id' => $query]);
+        }
+
+
+        if ($this->is_exclude_internal_trunk_orig) {
+            $query1->leftJoin('billing.service_trunk bst', 'cr.trunk_service_id = bst.id');
+            $query1->leftJoin('billing.clients bc', 'bc.id = bst.client_account_id AND bc.organization_id = '. Organization::INTERNAL_OFFICE);
+            $query1->andWhere(['bc.id' => null]);
+        }
+
+        if ($this->is_exclude_internal_trunk_term) {
+            $query2->leftJoin('billing.service_trunk bst', 'cr.trunk_service_id = bst.id');
+            $query2->leftJoin('billing.clients bc', 'bc.id = bst.client_account_id AND bc.organization_id = '. Organization::INTERNAL_OFFICE);
+            $query2->andWhere(['bc.id' => null]);
         }
 
         $query1 = $this->setSessionCondition($query1, 'cr.billed_time');

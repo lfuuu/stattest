@@ -72,6 +72,8 @@ use yii\db\Query;
  * @property float $margin
  * @property float $orig_rate
  * @property float $term_rate
+ * @property int $is_exclude_internal_trunk_term
+ * @property int $is_exclude_internal_trunk_orig
  *
  * @property-read \DateTime $dateStart = null;
  * @property-read Connection $dbConn
@@ -113,8 +115,8 @@ class CallsRawFilter extends CallsRaw
     ];
 
     public $currencyDependentFields = [
-        'sale_sum', 'sale_avg', 'sale_min', 'sale_max', 
-        'cost_price_sum', 'cost_price_avg', 'cost_price_min','cost_price_max',
+        'sale_sum', 'sale_avg', 'sale_min', 'sale_max',
+        'cost_price_sum', 'cost_price_avg', 'cost_price_min', 'cost_price_max',
         'margin_sum', 'margin_avg', 'margin_min', 'margin_max',
     ];
 
@@ -185,6 +187,9 @@ class CallsRawFilter extends CallsRaw
     public $src_trunk_group_ids = null;
     public $dst_trunk_group_ids = null;
 
+    public $is_exclude_internal_trunk_term = null;
+    public $is_exclude_internal_trunk_orig = null;
+
     /**
      * Rules set
      *
@@ -198,6 +203,8 @@ class CallsRawFilter extends CallsRaw
                     'is_success_calls',
                     'session_time_from',
                     'session_time_to',
+                    'is_exclude_internal_trunk_term',
+                    'is_exclude_internal_trunk_orig',
                 ],
                 'integer'
             ],
@@ -260,80 +267,82 @@ class CallsRawFilter extends CallsRaw
     public function attributeLabels()
     {
         return parent::attributeLabels() + [
-            //$groupConst
-            'src_route' => 'Транк-оригинатор',
-            'dst_route' => 'Транк-терминатор',
-            'src_number' => 'Номер А',
-            'dst_number' => 'Номер В',
-            'src_operator_name' => 'Оператор номера А',
-            'dst_operator_name' => 'Оператор номера В',
-            'src_country_name' => 'Страна номера А',
-            'dst_country_name' => 'Страна номера В',
-            'src_region_name' => 'Регион номера А',
-            'dst_region_name' => 'Регион номера В',
-            'src_city_name' => 'Город номера А',
-            'dst_city_name' => 'Город номера В',
-            'src_ndc_type_id' => 'Тип номера А',
-            'dst_ndc_type_id' => 'Тип номера B',
-            'sale' => 'Продажа',
-            'cost_price' => 'Себестоимость',
-            'orig_rate' => 'Тариф продажи',
-            'term_rate' => 'Тариф себестоимости',
+                //$groupConst
+                'src_route' => 'Транк-оригинатор',
+                'dst_route' => 'Транк-терминатор',
+                'src_number' => 'Номер А',
+                'dst_number' => 'Номер В',
+                'src_operator_name' => 'Оператор номера А',
+                'dst_operator_name' => 'Оператор номера В',
+                'src_country_name' => 'Страна номера А',
+                'dst_country_name' => 'Страна номера В',
+                'src_region_name' => 'Регион номера А',
+                'dst_region_name' => 'Регион номера В',
+                'src_city_name' => 'Город номера А',
+                'dst_city_name' => 'Город номера В',
+                'src_ndc_type_id' => 'Тип номера А',
+                'dst_ndc_type_id' => 'Тип номера B',
+                'sale' => 'Продажа',
+                'cost_price' => 'Себестоимость',
+                'orig_rate' => 'Тариф продажи',
+                'term_rate' => 'Тариф себестоимости',
 
-            // $aggrLabels
-            'sale_sum' => 'Продажа: сумма',
-            'sale_avg' => 'Продажа: средняя',
-            'sale_min' => 'Продажа: минимальная',
-            'sale_max' => 'Продажа: максимальная',
-            'cost_price_sum' => 'Себестоимость: сумма',
-            'cost_price_avg' => 'Себестоимость: средняя',
-            'cost_price_min' => 'Себестоимость: минимальная',
-            'cost_price_max' => 'Себестоимость: максимальная',
-            'margin_sum' => 'Маржа: сумма',
-            'margin_avg' => 'Маржа: средняя',
-            'margin_min' => 'Маржа: минимальная',
-            'margin_max' => 'Маржа: максимальная',
-            'session_time_sum' => 'Длительность: сумма',
-            'session_time_avg' => 'Длительность: средняя',
-            'session_time_min' => 'Длительность: минимальная',
-            'session_time_max' => 'Длительность: максимальная',
-            'calls_count' => 'Количество звонков',
-            'nonzero_calls_count' => 'Количество ненулевых звонков',
-            'acd' => 'ACD',
-            'asr' => 'ASR',
-            'acd_u' => 'ACD с кодами (16,17,18,19,21,31)',
-            'asr_u' => 'ASR с кодами (16,17,18,19,21,31)',
+                // $aggrLabels
+                'sale_sum' => 'Продажа: сумма',
+                'sale_avg' => 'Продажа: средняя',
+                'sale_min' => 'Продажа: минимальная',
+                'sale_max' => 'Продажа: максимальная',
+                'cost_price_sum' => 'Себестоимость: сумма',
+                'cost_price_avg' => 'Себестоимость: средняя',
+                'cost_price_min' => 'Себестоимость: минимальная',
+                'cost_price_max' => 'Себестоимость: максимальная',
+                'margin_sum' => 'Маржа: сумма',
+                'margin_avg' => 'Маржа: средняя',
+                'margin_min' => 'Маржа: минимальная',
+                'margin_max' => 'Маржа: максимальная',
+                'session_time_sum' => 'Длительность: сумма',
+                'session_time_avg' => 'Длительность: средняя',
+                'session_time_min' => 'Длительность: минимальная',
+                'session_time_max' => 'Длительность: максимальная',
+                'calls_count' => 'Количество звонков',
+                'nonzero_calls_count' => 'Количество ненулевых звонков',
+                'acd' => 'ACD',
+                'asr' => 'ASR',
+                'acd_u' => 'ACD с кодами (16,17,18,19,21,31)',
+                'asr_u' => 'ASR с кодами (16,17,18,19,21,31)',
 
-            // _indexFiler
-            'src_physical_trunks_ids' => 'Физический транк-оригинатор',
-            'src_trunk_group_ids' => 'Группа транка-оригинатора',
-            'session_time' => 'Длительность разговора',
-            'src_operator_ids' => 'Оператор номера А',
-            'dst_operator_ids' => 'Оператор номера В',
-            'disconnect_causes' => 'Код завершения',
-            'src_logical_trunks_ids' => 'Логический транк-оригинатор',
-            'dst_logical_trunks_ids' => 'Логический транк-терминатор',
-            'src_countries_ids' => 'Страна номера А',
-            'dst_countries_ids' => 'Страна номера B',
-            'is_success_calls' => 'Только успешные попытки',
-            'src_contracts_ids' => 'Договор номера А',
-            'dst_contracts_ids' => 'Договор номера B',
-            'src_regions_ids' => 'Регион номера А',
-            'dst_regions_ids' => 'Регион номера B',
-            'dst_trunk_group_ids' => 'Группа транка-терминатора',
-            'src_cities_ids' => 'Город номера А',
-            'dst_cities_ids' => 'Город номера B',
-            'dst_physical_trunks_ids' => 'Физический транк-терминатор',
-            'src_destinations_ids' => 'Направление номера А',
-            'dst_destinations_ids' => 'Направление номера В',
-            'src_number_type_ids' => 'Тип номера А',
-            'dst_number_type_ids' => 'Тип номера В',
-            'group_period' => 'Период группировки',
-            'group' => 'Группировки',
-            'server_ids' => 'Точка присоединения',
-            'currency' => 'Валюта расчетов',
+                // _indexFiler
+                'src_physical_trunks_ids' => 'Физический транк-оригинатор',
+                'src_trunk_group_ids' => 'Группа транка-оригинатора',
+                'session_time' => 'Длительность разговора',
+                'src_operator_ids' => 'Оператор номера А',
+                'dst_operator_ids' => 'Оператор номера В',
+                'disconnect_causes' => 'Код завершения',
+                'src_logical_trunks_ids' => 'Логический транк-оригинатор',
+                'dst_logical_trunks_ids' => 'Логический транк-терминатор',
+                'src_countries_ids' => 'Страна номера А',
+                'dst_countries_ids' => 'Страна номера B',
+                'is_success_calls' => 'Только успешные попытки',
+                'src_contracts_ids' => 'Договор номера А',
+                'dst_contracts_ids' => 'Договор номера B',
+                'src_regions_ids' => 'Регион номера А',
+                'dst_regions_ids' => 'Регион номера B',
+                'dst_trunk_group_ids' => 'Группа транка-терминатора',
+                'src_cities_ids' => 'Город номера А',
+                'dst_cities_ids' => 'Город номера B',
+                'dst_physical_trunks_ids' => 'Физический транк-терминатор',
+                'src_destinations_ids' => 'Направление номера А',
+                'dst_destinations_ids' => 'Направление номера В',
+                'src_number_type_ids' => 'Тип номера А',
+                'dst_number_type_ids' => 'Тип номера В',
+                'group_period' => 'Период группировки',
+                'group' => 'Группировки',
+                'server_ids' => 'Точка присоединения',
+                'currency' => 'Валюта расчетов',
+                'is_exclude_internal_trunk_term' => 'Исключить внутренние транки Терминационные',
+                'is_exclude_internal_trunk_orig' => 'Исключить внутренние транки Оригинационные',
 
-        ];
+            ];
     }
 
     /**
@@ -347,7 +356,7 @@ class CallsRawFilter extends CallsRaw
     {
         if ($sort) {
             $this->sort = $sort;
-        }elseif (Yii::$app instanceof WebApplication) {
+        } elseif (Yii::$app instanceof WebApplication) {
             $this->sort = Yii::$app->request->get('sort');
         }
 
@@ -565,33 +574,19 @@ class CallsRawFilter extends CallsRaw
      */
     private function setDestinationCondition(CTEQuery $query, $query3, $destination, $number_type, $param, $isGroup, $alias)
     {
-        if ($destination || $number_type || $isGroup) {
-            $query5 = new Query();
-            $query5->select(
-                [
-                    "{$alias}_number_range_id" => 'number_range_id',
-                    "{$alias}_ndc_type_id" => 'ndc_type_id',
-                    "{$alias}_destination_id" => 'destination_id'
-                ]
-            )
-                ->from("nnp.number_range_destination")
-                ->andWhere("number_range_id = $param")
-                ->limit(1);
-
-            $destination
-            && $query->andWhere(["{$alias}_nrd.{$alias}_destination_id" => $destination])
-            && $query5->andWhere(["destination_id" => $destination]);
-
-            $number_type
-            && $query->andWhere(["{$alias}_nrd.{$alias}_ndc_type_id" => $number_type])
-            && $query5->andWhere(["ndc_type_id" => $number_type]);
-
-            $query->join('LEFT JOIN LATERAL', ["{$alias}_nrd" => $query5], "{$alias}_nrd.{$alias}_number_range_id = $param");
-
-            if ($query3) {
-                $query3->addSelect(["{$alias}_destination_id" => new Expression('NULL')]);
-            }
+        if (!$destination && !$number_type && !$isGroup) {
+            return $query;
         }
+
+        $destination && $query->andWhere(["{$alias}_nrd.destination_id" => $destination]);
+        $number_type && $query->andWhere(["{$alias}_nrd.ndc_type_id" => $number_type]);
+
+        $query->leftJoin(
+            ["{$alias}_nrd" => 'nnp.number_range_destination'],
+            "{$alias}_nrd.number_range_id = " . $param
+        );
+
+        $query3 && $query3->addSelect(["{$alias}_destination_id" => new Expression('NULL')]);
 
         return $query;
     }
@@ -618,6 +613,7 @@ class CallsRawFilter extends CallsRaw
 
         $query = $this->dateStart >= $last_month ? $this->_getCacheReport() : $this->_getSlowReport();
         */
+
 
         $query = $this->_getSlowReport();
 
