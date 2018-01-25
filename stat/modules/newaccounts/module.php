@@ -1077,12 +1077,11 @@ class m_newaccounts extends IModule
 
         $bill->SetPriceIncludeVat($price_include_vat == 'Y' ? 1 : 0);
 
-
-
         $item = get_param_raw("item");
         $amount = get_param_raw("amount");
         $price = get_param_raw("price");
         $type = get_param_raw("type");
+        $del = get_param_raw("del", []);
 
         if (!$item || !$amount || !$price || !$type) { // Сохранение только "шапки" счета
             $bill->Save();
@@ -1091,9 +1090,9 @@ class m_newaccounts extends IModule
         }
 
         $lines = $bill->GetLines();
-        $lines[$bill->GetMaxSort() + 1] = array();
-        $lines[$bill->GetMaxSort() + 2] = array();
-        $lines[$bill->GetMaxSort() + 3] = array();
+        $lines[$bill->GetMaxSort() + 1] = [];
+        $lines[$bill->GetMaxSort() + 2] = [];
+        $lines[$bill->GetMaxSort() + 3] = [];
         foreach ($lines as $k => $arr_v) {
             if (((!isset($item[$k]) || (isset($item[$k]) && !$item[$k])) && isset($arr_v['item'])) || isset($del[$k])) {
                 $bill->RemoveLine($k);
