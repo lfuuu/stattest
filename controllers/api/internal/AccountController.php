@@ -2,22 +2,27 @@
 
 namespace app\controllers\api\internal;
 
-use Yii;
-use app\exceptions\web\BadRequestHttpException;
+use app\classes\ApiInternalController;
+use app\classes\Assert;
 use app\exceptions\api\internal\ExceptionValidationAccountId;
 use app\exceptions\api\internal\PartnerNotFoundException;
-use app\classes\Assert;
-use app\classes\ApiInternalController;
-use app\models\ClientAccount;
+use app\exceptions\web\BadRequestHttpException;
 use app\models\ActualNumber;
 use app\models\ActualVirtpbx;
+use app\models\billing\StatsAccount;
 use app\models\Business;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\Region;
+use yii\db\Expression;
 
 class AccountController extends ApiInternalController
 {
-    private function getAccountFromParams()
+    /**
+     * @return ClientAccount
+     * @throws BadRequestHttpException
+     */
+    private function _getAccountFromParams()
     {
         $accountId = isset($this->requestData['account_id']) ? $this->requestData['account_id'] : null;
 
@@ -27,104 +32,50 @@ class AccountController extends ApiInternalController
 
         if ($accountId && ($account = ClientAccount::findOne(['id' => $accountId]))) {
             return $account;
-        } else {
-            throw new BadRequestHttpException;
         }
+
+        throw new BadRequestHttpException;
     }
 
     /**
-     * @SWG\Definition(
-     *   definition="voip_account_service",
-     *   type="object",
-     *   required={"stat_product_id","number","region"},
-     *   @SWG\Property(
-     *     property="stat_product_id",
-     *     type="integer",
-     *     description="Идентификатор услуги"
-     *   ),
-     *   @SWG\Property(
-     *     property="number",
-     *     type="integer",
-     *     description="Телефонный номер"
-     *   ),
-     *   @SWG\Property(
-     *     property="region",
-     *     type="integer",
-     *     description="Регион"
-     *   )
+     * @SWG\Definition(definition = "voip_account_service", type = "object", required = {"stat_product_id", "number", "region"},
+     *   @SWG\Property(property = "stat_product_id", type = "integer", description = "Идентификатор услуги"),
+     *   @SWG\Property(property = "number", type = "integer", description = "Телефонный номер"),
+     *   @SWG\Property(property = "region", type = "integer", description = "Регион")
      * ),
-     * @SWG\Definition(
-     *   definition="vats_account_service",
-     *   type="object",
-     *   required={"stat_product_id","number","region"},
-     *   @SWG\Property(
-     *     property="stat_product_id",
-     *     type="integer",
-     *     description="Идентификатор услуги"
-     *   ),
-     *   @SWG\Property(
-     *     property="region",
-     *     type="integer",
-     *     description="Регион"
-     *   )
+     *
+     * @SWG\Definition(definition = "vats_account_service", type = "object", required = {"stat_product_id", "number", "region"},
+     *   @SWG\Property(property = "stat_product_id", type = "integer", description = "Идентификатор услуги"),
+     *   @SWG\Property(property = "region", type = "integer", description = "Регион")
      * ),
-     * @SWG\Post(
-     *   tags={"Работа с лицевыми счетами"},
-     *   path="/internal/account/",
-     *   summary="Получение списка услуг по лицевому счёту",
-     *   operationId="Получение списка услуг по лицевому счёту",
-     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",required=true),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="данные об услугах",
-     *     @SWG\Schema(
-     *       type="object",
-     *       required={"id","usages"},
-     *       @SWG\Property(
-     *         property="id",
-     *         type="integer",
-     *         description="Идентификатор лицевого счёта"
-     *       ),
-     *       @SWG\Property(
-     *         property="usages",
-     *         type="object",
-     *         description="Услуги",
-     *         @SWG\Property(
-     *           property="active",
-     *           type="object",
-     *           description="Сгруппированные услуги",
-     *           @SWG\Property(
-     *             property="voip",
-     *             type="array",
-     *             description="Услуги телефонии",
-     *             @SWG\Items(
-     *               ref="#/definitions/voip_account_service"
-     *             )
+     *
+     * @SWG\Post(tags = {"ClientAccount"}, path = "/internal/account/", summary = "Получение списка услуг по лицевому счёту", operationId = "Получение списка услуг по лицевому счёту",
+     *   @SWG\Parameter(name = "account_id", type = "integer", description = "ID ЛС", in = "formData", default = "", required = true),
+     *   @SWG\Response(response = 200, description = "данные об услугах",
+     *     @SWG\Schema(type = "object", required = {"id", "usages"},
+     *       @SWG\Property(property = "id", type = "integer", description = "ID ЛС"),
+     *       @SWG\Property(property = "usages", type = "object", description = "Услуги",
+     *         @SWG\Property(property = "active", type = "object", description = "Сгруппированные услуги",
+     *           @SWG\Property(property = "voip", type = "array", description = "Услуги телефонии",
+     *             @SWG\Items(ref = "#/definitions/voip_account_service")
      *           ),
-     *           @SWG\Property(
-     *             property="vats",
-     *             type="array",
-     *             description="Услуги ВАТС",
-     *             @SWG\Items(
-     *               ref="#/definitions/vats_account_service"
-     *             )
+     *           @SWG\Property(property = "vats", type = "array", description = "Услуги ВАТС",
+     *             @SWG\Items(ref = "#/definitions/vats_account_service")
      *           )
      *         ),
      *       )
      *     )
      *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
+     *
+     * @throws BadRequestHttpException
      */
     public function actionIndex()
     {
-        $account = $this->getAccountFromParams();
+        $account = $this->_getAccountFromParams();
 
         $activeVoips = [];
         foreach (ActualNumber::findAll(['client_id' => $account->id]) as $v) {
@@ -157,118 +108,61 @@ class AccountController extends ApiInternalController
     }
 
     /**
-     * @SWG\Post(
-     *   tags={"Работа с лицевыми счетами"},
-     *   path="/internal/account/balance/",
-     *   summary="Получение баланса лицевого счёта",
-     *   operationId="Получение баланса лицевого счёта",
-     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",required=true),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="данные об услугах",
-     *     @SWG\Schema(
-     *       type="object",
-     *       required={"balance","currency"},
-     *       @SWG\Property(
-     *         property="balance",
-     *         type="number",
-     *         description="Баланс"
-     *       ),
-     *       @SWG\Property(
-     *         property="currency",
-     *         type="string",
-     *         description="Валюта"
-     *       )
+     * @SWG\Post(tags = {"ClientAccount"}, path = "/internal/account/balance/", summary = "Получение баланса лицевого счёта", operationId = "Получение баланса лицевого счёта",
+     *   @SWG\Parameter(name = "account_id", type = "integer", description = "ID ЛС", in = "formData", default = "", required = true),
+     *   @SWG\Response(response = 200, description = "данные об услугах",
+     *     @SWG\Schema(type = "object", required = {"balance", "currency"},
+     *       @SWG\Property(property = "balance", type = "number", description = "Баланс"),
+     *       @SWG\Property(property = "currency", type = "string", description = "Валюта")
      *     )
      *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
+     *
+     * @throws BadRequestHttpException
      */
     public function actionBalance()
     {
-        $account = $this->getAccountFromParams();
+        $account = $this->_getAccountFromParams();
 
         return $account->makeBalance();
     }
 
     /**
-     * @SWG\Post(
-     *   tags={"Работа с лицевыми счетами"},
-     *   path="/internal/account/balance-full/",
-     *   summary="Получение полного баланса лицевого счёта",
-     *   operationId="Получение полного баланса лицевого счёта",
-     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="formData",required=true),
-     *   @SWG\Response(
-     *     response=200,
-     *     description="данные об услугах",
-     *     @SWG\Schema(
-     *       type="object",
-     *       required={"id","balance","currency","credit","expenditure","view_mode"},
-     *       @SWG\Property(
-     *         property="id",
-     *         type="integer",
-     *         description="Идентификатор лицевого счёта"
-     *       ),
-     *       @SWG\Property(
-     *         property="balance",
-     *         type="number",
-     *         description="Баланс"
-     *       ),
-     *       @SWG\Property(
-     *         property="currency",
-     *         type="string",
-     *         description="Валюта"
-     *       ),
-     *       @SWG\Property(
-     *         property="credit",
-     *         type="number",
-     *         description="Кредитный лимит"
-     *       ),
-     *       @SWG\Property(
-     *         property="expenditure",
-     *         type="string",
-     *         description="Дополнительные данные"
-     *       ),
-     *       @SWG\Property(
-     *         property="view_mode",
-     *         type="string",
-     *         description="Режим отображения"
-     *       )
+     * @SWG\Post(tags = {"ClientAccount"}, path = "/internal/account/balance-full/", summary = "Получение полного баланса лицевого счёта", operationId = "Получение полного баланса лицевого счёта",
+     *   @SWG\Parameter(name = "account_id", type = "integer", description = "ID ЛС", in = "formData", default = "", required = true),
+     *   @SWG\Response(response = 200, description = "данные об услугах",
+     *     @SWG\Schema(type = "object", required = {"id", "balance", "currency", "credit", "expenditure", "view_mode"},
+     *       @SWG\Property(property = "id", type = "integer", description = "ID ЛС"),
+     *       @SWG\Property(property = "balance", type = "number", description = "Баланс"),
+     *       @SWG\Property(property = "currency", type = "string", description = "Валюта"),
+     *       @SWG\Property(property = "credit", type = "number", description = "Кредитный лимит"),
+     *       @SWG\Property(property = "expenditure", type = "string", description = "Дополнительные данные"),
+     *       @SWG\Property(property = "view_mode", type = "string", description = "Режим отображения")
      *     )
      *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
+     *
+     * @throws BadRequestHttpException
      */
     public function actionBalanceFull()
     {
-        $account = $this->getAccountFromParams();
+        $account = $this->_getAccountFromParams();
 
         return $account->makeBalance(true);
     }
 
     /**
-     * @SWG\Get(
-     *   tags={"Работа с лицевыми счетами"},
-     *   path="/internal/account/end-of-the-day-accounts/",
-     *   summary="Получение списка лицевых счетов у которых заканчиваются сутки",
-     *   operationId="Получение списка лицевых счетов у которых заканчиваются сутки",
-     *   @SWG\Response(response=200, description="Список таймзон, и включенных лицевых счетов",
-     *     @SWG\Schema(type="object", required={"timezones","account_ids"},
-     *       @SWG\Property(property="timezones",   type="array", @SWG\Items(type="string")),
-     *       @SWG\Property(property="account_ids", type="array", @SWG\Items( type="integer")
-     *       )
+     * @SWG\Get(tags = {"ClientAccount"}, path = "/internal/account/end-of-the-day-accounts/", summary = "Получение списка лицевых счетов у которых заканчиваются сутки", operationId = "Получение списка лицевых счетов у которых заканчиваются сутки",
+     *   @SWG\Response(response = 200, description = "Список таймзон, и включенных лицевых счетов",
+     *     @SWG\Schema(type = "object", required = {"timezones", "account_ids"},
+     *       @SWG\Property(property = "timezones",  type = "array", @SWG\Items(type = "string")),
+     *       @SWG\Property(property = "account_ids", type = "array", @SWG\Items(type = "integer"))
      *     )
      *   )
      * )
@@ -295,7 +189,7 @@ class AccountController extends ApiInternalController
         return [
             'timezones' => $timeZones,
             'account_ids' => array_map(
-                function($a) {
+                function ($a) {
                     return (int)$a;
                 },
                 ClientAccount::find()
@@ -308,28 +202,20 @@ class AccountController extends ApiInternalController
     }
 
     /**
-     * @SWG\Get(
-     *   tags={"Работа с лицевыми счетами"},
-     *   path="/internal/account/set-partner-login-allow",
-     *   summary="Установка/Снятие флага-разрешения доступа к ЛК для парнера-родиителя",
-     *   operationId="Установка/Снятие флага-разрешения доступа к ЛК для парнера-родиителя",
-     *   @SWG\Parameter(name="account_id",type="integer",description="идентификатор лицевого счёта",in="query"),
-     *   @SWG\Parameter(name="value",type="integer",description="значение флага (Да/Нет)",in="query"),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="Ошибки",
-     *     @SWG\Schema(
-     *       ref="#/definitions/error_result"
-     *     )
+     * @SWG\Get(tags = {"ClientAccount"}, path = "/internal/account/set-partner-login-allow", summary = "Установка/Снятие флага-разрешения доступа к ЛК для парнера-родиителя", operationId = "Установка/Снятие флага-разрешения доступа к ЛК для парнера-родиителя",
+     *   @SWG\Parameter(name = "account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
+     *   @SWG\Parameter(name = "value", type = "integer", description = "значение флага (Да/Нет)", in = "query", default = ""),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
      *   )
      * )
-     */
-    /**
+     *
      * @param int $account_id
      * @param int $value
      * @return array
      * @throws ExceptionValidationAccountId
      * @throws PartnerNotFoundException
+     * @throws \yii\base\Exception
      */
     public function actionSetPartnerLoginAllow($account_id, $value)
     {
@@ -348,7 +234,7 @@ class AccountController extends ApiInternalController
         }
 
         if (!$clientContract->isPartnerAgent()) {
-            throw new PartnerNotFoundException('Partner for client not found');
+            throw new PartnerNotFoundException();
         }
 
         $clientContract->is_partner_login_allow = $value ? 1 : 0;
@@ -361,4 +247,47 @@ class AccountController extends ApiInternalController
         return ['message' => 'success'];
     }
 
+    /**
+     * @SWG\Get(tags = {"ClientAccount"}, path = "/internal/account/get-counters", summary = "Вернуть счетчики", operationId = "GetCounters",
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
+     *
+     *   @SWG\Response(response = 200, description = "Счетчики",
+     *     @SWG\Schema(type = "object", required = {"timezones", "account_ids"},
+     *       @SWG\Property(property = "sum_day", type = "number", description = "Трата за сутки"),
+     *       @SWG\Property(property = "sum_month", type = "number", description = "Трата за месяц"),
+     *       @SWG\Property(property = "sum_mn_day", type = "number", description = "Трата МН за сутки"),
+     *       @SWG\Property(property = "sum_mn_month", type = "number", description = "Трата МН за месяц"),
+     *       @SWG\Property(property = "sum_mg_day", type = "number", description = "Трата МГ за сутки"),
+     *       @SWG\Property(property = "sum_mg_month", type = "number", description = "Трата МГ за месяц"),
+     *     )
+     *   ),
+     *   @SWG\Response(response = "default", description = "Ошибки",
+     *     @SWG\Schema(ref = "#/definitions/error_result")
+     *   )
+     * )
+     *
+     * @param int $client_account_id
+     * @return array
+     */
+    public function actionGetCounters($client_account_id)
+    {
+        $statsAccount = StatsAccount::find()
+            ->select([
+                'sum_day' => 'SUM(-sum_day)',
+                'sum_month' => 'SUM(-sum_month)',
+                'sum_mn_day' => 'SUM(-sum_mn_day)',
+            ])
+            ->where(['account_id' => $client_account_id])
+            ->asArray()
+            ->one();
+
+        return [
+            'sum_day' => (float) $statsAccount['sum_day'],
+            'sum_month' => (float) $statsAccount['sum_month'],
+            'sum_mn_day' => (float) $statsAccount['sum_mn_day'],
+            'sum_mn_month' => null,
+            'sum_mg_day' => null,
+            'sum_mg_month' => null,
+        ];
+    }
 }
