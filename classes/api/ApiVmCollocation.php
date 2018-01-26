@@ -80,7 +80,7 @@ class ApiVmCollocation extends Singleton
         ]);
 
         return (new HttpClient)
-            ->createJsonRequest()
+            ->createRequest()
             ->setMethod('get')
             ->setData($data)
             ->setUrl($this->_getUrl())
