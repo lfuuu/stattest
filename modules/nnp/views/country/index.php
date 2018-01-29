@@ -52,7 +52,7 @@ $columns = [
         'value' => function (Country $country) {
             return Html::a(
                     'диапазон',
-                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $country->code])
+                    Url::to(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => $country->code, 'NumberRangeFilter[is_active]' => 1])
                 ) . ', ' .
                 Html::a(
                     'портированные',

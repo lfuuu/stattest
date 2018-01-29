@@ -8,6 +8,7 @@
 
 use app\classes\Html;
 use app\modules\nnp\forms\city\Form;
+use app\modules\nnp\models\City;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\Region;
 use kartik\select2\Select2;
@@ -99,6 +100,20 @@ if (!$city->isNewRecord) {
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
         <?= $this->render('//layouts/_submitButton' . ($city->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
+
+    <?php if (!$city->isNewRecord && $country && $region) : ?>
+        <div class="row">
+            <div class="col-sm-2">
+                <?= $this->render('//layouts/_submitButtonDrop') ?> &nbsp;, заменив на
+            </div>
+            <div class="col-sm-4">
+                <?= Select2::widget([
+                    'name' => 'newCityId',
+                    'data' => City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $country->code, $region->id),
+                ]) ?>
+            </div>
+        </div>
+    <?php endif ?>
 
     <?php ActiveForm::end(); ?>
 </div>

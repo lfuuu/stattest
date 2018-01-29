@@ -2,9 +2,12 @@
 
 namespace app\modules\nnp\forms\operator;
 
+use app\modules\nnp\models\Number;
+use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Operator;
 use InvalidArgumentException;
 use yii;
+use yii\web\NotFoundHttpException;
 
 abstract class Form extends \app\classes\Form
 {
@@ -27,6 +30,9 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Конструктор
+     *
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\db\Exception
      */
     public function init()
     {
@@ -38,9 +44,16 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Обработать submit (создать, редактировать, удалить)
+     *
+     * @throws NotFoundHttpException
+     * @throws yii\db\Exception
      */
     protected function loadFromInput()
     {
+        if (!$this->operator) {
+            throw new NotFoundHttpException('Объект с таким ID не существует');
+        }
+
         // загрузить параметры от юзера
         $db = Operator::getDb();
         $transaction = $db->beginTransaction();
@@ -51,6 +64,12 @@ abstract class Form extends \app\classes\Form
             if (isset($post['dropButton'])) {
 
                 // удалить
+                if (isset($post['newOperatorId']) && $post['newOperatorId']) {
+                    // перемапить на новый
+                    NumberRange::updateAll(['operator_id' => $post['newOperatorId']], ['operator_id' => $this->operator->id]);
+                    Number::updateAll(['operator_id' => $post['newOperatorId']], ['operator_id' => $this->operator->id]);
+                }
+
                 $this->operator->delete();
                 $this->id = null;
                 $this->isSaved = true;

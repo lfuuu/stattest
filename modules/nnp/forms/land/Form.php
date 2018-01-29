@@ -5,6 +5,7 @@ namespace app\modules\nnp\forms\land;
 use app\modules\nnp\models\Land;
 use InvalidArgumentException;
 use Yii;
+use yii\web\NotFoundHttpException;
 
 abstract class Form extends \app\classes\Form
 {
@@ -27,6 +28,9 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Конструктор
+     *
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\db\Exception
      */
     public function init()
     {
@@ -38,9 +42,16 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Обработать submit (создать, редактировать, удалить)
+     *
+     * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
      */
     protected function loadFromInput()
     {
+        if (!$this->land) {
+            throw new NotFoundHttpException('Объект с таким ID не существует');
+        }
+
         // загрузить параметры от юзера
         $db = Land::getDb();
         $transaction = $db->beginTransaction();

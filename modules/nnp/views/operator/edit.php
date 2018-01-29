@@ -9,6 +9,7 @@
 use app\classes\Html;
 use app\modules\nnp\forms\operator\Form;
 use app\modules\nnp\models\Country;
+use app\modules\nnp\models\Operator;
 use kartik\select2\Select2;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -87,6 +88,20 @@ if (!$operator->isNewRecord) {
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
         <?= $this->render('//layouts/_submitButton' . ($operator->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
+
+    <?php if (!$operator->isNewRecord && $country) : ?>
+        <div class="row">
+            <div class="col-sm-2">
+                <?= $this->render('//layouts/_submitButtonDrop') ?> &nbsp;, заменив на
+            </div>
+            <div class="col-sm-4">
+                <?= Select2::widget([
+                    'name' => 'newOperatorId',
+                    'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $country->code),
+                ]) ?>
+            </div>
+        </div>
+    <?php endif ?>
 
     <?php ActiveForm::end(); ?>
 </div>

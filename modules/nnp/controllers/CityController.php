@@ -71,7 +71,7 @@ class CityController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'CityFilter[country_code]' => $formModel->city->country_code, 'CityFilter[region_id]' => $formModel->city->region_id]);
         }
 
         return $this->render('edit', [
@@ -99,7 +99,7 @@ class CityController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'CityFilter[country_code]' => $formModel->city->country_code, 'CityFilter[region_id]' => $formModel->city->region_id]);
         }
 
         return $this->render('edit', [

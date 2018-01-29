@@ -9,6 +9,7 @@
 use app\classes\Html;
 use app\modules\nnp\forms\region\Form;
 use app\modules\nnp\models\Country;
+use app\modules\nnp\models\Region;
 use kartik\select2\Select2;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
@@ -54,8 +55,19 @@ if (!$region->isNewRecord) {
             </div>
         </div>
 
+        <div class="col-sm-2">
+            <?= $form->field($region, 'parent_id')->widget(Select2::className(), [
+                'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $region->country_code),
+            ]) ?>
+            <div>
+                <?= ($regionParent = $region->parent) ?
+                    Html::a($regionParent->name, $regionParent->getUrl()) :
+                    '' ?>
+            </div>
+        </div>
+
         <?php // Название ?>
-        <div class="col-sm-4">
+        <div class="col-sm-3">
             <?= $form->field($region, 'name')->textInput() ?>
         </div>
 
@@ -65,7 +77,7 @@ if (!$region->isNewRecord) {
         </div>
 
         <?php // Кол-во ?>
-        <div class="col-sm-3">
+        <div class="col-sm-2">
             <label><?= $region->getAttributeLabel('cnt') ?></label>
             <div>
                 <?= $region->cnt . ' (' .
@@ -87,6 +99,20 @@ if (!$region->isNewRecord) {
         <?= $this->render('//layouts/_buttonCancel', ['url' => $cancelUrl]) ?>
         <?= $this->render('//layouts/_submitButton' . ($region->isNewRecord ? 'Create' : 'Save')) ?>
     </div>
+
+    <?php if (!$region->isNewRecord && $country) : ?>
+        <div class="row">
+            <div class="col-sm-2">
+                <?= $this->render('//layouts/_submitButtonDrop') ?> &nbsp;, заменив на
+            </div>
+            <div class="col-sm-4">
+                <?= Select2::widget([
+                    'name' => 'newRegionId',
+                    'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $country->code),
+                ]) ?>
+            </div>
+        </div>
+    <?php endif ?>
 
     <?php ActiveForm::end(); ?>
 </div>

@@ -71,7 +71,7 @@ class OperatorController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'OperatorFilter[country_code]' => $formModel->operator->country_code]);
         }
 
         return $this->render('edit', [
@@ -99,7 +99,7 @@ class OperatorController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'OperatorFilter[country_code]' => $formModel->operator->country_code]);
         }
 
         return $this->render('edit', [

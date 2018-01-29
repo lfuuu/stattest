@@ -220,7 +220,7 @@ echo GridView::widget([
 if (NumberRange::isTriggerEnabled()) {
     echo $this->render('_indexTriggerEnabled');
 } else {
-    echo $this->render('_indexReset');
+    // echo $this->render('_indexReset');
     echo $this->render('_indexFilterToPrefix');
     echo $this->render('_indexTriggerDisabled');
 }

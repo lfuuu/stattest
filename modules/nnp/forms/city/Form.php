@@ -3,8 +3,11 @@
 namespace app\modules\nnp\forms\city;
 
 use app\modules\nnp\models\City;
+use app\modules\nnp\models\Number;
+use app\modules\nnp\models\NumberRange;
 use InvalidArgumentException;
 use yii;
+use yii\web\NotFoundHttpException;
 
 abstract class Form extends \app\classes\Form
 {
@@ -27,6 +30,9 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Конструктор
+     *
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\db\Exception
      */
     public function init()
     {
@@ -38,9 +44,16 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Обработать submit (создать, редактировать, удалить)
+     *
+     * @throws NotFoundHttpException
+     * @throws yii\db\Exception
      */
     protected function loadFromInput()
     {
+        if (!$this->city) {
+            throw new NotFoundHttpException('Объект с таким ID не существует');
+        }
+
         // загрузить параметры от юзера
         $db = City::getDb();
         $transaction = $db->beginTransaction();
@@ -49,6 +62,12 @@ abstract class Form extends \app\classes\Form
 
             // название
             if (isset($post['dropButton'])) {
+
+                if (isset($post['newCityId']) && $post['newCityId']) {
+                    // перемапить на новый
+                    NumberRange::updateAll(['city_id' => $post['newCityId']], ['city_id' => $this->city->id]);
+                    Number::updateAll(['city_id' => $post['newCityId']], ['city_id' => $this->city->id]);
+                }
 
                 // удалить
                 $this->city->delete();

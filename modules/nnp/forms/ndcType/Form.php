@@ -5,6 +5,7 @@ namespace app\modules\nnp\forms\ndcType;
 use app\modules\nnp\models\NdcType;
 use InvalidArgumentException;
 use yii;
+use yii\web\NotFoundHttpException;
 
 abstract class Form extends \app\classes\Form
 {
@@ -27,6 +28,9 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Конструктор
+     *
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\db\Exception
      */
     public function init()
     {
@@ -38,9 +42,16 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Обработать submit (создать, редактировать, удалить)
+     *
+     * @throws NotFoundHttpException
+     * @throws yii\db\Exception
      */
     protected function loadFromInput()
     {
+        if (!$this->ndcType) {
+            throw new NotFoundHttpException('Объект с таким ID не существует');
+        }
+
         // загрузить параметры от юзера
         $db = NdcType::getDb();
         $transaction = $db->beginTransaction();

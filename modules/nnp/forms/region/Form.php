@@ -2,9 +2,13 @@
 
 namespace app\modules\nnp\forms\region;
 
+use app\modules\nnp\models\City;
+use app\modules\nnp\models\Number;
+use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\Region;
 use InvalidArgumentException;
 use yii;
+use yii\web\NotFoundHttpException;
 
 abstract class Form extends \app\classes\Form
 {
@@ -27,6 +31,9 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Конструктор
+     *
+     * @throws \yii\web\NotFoundHttpException
+     * @throws \yii\db\Exception
      */
     public function init()
     {
@@ -38,9 +45,16 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Обработать submit (создать, редактировать, удалить)
+     *
+     * @throws NotFoundHttpException
+     * @throws yii\db\Exception
      */
     protected function loadFromInput()
     {
+        if (!$this->region) {
+            throw new NotFoundHttpException('Объект с таким ID не существует');
+        }
+
         // загрузить параметры от юзера
         $db = Region::getDb();
         $transaction = $db->beginTransaction();
@@ -51,6 +65,13 @@ abstract class Form extends \app\classes\Form
             if (isset($post['dropButton'])) {
 
                 // удалить
+                if (isset($post['newRegionId']) && $post['newRegionId']) {
+                    // перемапить на новый
+                    NumberRange::updateAll(['region_id' => $post['newRegionId']], ['region_id' => $this->region->id]);
+                    Number::updateAll(['region_id' => $post['newRegionId']], ['region_id' => $this->region->id]);
+                    City::updateAll(['region_id' => $post['newRegionId']], ['region_id' => $this->region->id]);
+                }
+
                 $this->region->delete();
                 $this->id = null;
                 $this->isSaved = true;

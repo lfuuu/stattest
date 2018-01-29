@@ -6,6 +6,7 @@ use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PrefixDestination;
 use InvalidArgumentException;
 use yii;
+use yii\web\NotFoundHttpException;
 
 abstract class Form extends \app\classes\Form
 {
@@ -20,6 +21,9 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Конструктор
+     *
+     * @throws NotFoundHttpException
+     * @throws yii\db\Exception
      */
     public function init()
     {
@@ -31,16 +35,22 @@ abstract class Form extends \app\classes\Form
 
     /**
      * Обработать submit (создать, редактировать, удалить)
+     *
+     * @throws NotFoundHttpException
+     * @throws yii\db\Exception
      */
     protected function loadFromInput()
     {
+        if (!$this->destination) {
+            throw new NotFoundHttpException('Объект с таким ID не существует');
+        }
+
         // загрузить параметры от юзера
         $db = Destination::getDb();
         $transaction = $db->beginTransaction();
         try {
             $post = Yii::$app->request->post();
 
-            // название
             if (isset($post['dropButton'])) {
 
                 // удалить

@@ -71,7 +71,7 @@ class NumberController extends BaseController
         }
 
         if ($this->loadFromInput($number)) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'NumberFilter[country_code]' => $number->country_code]);
         }
 
         return $this->render('edit', [

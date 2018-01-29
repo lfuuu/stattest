@@ -12,6 +12,8 @@ use yii\helpers\Url;
  * Группировка префиксов
  *
  * @property int $id
+ * @property int $land_id
+ * @property int $status_id
  * @property string $name
  *
  * @property-read Land $land

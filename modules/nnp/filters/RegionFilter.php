@@ -14,6 +14,7 @@ class RegionFilter extends Region
     public $name = '';
     public $name_translit = '';
     public $country_code = '';
+    public $parent_id = '';
     public $cnt_from = '';
     public $cnt_to = '';
 
@@ -24,7 +25,7 @@ class RegionFilter extends Region
     {
         return [
             [['name', 'name_translit'], 'string'],
-            [['id', 'country_code', 'cnt_from', 'cnt_to'], 'integer'],
+            [['id', 'country_code', 'parent_id', 'cnt_from', 'cnt_to'], 'integer'],
         ];
     }
 
@@ -45,6 +46,7 @@ class RegionFilter extends Region
         $this->name_translit && $query->andWhere(['LIKE', $regionTableName . '.name_translit', $this->name_translit]);
         $this->id && $query->andWhere([$regionTableName . '.id' => $this->id]);
         $this->country_code && $query->andWhere([$regionTableName . '.country_code' => $this->country_code]);
+        $this->parent_id && $query->andWhere([$regionTableName . '.parent_id' => $this->parent_id]);
 
         $this->cnt_from !== '' && $query->andWhere(['>=', $regionTableName . '.cnt', $this->cnt_from]);
         $this->cnt_to !== '' && $query->andWhere(['<=', $regionTableName . '.cnt', $this->cnt_to]);

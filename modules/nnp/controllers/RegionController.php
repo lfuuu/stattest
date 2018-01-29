@@ -71,7 +71,7 @@ class RegionController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'RegionFilter[country_code]' => $formModel->region->country_code]);
         }
 
         return $this->render('edit', [
@@ -99,7 +99,7 @@ class RegionController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'RegionFilter[country_code]' => $formModel->region->country_code]);
         }
 
         return $this->render('edit', [

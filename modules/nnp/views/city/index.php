@@ -12,6 +12,7 @@ use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\modules\nnp\column\CountryColumn;
+use app\modules\nnp\column\RegionColumn;
 use app\modules\nnp\filters\CityFilter;
 use app\modules\nnp\models\City;
 use app\widgets\GridViewExport\GridViewExport;
@@ -58,6 +59,11 @@ $columns = [
         'attribute' => 'country_code',
         'class' => CountryColumn::className(),
         'indexBy' => 'code',
+    ],
+    [
+        'attribute' => 'region_id',
+        'class' => RegionColumn::className(),
+        'countryCodes' => $filterModel->country_code,
     ],
     [
         'attribute' => 'name',

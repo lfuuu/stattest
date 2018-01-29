@@ -3,6 +3,7 @@
 namespace app\modules\nnp\controllers;
 
 use app\classes\BaseController;
+use app\modules\nnp\models\Country;
 use yii\filters\AccessControl;
 
 /**
@@ -34,7 +35,7 @@ class DefaultController extends BaseController
      */
     public function actionIndex()
     {
-        return $this->redirect('/nnp/number-range/');
+        return $this->redirect(['/nnp/number-range/', 'NumberRangeFilter[country_code]' => Country::RUSSIA, 'NumberRangeFilter[is_active]' => 1]);
     }
 
 }

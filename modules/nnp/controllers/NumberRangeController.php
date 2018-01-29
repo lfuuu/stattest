@@ -61,9 +61,11 @@ class NumberRangeController extends BaseController
 
         $post = Yii::$app->request->post();
 
-        if (isset($post['resetOptions']) && $post['resetOptions']) {
-            $filterModel->resetLinks($post['resetOptions']);
-        }
+        /*
+            if (isset($post['resetOptions']) && $post['resetOptions']) {
+                $filterModel->resetLinks($post['resetOptions']);
+            }
+        */
 
         if (isset($post['disableTriggerButton'])) {
             NumberRange::disableTrigger();
@@ -104,7 +106,7 @@ class NumberRangeController extends BaseController
         }
 
         if ($formModel->isSaved) {
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'NumberRangeFilter[country_code]' => $formModel->numberRange->country_code, 'NumberRangeFilter[is_active]' => 1]);
         }
 
         return $this->render('edit', [

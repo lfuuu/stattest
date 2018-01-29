@@ -6,6 +6,7 @@
  * @var Form $formModel
  */
 
+use app\classes\Html;
 use app\modules\nnp\forms\numberRange\Form;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\NdcType;
@@ -162,6 +163,11 @@ if (!$numberRange->isNewRecord) {
             <?= $form->field($numberRange, 'region_id')->widget(Select2::className(), [
                 'data' => Region::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
+            <div>
+                <?= ($region = $numberRange->region) ?
+                    Html::a($region->name, $region->getUrl()) :
+                    '' ?>
+            </div>
         </div>
 
         <?php // Город ?>
@@ -169,6 +175,11 @@ if (!$numberRange->isNewRecord) {
             <?= $form->field($numberRange, 'city_id')->widget(Select2::className(), [
                 'data' => City::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
+            <div>
+                <?= ($city = $numberRange->city) ?
+                    Html::a($city->name, $city->getUrl()) :
+                    '' ?>
+            </div>
         </div>
 
         <?php // Оператор ?>
@@ -176,6 +187,11 @@ if (!$numberRange->isNewRecord) {
             <?= $form->field($numberRange, 'operator_id')->widget(Select2::className(), [
                 'data' => Operator::getList($isWithEmpty = true, $isWithNullAndNotNull = false, $numberRange->country_code),
             ]) ?>
+            <div>
+                <?= ($operator = $numberRange->operator) ?
+                    Html::a($operator->name, $operator->getUrl()) :
+                    '' ?>
+            </div>
         </div>
 
         <?php // Тип NDC ?>
@@ -183,6 +199,11 @@ if (!$numberRange->isNewRecord) {
             <?= $form->field($numberRange, 'ndc_type_id')->widget(Select2::className(), [
                 'data' => NdcType::getList($isWithEmpty = true, $isWithNullAndNotNull = false),
             ]) ?>
+            <div>
+                <?= ($ndcType = $numberRange->ndcType) ?
+                    Html::a($ndcType->name, $ndcType->getUrl()) :
+                    '' ?>
+            </div>
         </div>
 
     </div>
