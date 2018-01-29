@@ -12,11 +12,15 @@ use app\models\important_events\ImportantEventsNames;
 use app\models\important_events\ImportantEventsSources;
 use app\models\SberbankOrder;
 use app\models\Transaction;
+use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\Period;
+use app\modules\uu\models\TariffPeriod;
 use Yii;
 use DateTime;
 use app\classes\bill\ClientAccountBiller;
 use app\models\ClientAccount;
 use yii\console\Controller;
+use yii\db\Expression;
 
 class BillerController extends Controller
 {
@@ -174,10 +178,24 @@ class BillerController extends Controller
                     ->all();
 
                 foreach ($clientAccounts as $clientAccount) {
+
                     $offset++;
 
                     Yii::info("Прогнозирование. $offset. Лицевой счет: " . $clientAccount->id);
-                    $forecastBillSum = $this->_forecastingAccountBill($clientAccount, $date, $forecastCoefficient);
+
+                    switch ($clientAccount->account_version) {
+                        case ClientAccount::VERSION_BILLER_UNIVERSAL:
+                            $forecastBillSum = $this->_forecastingUniversalAccountBill($clientAccount, $firstDay, $forecastCoefficient);
+                            break;
+
+                        case ClientAccount::VERSION_BILLER_USAGE:
+                            $forecastBillSum = $this->_forecastingAccountBill($clientAccount, $date, $forecastCoefficient);
+                            break;
+
+                        default:
+                            Yii::error('неизвестная версия ЛС: ' . $clientAccount->id);
+                            continue 2;
+                    }
 
                     if ($forecastBillSum && $clientAccount->credit < -$clientAccount->balance + $forecastBillSum) {
                         echo PHP_EOL . $clientAccount->id . ": " . $forecastBillSum;
@@ -254,6 +272,41 @@ class BillerController extends Controller
                 }
             ),
             2);
+    }
+
+    /**
+     * Прогнозирование счета в УЛС
+     *
+     * @param ClientAccount $account
+     * @param DateTime $date
+     * @param float $forecastCoefficient
+     * @return int
+     */
+    private function _forecastingUniversalAccountBill(ClientAccount $account, DateTime $date, $forecastCoefficient)
+    {
+        $data = AccountEntry::find()
+            ->alias('entry')
+            ->select(new Expression('SUM(entry.price_with_vat)'))
+            ->joinWith('accountTariff uat')
+            ->joinWith('tariffPeriod utp')
+            ->where([
+                'uat.client_account_id' => $account->id,
+                'entry.date' => $date->format(DateTimeZoneHelper::DATE_FORMAT),
+                'utp.charge_period_id' => Period::ID_MONTH
+            ])
+            ->andWhere(['<>', 'entry.price_with_vat', 0])
+            ->groupBy('entry.type_id')
+            ->indexBy('type_id')
+            ->column();
+
+        $sum = 0;
+
+        foreach ($data as $typeId => $typeSum) {
+            // абонентку и минималку берем столько же, ресурсы - пропорционально
+            $sum += $typeId < 0 ? $typeSum : $typeSum * $forecastCoefficient;
+        }
+
+        return $sum;
     }
 
     /**
