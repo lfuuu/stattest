@@ -14,6 +14,7 @@ use app\models\SberbankOrder;
 use app\models\Transaction;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Period;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use Yii;
 use DateTime;
@@ -295,6 +296,7 @@ class BillerController extends Controller
                 'utp.charge_period_id' => Period::ID_MONTH
             ])
             ->andWhere(['<>', 'entry.price_with_vat', 0])
+            ->andWhere(['<>', 'entry.type_id', AccountEntry::TYPE_ID_SETUP]) // без платы за подключение
             ->groupBy('entry.type_id')
             ->indexBy('type_id')
             ->column();
