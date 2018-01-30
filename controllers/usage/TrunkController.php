@@ -1,16 +1,20 @@
 <?php
+
 namespace app\controllers\usage;
 
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\classes\ReturnFormatted;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\forms\usage\UsageTrunkEditForm;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;
+use app\models\billing\TrunkGroup;
 use app\models\ClientAccount;
 use app\models\UsageTrunk;
 use app\models\UsageTrunkSettings;
 use Yii;
+use yii\db\Query;
 use yii\filters\AccessControl;
 
 class TrunkController extends BaseController
@@ -169,6 +173,50 @@ class TrunkController extends BaseController
             'termination' => $termination,
             'destination' => $destination,
         ]);
+    }
+
+
+    /**
+     * Вернуть группы транка
+     *
+     * @param int $trunkId
+     * @throws \yii\base\ExitException
+     */
+    public function actionGetGroups($trunkId)
+    {
+        $db = TrunkGroup::getDb();
+
+        $origGroups = (new Query())
+            ->select(['name' => "string_agg(tg.name, ', ')"])
+            ->from([
+                'tti' => 'auth.trunk_group_item',
+                'tg' => 'auth.trunk_group',
+            ])
+            ->where([
+                'tti.trunk_id' => $trunkId,
+            ])
+            ->andWhere('tg.id = tti.trunk_group_id')
+            ->scalar($db);
+
+        $termGroups = (new Query())
+            ->select(['name' => "string_agg(tg.name, ', ')"])
+            ->from([
+                'ttr' => 'auth.trunk_trunk_rule',
+                'tg' => 'auth.trunk_group',
+            ])
+            ->where([
+                'ttr.trunk_id' => $trunkId,
+            ])
+            ->andWhere('tg.id = ttr.trunk_group_id')
+            ->scalar($db);
+
+        ReturnFormatted::me()->returnFormattedValues(
+            [
+                'orig' => (string)$origGroups,
+                'term' => (string)$termGroups,
+            ],
+            ReturnFormatted::FORMAT_JSON
+        );
     }
 
 }

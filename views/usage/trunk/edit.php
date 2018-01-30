@@ -214,6 +214,10 @@ echo Breadcrumbs::widget([
                     'label' => 'Тип транка',
                 ]) ?>
             </div>
+            <div class="col-sm-4">
+                <label class="control-label">Группы для оригинации</label>
+                <div id="orig_trunk_group"></div>
+            </div>
         </div>
 
         <table class="table table-condensed table-striped">
@@ -296,6 +300,10 @@ echo Breadcrumbs::widget([
                     'feature' => 'term_enabled',
                     'label' => 'Тип транка',
                 ]) ?>
+            </div>
+            <div class="col-sm-4">
+                <label class="control-label">Группы для терминации</label>
+                <div id="term_trunk_group"></div>
             </div>
         </div>
 
