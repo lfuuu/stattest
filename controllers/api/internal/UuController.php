@@ -1218,8 +1218,8 @@ class UuController extends ApiInternalController
         $limit = self::DEFAULT_LIMIT,
         $offset = 0
     ) {
-        if (!$id && !$client_account_id) {
-            throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
+        if (!$id && !$client_account_id && !$voip_number) {
+            throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id или voip_number', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }
 
         $accountTariffTableName = AccountTariff::tableName();
