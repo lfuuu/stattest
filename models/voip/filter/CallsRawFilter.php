@@ -106,12 +106,12 @@ class CallsRawFilter extends CallsRaw
         'session_time_avg' => 'AVG(session_time)',
         'session_time_min' => 'MIN(session_time)',
         'session_time_max' => 'MAX(session_time)',
-        'calls_count' => 'COUNT(connect_time)',
+        'calls_count' => 'COUNT(cr1.connect_time)',
         'nonzero_calls_count' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))',
         'acd' => 'SUM(session_time) / NULLIF(SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END)), 0)',
-        'asr' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))::real / NULLIF(COUNT(connect_time)::real, 0)',
+        'asr' => 'SUM((CASE WHEN session_time > 0 THEN 1 ELSE 0 END))::real / NULLIF(COUNT(cr1.connect_time)::real, 0)',
         'acd_u' => 'SUM(session_time) / NULLIF(SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END)), 0)',
-        'asr_u' => 'SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END))::real / NULLIF(COUNT(connect_time)::real, 0)',
+        'asr_u' => 'SUM((CASE WHEN disconnect_cause IN (16,17,18,19,21,31) THEN 1 ELSE 0 END))::real / NULLIF(COUNT(cr1.connect_time)::real, 0)',
     ];
 
     public $currencyDependentFields = [
