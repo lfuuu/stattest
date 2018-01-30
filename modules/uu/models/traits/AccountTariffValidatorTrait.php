@@ -59,22 +59,23 @@ trait AccountTariffValidatorTrait
      */
     public function validatorTrunk($attribute, $params)
     {
-        if ($this->service_type_id != ServiceType::ID_TRUNK) {
+        if ($this->service_type_id != ServiceType::ID_TRUNK || !$this->trunk_type_id) {
+            // не транк или обычный транк
             return;
         }
 
+        // мега/мульти транк
         if (
             $this->isNewRecord
             && AccountTariff::find()
-                ->where(
-                    [
-                        'client_account_id' => $this->client_account_id,
-                        'service_type_id' => $this->service_type_id,
-                    ]
-                )
+                ->where([
+                    'client_account_id' => $this->client_account_id,
+                    'service_type_id' => $this->service_type_id,
+                    'trunk_type_id' => [AccountTariff::TRUNK_TYPE_MEGATRUNK, AccountTariff::TRUNK_TYPE_MULTITRUNK],
+                ])
                 ->count()
         ) {
-            $this->addError($attribute, 'Для ЛС можно создать только одну базовую услугу транка. Зато можно добавить несколько пакетов.');
+            $this->addError($attribute, 'Для ЛС можно создать только один мега/мульти транк.');
             $this->errorCode = AccountTariff::ERROR_CODE_ACCOUNT_TRUNK_SINGLE;
             return;
         }
