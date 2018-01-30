@@ -202,7 +202,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => -1,//$filterModel->src_countries_ids,
+        'countryCodes' => $filterModel->src_countries_ids ?: RegionColumn::EMPTY_VALUE_ID,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
@@ -212,7 +212,7 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => -1, //$filterModel->dst_countries_ids,
+        'countryCodes' => $filterModel->dst_countries_ids ?: RegionColumn::EMPTY_VALUE_ID,
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
@@ -222,8 +222,8 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => -1,//$filterModel->src_countries_ids,
-        'regionIds' => -1,//$filterModel->src_regions_ids,
+        'countryCodes' => $filterModel->src_countries_ids ?: ($filterModel->src_regions_ids ? null : CityColumn::EMPTY_VALUE_ID),
+        'regionIds' => $filterModel->src_regions_ids ?: ($filterModel->src_countries_ids ? null : CityColumn::EMPTY_VALUE_ID),
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],
@@ -233,8 +233,8 @@ return [
         'filterInputOptions' => [
             'multiple' => true,
         ],
-        'countryCodes' => -1,//$filterModel->dst_countries_ids,
-        'regionIds' => -1,//$filterModel->dst_regions_ids,
+        'countryCodes' => $filterModel->dst_countries_ids ?: ($filterModel->dst_regions_ids ? null : CityColumn::EMPTY_VALUE_ID),
+        'regionIds' => $filterModel->dst_regions_ids ?: ($filterModel->dst_countries_ids ? null : CityColumn::EMPTY_VALUE_ID),
         'isWithEmpty' => false,
         'isWithNullAndNotNull' => true,
     ],

@@ -13,6 +13,7 @@ use Yii;
 
 class CityColumn extends DataColumn
 {
+
     // Отображение в ячейке строкового значения из selectbox вместо ID
     use ListTrait {
         ListTrait::renderDataCellContent as defaultRenderDataCellContent;
@@ -29,7 +30,12 @@ class CityColumn extends DataColumn
     {
         parent::__construct($config);
 
-        $this->filter = $this->filterData = City::getList($this->isWithEmpty, $this->isWithNullAndNotNull, $this->countryCodes, $this->regionIds);
+        $this->filter = $this->filterData = City::getList(
+            $this->isWithEmpty,
+            $this->isWithNullAndNotNull,
+            $this->countryCodes,
+            $this->regionIds
+        );
         !isset($this->filterOptions['class']) && ($this->filterOptions['class'] = '');
         $this->filterOptions['class'] .= ' city-column';
     }
