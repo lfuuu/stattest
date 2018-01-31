@@ -111,6 +111,7 @@ class Navigation
             NavigationBlock::create()
                 ->setTitle('Письма клиентам')
                 ->addStatModuleItems('mail')
+                ->addItem('Сообщение от МЧС', ['/mchs'], ['mchs.read'])
         );
 
         $this->addBlock(

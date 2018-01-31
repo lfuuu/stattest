@@ -1,4 +1,5 @@
 <?php
+
 namespace app\controllers;
 
 use app\helpers\DateTimeZoneHelper;
@@ -17,9 +18,13 @@ class NewsController extends BaseController
                 'class' => AccessControl::className(),
                 'rules' => [
                     [
+                        'actions' => ['index', 'create', 'last'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+                    [
+                        'allow' => false,
+                    ]
                 ],
             ],
         ];

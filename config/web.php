@@ -194,6 +194,7 @@ $config = [
         'mtt' => ['class' => 'app\modules\mtt\Module'],
         'sim' => ['class' => 'app\modules\sim\Module'],
         'payments' => ['class' => 'app\modules\payments\Module'],
+        'mchs' => ['class' => 'app\modules\mchs\Module'],
     ],
     'params' => $params,
 ];
