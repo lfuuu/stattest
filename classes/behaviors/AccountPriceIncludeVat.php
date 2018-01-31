@@ -24,7 +24,7 @@ class AccountPriceIncludeVat extends Behavior
         /** @var ClientAccount $account */
         $account = $event->sender;
 
-        if ($account->country_id != Country::RUSSIA || $account->contract->business_id == Business::OPERATOR) {
+        if ($account->country_id != Country::RUSSIA || in_array($account->contract->business_id, [Business::OPERATOR, Business::OTT])) {
             $account->price_include_vat = 0;
         } else {
             $account->price_include_vat = 1;
