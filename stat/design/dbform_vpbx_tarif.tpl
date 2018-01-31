@@ -86,7 +86,6 @@
 
     jQuery(document).ready(function() {
         $('#region')
-            .off('change')
             .on('change', function() {
                 $.ajax({
                     type: 'GET',
