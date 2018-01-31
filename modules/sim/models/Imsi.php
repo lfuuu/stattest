@@ -87,7 +87,7 @@ class Imsi extends ActiveRecord
      */
     public function getNumber()
     {
-        return $this->hasOne(Number::className(), ['number' => 'did']);
+        return $this->hasOne(Number::className(), ['number' => 'msisdn']);
     }
 
     /**

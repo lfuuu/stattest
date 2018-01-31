@@ -10,6 +10,8 @@ use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
+use app\classes\Html;
+use app\models\DidGroup;
 use app\modules\sim\columns\CardStatusColumn;
 use app\modules\sim\filters\CardFilter;
 use app\modules\sim\models\Card;
@@ -87,7 +89,9 @@ $columns = [
             $msisdns = [];
             $imsies = $card->imsies;
             foreach ($imsies as $imsi) {
-                $msisdns[] = $imsi->msisdn ?: Yii::t('common', '(not set)');
+                $msisdns[] = $imsi->msisdn ?
+                    Html::a($imsi->msisdn, \app\models\Number::getUrlById($imsi->msisdn)) :
+                    Yii::t('common', '(not set)');
             }
 
             return implode(' <br>', $msisdns);
@@ -107,6 +111,28 @@ $columns = [
             }
 
             return implode(' <br>', $dids);
+        },
+    ],
+
+    [
+        'label' => 'Красивость',
+        'attribute' => 'beauty_level',
+        'format' => 'raw',
+        'value' => function (Card $card) {
+            $msisdns = [];
+            $imsies = $card->imsies;
+            foreach ($imsies as $imsi) {
+                if ($imsi->msisdn) {
+                    /** @var \app\models\Number $number */
+                    $number = $imsi->number;
+                    $didGroup = $number ? $number->didGroup : null;
+                    $msisdns[] = $didGroup ?
+                        Html::a($didGroup->name, DidGroup::getUrlById($didGroup->id)) :
+                        Yii::t('common', '(not set)');
+                }
+            }
+
+            return implode(' <br>', $msisdns);
         },
     ],
 
