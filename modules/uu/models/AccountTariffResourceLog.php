@@ -447,7 +447,8 @@ class AccountTariffResourceLog extends ActiveRecord
         $accountLogFromToResource->dateTo = $tariffPeriod->chargePeriod->getMinDateTo($accountLogFromToResource->dateFrom);
         $accountLogFromToResource->tariffPeriod = $tariffPeriod;
         $accountLogFromToResource->amountOverhead = max(0, $this->amount - $maxPaidAmount);
-        $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $this->resource_id);
+
+        $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogResource($accountTariff, $accountLogFromToResource, $this->resource_id);
         $priceResources = $accountLogResource->price;
 
         if ($realtimeBalanceWithCredit < $priceResources) {

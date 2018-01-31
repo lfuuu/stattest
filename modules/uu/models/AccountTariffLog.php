@@ -469,8 +469,11 @@ class AccountTariffLog extends ActiveRecord
             $accountLogFromToResource->dateTo = $accountLogFromToTariff->dateTo;
             $accountLogFromToResource->tariffPeriod = $tariffPeriod;
             $accountLogFromToResource->amountOverhead = (float)$accountTariff->getResourceValue($tariffResource->resource_id); // текущее кол-во ресурса может быть null, если услуга только создается
+            if ($accountLogFromToResource->amountOverhead) {
+                $accountLogFromToResource->amountOverhead -= $tariffResource->amount; // в amountOverhead должно быть не общее кол-во ресурса, а лишь превышение
+            }
 
-            $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogPeriod($accountTariff, $accountLogFromToResource, $tariffResource->resource_id);
+            $accountLogResource = (new AccountLogResourceTarificator())->getAccountLogResource($accountTariff, $accountLogFromToResource, $tariffResource->resource_id);
             $priceResources += $accountLogResource->price;
         }
 

@@ -8,6 +8,7 @@ use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
+use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
 use RangeException;
 use Yii;
@@ -17,6 +18,8 @@ use Yii;
  */
 class AccountLogPeriodTarificator extends Tarificator
 {
+    const DAYS_IN_MONTH = 30.42; // в среднем по всем месяцам (365 / 12)
+
     /**
      * Рассчитать плату всех услуг
      *
@@ -111,16 +114,24 @@ class AccountLogPeriodTarificator extends Tarificator
         $accountLogPeriod->account_tariff_id = $accountTariff->id;
         $accountLogPeriod->period_price = $tariffPeriod->price_per_period;
 
-        $accountLogPeriod->coefficient = 1 + $accountLogFromToTariff->dateTo
+        $totalDays = 1 + $accountLogFromToTariff->dateTo
                 ->diff($accountLogFromToTariff->dateFrom)
                 ->days; // кол-во потраченных дней
 
-        // разделить на кол-во дней в месяце
-        $days = $accountLogFromToTariff->dateFrom
-            ->modify('+1 month')
-            ->diff($accountLogFromToTariff->dateFrom)
-            ->days;
-        $accountLogPeriod->coefficient /= $days;
+        if ($totalDays > 31) {
+            // больше месяца (при оплате за квартал, полгода, год)
+            // этот метод вызывается из
+            // ... основного биллинга. Все периоды уже и так разбиты по месяцам, поэтому сюда не попадем
+            // ... из валидации при создании "хватит ли денег". Тут большая точность не обязательно, ибо фактического списания не происходит. Достаточно "средней температуры по больнице"
+            $accountLogPeriod->coefficient = round($totalDays / self::DAYS_IN_MONTH);
+        } else {
+            // месяц или меньше - разделить на кол-во дней в месяце
+            $daysInMonth = $accountLogFromToTariff->dateFrom
+                ->modify('+1 month')
+                ->diff($accountLogFromToTariff->dateFrom)
+                ->days;
+            $accountLogPeriod->coefficient = $totalDays / $daysInMonth;
+        }
 
         if ($tariffPeriod->tariff->service_type_id === ServiceType::ID_INFRASTRUCTURE) {
             // инфраструктура - цена берется из услуги!

@@ -91,6 +91,7 @@ class AccountLogResourceTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге за ресурсы-опции (количество линий, запись звонков и пр.)
      *
      * @param AccountTariff $accountTariff
+     * @throws \RangeException
      * @throws \LogicException
      * @throws \app\exceptions\ModelValidationException
      * @throws \Exception
@@ -106,7 +107,7 @@ class AccountLogResourceTarificator extends Tarificator
 
             /** @var AccountLogFromToResource $untarificatedPeriod */
             foreach ($untarificatedPeriods as $untarificatedPeriod) {
-                $accountLogResource = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod, $resourceId);
+                $accountLogResource = $this->getAccountLogResource($accountTariff, $untarificatedPeriod, $resourceId);
                 if (!$accountLogResource->save()) {
                     throw new ModelValidationException($accountLogResource);
                 }
@@ -187,7 +188,7 @@ class AccountLogResourceTarificator extends Tarificator
      * @return AccountLogResource
      * @throws \RangeException
      */
-    public function getAccountLogPeriod(AccountTariff $accountTariff, AccountLogFromToResource $accountLogFromToResource, $resourceId)
+    public function getAccountLogResource(AccountTariff $accountTariff, AccountLogFromToResource $accountLogFromToResource, $resourceId)
     {
         $tariffPeriod = $accountLogFromToResource->tariffPeriod;
 
