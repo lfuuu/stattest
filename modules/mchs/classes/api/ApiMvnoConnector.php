@@ -32,7 +32,7 @@ class ApiMvnoConnector extends Singleton
     {
         $_moduleConfig = Config::getModule('mchs');
 
-        return isset($_moduleConfig->params['api_key']) && $_moduleConfig->params['api_key'] ? $_moduleConfig->params : null;
+        return isset($_moduleConfig->params['api_key']) && $_moduleConfig->params['api_key'] ? $_moduleConfig->params['api_key'] : null;
     }
 
     /**

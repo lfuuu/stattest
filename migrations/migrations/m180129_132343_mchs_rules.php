@@ -1,6 +1,6 @@
 <?php
 
-use app\models\MchsMessage;
+use app\modules\mchs\models\MchsMessage;
 use app\models\User;
 use app\models\UserRight;
 
