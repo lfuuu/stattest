@@ -76,6 +76,7 @@ class AccountLogResourceTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге
      *
      * @param AccountTariff $accountTariff
+     * @throws \RangeException
      * @throws \LogicException
      * @throws \Exception
      * @throws \app\exceptions\ModelValidationException

@@ -307,13 +307,16 @@ trait AccountTariffBillerResourceTrait
                     (
                         // начинает действовать в начало периода...
                         $actualFromYmd == $dateFromYmd
-                        &&
-                        (
-                            // ... смена произведена заранее
-                            $accountTariffResourceLog->actual_from_utc > $accountTariffResourceLog->insert_time
-                            // или это первоначальное включение ресурса
-                            || null === $prevAmount
-                        )
+                        /*
+                            // insert_time из-за timestamp вместо datetime "уволен в связи с утратой доверия". @todo Задним числом и так нельзя изменить, а сегодняшним днем можно
+                            &&
+                            (
+                                // ... смена произведена заранее
+                                $accountTariffResourceLog->actual_from_utc > $accountTariffResourceLog->insert_time
+                                // или это первоначальное включение ресурса
+                                || null === $prevAmount
+                            )
+                        */
                     )
                 ) {
 
