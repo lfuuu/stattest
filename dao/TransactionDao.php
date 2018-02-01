@@ -110,9 +110,15 @@ class TransactionDao extends Singleton
     }
 
 
-    public function markDeletedByBillLine(BillLine $line)
+    /**
+     * Помечаем транзакцию по линии счета
+     *
+     * @param integer BillLine $line
+     * @param integer $billId
+     */
+    public function markDeletedByBillLine(BillLine $line, $billId)
     {
-        $transaction = Transaction::findOne(['bill_line_id' => $line->pk]);
+        $transaction = Transaction::findOne(['bill_line_id' => $line->pk, 'bill_id' => $billId]);
 
         if ($transaction !== null) {
             $this->markDeleted($transaction);

@@ -346,7 +346,7 @@ class Bill extends ActiveRecord
         Trouble::deleteAll(['bill_no' => $this->bill_no]);
 
         foreach ($this->lines as $line) {
-            Transaction::dao()->markDeletedByBillLine($line);
+            Transaction::dao()->markDeletedByBillLine($line, $this->id);
         }
 
         Yii::$app->db->createCommand(
