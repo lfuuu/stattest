@@ -168,11 +168,12 @@ class EventQueue extends ActiveRecord
         \app\modules\nnp\Module::EVENT_LINKER => 'ННП. Линковка исходных к ID',
         \app\modules\nnp\Module::EVENT_FILTER_TO_PREFIX => 'ННП. Фильтр -> префикс',
 
-        \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_BALANCE => 'МТТ. Получить баланс',
-        \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_DATA => 'МТТ. Получить инфо',
-        \app\modules\mtt\Module::EVENT_CALLBACK_BALANCE_ADJUSTMENT => 'МТТ. Установить баланс',
+        \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_BALANCE => 'МТТ-callback. Получить баланс',
+        \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_DATA => 'МТТ-callback. Получить инфо',
+        \app\modules\mtt\Module::EVENT_CALLBACK_BALANCE_ADJUSTMENT => 'МТТ-callback. Установить баланс',
         \app\modules\mtt\Module::EVENT_ADD_INTERNET => 'МТТ. Добавить интернет',
         \app\modules\mtt\Module::EVENT_CLEAR_INTERNET => 'МТТ. Сжечь интернет',
+        \app\modules\mtt\Module::EVENT_CLEAR_BALANCE => 'МТТ. Сбросить баланс',
     ];
 
     /**

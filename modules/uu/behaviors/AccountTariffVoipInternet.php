@@ -58,18 +58,17 @@ class AccountTariffVoipInternet extends Behavior
         );
 
         // сжечь пакет по окончании периода
-        EventQueue::go(
-            \app\modules\mtt\Module::EVENT_CLEAR_INTERNET,
-            [
-                'client_account_id' => $accountTariff->client_account_id,
-                'account_tariff_id' => $accountTariff->prev_account_tariff_id,
-            ],
-            $isForceAdd = false,
-            (new \DateTime($accountLogPeriod->date_to, $accountTariff->clientAccount->getTimezone()))
-                ->modify('+1 day')
-                ->setTime(0, 0, 0)
-                ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT)
-        );
+        $params = [
+            'client_account_id' => $accountTariff->client_account_id,
+            'account_tariff_id' => $accountTariff->prev_account_tariff_id,
+        ];
+        $isForceAdd = false;
+        $nextStart = (new \DateTime($accountLogPeriod->date_to, $accountTariff->clientAccount->getTimezone()))
+            ->modify('+1 day')
+            ->setTime(0, 0, 0)
+            ->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
+            ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+        EventQueue::go(\app\modules\mtt\Module::EVENT_CLEAR_BALANCE, $params, $isForceAdd, $nextStart);
+        EventQueue::go(\app\modules\mtt\Module::EVENT_CLEAR_INTERNET, $params, $isForceAdd, $nextStart);
     }
 }

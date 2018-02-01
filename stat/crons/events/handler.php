@@ -565,6 +565,11 @@ function doEvents()
                     }
                     break;
 
+                case \app\modules\mtt\Module::EVENT_CLEAR_BALANCE:
+                    // МТТ. Сбросить баланс
+                        $info = \app\modules\mtt\Module::clearBalance($param['account_tariff_id']);
+                    break;
+
                 case \app\modules\mtt\Module::EVENT_CLEAR_INTERNET:
                     // МТТ. Сжечь интернет
                     if ($isMttServer) {

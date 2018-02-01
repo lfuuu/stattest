@@ -152,16 +152,23 @@ class AccountTariffController extends BaseController
     /**
      * Обновить МТТ
      *
+     * @param string $field
      * @param string $method
      * @param int $id
      * @return string|Response
      * @throws \yii\base\InvalidParamException
+     * @throws ModelValidationException
      */
-    private function _updateMtt($method, $id)
+    private function _updateMtt($field, $method, $id)
     {
         $accountTariff = AccountTariff::findOne(['id' => $id]);
         if (!$accountTariff) {
             throw new InvalidParamException('Неправильная услуга');
+        }
+
+        $accountTariff->{$field} = null;
+        if (!$accountTariff->save()) {
+            throw new ModelValidationException($accountTariff);
         }
 
         MttAdapter::me()->{$method}($accountTariff->voip_number, $accountTariff->id);
@@ -176,10 +183,11 @@ class AccountTariffController extends BaseController
      * @param int $id
      * @return string|Response
      * @throws \yii\base\InvalidParamException
+     * @throws ModelValidationException
      */
     public function actionUpdateMttBalance($id)
     {
-        return $this->_updateMtt('getAccountBalance', $id);
+        return $this->_updateMtt('mtt_balance', 'getAccountBalance', $id);
     }
 
     /**
@@ -188,10 +196,11 @@ class AccountTariffController extends BaseController
      * @param int $id
      * @return string|Response
      * @throws \yii\base\InvalidParamException
+     * @throws ModelValidationException
      */
     public function actionUpdateMttNumber($id)
     {
-        return $this->_updateMtt('getAccountData', $id);
+        return $this->_updateMtt('mtt_number', 'getAccountData', $id);
     }
 
     /**

@@ -18,6 +18,7 @@ class Module extends \yii\base\Module
     const EVENT_CALLBACK_GET_ACCOUNT_DATA = self::EVENT_PREFIX . 'getAccountData';
     const EVENT_CALLBACK_BALANCE_ADJUSTMENT = self::EVENT_PREFIX . 'balanceAdjustment';
 
+    const EVENT_CLEAR_BALANCE = 'mtt_clear_balance';
     const EVENT_ADD_INTERNET = 'mtt_add_internet';
     const EVENT_CLEAR_INTERNET = 'mtt_clear_internet';
 
@@ -99,6 +100,26 @@ class Module extends \yii\base\Module
     }
 
     /**
+     * Сбросить баланс
+     *
+     * @param int $prevAccountTariffId ID услуги пакета
+     * @throws \yii\base\InvalidParamException
+     * @throws ModelValidationException
+     */
+    public static function clearBalance($prevAccountTariffId)
+    {
+        $prevAccountTariff = AccountTariff::findOne(['id' => $prevAccountTariffId]);
+        if (!$prevAccountTariff) {
+            throw new InvalidParamException('Неправильный ID услуги');
+        }
+
+        $prevAccountTariff->mtt_balance = null;
+        if (!$prevAccountTariff->save()) {
+            throw new ModelValidationException($prevAccountTariff);
+        }
+    }
+
+    /**
      * Сжечь интернет-трафик по всем пакетам
      *
      * @param int $prevAccountTariffId ID услуги пакета
@@ -132,12 +153,12 @@ class Module extends \yii\base\Module
             throw new \LogicException('Это не ошибка, а такой бизнес-процесс. Ожидаем асинхронный ответ от МТТ, потом продолжим. ' . $info);
         }
 
-        if ($prevAccountTariff->mtt_balance <= 0) {
+        if ($prevAccountTariff->mtt_balance >= -0.1 && $prevAccountTariff->mtt_balance <= 0) {
             // и так все сброшено
             return 'Balance: ' . $prevAccountTariff->mtt_balance;
         }
 
-        // все хорошо, MTT ID юзера и его юаланс известны
+        // все хорошо, MTT ID юзера и его баланс известны
         $message = [
             'requestId' => $prevAccountTariff->id,
             'method' => 'balanceAdjustment',
