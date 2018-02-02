@@ -1,9 +1,13 @@
 <?php
 return [
     'id' => 'ID',
-    'name' => 'Name',
-    'parent_id' => 'Parent',
-    'close_after_days' => 'Close after N days of failing',
+    'name' => 'Elnevezés',
+    'parent_id' => 'Szülő',
+    'close_after_days' => 'Lezárni N nap nemfizetés után',
+    'min_value' => 'Minimum, egys.',
+    'max_value' => 'Maximum, egys.',
+    'service_type_id' => 'Szolgáltatás típus',
+    'unit' => 'Mérték egys.',
 
     'Type #1' => 'VPBX',
     'Type #2' => 'Telefonszolgáltatás',
@@ -25,11 +29,11 @@ return [
     'Type #18' => 'Welltime',
     'Type #19' => 'Call-chat',
     'Type #20' => 'VM collocation',
-    'Type #21' => 'One time',
-    'Type #22' => 'Trunk',
-    'Type #23' => 'Trunk', // Orig trunk package
-    'Type #24' => 'Trunk', // Term trunk package
-    'Type #25' => 'Mobile internet',
-    'Type #26' => '', // Infrastructure
-    'Type #27' => 'NNP access',
+    'Type #21' => 'Egyszeri szolgáltatás',
+    'Type #22' => 'Trönk',
+    'Type #23' => 'Trönk', // Orig trönk csomag
+    'Type #24' => 'Trönk', // Term trönk csomag
+    'Type #25' => 'Mobil internet',
+    'Type #26' => '', // Infrastruktúra
+    'Type #27' => 'NNP hozzáférés',
 ];
