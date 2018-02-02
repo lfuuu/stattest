@@ -10,6 +10,7 @@ use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
+use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use tests\codeception\unit\_TestCase;
 use yii\codeception\TestCase;
 
@@ -74,6 +75,8 @@ class _AccountTariff extends AccountTariff
             $testCase->failOnValidationModel($accountTariffLog);
         }
         $testCase->assertTrue($accountTariffLog->save());
+
+        (new SetCurrentTariffTarificator())->tarificate($accountTariff->id);
 
         if ($accountTariffData['service_type_id'] == ServiceType::ID_VOIP && isset($accountTariffData['voip_number'])) {
             Number::dao()->actualizeStatusByE164($accountTariffData['voip_number']);
