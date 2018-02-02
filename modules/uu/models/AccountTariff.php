@@ -179,7 +179,6 @@ class AccountTariff extends ActiveRecord
                     'region_id',
                     'city_id',
                     'prev_account_tariff_id',
-                    'tariff_period_id',
                     'trunk_type_id',
                 ],
                 'integer'
@@ -188,7 +187,7 @@ class AccountTariff extends ActiveRecord
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
             ['service_type_id', 'validatorServiceType'],
             ['client_account_id', 'validatorTrunk', 'skipOnEmpty' => false],
-            ['tariff_period_id', 'validatorTariffPeriod'],
+            ['service_type_id', 'validatorTariffPeriod'],
             ['voip_number', 'validatorVoipNumber', 'skipOnEmpty' => true, 'on' => ['default']],
             [
                 ['voip_number'],
