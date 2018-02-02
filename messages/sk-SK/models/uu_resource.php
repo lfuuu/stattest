@@ -44,6 +44,9 @@ return [
     'Resource #39' => 'Pod účet',
     'Resource #40' => 'Volania',
     'Resource #41' => 'Volania',
+    'Resource #42' => 'Mobilný internet',
+    'Resource #43' => 'Odchádzajúca prevádzka z mobilných telefónnych čísiel',
+    'Resource #44' => 'Počet čísiel podľa dotazov',
 
     'Gb' => 'Gb',
     'Unit' => 'jednotka',

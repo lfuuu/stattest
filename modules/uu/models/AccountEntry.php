@@ -219,12 +219,6 @@ class AccountEntry extends ActiveRecord
             $names[] = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
         }
 
-        // Например, "Абонентская плата" или "Подключение" или "Номер 1234567890. Звонки"
-        // Кроме "Разовая услуга" - там нужен только комментарий менеджера
-        if ($accountTariff->service_type_id != ServiceType::ID_ONE_TIME) {
-            $names[] = $this->getName($langCode, $isFullDocument);
-        }
-
         // Например, "Тариф «Максимальный»"
         // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
         $tariffPeriod = $this->tariffPeriod;
@@ -243,6 +237,12 @@ class AccountEntry extends ActiveRecord
             $names[] = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariff->name], $langCode);
         }
 
+        // Например, "Абонентская плата" или "Подключение" или "Номер 1234567890. Звонки"
+        // Кроме "Разовая услуга" - там нужен только комментарий менеджера
+        if ($accountTariff->service_type_id != ServiceType::ID_ONE_TIME) {
+            $names[] = $this->getName($langCode, $isFullDocument);
+        }
+
         // Сохранить \yii\i18n\Formatter locale
         $locale = Yii::$app->formatter->locale;
         // Установить \yii\i18n\Formatter locale = $langCode
@@ -252,7 +252,7 @@ class AccountEntry extends ActiveRecord
         // Кроме "Разовая услуга" - там нужен только комментарий менеджера
         if ($accountTariff->service_type_id != ServiceType::ID_ONE_TIME) {
             $names[] = (($this->date_from != $this->date_to) ? Yii::$app->formatter->asDate($this->date_from, 'php:j') . '-' : '') .
-                Yii::$app->formatter->asDate($this->date_to, 'php:j M');
+                Yii::$app->formatter->asDate($this->date_to, 'php:j M Y');
         }
 
         // Восстановить \yii\i18n\Formatter locale

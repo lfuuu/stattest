@@ -44,6 +44,9 @@ return [
     'Resource #39' => 'Sub-account',
     'Resource #40' => 'Anrufe',
     'Resource #41' => 'Anrufe',
+    'Resource #42' => 'Mobiles internet',
+    'Resource #43' => 'Ausgehender Verkehr über mobile Rufnummern',
+    'Resource #44' => 'Anzahl der Rufnummern aus Abfragen',
 
     'Resource consumption limit exceedance' => 'Limit der Ressourcennutzung überschritten',
 ];

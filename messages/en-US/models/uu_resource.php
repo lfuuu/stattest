@@ -44,6 +44,9 @@ return [
     'Resource #39' => 'Sub-account',
     'Resource #40' => 'Calls',
     'Resource #41' => 'Calls',
+    'Resource #42' => 'Mobile internet',
+    'Resource #43' => 'Outbound traffic option from mobile numbers',
+    'Resource #44' => 'Amount of numbers from requests',
 
     'Resource consumption limit exceedance' => 'Resource consumption limit exceedance',
 ];
