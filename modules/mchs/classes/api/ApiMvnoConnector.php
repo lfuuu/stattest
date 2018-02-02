@@ -38,26 +38,21 @@ class ApiMvnoConnector extends Singleton
     /**
      * Отправка сообщения
      *
-     * @param string[] $phones
      * @param string $message
      * @return array
      * @throws InvalidConfigException
      */
-    public function send($phones, $message)
+    public function send($message)
     {
         if (!$this->isAvailable()) {
             throw new InvalidConfigException('MvnoConnector не настроен');
-        }
-
-        if (!is_array($phones)) {
-            $phones = [$phones];
         }
 
         return (new HttpClient())
             ->createRequest()
             ->auth(['method' => 'bearer', 'token' => $this->_getConfigApiKey()])
             ->setMethod('post')
-            ->setData(['message' => $message, 'phones' => $phones])
+            ->setData(['message' => $message])
             ->setUrl($this->_url)
             ->getResponseDataWithCheck();
     }

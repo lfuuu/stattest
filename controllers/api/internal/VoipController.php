@@ -164,6 +164,7 @@ class VoipController extends ApiInternalController
 
     /**
      * @SWG\Get(tags = {"Numbers"}, path = "/internal/voip/get-mvno-number-list/", summary = "Получение списка MVNO номеров", operationId = "get-mvno-number-list",
+     *   @SWG\Parameter(name = "is_active", type = "integer", description = "Только активные (или все)", in = "query", default = 0, required = false),
      *   @SWG\Response(response = 200, description = "данные о клиентах партнёра",
      *     @SWG\Schema(type = "array", @SWG\Items(type = "string", description = "Номер телефона"))
      *   ),
@@ -172,10 +173,18 @@ class VoipController extends ApiInternalController
      */
     public function actionGetMvnoNumberList()
     {
-        return Number::find()
+        $requestData = Yii::$app->request->get();
+
+        $isActive = isset($requestData['is_active']) ? (bool)(int)$requestData['is_active'] : false;
+
+        $query = Number::find()
             ->where(['ndc_type_id' => NdcType::ID_MOBILE])
             ->select('number')
-            ->orderBy(['number' => SORT_ASC])
+            ->orderBy(['number' => SORT_ASC]);
+
+        $isActive && $query->andWhere(['status' => Number::$statusGroup[Number::STATUS_GROUP_ACTIVE]]);
+
+        return $query
             ->asArray()
             ->column();
     }

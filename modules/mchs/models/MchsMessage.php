@@ -85,10 +85,8 @@ class MchsMessage extends ActiveRecord
      */
     public function send()
     {
-        $phones = $this->_getMvnoActivePhoneList();
-
         try {
-            ApiMvnoConnector::me()->send($phones, $this->message);
+            ApiMvnoConnector::me()->send($this->message);
         } catch (\Exception $e) {
             $this->_error = 'Error: ' . $e->getMessage();
             return false;
@@ -105,24 +103,6 @@ class MchsMessage extends ActiveRecord
     public function getError()
     {
         return $this->_error;
-    }
-
-    /**
-     * Список телефонов
-     *
-     * @return string[]
-     */
-    public function _getMvnoActivePhoneList()
-    {
-        return Number::find()
-            ->select('number')
-            ->where([
-                'status' => Number::$statusGroup[Number::STATUS_GROUP_ACTIVE],
-                'ndc_type_id' => NdcType::ID_MOBILE,
-            ])
-            ->andWhere(['IS NOT', 'mvno_trunk_id', null])
-            ->andWhere(['>', 'mvno_trunk_id', 0])
-            ->column();
     }
 
 }
