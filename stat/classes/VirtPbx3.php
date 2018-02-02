@@ -8,6 +8,7 @@ use app\models\ClientAccount;
 use app\models\EventQueue;
 use app\models\UsageVirtpbx;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 
 class VirtPbx3Checker
 {
@@ -38,7 +39,7 @@ class VirtPbx3Checker
                     IFNULL((SELECT id_tarif AS id_tarif FROM log_tarif WHERE service='usage_virtpbx' AND id_service=u.id AND date_activation<NOW() ORDER BY date_activation DESC, id DESC LIMIT 1),0) AS tarif_id,
                     u.region as region_id,
                     prev_usage_id,
-                    (select ifnull((select id from usage_virtpbx where prev_usage_id = u.id), (select id from uu_account_tariff where prev_usage_id = u.id))) AS next_usage_id,
+                    (select ifnull((select id from usage_virtpbx where prev_usage_id = u.id), (select id from uu_account_tariff where prev_usage_id = u.id AND uu_account_tariff.service_type_id = :serviceTypeId))) AS next_usage_id,
                     :version_biller_usage as biller_version
                 FROM
                     usage_virtpbx u, clients c
@@ -55,7 +56,7 @@ class VirtPbx3Checker
                     tariff_period.tariff_id,
                     account_tariff.region_id,
                     prev_usage_id,
-                    (select ifnull((select id from usage_virtpbx where prev_usage_id = account_tariff.id), (select id from uu_account_tariff where prev_usage_id = account_tariff.id))) AS next_usage_id,
+                    (select ifnull((select id from usage_virtpbx where prev_usage_id = account_tariff.id), (select id from uu_account_tariff where prev_usage_id = account_tariff.id AND uu_account_tariff.service_type_id = :serviceTypeId))) AS next_usage_id,
                     :version_biller_universal AS biller_version
                 FROM
                     uu_account_tariff account_tariff,
@@ -97,6 +98,7 @@ class VirtPbx3Checker
         if ($type == self::LOAD_ACTUAL) {
             $query->bindValue(':version_biller_usage', ClientAccount::VERSION_BILLER_USAGE);
             $query->bindValue(':version_biller_universal', ClientAccount::VERSION_BILLER_UNIVERSAL);
+            $query->bindValue(':serviceTypeId', ServiceType::ID_VPBX);
         }
 
         $usageIds = [];
@@ -115,6 +117,7 @@ class VirtPbx3Checker
                             SELECT id 
                             FROM uu_account_tariff 
                             WHERE prev_usage_id = :nextUsageId
+                            AND service_type_id = :serviceTypeId
                         ),
                         (
                             SELECT id
@@ -122,7 +125,7 @@ class VirtPbx3Checker
                             WHERE prev_usage_id = :nextUsageId
                         )
                     )
-                ", [':nextUsageId' => $usageId])->queryScalar();
+                ", [':nextUsageId' => $usageId, ':serviceTypeId' => ServiceType::ID_VPBX])->queryScalar();
 
                 if ($nextUsageId) {
                     $usageIds[$nextUsageId] = 1;
