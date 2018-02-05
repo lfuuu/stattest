@@ -2,6 +2,7 @@
 
 namespace app\health;
 
+use app\helpers\DateTimeZoneHelper;
 use app\models\HistoryChanges;
 use app\modules\uu\models\AccountTariffLog;
 
@@ -25,7 +26,7 @@ class MonitorUuShiftTariff extends Monitor
     }
 
     /**
-     * Текущее значение
+     * За последние сутки не должно быть откладываний смен тарифа
      *
      * @return int
      * @throws \yii\db\Exception
@@ -42,16 +43,13 @@ class MonitorUuShiftTariff extends Monitor
             FROM
                 {$accountTariffLogTableName} account_tariff_log,
                 (
-                    SELECT model_id
+                    SELECT DISTINCT model_id
                     FROM
                         {$historyChangesTableName}
                     WHERE
                         model = :model
                         AND action = :action
-                    GROUP BY
-                        model_id
-                    HAVING
-                        COUNT(*) > 2
+                        AND created_at > :date
                 ) t
             WHERE
 	            account_tariff_log.id = t.model_id
@@ -60,6 +58,7 @@ SQL;
         $row = $db->createCommand($sql, [
             ':model' => AccountTariffLog::className(),
             ':action' => HistoryChanges::ACTION_UPDATE,
+            ':date' => DateTimeZoneHelper::getUtcDateTime()->modify('-1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT),
         ])->queryOne();
         $this->_message = $row['message'];
 
