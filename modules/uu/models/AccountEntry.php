@@ -228,9 +228,11 @@ class AccountEntry extends ActiveRecord
         // Например, "ВАТС" или "SMS"
         // Кроме "Телефония" и "Пакет телефонии". Чтобы было короче. А для них и так понятно, ибо указан номер
         // Кроме "Разовая услуга" - там нужен только комментарий менеджера
-        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_ONE_TIME])) {
+        if (!in_array($accountTariff->service_type_id, [ServiceType::ID_VOIP_PACKAGE_CALLS, ServiceType::ID_ONE_TIME])) {
             $serviceType = $accountTariff->serviceType;
-            $names[] = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
+            $serviceTypeName = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
+        } else {
+            $serviceTypeName = '';
         }
 
         // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
@@ -261,7 +263,8 @@ class AccountEntry extends ActiveRecord
         // Восстановить \yii\i18n\Formatter locale
         Yii::$app->formatter->locale = $locale;
 
-        return implode('. ', $names);
+        return ($serviceTypeName ? $serviceTypeName . ': ' : '') .
+            implode('. ', $names);
     }
 
     /**
