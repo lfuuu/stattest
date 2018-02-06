@@ -20,7 +20,7 @@ class ActualCallChatDao extends Singleton
 {
     public function collectFromUsages($usageId = null)
     {
-        $queryUsage = (new Query)
+        $query = (new Query)
             ->select([
                 'usage_id' => 'u.id',
                 'client_id' => 'c.id',
@@ -33,21 +33,7 @@ class ActualCallChatDao extends Singleton
                 new Expression("NOW()"),
                 new Expression('activation_dt'),
                 new Expression('expire_dt')
-            ]);
-
-        $queryUU = AccountTariff::find()
-            ->alias('u')
-            ->select([
-                'usage_id' => 'id',
-                'client_id' => 'client_account_id',
-                'tarif_id' => new Expression(UsageCallChat::DEFAULT_TARIFF_ID),
             ])
-            ->where(['service_type_id' => ServiceType::ID_CALL_CHAT])
-            ->andWhere(['IS NOT', 'tariff_period_id', null])
-            ->orderBy(['u.id' => SORT_ASC]);
-
-        $query = (new Query())
-            ->from(['a' => $queryUsage->union($queryUU)])
             ->orderBy(['usage_id' => SORT_ASC])
             ->indexBy('usage_id');
 
