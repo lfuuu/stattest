@@ -74,7 +74,7 @@ use app\models\TroubleStage;
 
 
 <script>
-  function ($) {
+  +function ($) {
     'use strict';
 
     $(function () {
