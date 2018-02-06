@@ -406,3 +406,9 @@ div.required label:after {
 textarea.comment_on_account_form {
     height: 35px;
 }
+
+.search-trouble-problem-button,
+.search-trouble-stage-comment-button{
+    max-width: 400px;
+    cursor: pointer;
+}

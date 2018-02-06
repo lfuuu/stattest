@@ -60,6 +60,9 @@ $request = Yii::$app->request->get();
                 <button type="submit" class="btn btn-default btn-xs" data-search="troubleText"
                         data-placeholder="Текст заявки">Текст заявки
                 </button>
+                <button type="submit" class="btn btn-default btn-xs" data-search="troubleComment"
+                        data-placeholder="Комментарий к заявке">Комментарий к заявке
+                </button>
             </div>
         </div>
     </form>

@@ -2,11 +2,16 @@
 namespace app\controllers;
 
 use app\classes\BaseController;
+use app\classes\DynamicModel;
+use app\classes\validators\FormFieldValidator;
+use app\exceptions\ModelValidationException;
 use app\models\Bank;
 use app\models\Bill;
 use app\models\GoodsIncomeOrder;
 use app\models\Trouble;
+use app\models\TroubleStage;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Url;
 use yii\web\Response;
 
@@ -139,6 +144,12 @@ class SearchController extends BaseController
                 return $this->render('result', ['message' => 'Ничего не найдено']);
                 break;
 
+            case 'troubleComment':
+                $controller = 'search';
+                $action = 'trouble';
+                $params['troubleComment'] = trim($search);
+                break;
+
             case 'ip':
                 $params['ip'] = trim($search);
                 break;
@@ -189,5 +200,41 @@ class SearchController extends BaseController
 
         Yii::$app->response->format = Response::FORMAT_JSON;
         return $res;
+    }
+
+    public function actionTrouble()
+    {
+        $form = DynamicModel::validateData(Yii::$app->request->queryParams,[
+            ['troubleComment', 'required'],
+            ['troubleComment', FormFieldValidator::className()],
+            ['troubleComment', 'string', 'min' => 5]
+        ]);
+
+        if ($form->hasErrors()) {
+            throw new ModelValidationException($form);
+        }
+
+        $troubleQuery = TroubleStage::find()
+            ->where(['LIKE', 'comment', $form->troubleComment])
+            ->limit(TroubleStage::SEARCH_ITEMS);
+
+        if ($troubleQuery->count() == 1) {
+            return $this->redirect($troubleQuery->one()->trouble->getUrl());
+        }
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $troubleQuery,
+            'sort' => [
+                'defaultOrder' => [
+                    'stage_id' => SORT_DESC
+                ]
+            ]
+        ]);
+
+        return $this->render('troubles',
+            [
+                'dataProvider' => $dataProvider,
+            ]
+        );
     }
 }

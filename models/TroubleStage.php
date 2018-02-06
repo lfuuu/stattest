@@ -17,9 +17,14 @@ use app\classes\model\ActiveRecord;
  * @property string $date_finish_desired
  * @property int $rating
  * @property string $user_rating
+ * @property TroubleState $state
+ * @property Trouble $trouble
+ * @property User $user
  */
 class TroubleStage extends ActiveRecord
 {
+
+    const SEARCH_ITEMS = 100;
 
     public $dif_time = '00:00';
 
@@ -41,12 +46,39 @@ class TroubleStage extends ActiveRecord
         return 'tt_stages';
     }
 
+    public function attributeLabels()
+    {
+        return [
+            'stage_id' => '№ этапа',
+            'trouble_id' => '№ заявки',
+            'comment' => 'Комментарий к этапу',
+            'date_start' => 'Дата этапа',
+            'user_main' => 'Создатель этапа',
+        ];
+    }
+
     /**
      * @return \yii\db\ActiveQuery
      */
     public function getState()
     {
         return $this->hasOne(TroubleState::className(), ['id' => 'state_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTrouble()
+    {
+        return $this->hasOne(Trouble::className(), ['id' => 'trouble_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['user' => 'user_main']);
     }
 
     /**
