@@ -13,6 +13,7 @@ use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\models\Language;
 use app\modules\uu\column\AccountEntryTypeColumn;
 use app\modules\uu\column\ServiceTypeColumn;
 use app\modules\uu\column\TariffPeriodColumn;
@@ -88,7 +89,7 @@ $columns = [
         'attribute' => 'type_id',
         'class' => AccountEntryTypeColumn::className(),
         'value' => function (AccountEntry $accountEntry) {
-            return $accountEntry->getName();
+            return $accountEntry->getName(Language::LANGUAGE_DEFAULT, $isFullDocument = false);
         },
     ],
     [

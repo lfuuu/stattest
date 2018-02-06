@@ -173,6 +173,20 @@ class AccountEntry extends ActiveRecord
                 $names[] = Yii::t('uu', 'Number {number}', ['number' => $accountTariff->prevAccountTariff->voip_number],
                     $langCode);
             }
+
+            // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
+            $tariffPeriod = $this->tariffPeriod;
+            /** @var Tariff $tariff */
+            $tariff = $tariffPeriod->tariff;
+
+            // Например, "Тариф «Максимальный»"
+            if (array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
+                // пакет
+                $names[] = Yii::t('uu', 'Package «{tariff}»', ['tariff' => $tariff->name], $langCode);
+            } else {
+                // тариф
+                $names[] = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariff->name], $langCode);
+            }
         }
 
         if ($this->type_id > 0) {
@@ -219,27 +233,16 @@ class AccountEntry extends ActiveRecord
             $names[] = Yii::t('models/' . ServiceType::tableName(), 'Type #' . $serviceType->id, [], $langCode);
         }
 
-        // Например, "Тариф «Максимальный»"
         // в данный момент у услуги может не быть тарифа (она закрыта). Поэтому тариф надо брать не от услуги, а от транзакции
         $tariffPeriod = $this->tariffPeriod;
-
         /** @var Tariff $tariff */
         $tariff = $tariffPeriod->tariff;
 
         if ($tariff->service_type_id == ServiceType::ID_ONE_TIME) {
             // "Разовая услуга" - там нужен только комментарий менеджера
             $names[] = $accountTariff->comment;
-        } elseif (array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
-            // пакет
-            $names[] = Yii::t('uu', 'Package «{tariff}»', ['tariff' => $tariff->name], $langCode);
         } else {
-            // тариф
-            $names[] = Yii::t('uu', 'Tariff «{tariff}»', ['tariff' => $tariff->name], $langCode);
-        }
-
-        // Например, "Абонентская плата" или "Подключение" или "Номер 1234567890. Звонки"
-        // Кроме "Разовая услуга" - там нужен только комментарий менеджера
-        if ($accountTariff->service_type_id != ServiceType::ID_ONE_TIME) {
+            // Например, "Абонентская плата" или "Подключение" или "Номер 1234567890. Звонки"
             $names[] = $this->getName($langCode, $isFullDocument);
         }
 
