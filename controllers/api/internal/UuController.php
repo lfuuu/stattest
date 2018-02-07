@@ -427,10 +427,6 @@ class UuController extends ApiInternalController
                 throw new HttpException(ModelValidationException::STATUS_CODE, 'Указан неправильный client_account_id', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
             }
 
-            if (!$country_id) {
-                $country_id = $clientAccount->country_id;
-            }
-
             if (!$currency_id) {
                 $currency_id = $clientAccount->currency;
             }
