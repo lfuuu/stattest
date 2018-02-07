@@ -20,6 +20,7 @@ use yii\helpers\Url;
  * @property int $tarification_min_paid_seconds
  * @property int $currency_id
  * @property bool $is_include_vat
+ * @property string $name
  *
  * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
  * @property-read PackageMinute[] $packageMinutes
@@ -48,6 +49,7 @@ class Package extends ActiveRecord
             'tarification_min_paid_seconds' => 'Минимальная плата, сек.',
             'currency_id' => 'Валюта',
             'is_include_vat' => 'Включая НДС', // дубль из Tariff
+            'name' => 'Название', // дубль из Tariff
         ];
     }
 

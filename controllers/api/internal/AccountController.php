@@ -14,7 +14,6 @@ use app\models\Business;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\Region;
-use yii\db\Expression;
 
 class AccountController extends ApiInternalController
 {
@@ -248,6 +247,12 @@ class AccountController extends ApiInternalController
     }
 
     /**
+     * @SWG\Definition(definition = "usedSecondsRecord", type = "object",
+     *   @SWG\Property(property = "name", type = "string", description = "Название тарифа"),
+     *   @SWG\Property(property = "used_seconds", type = "integer", description = "Потрачено секунд"),
+     *   @SWG\Property(property = "total_seconds", type = "integer", description = "Всего секунд в этом пакете"),
+     * ),
+     *
      * @SWG\Get(tags = {"ClientAccount"}, path = "/internal/account/get-counters", summary = "Вернуть счетчики", operationId = "GetCounters",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
      *
@@ -259,6 +264,7 @@ class AccountController extends ApiInternalController
      *       @SWG\Property(property = "sum_mn_month", type = "number", description = "Трата МН за месяц"),
      *       @SWG\Property(property = "sum_mg_day", type = "number", description = "Трата МГ за сутки"),
      *       @SWG\Property(property = "sum_mg_month", type = "number", description = "Трата МГ за месяц"),
+     *       @SWG\Property(property = "used_seconds", type = "array", description = "Пакеты минут", @SWG\Items(ref = "#/definitions/usedSecondsRecord")),
      *     )
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",
@@ -268,9 +274,11 @@ class AccountController extends ApiInternalController
      *
      * @param int $client_account_id
      * @return array
+     * @throws \yii\db\Exception
      */
     public function actionGetCounters($client_account_id)
     {
+        // счетчики потраченных денег
         $statsAccount = StatsAccount::find()
             ->select([
                 'sum_day' => 'SUM(-sum_day)',
@@ -281,13 +289,36 @@ class AccountController extends ApiInternalController
             ->asArray()
             ->one();
 
+        // счетчики потраченных минут
+        $sql = <<<SQL
+SELECT
+    p.name,
+	stat.used_seconds,
+	TRUNC(at.coefficient * pm.minute * 60) AS total_seconds
+FROM
+	billing.stats_nnp_package_minute stat, 
+	nnp.account_tariff_light at,
+	nnp.package p,
+	nnp.package_minute pm
+WHERE
+	stat.nnp_account_tariff_light_id = at.id
+	AND stat.nnp_package_minute_id = pm.id
+	AND pm.tariff_id = p.tariff_id
+	AND stat.deactivate_from > NOW()
+	AND at.account_client_id = :account_client_id
+SQL;
+        $statsNnpPackageMinute = StatsAccount::getDb()
+            ->createCommand($sql, ['account_client_id' => $client_account_id])
+            ->queryAll();
+
         return [
-            'sum_day' => (float) $statsAccount['sum_day'],
-            'sum_month' => (float) $statsAccount['sum_month'],
-            'sum_mn_day' => (float) $statsAccount['sum_mn_day'],
+            'sum_day' => (float)$statsAccount['sum_day'],
+            'sum_month' => (float)$statsAccount['sum_month'],
+            'sum_mn_day' => (float)$statsAccount['sum_mn_day'],
             'sum_mn_month' => null,
             'sum_mg_day' => null,
             'sum_mg_month' => null,
+            'used_seconds' => $statsNnpPackageMinute,
         ];
     }
 }

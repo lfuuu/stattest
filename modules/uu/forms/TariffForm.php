@@ -202,6 +202,7 @@ abstract class TariffForm extends \app\classes\Form
                             $package->tariff_id = $this->id;
                             $package->service_type_id = $this->tariff->service_type_id;
                             $package->is_include_vat = (bool)$this->tariff->is_include_vat;
+                            $package->name = $this->tariff->name;
                         }
 
                         $package->load($post);
@@ -485,6 +486,7 @@ abstract class TariffForm extends \app\classes\Form
             'tarification_min_paid_seconds',
             'currency_id',
             'is_include_vat',
+            'name',
         ];
         $packageCloned = new Package();
         $packageCloned->tariff_id = $tariffCloned->id;
