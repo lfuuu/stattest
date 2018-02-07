@@ -19,7 +19,7 @@ trait AccountTariffBillerSetupTrait
         // по которым произведен расчет
         /** @var AccountLogSetup[] $accountLogs */
         $accountLogs = AccountLogSetup::find()
-            ->where('account_tariff_id = :account_tariff_id', [':account_tariff_id' => $this->id])
+            ->where(['account_tariff_id' => $this->id])
             ->indexBy(function (AccountLogSetup $accountLogSetup) {
                 return $accountLogSetup->getUniqueId();
             })

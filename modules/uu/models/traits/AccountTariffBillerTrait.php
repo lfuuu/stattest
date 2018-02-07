@@ -19,11 +19,27 @@ trait AccountTariffBillerTrait
      * Фактически расчитываем за этот и предыдущий месяц
      * Это нужно для оптимизации, чтобы не хранить много лишних данных, которые не нужны, а только тормозят расчет новых
      *
-     * @return DateTime
+     * @return DateTimeImmutable
      */
     public static function getMinLogDatetime()
     {
-        return (new DateTime())->setTime(0, 0, 0)->modify('first day of previous month');
+        return DateTimeZoneHelper::getUtcDateTime()
+            ->setTime(0, 0, 0)
+            ->modify('first day of previous month');
+    }
+
+    /**
+     * Вернуть дату, с которой рассчитываем подключение. Для ускорения пересчета более старые смены тарифов не учитываем (но и не удаляем).
+     * На расчет минималки, абонентки и ресурсов это не влияет.
+     * @todo сделать аналогично для ресурсов, но предусмотреть пересчет за месяц
+     *
+     * @return DateTimeImmutable
+     */
+    public static function getMinSetupDatetime()
+    {
+        return DateTimeZoneHelper::getUtcDateTime()
+            ->setTime(0, 0, 0)
+            ->modify('-2 days');
     }
 
     /**

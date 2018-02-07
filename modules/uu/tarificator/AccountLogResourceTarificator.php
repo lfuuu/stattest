@@ -53,6 +53,7 @@ class AccountLogResourceTarificator extends Tarificator
                 (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from_utc < $minLogDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT))
             ) {
                 // услуга отключена давно - в целях оптимизации считать нет смысла
+                // @todo денормализовать услугу, чтобы хранить там эту дату и не лазить каждый раз в лог
                 continue;
             }
 

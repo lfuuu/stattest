@@ -4,6 +4,7 @@ namespace app\modules\uu\behaviors;
 
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
+use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
@@ -49,12 +50,17 @@ class AccountTariffBiller extends Behavior
         /** @var AccountTariffLog|AccountTariffResourceLog $accountTariffLog */
         $accountTariffLog = $event->sender;
         $accountTariff = $accountTariffLog->accountTariff;
-        $accountTariffId = $accountTariff->id;
 
         EventQueue::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
-                'account_tariff_id' => $accountTariffId,
-                'client_account_id' => $accountTariff->client_account_id,
-            ]
+            'client_account_id' => $accountTariff->client_account_id,
+        ],
+            $isForceAdd = false,
+            // Так гораздо быстрее будет работать при массовом подключении номеров, чтобы пересчет был не после каждой услуги,
+            // а один раз после всего (если новая услуга есть, то за 3 минуты она точно добавится и отодвинет пересчет на попозже).
+            // Теоретически клиент может уйти в минус, но массово подключают только юриков, а у них кредит есть, так что все хорошо.
+            $nextStart = DateTimeZoneHelper::getUtcDateTime()
+                ->modify('+3 minute')
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT)
         );
     }
 

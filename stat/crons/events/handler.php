@@ -389,20 +389,12 @@ function doEvents()
 
                 case \app\modules\uu\Module::EVENT_RECALC_ACCOUNT:
                     // УУ. Билинговать клиента
-                    if (Yii::$app->params['eventQueueIsUnderTheHighLoad']) {
-                        $info = EventQueue::HANDLER_IS_SWITCHED_OFF;
-                    } else {
-                        AccountTariffBiller::recalc($param);
-                    }
+                    AccountTariffBiller::recalc($param);
                     break;
 
                 case \app\modules\uu\Module::EVENT_RECALC_BALANCE:
                     // УУ. Пересчитать realtime баланс
-                    if (Yii::$app->params['eventQueueIsUnderTheHighLoad']) {
-                        $info = EventQueue::HANDLER_IS_SWITCHED_OFF;
-                    } else {
-                        RecalcRealtimeBalance::recalc($param['client_account_id']);
-                    }
+                    RecalcRealtimeBalance::recalc($param['client_account_id']);
                     break;
 
                 case \app\modules\uu\Module::EVENT_VM_SYNC:
@@ -567,7 +559,7 @@ function doEvents()
 
                 case \app\modules\mtt\Module::EVENT_CLEAR_BALANCE:
                     // МТТ. Сбросить баланс
-                        $info = \app\modules\mtt\Module::clearBalance($param['account_tariff_id']);
+                    $info = \app\modules\mtt\Module::clearBalance($param['account_tariff_id']);
                     break;
 
                 case \app\modules\mtt\Module::EVENT_CLEAR_INTERNET:

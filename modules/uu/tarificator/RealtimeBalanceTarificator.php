@@ -34,7 +34,7 @@ class RealtimeBalanceTarificator extends Tarificator
             CREATE TEMPORARY TABLE clients_tmp
             SELECT
                 clients.id,
-                CAST(0 AS DECIMAL(12,4)) AS balance
+                CAST(0 AS DECIMAL(14,4)) AS balance
             FROM
                 {$clientAccountTableName} clients
             WHERE

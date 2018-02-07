@@ -27,6 +27,8 @@ class AccountLogSetupTarificator extends Tarificator
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
+        $minTarificateDatetime = AccountTariff::getMinSetupDatetime();
+
         // в целях оптимизации удалить слишком старые данные
         AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
 
@@ -44,9 +46,10 @@ class AccountLogSetupTarificator extends Tarificator
             $accountTariffLogs = $accountTariff->accountTariffLogs;
             $accountTariffLog = reset($accountTariffLogs);
             if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from_utc < $minLogDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT))
+                $accountTariffLog->actual_from_utc < $minTarificateDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)
             ) {
-                // услуга отключена давно - в целях оптимизации считать нет смысла
+                // услуга изменена давно - в целях оптимизации считать нет смысла
+                // @todo денормализовать услугу, чтобы хранить там эту дату и не лазить каждый раз в лог
                 continue;
             }
 
@@ -71,6 +74,7 @@ class AccountLogSetupTarificator extends Tarificator
      *
      * @param AccountTariff $accountTariff
      * @throws \app\exceptions\ModelValidationException
+     * @throws \Exception
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
