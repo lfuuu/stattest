@@ -40,7 +40,7 @@ class ActualCallChatDao extends Singleton
 
         if ($usageId) {
             $query->where([
-                'usage_id' => $usageId
+                'u.id' => $usageId
             ]);
         }
 
