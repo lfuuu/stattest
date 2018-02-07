@@ -34,7 +34,7 @@ class ActualCallChatDao extends Singleton
                 new Expression('activation_dt'),
                 new Expression('expire_dt')
             ])
-            ->orderBy(['usage_id' => SORT_ASC])
+            ->orderBy(['u.id' => SORT_ASC])
             ->indexBy('usage_id');
 
 
