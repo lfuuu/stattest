@@ -44,12 +44,16 @@ class AccountTariffBiller extends Behavior
      *
      * @param Event $event
      * @throws \app\exceptions\ModelValidationException
+     * @throws \Exception
      */
     public function accountTariffLogChange(Event $event)
     {
         /** @var AccountTariffLog|AccountTariffResourceLog $accountTariffLog */
         $accountTariffLog = $event->sender;
         $accountTariff = $accountTariffLog->accountTariff;
+
+        // биллинг отложить можно, а вот установку текущего тарифа (+сопутствующие триггеры) откладывать нельзя
+        (new SetCurrentTariffTarificator())->tarificate($accountTariff->client_account_id);
 
         EventQueue::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
             'client_account_id' => $accountTariff->client_account_id,
@@ -76,9 +80,6 @@ class AccountTariffBiller extends Behavior
 
         $accountTariffId = $params['account_tariff_id'];
         $clientAccountId = $params['client_account_id'];
-
-        Yii::info('AccountTariffBiller. Before SetCurrentTariffTarificator', 'uu');
-        (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
 
         Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
         (new AccountLogSetupTarificator)->tarificate($accountTariffId);
