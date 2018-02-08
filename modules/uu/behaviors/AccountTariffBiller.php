@@ -4,7 +4,6 @@ namespace app\modules\uu\behaviors;
 
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
-use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -56,19 +55,10 @@ class AccountTariffBiller extends Behavior
         $accountTariffLog = $event->sender;
         $accountTariff = $accountTariffLog->accountTariff;
 
-        // биллинг отложить можно, а вот установку текущего тарифа (+сопутствующие триггеры) откладывать нельзя
-        (new SetCurrentTariffTarificator())->tarificate($accountTariff->client_account_id);
-
         EventQueue::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
-            'client_account_id' => $accountTariff->client_account_id,
-        ],
-            $isForceAdd = false,
-            // Так гораздо быстрее будет работать при массовом подключении номеров, чтобы пересчет был не после каждой услуги,
-            // а один раз после всего (если новая услуга есть, то за 3 минуты она точно добавится и отодвинет пересчет на попозже).
-            // Теоретически клиент может уйти в минус, но массово подключают только юриков, а у них кредит есть, так что все хорошо.
-            $nextStart = DateTimeZoneHelper::getUtcDateTime()
-                ->modify('+3 minute')
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+                'account_tariff_id' => $accountTariff->id,
+                'client_account_id' => $accountTariff->client_account_id,
+            ]
         );
     }
 
@@ -85,13 +75,16 @@ class AccountTariffBiller extends Behavior
         $accountTariffId = $params['account_tariff_id'];
         $clientAccountId = $params['client_account_id'];
 
-        $count = AccountTariff::find()
-            ->where(['client_account_id' => $clientAccountId])
-            ->count();
-        if ($count > self::MAX_ACCOUNT_TARIFFS) {
-            HandlerLogger::me()->add('Слишком много услуг на УЛС');
-            return;
-        }
+        // биллинг отложить можно, а вот установку текущего тарифа (+сопутствующие триггеры) откладывать нельзя
+        (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
+
+//        $count = AccountTariff::find()
+//            ->where(['client_account_id' => $clientAccountId])
+//            ->count();
+//        if ($count > self::MAX_ACCOUNT_TARIFFS) {
+//            HandlerLogger::me()->add('Слишком много услуг на УЛС');
+//            return;
+//        }
 
         Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
         (new AccountLogSetupTarificator)->tarificate($accountTariffId);
