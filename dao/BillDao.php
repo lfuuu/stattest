@@ -290,7 +290,7 @@ class BillDao extends Singleton
             $bill->client_id = $clientAccount->id;
             $bill->currency = $clientAccount->currency;
             $bill->nal = $clientAccount->nal;
-            $bill->is_show_in_lk = 0;
+            $bill->is_show_in_lk = 1;
             $bill->is_user_prepay = 0;
             $bill->is_approved = 1;
             $bill->bill_date = $uuBillDateTime->format(DateTimeZoneHelper::DATE_FORMAT);
