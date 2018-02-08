@@ -65,7 +65,7 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
-        $params = ["client_id" => $account->id, "client_currency" => $account->currency];
+        $params = ["client_id" => $account->id, "client_currency" => $account->currency, 'is_from_lk' => true];
 
         list($R, $sum,) = BalanceSimple::get($params);
 
@@ -133,7 +133,7 @@ class ApiLk
             "payments" => $p ? $p->sum : 0.00,
             "bills" => $sum["bill"],
             "saldo" => $sum["delta"],
-            "saldo_date" => $sum["ts"] ? date("Y-m-d", $sum["ts"]) : ""
+            "saldo_date" => $sum["ts"]
         ];
 
         return ["bills" => $bills, "sums" => $nSum];

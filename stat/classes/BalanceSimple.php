@@ -31,7 +31,9 @@ class BalanceSimple
             )
         );
 
-        $r=$db->GetRow('
+        $isFromLk = isset($params['is_from_lk']) && $params['is_from_lk'];
+
+        $saldo=$db->GetRow('
             select
                 *
             from
@@ -46,16 +48,16 @@ class BalanceSimple
                 id desc
             limit 1
         ');
-        if($r){
+        if($saldo){
             $sum[$params['client_currency']]
                 =
             array(
                 'delta'=>0,
-                'bill'=>$r['saldo'],
-                'ts'=>$r['ts'],
-                'saldo'=>$r['saldo'],
-                'last_saldo'=>$r['saldo'],
-                'last_saldo_ts'=>$r['ts'],
+                'bill'=>$saldo['saldo'],
+                'ts'=>$saldo['ts'],
+                'saldo'=>$saldo['saldo'],
+                'last_saldo'=>$saldo['saldo'],
+                'last_saldo_ts'=>$saldo['ts'],
             );
         }else{
             $sum[$params['client_currency']]
@@ -96,8 +98,9 @@ class BalanceSimple
 
             where
                 client_id=' . $params['client_id']
-            . ($params["is_multy"] /*&& !$params["is_view_canceled"]*/ ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "") . '
-            order by
+            . ($params["is_multy"] /*&& !$params["is_view_canceled"]*/ ? " and (state_id is null or (state_id is not null and state_id !=21)) " : "")
+            . ($isFromLk && $saldo ? " AND bill_date > '" . $saldo['ts'] . "'" : '') .
+            ' order by
                 bill_date desc,
                 bill_no desc
             '.$sqlLimit.'
@@ -119,7 +122,9 @@ class BalanceSimple
             on
                 U.id=P.add_user
             where
-                P.client_id='.$params['client_id'].'
+                P.client_id='.$params['client_id']
+                . ($isFromLk && $saldo ? " AND P.payment_date > '" . $saldo['ts'] . "'" : '') .
+            '
             order by
                 P.payment_date
             desc
