@@ -6,6 +6,7 @@ use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\tarificator\AccountEntryTarificator;
@@ -26,6 +27,9 @@ use yii\base\Event;
 
 class AccountTariffBiller extends Behavior
 {
+    /** Максимальное кол-во услуг на УЛС, когда билинговать сразу (в очереди). Иначе - потом (по крону раз в час) */
+    const MAX_ACCOUNT_TARIFFS = 30;
+
     /**
      * @return array
      */
@@ -80,6 +84,14 @@ class AccountTariffBiller extends Behavior
 
         $accountTariffId = $params['account_tariff_id'];
         $clientAccountId = $params['client_account_id'];
+
+        $count = AccountTariff::find()
+            ->where(['client_account_id' => $clientAccountId])
+            ->count();
+        if ($count > self::MAX_ACCOUNT_TARIFFS) {
+            HandlerLogger::me()->add('Слишком много услуг на УЛС');
+            return;
+        }
 
         Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
         (new AccountLogSetupTarificator)->tarificate($accountTariffId);
