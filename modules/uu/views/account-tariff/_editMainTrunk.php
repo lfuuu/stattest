@@ -7,6 +7,7 @@
  * @var ActiveForm $form
  */
 
+use app\classes\Html;
 use app\classes\ReturnFormatted;
 use app\models\billing\Trunk;
 use app\modules\uu\models\AccountTariff;
@@ -17,10 +18,6 @@ use kartik\select2\Select2;
 $this->registerJsVariable('format', ReturnFormatted::FORMAT_OPTIONS);
 
 $accountTariff = $formModel->accountTariff;
-if (!$accountTariff->isNewRecord) {
-    // Здесь нечего делать. Можно только отредактировать "логический транк" в другом интерфейсе
-    return;
-}
 ?>
 
 <div class="row">
@@ -30,6 +27,7 @@ if (!$accountTariff->isNewRecord) {
         <?= $form->field($accountTariff, 'trunk_type_id')
             ->widget(Select2::className(), [
                 'data' => AccountTariff::getTrunkTypeList(true),
+                'disabled' => !$accountTariff->isNewRecord,
             ]) ?>
     </div>
 
@@ -41,9 +39,17 @@ if (!$accountTariff->isNewRecord) {
                 'id' => 'accounttariff-trunk_id',
                 'name' => 'trunkId',
                 'data' => Trunk::dao()->getList(['serverIds' => $accountTariff->region_id], $isWithEmpty = true),
+                'disabled' => !$accountTariff->isNewRecord,
+                'value' => (!$accountTariff->isNewRecord && $accountTariff->usageTrunk) ? $accountTariff->usageTrunk->trunk_id : '',
             ]
         ) ?>
         <div class="help-block"></div>
     </div>
+
+    <?php if (!$accountTariff->isNewRecord) : ?>
+        <div class="col-sm-2">
+            <?= Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]) ?>
+        </div>
+    <?php endif ?>
 
 </div>

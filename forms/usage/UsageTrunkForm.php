@@ -1,4 +1,5 @@
 <?php
+
 namespace app\forms\usage;
 
 use app\classes\Form;
@@ -18,7 +19,8 @@ class UsageTrunkForm extends Form
         $orig_min_payment,
         $term_min_payment,
         $description,
-        $ip;
+        $ip,
+        $transit_price;
 
     /**
      * @return array
@@ -30,6 +32,7 @@ class UsageTrunkForm extends Form
             [['actual_from', 'actual_to', 'description'], 'string'],
             ['ip', 'ip'],
             [['orig_enabled', 'term_enabled', 'orig_min_payment', 'term_min_payment'], 'integer'],
+            ['transit_price', 'number'],
         ];
     }
 
@@ -51,6 +54,7 @@ class UsageTrunkForm extends Form
             'term_min_payment' => 'Минимальный платеж за терминацию',
             'description' => 'Описание',
             'ip' => 'IP-адрес',
+            'transit_price' => 'Цена транзита',
         ];
     }
 

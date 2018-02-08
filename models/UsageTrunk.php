@@ -5,11 +5,11 @@ namespace app\models;
 use app\classes\bill\VoipTrunkBiller;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\TagsTrait;
-use app\classes\transfer\TrunkServiceTransfer;
 use app\dao\services\TrunkServiceDao;
 use app\helpers\usages\UsageVoipTrunkHelper;
 use app\models\billing\Trunk;
 use app\models\usages\UsageInterface;
+use app\modules\uu\models\AccountTariff;
 use app\queries\UsageQuery;
 use DateTime;
 use yii\db\ActiveQuery;
@@ -29,6 +29,7 @@ use yii\db\ActiveQuery;
  * @property int $term_min_payment
  * @property string $description
  * @property string $ip
+ * @property float $transit_price
  *
  * @property-read ClientAccount $clientAccount
  * @property-read Region $connectionPoint
@@ -36,6 +37,7 @@ use yii\db\ActiveQuery;
  * @property-read VoipTrunkBiller $biller
  * @property-read UsageTrunkSettings $settings
  * @property-read Trunk $trunk
+ * @property-read AccountTariff $accountTariff
  */
 class UsageTrunk extends ActiveRecord implements UsageInterface
 {
@@ -72,13 +74,35 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     public function rules()
     {
         return [
-            [[
-                'client_account_id', 'connection_point_id', 'trunk_id', 'orig_enabled', 'term_enabled', 'orig_min_payment',
-                'term_min_payment', 'operator_id', 'tmp', 'prev_usage_id', 'next_usage_id',
-            ], 'integer'],
-            [[
-                'actual_from', 'actual_to', 'activation_dt', 'expire_dt', 'status', 'description', 'ip'
-            ], 'string'],
+            [
+                [
+                    'client_account_id',
+                    'connection_point_id',
+                    'trunk_id',
+                    'orig_enabled',
+                    'term_enabled',
+                    'orig_min_payment',
+                    'term_min_payment',
+                    'operator_id',
+                    'tmp',
+                    'prev_usage_id',
+                    'next_usage_id',
+                ],
+                'integer'
+            ],
+            [
+                [
+                    'actual_from',
+                    'actual_to',
+                    'activation_dt',
+                    'expire_dt',
+                    'status',
+                    'description',
+                    'ip'
+                ],
+                'string'
+            ],
+            ['transit_price', 'number'],
         ];
     }
 
@@ -156,6 +180,14 @@ class UsageTrunk extends ActiveRecord implements UsageInterface
     public function getTrunk()
     {
         return $this->hasOne(Trunk::className(), ['id' => 'trunk_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountTariff()
+    {
+        return $this->hasOne(AccountTariff::className(), ['id' => 'id']);
     }
 
     /**

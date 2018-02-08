@@ -6,6 +6,7 @@ use app\models\City;
 use app\models\ClientAccount;
 use app\models\Datacenter;
 use app\models\Region;
+use app\models\UsageTrunk;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountLogSetup;
@@ -32,6 +33,7 @@ use yii\db\ActiveQuery;
  * @property-read AccountTariffResourceLog[] $accountTariffResourceLogs
  * @property-read TariffPeriod $tariffPeriod
  * @property-read Datacenter $datacenter
+ * @property-read UsageTrunk $usageTrunk
  *
  * @property-read AccountLogSetup[] $accountLogSetups
  * @property-read AccountLogPeriod[] $accountLogPeriods
@@ -132,6 +134,14 @@ trait AccountTariffRelationsTrait
     public function getDatacenter()
     {
         return $this->hasOne(Datacenter::className(), ['id' => 'datacenter_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getUsageTrunk()
+    {
+        return $this->hasOne(UsageTrunk::className(), ['id' => 'id']);
     }
 
     /**

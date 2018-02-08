@@ -2,8 +2,6 @@
 
 use app\assets\AppAsset;
 use app\classes\Html;
-use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\ServiceType;
 use app\forms\usage\UsageTrunkCloseForm;
 use app\forms\usage\UsageTrunkSettingsAddForm;
 use app\forms\usage\UsageTrunkSettingsEditForm;
@@ -11,6 +9,8 @@ use app\models\billing\Number;
 use app\models\billing\Pricelist;
 use app\models\billing\Trunk;
 use app\models\UsageTrunkSettings;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use app\widgets\TagsSelect2\TagsSelect2;
 use kartik\builder\Form;
 use kartik\datecontrol\DateControl;
@@ -96,74 +96,87 @@ echo Breadcrumbs::widget([
     ?>
 
     <div class="row">
-        <div class="col-sm-12">
-            <div class="col-sm-4">
-                <div class="form-group">
-                    <label class="control-label">Точка подключения</label>
-                    <input type="text" class="form-control" value="<?= $usage->connectionPoint->name ?>" readonly="readonly"/>
-                </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label">Точка подключения</label>
+                <input type="text" class="form-control" value="<?= $usage->connectionPoint->name ?>" readonly="readonly"/>
             </div>
-            <div class="col-sm-4">
-                <div class="form-group">
-                    <label class="control-label">Страна</label>
-                    <input type="text" class="form-control" value="<?= $clientAccount->country->name ?>" readonly="readonly"/>
-                </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label class="control-label">Страна</label>
+                <input type="text" class="form-control" value="<?= $clientAccount->country->name ?>" readonly="readonly"/>
             </div>
-            <div class="col-sm-4">
-                <div class="form-group">
-                    <label class="control-label">Валюта</label>
-                    <input type="text" class="form-control" value="<?= $clientAccount->currency ?>" readonly="readonly"/>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label class="control-label">Валюта</label>
+                <input type="text" class="form-control" value="<?= $clientAccount->currency ?>" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label class="control-label">Мега/мульти транк</label>
+                <div>
+                    <?php
+                    $accountTariff = $usage->accountTariff;
+                    if ($accountTariff && $accountTariff->trunk_type_id) {
+                        $trunkTypes = AccountTariff::getTrunkTypeList();
+                        echo $trunkTypes[$accountTariff->trunk_type_id];
+                    }
+                    ?>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-sm-12">
-            <div class="col-sm-4">
-                <?= $form
-                    ->field($model, 'trunk_id')
-                    ->dropDownList($trunks, ['class' => 'select2'])
-                ?>
-            </div>
-            <div class="col-sm-4">
-                <?= $form
-                    ->field($model, 'actual_from')
-                    ->widget(DateControl::className(), ['autoWidget' => false, 'readonly' => true])
-                ?>
-            </div>
-            <div class="col-sm-4">
-                <?= $form
-                    ->field($model, 'actual_to')
-                    ->widget(DateControl::className(), [
-                        'pluginOptions' => [
-                            'startDate' => 'today',
-                        ],
-                    ])
-                ?>
-            </div>
+        <div class="col-sm-4">
+            <?= $form
+                ->field($model, 'trunk_id')
+                ->dropDownList($trunks, ['class' => 'select2'])
+            ?>
+        </div>
+        <div class="col-sm-4">
+            <?= $form
+                ->field($model, 'actual_from')
+                ->widget(DateControl::className(), ['autoWidget' => false, 'readonly' => true])
+            ?>
+        </div>
+        <div class="col-sm-2">
+            <?= $form
+                ->field($model, 'actual_to')
+                ->widget(DateControl::className(), [
+                    'pluginOptions' => [
+                        'startDate' => 'today',
+                    ],
+                ])
+            ?>
+        </div>
+        <div class="col-sm-2">
+            <?= $form
+                ->field($model, 'transit_price')
+            ?>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-4">
+            <?= $form->field($model, 'ip')->textInput() ?>
+        </div>
+        <div class="col-sm-4">
             <div class="col-sm-4">
-                <?= $form->field($model, 'ip')->textInput() ?>
+                <?= Html::label('Оператор:') . ' (' . Html::a($clientAccount->id, ['client/view', 'id' => $clientAccount->id]) . ') ' . $clientAccount->company ?>
             </div>
             <div class="col-sm-4">
-                <div class="col-sm-4">
-                    <?= Html::label('Оператор:') . ' (' . Html::a($clientAccount->id, ['client/view', 'id' => $clientAccount->id]) . ') ' . $clientAccount->company ?>
-                </div>
-                <div class="col-sm-4">
-                    <?= $form->field($model, 'orig_enabled')->checkbox()->label('') ?>
-                </div>
-                <div class="col-sm-4">
-                    <?= $form->field($model, 'term_enabled')->checkbox()->label('') ?>
-                </div>
+                <?= $form->field($model, 'orig_enabled')->checkbox()->label('') ?>
             </div>
             <div class="col-sm-4">
-                <?= $form->field($model, 'description')->textInput() ?>
+                <?= $form->field($model, 'term_enabled')->checkbox()->label('') ?>
             </div>
+        </div>
+        <div class="col-sm-4">
+            <?= $form->field($model, 'description')->textInput() ?>
         </div>
     </div>
 

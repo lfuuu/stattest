@@ -60,6 +60,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->term_enabled = $this->term_enabled;
         $usage->orig_min_payment = $this->orig_min_payment;
         $usage->term_min_payment = $this->term_min_payment;
+        $usage->transit_price = $this->transit_price;
         $usage->description = $this->description;
         $usage->ip = $this->ip;
 
@@ -104,6 +105,7 @@ class UsageTrunkEditForm extends UsageTrunkForm
         $usage->term_enabled = $this->term_enabled;
         $usage->orig_min_payment = $this->orig_enabled ? $this->orig_min_payment : 0;
         $usage->term_min_payment = $this->term_enabled ? $this->term_min_payment : 0;
+        $usage->transit_price = $this->transit_price;
         $usage->description = $this->description;
         $usage->ip = $this->ip;
         $usage->actual_to = $actualTo->format(DateTimeZoneHelper::DATE_FORMAT);
