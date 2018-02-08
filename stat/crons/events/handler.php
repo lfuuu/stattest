@@ -37,7 +37,7 @@ $workTime = 120;
 $counter = 2;
 
 do {
-    doEvents();
+    doEvents(isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null);
     sleep($sleepTime);
 } while ($counter++ < round($workTime / $sleepTime));
 
@@ -45,8 +45,10 @@ echo PHP_EOL . 'Stop ' . date(DateTimeZoneHelper::DATETIME_FORMAT) . PHP_EOL;
 
 /**
  * Выполнить запланированное
+ *
+ * @param string $consoleParam
  */
-function doEvents()
+function doEvents($consoleParam)
 {
     $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
     $isVpbxServer = ApiVpbx::me()->isAvailable();
@@ -59,6 +61,12 @@ function doEvents()
     echo '. ';
 
     $activeQuery = EventQueue::getPlannedQuery();
+    if ($consoleParam === 'with_account_tariff') {
+        $activeQuery->andWhere(['IS NOT', 'account_tariff_id', null]);
+    } elseif ($consoleParam === 'without_account_tariff') {
+        $activeQuery->andWhere(['account_tariff_id' => null]);
+    }
+
     /** @var EventQueue $event */
     foreach ($activeQuery->each() as $event) {
         HandlerLogger::me()->clear();
