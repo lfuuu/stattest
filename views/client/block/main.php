@@ -13,6 +13,8 @@ use yii\helpers\Url;
 
 /** @var ClientSuper $client */
 /** @var \app\models\ClientAccount $account */
+
+$priceLevels = ClientAccount::getPriceLevels();
 ?>
 
 <div class="main-client">
@@ -213,7 +215,7 @@ use yii\helpers\Url;
                                                     <?= $contractAccount->credit >= 0 ? 'Кредит: ' . $contractAccount->credit : '' ?>
                                                 </abbr>
                                             </span>
-                                            <span class="col-sm-2 text-right">
+                                            <span class="col-sm-1 text-right">
                                                 <?php if ($contract->business_id == \app\models\Business::OPERATOR) : ?>
                                                     <abbr
                                                             title="Реалтаймовый счетчик стоимости всех входящих звонков по ЛС"
@@ -247,6 +249,9 @@ use yii\helpers\Url;
                                                         ?>
                                                     </abbr>
                                                 <?php endif; ?>
+                                            </span>
+                                            <span class="col-sm-2 text-right">
+                                                <?= $priceLevels[$account->price_level] ?> / <?= ($account->is_postpaid ? 'postpaid' : 'prepaid') ?>
                                             </span>
                                             <div class="btn-group pull-right">
                                                 <?php if ($contractAccount->hasVoip) : ?>
