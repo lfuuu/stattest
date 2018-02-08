@@ -37,7 +37,7 @@ class VoipTrunkBiller extends Biller
                 ->setPrice($prices['price_orig'])
                 ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                 ->setTemplate('voip_operator_trunk_orig')
-                ->setTemplateData($template_data)
+                ->setTemplateData($template_data + ['minutes' => round($prices['time_orig'] / 60)])
         );
 
         $this->addPackage(
@@ -45,7 +45,7 @@ class VoipTrunkBiller extends Biller
                 ->setPrice($prices['price_term'])
                 ->setPeriodType(self::PERIOD_MONTH)// Need for localization
                 ->setTemplate('voip_operator_trunk_term')
-                ->setTemplateData($template_data)
+                ->setTemplateData($template_data + ['minutes' => round($prices['time_term'] / 60)])
         );
     }
 
@@ -61,7 +61,9 @@ class VoipTrunkBiller extends Biller
                 ->createCommand('
                     SELECT
                         CAST(- SUM(CASE WHEN cost > 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_orig,
-                        CAST(- SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_term
+                        CAST(- SUM(CASE WHEN cost < 0 THEN cost ELSE 0 END) AS NUMERIC(10,2)) AS price_term,
+                        SUM(CASE WHEN cost > 0 THEN billed_time ELSE 0 END) AS time_orig,
+                        SUM(CASE WHEN cost < 0 THEN billed_time ELSE 0 END) AS time_term
                     FROM calls_aggr.calls_aggr
                     WHERE
                         trunk_service_id = :trunk_service_id

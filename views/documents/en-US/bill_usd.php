@@ -5,6 +5,7 @@
 use app\classes\Html;
 use app\helpers\MediaFileHelper;
 use app\models\Currency;
+use app\models\Language;
 
 $organization = $document->organization;
 $bill = $document->bill;
@@ -20,7 +21,7 @@ $hDate = function ($dateStr) {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 
 <head>
-    <title>Счёт &#8470;<?= $document->bill->bill_no; ?></title>
+    <title>Bill &#8470;<?= $document->bill->bill_no; ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <?php if ($inline_img) : ?>
         <style type="text/css">
@@ -38,7 +39,7 @@ $hDate = function ($dateStr) {
             <table>
                 <tr>
                     <td>Ship To:</td>
-                    <td><?= $document->bill->clientAccount->contragent->address_jur ?></td>
+                    <td><?= $organization->setLanguage(Language::LANGUAGE_ENGLISH)->name ?></td>
                 </tr>
                 <tr>
                     <td colspan="2"><?= $organization->legal_address ?></td>
@@ -68,6 +69,10 @@ $hDate = function ($dateStr) {
                     <td><?= $organizationSwift->bank_bik ?></td>
                 </tr>
                 <tr>
+                    <td>VAT Number:</td>
+                    <td><?= $organization->tax_registration_id ?></td>
+                </tr>
+                <tr>
                     <td>Beneficiary’s Bank:</td>
                     <td><?= $organizationSwift->bank_name ?></td>
                 </tr>
@@ -79,7 +84,7 @@ $hDate = function ($dateStr) {
 
             </table>
         </td>
-        <td align="right"  width="50%">
+        <td align="right" width="50%">
             <div style="width: 110px;text-align: center;padding-right: 10px;">
                 <?php if (MediaFileHelper::checkExists('ORGANIZATION_LOGO_DIR', $organization->logo_file_name)): ?>
                     <?php
@@ -129,9 +134,9 @@ $hDate = function ($dateStr) {
 <br>
 <br>
 <br>
-<b>Bill To:</b> <?= $contragent->name_full ?>,</br>
-<?= $contragent->address_jur ?>,</br>
-<?= $contragent->inn_euro ?>
+<b>Bill To:</b> <?= $contragent->name_full ?></br>
+Address: <?= $contragent->address_jur ?></br>
+VAT Number: <?= $contragent->inn_euro ?>
 <br>
 <br>
 <br>
@@ -169,10 +174,10 @@ $hDate = function ($dateStr) {
     endforeach; ?>
     <tr>
         <td colspan="4" align="right"><b>Total Amount Due:</b></td>
-        <td align="center"><?= number_format($total['amount'], 2) ?></td>
+        <td align="center"><?= number_format($total['amount'], 2, '.', '') ?></td>
         <td align="center">&nbsp;</td>
-        <td align="center"><?= number_format($total['tax'], 2) ?></td>
-        <td align="center"><?= $total['sum'] ?></td>
+        <td align="center"><?= number_format($total['tax'], 2, '.', '') ?></td>
+        <td align="center"><?= number_format($total['sum'], 2, '.', '') ?></td>
     </tr>
     </tbody>
 </table>
@@ -181,12 +186,61 @@ $hDate = function ($dateStr) {
 <br>
 <br>
 
+<?php $director = $organization->director->setLanguage(Language::LANGUAGE_ENGLISH); ?>
 
-<p>Managing Director: <?= $organization->director->name_nominative ?></p>
+<p>Managing <?= $director->post_nominative ?>: <?= $director->name_nominative ?></p>
 <br>
 <br>
+<table border="0">
+    <tr>
+        <td valign="bottom">Signature</td>
+        <?php if ($document->sendEmail) : ?>
+            <td>
+                <?php if (MediaFileHelper::checkExists('SIGNATURE_DIR', $director->signature_file_name)):
+                    $image_options = [
+                        'width' => 140,
+                        'border' => 0,
+                        'align' => 'top',
+                        'style' => 'position: relative; left: -160px; top: -40px;'
+                    ];
 
-<p>Signature ________________________</p>
+                    if ($inline_img):
+                        echo Html::inlineImg(MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name), $image_options);
+                    else:
+                        array_walk($image_options, function (&$item, $key) {
+                            $item = $key . '="' . $item . '"';
+                        });
+                        ?>
+                        <img src="<?= MediaFileHelper::getFile('SIGNATURE_DIR', $director->signature_file_name); ?>"<?= implode(' ', $image_options); ?> />
+                    <?php endif; ?>
+                    <div style="float: left">_________________________________</div>
+                <?php endif; ?>
+            </td>
+        <?php else: ?>
+            <td>
+                _________________________________
+            </td>
+        <?php endif; ?>
+    </tr>
+</table>
+
+<?php if ($document->sendEmail && MediaFileHelper::checkExists('STAMP_DIR', $organization->stamp_file_name)):
+    $image_options = [
+        'width' => 200,
+        'border' => 0,
+        'style' => 'position:relative; left:160; top:-200; z-index:-10; ',
+    ];
+
+    if ($inline_img):
+        echo Html::inlineImg(MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name), $image_options);
+    else:
+        array_walk($image_options, function (&$item, $key) {
+            $item = $key . '="' . $item . '"';
+        });
+        ?>
+        <img src="<?= MediaFileHelper::getFile('STAMP_DIR', $organization->stamp_file_name); ?>"<?= implode(' ', $image_options); ?> />
+    <?php endif; ?>
+<?php endif; ?>
 
 </body>
 </html>

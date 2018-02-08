@@ -155,6 +155,14 @@ $config = [
                     'class' => 'yii\i18n\PhpMessageSource',
                     // 'sourceLanguage' => 'ru-RU'
                 ],
+                'biller' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'forceTranslation' => true,
+                ],
+                'biller-voip' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'forceTranslation' => true,
+                ],
             ],
         ],
     ],
