@@ -96,6 +96,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="partner_id", type="integer", description="Идентификатор договора партнера"),
      *   @SWG\Property(property="can_login_as_clients", type="boolean", description="Признак доступности ЛК"),
      *   @SWG\Property(property="is_partner", type="boolean", description="Признак партнерского договора"),
+     *   @SWG\Property(property="is_show_in_lk", type="boolean", description="Показывать ЛС в ЛК"),
      *   @SWG\Property(property="partner_login_allow", type="boolean", description="Разрешен доступ в ЛК для партнера-родителя"),
      *   @SWG\Property(property="is_disabled", type="boolean", description="Признак отключенного"),
      *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
@@ -189,6 +190,7 @@ class ClientController extends ApiInternalController
                             'partner_id' => $contract->isPartnerAgent(),
                             'can_login_as_clients' => $contract->is_lk_access,
                             'is_partner' => $contract->isPartner(),
+                            'is_show_in_lk' => $account->is_show_in_lk,
                             'partner_login_allow' => $contract->is_partner_login_allow,
                             'version' => $account->account_version,
                             'applications' => $this->_getPlatformaServices($account->client)
@@ -235,6 +237,7 @@ class ClientController extends ApiInternalController
      *   @SWG\Property(property="is_overran_block", type="boolean", description="Блокировка по превышению дневных лимитов"),
      *   @SWG\Property(property="is_bill_pay_overdue", type="boolean", description="Блокировка по неоплате счета"),
      *   @SWG\Property(property="is_postpaid", type="boolean", description="Постоплата"),
+     *   @SWG\Property(property="is_show_in_lk", type="boolean", description="Показывать ЛС в ЛК"),
      *   @SWG\Property(property="credit", type="integer", description="Лимит кредита"),
      *   @SWG\Property(property="version", type="integer", description="Версия биллера ЛС"),
      *   @SWG\Property(property="applications", type="array", description="Массив приложений", @SWG\Items(ref="#/definitions/get-full-client-struct-applications"))

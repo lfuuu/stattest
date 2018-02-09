@@ -78,6 +78,7 @@ use yii\helpers\Url;
  * @property int $price_type
  * @property int $price_level
  * @property int $uu_tariff_status_id
+ * @property int $show_in_lk
  *
  * @property-read Currency $currencyModel
  * @property-read ClientSuper $superClient
@@ -114,6 +115,7 @@ use yii\helpers\Url;
  * @property-read TariffStatus $tariffStatus
  * @property-read ClientAccountComment[] $comments
  * @property-read ClientAccountComment $lastAccountComment
+ * @property-read integer $is_show_in_lk
  *
  * @method static ClientAccount findOne($condition)
  * @method static ClientAccount[] findAll($condition)
@@ -171,6 +173,10 @@ class ClientAccount extends HistoryActiveRecord
     const WARNING_CREDIT = 'lock.credit'; // Превышен лимит кредита
     const WARNING_BILL_PAY_OVERDUE = 'lock.bill_pay_overdue'; // Просрочка оплаты счета
     const WARNING_LAST_DT = 'locks_log.dt'; // Дата последней блокировки
+
+    const SHOW_IN_LK_NEVER = 0;
+    const SHOW_IN_LK_ALWAYS = 1;
+    const SHOW_IN_LK_ACTIVE_ONLY = 2;
 
     const PAY_BILL_UNTIL_DAYS = 30;
 
@@ -387,6 +393,7 @@ class ClientAccount extends HistoryActiveRecord
             'price_level' => 'Уровень цен',
             'uu_tariff_status_id' => 'УУ-пакет',
             'settings_advance_invoice' => 'Настройки выставления авансовых счетов',
+            'show_in_lk' => 'Показывать ЛС в ЛК',
         ];
     }
 
@@ -1342,6 +1349,20 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * Список уровней просмотра ЛС в ЛК
+     *
+     * @return array
+     */
+    public static function getShowInLkList()
+    {
+        return [
+            self::SHOW_IN_LK_ALWAYS => 'Показывать всегда',
+            self::SHOW_IN_LK_NEVER => 'Не показывать',
+            self::SHOW_IN_LK_ACTIVE_ONLY => 'Если есть активные услуги'
+        ];
+    }
+
+    /**
      * Вернуть список всех доступных значений
      *
      * @param bool|string $isWithEmpty false - без пустого, true - с '----', string - с этим значением
@@ -1489,5 +1510,29 @@ class ClientAccount extends HistoryActiveRecord
         return [
             'id',
         ];
+    }
+
+    /**
+     * Показыввать ли ЛС в ЛК
+     * (как свойство модели)
+     *
+     * @return bool
+     */
+    public function getIs_show_in_lk()
+    {
+        return self::isShowInLk($this->show_in_lk, $this->is_active);
+    }
+
+    /**
+     * Показыввать ли ЛС в ЛК
+     * (логика)
+     *
+     * @param integer $showLevel
+     * @param integer $isActive
+     * @return bool
+     */
+    public static function isShowInLk($showLevel, $isActive)
+    {
+        return $showLevel == self::SHOW_IN_LK_ACTIVE_ONLY ? (bool)$isActive : $showLevel == self::SHOW_IN_LK_ALWAYS;
     }
 }

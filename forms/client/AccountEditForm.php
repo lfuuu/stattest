@@ -86,7 +86,8 @@ class AccountEditForm extends Form
         $pay_bill_until_days = ClientAccount::PAY_BILL_UNTIL_DAYS,
         $price_level = ClientAccount::DEFAULT_PRICE_LEVEL,
         $uu_tariff_status_id,
-        $settings_advance_invoice
+        $settings_advance_invoice,
+        $show_in_lk = ClientAccount::SHOW_IN_LK_ALWAYS
     ;
 
     /**
@@ -167,6 +168,7 @@ class AccountEditForm extends Form
                     'price_level',
                     'uu_tariff_status_id',
                     'settings_advance_invoice',
+                    'show_in_lk',
                 ],
                 'integer'
             ],
@@ -210,6 +212,7 @@ class AccountEditForm extends Form
             ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED],
             ['pay_bill_until_days', 'integer', 'min' => 20, 'max' => 1000],
             ['settings_advance_invoice', 'default', 'value' => ClientAccountOptions::SETTINGS_ADVANCE_NOT_SET],
+            ['show_in_lk', 'default', 'value' => ClientAccount::SHOW_IN_LK_ALWAYS],
         ];
         return $rules;
     }

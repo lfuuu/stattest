@@ -120,7 +120,9 @@ use kartik\widgets\ActiveForm;
             echo implode(Html::tag('br'), $result);
             ?>
         </div>
-        <div class="col-sm-3">&nbsp;</div>
+        <div class="col-sm-3">
+            <?= $f->field($model, 'show_in_lk')->dropDownList(ClientAccount::getShowInLkList()) ?>
+        </div>
         <div class="col-sm-3">
             <?= $f->field($model, 'options[settings_advance_invoice]')
                 ->dropDownList(ClientAccountOptions::$settingsAdvance)
