@@ -8,6 +8,7 @@ use app\classes\validators\FormFieldValidator;
 use app\exceptions\ModelValidationException;
 use app\classes\ApiInternalController;
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\SubaccountCounter;
 use app\models\ClientSubAccount;
 use yii\base\InvalidParamException;
 
@@ -73,7 +74,15 @@ class SubAccountController extends ApiInternalController
             ->andFilterWhere($model->getAttributes())
             ->all();
 
+        // получение балансов
+        $subAccountSum = SubaccountCounter::find()
+            ->where(['subaccount_id' => array_map(function (ClientSubAccount $subaccount) {return $subaccount->id;}, $data)])
+            ->select(['amount_sum'])
+            ->indexBy('subaccount_id')
+            ->column();
+
         foreach ($data as &$row) {
+            $row['balance'] = (float) isset($subAccountSum[$row['id']]) ? $subAccountSum[$row['id']] : 0;
             unset($row['is_enabled']);
         }
 
