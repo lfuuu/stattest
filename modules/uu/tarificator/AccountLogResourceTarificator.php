@@ -32,8 +32,11 @@ class AccountLogResourceTarificator extends Tarificator
     public function tarificate($accountTariffId = null)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
+
         // в целях оптимизации удалить старые данные
-        AccountLogResource::deleteAll(['<', 'date_from', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
+        if (!$accountTariffId) {
+            AccountLogResource::deleteAll(['<', 'date_from', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
+        }
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffQuery = AccountTariff::find();
@@ -46,9 +49,8 @@ class AccountLogResourceTarificator extends Tarificator
                 $this->out('. ');
             }
 
-            /** @var AccountTariffLog[] $accountTariffLogs */
-            $accountTariffLogs = $accountTariff->accountTariffLogs;
-            $accountTariffLog = reset($accountTariffLogs);
+            /** @var AccountTariff $accountTariff */
+            $accountTariffLog = $accountTariff->getAccountTariffLogs()->one();
             if (!$accountTariffLog ||
                 (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from_utc < $minLogDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT))
             ) {

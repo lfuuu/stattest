@@ -8,6 +8,7 @@ use app\models\ClientAccount;
 use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogResource;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\Resource;
@@ -112,7 +113,6 @@ trait AccountTariffBillerResourceTrait
      */
     public function getUntarificatedResourceOptionPeriods()
     {
-        $minLogDatetime = self::getMinLogDatetime();
         $accountLogFromToResourcess = [];
 
         // по которым произведен расчет
@@ -143,12 +143,6 @@ trait AccountTariffBillerResourceTrait
             $accountLogFromToResources = $this->getAccountLogFromToResources($resource->id);
             /** @var AccountLogFromToResource $accountLogFromToResource */
             foreach ($accountLogFromToResources as $accountLogFromToResource) {
-
-                $dateFrom = $accountLogFromToResource->dateFrom;
-                if ($dateFrom && $dateFrom < $minLogDatetime) {
-                    // слишком старый. Для оптимизации считать не будем
-                    continue;
-                }
 
                 $uniqueId = $accountLogFromToResource->getUniqueId();
                 if (isset($accountLogss[$resource->id][$uniqueId])) {
@@ -191,6 +185,7 @@ trait AccountTariffBillerResourceTrait
     public function getAccountLogFromToResources($resourceId)
     {
         $accountLogFromToResources = [];
+        $minLogDatetime = AccountTariff::getMinLogDatetime();
 
         // взять большие периоды и разбить помесячно
         $hugeAccountLogFromToResources = $this->getHugeAccountLogFromToResources($resourceId);
@@ -210,15 +205,16 @@ trait AccountTariffBillerResourceTrait
                     $dateTo = $hugeAccountLogFromToResource->dateTo;
                 }
 
-                $accountLogFromToResource = new AccountLogFromToResource;
-                $accountLogFromToResource->dateFrom = $dateFrom;
-                $accountLogFromToResource->dateTo = $dateTo;
-                $accountLogFromToResource->amountOverhead = $hugeAccountLogFromToResource->amountOverhead;
-                $accountLogFromToResource->tariffPeriod = $hugeAccountLogFromToResource->tariffPeriod;
-                $accountLogFromToResource->account_tariff_resource_log_id = $hugeAccountLogFromToResource->account_tariff_resource_log_id;
+                if ($dateFrom >= $minLogDatetime) {
+                    $accountLogFromToResource = new AccountLogFromToResource;
+                    $accountLogFromToResource->dateFrom = $dateFrom;
+                    $accountLogFromToResource->dateTo = $dateTo;
+                    $accountLogFromToResource->amountOverhead = $hugeAccountLogFromToResource->amountOverhead;
+                    $accountLogFromToResource->tariffPeriod = $hugeAccountLogFromToResource->tariffPeriod;
+                    $accountLogFromToResource->account_tariff_resource_log_id = $hugeAccountLogFromToResource->account_tariff_resource_log_id;
 
-                $accountLogFromToResources[] = $accountLogFromToResource;
-
+                    $accountLogFromToResources[] = $accountLogFromToResource;
+                }
             } while (
                 (
                     // еще не достигли конца большого периода

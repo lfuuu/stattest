@@ -9,6 +9,8 @@ abstract class Tarificator
 {
     private $_isEcho = false;
 
+    public $isFullTarification = false;
+
     /**
      * Tarificator constructor.
      *
