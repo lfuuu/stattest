@@ -5,6 +5,7 @@ namespace app\modules\uu\models;
 use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
+use app\classes\validators\FormFieldValidator;
 use app\modules\uu\behaviors\AccountTariffAddDefaultPackage;
 use app\modules\uu\behaviors\AccountTariffImportantEvents;
 use app\modules\uu\behaviors\AccountTariffVoipNumber;
@@ -48,6 +49,7 @@ use yii\db\Expression;
  * @property int $infrastructure_level
  * @property int $price
  * @property int $datacenter_id
+ * @property string $device_address
  */
 class AccountTariff extends ActiveRecord
 {
@@ -183,7 +185,8 @@ class AccountTariff extends ActiveRecord
                 ],
                 'integer'
             ],
-            [['comment'], 'string'],
+            [['comment', 'device_address'], 'string'],
+            [['comment', 'device_address'], FormFieldValidator::className(), 'skipOnError' => true],
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
             ['service_type_id', 'validatorServiceType'],
             ['client_account_id', 'validatorTrunk', 'skipOnEmpty' => false],
