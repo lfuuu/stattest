@@ -5,6 +5,7 @@ namespace app\controllers\api\internal;
 use app\classes\ApiInternalController;
 use app\exceptions\web\BadRequestHttpException;
 use app\exceptions\web\NotImplementedHttpException;
+use app\models\billing\SubaccountCounter;
 use app\models\ClientSubAccount;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
@@ -43,10 +44,16 @@ class MvnoController extends ApiInternalController
 
         $balance = $this->_accountTariff->clientAccount->billingCounters->getRealtimeBalance();
 
+        $subAccount = $this->_getSubAccount(false);
+
         return [
             'account_balance' => $balance,
             'account_balance_available' => $this->_accountTariff->clientAccount->credit + $balance,
-            'subaccount_balance' => null
+            'subaccount_balance' => (float)($subAccount ?
+                SubaccountCounter::find()
+                    ->where(['subaccount_id' => $subAccount->id])
+                    ->select('amount_sum')
+                    ->scalar() : 0)
         ];
     }
 
