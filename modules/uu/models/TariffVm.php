@@ -3,6 +3,7 @@
 namespace app\modules\uu\models;
 
 use app\classes\model\ActiveRecord;
+use yii\helpers\Url;
 
 /**
  * Типы VM
@@ -41,5 +42,24 @@ class TariffVm extends ActiveRecord
             [['name'], 'string'],
             [['name'], 'required'],
         ];
+    }
+
+    /**
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/uu/tariff-vm/edit', 'id' => $id]);
     }
 }

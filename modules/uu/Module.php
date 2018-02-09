@@ -95,6 +95,7 @@ class Module extends \yii\base\Module
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
                 ->addItem(Yii::t('tariff', 'Tariff statuses'), ['/uu/tariff-status'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Tariff VMs'), ['/uu/tariff-vm'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Service types'), ['/uu/service-type'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Setup tariffication'), ['/uu/account-log/setup'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Period tariffication'), ['/uu/account-log/period'], ['newaccounts_balance.read'])
