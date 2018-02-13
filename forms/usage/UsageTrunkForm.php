@@ -20,7 +20,7 @@ class UsageTrunkForm extends Form
         $term_min_payment,
         $description,
         $ip,
-        $transit_price;
+        $transit_price = 0.0;
 
     /**
      * @return array
