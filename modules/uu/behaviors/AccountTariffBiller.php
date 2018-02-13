@@ -4,6 +4,7 @@ namespace app\modules\uu\behaviors;
 
 use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
+use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -13,7 +14,6 @@ use app\modules\uu\tarificator\AccountLogMinTarificator;
 use app\modules\uu\tarificator\AccountLogPeriodTarificator;
 use app\modules\uu\tarificator\AccountLogResourceTarificator;
 use app\modules\uu\tarificator\AccountLogSetupTarificator;
-use app\modules\uu\tarificator\BillConverterTarificator;
 use app\modules\uu\tarificator\BillTarificator;
 use app\modules\uu\tarificator\CreditMgpTarificator;
 use app\modules\uu\tarificator\RealtimeBalanceTarificator;
@@ -58,7 +58,14 @@ class AccountTariffBiller extends Behavior
         EventQueue::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
                 'account_tariff_id' => $accountTariff->id,
                 'client_account_id' => $accountTariff->client_account_id,
-            ]
+            ],
+            $isForceAdd = false,
+            // 1. Чтобы пересчет был не по каждому ресурсу услуге, а один на всю услугу
+            // 2. Костыль, чтобы обработка очереди не обгоняла сохранение
+            $nextStart = DateTimeZoneHelper::getUtcDateTime()
+                ->modify('+1 minute')
+                ->format(DateTimeZoneHelper::DATETIME_FORMAT)
+
         );
     }
 
@@ -78,13 +85,13 @@ class AccountTariffBiller extends Behavior
         // биллинг отложить можно, а вот установку текущего тарифа (+сопутствующие триггеры) откладывать нельзя
         (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
 
-//        $count = AccountTariff::find()
-//            ->where(['client_account_id' => $clientAccountId])
-//            ->count();
-//        if ($count > self::MAX_ACCOUNT_TARIFFS) {
-//            HandlerLogger::me()->add('Слишком много услуг на УЛС');
-//            return;
-//        }
+        $count = AccountTariff::find()
+            ->where(['client_account_id' => $clientAccountId])
+            ->count();
+        if ($count > self::MAX_ACCOUNT_TARIFFS) {
+            HandlerLogger::me()->add('Слишком много услуг на УЛС');
+            return;
+        }
 
         Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
         (new AccountLogSetupTarificator)->tarificate($accountTariffId);
@@ -107,8 +114,9 @@ class AccountTariffBiller extends Behavior
         Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
         (new BillTarificator)->tarificate($accountTariffId);
 
-        Yii::info('AccountTariffBiller. Before BillConverterTarificator', 'uu');
-        (new BillConverterTarificator)->tarificate($clientAccountId);
+        // это не обязательно делать в реалтайме. По крону вполне сойдет
+        // Yii::info('AccountTariffBiller. Before BillConverterTarificator', 'uu');
+        // (new BillConverterTarificator)->tarificate($clientAccountId);
 
         Yii::info('AccountTariffBiller. Before RealtimeBalanceTarificator', 'uu');
         (new RealtimeBalanceTarificator)->tarificate($clientAccountId);

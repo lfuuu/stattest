@@ -34,7 +34,7 @@ class ApiVmCollocation extends Singleton
 
     /**
      * @param string $param
-     * @return string
+     * @return string|array
      */
     private function _getConfig($param)
     {
@@ -148,12 +148,12 @@ class ApiVmCollocation extends Singleton
             'func' => self::FUNC_VM_EDIT,
             'name' => $name,
             'user' => $clientId,
-            'fstype' => 'simfs',
             'password' => $password,
             'confirm' => $password,
             'domain' => $domain,
             'preset' => $preset, // http://datacenter.mcn.ru/vps-hosting/    Optimum - 4, Premium - 3, Standart - 2
         ];
+        $data = array_merge($this->_getConfig('createVpsParams'), $data);
         $result = $this->exec($data); // $result = [doc, ip, id, elid, hostnode, ok]
         return (int)$result['elid'];
     }

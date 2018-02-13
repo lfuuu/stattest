@@ -497,6 +497,15 @@ function doEvents($consoleParam)
                     }
                     break;
 
+                case \app\modules\uu\Module::EVENT_RESOURCE_VM_COLLOCATION:
+                    // УУ. Отправить измененные ресурсы VM
+                    if ($isVmServer) {
+                        (new SyncVmCollocation)->syncResource($param['account_tariff_id'], $param['account_tariff_resource_ids']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
                 // --------------------------------------------
                 // АТОЛ
                 // --------------------------------------------

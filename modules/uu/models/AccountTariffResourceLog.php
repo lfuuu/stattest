@@ -90,7 +90,6 @@ class AccountTariffResourceLog extends ActiveRecord
         return array_merge(
             parent::behaviors(),
             [
-                AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
                 [
                     // Установить "когда создал"
                     'class' => TimestampBehavior::className(),
@@ -106,6 +105,7 @@ class AccountTariffResourceLog extends ActiveRecord
                     ],
                     'value' => Yii::$app->user->getId(),
                 ],
+                AccountTariffBiller::className(), // Пересчитать транзакции, проводки и счета
             ]
         );
     }

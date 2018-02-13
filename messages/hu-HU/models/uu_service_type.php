@@ -36,4 +36,5 @@ return [
     'Type #25' => 'Mobil internet',
     'Type #26' => '', // Infrastruktúra
     'Type #27' => 'NNP hozzáférés',
+    'Type #28' => 'Licence',
 ];

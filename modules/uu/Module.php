@@ -24,6 +24,8 @@ class Module extends \yii\base\Module
     const EVENT_CALL_CHAT_REMOVE = 'uu_chat_remove';
     const EVENT_RESOURCE_VOIP = 'uu_resource_voip';
     const EVENT_RESOURCE_VPBX = 'uu_resource_vpbx';
+    const EVENT_RESOURCE_VM_COLLOCATION = 'uu_resource_vm';
+    const EVENT_RESOURCE_VM_LICENCE = 'uu_resource_licence';
     const EVENT_RECALC_ACCOUNT = 'uu_recalc_account';
     const EVENT_RECALC_BALANCE = 'uu_recalc_balance';
     const EVENT_VM_SYNC = 'uu_vm_sync';

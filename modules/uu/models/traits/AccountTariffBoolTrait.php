@@ -243,10 +243,13 @@ trait AccountTariffBoolTrait
     /**
      * Всем примененным ресурсам установить текущую дату синхронизации
      *
+     * @return AccountTariffResourceLog[]
      * @throws \app\exceptions\ModelValidationException
      */
     public function setResourceSyncTime()
     {
+        $accountTariffResourceLogs = [];
+
         /** @var ClientAccount $clientAccount */
         $clientAccount = $this->clientAccount;
         $dateTimeNow = $clientAccount->getDatetimeWithTimezone(); // по таймзоне клиента
@@ -270,7 +273,11 @@ trait AccountTariffBoolTrait
             if (!$accountTariffResourceLog->save()) {
                 throw new ModelValidationException($accountTariffResourceLog);
             }
+
+            $accountTariffResourceLogs[$accountTariffResourceLog->id] = $accountTariffResourceLog;
         }
+
+        return $accountTariffResourceLogs;
     }
 
     /**

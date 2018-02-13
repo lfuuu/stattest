@@ -240,7 +240,7 @@ SQL;
         ob_start();
         (new AccountLogSetupTarificator)->tarificateAccountTariff($accountTariff);
         (new AccountLogPeriodTarificator)->tarificateAccountTariff($accountTariff);
-        (new AccountLogResourceTarificator)->tarificateAccountTariff($accountTariff);
+        (new AccountLogResourceTarificator)->tarificateAccountTariffOption($accountTariff);
         (new AccountLogMinTarificator)->tarificate($accountTariff->id);
         (new AccountEntryTarificator)->tarificate($accountTariff->id);
         (new BillTarificator)->tarificate($accountTariff->id);

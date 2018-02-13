@@ -40,6 +40,8 @@ class SyncResourceTarificator extends Tarificator
             $isWithTransaction && $transaction = $db->beginTransaction();
             try {
 
+                $accountTariffResourceLogs = $accountTariff->setResourceSyncTime();
+
                 // только по незакрытым услугам
                 if ($accountTariff->isActive()) {
 
@@ -69,10 +71,16 @@ class SyncResourceTarificator extends Tarificator
                             ]);
                             break;
 
+                        case ServiceType::ID_VM_COLLOCATION:
+                            // VM collocation
+                            EventQueue::go(\app\modules\uu\Module::EVENT_RESOURCE_VM_COLLOCATION, [
+                                'client_account_id' => $accountTariff->client_account_id,
+                                'account_tariff_id' => $accountTariff->id,
+                                'account_tariff_resource_ids' => array_keys($accountTariffResourceLogs),
+                            ]);
+                            break;
                     }
                 }
-
-                $accountTariff->setResourceSyncTime();
 
                 $isWithTransaction && $transaction->commit();
 

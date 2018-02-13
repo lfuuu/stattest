@@ -32,4 +32,5 @@ return [
     'Type #25' => 'Mobiles internet',
     'Type #26' => '', // Infrastructure
     'Type #27' => 'NNP access',
+    'Type #28' => 'Licence',
 ];

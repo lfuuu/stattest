@@ -90,6 +90,19 @@ class SyncVmCollocation
         }
     }
 
+
+    /**
+     * Синхронизировать ресурсы в VM manager
+     *
+     * @param int $accountTariffId
+     * @param int[] $accountTariffResourceIds
+     * @link http://bugtracker.welltime.ru/jira/browse/BIL-3947
+     */
+    public function syncResource($accountTariffId, $accountTariffResourceIds)
+    {
+// @todo
+    }
+
     /**
      * Включить клиента в VM, если он там есть
      *

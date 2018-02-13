@@ -61,7 +61,8 @@ class AccountLogResourceTarificator extends Tarificator
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $this->tarificateAccountTariff($accountTariff);
+                $this->tarificateAccountTariffOption($accountTariff);
+                !$accountTariffId && $this->tarificateAccountTariffTraffic($accountTariff); // ресурсы-трафик - только по крону
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
@@ -73,22 +74,6 @@ class AccountLogResourceTarificator extends Tarificator
                 }
             }
         }
-    }
-
-    /**
-     * Рассчитать плату по конкретной услуге
-     *
-     * @param AccountTariff $accountTariff
-     * @throws \RangeException
-     * @throws \LogicException
-     * @throws \Exception
-     * @throws \app\exceptions\ModelValidationException
-     * @throws \yii\db\StaleObjectException
-     */
-    public function tarificateAccountTariff(AccountTariff $accountTariff)
-    {
-        $this->tarificateAccountTariffOption($accountTariff);
-        $this->tarificateAccountTariffTraffic($accountTariff);
     }
 
     /**

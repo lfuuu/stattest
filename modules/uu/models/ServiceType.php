@@ -49,6 +49,7 @@ class ServiceType extends ActiveRecord
     const ID_CALL_CHAT = 19; // Звонок-чат
 
     const ID_VM_COLLOCATION = 20; // VM collocation
+    const ID_VM_LICENCE = 28; // Лицензии VM collocation
 
     const ID_ONE_TIME = 21; // Разовая услуга
 
