@@ -9,6 +9,9 @@
 
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
+use app\models\billing\Trunk;
+use app\models\Datacenter;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use yii\widgets\DetailView;
 
@@ -107,6 +110,55 @@ switch ($formModel->serviceTypeId) {
             'format' => 'html',
             'value' => count($accountLogResources) ? reset($accountLogResources)->price : null,
         ];
+        break;
+
+    case ServiceType::ID_INFRASTRUCTURE:
+
+        $infrastructureProjectList = AccountTariff::getInfrastructureProjectList($isWithEmpty = false);
+        $attributes[] = [
+            'attribute' => 'infrastructure_project',
+            'value' => Html::encode($accountTariff->infrastructure_project ? $infrastructureProjectList[$accountTariff->infrastructure_project] : Yii::t('common', '(not set)')),
+        ];
+
+        $infrastructureLevelList = AccountTariff::getInfrastructureLevelList($isWithEmpty = false);
+        $attributes[] = [
+            'attribute' => 'infrastructure_level',
+            'value' => Html::encode($accountTariff->infrastructure_level ? $infrastructureLevelList[$accountTariff->infrastructure_level] : Yii::t('common', '(not set)')),
+        ];
+
+        $datacenterList = Datacenter::getList($isWithEmpty = false);
+        $attributes[] = [
+            'attribute' => 'datacenter_id',
+            'value' => Html::encode($accountTariff->datacenter_id ? $datacenterList[$accountTariff->datacenter_id] : Yii::t('common', '(not set)')),
+        ];
+
+        $attributes[] = [
+            'attribute' => 'price',
+        ];
+
+        break;
+
+    case ServiceType::ID_TRUNK:
+
+        $trunkTypeList = AccountTariff::getTrunkTypeList($isWithEmpty = false);
+        $attributes[] = [
+            'attribute' => 'trunk_type_id',
+            'value' => Html::encode($accountTariff->trunk_type_id ? $trunkTypeList[$accountTariff->trunk_type_id] : Yii::t('common', '(not set)')),
+        ];
+
+        $accountTariffTrunkId = (!$accountTariff->isNewRecord && $accountTariff->usageTrunk) ? $accountTariff->usageTrunk->trunk_id : '';
+        $trunkList = Trunk::dao()->getList(['serverIds' => $accountTariff->region_id], $isWithEmpty = false);
+        $attributes[] = [
+            'label' => 'Транк',
+            'value' => Html::encode($accountTariffTrunkId ? $trunkList[$accountTariffTrunkId] : Yii::t('common', '(not set)')),
+        ];
+
+        $attributes[] = [
+            'label' => 'Маршрутизация',
+            'format' => 'raw',
+            'value' => Html::a('<span class="glyphicon glyphicon-random" aria-hidden="true"></span> Маршрутизация', ['/usage/trunk/edit', 'id' => $accountTariff->id]),
+        ];
+
         break;
 }
 ?>
