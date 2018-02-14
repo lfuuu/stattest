@@ -1108,14 +1108,20 @@ class ClientAccount extends HistoryActiveRecord
         }
 
         if ($need_lock_credit || array_key_exists(self::WARNING_FINANCE, $warnings)) {
+
+            $financeLockDate = ClientAccount::dao()->getDateLastFinanceLock($this->id);
+
             $warnings[self::WARNING_CREDIT]
                 = 'Превышен лимит кредита: ' .
                 sprintf('%0.2f', $counters->realtimeBalance) . ' < -' . $this->credit .
                 (
                 isset($warnings[self::WARNING_FINANCE]) ?
-                    ' (на уровне биллинга): ' . (new DateTimeWithUserTimezone($warnings[self::WARNING_FINANCE]->dt, $this->timezone))->format('H:i:s d.m.Y') :
+                    ' (на уровне биллинга): ' . ($financeLockDate ? (new DateTimeWithUserTimezone($financeLockDate, $this->timezone))->format('H:i:s d.m.Y') :
                     ''
+                ) : ''
                 );
+
+            unset($warnings[ClientAccount::WARNING_LAST_DT]);
         }
 
         if ($this->is_bill_pay_overdue) {

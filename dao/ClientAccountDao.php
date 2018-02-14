@@ -13,6 +13,8 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\GoodsIncomeOrder;
+use app\models\important_events\ImportantEvents;
+use app\models\important_events\ImportantEventsNames;
 use app\models\Param;
 use app\models\Payment;
 use app\models\PaymentOrder;
@@ -955,5 +957,24 @@ class ClientAccountDao extends Singleton
         return AccountTariff::isServiceExists($accountId, ServiceType::ID_VOIP)
             && AccountTariff::isServiceExists($accountId, ServiceType::ID_TRUNK);
 
+    }
+
+    /**
+     * Получаем дату установки последней финансовой блокировки
+     *
+     * @param integer $accountId
+     * @return string
+     */
+    public function getDateLastFinanceLock($accountId)
+    {
+        return ImportantEvents::find()
+            ->select('date')
+            ->where([
+                'client_id' => $accountId,
+                'event' => ImportantEventsNames::ZERO_BALANCE
+            ])
+            ->orderBy(['id' => SORT_DESC])
+            ->limit(1)
+            ->scalar();
     }
 }
