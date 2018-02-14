@@ -80,7 +80,17 @@ class NewBill extends ActiveRecord\Model
             $currency = $clientAccount->currency;
         }
 
-        $bill = new Bill(null, $clientAccount->id, time(), 0, $currency, true, true);
+        $bill = new Bill(
+            $billNo = null,
+            $accountId = $clientAccount->id,
+            $bill_date = time(),
+            $isAuto = 0,
+            $currency,
+            $isShowInLk = true,
+            $isUserPrepay = true,
+            $isForcePriceIncludeVat = true
+        );
+
         $bill->AddLine(
             Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->country->lang)),
             1,

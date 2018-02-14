@@ -49,7 +49,20 @@ class Bill {
             ->loadVersionOnDate($date);
     }
 
-    public function __construct($bill_no,$client_id = '',$bill_date = '',$is_auto=1,$currency=null,$isShowInLk=true, $isUserPrepay=false) {
+    /**
+     * Bill constructor.
+     * @param string $bill_no
+     * @param string $client_id
+     * @param string $bill_date
+     * @param int $is_auto
+     * @param string $currency
+     * @param bool $isShowInLk
+     * @param bool $isUserPrepay
+     * @param int $isForcePriceIncludeVat
+     * @throws ModelValidationException
+     */
+    public function __construct($bill_no, $client_id = '', $bill_date = '', $is_auto = 1, $currency = null, $isShowInLk = true, $isUserPrepay = false, $isForcePriceIncludeVat = null)
+    {
         global $db;
         if ($bill_no){
             $this->bill_no=$bill_no;
@@ -82,7 +95,7 @@ class Bill {
             $bill->is_show_in_lk = $isShowInLk ? 1 : 0;
             $bill->is_user_prepay = $isUserPrepay ? 1 : 0;
             $bill->is_approved = 1;
-            $bill->price_include_vat = $this->client_data['price_include_vat'];
+            $bill->price_include_vat = $isForcePriceIncludeVat === null ? $this->client_data['price_include_vat'] : (int)(bool)$isForcePriceIncludeVat;
             $bill->biller_version = $this->client_data['account_version'];
             if (!$bill->save()) {
                 throw new ModelValidationException($bill);

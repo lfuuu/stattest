@@ -665,7 +665,7 @@ SQL;
         $transaction = Yii::$app->db->beginTransaction();
         try {
 
-            $bill = self::me()->createBill($clientAccount, $currency);
+            $bill = self::me()->createBill($clientAccount, $currency, $isForcePriceIncludeVat = true);
 
             $bill->is_user_prepay = 1;
             if (!$bill->save()) {
@@ -695,10 +695,11 @@ SQL;
      *
      * @param ClientAccount $clientAccount
      * @param string $currency
+     * @param int $isForcePriceIncludeVat
      * @return Bill
      * @internal param \DateTime|null $date
      */
-    public function createBill(ClientAccount $clientAccount, $currency = null)
+    public function createBill(ClientAccount $clientAccount, $currency = null, $isForcePriceIncludeVat = null)
     {
         $date = new \DateTime('now', new \DateTimeZone($clientAccount->timezone_name));
 
@@ -713,7 +714,7 @@ SQL;
         $bill->bill_date = $date->format(DateTimeZoneHelper::DATE_FORMAT);
         $bill->nal = $clientAccount->nal;
         $bill->is_approved = 1;
-        $bill->price_include_vat = $clientAccount->price_include_vat;
+        $bill->price_include_vat = $isForcePriceIncludeVat === null ? $clientAccount->price_include_vat : (int)(bool)$isForcePriceIncludeVat;
         $bill->biller_version = $clientAccount->account_version;
         $bill->save();
 
