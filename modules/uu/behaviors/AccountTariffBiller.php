@@ -82,16 +82,21 @@ class AccountTariffBiller extends Behavior
         $accountTariffId = $params['account_tariff_id'];
         $clientAccountId = $params['client_account_id'];
 
-        // биллинг отложить можно, а вот установку текущего тарифа (+сопутствующие триггеры) откладывать нельзя
+        Yii::info('AccountTariffBiller. Before SetCurrentTariffTarificator', 'uu');
         (new SetCurrentTariffTarificator())->tarificate($accountTariffId);
 
-        $count = AccountTariff::find()
-            ->where(['client_account_id' => $clientAccountId])
-            ->count();
-        if ($count > self::MAX_ACCOUNT_TARIFFS) {
-            HandlerLogger::me()->add('Слишком много услуг на УЛС');
-            return;
-        }
+        Yii::info('AccountTariffBiller. Before SyncResourceTarificator', 'uu');
+        (new SyncResourceTarificator())->tarificate($accountTariffId);
+
+        // Биллинг отложить можно, а вот установку текущего тарифа (+сопутствующие триггеры) откладывать нельзя
+        // Теоретически клиент может уйти в минус, но массово подключают только юриков, а у них кредит есть, так что все хорошо.
+//        $count = AccountTariff::find()
+//            ->where(['client_account_id' => $clientAccountId])
+//            ->count();
+//        if ($count > self::MAX_ACCOUNT_TARIFFS) {
+//            HandlerLogger::me()->add('Слишком много услуг на УЛС');
+//            return;
+//        }
 
         Yii::info('AccountTariffBiller. Before AccountLogSetupTarificator', 'uu');
         (new AccountLogSetupTarificator)->tarificate($accountTariffId);
@@ -107,9 +112,6 @@ class AccountTariffBiller extends Behavior
 
         Yii::info('AccountTariffBiller. Before AccountEntryTarificator', 'uu');
         (new AccountEntryTarificator)->tarificate($accountTariffId);
-
-        Yii::info('AccountTariffBiller. Before SyncResourceTarificator', 'uu');
-        (new SyncResourceTarificator())->tarificate($accountTariffId);
 
         Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
         (new BillTarificator)->tarificate($accountTariffId);

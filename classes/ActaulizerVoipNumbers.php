@@ -188,7 +188,7 @@ class ActaulizerVoipNumbers extends Singleton
     private function _diffToSync($diff, $accountTariffId = null)
     {
         foreach ($diff as $data) {
-            $accountTariffId && $data['account_tariff_id'] = $accountTariffId;
+            // $accountTariffId && $data['account_tariff_id'] = $accountTariffId;
             EventQueue::go(EventQueue::ATS3__SYNC, $data);
         }
     }
