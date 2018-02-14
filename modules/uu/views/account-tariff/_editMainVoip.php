@@ -8,6 +8,8 @@
  */
 
 use app\classes\Html;
+use app\models\billing\Locks;
+use app\models\billing\StatsAccount;
 use app\models\City;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
@@ -77,5 +79,26 @@ $number = $accountTariff->number;
         <?= $form->field($accountTariff, 'device_address')
             ->textInput()
         ?>
+    </div>
+
+    <div class="col-sm-3">
+        <label>Остатки секунд по пакетам</label>
+        <div>
+            <?php
+            try {
+                StatsAccount::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+                $statsNnpPackageMinutes = StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id, $accountTariff->id);
+                foreach ($statsNnpPackageMinutes as $statsNnpPackageMinute) :
+                    ?>
+                    <div>
+                        <b><?= $statsNnpPackageMinute['name'] ?></b>:
+                        <?= $statsNnpPackageMinute['used_seconds'] ?> / <?= $statsNnpPackageMinute['total_seconds'] ?>
+                    </div>
+                <?php
+                endforeach;
+            } catch (\Exception $e) {
+            }
+            ?>
+        </div>
     </div>
 </div>

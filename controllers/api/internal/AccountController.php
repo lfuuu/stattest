@@ -248,13 +248,15 @@ class AccountController extends ApiInternalController
 
     /**
      * @SWG\Definition(definition = "usedSecondsRecord", type = "object",
-     *   @SWG\Property(property = "name", type = "string", description = "Название тарифа"),
+     *   @SWG\Property(property = "account_tariff_id", type = "integer", description = "ID базовой услуги телефонии (номера, а не пакета!)"),
+     *   @SWG\Property(property = "name", type = "string", description = "Название пакета"),
      *   @SWG\Property(property = "used_seconds", type = "integer", description = "Потрачено секунд"),
      *   @SWG\Property(property = "total_seconds", type = "integer", description = "Всего секунд в этом пакете"),
      * ),
      *
      * @SWG\Get(tags = {"ClientAccount"}, path = "/internal/account/get-counters", summary = "Вернуть счетчики", operationId = "GetCounters",
-     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
+     *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = "", required = true),
+     *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID базовой услуги телефонии (номера, а не пакета!)", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Счетчики",
      *     @SWG\Schema(type = "object", required = {"timezones", "account_ids"},
@@ -273,10 +275,11 @@ class AccountController extends ApiInternalController
      * )
      *
      * @param int $client_account_id
+     * @param int $account_tariff_id
      * @return array
      * @throws \yii\db\Exception
      */
-    public function actionGetCounters($client_account_id)
+    public function actionGetCounters($client_account_id, $account_tariff_id = null)
     {
         // счетчики потраченных денег
         $statsAccount = StatsAccount::find()
@@ -290,26 +293,7 @@ class AccountController extends ApiInternalController
             ->one();
 
         // счетчики потраченных минут
-        $sql = <<<SQL
-SELECT
-    p.name,
-	stat.used_seconds,
-	TRUNC(at.coefficient * pm.minute * 60) AS total_seconds
-FROM
-	billing.stats_nnp_package_minute stat, 
-	nnp.account_tariff_light at,
-	nnp.package p,
-	nnp.package_minute pm
-WHERE
-	stat.nnp_account_tariff_light_id = at.id
-	AND stat.nnp_package_minute_id = pm.id
-	AND pm.tariff_id = p.tariff_id
-	AND stat.deactivate_from > NOW()
-	AND at.account_client_id = :account_client_id
-SQL;
-        $statsNnpPackageMinute = StatsAccount::getDb()
-            ->createCommand($sql, ['account_client_id' => $client_account_id])
-            ->queryAll();
+        $statsNnpPackageMinute = StatsAccount::getStatsNnpPackageMinute($client_account_id, $account_tariff_id);
 
         return [
             'sum_day' => (float)$statsAccount['sum_day'],
