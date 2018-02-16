@@ -2,7 +2,6 @@
 
 namespace app\modules\webhook\models;
 
-use app\models\ClientAccount;
 use app\models\ClientContact;
 use yii\base\Model;
 
@@ -26,6 +25,8 @@ class ApiHook extends Model
         $did, // номер вызывающего/вызываемого абонента
         $secret, // секретный token, подтверждающий, что запрос пришел от валидного сервера
         $account_id; // ID аккаунта MCN Telecom. Это не клиент!
+
+    public $dids = [];
 
     private $_eventTypeToMessage = [
         self::EVENT_TYPE_IN_CALLING_START => 'Входящий звонок',
@@ -74,18 +75,20 @@ class ApiHook extends Model
      */
     public function getClientContacts()
     {
-        if ($this->did && $this->did[0] != '+') {
-            list($phoneRemain, $this->did) = ClientContact::dao()->getE164($this->did);
-        }
-
         if (!$this->did) {
             return [];
+        }
+
+        if ($this->did[0] == '+') {
+            $this->dids = [$this->did];
+        } else {
+            list($phoneRemain, $this->dids) = ClientContact::dao()->getE164($this->did);
         }
 
         return ClientContact::find()
             ->where([
                 'type' => ClientContact::$phoneTypes,
-                'data' => $this->did,
+                'data' => $this->dids,
             ])
             ->orderBy(['client_id' => SORT_DESC])
             ->all();
