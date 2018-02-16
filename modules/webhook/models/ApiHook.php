@@ -6,9 +6,6 @@ use app\models\ClientAccount;
 use app\models\ClientContact;
 use yii\base\Model;
 
-/**
- * @property-read ClientAccount $clientAccount
- */
 class ApiHook extends Model
 {
     const EVENT_TYPE_IN_CALLING_START = 'onInCallingStart'; // начало входящего звонка на абонента ВАТС
@@ -21,7 +18,7 @@ class ApiHook extends Model
     const EVENT_TYPE_INBOUND_CALL_START = 'InboundCallStart'; // начало входящего звонка
     const EVENT_TYPE_INBOUND_CALL_END = 'InboundCallEnd'; // конец входящего звонка
 
-    const TIMEOUT = 60000; // время (в миллисекундах) автоскрывания уведомления
+    const TIMEOUT = 120000; // время (в миллисекундах) автоскрывания уведомления
 
     public
         $event_type, // тип события
@@ -73,27 +70,25 @@ class ApiHook extends Model
     }
 
     /**
-     * @return ClientAccount
+     * @return ClientContact[]
      */
-    public function getClientAccount()
+    public function getClientContacts()
     {
         if ($this->did && $this->did[0] != '+') {
             list($phoneRemain, $this->did) = ClientContact::dao()->getE164($this->did);
         }
 
         if (!$this->did) {
-            return null;
+            return [];
         }
 
-        /** @var ClientContact $clientContact */
-        $clientContact = ClientContact::find()
+        return ClientContact::find()
             ->where([
                 'type' => ClientContact::$phoneTypes,
                 'data' => $this->did,
             ])
-            ->orderBy(['id' => SORT_DESC])
-            ->one();
-        return $clientContact ? $clientContact->client : null;
+            ->orderBy(['client_id' => SORT_DESC])
+            ->all();
     }
 
     /**

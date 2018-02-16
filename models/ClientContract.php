@@ -46,8 +46,10 @@ use yii\db\ActiveQuery;
  * @property-read BusinessProcess $businessProcess
  * @property-read BusinessProcessStatus $businessProcessStatus
  * @property-read ClientDocument $contractInfo
- * @property string $managerName
- * @property string $accountManagerName
+ * @property-read ClientSuper $super
+ *
+ * @property-read string $managerName
+ * @property-read string $accountManagerName
  */
 class ClientContract extends HistoryActiveRecord
 {

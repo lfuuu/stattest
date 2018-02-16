@@ -82,24 +82,11 @@ class SocketWebClient
 # при получении события
   socketOnMessage: =>
     @socket.on('message', (json) =>
-      titleHtml = json['title']
-      titleTxt = @stripTags(titleHtml) # защита от js-инъекций
-      title = titleTxt
       title = $('<span>')
-        .append(title + ' ')
+        .append(json['title'])
 
-      messageHtml = json['message']
-      messageTxt = @stripTags(messageHtml) # защита от js-инъекций
-      message = messageTxt
-
-      if (json['url'])
-# добавить ссылку
-        message = $('<a>')
-          .attr('href', json['url'])
-          .append(message)
-
-      message = $('<span>')
-        .append(message)
+      message = $('<div>')
+        .append(json['messageHtml'])
 
       # добавить отправителя
       message
@@ -140,11 +127,12 @@ class SocketWebClient
 # "по запросу" - обновить статус, ибо юзер уже мог разрешить или запретить
         @notificationPermission = if Notification then Notification.permission.toLowerCase() else @NOTIFICATION_PERMISSION_DENIED
 
-      if @notificationPermission == @NOTIFICATION_PERMISSION_GRANTED and json['isNotification'] == 1
+      if @notificationPermission == @NOTIFICATION_PERMISSION_GRANTED and json['messageTxt'] and json['isNotification'] == 1
 # "разрешено" - отправить уведомление
-        notification = new Notification(titleTxt,
+        console.log(json)
+        notification = new Notification(json['title'],
 #tag : '',
-          body: messageTxt,
+          body: json['messageTxt'],
           icon: '/images/logo2.gif'
         )
 

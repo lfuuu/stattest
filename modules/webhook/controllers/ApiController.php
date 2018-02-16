@@ -67,6 +67,16 @@ class ApiController extends Controller
     private function _receiveHook()
     {
         $content = file_get_contents("php://input");
+
+        // для дебага раскомментировать следующие строчки
+        //        $content = json_encode([
+        //            'event_type' => ApiHook::EVENT_TYPE_IN_CALLING_START, // тип события
+        //            'abon' => 262, // внутренний номер абонента ВАТС, который принимает/совершает звонок. Только если через ВАТС
+        //            'did' => '+74959319628', // номер вызывающего/вызываемого абонента
+        //            'secret' => $this->module->params['secretKey'], // секретный token, подтверждающий, что запрос пришел от валидного сервера
+        //            'account_id' => '12345', // ID аккаунта MCN Telecom. Это не клиент!
+        //        ]);
+
         Yii::info('Webhook: ' . $content);
         if (!$content) {
             throw new BadRequestHttpException('Webhook error. Не указан raw body');
@@ -111,27 +121,42 @@ class ApiController extends Controller
         }
 
         // отправить уведомление менеджеру
-        $messages = [];
-        $messages[] = $apiHook->did . ' -> ' . $apiHook->abon;
-        if ($clientAccount = $apiHook->clientAccount) {
-            $messages[] = '';
-            $messages[] = $clientAccount->getNameAndContacts(PHP_EOL);
+        // найти контакты
+        $clientContacts = $apiHook->getClientContacts();
+        foreach ($clientContacts as $clientContact) {
+            $clientAccount = $clientContact->client;
+            if ($clientAccount) {
+                break;
+            }
         }
 
-        $message = implode(PHP_EOL, $messages);
+        $messageHtml = $this->renderPartial('message', [
+            'did' => $apiHook->did,
+            'abon' => $apiHook->abon,
+            'clientContacts' => $clientContacts,
+        ]);
+
+        $messageText = $messageHtml;
+        $messageText = str_replace(PHP_EOL, '', $messageText); // удалить \n
+        $messageText = str_replace(['</span>', '</tr>'], PHP_EOL, $messageText); // добавить \n
+        $messageText = str_replace('>', '> ', $messageText);
+        $messageText = strip_tags($messageText);
+        $messageText = preg_replace('/[ \t]+/', ' ', $messageText); // удалить дубли пробелов
+        $messageText = html_entity_decode($messageText);
 
         $params = [
             Socket::PARAM_TITLE => $apiHook->getEventTypeMessage(),
-            Socket::PARAM_MESSAGE => $message,
+            Socket::PARAM_MESSAGE_HTML => $messageHtml,
+            Socket::PARAM_MESSAGE_TEXT => $messageText,
             Socket::PARAM_TYPE => $apiHook->getEventTypeStyle(),
             // Socket::PARAM_USER_TO => null,
             Socket::PARAM_USER_ID_TO => $user->id,
-            Socket::PARAM_URL => $clientAccount ? $clientAccount->getUrl() : '',
+            Socket::PARAM_URL_TEXT => $clientAccount ? $clientAccount->getUrl() : '',
             Socket::PARAM_TIMEOUT => $apiHook->getEventTypeTimeout(),
         ];
         Socket::me()->emit($params);
 
-        if ($clientAccount) {
+        if ($clientContacts) {
             Yii::info('Webhook ok. ' . $content);
         } else {
             Yii::info('Webhook info. Клиент не найден. ' . $content);

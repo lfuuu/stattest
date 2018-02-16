@@ -9,7 +9,8 @@ use yii\console\Controller;
 class ElephantController extends Controller
 {
     public $title = '';
-    public $message = '';
+    public $messageHtml = '';
+    public $messageText = '';
     public $type = Socket::PARAM_TYPE_DEFAULT;
     public $userTo = null;
     public $userIdTo = null;
@@ -28,11 +29,12 @@ class ElephantController extends Controller
         $options = array_merge($options,
             [
                 Socket::PARAM_TITLE,
-                Socket::PARAM_MESSAGE,
+                Socket::PARAM_MESSAGE_HTML,
+                Socket::PARAM_MESSAGE_TEXT,
                 Socket::PARAM_TYPE,
                 Socket::PARAM_USER_TO,
                 Socket::PARAM_USER_ID_TO,
-                Socket::PARAM_URL,
+                Socket::PARAM_URL_TEXT,
                 Socket::PARAM_TIMEOUT,
             ]
         );
@@ -49,11 +51,12 @@ class ElephantController extends Controller
     {
         $params = [
             Socket::PARAM_TITLE => $this->title,
-            Socket::PARAM_MESSAGE => $this->message,
+            Socket::PARAM_MESSAGE_HTML => $this->messageHtml,
+            Socket::PARAM_MESSAGE_TEXT => $this->messageText,
             Socket::PARAM_TYPE => $this->type,
             Socket::PARAM_USER_TO => $this->userTo,
             Socket::PARAM_USER_ID_TO => $this->userIdTo,
-            Socket::PARAM_URL => $this->url,
+            Socket::PARAM_URL_TEXT => $this->url,
             Socket::PARAM_TIMEOUT => $this->timeout,
         ];
 
