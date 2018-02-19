@@ -25,8 +25,8 @@ abstract class AHandler extends Model
     abstract public function getService($serviceId);
 
     /**
-     * @param int $serviceId
+     * @param ActiveRecord $service
      * @return bool
      */
-    abstract public function isExcludeService($serviceId);
+    abstract public function isExcludeService($service);
 }

@@ -45,25 +45,27 @@ use yii\helpers\Url;
         }
 
         $rewardClassName = RewardCalculate::$services[$service];
+        if (!$rewardClassName) {
+            continue;
+        }
+
         /**  @var AHandler $rewardsHandler */
         $rewardsHandler = new $rewardClassName([
             'clientAccountVersion' => $record['account_version'],
         ]);
 
-        if ($rewardsHandler->isExcludeService($record['usage_id'])) {
+        $serviceObj = $rewardsHandler->getService($record['usage_id']);
+        if ($rewardsHandler->isExcludeService($serviceObj)) {
             // Услуга исключена из вознаграждений. Например, 800-ые номера
             continue;
         }
 
-        $service = $rewardsHandler->getService($record['usage_id']);
         /** @var UsageHelperInterface $helper */
-        $helper = $service->helper;
+        $helper = $serviceObj->helper;
         ?>
         <tr>
             <td>
-                <a
-                        href="<?= Url::toRoute(['/index.php', 'module' => 'newaccounts', 'action' => 'bill_view', 'bill' => $record['bill_no']]) ?>"
-                        target="_blank">
+                <a href="<?= Url::toRoute(['/index.php', 'module' => 'newaccounts', 'action' => 'bill_view', 'bill' => $record['bill_no']]) ?>" target="_blank">
                     <?= $record['bill_no'] ?>
                     <?php if ($isExtendsMode) : ?>
                         (<?= \app\models\Bill::$paidStatuses[$record['bill_paid']] ?>)

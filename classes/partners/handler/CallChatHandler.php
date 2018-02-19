@@ -3,6 +3,7 @@
 namespace app\classes\partners\handler;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\classes\partners\rewards\EnablePercentageReward;
 use app\classes\partners\rewards\EnableReward;
 use app\classes\partners\rewards\MonthlyFeePercentageReward;
@@ -41,10 +42,10 @@ class CallChatHandler extends AHandler
     }
 
     /**
-     * @param int $serviceId
+     * @param ActiveRecord $service
      * @return bool
      */
-    public function isExcludeService($serviceId)
+    public function isExcludeService($service)
     {
         return false;
     }

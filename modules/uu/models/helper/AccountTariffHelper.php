@@ -4,6 +4,8 @@ namespace app\modules\uu\models\helper;
 
 use app\helpers\usages\UsageHelperInterface;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
+use Yii;
 use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\db\ActiveRecord;
@@ -24,10 +26,11 @@ class AccountTariffHelper extends Object implements UsageHelperInterface
 
     /**
      * @return string
+     * @throws \yii\base\InvalidParamException
      */
     public function getTitle()
     {
-        return $this->_accountTariff->getName($isWithAccount = false);
+        return $this->_accountTariff->getNameLight();
     }
 
     /**

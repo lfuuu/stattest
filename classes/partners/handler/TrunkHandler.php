@@ -3,6 +3,7 @@
 namespace app\classes\partners\handler;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\classes\partners\rewards\MarginPercentageReward;
 use app\classes\partners\rewards\ResourcePercentageReward;
 use app\models\ClientAccount;
@@ -39,10 +40,10 @@ class TrunkHandler extends AHandler
     }
 
     /**
-     * @param int $serviceId
+     * @param ActiveRecord $service
      * @return bool
      */
-    public function isExcludeService($serviceId)
+    public function isExcludeService($service)
     {
         return false;
     }

@@ -43,10 +43,10 @@ class VirtpbxHandler extends AHandler
     }
 
     /**
-     * @param int $serviceId
+     * @param ActiveRecord $service
      * @return bool
      */
-    public function isExcludeService($serviceId)
+    public function isExcludeService($service)
     {
         return false;
     }

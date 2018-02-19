@@ -26,6 +26,7 @@ echo Breadcrumbs::widget([
 
 <div class="row">
     <?php $form = ActiveForm::begin(['method' => 'get', 'action' => $baseUrl]) ?>
+    <?= Html::hiddenInput('isExtends', (int)$filterModel->isExtendsMode) ?>
 
     <div class="col-sm-1 text-right">
         Месяц:

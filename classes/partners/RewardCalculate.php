@@ -112,7 +112,8 @@ abstract class RewardCalculate
                 'clientAccountVersion' => $clientAccount->account_version,
             ]);
 
-            if ($rewardsHandler->isExcludeService($line->id_service)) {
+            $serviceObj = $rewardsHandler->getService($line->id_service);
+            if ($rewardsHandler->isExcludeService($serviceObj)) {
                 // Услуга исключена из вознаграждений
                 continue;
             }

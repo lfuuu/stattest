@@ -48,6 +48,22 @@ trait AccountTariffLinkTrait
      * @return string
      * @throws \yii\base\InvalidParamException
      */
+    public function getNameLight()
+    {
+        $names = [];
+        $names[] = $this->serviceType->name;
+
+        if ($this->service_type_id == ServiceType::ID_VOIP && $this->voip_number) {
+            $names[] = Yii::t('uu', 'Number {number}', ['number' => $this->voip_number]);
+        }
+
+        return implode('. ', $names);
+    }
+
+    /**
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
     public function getUrl()
     {
         return Url::to(['/uu/account-tariff/edit', 'id' => $this->id]);

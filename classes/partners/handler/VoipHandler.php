@@ -3,6 +3,7 @@
 namespace app\classes\partners\handler;
 
 use app\classes\Assert;
+use app\classes\model\ActiveRecord;
 use app\classes\partners\rewards\EnablePercentageReward;
 use app\classes\partners\rewards\EnableReward;
 use app\classes\partners\rewards\MarginPercentageReward;
@@ -47,14 +48,11 @@ class VoipHandler extends AHandler
     }
 
     /**
-     * @param int $serviceId
+     * @param ActiveRecord $service
      * @return bool
-     * @throws \yii\base\Exception
      */
-    public function isExcludeService($serviceId)
+    public function isExcludeService($service)
     {
-        $service = $this->getService($serviceId);
-
         if ($this->clientAccountVersion == ClientAccount::VERSION_BILLER_USAGE) {
             /** @var UsageVoip $service */
             $ndcTypeId = $service->ndc_type_id;
