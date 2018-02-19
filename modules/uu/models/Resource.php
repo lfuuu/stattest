@@ -59,7 +59,7 @@ class Resource extends ActiveRecord
     const ID_SMS = 14; // SMS
 
     const ID_VM_COLLOCATION_PROCESSOR = 15; // VM collocation. Процессор
-    const ID_VM_COLLOCATION_HDD = 16; // VM collocation. Постоянная память
+    const ID_VM_COLLOCATION_HDD = 16; // VM collocation. Дисковое пространство
     const ID_VM_COLLOCATION_RAM = 17; // VM collocation. Оперативная память
 
     const ID_ONE_TIME = 18; // Разовая услуга
