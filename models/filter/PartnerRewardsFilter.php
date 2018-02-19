@@ -102,7 +102,8 @@ class PartnerRewardsFilter extends DynamicModel
 
             $query
                 ->where(new Expression('DATE_FORMAT(rewards.created_at, "%Y-%m") = :month', ['month' => $this->month]))
-                ->andWhere(['contragent.partner_contract_id' => $this->partner_contract_id]);
+                ->andWhere(['contragent.partner_contract_id' => $this->partner_contract_id])
+                ->andWhere(['>=', 'line.sum', 0]);
 
             if (!$this->isExtendsMode) {
                 $query->andWhere(['bills.is_payed' => Bill::STATUS_IS_PAID]);

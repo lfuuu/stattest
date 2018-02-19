@@ -71,6 +71,10 @@ abstract class RewardCalculate
 
         foreach ($bill->lines as $line) {
 
+            if ($line->sum < 0) {
+                continue;
+            }
+
             if ($line->service == BillDao::UU_SERVICE) {
                 // для УУ определить соответствующий тип неуниверсальной услуги
                 $accountTariff = $line->accountTariff;
