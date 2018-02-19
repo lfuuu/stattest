@@ -13,6 +13,7 @@ use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
+use app\modules\uu\models\helper\AccountTariffHelper;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
@@ -38,6 +39,8 @@ use yii\db\ActiveQuery;
  * @property-read AccountLogSetup[] $accountLogSetups
  * @property-read AccountLogPeriod[] $accountLogPeriods
  * @property-read AccountLogResource[] $accountLogResources
+ *
+ * @property-read AccountTariffHelper $helper
  *
  * @method ActiveQuery hasMany($class, array $link) see [[BaseActiveRecord::hasMany()]] for more info
  * @method ActiveQuery hasOne($class, array $link) see [[BaseActiveRecord::hasOne()]] for more info
@@ -209,5 +212,13 @@ trait AccountTariffRelationsTrait
                     'id' => SORT_DESC,
                 ])
             ->indexBy('id');
+    }
+
+    /**
+     * @return AccountTariffHelper
+     */
+    public function getHelper()
+    {
+        return new AccountTariffHelper($this);
     }
 }

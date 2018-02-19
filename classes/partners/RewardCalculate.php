@@ -3,7 +3,13 @@
 namespace app\classes\partners;
 
 use app\classes\Assert;
+use app\classes\partners\handler\AHandler;
+use app\classes\partners\handler\CallChatHandler;
+use app\classes\partners\handler\TrunkHandler;
+use app\classes\partners\handler\VirtpbxHandler;
+use app\classes\partners\handler\VoipHandler;
 use app\classes\partners\rewards\Reward;
+use app\dao\BillDao;
 use app\exceptions\ModelValidationException;
 use app\models\Bill;
 use app\models\BillLine;
@@ -16,12 +22,12 @@ use yii\db\Query;
 
 abstract class RewardCalculate
 {
-
+    /** @var string[] */
     public static $services = [
-        Transaction::SERVICE_VOIP => VoipRewards::class,
-        Transaction::SERVICE_VIRTPBX => VirtpbxRewards::class,
-        Transaction::SERVICE_CALL_CHAT => CallChatRewards::class,
-        Transaction::SERVICE_TRUNK => TrunkRewards::class,
+        Transaction::SERVICE_VOIP => VoipHandler::class,
+        Transaction::SERVICE_VIRTPBX => VirtpbxHandler::class,
+        Transaction::SERVICE_CALL_CHAT => CallChatHandler::class,
+        Transaction::SERVICE_TRUNK => TrunkHandler::class,
     ];
 
     /**
@@ -41,42 +47,51 @@ abstract class RewardCalculate
         Assert::isObject($bill, 'Bill #' . $billId . ' not found');
 
         // Список используемых настроек вознаграждений
-        $contractRewards =
-            (new Query)
-                ->select([
-                    'usage_type',
-                    'once_only',
-                    'percentage_once_only',
-                    'percentage_of_fee',
-                    'percentage_of_over',
-                    'percentage_of_margin',
-                    'period_type',
-                    'period_month',
-                ])
-                ->from([
-                    'rewards' => (new Query)
-                        ->from(ClientContractReward::tableName())
-                        ->where(['contract_id' => $clientAccount->contract->contragent->partner_contract_id])
-                        ->andWhere(['<', 'actual_from', new Expression('CAST(:createdAt AS DATE)', ['createdAt' => $createdAt])])
-                        ->orderBy(['actual_from' => SORT_DESC])
-                ])
-                ->groupBy('usage_type')
-                ->indexBy('usage_type')
-                ->all();
+        $contractRewards = (new Query)
+            ->select([
+                'usage_type',
+                'once_only',
+                'percentage_once_only',
+                'percentage_of_fee',
+                'percentage_of_over',
+                'percentage_of_margin',
+                'period_type',
+                'period_month',
+            ])
+            ->from([
+                'rewards' => (new Query)
+                    ->from(ClientContractReward::tableName())
+                    ->where(['contract_id' => $clientAccount->contract->contragent->partner_contract_id])
+                    ->andWhere(['<', 'actual_from', new Expression('CAST(:createdAt AS DATE)', ['createdAt' => $createdAt])])
+                    ->orderBy(['actual_from' => SORT_DESC])
+            ])
+            ->groupBy('usage_type')
+            ->indexBy('usage_type')
+            ->all();
 
         foreach ($bill->lines as $line) {
-            if (!array_key_exists($line->service, $contractRewards)) {
+
+            if ($line->service == BillDao::UU_SERVICE) {
+                // для УУ определить соответствующий тип неуниверсальной услуги
+                $accountTariff = $line->accountTariff;
+                $serviceType = $accountTariff ? $accountTariff->serviceType : null;
+                $service = $serviceType ? $serviceType->getUsageName() : null;
+            } else {
+                $service = $line->service;
+            }
+
+            if (!array_key_exists($service, $contractRewards)) {
                 // В настройках вознаграждения нет данного типа услуги
                 continue;
             }
 
-            $rewardsSettingsByType = $contractRewards[$line->service];
+            $rewardsSettingsByType = $contractRewards[$service];
 
             if (
                 $rewardsSettingsByType['period_type'] === ClientContractReward::PERIOD_MONTH
                 && $rewardsSettingsByType['period_month'] < BillLine::find()
                     ->where([
-                        'service' => $line->service,
+                        'service' => $service,
                         'id_service' => $line->id_service,
                     ])
                     ->andWhere(['<', 'date_to', $line->date_to])
@@ -87,8 +102,9 @@ abstract class RewardCalculate
             }
 
             // Определение обработчика начисления вознаграждения
-            /** @var RewardsInterface $rewardsHandler */
-            $rewardsHandler = new self::$services[$line->service]([
+            $rewardClassName = self::$services[$service];
+            /** @var AHandler $rewardsHandler */
+            $rewardsHandler = new $rewardClassName([
                 'clientAccountVersion' => $clientAccount->account_version,
             ]);
 

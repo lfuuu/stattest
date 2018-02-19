@@ -70,6 +70,20 @@ class ServiceType extends ActiveRecord
         self::ID_TRUNK_PACKAGE_TERM => self::ID_TRUNK,
     ];
 
+    // Соответствие неуниверсальной услуги
+    public static $idToUsageName = [
+        self::ID_VPBX => 'usage_virtpbx', // ВАТС
+
+        self::ID_VOIP => 'usage_voip', // Телефония
+        self::ID_VOIP_PACKAGE_CALLS => 'usage_voip', // Телефония. Пакет звонков
+
+        self::ID_CALL_CHAT => 'usage_call_chat', // Звонок-чат
+
+        self::ID_TRUNK => 'usage_trunk', // транк
+        self::ID_TRUNK_PACKAGE_ORIG => 'usage_trunk', // пакет ориг-транк
+        self::ID_TRUNK_PACKAGE_TERM => 'usage_trunk', // пакет терм-транк
+    ];
+
     // Перевод названий полей модели
     use \app\classes\traits\AttributeLabelsTraits;
 
@@ -192,5 +206,15 @@ class ServiceType extends ActiveRecord
         }
 
         return $serviceTypeIds;
+    }
+
+    /**
+     * Соответствие неуниверсальной услуги
+     *
+     * @return string
+     */
+    public function getUsageName()
+    {
+        return isset(self::$idToUsageName[$this->id]) ? self::$idToUsageName[$this->id] : null;
     }
 }

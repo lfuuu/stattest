@@ -65,9 +65,9 @@ class m_stats_head extends IModuleHead{
             array('Отчет: ИНН', 'report_inn'),
             array('Отчет по Агентам (старый)', 'report_agent'),
             array('Отчет по партнерам', function(){return '/stats/agent/report';}),
-            array('Отчет: Вознаграждения партнеров', function(){ return '/stats/partner-rewards'; }),
-            array('Отчет: Вознаграждения партнеров (Полный)', function(){ return '/stats/partner-rewards?isExtends=1'; }),
-            array('Настройка Агента', 'agent_settings'),
+            array('Вознаграждения партнеров', function(){ return '/stats/partner-rewards'; }),
+            array('Вознаграждения партнеров (полный)', function(){ return '/stats/partner-rewards?isExtends=1'; }),
+            array('Настройка агента', 'agent_settings'),
             array('Региональные представители', 'report_sale_channel'),
             array('ВАТС: свободное про-во', 'report_vpbx_stat_space'),
         );

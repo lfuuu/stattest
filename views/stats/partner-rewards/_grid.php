@@ -1,11 +1,14 @@
 <?php
+/**
+ * Вознаграждения партнеров. Грид
+ *
+ * @var \app\classes\BaseView $this
+ * @var PartnerRewardsFilter $filterModel
+ */
 
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\filter\PartnerRewardsFilter;
-
-/** @var PartnerRewardsFilter $filterModel */
-/** @var \app\classes\BaseView $baseView */
 
 $baseView = $this;
 
@@ -15,11 +18,11 @@ echo GridView::widget([
     'beforeHeader' => [
         [
             'columns' => [
-                ['content' => '', 'options' => ['rowspan' => 2],],
-                ['content' => 'Наименование клиента', 'options' => ['rowspan' => 2],],
-                ['content' => 'Дата регистрации клиента', 'options' => ['rowspan' => 2],],
-                ['content' => 'Сумма оплаченных услуг', 'options' => ['rowspan' => 2],],
-                ['content' => 'Сумма вознаграждения', 'options' => ['colspan' => 5],],
+                ['content' => '', 'options' => ['rowspan' => 2]],
+                ['content' => 'Наименование клиента', 'options' => ['rowspan' => 2]],
+                ['content' => 'Дата регистрации клиента', 'options' => ['rowspan' => 2]],
+                ['content' => 'Сумма оплаченных услуг', 'options' => ['rowspan' => 2]],
+                ['content' => 'Сумма вознаграждения', 'options' => ['colspan' => 5]],
             ],
             'options' => [
                 'class' => GridView::DEFAULT_HEADER_CLASS,

@@ -1,11 +1,14 @@
 <?php
+/**
+ * Вознаграждения партнеров. Подробный грид
+ *
+ * @var \app\classes\BaseView $this
+ * @var PartnerRewardsFilter $filterModel
+ */
 
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\models\filter\PartnerRewardsFilter;
-
-/** @var PartnerRewardsFilter $filterModel */
-/** @var \app\classes\BaseView $baseView */
 
 $baseView = $this;
 

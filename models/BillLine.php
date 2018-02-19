@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\classes\model\ActiveRecord;
 use app\modules\uu\models\AccountEntry;
+use app\modules\uu\models\AccountTariff;
 
 /**
  * Class BillLine
@@ -38,6 +39,7 @@ use app\modules\uu\models\AccountEntry;
  * @property int $type           тип строки. значения: service, zalog, zadatok, good, all4net
  * @property-read Bill $bill
  * @property-read AccountEntry $accountEntry
+ * @property-read AccountTariff $accountTariff
  */
 class BillLine extends ActiveRecord
 {
@@ -74,6 +76,22 @@ class BillLine extends ActiveRecord
     public function getBill()
     {
         return $this->hasOne(Bill::className(), ['bill_no' => 'bill_no']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccountEntry()
+    {
+        return $this->hasOne(AccountEntry::className(), ['id' => 'uu_account_entry_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAccountTariff()
+    {
+        return $this->hasOne(AccountTariff::className(), ['id' => 'id_service']);
     }
 
     /**

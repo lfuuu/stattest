@@ -33,4 +33,13 @@ trait UsageHelperTrait
         return Html::a($tariff->helper->title, $tariff->helper->editLink, ['target' => '_blank']);
     }
 
+    /**
+     * Дата создания услуги
+     *
+     * @return string|null
+     */
+    public function getActivationDt()
+    {
+        $this->_usage->activation_dt;
+    }
 }

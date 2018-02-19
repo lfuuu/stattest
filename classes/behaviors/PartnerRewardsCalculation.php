@@ -4,6 +4,7 @@ namespace app\classes\behaviors;
 
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Bill;
 use app\models\ClientAccount;
 use app\models\EventQueue as OwnEvent;
 use yii\base\Behavior;
@@ -31,6 +32,7 @@ class PartnerRewardsCalculation extends Behavior
      */
     public function calculateRewards(Event $event)
     {
+        /** @var Bill $bill */
         $bill = $event->sender;
 
         if (!$bill->is_payed) {

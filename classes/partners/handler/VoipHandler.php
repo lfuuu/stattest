@@ -1,26 +1,20 @@
 <?php
 
-namespace app\classes\partners;
+namespace app\classes\partners\handler;
 
 use app\classes\Assert;
-use app\classes\partners\rewards\EnableReward;
 use app\classes\partners\rewards\EnablePercentageReward;
+use app\classes\partners\rewards\EnableReward;
 use app\classes\partners\rewards\MarginPercentageReward;
 use app\classes\partners\rewards\MonthlyFeePercentageReward;
 use app\classes\partners\rewards\ResourcePercentageReward;
 use app\models\ClientAccount;
 use app\models\UsageVoip;
 use app\modules\nnp\models\NdcType;
-use yii\base\Model;
+use app\modules\uu\models\AccountTariff;
 
-class VoipRewards extends Model implements RewardsInterface
+class VoipHandler extends AHandler
 {
-
-    /**
-     * @var int
-     */
-    public $clientAccountVersion = ClientAccount::VERSION_BILLER_USAGE;
-
     /**
      * @return array
      */
@@ -37,49 +31,39 @@ class VoipRewards extends Model implements RewardsInterface
 
     /**
      * @param int $serviceId
-     * @return mixed
+     * @return UsageVoip|AccountTariff
+     * @throws \yii\base\Exception
      */
     public function getService($serviceId)
     {
-        $service = null;
-
-        switch ($this->clientAccountVersion) {
-            case ClientAccount::VERSION_BILLER_USAGE: {
-                $service = UsageVoip::findOne(['id' => $serviceId]);
-                break;
-            }
-
-            case ClientAccount::VERSION_BILLER_UNIVERSAL: {
-                // @todo universal service
-                return null;
-            }
-        }
+        $service = ($this->clientAccountVersion == ClientAccount::VERSION_BILLER_USAGE) ?
+            UsageVoip::findOne(['id' => $serviceId]) :
+            AccountTariff::findOne(['id' => $serviceId]);
 
         Assert::isObject($service);
 
         return $service;
+
     }
 
     /**
      * @param int $serviceId
      * @return bool
+     * @throws \yii\base\Exception
      */
     public function isExcludeService($serviceId)
     {
         $service = $this->getService($serviceId);
 
-        switch ($this->clientAccountVersion) {
-            case ClientAccount::VERSION_BILLER_USAGE: {
-                return $service->ndc_type_id === NdcType::ID_FREEPHONE;
-            }
-
-            case ClientAccount::VERSION_BILLER_UNIVERSAL: {
-                // @todo universal service
-                return false;
-            }
+        if ($this->clientAccountVersion == ClientAccount::VERSION_BILLER_USAGE) {
+            /** @var UsageVoip $service */
+            $ndcTypeId = $service->ndc_type_id;
+        } else {
+            /** @var AccountTariff $service */
+            $number = $service->number;
+            $ndcTypeId = $number ? $number->ndc_type_id : null;
         }
 
-        return false;
+        return $ndcTypeId == NdcType::ID_FREEPHONE;
     }
-
 }

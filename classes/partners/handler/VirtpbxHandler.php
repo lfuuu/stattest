@@ -1,24 +1,18 @@
 <?php
 
-namespace app\classes\partners;
+namespace app\classes\partners\handler;
 
 use app\classes\Assert;
-use app\classes\partners\rewards\EnableReward;
 use app\classes\partners\rewards\EnablePercentageReward;
+use app\classes\partners\rewards\EnableReward;
 use app\classes\partners\rewards\MonthlyFeePercentageReward;
 use app\classes\partners\rewards\ResourcePercentageReward;
 use app\models\ClientAccount;
 use app\models\UsageVirtpbx;
-use yii\base\Model;
+use app\modules\uu\models\AccountTariff;
 
-class VirtpbxRewards extends Model implements RewardsInterface
+class VirtpbxHandler extends AHandler
 {
-
-    /**
-     * @var int
-     */
-    public $clientAccountVersion = ClientAccount::VERSION_BILLER_USAGE;
-
     /**
      * @return array
      */
@@ -34,23 +28,14 @@ class VirtpbxRewards extends Model implements RewardsInterface
 
     /**
      * @param int $serviceId
-     * @return mixed
+     * @return UsageVirtpbx|AccountTariff
+     * @throws \yii\base\Exception
      */
     public function getService($serviceId)
     {
-        $service = null;
-
-        switch ($this->clientAccountVersion) {
-            case ClientAccount::VERSION_BILLER_USAGE: {
-                $service = UsageVirtpbx::findOne(['id' => $serviceId]);
-                break;
-            }
-
-            case ClientAccount::VERSION_BILLER_UNIVERSAL: {
-                // @todo universal service
-                return null;
-            }
-        }
+        $service = ($this->clientAccountVersion == ClientAccount::VERSION_BILLER_USAGE) ?
+            UsageVirtpbx::findOne(['id' => $serviceId]) :
+            AccountTariff::findOne(['id' => $serviceId]);
 
         Assert::isObject($service);
 
@@ -65,5 +50,4 @@ class VirtpbxRewards extends Model implements RewardsInterface
     {
         return false;
     }
-
 }

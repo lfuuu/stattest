@@ -76,4 +76,10 @@ interface UsageHelperInterface
      */
     public function getTariffDescription();
 
+    /**
+     * Дата создания услуги
+     *
+     * @return string|null
+     */
+    public function getActivationDt();
 }

@@ -35,6 +35,8 @@ class BillDao extends Singleton
     const ADMISSIBLE_COMPUTATION_ERROR_AMOUNT  = 0.0001;
     const ADMISSIBLE_COMPUTATION_ERROR_SUM  = 0.01;
 
+    const UU_SERVICE = 'uu_account_tariff';
+
     /**
      * Получение следующего номера счета
      *
@@ -430,7 +432,7 @@ class BillDao extends Singleton
             $line->sum_without_tax = $sumWithoutTax;
             $line->sum_tax = $accountEntry->vat;
             $line->uu_account_entry_id = $accountEntry->id;
-            $line->service = 'uu_account_tariff';
+            $line->service = self::UU_SERVICE;
             $line->id_service = $accountEntry->account_tariff_id;
             $line->item_id = null;
             if ($line->amount > 0 && $line->amount != 1) {
