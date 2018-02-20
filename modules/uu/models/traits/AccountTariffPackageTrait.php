@@ -13,6 +13,7 @@ use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPeriod;
 use Yii;
+use yii\base\InvalidParamException;
 
 trait AccountTariffPackageTrait
 {
@@ -23,6 +24,10 @@ trait AccountTariffPackageTrait
     public static function actualizeDefaultPackages($accountTariffId)
     {
         $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+        if (!$accountTariff) {
+            throw new InvalidParamException('Услуга не найдена: ' . $accountTariffId);
+        }
+
         $accountTariff->addOrCloseDefaultPackage();
     }
 
