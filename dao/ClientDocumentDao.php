@@ -718,7 +718,7 @@ class ClientDocumentDao extends Singleton
             'contract_no' => $lastContract['contract_no'],
             'contract_date' => $lastContract['contract_date'],
             'contract_dop_date' => isset($lastContract['contract_dop_date']) ? $lastContract['contract_dop_date'] : null,
-            'contract_dop_no' => $lastContract['contract_dop_no'],
+            'contract_dop_no' => isset($lastContract['contract_dop_no']) ? $lastContract['contract_dop_no'] : null,
 
             'emails' => implode('; ', $officialContacts['email']),
             'phones' => implode('; ', $officialContacts['phone']),

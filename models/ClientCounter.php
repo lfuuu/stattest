@@ -5,6 +5,7 @@ namespace app\models;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\billing\CachedCounter as BillingCounter;
+use app\models\billing\Locks;
 use Yii;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
@@ -151,6 +152,8 @@ class ClientCounter extends ActiveRecord
             if (!$lastAccountDate) {
                 throw new \UnexpectedValueException('ЛС не найден');
             }
+
+            Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
 
             /** @var BillingCounter $billingCounter */
             $billingCounter = BillingCounter::findOne(['client_id' => $clientAccountId]);

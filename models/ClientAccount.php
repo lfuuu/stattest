@@ -1065,18 +1065,17 @@ class ClientAccount extends HistoryActiveRecord
             return $warnings;
         }
 
-        $counters = $this->billingCounters;
-
-        if ($counters->isLocal) {
-            if ($counters->isSyncError) {
-                $warnings[self::WARNING_SYNC_ERROR] = 'Баланс не синхронизирован';
-            } else {
-                $warnings[self::WARNING_UNAVAILABLE_BILLING] = 'Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными';
-            }
-        }
-
         try {
-            Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+            $counters = $this->billingCounters;
+
+            if ($counters->isLocal) {
+                if ($counters->isSyncError) {
+                    $warnings[self::WARNING_SYNC_ERROR] = 'Баланс не синхронизирован';
+                } else {
+                    $warnings[self::WARNING_UNAVAILABLE_BILLING] = 'Сервер статистики недоступен. Данные о балансе и счетчиках могут быть неверными';
+                }
+            }
+
             $lock = Locks::getLock($this->id);
             if ($lock) {
                 if ($lock['b_is_finance_block']) {
