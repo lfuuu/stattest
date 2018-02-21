@@ -91,10 +91,12 @@ $columns = [
         'format' => 'html',
         'value' => function (\app\models\Number $number) {
             return $number->usage_id ?
-                Html::a(
-                    Html::encode($number->usage_id),
-                    $number->usage->getUrl()
-                ) :
+                $number->usage ?
+                    Html::a(
+                        Html::encode($number->usage_id),
+                        $number->usage->getUrl()
+                    ) : $number->usage_id
+                :
                 Yii::t('common', '(not set)');
         },
     ],
@@ -112,11 +114,12 @@ $columns = [
     [
         'label' => 'Страна',
         'attribute' => 'country_id',
+        'format' => 'html',
         'class' => CountryColumn::className(),
         'value' => function (\app\models\Number $number) {
-            return $number->city_id ?
-                (string)$number->city->country :
-                Yii::t('common', '(not set)');
+            return $number->country_code ?
+                $number->country->getLink()
+                : Yii::t('common', '(not set)');
         },
     ],
     [

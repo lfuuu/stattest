@@ -33,7 +33,10 @@ use kartik\widgets\DatePicker;
                 ],
                 'attributes' => [
                     'name' => [],
-                    'financial_manager_id' => ['type' => Form::INPUT_DROPDOWN_LIST, "items" => \app\models\User::getUserListByDepart(28)],
+                    'financial_manager_id' => [
+                        'type' => Form::INPUT_DROPDOWN_LIST,
+                        'items' => \app\models\User::getUserListByDepart(28, $isEnabled = true)
+                    ],
                 ],
             ]);
 

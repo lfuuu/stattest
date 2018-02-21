@@ -136,7 +136,7 @@ class ControlController extends BaseController
         }
 
         Yii::$app->response->format = Response::FORMAT_JSON;
-        $usersList = User::getUserListByDepart($id, ['enabled' => true, 'primary' => 'user']);
+        $usersList = User::getUserListByDepart($id, $isEnabled = true, $primary = 'user');
         $output = [];
 
         foreach ($usersList as $user => $name) {

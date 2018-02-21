@@ -218,23 +218,22 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
 
     /**
      * @param int $departmentId - Department ID
-     * @param array $options - Extends options
-     *                       - "primary": primary column for array
-     *                       - "enabled": extends selection on column "enabled = yes"
+     * @param boolean $isEnabled
+     * @param string $primary - primary column for array
      * @return array
      */
-    public static function getUserListByDepart($departmentId, $options = [])
+    public static function getUserListByDepart($departmentId, $isEnabled = null, $primary = 'id')
     {
         return self::getListTrait(
-            $isWithEmpty = false,
+            $isWithEmpty = true,
             $isWithNullAndNotNull = false,
-            $indexBy = isset($options['primary']) ? $options['primary'] : 'id',
+            $indexBy = $primary,
             $select = 'name',
             $orderBy = [],
             $where = [
                 'AND',
                 ['depart_id' => $departmentId],
-                isset($options['enabled']) ? ['enabled' => 'yes'] : []
+                $isEnabled !== null ? ['enabled' => $isEnabled ? 'yes' : 'no'] : []
             ]
         );
     }
