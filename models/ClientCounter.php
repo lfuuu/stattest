@@ -153,7 +153,7 @@ class ClientCounter extends ActiveRecord
                 throw new \UnexpectedValueException('ЛС не найден');
             }
 
-            Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
+            BillingCounter::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
 
             /** @var BillingCounter $billingCounter */
             $billingCounter = BillingCounter::findOne(['client_id' => $clientAccountId]);
