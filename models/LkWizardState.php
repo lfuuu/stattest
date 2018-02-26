@@ -72,16 +72,25 @@ class LkWizardState extends ActiveRecord
         return $wizard->save();
     }
 
+    /**
+     * Получение типа визарда по стране
+     *
+     * @param integer $countryId
+     * @return string
+     */
     private static function _getWizardTypeByCountryCode($countryId)
     {
         switch ($countryId) {
 
             case Country::HUNGARY:
+            case Country::GERMANY:
+            case Country::AUSTRIA:
                 return LkWizardState::TYPE_HUNGARY;
                 break;
 
             case Country::SLOVAKIA:
                 return LkWizardState::TYPE_SLOVAK;
+                break;
 
             default:
                 return LkWizardState::TYPE_RUSSIA;
