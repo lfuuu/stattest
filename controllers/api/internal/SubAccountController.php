@@ -30,7 +30,9 @@ class SubAccountController extends ApiInternalController
      *   @SWG\Property(property = "voip_limit_mn_day", type = "integer", description = "Дневной лимит на международку"),
      *   @SWG\Property(property = "voip_limit_mn_month", type = "integer", description = "Месячный лимит на международку"),
      *   @SWG\Property(property = "is_voip_orig_disabled", type = "boolean", description = "Оригинация отключена"),
-     *   @SWG\Property(property = "is_voip_blocked", type = "boolean", description = "Телефония заблокирована")
+     *   @SWG\Property(property = "is_voip_blocked", type = "boolean", description = "Телефония заблокирована"),
+     *   @SWG\Property(property = "amount_month_sum", type = "number", description = "Расходы с начала месяца"),
+     *   @SWG\Property(property = "amount_day_sum", type = "number", description = "Расходы с начала суток")
      * ),
      * @SWG\Get(tags={"SubAccount"}, path = "/internal/sub-account/", summary = "Получение списка субаккаунтов",
      *   operationId = "Получение списка субаккаунтов",
@@ -73,17 +75,28 @@ class SubAccountController extends ApiInternalController
         $data = ClientSubAccount::find()
             ->where(['is_enabled' => true])
             ->andFilterWhere($model->getAttributes())
+            ->asArray()
             ->all();
 
         // получение балансов
-        $subAccountSum = SubaccountCounter::find()
-            ->where(['subaccount_id' => array_map(function (ClientSubAccount $subaccount) {return $subaccount->id;}, $data)])
-            ->select(['amount_sum'])
+        $subAccountSums = SubaccountCounter::find()
+            ->where(['subaccount_id' => array_column($data, 'id')])
             ->indexBy('subaccount_id')
-            ->column();
+            ->asArray()
+            ->all();
 
         foreach ($data as &$row) {
-            $row['balance'] = (float) isset($subAccountSum[$row['id']]) ? $subAccountSum[$row['id']] : 0;
+            $row['balance'] = 0;
+            $row['amount_month_sum'] = 0;
+            $row['amount_day_sum'] = 0;
+
+            if (isset($subAccountSums[$row['id']])) {
+                $subAccountSum = $subAccountSums[$row['id']];
+
+                $row['balance'] = (float) $subAccountSum['amount_sum'];
+                $row['amount_month_sum'] = (float) $subAccountSum['amount_month_sum'];
+                $row['amount_day_sum'] = (float) $subAccountSum['amount_day_sum'];
+            }
             unset($row['is_enabled']);
         }
 
