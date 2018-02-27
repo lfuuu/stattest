@@ -29,7 +29,6 @@ use app\classes\grid\column\billing\TrunkGroupColumn;
 return [
     [
         'attribute' => 'connect_time',
-        'label' => 'Время начала',
         'class' => DateTimeRangeDoubleColumn::className(),
         'filterOptions' => [
             'class' => 'alert-danger'
@@ -58,7 +57,6 @@ return [
     ],
     [
         'attribute' => 'src_number',
-        'label' => 'Маска номера А',
         'class' => StringColumn::className(),
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)'
@@ -66,7 +64,6 @@ return [
     ],
     [
         'attribute' => 'dst_number',
-        'label' => 'Маска номера В',
         'class' => StringColumn::className(),
         'filterOptions' => [
             'title' => 'Допустимы цифры, _ или . (одна любая цифра), % или * (любая последовательность цифр, в том числе пустая строка)'
@@ -322,7 +319,6 @@ return [
     ],
     [
         'attribute' => 'group',
-        'label' => 'Группировки',
         'class' => ConstructColumn::className(),
         'filterOptions' => [
             'class' => ' col-sm-4'
@@ -335,7 +331,6 @@ return [
     ],
     [
         'attribute' => 'aggr',
-        'label' => 'Что считать',
         'class' => ConstructColumn::className(),
         'filterOptions' => [
             'class' => ' col-sm-4'

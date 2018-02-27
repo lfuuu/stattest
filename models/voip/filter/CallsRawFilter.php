@@ -341,6 +341,7 @@ class CallsRawFilter extends CallsRaw
                 'currency' => 'Валюта расчетов',
                 'is_exclude_internal_trunk_term' => 'Исключить внутренние транки Терминационные',
                 'is_exclude_internal_trunk_orig' => 'Исключить внутренние транки Оригинационные',
+                'aggr' => 'Что считать',
 
             ];
     }
@@ -491,15 +492,15 @@ class CallsRawFilter extends CallsRaw
         if ($this->connect_time_from) {
             $attributes = $this->getObjectNotEmptyValues(
                 [
-                    'aggrConst',
-                    'group',
-                    'aggr',
-                    'group_period',
+//                    'aggrConst',
+//                    'group',
+//                    'aggr',
+//                    'group_period',
                     'connect_time_to',
                     'connect_time_from',
-                    'sort',
-                    'currency',
-                    'currency_rate',
+//                    'sort',
+//                    'currency',
+//                    'currency_rate',
                     'correct_connect_time_to',
                 ]
             );
@@ -521,16 +522,16 @@ class CallsRawFilter extends CallsRaw
     public function isNnpFiltersPossible()
     {
         $attributes = $this->getObjectNotEmptyValues(
-            [
-                'src_operator_ids',
-                'dst_operator_ids',
-                'src_regions_ids',
-                'dst_regions_ids',
-                'src_cities_ids',
-                'dst_cities_ids',
-                'src_countries_ids',
-                'dst_countries_ids',
-            ]
+//            [
+//                'src_operator_ids',
+//                'dst_operator_ids',
+//                'src_regions_ids',
+//                'dst_regions_ids',
+//                'src_cities_ids',
+//                'dst_cities_ids',
+//                'src_countries_ids',
+//                'dst_countries_ids',
+//            ]
         );
         foreach ($attributes as $key => $value) {
             if ($value && is_array($value) && count(array_intersect($value, [GetListTrait::$isNull, GetListTrait::$isNotNull])) == 2) {
