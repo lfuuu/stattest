@@ -17,7 +17,6 @@ use yii\data\ActiveDataProvider;
 use yii\data\ArrayDataProvider;
 use yii\db\Connection;
 use yii\db\Expression;
-use yii\db\Query;
 
 /**
  * Class Raw
@@ -115,9 +114,18 @@ class CallsRawFilter extends CallsRaw
     ];
 
     public $currencyDependentFields = [
-        'sale_sum', 'sale_avg', 'sale_min', 'sale_max',
-        'cost_price_sum', 'cost_price_avg', 'cost_price_min', 'cost_price_max',
-        'margin_sum', 'margin_avg', 'margin_min', 'margin_max',
+        'sale_sum',
+        'sale_avg',
+        'sale_min',
+        'sale_max',
+        'cost_price_sum',
+        'cost_price_avg',
+        'cost_price_min',
+        'cost_price_max',
+        'margin_sum',
+        'margin_avg',
+        'margin_min',
+        'margin_max',
     ];
 
     public $server_ids = [];
@@ -492,15 +500,15 @@ class CallsRawFilter extends CallsRaw
         if ($this->connect_time_from) {
             $attributes = $this->getObjectNotEmptyValues(
                 [
-//                    'aggrConst',
-//                    'group',
-//                    'aggr',
-//                    'group_period',
+                    'aggrConst',
+                    'group',
+                    'aggr',
+                    'group_period',
                     'connect_time_to',
                     'connect_time_from',
-//                    'sort',
-//                    'currency',
-//                    'currency_rate',
+                    'sort',
+                    'currency',
+                    'currency_rate',
                     'correct_connect_time_to',
                 ]
             );
@@ -522,16 +530,16 @@ class CallsRawFilter extends CallsRaw
     public function isNnpFiltersPossible()
     {
         $attributes = $this->getObjectNotEmptyValues(
-//            [
-//                'src_operator_ids',
-//                'dst_operator_ids',
-//                'src_regions_ids',
-//                'dst_regions_ids',
-//                'src_cities_ids',
-//                'dst_cities_ids',
-//                'src_countries_ids',
-//                'dst_countries_ids',
-//            ]
+            [
+                'src_operator_ids',
+                'dst_operator_ids',
+                'src_regions_ids',
+                'dst_regions_ids',
+                'src_cities_ids',
+                'dst_cities_ids',
+                'src_countries_ids',
+                'dst_countries_ids',
+            ]
         );
         foreach ($attributes as $key => $value) {
             if ($value && is_array($value) && count(array_intersect($value, [GetListTrait::$isNull, GetListTrait::$isNotNull])) == 2) {
