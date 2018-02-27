@@ -113,10 +113,11 @@ class AccountTariffBiller extends Behavior
         Yii::info('AccountTariffBiller. Before AccountEntryTarificator', 'uu');
         (new AccountEntryTarificator)->tarificate($accountTariffId);
 
-        Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
-        (new BillTarificator)->tarificate($accountTariffId);
-
         // это не обязательно делать в реалтайме. По крону вполне сойдет
+        //
+        // Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
+        // (new BillTarificator)->tarificate($accountTariffId);
+        //
         // Yii::info('AccountTariffBiller. Before BillConverterTarificator', 'uu');
         // (new BillConverterTarificator)->tarificate($clientAccountId);
 
