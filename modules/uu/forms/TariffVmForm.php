@@ -9,17 +9,8 @@ use InvalidArgumentException;
 
 abstract class TariffVmForm extends Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var TariffVm */
     public $tariffVm = false;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return TariffVm

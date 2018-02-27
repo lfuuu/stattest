@@ -24,12 +24,6 @@ use yii\data\ActiveDataProvider;
  */
 abstract class AccountTariffForm extends Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var int */
     public $serviceTypeId;
 
@@ -38,9 +32,6 @@ abstract class AccountTariffForm extends Form
 
     /** @var AccountTariffLog */
     public $accountTariffLog;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /** @var AccountTariffVoip */
     public $accountTariffVoip = null;

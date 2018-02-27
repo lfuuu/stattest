@@ -9,17 +9,8 @@ use Yii;
 
 abstract class RegionForm extends Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var Region */
     public $region;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return Region

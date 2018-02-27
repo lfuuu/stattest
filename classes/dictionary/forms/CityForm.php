@@ -9,17 +9,8 @@ use Yii;
 
 abstract class CityForm extends Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var City */
     public $city;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return City

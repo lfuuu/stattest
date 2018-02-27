@@ -9,17 +9,8 @@ use InvalidArgumentException;
 
 abstract class ServiceTypeForm extends Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var ServiceType */
     public $serviceType = false;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return ServiceType

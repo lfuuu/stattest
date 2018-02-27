@@ -13,7 +13,6 @@ use yii\db\Query;
 
 abstract class Form extends Model
 {
-
     use CrudMultipleTrait;
 
     const PAGE_SIZE = 200;

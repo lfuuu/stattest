@@ -9,17 +9,8 @@ use yii;
 
 abstract class DidGroupForm extends Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var DidGroup */
     public $didGroup;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return DidGroup

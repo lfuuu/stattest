@@ -9,17 +9,8 @@ use InvalidArgumentException;
 
 abstract class TariffStatusForm extends Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var TariffStatus */
     public $tariffStatus = false;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return TariffStatus

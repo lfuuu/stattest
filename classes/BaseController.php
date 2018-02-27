@@ -19,9 +19,6 @@ class BaseController extends Controller
 {
     use CrudMultipleTrait;
 
-    /** @var string[] */
-    public $validateErrors = [];
-
     /**
      * @return array
      */

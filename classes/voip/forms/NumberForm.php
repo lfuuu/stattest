@@ -8,17 +8,8 @@ use yii;
 
 abstract class NumberForm extends Form
 {
-    /** @var string ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var \app\models\Number */
     public $number;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return \app\models\Number

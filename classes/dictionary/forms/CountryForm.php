@@ -9,17 +9,8 @@ use yii;
 
 abstract class CountryForm extends Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var Country */
     public $country;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return Country

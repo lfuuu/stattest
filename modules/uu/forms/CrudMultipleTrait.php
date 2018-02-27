@@ -6,9 +6,6 @@ use app\classes\model\ActiveRecord;
 use Yii;
 use yii\db\IntegrityException;
 
-/**
- * @property string[] $validateErrors должет быть определен в родительском классе
- */
 trait CrudMultipleTrait
 {
     /** @var string[] */

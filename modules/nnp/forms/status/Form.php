@@ -9,17 +9,8 @@ use yii\web\NotFoundHttpException;
 
 abstract class Form extends \app\classes\Form
 {
-    /** @var int ID сохраненный модели */
-    public $id;
-
-    /** @var bool */
-    public $isSaved = false;
-
     /** @var Status */
     public $status;
-
-    /** @var string[] */
-    public $validateErrors = [];
 
     /**
      * @return Status
