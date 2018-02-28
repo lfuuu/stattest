@@ -49,11 +49,22 @@ class VoipController extends BaseController
         ]);
     }
 
-    public function actionAdd()
+    public function actionAdd($fromTariffId = null)
     {
         $model = new TariffVoipForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate() && $model->save()) {
+        Yii::$app->request->isPost && $fromTariffId && $fromTariffId = null;
+
+        if ($fromTariffId) {
+            $tariff = TariffVoip::findOne($fromTariffId);
+            Assert::isObject($tariff);
+
+            $model->setAttributes($tariff->getAttributes(null, ['id']), false);
+        } else {
+            $data = Yii::$app->request->post();
+        }
+
+        if (!$fromTariffId && $model->load($data) && $model->validate() && $model->save()) {
             $this->redirect('index');
         }
 

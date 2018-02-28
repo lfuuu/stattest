@@ -195,7 +195,8 @@ echo Breadcrumbs::widget([
                             'style' => 'margin-right: 15px;',
                             'onClick' => 'self.location = "' . Url::toRoute(['index']) . '";',
                         ]) .
-                        Html::submitButton('Сохранить', ['class' => 'btn btn-primary']),
+                        Html::submitButton('Сохранить', ['name' => 'save', 'class' => 'btn btn-primary']).
+                        ($model->id ? Html::a('Клонировать', Url::to(['/tariff/voip/add', 'fromTariffId' => $model->id]), ['class' => 'btn btn-default pull-left', 'target' => '_blank']) : ''),
                         ['style' => 'text-align: right; padding-right: 0px;']
                     )
             ],
