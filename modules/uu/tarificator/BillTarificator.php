@@ -85,13 +85,15 @@ SQL;
         $updateSql = <<<SQL
             UPDATE
                 {$billTableName} bill
-            LEFT JOIN
+            INNER JOIN
                 (
                     SELECT
                        bill_id,
                        SUM(price_with_vat) AS price
                     FROM
                        {$accountEntryTableName} account_entry
+                    WHERE
+                        1=1 {$sqlAndWhere}
                     GROUP BY
                        bill_id
                 ) t

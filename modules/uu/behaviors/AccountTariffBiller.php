@@ -6,7 +6,6 @@ use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\helpers\DateTimeZoneHelper;
 use app\models\EventQueue;
-use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\tarificator\AccountEntryTarificator;
@@ -56,9 +55,9 @@ class AccountTariffBiller extends Behavior
         $accountTariff = $accountTariffLog->accountTariff;
 
         EventQueue::go(\app\modules\uu\Module::EVENT_RECALC_ACCOUNT, [
-                'account_tariff_id' => $accountTariff->id,
-                'client_account_id' => $accountTariff->client_account_id,
-            ],
+            'account_tariff_id' => $accountTariff->id,
+            'client_account_id' => $accountTariff->client_account_id,
+        ],
             $isForceAdd = false,
             // 1. Чтобы пересчет был не по каждому ресурсу услуге, а один на всю услугу
             // 2. Костыль, чтобы обработка очереди не обгоняла сохранение
@@ -113,11 +112,10 @@ class AccountTariffBiller extends Behavior
         Yii::info('AccountTariffBiller. Before AccountEntryTarificator', 'uu');
         (new AccountEntryTarificator)->tarificate($accountTariffId);
 
+        Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
+        (new BillTarificator)->tarificate($accountTariffId);
+
         // это не обязательно делать в реалтайме. По крону вполне сойдет
-        //
-        // Yii::info('AccountTariffBiller. Before BillTarificator', 'uu');
-        // (new BillTarificator)->tarificate($accountTariffId);
-        //
         // Yii::info('AccountTariffBiller. Before BillConverterTarificator', 'uu');
         // (new BillConverterTarificator)->tarificate($clientAccountId);
 
