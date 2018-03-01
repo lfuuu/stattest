@@ -113,35 +113,8 @@ class HttpRequest extends \yii\httpclient\Request
             throw new InvalidCallException($this->_getDebugInfo());
         }
 
-        if (isset($responseData['errors']) && $responseData['errors']) {
+        self::recognizeAnError($responseData);
 
-            if (isset($responseData['errors']['message'], $responseData['errors']['code'])) {
-                $msg = $responseData['errors']['message'];
-                $code = $responseData['errors']['code'];
-            } else {
-                if (isset($responseData['errors'][0], $responseData['errors'][0]['message'])) {
-                    $msg = $responseData['errors'][0]['message'];
-                    $code = $responseData['errors'][0]['code'];
-                } else {
-                    $msg = print_r($responseData, true);
-                    $code = 500;
-                }
-            }
-
-            if (!is_string($msg)) {
-                $msg = '';
-            }
-
-            if (!is_numeric($code)) {
-                $code = -1;
-            }
-
-            if (!in_array($code , [self::ERROR_CODE_ALREADY_PHONE, self::ERROR_CODE_ALREADY_VATS])) {
-                // если услуга уже создана, но предыдущий запрос закончился таймаутом, то это не ошибка
-                // все остальное - ошибка
-                throw new InvalidCallException($msg, $code);
-            }
-        }
 
         return $responseData;
     }
@@ -182,6 +155,50 @@ class HttpRequest extends \yii\httpclient\Request
     {
         $this->_isCheckOk = $isCheckOk;
         return $this;
+    }
+
+    /**
+     * Распознавание ошибки в ответе
+     *
+     * @param $responseData
+     * @return array
+     */
+    public static function recognizeAnError($responseData)
+    {
+        $code = -1;
+        $msg = '';
+
+        if (isset($responseData['errors']) && $responseData['errors']) {
+
+            if (isset($responseData['errors']['message'], $responseData['errors']['code'])) {
+                $msg = $responseData['errors']['message'];
+                $code = $responseData['errors']['code'];
+            } else {
+                if (isset($responseData['errors'][0], $responseData['errors'][0]['message'])) {
+                    $msg = $responseData['errors'][0]['message'];
+                    $code = $responseData['errors'][0]['code'];
+                } else {
+                    $msg = print_r($responseData, true);
+                    $code = 500;
+                }
+            }
+
+            if (!is_string($msg)) {
+                $msg = '';
+            }
+
+            if (!is_numeric($code)) {
+                $code = -1;
+            }
+
+            if (!in_array($code, [self::ERROR_CODE_ALREADY_PHONE, self::ERROR_CODE_ALREADY_VATS])) {
+                // если услуга уже создана, но предыдущий запрос закончился таймаутом, то это не ошибка
+                // все остальное - ошибка
+                throw new InvalidCallException($msg, $code);
+            }
+        }
+
+        return [$code, $msg];
     }
 
 }

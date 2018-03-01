@@ -2,6 +2,7 @@
 namespace app\classes\api;
 
 use app\classes\Assert;
+use app\classes\HttpRequest;
 use app\models\EventQueue;
 use app\classes\HttpClient;
 use app\exceptions\ModelValidationException;
@@ -231,6 +232,14 @@ class ApiCore
             return $result['data'];
         }
 
-        throw new InvalidCallException('[core/create_core_owner] Непонятный ответ платформы');
+        // @TODO событие "Пользователь с таким email существует" (код 503) должно обрабатываться в функции вызова. Надо внести правки на платформу
+
+        list ($code, $msg) = HttpRequest::recognizeAnError($result);
+
+        if ($code) {
+            throw new InvalidCallException($msg, $code);
+        }
+
+        throw new InvalidCallException('[core/create_core_owner] Непонятный ответ платформы: ' . var_export($result, true));
     }
 }
