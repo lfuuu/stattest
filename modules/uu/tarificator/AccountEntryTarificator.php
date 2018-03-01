@@ -216,7 +216,7 @@ SQL;
             {$accountTariffTableName} account_tariff,
             {$clientAccountTableName} client_account
         SET
-            account_entry.vat_rate = client_account.effective_vat_rat
+            account_entry.vat_rate = client_account.effective_vat_rate
         WHERE
             account_entry.account_tariff_id = account_tariff.id
             AND account_tariff.client_account_id = client_account.id

@@ -160,7 +160,7 @@ class HttpRequest extends \yii\httpclient\Request
     /**
      * Распознавание ошибки в ответе
      *
-     * @param $responseData
+     * @param mixed $responseData
      * @return array
      */
     public static function recognizeAnError($responseData)
