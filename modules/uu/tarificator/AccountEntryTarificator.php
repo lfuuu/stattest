@@ -4,8 +4,6 @@ namespace app\modules\uu\tarificator;
 
 use app\classes\Connection;
 use app\models\ClientAccount;
-use app\models\ClientContract;
-use app\models\Organization;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountLogMin;
 use app\modules\uu\models\AccountLogPeriod;
@@ -212,24 +210,16 @@ SQL;
         $this->out('. ');
         $accountTariffTableName = AccountTariff::tableName();
         $clientAccountTableName = ClientAccount::tableName();
-        $clientContractTableName = ClientContract::tableName();
-        $organizationTableName = Organization::tableName();
         $updateSql = <<<SQL
         UPDATE
             {$accountEntryTableName} account_entry,
             {$accountTariffTableName} account_tariff,
-            {$clientAccountTableName} client_account,
-            {$clientContractTableName} client_contract,
-            {$organizationTableName} organization
+            {$clientAccountTableName} client_account
         SET
-            account_entry.vat_rate = organization.vat_rate
+            account_entry.vat_rate = client_account.effective_vat_rat
         WHERE
             account_entry.account_tariff_id = account_tariff.id
             AND account_tariff.client_account_id = client_account.id
-            AND client_account.contract_id = client_contract.id
-            AND client_contract.organization_id = organization.organization_id
-            AND organization.actual_from <= account_entry.date
-            AND account_entry.date < organization.actual_to
             {$sqlAndWhere}
 SQL;
         $db->createCommand($updateSql)
