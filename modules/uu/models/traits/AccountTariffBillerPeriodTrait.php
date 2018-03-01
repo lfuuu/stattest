@@ -13,6 +13,7 @@ trait AccountTariffBillerPeriodTrait
      * Вернуть даты периодов, по которым не произведен расчет абонентки
      *
      * @return AccountLogFromToTariff[]
+     * @throws \Exception
      * @throws \LogicException
      * @throws ModelValidationException
      */
@@ -61,7 +62,17 @@ trait AccountTariffBillerPeriodTrait
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs))));
+            // Это не ошибка. Такое бывает, когда период за сегодня уже пробилинговался, а потом сегодня же сменили тариф. В результате билингуется по новому тарифу. Ну и пусть.
+            // throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogPeriod for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs))));
+            foreach ($accountLogs as $accountLog) {
+                if (!$accountLog) {
+                    continue;
+                }
+
+                if (!$accountLog->delete()) {
+                    throw new ModelValidationException($accountLog);
+                }
+            }
         }
 
         return $untarificatedPeriods;
