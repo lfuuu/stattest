@@ -231,6 +231,6 @@ class ApiCore
             return $result['data'];
         }
 
-        throw new InvalidCallException('[core/create_core_owner]', 'Непонятный ответ платформы');
+        throw new InvalidCallException('[core/create_core_owner] Непонятный ответ платформы');
     }
 }
