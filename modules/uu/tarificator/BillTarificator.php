@@ -92,8 +92,6 @@ SQL;
                        SUM(price_with_vat) AS price
                     FROM
                        {$accountEntryTableName} account_entry
-                    WHERE
-                        1=1 {$sqlAndWhere}
                     GROUP BY
                        bill_id
                 ) t
