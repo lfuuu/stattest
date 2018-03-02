@@ -196,6 +196,34 @@ class Trouble extends ActiveRecord
         return new TroubleMedia($this);
     }
 
+
+
+    /**
+     * Можем ли мы перевести заявку на новый этап
+     *
+     * @param integer $newStateId
+     * @return bool
+     */
+    public function isTranferAllowed($newStateId)
+    {
+        $currentState = $this->currentStage->state;
+
+        /** @var TroubleType $stateType */
+        $stateType = TroubleType::find()
+            ->where(['&', 'states', $currentState->pk])
+            ->one();
+
+        if (!$stateType) {
+            throw new \LogicException('Тип заявки не найден');
+        }
+
+        return TroubleState::find()
+            ->where(['&', 'pk', $stateType->states])
+            ->andWhere(['not', ['&', 'pk', $currentState->deny]])
+            ->andWhere(['id' => $newStateId])
+            ->exists();
+    }
+
     /**
      * @return string
      */

@@ -318,7 +318,7 @@ class m_tt extends IModule{
             }
 
             // проводим если новая стадия: закрыт, отгружен, к отгрузке
-            if (in_array($R['state_id'], array_merge(TroubleState::$closedStates, [28, 23, 18, 4, 17]))) {
+            if (in_array($R['state_id'], array_merge(\app\models\Trouble::dao()->getClosedStatesId(), [28, 23, 18, 4, 17]))) {
                 $bill->is_approved = 1;
                 $bill->sum = $bill->sum_with_unapproved;
             } else {
@@ -2154,7 +2154,7 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         if($state_filter == "null" || TroubleState::isClose($state_filter))
         {
-            $state_filter = " not in (" . implode(',', TroubleState::$closedStates). ")";
+            $state_filter = " not in (" . implode(',', \app\models\Trouble::dao()->getClosedStatesId()). ")";
         }else{
             $state_filter = ' = "'.$state_filter.'"';
         }

@@ -29,6 +29,7 @@ class AppAsset extends AssetBundle
         'js/statlib/main.js',
         'js/js.cookie.js',
         'js/notify.js',
+        'js/lead_notifier.js'
     ];
 
     public $jsOptions = [

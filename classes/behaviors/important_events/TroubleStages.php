@@ -41,7 +41,7 @@ class TroubleStages extends Behavior
 
         if (
             $trouble->stage->state_id != $event->sender->state_id
-            && !in_array($event->sender->state_id, TroubleState::$closedStates, true)
+            && !in_array($event->sender->state_id, Trouble::dao()->getClosedStatesId(), true)
         ) {
             ImportantEvents::create(ImportantEventsNames::SET_STATE_TROUBLE,
                 ImportantEventsSources::SOURCE_STAT, [

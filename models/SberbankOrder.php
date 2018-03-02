@@ -27,7 +27,7 @@ class SberbankOrder extends ActiveRecord
     const STATUS_PAYED = 2;
 
     /**
-     * Навание таблицы
+     * Название таблицы
      *
      * @return string
      */

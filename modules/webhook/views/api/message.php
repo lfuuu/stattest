@@ -12,12 +12,13 @@ use app\classes\Html;
 use app\models\ClientContact;
 
 ?>
-    <span>
-        <?= $did ?> -&gt; <?= $abon ?>
-    </span>
+<div class="notify_popup_message" id="message_id_<?= $messageId ?>"
+<span>
+    <?= $did ?> -&gt; <?= $abon ?>
+</span>
 
 <?php if ($clientContacts) : ?>
-    <table class="table table-striped table-condensed">
+    <table class="table table-condensed" id="client_info_<?= $messageId ?>">
         <?php
         $i = 0;
         foreach ($clientContacts as $clientContact) :
@@ -35,7 +36,7 @@ use app\models\ClientContact;
             $contragent = $contract->contragent;
             $super = $contract->super;
             ?>
-            <tr>
+            <tr data-client_account_id="<?= $clientAccount->id ?>">
                 <td><?= Html::encode($clientContact->comment) ?></td>
                 <td><?= Html::a($clientAccount->getAccountType() . ' ' . $clientAccount->id, $clientAccount->getUrl()) ?></td>
                 <td>Дог. <?= $contract->number ?></td>
@@ -45,3 +46,5 @@ use app\models\ClientContact;
         <?php endforeach ?>
     </table>
 <?php endif ?>
+<?= isset($block['down']) ? $block['down'] : '' ?>
+</div>

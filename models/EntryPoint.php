@@ -33,6 +33,8 @@ class EntryPoint extends ActiveRecord
     const RU1 = 'RU1';
     const RU5 = 'RU5';
 
+    const RF_CRM = 'RF_CRM';
+
     public function __construct(array $config = [])
     {
         parent::__construct($config);

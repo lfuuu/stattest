@@ -302,7 +302,7 @@ class ClientCreateExternalForm extends Form
     private function _createClientStruct()
     {
         $super = new ClientSuper();
-        $super->name = $this->company;
+        $super->name = $this->company ?: 'Client #';
         $super->validate();
         if (!$super->save()) {
             throw new ModelValidationException($super);
@@ -311,11 +311,10 @@ class ClientCreateExternalForm extends Form
         Yii::info($super);
         $this->super_id = $super->id;
 
-        if ($this->entryPoint) {
-            $super->name = $this->entryPoint->super_client_prefix . $super->id;
-            if (!$super->save()) {
-                throw new ModelValidationException($super);
-            }
+        $super->name = ($this->entryPoint ? $this->entryPoint->super_client_prefix : $super->name) . $super->id;
+
+        if (!$super->save()) {
+            throw new ModelValidationException($super);
         }
 
         $contragent = new ContragentEditForm(['super_id' => $super->id]);

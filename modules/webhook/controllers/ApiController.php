@@ -5,7 +5,12 @@
 
 namespace app\modules\webhook\controllers;
 
+use app\exceptions\ModelValidationException;
 use app\exceptions\web\BadRequestHttpException;
+use app\models\ClientAccount;
+use app\models\Lead;
+use app\models\Trouble;
+use app\models\TroubleState;
 use app\models\User;
 use app\modules\socket\classes\Socket;
 use app\modules\webhook\models\ApiHook;
@@ -20,6 +25,11 @@ use yii\web\Controller;
  */
 class ApiController extends Controller
 {
+    private $_content = null;
+    /** @var ClientAccount */
+    private $_clientAccount = null;
+    private $_clientContacts = [];
+
     /**
      * Инициализация
      */
@@ -77,6 +87,8 @@ class ApiController extends Controller
         //            'account_id' => '12345', // ID аккаунта MCN Telecom. Это не клиент!
         //        ]);
 
+        $this->_content = $content;
+
         Yii::info('Webhook: ' . $content);
         if (!$content) {
             throw new BadRequestHttpException('Webhook error. Не указан raw body');
@@ -120,43 +132,23 @@ class ApiController extends Controller
             return 'Абонент не найден';
         }
 
-        // отправить уведомление менеджеру
-        // найти контакты
-        $clientContacts = $apiHook->getClientContacts();
-        foreach ($clientContacts as $clientContact) {
-            $clientAccount = $clientContact->client;
-            if ($clientAccount) {
-                break;
-            }
-        }
+        $this->_makeContactsAndClientAccount($apiHook);
 
-        $messageHtml = $this->renderPartial('message', [
-            'did' => $apiHook->did,
-            'abon' => $apiHook->abon,
-            'clientContacts' => $clientContacts,
-        ]);
-
-        $messageText = $messageHtml;
-        $messageText = str_replace(PHP_EOL, '', $messageText); // удалить \n
-        $messageText = str_replace(['</span>', '</tr>'], PHP_EOL, $messageText); // добавить \n
-        $messageText = str_replace('>', '> ', $messageText);
-        $messageText = strip_tags($messageText);
-        $messageText = preg_replace('/[ \t]+/', ' ', $messageText); // удалить дубли пробелов
-        $messageText = html_entity_decode($messageText);
+        $messageHtml = $this->_getRenderedHtmlContent($apiHook, $user);
 
         $params = [
             Socket::PARAM_TITLE => $apiHook->getEventTypeMessage(),
             Socket::PARAM_MESSAGE_HTML => $messageHtml,
-            Socket::PARAM_MESSAGE_TEXT => $messageText,
+            Socket::PARAM_MESSAGE_TEXT => $this->_htmlToText($messageHtml),
             Socket::PARAM_TYPE => $apiHook->getEventTypeStyle(),
-            // Socket::PARAM_USER_TO => null,
             Socket::PARAM_USER_ID_TO => $user->id,
-            Socket::PARAM_URL_TEXT => $clientAccount ? $clientAccount->getUrl() : '',
+            Socket::PARAM_URL_TEXT => $this->_clientAccount ? $this->_clientAccount->getUrl() : '',
             Socket::PARAM_TIMEOUT => $apiHook->getEventTypeTimeout(),
         ];
         Socket::me()->emit($params);
 
-        if ($clientContacts) {
+
+        if ($this->_clientContacts) {
             Yii::info('Webhook ok. ' . $content);
         } else {
             Yii::info('Webhook info. Клиент не найден. ' . $content);
@@ -164,4 +156,148 @@ class ApiController extends Controller
 
         return 'Ok';
     }
+
+    /**
+     * Заполнение контактов и клиента
+     *
+     * @param ApiHook $apiHook
+     */
+    private function _makeContactsAndClientAccount(ApiHook $apiHook)
+    {
+        // отправить уведомление менеджеру
+        // найти контакты
+        $this->_clientContacts = $apiHook->getClientContacts();
+
+        $this->_clientAccount = $clientAccount = null;
+        foreach ($this->_clientContacts as $clientContact) {
+            $clientAccount = $clientContact->client;
+            if ($clientAccount) {
+                $this->_clientAccount = $clientAccount;
+                break;
+            }
+        }
+    }
+
+    /**
+     * Преобразует HTML в текст
+     *
+     * @param string $html
+     * @return string
+     */
+    private function _htmlToText($html)
+    {
+        $text = $html;
+        $text = str_replace(PHP_EOL, '', $text); // удалить \n
+        $text = str_replace(['</span>', '</tr>'], PHP_EOL, $text); // добавить \n
+        $text = str_replace('>', '> ', $text);
+        $text = preg_replace('/<script[^>]*>.*?<\/script>/is', '', $text); // вырезаем <script> с содержимым
+        $text = strip_tags($text);
+        $text = preg_replace('/[ \t]+/', ' ', $text); // удалить дубли пробелов
+        $text = html_entity_decode($text);
+
+        return $text;
+    }
+
+    /**
+     * Генерация контента на событие
+     *
+     * @param ApiHook $apiHook
+     * @param User $user
+     * @return string
+     */
+    private function _getRenderedHtmlContent(ApiHook $apiHook, User $user)
+    {
+        $messageId = md5($this->_content . microtime());
+
+        $downBlock = '';
+
+        if ($apiHook->event_type == ApiHook::EVENT_TYPE_IN_CALLING_ANSWERED && $this->module->params['is_with_lid']) {
+            $this->_makeLead($messageId, $user);
+            $downBlock = $this->_getLeadHtml($apiHook, $messageId);
+        }
+
+        return $this->renderPartial('message', [
+            'did' => $apiHook->did,
+            'abon' => $apiHook->abon,
+            'clientContacts' => $this->_clientContacts,
+            'messageId' => $messageId,
+            'block' => ['down' => $downBlock],
+        ]);
+    }
+
+
+    /**
+     * Блок лида
+     *
+     * @param ApiHook $apiHook
+     * @param string $messageId
+     * @return string
+     */
+    private function _getLeadHtml(ApiHook $apiHook, $messageId)
+    {
+        $states = TroubleState::find()
+            ->where(['is_in_popup' => true])
+            ->orderBy(['order' => SORT_ASC])
+            ->all();
+
+        return $this->renderPartial('lead', [
+            'apiHook' => $apiHook,
+            'states' => $states,
+            'messageId' => $messageId,
+            'clientAccount' => $this->_clientAccount,
+        ]);
+    }
+
+    /**
+     * Создание лида
+     *
+     * @param string $messageId
+     * @param User $user
+     * @throws \Exception
+     * @internal param string $content
+     */
+    private function _makeLead($messageId, User $user)
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            $lid = Lead::findOne(['message_id' => $messageId]);
+
+            if (!$lid) {
+                $lid = new Lead();
+                $lid->message_id = $messageId;
+            }
+
+            $lid->data_json = $this->_content;
+            $lid->state_id = TroubleState::CONNECT__INCOME;
+            $lid->account_id = $this->_clientAccount ? $this->_clientAccount->id : Lead::DEFAULT_ACCOUNT_ID;
+            $lid->trouble_id = $this->_makeLeadTrouble($lid->account_id, $user)->id;
+
+            if (!$lid->save()) {
+                throw new ModelValidationException($lid);
+            }
+
+            $transaction->commit();
+        } catch(\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Создание лид-заявки
+     *
+     * @param integer $accountId
+     * @param User $user
+     * @return Trouble
+     */
+    private function _makeLeadTrouble($accountId, User $user)
+    {
+        return Trouble::dao()->createTrouble(
+            $accountId,
+            Trouble::TYPE_CONNECT,
+            Trouble::SUBTYPE_CONNECT,
+            'Лид-звонок',
+            $user->user);
+    }
+
 }

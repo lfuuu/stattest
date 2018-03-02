@@ -43,7 +43,7 @@ class CyberPlatProcessorTest extends _TestCase
         $clientForm = new ClientCreateExternalForm();
         $clientForm->email = 'cyberplattest' . rand(10000, 99999) . '@test.mcn.ru';
         if (!$clientForm->validate() || !$clientForm->create()) {
-            throw new \BadMethodCallException('Невохможно соsздать клиента');
+            throw new \BadMethodCallException('Невозможно создать клиента');
         }
 
         self::$account = ClientAccount::findOne(['id' => $clientForm->account_id]);

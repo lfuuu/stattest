@@ -11,6 +11,7 @@ use app\models\ClientAccount;
 use app\models\support\Ticket;
 use app\models\Trouble;
 use app\models\TroubleStage;
+use app\models\TroubleState;
 use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -317,6 +318,8 @@ class TroubleDao extends Singleton
             $transaction->rollBack();
             throw $e;
         }
+
+        return $trouble;
     }
 
     /**
@@ -371,20 +374,15 @@ class TroubleDao extends Singleton
      */
     public function getClosedStatesId()
     {
-        return [
-            2,  // Закрыт
-            20, // Закрыт
-            21, // Отказ
-            39, // Закрыт
-            40, // Отказ
-            45, // Техотказ
-            46, // Отказ
-            47, // Мусор
-            48, // Включено
+        static $cache = null;
 
-            59, //Выключен,
-            60, //Выполнен,
-            61, //Закрыт
-        ];
+        if (!$cache) {
+            $cache = TroubleState::find()
+                ->select('id')
+                ->where(['is_final' => true])
+                ->column();
+        }
+
+        return $cache;
     }
 }

@@ -17,6 +17,8 @@ class ApiHook extends Model
     const EVENT_TYPE_INBOUND_CALL_START = 'InboundCallStart'; // начало входящего звонка
     const EVENT_TYPE_INBOUND_CALL_END = 'InboundCallEnd'; // конец входящего звонка
 
+    const EVENT_TYPE_IN_CALLING_ANSWERED = 'onInCallingAnswered'; // начало входящего разговора
+
     const TIMEOUT = 120000; // время (в миллисекундах) автоскрывания уведомления
 
     public
@@ -38,6 +40,8 @@ class ApiHook extends Model
 
         self::EVENT_TYPE_INBOUND_CALL_START => 'Входящий звонок',
         self::EVENT_TYPE_INBOUND_CALL_END => 'Входящий звонок окончен',
+
+        self::EVENT_TYPE_IN_CALLING_ANSWERED => 'Отвеченный звонок',
     ];
 
     private $_eventTypeToStyle = [
@@ -47,6 +51,8 @@ class ApiHook extends Model
         self::EVENT_TYPE_OUT_CALLING_START => 'info',
 
         self::EVENT_TYPE_INBOUND_CALL_START => 'success',
+
+        self::EVENT_TYPE_IN_CALLING_ANSWERED => 'warning',
     ];
 
     private $_eventTypeToTimeout = [
@@ -56,6 +62,7 @@ class ApiHook extends Model
         self::EVENT_TYPE_OUT_CALLING_START => self::TIMEOUT,
 
         self::EVENT_TYPE_INBOUND_CALL_START => self::TIMEOUT,
+        self::EVENT_TYPE_IN_CALLING_ANSWERED => 0, // никогда не скрывать
     ];
 
     /**
