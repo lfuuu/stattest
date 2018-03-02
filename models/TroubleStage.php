@@ -17,9 +17,10 @@ use app\classes\model\ActiveRecord;
  * @property string $date_finish_desired
  * @property int $rating
  * @property string $user_rating
- * @property TroubleState $state
- * @property Trouble $trouble
- * @property User $user
+ *
+ * @property-read TroubleState $state
+ * @property-read Trouble $trouble
+ * @property-read User $user
  */
 class TroubleStage extends ActiveRecord
 {

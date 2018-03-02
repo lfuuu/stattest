@@ -26,6 +26,8 @@ class TroubleState extends ActiveRecord
     const CONNECT__NEGOTIATION = 42;
     const CONNECT__VERIFICATION_OF_DOCUMENTS = 49;
 
+    const CONNECT__TRASH = 47;
+
     public static function tableName()
     {
         return 'tt_states';

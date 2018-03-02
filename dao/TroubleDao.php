@@ -217,6 +217,7 @@ class TroubleDao extends Singleton
      * @param integer $newUserMainId
      * @param integer $userEditId
      * @return TroubleStage
+     * @throws \Exception
      */
     public function addStage($trouble, $newStateId, $comment, $newUserMainId = null, $userEditId = null)
     {
@@ -237,23 +238,43 @@ class TroubleDao extends Singleton
         $curStage = $trouble->currentStage;
         Assert::isObject($curStage);
 
-        $curStage->user_edit = $userEdit->user;
+        $newState = TroubleState::findOne(['id' => $newStateId]);
 
-        if (trim($comment)) {
-            $curStage->comment = $comment;
+        Assert::isObject($newState);
+
+        $transaction = \Yii::$app->db->beginTransaction();
+
+        try {
+            $curStage->user_edit = $userEdit->user;
+
+            if (trim($comment)) {
+                $curStage->comment = $comment;
+            }
+
+            if (!$curStage->save()) {
+                throw new ModelValidationException($curStage);
+            }
+
+            $stage = new TroubleStage();
+            $stage->trouble_id = $trouble->id;
+            $stage->state_id = $newStateId;
+            $stage->user_main = $userMain ? $userMain->user : $curStage->user_main;
+            $stage->date_start = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            if (!$stage->save()) {
+                throw new ModelValidationException($stage);
+            }
+
+            $trouble->cur_stage_id = $stage->stage_id;
+            $trouble->folder = $newState->folder;
+            if (!$trouble->save()) {
+                throw new ModelValidationException($trouble);
+            }
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
         }
 
-        $curStage->save();
-
-        $stage = new TroubleStage();
-        $stage->trouble_id = $trouble->id;
-        $stage->state_id = $newStateId;
-        $stage->user_main = $userMain ? $userMain->user : $curStage->user_main;
-        $stage->date_start = (new \DateTime())->format(DateTimeZoneHelper::DATETIME_FORMAT);
-        $stage->save();
-
-        $trouble->cur_stage_id = $stage->stage_id;
-        $trouble->save();
         return $stage;
     }
 
@@ -266,6 +287,7 @@ class TroubleDao extends Singleton
      * @param string $troubleText
      * @param string $author
      * @param string $user
+     * @return Trouble
      * @throws \Exception
      * @internal param string $department
      * @internal param string $subject

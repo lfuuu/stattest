@@ -8,6 +8,8 @@ use app\dao\TroubleDao;
 use yii\helpers\Url;
 
 /**
+ * Class Trouble
+ *
  * @property int $id
  * @property string $trouble_type
  * @property string $client

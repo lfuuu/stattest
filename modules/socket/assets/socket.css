@@ -1,6 +1,7 @@
 #socket-img {
     float: right;
     padding-right: 10px;
+    margin-top: 30px
 }
 
 #socket-img.glyphicon-eye-open {
@@ -16,7 +17,7 @@
     position: fixed;
     right: 35px;
     left: auto;
-    top: 8px;
+    top: 36px;
     width: 800px;
     padding: 10px;
     max-width: none;
