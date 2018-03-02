@@ -104,7 +104,8 @@ $config = [
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
-            'dirMode' => 0777
+            'dirMode' => 0777,
+            'fileMode' => 0666,
         ],
         'user' => [
             'identityClass' => 'app\models\User',

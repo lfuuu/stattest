@@ -73,9 +73,15 @@ class ClientSuperDao extends Singleton
 
             foreach ($contragents as $contragent) {
                 $resultContracts = [];
+                if (!isset($contracts[$contragent['id']])) {
+                    continue;
+                }
                 /** @var ClientContract $contract */
                 foreach ($contracts[$contragent['id']] as $contract) {
                     $resultAccounts = [];
+                    if (!isset($accounts[$contract['id']])) {
+                        continue;
+                    }
                     /** @var ClientAccount $account */
                     foreach ($accounts[$contract['id']] as $account) {
                         $resultAccount = [
@@ -128,6 +134,7 @@ class ClientSuperDao extends Singleton
                         'name' => $contragent['name'],
                         'country' => $countries && isset($countries[$contragent['country_id']]) ? $countries[$contragent['country_id']]->alpha_3 : '',
                         'country_id' => $contragent['country_id'],
+                        'language' => $contragent['lang_code'],
                         'contracts' => $resultContracts
                     ];
                 }
