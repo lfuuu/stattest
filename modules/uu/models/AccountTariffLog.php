@@ -710,12 +710,19 @@ class AccountTariffLog extends ActiveRecord
         }
 
         $accountTariff = $this->accountTariff;
-        if ($accountTariff->service_type_id != ServiceType::ID_VOIP) {
-            // не телефония
-            return;
+        switch ($accountTariff->service_type_id) {
+            case ServiceType::ID_VOIP:
+                $number = $accountTariff->number;
+                break;
+            case ServiceType::ID_VOIP_PACKAGE_CALLS:
+                $prevAccountTariff = $accountTariff->prevAccountTariff;
+                $number = $prevAccountTariff ? $prevAccountTariff->number : null;
+                break;
+            default:
+                // не телефония
+                return;
         }
 
-        $number = $accountTariff->number;
         if (!$number) {
             return;
         }
