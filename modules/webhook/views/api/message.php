@@ -12,6 +12,19 @@ use app\classes\Html;
 use app\models\ClientContact;
 
 ?>
+
+<?php if ($messageIdsForClose) : ?>
+    <script>
+        <?php
+        foreach($messageIdsForClose as $closeMessageId) : ?>
+            optools.socketPopup.closeMessage('<?= $closeMessageId ?>');
+        <?php endforeach; ?>
+    </script>
+<?php endif; ?>
+<script>
+
+</script>
+
 <div class="notify_popup_message" id="message_id_<?= $messageId ?>"
 <span>
     <?= $did ?> -&gt; <?= $abon ?>

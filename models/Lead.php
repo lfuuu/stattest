@@ -27,7 +27,7 @@ class Lead extends ActiveRecord
 {
     const DEFAULT_ENTRY_POINT = EntryPoint::RF_CRM;
     const DEFAULT_ACCOUNT_ID = 50124;
-    const TRASH_ACCOUNT_ID = 50124;
+    const TRASH_ACCOUNT_ID = 50125;
 
     /**
      * Название таблицы

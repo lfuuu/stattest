@@ -65,6 +65,12 @@ class ApiHook extends Model
         self::EVENT_TYPE_IN_CALLING_ANSWERED => 0, // никогда не скрывать
     ];
 
+    private $eventTypesForCloseEvent = [
+        ApiHook::EVENT_TYPE_IN_CALLING_ANSWERED => [
+            ApiHook::EVENT_TYPE_IN_CALLING_START
+        ]
+    ];
+
     /**
      * @return array
      */
@@ -144,4 +150,19 @@ class ApiHook extends Model
     {
         return (bool)$this->getEventTypeStyle();
     }
+
+    /**
+     * Получение списка типов сообщений для закрытия при появлении сообщения текущего типа
+     *
+     * @return array
+     */
+    public function getEventTypesForClose()
+    {
+        if (isset($this->eventTypesForCloseEvent[$this->event_type])) {
+            return $this->eventTypesForCloseEvent[$this->event_type];
+        }
+
+        return [];
+    }
+
 }

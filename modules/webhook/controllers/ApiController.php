@@ -26,6 +26,7 @@ use yii\web\Controller;
 class ApiController extends Controller
 {
     private $_content = null;
+    private $_data = null;
     /** @var ClientAccount */
     private $_clientAccount = null;
     private $_clientContacts = [];
@@ -83,6 +84,7 @@ class ApiController extends Controller
         //            'event_type' => ApiHook::EVENT_TYPE_IN_CALLING_START, // тип события
         //            'abon' => 262, // внутренний номер абонента ВАТС, который принимает/совершает звонок. Только если через ВАТС
         //            'did' => '+74959319628', // номер вызывающего/вызываемого абонента
+        //            'call_id' => "12-1520008586.19367277", // ID звонка
         //            'secret' => $this->module->params['secretKey'], // секретный token, подтверждающий, что запрос пришел от валидного сервера
         //            'account_id' => '12345', // ID аккаунта MCN Telecom. Это не клиент!
         //        ]);
@@ -103,6 +105,8 @@ class ApiController extends Controller
         if (!$data) {
             throw new BadRequestHttpException('Webhook error. Указан неправильный raw body ' . $content);
         }
+
+        $this->_data = $data;
 
         $apiHook = new ApiHook;
         $apiHook->setAttributes($data);
@@ -207,7 +211,7 @@ class ApiController extends Controller
      */
     private function _getRenderedHtmlContent(ApiHook $apiHook, User $user)
     {
-        $messageId = md5($this->_content . microtime());
+        $messageId = $this->_getMessageId();
 
         $downBlock = '';
 
@@ -222,6 +226,7 @@ class ApiController extends Controller
             'clientContacts' => $this->_clientContacts,
             'messageId' => $messageId,
             'block' => ['down' => $downBlock],
+            'messageIdsForClose' => $this->_getMessageIdsForClose($apiHook),
         ]);
     }
 
@@ -277,14 +282,14 @@ class ApiController extends Controller
             }
 
             $transaction->commit();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
     }
 
     /**
-     * Создание лид-заявки
+     * Создание заявки для лида
      *
      * @param integer $accountId
      * @param User $user
@@ -298,6 +303,37 @@ class ApiController extends Controller
             Trouble::SUBTYPE_CONNECT,
             'Лид-звонок',
             $user->user);
+    }
+
+    /**
+     * Получаем идентификатор сообщения
+     *
+     * @param string $callId
+     * @param string $eventType
+     * @return string
+     */
+    private function _getMessageId($callId = null, $eventType = null)
+    {
+        !$callId && $callId = $this->_data['call_id'];
+        !$eventType && $eventType = $this->_data['event_type'];
+
+        return md5($callId . ' / ' . $eventType);
+    }
+
+    /**
+     * Получить идентификаторы сообщений для закрытия
+     *
+     * @param ApiHook $apiHook
+     * @return array
+     */
+    private function _getMessageIdsForClose(ApiHook $apiHook)
+    {
+        $ids = [];
+        foreach ($apiHook->getEventTypesForClose() as $eventType) {
+            $ids[] = $this->_getMessageId($this->_data['call_id'], $eventType);
+        }
+
+        return $ids;
     }
 
 }

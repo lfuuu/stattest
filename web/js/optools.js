@@ -989,8 +989,24 @@ var optools = {
                     $( '#' + prefix + name + '_from' ).datepicker( 'option', 'maxDate', selectedDate );
                 }
             });
-        }
+        },
+  socketPopup: {
+    closeMessage: function (messageId) {
+      var $msg = $('#message_id_' + messageId);
+      $msg.parents('div[role=alert]').alert('close');
+    },
+    checkNeedCloseTooltip: function () {
+      var tooltip = $('#socket-div');
+      console.log(tooltip.find('div.notify_popup_message').length);
+      if (tooltip.find('div.notify_popup_message').length <= 1) { // алерт ещё существует, но он один и будет закрыт
+        $(tooltip).slideUp();
+      }
+    }
+  }
 }
+
+$(document).on('click', '#socket-div .close', function(){optools.socketPopup.checkNeedCloseTooltip();});
+
 optools.friendly.dates.mon_right_days.inArray = optools.friendly.dates.leap_years.inArray = optools.inArray
 
 optools.friendly.checkAllInSelect = function(sel){
