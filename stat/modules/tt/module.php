@@ -11,6 +11,7 @@
 */
 use app\exceptions\ModelValidationException;
 use app\models\TroubleState;
+use yii\base\InvalidParamException;
 use yii\db\ActiveRecord;
 use yii\base\ModelEvent;
 use app\dao\TroubleDao;
@@ -726,6 +727,8 @@ where c.client="'.$trouble['client_orig'].'"')
             $mediaManager = $trouble->mediaManager;
             $design->assign('tt_media', $mediaManager->getFiles());
         }
+
+        $design->assign('is_trouble_with_lead', $trouble && $trouble->lead);
 
         $bill = false;
 
@@ -2858,5 +2861,52 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
         include 'StoreLimitReport.php';
         StoreLimitReport::saveData();
     }
+
+    /**
+     * Перенос заявки на другой ЛС
+     */
+    public function tt_edit_client()
+    {
+        $troubleId = get_param_integer('id');
+        $clientAccountId = get_param_integer('client_account_id');
+
+        $trouble = \app\models\Trouble::findOne(['id' => $troubleId]);
+
+        if (!$trouble)  {
+            throw new InvalidParamException('Заявка не найдена');
+        }
+
+        $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
+
+        if (!$clientAccount) {
+            throw new InvalidParamException('ЛС не найден');
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        try {
+            $trouble->client = $clientAccount->client;
+
+            if (!$trouble->save()) {
+                throw new ModelValidationException($trouble);
+            }
+
+            if ($lead = $trouble->lead) {
+                $lead->account_id = $clientAccount->id;
+
+                if (!$lead->save()) {
+                    throw new ModelValidationException($lead);
+                }
+            }
+            $transaction->commit();
+        } catch (Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        // sorry
+        Header('Location: ' . $trouble->getUrl());
+        exit();
+    }
 }
-?>
+

@@ -211,7 +211,7 @@ class LeadController extends BaseController
 
         $trouble = $lead->trouble;
 
-        if (!$trouble->isTranferAllowed($stateId)) {
+        if (!$trouble->isTransferAllowed($stateId)) {
             throw new InvalidParamException('Невозможно перевести из стадии ' . $trouble->currentStage->state_id . ' в ' . $stateId);
         }
 

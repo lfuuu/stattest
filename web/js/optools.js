@@ -20,7 +20,7 @@ var optools = {
 		}
 
         var e164 = $('#E164');
-        
+
         if (e164.length == 1 && e164.val().substr(0,4) == "7800") {
             if ($('select#line7800_id').val() == 0) {
                 alert('Выберите линию без номера, связанную с номеров 8800');
@@ -262,7 +262,7 @@ var optools = {
                                             if (!first) {
                                                 var sel = document.getElementById('moved_from');
                                                 sel.innerHTML = '';
-                                                
+
                                                 for (var i in data.posible_pbx)
                                                 {
                                                     op = document.createElement('option');
@@ -270,7 +270,7 @@ var optools = {
                                                     op.appendChild(document.createTextNode(data.posible_pbx[i]));
                                                     sel.appendChild(op);
                                                 }
-                                            } 
+                                            }
                                             $('#moved_from').attr('disabled', false);
                                             $('#tr_moved_from').show();
                                         } else {
@@ -377,7 +377,7 @@ var optools = {
                     }
 
                     $.get("./account/set-voip-disable?id="+optools.service.voip.accountId).done(function(data){
-                        if(data != 'ok') 
+                        if(data != 'ok')
                         {
                             alert("ошибка сохранения");
                         }
@@ -990,6 +990,51 @@ var optools = {
                 }
             });
         },
+  moveTroubleToClient: {
+    troubleId: null,
+    init: function (troubleId) {
+
+      optools.moveTroubleToClient.troubleId = troubleId;
+
+      var $clientSearchField = $('input.account-search');
+      var $clientApplyBtn = $('#btn_change_client').click(function () {
+        var clientAccountId = $(this).data('client_account_id');
+
+        if (!clientAccountId) {
+          alert('Лс не установлен');
+          return;
+        }
+
+        if (!optools.moveTroubleToClient.troubleId) {
+          alert('Заявка не установлена');
+        }
+
+        location.href = '/?module=tt&action=edit_client&id=' + optools.moveTroubleToClient.troubleId + '&client_account_id=' + clientAccountId;
+      });
+
+      $clientSearchField
+        .on('keydown', function (e) {
+          if (e.keyCode === $.ui.keyCode.TAB && $(this).autocomplete('instance').menu.active) {
+            e.preventDefault();
+          }
+          if (e.keyCode === $.ui.keyCode.ENTER) {
+            $(this).blur();
+          }
+        })
+        .autocomplete({
+          source: '/search/index?searchType=clients&search=',
+          minLength: 2,
+          focus: function () {
+            return false;
+          },
+          select: function (event, item) {
+            $clientApplyBtn.data('client_account_id', item.item.id);
+          },
+        });
+
+    }
+  },
+
   socketPopup: {
     closeMessage: function (messageId) {
       var $msg = $('#message_id_' + messageId);
@@ -1046,10 +1091,10 @@ function getTarifs(region_id)
 	$('#t_id_tarif_russia').empty();
     $('#t_id_tarif_russia_mob').empty();
 	//dest == 2
-	$('#t_id_tarif_intern').empty();	
+	$('#t_id_tarif_intern').empty();
 	//dest == 5
 	$('#t_id_tarif_local_mob').empty();
-	
+
 	$.ajax({
 		type:'GET',
 		url:'index_lite.php',

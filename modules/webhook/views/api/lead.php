@@ -3,7 +3,7 @@
 use app\models\TroubleState;
 
 ?>
-<div class="well message-buttons" data-message-id="<?= $messageId ?>">
+<div class="well well-sm message-buttons" data-message-id="<?= $messageId ?>">
     <div class="row">
         <div class="col-sm-4">
             <button name="to_lead" value=1 class="btn btn-sm btn-success btn-block">Лид</button>
@@ -15,7 +15,10 @@ use app\models\TroubleState;
             <button name="to_trash" value=1 class="btn btn-sm btn-default btn-block" id="btn_trash">Мусор</button>
         </div>
     </div>
-    <hr>
+    <?php
+    if ($clientAccount) : ?>
+        <hr/>
+    <?php endif; ?>
     <div class="row">
         <div class="col-sm-12">
             <?php

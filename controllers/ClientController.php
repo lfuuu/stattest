@@ -283,8 +283,10 @@ class ClientController extends BaseController
      */
     public function actionSearch()
     {
+        $searchQuery = Yii::$app->request->queryParams;
+
         $searchModel = new ClientSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = $searchModel->search($searchQuery);
 
         if (Yii::$app->request->isAjax) {
             $res = [];
@@ -296,6 +298,15 @@ class ClientController extends BaseController
                         'value' => $model->contract->number,
                         'color' => $model->contract->businessProcessStatus->color,
                         'id' => $model->id,
+                    ];
+                } if (isset($searchQuery['is_term'])) {
+
+                    $contragent = $model->contract->contragent;
+                    $name = htmlspecialchars($contragent->name ?: $contragent->name_full);
+
+                    $res[] = [
+                        'id' => $model->id,
+                        'value' => $model->getAccountTypeAndId() . ' - ' . $name,
                     ];
                 } else {
                     $res[] = [

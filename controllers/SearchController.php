@@ -31,6 +31,12 @@ class SearchController extends BaseController
         switch ($searchType) {
 
             case 'clients':
+
+                if (isset(Yii::$app->request->queryParams['term'])) {
+                    $search = Yii::$app->request->queryParams['term'];
+                    $params['is_term'] = true;
+                }
+
                 // Дополнительный поиск по счетам
                 $bill = Bill::findOne(['bill_no' => trim($search)]);
                 if ($bill) {

@@ -30,6 +30,7 @@ use yii\helpers\Url;
  * @property int $support_ticket_id
  *
  * @property-read TroubleStage $currentStage
+ * @property-read Lead $lead
  * @property-read \app\classes\media\TroubleMedia mediaManager
  */
 class Trouble extends ActiveRecord
@@ -166,6 +167,14 @@ class Trouble extends ActiveRecord
         return $this->hasOne(ClientAccount::className(), ['client' => 'client']);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLead()
+    {
+        return $this->hasOne(Lead::className(), ['trouble_id' => 'id']);
+    }
+
     public function getLastNotEmptyComment()
     {
         $model = TroubleStage::find()
@@ -206,7 +215,7 @@ class Trouble extends ActiveRecord
      * @param integer $newStateId
      * @return bool
      */
-    public function isTranferAllowed($newStateId)
+    public function isTransferAllowed($newStateId)
     {
         $currentState = $this->currentStage->state;
 

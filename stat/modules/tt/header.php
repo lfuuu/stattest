@@ -28,6 +28,7 @@ class m_tt_head extends IModuleHead{
 					'rpc_setState1c'=> array('tt','use'),
 					'store_limit'          => array('tt','limit'),
 					'save_limits'          => array('tt','limit'),
+					'edit_client'          => array('tt','use'),
 				);
 	var $menu=array(
 		array('Тех поддержка MCN','view_type', '&type_pk=1'),
