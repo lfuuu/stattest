@@ -211,23 +211,37 @@ class ApiController extends Controller
      */
     private function _getRenderedHtmlContent(ApiHook $apiHook, User $user)
     {
-        $messageId = $this->_getMessageId();
+        $messageId = $apiHook->getMessageId();
+
+        $content = '';
+
+        if ($apiHook->isEventTypeWithClose()) {
+            $content .= $this->renderPartial('close_message_script', [
+                'messageIdsForClose' => $apiHook->getMessageIdsForClose()
+            ]);
+        }
 
         $downBlock = '';
-
         if ($apiHook->event_type == ApiHook::EVENT_TYPE_IN_CALLING_ANSWERED && $this->module->params['is_with_lid']) {
             $this->_makeLead($messageId, $user);
             $downBlock = $this->_getLeadHtml($apiHook, $messageId);
         }
 
-        return $this->renderPartial('message', [
+        $content .= $this->renderPartial('message', [
             'did' => $apiHook->did,
             'abon' => $apiHook->abon,
             'clientContacts' => $this->_clientContacts,
             'messageId' => $messageId,
             'block' => ['down' => $downBlock],
-            'messageIdsForClose' => $this->_getMessageIdsForClose($apiHook),
         ]);
+
+        if (!$apiHook->isEventTypesWithContent()) {
+            $content .= $this->renderPartial('close_message_script', [
+                'messageIdsForClose' => [$apiHook->getMessageId()]
+            ]);
+        }
+
+        return $content;
     }
 
 
@@ -303,37 +317,6 @@ class ApiController extends Controller
             Trouble::SUBTYPE_CONNECT,
             'Лид-звонок',
             $user->user);
-    }
-
-    /**
-     * Получаем идентификатор сообщения
-     *
-     * @param string $callId
-     * @param string $eventType
-     * @return string
-     */
-    private function _getMessageId($callId = null, $eventType = null)
-    {
-        !$callId && $callId = $this->_data['call_id'];
-        !$eventType && $eventType = $this->_data['event_type'];
-
-        return md5($callId . ' / ' . $eventType);
-    }
-
-    /**
-     * Получить идентификаторы сообщений для закрытия
-     *
-     * @param ApiHook $apiHook
-     * @return array
-     */
-    private function _getMessageIdsForClose(ApiHook $apiHook)
-    {
-        $ids = [];
-        foreach ($apiHook->getEventTypesForClose() as $eventType) {
-            $ids[] = $this->_getMessageId($this->_data['call_id'], $eventType);
-        }
-
-        return $ids;
     }
 
 }

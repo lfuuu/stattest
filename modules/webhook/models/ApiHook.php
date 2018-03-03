@@ -18,6 +18,7 @@ class ApiHook extends Model
     const EVENT_TYPE_INBOUND_CALL_END = 'InboundCallEnd'; // конец входящего звонка
 
     const EVENT_TYPE_IN_CALLING_ANSWERED = 'onInCallingAnswered'; // начало входящего разговора
+    const EVENT_TYPE_CLOSE_INCOMING_NOTICE = 'onCloseIncomingNotice'; // прекращение оповещения о входящем звонке в очереди
 
     const TIMEOUT = 120000; // время (в миллисекундах) автоскрывания уведомления
 
@@ -26,7 +27,8 @@ class ApiHook extends Model
         $abon, // внутренний номер абонента ВАТС, который принимает/совершает звонок. Только если через ВАТС
         $did, // номер вызывающего/вызываемого абонента
         $secret, // секретный token, подтверждающий, что запрос пришел от валидного сервера
-        $account_id; // ID аккаунта MCN Telecom. Это не клиент!
+        $account_id, // ID аккаунта MCN Telecom. Это не клиент!
+        $call_id; // ID звонка
 
     public $dids = [];
 
@@ -42,6 +44,8 @@ class ApiHook extends Model
         self::EVENT_TYPE_INBOUND_CALL_END => 'Входящий звонок окончен',
 
         self::EVENT_TYPE_IN_CALLING_ANSWERED => 'Отвеченный звонок',
+
+        self::EVENT_TYPE_CLOSE_INCOMING_NOTICE => 'Звонок завершился',
     ];
 
     private $_eventTypeToStyle = [
@@ -53,6 +57,8 @@ class ApiHook extends Model
         self::EVENT_TYPE_INBOUND_CALL_START => 'success',
 
         self::EVENT_TYPE_IN_CALLING_ANSWERED => 'warning',
+
+        self::EVENT_TYPE_CLOSE_INCOMING_NOTICE => 'info',
     ];
 
     private $_eventTypeToTimeout = [
@@ -65,10 +71,17 @@ class ApiHook extends Model
         self::EVENT_TYPE_IN_CALLING_ANSWERED => 0, // никогда не скрывать
     ];
 
-    private $eventTypesForCloseEvent = [
+    private $_eventTypesForCloseEvent = [
         ApiHook::EVENT_TYPE_IN_CALLING_ANSWERED => [
             ApiHook::EVENT_TYPE_IN_CALLING_START
+        ],
+        ApiHook::EVENT_TYPE_CLOSE_INCOMING_NOTICE => [
+            ApiHook::EVENT_TYPE_IN_CALLING_START
         ]
+    ];
+
+    private $_eventTypesWithoutContent = [
+        ApiHook::EVENT_TYPE_CLOSE_INCOMING_NOTICE
     ];
 
     /**
@@ -78,7 +91,7 @@ class ApiHook extends Model
     {
         return [
             [['abon', 'account_id'], 'integer'],
-            [['event_type', 'did', 'secret'], 'string'],
+            [['event_type', 'did', 'secret', 'call_id'], 'string'],
             [['event_type', 'did', 'secret', 'account_id'], 'required'],
         ];
     }
@@ -152,17 +165,67 @@ class ApiHook extends Model
     }
 
     /**
+     * Есть ли контент у данного типа сообщения
+     *
+     * @return bool
+     */
+    public function isEventTypesWithContent()
+    {
+        return !in_array($this->event_type, $this->_eventTypesWithoutContent);
+    }
+
+    /**
+     * Надо ли закрывать предыдущее сообщения
+     *
+     * @return bool
+     */
+    public function isEventTypeWithClose()
+    {
+        return isset($this->_eventTypesForCloseEvent[$this->event_type]);
+    }
+
+    /**
      * Получение списка типов сообщений для закрытия при появлении сообщения текущего типа
      *
      * @return array
      */
-    public function getEventTypesForClose()
+    private function _getEventTypesForClose()
     {
-        if (isset($this->eventTypesForCloseEvent[$this->event_type])) {
-            return $this->eventTypesForCloseEvent[$this->event_type];
+        if (isset($this->_eventTypesForCloseEvent[$this->event_type])) {
+            return $this->_eventTypesForCloseEvent[$this->event_type];
         }
 
         return [];
     }
 
+    /**
+     * Получить идентификаторы сообщений для закрытия
+     *
+     * @return array
+     */
+    public function getMessageIdsForClose()
+    {
+        $ids = [];
+        foreach ($this->_getEventTypesForClose() as $eventType) {
+            $ids[] = $this->getMessageId($this->call_id, $eventType);
+        }
+
+        return $ids;
+    }
+
+
+    /**
+     * Получаем идентификатор сообщения
+     *
+     * @param string $callId
+     * @param string $eventType
+     * @return string
+     */
+    public function getMessageId($callId = null, $eventType = null)
+    {
+        !$callId && $callId = $this->call_id;
+        !$eventType && $eventType = $this->event_type;
+
+        return md5($callId . ' / ' . $eventType);
+    }
 }

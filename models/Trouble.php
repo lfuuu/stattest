@@ -5,6 +5,7 @@ namespace app\models;
 use app\classes\media\TroubleMedia;
 use app\classes\model\ActiveRecord;
 use app\dao\TroubleDao;
+use yii\base\InvalidParamException;
 use yii\helpers\Url;
 
 /**
@@ -146,6 +147,10 @@ class Trouble extends ActiveRecord
 
     public function addStage($stateId, $comment, $newUserId = null, $editUserId = null)
     {
+        if (!$this->isTransferAllowed($stateId)) {
+            throw new InvalidParamException('Невозможно перевести из стадии ' . $this->currentStage->state_id . ' в ' . $stateId);
+        }
+
         return TroubleDao::me()->addStage($this, $stateId, $comment, $newUserId, $editUserId);
     }
 

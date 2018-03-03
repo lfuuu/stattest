@@ -1037,15 +1037,15 @@ var optools = {
 
   socketPopup: {
     closeMessage: function (messageId) {
-      var $msg = $('#message_id_' + messageId);
-      $msg.parents('div[role=alert]').alert('close');
+      $('#message_id_' + messageId).parents('div[role=alert]').alert('close');
     },
     checkNeedCloseTooltip: function () {
-      var tooltip = $('#socket-div');
-      console.log(tooltip.find('div.notify_popup_message').length);
-      if (tooltip.find('div.notify_popup_message').length <= 1) { // алерт ещё существует, но он один и будет закрыт
-        $(tooltip).slideUp();
-      }
+      setTimeout(function () {
+        var tooltip = $('#socket-div');
+        if (tooltip.find('div.notify_popup_message').length <= 0) { // алерт ещё существует, но он один и будет закрыт
+          $(tooltip).slideUp();
+        }
+      }, 300);
     }
   }
 }

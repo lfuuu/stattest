@@ -7,6 +7,7 @@ use app\exceptions\ModelValidationException;
 use app\forms\client\ClientCreateExternalForm;
 use app\models\ClientAccount;
 use app\models\Lead;
+use app\models\TroubleState;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
@@ -185,6 +186,10 @@ class LeadController extends BaseController
     {
         $lead->moveToClientAccount(Lead::TRASH_ACCOUNT_ID);
 
+        if ($trouble = $lead->trouble) {
+            $trouble->addStage(TroubleState::CONNECT__TRASH, '');
+        }
+
         if (Yii::$app->request->isAjax) {
             return 'Ok';
         } else {
@@ -209,13 +214,9 @@ class LeadController extends BaseController
             $lead->moveToClientAccount($clientAccountId);
         }
 
-        $trouble = $lead->trouble;
-
-        if (!$trouble->isTransferAllowed($stateId)) {
-            throw new InvalidParamException('Невозможно перевести из стадии ' . $trouble->currentStage->state_id . ' в ' . $stateId);
+        if ($trouble = $lead->trouble) {
+            $trouble->addStage($stateId, '');
         }
-
-        $trouble->addStage($stateId, '');
 
         if (Yii::$app->request->isAjax) {
             return 'Ok';
