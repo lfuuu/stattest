@@ -17,6 +17,7 @@ use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffVoipCity;
+use app\modules\uu\models\TariffVoipGroup;
 use app\modules\uu\models\TariffVoipNdcType;
 use HttpException;
 use Yii;
@@ -469,14 +470,16 @@ final class OpenController extends Controller
         /** @var Tariff $tariffPackage */
         foreach ($tariffPackagesQuery->each() as $tariffPackage) {
 
-            // стоимость звонков
-            $packagePrices = $tariffPackage ? $tariffPackage->packagePrices : null;
-            if (count($packagePrices)) {
-                $defaultTariff['call_price_mobile'] = array_shift($packagePrices)->price;
-            }
+            if ($tariffPackage->voip_group_id === TariffVoipGroup::ID_LOCAL) {
+                // стоимость звонков
+                $packagePrices = $tariffPackage ? $tariffPackage->packagePrices : null;
+                if (count($packagePrices)) {
+                    $defaultTariff['call_price_mobile'] = array_shift($packagePrices)->price;
+                }
 
-            if (count($packagePrices)) {
-                $defaultTariff['call_price_local'] = array_shift($packagePrices)->price;
+                if (count($packagePrices)) {
+                    $defaultTariff['call_price_local'] = array_shift($packagePrices)->price;
+                }
             }
 
             // абонентка и минималка
