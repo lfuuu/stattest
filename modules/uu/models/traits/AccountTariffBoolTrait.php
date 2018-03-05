@@ -13,6 +13,7 @@ use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffPeriod;
 use app\modules\uu\tarificator\SetCurrentTariffTarificator;
 use DateTimeZone;
+use Yii;
 use yii\db\ActiveQuery;
 
 trait AccountTariffBoolTrait
@@ -29,7 +30,11 @@ trait AccountTariffBoolTrait
             return false;
         }
 
-        if (array_key_exists($this->service_type_id, ServiceType::$packages) && $this->getNotNullTariffPeriod()->tariff->is_default) {
+        if (
+            array_key_exists($this->service_type_id, ServiceType::$packages)
+            && $this->getNotNullTariffPeriod()->tariff->is_default
+            && !Yii::$app->user->can('services_voip.package') // если нельзя, но очень надо, то можно
+        ) {
             // дефолтный пакет нельзя редактировать. Он должен закрыться автоматически при закрытии базового тарифа
             return false;
         }
