@@ -117,6 +117,7 @@ abstract class TariffForm extends \app\classes\Form
                     'tag_id' => $post['Tariff']['tag_id'],
                     'is_default' => $post['Tariff']['is_default'],
                     'is_charge_after_blocking' => $post['Tariff']['is_charge_after_blocking'],
+                    'voip_group_id' => $post['Tariff']['voip_group_id'],
                 ];
             }
 
