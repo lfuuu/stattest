@@ -21,7 +21,10 @@ class UsageTrunkFilter extends UsageTrunk
         $contract_type_id,
         $business_process_id,
         $trunk_id,
-        $what_is_enabled;
+        $what_is_enabled,
+        $description,
+        $actual_from_from,
+        $actual_from_to;
 
     private $trunkIDs = [];
 
@@ -41,7 +44,28 @@ class UsageTrunkFilter extends UsageTrunk
                 ],
                 'integer'
             ],
-            [['what_is_enabled', 'trunk_ids', 'contract_number',], 'string'],
+            [['what_is_enabled', 'trunk_ids', 'contract_number', 'description'], 'string'],
+            [['actual_from_from', 'actual_from_to'], 'string'],
+        ];
+    }
+
+    /**
+     * Вернуть имена полей
+     *
+     * @return array [полеВТаблице => Перевод]
+     */
+    public function attributeLabels()
+    {
+        return [
+            'connection_point_id' => 'Точка подключения',
+            'trunk_ids' => 'Супер-клиент',
+            'contragent_id' => 'Контрагент',
+            'contract_number' => '№ договора',
+            'contract_type_id' => 'Тип договора',
+            'business_process_id' => 'Бизнес-процесс',
+            'trunk_id' => 'Транк',
+            'description' => 'Комментарий',
+            'actual_from' => 'Дата подключения',
         ];
     }
 
@@ -98,12 +122,6 @@ class UsageTrunkFilter extends UsageTrunk
             new Expression('CAST(NOW() AS DATETIME)')
         ]);
 
-        $query->orderBy([
-            'trunk.connection_point_id' => SORT_DESC,
-            'client.super_id' => SORT_ASC,
-            'trunk.trunk_id' => SORT_ASC,
-        ]);
-
         /**
          * Установка условий фильтрации
          */
@@ -118,41 +136,43 @@ class UsageTrunkFilter extends UsageTrunk
         !empty($this->contract_type_id) && $query->andWhere(['contract.contract_type_id' => $this->contract_type_id]);
         !empty($this->business_process_id) && $query->andWhere(['contract.business_process_id' => $this->business_process_id]);
         !empty($this->trunk_id) && $query->andWhere(['trunk.trunk_id' => $this->trunk_id]);
+        !empty($this->description) && $query->andWhere(['LIKE', 'trunk.description', $this->description]);
+
+        !empty($this->actual_from_from) && $query->andWhere(['>=', 'trunk.actual_from', $this->actual_from_from]);
+        !empty($this->actual_from_to) && $query->andWhere(['<=', 'trunk.actual_from', $this->actual_from_to]);
+
         switch ($this->what_is_enabled) {
-            case Trunk::TRUNK_DIRECTION_ORIG: {
-                $query->andWhere(['trunk.orig_enabled' => 1]);
-                break;
-            }
-            case Trunk::TRUNK_DIRECTION_TERM: {
-                $query->andWhere(['trunk.term_enabled' => 1]);
-                break;
-            }
-            case Trunk::TRUNK_DIRECTION_BOTH: {
-                $query->andWhere([
-                    'trunk.orig_enabled' => 1,
-                    'trunk.term_enabled' => 1,
-                ]);
-                break;
-            }
+            case Trunk::TRUNK_DIRECTION_ORIG:
+                {
+                    $query->andWhere(['trunk.orig_enabled' => 1]);
+                    break;
+                }
+            case Trunk::TRUNK_DIRECTION_TERM:
+                {
+                    $query->andWhere(['trunk.term_enabled' => 1]);
+                    break;
+                }
+            case Trunk::TRUNK_DIRECTION_BOTH:
+                {
+                    $query->andWhere([
+                        'trunk.orig_enabled' => 1,
+                        'trunk.term_enabled' => 1,
+                    ]);
+                    break;
+                }
         }
-        !$this->isFilteringPossible() && $query->where('false');
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort' => false,
             'pagination' => false,
+            'sort' => [
+                'attributes' => array_keys($this->attributeLabels()),
+                'defaultOrder' => [
+                    'trunk_id' => SORT_DESC,
+                ],
+            ],
         ]);
 
         return $dataProvider;
     }
-
-    /**
-     * Указаны ли необходимые фильтры. Если нет, то фильтрация не происходит
-     * @return bool
-     */
-    public function isFilteringPossible()
-    {
-        return (int)$this->connection_point_id;
-    }
-
 }
