@@ -230,3 +230,6 @@ echo \yii\widgets\Breadcrumbs::widget([
         </td>
     </tr>
 </table>
+
+<?= $this->render('_edit', ['number' => $number]) ?>
+

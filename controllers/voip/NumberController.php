@@ -11,6 +11,7 @@ use app\classes\traits\AddClientAccountFilterTraits;
 use app\classes\voip\forms\NumberFormNew;
 use app\forms\usage\NumberForm;
 use app\models\Country;
+use app\models\DidGroup;
 use app\models\filter\voip\NumberFilter;
 use app\models\Number;
 use Yii;
@@ -110,10 +111,20 @@ class NumberController extends BaseController
         $number = Number::findOne($did);
         Assert::isObject($number);
 
+        // редактирование модели
+        $post = Yii::$app->request->post();
+        if (
+            $post && $number->load($post) // загрузить beauty_level
+            && ($number->did_group_id = DidGroup::dao()->getIdByNumber($number)) // по beauty_level установить did_group_id
+            && $number->save()
+        ) {
+            return $this->redirect(['view', 'did' => $did]);
+        }
+
+        // редактирование формы
         $actionForm = new NumberForm();
         $actionForm->number_tech = $number->number_tech;
-
-        if ($actionForm->load(Yii::$app->request->post()) && $actionForm->validate() && $actionForm->process()) {
+        if ($actionForm->load($post) && $actionForm->validate() && $actionForm->process()) {
             return $this->redirect(['view', 'did' => $did]);
         }
 
