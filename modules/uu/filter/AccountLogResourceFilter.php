@@ -40,6 +40,9 @@ class AccountLogResourceFilter extends AccountLogResource
     public $price_from = '';
     public $price_to = '';
 
+    public $cost_price_from = '';
+    public $cost_price_to = '';
+
     public $client_account_id = '';
 
     public $account_entry_id = '';
@@ -73,6 +76,7 @@ class AccountLogResourceFilter extends AccountLogResource
             [['price_per_unit_from', 'price_per_unit_to'], 'double'],
             [['coefficient_from', 'coefficient_to'], 'double'],
             [['price_from', 'price_to'], 'double'],
+            [['cost_price_from', 'cost_price_to'], 'double'],
             [['date_from_from', 'date_to_from'], 'string', 'max' => 10],
             [['date_from_to', 'date_to_to'], 'string', 'max' => 10],
         ];
@@ -123,6 +127,9 @@ class AccountLogResourceFilter extends AccountLogResource
 
         $this->price_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.price', $this->price_to]);
+
+        $this->cost_price_from !== '' && $query->andWhere(['>=', $accountLogResourceTableName . '.cost_price', $this->cost_price_from]);
+        $this->cost_price_to !== '' && $query->andWhere(['<=', $accountLogResourceTableName . '.cost_price', $this->cost_price_to]);
 
         $this->client_account_id !== '' && $query->andWhere([$accountTariffTableName . '.client_account_id' => $this->client_account_id]);
 

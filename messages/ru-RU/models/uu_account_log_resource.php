@@ -13,6 +13,7 @@ return [
     'price_per_unit' => 'Цена за превышение, ¤/сутки',
     'coefficient' => 'Количество суток',
     'price' => 'Стоимость, ¤',
+    'cost_price' => 'Себестоимость, ¤',
     'account_entry_id' => 'Проводка',
     'account_tariff_resource_log_id' => 'Смена количества',
 ];

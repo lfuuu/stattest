@@ -13,6 +13,7 @@ return [
     'price_per_unit' => 'Overhead price per day',
     'coefficient' => 'Days',
     'price' => 'Cost',
+    'cost_price' => 'Cost price',
     'account_entry_id' => 'Entry',
     'account_tariff_resource_log_id' => 'Amount changing',
 ];

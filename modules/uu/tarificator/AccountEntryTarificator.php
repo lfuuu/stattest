@@ -46,7 +46,7 @@ class AccountEntryTarificator extends Tarificator
         // Ресурсы
         // (аналогично абонентке)
         $this->out(PHP_EOL . 'Проводки за ресурсы');
-        $this->_tarificate(AccountLogResource::tableName(), 'tariff_resource_id', 'date_from', 'date_to', $accountTariffId, $isSplitByMonths = 1);
+        $this->_tarificate(AccountLogResource::tableName(), 'tariff_resource_id', 'date_from', 'date_to', $accountTariffId, $isSplitByMonths = 1, 'account_log.cost_price');
 
         // Минимальная плата
         // Транзакции группировать в проводки следующего месяца
@@ -69,9 +69,10 @@ class AccountEntryTarificator extends Tarificator
      * @param string $dateFieldNameTo
      * @param int|null $accountTariffId Если указан, то только для этой услуги. Если не указан - для всех
      * @param int $isSplitByMonths делить ли на прошлый/будущий месяц
+     * @param int|float|string $costPrice Себестоимость. Значение и "account_log.поле"
      * @throws \yii\db\Exception
      */
-    private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isSplitByMonths)
+    private function _tarificate($accountLogTableName, $typeId, $dateFieldNameFrom, $dateFieldNameTo, $accountTariffId, $isSplitByMonths, $costPrice = 0)
     {
         /** @var Connection $db */
         $db = Yii::$app->db;
@@ -163,7 +164,8 @@ SQL;
                         account_log.account_entry_id,
                         SUM(account_log.price) AS price,
                         MIN(`{$dateFieldNameFrom}`) AS date_from,
-                        MAX(`{$dateFieldNameTo}`) AS date_to
+                        MAX(`{$dateFieldNameTo}`) AS date_to,
+                        {$costPrice} AS cost_price
                     FROM
                         {$accountLogTableName} account_log,
                         {$accountTariffTableName} account_tariff,
@@ -177,6 +179,7 @@ SQL;
                 ) t
             SET
                 account_entry.price = t.price,
+                account_entry.cost_price = t.cost_price,
                 account_entry.date_from = t.date_from,
                 account_entry.date_to = t.date_to
             WHERE

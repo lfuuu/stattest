@@ -113,6 +113,10 @@ $columns = [
         'class' => FloatRangeColumn::className(),
     ],
     [
+        'attribute' => 'cost_price',
+        'class' => FloatRangeColumn::className(),
+    ],
+    [
         'attribute' => 'account_entry_id',
         'class' => IsNullAndNotNullColumn::className(),
         'format' => 'html',

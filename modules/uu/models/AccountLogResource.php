@@ -22,6 +22,7 @@ use yii\helpers\Url;
  * @property float $price_per_unit кэш tariffResource -> price_per_unit
  * @property int $coefficient кэш (date_to - date_from)
  * @property float $price кэш amount_overhead * price_per_unit * $coefficient
+ * @property float $cost_price
  * @property string $insert_time
  * @property int $account_entry_id
  * @property int $account_tariff_resource_log_id
@@ -57,7 +58,7 @@ class AccountLogResource extends ActiveRecord
     {
         return [
             [['id', 'tariff_period_id', 'account_tariff_id', 'tariff_resource_id', 'coefficient'], 'integer'],
-            [['price'], 'double'],
+            [['price', 'cost_price'], 'double'],
             [['date_from', 'date_to'], 'string', 'max' => 10],
         ];
     }

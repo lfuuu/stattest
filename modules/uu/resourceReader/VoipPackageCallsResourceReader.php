@@ -14,7 +14,7 @@ class VoipPackageCallsResourceReader extends PackageCallsResourceReader
     protected function andWhere(Query $query, AccountTariff $accountTariff)
     {
         $query->andWhere([
-            'number_service_id' => $accountTariff->prev_account_tariff_id, // основная услуга
+            'calls_price.number_service_id' => $accountTariff->prev_account_tariff_id, // основная услуга
         ]);
     }
 }

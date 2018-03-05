@@ -10,7 +10,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use yii\base\Object;
 
-class NmpNumberResourceReader extends Object implements ResourceReaderInterface
+class NnpNumberResourceReader extends Object implements ResourceReaderInterface
 {
     /**
      * Вернуть количество потраченного ресурса
@@ -18,13 +18,14 @@ class NmpNumberResourceReader extends Object implements ResourceReaderInterface
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
      * @param TariffPeriod $tariffPeriod
-     * @return float Если null, то данные неизвестны
+     * @return Amounts
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
         // в БД хранится в UTC, но считать надо в зависимости от таймзоны клиента
         $dateTimeUtc = $dateTime->setTimezone(new DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC));
-        return NnpLog::find()
+
+        $price = NnpLog::find()
             ->where(['account_tariff_id' => $accountTariff->id])
             ->andWhere([
                 'BETWEEN',
@@ -33,6 +34,8 @@ class NmpNumberResourceReader extends Object implements ResourceReaderInterface
                 $dateTimeUtc->modify('+1 day')->format(DateTimeZoneHelper::DATETIME_FORMAT)
             ])
             ->count();
+
+        return new Amounts($price, 0);
     }
 
     /**

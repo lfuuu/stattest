@@ -16,10 +16,12 @@ use yii\db\Query;
 abstract class PackageCallsResourceReader extends Object implements ResourceReaderInterface
 {
     /** @var [] кэш данных */
-    private $_callsByPrice = [];
-    private $_callsByPricelist = [];
+    private $_callsByPrice = []; // [$date => [$packagePriceId => [0 => $price, 1 => $costPrice]]]
+    private $_callsByPricelist = []; // [$date => [$packagePricelistId => [0 => $price, 1 => $costPrice]]]
 
     private $_accountTariffId = null;
+
+    private static $_packages = [];
 
     /**
      * Вернуть количество потраченного ресурса
@@ -27,7 +29,7 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
      * @param TariffPeriod $tariffPeriod
-     * @return float|null Если null, то данные неизвестны
+     * @return Amounts
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
@@ -35,31 +37,41 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
             $this->_setDateToValue($accountTariff, $dateTime);
         }
 
-        $cost = 0;
+        $price = $costPrice = 0;
         $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         if (!isset($this->_callsByPrice[$date]) && !isset($this->_callsByPricelist[$date])) {
-            return $cost;
+            return new Amounts($price, $costPrice);
         }
 
-        $tariff = $tariffPeriod->tariff;
+        $tariffId = $tariffPeriod->tariff_id;
+        if (!isset(self::$_packages[$tariffId])) {
+            // записать в кэш
+            $tariff = $tariffPeriod->tariff;
+            self::$_packages[$tariffId] = [
+                'packagePriceIds' => $tariff->getPackagePrices()->select(['id'])->column(),
+                'packagePricelistIds' => $tariff->getPackagePricelists()->select(['id'])->column(),
+            ];
+        }
+
+        $package = self::$_packages[$tariffId];
 
         // Цена по направлениям
-        $packagePrices = $tariff->packagePrices;
-        foreach ($packagePrices as $packagePrice) {
-            if (isset($this->_callsByPrice[$date][$packagePrice->id])) {
-                $cost += $this->_callsByPrice[$date][$packagePrice->id];
+        foreach ($package['packagePriceIds'] as $packagePriceId) {
+            if (isset($this->_callsByPrice[$date][$packagePriceId])) {
+                $price += $this->_callsByPrice[$date][$packagePriceId][0];
+                $costPrice += $this->_callsByPrice[$date][$packagePriceId][1];
             }
         }
 
         // Прайслист с МГП
-        $packagePricelists = $tariff->packagePricelists;
-        foreach ($packagePricelists as $packagePricelist) {
-            if (isset($this->_callsByPricelist[$date][$packagePricelist->id])) {
-                $cost += $this->_callsByPricelist[$date][$packagePricelist->id];
+        foreach ($package['packagePricelistIds'] as $packagePricelistId) {
+            if (isset($this->_callsByPricelist[$date][$packagePricelistId])) {
+                $price += $this->_callsByPricelist[$date][$packagePricelistId][0];
+                $costPrice += $this->_callsByPricelist[$date][$packagePricelistId][1];
             }
         }
 
-        return $cost;
+        return new Amounts($price, $costPrice);
     }
 
     /**
@@ -92,25 +104,29 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
         $query = CallsRaw::find()
             ->select([
-                // в CallsRaw стоимость отрицательная, что означает "списание". А в AccountLogResource это должно быть положительным
-                'sum_cost' => 'SUM(cost) * -1',
-                'nnp_package_price_id',
-                'nnp_package_pricelist_id',
-                'aggr_date' => sprintf("TO_CHAR(connect_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta)
+                'sum_price' => 'SUM(-calls_price.cost)', // стоимость звонка для клиента. Сделаем ее положительной
+                'sum_cost_price' => 'SUM(COALESCE(calls_cost_price.cost, 0))', // себестоимость
+                'nnp_package_price_id' => 'calls_price.nnp_package_price_id',
+                'nnp_package_pricelist_id' => 'calls_price.nnp_package_pricelist_id',
+                'aggr_date' => sprintf("TO_CHAR(calls_price.connect_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta)
             ])
+            ->from(CallsRaw::tableName() . ' calls_price')// чтобы назначить алиас.
+            ->leftJoin(CallsRaw::tableName() . ' calls_cost_price',
+                'calls_price.server_id = calls_cost_price.server_id AND calls_price.peer_id = calls_cost_price.id')// join себя же по peer_id. Чтобы узнать себестоимость в другом плече (терминации)
             ->where([
-                'account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
+                'calls_price.account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ])
-            ->andWhere(['>=', 'connect_time', $dateTimeUtc->format(DATE_ATOM)])
-            ->andWhere(['<', 'cost', 0])
-            ->groupBy(['aggr_date', 'nnp_package_price_id', 'nnp_package_pricelist_id'])
+            ->andWhere(['>=', 'calls_price.connect_time', $dateTimeUtc->format(DATE_ATOM)])
+            ->andWhere(['<', 'calls_price.cost', 0])
+            ->groupBy(['aggr_date', 'calls_price.nnp_package_price_id', 'calls_price.nnp_package_pricelist_id'])
             ->asArray();
 
         $this->andWhere($query, $accountTariff);
 
         foreach ($query->each() as $row) {
             $aggrDate = $row['aggr_date'];
-            $sumCost = $row['sum_cost'];
+            $sumPrice = $row['sum_price'];
+            $sumCostPrice = $row['sum_cost_price'];
 
             if ($tariffId = $row['nnp_package_price_id']) {
                 if (!isset($this->_callsByPrice[$aggrDate])) {
@@ -118,9 +134,10 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
                 }
 
                 if (isset($this->_callsByPrice[$aggrDate][$tariffId])) {
-                    $this->_callsByPrice[$aggrDate][$tariffId] += $sumCost;
+                    $this->_callsByPrice[$aggrDate][$tariffId][0] += $sumPrice;
+                    $this->_callsByPrice[$aggrDate][$tariffId][1] += $sumCostPrice;
                 } else {
-                    $this->_callsByPrice[$aggrDate][$tariffId] = $sumCost;
+                    $this->_callsByPrice[$aggrDate][$tariffId] = [$sumPrice, $sumCostPrice];
                 }
 
                 continue;
@@ -132,9 +149,10 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
                 }
 
                 if (isset($this->_callsByPricelist[$aggrDate][$tariffId])) {
-                    $this->_callsByPricelist[$aggrDate][$tariffId] += $sumCost;
+                    $this->_callsByPricelist[$aggrDate][$tariffId][0] += $sumPrice;
+                    $this->_callsByPricelist[$aggrDate][$tariffId][1] += $sumCostPrice;
                 } else {
-                    $this->_callsByPricelist[$aggrDate][$tariffId] = $sumCost;
+                    $this->_callsByPricelist[$aggrDate][$tariffId] = [$sumPrice, $sumCostPrice];
                 }
 
                 continue;

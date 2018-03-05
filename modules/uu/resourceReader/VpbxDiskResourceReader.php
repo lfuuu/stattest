@@ -16,12 +16,17 @@ class VpbxDiskResourceReader extends VpbxResourceReader
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
      * @param TariffPeriod $tariffPeriod
-     * @return float Если null, то данные неизвестны
+     * @return Amounts
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        // из b преобразовать в Gb
-        $value = parent::read($accountTariff, $dateTime, $tariffPeriod);
-        return $value === null ? $value : $value / (1024 * 1024 * 1024);
+        $amounts = parent::read($accountTariff, $dateTime, $tariffPeriod);
+
+        if ($amounts->amount !== null) {
+            // из b преобразовать в Gb
+            $amounts->amount /= 1024 * 1024 * 1024;
+        }
+
+        return $amounts;
     }
 }

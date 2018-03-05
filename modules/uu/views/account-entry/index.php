@@ -97,6 +97,10 @@ $columns = [
         'class' => FloatRangeColumn::className(),
     ],
     [
+        'attribute' => 'cost_price',
+        'class' => FloatRangeColumn::className(),
+    ],
+    [
         'attribute' => 'price_without_vat',
         'class' => FloatRangeColumn::className(),
     ],

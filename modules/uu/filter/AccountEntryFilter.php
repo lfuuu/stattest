@@ -20,6 +20,9 @@ class AccountEntryFilter extends AccountEntry
     public $price_from = '';
     public $price_to = '';
 
+    public $cost_price_from = '';
+    public $cost_price_to = '';
+
     public $price_without_vat_from = '';
     public $price_without_vat_to = '';
 
@@ -46,6 +49,7 @@ class AccountEntryFilter extends AccountEntry
         return [
             [['id', 'client_account_id', 'account_tariff_id', 'service_type_id', 'type_id', 'is_next_month', 'bill_id'], 'integer'],
             [['price_from', 'price_to'], 'double'],
+            [['cost_price_from', 'cost_price_to'], 'double'],
             [['price_without_vat_from', 'price_without_vat_to'], 'double'],
             [['price_with_vat_from', 'price_with_vat_to'], 'double'],
             [['vat_from', 'vat_to'], 'double'],
@@ -77,6 +81,9 @@ class AccountEntryFilter extends AccountEntry
 
         $this->price_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.price', $this->price_to]);
+
+        $this->cost_price_from !== '' && $query->andWhere(['>=', $accountEntryTableName . '.cost_price', $this->cost_price_from]);
+        $this->cost_price_to !== '' && $query->andWhere(['<=', $accountEntryTableName . '.cost_price', $this->cost_price_to]);
 
         $this->price_without_vat_from !== '' && $query->andWhere([
             '>=',

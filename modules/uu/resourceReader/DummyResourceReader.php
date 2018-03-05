@@ -15,11 +15,11 @@ class DummyResourceReader extends Object implements ResourceReaderInterface
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
      * @param TariffPeriod $tariffPeriod
-     * @return float|null Если null, то данные неизвестны
+     * @return Amounts
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        return null;
+        return new Amounts();
     }
 
     /**

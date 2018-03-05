@@ -5,7 +5,7 @@ namespace app\modules\uu\models;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
-use app\modules\uu\resourceReader\NmpNumberResourceReader;
+use app\modules\uu\resourceReader\NnpNumberResourceReader;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\TrunkCallsResourceReader;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
@@ -163,7 +163,7 @@ class Resource extends ActiveRecord
             self::ID_ONE_TIME => ZeroResourceReader::className(),
 
             // ННП. Кол-во номеров
-            self::ID_NNP_NUMBERS => NmpNumberResourceReader::className(),
+            self::ID_NNP_NUMBERS => NnpNumberResourceReader::className(),
         ];
     }
 

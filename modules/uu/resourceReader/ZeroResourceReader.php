@@ -15,11 +15,11 @@ class ZeroResourceReader extends Object implements ResourceReaderInterface
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
      * @param TariffPeriod $tariffPeriod
-     * @return float Если null, то данные неизвестны
+     * @return Amounts
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
-        return 0;
+        return new Amounts(0, 0);
     }
 
     /**

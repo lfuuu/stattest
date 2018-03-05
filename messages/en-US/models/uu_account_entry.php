@@ -6,6 +6,7 @@ return [
     'account_tariff_id' => 'Service',
     'type_id' => 'Type',
     'price' => 'Tariff cost',
+    'cost_price' => 'Cost price, ¤',
     'price_without_vat' => 'Cost without VAT',
     'vat_rate' => 'VAT, %',
     'vat' => 'VAT',

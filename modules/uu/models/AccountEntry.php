@@ -18,6 +18,7 @@ use yii\helpers\Url;
  * @property int $tariff_period_id Кэш accountTariff.tariff_period_id на эту дату
  * @property int $type_id Если положительное, то TariffResource, иначе подключение или абонентка. Поэтому нет FK
  * @property float $price
+ * @property float $cost_price
  * @property float $price_without_vat
  * @property int $vat_rate
  * @property float $vat
@@ -81,7 +82,7 @@ class AccountEntry extends ActiveRecord
     {
         return [
             [['account_tariff_id', 'type_id', 'is_next_month'], 'integer'],
-            [['price'], 'double'],
+            [['price', 'cost_price'], 'double'],
             [['date'], 'string', 'max' => 255],
         ];
     }

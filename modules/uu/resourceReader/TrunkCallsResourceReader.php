@@ -14,8 +14,8 @@ class TrunkCallsResourceReader extends PackageCallsResourceReader
     protected function andWhere(Query $query, AccountTariff $accountTariff)
     {
         $query->andWhere([
-            'trunk_service_id' => $accountTariff->prev_account_tariff_id, // основная услуга
-            'number_service_id' => null,
+            'calls_price.trunk_service_id' => $accountTariff->prev_account_tariff_id, // основная услуга
+            'calls_price.number_service_id' => null,
         ]);
     }
 }

@@ -8,7 +8,6 @@ use app\modules\uu\classes\AccountLogFromToResource;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\TariffResource;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
@@ -137,7 +136,7 @@ class AccountLogResourceTarificator extends Tarificator
 
                 /** @var ResourceReaderInterface $reader */
                 $reader = $this->resourceIdToReader[$resourceId];
-                $amountUse = $reader->read($accountTariff, $dateTime, $tariffPeriod);
+                list($amountUse, $amountCostPrice) = $reader->read($accountTariff, $dateTime, $tariffPeriod);
                 if ($amountUse === null) {
                     $this->out(PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- Resource ' . $resourceId . ' is null' . PHP_EOL);
                     continue; // нет данных. Пропустить
@@ -160,6 +159,7 @@ class AccountLogResourceTarificator extends Tarificator
                 $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
                 $accountLogResource->coefficient = 1;
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
+                $accountLogResource->cost_price = $amountCostPrice * $accountLogResource->price_per_unit;
                 if (!$accountLogResource->save()) {
                     throw new ModelValidationException($accountLogResource);
                 }

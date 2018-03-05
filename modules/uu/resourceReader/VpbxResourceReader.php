@@ -20,7 +20,7 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
      * @param AccountTariff $accountTariff
      * @param DateTimeImmutable $dateTime
      * @param TariffPeriod $tariffPeriod
-     * @return float|null Если null, то данные неизвестны
+     * @return Amounts
      */
     public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
     {
@@ -38,10 +38,10 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
 
         if (!$virtpbxStat) {
             Yii::error(sprintf('VpbxResourceReader. Нет данных по ресурсу %s. AccountTariffId = %d, дата = %s.', $this->fieldName, $accountTariff->id, $date));
-            return null;
+            return new Amounts;
         }
 
-        return $virtpbxStat->{$this->fieldName};
+        return new Amounts($virtpbxStat->{$this->fieldName}, 0);
     }
 
     /**
