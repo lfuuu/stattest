@@ -465,7 +465,9 @@ final class OpenController extends Controller
                 $tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, TariffPerson::ID_NATURAL_PERSON],
                 TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId,
                 TariffVoipCity::tableName() . '.city_id' => array_keys($tariff->voipCities),
-            ]);
+            ])
+            ->orderBy([$tariffTableName . '.weight' => SORT_DESC]);
+
         /** @var Tariff $tariffPackage */
         foreach ($tariffPackagesQuery->each() as $tariffPackage) {
 
