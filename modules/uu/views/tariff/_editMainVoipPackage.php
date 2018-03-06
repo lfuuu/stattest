@@ -52,6 +52,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
         <?= $this->render('_editMainTarification', ['form' => $form, 'package' => $package, 'options' => $options]) ?>
         <?= $this->render('_editMainVoipCity', $viewParams) ?>
         <?= $this->render('_editMainVoipNdcType', $viewParams) ?>
+        <?= $this->render('_editMainLocation', ['form' => $form, 'package' => $package, 'options' => $options]) ?>
 
     </div>
 

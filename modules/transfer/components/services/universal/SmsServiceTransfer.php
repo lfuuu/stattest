@@ -14,7 +14,7 @@ class SmsServiceTransfer extends BasicServiceTransfer
      */
     public function getServiceTypeId()
     {
-        return ServiceType::ID_SMS;
+        return ServiceType::ID_VOIP_PACKAGE_SMS;
     }
 
     /**

@@ -26,6 +26,7 @@ class ServiceType extends ActiveRecord
     const ID_VOIP = 2; // Телефония
     const ID_VOIP_PACKAGE_CALLS = 3; // Телефония. Пакет звонков
     const ID_VOIP_PACKAGE_INTERNET = 25; // Телефония. Пакет интернета
+    const ID_VOIP_PACKAGE_SMS = 17; // Телефония. Пакет смс
 
     const ID_INTERNET = 4; // Интернет
     const ID_COLLOCATION = 5; // Collocation
@@ -41,8 +42,6 @@ class ServiceType extends ActiveRecord
     const ID_WELLTIME_PRODUCT = 14; // Welltime как продукт. welltime, ip
     const ID_EXTRA = 15; // Дополнительные услуги
     const ID_SMS_GATE = 16; // СМС. sms_gate
-
-    const ID_SMS = 17; // SMS
 
     const ID_WELLTIME_SAAS = 18; // Welltime как сервис. welltime
 

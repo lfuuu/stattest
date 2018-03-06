@@ -123,7 +123,7 @@ return [
     [
         'id' => Tariff::DELTA + 10,
         'name' => 'Tariff w/o autoprolongation with postpaid 8',
-        'service_type_id' => ServiceType::ID_SMS,
+        'service_type_id' => ServiceType::ID_VOIP_PACKAGE_SMS,
         'tariff_status_id' => TariffStatus::ID_PUBLIC,
         'country_id' => Country::RUSSIA,
         'tariff_person_id' => TariffPerson::ID_NATURAL_PERSON,

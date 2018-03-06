@@ -76,7 +76,7 @@ class SmsServiceTest extends _BaseService
      */
     protected function createUniversalService(ClientAccount $clientAccount)
     {
-        return $this->createUniversalServiceSimple($clientAccount, ServiceType::ID_SMS, $this->getTariffForUniversalService());
+        return $this->createUniversalServiceSimple($clientAccount, ServiceType::ID_VOIP_PACKAGE_SMS, $this->getTariffForUniversalService());
     }
 
     /**
@@ -85,7 +85,7 @@ class SmsServiceTest extends _BaseService
      */
     protected function getTariffForUniversalService($service = null)
     {
-        return $this->getUniversalTariff(ServiceType::ID_SMS);
+        return $this->getUniversalTariff(ServiceType::ID_VOIP_PACKAGE_SMS);
     }
 
 }
