@@ -72,7 +72,7 @@ echo $form->field($model, 'id')->hiddenInput()->label('');
         <div class="row">
             <div class="col-sm-2">
                 <?= $form
-                    ->field($model, 'super_client_prefix')
+                    ->field($model, 'name_prefix')
                 ?>
             </div>
 

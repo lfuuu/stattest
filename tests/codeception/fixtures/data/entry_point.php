@@ -4,7 +4,7 @@ return [
     'RU1' => [
         'code' => 'RU1',
         'name' => 'Клиентская заявка с mcn.ru',
-        'super_client_prefix' => 'Client #',
+        'name_prefix' => 'Client #',
         'country_id' => 643,
         'region_id' => 99,
         'organization_id' => 11,
@@ -23,7 +23,7 @@ return [
     'web_shop' => [
         'code' => 'web_shop',
         'name' => 'Точка входа для витрины',
-        'super_client_prefix' => 'webShop #',
+        'name_prefix' => 'webShop #',
         'country_id' => 643,
         'region_id' => 99,
         'organization_id' => 1,
@@ -42,7 +42,7 @@ return [
     'ru5' => [
         'code' => 'RU5',
         'name' => 'Точка входа для создания ЛС с универсальным биллингом',
-        'super_client_prefix' => 'uClient #',
+        'name_prefix' => 'uClient #',
         'country_id' => 643,
         'region_id' => 99,
         'organization_id' => 11,
@@ -61,7 +61,7 @@ return [
     'ru5-test' => [
         'code' => 'RU5-TEST',
         'name' => 'Точка входа для создания ЛС с универсальным биллингом (Межоператорка)',
-        'super_client_prefix' => 'uClient #',
+        'name_prefix' => 'uClient #',
         'country_id' => 643,
         'region_id' => 99,
         'organization_id' => 11,
@@ -80,7 +80,7 @@ return [
     'ru_partner' => [
         'code' => 'RU_PARTNER',
         'name' => 'Анкета Партнера с mcn.ru',
-        'super_client_prefix' => 'Partner#',
+        'name_prefix' => 'Partner#',
         'country_id' => 643,
         'region_id' => 99,
         'organization_id' => 1,

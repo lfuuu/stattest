@@ -70,7 +70,7 @@ echo GridView::widget([
         ],
 
         [
-            'attribute' => 'super_client_prefix',
+            'attribute' => 'name_prefix',
         ],
         [
             'attribute' => 'account_version',

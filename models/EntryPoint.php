@@ -9,7 +9,7 @@ use app\helpers\DateTimeZoneHelper;
  * @property int $id
  * @property string $code
  * @property string $name
- * @property string $super_client_prefix
+ * @property string $name_prefix
  * @property int $country_id
  * @property int $organization_id
  * @property int $client_contract_business_id
@@ -117,7 +117,7 @@ class EntryPoint extends ActiveRecord
                 ],
                 'integer'
             ],
-            ['super_client_prefix', 'safe'],
+            ['name_prefix', 'safe'],
         ];
     }
 
@@ -129,7 +129,7 @@ class EntryPoint extends ActiveRecord
         return [
             'code' => 'ID (code)',
             'name' => 'Название точки входа',
-            'super_client_prefix' => 'СуперКлиент префикс',
+            'name_prefix' => 'Префикс к названию (супер)клиента и контрагента',
             'country_id' => 'Страна',
             'organization_id' => 'Организация',
             'client_contract_business_id' => 'Подразделение',
