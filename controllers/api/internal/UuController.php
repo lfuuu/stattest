@@ -802,10 +802,10 @@ class UuController extends ApiInternalController
         $number = $accountTariff->number;
         $accountTariffLogs = $accountTariff->accountTariffLogs;
         $accountTariffLogFirst = end($accountTariffLogs); // первый по времени идет последним в этом списке
-        $accountTariffLogLast = array_pop($accountTariffLogs); // последний по времени (как в прошлом, так и в будущем) идет первым в этом списке
+        $accountTariffLogLast = array_shift($accountTariffLogs); // последний по времени (как в прошлом, так и в будущем) идет первым в этом списке
         $lastTariffPeriod = $accountTariffLogLast->tariff_period_id ? // последний непустой тариф / период
             $accountTariffLogLast->tariffPeriod :
-            array_pop($accountTariffLogs)->tariffPeriod;
+            array_shift($accountTariffLogs)->tariffPeriod;
         return [
             'id' => $accountTariff->id,
             'date_from' => $accountTariffLogFirst->actual_from,
