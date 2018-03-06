@@ -136,8 +136,8 @@ class AccountLogResourceTarificator extends Tarificator
 
                 /** @var ResourceReaderInterface $reader */
                 $reader = $this->resourceIdToReader[$resourceId];
-                list($amountUse, $amountCostPrice) = $reader->read($accountTariff, $dateTime, $tariffPeriod);
-                if ($amountUse === null) {
+                $amounts = $reader->read($accountTariff, $dateTime, $tariffPeriod);
+                if ($amounts->amount === null) {
                     $this->out(PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- Resource ' . $resourceId . ' is null' . PHP_EOL);
                     continue; // нет данных. Пропустить
                 }
@@ -151,7 +151,7 @@ class AccountLogResourceTarificator extends Tarificator
                 $accountLogResource->tariff_period_id = $tariffPeriod->id;
                 $accountLogResource->account_tariff_id = $accountTariff->id;
                 $accountLogResource->tariff_resource_id = $tariffResource->id;
-                $accountLogResource->amount_use = $amountUse;
+                $accountLogResource->amount_use = $amounts->amount;
                 $accountLogResource->amount_free = $tariffResource->amount;
                 $accountLogResource->price_per_unit = $reader->getIsMonthPricePerUnit() ?
                     $tariffResource->price_per_unit / $dateTime->format('t') : // это "цена за месяц", а надо перевести в "цену за день"
@@ -159,7 +159,7 @@ class AccountLogResourceTarificator extends Tarificator
                 $accountLogResource->amount_overhead = max(0, $accountLogResource->amount_use - $accountLogResource->amount_free);
                 $accountLogResource->coefficient = 1;
                 $accountLogResource->price = $accountLogResource->amount_overhead * $accountLogResource->price_per_unit;
-                $accountLogResource->cost_price = $amountCostPrice * $accountLogResource->price_per_unit;
+                $accountLogResource->cost_price = $amounts->costAmount * $accountLogResource->price_per_unit;
                 if (!$accountLogResource->save()) {
                     throw new ModelValidationException($accountLogResource);
                 }
