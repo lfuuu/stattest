@@ -200,6 +200,8 @@ class BillLine extends ActiveRecord
             return 0;
         });
 
+        $isPriceIncludeVat = null;
+
         foreach ($idx as $row) {
             $line = $row['first_line'];
             $line['amount'] = $row['sums']['amount'];
@@ -212,6 +214,18 @@ class BillLine extends ActiveRecord
             if ($accountEntry) {
                 $line['item'] = $accountEntry->getFullName($lang, false);
             }
+
+            if ($isPriceIncludeVat === null) {
+                $isPriceIncludeVat = $accountEntry->accountTariff->clientAccount->price_include_vat;
+            }
+
+            $line['price'] = ($isPriceIncludeVat ? $line['sum'] : $line['sum_without_tax']) / $line['amount'];
+
+            // установка правильных значений НДС и суммы
+            $oLine = new BillLine();
+            $oLine->setAttributes($line, false);
+            $oLine->calculateSum($isPriceIncludeVat);
+            $line = $oLine->getAttributes();
 
             $data[] = $line;
         }
