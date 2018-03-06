@@ -21,6 +21,7 @@ use yii\helpers\Url;
  * @property int $currency_id
  * @property bool $is_include_vat
  * @property string $name
+ * @property integer $location_id
  *
  * @property-read Tariff $tariff  FK нет, ибо в таблица в другой БД
  * @property-read PackageMinute[] $packageMinutes
@@ -31,6 +32,9 @@ class Package extends ActiveRecord
 {
     const TARIFICATION_TYPE_ROUND = 1;
     const TARIFICATION_TYPE_CEIL = 2;
+
+    const LOCATION_LOCAL = 1;
+    const LOCATION_GUEST = 2;
 
     /**
      * Имена полей
@@ -50,6 +54,7 @@ class Package extends ActiveRecord
             'currency_id' => 'Валюта',
             'is_include_vat' => 'Включая НДС', // дубль из Tariff
             'name' => 'Название', // дубль из Tariff
+            'location_id' => 'Местоположение'
         ];
     }
 
@@ -78,6 +83,7 @@ class Package extends ActiveRecord
                     'tarification_interval_seconds',
                     'tarification_type',
                     'tarification_min_paid_seconds',
+                    'location_id',
                 ],
                 'integer'
             ],
@@ -153,5 +159,23 @@ class Package extends ActiveRecord
     public static function getUrlById($tariffId)
     {
         return Url::to(['/nnp/package/edit', 'tariff_id' => $tariffId]);
+    }
+
+    /**
+     * @param boolean $isWithEmpty
+     * @return string[]
+     */
+    public static function getListLocation($isWithEmpty = true)
+    {
+        $list = [
+            self::LOCATION_LOCAL => 'Домашний регион',
+            self::LOCATION_GUEST => 'Гостевой регион',
+        ];
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+
+        return $list;
     }
 }
