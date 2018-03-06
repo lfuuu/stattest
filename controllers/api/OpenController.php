@@ -179,14 +179,20 @@ final class OpenController extends Controller
         foreach ($numbers->result() as $freeNumber) {
             $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount);
 
+            $didGroup = $freeNumber->didGroup;
+
             $tariffStatusId = $clientAccount ?
-                $freeNumber->didGroup->{'tariff_status_main' . $priceLevel} :
+                $didGroup->{'tariff_status_main' . $priceLevel} :
                 TariffStatus::ID_TEST;
 
             $packageStatusIds = [
-                $freeNumber->didGroup->{'tariff_status_main' . $priceLevel},
-                $freeNumber->didGroup->tariff_status_beauty,
+                $didGroup->{'tariff_status_main' . $priceLevel}
             ];
+
+            if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
+                // только для ОТТ (см. ClientAccount::getPriceLevels)
+                $packageStatusIds[] = $didGroup->tariff_status_beauty; // пакет за красивость
+            }
 
             $responseNumber->default_tariff = $this->_getDefaultTariff(
                 $tariffStatusId,
@@ -339,17 +345,23 @@ final class OpenController extends Controller
                 continue;
             }
 
+            $didGroup = $freeNumber->didGroup;
+
             // создать новую группу
             // для reuse берем другой метод и выкидываем ненужное
             $responseNumber = $numbers->formattedNumber($freeNumber, $currency, $clientAccount);
             $tariffStatusId = $clientAccount ?
-                $freeNumber->didGroup->{'tariff_status_main' . $priceLevel} :
+                $didGroup->{'tariff_status_main' . $priceLevel} :
                 TariffStatus::ID_TEST;
 
             $packageStatusIds = [
-                $freeNumber->didGroup->{'tariff_status_main' . $priceLevel},
-                $freeNumber->didGroup->tariff_status_beauty,
+                $didGroup->{'tariff_status_main' . $priceLevel}
             ];
+
+            if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
+                // только для ОТТ (см. ClientAccount::getPriceLevels)
+                $packageStatusIds[] = $didGroup->tariff_status_beauty; // пакет за красивость
+            }
 
             !$countryId && $countryId = $freeNumber->country_code;
             !$currencyId && $currencyId = $freeNumber->country->currency_id;

@@ -151,9 +151,9 @@ if (!$didGroup->isNewRecord) {
             </div>
             <div class="col-sm-3">
                 <?php
-                if ($i < 3) {
+                if ($i < DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
                     echo '-';
-                } elseif ($i == 3) {
+                } elseif ($i === DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
                     echo $form->field($didGroup, 'tariff_status_beauty')
                         ->dropDownList(TariffStatus::getList($serviceTypeId = null, $isWithEmpty = true))
                         ->label(false);

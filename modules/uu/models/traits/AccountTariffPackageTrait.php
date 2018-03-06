@@ -6,6 +6,7 @@ use app\classes\HandlerLogger;
 use app\classes\Html;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
+use app\models\DidGroup;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
@@ -137,7 +138,7 @@ trait AccountTariffPackageTrait
         $didGroup = $number->didGroup;
         $tarifStatuses[] = $didGroup->{'tariff_status_package' . $priceLevel}; // пакет с учетом уровня цен
         $clientAccount->uu_tariff_status_id && $tarifStatuses[] = $clientAccount->uu_tariff_status_id; // пакет персонально клиенту
-        if ($priceLevel >= 3) {
+        if ($priceLevel >= DidGroup::MIN_PRICE_LEVEL_FOR_BEAUTY) {
             // только для ОТТ (см. ClientAccount::getPriceLevels)
             $tarifStatuses[] = $didGroup->tariff_status_beauty; // пакет за красивость
         }

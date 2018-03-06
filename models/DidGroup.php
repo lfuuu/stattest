@@ -98,6 +98,8 @@ class DidGroup extends ActiveRecord
     const BEAUTY_LEVEL_SILVER = 3;
     const BEAUTY_LEVEL_BRONZE = 4;
 
+    const MIN_PRICE_LEVEL_FOR_BEAUTY = 3;
+
     public static $beautyLevelNames = [
         self::BEAUTY_LEVEL_STANDART => 'Стандартный',
         self::BEAUTY_LEVEL_BRONZE => 'Бронзовый',
