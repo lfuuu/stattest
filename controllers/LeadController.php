@@ -56,14 +56,13 @@ class LeadController extends BaseController
      * Создать лид
      *
      * @param string $messageId
-     * @param integer $clientAccountId
      * @return mixed
      */
-    public function actionToLead($messageId, $clientAccountId)
+    public function actionToLead($messageId)
     {
         $lead = $this->_getLeadByMessageId($messageId);
 
-        return $this->_toLead($lead, $clientAccountId);
+        return $this->_toLead($lead);
     }
 
     /**
@@ -126,19 +125,10 @@ class LeadController extends BaseController
      * Создание лида
      *
      * @param Lead $lead
-     * @param integer $clientAccountId
      * @return Response
      */
-    private function _toLead(Lead $lead, $clientAccountId = null)
+    private function _toLead(Lead $lead)
     {
-        if ($clientAccountId) {
-            $this->_checkClientAccountId($clientAccountId);
-
-            if ($lead->account_id != $clientAccountId) {
-                $lead->moveToClientAccount($clientAccountId);
-            }
-        }
-
         return $this->redirect($lead->getUrl());
     }
 
