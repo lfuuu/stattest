@@ -55,7 +55,7 @@ abstract class Monitor extends Component
             BacklogSlaveServer::className(),
             MonitorNnpPrefix::className(),
             MonitorSormClientsReg88::className(),
-            MonitorSormClientsReg97::className(),
+            // MonitorSormClientsReg97::className(),
             MonitorBrokenRegionInVoip::className(),
         ];
     }
