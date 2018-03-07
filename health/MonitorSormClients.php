@@ -77,7 +77,7 @@ SELECT
   client_account_id,
   count(*) as count_numbers
 FROM "billing"."service_number" sn
-LEFT JOIN copm.clients c ON (sn.did = c.number::VARCHAR AND (service_stop IS NULL OR service_stop < NOW()))
+LEFT JOIN copm.clients c ON (sn.did = c.number::VARCHAR AND (service_stop IS NULL OR service_stop > NOW()))
 WHERE server_id = {$regionId} AND expire_dt > now()
       AND c.number IS NULL AND length(did) > 5
 GROUP BY client_account_id
