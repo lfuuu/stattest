@@ -22,7 +22,7 @@ class Operator extends ActiveRecord
         getList as getListTrait;
     }
 
-    const MIN_CNT = 1000;
+    const MIN_CNT = 10;
 
     /**
      * Имена полей
