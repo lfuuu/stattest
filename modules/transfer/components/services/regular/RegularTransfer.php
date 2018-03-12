@@ -35,7 +35,6 @@ class RegularTransfer extends Processor
             parent::SERVICE_VPBX => VirtpbxServiceTransfer::class,
             parent::SERVICE_CALL_CHAT => CallChatServiceTransfer::class,
             parent::SERVICE_TRUNK => TrunkServiceTransfer::class,
-            parent::SERVICE_SMS => SmsServiceTransfer::class,
             parent::SERVICE_WELLTIME_SAAS => WelltimeServiceTransfer::class,
             parent::SERVICE_EXTRA => ExtraServiceTransfer::class,
             parent::SERVICE_EMAIL => EmailServiceTransfer::class,
