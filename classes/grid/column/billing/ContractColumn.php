@@ -2,10 +2,10 @@
 
 namespace app\classes\grid\column\billing;
 
-use kartik\grid\GridView;
 use app\classes\grid\column\DataColumn;
 use app\classes\grid\column\ListTrait;
-use app\dao\ClientContractDao;
+use app\models\ClientContract;
+use kartik\grid\GridView;
 
 class ContractColumn extends DataColumn
 {
@@ -19,7 +19,7 @@ class ContractColumn extends DataColumn
     public function __construct($config = [])
     {
         parent::__construct($config);
-        $this->filter = ClientContractDao::getListWithType(
+        $this->filter = ClientContract::dao()->getListWithType(
             [
                 'serverIds' => $this->filterByServerIds,
                 'serviceTrunkIds' => $this->filterByServiceTrunkIds,

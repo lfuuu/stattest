@@ -1,9 +1,11 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Singleton;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Business;
 use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
@@ -11,11 +13,11 @@ use app\models\ClientDocument;
 use app\models\InvoiceSettings;
 use app\models\Organization;
 use app\models\TaxVoipSettings;
-use yii\db\Query;
 use Yii;
+use yii\db\Query;
 
 /**
- * Class ClientContractDao
+ * @method static ClientContractDao me()
  */
 class ClientContractDao extends Singleton
 {
@@ -29,7 +31,7 @@ class ClientContractDao extends Singleton
      *
      * @return string[]
      */
-    public static function getListWithType(array $params = [], $isWithEmpty = false)
+    public function getListWithType(array $params = [], $isWithEmpty = false)
     {
         $query = (new Query)
             ->select(
@@ -55,6 +57,28 @@ class ClientContractDao extends Singleton
         }
 
         $list = $query->indexBy('id')->column(Yii::$app->dbPgSlave);
+
+        if ($isWithEmpty) {
+            $list = ['' => '----'] + $list;
+        }
+
+        return $list;
+    }
+
+    /**
+     * Получить партнеров
+     *
+     * @param bool $isWithEmpty
+     *
+     * @return string[]
+     */
+    public function getPartnerList($isWithEmpty = true)
+    {
+        $list = [];
+        $cts = ClientContract::find()->andWhere(['business_id' => Business::PARTNER])->all();
+        foreach ($cts as $ct) {
+            $list[$ct->id] = $ct->contragent->name . ' (' . $ct->number . ($ct->number != (string)$ct->id ? ', #' . $ct->id : '') . ')';
+        }
 
         if ($isWithEmpty) {
             $list = ['' => '----'] + $list;
@@ -116,7 +140,7 @@ class ClientContractDao extends Singleton
             $countFromOrganization += $info['countFromOrganization'];
 
             if ($iteration++ % 100 == 0) {
-                echo "\r" . date("r") . ": iteration: " .$iteration . "; all: " . $countAll . "; set: " . $countSet . "; from organization: " . $countFromOrganization;
+                echo "\r" . date("r") . ": iteration: " . $iteration . "; all: " . $countAll . "; set: " . $countSet . "; from organization: " . $countFromOrganization;
             }
 
             if ($iteration % 100 == 0) {

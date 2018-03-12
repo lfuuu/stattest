@@ -55,7 +55,8 @@ class ContractEditForm extends Form
         $save_comment_stage = false,
         $public_comment = [],
 
-        $rewards = [];
+        $rewards = [],
+        $partner_contract_id;
 
 
     /** @var ClientContract  */
@@ -83,6 +84,7 @@ class ContractEditForm extends Form
                     'organization_id',
                     'contract_type_id',
                     'is_lk_access',
+                    'partner_contract_id',
                 ],
                 'integer'
             ],

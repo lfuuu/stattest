@@ -1,14 +1,13 @@
 <?php
 
 use app\classes\Html;
-use kartik\builder\Form;
-use app\models\ClientContragent;
 use app\models\ClientContract;
+use app\models\ClientContragent;
 use app\models\Country;
-use app\models\SaleChannel;
-use kartik\widgets\Select2;
-use app\models\Business;
 use app\models\Language;
+use app\models\SaleChannel;
+use kartik\builder\Form;
+use kartik\widgets\Select2;
 
 /**
  * @var $f kartik\widgets\ActiveForm
@@ -248,37 +247,29 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
     </div>
 
     <div class="partner-block">
+
         <div class="col-sm-6">
-            <?= $f->field($model, 'comment')->textarea(['style' => 'height: 100px;']) ?>
+            <?= $f->field($model, 'comment')
+                ->textarea(['style' => 'height: 100px;']) ?>
         </div>
+
         <div class="col-sm-3 bottom-indent">
-            <?php
-                $partners = [];
-                $cts = ClientContract::find()->andWhere(['business_id' => Business::PARTNER])->all();
-                foreach($cts as $ct){
-                    $partners[$ct->id] = $ct->contragent->name . ' (' . $ct->number . ($ct->number != (string)$ct->id ? ', #' . $ct->id : '') . ')';
-                }
-            ?>
             <?=
-            $f->field($model, 'partner_contract_id')->widget(Select2::className(), [
-                'data' => $partners,
-                'options' => ['placeholder' => 'Начните вводить название'],
-                'pluginOptions' => [
-                    'allowClear' => true,
-                ],
-            ])
+            $f->field($model, 'partner_contract_id')
+                ->widget(Select2::className(), [
+                    'data' => ClientContract::dao()->getPartnerList($isWithEmpty = true),
+                ])
             ?>
         </div>
+
         <div class="col-sm-3 bottom-indent right-indent">
             <?=
-            $f->field($model, 'sale_channel_id')->widget(Select2::className(), [
-                'data' => SaleChannel::getList(),
-                'options' => ['placeholder' => 'Начните вводить название'],
-                'pluginOptions' => [
-                    'allowClear' => true,
-                ],
-            ])
+            $f->field($model, 'sale_channel_id')
+                ->widget(Select2::className(), [
+                    'data' => SaleChannel::getList($isWithEmpty = true),
+                ])
             ?>
         </div>
+
     </div>
 </div>

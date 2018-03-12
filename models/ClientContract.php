@@ -36,6 +36,7 @@ use yii\db\ActiveQuery;
  * @property int $is_lk_access
  * @property int $is_voip_with_tax
  * @property int $is_partner_login_allow - флаг, разрешающий партнёру-родителю вход в ЛК текущего клиента
+ * @property int $partner_contract_id
  *
  * @property-read ClientContragent $contragent
  * @property-read ClientAccount[] $accounts
@@ -47,6 +48,7 @@ use yii\db\ActiveQuery;
  * @property-read BusinessProcessStatus $businessProcessStatus
  * @property-read ClientDocument $contractInfo
  * @property-read ClientSuper $super
+ * @property-read ClientContact $partnerContract
  *
  * @property-read string $managerName
  * @property-read string $accountManagerName
@@ -148,6 +150,7 @@ class ClientContract extends HistoryActiveRecord
             'is_lk_access' => 'Доступ к ЛК',
             'is_partner_login_allow' => 'Доступ партнеру в ЛК',
             'is_voip_with_tax' => 'Тарифы телефонии с НДС',
+            'partner_contract_id' => 'Партнер',
         ];
     }
 
@@ -323,6 +326,14 @@ class ClientContract extends HistoryActiveRecord
     public function getSuper()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPartnerContract()
+    {
+        return $this->hasOne(ClientContact::className(), ['id' => 'partner_contract_id']);
     }
 
     /**

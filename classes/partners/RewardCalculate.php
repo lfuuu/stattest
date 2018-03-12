@@ -41,7 +41,10 @@ abstract class RewardCalculate
         /** @var ClientAccount $clientAccount */
         $clientAccount = ClientAccount::findOne(['id' => $clientAccountId]);
         Assert::isObject($clientAccount);
-        Assert::isNotEmpty($clientAccount->contract->contragent->partner_contract_id);
+
+        $contract = $clientAccount->contract;
+        $partnerContractId = $contract->partner_contract_id ?: $contract->contragent->partner_contract_id; // COALESCE(контракт.партнер, контрагент.партнер)
+        Assert::isNotEmpty($partnerContractId);
 
         $bill = Bill::findOne(['id' => $billId]);
         Assert::isObject($bill, 'Bill #' . $billId . ' not found');
@@ -61,7 +64,7 @@ abstract class RewardCalculate
             ->from([
                 'rewards' => (new Query)
                     ->from(ClientContractReward::tableName())
-                    ->where(['contract_id' => $clientAccount->contract->contragent->partner_contract_id])
+                    ->where(['contract_id' => $partnerContractId])
                     ->andWhere(['<', 'actual_from', new Expression('CAST(:createdAt AS DATE)', ['createdAt' => $createdAt])])
                     ->orderBy(['actual_from' => SORT_DESC])
             ])

@@ -8,6 +8,7 @@ use app\classes\behaviors\SetTaxVoip;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\validators\InnKppValidator;
 use Yii;
+use yii\db\ActiveQuery;
 
 /**
  * Class ClientContragent
@@ -36,11 +37,13 @@ use Yii;
  * @property string $comment
  * @property int $sale_channel_id
  * @property int $partner_contract_id
+ *
  * @property-read ClientAccount[] $accounts
  * @property-read ClientContragentPerson $person
  * @property-read ClientContract[] $contracts
  * @property-read Country $country
  * @property-read ClientSuper $super
+ * @property-read ClientContact $partnerContract
  */
 class ClientContragent extends HistoryActiveRecord
 {
@@ -243,7 +246,7 @@ class ClientContragent extends HistoryActiveRecord
     /**
      * Вернуть Country
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getCountry()
     {
@@ -253,11 +256,18 @@ class ClientContragent extends HistoryActiveRecord
     /**
      * Вернуть ClientSuper
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getSuper()
     {
         return $this->hasOne(ClientSuper::className(), ['id' => 'super_id']);
     }
 
+    /**
+     * @return ActiveQuery
+     */
+    public function getPartnerContract()
+    {
+        return $this->hasOne(ClientContact::className(), ['id' => 'partner_contract_id']);
+    }
 }

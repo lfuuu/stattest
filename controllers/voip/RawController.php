@@ -5,11 +5,11 @@ namespace app\controllers\voip;
 use app\classes\BaseController;
 use app\classes\ReturnFormatted;
 use app\dao\billing\TrunkDao;
-use app\dao\ClientContractDao;
 use app\exceptions\ModelValidationException;
 use app\models\billing\CallsRaw;
 use app\models\billing\ServiceTrunk;
 use app\models\billing\TrunkGroup;
+use app\models\ClientContract;
 use app\models\voip\filter\CallsRawFilter;
 use app\modules\nnp\models\City;
 use app\modules\nnp\models\FilterQuery;
@@ -63,6 +63,7 @@ class RawController extends BaseController
      * @param array $serverIds
      * @param array $contractIds
      * @param array $trunkIds
+     * @throws \yii\base\ExitException
      */
     public function actionGetLogicalTrunks(array $serverIds = [], array $contractIds = [], array $trunkIds = [])
     {
@@ -85,11 +86,12 @@ class RawController extends BaseController
      * @param array $serverIds
      * @param array $serviceTrunkIds
      * @param array $trunkIds
+     * @throws \yii\base\ExitException
      */
     public function actionGetContracts(array $serverIds = [], array $serviceTrunkIds = [], array $trunkIds = [])
     {
         ReturnFormatted::me()->returnFormattedValues(
-            ClientContractDao::getListWithType(
+            ClientContract::dao()->getListWithType(
                 [
                     'serverIds' => array_filter($serverIds),
                     'serviceTrunkIds' => array_filter($serviceTrunkIds),
@@ -104,8 +106,10 @@ class RawController extends BaseController
      * Получить список физических транков с именами в качестве ключей
      *
      * @param array $serverIds
+     * @param array $trunkGroupIds
      * @param array $serviceTrunkIds
      * @param array $contractIds
+     * @throws \yii\base\ExitException
      */
     public function actionGetPhysicalTrunks(array $serverIds = [], array $trunkGroupIds = [], array $serviceTrunkIds = [], array $contractIds = [])
     {

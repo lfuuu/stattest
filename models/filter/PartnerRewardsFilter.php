@@ -7,6 +7,7 @@ use app\models\Bill;
 use app\models\BillLine;
 use app\models\Business;
 use app\models\ClientAccount;
+use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContractReward;
 use app\models\ClientContragent;
@@ -61,7 +62,7 @@ class PartnerRewardsFilter extends DynamicModel
 
         $this->contractsWithoutRewardSettings = $this->_getContractsWithoutRewardSettings();
         $this->contractsWithIncorrectBusinessProcess = $this->_getContractsWithIncorrectBusinessProcess();
-        $this->partnersList = $this->_getPartnersList();
+        $this->partnersList = ClientContract::dao()->getPartnerList();
 
         if (is_null($this->month)) {
             $this->month = (new \DateTime('now'))->format('Y-m');
@@ -119,25 +120,6 @@ class PartnerRewardsFilter extends DynamicModel
         }
 
         return false;
-    }
-
-    /**
-     * @return array
-     */
-    private function _getPartnersList()
-    {
-        $partners = ClientContract::find()
-            ->andWhere(['business_id' => Business::PARTNER])
-            ->innerJoin(ClientContragent::tableName(), ClientContragent::tableName() . '.id = contragent_id')
-            ->orderBy(ClientContragent::tableName() . '.name')
-            ->all();
-
-        $partnerList = [];
-        foreach ($partners as $partner) {
-            $partnerList[$partner->id] = $partner->contragent->name . ' (#' . $partner->id . ')';
-        }
-
-        return $partnerList;
     }
 
     /**

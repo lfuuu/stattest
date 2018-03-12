@@ -9,20 +9,21 @@ if (typeof documentTemplates == 'undefined') {
 $(function () {
 
     var
-        setDocuments = function($target, folderId) {
+        setDocuments = function ($target, folderId) {
             $target.find('option').remove();
-            $.each(documentTemplates, function() {
+            $.each(documentTemplates, function () {
                 if (this.folder_id == folderId && $target.data('documents-type') == this.type) {
                     $target.append($('<option />').val(this.id).text(this.name));
                 }
             });
         },
-        setFolders = function($target, folderId) {
+
+        setFolders = function ($target, folderId) {
             var folders = [];
 
             if (!folderId) {
-                $.each(documentFolders, function() {
-                    $.each($(this), function() {
+                $.each(documentFolders, function () {
+                    $.each($(this), function () {
                         folders.push(this);
                     });
                 });
@@ -35,8 +36,6 @@ $(function () {
             $.each(folders, function () {
                 $target.append($('<option />').val(this.id).text(this.name));
             });
-
-            $target.trigger('change');
         };
 
     $('.document-template').on('change', function () {
@@ -54,6 +53,7 @@ $(function () {
                 selectedValue
             );
         }
-    }).trigger('change');
+    })
+        .trigger('change');
 
 });

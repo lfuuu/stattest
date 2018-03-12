@@ -44,15 +44,19 @@ class PartnerRewardsCalculation extends Behavior
             return false;
         }
 
-        if ($clientAccount->contract->contragent->partner_contract_id) {
-            OwnEvent::go(OwnEvent::PARTNER_REWARD, [
-                'client_id' => $clientAccount->id,
-                'bill_id' => $bill->id,
-                'created_at' =>
-                    (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
-                        ->format(DateTimeZoneHelper::DATETIME_FORMAT),
-            ]);
+        $contract = $clientAccount->contract;
+        $partnerContractId = $contract->partner_contract_id ?: $contract->contragent->partner_contract_id; // COALESCE(контракт.партнер, контрагент.партнер)
+        if (!$partnerContractId) {
+            return false;
         }
+
+        OwnEvent::go(OwnEvent::PARTNER_REWARD, [
+            'client_id' => $clientAccount->id,
+            'bill_id' => $bill->id,
+            'created_at' =>
+                (new \DateTime('now', new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC)))
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+        ]);
 
         return true;
     }
