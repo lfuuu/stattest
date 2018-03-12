@@ -190,6 +190,7 @@ abstract class TariffForm extends \app\classes\Form
                         break;
 
                     case ServiceType::ID_VOIP_PACKAGE_CALLS:
+                    case ServiceType::ID_VOIP_PACKAGE_SMS:
                     case ServiceType::ID_TRUNK_PACKAGE_ORIG:
                     case ServiceType::ID_TRUNK_PACKAGE_TERM:
 

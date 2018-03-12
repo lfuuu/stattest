@@ -51,7 +51,7 @@ class AccountTariffController extends BaseController
                     ],
                     [
                         'allow' => true,
-                        'actions' => ['new', 'edit', 'update-mtt-number', 'update-mtt-balance', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel'],
+                        'actions' => ['new', 'edit', 'edit-voip', 'save-voip', 'cancel', 'resource-cancel'],
                         'roles' => ['services_voip.edit'],
                     ],
                 ],
@@ -147,60 +147,6 @@ class AccountTariffController extends BaseController
         }
 
         return $this->render('edit', ['formModel' => $formModel]);
-    }
-
-    /**
-     * Обновить МТТ
-     *
-     * @param string $field
-     * @param string $method
-     * @param int $id
-     * @return string|Response
-     * @throws \yii\base\InvalidParamException
-     * @throws ModelValidationException
-     */
-    private function _updateMtt($field, $method, $id)
-    {
-        $accountTariff = AccountTariff::findOne(['id' => $id]);
-        if (!$accountTariff) {
-            throw new InvalidParamException('Неправильная услуга');
-        }
-
-        $accountTariff->{$field} = null;
-        if (!$accountTariff->save()) {
-            throw new ModelValidationException($accountTariff);
-        }
-
-        MttAdapter::me()->{$method}($accountTariff->voip_number, $accountTariff->id);
-        Yii::$app->session->setFlash('success', 'Запрос в МТТ отправлен. Вероятно, ответ будет через несколько секунд.');
-
-        return $this->redirect(['edit', 'id' => $accountTariff->id]);
-    }
-
-    /**
-     * Обновить баланс МТТ
-     *
-     * @param int $id
-     * @return string|Response
-     * @throws \yii\base\InvalidParamException
-     * @throws ModelValidationException
-     */
-    public function actionUpdateMttBalance($id)
-    {
-        return $this->_updateMtt('mtt_balance', 'getAccountBalance', $id);
-    }
-
-    /**
-     * Обновить номер МТТ
-     *
-     * @param int $id
-     * @return string|Response
-     * @throws \yii\base\InvalidParamException
-     * @throws ModelValidationException
-     */
-    public function actionUpdateMttNumber($id)
-    {
-        return $this->_updateMtt('mtt_number', 'getAccountData', $id);
     }
 
     /**

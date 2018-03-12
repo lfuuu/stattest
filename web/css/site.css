@@ -202,6 +202,7 @@ a.nohover:hover {
     min-width: 140px;
 }
 
+.mtt-service-column,
 .datetime-range-double-column {
     min-width: 160px;
 }

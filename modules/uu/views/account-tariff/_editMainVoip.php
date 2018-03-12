@@ -11,6 +11,7 @@ use app\classes\Html;
 use app\models\billing\Locks;
 use app\models\billing\StatsAccount;
 use app\models\City;
+use app\models\mtt_raw\MttRaw;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 use yii\helpers\Url;
@@ -48,7 +49,7 @@ $number = $accountTariff->number;
             <div>
                 <?= $accountTariff->mtt_balance ?>
                 <?= $this->render('//layouts/_buttonLink', [
-                    'url' => Url::toRoute(['/uu/account-tariff/update-mtt-balance', 'id' => $accountTariff->id]),
+                    'url' => Url::toRoute(['/uu/mtt/update-balance', 'accountTariffId' => $accountTariff->id]),
                     'text' => '',
                     'title' => 'Обновить баланс МТТ',
                     'glyphicon' => 'glyphicon-refresh',
@@ -62,10 +63,35 @@ $number = $accountTariff->number;
             <div>
                 <?= $accountTariff->mtt_number ?>
                 <?= $this->render('//layouts/_buttonLink', [
-                    'url' => Url::toRoute(['/uu/account-tariff/update-mtt-number', 'id' => $accountTariff->id]),
+                    'url' => Url::toRoute(['/uu/mtt/update-number', 'accountTariffId' => $accountTariff->id]),
                     'text' => '',
                     'title' => 'Обновить номер МТТ',
                     'glyphicon' => 'glyphicon-refresh',
+                ]) ?>
+            </div>
+        </div>
+
+        <!-- MTT статистика Internet -->
+        <div class="col-sm-3">
+            <label>Статистика MTT</label>
+            <div>
+                <?= $this->render('//layouts/_buttonLink', [
+                    'url' => Url::toRoute([
+                        '/uu/mtt/',
+                        'MttRawFilter[number_service_id]' => $accountTariff->id,
+                        'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK,
+                        'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_SMS_IN_ROAMING,
+                    ]),
+                    'text' => 'SMS',
+                ]) ?>
+                <?= $this->render('//layouts/_buttonLink', [
+                    'url' => Url::toRoute([
+                        '/uu/mtt/',
+                        'MttRawFilter[number_service_id]' => $accountTariff->id,
+                        'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_INET_IN_HOMENETWORK,
+                        'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_INET_IN_ROAMING,
+                    ]),
+                    'text' => 'Интернет',
                 ]) ?>
             </div>
         </div>
@@ -87,7 +113,8 @@ $number = $accountTariff->number;
             <?php
             try {
                 StatsAccount::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
-                $statsNnpPackageMinutes = StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id, $accountTariff->id);
+                $statsNnpPackageMinutes = StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id,
+                    $accountTariff->id);
                 foreach ($statsNnpPackageMinutes as $statsNnpPackageMinute) :
                     ?>
                     <div>
