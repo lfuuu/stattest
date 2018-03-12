@@ -2,8 +2,11 @@
 
 namespace app\models\mtt_raw;
 
+use app\models\ClientAccount;
+use app\modules\uu\models\AccountTariff;
 use Yii;
 use app\classes\model\ActiveRecord;
+use yii\db\ActiveQuery;
 
 /**
  * Class MttRaw
@@ -15,6 +18,9 @@ use app\classes\model\ActiveRecord;
  * @property integer $dst_number
  * @property integer $chargedqty
  * @property integer $cchargedamount
+ *
+ * @property-read ClientAccount $clientAccount
+ * @property-read AccountTariff $accountTariff
  */
 class MttRaw extends ActiveRecord
 {
@@ -48,6 +54,22 @@ class MttRaw extends ActiveRecord
             'usedqty' => 'Фактическое количество',
             'chargedamount' => 'Стоимость MTT',
         ];
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getClientAccount()
+    {
+        return $this->hasOne(ClientAccount::className(), ['id' => 'account_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountTariff()
+    {
+        return $this->hasOne(AccountTariff::className(), ['id' => 'account_id']);
     }
 
     /**

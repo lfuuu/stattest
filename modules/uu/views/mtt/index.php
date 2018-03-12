@@ -13,6 +13,7 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\ServiceColumn;
 use app\classes\grid\GridView;
 use app\models\filter\mtt_raw\MttRawFilter;
+use app\models\mtt_raw\MttRaw;
 use app\widgets\GridViewExport\GridViewExport;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -34,6 +35,10 @@ $columns = [
     [
         'attribute' => 'account_id',
         'class' => IntegerColumn::className(),
+        'format' => 'html',
+        'value' => function (MttRaw $mttRaw) {
+            return $mttRaw->clientAccount->getLink();
+        },
     ],
     [
         'attribute' => 'number_service_id',

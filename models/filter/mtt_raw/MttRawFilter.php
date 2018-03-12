@@ -69,13 +69,13 @@ class MttRawFilter extends MttRaw
         $this->connect_time_to !== '' && $query->andWhere(['<=', 'connect_time', $this->connect_time_to]);
 
         $this->chargedqty_from !== '' && $query->andWhere(['>=', 'chargedqty', $this->chargedqty_from]);
-        $this->chargedqty_to !== '' && $query->andWhere(['>=', 'chargedqty', $this->chargedqty_to]);
+        $this->chargedqty_to !== '' && $query->andWhere(['<=', 'chargedqty', $this->chargedqty_to]);
 
         $this->chargedamount_from !== '' && $query->andWhere(['>=', 'chargedamount', $this->chargedamount_from]);
-        $this->chargedamount_to !== '' && $query->andWhere(['>=', 'chargedamount', $this->chargedamount_to]);
+        $this->chargedamount_to !== '' && $query->andWhere(['<=', 'chargedamount', $this->chargedamount_to]);
 
         $this->usedqty_from !== '' && $query->andWhere(['>=', 'usedqty', $this->usedqty_from]);
-        $this->usedqty_to !== '' && $query->andWhere(['>=', 'usedqty', $this->usedqty_to]);
+        $this->usedqty_to !== '' && $query->andWhere(['<=', 'usedqty', $this->usedqty_to]);
 
         return $dataProvider;
     }
