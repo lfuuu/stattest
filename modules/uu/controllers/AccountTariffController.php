@@ -345,6 +345,8 @@ class AccountTariffController extends BaseController
                 // если тариф меняется с текущего момента, она пересчитается триггером; если с будущего - по крону
                 if ($accountTariff->isNewRecord) {
                     $accountTariff->tariff_period_id = $tariffPeriodIdNew;
+                    $accountTariff->tariff_period_utc = DateTimeZoneHelper::getUtcDateTime()
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                     if (!$accountTariff->save()) {
                         throw new ModelValidationException($accountTariff);
                     }
@@ -482,6 +484,8 @@ class AccountTariffController extends BaseController
 
                     // у услуги сменить кэш тарифа
                     $accountTariff->tariff_period_id = $accountTariffLogActual->tariff_period_id;
+                    $accountTariff->tariff_period_utc = DateTimeZoneHelper::getUtcDateTime()
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                     if (!$accountTariff->save()) {
                         throw new ModelValidationException($accountTariff);
                     }

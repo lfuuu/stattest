@@ -105,6 +105,8 @@ SQL;
 
                     // сменить тариф
                     $accountTariff->tariff_period_id = $row['new_tariff_period_id'];
+                    $accountTariff->tariff_period_utc = DateTimeZoneHelper::getUtcDateTime()
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                     if (!$accountTariff->save()) {
                         throw new ModelValidationException($accountTariff);
                     }
@@ -226,7 +228,7 @@ SQL;
      * Билинговать с новым тарифом
      *
      * @param AccountTariff $accountTariff
-     * @return bool
+     *
      * @throws \yii\db\StaleObjectException
      * @throws \RangeException
      * @throws \app\exceptions\ModelValidationException

@@ -8,7 +8,6 @@ use app\models\Number;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
-use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\ServiceType;
 use Yii;
 
@@ -27,33 +26,23 @@ class AccountLogSetupTarificator extends Tarificator
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
-        $minTarificateDatetime = $this->isFullTarification ?
-            $minLogDatetime :
-            AccountTariff::getMinSetupDatetime();
+        $minTarificateDatetime = AccountTariff::getMinSetupDatetime();
 
         // в целях оптимизации удалить слишком старые данные
         if (!$accountTariffId) {
             AccountLogSetup::deleteAll(['<', 'date', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
         }
 
-        $accountTariffs = AccountTariff::find();
-        $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
+        $accountTariffQuery = AccountTariff::find()
+            ->where(['IS NOT', 'tariff_period_id', null])// только незакрытые
+            ->andWhere(['>=', 'tariff_period_utc', $minTarificateDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)]); // и недавно (пару дней) произошла смена тарифа
+        $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         // рассчитать по каждой универсальной услуге
         $i = 0;
-        foreach ($accountTariffs->each() as $accountTariff) {
+        foreach ($accountTariffQuery->each() as $accountTariff) {
             if ($i++ % 1000 === 0) {
                 $this->out('. ');
-            }
-
-            /** @var AccountTariff $accountTariff */
-            $accountTariffLog = $accountTariff->getAccountTariffLogs()->one();
-            if (!$accountTariffLog ||
-                $accountTariffLog->actual_from_utc < $minTarificateDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)
-            ) {
-                // услуга изменена давно - в целях оптимизации считать нет смысла
-                // @todo денормализовать услугу, чтобы хранить там эту дату и не лазить каждый раз в лог
-                continue;
             }
 
             $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();

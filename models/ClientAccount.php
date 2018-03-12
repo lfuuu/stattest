@@ -386,7 +386,6 @@ class ClientAccount extends HistoryActiveRecord
             'created' => 'Дата создания',
             'mail_print' => 'Печатать письма',
             'nds_calc_method' => 'Тип расчета НДС',
-            'timezone_offset' => 'Таймзона, часы',
             'effective_vat_rate' => 'Эффективная ставка НДС',
             'pay_bill_until_days' => 'Срок оплаты счетов (в днях)',
             'is_bill_pay_overdue' => 'Блокировка по неоплате счета',
@@ -1116,8 +1115,8 @@ class ClientAccount extends HistoryActiveRecord
                 (
                 isset($warnings[self::WARNING_FINANCE]) ?
                     ' (на уровне биллинга): ' . ($financeLockDate ? (new DateTimeWithUserTimezone($financeLockDate, $this->timezone))->format('H:i:s d.m.Y') :
-                    ''
-                ) : ''
+                        ''
+                    ) : ''
                 );
 
             unset($warnings[ClientAccount::WARNING_LAST_DT]);
@@ -1261,13 +1260,14 @@ class ClientAccount extends HistoryActiveRecord
     }
 
     /**
+     * @param string $time
      * @return DateTimeImmutable
      */
-    public function getDatetimeWithTimezone()
+    public function getDatetimeWithTimezone($time = 'now')
     {
         $timezoneName = $this->timezone_name;
         $timezone = new DateTimeZone($timezoneName);
-        return (new DateTimeImmutable)
+        return (new DateTimeImmutable($time))
             ->setTimezone($timezone);
 
     }

@@ -1758,6 +1758,8 @@ class UuController extends ApiInternalController
 
                 // у услуги сменить кэш тарифа
                 $accountTariff->tariff_period_id = $accountTariffLogActual->tariff_period_id;
+                $accountTariff->tariff_period_utc = DateTimeZoneHelper::getUtcDateTime()
+                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
                 if (!$accountTariff->save()) {
                     throw new ModelValidationException($accountTariff, $accountTariff->errorCode);
                 }

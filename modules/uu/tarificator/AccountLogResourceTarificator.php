@@ -38,7 +38,8 @@ class AccountLogResourceTarificator extends Tarificator
         }
 
         // рассчитать новое по каждой универсальной услуге
-        $accountTariffQuery = AccountTariff::find();
+        $accountTariffQuery = AccountTariff::find()
+            ->where(['IS NOT', 'tariff_period_id', null]); // только незакрытые
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         $i = 0;
@@ -46,16 +47,6 @@ class AccountLogResourceTarificator extends Tarificator
         foreach ($accountTariffQuery->each() as $accountTariff) {
             if ($i++ % 1000 === 0) {
                 $this->out('. ');
-            }
-
-            /** @var AccountTariff $accountTariff */
-            $accountTariffLog = $accountTariff->getAccountTariffLogs()->one();
-            if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from_utc < $minLogDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT))
-            ) {
-                // услуга отключена давно - в целях оптимизации считать нет смысла
-                // @todo денормализовать услугу, чтобы хранить там эту дату и не лазить каждый раз в лог
-                continue;
             }
 
             $transaction = Yii::$app->db->beginTransaction();

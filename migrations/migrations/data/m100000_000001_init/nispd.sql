@@ -1183,6 +1183,7 @@ CREATE TABLE `clients` (
   `is_blocked` tinyint(4) NOT NULL DEFAULT '0',
   `is_closed` tinyint(4) NOT NULL DEFAULT '0',
   `timezone_name` varchar(50) NOT NULL DEFAULT 'Europe/Moscow',
+  `timezone_offset` tinyint(4) NOT NULL DEFAULT '3',
   `lk_balance_view_mode` enum('old','new') NOT NULL DEFAULT 'old',
   `anti_fraud_disabled` tinyint(4) NOT NULL DEFAULT '0',
   `site_name` varchar(128) NOT NULL DEFAULT '',

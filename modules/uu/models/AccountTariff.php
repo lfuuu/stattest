@@ -50,6 +50,8 @@ use yii\db\Expression;
  * @property int $price
  * @property int $datacenter_id
  * @property string $device_address
+ * @property string $tariff_period_utc
+ * @property string $account_log_period_utc
  */
 class AccountTariff extends ActiveRecord
 {

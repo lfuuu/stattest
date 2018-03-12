@@ -28,45 +28,27 @@ class AccountLogPeriodTarificator extends Tarificator
     public function tarificate($accountTariffId = null, $isWithTransaction = true)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
-        $now = date(DateTimeZoneHelper::DATE_FORMAT);
 
         // в целях оптимизации удалить старые данные
         if (!$accountTariffId) {
             AccountLogPeriod::deleteAll(['<', 'date_to', $minLogDatetime->format(DateTimeZoneHelper::DATE_FORMAT)], [], 'id ASC');
         }
 
-        $accountTariffs = AccountTariff::find();
-        $accountTariffId && $accountTariffs->andWhere(['id' => $accountTariffId]);
+        $accountTariffQuery = AccountTariff::find()
+            ->where(['IS NOT', 'tariff_period_id', null])// только незакрытые
+            ->andWhere([
+                'OR',
+                ['account_log_period_utc' => null], // абонентка не списана
+                ['<', 'account_log_period_utc', DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATETIME_FORMAT)] // или списана давно
+            ]);
+        $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         // рассчитать по каждой универсальной услуге
         $i = 0;
-        foreach ($accountTariffs->each() as $accountTariff) {
+        /** @var AccountTariff $accountTariff */
+        foreach ($accountTariffQuery->each() as $accountTariff) {
             if ($i++ % 1000 === 0) {
                 $this->out('. ');
-            }
-
-            /** @var AccountTariff $accountTariff */
-            $accountTariffLog = $accountTariff->getAccountTariffLogs()->one();
-            if (!$accountTariffLog ||
-                (!$accountTariffLog->tariff_period_id && $accountTariffLog->actual_from_utc < $minLogDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT))
-            ) {
-                // услуга отключена давно - в целях оптимизации считать нет смысла
-                // @todo денормализовать услугу, чтобы хранить там эту дату и не лазить каждый раз в лог
-                continue;
-            }
-
-            if (!$this->isFullTarification) {
-                // сокращенная проверка
-                $accountLogPeriodDateTo = $accountTariff->getAccountLogPeriods()
-                    ->select(['date_to'])
-                    ->orderBy(['id' => SORT_DESC])
-                    ->scalar();
-                if ($accountLogPeriodDateTo && $accountLogPeriodDateTo > $now) {
-                    // уже есть списание абонентки на будущее. Дальше списывать нет необходимости
-                    // сравнение строго больше, чтобы не зависеть от таймзоны
-                    // @todo денормализовать услугу, чтобы хранить там эту дату и не лазить каждый раз в лог
-                    continue;
-                }
             }
 
             $isWithTransaction && $transaction = Yii::$app->db->beginTransaction();
@@ -92,14 +74,30 @@ class AccountLogPeriodTarificator extends Tarificator
      * @throws \RangeException
      * @throws \LogicException
      * @throws \app\exceptions\ModelValidationException
+     * @throws \Exception
      */
     public function tarificateAccountTariff(AccountTariff $accountTariff)
     {
+        $maxDateTo = 0;
+
         $untarificatedPeriods = $accountTariff->getUntarificatedPeriodPeriods();
         foreach ($untarificatedPeriods as $untarificatedPeriod) {
             $accountLogPeriod = $this->getAccountLogPeriod($accountTariff, $untarificatedPeriod);
+            $maxDateTo = max($maxDateTo, $accountLogPeriod->date_to);
             if (!$accountLogPeriod->save()) {
                 throw new ModelValidationException($accountLogPeriod);
+            }
+        }
+
+        if ($maxDateTo) {
+            // обновить дату, до которой списана абонентка
+            $maxDateTimeTo = $accountTariff
+                ->clientAccount
+                ->getDatetimeWithTimezone($maxDateTo)
+                ->modify('+1 day'); // "оплачено по" означает "00:00", а нам надо "23:59"
+            $accountTariff->account_log_period_utc = $maxDateTimeTo->format(DateTimeZoneHelper::DATETIME_FORMAT);
+            if (!$accountTariff->save()) {
+                throw new ModelValidationException($accountTariff);
             }
         }
     }

@@ -8,6 +8,7 @@
 
 use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\CityColumn;
+use app\classes\grid\column\universal\DateRangeDoubleColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\RegionColumn;
@@ -70,6 +71,14 @@ $columns = [
         'value' => function (AccountTariff $accountTariff) {
             return nl2br(Html::encode($accountTariff->comment));
         },
+    ],
+    [
+        'attribute' => 'tariff_period_utc',
+        'class' => DateRangeDoubleColumn::className(),
+    ],
+    [
+        'attribute' => 'account_log_period_utc',
+        'class' => DateRangeDoubleColumn::className(),
     ],
 ];
 

@@ -28,6 +28,12 @@ class AccountTariffFilter extends AccountTariff
     public $price_from = '';
     public $price_to = '';
 
+    public $tariff_period_utc_from = '';
+    public $tariff_period_utc_to = '';
+
+    public $account_log_period_utc_from = '';
+    public $account_log_period_utc_to = '';
+
     /**
      * @param int $serviceTypeId
      */
@@ -55,6 +61,8 @@ class AccountTariffFilter extends AccountTariff
         $rules = parent::rules();
         $rules[] = [['beauty_level'], 'integer'];
         $rules[] = [['price_from', 'price_to'], 'integer'];
+        $rules[] = [['tariff_period_utc_from', 'tariff_period_utc_to'], 'string'];
+        $rules[] = [['account_log_period_utc_from', 'account_log_period_utc_to'], 'string'];
         return $rules;
     }
 
@@ -95,8 +103,15 @@ class AccountTariffFilter extends AccountTariff
         $this->infrastructure_project && $query->andWhere([$accountTariffTableName . '.infrastructure_project' => $this->infrastructure_project]);
         $this->infrastructure_level && $query->andWhere([$accountTariffTableName . '.infrastructure_level' => $this->infrastructure_level]);
         $this->datacenter_id && $query->andWhere([$accountTariffTableName . '.datacenter_id' => $this->datacenter_id]);
+
         $this->price_from !== '' && $query->andWhere(['>=', $accountTariffTableName . '.price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.price', $this->price_to]);
+
+        $this->tariff_period_utc_from !== '' && $query->andWhere(['>=', $accountTariffTableName . '.tariff_period_utc', $this->tariff_period_utc_from]);
+        $this->tariff_period_utc_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.tariff_period_utc', $this->tariff_period_utc_to]);
+
+        $this->account_log_period_utc_from !== '' && $query->andWhere(['>=', $accountTariffTableName . '.account_log_period_utc', $this->account_log_period_utc_from]);
+        $this->account_log_period_utc_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.account_log_period_utc', $this->account_log_period_utc_to]);
 
         $numberTableName = Number::tableName();
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);

@@ -9,23 +9,28 @@ use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountTariffLog;
 use app\modules\uu\models\Period;
 use app\modules\uu\models\ServiceType;
-use DateTime;
 use DateTimeImmutable;
 
 trait AccountTariffBillerTrait
 {
     /**
      * Вернуть дату, с которой рассчитываем лог при полной проверке. Если date_from строго меньше этой даты, то этот период не нужен в расчете
-     * Фактически расчитываем за этот и предыдущий месяц
      * Это нужно для оптимизации, чтобы не хранить много лишних данных, которые не нужны, а только тормозят расчет новых
      *
      * @return DateTimeImmutable
      */
     public static function getMinLogDatetime()
     {
-        return DateTimeZoneHelper::getUtcDateTime()
-            ->setTime(0, 0, 0)
-            ->modify('first day of previous month');
+        $datetime = DateTimeZoneHelper::getUtcDateTime()
+            ->setTime(0, 0, 0);
+
+        if ($datetime->format('d') < 15) {
+            // Начало месяца. Этот и предыдущий
+            return $datetime->modify('first day of previous month');
+        }
+
+        // Конец месяца. Только этот месяц
+        return $datetime->modify('first day of this month');
     }
 
     /**
