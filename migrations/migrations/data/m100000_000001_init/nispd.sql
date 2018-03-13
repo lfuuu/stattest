@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.21, for Linux (x86_64)
+-- MySQL dump 10.16  Distrib 10.2.13-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: nispd_test
 -- ------------------------------------------------------
--- Server version	5.7.21-0ubuntu0.16.04.1
+-- Server version	10.2.13-MariaDB-10.2.13+maria~artful-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -26,7 +26,7 @@ CREATE TABLE `_client_contract_business_process_status` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `business_process_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL DEFAULT '',
-  `sort` tinyint(4) NOT NULL DEFAULT '0',
+  `sort` tinyint(4) NOT NULL DEFAULT 0,
   `oldstatus` varchar(20) NOT NULL DEFAULT '',
   `color` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
@@ -55,8 +55,8 @@ CREATE TABLE `_voip_numbers` (
   `reserve_from` datetime DEFAULT NULL,
   `reserve_till` datetime DEFAULT NULL,
   `hold_from` datetime DEFAULT NULL,
-  `beauty_level` tinyint(4) NOT NULL DEFAULT '0',
-  `price` int(11) DEFAULT '0',
+  `beauty_level` tinyint(4) NOT NULL DEFAULT 0,
+  `price` int(11) DEFAULT 0,
   `region` smallint(6) NOT NULL,
   `client_id` int(11) DEFAULT NULL,
   `usage_id` int(11) DEFAULT NULL,
@@ -119,13 +119,13 @@ CREATE TABLE `actual_number` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `client_id` int(11) NOT NULL,
   `number` char(16) NOT NULL,
-  `region` int(11) NOT NULL DEFAULT '99',
+  `region` int(11) NOT NULL DEFAULT 99,
   `call_count` int(11) NOT NULL,
   `number_type` enum('vnumber','nonumber','number') NOT NULL DEFAULT 'number',
-  `is_blocked` tinyint(4) NOT NULL DEFAULT '0',
-  `is_disabled` tinyint(4) NOT NULL DEFAULT '0',
+  `is_blocked` tinyint(4) NOT NULL DEFAULT 0,
+  `is_disabled` tinyint(4) NOT NULL DEFAULT 0,
   `number7800` char(13) NOT NULL DEFAULT '',
-  `biller_version` int(11) NOT NULL DEFAULT '4',
+  `biller_version` int(11) NOT NULL DEFAULT 4,
   PRIMARY KEY (`id`),
   UNIQUE KEY `number` (`number`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=21880 DEFAULT CHARSET=utf8;
@@ -148,12 +148,14 @@ DROP TABLE IF EXISTS `actual_virtpbx`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `actual_virtpbx` (
-  `usage_id` int(11) NOT NULL DEFAULT '0',
-  `client_id` int(11) NOT NULL DEFAULT '0',
+  `usage_id` int(11) NOT NULL DEFAULT 0,
+  `client_id` int(11) NOT NULL DEFAULT 0,
   `tarif_id` int(11) DEFAULT NULL,
   `region_id` int(11) DEFAULT NULL,
-  `biller_version` int(11) NOT NULL DEFAULT '4',
-  PRIMARY KEY (`usage_id`)
+  `biller_version` int(11) NOT NULL DEFAULT 4,
+  PRIMARY KEY (`usage_id`),
+  KEY `fk-actual_virtpbx-region_id-regions-id` (`region_id`),
+  CONSTRAINT `fk-actual_virtpbx-region_id-regions-id` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -255,9 +257,9 @@ CREATE TABLE `bill_monthlyadd` (
   `amount` varchar(100) NOT NULL DEFAULT '',
   `price` varchar(100) NOT NULL DEFAULT '',
   `period` enum('day','week','month','year','once') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'day',
-  `enabled` tinyint(4) DEFAULT '1',
+  `enabled` tinyint(4) DEFAULT 1,
   `date_last_writeoff` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `credit_usd` decimal(7,2) NOT NULL DEFAULT '0.00',
+  `credit_usd` decimal(7,2) NOT NULL DEFAULT 0.00,
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
   PRIMARY KEY (`id`),
@@ -292,9 +294,9 @@ CREATE TABLE `bill_monthlyadd_log` (
   `amount` varchar(100) NOT NULL DEFAULT '',
   `price` varchar(100) NOT NULL DEFAULT '',
   `period` enum('day','week','month','year','once') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'day',
-  `enabled` tinyint(4) DEFAULT '1',
+  `enabled` tinyint(4) DEFAULT 1,
   `date_last_writeoff` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `credit_usd_del` decimal(7,2) NOT NULL DEFAULT '0.00',
+  `credit_usd_del` decimal(7,2) NOT NULL DEFAULT 0.00,
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `who` int(11) NOT NULL,
   `ts` datetime DEFAULT NULL,
@@ -324,7 +326,7 @@ CREATE TABLE `bill_monthlyadd_reference` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `description` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `price` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
-  `only_one_time` tinyint(1) DEFAULT '0',
+  `only_one_time` tinyint(1) DEFAULT 0,
   `period` enum('day','week','month','year','once') CHARACTER SET utf8 NOT NULL DEFAULT 'day',
   `currency` char(3) COLLATE utf8_bin NOT NULL DEFAULT 'USD',
   `edit_user` int(11) DEFAULT NULL,
@@ -356,16 +358,18 @@ CREATE TABLE `city` (
   `country_id` int(11) NOT NULL,
   `connection_point_id` int(11) DEFAULT NULL,
   `voip_number_format` varchar(50) DEFAULT NULL,
-  `in_use` int(1) NOT NULL DEFAULT '0',
+  `in_use` int(1) NOT NULL DEFAULT 0,
   `billing_method_id` int(11) DEFAULT NULL,
-  `order` int(11) DEFAULT '0',
-  `is_show_in_lk` smallint(6) NOT NULL DEFAULT '0',
-  `postfix_length` int(11) NOT NULL DEFAULT '6',
+  `order` int(11) DEFAULT 0,
+  `is_show_in_lk` smallint(6) NOT NULL DEFAULT 0,
+  `postfix_length` int(11) NOT NULL DEFAULT 6,
   PRIMARY KEY (`id`),
   KEY `fk_city__country_id` (`country_id`),
   KEY `fk-city-billing_method` (`billing_method_id`),
   KEY `idx-is_show_in_lk` (`is_show_in_lk`),
+  KEY `fk-city-connection_point_id-regions-id` (`connection_point_id`),
   CONSTRAINT `fk-city-billing_method` FOREIGN KEY (`billing_method_id`) REFERENCES `city_billing_methods` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk-city-connection_point_id-regions-id` FOREIGN KEY (`connection_point_id`) REFERENCES `regions` (`id`),
   CONSTRAINT `fk_city__country_id` FOREIGN KEY (`country_id`) REFERENCES `country` (`code`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -526,11 +530,11 @@ CREATE TABLE `client_contacts` (
   `client_id` int(11) NOT NULL,
   `type` enum('email','phone','fax','sms','email_invoice','email_rate','email_support') NOT NULL,
   `data` text NOT NULL,
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `ts` datetime DEFAULT NULL,
   `comment` text NOT NULL,
   `is_official` tinyint(1) NOT NULL,
-  `is_validate` smallint(1) NOT NULL DEFAULT '1',
+  `is_validate` smallint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`),
   KEY `type_data` (`type`,`data`(32),`user_id`) USING BTREE
@@ -558,23 +562,26 @@ CREATE TABLE `client_contract` (
   `super_id` int(11) DEFAULT NULL,
   `contragent_id` int(11) DEFAULT NULL,
   `number` varchar(100) NOT NULL,
-  `organization_id` int(11) NOT NULL DEFAULT '0',
+  `organization_id` int(11) NOT NULL DEFAULT 0,
   `manager` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `account_manager` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `business_id` tinyint(4) NOT NULL DEFAULT '0',
-  `business_process_id` int(11) NOT NULL DEFAULT '0',
-  `business_process_status_id` int(11) NOT NULL DEFAULT '0',
-  `contract_type_id` tinyint(4) NOT NULL DEFAULT '0',
+  `business_id` tinyint(4) NOT NULL DEFAULT 0,
+  `business_process_id` int(11) NOT NULL DEFAULT 0,
+  `business_process_status_id` int(11) NOT NULL DEFAULT 0,
+  `contract_type_id` tinyint(4) NOT NULL DEFAULT 0,
   `state` enum('unchecked','checked_copy','checked_original','offer') NOT NULL DEFAULT 'unchecked',
   `financial_type` enum('','profitable','consumables','yield-consumable') NOT NULL DEFAULT '',
   `federal_district` set('cfd','sfd','nwfd','dfo','sfo','ufo','pfo') NOT NULL DEFAULT '',
   `is_external` enum('internal','external') NOT NULL DEFAULT 'internal',
-  `is_lk_access` tinyint(1) NOT NULL DEFAULT '0',
-  `is_partner_login_allow` tinyint(1) DEFAULT '0',
-  `is_voip_with_tax` int(11) NOT NULL DEFAULT '0',
+  `is_lk_access` tinyint(1) NOT NULL DEFAULT 0,
+  `is_partner_login_allow` tinyint(1) DEFAULT 0,
+  `is_voip_with_tax` int(11) NOT NULL DEFAULT 0,
+  `partner_contract_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `contragent_id` (`contragent_id`),
-  KEY `super_id` (`super_id`)
+  KEY `super_id` (`super_id`),
+  KEY `fk-client_contract-partner_contract_id` (`partner_contract_id`),
+  CONSTRAINT `fk-client_contract-partner_contract_id` FOREIGN KEY (`partner_contract_id`) REFERENCES `client_contract` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=35802 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -624,7 +631,7 @@ CREATE TABLE `client_contract_business_process` (
   `business_id` int(11) DEFAULT NULL,
   `name` varchar(50) NOT NULL,
   `show_as_status` enum('0','1') NOT NULL DEFAULT '1',
-  `sort` tinyint(4) NOT NULL DEFAULT '0',
+  `sort` tinyint(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -650,7 +657,7 @@ CREATE TABLE `client_contract_business_process_status` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `business_process_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL DEFAULT '',
-  `sort` tinyint(4) NOT NULL DEFAULT '0',
+  `sort` tinyint(4) NOT NULL DEFAULT 0,
   `oldstatus` varchar(20) NOT NULL DEFAULT '',
   `color` varchar(20) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
@@ -676,11 +683,11 @@ DROP TABLE IF EXISTS `client_contract_comment`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_contract_comment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `contract_id` int(11) NOT NULL DEFAULT '0',
+  `contract_id` int(11) NOT NULL DEFAULT 0,
   `comment` text NOT NULL,
   `user` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `ts` datetime DEFAULT NULL,
-  `is_publish` tinyint(1) NOT NULL DEFAULT '0',
+  `is_publish` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `id_client` (`contract_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=117422 DEFAULT CHARSET=utf8;
@@ -765,7 +772,7 @@ DROP TABLE IF EXISTS `client_contragent`;
 CREATE TABLE `client_contragent` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `super_id` int(11) NOT NULL,
-  `country_id` int(4) DEFAULT '643',
+  `country_id` int(4) DEFAULT 643,
   `name` varchar(255) NOT NULL,
   `legal_type` enum('person','ip','legal') NOT NULL DEFAULT 'legal',
   `name_full` varchar(255) NOT NULL,
@@ -779,16 +786,18 @@ CREATE TABLE `client_contragent` (
   `fioV` varchar(128) NOT NULL DEFAULT '',
   `signer_passport` varchar(20) NOT NULL DEFAULT '',
   `tax_regime` enum('undefined','OCH-VAT18','YCH-VAT0') NOT NULL DEFAULT 'OCH-VAT18',
-  `opf_id` int(11) NOT NULL DEFAULT '0',
+  `opf_id` int(11) NOT NULL DEFAULT 0,
   `okpo` varchar(16) NOT NULL DEFAULT '',
   `okvd` varchar(16) NOT NULL DEFAULT '',
   `ogrn` varchar(16) NOT NULL,
   `comment` text NOT NULL,
-  `sale_channel_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `partner_contract_id` int(10) unsigned DEFAULT NULL,
+  `sale_channel_id` int(11) DEFAULT NULL,
+  `partner_contract_id` int(11) DEFAULT NULL,
   `lang_code` varchar(5) DEFAULT 'ru-RU',
   PRIMARY KEY (`id`),
-  KEY `super_client_id` (`super_id`)
+  KEY `super_client_id` (`super_id`),
+  KEY `fk-client_contragent-partner_contract_id` (`partner_contract_id`),
+  CONSTRAINT `fk-client_contragent-partner_contract_id` FOREIGN KEY (`partner_contract_id`) REFERENCES `client_contract` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=79289 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -822,7 +831,7 @@ CREATE TABLE `client_contragent_person` (
   `mother_maiden_name` varchar(64) DEFAULT NULL,
   `birthplace` varchar(255) DEFAULT NULL,
   `birthday` date DEFAULT NULL,
-  `other_document` text,
+  `other_document` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `contragent_id` (`contragent_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2309 DEFAULT CHARSET=utf8;
@@ -852,7 +861,7 @@ CREATE TABLE `client_counters` (
   `subscription_rt_balance` decimal(12,2) NOT NULL,
   `subscription_rt_last_month` decimal(12,2) NOT NULL,
   `subscription_rt` decimal(12,2) NOT NULL,
-  `amount_mn_day_sum` int(11) NOT NULL DEFAULT '0',
+  `amount_mn_day_sum` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -880,11 +889,11 @@ CREATE TABLE `client_document` (
   `contract_no` varchar(100) NOT NULL,
   `contract_date` date NOT NULL,
   `contract_dop_date` date NOT NULL DEFAULT '2012-01-01',
-  `contract_dop_no` int(11) NOT NULL DEFAULT '0',
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `contract_dop_no` int(11) NOT NULL DEFAULT 0,
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `ts` datetime DEFAULT NULL,
   `comment` text NOT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `type` enum('blank','agreement','contract') NOT NULL DEFAULT 'contract',
   PRIMARY KEY (`id`),
   KEY `client_id` (`contract_id`)
@@ -910,11 +919,11 @@ DROP TABLE IF EXISTS `client_files`;
 CREATE TABLE `client_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `contract_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `ts` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `comment` text NOT NULL,
   `name` varchar(255) NOT NULL,
-  `is_show_in_lk` int(11) NOT NULL DEFAULT '0',
+  `is_show_in_lk` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client_id` (`contract_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=86520 DEFAULT CHARSET=utf8;
@@ -938,9 +947,9 @@ DROP TABLE IF EXISTS `client_flag`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_flag` (
   `account_id` int(11) NOT NULL AUTO_INCREMENT,
-  `is_notified_7day` int(11) NOT NULL DEFAULT '0',
-  `is_notified_3day` int(11) NOT NULL DEFAULT '0',
-  `is_notified_1day` int(11) NOT NULL DEFAULT '0',
+  `is_notified_7day` int(11) NOT NULL DEFAULT 0,
+  `is_notified_3day` int(11) NOT NULL DEFAULT 0,
+  `is_notified_1day` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -965,10 +974,10 @@ CREATE TABLE `client_inn` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client_id` int(11) NOT NULL,
   `inn` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `ts` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `comment` text NOT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1365 DEFAULT CHARSET=utf8;
@@ -992,7 +1001,7 @@ DROP TABLE IF EXISTS `client_pay_acc`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `client_pay_acc` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `client_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `client_id` int(10) unsigned NOT NULL DEFAULT 0,
   `pay_acc` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `date` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `who` varchar(100) NOT NULL DEFAULT '',
@@ -1024,22 +1033,22 @@ CREATE TABLE `client_subaccount` (
   `sub_account` varchar(128) NOT NULL DEFAULT '',
   `stat_product_id` int(11) NOT NULL,
   `name` varchar(256) NOT NULL DEFAULT '',
-  `balance` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `credit` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `balance` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `credit` decimal(12,2) NOT NULL DEFAULT 0.00,
   `amount_date` datetime DEFAULT NULL,
-  `voip_limit_day` int(11) NOT NULL DEFAULT '0',
-  `voip_limit_month` int(11) NOT NULL DEFAULT '0',
-  `voip_limit_mn_day` int(11) NOT NULL DEFAULT '0',
-  `voip_limit_mn_month` int(11) NOT NULL DEFAULT '0',
-  `is_voip_orig_disabled` int(11) NOT NULL DEFAULT '0',
-  `is_voip_blocked` int(11) NOT NULL DEFAULT '0',
-  `number` int(11) NOT NULL DEFAULT '0',
+  `voip_limit_day` int(11) NOT NULL DEFAULT 0,
+  `voip_limit_month` int(11) NOT NULL DEFAULT 0,
+  `voip_limit_mn_day` int(11) NOT NULL DEFAULT 0,
+  `voip_limit_mn_month` int(11) NOT NULL DEFAULT 0,
+  `is_voip_orig_disabled` int(11) NOT NULL DEFAULT 0,
+  `is_voip_blocked` int(11) NOT NULL DEFAULT 0,
+  `number` int(11) NOT NULL DEFAULT 0,
   `did` varchar(16) DEFAULT NULL,
-  `is_voip_limit_mn_month_enabled` tinyint(1) NOT NULL DEFAULT '0',
-  `is_voip_limit_month_enabled` tinyint(1) NOT NULL DEFAULT '0',
-  `is_voip_limit_day_enabled` tinyint(1) NOT NULL DEFAULT '0',
-  `is_voip_limit_mn_day_enabled` tinyint(1) NOT NULL DEFAULT '0',
-  `is_enabled` tinyint(1) DEFAULT '1',
+  `is_voip_limit_mn_month_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `is_voip_limit_month_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `is_voip_limit_day_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `is_voip_limit_mn_day_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `is_enabled` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1086,8 +1095,8 @@ DROP TABLE IF EXISTS `client_super`;
 CREATE TABLE `client_super` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `financial_manager_id` int(11) NOT NULL DEFAULT '0',
-  `is_lk_exists` int(1) NOT NULL DEFAULT '0',
+  `financial_manager_id` int(11) NOT NULL DEFAULT 0,
+  `is_lk_exists` int(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=79276 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1111,14 +1120,14 @@ DROP TABLE IF EXISTS `clients`;
 CREATE TABLE `clients` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `super_id` int(4) NOT NULL DEFAULT '0',
-  `contract_id` int(4) NOT NULL DEFAULT '0',
-  `country_id` int(4) NOT NULL DEFAULT '643',
+  `super_id` int(4) NOT NULL DEFAULT 0,
+  `contract_id` int(4) NOT NULL DEFAULT 0,
+  `country_id` int(4) NOT NULL DEFAULT 643,
   `password` varchar(16) NOT NULL,
   `password_type` enum('plaintext','MD5') NOT NULL DEFAULT 'plaintext',
   `comment` varchar(250) NOT NULL DEFAULT '',
   `status` enum('negotiations','testing','connecting','work','closed','tech_deny','telemarketing','income','deny','debt','double','trash','move','already','denial','once','reserved','suspended','operator','distr','blocked') NOT NULL DEFAULT 'income',
-  `usd_rate_percent` decimal(4,1) NOT NULL DEFAULT '0.0',
+  `usd_rate_percent` decimal(4,1) NOT NULL DEFAULT 0.0,
   `address_post` varchar(128) NOT NULL DEFAULT '',
   `address_post_real` varchar(128) NOT NULL DEFAULT '',
   `support` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
@@ -1134,18 +1143,18 @@ CREATE TABLE `clients` (
   `uid` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `site_req_no` varchar(20) NOT NULL DEFAULT '',
   `hid_rtsaldo_date` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `hid_rtsaldo_RUB` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `hid_rtsaldo_USD` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `credit_USD` int(11) NOT NULL DEFAULT '0',
-  `credit_RUB` int(11) NOT NULL DEFAULT '0',
-  `credit` int(11) NOT NULL DEFAULT '-1',
+  `hid_rtsaldo_RUB` decimal(11,2) NOT NULL DEFAULT 0.00,
+  `hid_rtsaldo_USD` decimal(11,2) NOT NULL DEFAULT 0.00,
+  `credit_USD` int(11) NOT NULL DEFAULT 0,
+  `credit_RUB` int(11) NOT NULL DEFAULT 0,
+  `credit` int(11) NOT NULL DEFAULT -1,
   `user_impersonate` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'client',
   `address_connect` varchar(128) NOT NULL DEFAULT '',
   `phone_connect` varchar(128) NOT NULL DEFAULT '',
-  `id_all4net` int(11) NOT NULL DEFAULT '0',
+  `id_all4net` int(11) NOT NULL DEFAULT 0,
   `dealer_comment` varchar(255) NOT NULL DEFAULT '',
   `form_type` enum('manual','payment','bill') NOT NULL DEFAULT 'manual',
-  `metro_id` int(4) NOT NULL DEFAULT '0',
+  `metro_id` int(4) NOT NULL DEFAULT 0,
   `previous_reincarnation` int(11) DEFAULT NULL,
   `cli_1c` varchar(36) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `con_1c` varchar(36) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
@@ -1155,50 +1164,50 @@ CREATE TABLE `clients` (
   `bank_city` varchar(255) DEFAULT NULL,
   `sync_1c` enum('no','yes') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'no',
   `price_type` varchar(60) DEFAULT '',
-  `voip_disabled` int(1) NOT NULL DEFAULT '0',
-  `voip_credit_limit_day` int(11) NOT NULL DEFAULT '0',
-  `balance` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `balance_usd` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `voip_is_day_calc` int(1) NOT NULL DEFAULT '1',
-  `region` smallint(6) DEFAULT '99',
+  `voip_disabled` int(1) NOT NULL DEFAULT 0,
+  `voip_credit_limit_day` int(11) NOT NULL DEFAULT 0,
+  `balance` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `balance_usd` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `voip_is_day_calc` int(1) NOT NULL DEFAULT 1,
+  `region` smallint(6) DEFAULT 99,
   `last_account_date` datetime DEFAULT NULL,
   `last_payed_voip_month` date DEFAULT NULL,
   `mail_print` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'yes',
   `mail_who` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `head_company` varchar(255) NOT NULL DEFAULT '',
   `head_company_address_jur` varchar(255) NOT NULL DEFAULT '',
-  `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created` timestamp NULL DEFAULT current_timestamp(),
   `bill_rename1` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'no',
-  `nds_calc_method` tinyint(4) NOT NULL DEFAULT '1',
-  `admin_contact_id` int(11) NOT NULL DEFAULT '0',
-  `admin_is_active` tinyint(4) NOT NULL DEFAULT '1',
+  `nds_calc_method` tinyint(4) NOT NULL DEFAULT 1,
+  `admin_contact_id` int(11) NOT NULL DEFAULT 0,
+  `admin_is_active` tinyint(4) NOT NULL DEFAULT 1,
   `is_agent` varchar(1) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'N',
-  `is_bill_only_contract` smallint(1) NOT NULL DEFAULT '0',
-  `is_bill_with_refund` smallint(1) NOT NULL DEFAULT '0',
-  `is_with_consignee` smallint(1) NOT NULL DEFAULT '0',
+  `is_bill_only_contract` smallint(1) NOT NULL DEFAULT 0,
+  `is_bill_with_refund` smallint(1) NOT NULL DEFAULT 0,
+  `is_with_consignee` smallint(1) NOT NULL DEFAULT 0,
   `consignee` varchar(255) NOT NULL,
-  `is_upd_without_sign` smallint(1) NOT NULL DEFAULT '0',
-  `price_include_vat` tinyint(1) DEFAULT '1',
-  `is_active` tinyint(4) NOT NULL DEFAULT '1',
-  `is_blocked` tinyint(4) NOT NULL DEFAULT '0',
-  `is_closed` tinyint(4) NOT NULL DEFAULT '0',
+  `is_upd_without_sign` smallint(1) NOT NULL DEFAULT 0,
+  `price_include_vat` tinyint(1) DEFAULT 1,
+  `is_active` tinyint(4) NOT NULL DEFAULT 1,
+  `is_blocked` tinyint(4) NOT NULL DEFAULT 0,
+  `is_closed` tinyint(4) NOT NULL DEFAULT 0,
   `timezone_name` varchar(50) NOT NULL DEFAULT 'Europe/Moscow',
-  `timezone_offset` tinyint(4) NOT NULL DEFAULT '3',
   `lk_balance_view_mode` enum('old','new') NOT NULL DEFAULT 'old',
-  `anti_fraud_disabled` tinyint(4) NOT NULL DEFAULT '0',
+  `anti_fraud_disabled` tinyint(4) NOT NULL DEFAULT 0,
   `site_name` varchar(128) NOT NULL DEFAULT '',
-  `account_version` int(1) unsigned DEFAULT '4',
-  `is_postpaid` int(11) NOT NULL DEFAULT '0',
-  `voip_limit_mn_day` int(11) NOT NULL DEFAULT '0',
-  `voip_is_mn_day_calc` int(1) NOT NULL DEFAULT '1',
-  `type_of_bill` tinyint(1) DEFAULT '1',
-  `effective_vat_rate` int(11) NOT NULL DEFAULT '0',
-  `pay_bill_until_days` int(11) NOT NULL DEFAULT '30',
-  `is_bill_pay_overdue` int(11) DEFAULT '0',
-  `is_voip_with_tax` int(11) NOT NULL DEFAULT '0',
-  `price_level` int(11) NOT NULL DEFAULT '1',
-  `credit_mgp` int(11) NOT NULL DEFAULT '0',
+  `account_version` int(1) unsigned DEFAULT 4,
+  `is_postpaid` int(11) NOT NULL DEFAULT 0,
+  `voip_limit_mn_day` int(11) NOT NULL DEFAULT 0,
+  `voip_is_mn_day_calc` int(1) NOT NULL DEFAULT 1,
+  `type_of_bill` tinyint(1) DEFAULT 1,
+  `effective_vat_rate` int(11) NOT NULL DEFAULT 0,
+  `pay_bill_until_days` int(11) NOT NULL DEFAULT 30,
+  `is_bill_pay_overdue` int(11) DEFAULT 0,
+  `is_voip_with_tax` int(11) NOT NULL DEFAULT 0,
+  `price_level` int(11) NOT NULL DEFAULT 1,
+  `credit_mgp` int(11) NOT NULL DEFAULT 0,
   `uu_tariff_status_id` int(11) DEFAULT NULL,
+  `show_in_lk` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   UNIQUE KEY `_1c_uk` (`cli_1c`,`con_1c`),
   KEY `client` (`client`),
@@ -1229,7 +1238,7 @@ DROP TABLE IF EXISTS `clients_contracts_yota`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `clients_contracts_yota` (
   `client_id` int(10) unsigned NOT NULL,
-  `json_data` text,
+  `json_data` text DEFAULT NULL,
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1349,19 +1358,19 @@ DROP TABLE IF EXISTS `country`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `country` (
-  `code` int(4) NOT NULL DEFAULT '0',
+  `code` int(4) NOT NULL DEFAULT 0,
   `alpha_3` varchar(3) DEFAULT NULL,
   `name` varchar(100) NOT NULL DEFAULT '',
-  `in_use` tinyint(4) NOT NULL DEFAULT '0',
+  `in_use` tinyint(4) NOT NULL DEFAULT 0,
   `lang` varchar(5) DEFAULT 'ru-RU',
   `currency_id` char(3) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `prefix` int(11) DEFAULT NULL,
   `site` varchar(255) DEFAULT NULL,
-  `order` int(1) NOT NULL DEFAULT '0',
+  `order` int(1) NOT NULL DEFAULT 0,
   `name_rus` varchar(255) DEFAULT NULL,
   `name_rus_full` varchar(255) DEFAULT NULL,
-  `default_connection_point_id` int(11) NOT NULL DEFAULT '99',
-  `is_show_in_lk` int(11) NOT NULL DEFAULT '0',
+  `default_connection_point_id` int(11) NOT NULL DEFAULT 99,
+  `is_show_in_lk` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`code`),
   KEY `in_use` (`in_use`),
   KEY `fk-country-currency_id` (`currency_id`),
@@ -1391,7 +1400,7 @@ CREATE TABLE `courier` (
   `name` varchar(100) NOT NULL DEFAULT '',
   `phone` varchar(20) NOT NULL DEFAULT '',
   `all4geo` varchar(10) NOT NULL DEFAULT '',
-  `is_used` smallint(1) NOT NULL DEFAULT '0',
+  `is_used` smallint(1) NOT NULL DEFAULT 0,
   `enabled` enum('yes','no') NOT NULL DEFAULT 'yes',
   `depart` varchar(64) NOT NULL DEFAULT 'Курьер' COMMENT 'отдел Курьер/Инженер',
   PRIMARY KEY (`id`),
@@ -1419,7 +1428,7 @@ CREATE TABLE `currency` (
   `id` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `name` varchar(50) NOT NULL,
   `symbol` varchar(16) NOT NULL DEFAULT '',
-  `code` int(11) NOT NULL DEFAULT '0' COMMENT 'ISO 4217',
+  `code` int(11) NOT NULL DEFAULT 0 COMMENT 'ISO 4217',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1445,7 +1454,7 @@ CREATE TABLE `currency_rate` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` date NOT NULL DEFAULT '1970-01-02',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
-  `rate` decimal(10,4) NOT NULL DEFAULT '0.0000',
+  `rate` decimal(10,4) NOT NULL DEFAULT 0.0000,
   PRIMARY KEY (`id`),
   KEY `date` (`date`,`currency`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8408 DEFAULT CHARSET=utf8;
@@ -1472,7 +1481,7 @@ CREATE TABLE `datacenter` (
   `name` varchar(128) DEFAULT NULL,
   `address` varchar(256) DEFAULT NULL,
   `comment` varchar(256) DEFAULT NULL,
-  `region` int(4) NOT NULL DEFAULT '99',
+  `region` int(4) NOT NULL DEFAULT 99,
   PRIMARY KEY (`id`),
   KEY `id` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
@@ -1499,7 +1508,7 @@ CREATE TABLE `did_group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `city_id` int(11) DEFAULT NULL,
-  `beauty_level` int(11) NOT NULL DEFAULT '0',
+  `beauty_level` int(11) NOT NULL DEFAULT 0,
   `country_code` int(11) NOT NULL,
   `price1` float DEFAULT NULL,
   `price2` float DEFAULT NULL,
@@ -1558,7 +1567,7 @@ CREATE TABLE `did_group` (
   `tariff_status_main18` int(11) NOT NULL,
   `tariff_status_package18` int(11) NOT NULL,
   `tariff_status_beauty` int(11) DEFAULT NULL,
-  `is_service` int(11) NOT NULL DEFAULT '0',
+  `is_service` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `fk_did_group__city_id` (`city_id`),
   KEY `fk-did_group-country_code` (`country_code`),
@@ -1661,8 +1670,8 @@ DROP TABLE IF EXISTS `document_folder`;
 CREATE TABLE `document_folder` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
-  `sort` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `parent_id` int(11) NOT NULL DEFAULT '0',
+  `sort` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `parent_id` int(11) NOT NULL DEFAULT 0,
   `default_for_business_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `parent_id_default_for_business_id` (`parent_id`,`default_for_business_id`)
@@ -1691,8 +1700,8 @@ CREATE TABLE `document_template` (
   `folder_id` int(11) DEFAULT NULL,
   `content` mediumtext NOT NULL,
   `type` enum('contract','agreement','blank') NOT NULL DEFAULT 'contract',
-  `sort` tinyint(3) NOT NULL DEFAULT '0',
-  `is_legal` tinyint(1) NOT NULL DEFAULT '1',
+  `sort` tinyint(3) NOT NULL DEFAULT 0,
+  `is_legal` tinyint(1) NOT NULL DEFAULT 1,
   `language` varchar(255) NOT NULL DEFAULT 'ru-RU',
   PRIMARY KEY (`id`),
   KEY `fk-language-code` (`language`),
@@ -1756,8 +1765,8 @@ CREATE TABLE `e164_stat` (
   `action` varchar(50) NOT NULL,
   `client` int(10) unsigned DEFAULT NULL,
   `user` int(10) unsigned DEFAULT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `addition` text,
+  `time` timestamp NOT NULL DEFAULT current_timestamp(),
+  `addition` text DEFAULT NULL,
   PRIMARY KEY (`pk`),
   KEY `work` (`e164`)
 ) ENGINE=InnoDB AUTO_INCREMENT=88678 DEFAULT CHARSET=utf8;
@@ -1787,7 +1796,7 @@ CREATE TABLE `email_whitelist` (
   `sender_address_domain` varchar(100) NOT NULL DEFAULT '',
   `sender_host_address` varchar(100) NOT NULL DEFAULT '',
   `comment` varchar(100) NOT NULL DEFAULT '',
-  `rbl_enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `rbl_enabled` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `domain` (`domain`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2798 DEFAULT CHARSET=utf8;
@@ -1836,21 +1845,21 @@ DROP TABLE IF EXISTS `emails`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `emails` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `last_modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `last_modified` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `actual_from` date NOT NULL DEFAULT '1970-01-02',
   `actual_to` date NOT NULL DEFAULT '1970-01-02',
   `local_part` varchar(64) NOT NULL DEFAULT '',
   `domain` varchar(64) NOT NULL DEFAULT '',
   `password` varchar(64) NOT NULL DEFAULT '',
   `client` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `box_size` int(11) NOT NULL DEFAULT '0',
-  `box_quota` int(11) NOT NULL DEFAULT '50000',
-  `enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `box_size` int(11) NOT NULL DEFAULT 0,
+  `box_quota` int(11) NOT NULL DEFAULT 50000,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
   `spam_act` enum('pass','mark','discard') NOT NULL DEFAULT 'pass',
-  `smtp_auth` tinyint(1) NOT NULL DEFAULT '0',
+  `smtp_auth` tinyint(1) NOT NULL DEFAULT 0,
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`),
   KEY `local_part` (`local_part`,`domain`)
@@ -1877,21 +1886,21 @@ CREATE TABLE `entry_point` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `super_client_prefix` varchar(255) NOT NULL DEFAULT '',
-  `country_id` int(11) NOT NULL DEFAULT '643',
-  `region_id` int(11) NOT NULL DEFAULT '99',
-  `organization_id` int(11) NOT NULL DEFAULT '11',
-  `client_contract_business_id` int(11) NOT NULL DEFAULT '2',
-  `client_contract_business_process_id` int(11) NOT NULL DEFAULT '1',
-  `client_contract_business_process_status_id` int(11) NOT NULL DEFAULT '19',
+  `name_prefix` varchar(255) NOT NULL DEFAULT '',
+  `country_id` int(11) NOT NULL DEFAULT 643,
+  `region_id` int(11) NOT NULL DEFAULT 99,
+  `organization_id` int(11) NOT NULL DEFAULT 11,
+  `client_contract_business_id` int(11) NOT NULL DEFAULT 2,
+  `client_contract_business_process_id` int(11) NOT NULL DEFAULT 1,
+  `client_contract_business_process_status_id` int(11) NOT NULL DEFAULT 19,
   `currency_id` varchar(255) NOT NULL DEFAULT 'RUB',
   `timezone_name` varchar(255) DEFAULT NULL,
-  `is_postpaid` int(11) NOT NULL DEFAULT '0',
-  `account_version` int(11) NOT NULL DEFAULT '5',
+  `is_postpaid` int(11) NOT NULL DEFAULT 0,
+  `account_version` int(11) NOT NULL DEFAULT 5,
   `credit` int(11) DEFAULT NULL,
-  `voip_credit_limit_day` int(11) NOT NULL DEFAULT '0',
+  `voip_credit_limit_day` int(11) NOT NULL DEFAULT 0,
   `voip_limit_mn_day` int(11) NOT NULL,
-  `is_default` int(11) NOT NULL DEFAULT '0',
+  `is_default` int(11) NOT NULL DEFAULT 0,
   `connect_trouble_user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq-code` (`code`),
@@ -1932,14 +1941,14 @@ DROP TABLE IF EXISTS `event_queue`;
 CREATE TABLE `event_queue` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `event` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `param` text,
+  `param` text DEFAULT NULL,
   `status` enum('plan','ok','error','stop') NOT NULL DEFAULT 'plan',
-  `iteration` smallint(6) NOT NULL DEFAULT '0',
+  `iteration` smallint(6) NOT NULL DEFAULT 0,
   `next_start` timestamp NOT NULL DEFAULT '2000-01-01 00:00:00',
-  `log_error` text,
+  `log_error` text DEFAULT NULL,
   `code` char(32) NOT NULL,
   `insert_time` datetime DEFAULT NULL,
-  `trace` text,
+  `trace` text DEFAULT NULL,
   `account_tariff_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `is_handled` (`status`) USING BTREE,
@@ -1966,7 +1975,7 @@ DROP TABLE IF EXISTS `event_queue_indicator`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `event_queue_indicator` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `object` varchar(255) NOT NULL,
   `object_id` int(11) NOT NULL,
   `event_queue_id` bigint(20) DEFAULT NULL,
@@ -2022,7 +2031,7 @@ DROP TABLE IF EXISTS `g_bonus`;
 CREATE TABLE `g_bonus` (
   `good_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `group` enum('telemarketing','marketing','manager') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'telemarketing',
-  `value` decimal(5,2) NOT NULL DEFAULT '0.00',
+  `value` decimal(5,2) NOT NULL DEFAULT 0.00,
   `type` enum('fix','%') NOT NULL DEFAULT '%',
   PRIMARY KEY (`good_id`,`group`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2098,7 +2107,7 @@ CREATE TABLE `g_good_price` (
   `good_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `descr_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `price_type_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `price` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `price` decimal(11,2) NOT NULL DEFAULT 0.00,
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
   PRIMARY KEY (`price_type_id`,`good_id`,`descr_id`,`currency`),
   KEY `fk-currency-id` (`currency`),
@@ -2125,9 +2134,9 @@ DROP TABLE IF EXISTS `g_good_store`;
 CREATE TABLE `g_good_store` (
   `good_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `descr_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `qty_free` int(4) NOT NULL DEFAULT '0',
-  `qty_store` int(4) NOT NULL DEFAULT '0',
-  `qty_wait` int(4) NOT NULL DEFAULT '0',
+  `qty_free` int(4) NOT NULL DEFAULT 0,
+  `qty_store` int(4) NOT NULL DEFAULT 0,
+  `qty_wait` int(4) NOT NULL DEFAULT 0,
   `store_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '8e5c7b22-8385-11df-9af5-001517456eb1',
   PRIMARY KEY (`store_id`,`good_id`,`descr_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2151,22 +2160,22 @@ DROP TABLE IF EXISTS `g_goods`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `g_goods` (
   `id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `num_id` int(4) NOT NULL DEFAULT '0',
+  `num_id` int(4) NOT NULL DEFAULT 0,
   `name` varchar(128) NOT NULL DEFAULT '',
   `name_full` varchar(4096) NOT NULL DEFAULT '',
   `art` varchar(32) NOT NULL DEFAULT '',
-  `price` float(7,2) NOT NULL DEFAULT '0.00',
-  `quantity` int(11) NOT NULL DEFAULT '0',
-  `quantity_store` int(11) NOT NULL DEFAULT '0',
-  `producer_id` int(11) NOT NULL DEFAULT '0',
+  `price` float(7,2) NOT NULL DEFAULT 0.00,
+  `quantity` int(11) NOT NULL DEFAULT 0,
+  `quantity_store` int(11) NOT NULL DEFAULT 0,
+  `producer_id` int(11) NOT NULL DEFAULT 0,
   `description` text NOT NULL,
-  `is_service` int(1) NOT NULL DEFAULT '0',
-  `group_id` int(11) NOT NULL DEFAULT '0',
-  `division_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `is_allowpricezero` int(1) NOT NULL DEFAULT '0',
-  `is_allowpricechange` int(1) NOT NULL DEFAULT '0',
+  `is_service` int(1) NOT NULL DEFAULT 0,
+  `group_id` int(11) NOT NULL DEFAULT 0,
+  `division_id` int(10) unsigned NOT NULL DEFAULT 0,
+  `is_allowpricezero` int(1) NOT NULL DEFAULT 0,
+  `is_allowpricechange` int(1) NOT NULL DEFAULT 0,
   `store` enum('','yes','no','remote') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `nds` int(4) NOT NULL DEFAULT '18',
+  `nds` int(4) NOT NULL DEFAULT 18,
   `unit_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   PRIMARY KEY (`id`),
   KEY `k_group` (`group_id`)
@@ -2190,9 +2199,9 @@ DROP TABLE IF EXISTS `g_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `g_groups` (
-  `id` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL DEFAULT 0,
   `name` varchar(100) NOT NULL DEFAULT '',
-  `parent_id` int(11) NOT NULL DEFAULT '0',
+  `parent_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `k_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2334,7 +2343,7 @@ CREATE TABLE `g_income_order` (
   `sum` decimal(15,2) NOT NULL,
   `manager_id` int(11) DEFAULT NULL,
   `comment` text NOT NULL,
-  `is_payed` tinyint(1) DEFAULT '0',
+  `is_payed` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `fk_currency` (`currency`) USING BTREE,
   KEY `fk_client_card` (`client_card_id`) USING BTREE,
@@ -2465,7 +2474,7 @@ CREATE TABLE `g_notification_limits` (
   `good_id` char(36) NOT NULL,
   `store_id` char(36) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `limit_value` int(11) NOT NULL DEFAULT '0',
+  `limit_value` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`good_id`,`store_id`,`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2562,7 +2571,7 @@ DROP TABLE IF EXISTS `g_producers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `g_producers` (
-  `id` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL DEFAULT 0,
   `name` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2611,7 +2620,7 @@ DROP TABLE IF EXISTS `g_store`;
 CREATE TABLE `g_store` (
   `id` char(36) CHARACTER SET koi8r COLLATE koi8r_bin NOT NULL DEFAULT '',
   `name` varchar(50) NOT NULL DEFAULT '',
-  `deleted` smallint(6) NOT NULL DEFAULT '0' COMMENT 'is store deleted: 1 - true, 0 - false',
+  `deleted` smallint(6) NOT NULL DEFAULT 0 COMMENT 'is store deleted: 1 - true, 0 - false',
   `is_show` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'yes',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -2720,13 +2729,13 @@ DROP TABLE IF EXISTS `important_events`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `important_events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date` timestamp NOT NULL DEFAULT current_timestamp(),
   `client_id` int(11) DEFAULT NULL,
   `event` varchar(50) DEFAULT NULL,
   `source_id` int(11) DEFAULT NULL,
   `from_ip` varbinary(39) DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
-  `context` text,
+  `context` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `date` (`date`) USING BTREE,
   KEY `idx-client_id-event` (`client_id`,`event`)
@@ -2832,7 +2841,7 @@ DROP TABLE IF EXISTS `invoice_settings`;
 CREATE TABLE `invoice_settings` (
   `doer_organization_id` int(11) DEFAULT NULL,
   `customer_country_code` int(4) DEFAULT NULL,
-  `vat_apply_scheme` int(11) DEFAULT '1',
+  `vat_apply_scheme` int(11) DEFAULT 1,
   `settlement_account_type_id` int(11) DEFAULT NULL,
   `vat_rate` int(6) DEFAULT NULL,
   UNIQUE KEY `org_id-customer_country-settlement_account-scheme` (`doer_organization_id`,`customer_country_code`,`settlement_account_type_id`,`vat_apply_scheme`),
@@ -2885,7 +2894,7 @@ DROP TABLE IF EXISTS `language`;
 CREATE TABLE `language` (
   `code` varchar(5) NOT NULL,
   `name` varchar(50) NOT NULL,
-  `order` int(11) NOT NULL DEFAULT '0',
+  `order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2901,6 +2910,41 @@ INSERT INTO `language` VALUES ('de-DE','Deutsch',3),('en-US','English',1),('hu-H
 UNLOCK TABLES;
 
 --
+-- Table structure for table `lead`
+--
+
+DROP TABLE IF EXISTS `lead`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lead` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `message_id` varchar(255) DEFAULT NULL,
+  `trouble_id` int(11) DEFAULT NULL,
+  `account_id` int(11) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `data_json` text DEFAULT NULL,
+  `state_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_message_id` (`message_id`),
+  KEY `fk-lead-account_id-clients-id` (`account_id`),
+  KEY `fk-lead-trouble_id-tt_troubles-id` (`trouble_id`),
+  KEY `fk-lead-state_id-tt_states-id` (`state_id`),
+  CONSTRAINT `fk-lead-account_id-clients-id` FOREIGN KEY (`account_id`) REFERENCES `clients` (`id`),
+  CONSTRAINT `fk-lead-state_id-tt_states-id` FOREIGN KEY (`state_id`) REFERENCES `tt_states` (`id`),
+  CONSTRAINT `fk-lead-trouble_id-tt_troubles-id` FOREIGN KEY (`trouble_id`) REFERENCES `tt_troubles` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lead`
+--
+
+LOCK TABLES `lead` WRITE;
+/*!40000 ALTER TABLE `lead` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lead` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `lk_client_settings`
 --
 
@@ -2908,20 +2952,20 @@ DROP TABLE IF EXISTS `lk_client_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lk_client_settings` (
-  `client_id` int(11) NOT NULL DEFAULT '0',
-  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `client_id` int(11) NOT NULL DEFAULT 0,
+  `created` timestamp NOT NULL DEFAULT current_timestamp(),
   `min_balance` decimal(8,2) NOT NULL,
   `min_balance_sent` timestamp NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `is_min_balance_sent` int(4) NOT NULL DEFAULT '0',
+  `is_min_balance_sent` int(4) NOT NULL DEFAULT 0,
   `min_day_limit` decimal(8,2) NOT NULL,
   `min_day_limit_sent` timestamp NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `is_min_day_limit_sent` int(4) NOT NULL DEFAULT '0',
+  `is_min_day_limit_sent` int(4) NOT NULL DEFAULT 0,
   `zero_balance_sent` timestamp NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `is_zero_balance_sent` int(4) NOT NULL DEFAULT '0',
+  `is_zero_balance_sent` int(4) NOT NULL DEFAULT 0,
   `day_limit_sent` timestamp NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `is_day_limit_sent` int(4) NOT NULL DEFAULT '0',
+  `is_day_limit_sent` int(4) NOT NULL DEFAULT 0,
   `day_limit_mn_sent` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `is_day_limit_mn_sent` int(11) NOT NULL DEFAULT '0',
+  `is_day_limit_mn_sent` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=koi8r ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2948,8 +2992,8 @@ CREATE TABLE `lk_notice` (
   `data` varchar(100) NOT NULL,
   `subject` mediumtext NOT NULL,
   `message` mediumtext NOT NULL,
-  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `contact_id` int(11) NOT NULL DEFAULT '0',
+  `created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `contact_id` int(11) NOT NULL DEFAULT 0,
   `lang` varchar(5) DEFAULT 'ru-RU',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3343 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
@@ -2973,13 +3017,13 @@ DROP TABLE IF EXISTS `lk_notice_log`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lk_notice_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `client_id` int(11) NOT NULL DEFAULT '0',
-  `contact_id` int(11) NOT NULL DEFAULT '0',
+  `date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `client_id` int(11) NOT NULL DEFAULT 0,
+  `contact_id` int(11) NOT NULL DEFAULT 0,
   `event` enum('add_pay_notif','day_limit','zero_balance','prebil_prepayers_notif','min_balance','min_day_limit') DEFAULT NULL,
-  `is_set` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'is set, or reset limit',
-  `balance` decimal(11,2) NOT NULL DEFAULT '0.00' COMMENT 'client balance',
-  `limit` int(11) NOT NULL DEFAULT '0',
+  `is_set` tinyint(4) NOT NULL DEFAULT 1 COMMENT 'is set, or reset limit',
+  `balance` decimal(11,2) NOT NULL DEFAULT 0.00 COMMENT 'client balance',
+  `limit` int(11) NOT NULL DEFAULT 0,
   `value` decimal(11,2) NOT NULL COMMENT 'payment sum value',
   PRIMARY KEY (`id`),
   KEY `client_id` (`date`,`client_id`) USING BTREE,
@@ -3004,11 +3048,11 @@ DROP TABLE IF EXISTS `lk_notice_settings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lk_notice_settings` (
-  `client_contact_id` int(11) NOT NULL DEFAULT '0',
-  `client_id` int(11) NOT NULL DEFAULT '0',
-  `min_balance` tinyint(1) NOT NULL DEFAULT '0',
-  `min_day_limit` tinyint(1) NOT NULL DEFAULT '0',
-  `add_pay_notif` tinyint(1) NOT NULL DEFAULT '0',
+  `client_contact_id` int(11) NOT NULL DEFAULT 0,
+  `client_id` int(11) NOT NULL DEFAULT 0,
+  `min_balance` tinyint(1) NOT NULL DEFAULT 0,
+  `min_day_limit` tinyint(1) NOT NULL DEFAULT 0,
+  `add_pay_notif` tinyint(1) NOT NULL DEFAULT 0,
   `status` enum('working','connecting') NOT NULL DEFAULT 'connecting',
   `activate_code` varchar(10) NOT NULL,
   PRIMARY KEY (`client_contact_id`,`client_id`)
@@ -3033,16 +3077,16 @@ DROP TABLE IF EXISTS `lk_wizard_state`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lk_wizard_state` (
   `contract_id` int(11) NOT NULL,
-  `step` tinyint(4) NOT NULL DEFAULT '0',
+  `step` tinyint(4) NOT NULL DEFAULT 0,
   `state` enum('rejected','review','approve','process') NOT NULL DEFAULT 'process',
-  `trouble_id` int(11) NOT NULL DEFAULT '0',
+  `trouble_id` int(11) NOT NULL DEFAULT 0,
   `type` enum('euro','mcn','slovak') NOT NULL DEFAULT 'mcn',
-  `is_bonus_added` tinyint(4) NOT NULL DEFAULT '0',
-  `is_on` tinyint(4) NOT NULL DEFAULT '1',
-  `is_rules_accept_legal` int(1) NOT NULL DEFAULT '0',
-  `is_rules_accept_person` int(1) NOT NULL DEFAULT '0',
-  `is_contract_accept` int(1) NOT NULL DEFAULT '0',
-  `is_rules_accept_ip` tinyint(1) NOT NULL DEFAULT '0',
+  `is_bonus_added` tinyint(4) NOT NULL DEFAULT 0,
+  `is_on` tinyint(4) NOT NULL DEFAULT 1,
+  `is_rules_accept_legal` int(1) NOT NULL DEFAULT 0,
+  `is_rules_accept_person` int(1) NOT NULL DEFAULT 0,
+  `is_contract_accept` int(1) NOT NULL DEFAULT 0,
+  `is_rules_accept_ip` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`contract_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3065,7 +3109,7 @@ DROP TABLE IF EXISTS `log`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `message` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=51473 DEFAULT CHARSET=utf8;
@@ -3090,9 +3134,9 @@ DROP TABLE IF EXISTS `log_block`;
 CREATE TABLE `log_block` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `service` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `id_service` int(11) NOT NULL DEFAULT '0',
-  `block` tinyint(1) NOT NULL DEFAULT '0',
-  `id_user` int(11) NOT NULL DEFAULT '0',
+  `id_service` int(11) NOT NULL DEFAULT 0,
+  `block` tinyint(1) NOT NULL DEFAULT 0,
+  `id_user` int(11) NOT NULL DEFAULT 0,
   `ts` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `comment` varchar(255) DEFAULT NULL,
   `fields_changes` varchar(255) DEFAULT '',
@@ -3120,9 +3164,9 @@ DROP TABLE IF EXISTS `log_client`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log_client` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `client_id` int(11) NOT NULL DEFAULT '0',
-  `super_id` int(11) NOT NULL DEFAULT '0',
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `client_id` int(11) NOT NULL DEFAULT 0,
+  `super_id` int(11) NOT NULL DEFAULT 0,
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `ts` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `comment` text NOT NULL,
   `type` enum('msg','fields','company_name') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'msg',
@@ -3155,9 +3199,9 @@ CREATE TABLE `log_contract_template_edit` (
   `group` varchar(30) NOT NULL DEFAULT '',
   `contract` varchar(30) NOT NULL DEFAULT '',
   `action` varchar(15) NOT NULL DEFAULT '',
-  `user` int(4) unsigned NOT NULL DEFAULT '0',
+  `user` int(4) unsigned NOT NULL DEFAULT 0,
   `date` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `length` int(4) NOT NULL DEFAULT '0',
+  `length` int(4) NOT NULL DEFAULT 0,
   KEY `idx` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3264,14 +3308,14 @@ DROP TABLE IF EXISTS `log_tarif`;
 CREATE TABLE `log_tarif` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `service` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `id_service` int(11) NOT NULL DEFAULT '0',
-  `id_tarif` int(11) DEFAULT '0',
+  `id_service` int(11) NOT NULL DEFAULT 0,
+  `id_tarif` int(11) DEFAULT 0,
   `id_tarif_local_mob` int(11) DEFAULT NULL,
   `id_tarif_russia` int(11) DEFAULT NULL,
   `id_tarif_russia_mob` int(11) DEFAULT NULL,
   `id_tarif_intern` int(11) DEFAULT NULL,
   `id_tarif_sng` int(11) DEFAULT NULL,
-  `id_user` int(11) NOT NULL DEFAULT '0',
+  `id_user` int(11) NOT NULL DEFAULT 0,
   `ts` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `comment` varchar(255) DEFAULT NULL,
   `date_activation` date DEFAULT NULL,
@@ -3332,9 +3376,9 @@ DROP TABLE IF EXISTS `log_usage_history`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log_usage_history` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `service_id` int(11) NOT NULL DEFAULT '0',
-  `user_id` int(11) NOT NULL DEFAULT '0',
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `service_id` int(11) NOT NULL DEFAULT 0,
+  `user_id` int(11) NOT NULL DEFAULT 0,
+  `ts` timestamp NOT NULL DEFAULT current_timestamp(),
   `service` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `service_id` (`service`,`service_id`)
@@ -3359,7 +3403,7 @@ DROP TABLE IF EXISTS `log_usage_history_fields`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `log_usage_history_fields` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `log_usage_history_id` int(11) NOT NULL DEFAULT '0',
+  `log_usage_history_id` int(11) NOT NULL DEFAULT 0,
   `field` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `value_from` varchar(255) DEFAULT '',
   `value_to` varchar(255) NOT NULL DEFAULT '',
@@ -3499,10 +3543,10 @@ CREATE TABLE `mail_object` (
   `client_id` int(11) NOT NULL,
   `object_type` enum('bill','PM','assignment','order','notice','invoice','akt','new_director_info','upd','lading','notice_mcm_telekom','sogl_mcm_telekom','sogl_mcn_telekom') DEFAULT NULL,
   `object_param` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `source` int(4) NOT NULL DEFAULT '2',
-  `view_count` tinyint(4) NOT NULL DEFAULT '0',
+  `source` int(4) NOT NULL DEFAULT 2,
+  `view_count` tinyint(4) NOT NULL DEFAULT 0,
   `view_ts` datetime NOT NULL COMMENT '??? ??????? ?????????',
-  `is_pdf` tinyint(1) DEFAULT '0',
+  `is_pdf` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`object_id`),
   KEY `job_id` (`job_id`,`client_id`),
   KEY `object_type` (`object_type`,`object_param`)
@@ -3516,6 +3560,34 @@ CREATE TABLE `mail_object` (
 LOCK TABLES `mail_object` WRITE;
 /*!40000 ALTER TABLE `mail_object` DISABLE KEYS */;
 /*!40000 ALTER TABLE `mail_object` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `mchs_message`
+--
+
+DROP TABLE IF EXISTS `mchs_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mchs_message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `message` varchar(500) DEFAULT NULL,
+  `date` datetime NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `status` varchar(1024) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk-mchs_message-user_id-user_users-id` (`user_id`),
+  CONSTRAINT `fk-mchs_message-user_id-user_users-id` FOREIGN KEY (`user_id`) REFERENCES `user_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `mchs_message`
+--
+
+LOCK TABLES `mchs_message` WRITE;
+/*!40000 ALTER TABLE `mchs_message` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mchs_message` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3554,7 +3626,7 @@ CREATE TABLE `message` (
   `account_id` int(11) NOT NULL,
   `subject` varchar(250) NOT NULL,
   `created_at` datetime NOT NULL,
-  `is_read` tinyint(1) NOT NULL DEFAULT '0',
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `date` (`created_at`),
   KEY `account_id` (`account_id`)
@@ -3605,7 +3677,7 @@ CREATE TABLE `message_template_content` (
   `lang_code` varchar(5) DEFAULT 'ru-RU',
   `type` enum('email','phone','email_inner') DEFAULT NULL,
   `title` varchar(150) DEFAULT NULL,
-  `content` mediumtext,
+  `content` mediumtext DEFAULT NULL,
   `filename` varchar(255) DEFAULT NULL,
   `country_id` int(11) DEFAULT NULL,
   UNIQUE KEY `template_id_lang_code_type_country_id` (`template_id`,`lang_code`,`type`,`country_id`),
@@ -3726,10 +3798,10 @@ DROP TABLE IF EXISTS `mod_traf_1d`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mod_traf_1d` (
-  `datetime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `ip_int` int(10) unsigned NOT NULL DEFAULT '0',
-  `transfer_rx` bigint(20) NOT NULL DEFAULT '0',
-  `transfer_tx` bigint(20) NOT NULL DEFAULT '0',
+  `datetime` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ip_int` int(10) unsigned NOT NULL DEFAULT 0,
+  `transfer_rx` bigint(20) NOT NULL DEFAULT 0,
+  `transfer_tx` bigint(20) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ip_int`,`datetime`),
   KEY `ktime` (`datetime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -3753,7 +3825,7 @@ DROP TABLE IF EXISTS `modules`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `modules` (
   `module` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `is_installed` tinyint(4) NOT NULL DEFAULT '0',
+  `is_installed` tinyint(4) NOT NULL DEFAULT 0,
   `load_order` int(11) NOT NULL,
   PRIMARY KEY (`module`),
   KEY `is_installed` (`is_installed`,`load_order`)
@@ -3778,9 +3850,9 @@ DROP TABLE IF EXISTS `monitor_5min`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `monitor_5min` (
-  `ip_int` int(10) unsigned NOT NULL DEFAULT '0',
-  `time300` int(11) unsigned NOT NULL DEFAULT '0',
-  `value` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ip_int` int(10) unsigned NOT NULL DEFAULT 0,
+  `time300` int(11) unsigned NOT NULL DEFAULT 0,
+  `value` smallint(5) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`ip_int`,`time300`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3802,9 +3874,9 @@ DROP TABLE IF EXISTS `monitor_5min_ins`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `monitor_5min_ins` (
-  `ip_int` int(10) unsigned NOT NULL DEFAULT '0',
-  `time300` int(11) unsigned NOT NULL DEFAULT '0',
-  `value` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ip_int` int(10) unsigned NOT NULL DEFAULT 0,
+  `time300` int(11) unsigned NOT NULL DEFAULT 0,
+  `value` smallint(5) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`ip_int`,`time300`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3903,9 +3975,9 @@ DROP TABLE IF EXISTS `mymfavorites`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mymfavorites` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `fav_name` text,
-  `fav_source` text,
-  `fav_path` text,
+  `fav_name` text DEFAULT NULL,
+  `fav_source` text DEFAULT NULL,
+  `fav_path` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=koi8r COMMENT='Please do not modify this table!';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3927,7 +3999,7 @@ DROP TABLE IF EXISTS `nbn_mail`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `nbn_mail` (
-  `id` int(10) unsigned NOT NULL DEFAULT '0'
+  `id` int(10) unsigned NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3951,7 +4023,7 @@ CREATE TABLE `newbill_change_log` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `date` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `stage_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `stage_id` int(10) unsigned NOT NULL DEFAULT 0,
   `action` enum('add','delete','change') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'add',
   `code_1c` varchar(100) NOT NULL DEFAULT '',
   `item` varchar(100) NOT NULL DEFAULT '',
@@ -3978,7 +4050,7 @@ DROP TABLE IF EXISTS `newbill_change_log_fields`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `newbill_change_log_fields` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `change_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `change_id` int(10) unsigned NOT NULL DEFAULT 0,
   `field` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `from` varchar(32) NOT NULL DEFAULT '',
   `to` varchar(32) NOT NULL DEFAULT '',
@@ -4006,25 +4078,25 @@ DROP TABLE IF EXISTS `newbill_lines`;
 CREATE TABLE `newbill_lines` (
   `pk` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `sort` int(11) NOT NULL DEFAULT '0',
+  `sort` int(11) NOT NULL DEFAULT 0,
   `item` varchar(200) NOT NULL DEFAULT '',
   `item_id` varchar(36) DEFAULT '',
-  `code_1c` int(4) NOT NULL DEFAULT '0',
+  `code_1c` int(4) NOT NULL DEFAULT 0,
   `descr_id` varchar(36) NOT NULL DEFAULT '',
-  `amount` decimal(13,6) DEFAULT '0.000000',
-  `dispatch` int(4) NOT NULL DEFAULT '0',
-  `price` decimal(13,4) DEFAULT '0.0000',
+  `amount` decimal(13,6) DEFAULT 0.000000,
+  `dispatch` int(4) NOT NULL DEFAULT 0,
+  `price` decimal(13,4) DEFAULT 0.0000,
   `sum` decimal(11,2) DEFAULT NULL,
-  `discount_set` decimal(11,4) NOT NULL DEFAULT '0.0000',
-  `discount_auto` decimal(11,4) NOT NULL DEFAULT '0.0000',
+  `discount_set` decimal(11,4) NOT NULL DEFAULT 0.0000,
+  `discount_auto` decimal(11,4) NOT NULL DEFAULT 0.0000,
   `service` varchar(20) NOT NULL DEFAULT '',
-  `id_service` int(11) DEFAULT '0',
+  `id_service` int(11) DEFAULT 0,
   `date_from` date NOT NULL DEFAULT '1970-01-02',
   `date_to` date NOT NULL DEFAULT '1970-01-02',
   `type` enum('service','zalog','zadatok','good','all4net') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'service',
   `gtd` varchar(255) NOT NULL DEFAULT '',
   `contry_maker` varchar(255) NOT NULL DEFAULT '',
-  `country_id` int(4) NOT NULL DEFAULT '0',
+  `country_id` int(4) NOT NULL DEFAULT 0,
   `tax_rate` int(11) DEFAULT NULL,
   `sum_without_tax` decimal(11,2) DEFAULT NULL,
   `sum_tax` decimal(11,2) DEFAULT NULL,
@@ -4056,7 +4128,7 @@ DROP TABLE IF EXISTS `newbill_owner`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `newbill_owner` (
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `owner_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `owner_id` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`bill_no`),
   KEY `k_owner` (`owner_id`),
   KEY `k_owner_bill` (`owner_id`,`bill_no`)
@@ -4159,33 +4231,33 @@ CREATE TABLE `newbills` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `bill_date` date NOT NULL DEFAULT '1970-01-02',
-  `client_id` int(11) NOT NULL DEFAULT '0',
+  `client_id` int(11) NOT NULL DEFAULT 0,
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
   `is_approved` tinyint(4) DEFAULT NULL,
-  `sum` decimal(11,2) DEFAULT '0.00',
+  `sum` decimal(11,2) DEFAULT 0.00,
   `sum_with_unapproved` decimal(11,2) DEFAULT NULL,
-  `price_include_vat` tinyint(4) NOT NULL DEFAULT '0',
-  `is_payed` tinyint(1) DEFAULT '0' COMMENT '0 - ?????????, 1 - ????????? ???????, 2 - ?? ?????????, 3 - ???? ?????? ???? ??????',
-  `inv2to1` tinyint(1) NOT NULL DEFAULT '0',
+  `price_include_vat` tinyint(4) NOT NULL DEFAULT 0,
+  `is_payed` tinyint(1) DEFAULT 0 COMMENT '0 - ?????????, 1 - ????????? ???????, 2 - ?? ?????????, 3 - ???? ?????? ???? ??????',
+  `inv2to1` tinyint(1) NOT NULL DEFAULT 0,
   `comment` text NOT NULL,
   `postreg` date NOT NULL DEFAULT '1970-01-02',
-  `courier_id` int(4) unsigned NOT NULL DEFAULT '0',
+  `courier_id` int(4) unsigned NOT NULL DEFAULT 0,
   `nal` enum('beznal','nal','prov') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `sync_1c` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'no',
   `push_1c` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'yes',
   `state_1c` varchar(32) NOT NULL DEFAULT 'Новый',
-  `is_rollback` tinyint(4) NOT NULL DEFAULT '0',
+  `is_rollback` tinyint(4) NOT NULL DEFAULT 0,
   `editor` enum('stat','admin') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'stat',
-  `is_show_in_lk` tinyint(4) NOT NULL DEFAULT '1',
+  `is_show_in_lk` tinyint(4) NOT NULL DEFAULT 1,
   `doc_date` date NOT NULL DEFAULT '1970-01-02',
-  `is_user_prepay` tinyint(4) NOT NULL DEFAULT '0',
+  `is_user_prepay` tinyint(4) NOT NULL DEFAULT 0,
   `bill_no_ext` varchar(32) NOT NULL DEFAULT '',
   `bill_no_ext_date` date NOT NULL,
-  `biller_version` int(1) unsigned DEFAULT '4',
+  `biller_version` int(1) unsigned DEFAULT 4,
   `uu_bill_id` int(11) DEFAULT NULL,
   `organization_id` int(11) DEFAULT NULL,
   `pay_bill_until` date DEFAULT NULL,
-  `is_pay_overdue` int(11) DEFAULT '0',
+  `is_pay_overdue` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `bill_no` (`bill_no`) USING BTREE,
   KEY `client_id` (`client_id`),
@@ -4218,7 +4290,7 @@ DROP TABLE IF EXISTS `newbills_add_info`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `newbills_add_info` (
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `order_mail_id` int(11) NOT NULL DEFAULT '0',
+  `order_mail_id` int(11) NOT NULL DEFAULT 0,
   `fio` varchar(128) DEFAULT NULL,
   `address` varchar(512) NOT NULL DEFAULT '',
   `req_no` varchar(128) DEFAULT NULL COMMENT 'Номер заявки',
@@ -4239,13 +4311,13 @@ CREATE TABLE `newbills_add_info` (
   `reg_build` varchar(128) DEFAULT NULL,
   `reg_flat` varchar(128) DEFAULT NULL,
   `email` varchar(128) DEFAULT NULL,
-  `order_given` text,
+  `order_given` text DEFAULT NULL,
   `phone` varchar(128) DEFAULT NULL,
   `sms_send` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `sms_sender` varchar(16) NOT NULL DEFAULT '',
   `sms_get_time` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `line_owner` varchar(255) NOT NULL DEFAULT '',
-  `metro_id` int(4) NOT NULL DEFAULT '0',
+  `metro_id` int(4) NOT NULL DEFAULT 0,
   `logistic` enum('none','selfdeliv','courier','auto','tk') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'none',
   `store_id` char(36) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '8e5c7b22-8385-11df-9af5-001517456eb1',
   PRIMARY KEY (`bill_no`),
@@ -4272,18 +4344,18 @@ DROP TABLE IF EXISTS `newbills_documents`;
 CREATE TABLE `newbills_documents` (
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `ts` datetime NOT NULL,
-  `a1` tinyint(2) DEFAULT '0',
-  `a2` tinyint(2) DEFAULT '0',
-  `a3` tinyint(2) DEFAULT '0',
-  `i1` tinyint(2) DEFAULT '0',
-  `i2` tinyint(2) DEFAULT '0',
-  `i3` tinyint(2) DEFAULT '0',
-  `i4` tinyint(2) DEFAULT '0',
-  `i5` tinyint(2) DEFAULT '0',
-  `i6` tinyint(2) DEFAULT '0',
-  `i7` tinyint(2) DEFAULT '0',
-  `ia1` tinyint(2) DEFAULT '0',
-  `ia2` tinyint(2) DEFAULT '0',
+  `a1` tinyint(2) DEFAULT 0,
+  `a2` tinyint(2) DEFAULT 0,
+  `a3` tinyint(2) DEFAULT 0,
+  `i1` tinyint(2) DEFAULT 0,
+  `i2` tinyint(2) DEFAULT 0,
+  `i3` tinyint(2) DEFAULT 0,
+  `i4` tinyint(2) DEFAULT 0,
+  `i5` tinyint(2) DEFAULT 0,
+  `i6` tinyint(2) DEFAULT 0,
+  `i7` tinyint(2) DEFAULT 0,
+  `ia1` tinyint(2) DEFAULT 0,
+  `ia2` tinyint(2) DEFAULT 0,
   PRIMARY KEY (`bill_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4306,22 +4378,22 @@ DROP TABLE IF EXISTS `newpayments`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `newpayments` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `client_id` int(11) NOT NULL DEFAULT '0',
+  `client_id` int(11) NOT NULL DEFAULT 0,
   `payment_no` varchar(32) NOT NULL DEFAULT '0',
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `bill_vis_no` varchar(32) NOT NULL DEFAULT '',
   `payment_date` date NOT NULL DEFAULT '1970-01-02',
   `oper_date` date NOT NULL DEFAULT '1970-01-02',
-  `payment_rate` decimal(8,4) NOT NULL DEFAULT '0.0000',
+  `payment_rate` decimal(8,4) NOT NULL DEFAULT 0.0000,
   `type` enum('bank','prov','ecash','neprov','creditnote') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'bank',
   `ecash_operator` enum('cyberplat','paypal','yandex','sberbank','qiwi','stripe') DEFAULT NULL,
-  `sum` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `sum` decimal(11,2) NOT NULL DEFAULT 0.00,
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
   `original_sum` decimal(11,2) DEFAULT NULL,
   `original_currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `comment` varchar(255) NOT NULL,
   `add_date` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `add_user` int(11) NOT NULL DEFAULT '0',
+  `add_user` int(11) NOT NULL DEFAULT 0,
   `bank` enum('citi','mos','ural','sber','raiffeisen','promsviazbank') NOT NULL DEFAULT 'mos',
   PRIMARY KEY (`id`),
   KEY `client_id` (`client_id`,`payment_no`),
@@ -4377,7 +4449,7 @@ CREATE TABLE `news` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `message` text NOT NULL,
-  `to_user_id` int(11) DEFAULT '0',
+  `to_user_id` int(11) DEFAULT 0,
   `date` datetime NOT NULL,
   `priority` enum('unimportant','usual','important') NOT NULL DEFAULT 'usual',
   PRIMARY KEY (`id`),
@@ -4409,7 +4481,7 @@ CREATE TABLE `newsaldo` (
   `saldo` decimal(11,2) DEFAULT NULL,
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
   `ts` date DEFAULT NULL,
-  `is_history` tinyint(1) NOT NULL DEFAULT '0',
+  `is_history` tinyint(1) NOT NULL DEFAULT 0,
   `edit_user` int(11) NOT NULL,
   `edit_time` datetime NOT NULL,
   PRIMARY KEY (`id`),
@@ -4436,10 +4508,10 @@ DROP TABLE IF EXISTS `notifier_schemes`;
 CREATE TABLE `notifier_schemes` (
   `country_code` int(4) NOT NULL,
   `event` varchar(50) NOT NULL,
-  `do_email` int(11) DEFAULT '0',
-  `do_sms` int(11) DEFAULT '0',
-  `do_email_monitoring` int(11) DEFAULT '0',
-  `do_email_operator` int(11) DEFAULT '0',
+  `do_email` int(11) DEFAULT 0,
+  `do_sms` int(11) DEFAULT 0,
+  `do_email_monitoring` int(11) DEFAULT 0,
+  `do_email_operator` int(11) DEFAULT 0,
   UNIQUE KEY `country_code-event` (`country_code`,`event`),
   KEY `fk-notifier_schemes-event` (`event`),
   CONSTRAINT `fk-notifier_schemes-country_code` FOREIGN KEY (`country_code`) REFERENCES `country` (`code`),
@@ -4464,7 +4536,7 @@ DROP TABLE IF EXISTS `okvd`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `okvd` (
-  `code` int(4) NOT NULL DEFAULT '0',
+  `code` int(4) NOT NULL DEFAULT 0,
   `name` varchar(32) NOT NULL DEFAULT '-',
   PRIMARY KEY (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -4513,8 +4585,8 @@ DROP TABLE IF EXISTS `onlime_order`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `onlime_order` (
-  `external_id` int(11) NOT NULL DEFAULT '0',
-  `order_serialize` text,
+  `external_id` int(11) NOT NULL DEFAULT 0,
+  `order_serialize` text DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
   `error` varchar(255) DEFAULT NULL,
   `bill_no` char(11) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
@@ -4549,7 +4621,7 @@ CREATE TABLE `order_sberbank` (
   `order_id` varchar(255) NOT NULL,
   `bill_no` varchar(255) NOT NULL,
   `payment_id` int(11) DEFAULT NULL,
-  `status` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT 0,
   `order_url` varchar(255) NOT NULL DEFAULT '',
   `info_json` varchar(4096) DEFAULT NULL,
   UNIQUE KEY `uidx-bill_no` (`bill_no`),
@@ -4575,14 +4647,14 @@ DROP TABLE IF EXISTS `organization`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `organization` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `organization_id` int(11) NOT NULL DEFAULT '0',
+  `organization_id` int(11) NOT NULL DEFAULT 0,
   `actual_from` date NOT NULL DEFAULT '2000-01-01',
   `actual_to` date NOT NULL DEFAULT '4000-01-01',
   `firma` varchar(128) DEFAULT NULL COMMENT 'ÐšÐ»ÑŽÑ‡ Ð´Ð»Ñ ÑÐ²ÑÐ·Ð¸ Ñ clients',
-  `country_id` int(4) NOT NULL DEFAULT '643',
+  `country_id` int(4) NOT NULL DEFAULT 643,
   `lang_code` varchar(5) NOT NULL DEFAULT 'ru-RU',
-  `is_simple_tax_system` tinyint(1) NOT NULL DEFAULT '0',
-  `vat_rate` smallint(6) NOT NULL DEFAULT '0',
+  `is_simple_tax_system` tinyint(1) NOT NULL DEFAULT 0,
+  `vat_rate` smallint(6) NOT NULL DEFAULT 0,
   `registration_id` varchar(250) DEFAULT NULL,
   `tax_registration_id` varchar(32) DEFAULT NULL,
   `tax_registration_reason` varchar(12) DEFAULT NULL,
@@ -4651,7 +4723,7 @@ DROP TABLE IF EXISTS `organization_settlement_account`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `organization_settlement_account` (
   `organization_record_id` int(11) DEFAULT NULL,
-  `settlement_account_type_id` int(1) DEFAULT '1',
+  `settlement_account_type_id` int(1) DEFAULT 1,
   `bank_name` varchar(255) DEFAULT NULL,
   `bank_address` varchar(255) DEFAULT NULL,
   `bank_correspondent_account` varchar(64) DEFAULT NULL,
@@ -4683,7 +4755,7 @@ DROP TABLE IF EXISTS `organization_settlement_account_properties`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `organization_settlement_account_properties` (
   `organization_record_id` int(11) DEFAULT NULL,
-  `settlement_account_type_id` int(1) DEFAULT '1',
+  `settlement_account_type_id` int(1) DEFAULT 1,
   `property` varchar(255) DEFAULT NULL,
   `value` varchar(255) DEFAULT NULL,
   UNIQUE KEY `organization_record_id-settlement_account_type_id-property` (`organization_record_id`,`settlement_account_type_id`,`property`),
@@ -4710,7 +4782,7 @@ DROP TABLE IF EXISTS `params`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `params` (
   `param` varchar(255) NOT NULL DEFAULT '',
-  `value` text,
+  `value` text DEFAULT NULL,
   PRIMARY KEY (`param`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4769,7 +4841,7 @@ CREATE TABLE `payment_atol` (
   `id` int(11) unsigned NOT NULL,
   `uuid` varchar(255) NOT NULL,
   `uuid_status` int(11) NOT NULL,
-  `uuid_log` text,
+  `uuid_log` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk-id` FOREIGN KEY (`id`) REFERENCES `newpayments` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -4838,7 +4910,7 @@ CREATE TABLE `payment_stripe` (
   `created_at` datetime NOT NULL,
   `sum` decimal(12,2) NOT NULL,
   `currency` char(3) NOT NULL,
-  `token_data` text,
+  `token_data` text DEFAULT NULL,
   UNIQUE KEY `uidx-paymentt_id` (`payment_id`),
   CONSTRAINT `fk-payments-id` FOREIGN KEY (`payment_id`) REFERENCES `newpayments` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -4862,7 +4934,7 @@ DROP TABLE IF EXISTS `payments_orders`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `payments_orders` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `datestart` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `datestart` timestamp NOT NULL DEFAULT current_timestamp(),
   `dateauthorize` timestamp NULL DEFAULT NULL,
   `datepaid` timestamp NULL DEFAULT NULL,
   `datecancel` timestamp NULL DEFAULT NULL,
@@ -4870,7 +4942,7 @@ CREATE TABLE `payments_orders` (
   `client_id` int(11) NOT NULL,
   `sum` decimal(12,2) NOT NULL,
   `status` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'Created',
-  `details` text,
+  `details` text DEFAULT NULL,
   `bill_no` varchar(20) DEFAULT NULL,
   `bill_payment_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -4899,7 +4971,7 @@ CREATE TABLE `paypal_payment` (
   `created_at` datetime NOT NULL,
   `client_id` int(11) NOT NULL,
   `currency` char(3) NOT NULL DEFAULT 'HUF',
-  `sum` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `sum` decimal(12,2) NOT NULL DEFAULT 0.00,
   `payer_id` varchar(64) NOT NULL,
   `payment_id` varchar(64) NOT NULL,
   `data1` text NOT NULL,
@@ -4987,9 +5059,9 @@ CREATE TABLE `phisclients` (
   `phone` varchar(128) DEFAULT NULL,
   `email` varchar(128) DEFAULT NULL,
   `phone_connect` varchar(128) DEFAULT NULL,
-  `contact_info` text,
+  `contact_info` text DEFAULT NULL,
   `phone_owner` varchar(255) DEFAULT NULL,
-  `address_single_string` text,
+  `address_single_string` text DEFAULT NULL,
   `addr_city` varchar(128) DEFAULT NULL,
   `addr_street` varchar(128) DEFAULT NULL,
   `addr_house` varchar(128) DEFAULT NULL,
@@ -5058,7 +5130,7 @@ DROP TABLE IF EXISTS `phone_mail_files`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `phone_mail_files` (
   `client` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `size` int(11) NOT NULL DEFAULT '0',
+  `size` int(11) NOT NULL DEFAULT 0,
   `comment` text NOT NULL,
   PRIMARY KEY (`client`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -5106,7 +5178,7 @@ DROP TABLE IF EXISTS `phone_readdr_time`;
 CREATE TABLE `phone_readdr_time` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
   `days` varchar(7) NOT NULL,
   `time_from` varchar(10) DEFAULT NULL,
   `time_to` varchar(10) DEFAULT NULL,
@@ -5182,7 +5254,7 @@ DROP TABLE IF EXISTS `product_state`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `product_state` (
   `product` enum('vpbx','phone','feedback') NOT NULL DEFAULT 'phone',
-  `client_id` int(11) NOT NULL DEFAULT '0',
+  `client_id` int(11) NOT NULL DEFAULT 0,
   UNIQUE KEY `client_id` (`client_id`,`product`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5285,10 +5357,10 @@ DROP TABLE IF EXISTS `qr_code`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `qr_code` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date` timestamp NOT NULL DEFAULT current_timestamp(),
   `file` varchar(64) NOT NULL DEFAULT '',
   `code` varchar(16) DEFAULT NULL,
-  `client_id` int(4) NOT NULL DEFAULT '0',
+  `client_id` int(4) NOT NULL DEFAULT 0,
   `bill_no` char(11) NOT NULL,
   `doc_type` char(2) NOT NULL,
   PRIMARY KEY (`id`),
@@ -5372,7 +5444,7 @@ CREATE TABLE `radgroupreply` (
   `Attribute` varbinary(32) NOT NULL DEFAULT '',
   `op` binary(2) NOT NULL DEFAULT '=\0',
   `Value` varbinary(253) NOT NULL DEFAULT '',
-  `prio` int(10) unsigned NOT NULL DEFAULT '0',
+  `prio` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `GroupName` (`GroupName`(32))
 ) ENGINE=InnoDB DEFAULT CHARSET=binary;
@@ -5453,8 +5525,8 @@ CREATE TABLE `regions` (
   `code` int(11) DEFAULT NULL,
   `timezone_name` varchar(50) NOT NULL,
   `country_id` int(10) NOT NULL,
-  `type_id` int(11) NOT NULL DEFAULT '0',
-  `is_active` int(11) NOT NULL DEFAULT '1',
+  `type_id` int(11) NOT NULL DEFAULT 0,
+  `is_active` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `idx-is_active` (`type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -5484,7 +5556,7 @@ CREATE TABLE `saldo` (
   `saldo` decimal(7,2) DEFAULT NULL,
   `non_count` decimal(7,2) DEFAULT NULL,
   `zalog` decimal(7,2) DEFAULT NULL,
-  `comment` tinytext CHARACTER SET latin1,
+  `comment` tinytext CHARACTER SET latin1 DEFAULT NULL,
   PRIMARY KEY (`client`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5532,10 +5604,10 @@ DROP TABLE IF EXISTS `sale_channels_old`;
 CREATE TABLE `sale_channels_old` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL DEFAULT '',
-  `dealer_id` int(11) NOT NULL DEFAULT '0',
-  `is_agent` tinyint(4) NOT NULL DEFAULT '0',
-  `interest` decimal(5,2) NOT NULL DEFAULT '0.00',
-  `courier_id` int(11) NOT NULL DEFAULT '0',
+  `dealer_id` int(11) NOT NULL DEFAULT 0,
+  `is_agent` tinyint(4) NOT NULL DEFAULT 0,
+  `interest` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `courier_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5558,7 +5630,7 @@ DROP TABLE IF EXISTS `send_assigns`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `send_assigns` (
   `client` varchar(50) NOT NULL DEFAULT '',
-  `id_letter` int(11) NOT NULL DEFAULT '0',
+  `id_letter` int(11) NOT NULL DEFAULT 0,
   `last_send` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `state` enum('error','ready','sent') NOT NULL DEFAULT 'error',
   `message` text NOT NULL,
@@ -5612,7 +5684,7 @@ DROP TABLE IF EXISTS `send_files`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `send_files` (
   `filename` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `id_letter` int(11) NOT NULL DEFAULT '0',
+  `id_letter` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`filename`,`id_letter`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5661,8 +5733,8 @@ CREATE TABLE `server_pbx` (
   `id` int(4) NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL,
   `ip` varchar(15) NOT NULL,
-  `datacenter_id` int(11) NOT NULL DEFAULT '0',
-  `trunk_vpbx_id` int(11) NOT NULL DEFAULT '0',
+  `datacenter_id` int(11) NOT NULL DEFAULT 0,
+  `trunk_vpbx_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5687,8 +5759,8 @@ CREATE TABLE `sim_card` (
   `iccid` bigint(20) NOT NULL,
   `imei` bigint(20) DEFAULT NULL,
   `client_account_id` int(11) DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  `status_id` int(11) NOT NULL DEFAULT '1',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `status_id` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`iccid`),
   KEY `fk-sim_card-status_id` (`status_id`),
   CONSTRAINT `fk-sim_card-status_id` FOREIGN KEY (`status_id`) REFERENCES `sim_card_status` (`id`)
@@ -5740,11 +5812,11 @@ CREATE TABLE `sim_imsi` (
   `iccid` bigint(20) NOT NULL,
   `msisdn` bigint(20) DEFAULT NULL,
   `did` varchar(15) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `is_anti_cli` int(11) NOT NULL DEFAULT '0',
-  `is_roaming` int(11) NOT NULL DEFAULT '0',
+  `is_anti_cli` int(11) NOT NULL DEFAULT 0,
+  `is_roaming` int(11) NOT NULL DEFAULT 0,
   `actual_from` date DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  `status_id` int(11) NOT NULL DEFAULT '1',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `status_id` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`imsi`),
   KEY `fk-sim_imsi-iccid` (`iccid`),
   KEY `fk-sim_imsi-status_id` (`status_id`),
@@ -5901,12 +5973,12 @@ DROP TABLE IF EXISTS `stats_send`;
 CREATE TABLE `stats_send` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `port_id` int(11) NOT NULL DEFAULT '0',
-  `in_bytes` bigint(20) NOT NULL DEFAULT '0',
-  `out_bytes` bigint(20) NOT NULL DEFAULT '0',
-  `max_bytes` bigint(20) NOT NULL DEFAULT '0',
-  `year` int(11) NOT NULL DEFAULT '0',
-  `month` int(11) NOT NULL DEFAULT '0',
+  `port_id` int(11) NOT NULL DEFAULT 0,
+  `in_bytes` bigint(20) NOT NULL DEFAULT 0,
+  `out_bytes` bigint(20) NOT NULL DEFAULT 0,
+  `max_bytes` bigint(20) NOT NULL DEFAULT 0,
+  `year` int(11) NOT NULL DEFAULT 0,
+  `month` int(11) NOT NULL DEFAULT 0,
   `state` enum('error','ready','sent') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'ready',
   `last_send` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `message` blob NOT NULL,
@@ -5959,7 +6031,7 @@ CREATE TABLE `support_ticket` (
   `user_id` char(24) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `subject` varchar(1000) NOT NULL,
   `status` enum('open','done','closed','reopened') NOT NULL,
-  `is_with_new_comment` tinyint(4) NOT NULL DEFAULT '0',
+  `is_with_new_comment` tinyint(4) NOT NULL DEFAULT 0,
   `department` enum('sales','accounting','technical') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'technical',
   `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
@@ -6012,7 +6084,7 @@ DROP TABLE IF EXISTS `sync_welltime_stages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `sync_welltime_stages` (
-  `last_stage_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `last_stage_id` int(10) unsigned NOT NULL DEFAULT 0,
   `date` datetime NOT NULL DEFAULT '1970-01-02 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -6036,7 +6108,7 @@ DROP TABLE IF EXISTS `tags`;
 CREATE TABLE `tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
-  `used_times` int(6) NOT NULL DEFAULT '0',
+  `used_times` int(6) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -6108,7 +6180,7 @@ DROP TABLE IF EXISTS `tariffication_product`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tariffication_product` (
-  `id` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL DEFAULT 0,
   `name` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -6252,11 +6324,11 @@ DROP TABLE IF EXISTS `tarifs_call_chat`;
 CREATE TABLE `tarifs_call_chat` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `description` varchar(100) NOT NULL DEFAULT '',
-  `price` decimal(13,4) NOT NULL DEFAULT '0.0000',
+  `price` decimal(13,4) NOT NULL DEFAULT 0.0000,
   `currency_id` char(3) NOT NULL DEFAULT 'USD',
-  `price_include_vat` tinyint(1) DEFAULT '1',
+  `price_include_vat` tinyint(1) DEFAULT 1,
   `status` enum('public','special','archive') NOT NULL DEFAULT 'public',
-  `edit_user` int(11) NOT NULL DEFAULT '0',
+  `edit_user` int(11) NOT NULL DEFAULT 0,
   `edit_time` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -6283,15 +6355,15 @@ CREATE TABLE `tarifs_extra` (
   `code` varchar(20) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `description` varchar(100) NOT NULL DEFAULT '',
   `param_name` varchar(50) NOT NULL,
-  `is_countable` tinyint(1) NOT NULL DEFAULT '0',
+  `is_countable` tinyint(1) NOT NULL DEFAULT 0,
   `period` enum('month','year','once','3mon','6mon') DEFAULT NULL,
-  `price` decimal(13,4) NOT NULL DEFAULT '0.0000',
+  `price` decimal(13,4) NOT NULL DEFAULT 0.0000,
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
   `status` enum('public','special','archive','itpark') NOT NULL DEFAULT 'public',
-  `edit_user` int(11) NOT NULL DEFAULT '0',
+  `edit_user` int(11) NOT NULL DEFAULT 0,
   `edit_time` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `okvd_code` int(4) NOT NULL DEFAULT '0',
-  `price_include_vat` tinyint(1) DEFAULT '1',
+  `okvd_code` int(4) NOT NULL DEFAULT 0,
+  `price_include_vat` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `code` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
@@ -6317,27 +6389,27 @@ DROP TABLE IF EXISTS `tarifs_internet`;
 CREATE TABLE `tarifs_internet` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
-  `pay_once` decimal(9,2) NOT NULL DEFAULT '0.00',
-  `pay_month` decimal(9,2) NOT NULL DEFAULT '0.00',
-  `mb_month` int(11) NOT NULL DEFAULT '0',
-  `pay_mb` decimal(7,4) NOT NULL DEFAULT '0.0000',
+  `pay_once` decimal(9,2) NOT NULL DEFAULT 0.00,
+  `pay_month` decimal(9,2) NOT NULL DEFAULT 0.00,
+  `mb_month` int(11) NOT NULL DEFAULT 0,
+  `pay_mb` decimal(7,4) NOT NULL DEFAULT 0.0000,
   `comment` text NOT NULL,
   `type` enum('I','C','V') NOT NULL DEFAULT 'I',
   `type_internet` enum('standard','wimax','collective') NOT NULL DEFAULT 'standard',
-  `sum_deposit` decimal(7,2) NOT NULL DEFAULT '0.00',
+  `sum_deposit` decimal(7,2) NOT NULL DEFAULT 0.00,
   `type_count` enum('sep','r2_f','all_f') NOT NULL DEFAULT 'sep',
   `status` enum('public','special','archive','test','adsl_su') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public',
-  `month_r` int(11) NOT NULL DEFAULT '0',
-  `month_r2` int(11) NOT NULL DEFAULT '0',
-  `month_f` int(11) NOT NULL DEFAULT '0',
-  `pay_r` decimal(7,4) NOT NULL DEFAULT '0.0000',
-  `pay_r2` decimal(7,4) NOT NULL DEFAULT '0.0000',
-  `pay_f` decimal(7,4) NOT NULL DEFAULT '0.0000',
+  `month_r` int(11) NOT NULL DEFAULT 0,
+  `month_r2` int(11) NOT NULL DEFAULT 0,
+  `month_f` int(11) NOT NULL DEFAULT 0,
+  `pay_r` decimal(7,4) NOT NULL DEFAULT 0.0000,
+  `pay_r2` decimal(7,4) NOT NULL DEFAULT 0.0000,
+  `pay_f` decimal(7,4) NOT NULL DEFAULT 0.0000,
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
   `edit_user` int(11) DEFAULT NULL,
   `edit_time` datetime DEFAULT NULL,
   `adsl_speed` varchar(11) DEFAULT '768/6144',
-  `price_include_vat` tinyint(1) DEFAULT '1',
+  `price_include_vat` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=560 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -6365,11 +6437,11 @@ CREATE TABLE `tarifs_sms` (
   `description` varchar(100) NOT NULL DEFAULT '',
   `period` enum('month') DEFAULT 'month',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
-  `per_month_price` decimal(13,2) NOT NULL DEFAULT '0.00',
-  `per_sms_price` decimal(13,2) NOT NULL DEFAULT '0.00',
-  `edit_user` int(11) NOT NULL DEFAULT '0',
+  `per_month_price` decimal(13,2) NOT NULL DEFAULT 0.00,
+  `per_sms_price` decimal(13,2) NOT NULL DEFAULT 0.00,
+  `edit_user` int(11) NOT NULL DEFAULT 0,
   `edit_time` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `price_include_vat` tinyint(1) DEFAULT '1',
+  `price_include_vat` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -6397,19 +6469,19 @@ CREATE TABLE `tarifs_virtpbx` (
   `description` varchar(100) NOT NULL DEFAULT '',
   `period` enum('month') DEFAULT 'month',
   `currency` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'RUB',
-  `price` decimal(13,4) NOT NULL DEFAULT '0.0000',
-  `num_ports` int(4) NOT NULL DEFAULT '0',
-  `overrun_per_port` decimal(13,4) NOT NULL DEFAULT '0.0000',
-  `space` int(4) NOT NULL DEFAULT '0',
-  `overrun_per_gb` decimal(13,4) DEFAULT '0.0000',
-  `ext_did_count` smallint(6) DEFAULT '0',
-  `ext_did_monthly_payment` decimal(13,4) DEFAULT '0.0000',
-  `is_record` tinyint(4) NOT NULL DEFAULT '0',
-  `is_web_call` tinyint(4) NOT NULL DEFAULT '0',
-  `is_fax` tinyint(4) NOT NULL DEFAULT '0',
-  `edit_user` int(11) NOT NULL DEFAULT '0',
+  `price` decimal(13,4) NOT NULL DEFAULT 0.0000,
+  `num_ports` int(4) NOT NULL DEFAULT 0,
+  `overrun_per_port` decimal(13,4) NOT NULL DEFAULT 0.0000,
+  `space` int(4) NOT NULL DEFAULT 0,
+  `overrun_per_gb` decimal(13,4) DEFAULT 0.0000,
+  `ext_did_count` smallint(6) DEFAULT 0,
+  `ext_did_monthly_payment` decimal(13,4) DEFAULT 0.0000,
+  `is_record` tinyint(4) NOT NULL DEFAULT 0,
+  `is_web_call` tinyint(4) NOT NULL DEFAULT 0,
+  `is_fax` tinyint(4) NOT NULL DEFAULT 0,
+  `edit_user` int(11) NOT NULL DEFAULT 0,
   `edit_time` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `price_include_vat` tinyint(1) DEFAULT '1',
+  `price_include_vat` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -6433,41 +6505,43 @@ DROP TABLE IF EXISTS `tarifs_voip`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tarifs_voip` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `country_id` int(11) NOT NULL DEFAULT '643',
-  `connection_point_id` int(11) DEFAULT '0',
+  `country_id` int(11) NOT NULL DEFAULT 643,
+  `connection_point_id` int(11) DEFAULT 0,
   `name` varchar(255) NOT NULL DEFAULT '',
   `name_short` varchar(50) NOT NULL DEFAULT '',
-  `sum_deposit` decimal(11,4) NOT NULL DEFAULT '0.0000',
-  `month_line` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `month_number` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `once_line` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `once_number` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `sum_deposit` decimal(11,4) NOT NULL DEFAULT 0.0000,
+  `month_line` decimal(11,2) NOT NULL DEFAULT 0.00,
+  `month_number` decimal(11,2) NOT NULL DEFAULT 0.00,
+  `once_line` decimal(11,2) NOT NULL DEFAULT 0.00,
+  `once_number` decimal(11,2) NOT NULL DEFAULT 0.00,
   `type_count` enum('all','unlim_r','unlim_all') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `status` enum('public','special','archive','7800','7800_test','test','operator','transit') DEFAULT NULL,
   `period` enum('immediately','day','week','month','6months','year') NOT NULL DEFAULT 'month',
-  `free_local_min` int(11) DEFAULT '0',
-  `freemin_for_number` tinyint(1) NOT NULL DEFAULT '0',
-  `month_min_payment` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `free_local_min` int(11) DEFAULT 0,
+  `freemin_for_number` tinyint(1) NOT NULL DEFAULT 0,
+  `month_min_payment` decimal(11,2) NOT NULL DEFAULT 0.00,
   `dest` smallint(6) NOT NULL,
   `currency_id` char(3) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'USD',
   `priceid` int(11) NOT NULL,
   `edit_user` int(11) DEFAULT NULL,
   `edit_time` datetime DEFAULT NULL,
-  `is_clientSelectable` tinyint(1) NOT NULL DEFAULT '0',
-  `tarif_group` int(10) unsigned NOT NULL DEFAULT '5',
+  `is_clientSelectable` tinyint(1) NOT NULL DEFAULT 0,
+  `tarif_group` int(10) unsigned NOT NULL DEFAULT 5,
   `pricelist_id` smallint(6) NOT NULL,
-  `paid_redirect` tinyint(1) NOT NULL DEFAULT '0',
-  `tariffication_by_minutes` tinyint(4) NOT NULL DEFAULT '0',
-  `tariffication_full_first_minute` tinyint(4) NOT NULL DEFAULT '0',
-  `tariffication_free_first_seconds` tinyint(4) NOT NULL DEFAULT '0',
+  `paid_redirect` tinyint(1) NOT NULL DEFAULT 0,
+  `tariffication_by_minutes` tinyint(4) NOT NULL DEFAULT 0,
+  `tariffication_full_first_minute` tinyint(4) NOT NULL DEFAULT 0,
+  `tariffication_free_first_seconds` tinyint(4) NOT NULL DEFAULT 0,
   `tmp` int(11) DEFAULT NULL,
-  `is_virtual` tinyint(4) NOT NULL DEFAULT '0',
-  `is_default` tinyint(4) NOT NULL DEFAULT '0',
-  `price_include_vat` tinyint(1) DEFAULT '1',
-  `ndc_type_id` int(11) NOT NULL DEFAULT '1',
+  `is_virtual` tinyint(4) NOT NULL DEFAULT 0,
+  `is_default` tinyint(4) NOT NULL DEFAULT 0,
+  `price_include_vat` tinyint(1) DEFAULT 1,
+  `ndc_type_id` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `tarif_group` (`tarif_group`),
-  KEY `is_testing_status_month_line_month_min_payment` (`is_default`,`status`,`month_line`,`month_min_payment`)
+  KEY `is_testing_status_month_line_month_min_payment` (`is_default`,`status`,`month_line`,`month_min_payment`),
+  KEY `fk-tarifs_voip-connection_point_id-regions-id` (`connection_point_id`),
+  CONSTRAINT `fk-tarifs_voip-connection_point_id-regions-id` FOREIGN KEY (`connection_point_id`) REFERENCES `regions` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=635 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -6490,18 +6564,20 @@ DROP TABLE IF EXISTS `tarifs_voip_package`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tarifs_voip_package` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `country_id` int(11) NOT NULL DEFAULT '643',
-  `connection_point_id` int(11) DEFAULT '0',
+  `country_id` int(11) NOT NULL DEFAULT 643,
+  `connection_point_id` int(11) DEFAULT 0,
   `currency_id` char(3) NOT NULL DEFAULT 'USD',
-  `destination_id` int(11) DEFAULT '0',
-  `pricelist_id` smallint(6) DEFAULT '0',
+  `destination_id` int(11) DEFAULT 0,
+  `pricelist_id` smallint(6) DEFAULT 0,
   `name` varchar(255) NOT NULL,
-  `price_include_vat` tinyint(1) DEFAULT '1',
-  `periodical_fee` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `min_payment` int(11) NOT NULL DEFAULT '0',
-  `minutes_count` smallint(6) NOT NULL DEFAULT '0',
+  `price_include_vat` tinyint(1) DEFAULT 1,
+  `periodical_fee` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `min_payment` int(11) NOT NULL DEFAULT 0,
+  `minutes_count` smallint(6) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `fk_tariff_voip_package__destination_id` (`destination_id`),
+  KEY `fk-tarifs_voip_package-connection_point_id-regions-id` (`connection_point_id`),
+  CONSTRAINT `fk-tarifs_voip_package-connection_point_id-regions-id` FOREIGN KEY (`connection_point_id`) REFERENCES `regions` (`id`),
   CONSTRAINT `fk_tariff_voip_package__destination_id` FOREIGN KEY (`destination_id`) REFERENCES `voip_destination` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -6524,9 +6600,9 @@ DROP TABLE IF EXISTS `tax_voip_settings`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tax_voip_settings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `business_id` int(11) NOT NULL DEFAULT '0',
-  `country_id` int(11) NOT NULL DEFAULT '0',
-  `is_with_tax` int(11) NOT NULL DEFAULT '1',
+  `business_id` int(11) NOT NULL DEFAULT 0,
+  `country_id` int(11) NOT NULL DEFAULT 0,
+  `is_with_tax` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `fk-country` (`country_id`),
   KEY `fk-business` (`business_id`),
@@ -6581,8 +6657,8 @@ CREATE TABLE `tech_cpe_models` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `vendor` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `model` varchar(255) DEFAULT NULL,
-  `default_deposit_sumUSD` decimal(7,2) NOT NULL DEFAULT '0.00',
-  `default_deposit_sumRUB` decimal(7,2) NOT NULL DEFAULT '0.00',
+  `default_deposit_sumUSD` decimal(7,2) NOT NULL DEFAULT 0.00,
+  `default_deposit_sumRUB` decimal(7,2) NOT NULL DEFAULT 0.00,
   `type` enum('','voip','router','adsl','wireless','pon') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8;
@@ -6690,7 +6766,7 @@ CREATE TABLE `tech_voip_numbers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `actual_from` date NOT NULL DEFAULT '0001-01-01',
   `actual_to` date NOT NULL DEFAULT '4000-01-01',
-  `number` decimal(20,0) NOT NULL DEFAULT '0',
+  `number` decimal(20,0) NOT NULL DEFAULT 0,
   `type` enum('public','provider','private') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'public',
   `client` varchar(16) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `remark` varchar(100) NOT NULL DEFAULT '',
@@ -6739,7 +6815,7 @@ CREATE TABLE `transaction` (
   `payment_id` int(10) unsigned DEFAULT NULL,
   `bill_id` int(10) unsigned DEFAULT NULL,
   `bill_line_id` int(10) unsigned DEFAULT NULL,
-  `deleted` tinyint(4) DEFAULT '0',
+  `deleted` tinyint(4) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `idx_source_payment_id` (`source`,`payment_id`),
   KEY `idx_client_account_id_source_billing_period` (`client_account_id`,`source`,`billing_period`),
@@ -6784,7 +6860,7 @@ CREATE TABLE `transaction_service` (
   `effective_sum` decimal(11,2) DEFAULT NULL,
   `transaction_date` datetime NOT NULL,
   `is_partial_write_off` tinyint(4) DEFAULT NULL,
-  `is_in_bill` tinyint(4) NOT NULL DEFAULT '0',
+  `is_in_bill` tinyint(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -6862,7 +6938,7 @@ DROP TABLE IF EXISTS `tt_files`;
 CREATE TABLE `tt_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `trouble_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `ts` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `comment` text NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -6890,7 +6966,7 @@ DROP TABLE IF EXISTS `tt_folders`;
 CREATE TABLE `tt_folders` (
   `pk` bigint(20) unsigned DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `order` smallint(6) NOT NULL DEFAULT '0'
+  `order` smallint(6) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -6900,7 +6976,7 @@ CREATE TABLE `tt_folders` (
 
 LOCK TABLES `tt_folders` WRITE;
 /*!40000 ALTER TABLE `tt_folders` DISABLE KEYS */;
-INSERT INTO `tt_folders` VALUES (1,'Все',0),(2,'Новый',10),(4,'Зарезервирован',30),(8,'К отгрузке',80),(16,'Отгружен',90),(32,'Доставка',70),(64,'Закрыт',130),(128,'Отказ',140),(256,'Открыт',1),(512,'Закрыт',2),(1024,'Выполнено',110),(2048,'Тр УСПД',5),(4096,'СПД',6),(8192,'Выезд',100),(16384,'коллТр',8),(32768,'массТр',9),(65536,'Отработано',10),(131072,'Тех Поддержка',11),(262144,'Выдача',12),(524288,'Подготовка',40),(1048576,'Доработка',120),(2097152,'Отложен',20),(4194304,'Подтвержден',60),(8388608,'Распределение',50),(16777216,'Активация',105),(33554432,'WiMax',15),(67108864,'Тестирование',50),(134217728,'Отложенные',60),(268435456,'OnLime Оборудование',16),(536870912,'OnLime',17),(1073741824,'MTS',18),(2147483648,'Новый',19),(4294967296,'Оплата',20),(8589934592,'Доставка',21),(17179869184,'Поступление',22),(68719476736,'Отказ',24),(34359738368,'Закрыт',23),(137438953472,'Входящие',25),(274877906944,'В стадии переговоров',26),(1099511627776,'Подключаемые',28),(2199023255552,'Техотказ',29),(4398046511104,'Отказ',30),(8796093022208,'Мусор',31),(17592186044416,'Включено',32),(35184372088832,'Проверка документов',27),(70368744177664,'Открыт повторно',11);
+INSERT INTO `tt_folders` VALUES (1,'Все',0),(2,'Новый',10),(4,'Зарезервирован',30),(8,'К отгрузке',80),(16,'Отгружен',90),(32,'Доставка',70),(64,'Закрыт',130),(128,'Отказ',140),(256,'Открыт',1),(512,'Закрыт',2),(1024,'Выполнено',110),(2048,'Тр УСПД',5),(4096,'СПД',6),(8192,'Выезд',100),(16384,'коллТр',8),(32768,'массТр',9),(65536,'Отработано',10),(131072,'Тех Поддержка',11),(262144,'Выдача',12),(524288,'Подготовка',40),(1048576,'Доработка',120),(2097152,'Отложен',20),(4194304,'Подтвержден',60),(8388608,'Распределение',50),(16777216,'Активация',105),(33554432,'WiMax',15),(67108864,'Тестирование',50),(134217728,'Отложенные',60),(268435456,'OnLime Оборудование',16),(536870912,'OnLime',17),(1073741824,'MTS',18),(2147483648,'Новый',19),(4294967296,'Оплата',20),(8589934592,'Доставка',21),(17179869184,'Поступление',22),(68719476736,'Отказ',24),(34359738368,'Закрыт',23),(137438953472,'Входящие',25),(274877906944,'В стадии переговоров',26),(1099511627776,'Подключаемые',28),(2199023255552,'Техотказ',29),(4398046511104,'Отказ',30),(8796093022208,'Мусор',31),(17592186044416,'Включено',32),(35184372088832,'Проверка документов',27),(70368744177664,'Открыт повторно',11),(288230376151711744,'Консультация тех. поддержки',21),(576460752303423488,'Консультация абон. отдела',22);
 /*!40000 ALTER TABLE `tt_folders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -6913,7 +6989,7 @@ DROP TABLE IF EXISTS `tt_send`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tt_send` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `trouble_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `trouble_id` int(10) unsigned NOT NULL DEFAULT 0,
   `user` varchar(100) NOT NULL DEFAULT '',
   `text` text NOT NULL,
   PRIMARY KEY (`id`)
@@ -6937,7 +7013,7 @@ DROP TABLE IF EXISTS `tt_send_count`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tt_send_count` (
-  `count` int(4) NOT NULL DEFAULT '0'
+  `count` int(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -6959,8 +7035,8 @@ DROP TABLE IF EXISTS `tt_stages`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tt_stages` (
   `stage_id` int(11) NOT NULL AUTO_INCREMENT,
-  `trouble_id` int(11) NOT NULL DEFAULT '0',
-  `state_id` int(11) NOT NULL DEFAULT '0',
+  `trouble_id` int(11) NOT NULL DEFAULT 0,
+  `state_id` int(11) NOT NULL DEFAULT 0,
   `user_main` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `date_edit` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `user_edit` varchar(50) NOT NULL,
@@ -6968,7 +7044,7 @@ CREATE TABLE `tt_stages` (
   `uspd` varchar(50) NOT NULL,
   `date_start` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `date_finish_desired` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `rating` int(4) NOT NULL DEFAULT '0',
+  `rating` int(4) NOT NULL DEFAULT 0,
   `user_rating` varchar(32) NOT NULL DEFAULT '',
   PRIMARY KEY (`stage_id`),
   KEY `id_trouble` (`trouble_id`),
@@ -6996,17 +7072,19 @@ DROP TABLE IF EXISTS `tt_states`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tt_states` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `pk` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `pk` bigint(20) unsigned NOT NULL DEFAULT 0,
   `name` varchar(255) NOT NULL DEFAULT '',
-  `order` double NOT NULL DEFAULT '0',
-  `time_delta` int(11) NOT NULL DEFAULT '1',
-  `folder` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `deny` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `order` double NOT NULL DEFAULT 0,
+  `time_delta` int(11) NOT NULL DEFAULT 1,
+  `folder` bigint(20) unsigned NOT NULL DEFAULT 0,
+  `deny` bigint(20) unsigned NOT NULL DEFAULT 0,
   `state_1c` varchar(128) DEFAULT NULL,
-  `oso` tinyint(4) NOT NULL DEFAULT '0',
-  `omo` tinyint(4) NOT NULL DEFAULT '0',
+  `oso` tinyint(4) NOT NULL DEFAULT 0,
+  `omo` tinyint(4) NOT NULL DEFAULT 0,
+  `is_final` tinyint(1) NOT NULL DEFAULT 0,
+  `is_in_popup` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7015,7 +7093,7 @@ CREATE TABLE `tt_states` (
 
 LOCK TABLES `tt_states` WRITE;
 /*!40000 ALTER TABLE `tt_states` DISABLE KEYS */;
-INSERT INTO `tt_states` VALUES (1,1,'Открыт',1,1,257,0,NULL,0,0),(2,2,'Закрыт',2,0,513,0,NULL,0,0),(3,8,'Трабл УСПД',4,1,2049,0,NULL,0,0),(4,32,'Выезд',16,2,8193,16136192,'Отгружен',7,7),(5,64,'коллекТрабл',7,1,16385,0,NULL,0,0),(6,128,'массТрабл',8,1,32769,0,NULL,0,0),(7,4,'Выполнен',3,0,1025,16136192,'Отгружен',0,8),(8,256,'Отработано',9,0,65537,0,NULL,0,0),(12,16,'СПД',5,1,4097,0,NULL,0,0),(13,512,'Тех поддержка',10,1,131073,0,NULL,0,0),(14,1024,'Выдача',11,1,262145,0,NULL,0,0),(15,2048,'Новый',12,1,3,17383460,'Новый',0,0),(16,4096,'Зарезервирован',14,1,5,17383460,'Резерв',2,2),(17,8192,'К отгрузке',15,1,9,17383460,'КОтгрузке',5,5),(18,16384,'Отгружен',16,1,17,16136192,'Отгружен',6,6),(20,65536,'Закрыт',18,1,65,0,'Закрыт',8,10),(21,131072,'Отказ',19,1,129,0,'Отказ',9,11),(22,262144,'Подготовка',14,1,524289,17383460,'Резерв',0,3),(23,524288,'Доработка',17,1,1048577,16136192,'Отгружен',0,9),(24,1048576,'Отложен',13,0,2097153,17383460,'Новый',1,1),(25,2097152,'Доставка',0,0,33,17383460,'Резерв',4,0),(26,4194304,'Подтвержден',0,0,4194305,17383460,'Резерв',3,0),(27,8388608,'Распределение',0,0,8388609,17383460,'Резерв',0,4),(28,16777216,'Активация',0,1,16777217,16136192,'Отгружен',7,0),(29,33554432,'WiMax',0,1,33554433,17383460,'Новый',2,0),(30,67108864,'Тестирование',0,1,67108865,0,NULL,0,0),(31,134217728,'Отложенные',0,1,134217729,0,NULL,0,0),(32,268435456,'OnLime Оборудование',0,1,268435457,17383460,'КОтгрузке',2,0),(33,536870912,'OnLime',0,1,536870913,17383460,'Новый',2,0),(34,1073741824,'MTS',0,1,1073741825,17383460,'Резерв',2,0),(35,2147483648,'Новый',0,1,2147483648,0,'Согласован',0,0),(36,4294967296,'Оплата',0,1,4294967296,0,'Согласован',0,0),(37,8589934592,'Доставка',0,1,8589934592,0,'Подтвержден',0,0),(38,17179869184,'Поступление',0,1,17179869184,0,'К поступлению',0,0),(39,34359738368,'Закрыт',0,1,34359738368,100931731456,'Закрыт',0,0),(40,68719476736,'Отказ',0,1,100931731456,0,'Не согласован',0,0),(41,137438953472,'Входящие',1,1,137438953473,0,NULL,0,0),(42,274877906944,'В стадии переговоров',2,1,274877906945,0,NULL,0,0),(44,1099511627776,'Подключаемые',4,1,1099511627777,0,NULL,0,0),(45,2199023255552,'Техотказ',6,1,2199023255553,0,NULL,0,0),(46,4398046511104,'Отказ',7,1,4398046511105,0,NULL,0,0),(47,8796093022208,'Мусор',8,1,8796093022209,0,NULL,0,0),(48,17592186044416,'Включено',5,1,17592186044417,0,NULL,0,0),(49,35184372088832,'Проверка документов',3,1,35184372088833,0,NULL,0,0),(50,70368744177664,'Открыт повторно',10,1,70368744177664,0,NULL,0,0),(51,140737488355328,'Google',11,1,140737488355329,0,NULL,0,0),(52,281474976710656,'Ручной ввод',12,1,281474976710657,0,NULL,0,0),(53,562949953421312,'Звонок',13,1,562949953421313,0,NULL,0,0),(54,1125899906842624,'Чатофон',14,1,1125899906842625,0,NULL,0,0),(55,2251799813685248,'Тестирование без менеджера',15,1,2251799813685249,0,NULL,0,0),(56,4503599627370496,'Тестирование с менеджером',16,1,4503599627370497,0,NULL,0,0),(57,9007199254740992,'Тестирование закончено',17,1,9007199254740993,0,NULL,0,0),(58,18014398509481984,'Не дозвон',18,1,18014398509481985,0,NULL,0,0);
+INSERT INTO `tt_states` VALUES (1,1,'Открыт',1,1,257,0,NULL,0,0,0,0),(2,2,'Закрыт',2,0,513,0,NULL,0,0,1,0),(3,8,'Трабл УСПД',4,1,2049,0,NULL,0,0,0,0),(4,32,'Выезд',16,2,8193,16136192,'Отгружен',7,7,0,0),(5,64,'коллекТрабл',7,1,16385,0,NULL,0,0,0,0),(6,128,'массТрабл',8,1,32769,0,NULL,0,0,0,0),(7,4,'Выполнен',3,0,1025,16136192,'Отгружен',0,8,0,0),(8,256,'Отработано',9,0,65537,0,NULL,0,0,0,0),(12,16,'СПД',5,1,4097,0,NULL,0,0,0,0),(13,512,'Тех поддержка',10,1,131073,0,NULL,0,0,0,0),(14,1024,'Выдача',11,1,262145,0,NULL,0,0,0,0),(15,2048,'Новый',12,1,3,17383460,'Новый',0,0,0,0),(16,4096,'Зарезервирован',14,1,5,17383460,'Резерв',2,2,0,0),(17,8192,'К отгрузке',15,1,9,17383460,'КОтгрузке',5,5,0,0),(18,16384,'Отгружен',16,1,17,16136192,'Отгружен',6,6,0,0),(20,65536,'Закрыт',18,1,65,0,'Закрыт',8,10,1,0),(21,131072,'Отказ',19,1,129,0,'Отказ',9,11,1,0),(22,262144,'Подготовка',14,1,524289,17383460,'Резерв',0,3,0,0),(23,524288,'Доработка',17,1,1048577,16136192,'Отгружен',0,9,0,0),(24,1048576,'Отложен',13,0,2097153,17383460,'Новый',1,1,0,0),(25,2097152,'Доставка',0,0,33,17383460,'Резерв',4,0,0,0),(26,4194304,'Подтвержден',0,0,4194305,17383460,'Резерв',3,0,0,0),(27,8388608,'Распределение',0,0,8388609,17383460,'Резерв',0,4,0,0),(28,16777216,'Активация',0,1,16777217,16136192,'Отгружен',7,0,0,0),(29,33554432,'WiMax',0,1,33554433,17383460,'Новый',2,0,0,0),(30,67108864,'Тестирование',0,1,67108865,0,NULL,0,0,0,0),(31,134217728,'Отложенные',0,1,134217729,0,NULL,0,0,0,0),(32,268435456,'OnLime Оборудование',0,1,268435457,17383460,'КОтгрузке',2,0,0,0),(33,536870912,'OnLime',0,1,536870913,17383460,'Новый',2,0,0,0),(34,1073741824,'MTS',0,1,1073741825,17383460,'Резерв',2,0,0,0),(35,2147483648,'Новый',0,1,2147483648,0,'Согласован',0,0,0,0),(36,4294967296,'Оплата',0,1,4294967296,0,'Согласован',0,0,0,0),(37,8589934592,'Доставка',0,1,8589934592,0,'Подтвержден',0,0,0,0),(38,17179869184,'Поступление',0,1,17179869184,0,'К поступлению',0,0,0,0),(39,34359738368,'Закрыт',0,1,34359738368,100931731456,'Закрыт',0,0,1,0),(40,68719476736,'Отказ',0,1,100931731456,0,'Не согласован',0,0,1,0),(41,137438953472,'Входящие',1,1,137438953473,0,NULL,0,0,0,0),(42,274877906944,'В стадии переговоров',2,1,274877906945,0,NULL,0,0,0,0),(44,1099511627776,'Подключаемые',4,1,1099511627777,0,NULL,0,0,0,0),(45,2199023255552,'Техотказ',6,1,2199023255553,0,NULL,0,0,1,0),(46,4398046511104,'Отказ',7,1,4398046511105,0,NULL,0,0,1,0),(47,8796093022208,'Мусор',8,1,8796093022209,0,NULL,0,0,1,0),(48,17592186044416,'Включено',5,1,17592186044417,0,NULL,0,0,1,0),(49,35184372088832,'Проверка документов',3,1,35184372088833,0,NULL,0,0,0,0),(50,70368744177664,'Открыт повторно',10,1,70368744177664,0,NULL,0,0,0,0),(51,140737488355328,'Google',11,1,140737488355329,0,NULL,0,0,0,0),(52,281474976710656,'Ручной ввод',12,1,281474976710657,0,NULL,0,0,0,0),(53,562949953421312,'Звонок',13,1,562949953421313,0,NULL,0,0,0,0),(54,1125899906842624,'Чатофон',14,1,1125899906842625,0,NULL,0,0,0,0),(55,2251799813685248,'Тестирование без менеджера',15,1,2251799813685249,0,NULL,0,0,0,0),(56,4503599627370496,'Тестирование с менеджером',16,1,4503599627370497,0,NULL,0,0,0,0),(57,9007199254740992,'Тестирование закончено',17,1,9007199254740993,0,NULL,0,0,0,0),(58,18014398509481984,'Не дозвон',18,1,18014398509481985,0,NULL,0,0,0,0),(59,36028797018963968,'Выключен',19,1,36028797018963969,0,NULL,0,0,1,0),(60,72057594037927936,'Выполнен',20,1,72057594037927937,0,NULL,0,0,1,0),(61,144115188075855872,'Закрыт',21,1,144115188075855873,0,NULL,0,0,1,0),(62,288230376151711744,'Консультация тех. поддержки',22,1,288230376151711745,0,NULL,0,0,1,1),(63,576460752303423488,'Консультация абон. отдела',23,1,576460752303423489,0,NULL,0,0,1,1);
 /*!40000 ALTER TABLE `tt_states` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7029,8 +7107,8 @@ DROP TABLE IF EXISTS `tt_states_o`;
 CREATE TABLE `tt_states_o` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
-  `order` int(11) NOT NULL DEFAULT '0',
-  `time_delta` int(11) NOT NULL DEFAULT '1',
+  `order` int(11) NOT NULL DEFAULT 0,
+  `time_delta` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `order` (`order`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
@@ -7054,17 +7132,18 @@ DROP TABLE IF EXISTS `tt_states_rb`;
 /*!50001 DROP VIEW IF EXISTS `tt_states_rb`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `tt_states_rb` AS SELECT 
- 1 AS `id`,
- 1 AS `pk`,
- 1 AS `name`,
- 1 AS `order`,
- 1 AS `time_delta`,
- 1 AS `folder`,
- 1 AS `deny`,
- 1 AS `state_1c`,
- 1 AS `oso`,
- 1 AS `omo`*/;
+/*!50001 CREATE TABLE `tt_states_rb` (
+  `id` tinyint NOT NULL,
+  `pk` tinyint NOT NULL,
+  `name` tinyint NOT NULL,
+  `order` tinyint NOT NULL,
+  `time_delta` tinyint NOT NULL,
+  `folder` tinyint NOT NULL,
+  `deny` tinyint NOT NULL,
+  `state_1c` tinyint NOT NULL,
+  `oso` tinyint NOT NULL,
+  `omo` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -7083,17 +7162,17 @@ CREATE TABLE `tt_troubles` (
   `problem` text NOT NULL,
   `service` varchar(20) NOT NULL,
   `service_id` int(11) NOT NULL,
-  `cur_stage_id` int(11) NOT NULL DEFAULT '0',
-  `is_important` int(1) DEFAULT '0',
+  `cur_stage_id` int(11) NOT NULL DEFAULT 0,
+  `is_important` int(1) DEFAULT 0,
   `bill_no` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `bill_id` varchar(36) NOT NULL DEFAULT '',
-  `folder` bigint(20) unsigned DEFAULT '1',
+  `folder` bigint(20) unsigned DEFAULT 1,
   `doer_comment` text NOT NULL,
-  `all4geo_id` int(4) NOT NULL DEFAULT '0',
+  `all4geo_id` int(4) NOT NULL DEFAULT 0,
   `trouble_subtype` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `date_close` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
   `support_ticket_id` int(11) DEFAULT NULL,
-  `server_id` int(4) NOT NULL DEFAULT '0',
+  `server_id` int(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`),
   KEY `service_id` (`service_id`),
@@ -7139,7 +7218,7 @@ CREATE TABLE `tt_types` (
 
 LOCK TABLES `tt_types` WRITE;
 /*!40000 ALTER TABLE `tt_types` DISABLE KEYS */;
-INSERT INTO `tt_types` VALUES (1,'trouble','Тех. поддержка MCN',70368744701697,70368744310783),(2,'task','Задания MCN',524033,133119),(3,'support_welltime','Тех. поддержка Welltime',524033,133119),(4,'shop_orders','Заказы Магазина',1935679743,1936947232),(5,'mounting_orders','Заказы Установка и Монтаж',12068063,10450980),(6,'order_welltime','Заказы Welltime',202907850,202319904),(7,'incomegoods','Заказы поставщикам',135291469824,135291469824),(8,'connect','Подключение',35958290835832833,35958290835832832);
+INSERT INTO `tt_types` VALUES (1,'trouble','Тех. поддержка MCN',70368744701697,70368744310783),(2,'task','Задания MCN',524033,133119),(3,'support_welltime','Тех. поддержка Welltime',524033,133119),(4,'shop_orders','Заказы Магазина',1935679743,1936947232),(5,'mounting_orders','Заказы Установка и Монтаж',12068063,10450980),(6,'order_welltime','Заказы Welltime',202907850,202319904),(7,'incomegoods','Заказы поставщикам',135291469824,135291469824),(8,'connect','Подключение',1152850998423715841,1152850998423715840);
 /*!40000 ALTER TABLE `tt_types` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7158,9 +7237,9 @@ CREATE TABLE `usage_call_chat` (
   `actual_from` date NOT NULL DEFAULT '4000-01-01',
   `actual_to` date NOT NULL DEFAULT '4000-01-01',
   `status` enum('connecting','working') NOT NULL DEFAULT 'working',
-  `tarif_id` int(11) NOT NULL DEFAULT '0',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `tarif_id` int(11) NOT NULL DEFAULT 0,
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -7217,13 +7296,13 @@ CREATE TABLE `usage_extra` (
   `actual_from` date NOT NULL DEFAULT '2029-01-01',
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
   `param_value` varchar(100) NOT NULL DEFAULT '',
-  `amount` decimal(16,5) NOT NULL DEFAULT '1.00000',
+  `amount` decimal(16,5) NOT NULL DEFAULT 1.00000,
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `comment` varchar(255) NOT NULL DEFAULT '',
-  `tarif_id` int(11) NOT NULL DEFAULT '0',
+  `tarif_id` int(11) NOT NULL DEFAULT 0,
   `code` varchar(20) NOT NULL DEFAULT '',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3821 DEFAULT CHARSET=utf8;
@@ -7258,9 +7337,9 @@ CREATE TABLE `usage_ip_ports` (
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `speed_mgts` varchar(32) NOT NULL DEFAULT '',
   `speed_update` datetime NOT NULL DEFAULT '1970-01-02 00:00:00',
-  `amount` int(4) NOT NULL DEFAULT '1',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `amount` int(4) NOT NULL DEFAULT 1,
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7933 DEFAULT CHARSET=utf8;
@@ -7286,11 +7365,11 @@ CREATE TABLE `usage_ip_ppp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `actual_from` date NOT NULL DEFAULT '4000-01-01',
   `actual_to` date NOT NULL DEFAULT '4000-01-01',
-  `port_id` int(11) NOT NULL DEFAULT '0',
+  `port_id` int(11) NOT NULL DEFAULT 0,
   `login` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `password` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `user_editable` tinyint(1) NOT NULL DEFAULT '1',
-  `enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `user_editable` tinyint(1) NOT NULL DEFAULT 1,
+  `enabled` tinyint(1) NOT NULL DEFAULT 1,
   `client` varchar(100) CHARACTER SET koi8r COLLATE koi8r_bin NOT NULL DEFAULT '',
   `activation_dt` datetime DEFAULT NULL,
   `expire_dt` datetime DEFAULT NULL,
@@ -7298,18 +7377,18 @@ CREATE TABLE `usage_ip_ppp` (
   `nat_to_ip` varchar(15) NOT NULL DEFAULT '',
   `enabled_local_ports` varchar(100) NOT NULL DEFAULT '',
   `enabled_remote_ports` varchar(100) NOT NULL DEFAULT '*',
-  `mtu` int(11) NOT NULL DEFAULT '0',
-  `send_nispd_vsa` tinyint(1) NOT NULL DEFAULT '1',
-  `limit_kbps_in` int(11) NOT NULL DEFAULT '0',
-  `limit_kbps_out` int(11) NOT NULL DEFAULT '0',
-  `day_quota_in` int(11) NOT NULL DEFAULT '0',
-  `day_quota_in_used` int(11) NOT NULL DEFAULT '0',
-  `day_quota_out` int(11) NOT NULL DEFAULT '0',
-  `day_quota_out_used` int(11) NOT NULL DEFAULT '0',
-  `month_quota_in` int(11) NOT NULL DEFAULT '0',
-  `month_quota_in_used` int(11) NOT NULL DEFAULT '0',
-  `month_quota_out` int(11) NOT NULL DEFAULT '0',
-  `month_quota_out_used` int(11) NOT NULL DEFAULT '0',
+  `mtu` int(11) NOT NULL DEFAULT 0,
+  `send_nispd_vsa` tinyint(1) NOT NULL DEFAULT 1,
+  `limit_kbps_in` int(11) NOT NULL DEFAULT 0,
+  `limit_kbps_out` int(11) NOT NULL DEFAULT 0,
+  `day_quota_in` int(11) NOT NULL DEFAULT 0,
+  `day_quota_in_used` int(11) NOT NULL DEFAULT 0,
+  `day_quota_out` int(11) NOT NULL DEFAULT 0,
+  `day_quota_out_used` int(11) NOT NULL DEFAULT 0,
+  `month_quota_in` int(11) NOT NULL DEFAULT 0,
+  `month_quota_in_used` int(11) NOT NULL DEFAULT 0,
+  `month_quota_out` int(11) NOT NULL DEFAULT 0,
+  `month_quota_out_used` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `k_login` (`login`),
   KEY `client` (`client`)
@@ -7338,7 +7417,7 @@ CREATE TABLE `usage_ip_routes` (
   `expire_dt` datetime DEFAULT NULL,
   `actual_from` date NOT NULL DEFAULT '4000-01-01',
   `actual_to` date NOT NULL DEFAULT '4000-01-01',
-  `port_id` int(11) NOT NULL DEFAULT '0',
+  `port_id` int(11) NOT NULL DEFAULT 0,
   `net` varchar(18) NOT NULL DEFAULT '',
   `nat_net` varchar(18) NOT NULL DEFAULT '',
   `dnat` varchar(18) NOT NULL DEFAULT '',
@@ -7346,7 +7425,7 @@ CREATE TABLE `usage_ip_routes` (
   `up_node` varchar(32) NOT NULL DEFAULT '',
   `flows_node` varchar(32) NOT NULL DEFAULT 'rubicon',
   `comment` varchar(255) DEFAULT NULL,
-  `gpon_reserv` tinyint(4) NOT NULL DEFAULT '0',
+  `gpon_reserv` tinyint(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `net` (`net`),
   KEY `port_id` (`port_id`)
@@ -7378,9 +7457,9 @@ CREATE TABLE `usage_sms` (
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `comment` varchar(255) NOT NULL DEFAULT '',
-  `tarif_id` int(11) NOT NULL DEFAULT '0',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `tarif_id` int(11) NOT NULL DEFAULT 0,
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
 ) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8;
@@ -7403,16 +7482,17 @@ DROP TABLE IF EXISTS `usage_sms_gate`;
 /*!50001 DROP VIEW IF EXISTS `usage_sms_gate`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `usage_sms_gate` AS SELECT 
- 1 AS `usage_id`,
- 1 AS `client`,
- 1 AS `client_id`,
- 1 AS `password`,
- 1 AS `salt`,
- 1 AS `actual_from`,
- 1 AS `actual_to`,
- 1 AS `sms_max`,
- 1 AS `status`*/;
+/*!50001 CREATE TABLE `usage_sms_gate` (
+  `usage_id` tinyint NOT NULL,
+  `client` tinyint NOT NULL,
+  `client_id` tinyint NOT NULL,
+  `password` tinyint NOT NULL,
+  `salt` tinyint NOT NULL,
+  `actual_from` tinyint NOT NULL,
+  `actual_to` tinyint NOT NULL,
+  `sms_max` tinyint NOT NULL,
+  `status` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -7426,7 +7506,7 @@ CREATE TABLE `usage_tech_cpe` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `actual_from` date NOT NULL DEFAULT '4000-01-01',
   `actual_to` date NOT NULL DEFAULT '4000-01-01',
-  `id_model` int(11) NOT NULL DEFAULT '0',
+  `id_model` int(11) NOT NULL DEFAULT 0,
   `client` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `serial` varchar(32) NOT NULL DEFAULT '',
   `mac` varchar(12) NOT NULL DEFAULT '',
@@ -7442,13 +7522,13 @@ CREATE TABLE `usage_tech_cpe` (
   `tech_support` enum('','mcn','client','mgts') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `node` varchar(100) NOT NULL DEFAULT '',
   `service` varchar(30) NOT NULL DEFAULT '',
-  `id_service` int(11) NOT NULL DEFAULT '0',
-  `deposit_sumUSD` decimal(7,2) NOT NULL DEFAULT '0.00',
-  `deposit_sumRUB` decimal(7,2) NOT NULL DEFAULT '0.00',
-  `snmp` tinyint(1) NOT NULL DEFAULT '0',
-  `ast_autoconf` tinyint(1) NOT NULL DEFAULT '0',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `id_service` int(11) NOT NULL DEFAULT 0,
+  `deposit_sumUSD` decimal(7,2) NOT NULL DEFAULT 0.00,
+  `deposit_sumRUB` decimal(7,2) NOT NULL DEFAULT 0.00,
+  `snmp` tinyint(1) NOT NULL DEFAULT 0,
+  `ast_autoconf` tinyint(1) NOT NULL DEFAULT 0,
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `id_model` (`id_model`),
   KEY `service` (`service`,`id_service`),
@@ -7482,16 +7562,17 @@ CREATE TABLE `usage_trunk` (
   `activation_dt` datetime NOT NULL,
   `expire_dt` datetime NOT NULL,
   `status` enum('connecting','working') NOT NULL DEFAULT 'working',
-  `orig_enabled` tinyint(4) NOT NULL DEFAULT '0',
-  `term_enabled` tinyint(4) NOT NULL DEFAULT '0',
-  `orig_min_payment` int(11) NOT NULL DEFAULT '0',
-  `term_min_payment` int(11) NOT NULL DEFAULT '0',
+  `orig_enabled` tinyint(4) NOT NULL DEFAULT 0,
+  `term_enabled` tinyint(4) NOT NULL DEFAULT 0,
+  `orig_min_payment` int(11) NOT NULL DEFAULT 0,
+  `term_min_payment` int(11) NOT NULL DEFAULT 0,
   `description` varchar(255) DEFAULT NULL,
   `operator_id` int(11) DEFAULT NULL,
-  `tmp` int(11) DEFAULT '0',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `tmp` int(11) DEFAULT 0,
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   `ip` varchar(16) DEFAULT NULL,
+  `transit_price` decimal(13,4) NOT NULL DEFAULT 0.0000,
   PRIMARY KEY (`id`),
   KEY `usage_trunk__connection_point_id_trunk_name` (`connection_point_id`) USING BTREE,
   KEY `usage_trunk__client_account_id` (`client_account_id`) USING BTREE,
@@ -7524,11 +7605,11 @@ CREATE TABLE `usage_trunk_settings` (
   `src_number_id` int(11) DEFAULT NULL,
   `dst_number_id` int(11) DEFAULT NULL,
   `pricelist_id` int(11) DEFAULT NULL,
-  `tmp` int(11) DEFAULT '0',
-  `minimum_minutes` int(11) DEFAULT '0',
-  `minimum_cost` int(11) DEFAULT '0',
-  `minimum_margin` decimal(10,5) NOT NULL DEFAULT '0.00000',
-  `minimum_margin_type` smallint(6) NOT NULL DEFAULT '0',
+  `tmp` int(11) DEFAULT 0,
+  `minimum_minutes` int(11) DEFAULT 0,
+  `minimum_cost` int(11) DEFAULT 0,
+  `minimum_margin` decimal(10,5) NOT NULL DEFAULT 0.00000,
+  `minimum_margin_type` smallint(6) NOT NULL DEFAULT 0,
   `package_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `usage_id_type_order` (`usage_id`,`type`,`order`),
@@ -7562,14 +7643,14 @@ CREATE TABLE `usage_virtpbx` (
   `expire_dt` datetime DEFAULT NULL,
   `actual_from` date NOT NULL DEFAULT '2029-01-01',
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
-  `amount` decimal(16,5) NOT NULL DEFAULT '1.00000',
+  `amount` decimal(16,5) NOT NULL DEFAULT 1.00000,
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `comment` varchar(255) NOT NULL DEFAULT '',
-  `tarif_id` int(11) NOT NULL DEFAULT '0',
+  `tarif_id` int(11) NOT NULL DEFAULT 0,
   `moved_from` int(11) NOT NULL,
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
-  `is_unzipped` int(11) NOT NULL DEFAULT '0',
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
+  `is_unzipped` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`),
   KEY `idx-prev_usage_id` (`prev_usage_id`)
@@ -7602,19 +7683,19 @@ CREATE TABLE `usage_voip` (
   `activation_dt` datetime NOT NULL,
   `expire_dt` datetime NOT NULL,
   `E164` varchar(40) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
-  `no_of_lines` int(11) NOT NULL DEFAULT '1',
+  `no_of_lines` int(11) NOT NULL DEFAULT 1,
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `address` text NOT NULL,
   `address_from_datacenter_id` int(11) DEFAULT NULL,
   `edit_user_id` int(11) DEFAULT NULL,
   `is_trunk` enum('0','1') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '0',
-  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `one_sip` tinyint(4) NOT NULL DEFAULT '0',
-  `line7800_id` int(11) NOT NULL DEFAULT '0',
+  `created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `one_sip` tinyint(4) NOT NULL DEFAULT 0,
+  `line7800_id` int(11) NOT NULL DEFAULT 0,
   `create_params` varchar(1024) NOT NULL,
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
-  `ndc_type_id` int(11) NOT NULL DEFAULT '1',
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
+  `ndc_type_id` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `E164` (`E164`),
   KEY `client` (`client`),
@@ -7650,11 +7731,11 @@ CREATE TABLE `usage_voip_package` (
   `expire_dt` datetime NOT NULL DEFAULT '4000-01-01 23:59:59',
   `actual_from` date NOT NULL,
   `actual_to` date NOT NULL DEFAULT '4000-01-01',
-  `tariff_id` int(11) NOT NULL DEFAULT '0',
-  `usage_voip_id` int(11) NOT NULL DEFAULT '0',
+  `tariff_id` int(11) NOT NULL DEFAULT 0,
+  `usage_voip_id` int(11) NOT NULL DEFAULT 0,
   `status` enum('connecting','working') NOT NULL DEFAULT 'working',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -7684,13 +7765,13 @@ CREATE TABLE `usage_welltime` (
   `actual_from` date NOT NULL DEFAULT '2029-01-01',
   `actual_to` date NOT NULL DEFAULT '2029-01-01',
   `ip` varchar(100) NOT NULL DEFAULT '',
-  `amount` decimal(16,5) NOT NULL DEFAULT '1.00000',
+  `amount` decimal(16,5) NOT NULL DEFAULT 1.00000,
   `status` enum('connecting','working') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'working',
   `comment` varchar(255) NOT NULL DEFAULT '',
-  `tarif_id` int(11) NOT NULL DEFAULT '0',
+  `tarif_id` int(11) NOT NULL DEFAULT 0,
   `router` varchar(255) NOT NULL DEFAULT '',
-  `prev_usage_id` int(11) DEFAULT '0',
-  `next_usage_id` int(11) DEFAULT '0',
+  `prev_usage_id` int(11) DEFAULT 0,
+  `next_usage_id` int(11) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `client` (`client`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3166 DEFAULT CHARSET=utf8;
@@ -7752,7 +7833,7 @@ CREATE TABLE `user_grant_groups` (
 
 LOCK TABLES `user_grant_groups` WRITE;
 /*!40000 ALTER TABLE `user_grant_groups` DISABLE KEYS */;
-INSERT INTO `user_grant_groups` VALUES ('account_managers','clients','read,read_filter,read_all,new,edit,restatus,file,all4net,client_type_change'),('account_managers','data','access'),('account_managers','logs','read'),('account_managers','mail','r,w'),('account_managers','monitoring','view,edit'),('account_managers','newaccounts_balance','read'),('account_managers','newaccounts_bills','read,edit,delete'),('account_managers','newaccounts_mass','access'),('account_managers','newaccounts_payments','read,edit,delete'),('account_managers','newaccounts_usd','access'),('account_managers','nnp','read,write'),('account_managers','routers_devices','r,edit,add,delete'),('account_managers','routers_models','r'),('account_managers','routers_nets','r'),('account_managers','routers_routers','r'),('account_managers','services_additional','r,edit,addnew,activate,close'),('account_managers','services_collocation','r,edit,addnew,activate,close'),('account_managers','services_domains','r,edit,addnew,close'),('account_managers','services_internet','r,edit,addnew,activate,close,edit_off,tarif'),('account_managers','services_mail','r,edit,addnew,activate,chpass'),('account_managers','services_ppp','r,edit,addnew,full,activate,chpass,close'),('account_managers','services_voip','r,edit,addnew,activate,close,send_settings,e164,del4000'),('account_managers','services_welltime','full,docs'),('account_managers','sim','read,write'),('account_managers','stats','r,report,vip_report,voip_recognition,onlime_read,onlime_create,onlime_full'),('account_managers','tarifs','read,edit'),('account_managers','tt','view,view_cl,use,time,admin,doers_edit,shop_orders'),('account_managers','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('account_managers','users','r'),('account_managers','voip','access,catalog'),('accounts_department','clients','read,read_filter,read_all,new,edit,file,all4net'),('accounts_department','data','access'),('accounts_department','newaccounts_balance','read'),('accounts_department','newaccounts_bills','read,edit'),('accounts_department','newaccounts_mass','access'),('accounts_department','newaccounts_payments','read,edit'),('accounts_department','newaccounts_usd','access'),('accounts_department','routers_devices','r,edit,add,delete'),('accounts_department','routers_models','r'),('accounts_department','routers_nets','r'),('accounts_department','services_additional','r'),('accounts_department','services_collocation','r'),('accounts_department','services_internet','r'),('accounts_department','services_mail','r'),('accounts_department','services_voip','r'),('accounts_department','stats','r'),('accounts_department','tarifs','read'),('accounts_department','tt','view,view_cl,use,time'),('accounts_department','usercontrol','edit_pass'),('admin','ats','access'),('admin','clients','read,read_filter,read_all,new,edit,restatus,sale_channels,file,inn_double,all4net,client_type_change,changeback_contract_state'),('admin','data','access'),('admin','dictionary','read,city-billing-method,city,country,entry-point,invoice-settings,public-site,region,tags'),('admin','dictionary-important-event','important-events-groups,important-events-names,important-events-sources'),('admin','employeers','r'),('admin','incomegoods','access,admin'),('admin','logs','read'),('admin','mail','r,w'),('admin','monitoring','view,edit'),('admin','newaccounts_balance','read'),('admin','newaccounts_bills','read,edit,delete,del_docs,edit_ext'),('admin','newaccounts_mass','access'),('admin','newaccounts_payments','read,edit,delete'),('admin','newaccounts_usd','access'),('admin','nnp','read,write'),('admin','organization','read,edit'),('admin','person','read,edit,delete'),('admin','routers_devices','r,edit,add,delete'),('admin','routers_models','r,w'),('admin','routers_nets','r'),('admin','routers_routers','r,edit,add,delete'),('admin','send','r'),('admin','services_additional','r,edit,addnew,full,activate,close'),('admin','services_collocation','r,edit,addnew,activate,close'),('admin','services_domains','r,edit,addnew,close'),('admin','services_internet','r,edit,addnew,activate,close,full,edit_off,tarif'),('admin','services_itpark','full'),('admin','services_mail','r,edit,addnew,full,activate,chpass,whitelist'),('admin','services_ppp','r,edit,addnew,full,activate,chpass'),('admin','services_voip','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000'),('admin','services_wellsystem','full'),('admin','services_welltime','full,docs'),('admin','sim','read,write'),('admin','stats','r,report,voip_recognition,onlime_read,onlime_create,onlime_full'),('admin','tarifs','read,edit'),('admin','tt','view,use,admin,states,report,rating,limit'),('admin','usercontrol','edit_pass,edit_full,edit_panels,edit_flags,dealer'),('admin','users','r,change,grant'),('admin','voip','access,admin,catalog'),('admin','voipreports','access,admin'),('client','mail','r'),('client','services_additional','r'),('client','services_mail','whitelist,r,addnew,activate,chpass'),('client','services_ppp','r,chpass'),('client','stats','r'),('client','usercontrol','r,edit_pass'),('developer','data','access'),('manager','clients','read,read_filter,read_all,new,edit,restatus,file,all4net'),('manager','data','access'),('manager','mail','w'),('manager','monitoring','view,edit'),('manager','newaccounts_balance','read'),('manager','newaccounts_bills','read,edit'),('manager','newaccounts_payments','read'),('manager','newaccounts_usd','access'),('manager','nnp','read,write'),('manager','routers_devices','r,edit,add,delete'),('manager','routers_models','r'),('manager','routers_routers','r'),('manager','services_additional','r,edit,addnew,activate,close'),('manager','services_collocation','r,edit,addnew,activate,close'),('manager','services_domains','r'),('manager','services_internet','r,edit,addnew,activate,close,edit_off,tarif'),('manager','services_mail','r,edit,addnew,activate,chpass'),('manager','services_ppp','r,edit,addnew,full,activate,chpass,close'),('manager','services_voip','r,edit,addnew,activate,close,e164'),('manager','sim','read,write'),('manager','stats','r,report,voip_recognition,onlime_read,onlime_create,onlime_full'),('manager','tarifs','read'),('manager','tt','view,view_cl,use,time,doers_edit,shop_orders'),('manager','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('manager','users','r'),('manager1','clients','read,read_all'),('manager1','employeers','r'),('manager1','monitoring','view'),('manager1','usercontrol','edit_panels,edit_flags'),('marketing','clients','read,read_filter,all4net'),('marketing','data','access'),('marketing','newaccounts_bills','read'),('marketing','tt','view,view_cl,use'),('operator','clients','read,read_all,new,all4net'),('operator','data','access'),('operator','newaccounts_balance','read'),('operator','newaccounts_bills','read'),('operator','tt','view,view_cl,use'),('sklad','data','access'),('sklad','newaccounts_bills','read'),('sklad','tt','view,use,report,comment'),('sklad','usercontrol','read,edit_pass'),('support','clients','read,read_filter,read_all,new,edit,restatus,file,all4net'),('support','data','access'),('support','monitoring','view,top,edit'),('support','newaccounts_balance','read'),('support','newaccounts_bills','read'),('support','routers_devices','r,edit,add,delete'),('support','routers_models','r,w'),('support','routers_nets','r'),('support','routers_routers','r,edit,add,delete'),('support','services_additional','r,edit,addnew,full,activate,close'),('support','services_collocation','r,edit,addnew,activate,close'),('support','services_domains','r,edit,addnew,close'),('support','services_internet','r,edit,addnew,activate,close,full,edit_off'),('support','services_mail','r,edit,addnew,full,activate,chpass,whitelist'),('support','services_ppp','r,edit,addnew,full,activate,chpass'),('support','services_voip','r,view_reg,send_settings'),('support','stats','r,report,onlime_read,onlime_create,onlime_full'),('support','tarifs','read'),('support','tt','view,use,states,comment,rating'),('support','usercontrol','edit_pass,edit_full,edit_flags'),('telemarket','clients','read,read_filter,read_all,new,edit,restatus,edit_tele'),('telemarketing','clients','read,read_filter,read_all,edit,restatus,edit_tele,file'),('telemarketing','data','access'),('telemarketing','monitoring','view'),('telemarketing','newaccounts_balance','read'),('telemarketing','newaccounts_bills','read'),('telemarketing','stats','r'),('telemarketing','tarifs','read'),('telemarketing','tt','view,view_cl,use,time'),('telemarketing','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('user','data','access'),('user','tt','view,use,time,states,report'),('virtual','data','access'),('zakupshiki','data','access');
+INSERT INTO `user_grant_groups` VALUES ('account_managers','clients','read,read_filter,read_all,new,edit,restatus,file,all4net,client_type_change'),('account_managers','data','access'),('account_managers','logs','read'),('account_managers','mail','r,w'),('account_managers','monitoring','view,edit'),('account_managers','newaccounts_balance','read'),('account_managers','newaccounts_bills','read,edit,delete'),('account_managers','newaccounts_mass','access'),('account_managers','newaccounts_payments','read,edit,delete'),('account_managers','newaccounts_usd','access'),('account_managers','nnp','read,write'),('account_managers','routers_devices','r,edit,add,delete'),('account_managers','routers_models','r'),('account_managers','routers_nets','r'),('account_managers','routers_routers','r'),('account_managers','services_additional','r,edit,addnew,activate,close'),('account_managers','services_collocation','r,edit,addnew,activate,close'),('account_managers','services_domains','r,edit,addnew,close'),('account_managers','services_internet','r,edit,addnew,activate,close,edit_off,tarif'),('account_managers','services_mail','r,edit,addnew,activate,chpass'),('account_managers','services_ppp','r,edit,addnew,full,activate,chpass,close'),('account_managers','services_voip','r,edit,addnew,activate,close,send_settings,e164,del4000,package'),('account_managers','services_welltime','full,docs'),('account_managers','sim','read,write'),('account_managers','stats','r,report,vip_report,voip_recognition,onlime_read,onlime_create,onlime_full'),('account_managers','tarifs','read,edit'),('account_managers','tt','view,view_cl,use,time,admin,doers_edit,shop_orders'),('account_managers','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('account_managers','users','r'),('account_managers','voip','access,catalog'),('accounts_department','clients','read,read_filter,read_all,new,edit,file,all4net'),('accounts_department','data','access'),('accounts_department','newaccounts_balance','read'),('accounts_department','newaccounts_bills','read,edit'),('accounts_department','newaccounts_mass','access'),('accounts_department','newaccounts_payments','read,edit'),('accounts_department','newaccounts_usd','access'),('accounts_department','routers_devices','r,edit,add,delete'),('accounts_department','routers_models','r'),('accounts_department','routers_nets','r'),('accounts_department','services_additional','r'),('accounts_department','services_collocation','r'),('accounts_department','services_internet','r'),('accounts_department','services_mail','r'),('accounts_department','services_voip','r'),('accounts_department','stats','r'),('accounts_department','tarifs','read'),('accounts_department','tt','view,view_cl,use,time'),('accounts_department','usercontrol','edit_pass'),('admin','ats','access'),('admin','clients','read,read_filter,read_all,new,edit,restatus,sale_channels,file,inn_double,all4net,client_type_change,changeback_contract_state'),('admin','data','access'),('admin','dictionary','read,city-billing-method,city,country,entry-point,invoice-settings,public-site,region,tags'),('admin','dictionary-important-event','important-events-groups,important-events-names,important-events-sources'),('admin','employeers','r'),('admin','incomegoods','access,admin'),('admin','logs','read'),('admin','mail','r,w'),('admin','monitoring','view,edit'),('admin','newaccounts_balance','read'),('admin','newaccounts_bills','read,edit,delete,del_docs,edit_ext'),('admin','newaccounts_mass','access'),('admin','newaccounts_payments','read,edit,delete'),('admin','newaccounts_usd','access'),('admin','nnp','read,write'),('admin','organization','read,edit'),('admin','person','read,edit,delete'),('admin','routers_devices','r,edit,add,delete'),('admin','routers_models','r,w'),('admin','routers_nets','r'),('admin','routers_routers','r,edit,add,delete'),('admin','send','r'),('admin','services_additional','r,edit,addnew,full,activate,close'),('admin','services_collocation','r,edit,addnew,activate,close'),('admin','services_domains','r,edit,addnew,close'),('admin','services_internet','r,edit,addnew,activate,close,full,edit_off,tarif'),('admin','services_itpark','full'),('admin','services_mail','r,edit,addnew,full,activate,chpass,whitelist'),('admin','services_ppp','r,edit,addnew,full,activate,chpass'),('admin','services_voip','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000'),('admin','services_wellsystem','full'),('admin','services_welltime','full,docs'),('admin','sim','read,write'),('admin','stats','r,report,voip_recognition,onlime_read,onlime_create,onlime_full'),('admin','tarifs','read,edit'),('admin','tt','view,use,admin,states,report,rating,limit'),('admin','usercontrol','edit_pass,edit_full,edit_panels,edit_flags,dealer'),('admin','users','r,change,grant'),('admin','voip','access,admin,catalog'),('admin','voipreports','access,admin'),('client','mail','r'),('client','services_additional','r'),('client','services_mail','whitelist,r,addnew,activate,chpass'),('client','services_ppp','r,chpass'),('client','stats','r'),('client','usercontrol','r,edit_pass'),('developer','data','access'),('manager','clients','read,read_filter,read_all,new,edit,restatus,file,all4net'),('manager','data','access'),('manager','mail','w'),('manager','monitoring','view,edit'),('manager','newaccounts_balance','read'),('manager','newaccounts_bills','read,edit'),('manager','newaccounts_payments','read'),('manager','newaccounts_usd','access'),('manager','nnp','read,write'),('manager','routers_devices','r,edit,add,delete'),('manager','routers_models','r'),('manager','routers_routers','r'),('manager','services_additional','r,edit,addnew,activate,close'),('manager','services_collocation','r,edit,addnew,activate,close'),('manager','services_domains','r'),('manager','services_internet','r,edit,addnew,activate,close,edit_off,tarif'),('manager','services_mail','r,edit,addnew,activate,chpass'),('manager','services_ppp','r,edit,addnew,full,activate,chpass,close'),('manager','services_voip','r,edit,addnew,activate,close,e164'),('manager','sim','read,write'),('manager','stats','r,report,voip_recognition,onlime_read,onlime_create,onlime_full'),('manager','tarifs','read'),('manager','tt','view,view_cl,use,time,doers_edit,shop_orders'),('manager','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('manager','users','r'),('manager1','clients','read,read_all'),('manager1','employeers','r'),('manager1','monitoring','view'),('manager1','usercontrol','edit_panels,edit_flags'),('marketing','clients','read,read_filter,all4net'),('marketing','data','access'),('marketing','newaccounts_bills','read'),('marketing','tt','view,view_cl,use'),('operator','clients','read,read_all,new,all4net'),('operator','data','access'),('operator','newaccounts_balance','read'),('operator','newaccounts_bills','read'),('operator','tt','view,view_cl,use'),('sklad','data','access'),('sklad','newaccounts_bills','read'),('sklad','tt','view,use,report,comment'),('sklad','usercontrol','read,edit_pass'),('support','clients','read,read_filter,read_all,new,edit,restatus,file,all4net'),('support','data','access'),('support','monitoring','view,top,edit'),('support','newaccounts_balance','read'),('support','newaccounts_bills','read'),('support','routers_devices','r,edit,add,delete'),('support','routers_models','r,w'),('support','routers_nets','r'),('support','routers_routers','r,edit,add,delete'),('support','services_additional','r,edit,addnew,full,activate,close'),('support','services_collocation','r,edit,addnew,activate,close'),('support','services_domains','r,edit,addnew,close'),('support','services_internet','r,edit,addnew,activate,close,full,edit_off'),('support','services_mail','r,edit,addnew,full,activate,chpass,whitelist'),('support','services_ppp','r,edit,addnew,full,activate,chpass'),('support','services_voip','r,view_reg,send_settings'),('support','stats','r,report,onlime_read,onlime_create,onlime_full'),('support','tarifs','read'),('support','tt','view,use,states,comment,rating'),('support','usercontrol','edit_pass,edit_full,edit_flags'),('telemarket','clients','read,read_filter,read_all,new,edit,restatus,edit_tele'),('telemarketing','clients','read,read_filter,read_all,edit,restatus,edit_tele,file'),('telemarketing','data','access'),('telemarketing','monitoring','view'),('telemarketing','newaccounts_balance','read'),('telemarketing','newaccounts_bills','read'),('telemarketing','stats','r'),('telemarketing','tarifs','read'),('telemarketing','tt','view,view_cl,use,time'),('telemarketing','usercontrol','edit_pass,edit_full,edit_panels,edit_flags'),('user','data','access'),('user','tt','view,use,time,states,report'),('virtual','data','access'),('zakupshiki','data','access');
 /*!40000 ALTER TABLE `user_grant_groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7817,7 +7898,7 @@ CREATE TABLE `user_rights` (
   `comment` text NOT NULL,
   `values` varchar(255) NOT NULL DEFAULT '',
   `values_desc` text NOT NULL,
-  `order` int(11) NOT NULL DEFAULT '0',
+  `order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`resource`),
   KEY `order` (`order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -7829,7 +7910,7 @@ CREATE TABLE `user_rights` (
 
 LOCK TABLES `user_rights` WRITE;
 /*!40000 ALTER TABLE `user_rights` DISABLE KEYS */;
-INSERT INTO `user_rights` VALUES ('ats','Управление ATC','access,support','доступ,ограниченный доступ',0),('clients','Работа с клиентами','read,read_filter,read_all,new,edit,restatus,edit_tele,sale_channels,file,inn_double,all4net,history_edit,client_type_change,changeback_contract_state','просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории,Изменение тип договора,Изменение статуса проверки документов на \"не проверено\"',0),('data','Данные справочников','access','доступ',0),('dictionary','Справочники','read,city-billing-method,city,country,entry-point,invoice-settings,public-site,region,tags','Чтение справочников (всех),Редактирование: Методы билингования,Редактирование: Города,Редактирование: Страны,Редактирование: Точки входа,Редактирование: Настройки платежных документов,Редактирование: Публичные сайты,Редактирование: Регионы,Редактирование: Метки',0),('dictionary-important-event','Справочники важных событий','important-events-groups,important-events-names,important-events-sources','Редактирование: Группы событий,Редактирование: Названия событий,Редактирование: Источники событий',0),('employeers','Сотрудники','r','чтение',0),('incomegoods','Закупки','access,admin','доступ,администрирование',0),('logs','Логи','read,history_version,history_changes','Просмотр,Просмотри истории версий,Просмотр истории изменений',0),('mail','Письма клиентам','r,w','просмотр PM,работа с рассылкой',0),('monitoring','Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики',0),('newaccounts_balance','Баланс','read','просмотр',0),('newaccounts_bills','Счета','read,edit,delete,admin,del_docs,edit_ext','просмотр,изменение,удаление,изменение счета в любое время,Удаление отсканированных актов,Редактирование номера внешнего счета',0),('newaccounts_mass','Массовые операции','access','доступ',0),('newaccounts_payments','Платежи','read,edit,delete','просмотр,изменение,удаление',0),('newaccounts_usd','Курс доллара','access','доступ',0),('nnp','ННП','read,write','чтение,редактирование',0),('organization','Организации','read,edit','чтение,изменение',0),('person','Ответственные лица','read,edit,delete','чтение,изменение,удаление',0),('routers_devices','Клиентские устройства','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('routers_models','Модели клиентских устройств','r,w','чтение,редактирование',0),('routers_nets','Сети','r','доступ',0),('routers_routers','Роутеры','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('send','Массовая отправка счетов','r,send','просмотр состояния,отправка',0),('services_additional','Дополнительные услуги','r,edit,addnew,full,activate,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение',0),('services_collocation','Collocation','r,edit,addnew,activate,close','просмотр,редактирование,добавление,активирование,отключение',0),('services_domains','Доменные имена','r,edit,addnew,close','просмотр,редактирование,добавление,отключение',0),('services_internet','Интернет','r,edit,addnew,activate,close,full,edit_off,tarif','просмотр,изменение,добавление,активирование,отключение,полная информация по сетям (общее с collocation),редактирование отключенных сетей (общее с collocation),изменение тарифа (общее с collocation)',0),('services_itpark','Услуги IT Park\'а','full','полный доступ',0),('services_mail','E-mail','r,edit,addnew,full,activate,chpass,whitelist','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,белый список',0),('services_ppp','PPP-логины','r,edit,addnew,full,activate,chpass,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,отключение',0),('services_voip','IP Телефония','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение,просмотр регистрации,отображение пароля,выслать настройки,номерные емкости,удалять невключенные номера',0),('services_wellsystem','WellSystem','full','полный доступ',0),('services_welltime','WellTime','full,docs','полный доступ,документы',0),('sim','SIM-карты','read,write','чтение,редактирование',0),('stats','Статистика','r,report,vip_report,voip_recognition,sale_channel_report,onlime_read,onlime_create,onlime_full','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители,onlime просмотр отчета,onlime создание заявок,onlime полный доступ',0),('tarifs','Работа с тарифами','read,edit','чтение,изменение',0),('tt','Работа с заявками','view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating,limit','просмотр,показывать \"Запросы клиентов\",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки,просмотр остатков',0),('usercontrol','О пользователе','read,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля,изменение всех данных,настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список',0),('users','Работа с пользователями','r,change,grant','чтение,изменение,раздача прав',0),('voip','Телефония','access,admin,catalog','доступ,администрирование,справочники',0),('voipreports','Телефония Отчеты','access,admin','доступ,администрирование',0);
+INSERT INTO `user_rights` VALUES ('ats','Управление ATC','access,support','доступ,ограниченный доступ',0),('clients','Работа с клиентами','read,read_filter,read_all,new,edit,restatus,edit_tele,sale_channels,file,inn_double,all4net,history_edit,client_type_change,changeback_contract_state','просмотр вообще,просмотр с фильтрами,просмотр всех,создание,редактирование,изменение статуса,редактирование для телемаркетинга,редактирование каналов продаж,доступ к файлам,заведение совпадающих ИНН,синхронизация с all4net,редактирование истории,Изменение тип договора,Изменение статуса проверки документов на \"не проверено\"',0),('data','Данные справочников','access','доступ',0),('dictionary','Справочники','read,city-billing-method,city,country,entry-point,invoice-settings,public-site,region,tags','Чтение справочников (всех),Редактирование: Методы билингования,Редактирование: Города,Редактирование: Страны,Редактирование: Точки входа,Редактирование: Настройки платежных документов,Редактирование: Публичные сайты,Редактирование: Регионы,Редактирование: Метки',0),('dictionary-important-event','Справочники важных событий','important-events-groups,important-events-names,important-events-sources','Редактирование: Группы событий,Редактирование: Названия событий,Редактирование: Источники событий',0),('employeers','Сотрудники','r','чтение',0),('incomegoods','Закупки','access,admin','доступ,администрирование',0),('logs','Логи','read,history_version,history_changes','Просмотр,Просмотри истории версий,Просмотр истории изменений',0),('mail','Письма клиентам','r,w','просмотр PM,работа с рассылкой',0),('mchs','Сообщения от МЧС','read,send','чтение,отправка',0),('monitoring','Просмотр данных мониторинга','view,top,edit,graphs','просмотр,панелька сверху,редактирование списка VIP-клиентов,просмотр графиков динамики',0),('newaccounts_balance','Баланс','read','просмотр',0),('newaccounts_bills','Счета','read,edit,delete,admin,del_docs,edit_ext','просмотр,изменение,удаление,изменение счета в любое время,Удаление отсканированных актов,Редактирование номера внешнего счета',0),('newaccounts_mass','Массовые операции','access','доступ',0),('newaccounts_payments','Платежи','read,edit,delete','просмотр,изменение,удаление',0),('newaccounts_usd','Курс доллара','access','доступ',0),('nnp','ННП','read,write','чтение,редактирование',0),('organization','Организации','read,edit','чтение,изменение',0),('person','Ответственные лица','read,edit,delete','чтение,изменение,удаление',0),('routers_devices','Клиентские устройства','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('routers_models','Модели клиентских устройств','r,w','чтение,редактирование',0),('routers_nets','Сети','r','доступ',0),('routers_routers','Роутеры','r,edit,add,delete','чтение,редактирование,добавление,удаление',0),('send','Массовая отправка счетов','r,send','просмотр состояния,отправка',0),('services_additional','Дополнительные услуги','r,edit,addnew,full,activate,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение',0),('services_collocation','Collocation','r,edit,addnew,activate,close','просмотр,редактирование,добавление,активирование,отключение',0),('services_domains','Доменные имена','r,edit,addnew,close','просмотр,редактирование,добавление,отключение',0),('services_internet','Интернет','r,edit,addnew,activate,close,full,edit_off,tarif','просмотр,изменение,добавление,активирование,отключение,полная информация по сетям (общее с collocation),редактирование отключенных сетей (общее с collocation),изменение тарифа (общее с collocation)',0),('services_itpark','Услуги IT Park\'а','full','полный доступ',0),('services_mail','E-mail','r,edit,addnew,full,activate,chpass,whitelist','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,белый список',0),('services_ppp','PPP-логины','r,edit,addnew,full,activate,chpass,close','просмотр,редактирование,добавление,доступ ко всем полям,активирование,смена пароля,отключение',0),('services_voip','IP Телефония','r,edit,addnew,full,activate,close,view_reg,view_regpass,send_settings,e164,del4000','просмотр,редактирование,добавление,доступ ко всем полям,активирование,отключение,просмотр регистрации,отображение пароля,выслать настройки,номерные емкости,удалять невключенные номера',0),('services_wellsystem','WellSystem','full','полный доступ',0),('services_welltime','WellTime','full,docs','полный доступ,документы',0),('sim','SIM-карты','read,write','чтение,редактирование',0),('stats','Статистика','r,report,vip_report,voip_recognition,sale_channel_report,onlime_read,onlime_create,onlime_full','просмотр,отчет,vip report,телефония-нераспознаные,региональные представители,onlime просмотр отчета,onlime создание заявок,onlime полный доступ',0),('tarifs','Работа с тарифами','read,edit','чтение,изменение',0),('tt','Работа с заявками','view,view_cl,use,time,admin,states,report,doers_edit,shop_orders,comment,rating,limit','просмотр,показывать \"Запросы клиентов\",использование,управление временем,администраторский доступ,редактирование состояний,отчёт,редактирование исполнителей,заказы магазина,коментарии для не своих заявок,оценка заявки,просмотр остатков',0),('usercontrol','О пользователе','read,edit_pass,edit_full,edit_panels,edit_flags,dealer','чтение,смена пароля,изменение всех данных,настройка скрытых/открытых панелей (sys),настройка флагов (sys),дилерский список',0),('users','Работа с пользователями','r,change,grant','чтение,изменение,раздача прав',0),('voip','Телефония','access,admin,catalog','доступ,администрирование,справочники',0),('voipreports','Телефония Отчеты','access,admin','доступ,администрирование',0);
 /*!40000 ALTER TABLE `user_rights` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7851,14 +7932,14 @@ CREATE TABLE `user_users` (
   `email` varchar(64) DEFAULT NULL,
   `icq` varchar(20) DEFAULT NULL,
   `photo` varchar(4) DEFAULT NULL,
-  `data_panel` text,
+  `data_panel` text DEFAULT NULL,
   `phone_work` varchar(100) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `phone_mobile` varchar(100) DEFAULT NULL,
   `data_flags` text NOT NULL,
   `depart_id` int(10) unsigned DEFAULT NULL,
   `enabled` enum('yes','no') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'yes',
-  `courier_id` int(4) NOT NULL DEFAULT '0',
-  `show_troubles_on_every_page` tinyint(4) NOT NULL DEFAULT '0',
+  `courier_id` int(4) NOT NULL DEFAULT 0,
+  `show_troubles_on_every_page` tinyint(4) NOT NULL DEFAULT 0,
   `restriction_client_id` int(11) DEFAULT NULL,
   `timezone_name` varchar(50) NOT NULL DEFAULT 'Europe/Moscow',
   `language` varchar(5) NOT NULL DEFAULT 'ru-RU',
@@ -7897,7 +7978,7 @@ CREATE TABLE `uu_account_entry` (
   `account_tariff_id` int(11) NOT NULL,
   `type_id` int(11) NOT NULL,
   `price` decimal(13,4) DEFAULT NULL,
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `bill_id` int(11) DEFAULT NULL,
   `price_without_vat` decimal(13,4) DEFAULT NULL,
   `vat_rate` int(11) DEFAULT NULL,
@@ -7907,6 +7988,7 @@ CREATE TABLE `uu_account_entry` (
   `date_from` date NOT NULL,
   `date_to` date NOT NULL,
   `is_next_month` int(11) NOT NULL,
+  `cost_price` decimal(13,4) NOT NULL DEFAULT 0.0000,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq-date-type_id-account_tariff_id-tariff_period_id` (`date`,`type_id`,`account_tariff_id`,`tariff_period_id`,`is_next_month`),
   KEY `fk-uu_account_entry-account_tariff_id` (`account_tariff_id`),
@@ -7945,7 +8027,7 @@ CREATE TABLE `uu_account_log_min` (
   `price_with_coefficient` decimal(13,4) DEFAULT NULL,
   `price_resource` decimal(13,4) DEFAULT NULL,
   `price` decimal(13,4) DEFAULT NULL,
-  `insert_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `insert_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `fk-uu_account_log_min-tariff_period_id` (`tariff_period_id`),
   KEY `fk-uu_account_log_min-account_tariff_id` (`account_tariff_id`),
@@ -7981,7 +8063,7 @@ CREATE TABLE `uu_account_log_period` (
   `period_price` decimal(13,4) DEFAULT NULL,
   `coefficient` decimal(13,6) DEFAULT NULL,
   `price` decimal(13,4) DEFAULT NULL,
-  `insert_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `insert_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `account_entry_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk-uu_account_log_period-tariff_period_id` (`tariff_period_id`),
@@ -8020,11 +8102,12 @@ CREATE TABLE `uu_account_log_resource` (
   `amount_overhead` decimal(13,6) DEFAULT NULL,
   `price_per_unit` decimal(13,4) DEFAULT NULL,
   `price` decimal(13,4) DEFAULT NULL,
-  `insert_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `insert_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `account_entry_id` int(11) DEFAULT NULL,
   `date_to` date NOT NULL,
   `coefficient` int(11) NOT NULL,
   `account_tariff_resource_log_id` int(11) DEFAULT NULL,
+  `cost_price` decimal(13,4) NOT NULL DEFAULT 0.0000,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uidx-uu_account_log_resource` (`account_tariff_id`,`date_from`,`tariff_resource_id`,`account_tariff_resource_log_id`),
   KEY `fk-uu_account_log_resource-tariff_period_id` (`tariff_period_id`),
@@ -8061,7 +8144,7 @@ CREATE TABLE `uu_account_log_setup` (
   `tariff_period_id` int(11) NOT NULL,
   `account_tariff_id` int(11) NOT NULL,
   `price` decimal(13,4) DEFAULT NULL,
-  `insert_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `insert_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `account_entry_id` int(11) DEFAULT NULL,
   `price_setup` decimal(13,4) DEFAULT NULL,
   `price_number` decimal(13,4) DEFAULT NULL,
@@ -8093,7 +8176,7 @@ DROP TABLE IF EXISTS `uu_account_tariff`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `uu_account_tariff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `comment` text,
+  `comment` text DEFAULT NULL,
   `client_account_id` int(11) NOT NULL,
   `service_type_id` int(11) NOT NULL,
   `region_id` int(11) DEFAULT NULL,
@@ -8101,13 +8184,13 @@ CREATE TABLE `uu_account_tariff` (
   `tariff_period_id` int(11) DEFAULT NULL,
   `insert_time` datetime DEFAULT NULL,
   `insert_user_id` int(11) DEFAULT NULL,
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `update_user_id` int(11) DEFAULT NULL,
   `city_id` int(11) DEFAULT NULL,
   `voip_number` varchar(15) DEFAULT NULL,
   `vm_elid_id` int(11) DEFAULT NULL,
-  `prev_usage_id` int(11) NOT NULL DEFAULT '0',
-  `is_unzipped` tinyint(1) DEFAULT '0',
+  `prev_usage_id` int(11) NOT NULL DEFAULT 0,
+  `is_unzipped` tinyint(1) DEFAULT 0,
   `mtt_number` varchar(255) DEFAULT NULL,
   `mtt_balance` decimal(13,4) DEFAULT NULL,
   `trunk_type_id` int(11) DEFAULT NULL,
@@ -8115,6 +8198,9 @@ CREATE TABLE `uu_account_tariff` (
   `infrastructure_level` int(11) DEFAULT NULL,
   `price` decimal(13,2) DEFAULT NULL,
   `datacenter_id` int(11) DEFAULT NULL,
+  `device_address` varchar(1024) NOT NULL DEFAULT '',
+  `tariff_period_utc` datetime DEFAULT NULL,
+  `account_log_period_utc` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk-uu_account_tariff-client_account_id` (`client_account_id`),
   KEY `fk-uu_account_tariff-service_type_id` (`service_type_id`),
@@ -8194,7 +8280,7 @@ CREATE TABLE `uu_account_tariff_resource_log` (
   `resource_id` int(11) NOT NULL,
   `amount` decimal(13,6) DEFAULT NULL,
   `actual_from_utc` datetime NOT NULL,
-  `insert_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `insert_time` datetime DEFAULT NULL,
   `insert_user_id` int(11) DEFAULT NULL,
   `sync_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -8228,8 +8314,8 @@ CREATE TABLE `uu_bill` (
   `date` date NOT NULL,
   `client_account_id` int(11) NOT NULL,
   `price` decimal(13,4) DEFAULT NULL,
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `is_converted` int(1) NOT NULL DEFAULT '0',
+  `update_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `is_converted` int(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq-uu_bill-date-client_account_id` (`date`,`client_account_id`),
   KEY `fk-uu_bill-client_account_id` (`client_account_id`),
@@ -8283,8 +8369,8 @@ DROP TABLE IF EXISTS `uu_period`;
 CREATE TABLE `uu_period` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `dayscount` int(11) NOT NULL DEFAULT '0',
-  `monthscount` int(11) NOT NULL DEFAULT '0',
+  `dayscount` int(11) NOT NULL DEFAULT 0,
+  `monthscount` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -8340,7 +8426,7 @@ CREATE TABLE `uu_service_type` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `parent_id` int(11) DEFAULT NULL,
-  `close_after_days` int(11) NOT NULL DEFAULT '60',
+  `close_after_days` int(11) NOT NULL DEFAULT 60,
   PRIMARY KEY (`id`),
   KEY `fk-uu_service_type-parent_id` (`parent_id`),
   CONSTRAINT `fk-uu_service_type-parent_id` FOREIGN KEY (`parent_id`) REFERENCES `uu_service_type` (`id`)
@@ -8353,7 +8439,7 @@ CREATE TABLE `uu_service_type` (
 
 LOCK TABLES `uu_service_type` WRITE;
 /*!40000 ALTER TABLE `uu_service_type` DISABLE KEYS */;
-INSERT INTO `uu_service_type` VALUES (1,'ВАТС',NULL,60),(2,'Телефония',NULL,60),(3,'Телефония. Пакет звонков',2,60),(4,'Интернет',NULL,60),(5,'Collocation',NULL,60),(6,'VPN',NULL,60),(7,'IT Park',NULL,60),(8,'Регистрация доменов',NULL,60),(9,'Виртуальный почтовый сервер',NULL,60),(10,'Старый ВАТС',NULL,60),(11,'Сайт',NULL,60),(12,'Провайдер',NULL,60),(13,'Wellsystem',NULL,60),(14,'Welltime как продукт',NULL,60),(15,'Дополнительные услуги',NULL,60),(16,'SMS Gate',NULL,60),(17,'SMS',NULL,60),(18,'Welltime как сервис',NULL,60),(19,'Звонок-чат',NULL,60),(20,'VM collocation',NULL,60),(21,'Разовая услуга',NULL,60),(22,'Транк',NULL,60),(23,'Транк. Пакет оригинации',22,60),(24,'Транк. Пакет терминации',22,60),(25,'Телефония. Пакет интернета',2,60),(26,'Инфраструктура',NULL,60),(27,'ННП',NULL,60);
+INSERT INTO `uu_service_type` VALUES (1,'ВАТС',NULL,60),(2,'Телефония',NULL,60),(3,'Телефония. Пакет звонков',2,60),(4,'Интернет',NULL,60),(5,'Collocation',NULL,60),(6,'VPN',NULL,60),(7,'IT Park',NULL,60),(8,'Регистрация доменов',NULL,60),(9,'Виртуальный почтовый сервер',NULL,60),(10,'Старый ВАТС',NULL,60),(11,'Сайт',NULL,60),(12,'Провайдер',NULL,60),(13,'Wellsystem',NULL,60),(14,'Welltime как продукт',NULL,60),(15,'Дополнительные услуги',NULL,60),(16,'SMS Gate',NULL,60),(17,'Телефония. Пакет СМС',2,60),(18,'Welltime как сервис',NULL,60),(19,'Звонок-чат',NULL,60),(20,'VM collocation',NULL,60),(21,'Разовая услуга',NULL,60),(22,'Транк',NULL,60),(23,'Транк. Пакет оригинации',22,60),(24,'Транк. Пакет терминации',22,60),(25,'Телефония. Пакет интернета',2,60),(26,'Инфраструктура',NULL,60),(27,'ННП',NULL,60);
 /*!40000 ALTER TABLE `uu_service_type` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8367,8 +8453,8 @@ DROP TABLE IF EXISTS `uu_tariff`;
 CREATE TABLE `uu_tariff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `period_days` int(11) NOT NULL DEFAULT '0',
-  `count_of_validity_period` int(11) NOT NULL DEFAULT '0',
+  `period_days` int(11) NOT NULL DEFAULT 0,
+  `count_of_validity_period` int(11) NOT NULL DEFAULT 0,
   `is_autoprolongation` int(11) NOT NULL,
   `is_charge_after_blocking` int(11) NOT NULL,
   `is_include_vat` int(11) NOT NULL,
@@ -8379,12 +8465,12 @@ CREATE TABLE `uu_tariff` (
   `tariff_person_id` int(11) NOT NULL,
   `insert_time` datetime DEFAULT NULL,
   `insert_user_id` int(11) DEFAULT NULL,
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `update_time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `update_user_id` int(11) DEFAULT NULL,
   `voip_group_id` int(11) DEFAULT NULL,
   `is_default` int(11) DEFAULT NULL,
   `vm_id` int(11) DEFAULT NULL,
-  `is_postpaid` int(11) NOT NULL DEFAULT '0',
+  `is_postpaid` int(11) NOT NULL DEFAULT 0,
   `tag_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk-uu_tariff-currency_id` (`currency_id`),
@@ -8700,7 +8786,7 @@ CREATE TABLE `virtpbx_stat` (
   `client_id` int(11) NOT NULL,
   `usage_id` int(11) NOT NULL,
   `date` date NOT NULL,
-  `use_space` bigint(20) DEFAULT '0',
+  `use_space` bigint(20) DEFAULT 0,
   `numbers` int(11) DEFAULT NULL,
   `ext_did_count` int(11) DEFAULT NULL,
   `call_recording_enabled` int(11) DEFAULT NULL,
@@ -8781,7 +8867,7 @@ CREATE TABLE `voip_numbers` (
   `reserve_till` datetime DEFAULT NULL,
   `hold_from` datetime DEFAULT NULL,
   `hold_to` datetime DEFAULT NULL,
-  `beauty_level` tinyint(4) NOT NULL DEFAULT '0',
+  `beauty_level` tinyint(4) NOT NULL DEFAULT 0,
   `region` smallint(6) NOT NULL,
   `client_id` int(11) DEFAULT NULL,
   `usage_id` int(11) DEFAULT NULL,
@@ -8802,9 +8888,9 @@ CREATE TABLE `voip_numbers` (
   `calls_per_month_0` int(11) DEFAULT NULL,
   `calls_per_month_1` int(11) DEFAULT NULL,
   `calls_per_month_2` int(11) DEFAULT NULL,
-  `is_ported` int(11) NOT NULL DEFAULT '0',
+  `is_ported` int(11) NOT NULL DEFAULT 0,
   `ndc_type_id` int(11) DEFAULT NULL,
-  `is_service` int(11) NOT NULL DEFAULT '0',
+  `is_service` int(11) NOT NULL DEFAULT 0,
   `fmc_trunk_id` int(11) DEFAULT NULL,
   `mvno_trunk_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`number`),
@@ -8841,8 +8927,8 @@ CREATE TABLE `voip_permit` (
   `client` varchar(30) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `callerid` varchar(30) NOT NULL DEFAULT '',
   `permit` varchar(255) NOT NULL DEFAULT '',
-  `cl` int(10) unsigned NOT NULL DEFAULT '0',
-  `enable` smallint(1) unsigned NOT NULL DEFAULT '1',
+  `cl` int(10) unsigned NOT NULL DEFAULT 0,
+  `enable` smallint(1) unsigned NOT NULL DEFAULT 1,
   PRIMARY KEY (`client`,`callerid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -8868,12 +8954,12 @@ CREATE TABLE `voip_prefixlist` (
   `name` varchar(50) NOT NULL,
   `type_id` smallint(6) NOT NULL,
   `sub_type` enum('all','fixed','mobile') NOT NULL DEFAULT 'all',
-  `prefixes` text,
+  `prefixes` text DEFAULT NULL,
   `country_id` int(11) DEFAULT NULL,
   `region_id` int(11) DEFAULT NULL,
   `city_id` int(11) DEFAULT NULL,
   `exclude_operators` tinyint(1) DEFAULT NULL,
-  `operators` text,
+  `operators` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -8937,7 +9023,7 @@ DROP TABLE IF EXISTS `vpbx_numbers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vpbx_numbers` (
-  `client_id` int(11) NOT NULL DEFAULT '0',
+  `client_id` int(11) NOT NULL DEFAULT 0,
   `number` varchar(16) DEFAULT NULL,
   KEY `client` (`client_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -8960,10 +9046,11 @@ DROP TABLE IF EXISTS `welltime_updates`;
 /*!50001 DROP VIEW IF EXISTS `welltime_updates`*/;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-/*!50001 CREATE VIEW `welltime_updates` AS SELECT 
- 1 AS `client`,
- 1 AS `password`,
- 1 AS `version`*/;
+/*!50001 CREATE TABLE `welltime_updates` (
+  `client` tinyint NOT NULL,
+  `password` tinyint NOT NULL,
+  `version` tinyint NOT NULL
+) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -8976,7 +9063,7 @@ DROP TABLE IF EXISTS `z_sync_1c`;
 CREATE TABLE `z_sync_1c` (
   `tname` enum('clientCard') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `tid` int(11) NOT NULL,
-  `rnd` int(11) NOT NULL DEFAULT '0',
+  `rnd` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`tname`,`tid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -9027,7 +9114,7 @@ CREATE TABLE `z_sync_postgres` (
   `tbase` enum('nispd','auth','nispd_dev') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `tname` varchar(255) NOT NULL,
   `tid` int(11) NOT NULL,
-  `rnd` int(11) NOT NULL DEFAULT '0',
+  `rnd` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`tbase`,`tname`,`tid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -9045,6 +9132,7 @@ UNLOCK TABLES;
 -- Final view structure for view `tt_states_rb`
 --
 
+/*!50001 DROP TABLE IF EXISTS `tt_states_rb`*/;
 /*!50001 DROP VIEW IF EXISTS `tt_states_rb`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -9062,6 +9150,7 @@ UNLOCK TABLES;
 -- Final view structure for view `usage_sms_gate`
 --
 
+/*!50001 DROP TABLE IF EXISTS `usage_sms_gate`*/;
 /*!50001 DROP VIEW IF EXISTS `usage_sms_gate`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -9079,6 +9168,7 @@ UNLOCK TABLES;
 -- Final view structure for view `welltime_updates`
 --
 
+/*!50001 DROP TABLE IF EXISTS `welltime_updates`*/;
 /*!50001 DROP VIEW IF EXISTS `welltime_updates`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -9101,4 +9191,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-01-25 13:02:52
+-- Dump completed on 2018-03-12 13:39:02
