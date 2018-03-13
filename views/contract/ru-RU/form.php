@@ -29,7 +29,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 
 <div class="row">
 
-    <div class="col-sm-3">
+    <div class="col-sm-4">
         <?= $f->field($model, 'business_id')
             ->widget(Select2::className(), [
                 'data' => Business::getList(),
@@ -42,7 +42,17 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
         ?>
     </div>
 
-    <div class="col-sm-3">
+    <div class="col-sm-4">
+        <?php
+        if ($model->business_id === Business::PARTNER) {
+            echo $f->field($model, 'is_lk_access')
+                ->widget(Select2::className(), [
+                    'data' => ClientContract::$lkAccess,
+                ]);
+        }
+        ?>
+    </div>
+    <div class="col-sm-4">
         <?= $f->field($model, 'is_voip_with_tax')
             ->textInput([
                 'disabled' => true,
@@ -50,8 +60,10 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
             ])
         ?>
     </div>
+</div>
 
-    <div class="col-sm-3">
+<div class="row">
+    <div class="col-sm-4">
         <?= $f->field($model, 'business_process_id')
             ->widget(Select2::className(), [
                 'data' => BusinessProcess::getList(),
@@ -64,23 +76,7 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
             ])
         ?>
     </div>
-
-    <div class="col-sm-3">
-        <?= $f->field($model, 'business_process_status_id')
-            ->widget(Select2::className(), [
-                'data' => BusinessProcessStatus::getList(),
-                'options' => [
-                    'disabled' => !Yii::$app->user->can('clients.restatus'),
-                ],
-            ])
-        ?>
-    </div>
-
-</div>
-
-<div class="row">
-
-    <div class="col-sm-3">
+    <div class="col-sm-4">
         <?= $f->field($model, 'manager')
             ->widget(Select2::className(), [
                 'data' => ['' => '----'],
@@ -90,8 +86,31 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
             ])
         ?>
     </div>
+    <div class="col-sm-4">
+        <?php
+        if ($model->business_id === Business::TELEKOM) {
+            echo $f->field($model, 'is_partner_login_allow')
+                ->textInput([
+                    'disabled' => true,
+                    'value' => ($model->is_partner_login_allow ? 'Да' : 'Нет'),
+                ]);
+        }
+        ?>
+    </div>
+</div>
 
-    <div class="col-sm-3">
+<div class="row">
+    <div class="col-sm-4">
+        <?= $f->field($model, 'business_process_status_id')
+            ->widget(Select2::className(), [
+                'data' => BusinessProcessStatus::getList(),
+                'options' => [
+                    'disabled' => !Yii::$app->user->can('clients.restatus'),
+                ],
+            ])
+        ?>
+    </div>
+    <div class="col-sm-4">
         <?= $f->field($model, 'account_manager')
             ->widget(Select2::className(), [
                 'data' => ['' => '----'],
@@ -101,17 +120,17 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
             ])
         ?>
     </div>
-
-    <div class="col-sm-3">
-        <?= $f
-            ->field($model, 'organization_id')
+    <div class="col-sm-4">
+        <?= $f->field($model, 'organization_id')
             ->widget(Select2::className(), [
                 'data' => $model->getOrganizationsList(),
             ])
         ?>
     </div>
+</div>
 
-    <div class="col-sm-3">
+<div class="row">
+    <div class="col-sm-4">
         <?php
         if (isset($contragents, $contragentsOptions)) {
             echo $f->field($model, 'contragent_id')
@@ -123,11 +142,17 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
         ?>
     </div>
 
+    <div class="col-sm-4">
+        <?= $f->field($model, 'partner_contract_id')
+            ->widget(Select2::className(), [
+                'data' => ClientContract::dao()->getPartnerList($isWithEmpty = true),
+            ])
+        ?>
+    </div>
 </div>
 
 <div class="row">
-
-    <div class="col-sm-3">
+    <div class="col-sm-4">
         <?= $f->field($model, 'state')
             ->widget(Select2::className(), [
                 'data' => $model->model->statusesForChange(),
@@ -137,85 +162,60 @@ if ($model->business_id == Business::ITOUTSOURSING && $model->getIsNewRecord()) 
 
     <?php switch ($model->business_id) {
         case Business::OPERATOR:
-            ?>
-            <div class="col-sm-3">
-                <?= $f->field($model, 'contract_type_id')
-                    ->widget(Select2::className(), [
-                        'data' => ContractType::getList($model->business_process_id, $isWithEmpty = true),
-                    ])
+            {
                 ?>
-            </div>
+                <div class="col-sm-4">
+                    <?= $f->field($model, 'contract_type_id')
+                        ->widget(Select2::className(), [
+                            'data' => ContractType::getList($model->business_process_id, $isWithEmpty = true),
+                        ])
+                    ?>
+                </div>
 
-            <div class="col-sm-3">
-                <?= $f->field($model, 'financial_type')
-                    ->widget(Select2::className(), [
-                        'data' => ClientContract::$financialTypes,
-                        'options' => [
-                            'disabled' =>
+                <div class="col-sm-4">
+                    <?= $f->field($model, 'financial_type')
+                        ->widget(Select2::className(), [
+                            'data' => ClientContract::$financialTypes,
+                            'options' => [
+                                'disabled' =>
+                                    !$model->getIsNewRecord()
+                                    && $model->state !== ClientContract::STATE_UNCHECKED
+                                    && !Yii::$app->user->can('clients.client_type_change')
+                            ],
+                        ])
+                    ?>
+                </div>
+
+                <div class="col-sm-12">
+                    <?= $f->field($model, 'federal_district')
+                        ->checkboxButtonGroup(ClientContract::$districts, [
+                            'class' =>
+                                'percent100 ' .
                                 !$model->getIsNewRecord()
-                                && $model->state !== ClientContract::STATE_UNCHECKED
-                                && !Yii::$app->user->can('clients.client_type_change')
-                        ],
-                    ])
-                ?>
-            </div>
-
-            <div class="col-sm-3">
-                <?= $f->field($model, 'partner_contract_id')
-                    ->widget(Select2::className(), [
-                        'data' => ClientContract::dao()->getPartnerList($isWithEmpty = true),
-                    ])
-                ?>
-            </div>
-
-            <div class="col-sm-12">
-                <?= $f->field($model, 'federal_district')
-                    ->checkboxButtonGroup(ClientContract::$districts, [
-                        'class' =>
-                            'percent100 ' .
-                            !$model->getIsNewRecord()
-                            && $model->state != ClientContract::STATE_UNCHECKED
-                            && !Yii::$app->user->can('clients.client_type_change') ?
-                                'btn-disabled' :
-                                ''
-                    ])
-                ?>
-            </div>
-            <?php
-            break;
+                                && $model->state != ClientContract::STATE_UNCHECKED
+                                && !Yii::$app->user->can('clients.client_type_change') ?
+                                    'btn-disabled' :
+                                    ''
+                        ])
+                    ?>
+                </div>
+                <?php
+                break;
+            }
 
         case Business::PARTNER:
-            ?>
-            <div class="col-sm-3">
-                <?= $f->field($model, 'is_lk_access')
-                    ->widget(Select2::className(), [
-                        'data' => ClientContract::$lkAccess,
-                    ])
+            {
                 ?>
-            </div>
-
-            <div class="col-sm-3">
-                <?= $f->field($model, 'contract_type_id')
-                    ->widget(Select2::className(), [
-                        'data' => ContractType::getList($model->business_process_id, $isWithEmpty = true),
-                    ])
-                ?>
-            </div>
-            <?php
-            break;
-
-        case Business::TELEKOM:
-            ?>
-            <div class="col-sm-3">
-                <?= $f->field($model, 'is_partner_login_allow')
-                    ->textInput([
-                        'disabled' => true,
-                        'value' => ($model->is_partner_login_allow ? 'Да' : 'Нет'),
-                    ])
-                ?>
-            </div>
-            <?php
-            break;
+                <div class="col-sm-4">
+                    <?= $f->field($model, 'contract_type_id')
+                        ->widget(Select2::className(), [
+                            'data' => ContractType::getList($model->business_process_id, $isWithEmpty = true),
+                        ])
+                    ?>
+                </div>
+                <?php
+                break;
+            }
     }
     ?>
 </div>
