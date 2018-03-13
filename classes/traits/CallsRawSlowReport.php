@@ -36,7 +36,7 @@ trait CallsRawSlowReport
                     'src_number' => new Expression('cr.src_number::varchar'),
                     'dst_number' => new Expression('cr.dst_number::varchar'),
                     'cr.pdd',
-                    't.name src_route',
+                    't.name dst_route',
                     'o.name dst_operator_name',
                     'nc.name_rus dst_country_name',
                     'r.name dst_region_name',
@@ -65,7 +65,7 @@ trait CallsRawSlowReport
             [
                 'cr.cdr_id',
                 'cr.connect_time',
-                't.name dst_route',
+                't.name src_route',
                 'o.name src_operator_name',
                 'nc.name_rus src_country_name',
                 'r.name src_region_name',
@@ -149,35 +149,9 @@ trait CallsRawSlowReport
             $query3 && $query3->andWhere($condition('setup_time'));
         }
 
-        if ($this->session_time_from
-            || $this->session_time_to
-            || $this->dst_logical_trunks_ids
-            || $this->dst_contracts_ids
-            || $this->dst_operator_ids
-            || $this->dst_regions_ids
-            || $this->dst_cities_ids
-            || $this->dst_countries_ids
-            || $this->dst_destinations_ids
-            || $this->dst_number_type_ids
-            || $this->dst_number
-        ) {
-            $query2->limit(-1)->orderBy([]);
-            $query3 = null;
-        }
-
-        if ($this->src_logical_trunks_ids
-            || $this->src_contracts_ids
-            || $this->src_operator_ids
-            || $this->src_regions_ids
-            || $this->src_cities_ids
-            || $this->src_countries_ids
-            || $this->src_destinations_ids
-            || $this->src_number_type_ids
-            || $this->src_number
-        ) {
-            $query1->limit(-1)->orderBy([]);
-            $query3 = null;
-        }
+        $query3 = null;
+        $query2->limit(-1)->orderBy([]);
+        $query1->limit(-1)->orderBy([]);
 
         if ($this->src_trunk_group_ids) {
             $query1->innerJoin('auth.trunk_group_item tgi', 'tgi.trunk_id = t.id');
@@ -257,11 +231,11 @@ trait CallsRawSlowReport
         $query2 = $this->setDestinationCondition($query2, $query3, $this->src_destinations_ids, $this->src_number_type_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
 
         if ($isDstNdcTypeGroup || $this->dst_destinations_ids || $this->dst_number_type_ids) {
-            $query1->addSelect('dst_ndc_type_id');
+            $query1->addSelect(['dst_ndc_type_id' => 'dst_nrd.ndc_type_id']);
         }
 
         if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
-            $query2->addSelect('src_ndc_type_id');
+            $query2->addSelect(['src_ndc_type_id' => 'src_nrd.ndc_type_id']);
         }
 
         if ($this->is_success_calls) {
