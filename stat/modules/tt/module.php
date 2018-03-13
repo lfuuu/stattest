@@ -319,7 +319,7 @@ class m_tt extends IModule{
             }
 
             // проводим если новая стадия: закрыт, отгружен, к отгрузке
-            if (in_array($R['state_id'], array_merge(\app\models\Trouble::dao()->getClosedStatesId(), [28, 23, 18, 4, 17]))) {
+            if (TroubleState::isStateWithApprovedSum($R['state_id'])) {
                 $bill->is_approved = 1;
                 $bill->sum = $bill->sum_with_unapproved;
             } else {

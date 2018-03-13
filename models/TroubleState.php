@@ -43,5 +43,22 @@ class TroubleState extends ActiveRecord
     {
         return in_array($stateId, Trouble::dao()->getClosedStatesId());
     }
+
+    /**
+     * Проводится ли сумма счета на этой стадии
+     *
+     * @param integer $stateId
+     * @return bool
+     */
+    public static function isStateWithApprovedSum($stateId)
+    {
+        $state = self::findOne(['id' => $stateId]);
+
+        if (!$state) {
+            return true;
+        }
+
+        return in_array($state->state_1c, ['Отгружен', 'КОтгрузке', 'Закрыт']);
+    }
 }
 
