@@ -276,7 +276,7 @@ $allTariffResources = [
         'amount' => 1,
         'price_per_unit' => 39,
         'price_min' => 0,
-        'resource_id' => Resource::ID_SMS,
+        'resource_id' => Resource::ID_VOIP_PACKAGE_SMS,
         'tariff_id' => Tariff::DELTA + 10,
     ],
 ];

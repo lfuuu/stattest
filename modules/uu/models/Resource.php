@@ -7,6 +7,7 @@ use app\exceptions\ModelValidationException;
 use app\models\Language;
 use app\modules\uu\resourceReader\NnpNumberResourceReader;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
+use app\modules\uu\resourceReader\SmsResourceReader;
 use app\modules\uu\resourceReader\TrunkCallsResourceReader;
 use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
 use app\modules\uu\resourceReader\VpbxDiskResourceReader;
@@ -49,14 +50,13 @@ class Resource extends ActiveRecord
 
     const ID_VOIP_PACKAGE_CALLS = 40; // Пакеты телефонии. Звонки
     const ID_VOIP_PACKAGE_INTERNET = 42; // Пакеты телефонии. Интернет
+    const ID_VOIP_PACKAGE_SMS = 14; // Пакеты телефонии. СМС
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 
     const ID_COLLOCATION_TRAFFIC = 10; // Collocation. Трафик
 
     const ID_VPN_TRAFFIC = 13; // VPN. Трафик
-
-    const ID_SMS = 14; // SMS
 
     const ID_VM_COLLOCATION_PROCESSOR = 15; // VM collocation. Процессор
     const ID_VM_COLLOCATION_HDD = 16; // VM collocation. Дисковое пространство
@@ -152,6 +152,9 @@ class Resource extends ActiveRecord
 
             // Звонки по пакетам телефонии (у.е, float). Берется из calls_raw
             self::ID_VOIP_PACKAGE_CALLS => VoipPackageCallsResourceReader::className(),
+
+            // Смс по пакетам телефонии. Берется из mtt_raw
+            self::ID_VOIP_PACKAGE_SMS => SmsResourceReader::className(),
 
             // Интернет-трафик по пакетам телефонии (Мб, float). Не важно, сколько потрачено
             self::ID_VOIP_PACKAGE_INTERNET => ZeroResourceReader::className(),

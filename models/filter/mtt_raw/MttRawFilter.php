@@ -17,6 +17,8 @@ class MttRawFilter extends MttRaw
     public $account_id = '';
     public $number_service_id = '';
     public $serviceid = '';
+    public $src_number = '';
+    public $dst_number = '';
 
     public $connect_time_from = '';
     public $connect_time_to = '';
@@ -61,6 +63,7 @@ class MttRawFilter extends MttRaw
         ]);
 
         $this->src_number !== '' && $query->andWhere(['src_number' => $this->src_number]);
+        $this->dst_number !== '' && $query->andWhere(['dst_number' => $this->dst_number]);
         $this->account_id !== '' && $query->andWhere(['account_id' => $this->account_id]);
         $this->number_service_id !== '' && $query->andWhere(['number_service_id' => $this->number_service_id]);
         $this->serviceid !== '' && $query->andWhere(['serviceid' => $this->serviceid]);
