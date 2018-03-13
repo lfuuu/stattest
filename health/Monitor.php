@@ -57,6 +57,7 @@ abstract class Monitor extends Component
             MonitorSormClientsReg88::className(),
             // MonitorSormClientsReg97::className(),
             MonitorBrokenRegionInVoip::className(),
+            Monitor1cTroubles::className(),
         ];
     }
 }

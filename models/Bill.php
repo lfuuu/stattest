@@ -57,6 +57,7 @@ use yii\helpers\Url;
  * @property-read Currency $currencyModel
  * @property-read Payment $creditNote
  * @property-read uuBill $universalBill
+ * @property-read Trouble $trouble
  */
 class Bill extends ActiveRecord
 {
@@ -266,6 +267,14 @@ class Bill extends ActiveRecord
     public function getUniversalBill()
     {
         return $this->hasOne(uuBill::className(), ['id' => 'uu_bill_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTrouble()
+    {
+        return $this->hasOne(Trouble::className(), ['bill_no' => 'bill_no']);
     }
 
     /**
