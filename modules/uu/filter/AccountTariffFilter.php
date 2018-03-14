@@ -108,17 +108,10 @@ class AccountTariffFilter extends AccountTariff
             ->joinWith('tariffPeriod')
             ->leftJoin(Tariff::tableName() . ' tariff', 'tariff.id = ' . TariffPeriod::tableName() . '.tariff_id');
 
-//        if ($this->serviceType->isPackage()) {
-//            $query
-//                ->leftJoin(AccountTariff::tableName() . ' account_tariff_prev', 'account_tariff_prev.id = uu_account_tariff.prev_account_tariff_id')
-//                ->leftJoin(TariffPeriod::tableName() . ' tariff_period_prev', 'account_tariff_prev.tariff_period_id = tariff_period_prev.id');
-//        }
-
-        if ($this->service_type_id == ServiceType::ID_VOIP) {
+        if ($this->serviceType && $this->serviceType->isPackage()) {
             $query
-                ->joinWith('number')
-                ->with('number');
-            $this->number_ndc_type_id !== '' && $query->andWhere([Number::tableName() . '.ndc_type_id' => $this->number_ndc_type_id]);
+                ->leftJoin(AccountTariff::tableName() . ' account_tariff_prev', 'account_tariff_prev.id = uu_account_tariff.prev_account_tariff_id')
+                ->leftJoin(TariffPeriod::tableName() . ' tariff_period_prev', 'account_tariff_prev.tariff_period_id = tariff_period_prev.id');
         }
 
         $dataProvider = new ActiveDataProvider([
@@ -147,20 +140,6 @@ class AccountTariffFilter extends AccountTariff
             $query->andWhere(['tariff_organization.organization_id' => $this->tariff_organization_id]);
         }
 
-//        switch ($this->prev_account_tariff_tariff_id) {
-//            case '':
-//                break;
-//            case GetListTrait::$isNull:
-//                $query->andWhere(['account_tariff_prev.tariff_period_id' => null]);
-//                break;
-//            case GetListTrait::$isNotNull:
-//                $query->andWhere('account_tariff_prev.tariff_period_id IS NOT NULL');
-//                break;
-//            default:
-//                $query->andWhere(['tariff_period_prev.tariff_id' => $this->prev_account_tariff_tariff_id]);
-//                break;
-//        }
-
         switch ($this->tariff_id) {
             case '':
                 break;
@@ -173,6 +152,27 @@ class AccountTariffFilter extends AccountTariff
             default:
                 $query->andWhere(['tariff.id' => $this->tariff_id]);
                 break;
+        }
+
+        if ($this->service_type_id == ServiceType::ID_VOIP) {
+            $query
+                ->joinWith('number')
+                ->with('number');
+            $this->number_ndc_type_id !== '' && $query->andWhere([Number::tableName() . '.ndc_type_id' => $this->number_ndc_type_id]);
+
+            switch ($this->prev_account_tariff_tariff_id) {
+                case '':
+                    break;
+                case GetListTrait::$isNull:
+                    $query->andWhere(['account_tariff_prev.tariff_period_id' => null]);
+                    break;
+                case GetListTrait::$isNotNull:
+                    $query->andWhere('account_tariff_prev.tariff_period_id IS NOT NULL');
+                    break;
+                default:
+                    $query->andWhere(['tariff_period_prev.tariff_id' => $this->prev_account_tariff_tariff_id]);
+                    break;
+            }
         }
 
         $this->voip_number = strtr($this->voip_number, ['.' => '_', '*' => '%']);
