@@ -69,8 +69,6 @@ class AccountTariffController extends BaseController
      */
     public function actionIndex($serviceTypeId = null)
     {
-        $this->_checkNonPackage($serviceTypeId);
-
         $filterModel = new AccountTariffFilter($serviceTypeId);
         $this->_addClientAccountFilter($filterModel);
 
@@ -89,8 +87,6 @@ class AccountTariffController extends BaseController
      */
     public function actionNew($serviceTypeId)
     {
-        $this->_checkNonPackage($serviceTypeId);
-
         $clientAccount = $this->_getCurrentClientAccount();
         $cityId = $clientAccount ? $clientAccount->city->id : null;
         $formModel = new AccountTariffAddForm([
@@ -639,17 +635,5 @@ class AccountTariffController extends BaseController
         unset($accountTariffPackage);
 
         throw new InvalidArgumentException(sprintf('Услуга %d с хэшем %s не найдена', $accountTariffId, $accountTariffFirstHash));
-    }
-
-    /**
-     * @param int $serviceTypeId
-     */
-    private function _checkNonPackage($serviceTypeId)
-    {
-        if (array_key_exists($serviceTypeId, ServiceType::$packages)) {
-            // для пакетов услуги подключаются через базовую услугу
-            throw new InvalidArgumentException('Пакеты надо подключать через базовую услугу');
-        }
-
     }
 }

@@ -76,11 +76,6 @@ class Module extends \yii\base\Module
                 'serviceTypeId' => $serviceType->id,
             ]), ['tarifs.read']);
 
-            if (array_key_exists($serviceType->id, ServiceType::$packages)) {
-                // для пакетов услуги подключаются через базовую услугу
-                continue;
-            }
-
             $block2->addItem($serviceType->name, Url::to([
                 '/uu/account-tariff',
                 'serviceTypeId' => $serviceType->id,

@@ -564,4 +564,26 @@ class Tariff extends ActiveRecord
             'service_type_id',
         ];
     }
+
+    /**
+     * Вернуть строку с организациями для отображения в ячейке грида
+     *
+     * @param int $maxCount
+     * @return string
+     */
+    public function getOrganizationsString($maxCount = 2)
+    {
+        $organizations = $this->organizations;
+        $count = count($organizations);
+        if ($count <= $maxCount) {
+            return implode('<br/>', $organizations);
+        }
+
+        return sprintf(
+            '%s<br/><abbr title="%s">… %d…</abbr>',
+            implode('<br/>', array_slice($organizations, 0, $maxCount)),
+            implode(PHP_EOL, array_slice($organizations, $maxCount)),
+            $count - $maxCount
+        );
+    }
 }

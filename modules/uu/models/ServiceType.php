@@ -217,4 +217,24 @@ class ServiceType extends ActiveRecord
     {
         return isset(self::$idToUsageName[$this->id]) ? self::$idToUsageName[$this->id] : null;
     }
+
+    /**
+     * Для пакетов возвращается ID родителя.
+     * Иначе возвращается null.
+     *
+     * @return null|integer
+     */
+    public function isPackage()
+    {
+        return self::isPackageById($this->id);
+    }
+
+    /**
+     * @param integer $id
+     * @return null|integer
+     */
+    public static function isPackageById($id)
+    {
+        return isset(self::$packages[$id]) ? self::$packages[$id] : null;
+    }
 }

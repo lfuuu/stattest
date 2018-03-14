@@ -153,19 +153,7 @@ $columns[] = [
         'class' => 'nowrap',
     ],
     'value' => function (Tariff $tariff) {
-        $maxCount = 2;
-        $organizations = $tariff->organizations;
-        $count = count($organizations);
-        if ($count <= $maxCount) {
-            return implode('<br/>', $organizations);
-        }
-
-        return sprintf(
-            '%s<br/><abbr title="%s">… %d…</abbr>',
-            implode('<br/>', array_slice($organizations, 0, $maxCount)),
-            implode(PHP_EOL, array_slice($organizations, $maxCount)),
-            $count - $maxCount
-        );
+        return $tariff->getOrganizationsString();
     }
 ];
 
