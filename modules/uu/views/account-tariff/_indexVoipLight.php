@@ -16,7 +16,7 @@ use yii\db\ActiveQuery;
 
 /** @var ActiveQuery $query */
 $query = $filterModel->search()->query;
-$query->andWhere(['NOT', ['service_type_id' => array_keys(ServiceType::$packages)]]);
+$query->andWhere(['NOT', [AccountTariff::tableName() . '.service_type_id' => array_keys(ServiceType::$packages)]]);
 $query->orderBy(new \yii\db\Expression('IF(tariff_period_id, 1, 0) DESC, id DESC')); // Сначала действующие. Потом более свежие сверху
 
 // сгруппировать одинаковые город-тариф-пакеты по строчкам
