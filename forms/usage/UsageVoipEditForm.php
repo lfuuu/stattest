@@ -24,6 +24,8 @@ use yii\db\Expression;
 
 class UsageVoipEditForm extends UsageVoipForm
 {
+    const MAX_COUNT_NUMBER = 100;
+
     /** @var ClientAccount */
     public $clientAccount;
     /** @var UsageVoip */
@@ -143,7 +145,7 @@ class UsageVoipEditForm extends UsageVoipForm
             'count_numbers',
             'integer',
             'min' => 1,
-            'max' => 50
+            'max' => self::MAX_COUNT_NUMBER
         ];
 
         return $rules;
@@ -756,6 +758,8 @@ class UsageVoipEditForm extends UsageVoipForm
             }
 
             if (
+                !$currentTariff
+                ||
                 $this->tariff_main_id != $currentTariff->id_tarif
                 ||
                 $this->tariff_local_mob_id != $currentTariff->id_tarif_local_mob
