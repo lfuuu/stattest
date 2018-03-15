@@ -129,7 +129,7 @@ class ApiController extends Controller
             return 'Абонент не указан';
         }
 
-        $user = User::findOne(['phone_work' => $apiHook->abon]);
+        $user = User::findOne(['phone_work' => $apiHook->abon, 'enabled' => 'yes']);
         if (!$user) {
             // абонент не найден
             Yii::info('Webhook info. Абонент не найден ' . $content);
