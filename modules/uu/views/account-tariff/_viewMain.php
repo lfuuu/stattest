@@ -11,8 +11,11 @@ use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\models\billing\Trunk;
 use app\models\Datacenter;
+use app\models\mtt_raw\MttRaw;
+use app\modules\nnp\models\NdcType;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
+use yii\helpers\Url;
 use yii\widgets\DetailView;
 
 $accountTariff = $formModel->accountTariff;
@@ -161,6 +164,37 @@ switch ($formModel->serviceTypeId) {
 
         break;
 }
+
+if ($formModel->serviceTypeId === ServiceType::ID_VOIP && $formModel->ndcTypeId === NdcType::ID_MOBILE) {
+    $attributes[] = [
+        'label' => 'Статистика MTT',
+        'format' => 'html',
+        'value' => function (AccountTariff $accountTariff) {
+            $urlSms = $this->render('//layouts/_buttonLink', [
+                'url' => Url::toRoute([
+                    '/uu/mtt/',
+                    'MttRawFilter[number_service_id]' => $accountTariff->id,
+                    'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK,
+                    'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_SMS_IN_ROAMING,
+                ]),
+                'text' => 'SMS',
+            ]);
+
+            $urlInet = $this->render('//layouts/_buttonLink', [
+                'url' => Url::toRoute([
+                    '/uu/mtt/',
+                    'MttRawFilter[number_service_id]' => $accountTariff->id,
+                    'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_INET_IN_HOMENETWORK,
+                    'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_INET_IN_ROAMING,
+                ]),
+                'text' => 'Интернет',
+            ]);
+
+            return "$urlSms $urlInet";
+        }
+    ];
+}
+
 ?>
 
 <?= DetailView::widget([
