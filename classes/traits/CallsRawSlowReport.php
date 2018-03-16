@@ -36,7 +36,7 @@ trait CallsRawSlowReport
                     'src_number' => new Expression('cr.src_number::varchar'),
                     'dst_number' => new Expression('cr.dst_number::varchar'),
                     'cr.pdd',
-                    't.name dst_route',
+                    't.name src_route',
                     'o.name dst_operator_name',
                     'nc.name_rus dst_country_name',
                     'r.name dst_region_name',
@@ -65,7 +65,7 @@ trait CallsRawSlowReport
             [
                 'cr.cdr_id',
                 'cr.connect_time',
-                't.name src_route',
+                't.name dst_route',
                 'o.name src_operator_name',
                 'nc.name_rus src_country_name',
                 'r.name src_region_name',
