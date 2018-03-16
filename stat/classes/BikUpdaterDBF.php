@@ -69,7 +69,8 @@ class BikUpdaterDBF
 			'bik'       => iconv("cp866", "utf-8", trim($d['NEWNUM'])),
 			'corr_acc'  => iconv("cp866", "utf-8", trim($d['KSNP'])),
 			'date_in'   => iconv("cp866", "utf-8", trim($d['DATE_IN'])),
-			'date_izm'  => iconv("cp866", "utf-8", trim($d['DATE_IZM']))
+			'date_izm'  => iconv("cp866", "utf-8", trim($d['DATE_CH'])),
+			'bank_address' => iconv("cp866", "utf-8", trim($d['ADR']))
 		);
 
 		return $res;
@@ -107,18 +108,13 @@ class BikUpdaterDBF
 			$bik = $db->GetRow("SELECT * FROM bik WHERE bik='" . $d['bik'] . "'");
 			
 			if ($bik) {
-				if ($bik['corr_acc'] != $d['corr_acc']) {
-					$this->final_data['update'][$d['bik']]['corr_acc'] = $d['corr_acc'];
-					$this->log['update'][$d['bik']]['corr_acc'] = array($bik['corr_acc'],$d['corr_acc']);
-				}
-				if ($bik['bank_name'] != $d['bank_name']) {
-					$this->final_data['update'][$d['bik']]['bank_name'] = $d['bank_name'];
-					$this->log['update'][$d['bik']]['bank_name'] = array($bik['bank_name'],$d['bank_name']);
-				}
-				if ($bik['bank_city'] != $d['bank_city']) {
-					$this->final_data['update'][$d['bik']]['bank_city'] = $d['bank_city'];
-					$this->log['update'][$d['bik']]['bank_city'] = array($bik['bank_city'],$d['bank_city']);
-				}
+			    foreach (['corr_acc', 'bank_name', 'bank_city', 'bank_address'] as $field) {
+                    if ($bik[$field] != $d[$field]) {
+                        $this->final_data['update'][$d['bik']][$field] = $d[$field];
+                        $this->log['update'][$d['bik']][$field] = [$bik[$field], $d[$field]];
+                    }
+                }
+
 				if (isset($this->final_data['update'][$d['bik']])) $this->final_data['update'][$d['bik']]['bik'] = $d['bik'];
 				
 			} else {
@@ -127,8 +123,8 @@ class BikUpdaterDBF
 			}
 		}
 		$this->data = array();
-		
 	}
+
 	/** 
 	 *	Отправка данных о изменениях БИК на ADMIN_EMAIL
 	 *	@param string $log данные о изменениях

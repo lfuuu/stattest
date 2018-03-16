@@ -6,25 +6,32 @@
  * файл загружает с сайта ЦБ РФ
  */
 class LoadBikFile 
-{	
-	/**
-	 * Возвращает имя DBF файла с информацией о БИК
-	 * @param string $file_name имя XML файла с данными о архивах с БИК
-	 */
+{
+    /**
+     * Возвращает имя DBF файла с информацией о БИК
+     *
+     * @param string $file_name имя XML файла с данными о архивах с БИК
+     * @return bool|string
+     */
 	static public function getBikFile($file_name)
 	{
 		list($zip_file_name, $tm) = self::getLastFileName($file_name);
 		
-		$zip_file_name = 'http://www.cbr.ru/mcirabis/BIK/' . $zip_file_name;
+		$zip_file_name = 'http://www.cbr.ru/vfs/mcirabis/BIK/' . $zip_file_name;
+
 		if (($file_path = self::getBikZipFile($zip_file_name)) === false) return false;
 		
 		if (($file_path = self::getBikBdfFile($file_path)) === false) return false;
+
 		return $file_path;
 	}
-	/**
-	 * Возвращает имя ZIP-архива и timestamp актуальности данного архива
-	 * @param string $file_name имя XML файла с данными о архивах с БИК
-	 */
+
+    /**
+     * Возвращает имя ZIP-архива и timestamp актуальности данного архива
+     *
+     * @param string $file_name имя XML файла с данными о архивах с БИК
+     * @return array
+     */
 	static private function getLastFileName($file_name)
 	{
 		$xml_file = file_get_contents($file_name);
@@ -48,10 +55,13 @@ class LoadBikFile
 		}
 		return array($file, $max_time);
 	}
-	/**
-	 * Возвращает путь к ZIP-архиву
-	 * @param string $file_name имя ZIP-архива
-	 */
+
+    /**
+     * Возвращает путь к ZIP-архиву
+     * @param string $file_name имя ZIP-архива
+     *
+     * @return bool|string
+     */
 	static private function getBikZipFile($file_name)
 	{
 		$zip_file = file_get_contents($file_name);
@@ -60,14 +70,18 @@ class LoadBikFile
 		if (!sizeof($file_path)) return false;
 		return $file_path;
 	}
-	/**
-	 * Возвращает путь к DBF файлу с информацией о БИК
-	 * @param string $file_path путь к ZIP-архиву
-	 */
+
+    /**
+     * Возвращает путь к DBF файлу с информацией о БИК
+     *
+     * @param string $file_path путь к ZIP-архиву
+     * @return bool|string
+     */
 	static private function getBikBdfFile($file_path)
 	{
 		$zip = new ZipArchive;
 		$res = $zip->open($file_path);
+		$dbf_file = "";
 		if ($res === TRUE) {
 			$dbf_file = $zip->getFromName('BNKSEEK.DBF') ?: $zip->getFromName('bnkseek.dbf');
 			$zip->close();
