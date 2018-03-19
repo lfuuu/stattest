@@ -39,7 +39,12 @@ class AccountLogResourceTarificator extends Tarificator
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffQuery = AccountTariff::find()
-            ->where(['IS NOT', 'tariff_period_id', null]); // только незакрытые
+            ->where(['IS NOT', 'tariff_period_id', null])// только незакрыты @todo если сегодня закрыли, то деньги за вчера все равно надо списать
+            ->andWhere([
+                'OR',
+                ['account_log_resource_utc' => null], // ресурсы не списаны
+                ['<', 'account_log_resource_utc', DateTimeZoneHelper::getUtcDateTime()->format(DateTimeZoneHelper::DATE_FORMAT)] // или списаны давно
+            ]);
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
         $i = 0;
@@ -51,8 +56,28 @@ class AccountLogResourceTarificator extends Tarificator
 
             $transaction = Yii::$app->db->beginTransaction();
             try {
+
+                // ресурсы-опции
                 $this->tarificateAccountTariffOption($accountTariff);
-                !$accountTariffId && $this->tarificateAccountTariffTraffic($accountTariff); // ресурсы-трафик - только по крону
+
+                // ресурсы-трафик
+                if ($accountTariffId) {
+                    $isOk = false;
+                } else {
+                    // только по крону
+                    $isOk = $this->tarificateAccountTariffTraffic($accountTariff);
+                }
+
+                if ($isOk) {
+                    // пометить, что все рассчитано
+                    $accountTariff->account_log_resource_utc = $accountTariff
+                        ->clientAccount
+                        ->getDatetimeWithTimezone()// по таймзоне клиента
+                        ->setTime(23, 59, 59)// до конца "сегодня"
+                        ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))// перевести в UTC
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                }
+
                 $transaction->commit();
             } catch (\Exception $e) {
                 $transaction->rollBack();
@@ -98,11 +123,14 @@ class AccountLogResourceTarificator extends Tarificator
      * Рассчитать плату по конкретной услуге за ресурсы-трафик (звонки и дисковое пространство)
      *
      * @param AccountTariff $accountTariff
+     * @return bool Успешно ли (нет ли пропущенных)
      * @throws \LogicException
      * @throws \app\exceptions\ModelValidationException
      */
     public function tarificateAccountTariffTraffic(AccountTariff $accountTariff)
     {
+        $isOk = true;
+
         $untarificatedPeriodss = $accountTariff->getUntarificatedResourceTrafficPeriods();
 
         /** @var AccountLogFromToTariff[] $untarificatedPeriods */
@@ -130,6 +158,7 @@ class AccountLogResourceTarificator extends Tarificator
                 $amounts = $reader->read($accountTariff, $dateTime, $tariffPeriod);
                 if ($amounts->amount === null) {
                     $this->out(PHP_EOL . '("' . $dateTime->format(DateTimeZoneHelper::DATE_FORMAT) . '", ' . $tariffPeriod->id . ', ' . $accountTariff->id . ', ' . $tariffResource->id . '), -- Resource ' . $resourceId . ' is null' . PHP_EOL);
+                    $isOk = false;
                     continue; // нет данных. Пропустить
                 }
 
@@ -156,6 +185,8 @@ class AccountLogResourceTarificator extends Tarificator
                 }
             }
         }
+
+        return $isOk;
     }
 
     /**

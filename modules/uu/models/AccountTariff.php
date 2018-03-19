@@ -52,6 +52,7 @@ use yii\db\Expression;
  * @property string $device_address
  * @property string $tariff_period_utc
  * @property string $account_log_period_utc
+ * @property string $account_log_resource_utc
  */
 class AccountTariff extends ActiveRecord
 {

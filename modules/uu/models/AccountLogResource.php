@@ -135,6 +135,10 @@ class AccountLogResource extends ActiveRecord
      */
     public static function clearCalls($dateFromModify, $dateToModify)
     {
+        // сбросить кэш, чтобы биллер все пересчитал
+        AccountTariff::updateAll(['account_log_resource_utc' => null]);
+
+        // удалить ресурсы
         $accountLogResourceTableName = AccountLogResource::tableName();
         $tariffResourceTableName = TariffResource::tableName();
         $resourceIdCalls = implode(', ', Resource::$calls);

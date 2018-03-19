@@ -34,7 +34,7 @@ class AccountLogSetupTarificator extends Tarificator
         }
 
         $accountTariffQuery = AccountTariff::find()
-            ->where(['IS NOT', 'tariff_period_id', null])// только незакрытые
+            ->where(['IS NOT', 'tariff_period_id', null])// только незакрытые @todo если вчера создали и в тот же день закрыли, то деньги за вчера все равно надо списать
             ->andWhere(['>=', 'tariff_period_utc', $minTarificateDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)]); // и недавно (пару дней) произошла смена тарифа
         $accountTariffId && $accountTariffQuery->andWhere(['id' => $accountTariffId]);
 
