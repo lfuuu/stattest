@@ -218,12 +218,13 @@ trait AccountTariffBoolTrait
     }
 
     /**
-     * Вернуть текущее количество ресурса
+     * Вернуть количество ресурса
      *
      * @param int $resourceId
+     * @param bool $isCurrentOnly true - текущее, false - последнее (в том числе будущее)
      * @return float|null
      */
-    public function getResourceValue($resourceId)
+    public function getResourceValue($resourceId, $isCurrentOnly = true)
     {
         /** @var ClientAccount $clientAccount */
         $clientAccount = $this->clientAccount;
@@ -234,7 +235,7 @@ trait AccountTariffBoolTrait
 
         /** @var AccountTariffResourceLog $accountTariffResourceLog */
         foreach ($accountTariffResourceLogsQuery->each() as $accountTariffResourceLog) {
-            if ($accountTariffResourceLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT)) {
+            if ($isCurrentOnly && $accountTariffResourceLog->actual_from > $dateTimeNow->format(DateTimeZoneHelper::DATE_FORMAT)) {
                 // еще не действует
                 continue;
             }
