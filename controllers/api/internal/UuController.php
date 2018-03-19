@@ -343,6 +343,7 @@ class UuController extends ApiInternalController
      *   @SWG\Parameter(name = "organization_id", type = "integer", description = "ID организации", in = "query", default = ""),
      *   @SWG\Parameter(name = "voip_number", type = "string", description = "Номер телефонии", in = "query", default = ""),
      *   @SWG\Parameter(name = "account_tariff_id", type = "integer", description = "ID услуги ЛС", in = "query", default = ""),
+     *   @SWG\Parameter(name = "is_include_vat", type = "integer", description = "Включая НДС (0 / 1)", in = "query", default = ""),
      *
      *   @SWG\Response(response = 200, description = "Список тарифов",
      *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/tariffRecord"))
@@ -388,7 +389,8 @@ class UuController extends ApiInternalController
         $voip_ndc_type_id = null,
         $organization_id = null,
         $voip_number = null,
-        $account_tariff_id = null
+        $account_tariff_id = null,
+        $is_include_vat = null
     ) {
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
@@ -486,6 +488,7 @@ class UuController extends ApiInternalController
         $currency_id && $tariffQuery->andWhere([$tariffTableName . '.currency_id' => $currency_id]);
         !is_null($is_default) && $tariffQuery->andWhere([$tariffTableName . '.is_default' => (int)$is_default]);
         !is_null($is_postpaid) && $tariffQuery->andWhere([$tariffTableName . '.is_postpaid' => (int)$is_postpaid]);
+        !is_null($is_include_vat) && $tariffQuery->andWhere([$tariffTableName . '.is_include_vat' => (int)$is_include_vat]);
         $tariff_status_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_status_id' => (int)$tariff_status_id]);
         $tariff_person_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, $tariff_person_id]]);
         $tariff_tag_id && $tariffQuery->andWhere([$tariffTableName . '.tariff_tag_id' => $tariff_tag_id]);
