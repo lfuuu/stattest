@@ -286,3 +286,8 @@ echo GridView::widget([
         'columns' => $columns,
     ]),
 ]);
+
+// Рендеринг формы для применения групповых действий к отфильтрованным элементам
+echo $this->render('_indexMainGroupAction', [
+    'filterModel' => $filterModel,
+]);

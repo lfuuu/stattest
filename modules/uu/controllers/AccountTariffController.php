@@ -10,7 +10,6 @@ use app\classes\traits\AddClientAccountFilterTraits;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\models\UsageTrunkSettings;
-use app\modules\mtt\classes\MttAdapter;
 use app\modules\nnp\models\NdcType;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\forms\AccountTariffAddForm;
@@ -25,6 +24,8 @@ use InvalidArgumentException;
 use LogicException;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\db\ActiveQuery;
+use yii\helpers\Url;
 use yii\filters\AccessControl;
 use yii\web\Response;
 
@@ -65,12 +66,17 @@ class AccountTariffController extends BaseController
      *
      * @param int $serviceTypeId
      * @return string
-     * @throws \yii\base\InvalidParamException
+     * @throws ModelValidationException
+     * @throws \yii\db\Exception
      */
     public function actionIndex($serviceTypeId = null)
     {
         $filterModel = new AccountTariffFilter($serviceTypeId);
         $this->_addClientAccountFilter($filterModel);
+
+        if ($this->_groupAction($filterModel)) {
+            return $this->redirect(Yii::$app->request->url);
+        }
 
         return $this->render('index', [
             'isPersonalForm' => $serviceTypeId != ServiceType::ID_INFRASTRUCTURE && $this->_getCurrentClientAccountId(),
@@ -635,5 +641,41 @@ class AccountTariffController extends BaseController
         unset($accountTariffPackage);
 
         throw new InvalidArgumentException(sprintf('Услуга %d с хэшем %s не найдена', $accountTariffId, $accountTariffFirstHash));
+    }
+
+    /**
+     * Групповые действия для фильтрованной выборки модели AccountTariff
+     *
+     * @param AccountTariffFilter $filterModel
+     * @return boolean
+     * @throws ModelValidationException
+     * @throws \yii\db\Exception
+     */
+    private function _groupAction($filterModel)
+    {
+        $post = Yii::$app->request->post();
+
+        if ($filterModel->tariff_id <= 0 || !$post || !isset($post['AccountTariffLog']['actual_from'])) {
+            return false;
+        }
+
+        /** @var ActiveQuery $query */
+        $query = $filterModel->search()->query;
+        foreach ($query->each() as $accountTariff) {
+            $transaction = \Yii::$app->db->beginTransaction();
+            try {
+                $accountTariff->load($post);
+                if (!$accountTariff->save()) {
+                    throw new ModelValidationException($accountTariff);
+                }
+                $transaction->commit();
+                Yii::$app->session->addFlash('success', $accountTariff->getLink()  . ' обновлена');
+            } catch (yii\db\Exception $e) {
+                $transaction->rollBack();
+                Yii::$app->session->addFlash('error', $accountTariff->getLink() . ":\n" . $e->getMessage());
+            }
+        }
+
+        return true;
     }
 }
