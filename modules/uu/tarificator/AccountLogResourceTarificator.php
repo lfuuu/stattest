@@ -31,6 +31,7 @@ class AccountLogResourceTarificator extends Tarificator
     public function tarificate($accountTariffId = null)
     {
         $minLogDatetime = AccountTariff::getMinLogDatetime();
+        $minTarificateDatetime = AccountTariff::getMinSetupDatetime();
 
         // в целях оптимизации удалить старые данные
         if (!$accountTariffId) {
@@ -39,7 +40,11 @@ class AccountLogResourceTarificator extends Tarificator
 
         // рассчитать новое по каждой универсальной услуге
         $accountTariffQuery = AccountTariff::find()
-            ->where(['IS NOT', 'tariff_period_id', null])// только незакрыты @todo если сегодня закрыли, то деньги за вчера все равно надо списать
+            ->where([
+                'OR',
+                ['IS NOT', 'tariff_period_id', null], // незакрытые
+                ['>=', 'tariff_period_utc', $minTarificateDatetime->format(DateTimeZoneHelper::DATETIME_FORMAT)], // или недавно произошла смена тарифа (если вчера закрыли, то деньги все равно надо списать)
+            ])
             ->andWhere([
                 'OR',
                 ['account_log_resource_utc' => null], // ресурсы не списаны
@@ -76,6 +81,10 @@ class AccountLogResourceTarificator extends Tarificator
                         ->setTime(23, 59, 59)// до конца "сегодня"
                         ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))// перевести в UTC
                         ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                    if (!$accountTariff->save()) {
+                        // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
+                        // throw new ModelValidationException($accountTariffLog);
+                    }
                 }
 
                 $transaction->commit();
