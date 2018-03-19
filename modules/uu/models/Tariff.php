@@ -370,7 +370,7 @@ class Tariff extends ActiveRecord
     {
         $tariffPeriods = $this->tariffPeriods;
         foreach ($tariffPeriods as $tariffPeriod) {
-            if ($tariffPeriod->getAccountTariffs()->count()) {
+            if ($tariffPeriod->getAccountTariffLogs()->count()) {
                 return true;
             }
         }

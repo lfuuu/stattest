@@ -20,6 +20,7 @@ use yii\db\ActiveQuery;
  * @property-read Period $chargePeriod
  * @property-read Tariff $tariff
  * @property-read AccountTariff[] $accountTariffs
+ * @property-read AccountTariffLog[] $accountTariffLogs
  *
  * @method static TariffPeriod findOne($condition)
  * @method static TariffPeriod[] findAll($condition)
@@ -137,6 +138,15 @@ class TariffPeriod extends ActiveRecord
     public function getAccountTariffs()
     {
         return $this->hasMany(AccountTariff::className(), ['tariff_period_id' => 'id'])
+            ->indexBy('id');
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAccountTariffLogs()
+    {
+        return $this->hasMany(AccountTariffLog::className(), ['tariff_period_id' => 'id'])
             ->indexBy('id');
     }
 
