@@ -227,15 +227,32 @@ trait CallsRawSlowReport
         $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group);
         $isDstNdcTypeGroup = in_array('dst_ndc_type_id', $this->group);
 
-        $query1 = $this->setDestinationCondition($query1, $query3, $this->dst_destinations_ids, $this->dst_number_type_ids, 'cr.nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
-        $query2 = $this->setDestinationCondition($query2, $query3, $this->src_destinations_ids, $this->src_number_type_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
+        $query1 = $this->setDestinationCondition($query1, $query3, $this->dst_destinations_ids, 'cr.nnp_number_range_id', $isDstNdcTypeGroup, 'dst');
+        $query2 = $this->setDestinationCondition($query2, $query3, $this->src_destinations_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
+
+
+        if ($this->src_number_type_ids) {
+            $query2->leftJoin(
+                ["src_nr" => 'nnp.number_range'],
+                "src_nr.id = cr.nnp_number_range_id"
+            );
+            $query2->andWhere(["src_nr.ndc_type_id" => $this->src_number_type_ids]);
+        }
+
+        if ($this->dst_number_type_ids) {
+            $query1->leftJoin(
+                ["dst_nr" => 'nnp.number_range'],
+                "dst_nr.id = cr.nnp_number_range_id"
+            );
+            $query1->andWhere(["src_nrd.ndc_type_id" => $this->src_number_type_ids]);
+        }
 
         if ($isDstNdcTypeGroup || $this->dst_destinations_ids || $this->dst_number_type_ids) {
-            $query1->addSelect(['dst_ndc_type_id' => 'dst_nrd.ndc_type_id']);
+            $query1->addSelect(['dst_ndc_type_id' => 'dst_nr.ndc_type_id']);
         }
 
         if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
-            $query2->addSelect(['src_ndc_type_id' => 'src_nrd.ndc_type_id']);
+            $query2->addSelect(['src_ndc_type_id' => 'src_nr.ndc_type_id']);
         }
 
         if ($this->is_success_calls) {

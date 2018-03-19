@@ -37,6 +37,7 @@ $aggrDigitCount = [
     'margin_avg' => 4,
     'margin_min' => 4,
     'margin_max' => 4,
+    'margin_percent' => 2,
 ];
 
 $columns = [];

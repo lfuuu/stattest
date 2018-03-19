@@ -101,6 +101,7 @@ class CallsRawFilter extends CallsRaw
         'margin_avg' => 'AVG(NULLIF((@(sale)) - cost_price, 0))',
         'margin_min' => 'MIN((@(sale)) - cost_price)',
         'margin_max' => 'MAX((@(sale)) - cost_price)',
+        'margin_percent' => '(SUM((@(sale)) - cost_price) / SUM(@(sale)) * 100)', // (margin_sum / (sale_sum / 100))
         'session_time_sum' => 'SUM(session_time)',
         'session_time_avg' => 'AVG(session_time)',
         'session_time_min' => 'MIN(session_time)',
@@ -126,6 +127,7 @@ class CallsRawFilter extends CallsRaw
         'margin_avg',
         'margin_min',
         'margin_max',
+        'margin_percent',
     ];
 
     public $server_ids = [];
@@ -308,6 +310,7 @@ class CallsRawFilter extends CallsRaw
                 'margin_avg' => 'Маржа: средняя',
                 'margin_min' => 'Маржа: минимальная',
                 'margin_max' => 'Маржа: максимальная',
+                'margin_percent' => 'Маржа: проценты',
                 'session_time_sum' => 'Длительность: сумма',
                 'session_time_avg' => 'Длительность: средняя',
                 'session_time_min' => 'Длительность: минимальная',
@@ -576,19 +579,17 @@ class CallsRawFilter extends CallsRaw
      * Добавление фильтрации по направлению и/или типу звонка
      *
      * @param CTEQuery $query
-     * @param $destination
-     * @param $number_type
-     * @param $param
+     * @param array $destination
+     * @param mixed $param
      * @return CTEQuery
      */
-    private function setDestinationCondition(CTEQuery $query, $query3, $destination, $number_type, $param, $isGroup, $alias)
+    private function setDestinationCondition(CTEQuery $query, $query3, $destination, $param, $isGroup, $alias)
     {
-        if (!$destination && !$number_type && !$isGroup) {
+        if (!$destination && !$isGroup) {
             return $query;
         }
 
         $destination && $query->andWhere(["{$alias}_nrd.destination_id" => $destination]);
-        $number_type && $query->andWhere(["{$alias}_nrd.ndc_type_id" => $number_type]);
 
         $query->leftJoin(
             ["{$alias}_nrd" => 'nnp.number_range_destination'],
