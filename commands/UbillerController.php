@@ -3,6 +3,7 @@
 namespace app\commands;
 
 use app\modules\uu\models\AccountLogResource;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\tarificator\Tarificator;
 use Yii;
 use yii\console\Controller;
@@ -12,8 +13,6 @@ use yii\console\Controller;
  */
 class UbillerController extends Controller
 {
-
-    private $_isFullTarification = false;
 
     /**
      * Создать транзакции/проводки/счета за вчера и сегодня. hot 4 минуты / cold 3 часа
@@ -76,7 +75,7 @@ class UbillerController extends Controller
      */
     public function actionFull()
     {
-        $this->_isFullTarification = true;
+        AccountTariff::setIsFullTarification(true);
         return $this->actionIndex();
     }
 
@@ -94,7 +93,6 @@ class UbillerController extends Controller
             $className = '\\app\\modules\\uu\\tarificator\\' . $className;
             /** @var Tarificator $tarificator */
             $tarificator = (new $className($isEcho = true));
-            $tarificator->isFullTarification = $this->_isFullTarification;
             $tarificator->tarificate();
             echo PHP_EOL . date(DATE_ATOM) . PHP_EOL;
             return Controller::EXIT_CODE_NORMAL;

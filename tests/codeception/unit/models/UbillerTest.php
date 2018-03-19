@@ -86,6 +86,8 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogHugeFromToTariffs1()
     {
+        AccountTariff::setIsFullTarification(true);
+
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
@@ -134,6 +136,8 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogHugeFromToTariffs2()
     {
+        AccountTariff::setIsFullTarification(true);
+
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
         /** @var AccountTariff $accountTariff */
@@ -200,6 +204,8 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogFromToTariffs1()
     {
+        AccountTariff::setIsFullTarification(true);
+
         $dateTimeFirstDayOfCurMonth = (new DateTimeImmutable())->modify('first day of this month');
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
@@ -283,6 +289,8 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogFromToTariffs2()
     {
+        AccountTariff::setIsFullTarification(true);
+
         $dateTimeFirstDayOfCurMonth = (new DateTimeImmutable())->modify('first day of this month');
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
 
@@ -405,6 +413,8 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogWithoutAutoprolongation1()
     {
+        AccountTariff::setIsFullTarification(true);
+
         $dateTimeYesterday = (new DateTimeImmutable())
             ->modify('-1 day')
             ->setTime(0, 0, 0);
@@ -448,6 +458,8 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogWithoutAutoprolongation2()
     {
+        AccountTariff::setIsFullTarification(true);
+
         $dateTimeYesterday = (new DateTimeImmutable())
             ->modify('-1 day')
             ->setTime(0, 0, 0);
@@ -491,6 +503,8 @@ class UbillerTest extends _TestCase
      */
     public function testAccountLogTrafficResource()
     {
+        AccountTariff::setIsFullTarification(true);
+
         $dateTimeFirstDayOfPrevMonth = (new DateTimeImmutable())->modify('first day of previous month');
         $dateTimeLastDayOfPrevMonth = (new DateTimeImmutable())->modify('last day of previous month');
 
@@ -589,6 +603,7 @@ class UbillerTest extends _TestCase
         //
         // всего должно быть 3 + 12 = 15 платных транзакций
 
+        AccountTariff::setIsFullTarification(true);
 
         $dateTimeFirstDayOfThisMonth = (new DateTimeImmutable())->modify('first day of this month');
 

@@ -13,6 +13,16 @@ use DateTimeImmutable;
 
 trait AccountTariffBillerTrait
 {
+    private static $_isFullTarification = false;
+
+    /**
+     * @param bool $isFullTarification
+     */
+    public static function setIsFullTarification($isFullTarification)
+    {
+        self::$_isFullTarification = $isFullTarification;
+    }
+
     /**
      * Вернуть дату, с которой рассчитываем лог при полной проверке. Если date_from строго меньше этой даты, то этот период не нужен в расчете
      * Это нужно для оптимизации, чтобы не хранить много лишних данных, которые не нужны, а только тормозят расчет новых
@@ -24,7 +34,7 @@ trait AccountTariffBillerTrait
         $datetime = DateTimeZoneHelper::getUtcDateTime()
             ->setTime(0, 0, 0);
 
-        if ($datetime->format('d') < 15) {
+        if (self::$_isFullTarification || $datetime->format('d') < 15) {
             // Начало месяца. Этот и предыдущий
             return $datetime->modify('first day of previous month');
         }
