@@ -392,6 +392,29 @@ class UuController extends ApiInternalController
         $account_tariff_id = null,
         $is_include_vat = null
     ) {
+        \Yii::info(
+            print_r([
+                'actionGetTariffs',
+                $id,
+                $service_type_id,
+                $country_id,
+                $client_account_id,
+                $currency_id,
+                $is_default,
+                $is_postpaid,
+                $tariff_status_id,
+                $tariff_person_id,
+                $tariff_tag_id,
+                $voip_group_id,
+                $voip_city_id,
+                $voip_ndc_type_id,
+                $organization_id,
+                $voip_number,
+                $account_tariff_id
+            ], true),
+            \app\modules\uu\Module::LOG_CATEGORY_API
+        );
+
         $id = (int)$id;
         $service_type_id = (int)$service_type_id;
         $country_id = (int)$country_id;
@@ -1209,6 +1232,7 @@ class UuController extends ApiInternalController
      * @param int $offset
      * @return array
      * @throws HttpException
+     * @throws \yii\db\Exception
      */
     public function actionGetAccountTariffsWithPackages(
         $id = null,
@@ -1218,6 +1242,20 @@ class UuController extends ApiInternalController
         $limit = self::DEFAULT_LIMIT,
         $offset = 0
     ) {
+
+        \Yii::info(
+            print_r([
+                'actionGetAccountTariffsWithPackages',
+                $id,
+                $client_account_id,
+                $service_type_id,
+                $voip_number,
+                $limit,
+                $offset
+            ], true),
+            \app\modules\uu\Module::LOG_CATEGORY_API
+        );
+
         if (!$id && !$client_account_id && !$voip_number) {
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Необходимо указать фильтр id или client_account_id или voip_number', AccountTariff::ERROR_CODE_ACCOUNT_EMPTY);
         }

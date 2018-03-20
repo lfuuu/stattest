@@ -132,6 +132,30 @@ final class OpenController extends Controller
         array $excludeNdcs = [],
         $client_account_id = null
     ) {
+
+        \Yii::info(
+            print_r([
+                'actionGetFreeNumbers',
+                $regions,
+                $ndcType,
+                $minCost,
+                $maxCost,
+                $beautyLvl,
+                $like,
+                $mask,
+                $offset,
+                $limit,
+                $currency,
+                $countryCode,
+                $cities,
+                $similar,
+                $ndc,
+                $excludeNdcs,
+                $client_account_id
+            ], true),
+            \app\modules\uu\Module::LOG_CATEGORY_API
+        );
+
         $numbers = (new FreeNumberFilter)
             ->setIsService(false)
             ->setRegions($regions)
