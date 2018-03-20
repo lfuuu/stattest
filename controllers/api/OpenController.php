@@ -184,7 +184,7 @@ final class OpenController extends Controller
 
             $priceLevel = $clientAccount->price_level;
             !$countryCode && $countryCode = $clientAccount->country_id;
-            $currencyId = $clientAccount->currency;
+            $currency = $clientAccount->currency;
             $isPostpaid = $clientAccount->is_postpaid;
             $tariffPersonId = ($clientAccount->contragent->legal_type == ClientContragent::PERSON_TYPE) ?
                 TariffPerson::ID_NATURAL_PERSON :
@@ -193,7 +193,6 @@ final class OpenController extends Controller
         } else {
             $clientAccount = null;
             $priceLevel = ClientAccount::DEFAULT_PRICE_LEVEL;
-            $currencyId = null;
             $isPostpaid = false;
             $tariffPersonId = TariffPerson::ID_LEGAL_PERSON;
         }
@@ -223,7 +222,7 @@ final class OpenController extends Controller
                 $packageStatusIds,
                 $freeNumber->city_id,
                 $countryCode ?: $freeNumber->country_code,
-                $currencyId ?: $freeNumber->country->currency_id,
+                $currency ?: $freeNumber->country->currency_id,
                 $isPostpaid,
                 $tariffPersonId,
                 $freeNumber->ndc_type_id
