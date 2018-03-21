@@ -43,6 +43,7 @@ class Trouble extends ActiveRecord
     const DEFAULT_SUPPORT_SALES = 'ava';      // Ан Владимир
     const DEFAULT_SUPPORT_ACCOUNTING = 'istomina'; // Истомина Ирина
     const DEFAULT_SUPPORT_TECHNICAL =  User::USER_KOSHELEV;
+    const DEFAULT_VM_SUPPORT =  User::USER_VOSTROKNUTOV;
     const DEFAULT_API_AUTHOR = 'AutoLK';
     const DEFAULT_SUPPORT_FOLDER = 257;
     const DEFAULT_SUPPORT_STATE = 1;

@@ -8,7 +8,10 @@ use app\classes\Utils;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
+use app\models\Trouble;
+use app\models\User;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use yii\base\InvalidParamException;
@@ -23,6 +26,7 @@ class SyncVmCollocation
      *
      * @param int $accountTariffId
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=3508161
+     * @throws \Exception
      * @throws \app\exceptions\ModelValidationException
      * @throws \yii\base\InvalidCallException
      * @throws \yii\base\InvalidConfigException
@@ -63,7 +67,6 @@ class SyncVmCollocation
             $apiVmCollocation->updateVps(
                 $accountTariff->vm_elid_id,
                 $resourceRam = $tariffResources[Resource::ID_VM_COLLOCATION_RAM],
-                $resourceHdd = $tariffResources[Resource::ID_VM_COLLOCATION_HDD],
                 $resourceProcessor = $tariffResources[Resource::ID_VM_COLLOCATION_PROCESSOR]
             );
 
@@ -90,17 +93,42 @@ class SyncVmCollocation
         }
     }
 
-
     /**
      * Синхронизировать ресурсы в VM manager
      *
+     * @param int $clientAccountId
      * @param int $accountTariffId
      * @param int[] $accountTariffResourceIds
      * @link http://bugtracker.welltime.ru/jira/browse/BIL-3947
+     * @throws \Exception
+     * @throws \InvalidArgumentException
      */
-    public function syncResource($accountTariffId, $accountTariffResourceIds)
+    public function syncResource($clientAccountId, $accountTariffId, $accountTariffResourceIds)
     {
-// @todo
+        $isNeedSync = false;
+
+        foreach ($accountTariffResourceIds as $accountTariffResourceId) {
+            $accountTariffResourceLog = AccountTariffResourceLog::findOne(['id' => $accountTariffResourceId]);
+            if (!$accountTariffResourceLog) {
+                throw new \InvalidArgumentException('Wrong AccountTariffResourceLogId = ' . $accountTariffResourceId);
+            }
+
+            switch ($accountTariffResourceLog->resource_id) {
+                case Resource::ID_VM_COLLOCATION_HDD:
+//                    $user = User::findOne(['user' => Trouble::DEFAULT_SUPPORT_SALES]);
+//                    Trouble::dao()->createTrouble($clientAccountId, Trouble::TYPE_TASK, Trouble::SUBTYPE_TASK, $troubleText, null, ($user ? $user->user : null));
+                    break;
+
+                case Resource::ID_VM_COLLOCATION_PROCESSOR:
+                case Resource::ID_VM_COLLOCATION_RAM:
+                    $isNeedSync = true;
+                    break;
+            }
+        }
+
+        if ($isNeedSync) {
+            $this->syncVm($accountTariffId);
+        }
     }
 
     /**
@@ -108,6 +136,7 @@ class SyncVmCollocation
      *
      * @param int $clientAccountId
      * @return mixed
+     * @throws \Exception
      */
     public function enableAccount($clientAccountId)
     {
@@ -119,6 +148,7 @@ class SyncVmCollocation
      *
      * @param int $clientAccountId
      * @return mixed
+     * @throws \Exception
      */
     public function disableAccount($clientAccountId)
     {
@@ -131,6 +161,7 @@ class SyncVmCollocation
      * @param int $clientAccountId
      * @param bool $isEnable
      * @return mixed|null|bool
+     * @throws \Exception
      */
     protected function enableOrDisableAccount($clientAccountId, $isEnable)
     {
@@ -153,6 +184,10 @@ class SyncVmCollocation
      *
      * @param ClientAccount $clientAccount
      * @return int
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\db\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      * @throws \app\exceptions\ModelValidationException
      */
     protected function getVmClientId(ClientAccount $clientAccount)
