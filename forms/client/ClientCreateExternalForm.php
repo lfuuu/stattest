@@ -147,7 +147,6 @@ class ClientCreateExternalForm extends Form
                 ],
                 FormFieldValidator::className()
             ],
-            ['company', 'default', 'value' => 'Клиент без названия'],
             [['partner_id', 'vats_tariff_id'], 'default', 'value' => 0],
             [['partner_id', 'account_version'], 'integer'],
             [['partner_id'], 'validatePartnerId'],
