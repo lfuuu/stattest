@@ -84,7 +84,7 @@ class SmsResourceReader extends Object implements ResourceReaderInterface
             ])
             ->where([
                 'number_service_id' => $accountTariff->prev_account_tariff_id,
-                'serviceid' => [MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK, MttRaw::SERVICE_ID_SMS_IN_ROAMING]
+                'serviceid' => MttRaw::SERVICE_ID_SMS
             ])
             ->andWhere(['>=', 'connect_time', $dateTimeUtc->format(DATE_ATOM)])
             ->groupBy(['aggr_date'])

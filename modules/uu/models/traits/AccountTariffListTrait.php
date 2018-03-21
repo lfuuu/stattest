@@ -21,4 +21,20 @@ trait AccountTariffListTrait
                 AccountTariff::TRUNK_TYPE_MULTITRUNK => 'Мультитранк',
             ];
     }
+
+    /**
+     * Вернуть список всех номеров, привязанных к client_account_id таблицы AccountTariff
+     *
+     * @param string $accountId
+     * @return array
+     */
+    public static function getVoipListByClientAccountId($accountId)
+    {
+        return AccountTariff::find()
+            ->select('voip_number')
+            ->indexBy('voip_number')
+            ->where(['client_account_id' => $accountId,])
+            ->andWhere(['NOT', ['voip_number' => null]])
+            ->column();
+    }
 }

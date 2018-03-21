@@ -664,10 +664,20 @@ class AccountTariffController extends BaseController
         foreach ($query->each() as $accountTariff) {
             $transaction = \Yii::$app->db->beginTransaction();
             try {
-                $accountTariff->load($post);
-                if (!$accountTariff->save()) {
-                    throw new ModelValidationException($accountTariff);
+                $accountTariffLog = new AccountTariffLog;
+                $accountTariffLog->account_tariff_id = $accountTariff->id;
+
+                $accountTariffLog->load($post);
+
+                // Отключение услуги
+                if (isset($post['closeTariff'])) {
+                     $accountTariffLog->tariff_period_id = null;
                 }
+
+                if (!$accountTariffLog->validate() || !$accountTariffLog->save()) {
+                     throw new ModelValidationException($accountTariffLog);
+                }
+
                 $transaction->commit();
                 Yii::$app->session->addFlash('success', $accountTariff->getLink()  . ' обновлена');
             } catch (yii\db\Exception $e) {

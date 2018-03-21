@@ -13,6 +13,11 @@ use yii\data\ActiveDataProvider;
  */
 class MttRawFilter extends MttRaw
 {
+    const FILTER_GROUP_HOUR = 'hour';
+    const FILTER_GROUP_DAY = 'day';
+    const FILTER_GROUP_MONTH = 'month';
+    const FILTER_GROUP_YEAR = 'year';
+
     public $id = '';
     public $account_id = '';
     public $number_service_id = '';
@@ -32,6 +37,9 @@ class MttRawFilter extends MttRaw
     public $usedqty_from = '';
     public $usedqty_to = '';
 
+    // Поле, используемое для группировки по времени (выше Grid)
+    public $group_time = '';
+
     /**
      * @return array
      */
@@ -47,6 +55,7 @@ class MttRawFilter extends MttRaw
             [['chargedqty_from', 'chargedqty_to'], 'integer'],
             [['usedqty_from', 'usedqty_to'], 'integer'],
             [['chargedamount_from', 'chargedamount_to'], 'double'],
+            ['group_time', 'integer'],
         ];
     }
 
@@ -80,6 +89,36 @@ class MttRawFilter extends MttRaw
         $this->usedqty_from !== '' && $query->andWhere(['>=', 'usedqty', $this->usedqty_from]);
         $this->usedqty_to !== '' && $query->andWhere(['<=', 'usedqty', $this->usedqty_to]);
 
+        if ($this->group_time !== '' && array_key_exists($this->group_time, $this->getGroupTimeList())){
+
+            $groupping = sprintf("date_trunc('%s', connect_time)::%s",
+                $this->group_time,
+                $this->group_time == self::FILTER_GROUP_HOUR ? 'TIMESTAMP(0)' : 'DATE'
+            );
+
+            $query
+                ->select([
+                    'connect_time' => $groupping,
+                    'chargedqty' => 'SUM(chargedqty)',
+                    'usedqty' => 'SUM(usedqty)',
+                ])
+                ->groupBy([$groupping])
+                ->orderBy(['connect_time' => SORT_DESC]);
+        }
+
         return $dataProvider;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroupTimeList()
+    {
+        return [
+            self::FILTER_GROUP_HOUR => 'Час',
+            self::FILTER_GROUP_DAY => 'День',
+            self::FILTER_GROUP_MONTH => 'Месяц',
+            self::FILTER_GROUP_YEAR => 'Год'
+        ];
     }
 }

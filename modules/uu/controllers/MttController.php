@@ -8,6 +8,7 @@ namespace app\modules\uu\controllers;
 use app\classes\BaseController;
 use app\exceptions\ModelValidationException;
 use app\models\filter\mtt_raw\MttRawFilter;
+use app\models\mtt_raw\MttRaw;
 use app\modules\mtt\classes\MttAdapter;
 use app\modules\uu\models\AccountTariff;
 use Yii;
@@ -48,6 +49,23 @@ class MttController extends BaseController
     {
         $filterModel = new MttRawFilter;
         $filterModel->load(Yii::$app->request->get());
+
+        $serviceidCount = count($filterModel->serviceid);
+        if ($filterModel->group_time !== '' &&
+            ((
+                $serviceidCount === 1 &&
+                !in_array($filterModel->serviceid[0], array_merge(MttRaw::SERVICE_ID_SMS, MttRaw::SERVICE_ID_INET))
+            ) || (
+                $serviceidCount === 2 &&
+                (
+                    !empty(array_diff($filterModel->serviceid, MttRaw::SERVICE_ID_SMS)) &&
+                    !empty(array_diff($filterModel->serviceid, MttRaw::SERVICE_ID_INET))
+                )
+            ))
+        ) {
+            Yii::$app->session->addFlash('error', 'Поддерживаются однотипные услуги SMS и Интернет');
+            return $this->redirect(['/uu/mtt/']);
+        }
 
         return $this->render('index', [
             'filterModel' => $filterModel,
