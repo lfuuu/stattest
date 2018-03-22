@@ -35,11 +35,21 @@ class InvoiceForm extends Form
     }
 
     /**
+     * Получить имя файла
+     *
+     * @return string
+     */
+    public function getFileName()
+    {
+        return self::getPath() . $this->_langCode . '.' . self::TEMPLATE_EXTENSION;
+    }
+
+    /**
      * @return bool
      */
     public function fileExists()
     {
-        return file_exists(self::getPath() . $this->_langCode . '.' . self::TEMPLATE_EXTENSION);
+        return file_exists($this->getFileName());
     }
 
     /**

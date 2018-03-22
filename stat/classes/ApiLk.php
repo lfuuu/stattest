@@ -84,6 +84,8 @@ class ApiLk
             ];
         }
 
+        $clientCountryId = $account->country_id;
+
         foreach ($R as $r) {
             if (strtotime($r["bill"]["bill_date"]) < $cutOffDate) {
                 continue;
@@ -91,7 +93,6 @@ class ApiLk
 
             $b = $r["bill"];
 
-            $dt = BillDocument::dao()->getByBillNo($b["bill_no"]);
             $billModel = Bill::findOne(['bill_no' => $b["bill_no"]]);
 
             $bill = [
@@ -100,7 +101,7 @@ class ApiLk
                 'sum' => $b['sum'],
                 'type' => $b['nal'],
                 'pays' => [],
-                'link' => self::_getBillDocumentLinks($billModel, $dt)
+                'link' => self::_getBillDocumentLinks($billModel, $clientCountryId)
             ];
 
             foreach ($r["pays"] as $p) {
@@ -189,7 +190,7 @@ class ApiLk
                 'object' => 'bill-2-RUB',
                 'client' => $bill->client_id
             ] + (
-            $bill->clientAccount->contragent->country_id != Country::RUSSIA ?
+            $bill->clientAccount->country_id != Country::RUSSIA ?
                 ['doc_type' => \app\classes\documents\DocumentReport::DOC_TYPE_PROFORMA] :
                 []
             );
@@ -273,6 +274,8 @@ class ApiLk
             throw new Exception("account_not_found");
         }
 
+        $accountCountryId = $account->country_id;
+
         if ($billNo == uuBill::CURRENT_STATEMENT) {
 
             $lines = [];
@@ -305,57 +308,75 @@ class ApiLk
             ];
         }
 
-        $b = NewBill::first(["conditions" => ["client_id" => $clientId, "bill_no" => $billNo, "is_show_in_lk" => "1"]]);
-        if (!$b) {
+        $billModel = Bill::findOne(["client_id" => $clientId, "bill_no" => $billNo, "is_show_in_lk" => 1]);
+
+        if (!$billModel) {
             throw new Exception("bill_not_found");
         }
 
         $lines = [];
 
-        foreach ($b->lines as $l) {
+        /** @var \app\models\BillLine $line */
+        foreach ($billModel->lines as $line) {
             $lines[] = [
-                "item" => $l->item,
-                "date_from" => $l->date_from ? $l->date_from->format("d-m-Y") : "",
-                "amount" => $l->amount,
-                "price" => number_format($l->price, 2, '.', ''),
-                "sum" => number_format($l->sum, 2, '.', '')
+                "item" => $line->item,
+                "date_from" => $line->date_from ? (new DateTime($line->date_from))->format(DateTimeZoneHelper::DATE_FORMAT_EUROPE) : "",
+                "amount" => $line->amount,
+                "price" => number_format($line->price, 2, '.', ''),
+                "sum" => number_format($line->sum, 2, '.', '')
             ];
         }
 
-        $dt = BillDocument::dao()->getByBillNo($billNo);
-        $billModel = Bill::findOne(['bill_no' => $billNo]);
-
         $ret = [
             "bill" => [
-                "bill_no" => $b->bill_no,
-                "is_rollback" => $b->is_rollback,
-                "is_1c" => $b->is1C(),
+                "bill_no" => $billModel->bill_no,
+                "is_rollback" => $billModel->is_rollback,
+                "is_1c" => $billModel->is1C(),
                 "lines" => $lines,
-                "sum_total" => number_format($b->sum, 2, '.', ''),
-                "dtypes" => ["bill_no" => $dt["bill_no"], "ts" => $dt["ts"]]
+                "sum_total" => number_format($billModel->sum, 2, '.', ''),
+                "dtypes" => ["bill_no" => $billModel->bill_no, "ts" => (new DateTime($billModel->bill_date))->getTimestamp()]
             ],
-            "link" => self::_getBillDocumentLinks($billModel, $dt),
+            "link" => self::_getBillDocumentLinks($billModel, $accountCountryId),
         ];
 
         return $ret;
     }
 
     /**
+     * Ссылки на документы в ЛК
+     *
      * @param Bill $bill
-     * @param int[] $dt
+     * @param integer $clientCountryId
      * @return array
      */
-    private static function _getBillDocumentLinks(Bill $bill, $dt)
+    private static function _getBillDocumentLinks(Bill $bill, $clientCountryId)
     {
-        $data = [
-            'bill' => API__print_bill_url . Encrypt::encodeArray([
+        $dt = $bill->document;
+
+        if (!$dt) {
+            return [];
+        }
+
+        $data = [];
+
+        if ($clientCountryId == Country::RUSSIA || $bill->is_user_prepay) {
+            $data['bill'] = API__print_bill_url . Encrypt::encodeArray([
                     'bill' => $bill->bill_no,
                     'object' => 'bill-2-RUB',
                     'client' => $bill->client_id
-                ])
-        ];
+                ]);
+        }
 
-        if ($bill->clientAccount->contragent->country_id != Country::RUSSIA) {
+        // Универсальные инвойсы только для пользователей вне России
+        if ($bill->uu_bill_id && $clientCountryId != Country::RUSSIA) {
+            $data['invoice'] = API__print_bill_url . Encrypt::encodeArray([
+                    'doc_type' => 'uu_invoice',
+                    'bill' => $bill->bill_no,
+                    'client' => $bill->client_id,
+                ]);
+        }
+
+        if ($clientCountryId != Country::RUSSIA) {
             return $data;
         }
 

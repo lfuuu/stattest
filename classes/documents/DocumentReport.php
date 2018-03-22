@@ -6,6 +6,7 @@ use app\models\BillLine;
 use app\models\ClientAccount;
 use Yii;
 use yii\base\InvalidParamException;
+use yii\base\NotSupportedException;
 use yii\base\Object;
 use yii\db\ActiveRecord;
 use app\classes\BillQRCode;
@@ -250,9 +251,25 @@ abstract class DocumentReport extends Object
         return $this;
     }
 
-    abstract public function getLanguage();
+    /**
+     * @throws NotSupportedException
+     */
+    public function getLanguage()
+    {
+        // Если в наследуемом объекте стоит $isAllLanguages = true, то данный метод не будет вызван.
+        throw new NotSupportedException('Метод не переопределен');
+    }
 
-    abstract public function getCurrency();
+
+    /**
+     * @throws NotSupportedException
+     */
+    public function getCurrency()
+    {
+        // Если в наследуемом объекте стоит $isMultiCurrencyDocument = true, то данный метод не будет вызван.
+        throw new NotSupportedException('Метод не переопределен');
+    }
+
 
     abstract public function getDocType();
 

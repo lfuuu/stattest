@@ -186,7 +186,7 @@ class InvoiceLight extends Component
         $invoiceTemplate = new InvoiceForm($this->_language);
 
         if ($invoiceTemplate->fileExists()) {
-            return $smarty->fetch(Yii::getAlias(InvoiceForm::getPath() . $this->_language . '.' . InvoiceForm::TEMPLATE_EXTENSION));
+            return $smarty->fetch(Yii::getAlias($invoiceTemplate->getFileName()));
         } else {
             Yii::$app->session->setFlash('error', 'Шаблон счета-фактуры для языка "' . $this->_language . '" не найден');
         }

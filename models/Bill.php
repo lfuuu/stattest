@@ -9,6 +9,7 @@ use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\ActiveRecord;
 use app\classes\Utils;
 use app\dao\BillDao;
+use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\models\Bill as uuBill;
 use app\queries\BillQuery;
@@ -58,6 +59,7 @@ use yii\helpers\Url;
  * @property-read Payment $creditNote
  * @property-read uuBill $universalBill
  * @property-read Trouble $trouble
+ * @property-read array $document
  */
 class Bill extends ActiveRecord
 {
@@ -283,7 +285,16 @@ class Bill extends ActiveRecord
     public function getCreditNote()
     {
         return self::dao()->getCreditNote($this);
+    }
 
+    /**
+     * Получение разрешенных документов счета
+     *
+     * @return array
+     */
+    public function getDocument()
+    {
+        return BillDocument::dao()->getByBillNo($this->bill_no);
     }
 
     /**
@@ -424,5 +435,41 @@ class Bill extends ActiveRecord
         $line->save();
 
         return $line;
+    }
+
+    /**
+     * Счет просмотрен клиентом
+     *
+     * @throws ModelValidationException
+     */
+    public function setViewed()
+    {
+        $billSend = BillSend::findOne(['bill_no' => $this->bill_no]);
+
+        if ($billSend->state == BillSend::STATE_VIEWED) {
+            return;
+        }
+
+        if (!$billSend) {
+            $billSend = new BillSend();
+            $billSend->bill_no = $this->bill_no;
+            $billSend->client = $this->clientAccount->client;
+        }
+
+        $billSend->state = BillSend::STATE_VIEWED;
+
+        if (!$this->save()) {
+            throw new ModelValidationException($this);
+        }
+    }
+
+    /**
+     * Это счет 1С
+     *
+     * @return bool
+     */
+    public function is1C()
+    {
+        return strpos("/", $this->bill_no) !== false;
     }
 }

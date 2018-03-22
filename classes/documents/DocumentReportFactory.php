@@ -27,6 +27,7 @@ class DocumentReportFactory extends Singleton
             DocSoglMCNTelekom::className(),
             ProformaDocument::className(),
             CreditNoteDocument::className(),
+            InvoiceDocument::className(),
         ];
     }
 

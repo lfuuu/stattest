@@ -11,8 +11,6 @@ use Yii;
 use yii\db\ActiveQuery;
 
 /**
- * Class ClientContragent
- *
  * @property int $id
  * @property int $super_id
  * @property int $country_id

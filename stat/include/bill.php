@@ -521,7 +521,6 @@ class Bill {
         {
             $r['amount'] = (float)$r['amount'];
             $r['price'] = (float)$r['price'];
-            $r['tax_rate'] = $this->bill['tax_rate'];
 
             $r['outprice'] =
                 !$this->bill['tax_rate']
