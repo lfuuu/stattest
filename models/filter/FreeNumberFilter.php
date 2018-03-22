@@ -7,7 +7,6 @@ use app\models\ClientAccount;
 use app\models\Currency;
 use app\models\light_models\NumberLight;
 use app\models\Number;
-use app\modules\nnp\models\NdcType;
 use yii\db\Expression;
 
 /**
@@ -555,4 +554,11 @@ class FreeNumberFilter extends Number
         return ArrayHelper::flatten($result);
     }
 
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getQuery()
+    {
+        return $this->_query;
+    }
 }

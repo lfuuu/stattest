@@ -204,6 +204,7 @@ $config = [
         'sim' => ['class' => 'app\modules\sim\Module'],
         'payments' => ['class' => 'app\modules\payments\Module'],
         'mchs' => ['class' => 'app\modules\mchs\Module'],
+        'freeNumber' => ['class' => 'app\modules\freeNumber\Module'],
     ],
     'params' => $params,
 ];

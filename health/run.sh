@@ -1,16 +1,17 @@
 #!/bin/bash
 
-./loadAverage.sh > ../web/operator/_private/healthLoadAverage.json
-./apiFreeNumbers495.sh > ../web/operator/_private/healthApiFreeNumbers495.json
-./apiFreeNumbers499.sh > ../web/operator/_private/healthApiFreeNumbers499.json
-./apiFreeNumbersSilver.sh > ../web/operator/_private/healthApiFreeNumbersSilver.json
-./apiFreeNumbersAccount.sh > ../web/operator/_private/healthApiFreeNumbersAccount.json
-./ubiller.sh > ../web/operator/_private/healthUbillerLog.json
-./mttLog.sh > ../web/operator/_private/healthMttLog.json
-./mttProcess.sh > ../web/operator/_private/healthMttProcess.json
-./nnpPortedApi.sh > ../web/operator/_private/healthNnpPortedApi.json
-./socketApi.sh > ../web/operator/_private/healthSocketApi.json
-./uuApiLog.sh > ../web/operator/_private/healthUuApiLog.json
-./mailerLog.sh > ../web/operator/_private/healthMailerLog.json
-./mailerProcess.sh > ../web/operator/_private/healthMailerProcess.json
-./handlerProcess.sh > ../web/operator/_private/healthHandlerProcess.json
+./loadAverage.sh > ../web/health/loadAverage.json
+./apiFreeNumbers495.sh > ../web/health/apiFreeNumbers495.json
+./apiFreeNumbers499.sh > ../web/health/apiFreeNumbers499.json
+./apiFreeNumbersSilver.sh > ../web/health/apiFreeNumbersSilver.json
+./apiFreeNumbersAccount.sh > ../web/health/apiFreeNumbersAccount.json
+./ubillerLog.sh > ../web/health/ubillerLog.json
+./mttLog.sh > ../web/health/mttLog.json
+./mttProcess.sh > ../web/health/mttProcess.json
+./nnpPortedApi.sh > ../web/health/nnpPortedApi.json
+./socketApi.sh > ../web/health/socketApi.json
+./uuApiLog.sh > ../web/health/uuApiLog.json
+./mailerLog.sh > ../web/health/mailerLog.json
+./mailerProcess.sh > ../web/health/mailerProcess.json
+./handlerProcess.sh > ../web/health/handlerProcess.json
+./exportFreeNumbers.sh > ../web/health/exportFreeNumbers.json

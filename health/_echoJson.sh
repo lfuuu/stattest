@@ -1,24 +1,4 @@
 #!/bin/bash
 
-itemId=$1 # Название. Например, "loadAverage"
-itemVal=$2 # Текущее значение. Например, 1
-warning=$3 # Значение, с которого начинается warning. Например, 2
-critical=$4 # Значение, с которого начинается critical. Например, 4
-error=$5 # Значение, с которого начинается error. Например, 6
-
-if [ $itemVal -ge $error ]
-then
-    status='STATUS_ERROR'
-elif [ $itemVal -ge $critical ]
-then
-    status='STATUS_CRITICAL'
-elif [ $itemVal -ge $warning ]
-then
-    status='STATUS_WARNING'
-else
-    status='STATUS_OK'
-fi
-
 timestamp=`date "+%Y.%m.%d %H:%M:%S"`
-
-echo "{\"itemId\": \"$itemId\", \"itemVal\": $itemVal, \"statusId\": \"$status\", \"statusMessage\": \"$itemVal\", \"timestamp\": \"$timestamp\"}"
+./_echoJsonWithTimestamp.sh "$1" $2 $3 $4 $5 "$timestamp"

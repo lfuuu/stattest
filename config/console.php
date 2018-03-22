@@ -136,6 +136,7 @@ return [
         'transfer' => ['class' => 'app\modules\transfer\Module'],
         'mtt' => ['class' => 'app\modules\mtt\Module'],
         'sim' => ['class' => 'app\modules\sim\Module'],
+        'freeNumber' => ['class' => 'app\modules\freeNumber\Module'],
     ],
     'params' => $params,
 ];

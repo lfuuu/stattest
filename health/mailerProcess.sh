@@ -8,4 +8,4 @@ else
     itemVal=0
 fi
 
-./_echoJson.sh 'MttProcess' $itemVal 1 1 1 # itemId itemVal warning critical error
+./_echoJson.sh 'MailerProcess' $itemVal 1 1 1 # itemId itemVal warning critical error
