@@ -360,11 +360,19 @@ class ApiLk
         $data = [];
 
         if ($clientCountryId == Country::RUSSIA || $bill->is_user_prepay) {
-            $data['bill'] = API__print_bill_url . Encrypt::encodeArray([
-                    'bill' => $bill->bill_no,
-                    'object' => 'bill-2-RUB',
-                    'client' => $bill->client_id
-                ]);
+
+            $billData = [
+                'bill' => $bill->bill_no,
+                'object' => 'bill-2-RUB',
+                'client' => $bill->client_id
+            ];
+
+            // у контрагентов вне России другая форма "счета"
+            if ($clientCountryId != Country::RUSSIA) {
+                $billData['doc_type'] = 'proforma';
+            }
+
+            $data['bill'] = API__print_bill_url . Encrypt::encodeArray($billData);
         }
 
         // Универсальные инвойсы только для пользователей вне России
