@@ -655,7 +655,7 @@ class AccountTariffController extends BaseController
     {
         $post = Yii::$app->request->post();
 
-        if ($filterModel->tariff_id <= 0 || !$post || !isset($post['AccountTariffLog']['actual_from'])) {
+        if ($filterModel->tariff_period_id <= 0 || !$post || !isset($post['AccountTariffLog']['actual_from'])) {
             return false;
         }
 

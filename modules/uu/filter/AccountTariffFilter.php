@@ -32,7 +32,6 @@ class AccountTariffFilter extends AccountTariff
     public $price_from = '';
     public $price_to = '';
 
-    public $tariff_id = '';
     public $tariff_status_id = '';
     public $tariff_is_include_vat = '';
     public $tariff_is_postpaid = '';
@@ -78,7 +77,7 @@ class AccountTariffFilter extends AccountTariff
         $rules[] = [['price_from', 'price_to'], 'integer'];
         $rules[] = [
             [
-                'tariff_id',
+                'tariff_period_id',
                 'tariff_status_id',
                 'tariff_is_include_vat',
                 'tariff_is_postpaid',
@@ -140,39 +139,25 @@ class AccountTariffFilter extends AccountTariff
             $query->andWhere(['tariff_organization.organization_id' => $this->tariff_organization_id]);
         }
 
-        switch ($this->tariff_id) {
-            case '':
-                break;
-            case GetListTrait::$isNull:
-                $query->andWhere(['tariff.id' => null]);
-                break;
-            case GetListTrait::$isNotNull:
-                $query->andWhere('tariff.id IS NOT NULL');
-                break;
-            default:
-                $query->andWhere(['tariff.id' => $this->tariff_id]);
-                break;
-        }
-
         if ($this->service_type_id == ServiceType::ID_VOIP) {
             $query
                 ->joinWith('number')
                 ->with('number');
             $this->number_ndc_type_id !== '' && $query->andWhere([Number::tableName() . '.ndc_type_id' => $this->number_ndc_type_id]);
+        }
 
-            switch ($this->prev_account_tariff_tariff_id) {
-                case '':
-                    break;
-                case GetListTrait::$isNull:
-                    $query->andWhere(['account_tariff_prev.tariff_period_id' => null]);
-                    break;
-                case GetListTrait::$isNotNull:
-                    $query->andWhere('account_tariff_prev.tariff_period_id IS NOT NULL');
-                    break;
-                default:
-                    $query->andWhere(['tariff_period_prev.tariff_id' => $this->prev_account_tariff_tariff_id]);
-                    break;
-            }
+        switch ($this->prev_account_tariff_tariff_id) {
+            case '':
+                break;
+            case GetListTrait::$isNull:
+                $query->andWhere(['account_tariff_prev.tariff_period_id' => null]);
+                break;
+            case GetListTrait::$isNotNull:
+                $query->andWhere('account_tariff_prev.tariff_period_id IS NOT NULL');
+                break;
+            default:
+                $query->andWhere(['tariff_period_prev.id' => $this->prev_account_tariff_tariff_id]);
+                break;
         }
 
         $this->voip_number = strtr($this->voip_number, ['.' => '_', '*' => '%']);

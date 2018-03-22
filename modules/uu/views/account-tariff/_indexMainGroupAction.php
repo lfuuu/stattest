@@ -12,7 +12,7 @@ use app\modules\uu\forms\AccountTariffEditForm;
 // Для УУ с одним тарифом список доступных тарифов одинаковый.
 // Достаточно взять список тарифов от первой попавшейся УУ.
 if (
-    $filterModel->tariff_id <= 0 ||
+    $filterModel->tariff_period_id <= 0 ||
     !$accountTariffFirst = $filterModel->search()->query->one()
 ) {
     return '';

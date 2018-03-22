@@ -66,31 +66,18 @@ if ($serviceTypeId = $serviceType->isPackage()) {
     $columns[] = [
         'label' => 'Тариф основной услуги',
         'attribute' => 'prev_account_tariff_tariff_id',
-        'class' => TariffColumn::className(),
+        'class' => TariffPeriodColumn::className(),
         'serviceTypeId' => $serviceTypeId,
-        'isWithNullAndNotNull' => true,
         'format' => 'html',
         'value' => function (AccountTariff $accountTariff) {
             $prevAccountTariff = $accountTariff->prevAccountTariff;
             $tariffPeriod = $prevAccountTariff ? $prevAccountTariff->tariffPeriod : null;
-            return $tariffPeriod ? $tariffPeriod->tariff_id : null;
+            return $tariffPeriod ? $tariffPeriod->getName() : null;
         },
     ];
 }
 
 $columns = array_merge($columns, [
-    [
-        'label' => 'Тариф',
-        'attribute' => 'tariff_id',
-        'class' => TariffColumn::className(),
-        'serviceTypeId' => $serviceType->id,
-        'isWithNullAndNotNull' => true,
-        'format' => 'html',
-        'value' => function (AccountTariff $accountTariff) {
-            $tariffPeriod = $accountTariff->tariffPeriod;
-            return $tariffPeriod ? $tariffPeriod->tariff_id : null;
-        },
-    ],
     [
         'label' => 'Включая НДС',
         'attribute' => 'tariff_is_include_vat',
