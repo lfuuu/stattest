@@ -37,7 +37,11 @@ use yii\widgets\Breadcrumbs;
 // Флаг форсированного приведения к информационным единицам измерения для интернета
 $isForcibly = false;
 foreach((array) $filterModel->serviceid as $serviceid) {
-    $isForcibly = in_array($serviceid, MttRaw::SERVICE_ID_INET);
+    if (!in_array($serviceid, MttRaw::SERVICE_ID_INET)) {
+        $isForcibly = false;
+        break;
+    }
+    $isForcibly = true;
 }
 
 $columns = [
