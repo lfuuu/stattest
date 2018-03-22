@@ -2,6 +2,7 @@
 
 namespace app\modules\sim\filters;
 
+use app\models\Number;
 use app\modules\sim\models\Card;
 use app\modules\sim\models\Imsi;
 use yii\data\ActiveDataProvider;
@@ -21,6 +22,9 @@ class CardFilter extends Card
     public $msisdn = '';
     public $did = '';
 
+    public $beauty_level = '';
+    public $number_status = '';
+
     /**
      * @return array
      */
@@ -29,6 +33,7 @@ class CardFilter extends Card
         return [
             [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id'], 'integer'],
             [['imsi', 'msisdn', 'did'], 'integer'],
+            [['beauty_level', 'number_status'], 'integer']
         ];
     }
 
@@ -39,11 +44,15 @@ class CardFilter extends Card
      */
     public function search()
     {
-        $query = Card::find()
-            ->with('imsies');
-
         $cardTableName = Card::tableName();
         $imsiTableName = Imsi::tableName();
+        $numberTableName = Number::tableName();
+
+        $query = Card::find()
+            ->with('imsies')
+            ->joinWith('imsies')
+            ->leftJoin($numberTableName, $numberTableName . '.number = ' . $imsiTableName . '.msisdn');
+
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -55,13 +64,12 @@ class CardFilter extends Card
         $this->is_active && $query->andWhere([$cardTableName . '.is_active' => $this->is_active]);
         $this->status_id && $query->andWhere([$cardTableName . '.status_id' => $this->status_id]);
 
-        if ($this->imsi || $this->msisdn || $this->did) {
-            $query->joinWith('imsies');
-        }
-
         $this->imsi && $query->andWhere([$imsiTableName . '.imsi' => $this->imsi]);
         $this->msisdn && $query->andWhere([$imsiTableName . '.msisdn' => $this->msisdn]);
         $this->did && $query->andWhere([$imsiTableName . '.did' => $this->did]);
+
+        $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);
+        $this->number_status !== '' && $query->andWhere([$numberTableName . '.status' => $this->number_status]);
 
         return $dataProvider;
     }

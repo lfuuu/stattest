@@ -6,12 +6,13 @@
  * @var CardFilter $filterModel
  */
 
+use app\classes\grid\column\universal\BeautyLevelColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\NumberStatusColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
-use app\models\DidGroup;
 use app\modules\sim\columns\CardStatusColumn;
 use app\modules\sim\filters\CardFilter;
 use app\modules\sim\models\Card;
@@ -117,22 +118,20 @@ $columns = [
     [
         'label' => 'Красивость',
         'attribute' => 'beauty_level',
-        'format' => 'raw',
-        'value' => function (Card $card) {
-            $msisdns = [];
-            $imsies = $card->imsies;
-            foreach ($imsies as $imsi) {
-                if ($imsi->msisdn) {
-                    /** @var \app\models\Number $number */
-                    $number = $imsi->number;
-                    $didGroup = $number ? $number->didGroup : null;
-                    $msisdns[] = $didGroup ?
-                        Html::a($didGroup->name, DidGroup::getUrlById($didGroup->id)) :
-                        Yii::t('common', '(not set)');
-                }
-            }
+        'class' => BeautyLevelColumn::className(),
+        'value' => function(Card $card) {
+            $imsi = reset($card->imsies);
+            return $imsi->number->beauty_level;
+        },
+    ],
 
-            return implode(' <br>', $msisdns);
+    [
+        'label' => 'Статус номера',
+        'attribute' => 'number_status',
+        'class' => NumberStatusColumn::className(),
+        'value' => function(Card $card) {
+            $imsi = reset($card->imsies);
+            return $imsi->number->status;
         },
     ],
 
