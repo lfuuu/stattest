@@ -15,6 +15,7 @@ use app\classes\grid\account\telecom\maintenance\OrderServiceFolder;
 use app\classes\grid\account\telecom\maintenance\TechFailureFolder;
 use app\classes\grid\account\telecom\maintenance\TrashFolder;
 use app\classes\grid\account\telecom\maintenance\UnlinkFolder;
+use app\classes\grid\account\telecom\maintenance\WlInnonetFolder;
 use app\classes\grid\account\telecom\maintenance\WorkFolder;
 use app\models\BusinessProcess;
 use app\models\Business;
@@ -50,6 +51,7 @@ class TelecomMaintenance extends AccountGrid
             TechFailureFolder::create($this),
             FailureFolder::create($this),
             DuplicateFolder::create($this),
+            WlInnonetFolder::create($this),
         ];
     }
 

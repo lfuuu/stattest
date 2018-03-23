@@ -35,6 +35,7 @@ class BusinessProcessStatus extends ActiveRecord
     const TELEKOM_MAINTENANCE_TECH_FAILURE = 27; // Тех. отказ
     const TELEKOM_MAINTENANCE_FAILURE = 28; // Отказ
     const TELEKOM_MAINTENANCE_DUPLICATE = 29; // Дубликат
+    const TELEKOM_MAINTENANCE_WLINNONET = 152; // WL_Innonet
 
     // Статусы, в которых можно получать платежи с внешних систем
     const PAY_AVAILABLE_STATUSES_TELEKOM_MAINTENANCE = [
