@@ -229,7 +229,9 @@ class m_mail{
 			$filter['bill'][1] = $dateFrom->getDay();
 			$filter['bill'][2] = $dateTo->getDay();
 		}
+
 		$J[] = "INNER JOIN client_contract CC ON (CC.id = C.contract_id)";
+		$J[] = "INNER JOIN " . BusinessProcessStatus::tableName() . " BPS ON (BPS.id = CC.business_process_status_id)";
 
 		foreach($filter as $type=>$p)
 			if($p[0]!='NO')
@@ -374,7 +376,7 @@ class m_mail{
 		');
 
         if ($ack) {
-            $W[] = 'CC.business_process_status_id = ' . BusinessProcessStatus::TELEKOM_MAINTENANCE_WORK;
+            $W[] = "BPS.is_bill_send";
         }
 		
 		foreach($R as $r)

@@ -3,7 +3,6 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
-use app\classes\traits\GridSortTrait;
 use app\exceptions\ModelValidationException;
 use yii\helpers\Url;
 
@@ -16,6 +15,7 @@ use yii\helpers\Url;
  * @property int $sort
  * @property string $oldstatus
  * @property string $color
+ * @property boolean $is_bill_send
  */
 class BusinessProcessStatus extends ActiveRecord
 {
@@ -164,7 +164,7 @@ class BusinessProcessStatus extends ActiveRecord
     public function rules()
     {
         return [
-            [['id', 'business_process_id'], 'integer'],
+            [['id', 'business_process_id', 'is_bill_send'], 'integer'],
             [['name', 'oldstatus', 'color'], 'string'],
             [['name', 'business_process_id'], 'required'],
         ];
@@ -178,7 +178,8 @@ class BusinessProcessStatus extends ActiveRecord
             'business_process_id' => 'Бизнес процесс',
             'sort' => 'Сортировка',
             'color' => 'Подсветка ЛС',
-            'oldstatus' => 'Старый статус (для совсестимости)'
+            'oldstatus' => 'Старый статус (для совместимости)',
+            'is_bill_send' => 'Отправка счета',
         ];
     }
 
@@ -326,7 +327,7 @@ class BusinessProcessStatus extends ActiveRecord
                     [
                         'AND',
                         ['!=', 'sort', 0],
-                        ['>', 'sort', $isMoveDown ? $movedElement->sort : $nextElement->sort-1],
+                        ['>', 'sort', $isMoveDown ? $movedElement->sort : $nextElement->sort - 1],
                         ['<', 'sort', $isMoveDown ? $nextElement->sort : $movedElement->sort],
                         ['business_process_id' => $movedElement->business_process_id]
                     ]);

@@ -73,6 +73,14 @@ if (!$status->isNewRecord) {
         </div>
 
     </div>
+    <div class="row">
+
+        <?php // Отправка счета ?>
+        <div class="col-sm-4">
+            <?= $form->field($status, 'is_bill_send')->checkbox() ?>
+        </div>
+
+    </div>
 
     <?php // кнопки ?>
     <div class="form-group text-right">

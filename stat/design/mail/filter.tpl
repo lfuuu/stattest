@@ -1,5 +1,9 @@
-<H2>Письма клиентам. <a href='{$LINK_START}&module=mail&action=view&id={$mail_id}'>Письмо &#8470;{$mail_id}</a></H2>
-<H3>Добавление клиентов в очередь на отправку писем</H3>
+<ul class="breadcrumb">
+       <li class="active">Письма клиентам.</li>
+       <li><a href='{$LINK_START}&module=mail&action=view&id={$mail_id}'>Письмо &#8470;{$mail_id}</a></li>
+       <li class="active">Добавление клиентов в очередь на отправку писем</li>
+</ul>
+
 {if count($mail_clients)}
 <TABLE class=price cellSpacing=4 cellPadding=2 border=0 style='width:*' width="*">
 <FORM action="?" method=post id=form name=form>
@@ -77,8 +81,8 @@ function check_all2(){ldelim}
     {/foreach}
 </select>
 </td></tr>
-<TR><TD>Статус клиента</TD><TD>
-Включенный
+<TR><TD>Статус клиента: </TD><TD>
+Все статусы бизнес-процессов с разрешенной отправкой счетов
 </td></tr>
 <TR><TD>Менеджер</TD><TD>
 <select name='filter[manager][0]'><option value='NO'>(не фильтровать по этому полю)</option>{foreach from=$f_manager item=r}<option value='{$r.user}'{if $r.user==$mail_filter.manager.0} selected="selected"{/if}>{$r.name} ({$r.user})</option>{/foreach}</select>
@@ -179,7 +183,7 @@ function check_all2(){ldelim}
 		}
 		$('#tarifs_for_'+id+' input[type=checkbox]').each(function(o,i){i.disabled = !(isSelected && isTarif);});
 	}
-	function show_all_regions(value) 
+	function show_all_regions(value)
 	{
 		switch (value) {
 			case 'client':

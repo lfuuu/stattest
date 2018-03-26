@@ -88,7 +88,7 @@ class BusinessProcessStatusController extends BaseController
 
         if ($form->isSaved) {
             Yii::$app->session->setFlash('success', Yii::t('common', 'The object was saved successfully'));
-            return $this->redirect(['index']);
+            return $this->redirect(['index', 'BusinessProcessStatusFilter' => ['business_process_id' => $form->getStatusModel()->business_process_id]]);
         } else {
             return $this->render('edit', [
                 'formModel' => $form,

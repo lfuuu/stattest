@@ -7,7 +7,6 @@ use app\models\BusinessProcessStatus;
 use app\models\ClientContract;
 use InvalidArgumentException;
 use Yii;
-use yii\base\InvalidParamException;
 
 abstract class BusinessProcessStatusForm extends Form
 {

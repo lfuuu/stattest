@@ -9,6 +9,7 @@
 use app\classes\grid\column\universal\DropdownColumn;
 use app\classes\grid\column\universal\IntegerColumn;
 use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\models\BusinessProcess;
 use app\models\filter\BusinessProcessStatusFilter;
@@ -62,10 +63,9 @@ $columns = [
         'class' => StringColumn::className(),
     ],
     [
-        'attribute' => 'sort',
-        'class' => StringColumn::className(),
+        'attribute' => 'is_bill_send',
+        'class' => YesNoColumn::className(),
     ],
-
 ];
 
 echo GridViewSequence::widget([

@@ -13,6 +13,7 @@ class BusinessProcessStatusFilter extends BusinessProcessStatus
     public $id = '';
     public $name = '';
     public $business_process_id = '';
+    public $is_bill_send = '';
 
     /**
      * Фильтровать
@@ -29,6 +30,7 @@ class BusinessProcessStatusFilter extends BusinessProcessStatus
         $this->id !== '' && $query->andWhere(['id' => $this->id]);
         $this->name !== '' && $query->andWhere(['LIKE', 'name', $this->name]);
         $this->business_process_id !== '' && $query->andWhere(['business_process_id' => $this->business_process_id]);
+        $this->is_bill_send !== '' && $query->andWhere(['is_bill_send' => (bool)(int)$this->is_bill_send]);
 
         $query->orderBy([
             'business_process_id' => SORT_ASC,
