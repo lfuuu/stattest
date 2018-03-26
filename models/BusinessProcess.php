@@ -3,7 +3,9 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GetListTrait;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * Class BusinessProcess
@@ -13,6 +15,8 @@ use yii\db\ActiveQuery;
  * @property string $name
  * @property integer $show_as_status
  * @property integer $sort
+ *
+ * @property-read Business $business
  */
 class BusinessProcess extends ActiveRecord
 {
@@ -85,6 +89,41 @@ class BusinessProcess extends ActiveRecord
                 $businessId ? ['business_id' => $businessId] : []
             ]
         );
+    }
+
+    /**
+     * Список бизнес процессов вместе с названием подразделения
+     *
+     * @param bool $isWithEmpty
+     * @param bool $isWithNullAndNotNull
+     * @return array|string[]
+     */
+    public static function getListWithBusinessName(
+        $isWithEmpty = false,
+        $isWithNullAndNotNull = false
+    ) {
+        $businessTable = Business::tableName();
+        $businessProcessTable = self::tableName();
+
+        $list = self::find()
+            ->joinWith("business {$businessTable}")
+            ->select([
+                new Expression("concat({$businessTable}.name, ' / ', {$businessProcessTable}.name) as bp_name"),
+                "{$businessProcessTable}.id"
+            ])
+            ->indexBy("id")
+            ->orderBy(["{$businessTable}.sort" => SORT_ASC, "{$businessProcessTable}.sort" => SORT_ASC])
+            ->column();
+
+        return GetListTrait::getEmptyList($isWithEmpty, $isWithNullAndNotNull) + $list;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBusiness()
+    {
+        return $this->hasOne(Business::className(), ['id' => 'business_id']);
     }
 
     /**

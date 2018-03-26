@@ -169,6 +169,7 @@ class Navigation
                 ->addItem('Точка входа', ['/dictionary/entry-point'], ['dictionary.read'])
                 ->addItem('Публичные сайты', ['/dictionary/public-site'], ['dictionary.read'])
                 ->addItem('Метки', ['/dictionary/tags'], ['dictionary.read'])
+                ->addItem('Статусы бизнес процессов', ['/dictionary/business-process-status'], ['dictionary-statuses.read'])
         );
 
         $this->addBlock(

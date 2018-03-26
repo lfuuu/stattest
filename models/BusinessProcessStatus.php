@@ -3,6 +3,9 @@
 namespace app\models;
 
 use app\classes\model\ActiveRecord;
+use app\classes\traits\GridSortTrait;
+use app\exceptions\ModelValidationException;
+use yii\helpers\Url;
 
 /**
  * Class BusinessProcessStatus
@@ -158,6 +161,27 @@ class BusinessProcessStatus extends ActiveRecord
         return 'client_contract_business_process_status';
     }
 
+    public function rules()
+    {
+        return [
+            [['id', 'business_process_id'], 'integer'],
+            [['name', 'oldstatus', 'color'], 'string'],
+            [['name', 'business_process_id'], 'required'],
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'Id',
+            'name' => 'Название статуса',
+            'business_process_id' => 'Бизнес процесс',
+            'sort' => 'Сортировка',
+            'color' => 'Подсветка ЛС',
+            'oldstatus' => 'Старый статус (для совсестимости)'
+        ];
+    }
+
     /**
      * Вернуть список всех доступных значений
      *
@@ -168,7 +192,8 @@ class BusinessProcessStatus extends ActiveRecord
     public static function getList(
         $isWithEmpty = false,
         $isWithNullAndNotNull = false
-    ) {
+    )
+    {
         return self::getListTrait(
             $isWithEmpty,
             $isWithNullAndNotNull,
@@ -178,6 +203,25 @@ class BusinessProcessStatus extends ActiveRecord
             $where = []
         );
     }
+
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/dictionary/business-process-status/edit', 'id' => $id]);
+    }
+
 
     /**
      * Получение статуса по ID бизнес процесса
@@ -234,5 +278,78 @@ class BusinessProcessStatus extends ActiveRecord
             "processes" => $processes,
             "statuses" => $statuses
         ];
+    }
+
+    /**
+     * @param bool $isInsert
+     * @return bool
+     */
+    public function beforeSave($isInsert)
+    {
+        $this->sort = $this->sort ?: self::find()
+                ->where([
+                    'business_process_id' => $this->business_process_id
+                ])
+                ->max('sort') + 1;
+
+        return parent::beforeSave($isInsert);
+    }
+
+    /**
+     * Сохранение сортировки из грида
+     *
+     * @param integer $elementId
+     * @param integer $nextElementId
+     * @return bool|string
+     * @throws ModelValidationException
+     */
+    public function gridSort($elementId, $nextElementId)
+    {
+        $transaction = self::getDb()->beginTransaction();
+
+        try {
+            $movedElement = self::findOne(['id' => $elementId]);
+
+            if ((int)$nextElementId) {
+                $nextElement = self::findOne(['id' => $nextElementId]);
+
+                if ($nextElement->business_process_id != $movedElement->business_process_id) {
+                    throw new \LogicException('Сортировка статусов возможно только внутри одного бизнес процесса');
+                }
+
+                $isMoveDown = $movedElement->sort < $nextElement->sort;
+
+                self::updateAllCounters(
+                    [
+                        'sort' => $isMoveDown ? -1 : 1
+                    ],
+                    [
+                        'AND',
+                        ['!=', 'sort', 0],
+                        ['>', 'sort', $isMoveDown ? $movedElement->sort : $nextElement->sort-1],
+                        ['<', 'sort', $isMoveDown ? $nextElement->sort : $movedElement->sort],
+                        ['business_process_id' => $movedElement->business_process_id]
+                    ]);
+
+                $movedElement->sort = $nextElement->sort - ($isMoveDown ? 1 : 0) ?: 1;
+                if (!$movedElement->save()) {
+                    throw new ModelValidationException($movedElement);
+                }
+
+            } else {
+                $maxSequence = self::find()->max('`sort`');
+                $movedElement->sort = (int)$maxSequence + 1;
+                if (!$movedElement->save()) {
+                    throw new ModelValidationException($movedElement);
+                }
+            }
+
+            $transaction->commit();
+        } catch (\Exception $e) {
+            $transaction->rollBack();
+            return $e->getMessage();
+        }
+
+        return true;
     }
 }

@@ -46,7 +46,7 @@ class Business extends ActiveRecord
      */
     public static function find()
     {
-        return parent::find()->orderBy(['sort' => SORT_ASC]);
+        return parent::find()->orderBy([self::tableName() . '.sort' => SORT_ASC]);
     }
 
     /**

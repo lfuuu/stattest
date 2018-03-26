@@ -1,0 +1,40 @@
+<?php
+
+namespace app\models\filter;
+
+use app\models\BusinessProcessStatus;
+use yii\data\ActiveDataProvider;
+
+/**
+ * Фильтрация для BusinessProcessStatus
+ */
+class BusinessProcessStatusFilter extends BusinessProcessStatus
+{
+    public $id = '';
+    public $name = '';
+    public $business_process_id = '';
+
+    /**
+     * Фильтровать
+     *
+     * @return ActiveDataProvider
+     */
+    public function search()
+    {
+        $query = BusinessProcessStatus::find();
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        $this->id !== '' && $query->andWhere(['id' => $this->id]);
+        $this->name !== '' && $query->andWhere(['LIKE', 'name', $this->name]);
+        $this->business_process_id !== '' && $query->andWhere(['business_process_id' => $this->business_process_id]);
+
+        $query->orderBy([
+            'business_process_id' => SORT_ASC,
+            'sort' => SORT_ASC
+        ]);
+
+        return $dataProvider;
+    }
+}
