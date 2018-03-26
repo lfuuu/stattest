@@ -9,7 +9,6 @@ use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
 use app\models\ClientAccountOptions;
 use app\models\Trouble;
-use app\models\User;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
@@ -105,7 +104,11 @@ class SyncVmCollocation
      */
     public function syncResource($clientAccountId, $accountTariffId, $accountTariffResourceIds)
     {
-        $isNeedSync = false;
+        $resources = [];
+
+        if (!$accountTariffResourceIds) {
+            return;
+        }
 
         foreach ($accountTariffResourceIds as $accountTariffResourceId) {
             $accountTariffResourceLog = AccountTariffResourceLog::findOne(['id' => $accountTariffResourceId]);
@@ -113,21 +116,27 @@ class SyncVmCollocation
                 throw new \InvalidArgumentException('Wrong AccountTariffResourceLogId = ' . $accountTariffResourceId);
             }
 
-            switch ($accountTariffResourceLog->resource_id) {
-                case Resource::ID_VM_COLLOCATION_HDD:
-//                    $user = User::findOne(['user' => Trouble::DEFAULT_SUPPORT_SALES]);
-//                    Trouble::dao()->createTrouble($clientAccountId, Trouble::TYPE_TASK, Trouble::SUBTYPE_TASK, $troubleText, null, ($user ? $user->user : null));
-                    break;
-
-                case Resource::ID_VM_COLLOCATION_PROCESSOR:
-                case Resource::ID_VM_COLLOCATION_RAM:
-                    $isNeedSync = true;
-                    break;
-            }
+            $resources[$accountTariffResourceLog->resource_id] = $accountTariffResourceLog->getAmount();
         }
 
-        if ($isNeedSync) {
-            $this->syncVm($accountTariffId);
+        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+
+        ApiVmCollocation::me()->updateVps(
+            $accountTariff->vm_elid_id,
+            isset($resources[Resource::ID_VM_COLLOCATION_RAM]) ? $resources[Resource::ID_VM_COLLOCATION_RAM] : null,
+            isset($resources[Resource::ID_VM_COLLOCATION_HDD]) ? $resources[Resource::ID_VM_COLLOCATION_HDD] : null,
+            isset($resources[Resource::ID_VM_COLLOCATION_PROCESSOR]) ? $resources[Resource::ID_VM_COLLOCATION_PROCESSOR] : null
+        );
+
+        if (isset($resources[Resource::ID_VM_COLLOCATION_HDD])) {
+            Trouble::dao()->createTrouble(
+                $clientAccountId,
+                Trouble::TYPE_TASK,
+                Trouble::SUBTYPE_TASK,
+                sprintf('Для VM ELID ID = %d изменить ресурс HDD на %d GB. УУ %s', $accountTariff->vm_elid_id, $resources[Resource::ID_VM_COLLOCATION_HDD], $accountTariff->getUrl()),
+                null,
+                Trouble::DEFAULT_VM_SUPPORT
+            );
         }
     }
 

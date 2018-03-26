@@ -66,7 +66,17 @@ trait AccountTariffLinkTrait
      */
     public function getUrl()
     {
-        return Url::to(['/uu/account-tariff/edit', 'id' => $this->id]);
+        return self::getUrlById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return string
+     * @throws \yii\base\InvalidParamException
+     */
+    public static function getUrlById($id)
+    {
+        return Url::to(['/uu/account-tariff/edit', 'id' => $id]);
     }
 
     /**

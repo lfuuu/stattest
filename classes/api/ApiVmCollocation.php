@@ -200,6 +200,7 @@ class ApiVmCollocation extends Singleton
      *
      * @param int $vmId
      * @param int $resourceRam
+     * @param int $resourceHdd
      * @param int $resourceProcessor
      * @return string
      * @throws InvalidConfigException
@@ -207,15 +208,23 @@ class ApiVmCollocation extends Singleton
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function updateVps($vmId, $resourceRam, $resourceProcessor)
+    public function updateVps($vmId, $resourceRam, $resourceHdd, $resourceProcessor)
     {
         $data = [
             'func' => self::FUNC_VM_EDIT,
             'elid' => $vmId,
             'mem' => $resourceRam,
+            'hdd' => $resourceHdd, // со стороны VM этот параметр не используется. Здесь он нужен только для создания важного события
             'vcpu' => $resourceProcessor,
         ];
-        $result = $this->exec($data); // $result = [doc, elid, ok]
+        if ($resourceRam || $resourceProcessor) {
+            // только при изменении памяти или процессора
+            $result = $this->exec($data); // $result = [doc, elid, ok]
+        } else {
+            // при изменении жесткого диска запрос отправлять не надо (это делается вручную Вострокнутовым по заявке)
+            // просто создать важное событие
+            $result = ['doc' => true];
+        }
 
         if ($result['doc']) {
             $data['result'] = $result['doc'];
