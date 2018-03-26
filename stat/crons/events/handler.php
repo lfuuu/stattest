@@ -14,17 +14,23 @@ use app\models\ClientAccount;
 use app\models\EventQueue;
 use app\models\EventQueueIndicator;
 use app\modules\atol\behaviors\SendToOnlineCashRegister;
+use app\modules\atol\Module as AtolModule;
+use app\modules\freeNumber\classes\FreeNumberAdapter;
+use app\modules\freeNumber\Module as FreeNumberModule;
 use app\modules\mtt\classes\MttAdapter;
+use app\modules\mtt\Module as MttModule;
 use app\modules\nnp\classes\CityLinker;
 use app\modules\nnp\classes\OperatorLinker;
 use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\models\CountryFile;
+use app\modules\nnp\Module as NnpModule;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
 use app\modules\uu\behaviors\SyncVmCollocation;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\Module as UuModule;
 
 define('NO_WEB', 1);
 define('PATH_TO_ROOT', '../../');
@@ -55,9 +61,10 @@ function doEvents($consoleParam)
     $isVmServer = ApiVmCollocation::me()->isAvailable();
     $isFeedbackServer = ApiFeedback::isAvailable();
     $isAccountTariffLightServer = SyncAccountTariffLight::isAvailable();
-    $isNnpServer = \app\modules\nnp\Module::isAvailable();
+    $isNnpServer = NnpModule::isAvailable();
     $isAtolServer = \app\modules\atol\classes\Api::me()->isAvailable();
     $isMttServer = MttAdapter::me()->isAvailable();
+    $isFreeNumberServer = FreeNumberAdapter::me()->isAvailable();
     echo '. ';
 
     $activeQuery = EventQueue::getPlannedQuery();
@@ -215,11 +222,9 @@ function doEvents($consoleParam)
                     break;
 
                 case EventQueue::CORE_CREATE_OWNER:
-                    if ($isCoreServer) {
-                        $info = ApiCore::syncCoreOwner($param);
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info = $isCoreServer ?
+                        ApiCore::syncCoreOwner($param) :
+                        EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
                 case EventQueue::USAGE_VIRTPBX__INSERT:
@@ -377,7 +382,7 @@ function doEvents($consoleParam)
                 // --------------------------------------------
                 // Универсальные услуги
                 // --------------------------------------------
-                case \app\modules\uu\Module::EVENT_ADD_LIGHT:
+                case UuModule::EVENT_ADD_LIGHT:
                     // УУ. Добавить данные в AccountTariffLight
                     if ($isAccountTariffLightServer) {
                         SyncAccountTariffLight::addToAccountTariffLight($param);
@@ -386,7 +391,7 @@ function doEvents($consoleParam)
                     }
                     break;
 
-                case \app\modules\uu\Module::EVENT_DELETE_LIGHT:
+                case UuModule::EVENT_DELETE_LIGHT:
                     // УУ. Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
                     if ($isAccountTariffLightServer) {
                         SyncAccountTariffLight::deleteFromAccountTariffLight($param);
@@ -395,17 +400,17 @@ function doEvents($consoleParam)
                     }
                     break;
 
-                case \app\modules\uu\Module::EVENT_RECALC_ACCOUNT:
+                case UuModule::EVENT_RECALC_ACCOUNT:
                     // УУ. Билинговать клиента
                     AccountTariffBiller::recalc($param);
                     break;
 
-                case \app\modules\uu\Module::EVENT_RECALC_BALANCE:
+                case UuModule::EVENT_RECALC_BALANCE:
                     // УУ. Пересчитать realtime баланс
                     RecalcRealtimeBalance::recalc($param['client_account_id']);
                     break;
 
-                case \app\modules\uu\Module::EVENT_VM_SYNC:
+                case UuModule::EVENT_VM_SYNC:
                     // УУ. Услуга VM collocation
                     if ($isVmServer) {
                         (new SyncVmCollocation)->syncVm($param['account_tariff_id']);
@@ -414,7 +419,7 @@ function doEvents($consoleParam)
                     }
                     break;
 
-                case \app\modules\uu\Module::EVENT_VPBX:
+                case UuModule::EVENT_VPBX:
                     // УУ. Услуга ВАТС
                     if ($isCoreServer) {
                         VirtPbx3::check($param['account_tariff_id']);
@@ -423,7 +428,7 @@ function doEvents($consoleParam)
                     }
                     break;
 
-                case \app\modules\uu\Module::EVENT_VOIP_CALLS:
+                case UuModule::EVENT_VOIP_CALLS:
                     // УУ. Услуга телефонии
                     \app\models\Number::dao()->actualizeStatusByE164($param['number']);
 
@@ -441,12 +446,12 @@ function doEvents($consoleParam)
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;
 
-                case \app\modules\uu\Module::EVENT_ADD_DEFAULT_PACKAGES:
+                case UuModule::EVENT_ADD_DEFAULT_PACKAGES:
                     // УУ. Добавление/выключение дефолтных пакетов телефонии
                     AccountTariff::actualizeDefaultPackages($param['account_tariff_id']);
                     break;
 
-                case \app\modules\uu\Module::EVENT_CALL_CHAT_CREATE:
+                case UuModule::EVENT_CALL_CHAT_CREATE:
                     // УУ. Услугу call chat создать
                     if ($isFeedbackServer) {
                         ApiFeedback::createChat($param['client_account_id'], $param['account_tariff_id']);
@@ -455,7 +460,7 @@ function doEvents($consoleParam)
                     }
                     break;
 
-                case \app\modules\uu\Module::EVENT_CALL_CHAT_REMOVE:
+                case UuModule::EVENT_CALL_CHAT_REMOVE:
                     // УУ. Услугу call chat удалить
                     if ($isFeedbackServer) {
                         ApiFeedback::removeChat($param['client_account_id'], $param['account_tariff_id']);
@@ -464,7 +469,7 @@ function doEvents($consoleParam)
                     }
                     break;
 
-                case \app\modules\uu\Module::EVENT_RESOURCE_VOIP:
+                case UuModule::EVENT_RESOURCE_VOIP:
                     // УУ. Отправить измененные ресурсы телефонии на платформу
                     if (AccountTariff::hasTrunk($param['client_account_id'])) {
                         HandlerLogger::me()->add('Мегатранк');
@@ -483,7 +488,7 @@ function doEvents($consoleParam)
                     }
                     break;
 
-                case \app\modules\uu\Module::EVENT_RESOURCE_VPBX:
+                case UuModule::EVENT_RESOURCE_VPBX:
                     // УУ. Отправить измененные ресурсы ВАТС на платформу
                     if ($isCoreServer) {
                         ApiVpbx::me()->update(
@@ -497,7 +502,7 @@ function doEvents($consoleParam)
                     }
                     break;
 
-                case \app\modules\uu\Module::EVENT_RESOURCE_VM_COLLOCATION:
+                case UuModule::EVENT_RESOURCE_VM_COLLOCATION:
                     // УУ. Отправить измененные ресурсы VM
                     if ($isVmServer) {
                         (new SyncVmCollocation)->syncResource($param['client_account_id'], $param['account_tariff_id'], $param['account_tariff_resource_ids']);
@@ -509,112 +514,120 @@ function doEvents($consoleParam)
                 // --------------------------------------------
                 // АТОЛ
                 // --------------------------------------------
-                case \app\modules\atol\Module::EVENT_SEND:
+                case AtolModule::EVENT_SEND:
                     // АТОЛ. В соответствии с ФЗ−54 отправить данные в онлайн-кассу. А она сама отправит чек покупателю и в налоговую
-                    if ($isAtolServer) {
-                        $info = SendToOnlineCashRegister::send($param['paymentId']);
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info = $isAtolServer ?
+                        SendToOnlineCashRegister::send($param['paymentId']) :
+                        EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
-                case \app\modules\atol\Module::EVENT_REFRESH:
+                case AtolModule::EVENT_REFRESH:
                     // АТОЛ. Обновить статус из онлайн-кассы
-                    if ($isAtolServer) {
-                        $info = SendToOnlineCashRegister::refreshStatus($param['paymentId']);
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info = $isAtolServer ?
+                        SendToOnlineCashRegister::refreshStatus($param['paymentId']) :
+                        EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
                 // --------------------------------------------
                 // ННП
                 // --------------------------------------------
-                case \app\modules\nnp\Module::EVENT_IMPORT:
+                case NnpModule::EVENT_IMPORT:
                     // ННП. Импорт страны
                     if ($isNnpServer) {
                         $info = CountryFile::importById($param['fileId']);
 
                         // поставить в очередь для пересчета операторов, регионов и городов
-                        EventQueue::go(\app\modules\nnp\Module::EVENT_LINKER);
+                        EventQueue::go(NnpModule::EVENT_LINKER);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case \app\modules\nnp\Module::EVENT_LINKER:
+                case NnpModule::EVENT_LINKER:
                     // ННП. Линковка исходных к ID
-                    if ($isNnpServer) {
-                        $info .= 'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL;
-                        $info .= 'Регионы: ' . RegionLinker::me()->run() . PHP_EOL;
-                        $info .= 'Города: ' . CityLinker::me()->run() . PHP_EOL;
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info .= $isNnpServer ?
+                        'Операторы: ' . OperatorLinker::me()->run() . PHP_EOL .
+                        'Регионы: ' . RegionLinker::me()->run() . PHP_EOL .
+                        'Города: ' . CityLinker::me()->run() . PHP_EOL :
+                        EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
-                case \app\modules\nnp\Module::EVENT_FILTER_TO_PREFIX:
+                case NnpModule::EVENT_FILTER_TO_PREFIX:
                     // ННП. Конвертировать фильтры в префиксы
-                    if ($isNnpServer) {
-                        $info .= implode(PHP_EOL, RefreshPrefix::me()->filterToPrefix()) . PHP_EOL;
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info .= $isNnpServer ?
+                        implode(PHP_EOL, RefreshPrefix::me()->filterToPrefix()) . PHP_EOL :
+                        EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
                 // --------------------------------------------
                 // МТТ
                 // --------------------------------------------
-                case \app\modules\mtt\Module::EVENT_ADD_INTERNET:
+                case MttModule::EVENT_ADD_INTERNET:
                     // МТТ. Добавить интернет
-                    if ($isMttServer) {
-                        $info = \app\modules\mtt\Module::addInternetPackage($param['package_account_tariff_id'], $param['internet_traffic']);
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info = $isMttServer ?
+                        MttModule::addInternetPackage($param['package_account_tariff_id'], $param['internet_traffic']) :
+                        EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
-                case \app\modules\mtt\Module::EVENT_CLEAR_BALANCE:
+                case MttModule::EVENT_CLEAR_BALANCE:
                     // МТТ. Сбросить баланс
-                    $info = \app\modules\mtt\Module::clearBalance($param['account_tariff_id']);
+                    $info = MttModule::clearBalance($param['account_tariff_id']);
                     break;
 
-                case \app\modules\mtt\Module::EVENT_CLEAR_INTERNET:
+                case MttModule::EVENT_CLEAR_INTERNET:
                     // МТТ. Сжечь интернет
-                    if ($isMttServer) {
-                        $info = \app\modules\mtt\Module::clearInternet($param['account_tariff_id']);
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
+                    $info = $isMttServer ?
+                        MttModule::clearInternet($param['account_tariff_id']) :
+                        EventQueue::API_IS_SWITCHED_OFF;
                     break;
 
-                case \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_BALANCE:
+                case MttModule::EVENT_CALLBACK_GET_ACCOUNT_BALANCE:
                     // МТТ. Callback обработчик API-запроса getAccountBalance
                     if ($isMttServer) {
-                        \app\modules\mtt\Module::getAccountBalanceCallback($param);
+                        MttModule::getAccountBalanceCallback($param);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_DATA:
+                case MttModule::EVENT_CALLBACK_GET_ACCOUNT_DATA:
                     // МТТ. Callback обработчик API-запроса getAccountData
                     if ($isMttServer) {
-                        \app\modules\mtt\Module::getAccountDataCallback($param);
+                        MttModule::getAccountDataCallback($param);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
-                case \app\modules\mtt\Module::EVENT_CALLBACK_BALANCE_ADJUSTMENT:
+                case MttModule::EVENT_CALLBACK_BALANCE_ADJUSTMENT:
                     // МТТ. Callback обработчик API-запроса balanceAdjustment
                     if ($isMttServer) {
-                        \app\modules\mtt\Module::balanceAdjustmentCallback($param);
+                        MttModule::balanceAdjustmentCallback($param);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
                     break;
 
+                // --------------------------------------------
+                // Free number
+                // --------------------------------------------
+                case FreeNumberModule::EVENT_EXPORT_FREE:
+                    // Номер стал свободным
+                    $info = $isFreeNumberServer ?
+                        FreeNumberModule::addFree($param) :
+                        EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                case FreeNumberModule::EVENT_EXPORT_BUSY:
+                    // Номер стал несвободным
+                    $info = $isFreeNumberServer ?
+                        FreeNumberModule::addBusy($param) :
+                        EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                // --------------------------------------------
+                //
+                // --------------------------------------------
                 default:
                     // неизвестное событие
                     $info = EventQueue::API_IS_SWITCHED_OFF;

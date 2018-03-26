@@ -216,7 +216,7 @@ class MttAdapter extends Singleton
     /**
      * Отправить сообщение в очередь
      *
-     * @param string|array $messageBody
+     * @param string|array|object $messageBody
      * @link https://github.com/welltime/mtt-adapter
      * @throws \yii\base\InvalidConfigException
      */

@@ -2,11 +2,18 @@
 
 namespace app\modules\freeNumber;
 
+use app\modules\freeNumber\classes\FreeNumberAdapter;
 use Yii;
 use yii\helpers\ArrayHelper;
 
 class Module extends \yii\base\Module
 {
+    const EVENT_EXPORT_FREE = 'export_free_number_free';
+    const EVENT_EXPORT_BUSY = 'export_free_number_busy';
+
+    const ACTION_FREE = 'free';
+    const ACTION_BUSY = 'busy';
+
     /**
      * @inheritdoc
      */
@@ -31,5 +38,33 @@ class Module extends \yii\base\Module
         }
 
         Yii::configure($this, $params);
+    }
+
+    /**
+     * Номер стал свободным
+     *
+     * @param int $number
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function addFree($number)
+    {
+        FreeNumberAdapter::me()->publishMessage([
+            'number' => $number,
+            'action' => self::ACTION_FREE,
+        ]);
+    }
+
+    /**
+     * Номер стал несвободным
+     *
+     * @param int $number
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function addBusy($number)
+    {
+        FreeNumberAdapter::me()->publishMessage([
+            'number' => $number,
+            'action' => self::ACTION_BUSY,
+        ]);
     }
 }
