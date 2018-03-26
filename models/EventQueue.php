@@ -6,11 +6,17 @@ use app\classes\HandlerLogger;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\atol\Module as AtolModule;
+use app\modules\freeNumber\Module as FreeNumberModule;
+use app\modules\mtt\Module as MttModule;
+use app\modules\nnp\Module as NnpModule;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\Module as UuModule;
 use Exception;
 use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
+
 
 /**
  * @property int $id
@@ -147,34 +153,37 @@ class EventQueue extends ActiveRecord
         self::VPBX_BLOCKED => 'Блокировка ВАТС',
         self::VPBX_UNBLOCKED => 'Разблокировка ВАТС',
 
-        \app\modules\atol\Module::EVENT_SEND => 'АТОЛ. Отправить',
-        \app\modules\atol\Module::EVENT_REFRESH => 'АТОЛ. Обновить',
+        AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
+        AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',
 
-        \app\modules\uu\Module::EVENT_ADD_DEFAULT_PACKAGES => 'УУ. Добавить дефолтные пакеты',
-        \app\modules\uu\Module::EVENT_VOIP_CALLS => 'УУ. Телефония',
-        \app\modules\uu\Module::EVENT_VPBX => 'УУ. ВАТС',
-        \app\modules\uu\Module::EVENT_CALL_CHAT_CREATE => 'УУ. Call chat создать',
-        \app\modules\uu\Module::EVENT_CALL_CHAT_REMOVE => 'УУ. Call chat удалить',
-        \app\modules\uu\Module::EVENT_RESOURCE_VOIP => 'УУ. Ресурс телефонии',
-        \app\modules\uu\Module::EVENT_RESOURCE_VPBX => 'УУ. Ресурс ВАТС',
-        \app\modules\uu\Module::EVENT_RESOURCE_VM_COLLOCATION => 'УУ. Ресурс VM',
-        \app\modules\uu\Module::EVENT_RESOURCE_VM_LICENCE => 'УУ. Ресурс лицензии',
-        \app\modules\uu\Module::EVENT_RECALC_ACCOUNT => 'УУ. Билинговать услугу',
-        \app\modules\uu\Module::EVENT_RECALC_BALANCE => 'УУ. Обновление баланса',
-        \app\modules\uu\Module::EVENT_VM_SYNC => 'УУ. VM manager',
-        \app\modules\uu\Module::EVENT_ADD_LIGHT => 'УУ. Добавить пакет телефонии',
-        \app\modules\uu\Module::EVENT_DELETE_LIGHT => 'УУ. Удалить пакет телефонии',
+        UuModule::EVENT_ADD_DEFAULT_PACKAGES => 'УУ. Добавить дефолтные пакеты',
+        UuModule::EVENT_VOIP_CALLS => 'УУ. Телефония',
+        UuModule::EVENT_VPBX => 'УУ. ВАТС',
+        UuModule::EVENT_CALL_CHAT_CREATE => 'УУ. Call chat создать',
+        UuModule::EVENT_CALL_CHAT_REMOVE => 'УУ. Call chat удалить',
+        UuModule::EVENT_RESOURCE_VOIP => 'УУ. Ресурс телефонии',
+        UuModule::EVENT_RESOURCE_VPBX => 'УУ. Ресурс ВАТС',
+        UuModule::EVENT_RESOURCE_VM_COLLOCATION => 'УУ. Ресурс VM',
+        UuModule::EVENT_RESOURCE_VM_LICENCE => 'УУ. Ресурс лицензии',
+        UuModule::EVENT_RECALC_ACCOUNT => 'УУ. Билинговать услугу',
+        UuModule::EVENT_RECALC_BALANCE => 'УУ. Обновление баланса',
+        UuModule::EVENT_VM_SYNC => 'УУ. VM manager',
+        UuModule::EVENT_ADD_LIGHT => 'УУ. Добавить пакет телефонии',
+        UuModule::EVENT_DELETE_LIGHT => 'УУ. Удалить пакет телефонии',
 
-        \app\modules\nnp\Module::EVENT_IMPORT => 'ННП. Импорт страны',
-        \app\modules\nnp\Module::EVENT_LINKER => 'ННП. Линковка исходных к ID',
-        \app\modules\nnp\Module::EVENT_FILTER_TO_PREFIX => 'ННП. Фильтр -> префикс',
+        NnpModule::EVENT_IMPORT => 'ННП. Импорт страны',
+        NnpModule::EVENT_LINKER => 'ННП. Линковка исходных к ID',
+        NnpModule::EVENT_FILTER_TO_PREFIX => 'ННП. Фильтр -> префикс',
 
-        \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_BALANCE => 'МТТ-callback. Получить баланс',
-        \app\modules\mtt\Module::EVENT_CALLBACK_GET_ACCOUNT_DATA => 'МТТ-callback. Получить инфо',
-        \app\modules\mtt\Module::EVENT_CALLBACK_BALANCE_ADJUSTMENT => 'МТТ-callback. Установить баланс',
-        \app\modules\mtt\Module::EVENT_ADD_INTERNET => 'МТТ. Добавить интернет',
-        \app\modules\mtt\Module::EVENT_CLEAR_INTERNET => 'МТТ. Сжечь интернет',
-        \app\modules\mtt\Module::EVENT_CLEAR_BALANCE => 'МТТ. Сбросить баланс',
+        MttModule::EVENT_CALLBACK_GET_ACCOUNT_BALANCE => 'МТТ-callback. Получить баланс',
+        MttModule::EVENT_CALLBACK_GET_ACCOUNT_DATA => 'МТТ-callback. Получить инфо',
+        MttModule::EVENT_CALLBACK_BALANCE_ADJUSTMENT => 'МТТ-callback. Установить баланс',
+        MttModule::EVENT_ADD_INTERNET => 'МТТ. Добавить интернет',
+        MttModule::EVENT_CLEAR_INTERNET => 'МТТ. Сжечь интернет',
+        MttModule::EVENT_CLEAR_BALANCE => 'МТТ. Сбросить баланс',
+
+        FreeNumberModule::EVENT_EXPORT_FREE => 'Free number. Свободен',
+        FreeNumberModule::EVENT_EXPORT_BUSY => 'Free number. Занят',
     ];
 
     /**
