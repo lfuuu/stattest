@@ -47,7 +47,10 @@ $number = $accountTariff->number;
         <div class="col-sm-2">
             <label><?= $accountTariff->getAttributeLabel('mtt_balance') ?></label>
             <div>
-                <?= $accountTariff->mtt_balance ?>
+                <?php if ($accountTariff->mtt_balance) : ?>
+                    <?= sprintf('%.2f', $accountTariff->mtt_balance) ?> руб.<br>
+                    <?= sprintf('%.2f',$accountTariff->mtt_balance / \app\modules\mtt\Module::MEGABYTE_COST) ?> МБ
+                <?php endif ?>
                 <?= $this->render('//layouts/_buttonLink', [
                     'url' => Url::toRoute(['/uu/mtt/update-balance', 'accountTariffId' => $accountTariff->id]),
                     'text' => '',
