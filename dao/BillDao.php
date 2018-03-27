@@ -835,17 +835,14 @@ SQL;
 
         $result = reset($result);
 
-        $result['sale_sum'] = -$result['sale_sum'];
-        $result['session_time_sum'] /= 60;
-
         $sum = $result['sale_sum'];
-        $billedTime = $result['session_time_sum'];
+        $billedTime = $result['session_time_sum'] / 60;
 
         $lineItem = Yii::t(
-            'biller',
-            'Prepayment for traffic on the trunk: {trunk}',
-            ['trunk' => $trunkNamesStr],
-            Language::normalizeLang($account->country->lang)
+            'biller-voip',
+            'voip_operator_trunk_orig',
+            ['service' => $trunkNamesStr, 'date_range' => '', 'minutes' => $billedTime],
+            Language::normalizeLang($account->contract->contragent->lang_code)
         );
 
         $bill = $this->createBill($account);
@@ -857,8 +854,8 @@ SQL;
 
         $bill->addLine(
             $lineItem,
-            $billedTime,
-            $sum / $billedTime,
+            1,
+            $sum,
             BillLine::LINE_TYPE_ZADATOK,
             $periodStart,
             $periodEnd->modify('-1 day')

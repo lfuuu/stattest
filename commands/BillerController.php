@@ -356,13 +356,14 @@ class BillerController extends Controller
 
         $periodEnd = $today;
 
-        $clientAccountQuery = ClientAccount::find()
+        $clientAccountQueryBase = ClientAccount::find()
             ->joinWith('options o')->where([
                 'o.option' => ClientAccountOptions::OPTION_SETTINGS_ADVANCE_INVOICE,
             ]);
 
         // выставление авансовых счетов по понедельникам
         if ($today->format('w') == 1) {
+            $clientAccountQuery = clone $clientAccountQueryBase;
             $isProcessed = true;
             $logger->add(date('r') . ': Advance invoicing on Mondays');
             $clientAccountQuery->where(['o.value' => ClientAccountOptions::SETTINGS_ADVANCE_EVERY_WEEK_ON_MONDAY]);
@@ -376,7 +377,7 @@ class BillerController extends Controller
         // выставление каждого 1 и 15 числа
         $todayDayNumber = $today->format('d');
         if (in_array($todayDayNumber, [1, 16])) {
-
+            $clientAccountQuery = clone $clientAccountQueryBase;
             $isProcessed = true;
             $logger->add(date('r') . ': Advance invoicing on ' . $todayDayNumber);
 
