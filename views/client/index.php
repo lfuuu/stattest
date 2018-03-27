@@ -1,11 +1,14 @@
 <?php
 
+use app\classes\grid\account\telecom\reports\IncomeFromCustomersFolder;
+use app\classes\grid\account\telecom\reports\IncomeFromManagersAndUsagesFolder;
 use yii\widgets\Breadcrumbs;
 use app\classes\Html;
 use app\classes\grid\GridView;
 use app\classes\grid\account\AccountGridFolder;
 
 /** @var AccountGridFolder $activeFolder */
+/** @var array $summary */
 
 $urlParams = Yii::$app->request->get();
 
@@ -55,7 +58,7 @@ echo Breadcrumbs::widget([
         <hr size="1" />
 
         <?php
-        echo GridView::widget([
+            $widgetConfig= [
                 'dataProvider' => $dataProvider,
                 'filterModel' => $activeFolder,
                 'columns' => $activeFolder->getPreparedColumns(),
@@ -63,8 +66,30 @@ echo Breadcrumbs::widget([
                 'panel'=>[
                     'type' => GridView::TYPE_DEFAULT,
                 ],
-            ]
-        );
+            ];
+
+            if ($summary = $activeFolder->getSummary()) {
+                $amountColumns = [['content' => Yii::t('common', 'Summary')]];
+                $colspan = $activeFolder->getColspan();
+                $amountColumns[0] += ['options' => ['colspan' => $colspan]];
+
+                foreach($summary as $key => $value) {
+                    $amountColumns[] = ['content' => $value];
+                }
+
+                $residualColspan = count($activeFolder->getColumns()) - count($summary) - $colspan;
+                if ($residualColspan > 0){
+                    $amountColumns[] = ['options' => ['colspan' => $residualColspan]];
+                }
+
+                $widgetConfig['afterHeader'] = [
+                    [
+                        'options' => ['class' => \kartik\grid\GridView::TYPE_WARNING],
+                        'columns' => $amountColumns,
+                    ]
+                ];
+            }
+            echo GridView::widget($widgetConfig);
         ?>
     </div>
 </div>

@@ -5,7 +5,6 @@ use app\helpers\DateTimeZoneHelper;
 use app\models\Currency;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
-use app\models\Region;
 use app\models\SaleChannelOld;
 use app\models\User;
 use kartik\daterange\DateRangePicker;
@@ -38,7 +37,6 @@ abstract class AccountGridFolder extends Model
     public $bill_date;
     public $service;
     public $partner_clients_service;
-    public $regionId;
     public $sale_channel;
     public $financial_type;
     public $contract_type;
@@ -71,7 +69,7 @@ abstract class AccountGridFolder extends Model
     public function rules()
     {
         return [
-            [['id', 'regionId', 'sale_channel', 'contract_type', 'legal_entity'], 'integer'],
+            [['id', 'sale_channel', 'contract_type', 'legal_entity'], 'integer'],
             [
                 [
                     'companyName',
@@ -104,7 +102,6 @@ abstract class AccountGridFolder extends Model
             [
                 'id' => 'ID',
                 'company' => 'Контрагент',
-                'region' => 'Регион ЛС',
                 'created' => 'Заведен',
                 'inn' => 'ИНН',
                 'managerName' => 'Менеджер',
@@ -188,8 +185,6 @@ abstract class AccountGridFolder extends Model
             'sh.name as sale_channel_name',
             'DATE(c.created) AS created',
             'c.currency',
-            'c.region',
-            'reg.name as region_name',
             'cr.federal_district',
             'ct.name as contract_type',
             'cr.financial_type',
@@ -202,7 +197,6 @@ abstract class AccountGridFolder extends Model
         $query->join('LEFT JOIN', 'user_users amu', 'amu.user = cr.account_manager');
         $query->join('LEFT JOIN', 'user_users mu', 'mu.user = cr.manager');
         $query->join('LEFT JOIN', 'sale_channels_old sh', 'sh.id = c.sale_channel');
-        $query->join('LEFT JOIN', 'regions reg', 'reg.id = c.region');
         $query->join('LEFT JOIN', 'client_document doc',
             'doc.id = (select max(id) from client_document where contract_id = cr.id and is_active = 1 and type ="contract")');
         $query->groupBy('c.id');
@@ -243,7 +237,6 @@ abstract class AccountGridFolder extends Model
         $query->andFilterWhere(['cr.number' => $this->contractNo]);
         $query->andFilterWhere(['c.sale_channel' => $this->sale_channel]);
         $query->andFilterWhere(['l.service' => $this->service]);
-        $query->andFilterWhere(['c.region' => $this->regionId]);
 
         $query->andFilterWhere(['cr.financial_type' => $this->financial_type]);
         if ($this->federal_district) {
@@ -669,21 +662,6 @@ abstract class AccountGridFolder extends Model
                     ]);
                 },
             ],
-            'region' => [
-                'attribute' => 'region',
-                'format' => 'raw',
-                'value' => function ($data) {
-                    return $data['region_name'];
-                },
-                'filter' => function () {
-                    return Html::dropDownList(
-                        'regionId',
-                        Yii::$app->request->get('regionId'),
-                        Region::getList(),
-                        ['class' => 'form-control', 'prompt' => '-Не выбрано-', 'style' => 'width: 180px;']
-                    );
-                },
-            ],
             'federal_district' => [
                 'attribute' => 'federal_district',
                 'format' => 'raw',
@@ -752,5 +730,27 @@ abstract class AccountGridFolder extends Model
                 },
             ]
         ];
+    }
+
+    /**
+     * Возврат ассоциативного массива с суммами по колонкам abon, over, total
+     * из основной выборки. В противном случае будет возвращен пустой массив
+     *
+     * @return array
+     */
+    public function getSummary()
+    {
+        return [];
+    }
+
+    /**
+     * Возврат количества colspan, необходимого при генерации отчета в дополнительной
+     * строке в afterHeader
+     *
+     * @return int
+     */
+    public function getColspan()
+    {
+        return 0;
     }
 }

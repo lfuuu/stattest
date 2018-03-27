@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use app\classes\Assert;
 use app\classes\BaseController;
+use app\classes\grid\account\telecom\reports\IncomeFromCustomersFolder;
+use app\classes\grid\account\telecom\reports\IncomeFromManagersAndUsagesFolder;
 use app\classes\grid\GridFactory;
 use app\classes\traits\AddClientAccountFilterTraits;
 use app\forms\client\AccountEditForm;
@@ -31,6 +33,7 @@ use kartik\widgets\ActiveForm;
 use Yii;
 use yii\base\Exception;
 use yii\base\Model;
+use yii\db\Query;
 use yii\filters\AccessControl;
 use yii\helpers\Url;
 use yii\web\Response;
@@ -266,7 +269,6 @@ class ClientController extends BaseController
         $accountGrid = GridFactory::me()->getAccountGridByBusinessProcessId($businessProcessId);
         $gridFolder = $accountGrid->getFolder($folderId);
         $gridFolder->setAttributes(Yii::$app->request->get());
-
         $dataProvider = $gridFolder->spawnDataProvider();
 
         return $this->render('index',

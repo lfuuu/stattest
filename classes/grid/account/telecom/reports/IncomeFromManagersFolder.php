@@ -17,7 +17,7 @@ class IncomeFromManagersFolder extends AccountGridFolder
      */
     public function getName()
     {
-        return 'Доход по менеджеру';
+        return 'Выручка по менеджеру';
     }
 
     /**
@@ -27,7 +27,6 @@ class IncomeFromManagersFolder extends AccountGridFolder
     {
         return [
             'account_manager',
-            'region',
             'legal_entity',
             'abon',
             'over',
@@ -46,7 +45,7 @@ class IncomeFromManagersFolder extends AccountGridFolder
         $query->select = array_merge($query->select, [
             'l.service',
             'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0,l.sum,0)) AS abon',
-            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11,l.sum,0)) AS over',
+            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11,l.sum,0)) AS `over`',
             'sum(l.sum) as total',
             'b.bill_date',
         ]);

@@ -2,6 +2,7 @@
 namespace app\classes\grid\account\telecom\reports;
 
 use app\classes\grid\account\AccountGridFolder;
+use app\classes\grid\account\AccountGridFolderSummaryTrait;
 use app\models\ClientAccount;
 use Yii;
 use yii\db\Query;
@@ -12,12 +13,15 @@ use yii\db\Query;
  */
 class IncomeFromCustomersFolder extends AccountGridFolder
 {
+    // Суммы по колонкам abon, over, total из основной выборки
+    use AccountGridFolderSummaryTrait;
+
     /**
      * @return string
      */
     public function getName()
     {
-        return 'Доход по клиентам';
+        return 'Выручка по клиентам';
     }
 
     /**
@@ -30,7 +34,6 @@ class IncomeFromCustomersFolder extends AccountGridFolder
             'company',
             'account_manager',
             'manager',
-            'region',
             'legal_entity',
             'service',
             'bill_date',
@@ -58,7 +61,7 @@ class IncomeFromCustomersFolder extends AccountGridFolder
         $query->select = array_merge($query->select, [
             'l.service',
             'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=0,l.sum,0)) AS abon',
-            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11,l.sum,0)) AS over',
+            'SUM(IF(MONTH(l.date_from)-MONTH(b.bill_date)=-1 OR MONTH(l.date_from)-MONTH(b.bill_date)=11,l.sum,0)) AS `over`',
             'sum(l.sum) as total',
             'b.bill_date',
         ]);
@@ -96,5 +99,11 @@ class IncomeFromCustomersFolder extends AccountGridFolder
         return 'over DESC';
     }
 
-
+    /**
+     * @return int
+     */
+    public function getColspan()
+    {
+        return 7;
+    }
 }
