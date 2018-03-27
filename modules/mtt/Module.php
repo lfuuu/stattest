@@ -22,6 +22,8 @@ class Module extends \yii\base\Module
     const EVENT_ADD_INTERNET = 'mtt_add_internet';
     const EVENT_CLEAR_INTERNET = 'mtt_clear_internet';
 
+    const PREFIX = 'uu_';
+
     // Цена 1 мегабайта, руб.
     // Юзер покупает пакет мегабайт, а на счет МТТ зачисляем деньги. Причем фикс по этому курсу, а не маркетинговую цену пакета.
     const MEGABYTE_COST = 0.2;

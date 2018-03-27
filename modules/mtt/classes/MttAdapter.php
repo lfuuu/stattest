@@ -204,7 +204,7 @@ class MttAdapter extends Singleton
     private function _getAccount($method, $msisdn, $requestId)
     {
         $message = [
-            'requestId' => $requestId,
+            'requestId' => Module::PREFIX . $requestId,
             'method' => $method,
             'parameters' => ['msisdn' => $msisdn],
         ];
@@ -308,10 +308,12 @@ class MttAdapter extends Singleton
             return;
         }
 
-        // поставить в очередь Стата
-        $mttResponse->result->requestId = $mttResponse->requestId;
-        // EVENT_CALLBACK_GET_ACCOUNT_BALANCE, EVENT_CALLBACK_GET_ACCOUNT_DATA, EVENT_CALLBACK_BALANCE_ADJUSTMENT
-        EventQueue::go(Module::EVENT_PREFIX . $mttResponse->method, $mttResponse->result);
+        if (strpos($mttResponse->requestId, Module::PREFIX) === 0) {
+            // свой префикс - убрать его и поставить в очередь Стата
+            $mttResponse->result->requestId = str_replace(Module::PREFIX, '', $mttResponse->requestId);
+            // EVENT_CALLBACK_GET_ACCOUNT_BALANCE, EVENT_CALLBACK_GET_ACCOUNT_DATA, EVENT_CALLBACK_BALANCE_ADJUSTMENT
+            EventQueue::go(Module::EVENT_PREFIX . $mttResponse->method, $mttResponse->result);
+        }
 
         // ACK
         /** @var AMQPChannel $channel */
