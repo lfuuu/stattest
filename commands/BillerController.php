@@ -186,7 +186,7 @@ class BillerController extends Controller
 
                     switch ($clientAccount->account_version) {
                         case ClientAccount::VERSION_BILLER_UNIVERSAL:
-                            $forecastBillSum = $this->_forecastingUniversalAccountBill($clientAccount, $firstDay, $forecastCoefficient);
+                            $forecastBillSum = $this->_forecastingUniversalAccountBill($clientAccount, $firstDay, $lastDay, $forecastCoefficient);
                             break;
 
                         case ClientAccount::VERSION_BILLER_USAGE:
@@ -279,20 +279,35 @@ class BillerController extends Controller
      * Прогнозирование счета в УЛС
      *
      * @param ClientAccount $account
-     * @param DateTime $date
+     * @param DateTime $firstDate
+     * @param DateTime $lastDate
      * @param float $forecastCoefficient
      * @return int
      */
-    private function _forecastingUniversalAccountBill(ClientAccount $account, DateTime $date, $forecastCoefficient)
+    private function _forecastingUniversalAccountBill(ClientAccount $account, DateTime $firstDate, DateTime $lastDate, $forecastCoefficient)
     {
         $data = AccountEntry::find()
             ->alias('entry')
-            ->select(new Expression('SUM(entry.price_with_vat)'))
+
+            // если абонентка не за весь месяц
+            ->select(new Expression('SUM(
+                IF(
+                    entry.type_id < 0, # не ресурсы
+                    if (DATE_FORMAT(entry.date_to, \'%d\') != :lastDay, # дата окончания не совпадает с последним днем месяца - значит услуга отключена раньше
+                        0,
+                        if (DATE_FORMAT(entry.date_from, \'%d\') != 1, # если не с начала месяца - то вычисляем полную абонентку 
+                            ROUND(entry.price_with_vat/((DATEDIFF(entry.date_to, entry.date_from)+1)/:lastDay), 2),
+                            entry.price_with_vat
+                        )
+                    ),
+                    entry.price_with_vat
+                    )
+                )', [':lastDay' => (int)$lastDate->format('d')]))
             ->joinWith('accountTariff uat')
             ->joinWith('tariffPeriod utp')
             ->where([
                 'uat.client_account_id' => $account->id,
-                'entry.date' => $date->format(DateTimeZoneHelper::DATE_FORMAT),
+                'entry.date' => $firstDate->format(DateTimeZoneHelper::DATE_FORMAT),
                 'utp.charge_period_id' => Period::ID_MONTH
             ])
             ->andWhere(['<>', 'entry.price_with_vat', 0])
