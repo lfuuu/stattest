@@ -163,7 +163,7 @@ class MttRaw extends ActiveRecord
         if (!$isForcibly && !in_array($this->serviceid, self::SERVICE_ID_INET)) {
             return $this->chargedqty;
         }
-        return self::getBeautyFormattedValue($this->chargedqty * 1024, $decimals = 0);
+        return self::getBeautyFormattedValue($this->chargedqty * 1024, $decimals = 2);
     }
 
     /**

@@ -33,10 +33,11 @@ use yii\widgets\Breadcrumbs;
 ]) ?>
 
 <?php
-
+// При экспорте данных происходит передача параметра driver в GET - запросе
+$driver = Yii::$app->request->get('driver');
 // Флаг форсированного приведения к информационным единицам измерения для интернета
 $isForcibly = false;
-foreach((array) $filterModel->serviceid as $serviceid) {
+foreach ((array)$filterModel->serviceid as $serviceid) {
     if (!in_array($serviceid, MttRaw::SERVICE_ID_INET)) {
         $isForcibly = false;
         break;
@@ -52,15 +53,17 @@ $columns = [
     [
         'attribute' => 'chargedqty',
         'class' => IntegerRangeColumn::className(),
-        'value' => function(MttRaw $mttRaw) use($isForcibly) {
-            return $mttRaw->getBeautyChargedQty($isForcibly);
+        'value' => function (MttRaw $mttRaw) use ($driver, $isForcibly) {
+            return $driver ?
+                $mttRaw->chargedqty : $mttRaw->getBeautyChargedQty($isForcibly);
         },
     ],
     [
         'attribute' => 'usedqty',
         'class' => IntegerRangeColumn::className(),
-        'value' => function(MttRaw $mttRaw) use ($isForcibly) {
-            return $mttRaw->getBeautyUsedQty($isForcibly);
+        'value' => function (MttRaw $mttRaw) use ($driver, $isForcibly) {
+            return $driver ?
+                $mttRaw->usedqty : $mttRaw->getBeautyUsedQty($isForcibly);
         },
     ],
 ];
@@ -68,7 +71,7 @@ $columns = [
 /** @var MttRawFilter $dataProvider */
 $dataProvider = $filterModel->search();
 
-echo GridView::widget([
+$widgetConfig = [
     'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'columns' => $columns,
@@ -121,4 +124,34 @@ echo GridView::widget([
         'filterModel' => $filterModel,
         'columns' => $columns,
     ]),
-]);
+];
+
+if ($summary = $filterModel->getSummary()) {
+    $amountColumns = [['content' => Yii::t('common', 'Summary')]];
+    $amountColumns[0] += ['options' => ['colspan' => 1]];
+
+    foreach($summary as $key => $value) {
+        if ($isForcibly) {
+            switch($key)
+            {
+                case 'chargedqty':
+                    $value = MttRaw::getBeautyFormattedValue($value * 1024, $decimals = 2);
+                    break;
+                case 'usedqty':
+                    $value = MttRaw::getBeautyFormattedValue($value * 1);
+                    break;
+            }
+        }
+
+        $amountColumns[] = ['content' => $value];
+    }
+
+    $widgetConfig['afterHeader'] = [
+        [
+            'options' => ['class' => GridView::TYPE_WARNING],
+            'columns' => $amountColumns,
+        ]
+    ];
+}
+
+echo GridView::widget($widgetConfig);

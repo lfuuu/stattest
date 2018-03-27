@@ -4,6 +4,7 @@ namespace app\models\filter\mtt_raw;
 
 use app\models\mtt_raw\MttRaw;
 use yii\data\ActiveDataProvider;
+use yii\db\Query;
 
 /**
  * Фильтрация для MttRawFilter
@@ -107,6 +108,29 @@ class MttRawFilter extends MttRaw
         }
 
         return $dataProvider;
+    }
+
+    /**
+    * Возврат ассоциативного массива с суммами по колонкам chargedqty, usedqty
+    * из основной выборки. В противном случае будет возвращен пустой массив
+    *
+    * @return array
+    */
+    public function getSummary()
+    {
+        /** @var Query $query */
+        $query = clone $this->search()->query;
+        $result = $query
+            ->select([
+                'chargedqty' => 'SUM(chargedqty)',
+                'usedqty' => 'SUM(usedqty)'
+            ])
+            ->orderBy(null)
+            ->groupBy(null)
+            ->asArray()
+            ->one();
+
+        return $result ?: [];
     }
 
     /**
