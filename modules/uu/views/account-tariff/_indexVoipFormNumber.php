@@ -40,12 +40,12 @@ use yii\helpers\Url;
         ) .
         // Отключенную ВАТС можно разархивировать
         (
-        ($accountTariff->isUnzippable()) ?
+        ($accountTariff->isVpbxUnzippable()) ?
             $this->render('//layouts/_buttonLink', [
-                'url' => Url::to(['/usage/vpbx/dearchive', 'accountId' => $accountTariff->clientAccount->id, 'usageId' => $accountTariff->id]),
+                'url' => Url::to(['/usage/vpbx/dearchive', 'accountId' => $accountTariff->client_account_id, 'usageId' => $accountTariff->id]),
                 'text' => '',
-                'title' => 'Разархивировать ВАТС id' . $accountTariff->id,
-                'glyphicon' => 'glyphicon-upload',
+                'title' => 'Разархивировать ВАТС',
+                'glyphicon' => 'glyphicon-resize-full',
                 'class' => 'btn-xs btn-default',
             ]) : ''
         )

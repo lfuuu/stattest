@@ -14,7 +14,7 @@ return [
     'currency_id' => 'Currency',
     'tariff_person_id' => 'Person type',
     'voip_group_id' => 'Voip group',
-    'vm_id' => 'VM collocation tariff',
+    'vm_id' => 'VPS tariff',
     'tag_id' => 'Tag',
 
     'insert_time' => 'Insert time',

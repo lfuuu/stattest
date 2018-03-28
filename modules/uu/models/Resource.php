@@ -54,13 +54,11 @@ class Resource extends ActiveRecord
 
     const ID_INTERNET_TRAFFIC = 9; // Интернет. Трафик
 
-    const ID_COLLOCATION_TRAFFIC = 10; // Collocation. Трафик
-
     const ID_VPN_TRAFFIC = 13; // VPN. Трафик
 
-    const ID_VM_COLLOCATION_PROCESSOR = 15; // VM collocation. Процессор
-    const ID_VM_COLLOCATION_HDD = 16; // VM collocation. Дисковое пространство
-    const ID_VM_COLLOCATION_RAM = 17; // VM collocation. Оперативная память
+    const ID_VPS_PROCESSOR = 15; // VPS. Процессор
+    const ID_VPS_HDD = 16; // VPS. Дисковое пространство
+    const ID_VPS_RAM = 17; // VPS. Оперативная память
 
     const ID_ONE_TIME = 18; // Разовая услуга
 

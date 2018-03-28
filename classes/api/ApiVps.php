@@ -11,22 +11,24 @@ use Yii;
 use yii\base\InvalidConfigException;
 
 /**
- * Class ApiVmCollocation
+ * Class ApiVps
  *
- * @method static ApiVmCollocation me($args = null)
+ * @method static ApiVps me($args = null)
  *
  * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=3508161
  * @link http://doc.ispsystem.ru/index.php/VMmanager_API
  * @link http://doc.ispsystem.ru/index.php/%D0%92%D0%B7%D0%B0%D0%B8%D0%BC%D0%BE%D0%B4%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D0%B5_%D1%87%D0%B5%D1%80%D0%B5%D0%B7_API
  */
-class ApiVmCollocation extends Singleton
+class ApiVps extends Singleton
 {
     const FUNC_USER_EDIT = 'user.edit';
     const FUNC_USER_DISABLE = 'user.suspend';
     const FUNC_USER_ENABLE = 'user.resume';
 
-    const FUNC_VM_EDIT = 'vm.edit';
-    const FUNC_VM_DELETE = 'vm.extdelete';
+    const FUNC_VPS_EDIT = 'vm.edit';
+    const FUNC_VPS_DELETE = 'vm.extdelete';
+    const FUNC_VPS_START = 'vm.start';
+    const FUNC_VPS_STOP = 'vm.stop';
 
     /**
      * @return bool
@@ -42,7 +44,7 @@ class ApiVmCollocation extends Singleton
      */
     private function _getConfig($param)
     {
-        return Yii::$app->params['vmCollocation'][$param];
+        return Yii::$app->params['vps'][$param];
     }
 
     /**
@@ -74,7 +76,7 @@ class ApiVmCollocation extends Singleton
     public function exec($data, $out = 'JSONdata')
     {
         if (!$this->isAvailable()) {
-            throw new InvalidConfigException('API VM collocation is not configured');
+            throw new InvalidConfigException('API VPS is not configured');
         }
 
         $data = array_merge($data, [
@@ -92,7 +94,7 @@ class ApiVmCollocation extends Singleton
     }
 
     /**
-     * Создать VM-юзера и вернуть его elid
+     * Создать VPS-юзера и вернуть его elid
      *
      * @param string $name
      * @param string $password
@@ -102,7 +104,7 @@ class ApiVmCollocation extends Singleton
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function createUser($name, $password)
+    public function userCreate($name, $password)
     {
         $data = [
             'func' => self::FUNC_USER_EDIT,
@@ -116,7 +118,7 @@ class ApiVmCollocation extends Singleton
             $data['result'] = (int)$result['id'];
             // создать важное событие
             ImportantEvents::create(
-                ImportantEventsNames::VM_CREATE_USER,
+                ImportantEventsNames::VPS_USER_CREATE,
                 ImportantEventsSources::SOURCE_STAT,
                 $data);
         }
@@ -125,7 +127,7 @@ class ApiVmCollocation extends Singleton
     }
 
     /**
-     * Включить/выключить VM-юзера
+     * Включить/выключить VPS-юзера
      *
      * @param int $elid
      * @param bool $isEnable
@@ -135,19 +137,19 @@ class ApiVmCollocation extends Singleton
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function enableOrDisableUser($elid, $isEnable)
+    public function userEnableOrDisable($elid, $isEnable)
     {
         $data = [
             'func' => $isEnable ? self::FUNC_USER_ENABLE : self::FUNC_USER_DISABLE,
             'elid' => $elid,
         ];
-        $result = $this->exec($data, $out = 'json'); // какой-то баг в VM manager. Именно для этого метода он не поддерживает JSONdata
+        $result = $this->exec($data, $out = 'json'); // какой-то баг в VPS manager. Именно для этого метода он не поддерживает JSONdata
 
         if ($result['doc']) {
             $data['result'] = $result['doc'];
             // создать важное событие
             ImportantEvents::create(
-                $isEnable ? ImportantEventsNames::VM_ENABLE_USER : ImportantEventsNames::VM_DISABLE_USER,
+                $isEnable ? ImportantEventsNames::VPS_USER_ENABLE : ImportantEventsNames::VPS_USER_DISABLE,
                 ImportantEventsSources::SOURCE_STAT,
                 $data);
         }
@@ -169,10 +171,10 @@ class ApiVmCollocation extends Singleton
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function createVps($name, $password, $domain, $preset, $clientId)
+    public function vpsCreate($name, $password, $domain, $preset, $clientId)
     {
         $data = [
-            'func' => self::FUNC_VM_EDIT,
+            'func' => self::FUNC_VPS_EDIT,
             'name' => $name,
             'user' => $clientId,
             'password' => $password,
@@ -187,7 +189,7 @@ class ApiVmCollocation extends Singleton
             $data['result'] = (int)$result['elid'];
             // создать важное событие
             ImportantEvents::create(
-                ImportantEventsNames::VM_CREATE_VPS,
+                ImportantEventsNames::VPS_CREATE,
                 ImportantEventsSources::SOURCE_STAT,
                 $data);
         }
@@ -200,21 +202,20 @@ class ApiVmCollocation extends Singleton
      *
      * @param int $vmId
      * @param int $resourceRam
-     * @param int $resourceHdd
      * @param int $resourceProcessor
+     * @param int $resourceHdd
      * @return string
      * @throws InvalidConfigException
      * @throws \Exception
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function updateVps($vmId, $resourceRam, $resourceHdd, $resourceProcessor)
+    public function vpsUpdate($vmId, $resourceRam, $resourceProcessor, $resourceHdd = null)
     {
         $data = [
-            'func' => self::FUNC_VM_EDIT,
+            'func' => self::FUNC_VPS_EDIT,
             'elid' => $vmId,
             'mem' => $resourceRam,
-            'hdd' => $resourceHdd, // со стороны VM этот параметр не используется. Здесь он нужен только для создания важного события
             'vcpu' => $resourceProcessor,
         ];
         if ($resourceRam || $resourceProcessor) {
@@ -228,9 +229,70 @@ class ApiVmCollocation extends Singleton
 
         if ($result['doc']) {
             $data['result'] = $result['doc'];
+            $data['hdd'] = $resourceHdd;
             // создать важное событие
             ImportantEvents::create(
-                ImportantEventsNames::VM_UPDATE_VPS,
+                ImportantEventsNames::VPS_UPDATE,
+                ImportantEventsSources::SOURCE_STAT,
+                $data);
+        }
+
+        return $result['doc'];
+    }
+
+    /**
+     * Разархивировать VPS
+     *
+     * @param int $vmId
+     * @return string
+     * @throws InvalidConfigException
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function vpsStart($vmId)
+    {
+        $data = [
+            'func' => self::FUNC_VPS_START,
+            'elid' => $vmId,
+        ];
+        $result = $this->exec($data);
+
+        if ($result['doc']) {
+            $data['result'] = $result['doc'];
+            // создать важное событие
+            ImportantEvents::create(
+                ImportantEventsNames::VPS_START,
+                ImportantEventsSources::SOURCE_STAT,
+                $data);
+        }
+
+        return $result['doc'];
+    }
+
+    /**
+     * Архивировать VPS
+     *
+     * @param int $vmId
+     * @return string
+     * @throws InvalidConfigException
+     * @throws \Exception
+     * @throws \yii\db\Exception
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function vpsStop($vmId)
+    {
+        $data = [
+            'func' => self::FUNC_VPS_STOP,
+            'elid' => $vmId,
+        ];
+        $result = $this->exec($data);
+
+        if ($result['doc']) {
+            $data['result'] = $result['doc'];
+            // создать важное событие
+            ImportantEvents::create(
+                ImportantEventsNames::VPS_STOP,
                 ImportantEventsSources::SOURCE_STAT,
                 $data);
         }
@@ -248,10 +310,10 @@ class ApiVmCollocation extends Singleton
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      */
-    public function dropVps($vmId)
+    public function vpsDrop($vmId)
     {
         $data = [
-            'func' => self::FUNC_VM_DELETE,
+            'func' => self::FUNC_VPS_DELETE,
             'elid' => $vmId,
         ];
         $result = $this->exec($data);
@@ -260,7 +322,7 @@ class ApiVmCollocation extends Singleton
             $data['result'] = $result['doc'];
             // создать важное событие
             ImportantEvents::create(
-                ImportantEventsNames::VM_DROP_VPS,
+                ImportantEventsNames::VPS_DROP,
                 ImportantEventsSources::SOURCE_STAT,
                 $data);
         }

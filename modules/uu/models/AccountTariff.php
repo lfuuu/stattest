@@ -39,7 +39,7 @@ use yii\db\Expression;
  * @property int $tariff_period_id   Если null, то закрыто. Кэш AccountTariffLog->TariffPeriod
  * @property string $comment
  * @property int $voip_number номер линии (если 4-5 символов) или телефона (fk на voip_numbers)
- * @property int $vm_elid_id ID VM collocation
+ * @property int $vm_elid_id ID VPS
  * @property int $prev_usage_id
  * @property int $is_unzipped
  * @property string $mtt_number
@@ -185,6 +185,7 @@ class AccountTariff extends ActiveRecord
                     'city_id',
                     'prev_account_tariff_id',
                     'trunk_type_id',
+                    'vm_elid_id',
                 ],
                 'integer'
             ],

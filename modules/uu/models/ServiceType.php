@@ -29,7 +29,6 @@ class ServiceType extends ActiveRecord
     const ID_VOIP_PACKAGE_SMS = 17; // Телефония. Пакет смс
 
     const ID_INTERNET = 4; // Интернет
-    const ID_COLLOCATION = 5; // Collocation
     const ID_VPN = 6; // VPN
 
     const ID_IT_PARK = 7; // IT Park
@@ -47,8 +46,8 @@ class ServiceType extends ActiveRecord
 
     const ID_CALL_CHAT = 19; // Звонок-чат
 
-    const ID_VM_COLLOCATION = 20; // VM collocation
-    const ID_VM_LICENCE = 28; // Лицензии VM collocation
+    const ID_VPS = 20; // VPS
+    const ID_VPS_LICENCE = 28; // Лицензии VPS
 
     const ID_ONE_TIME = 21; // Разовая услуга
 

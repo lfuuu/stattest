@@ -1,6 +1,6 @@
 <?php
 /**
- * Создание/редактирование VM-тарифа
+ * Создание/редактирование VPS-тарифа
  *
  * @var \app\classes\BaseView $this
  * @var \app\modules\uu\forms\tariffVmForm $formModel
@@ -16,7 +16,7 @@ $this->title = $tariffVm->isNewRecord ? Yii::t('common', 'Create') : $tariffVm->
 
 <?= Breadcrumbs::widget([
     'links' => [
-        ['label' => Yii::t('tariff', 'Tariff VMs'), 'url' => $cancelUrl = Url::to(['/uu/tariff-vm'])],
+        ['label' => Yii::t('tariff', 'Tariff VPS'), 'url' => $cancelUrl = Url::to(['/uu/tariff-vm'])],
         $this->title,
     ],
 ]) ?>

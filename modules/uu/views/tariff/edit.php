@@ -85,8 +85,8 @@ if (!$serviceType) {
             echo $this->render('_editMainTrunkPackage', $viewParams);
             break;
 
-        case ServiceType::ID_VM_COLLOCATION:
-            echo $this->render('_editMainVmCollocation', $viewParams);
+        case ServiceType::ID_VPS:
+            echo $this->render('_editMainVps', $viewParams);
             break;
     }
     ?>

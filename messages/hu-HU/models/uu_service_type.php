@@ -28,7 +28,7 @@ return [
     'Type #17' => 'SMS',
     'Type #18' => 'Welltime',
     'Type #19' => 'Call-chat',
-    'Type #20' => 'VM collocation',
+    'Type #20' => 'VPS',
     'Type #21' => 'Egyszeri szolgáltatás',
     'Type #22' => 'Trönk',
     'Type #23' => 'Trönk', // Orig trönk csomag

@@ -159,6 +159,10 @@ if (!$serviceType) {
         case ServiceType::ID_INFRASTRUCTURE:
             echo $this->render('_editMainInfrastructure', $viewParams);
             break;
+
+        case ServiceType::ID_VPS:
+            echo $this->render('_editMainVps', $viewParams);
+            break;
     }
     ?>
 

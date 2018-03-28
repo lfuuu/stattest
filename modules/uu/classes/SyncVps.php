@@ -1,9 +1,9 @@
 <?php
 
-namespace app\modules\uu\behaviors;
+namespace app\modules\uu\classes;
 
 
-use app\classes\api\ApiVmCollocation;
+use app\classes\api\ApiVps;
 use app\classes\Utils;
 use app\exceptions\ModelValidationException;
 use app\models\ClientAccount;
@@ -15,16 +15,17 @@ use app\modules\uu\models\Resource;
 use app\modules\uu\models\ServiceType;
 use yii\base\InvalidParamException;
 
-class SyncVmCollocation
+class SyncVps
 {
-    const CLIENT_ACCOUNT_OPTION_VM_ELID = 'vm_elid'; // ID клиента в VM
-    const CLIENT_ACCOUNT_OPTION_VM_PASSWORD = 'vm_password'; // Пароль клиента в VM
+    const CLIENT_ACCOUNT_OPTION_VPS_ELID = 'vm_elid'; // ID клиента в VPS
+    const CLIENT_ACCOUNT_OPTION_VPS_PASSWORD = 'vm_password'; // Пароль клиента в VPS
 
     /**
-     * Синхронизировать в VM manager
+     * Синхронизировать в VPS manager
      *
      * @param int $accountTariffId
      * @link http://confluence.welltime.ru/pages/viewpage.action?pageId=3508161
+     * @throws \yii\db\Exception
      * @throws \Exception
      * @throws \app\exceptions\ModelValidationException
      * @throws \yii\base\InvalidCallException
@@ -36,17 +37,17 @@ class SyncVmCollocation
         if (
             !$accountTariffId ||
             !($accountTariff = AccountTariff::findOne(['id' => $accountTariffId])) ||
-            $accountTariff->service_type_id != ServiceType::ID_VM_COLLOCATION
+            $accountTariff->service_type_id != ServiceType::ID_VPS
         ) {
-            throw new InvalidParamException('SyncVmCollocation. Неправильный параметр ' . $accountTariffId);
+            throw new InvalidParamException('SyncVps. Неправильный параметр ' . $accountTariffId);
         }
 
-        $apiVmCollocation = ApiVmCollocation::me();
+        $apiVps = ApiVps::me();
 
         if (!$accountTariff->tariff_period_id) {
             // выключить
             if ($accountTariff->vm_elid_id) {
-                $apiVmCollocation->dropVps($accountTariff->vm_elid_id);
+                $apiVps->vpsStop($accountTariff->vm_elid_id);
                 // ... и запомнить
                 $accountTariff->vm_elid_id = null;
                 if (!$accountTariff->save()) {
@@ -63,17 +64,17 @@ class SyncVmCollocation
 
             // уже есть - обновить
             $tariffResources = $tariff->tariffResources;
-            $apiVmCollocation->updateVps(
+            $apiVps->vpsUpdate(
                 $accountTariff->vm_elid_id,
-                $resourceRam = $tariffResources[Resource::ID_VM_COLLOCATION_RAM],
-                $resourceProcessor = $tariffResources[Resource::ID_VM_COLLOCATION_PROCESSOR]
+                $resourceRam = (int)$tariffResources[Resource::ID_VPS_RAM],
+                $resourceProcessor = (int)$tariffResources[Resource::ID_VPS_PROCESSOR]
             );
 
         } else {
 
             // еще нет - создать
             $password = Utils::password_gen();
-            $vmElidId = $apiVmCollocation->createVps(
+            $vmElidId = $apiVps->vpsCreate(
                 $name = 'vps_' . $accountTariffId,
                 $password,
                 $domain = 'example.com',
@@ -81,7 +82,7 @@ class SyncVmCollocation
                 $vmClientId
             );
             if (!$vmElidId) {
-                throw new InvalidParamException('Ошибка создания VM collocation ' . $accountTariffId);
+                throw new InvalidParamException('Ошибка создания VPS ' . $accountTariffId);
             }
 
             // ... и запомнить
@@ -93,7 +94,7 @@ class SyncVmCollocation
     }
 
     /**
-     * Синхронизировать ресурсы в VM manager
+     * Синхронизировать ресурсы в VPS manager
      *
      * @param int $clientAccountId
      * @param int $accountTariffId
@@ -121,27 +122,47 @@ class SyncVmCollocation
 
         $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
 
-        ApiVmCollocation::me()->updateVps(
+        ApiVps::me()->vpsUpdate(
             $accountTariff->vm_elid_id,
-            isset($resources[Resource::ID_VM_COLLOCATION_RAM]) ? $resources[Resource::ID_VM_COLLOCATION_RAM] : null,
-            isset($resources[Resource::ID_VM_COLLOCATION_HDD]) ? $resources[Resource::ID_VM_COLLOCATION_HDD] : null,
-            isset($resources[Resource::ID_VM_COLLOCATION_PROCESSOR]) ? $resources[Resource::ID_VM_COLLOCATION_PROCESSOR] : null
+            isset($resources[Resource::ID_VPS_RAM]) ? $resources[Resource::ID_VPS_RAM] : null,
+            isset($resources[Resource::ID_VPS_PROCESSOR]) ? $resources[Resource::ID_VPS_PROCESSOR] : null,
+            isset($resources[Resource::ID_VPS_HDD]) ? $resources[Resource::ID_VPS_HDD] : null
         );
 
-        if (isset($resources[Resource::ID_VM_COLLOCATION_HDD])) {
+        if (isset($resources[Resource::ID_VPS_HDD])) {
             Trouble::dao()->createTrouble(
                 $clientAccountId,
                 Trouble::TYPE_TASK,
                 Trouble::SUBTYPE_TASK,
-                sprintf('Для VM ELID ID = %d изменить ресурс HDD на %d GB. УУ %s', $accountTariff->vm_elid_id, $resources[Resource::ID_VM_COLLOCATION_HDD], $accountTariff->getUrl()),
+                sprintf('Для VPS ELID ID = %d изменить ресурс HDD на %d GB. УУ %s', $accountTariff->vm_elid_id, $resources[Resource::ID_VPS_HDD], $accountTariff->getUrl()),
                 null,
-                Trouble::DEFAULT_VM_SUPPORT
+                Trouble::DEFAULT_VPS_SUPPORT
             );
         }
     }
 
     /**
-     * Включить клиента в VM, если он там есть
+     * Уведомить о покупке доп. услуг
+     *
+     * @param int $accountTariffId
+     * @throws \Exception
+     * @throws \InvalidArgumentException
+     */
+    public function syncLicense($accountTariffId)
+    {
+        $accountTariff = AccountTariff::findOne(['id' => $accountTariffId]);
+        Trouble::dao()->createTrouble(
+            $accountTariff->client_account_id,
+            Trouble::TYPE_TASK,
+            Trouble::SUBTYPE_TASK,
+            'Доп. услуга VPS. УУ ' . $accountTariff->getUrl(),
+            null,
+            Trouble::DEFAULT_VPS_SUPPORT
+        );
+    }
+
+    /**
+     * Включить клиента в VPS, если он там есть
      *
      * @param int $clientAccountId
      * @return mixed
@@ -153,7 +174,7 @@ class SyncVmCollocation
     }
 
     /**
-     * Включить клиента в VM, если он там есть
+     * Включить клиента в VPS, если он там есть
      *
      * @param int $clientAccountId
      * @return mixed
@@ -165,7 +186,7 @@ class SyncVmCollocation
     }
 
     /**
-     * Включить клиента в VM, если он там есть
+     * Включить клиента в VPS, если он там есть
      *
      * @param int $clientAccountId
      * @param bool $isEnable
@@ -174,8 +195,8 @@ class SyncVmCollocation
      */
     protected function enableOrDisableAccount($clientAccountId, $isEnable)
     {
-        $apiVmCollocation = ApiVmCollocation::me();
-        if (!$apiVmCollocation->isAvailable()) {
+        $apiVps = ApiVps::me();
+        if (!$apiVps->isAvailable()) {
             return null;
         }
 
@@ -185,11 +206,11 @@ class SyncVmCollocation
             return false;
         }
 
-        return $apiVmCollocation->enableOrDisableUser($vmClientId, $isEnable);
+        return $apiVps->userEnableOrDisable($vmClientId, $isEnable);
     }
 
     /**
-     * Вернуть ID клиента в VM
+     * Вернуть ID клиента в VPS
      *
      * @param ClientAccount $clientAccount
      * @return int
@@ -207,17 +228,17 @@ class SyncVmCollocation
             return $vmClientId;
         }
 
-        $apiVmCollocation = ApiVmCollocation::me();
-        $vmClientId = $apiVmCollocation->createUser($name = 'client_' . $clientAccount->id, $password = Utils::password_gen());
+        $apiVps = ApiVps::me();
+        $vmClientId = $apiVps->userCreate($name = 'client_' . $clientAccount->id, $password = Utils::password_gen());
         if (!$vmClientId) {
-            throw new \LogicException('Ошибка создания клиента в VmCollocation');
+            throw new \LogicException('Ошибка создания клиента в Vps');
         }
 
         // сохранить в кэш
         // id
         $clientAccountOptions = new ClientAccountOptions;
         $clientAccountOptions->client_account_id = $clientAccount->id;
-        $clientAccountOptions->option = self::CLIENT_ACCOUNT_OPTION_VM_ELID;
+        $clientAccountOptions->option = self::CLIENT_ACCOUNT_OPTION_VPS_ELID;
         $clientAccountOptions->value = (string)$vmClientId;
         if (!$clientAccountOptions->save()) {
             throw new ModelValidationException($clientAccountOptions);
@@ -228,7 +249,7 @@ class SyncVmCollocation
         // пароль
         $clientAccountOptions = new ClientAccountOptions;
         $clientAccountOptions->client_account_id = $clientAccount->id;
-        $clientAccountOptions->option = self::CLIENT_ACCOUNT_OPTION_VM_PASSWORD;
+        $clientAccountOptions->option = self::CLIENT_ACCOUNT_OPTION_VPS_PASSWORD;
         $clientAccountOptions->value = (string)$password;
         if (!$clientAccountOptions->save()) {
             throw new ModelValidationException($clientAccountOptions);
@@ -244,7 +265,7 @@ class SyncVmCollocation
      * @param string $option
      * @return null|string
      */
-    public function getVmUserInfo(ClientAccount $clientAccount, $option = self::CLIENT_ACCOUNT_OPTION_VM_ELID)
+    public function getVmUserInfo(ClientAccount $clientAccount, $option = self::CLIENT_ACCOUNT_OPTION_VPS_ELID)
     {
         $options = $clientAccount->getOption($option);
         if (count($options)) {

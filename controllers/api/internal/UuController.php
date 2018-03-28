@@ -13,7 +13,7 @@ use app\models\Trouble;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\nnp\models\PackagePricelist;
-use app\modules\uu\behaviors\SyncVmCollocation;
+use app\modules\uu\classes\SyncVps;
 use app\modules\uu\models\AccountLogPeriod;
 use app\modules\uu\models\AccountLogSetup;
 use app\modules\uu\models\AccountTariff;
@@ -1811,17 +1811,17 @@ class UuController extends ApiInternalController
     }
 
     /**
-     * @SWG\Definition(definition = "vmCollocationRecord", type = "object",
-     *   @SWG\Property(property = "vm_user_id", type = "string|null", description = "ID юзера в VM manager (обычно не нужен)"),
-     *   @SWG\Property(property = "vm_user_login", type = "string|null", description = "Логин юзера в VM manager"),
-     *   @SWG\Property(property = "vm_user_password", type = "string|null", description = "Постоянный пароль юзера в VM manager (обычно не нужен)"),
+     * @SWG\Definition(definition = "vpsRecord", type = "object",
+     *   @SWG\Property(property = "vm_user_id", type = "string|null", description = "ID юзера в VPS manager (обычно не нужен)"),
+     *   @SWG\Property(property = "vm_user_login", type = "string|null", description = "Логин юзера в VPS manager"),
+     *   @SWG\Property(property = "vm_user_password", type = "string|null", description = "Постоянный пароль юзера в VPS manager (обычно не нужен)"),
      * ),
      *
-     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VM collocation ЛС", operationId = "GetVmCollocationInfo",
+     * @SWG\Get(tags = {"UniversalTariffs"}, path = "/internal/uu/get-vm-collocation-info", summary = "Информация о VPS ЛС", operationId = "GetVpsInfo",
      *   @SWG\Parameter(name = "client_account_id", type = "integer", description = "ID ЛС", in = "query", default = ""),
      *
-     *   @SWG\Response(response = 200, description = "Информация о VM collocation ЛС",
-     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/vmCollocationRecord"))
+     *   @SWG\Response(response = 200, description = "Информация о VPS ЛС",
+     *     @SWG\Schema(type = "array", @SWG\Items(ref = "#/definitions/vpsRecord"))
      *   ),
      *   @SWG\Response(response = "default", description = "Ошибки",
      *     @SWG\Schema(ref = "#/definitions/error_result")
@@ -1832,7 +1832,7 @@ class UuController extends ApiInternalController
      * @return array
      * @throws HttpException
      */
-    public function actionGetVmCollocationInfo($client_account_id = 0)
+    public function actionGetVpsInfo($client_account_id = 0)
     {
         $client_account_id = (int)$client_account_id;
         if (!$client_account_id) {
@@ -1844,11 +1844,11 @@ class UuController extends ApiInternalController
             throw new HttpException(ModelValidationException::STATUS_CODE, 'Несуществующий client_account_id ' . $client_account_id);
         }
 
-        $syncVmCollocation = (new SyncVmCollocation);
+        $syncVps = (new SyncVps);
         return [
-            'vm_user_id' => $vm_user_id = $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_ELID),
+            'vm_user_id' => $vm_user_id = $syncVps->getVmUserInfo($account, SyncVps::CLIENT_ACCOUNT_OPTION_VPS_ELID),
             'vm_user_login' => $vm_user_id ? ('client_' . $client_account_id) : null,
-            'vm_user_password' => $syncVmCollocation->getVmUserInfo($account, SyncVmCollocation::CLIENT_ACCOUNT_OPTION_VM_PASSWORD),
+            'vm_user_password' => $syncVps->getVmUserInfo($account, SyncVps::CLIENT_ACCOUNT_OPTION_VPS_PASSWORD),
         ];
     }
 

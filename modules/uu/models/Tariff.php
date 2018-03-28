@@ -57,7 +57,7 @@ use yii\helpers\Url;
  * @property-read PackagePrice[] $packagePrices
  * @property-read PackagePricelist[] $packagePricelists
  *
- * VM collocation only!
+ * VPS only!
  * @property integer $vm_id
  * @property-read TariffVm $vm
  *
@@ -438,15 +438,15 @@ class Tariff extends ActiveRecord
     }
 
     /**
-     * VM должен быть заполнен
+     * VPS должен быть заполнен
      *
      * @param string $attribute
      * @param array $params
      */
     public function validatorVm($attribute, $params)
     {
-        if ($this->service_type_id == ServiceType::ID_VM_COLLOCATION && !$this->vm_id) {
-            $this->addError($attribute, 'Необходимо указать тариф VM collocation');
+        if ($this->service_type_id == ServiceType::ID_VPS && !$this->vm_id) {
+            $this->addError($attribute, 'Необходимо указать тариф VPS');
             return;
         }
     }

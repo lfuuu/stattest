@@ -8,7 +8,7 @@ return [
     'prev_account_tariff_id' => 'Основная услуга', // если из пакета, то ссылка на основную услугу "телефония"
     'comment' => 'Комментарий',
     'voip_number' => 'Номер',
-    'vm_elid_id' => 'ID VM collocation',
+    'vm_elid_id' => 'ID VPS',
     'trunk_id' => 'Транк',
     'tariff_period_id' => 'Тариф / период',
     'prev_usage_id' => 'Перенесено из',

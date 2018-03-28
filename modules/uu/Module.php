@@ -24,11 +24,12 @@ class Module extends \yii\base\Module
     const EVENT_CALL_CHAT_REMOVE = 'uu_chat_remove';
     const EVENT_RESOURCE_VOIP = 'uu_resource_voip';
     const EVENT_RESOURCE_VPBX = 'uu_resource_vpbx';
-    const EVENT_RESOURCE_VM_COLLOCATION = 'uu_resource_vm';
-    const EVENT_RESOURCE_VM_LICENCE = 'uu_resource_licence';
+    const EVENT_RESOURCE_VPS = 'uu_resource_vps';
+    const EVENT_RESOURCE_VPS_LICENCE = 'uu_resource_licence';
     const EVENT_RECALC_ACCOUNT = 'uu_recalc_account';
     const EVENT_RECALC_BALANCE = 'uu_recalc_balance';
-    const EVENT_VM_SYNC = 'uu_vm_sync';
+    const EVENT_VPS_SYNC = 'uu_vps_sync';
+    const EVENT_VPS_LICENSE = 'uu_vps_license';
     const EVENT_ADD_LIGHT = 'uu_add_light';
     const EVENT_DELETE_LIGHT = 'uu_delete_light';
 
@@ -92,7 +93,7 @@ class Module extends \yii\base\Module
             NavigationBlock::create()
                 ->setTitle(Yii::t('tariff', 'Universal tarifficator'))
                 ->addItem(Yii::t('tariff', 'Tariff statuses'), ['/uu/tariff-status'], ['tarifs.read'])
-                ->addItem(Yii::t('tariff', 'Tariff VMs'), ['/uu/tariff-vm'], ['tarifs.read'])
+                ->addItem(Yii::t('tariff', 'Tariff VPS'), ['/uu/tariff-vm'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Service types'), ['/uu/service-type'], ['tarifs.read'])
                 ->addItem(Yii::t('tariff', 'Setup tariffication'), ['/uu/account-log/setup'], ['newaccounts_balance.read'])
                 ->addItem(Yii::t('tariff', 'Period tariffication'), ['/uu/account-log/period'], ['newaccounts_balance.read'])

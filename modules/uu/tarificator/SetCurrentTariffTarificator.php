@@ -145,8 +145,15 @@ SQL;
                         // Из VirtPbx3Action::add/dataChanged передаются все текущие ресурсы. Больше ничего не надо
                         break;
 
-                    case ServiceType::ID_VM_COLLOCATION:
-                        EventQueue::go(\app\modules\uu\Module::EVENT_VM_SYNC, [
+                    case ServiceType::ID_VPS:
+                        EventQueue::go(\app\modules\uu\Module::EVENT_VPS_SYNC, [
+                            'client_account_id' => $accountTariff->client_account_id,
+                            'account_tariff_id' => $accountTariff->id,
+                        ]);
+                        break;
+
+                    case ServiceType::ID_VPS_LICENCE:
+                        EventQueue::go(\app\modules\uu\Module::EVENT_VPS_LICENSE, [
                             'client_account_id' => $accountTariff->client_account_id,
                             'account_tariff_id' => $accountTariff->id,
                         ]);

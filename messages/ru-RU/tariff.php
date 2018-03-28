@@ -18,7 +18,7 @@ return [
     'Packages' => 'Пакеты',
     'Service types' => 'Типы услуг',
     'Tariff statuses' => 'Статусы тарифов',
-    'Tariff VMs' => 'VM-тарифы',
+    'Tariff VPS' => 'VPS-тарифы',
     'Clear UU-calls' => 'Пересчет УУ-звонков',
 
     'You should enter usage type' => 'Для создания тарифа обязательно нужно указать тип услуги',

@@ -5,8 +5,8 @@ use app\classes\ActaulizerVoipNumbers;
 use app\classes\api\ApiCore;
 use app\classes\api\ApiFeedback;
 use app\classes\api\ApiPhone;
-use app\classes\api\ApiVmCollocation;
 use app\classes\api\ApiVpbx;
+use app\classes\api\ApiVps;
 use app\classes\HandlerLogger;
 use app\classes\partners\RewardCalculate;
 use app\helpers\DateTimeZoneHelper;
@@ -28,7 +28,7 @@ use app\modules\nnp\Module as NnpModule;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
-use app\modules\uu\behaviors\SyncVmCollocation;
+use app\modules\uu\classes\SyncVps;
 use app\modules\uu\models\AccountTariff;
 use app\modules\uu\Module as UuModule;
 
@@ -58,7 +58,7 @@ function doEvents($consoleParam)
 {
     $isCoreServer = (isset(\Yii::$app->params['CORE_SERVER']) && \Yii::$app->params['CORE_SERVER']);
     $isVpbxServer = ApiVpbx::me()->isAvailable();
-    $isVmServer = ApiVmCollocation::me()->isAvailable();
+    $isVmServer = ApiVps::me()->isAvailable();
     $isFeedbackServer = ApiFeedback::isAvailable();
     $isAccountTariffLightServer = SyncAccountTariffLight::isAvailable();
     $isNnpServer = NnpModule::isAvailable();
@@ -304,9 +304,9 @@ function doEvents($consoleParam)
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
 
-                    // Синхронизировать в VM manager
+                    // Синхронизировать в VPS manager
                     if ($isVmServer) {
-                        (new SyncVmCollocation)->disableAccount($param['account_id']);
+                        (new SyncVps)->disableAccount($param['account_id']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
@@ -325,9 +325,9 @@ function doEvents($consoleParam)
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
 
-                    // Синхронизировать в VM manager
+                    // Синхронизировать в VPS manager
                     if ($isVmServer) {
-                        (new SyncVmCollocation)->enableAccount($param['account_id']);
+                        (new SyncVps)->enableAccount($param['account_id']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
@@ -410,13 +410,27 @@ function doEvents($consoleParam)
                     RecalcRealtimeBalance::recalc($param['client_account_id']);
                     break;
 
-                case UuModule::EVENT_VM_SYNC:
-                    // УУ. Услуга VM collocation
+                case UuModule::EVENT_VPS_SYNC:
+                    // УУ. Услуга VPS
                     if ($isVmServer) {
-                        (new SyncVmCollocation)->syncVm($param['account_tariff_id']);
+                        (new SyncVps)->syncVm($param['account_tariff_id']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }
+                    break;
+
+                case UuModule::EVENT_RESOURCE_VPS:
+                    // УУ. Отправить измененные ресурсы VPS
+                    if ($isVmServer) {
+                        (new SyncVps)->syncResource($param['client_account_id'], $param['account_tariff_id'], $param['account_tariff_resource_ids']);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
+                case UuModule::EVENT_VPS_LICENSE:
+                    // УУ. Доп. услуга VPS
+                    (new SyncVps)->syncLicense($param['account_tariff_id']);
                     break;
 
                 case UuModule::EVENT_VPBX:
@@ -497,15 +511,6 @@ function doEvents($consoleParam)
                             $regionId = null,
                             ClientAccount::VERSION_BILLER_UNIVERSAL
                         );
-                    } else {
-                        $info = EventQueue::API_IS_SWITCHED_OFF;
-                    }
-                    break;
-
-                case UuModule::EVENT_RESOURCE_VM_COLLOCATION:
-                    // УУ. Отправить измененные ресурсы VM
-                    if ($isVmServer) {
-                        (new SyncVmCollocation)->syncResource($param['client_account_id'], $param['account_tariff_id'], $param['account_tariff_resource_ids']);
                     } else {
                         $info = EventQueue::API_IS_SWITCHED_OFF;
                     }

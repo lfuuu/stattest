@@ -24,7 +24,7 @@ return [
     'Type #17' => 'SMS',
     'Type #18' => 'Welltime',
     'Type #19' => 'Call-chat',
-    'Type #20' => 'VM collocation',
+    'Type #20' => 'VPS',
     'Type #21' => 'One time',
     'Type #22' => 'Trunk',
     'Type #23' => 'Trunk', // Orig trunk package

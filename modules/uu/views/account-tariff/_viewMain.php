@@ -92,6 +92,24 @@ $attributes = [
 
 switch ($formModel->serviceTypeId) {
 
+    case ServiceType::ID_VPBX:
+        if ($accountTariff->isVpbxUnzippable()) {
+            $attributes[] = [
+                'label' => 'Действия',
+                'format' => 'html',
+                'value' => function (AccountTariff $accountTariff) {
+                    return $this->render('//layouts/_buttonLink', [
+                        'url' => Url::to(['/usage/vpbx/dearchive', 'accountId' => $accountTariff->client_account_id, 'usageId' => $accountTariff->id]),
+                        'text' => '',
+                        'title' => 'Разархивировать ВАТС',
+                        'glyphicon' => 'glyphicon-resize-full',
+                        'class' => 'btn-xs btn-default',
+                    ]);
+                }
+            ];
+        }
+        break;
+
     case ServiceType::ID_VOIP:
         $attributes[] = [
             'attribute' => 'city_id',
@@ -104,6 +122,35 @@ switch ($formModel->serviceTypeId) {
                 Html::a($accountTariff->voip_number, $number->getUrl()) :
                 $accountTariff->voip_number,
         ];
+
+        if ($formModel->ndcTypeId === NdcType::ID_MOBILE) {
+            $attributes[] = [
+                'label' => 'Статистика MTT',
+                'format' => 'html',
+                'value' => function (AccountTariff $accountTariff) {
+                    return
+                        $this->render('//layouts/_buttonLink', [
+                            'url' => Url::toRoute([
+                                '/uu/mtt/',
+                                'MttRawFilter[number_service_id]' => $accountTariff->id,
+                                'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK,
+                                'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_SMS_IN_ROAMING,
+                            ]),
+                            'text' => 'SMS',
+                        ]) .
+                        ' ' .
+                        $this->render('//layouts/_buttonLink', [
+                            'url' => Url::toRoute([
+                                '/uu/mtt/',
+                                'MttRawFilter[number_service_id]' => $accountTariff->id,
+                                'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_INET_IN_HOMENETWORK,
+                                'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_INET_IN_ROAMING,
+                            ]),
+                            'text' => 'Интернет',
+                        ]);
+                }
+            ];
+        }
         break;
 
     case ServiceType::ID_ONE_TIME:
@@ -163,36 +210,6 @@ switch ($formModel->serviceTypeId) {
         ];
 
         break;
-}
-
-if ($formModel->serviceTypeId === ServiceType::ID_VOIP && $formModel->ndcTypeId === NdcType::ID_MOBILE) {
-    $attributes[] = [
-        'label' => 'Статистика MTT',
-        'format' => 'html',
-        'value' => function (AccountTariff $accountTariff) {
-            $urlSms = $this->render('//layouts/_buttonLink', [
-                'url' => Url::toRoute([
-                    '/uu/mtt/',
-                    'MttRawFilter[number_service_id]' => $accountTariff->id,
-                    'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_SMS_IN_HOMENETWORK,
-                    'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_SMS_IN_ROAMING,
-                ]),
-                'text' => 'SMS',
-            ]);
-
-            $urlInet = $this->render('//layouts/_buttonLink', [
-                'url' => Url::toRoute([
-                    '/uu/mtt/',
-                    'MttRawFilter[number_service_id]' => $accountTariff->id,
-                    'MttRawFilter[serviceid][0]' => MttRaw::SERVICE_ID_INET_IN_HOMENETWORK,
-                    'MttRawFilter[serviceid][1]' => MttRaw::SERVICE_ID_INET_IN_ROAMING,
-                ]),
-                'text' => 'Интернет',
-            ]);
-
-            return "$urlSms $urlInet";
-        }
-    ];
 }
 
 ?>

@@ -6,7 +6,7 @@ use app\classes\model\ActiveRecord;
 use yii\helpers\Url;
 
 /**
- * Типы VM
+ * Типы VPS
  *
  * @link http://datacenter.mcn.ru/vps-hosting/
  *

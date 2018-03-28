@@ -86,13 +86,15 @@ class ImportantEventsNames extends ActiveRecord
     const UU_SWITCHED_OFF = 'uu_switched_off'; // выключена
     const UU_DELETED = 'uu_deleted'; // удалена, если она еще не начала действовать
 
-    // VM collocation
-    const VM_CREATE_USER = 'vm_create_user';
-    const VM_ENABLE_USER = 'vm_enable_user';
-    const VM_DISABLE_USER = 'vm_disable_user';
-    const VM_CREATE_VPS = 'vm_create_vps';
-    const VM_UPDATE_VPS = 'vm_update_vps';
-    const VM_DROP_VPS = 'vm_drop_vps';
+    // VPS
+    const VPS_USER_CREATE = 'vps_user_create';
+    const VPS_USER_ENABLE = 'vps_user_enable';
+    const VPS_USER_DISABLE = 'vps_user_disable';
+    const VPS_CREATE = 'vps_create';
+    const VPS_UPDATE = 'vps_update';
+    const VPS_DROP = 'vps_drop';
+    const VPS_STOP = 'vps_stop';
+    const VPS_START = 'vps_start';
 
     /**
      * @return string

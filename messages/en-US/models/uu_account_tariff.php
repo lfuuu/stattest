@@ -8,7 +8,7 @@ return [
     'prev_account_tariff_id' => 'Main service',
     'comment' => 'Comment',
     'voip_number' => 'Number',
-    'vm_elid_id' => 'ID VM collocation',
+    'vm_elid_id' => 'ID VPS',
     'trunk_id' => 'Trunk',
     'trunk_type_id' => 'Mega/multi trunk',
     'infrastructure_project' => 'Project', // Инфраструктура

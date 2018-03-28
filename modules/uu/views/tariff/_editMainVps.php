@@ -1,6 +1,6 @@
 <?php
 /**
- * свойства тарифа для "VM collocation"
+ * свойства тарифа для "VPS"
  *
  * @var \app\classes\BaseView $this
  * @var \app\modules\uu\forms\TariffForm $formModel

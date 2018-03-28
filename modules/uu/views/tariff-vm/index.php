@@ -1,6 +1,6 @@
 <?php
 /**
- * Список VM-тарифов
+ * Список VPS-тарифов
  *
  * @var \app\classes\BaseView $this
  * @var TariffVmFilter $filterModel
@@ -18,7 +18,7 @@ use yii\widgets\Breadcrumbs;
 ?>
 
 <?= Breadcrumbs::widget([
-    'links' => [Yii::t('tariff', 'Tariff VMs')],
+    'links' => [Yii::t('tariff', 'Tariff VPS')],
 ]) ?>
 
 <?php

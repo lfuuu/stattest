@@ -1,6 +1,6 @@
 <?php
 /**
- * Типы VM
+ * Типы VPS
  */
 
 namespace app\modules\uu\controllers;

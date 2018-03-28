@@ -24,7 +24,7 @@ return [
     'Type #17' => 'SMS',
     'Type #18' => 'Welltime', // ako služba
     'Type #19' => 'Volanie&Chat',
-    'Type #20' => 'VM collocation',
+    'Type #20' => 'VPS',
     'Type #21' => 'Jednorazová služba',
     'Type #22' => 'Trank',
     'Type #23' => 'Тrank', // Orig trank balik

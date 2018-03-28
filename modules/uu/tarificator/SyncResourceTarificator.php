@@ -71,9 +71,9 @@ class SyncResourceTarificator extends Tarificator
                             ]);
                             break;
 
-                        case ServiceType::ID_VM_COLLOCATION:
-                            // VM collocation
-                            EventQueue::go(\app\modules\uu\Module::EVENT_RESOURCE_VM_COLLOCATION, [
+                        case ServiceType::ID_VPS:
+                            // VPS
+                            EventQueue::go(\app\modules\uu\Module::EVENT_RESOURCE_VPS, [
                                 'client_account_id' => $accountTariff->client_account_id,
                                 'account_tariff_id' => $accountTariff->id,
                                 'account_tariff_resource_ids' => array_keys($accountTariffResourceLogs),

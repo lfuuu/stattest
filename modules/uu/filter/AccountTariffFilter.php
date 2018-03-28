@@ -48,6 +48,8 @@ class AccountTariffFilter extends AccountTariff
     public $account_log_period_utc_from = '';
     public $account_log_period_utc_to = '';
 
+    public $is_unzipped = '';
+
     /**
      * @param int $serviceTypeId
      */
@@ -91,6 +93,7 @@ class AccountTariffFilter extends AccountTariff
         $rules[] = [['number_ndc_type_id'], 'integer'];
         $rules[] = [['tariff_period_utc_from', 'tariff_period_utc_to'], 'string'];
         $rules[] = [['account_log_period_utc_from', 'account_log_period_utc_to'], 'string'];
+        $rules[] = ['is_unzipped', 'integer'];
         return $rules;
     }
 
@@ -123,6 +126,7 @@ class AccountTariffFilter extends AccountTariff
         $this->region_id !== '' && $query->andWhere([$accountTariffTableName . '.region_id' => $this->region_id]);
         $this->city_id !== '' && $query->andWhere([$accountTariffTableName . '.city_id' => $this->city_id]);
         $this->is_active !== '' && $query->andWhere([$accountTariffTableName . '.is_active' => $this->is_active]);
+        $this->is_unzipped !== '' && $query->andWhere([$accountTariffTableName . '.is_unzipped' => $this->is_unzipped]);
 
         $this->tariff_status_id !== '' && $query->andWhere(['tariff.tariff_status_id' => $this->tariff_status_id]);
         $this->tariff_is_include_vat !== '' && $query->andWhere(['tariff.is_include_vat' => $this->tariff_is_include_vat]);
@@ -135,8 +139,8 @@ class AccountTariffFilter extends AccountTariff
             $query->leftJoin(
                 TariffOrganization::tableName() . ' tariff_organization',
                 'tariff_organization.tariff_id = tariff.id'
-            );
-            $query->andWhere(['tariff_organization.organization_id' => $this->tariff_organization_id]);
+            )
+                ->andWhere(['tariff_organization.organization_id' => $this->tariff_organization_id]);
         }
 
         if ($this->service_type_id == ServiceType::ID_VOIP) {
@@ -172,27 +176,11 @@ class AccountTariffFilter extends AccountTariff
         $this->price_from !== '' && $query->andWhere(['>=', $accountTariffTableName . '.price', $this->price_from]);
         $this->price_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.price', $this->price_to]);
 
-        $this->tariff_period_utc_from !== '' && $query->andWhere([
-            '>=',
-            $accountTariffTableName . '.tariff_period_utc',
-            $this->tariff_period_utc_from
-        ]);
-        $this->tariff_period_utc_to !== '' && $query->andWhere([
-            '<=',
-            $accountTariffTableName . '.tariff_period_utc',
-            $this->tariff_period_utc_to
-        ]);
+        $this->tariff_period_utc_from !== '' && $query->andWhere(['>=', $accountTariffTableName . '.tariff_period_utc', $this->tariff_period_utc_from]);
+        $this->tariff_period_utc_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.tariff_period_utc', $this->tariff_period_utc_to]);
 
-        $this->account_log_period_utc_from !== '' && $query->andWhere([
-            '>=',
-            $accountTariffTableName . '.account_log_period_utc',
-            $this->account_log_period_utc_from
-        ]);
-        $this->account_log_period_utc_to !== '' && $query->andWhere([
-            '<=',
-            $accountTariffTableName . '.account_log_period_utc',
-            $this->account_log_period_utc_to
-        ]);
+        $this->account_log_period_utc_from !== '' && $query->andWhere(['>=', $accountTariffTableName . '.account_log_period_utc', $this->account_log_period_utc_from]);
+        $this->account_log_period_utc_to !== '' && $query->andWhere(['<=', $accountTariffTableName . '.account_log_period_utc', $this->account_log_period_utc_to]);
 
         $numberTableName = Number::tableName();
         $this->beauty_level !== '' && $query->andWhere([$numberTableName . '.beauty_level' => $this->beauty_level]);

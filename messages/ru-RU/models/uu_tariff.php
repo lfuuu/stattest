@@ -14,7 +14,7 @@ return [
     'currency_id' => 'Валюта',
     'tariff_person_id' => 'Для кого',
     'voip_group_id' => 'Группа телефонии',
-    'vm_id' => 'Тариф VM collocation',
+    'vm_id' => 'Тариф VPS',
     'tag_id' => 'Тэг',
 
     'insert_time' => 'Когда создал',

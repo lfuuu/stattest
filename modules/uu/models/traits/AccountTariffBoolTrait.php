@@ -361,11 +361,29 @@ trait AccountTariffBoolTrait
      *
      * @return bool
      */
-    public function isUnzippable()
+    public function isVpbxUnzippable()
     {
-        return $this->service_type_id == ServiceType::ID_VPBX
-            && !$this->is_unzipped
-            && $this->isClosed();
+        return $this->service_type_id === ServiceType::ID_VPBX && $this->_isUnzippable();
+    }
+
+    /**
+     * Можно ли разархивировать ВАТС этой услуги
+     *
+     * @return bool
+     */
+    public function isVmUnzippable()
+    {
+        return $this->service_type_id === ServiceType::ID_VPS && $this->_isUnzippable();
+    }
+
+    /**
+     * Можно ли разархивировать
+     *
+     * @return bool
+     */
+    private function _isUnzippable()
+    {
+        return !$this->is_unzipped && $this->isClosed();
     }
 
     /**

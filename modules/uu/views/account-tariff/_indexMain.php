@@ -16,14 +16,13 @@ use app\classes\grid\column\universal\OrganizationColumn;
 use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
-use app\modules\nnp\column\CountryColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\modules\nnp\column\CountryColumn;
 use app\modules\nnp\column\NdcTypeColumn;
 use app\modules\uu\column\DatacenterColumn;
 use app\modules\uu\column\InfrastructureLevelColumn;
 use app\modules\uu\column\InfrastructureProjectColumn;
-use app\modules\uu\column\TariffColumn;
 use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\column\TariffStatusColumn;
 use app\modules\uu\filter\AccountTariffFilter;
@@ -194,6 +193,10 @@ if ($serviceType) {
     switch ($serviceType->id) {
 
         case ServiceType::ID_VPBX:
+            $columns[] = [
+                'attribute' => 'is_unzipped',
+                'class' => YesNoColumn::className(),
+            ];
             break;
 
         case ServiceType::ID_VOIP:
