@@ -59,6 +59,8 @@ class ServiceType extends ActiveRecord
 
     const ID_NNP = 27; // ННП
 
+    const ID_CALLTRACKING = 29;
+
     const CLOSE_AFTER_DAYS = 60;
 
     public static $packages = [

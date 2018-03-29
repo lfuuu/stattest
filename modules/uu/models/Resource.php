@@ -5,6 +5,7 @@ namespace app\modules\uu\models;
 use app\classes\model\ActiveRecord;
 use app\exceptions\ModelValidationException;
 use app\models\Language;
+use app\modules\uu\resourceReader\CalltrackingResourceReader;
 use app\modules\uu\resourceReader\NnpNumberResourceReader;
 use app\modules\uu\resourceReader\ResourceReaderInterface;
 use app\modules\uu\resourceReader\SmsResourceReader;
@@ -65,6 +66,8 @@ class Resource extends ActiveRecord
     const ID_TRUNK_PACKAGE_ORIG_CALLS = 41; // Ориг-пакеты транка. Звонки
 
     const ID_NNP_NUMBERS = 44; // ННП. Кол-во номеров
+
+    const ID_CALLTRACKING = 45;
 
     const TYPE_BOOLEAN = 'boolean';
     const TYPE_NUMBER = 'number';
@@ -165,6 +168,9 @@ class Resource extends ActiveRecord
 
             // ННП. Кол-во номеров
             self::ID_NNP_NUMBERS => NnpNumberResourceReader::className(),
+
+            // Calltracking
+            self::ID_CALLTRACKING => CalltrackingResourceReader::className(),
         ];
     }
 

@@ -1,0 +1,36 @@
+<?php
+
+namespace app\modules\uu\resourceReader;
+
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\TariffPeriod;
+use DateTimeImmutable;
+use yii\base\Object;
+
+class CalltrackingResourceReader extends Object implements ResourceReaderInterface
+{
+    /**
+     * Вернуть количество потраченного ресурса
+     *
+     * @param AccountTariff $accountTariff
+     * @param DateTimeImmutable $dateTime
+     * @param TariffPeriod $tariffPeriod
+     * @return null
+     */
+    public function read(AccountTariff $accountTariff, DateTimeImmutable $dateTime, TariffPeriod $tariffPeriod)
+    {
+        return null;
+    }
+
+    /**
+     * Как считать PricePerUnit - указана за месяц или за день
+     * true - за месяц (при ежедневном расчете надо разделить на кол-во дней в месяце)
+     * false - за день (при ежедневном расчете так и оставить)
+     *
+     * @return bool
+     */
+    public function getIsMonthPricePerUnit()
+    {
+        return false;
+    }
+}
