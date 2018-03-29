@@ -17,6 +17,8 @@ class ActiveRecord extends \yii\db\ActiveRecord
 
     protected $isAttributeTypecastBehavior = false;
 
+    private static $lastPgTimeout = 0;
+
     /**
      * @return array
      */
@@ -301,6 +303,13 @@ class ActiveRecord extends \yii\db\ActiveRecord
     public static function setPgTimeout($timeout = self::PG_DEFAULT_TIMEOUT, $db = null)
     {
         $timeout = (int)$timeout;
+        if (self::$lastPgTimeout === $timeout) {
+            // уже устанавливали, повторно не надо
+            return;
+        }
+
+        self::$lastPgTimeout = $timeout;
+
         if (!$db) {
             $db = static::getDb();
         }
