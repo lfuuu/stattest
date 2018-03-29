@@ -127,7 +127,7 @@ class VatsController extends Controller
                 $day,
                 $record['account_id'],
                 $record['stat_product_id'],
-                ($record['disk_space_bytes'] ?: 0),
+                ($record['callrecord_size'] ?: 0), // disk_space_bytes
                 ($record['int_number_count'] ?: 0),
                 ($record['ext_did_count'] ?: 0),
                 ($record['call_recording_enabled'] ? 1 : 0),
