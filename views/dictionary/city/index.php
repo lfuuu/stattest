@@ -10,6 +10,7 @@ use app\classes\grid\column\universal\CityBillingMethodColumn;
 use app\classes\grid\column\universal\ConnectionPointColumn;
 use app\classes\grid\column\universal\CountryColumn;
 use app\classes\grid\column\universal\IntegerColumn;
+use app\classes\grid\column\universal\IsShowInLkColumn;
 use app\classes\grid\column\universal\StringColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
@@ -80,7 +81,7 @@ $columns = [
     ],
     [
         'attribute' => 'is_show_in_lk',
-        'class' => YesNoColumn::className(),
+        'class' => IsShowInLkColumn::className(),
     ],
     [
         'attribute' => 'order',

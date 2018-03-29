@@ -162,6 +162,7 @@ a.nohover:hover {
     min-width: 80px;
 }
 
+.is_show_in_lk-column,
 .prefix-column,
 .account-version-column,
 .event-queue-status-column,

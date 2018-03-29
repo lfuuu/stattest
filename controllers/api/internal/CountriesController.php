@@ -68,7 +68,7 @@ class CountriesController extends ApiInternalController
         $cities = City::find()
             ->where([
                 'in_use' => 1,
-                'is_show_in_lk' => 1
+                'is_show_in_lk' => City::IS_SHOW_IN_LK_FULL,
             ])
             ->andWhere($countryId ? ['country_id' => $countryId] : [])
             ->orderBy([

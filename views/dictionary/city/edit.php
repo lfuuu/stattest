@@ -7,8 +7,9 @@
  */
 
 use app\classes\dictionary\forms\CityForm;
-use app\models\Country;
+use app\models\City;
 use app\models\CityBillingMethod;
+use app\models\Country;
 use app\models\Region;
 use kartik\select2\Select2;
 use yii\widgets\ActiveForm;
@@ -104,10 +105,10 @@ if (!$city->isNewRecord) {
 
         <?php // Показывать в ЛК
         if ($city->in_use) : ?>
-        <div class="col-sm-2">
-            <br />
-            <?= $form->field($city, 'is_show_in_lk')->checkbox() ?>
-        </div>
+            <div class="col-sm-2">
+                <?= $form->field($city, 'is_show_in_lk')
+                    ->dropDownList(City::dao()->getIsShowInLkList()) ?>
+            </div>
         <?php endif; ?>
 
     </div>

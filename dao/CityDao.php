@@ -1,7 +1,9 @@
 <?php
+
 namespace app\dao;
 
 use app\classes\Singleton;
+use app\classes\traits\GetListTrait;
 use app\models\City;
 use app\models\Number;
 
@@ -21,5 +23,20 @@ class CityDao extends Singleton
         City::updateAll(['in_use' => 0]);
         City::updateAll(['in_use' => 1], ['id' => Number::find()->distinct()->select('city_id')->column()]);
         $transaction->commit();
+    }
+
+    /**
+     * @param bool $isWithEmpty
+     * @return string[]
+     */
+    public function getIsShowInLkList($isWithEmpty = false)
+    {
+        $list = [
+            City::IS_SHOW_IN_LK_NONE => 'Нет',
+            City::IS_SHOW_IN_LK_API_ONLY => 'API',
+            City::IS_SHOW_IN_LK_FULL => 'API и ЛК',
+        ];
+
+        return GetListTrait::getEmptyList($isWithEmpty) + $list;
     }
 }

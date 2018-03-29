@@ -36,6 +36,10 @@ class City extends ActiveRecord
     const MOSCOW = 7495;
     const DEFAULT_USER_CITY_ID = self::MOSCOW;
 
+    const IS_SHOW_IN_LK_NONE = 0;
+    const IS_SHOW_IN_LK_API_ONLY = 1;
+    const IS_SHOW_IN_LK_FULL = 2;
+
     public static $primaryField = 'id';
 
     /**
@@ -52,7 +56,7 @@ class City extends ActiveRecord
             'connection_point_id' => 'Точка подключения',
             'voip_number_format' => 'Формат номеров',
             'in_use' => 'Есть номера',
-            'is_show_in_lk' => 'Показывать в ЛК',
+            'is_show_in_lk' => 'Показывать в',
             'billing_method_id' => 'Метод биллингования',
             'order' => 'Порядок сортировки',
             'postfix_length' => 'Длина постфикса',
@@ -144,7 +148,7 @@ class City extends ActiveRecord
                 [
                     'AND',
                     $isUsedOnly ? ['in_use' => 1] : [],
-                    $isShowInLk ? ['is_show_in_lk' => 1] : []
+                    $isShowInLk ? ['is_show_in_lk' => City::IS_SHOW_IN_LK_FULL] : []
                 ]
             ]
         );

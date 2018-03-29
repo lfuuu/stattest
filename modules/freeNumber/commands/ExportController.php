@@ -35,7 +35,7 @@ class ExportController extends Controller
     public function actionCity()
     {
         $query = City::find()
-            ->where(['is_show_in_lk' => 1, 'in_use' => 1]);
+            ->where(['>=', 'is_show_in_lk', City::IS_SHOW_IN_LK_API_ONLY]); // нумерация идет последовательно. Поэтому проще ">=" минимального, а не "in" все возможные
 
         echo implode("\t", ['id', 'name', 'country_code', 'voip_number_format', 'postfix_length']) . PHP_EOL;
 
