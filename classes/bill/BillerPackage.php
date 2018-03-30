@@ -29,6 +29,7 @@ abstract class BillerPackage
     protected $template = '{name}';
     protected $amount = 1;
     protected $price;
+    protected $cost_price = 0;
 
     /** @var DateTime */
     protected $billerPeriodFrom;
@@ -89,6 +90,18 @@ abstract class BillerPackage
     public function setPrice($price)
     {
         $this->price = round($price, 4);
+        return $this;
+    }
+
+    /**
+     * Устанавливаем себестоимость
+     *
+     * @param float $price
+     * @return $this
+     */
+    public function setCostPrice($price)
+    {
+        $this->cost_price = round($price, 4);
         return $this;
     }
 

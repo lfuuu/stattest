@@ -2,6 +2,7 @@
 namespace app\dao\billing;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\billing\CallsAggr;
 use DateTime;
 use yii\db\Expression;
 use yii\db\Query;
@@ -37,23 +38,38 @@ class CallsDao extends Singleton
         $timeField = 'connect_time'
     ) {
 
+        $from->modify('+1 day'); // @TODO проставить индекс по calls_raw.id на февраль и январь 2018
+
+        if (CallsAggr::tableName() == $callsTable) {
+            $join = "";
+            $costPriceField = "cost_price";
+        } else {
+            $join = "left join " . $callsTable . " as cr2 ON (cr1.peer_id = cr2.id
+                            and cr2." . $timeField . " >= '" . $from->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
+                            and cr2." . $timeField . " <= '" . $to->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
+            )";
+            $costPriceField = "cr2.cost";
+        }
+
         $command =
             \Yii::$app->get('dbPgSlave')
                 ->createCommand("
                         select
-                            case destination_id <= 0 when true then
-                                case mob when true then 5 else 4 end
-                            else destination_id end rdest,
-                            cast( - sum(cost) as NUMERIC(10,2)) as price
+                            case cr1.destination_id <= 0 when true then
+                                case cr1.mob when true then 5 else 4 end
+                            else cr1.destination_id end rdest,
+                            cast( - sum(cr1.cost) as NUMERIC(10,2)) as price,
+                            cast(   sum(" . $costPriceField . ") as NUMERIC(10,2)) as cost_price
                         from
-                            " . $callsTable . "
+                            " . $callsTable . " as cr1
+                        " . $join . "
                         where
-                            number_service_id = '" . $usage->id . "'
-                            and " . $timeField . " >= '" . $from->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
-                            and " . $timeField . " <= '" . $to->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
-                            and abs(cost) > 0.00001
+                            cr1.number_service_id = '" . $usage->id . "'
+                            and cr1." . $timeField . " >= '" . $from->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
+                            and cr1." . $timeField . " <= '" . $to->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
+                            and abs(cr1.cost) > 0.00001
                         group by rdest
-                        having abs(cast( - sum(cost) as NUMERIC(10,2))) > 0
+                        having abs(cast( - sum(cr1.cost) as NUMERIC(10,2))) > 0
                     "
                 );
 

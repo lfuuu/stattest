@@ -398,6 +398,8 @@ class BillDao extends Singleton
                 $line->calculateSum($bill->price_include_vat);
 
                 $line->item = $accountEntry->fullName;
+                $line->cost_price = $accountEntry->cost_price;
+
                 if (!$line->save()) {
                     throw new ModelValidationException($line);
                 }
@@ -432,6 +434,7 @@ class BillDao extends Singleton
             $line->sum_without_tax = $sumWithoutTax;
             $line->sum_tax = $accountEntry->vat;
             $line->uu_account_entry_id = $accountEntry->id;
+            $line->cost_price = $accountEntry->cost_price;
             $line->service = self::UU_SERVICE;
             $line->id_service = $accountEntry->account_tariff_id;
             $line->item_id = null;

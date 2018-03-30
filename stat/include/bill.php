@@ -132,7 +132,21 @@ class Bill {
         $this->changed=0;
     }
 
-    public function AddLine($title,$amount,$price,$type,$service='',$id_service='',$date_from='',$date_to='')
+    /**
+     * Добавление проводки счета
+     *
+     * @param string $title
+     * @param float $amount
+     * @param float $price
+     * @param string $type
+     * @param string $service
+     * @param string $id_service
+     * @param string $date_from
+     * @param string $date_to
+     * @param float $costPrice
+     * @return bool
+     */
+    public function AddLine($title, $amount, $price, $type, $service='', $id_service='', $date_from='', $date_to='', $costPrice = 0.0)
     {
         $this->changed = 1;
         $this->max_sort++;
@@ -169,6 +183,7 @@ class Bill {
         $line->date_to = $date_to;
         $line->tax_rate = $clientAccount->getTaxRate();
         $line->price = $price;
+        $line->cost_price = $costPrice;
         $line->calculateSum($this->bill['price_include_vat']);
         $line->save();
 

@@ -330,6 +330,7 @@ class VoipBiller extends Biller
                 $this->addPackage(
                     BillerPackageResource::create($this)
                         ->setPrice($r['price'])
+                        ->setCostPrice($r['cost_price'])
                         ->setMinPayment($minPayment)
                         ->setMinPaymentTemplate($minPaymentTemplate)
                         ->setPeriodType(self::PERIOD_MONTH)// Need for localization
@@ -373,18 +374,18 @@ class VoipBiller extends Biller
         // default value
         $lines = array();
         if ($logTarif->dest_group > 0) {
-            $lines["100"] = ['price' => 0];
+            $lines["100"] = ['price' => 0, 'cost_price' => 0];
         } else {
             if ($logTarif->minpayment_local_mob) {
-                $lines["5"] = ['price' => 0];
+                $lines["5"] = ['price' => 0, 'cost_price' => 0];
             }
 
             if ($logTarif->minpayment_russia) {
-                $lines["1"] = ['price' => 0];
+                $lines["1"] = ['price' => 0, 'cost_price' => 0];
             }
 
             if ($logTarif->minpayment_intern) {
-                $lines["2"] = ['price' => 0];
+                $lines["2"] = ['price' => 0, 'cost_price' => 0];
             }
         }
 
@@ -403,14 +404,15 @@ class VoipBiller extends Biller
             }
 
             if (!isset($lines[$dest])) {
-                $lines[$dest] = ['price' => 0];
+                $lines[$dest] = ['price' => 0, 'cost_price' => 0];
             }
 
             $lines[$dest]['price'] += $r['price'];
+            $lines[$dest]['cost_price'] += $r['cost_price'];
         }
 
         if ($is7800 && !$lines) {
-            $lines["900"] = ["price" => 0];
+            $lines["900"] = ["price" => 0, 'cost_price' => 0];
         }
 
         uksort($lines, function ($a, $b) {

@@ -176,6 +176,7 @@
         {if $bill_bonus}
             <th style="text-align: right">Бонус</th>
         {/if}
+        <th style="text-align: right" title="Себестоимость">c/с</th>
         <th style="text-align: right">Тип</th>
     </tr>
     {assign var="bonus_sum" value=0}
@@ -231,6 +232,7 @@
         {if $bill_bonus}
             <td  style="text-align: right">{if $bill_bonus[$item.code_1c]}{$bill_bonus[$item.code_1c]}{assign var="bonus_sum" value=`$bill_bonus[$item.code_1c]+$bonus_sum`}{/if}</td>
         {/if}
+        <td align=right>{$item.cost_price|round:2}</td>
         <td align=right>{$item.type}</td>
     </tr>
     {/foreach}
@@ -250,7 +252,7 @@
         {if $bill_bonus}
             <td  style="text-align: right">{$bonus_sum|round:2}</td>
         {/if}
-        <td style="text-align: right">&nbsp;</td>
+        <td colspan="2" style="text-align: right">&nbsp;</td>
     </tr>
 </table>
 

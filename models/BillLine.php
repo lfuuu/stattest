@@ -35,6 +35,7 @@ use app\modules\uu\models\AccountTariff;
  * @property int $country_id     Сумма не проведенного счета. Для проведенных счетов 0.
  * @property int $tax_rate       Значение ставки налога
  * @property int $uu_account_entry_id
+ * @property int $cost_price Себестоимость
  *
  * @property int $type           тип строки. значения: service, zalog, zadatok, good, all4net
  * @property-read Bill $bill

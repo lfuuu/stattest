@@ -1228,7 +1228,7 @@ class m_newaccounts extends IModule
                     $period_to = $year . '-' . $month . '-' . cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
                     $bill->AddLine($transaction->name, $transaction->amount, $transaction->price, 'service',
-                        $transaction->service_type, $transaction->service_id, $period_from, $period_to);
+                        $transaction->service_type, $transaction->service_id, $period_from, $period_to, $transaction->cost_price);
                 }
 
                 $b = Bill::findOne(['bill_no' => $bill->GetNo()]);
@@ -3795,7 +3795,6 @@ where b.bill_no = '" . $billNo . "' and c.id = b.client_id and cr.organization_i
             "work" => "Включенные",
             "income" => "Входящие",
             "once" => "Разовые",
-            "work" => "Включенные",
             "closed" => "Отключенные"
         ));
 

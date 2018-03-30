@@ -100,6 +100,8 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
         }
 
 
+        $connectTime = $dateTimeUtc->format(DATE_ATOM);
+
         // этот метод вызывается в цикле по услуге, внутри в цикле по возрастанию даты.
         // Поэтому надо кэшировать по одной услуге все даты в будущем, сгруппированные до суткам в таймзоне клиента
         $query = CallsRaw::find()
@@ -112,11 +114,11 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
             ])
             ->from(CallsRaw::tableName() . ' calls_price')// чтобы назначить алиас.
             ->leftJoin(CallsRaw::tableName() . ' calls_cost_price',
-                'calls_price.server_id = calls_cost_price.server_id AND calls_price.peer_id = calls_cost_price.id')// join себя же по peer_id. Чтобы узнать себестоимость в другом плече (терминации)
+                'calls_price.peer_id = calls_cost_price.id AND calls_cost_price.connect_time >= :connectTime', [':connectTime' => $connectTime])// join себя же по peer_id. Чтобы узнать себестоимость в другом плече (терминации)
             ->where([
                 'calls_price.account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ])
-            ->andWhere(['>=', 'calls_price.connect_time', $dateTimeUtc->format(DATE_ATOM)])
+            ->andWhere(['>=', 'calls_price.connect_time', $connectTime])
             ->andWhere(['<', 'calls_price.cost', 0])
             ->groupBy(['aggr_date', 'calls_price.nnp_package_price_id', 'calls_price.nnp_package_pricelist_id'])
             ->asArray();

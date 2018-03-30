@@ -183,6 +183,7 @@ class TransactionDao extends Singleton
         $line->type = 'service';
         $line->amount = $transaction->amount;
         $line->price = $transaction->price;
+        $line->cost_price = $transaction->cost_price;
         $line->tax_rate = $transaction->tax_rate;
         $line->sum = $transaction->sum;
         $line->sum_without_tax = $transaction->sum_without_tax;

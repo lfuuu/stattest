@@ -20,6 +20,7 @@ use app\dao\TransactionDao;
  * @property string $period_to
  * @property string $name
  * @property float $price
+ * @property float $cost_price
  * @property float $amount
  * @property int $tax_rate
  * @property float $sum

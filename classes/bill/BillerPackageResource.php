@@ -80,6 +80,7 @@ class BillerPackageResource extends BillerPackage
         $transaction->period_to = $to->format(DateTimeZoneHelper::DATETIME_FORMAT);
         $transaction->amount = $amount;
         $transaction->price = $price;
+        $transaction->cost_price = $this->cost_price;
         $transaction->is_partial_write_off = false;
         $this->calculateSum($transaction, $from, $to);
 
