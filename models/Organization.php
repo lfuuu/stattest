@@ -61,8 +61,9 @@ class Organization extends ActiveRecord
     public static $ourLegalEntities = [
         self::MCN_TELECOM => 'МСН Телеком',
         self::MCN_TELECOM_RETAIL => 'МСН Телеком Ритейл',
-        self::TEL2TEL_KFT => 'Tel2tel Kft.',
-        self::TEL2TEL_LTD => 'Tel2Tel Ltd.',
+        self::TEL2TEL_GMBH => 'MCNTelecom GmbH',
+        self::TEL2TEL_KFT => 'MCNTelecom Kft.',
+        self::TEL2TEL_LTD => 'MCNTelecom Ltd.',
     ];
 
     private $langCode = Language::LANGUAGE_DEFAULT;
