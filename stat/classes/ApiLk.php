@@ -496,7 +496,7 @@ class ApiLk
                 ->select(['id', 'name'])
                 ->where([
                     'in_use' => 1,
-                    'is_show_in_lk' => 1,
+                    'is_show_in_lk' => City::IS_SHOW_IN_LK_FULL,
                     'country_id' => $clientAccount->country_id
                 ])
                 ->orderBy(['order' => SORT_ASC])
