@@ -24,6 +24,7 @@ return [
     'device_address' => 'Адрес установки оборудования', // Телефония
     'tariff_period_utc' => 'Дата последней смены тарифа',
     'account_log_period_utc' => 'Абонентка списана до',
+    'calltracking_params' => 'Параметры Сalltracking',
 
     'insert_time' => 'Когда создал, UTC',
     'insert_user_id' => 'Кто создал',

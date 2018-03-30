@@ -53,6 +53,7 @@ use yii\db\Expression;
  * @property string $tariff_period_utc
  * @property string $account_log_period_utc
  * @property string $account_log_resource_utc
+ * @property string $calltracking_params
  */
 class AccountTariff extends ActiveRecord
 {
@@ -189,7 +190,7 @@ class AccountTariff extends ActiveRecord
                 ],
                 'integer'
             ],
-            [['comment', 'device_address'], 'string'],
+            [['comment', 'device_address', 'calltracking_params'], 'string'],
             [['comment', 'device_address'], FormFieldValidator::className(), 'skipOnError' => true],
             ['voip_number', 'match', 'pattern' => '/^\d{4,15}$/'],
             ['service_type_id', 'validatorServiceType'],

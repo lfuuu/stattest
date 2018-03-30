@@ -905,6 +905,7 @@ class UuController extends ApiInternalController
      *   @SWG\Property(property = "ndc", type = "integer", description = "NDC номера телефонии"),
      *   @SWG\Property(property = "default_actual_from", type = "string", description = "Дата, с которой по умолчанию будет применяться смена тарифа или закрытие. ГГГГ-ММ-ДД"),
      *   @SWG\Property(property = "account_tariff_logs", type = "array", description = "Лог тарифов", @SWG\Items(ref = "#/definitions/accountTariffLogRecord")),
+     *   @SWG\Property(property = "calltracking_params", type = "string", description = "Параметры Сalltracking"),
      *   @SWG\Property(property = "resources", type = "array", description = "Ресурсы услуги", @SWG\Items(ref = "#/definitions/accountTariffResourceRecord")),
      * ),
      *
@@ -940,6 +941,7 @@ class UuController extends ApiInternalController
      * @param int $offset
      * @return array
      * @throws HttpException
+     * @throws \yii\db\Exception
      */
     public function actionGetAccountTariffs(
         $id = null,
@@ -1029,6 +1031,7 @@ class UuController extends ApiInternalController
             'default_actual_from' => $accountTariff->getDefaultActualFrom(),
             'account_tariff_logs' => $this->_getAccountTariffLogRecord($accountTariff->accountTariffLogs, $minutesStatistic),
             'resources' => $this->_getAccountTariffResourceRecord($accountTariff),
+            'calltracking_params' => $accountTariff->calltracking_params,
         ];
     }
 

@@ -163,6 +163,10 @@ if (!$serviceType) {
         case ServiceType::ID_VPS:
             echo $this->render('_editMainVps', $viewParams);
             break;
+
+        case ServiceType::ID_CALLTRACKING:
+            echo $this->render('_editMainCalltrackingParams', $viewParams);
+            break;
     }
     ?>
 
