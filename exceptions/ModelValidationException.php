@@ -2,7 +2,7 @@
 
 namespace app\exceptions;
 
-use yii\base\Model;
+use yii\db\ActiveRecord;
 use yii\web\HttpException;
 
 class ModelValidationException extends HttpException
@@ -14,15 +14,15 @@ class ModelValidationException extends HttpException
     private $_model = null;
 
     /**
-     * @param Model $model
+     * @param ActiveRecord $model
      * @param int $errorCode код ошибки для API
      * @param int $statusCode http-код для браузера
      */
-    public function __construct(Model $model, $errorCode = 0, $statusCode = ModelValidationException::STATUS_CODE)
+    public function __construct(ActiveRecord $model, $errorCode = 0, $statusCode = ModelValidationException::STATUS_CODE)
     {
         $this->_model = $model;
         $this->_errors = $model->getErrors();
-        parent::__construct($statusCode, 'Error. ' . implode(' ', $model->getFirstErrors()), $errorCode);
+        parent::__construct($statusCode, 'Error. ' . $model::className() . ' ' . print_r($model->getPrimaryKey(), true) . ': ' . implode(' ', $model->getFirstErrors()), $errorCode);
     }
 
     /**
@@ -36,7 +36,7 @@ class ModelValidationException extends HttpException
     /**
      * Получение модели
      *
-     * @return Model
+     * @return ActiveRecord
      */
     public function getModel()
     {
