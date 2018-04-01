@@ -66,13 +66,15 @@ class VoipTrunkBiller extends Biller
                         SUM(CASE WHEN cost < 0 THEN billed_time ELSE 0 END) AS time_term
                     FROM calls_aggr.calls_aggr
                     WHERE
-                        trunk_service_id = :trunk_service_id
+                        account_id = :account_id
+                        AND trunk_service_id = :trunk_service_id
                         AND aggr_time >= :from
                         AND aggr_time <= :to
                         AND ABS(cost) > 0.00001
                     GROUP BY trunk_service_id
                 ', [
                     ':trunk_service_id' => $this->usage->id,
+                    ':account_id' => $this->clientAccount->id,
                     ':from' => $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
                     ':to' => $to->format(DateTimeZoneHelper::DATETIME_FORMAT),
                 ])->queryOne();

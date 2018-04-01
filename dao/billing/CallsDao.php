@@ -65,6 +65,7 @@ class CallsDao extends Singleton
                         " . $join . "
                         where
                             cr1.number_service_id = '" . $usage->id . "'
+                            cr1.account_id = '" . $usage->clientAccount->id . "'
                             and cr1." . $timeField . " >= '" . $from->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
                             and cr1." . $timeField . " <= '" . $to->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
                             and abs(cr1.cost) > 0.00001
