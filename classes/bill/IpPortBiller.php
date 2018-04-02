@@ -88,7 +88,7 @@ class IpPortBiller extends Biller
                 $this->getTranslateFilename(),
                 ($S['in_bytes'] > $S['out_bytes'] ? 'ipports_in_traffic' : 'ipports_out_traffic'),
                 [],
-                $this->clientAccount->contragent->country->lang
+                $this->clientAccount->contragent->lang_code
             );
 
             $this->addPackage(

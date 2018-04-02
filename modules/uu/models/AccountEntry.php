@@ -204,7 +204,7 @@ class AccountEntry extends ActiveRecord
     public function getFullName($langCode = null, $isFullDocument = true)
     {
         if (is_null($langCode)) {
-            $langCode = $this->accountTariff->clientAccount->country->lang;
+            $langCode = $this->accountTariff->clientAccount->contragent->lang_code;
         }
 
         $accountTariff = $this->accountTariff;

@@ -678,7 +678,7 @@ SQL;
             }
 
             $bill->addLine(
-                Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->country->lang)),
+                Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->contragent->lang_code)),
                 1,
                 $sum,
                 BillLine::LINE_TYPE_ZADATOK

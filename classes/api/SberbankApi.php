@@ -239,7 +239,7 @@ class SberbankApi
                 return $defaultLang;
             }
 
-            $accountLang = $account->contragent->country->lang;
+            $accountLang = $account->contragent->lang_code;
 
             if (!$accountLang) {
                 return $defaultLang;

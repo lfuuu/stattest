@@ -278,7 +278,7 @@ class VoipBiller extends Biller
                             $this->getTranslateFilename(),
                             'voip_group_local',
                             [],
-                            $this->clientAccount->contragent->country->lang
+                            $this->clientAccount->contragent->lang_code
                         );
                     }
 
@@ -287,7 +287,7 @@ class VoipBiller extends Biller
                             $this->getTranslateFilename(),
                             'voip_group_long_distance',
                             [],
-                            $this->clientAccount->contragent->country->lang
+                            $this->clientAccount->contragent->lang_code
                         );
                     }
 
@@ -296,7 +296,7 @@ class VoipBiller extends Biller
                             $this->getTranslateFilename(),
                             'voip_group_international',
                             [],
-                            $this->clientAccount->contragent->country->lang
+                            $this->clientAccount->contragent->lang_code
                         );
                     }
 

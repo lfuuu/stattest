@@ -297,7 +297,7 @@ abstract class Biller
                 'contract_no' => $contract->contract_no,
                 'contract_date' => (new \DateTime($contract->contract_date,
                     new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_DEFAULT)))->getTimestamp()
-            ], $this->clientAccount->contragent->country->lang);
+            ], $this->clientAccount->contragent->lang_code);
         } else {
             return '';
         }

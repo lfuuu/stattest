@@ -92,7 +92,7 @@ class NewBill extends ActiveRecord\Model
         );
 
         $bill->AddLine(
-            Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->country->lang)),
+            Yii::t('biller', 'incomming_payment', [], Language::normalizeLang($clientAccount->contragent->lang_code)),
             1,
             $paySum,
             \app\models\BillLine::LINE_TYPE_ZADATOK

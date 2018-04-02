@@ -176,7 +176,7 @@ abstract class BillerPackage
                     $from2->getTimestamp(),
                     $to2->getTimestamp()
                 ],
-                $this->clientAccount->contragent->country->lang
+                $this->clientAccount->contragent->lang_code
             );
 
         }
@@ -185,7 +185,7 @@ abstract class BillerPackage
             $this->biller->getTranslateFilename(),
             $template,
             $i18n_params,
-            $this->clientAccount->contragent->country->lang
+            $this->clientAccount->contragent->lang_code
         );
 
         return $name;
