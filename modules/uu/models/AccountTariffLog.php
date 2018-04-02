@@ -6,6 +6,7 @@ use app\classes\model\ActiveRecord;
 use app\classes\traits\GetInsertUserTrait;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
+use app\models\User;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\FillAccountTariffResourceLog;
 use app\modules\uu\classes\AccountLogFromToResource;
@@ -231,7 +232,14 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        if (!$this->tariff_period_id && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())) {
+        if (!$this->tariff_period_id
+            && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())
+            && !(
+                // но менеджеру в Стате разрешено закрывать пакеты раньше срока
+                ServiceType::isPackageById($accountTariff->service_type_id)
+                && User::isLogged()
+            )
+        ) {
             $this->addError($attribute, 'Закрыть можно, начиная с ' . $minEditDate);
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
             return;

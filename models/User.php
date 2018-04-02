@@ -278,4 +278,15 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     {
         return Html::a($this->name, $this->getUrl());
     }
+
+    /**
+     * Залогиненный юзер (true). Незалогиненный или системный (false)
+     *
+     * @return bool
+     */
+    public static function isLogged()
+    {
+        $userId = Yii::$app->user->getId();
+        return $userId && $userId != User::SYSTEM_USER_ID;
+    }
 }
