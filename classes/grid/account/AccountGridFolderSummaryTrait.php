@@ -14,15 +14,12 @@ trait AccountGridFolderSummaryTrait
      */
     public function getSummary()
     {
-        $result = (new Query)
-            ->select([
-                'SUM(abon) AS abon',
-                'SUM(`over`) AS `over`',
-                'SUM(total) AS total',
-            ])
-            ->from([
-                'summary' => $this->spawnDataProvider()->query
-            ])
+        /** @var Query $query */
+        $query = clone $this->spawnDataProvider()->query;
+        $result = $query
+            ->select($this->getQuerySummarySelect())
+            ->orderBy(null)
+            ->groupBy(null)
             ->one();
 
         return $result ?: [];

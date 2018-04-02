@@ -92,6 +92,18 @@ class IncomeFromCustomersFolder extends AccountGridFolder
     }
 
     /**
+     * @return array
+     */
+    public function getQuerySummarySelect()
+    {
+        return [
+            'SUM(IF(MONTH(l.date_from) - MONTH(b.bill_date) = 0, l.sum, 0)) AS abon',
+            'SUM(IF(MONTH(l.date_from) - MONTH(b.bill_date) = -1 OR MONTH(l.date_from) - MONTH(b.bill_date) = 11, l.sum, 0)) AS `over`',
+            'SUM(l.sum) AS total',
+        ];
+    }
+
+    /**
      * @return string
      */
     public function queryOrderBy()

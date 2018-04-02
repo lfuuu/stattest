@@ -6,6 +6,7 @@ use app\classes\grid\account\telecom\reports\IncomeFromCustomersFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromManagersAndUsagesFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromManagersFolder;
 use app\classes\grid\account\telecom\reports\IncomeFromUsagesFolder;
+use app\classes\grid\account\telecom\reports\ReceiptsFromManagersAndUsagesFolder;
 use app\models\BusinessProcess;
 use app\models\Business;
 use Yii;
@@ -28,6 +29,7 @@ class TelecomReports extends AccountGrid
         return [
             IncomeFromCustomersFolder::create($this),
             IncomeFromManagersAndUsagesFolder::create($this),
+            ReceiptsFromManagersAndUsagesFolder::create($this),
             IncomeFromManagersFolder::create($this),
             IncomeFromUsagesFolder::create($this),
             IncomeDifferentFolder::create($this),

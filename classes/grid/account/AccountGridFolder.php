@@ -69,7 +69,7 @@ abstract class AccountGridFolder extends Model
     public function rules()
     {
         return [
-            [['id', 'sale_channel', 'contract_type', 'legal_entity'], 'integer'],
+            [['id', 'sale_channel', 'contract_type', 'legal_entity', 'service_type'], 'integer'],
             [
                 [
                     'companyName',
@@ -113,7 +113,7 @@ abstract class AccountGridFolder extends Model
                 'lastComment' => 'Комментарий',
                 'service' => 'Услуга',
                 'partner_clients_service' => 'Услуга',
-                'bill_date' => 'Дата платежа',
+                'bill_date' => 'Дата счёта',
                 'abon' => 'Абон.(пред.)',
                 'over' => 'Прев.(пред.)',
                 'total' => 'Всего',
@@ -728,13 +728,24 @@ abstract class AccountGridFolder extends Model
                         ['class' => 'form-control', 'style' => 'min-width:80px;']
                     );
                 },
-            ]
+            ],
         ];
     }
 
     /**
-     * Возврат ассоциативного массива с суммами по колонкам abon, over, total
-     * из основной выборки. В противном случае будет возвращен пустой массив
+     * Возврат ассоциативного массива с указанными полями для выборки.
+     * В противном случае будет возвращен пустой массив
+     *
+     * @return array
+     */
+    public function getQuerySummarySelect()
+    {
+        return [];
+    }
+
+    /**
+     * Возврат ассоциативного массива с суммами по условиям, указанным в методе
+     * getQuerySummarySelect. В противном случае будет возвращен пустой массив
      *
      * @return array
      */
