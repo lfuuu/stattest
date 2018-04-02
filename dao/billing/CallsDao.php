@@ -38,21 +38,19 @@ class CallsDao extends Singleton
         $timeField = 'connect_time'
     ) {
 
-        $from->modify('+1 day'); // @TODO проставить индекс по calls_raw.id на февраль и январь 2018
-
         if (CallsAggr::tableName() == $callsTable) {
             $join = "";
             $costPriceField = "cost_price";
         } else {
             $join = "left join " . $callsTable . " as cr2 ON (cr1.peer_id = cr2.id
-                            and cr2." . $timeField . " >= '" . $from->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
-                            and cr2." . $timeField . " <= '" . $to->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
+                            and cr2." . $timeField . " >= :fromDate
+                            and cr2." . $timeField . " <= :toDate
             )";
             $costPriceField = "cr2.cost";
         }
 
         $command =
-            \Yii::$app->get('dbPgSlave')
+            CallsRaw::getDb()
                 ->createCommand("
                         select
                             case cr1.destination_id <= 0 when true then
@@ -64,15 +62,20 @@ class CallsDao extends Singleton
                             " . $callsTable . " as cr1
                         " . $join . "
                         where
-                            cr1.number_service_id = '" . $usage->id . "'
-                            and cr1.account_id = '" . $usage->clientAccount->id . "'
-                            and cr1." . $timeField . " >= '" . $from->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
-                            and cr1." . $timeField . " <= '" . $to->format(DateTimeZoneHelper::DATETIME_FORMAT) . "'
+                            cr1.number_service_id = :numberServiceId
+                            and cr1.account_id = :accountId
+                            and cr1." . $timeField . " >= :fromDate
+                            and cr1." . $timeField . " <= :toDate
                             and abs(cr1.cost) > 0.00001
                         group by rdest
                         having abs(cast( - sum(cr1.cost) as NUMERIC(10,2))) > 0
                     "
-                );
+                    , [
+                        ':numberServiceId' => $usage->id,
+                        ':accountId' => $usage->clientAccount->id,
+                        ':fromDate' => $from->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                        ':toDate' => $to->format(DateTimeZoneHelper::DATETIME_FORMAT)
+                    ]);
 
         return $command->queryAll();
     }

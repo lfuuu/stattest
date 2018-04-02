@@ -580,6 +580,7 @@ class ClientAccountDao extends Singleton
                     B.client_id = :clientAccountId
                     and B.currency = :currency
                     and B.bill_date >= :saldoDate
+                    and B.is_show_in_lk
 
                 UNION
 
