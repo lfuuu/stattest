@@ -176,8 +176,8 @@
         {if $bill_bonus}
             <th style="text-align: right">Бонус</th>
         {/if}
-        <th style="text-align: right" title="Себестоимость">c/с</th>
         <th style="text-align: right">Тип</th>
+        <th style="text-align: right">Маржа (без НДС)</th>
     </tr>
     {assign var="bonus_sum" value=0}
     {foreach from=$bill_lines item=item key=key name=outer}
@@ -232,8 +232,8 @@
         {if $bill_bonus}
             <td  style="text-align: right">{if $bill_bonus[$item.code_1c]}{$bill_bonus[$item.code_1c]}{assign var="bonus_sum" value=`$bill_bonus[$item.code_1c]+$bonus_sum`}{/if}</td>
         {/if}
-        <td align=right>{$item.cost_price|round:2}</td>
         <td align=right>{$item.type}</td>
+        <td align=right{if $item.cost_price != 0} title="Сумма:{$item.sum} - НДС:{$item.sum_tax} - Себестоимость:{$item.cost_price}"{/if}>{if $item.cost_price != 0}{assign var="margin" value=`$item.sum-$item.sum_tax-$item.cost_price`}{$margin|round:2}{else}-{/if}</td>
     </tr>
     {/foreach}
     <tr>
