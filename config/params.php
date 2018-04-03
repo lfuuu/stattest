@@ -34,7 +34,7 @@ return [
             'main' => [],
         ],
         'export' => [
-            'main' => '@app/web/operator/_private/health.json',
+            'main' => '@app/web/export/health/health.json',
         ],
     ],
     'sormRegions' => [],
