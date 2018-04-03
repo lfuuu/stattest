@@ -18,24 +18,50 @@ class HealthController extends Controller
     const STATUS_ERROR = 'STATUS_ERROR';
 
     /**
-     * Сбор счетчиков
+     * Метод сбора счетчиков с высоким приоритетом, вызываемый по умолчанию
+     *
+     * @throws \ReflectionException
+     */
+    public function actionIndex()
+    {
+        $this->actionLight();
+    }
+    
+    /**
+     * Сбор счетчиков с высоким приоритетом
+     *
+     * @throws \ReflectionException
+     */
+    public function actionLight()
+    {
+        $data = [];
+        $lightMonitors = Monitor::getAvailableLightMonitors();
+        $this->_collectData($data, $this->_getInternalClassesData($lightMonitors));
+        $this->_collectData($data, $this->_getExternalUrlsData());
+        $this->_exportData($data);
+    }
+
+    /**
+     * Сбор счетчиков с низким приоритетом
      *
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      * @throws \yii\base\InvalidParamException
      * @throws \ReflectionException
      */
-    public function actionIndex()
+    public function actionHeavy()
     {
         $data = [];
-
-        // Добавить внутренние JSON
-        $this->_collectData($data, $this->_getInternalClassesData());
-
-        // Добавить внешние JSON
-        $this->_collectData($data, $this->_getExternalUrlsData());
-
-        $this->_exportData($data);
+        $heavyMonitors = Monitor::getAvailableHeavyMonitors();
+        $this->_collectData($data, $this->_getInternalClassesData($heavyMonitors));
+        foreach ($data as $group => $content) {
+            foreach ((array)$content as $key => $value) {
+                $filename = \Yii::getAlias("@app/web/export/health/{$value['itemId']}.json");
+                if(!file_put_contents($filename, Json::encode($value))) {
+                    throw new \RuntimeException('Невозможно записать файл мониторинга ' . $filename);
+                }
+            }
+        }
     }
 
     /**
@@ -89,26 +115,23 @@ class HealthController extends Controller
             ];
 
             $filePath = \Yii::getAlias($configExport[$group]);
-
-            if (!is_writable($filePath)) {
+            if(!file_put_contents($filePath, Json::encode($monitorData + $dataHeader))) {
                 throw new \RuntimeException('Невозможно записать файл мониторинга ' . $filePath);
             }
-
-            file_put_contents($filePath, Json::encode($monitorData + $dataHeader));
         }
     }
 
     /**
      * Добавить внутренние JSON
      *
-     * @throws \InvalidArgumentException
+     * @param array $internalClasses
+     * @return array
      * @throws \ReflectionException
      */
-    private function _getInternalClassesData()
+    private function _getInternalClassesData(array $internalClasses)
     {
         $data = [];
 
-        $internalClasses = Monitor::getAvailableMonitors();
         foreach ($internalClasses as $className) {
 
             if (!class_exists($className, true)) {
@@ -151,7 +174,7 @@ class HealthController extends Controller
         foreach ($externalGroupsUrls as $monitorGroup => $externalUrls) {
             $data[$monitorGroup] = [];
             foreach ($externalUrls as $jsonKey => $jsonUrl) {
-                $jsonString = @file_get_contents($jsonUrl);
+                $jsonString = @file_get_contents(\Yii::getAlias($jsonUrl));
                 if (!$jsonString) {
                     $data[$monitorGroup][] = [
                         'itemId' => $jsonKey,
@@ -175,7 +198,7 @@ class HealthController extends Controller
                     continue;
                 }
 
-                if (!$jsonArray['timestamp'] || $jsonArray['timestamp'] < $datetimeYesterday) {
+                if (!array_key_exists('timestamp', $jsonArray) || $jsonArray['timestamp'] < $datetimeYesterday) {
                     $data[$monitorGroup][] = [
                         'itemId' => $jsonKey,
                         'itemVal' => 0,

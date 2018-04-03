@@ -41,23 +41,32 @@ abstract class Monitor extends Component
     /**
      * @return string[]
      */
-    public static function getAvailableMonitors()
+    public static function getAvailableLightMonitors()
     {
         return [
             MonitorZSyncPostgres::className(),
             MonitorQueue::className(),
             MonitorQueueSwitchedOff::className(),
-            // MonitorUuAccountEntry::className(),
             MonitorUuBill::className(),
-            // MonitorUuTestTariff::className(), // менеджеры говорят, что пока это нормально
             MonitorUuShiftTariff::className(),
             MonitorSuperClientStruct::className(),
             BacklogSlaveServer::className(),
             MonitorNnpPrefix::className(),
             MonitorSormClientsReg88::className(),
-            // MonitorSormClientsReg97::className(),
             MonitorBrokenRegionInVoip::className(),
             Monitor1cTroubles::className(),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public static function getAvailableHeavyMonitors()
+    {
+        return [
+            MonitorUuAccountEntry::className(),
+            MonitorUuTestTariff::className(),
+            MonitorSormClientsReg97::className(),
         ];
     }
 }
