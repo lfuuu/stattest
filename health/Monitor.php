@@ -47,8 +47,6 @@ abstract class Monitor extends Component
             MonitorZSyncPostgres::className(),
             MonitorQueue::className(),
             MonitorQueueSwitchedOff::className(),
-            MonitorUuBill::className(),
-            MonitorUuShiftTariff::className(),
             MonitorSuperClientStruct::className(),
             BacklogSlaveServer::className(),
             MonitorNnpPrefix::className(),
@@ -64,6 +62,8 @@ abstract class Monitor extends Component
     public static function getAvailableHeavyMonitors()
     {
         return [
+            MonitorUuBill::className(),
+            MonitorUuShiftTariff::className(),
             MonitorUuAccountEntry::className(),
             MonitorUuTestTariff::className(),
             MonitorSormClientsReg97::className(),
