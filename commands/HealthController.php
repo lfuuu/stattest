@@ -57,6 +57,10 @@ class HealthController extends Controller
         foreach ($data as $group => $content) {
             foreach ((array)$content as $key => $value) {
                 $filename = \Yii::getAlias("@app/web/export/health/{$value['itemId']}.json");
+                if (!array_key_exists('timestamp', $value)) {
+                    $value['timestamp'] = (new \DateTime())
+                        ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                }
                 if(!file_put_contents($filename, Json::encode($value))) {
                     throw new \RuntimeException('Невозможно записать файл мониторинга ' . $filename);
                 }
