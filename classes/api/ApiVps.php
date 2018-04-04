@@ -215,10 +215,21 @@ class ApiVps extends Singleton
         $data = [
             'func' => self::FUNC_VPS_EDIT,
             'elid' => $vmId,
-            'mem' => $resourceRam * 1024,
-            'vcpu' => $resourceProcessor,
         ];
-        if ($resourceRam || $resourceProcessor) {
+
+        $isExec = false;
+
+        if ($resourceRam) {
+            $data['mem'] = $resourceRam * 1024;
+            $isExec = true;
+        }
+
+        if ($resourceProcessor) {
+            $data['vcpu'] = $resourceProcessor;
+            $isExec = true;
+        }
+
+        if ($isExec) {
             // только при изменении памяти или процессора
             $result = $this->exec($data); // $result = [doc, elid, ok]
         } else {
