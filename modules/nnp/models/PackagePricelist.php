@@ -41,7 +41,7 @@ class PackagePricelist extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'nnp.package_pricelist';
+        return 'billing_uu.package_pricelist';
     }
 
     /**

@@ -57,16 +57,11 @@ class NumberRange extends ActiveRecord
     const DEFAULT_MOSCOW_NDC = 495;
 
     private static $_triggerTables = [
-        // 'nnp.account_tariff_light',
         'nnp.country',
         'nnp.destination',
         'nnp.number_range',
         'nnp.number_range_prefix',
         'nnp.operator',
-        // 'nnp.package',
-        // 'nnp.package_minute',
-        // 'nnp.package_price',
-        // 'nnp.package_pricelist',
         'nnp.prefix',
         'nnp.prefix_destination',
         'nnp.region',

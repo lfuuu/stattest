@@ -42,7 +42,7 @@ class PackageMinute extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'nnp.package_minute';
+        return 'billing_uu.package_minute';
     }
 
     /**

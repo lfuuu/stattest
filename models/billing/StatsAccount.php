@@ -3,6 +3,9 @@
 namespace app\models\billing;
 
 use app\classes\model\ActiveRecord;
+use app\modules\nnp\models\AccountTariffLight;
+use app\modules\nnp\models\Package;
+use app\modules\nnp\models\PackageMinute;
 use Yii;
 
 /**
@@ -46,6 +49,10 @@ class StatsAccount extends ActiveRecord
      */
     public static function getStatsNnpPackageMinute($clientAccountId, $accountTariffId = null)
     {
+        $accountTariffLightTableName = AccountTariffLight::tableName();
+        $packageTableName = Package::tableName();
+        $packageMinuteTableName = PackageMinute::tableName();
+
         $sql = <<<SQL
 SELECT
 	at.account_tariff_id,
@@ -53,12 +60,12 @@ SELECT
 	COALESCE(stat.used_seconds, 0) AS used_seconds,
 	TRUNC(at.coefficient * pm.minute * 60) AS total_seconds
 FROM
-	nnp.account_tariff_light at
+	{$accountTariffLightTableName} at
 INNER JOIN
-	nnp.package p
+	{$packageTableName} p
 	ON at.tariff_id = p.tariff_id
 INNER JOIN
-	nnp.package_minute pm
+	{$packageMinuteTableName} pm
 	ON p.tariff_id = pm.tariff_id
 LEFT JOIN
 	billing.stats_nnp_package_minute stat

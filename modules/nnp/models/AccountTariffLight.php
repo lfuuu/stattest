@@ -62,7 +62,7 @@ class AccountTariffLight extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'nnp.account_tariff_light';
+        return 'billing_uu.account_tariff_light';
     }
 
     /**

@@ -65,7 +65,7 @@ class Package extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'nnp.package';
+        return 'billing_uu.package';
     }
 
     /**

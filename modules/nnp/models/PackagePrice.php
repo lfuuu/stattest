@@ -50,7 +50,7 @@ class PackagePrice extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'nnp.package_price';
+        return 'billing_uu.package_price';
     }
 
     /**
