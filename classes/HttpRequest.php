@@ -168,6 +168,7 @@ class HttpRequest extends \yii\httpclient\Request
         $code = -1;
         $msg = '';
 
+        // платформа
         if (isset($responseData['errors']) && $responseData['errors']) {
 
             if (isset($responseData['errors']['message'], $responseData['errors']['code'])) {
@@ -196,6 +197,28 @@ class HttpRequest extends \yii\httpclient\Request
                 // все остальное - ошибка
                 throw new InvalidCallException($msg, $code);
             }
+        }
+
+        // VPS
+        if (isset($responseData['error']) && $responseData['error']) {
+
+            if (isset($responseData['error']['msg'], $responseData['error']['code'])) {
+                $msg = $responseData['error']['msg'];
+                $code = $responseData['error']['code'];
+            } else {
+                $msg = print_r($responseData, true);
+                $code = 500;
+            }
+
+            if (!is_string($msg)) {
+                $msg = '';
+            }
+
+            if (!is_numeric($code)) {
+                $code = -1;
+            }
+
+            throw new InvalidCallException($msg, $code);
         }
 
         return [$code, $msg];
