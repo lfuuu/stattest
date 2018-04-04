@@ -215,7 +215,7 @@ class ApiVps extends Singleton
         $data = [
             'func' => self::FUNC_VPS_EDIT,
             'elid' => $vmId,
-            'mem' => $resourceRam,
+            'mem' => $resourceRam * 1024,
             'vcpu' => $resourceProcessor,
         ];
         if ($resourceRam || $resourceProcessor) {
