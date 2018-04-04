@@ -487,9 +487,8 @@ class AccountTariffResourceLog extends ActiveRecord
         $clientAccount = $accountTariff->clientAccount;
         $datimeNow = $clientAccount->getDatetimeWithTimezone();
         if ($datimeNow->format(DateTimeZoneHelper::DATE_FORMAT) == $this->actual_from) {
-            // с сегодня откладываем на завтра
-            $this->actual_from = $datimeNow->modify('+1 day')->format(DateTimeZoneHelper::DATE_FORMAT);
-            Yii::$app->session->setFlash('error', $error . '. Дата включения сдвинута на завтра.');
+            $this->actual_from = $accountTariff->getDefaultActualFrom();
+            Yii::$app->session->setFlash('error', $error . '. Дата включения сдвинута.');
         }
     }
 
