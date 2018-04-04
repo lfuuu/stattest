@@ -2,6 +2,7 @@
 
 namespace app\modules\uu\models\traits;
 
+use app\exceptions\ModelValidationException;
 use app\modules\uu\classes\AccountLogFromToTariff;
 use app\modules\uu\models\AccountLogSetup;
 
@@ -12,6 +13,7 @@ trait AccountTariffBillerSetupTrait
      * В отличии от getUntarificatedPeriodPeriods - в периоде учитывается только начало, а не регулярное списание
      *
      * @return AccountLogFromToTariff[]
+     * @throws \Exception
      * @throws \LogicException
      */
     public function getUntarificatedSetupPeriods()
@@ -31,7 +33,6 @@ trait AccountTariffBillerSetupTrait
         $minLogDatetime = self::getMinLogDatetime();
         /** @var AccountLogFromToTariff[] $accountLogFromToTariffs */
         $accountLogFromToTariffs = $this->getAccountLogHugeFromToTariffs(); // все
-
 
         // по которым не произведен расчет, хотя был должен
         $i = 0; // Порядковый номер нетестового тарифа
@@ -59,7 +60,17 @@ trait AccountTariffBillerSetupTrait
 
         if (count($accountLogs)) {
             // остался неизвестный период, который уже рассчитан
-            throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs))));
+            // Такое бывает, когда после подключение тарифа меняют таймзону
+            // throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogSetup for accountTariffId %d: %s' . PHP_EOL, $this->id, implode(', ', array_keys($accountLogs))));
+            foreach ($accountLogs as $accountLog) {
+                if (!$accountLog) {
+                    continue;
+                }
+
+                if (!$accountLog->delete()) {
+                    throw new ModelValidationException($accountLog);
+                }
+            }
         }
 
         return $untarificatedPeriods;

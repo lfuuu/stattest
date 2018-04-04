@@ -28,7 +28,9 @@ trait AccountTariffBillerResourceTrait
      * Здесь все просто: посуточно. Данные берутся из внешних источников (звонки - из низкоуровневого биллера, дисковое пространство - с платформы)
      *
      * @return AccountLogFromToTariff[][]
+     * @throws \Exception
      * @throws \LogicException
+     * @throws ModelValidationException
      */
     public function getUntarificatedResourceTrafficPeriods()
     {
@@ -94,7 +96,11 @@ trait AccountTariffBillerResourceTrait
                     }
 
                     // остался неизвестный период, который уже рассчитан
-                    throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
+                    // Такое бывает, когда после подключение тарифа меняют таймзону
+                    // throw new \LogicException(sprintf(PHP_EOL . 'There are unknown calculated accountLogResource for accountTariffId = %d, date = %s, resource = %d' . PHP_EOL, $this->id, $dateYmd, $resourceId));
+                    if (!$accountLog->delete()) {
+                        throw new ModelValidationException($accountLog);
+                    }
                 }
             }
         }
