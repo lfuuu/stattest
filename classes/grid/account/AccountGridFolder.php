@@ -69,7 +69,7 @@ abstract class AccountGridFolder extends Model
     public function rules()
     {
         return [
-            [['id', 'sale_channel', 'contract_type', 'legal_entity', 'service_type'], 'integer'],
+            [['id', 'sale_channel', 'contract_type', 'legal_entity', 'service_type', 'is_payed'], 'integer'],
             [
                 [
                     'companyName',

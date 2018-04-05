@@ -4,6 +4,7 @@ namespace app\classes\grid\account\telecom\reports;
 
 use app\classes\grid\account\AccountGridFolder;
 use app\classes\grid\account\AccountGridFolderSummaryTrait;
+use app\classes\grid\column\billing\PayedColumn;
 use app\models\Bill;
 use app\models\BillLine;
 use app\models\ClientAccount;
@@ -19,7 +20,8 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
 {
     use AccountGridFolderSummaryTrait;
 
-    public $service_type;
+    public $is_payed = '';
+    public $service_type = '';
 
     /**
      * @return string
@@ -38,11 +40,13 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
             'company',
             'account_manager',
             'service_type',
+            'is_payed',
             'sum_connection',
             'sum_abonent_pay',
             'sum_minimum_pay',
             'sum_resources',
             'sum_all',
+            'margin',
             'bill_date'
         ];
     }
@@ -54,11 +58,13 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
     {
         return array_merge(parent::attributeLabels(), [
             'service_type' => 'Услуга',
+            'is_payed' => 'Статус оплаты',
             'sum_connection' => 'Плата за подключение',
             'sum_abonent_pay' => 'Абонентская плата',
             'sum_minimum_pay' => 'МГП',
             'sum_resources' => 'Ресурсы',
             'sum_all' => 'Всего',
+            'margin' => 'Маржа',
         ]);
     }
 
@@ -69,18 +75,17 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
     {
         list($dateFrom, $dateTo) = preg_split('/[\s+]\-[\s+]/', $this->bill_date);
 
+        // Подготовка массива выбираемых полей
+        $select = array_merge([
+            'c.id',
+            "concat(c.id, '( ', cg.name, ' )') company",
+            'amu.name account_manager_name',
+            'uat.service_type_id service_type',
+            'b.is_payed',
+        ], $this->getQuerySummarySelect(), ['b.bill_date']);
+
         $query
-            ->select([
-                'concat(cg.id, \'( \', cg.name, \' )\') company',
-                'amu.name account_manager_name',
-                'uat.service_type_id service_type',
-                'sum(case u.type_id when -1 then u.price else 0 end ) sum_connection',
-                'sum(case u.type_id when -2 then u.price else 0 end ) sum_abonent_pay',
-                'sum(case u.type_id when -3 then u.price else 0 end ) sum_minimum_pay',
-                'sum(case when u.type_id > 0 then u.price else 0 end ) sum_resources',
-                'sum(u.price) sum_all',
-                'b.bill_date'
-            ])
+            ->select($select)
             ->from([ClientAccount::tableName() . ' c'])
             ->innerJoin(ClientContract::tableName() . ' cr', 'c.contract_id = cr.id')
             ->innerJoin(ClientContragent::tableName() . ' cg', 'cr.contragent_id = cg.id')
@@ -92,7 +97,6 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
             ->where([
                 'and',
                 ['=', 'b.biller_version', ClientAccount::VERSION_BILLER_UNIVERSAL],
-                ['=', 'b.is_payed', 1],
                 ['=', 'bl.type', 'service'],
             ])
             ->andWhere(
@@ -106,6 +110,7 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
                 'cg.name',
                 'cr.account_manager',
                 'uat.service_type_id',
+                'b.is_payed',
                 'b.bill_date'
             ]);
     }
@@ -118,8 +123,12 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
         $dataProvider = parent::spawnDataProvider();
         $query = $dataProvider->query;
 
-        if ($this->service_type) {
+        if ($this->service_type !== '') {
             $query->andFilterWhere(['uat.service_type_id' => $this->service_type]);
+        }
+
+        if ($this->is_payed !== '') {
+            $query->andFilterWhere(['b.is_payed' => $this->is_payed]);
         }
 
         return $dataProvider;
@@ -131,11 +140,12 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
     public function getQuerySummarySelect()
     {
         return [
-            'SUM(case u.type_id when -1 then u.price else 0 end ) sum_connection',
-            'SUM(case u.type_id when -2 then u.price else 0 end ) sum_abonent_pay',
-            'SUM(case u.type_id when -3 then u.price else 0 end ) sum_minimum_pay',
-            'SUM(case when u.type_id > 0 then u.price else 0 end ) sum_resources',
-            'SUM(u.price) sum_all',
+            'ROUND(SUM(case u.type_id when -1 then u.price else 0 end ), 2) sum_connection',
+            'ROUND(SUM(case u.type_id when -2 then u.price else 0 end ), 2) sum_abonent_pay',
+            'ROUND(SUM(case u.type_id when -3 then u.price else 0 end ), 2) sum_minimum_pay',
+            'ROUND(SUM(case when u.type_id > 0 then u.price else 0 end ), 2) sum_resources',
+            'ROUND(SUM(u.price), 2) sum_all',
+            'ROUND(SUM((CASE WHEN bl.cost_price > 0 THEN bl.sum_without_tax - bl.cost_price else 0 end )), 2) margin'
         ];
     }
 
@@ -150,6 +160,13 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
                 'class' => ServiceTypeColumn::className(),
                 'filterInputOptions' => [
                     'name' => 'service_type'
+                ],
+            ],
+            'is_payed' => [
+                'attribute' => 'is_payed',
+                'class' => PayedColumn::className(),
+                'filterInputOptions' => [
+                    'name' => 'is_payed'
                 ],
             ],
             'sum_connection' => [
@@ -167,6 +184,9 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
             'sum_all' => [
                 'attribute' => 'sum_all',
             ],
+            'margin' => [
+                'attribute' => 'margin',
+            ],
         ]);
     }
 
@@ -183,6 +203,6 @@ class ReceiptsFromManagersAndUsagesFolder extends AccountGridFolder
      */
     public function getColspan()
     {
-        return 3;
+        return 4;
     }
 }
