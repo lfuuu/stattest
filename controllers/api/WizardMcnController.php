@@ -4,6 +4,8 @@ namespace app\controllers\api;
 
 use app\exceptions\ModelValidationException;
 use app\helpers\DateTimeZoneHelper;
+use app\models\Business;
+use app\models\ClientAccount;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\ClientDocument;
@@ -320,11 +322,55 @@ class WizardMcnController extends WizardBaseController
     private function _saveStep2($stepData)
     {
         $this->wizard->is_contract_accept = (int)$stepData['is_contract_accept'];
+
+        $this->_savePartnerCode($stepData);
         $this->wizard->save();
 
         $this->wizard->refresh();
 
         return $stepData['is_contract_accept'];
+    }
+
+    /**
+     * Сохранение кода партнера
+     *
+     * @param array $stepData
+     * @throws ModelValidationException
+     */
+    private function _savePartnerCode($stepData)
+    {
+        if (!isset($stepData['partner_code'])) {
+            return;
+        };
+
+        $partnerCode = (int)$stepData['partner_code'];
+
+        if (!$partnerCode) {
+            return;
+        }
+
+        /** @var ClientAccount $partnerAccount */
+        $partnerAccount = ClientAccount::find()
+            ->alias('client')
+            ->where([
+                'client.id' => $partnerCode,
+            ])
+            ->one();
+
+        if (!$partnerAccount) {
+            return;
+        }
+
+        if ($partnerAccount->contract->business_id != Business::PARTNER) {
+            return;
+        }
+
+        $contract = $this->account->contract;
+        $contract->partner_contract_id = $partnerAccount->contract_id;
+
+        if (!$contract->save()) {
+            throw new ModelValidationException($contract);
+        }
     }
 
 }
