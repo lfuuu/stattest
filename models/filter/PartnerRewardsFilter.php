@@ -130,6 +130,7 @@ class PartnerRewardsFilter extends DynamicModel
     {
         $data = [];
 
+        $usageCIMemory = [];
         foreach ($query->each(1000) as $record) {
             if (!array_key_exists($record['client_id'], $data)) {
                 $data[$record['client_id']] = [
@@ -148,7 +149,7 @@ class PartnerRewardsFilter extends DynamicModel
                 }
             }
 
-            $data[$record['client_id']]['paid_summary'] = $record['paid_summary'];
+            $data[$record['client_id']][$fieldPrefix . 'paid_summary_reward'] += $record['usage_paid'];
             $data[$record['client_id']]['details'][] = $record;
 
             $data[$record['client_id']][$fieldPrefix . 'once'] += $record['once'];
@@ -157,13 +158,24 @@ class PartnerRewardsFilter extends DynamicModel
             $data[$record['client_id']][$fieldPrefix . 'percentage_of_over'] += $record['percentage_of_over'];
             $data[$record['client_id']][$fieldPrefix . 'percentage_of_margin'] += $record['percentage_of_margin'];
 
-            $this->{$summaryField}['paid_summary'] += $record['usage_paid'];
+            // Агрегированное значение для каждого клиента
+            $data[$record['client_id']][$fieldPrefix . 'paid_summary'] = $record['paid_summary'];
+            // Для каждого клиента один раз производим суммирование итоговой суммы с ключом paid_summary текущей записи
+            if (!isset($usageCIMemory[$record['client_id']])) {
+                $usageCIMemory[$record['client_id']] = $record['client_id'];
+                // Итоговая статистика столбца "Сумма оплаченных счетов"
+                $this->{$summaryField}['paid_summary'] += $record['paid_summary'];
+            }
+            // Итоговая статистика столбца "Сумма оплаченных услуг, за которые начисленно вознаграждение"
+            $this->{$summaryField}['paid_summary_reward'] += $record['usage_paid'];
+
             $this->{$summaryField}['once'] += $record['once'];
             $this->{$summaryField}['percentage_once'] += $record['percentage_once'];
             $this->{$summaryField}['percentage_of_fee'] += $record['percentage_of_fee'];
             $this->{$summaryField}['percentage_of_over'] += $record['percentage_of_over'];
             $this->{$summaryField}['percentage_of_margin'] += $record['percentage_of_margin'];
         }
+        unset($usageCIMemory);
 
         return $data;
     }

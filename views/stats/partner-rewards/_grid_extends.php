@@ -11,9 +11,32 @@ use app\classes\Html;
 use app\models\filter\PartnerRewardsFilter;
 
 $baseView = $this;
-
-echo GridView::widget([
-    'dataProvider' => $filterModel->search(),
+// Создаем dataProvider раньше, потому что уже необходимо отображать первую статистику
+$dataProvider = $filterModel->search();
+// Анонимная функция расчета итоговых значений по вознаграждениям
+$totalCountingFunction = function ($type = '') use ($filterModel){
+    $total = 0;
+    $attribute = $type === '' ? 'summary' : 'possibleSummary';
+    foreach ([
+        'once', 'percentage_once', 'percentage_of_fee', 'percentage_of_over' , 'percentage_of_margin'
+    ] as $key) {
+        # Диалектика языка по подсчету итогового значения корректно работает на PHPv5
+        # http://php.net/manual/en/migration70.incompatible.php#migration70.incompatible.variable-handling.indirect
+        $total += $filterModel->{$attribute}[$key];
+    }
+    return number_format($total, 2);
+}
+?>
+<div class="row">
+    <div class="col-sm-6 text-left">
+        <div style="padding-left:15px;">
+            <h2>Итого по начисленному вознаграждению: <?=  $totalCountingFunction(); ?></h2>
+            <h3>Рассчетная сумма вознаграждения по неоплаченным счетам: <?= $totalCountingFunction('possible') ?></h3>
+        </div>
+    </div>
+</div>
+<?= GridView::widget([
+    'dataProvider' => $dataProvider,
     'filterModel' => $filterModel,
     'beforeHeader' => [
         [
@@ -21,9 +44,12 @@ echo GridView::widget([
                 ['content' => '', 'options' => ['rowspan' => 2],],
                 ['content' => 'Наименование клиента', 'options' => ['rowspan' => 2],],
                 ['content' => 'Дата регистрации клиента', 'options' => ['rowspan' => 2],],
-                ['content' => 'Сумма оплаченных услуг', 'options' => ['rowspan' => 2],],
+                ['content' => 'Сумма оплаченных счетов', 'options' => ['rowspan' => 2],],
+                ['content' => 'Сумма оплаченных услуг, за которые начисленно вознаграждение', 'options' => ['rowspan' => 2],],
                 ['content' => 'Сумма вознаграждения', 'options' => ['colspan' => 5],],
-                ['content' => 'Возможная сумма вознаграждения', 'options' => ['colspan' => 5],],
+                ['content' => 'Сумма неоплаченных счетов', 'options' => ['rowspan' => 2],],
+                ['content' => 'Сумма неоплаченных услуг, за которые начисленно вознаграждение', 'options' => ['rowspan' => 2],],
+                ['content' => 'Расчетная сумма вознаграждения (по неоплаченным счетам)', 'options' => ['colspan' => 5],],
             ],
             'options' => [
                 'class' => GridView::DEFAULT_HEADER_CLASS,
@@ -67,7 +93,14 @@ echo GridView::widget([
             'headerOptions' => ['class' => 'hidden'],
             'format' => 'raw',
             'value' => function ($row) {
-                return $row['paid_summary'];
+                return number_format($row['paid_summary'], 2);
+            },
+        ],
+        [
+            'headerOptions' => ['class' => 'hidden'],
+            'format' => 'raw',
+            'value' => function ($row) {
+                return number_format($row['paid_summary_reward'], 2);
             },
         ],
         [
@@ -110,7 +143,20 @@ echo GridView::widget([
             },
             'hAlign' => GridView::ALIGN_CENTER,
         ],
-
+        [
+            'headerOptions' => ['class' => 'hidden'],
+            'format' => 'raw',
+            'value' => function ($row) {
+                return number_format($row['possible_paid_summary'], 2);
+            },
+        ],
+        [
+            'headerOptions' => ['class' => 'hidden'],
+            'format' => 'raw',
+            'value' => function ($row) {
+                return number_format($row['possible_paid_summary_reward'], 2);
+            },
+        ],
         [
             'label' => 'Разовое',
             'format' => 'raw',
@@ -167,6 +213,9 @@ echo GridView::widget([
                     'content' => number_format($filterModel->summary['paid_summary'], 2),
                 ],
                 [
+                    'content' => number_format($filterModel->summary['paid_summary_reward'], 2),
+                ],
+                [
                     'content' => number_format($filterModel->summary['once'], 2),
                 ],
                 [
@@ -181,7 +230,12 @@ echo GridView::widget([
                 [
                     'content' => number_format($filterModel->summary['percentage_of_margin'], 2),
                 ],
-
+                [
+                    'content' => number_format($filterModel->possibleSummary['paid_summary'], 2),
+                ],
+                [
+                    'content' => number_format($filterModel->possibleSummary['paid_summary_reward'], 2),
+                ],
                 [
                     'content' => number_format($filterModel->possibleSummary['once'], 2),
                 ],
