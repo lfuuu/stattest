@@ -2,12 +2,13 @@
 
 use app\classes\api\Errors;
 use app\forms\comment\ClientContractCommentForm;
+use app\forms\usage\UsageVoipEditForm;
+use app\models\City;
+use app\models\ClientAccount;
 use app\models\filter\FreeNumberFilter;
 use app\models\Number;
-use app\models\Trouble;
-use app\models\ClientAccount;
 use app\models\TariffVoip;
-use app\forms\usage\UsageVoipEditForm;
+use app\models\Trouble;
 use app\models\UsageVoip;
 use app\modules\nnp\models\NdcType;
 
@@ -31,14 +32,15 @@ class VoipReserveNumber
         if (empty($numbers)) {
             throw new \Exception('Номера для резерва не найдены');
         }
-        
+
         $comment = 'Reserve numbers: <br />' . PHP_EOL;
 
         $numbersFilter = new FreeNumberFilter();
         $numbersFilter
             ->setIsService(false)
             ->setNdcType(NdcType::ID_GEOGRAPHIC)
-            ->setNumbers((array)$numbers);
+            ->setNumbers((array)$numbers)
+            ->setIsShowInLk(City::IS_SHOW_IN_LK_FULL);
 
         foreach ($numbersFilter->result() as $number) {
             $comment .= $number->number . ' - ' . $number->price . '<br />' . PHP_EOL;

@@ -19,6 +19,7 @@ class ExportController extends Controller
     {
         $query = (new FreeNumberFilter)
             ->setIsService(false)
+            ->setIsShowInLk(City::IS_SHOW_IN_LK_API_ONLY)
             ->getQuery();
 
         echo implode("\t", ['number', 'beauty_level', 'country_code', 'city_id', 'ndc_type_id']) . PHP_EOL;

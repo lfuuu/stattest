@@ -3,10 +3,12 @@
 namespace app\models\filter;
 
 use app\classes\helpers\ArrayHelper;
+use app\models\City;
 use app\models\ClientAccount;
 use app\models\Currency;
 use app\models\light_models\NumberLight;
 use app\models\Number;
+use app\modules\nnp\models\NdcType;
 use yii\db\Expression;
 
 /**
@@ -322,6 +324,22 @@ class FreeNumberFilter extends Number
     public function orderBy($columns)
     {
         $this->_query->addOrderBy($columns);
+        return $this;
+    }
+
+    /**
+     * @param int $minLevel
+     * @return $this
+     */
+    public function setIsShowInLk($minLevel)
+    {
+        $this->_query
+            ->joinWith('city')
+            ->andWhere([
+                'OR',
+                ['!=', parent::tableName() . '.ndc_type_id', NdcType::ID_GEOGRAPHIC],
+                ['>=', City::tableName() . '.is_show_in_lk', $minLevel]
+            ]);
         return $this;
     }
 

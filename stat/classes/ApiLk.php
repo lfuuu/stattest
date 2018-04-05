@@ -10,7 +10,6 @@ use app\exceptions\ModelValidationException;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\Bill;
-use app\models\BillDocument;
 use app\models\City;
 use app\models\ClientAccount;
 use app\models\ClientContact;
@@ -389,21 +388,21 @@ class ApiLk
         }
 
         $conf = [
-            'i1' =>  [['object' => 'invoice-1', 'key' => 'invoice1']],
-            'i2' =>  [['object' => 'invoice-2', 'key' => 'invoice2']],
-            'a1' =>  [['object' => 'akt-1', 'key' => 'akt1']],
-            'a2' =>  [['object' => 'akt-2', 'key' => 'akt2']],
+            'i1' => [['object' => 'invoice-1', 'key' => 'invoice1']],
+            'i2' => [['object' => 'invoice-2', 'key' => 'invoice2']],
+            'a1' => [['object' => 'akt-1', 'key' => 'akt1']],
+            'a2' => [['object' => 'akt-2', 'key' => 'akt2']],
             'ia1' => [['object' => 'upd-1', 'key' => 'upd1']],
             'ia2' => [['object' => 'upd-2', 'key' => 'upd2']],
-            'i3' =>  [['object' => 'upd-3', 'key' => 'updt'], ['object' => 'lading', 'key' => 'lading']],
+            'i3' => [['object' => 'upd-3', 'key' => 'updt'], ['object' => 'lading', 'key' => 'lading']],
         ];
 
 
         foreach ($conf as $dtKey => $dtConf) {
             if (isset($dt[$dtKey]) && $dt[$dtKey]) {
-                $data[$dtConf[$dt[$dtKey]-1]['key']] = API__print_bill_url . Encrypt::encodeArray([
+                $data[$dtConf[$dt[$dtKey] - 1]['key']] = API__print_bill_url . Encrypt::encodeArray([
                         'bill' => $bill->bill_no,
-                        'object' => $dtConf[$dt[$dtKey]-1]['object'],
+                        'object' => $dtConf[$dt[$dtKey] - 1]['object'],
                         'client' => $bill->client_id
                     ]);
             }
@@ -955,10 +954,10 @@ class ApiLk
         $ret = [];
 
         /** @var FreeNumberFilter $numbers */
-        $numbers =
-            (new FreeNumberFilter)
-                ->setIsService(false)
-                ->setDidGroup($didGroup->id);
+        $numbers = (new FreeNumberFilter)
+            ->setIsService(false)
+            ->setDidGroup($didGroup->id)
+            ->setIsShowInLk(City::IS_SHOW_IN_LK_FULL);
 
         if ($cityId == Number::TYPE_7800) {
             $numbers

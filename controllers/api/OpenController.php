@@ -3,6 +3,7 @@
 namespace app\controllers\api;
 
 use app\exceptions\ModelValidationException;
+use app\models\City;
 use app\models\ClientAccount;
 use app\models\ClientContragent;
 use app\models\Currency;
@@ -172,6 +173,7 @@ final class OpenController extends Controller
             ->setNdcType($ndcType)
             ->setOffset($offset)
             ->setLimit($limit)
+            ->setIsShowInLk(City::IS_SHOW_IN_LK_FULL)
             ->orderBy(['number' => SORT_ASC]);
 
         $client_account_id = (int)$client_account_id;
@@ -326,6 +328,7 @@ final class OpenController extends Controller
             ->setNdcType($ndcType)
             // ->setOffset($offset)
             ->setLimit($limit, FreeNumberFilter::GROUPED_LIMIT)
+            ->setIsShowInLk(City::IS_SHOW_IN_LK_FULL)
             ->orderBy(['number' => SORT_ASC]);
 
         $client_account_id = (int)$client_account_id;

@@ -3,12 +3,13 @@
 use app\classes\api\ApiCore;
 use app\classes\api\Errors;
 use app\dao\reports\ReportUsageDao;
-use app\models\filter\FreeNumberFilter;
-use app\models\ClientAccount;
-use app\models\TariffVoip;
+use app\forms\client\ClientCreateExternalForm;
 use app\forms\usage\UsageVoipEditForm;
 use app\helpers\DateTimeZoneHelper;
-use app\forms\client\ClientCreateExternalForm;
+use app\models\City;
+use app\models\ClientAccount;
+use app\models\filter\FreeNumberFilter;
+use app\models\TariffVoip;
 use app\modules\nnp\models\NdcType;
 use yii\web\BadRequestHttpException;
 
@@ -39,7 +40,7 @@ $action = get_param_raw('action', '');
 if ($action == 'add_client') {
 
 
-    $V = array(
+    $V = [
         'company' => 'company',
         'fio' => 'fio',
         'contact' => 'contact_phone',
@@ -53,7 +54,7 @@ if ($action == 'add_client') {
         'connect_region' => 'connect_region',
         'ip' => 'ip',
         'entry_point_id' => 'entry_point_id'
-    );
+    ];
 
     $P = [];
     foreach ($V as $k1 => $k2) {
@@ -179,15 +180,15 @@ if ($action == 'add_client') {
             $dateStart = date("Y-m-d H:i:s");
             $dateStart2 = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
-            $R = array(
+            $R = [
                 "trouble_id" => $t["id"],
                 "state_id" => $s["state_id"],
                 "user_main" => $s["user_main"],
                 "date_start" => $dateStart,
                 "date_finish_desired" => $dateStart2
-            );
+            ];
 
-            $s["date_edit"] = $s["date_finish_desired"] = array("NOW()");
+            $s["date_edit"] = $s["date_finish_desired"] = ["NOW()"];
 
 
             $comment = get_param_raw("comment", "");
@@ -209,6 +210,7 @@ if ($action == 'add_client') {
     $numbersFilter
         ->setIsService(false)
         ->setNdcType(NdcType::ID_GEOGRAPHIC)
+        ->setIsShowInLk(City::IS_SHOW_IN_LK_FULL)
         ->setRegions([$region]);
 
     foreach ($numbersFilter->result() as $number) {
