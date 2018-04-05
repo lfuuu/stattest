@@ -196,7 +196,7 @@ SQL;
 
                 HandlerLogger::me()->add($errorMessage);
 
-                // смену тарифа отодвинуть на 1 день в надежде, что за это время клиент пополнит баланс
+                // смену тарифа отодвинуть в надежде, что за это время клиент пополнит баланс
                 $isWithTransaction && $transaction = $db->beginTransaction();
 
                 $accountTariff->comment .= ($accountTariff->comment ? PHP_EOL : '') . $errorMessage;
@@ -207,12 +207,7 @@ SQL;
 
                 $accountTariffLogs = $accountTariff->accountTariffLogs;
                 $accountTariffLog = reset($accountTariffLogs);
-                $accountTariffLog->actual_from_utc = $accountTariff->clientAccount
-                    ->getDatetimeWithTimezone()
-                    ->modify('+1 day')
-                    ->setTime(0, 0)
-                    ->setTimezone(new \DateTimeZone(DateTimeZoneHelper::TIMEZONE_UTC))
-                    ->format(DateTimeZoneHelper::DATETIME_FORMAT);
+                $accountTariffLog->actual_from_utc = $accountTariff->getDefaultActualFrom();
                 if (!$accountTariffLog->save()) {
                     // "Не надо фаталиться, вся жизнь впереди. Вся жизнь впереди, надейся и жди." (С) Р. Рождественский
                     // throw new ModelValidationException($accountTariffLog);
