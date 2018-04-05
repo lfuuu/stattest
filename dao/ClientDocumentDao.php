@@ -232,9 +232,12 @@ class ClientDocumentDao extends Singleton
     {
         $simCards = Card::find()
             ->alias('c')
+            ->joinWith('clientAccount ca')
             ->select(['c.iccid', 'msisdn'])
             ->joinWith('imsies')
-            ->where(['client_account_id' => $document->getAccount()])
+            ->where([
+                'ca.contract_id' => $document->contract_id
+            ])
             ->asArray()
             ->all();
 
