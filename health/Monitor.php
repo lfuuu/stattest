@@ -64,7 +64,7 @@ abstract class Monitor extends Component
         return [
             MonitorUuBill::className(),
             MonitorUuShiftTariff::className(),
-            MonitorUuAccountEntry::className(),
+            // MonitorUuAccountEntry::className(), // обычно работает долю секунды, но иногда лочится надолго
             MonitorUuTestTariff::className(),
             MonitorSormClientsReg97::className(),
         ];
