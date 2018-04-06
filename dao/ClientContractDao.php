@@ -12,7 +12,9 @@ use app\models\ClientContragent;
 use app\models\ClientDocument;
 use app\models\InvoiceSettings;
 use app\models\Organization;
+use app\models\OrganizationSettlementAccount;
 use app\models\TaxVoipSettings;
+use app\modules\uu\models_light\InvoiceLight;
 use Yii;
 use yii\db\Query;
 
@@ -22,6 +24,8 @@ use yii\db\Query;
 class ClientContractDao extends Singleton
 {
     private $_isOrganizationValue = false;
+
+    public $settlementAccountTypeId = OrganizationSettlementAccount::SETTLEMENT_ACCOUNT_TYPE_RUSSIA;
 
     /**
      * Получить транковые контракты с типом контракта в скобках
@@ -268,11 +272,15 @@ class ClientContractDao extends Singleton
         if (!$cash) {
             /** @var InvoiceSettings $settings */
             foreach (InvoiceSettings::find()->all() as $settings) {
-                $cash[$settings->doer_organization_id][$settings->customer_country_code ?: 'any'][$settings->vat_apply_scheme] = $settings->vat_rate;
+                $cash[$settings->doer_organization_id][$settings->customer_country_code ?: 'any'][$settings->vat_apply_scheme] = [
+                    'vat_rate' => $settings->vat_rate,
+                    'account_type_id' => $settings->settlement_account_type_id,
+                ];
             }
         }
 
         $this->_isOrganizationValue = false;
+        $this->settlementAccountTypeId = OrganizationSettlementAccount::SETTLEMENT_ACCOUNT_TYPE_RUSSIA;
         $organizationId = $contract->organization_id;
         $countryId = $contract->contragent->country_id;
 
@@ -288,11 +296,17 @@ class ClientContractDao extends Singleton
         }
 
         if ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_YCH_VAT0 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT])) {
-            return $countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT];
+            $cacheValue = $countrySettings[InvoiceSettings::VAT_SCHEME_NONVAT];
+            $this->settlementAccountTypeId = $cacheValue['account_type_id'];
+            return $cacheValue['vat_rate'];
         } elseif ($contract->contragent->tax_regime == ClientContragent::TAX_REGTIME_OCH_VAT18 && isset($countrySettings[InvoiceSettings::VAT_SCHEME_VAT])) {
-            return $countrySettings[InvoiceSettings::VAT_SCHEME_VAT];
+            $cacheValue = $countrySettings[InvoiceSettings::VAT_SCHEME_VAT];
+            $this->settlementAccountTypeId = $cacheValue['account_type_id'];
+            return $cacheValue['vat_rate'];
         } elseif (isset($countrySettings[InvoiceSettings::VAT_SCHEME_ANY])) {
-            return $countrySettings[InvoiceSettings::VAT_SCHEME_ANY];
+            $cacheValue = $countrySettings[InvoiceSettings::VAT_SCHEME_ANY];
+            $this->settlementAccountTypeId = $cacheValue['account_type_id'];
+            return $cacheValue['vat_rate'];
         }
 
         Yii::warning('[contract_vat_not_found] Не найдена эффективная ставка НДС для договора ' . $contract->id . '. Нет настроек по режиму.');

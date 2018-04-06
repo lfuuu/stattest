@@ -5,7 +5,9 @@ namespace app\modules\uu\models_light;
 use app\classes\Html;
 use app\helpers\MediaFileHelper;
 use app\models\ClientAccount;
+use app\models\ClientContract;
 use app\models\Organization;
+use app\models\OrganizationSettlementAccount;
 use yii\base\Component;
 
 class InvoiceSellerLight extends Component implements InvoiceLightInterface
@@ -29,12 +31,14 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
     /**
      * @param string $language
      * @param Organization $organization
-     * @param $invoiceSetting
      * @param ClientAccount $clientAccount
      */
-    public function __construct($language, Organization $organization, $invoiceSetting, ClientAccount $clientAccount)
+    public function __construct($language, Organization $organization, ClientAccount $clientAccount)
     {
         parent::__construct();
+
+        $dao = ClientContract::dao();
+        $dao->getEffectiveVATRate($clientAccount->contract);
 
         $this->name = $organization->name;
         $this->legal_address = $organization->legal_address;
@@ -48,8 +52,8 @@ class InvoiceSellerLight extends Component implements InvoiceLightInterface
         $this->director = (array)(new InvoicePersonLight($organization->director->setLanguage($language)));
         $this->accountant = (array)(new InvoicePersonLight($organization->accountant->setLanguage($language)));
         $this->bank = (array)(new InvoiceBankLight(
-            !is_null($invoiceSetting)
-                ? $organization->getSettlementAccount($invoiceSetting->settlement_account_type_id)
+            $dao->settlementAccountTypeId != OrganizationSettlementAccount::SETTLEMENT_ACCOUNT_TYPE_RUSSIA
+                ? $organization->getSettlementAccount($dao->settlementAccountTypeId)
                 : $organization->settlementAccount,
             $clientAccount->currency
         )

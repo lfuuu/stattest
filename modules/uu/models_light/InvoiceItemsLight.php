@@ -17,7 +17,6 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
 
     private
         $_clientAccount,
-        $_invoiceSetting,
         $_language,
         $_clientContragentEuroINN = false,
         $_isDetailed = true;
@@ -26,15 +25,13 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
      * @param ClientAccount $clientAccount
      * @param InvoiceBillLight $bill
      * @param AccountEntry[] $items
-     * @param InvoiceSettings $invoiceSetting
      * @param string $language
      */
-    public function __construct(ClientAccount $clientAccount, InvoiceBillLight $bill, $items, $invoiceSetting, $language)
+    public function __construct(ClientAccount $clientAccount, InvoiceBillLight $bill, $items, $language)
     {
         parent::__construct();
 
         $this->_clientAccount = $clientAccount;
-        $this->_invoiceSetting = $invoiceSetting;
         $this->_language = $language;
         // Взять EU Vat ID у контрагента
         $this->_clientContragentEuroINN = $clientAccount->contragent->inn_euro;
@@ -44,9 +41,6 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
         $this->_isDetailed = (bool)$clientAccount->type_of_bill;
 
         foreach ($items as $item) {
-            // Пересчет НДС если необходимо
-            $this->relalcVat($item);
-
             // Подсчет суммы счета
             $bill
                 ->setSummaryVat($item->vat)
@@ -103,57 +97,6 @@ class InvoiceItemsLight extends Component implements InvoiceLightInterface
         }
 
         return $this->items;
-    }
-
-    /**
-     * @param AccountEntry $item
-     */
-    public function relalcVat(&$item)
-    {
-        $isApplyVatRate = false;
-        $vatRate = $item->vat;
-
-        if (!is_null($this->_invoiceSetting)) {
-            $vatRate = $this->_invoiceSetting->vat_rate;
-
-            // Применение схемы начисления НДС
-            switch ($this->_invoiceSetting->vat_apply_scheme) {
-
-                // Схема #1 применение НДС из настроек as is
-                case InvoiceSettings::VAT_SCHEME_ANY:
-                    if ($this->_invoiceSetting->vat_rate != $item->vat_rate) {
-                        $vatRate = $this->_invoiceSetting->vat_rate;
-                        $isApplyVatRate = true;
-                    }
-                    break;
-
-                // Схема #2 упрощенная система налогообложения
-                case InvoiceSettings::VAT_SCHEME_NONVAT:
-                    $vatRate = 0;
-                    $isApplyVatRate = true;
-                    break;
-
-                // Схема #3 + 0 НДС + EU Vat ID
-                case InvoiceSettings::VAT_SCHEME_VAT:
-                    if (!empty($this->_clientContragentEuroINN)) {
-                        $vatRate = 0;
-                        $isApplyVatRate = true;
-                    } elseif (
-                        $this->_invoiceSetting->vat_rate != $item->vat_rate
-                        && is_numeric($this->_invoiceSetting->vat_rate)
-                    ) {
-                        $vatRate = $this->_invoiceSetting->vat_rate;
-                        $isApplyVatRate = true;
-                    }
-                    break;
-            }
-        }
-
-        if ($isApplyVatRate) {
-            $item->vat_rate = $vatRate;
-            $item->price_with_vat = $item->price_without_vat * (100 + $item->vat_rate) / 100;
-            $item->vat = $item->price_without_vat * $item->vat_rate / 100;
-        }
     }
 
     /**

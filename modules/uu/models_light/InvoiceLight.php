@@ -7,7 +7,6 @@ use app\classes\Smarty;
 use app\forms\templates\uu\InvoiceForm;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
-use app\models\InvoiceSettings;
 use app\models\Language;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
@@ -93,17 +92,9 @@ class InvoiceLight extends Component
         $sellerOrganization = $this->_clientAccount->contract->getOrganization($dateForOrganization);
         Assert::isObject($sellerOrganization, 'Данные об организации за дату "' . $dateForOrganization . '" не найдены');
 
-        /** @var InvoiceSettings $invoiceSetting */
-        // Настройки счета-фактуры
-        $invoiceSetting = InvoiceSettings::findOne([
-            'doer_organization_id' => $sellerOrganization->organization_id,
-            'customer_country_code' => $this->_clientAccount->contract->contragent->country_id,
-        ]);
-
         $this->_seller = new InvoiceSellerLight(
             $this->_language,
             $sellerOrganization->setLanguage($dataLanguage),
-            $invoiceSetting,
             $this->_clientAccount
         );
 
@@ -117,7 +108,7 @@ class InvoiceLight extends Component
         $items = AccountEntry::find()
             ->joinWith('accountTariff')
             ->where([$accountTariffTableName . '.client_account_id' => $this->_clientAccount->id])
-            ->andWhere(['>', $accountEntryTableName . '.vat', 0])
+            ->andWhere(['>', $accountEntryTableName . '.price_with_vat', 0])
             ->andWhere(['bill_id' => $this->_bill->id])
             ->orderBy([
                 'account_tariff_id' => SORT_ASC,
@@ -129,7 +120,7 @@ class InvoiceLight extends Component
             // Данные о счете
             $this->_bill = new InvoiceBillLight($this->_bill->id, $this->_bill->date, $dataLanguage);
             // Данные проводках
-            $this->_items = (new InvoiceItemsLight($this->_clientAccount, $this->_bill, $items, $invoiceSetting, $dataLanguage))->getAll();
+            $this->_items = (new InvoiceItemsLight($this->_clientAccount, $this->_bill, $items, $dataLanguage))->getAll();
         }
     }
 
@@ -138,11 +129,6 @@ class InvoiceLight extends Component
      */
     public function getBills()
     {
-        // Получить -1 месяц от даты счета
-        $monthAgo = (new DateTime($this->_date))
-            ->modify('-1 month')
-            ->format('Y-m');
-
         return (new Query())
             ->select([
                 'bill.*',
