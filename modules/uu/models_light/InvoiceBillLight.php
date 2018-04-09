@@ -2,7 +2,11 @@
 
 namespace app\modules\uu\models_light;
 
+use app\models\Bill;
+use app\models\Payment;
+use app\modules\uu\models\Bill as uuBill;
 use yii\base\Component;
+use yii\base\InvalidParamException;
 
 class InvoiceBillLight extends Component implements InvoiceLightInterface
 {
@@ -10,6 +14,8 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
     public
         $id = 0,
         $date,
+        $payment_date,
+        $pay_bill_until,
         $summary_without_vat = 0,
         $summary_vat = 0,
         $summary_with_vat = 0;
@@ -17,17 +23,26 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
     private $_language;
 
     /**
-     * @param string $billId
-     * @param string $billDate
+     * @param Bill|uuBill $bill
      * @param string $language
      */
-    public function __construct($billId, $billDate, $language)
+    public function __construct($bill, $language)
     {
         parent::__construct();
 
-        $this->id = $billId;
-        $this->date = $billDate;
+        $this->id = $bill->id;
+        $this->date = $bill->date;
         $this->_language = $language;
+
+        $statBill = $this->_getStatBill($bill);
+
+        if (!$statBill) {
+            return;
+        }
+
+        $this->pay_bill_until = $statBill->pay_bill_until;
+
+        $this->_setPaymentDate($statBill);
     }
 
     /**
@@ -92,10 +107,53 @@ class InvoiceBillLight extends Component implements InvoiceLightInterface
         return [
             'id' => 'Номер счета',
             'date' => 'Дата выставления счета',
+            'payment_date' => 'Дата первой оплаты счета',
+            'pay_bill_until' => 'Дата, до которой надо оплатить счет',
             'summary_without_vat' => 'Сумма счета без НДС',
             'summary_vat' => 'Сумма НДС',
             'summary_with_vat' => 'Сумма счета с НДС',
         ];
+    }
+
+    /**
+     * Получаем статовский счет
+     *
+     * @param Bill|uuBill $bill
+     * @return Bill
+     */
+    private function _getStatBill($bill)
+    {
+        if ($bill instanceof uuBill) {
+            $bill = Bill::findOne(['uu_bill_id' => $bill->id]);
+        }
+
+        if (!$bill) {
+            return null;
+        }
+
+        if (!($bill instanceof Bill)) {
+            throw new InvalidParamException('Счет не найден');
+        }
+
+        return $bill;
+    }
+
+    /**
+     * Утсанавливаем дату платежа
+     *
+     * @param Bill $bill
+     */
+    private function _setPaymentDate(Bill $bill)
+    {
+        $this->payment_date = Payment::find()
+            ->where([
+                'bill_no' => $bill->bill_no
+            ])
+            ->orderBy([
+                'payment_date' => SORT_ASC
+            ])
+            ->select('payment_date')
+            ->scalar();
     }
 
 }
