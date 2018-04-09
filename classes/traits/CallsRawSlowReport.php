@@ -209,19 +209,19 @@ trait CallsRawSlowReport
 
         $query1 = $query1
             ->reportCondition('cr.trunk_service_id', $this->src_logical_trunks_ids)
-            ->reportCondition('st.contract_id', $this->src_contracts_ids)
-            ->reportCondition('cr.nnp_operator_id', $this->src_operator_ids)
-            ->reportCondition('cr.nnp_region_id', $this->src_regions_ids)
-            ->reportCondition('cr.nnp_city_id', $this->src_cities_ids)
-            ->reportCondition('cr.nnp_country_code', $this->src_countries_ids);
-
-        $query2 = $query2
-            ->reportCondition('cr.trunk_service_id', $this->dst_logical_trunks_ids)
             ->reportCondition('st.contract_id', $this->dst_contracts_ids)
             ->reportCondition('cr.nnp_operator_id', $this->dst_operator_ids)
             ->reportCondition('cr.nnp_region_id', $this->dst_regions_ids)
             ->reportCondition('cr.nnp_city_id', $this->dst_cities_ids)
             ->reportCondition('cr.nnp_country_code', $this->dst_countries_ids);
+
+        $query2 = $query2
+            ->reportCondition('cr.trunk_service_id', $this->dst_logical_trunks_ids)
+            ->reportCondition('st.contract_id', $this->src_contracts_ids)
+            ->reportCondition('cr.nnp_operator_id', $this->src_operator_ids)
+            ->reportCondition('cr.nnp_region_id', $this->src_regions_ids)
+            ->reportCondition('cr.nnp_city_id', $this->src_cities_ids)
+            ->reportCondition('cr.nnp_country_code', $this->src_countries_ids);
 
 
         $isSrcNdcTypeGroup = in_array('src_ndc_type_id', $this->group);
@@ -231,27 +231,33 @@ trait CallsRawSlowReport
         $query2 = $this->setDestinationCondition($query2, $query3, $this->src_destinations_ids, 'cr.nnp_number_range_id', $isSrcNdcTypeGroup, 'src');
 
 
-        if ($this->src_number_type_ids) {
-            $query2->leftJoin(
-                ["src_nr" => 'nnp.number_range'],
-                "src_nr.id = cr.nnp_number_range_id"
-            );
-            $query2->andWhere(["src_nr.ndc_type_id" => $this->src_number_type_ids]);
-        }
-
-        if ($this->dst_number_type_ids) {
+        if ($isDstNdcTypeGroup || $this->dst_destinations_ids || $this->dst_number_type_ids) {
             $query1->leftJoin(
                 ["dst_nr" => 'nnp.number_range'],
                 "dst_nr.id = cr.nnp_number_range_id"
             );
-            $query1->andWhere(["dst_nr.ndc_type_id" => $this->dst_number_type_ids]);
-        }
-
-        if ($isDstNdcTypeGroup || $this->dst_destinations_ids || $this->dst_number_type_ids) {
-            $query1->addSelect(['dst_ndc_type_id' => 'dst_nr.ndc_type_id']);
         }
 
         if ($isSrcNdcTypeGroup || $this->src_destinations_ids || $this->src_number_type_ids) {
+            $query1->leftJoin(
+                ["src_nr" => 'nnp.number_range'],
+                "src_nr.id = cr.nnp_number_range_id"
+            );
+        }
+
+        if ($this->src_number_type_ids) {
+            $query2->andWhere(["src_nr.ndc_type_id" => $this->src_number_type_ids]);
+        }
+
+        if ($this->dst_number_type_ids) {
+            $query1->andWhere(["dst_nr.ndc_type_id" => $this->dst_number_type_ids]);
+        }
+
+        if ($isDstNdcTypeGroup || $this->dst_number_type_ids) {
+            $query1->addSelect(['dst_ndc_type_id' => 'dst_nr.ndc_type_id']);
+        }
+
+        if ($isSrcNdcTypeGroup || $this->src_number_type_ids) {
             $query2->addSelect(['src_ndc_type_id' => 'src_nr.ndc_type_id']);
         }
 
