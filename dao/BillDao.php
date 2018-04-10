@@ -156,9 +156,9 @@ class BillDao extends Singleton
      * Обновить транзакции счета
      *
      * @param Bill $bill
-     * @param BillLine $lines
+     * @param BillLine[] $lines
      */
-    private function _updateTransactions(Bill $bill, BillLine $lines)
+    private function _updateTransactions(Bill $bill, array $lines)
     {
         $transactions = Transaction::find()
             ->andWhere([
