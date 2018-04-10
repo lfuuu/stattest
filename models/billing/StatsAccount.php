@@ -55,6 +55,7 @@ class StatsAccount extends ActiveRecord
 
         $sql = <<<SQL
 SELECT
+	at.id,
 	at.account_tariff_id,
 	p.name,
 	COALESCE(stat.used_seconds, 0) AS used_seconds,
