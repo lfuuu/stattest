@@ -243,7 +243,7 @@
         {/if}
         {if $bill.price_include_vat == 0}
             <th style="text-align: right">{$sum_without_tax|round:2}</th>
-            <td style="text-align: right">{$sum_tax|round:2}</td>
+            <td style="text-align: right">{if $bill.sum != 0}{$bill.sum-$sum_without_tax|round:2}{else}---{/if}</td>
             <th style="text-align: right">{$bill.sum|round:2}</th>
         {else}
             <th style="text-align: right">{$bill.sum|round:2}</th>

@@ -5,6 +5,8 @@ namespace app\models;
 use app\classes\model\ActiveRecord;
 use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\AccountTariff;
+use yii\base\InvalidParamException;
+use yii\base\Object;
 
 /**
  * Class BillLine
@@ -127,9 +129,12 @@ class BillLine extends ActiveRecord
     /**
      * @param array $lines
      * @param string $lang
+     * @param boolean $isPriceIncludeVat
      * @return array
+     * @internal param mixed $untypedLines
+     * @internal param array $lines
      */
-    public static function compactLines($lines, $lang)
+    public static function compactLines($lines, $lang, $isPriceIncludeVat)
     {
         $data = [];
         $idx = [];
@@ -169,9 +174,10 @@ class BillLine extends ActiveRecord
                     'first_line' => $line,
                     'first_account_entry' => $accountEntry,
                     'sums' => [
-                        'price_without_vat' => 0,
-                        'price_with_vat' => 0,
-                        'vat' => 0
+                        'sum' => 0,
+                        'sum_without_tax' => 0,
+                        'sum_tax' => 0,
+                        'amount' => 0,
                     ]
                 ];
             }
@@ -201,8 +207,6 @@ class BillLine extends ActiveRecord
             return 0;
         });
 
-        $isPriceIncludeVat = null;
-
         foreach ($idx as $row) {
             $line = $row['first_line'];
             $line['amount'] = $row['sums']['amount'];
@@ -216,15 +220,11 @@ class BillLine extends ActiveRecord
                 $line['item'] = $accountEntry->getFullName($lang, false);
             }
 
-            if ($isPriceIncludeVat === null) {
-                $isPriceIncludeVat = $accountEntry->accountTariff->clientAccount->price_include_vat;
-            }
-
             $line['price'] = ($isPriceIncludeVat ? $line['sum'] : $line['sum_without_tax']) / $line['amount'];
 
             // установка правильных значений НДС и суммы
             $oLine = new BillLine();
-            $oLine->setAttributes($line, false);
+            $oLine->setAttributes(method_exists($line, 'getAttributes') ? $line->getAttributes() : $line, false);
             $oLine->calculateSum($isPriceIncludeVat);
             $line = $oLine->getAttributes();
 

@@ -101,9 +101,19 @@ class BillDao extends Singleton
         try {
             $lines = $bill->getLines()->all();
 
+            if ($bill->clientAccount->type_of_bill == ClientAccount::TYPE_OF_BILL_SIMPLE) {
+                $lines = BillLine::compactLines($lines, $bill->clientAccount->contragent->lang_code, $bill->price_include_vat);
+            }
+
             $this->_calculateBillSum($bill, $lines);
 
-            if ($bill->biller_version === null || $bill->biller_version == ClientAccount::VERSION_BILLER_USAGE) {
+            if (
+                $bill->clientAccount->type_of_bill != ClientAccount::TYPE_OF_BILL_SIMPLE
+                && (
+                    $bill->biller_version === null
+                    || $bill->biller_version == ClientAccount::VERSION_BILLER_USAGE
+                )
+            ) {
                 $this->_updateTransactions($bill, $lines);
             }
 
@@ -128,11 +138,11 @@ class BillDao extends Singleton
 
         /** @var BillLine[] $lines */
         foreach ($lines as $line) {
-            if ($line->type == BillLine::LINE_TYPE_ZADATOK) {
+            if ($line['type'] == BillLine::LINE_TYPE_ZADATOK) {
                 continue;
             }
 
-            $bill->sum_with_unapproved += $line->sum;
+            $bill->sum_with_unapproved += $line['sum'];
         }
 
         if ($bill->is_rollback && $bill->sum_with_unapproved > 0) {
@@ -146,9 +156,9 @@ class BillDao extends Singleton
      * Обновить транзакции счета
      *
      * @param Bill $bill
-     * @param array $lines
+     * @param BillLine $lines
      */
-    private function _updateTransactions(Bill $bill, array $lines)
+    private function _updateTransactions(Bill $bill, BillLine $lines)
     {
         $transactions = Transaction::find()
             ->andWhere([
