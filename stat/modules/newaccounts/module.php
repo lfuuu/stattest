@@ -11,6 +11,7 @@ use app\models\Bill;
 use app\models\BillDocument;
 use app\models\Business;
 use app\models\ClientAccount;
+use app\models\ClientAccountOptions;
 use app\models\ClientContract;
 use app\models\ClientContragent;
 use app\models\Courier;
@@ -4774,6 +4775,10 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                         //$this->bb_cache__set($p["bill_no"]."--".$I, $A);
                     }
 
+                    if ($A['bill']['sum'] <= 0) { // без нулевых и отрицательных документов
+                        continue;
+                    }
+
                     $invDate = $p['shipment_ts'] ?
                         $p['shipment_ts'] :
                         $A['inv_date'];
@@ -4784,6 +4789,11 @@ cg.position AS signer_position, cg.fio AS signer_fio, cg.positionV AS signer_pos
                     /** @var \app\models\ClientAccount $c */
                     $c = ClientAccount::findOne(['id' => $p['client_id']])
                         ->loadVersionOnDate(date('Y-m-d', $invDate));
+
+                    if ($c->currency != Currency::RUB || !$c->getOptionValue(ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK)) { // только рублевые ЛС и ЛС с выгрузкой
+                        continue;
+                    }
+
 
                     if (is_array($A) && $A['bill']['sum']) {
                         $A['bill']['shipment_ts'] = $p['shipment_ts'];

@@ -392,6 +392,7 @@ class ClientAccount extends HistoryActiveRecord
             'price_level' => 'Уровень цен',
             'uu_tariff_status_id' => 'УУ-пакет',
             'settings_advance_invoice' => 'Настройки выставления авансовых счетов',
+            'upload_to_sales_book' => 'Выгружать с/ф ЛС в книгу продаж',
             'show_in_lk' => 'Показывать ЛС в ЛК',
         ];
     }
@@ -922,6 +923,18 @@ class ClientAccount extends HistoryActiveRecord
     {
         $option = $this->getOptions()->where(['option' => $name])->all();
         return $option !== null ? ArrayHelper::getColumn($option, 'value') : false;
+    }
+
+    /**
+     * Значение опции
+     *
+     * @param $name
+     * @return mixed
+     */
+    public function getOptionValue($name)
+    {
+        $optionQuery = $this->getOptions()->where(['option' => $name])->select('value');
+        return $optionQuery->exists() ? $optionQuery->scalar() : ClientAccountOptions::getDefaultValue($name) ;
     }
 
     /**

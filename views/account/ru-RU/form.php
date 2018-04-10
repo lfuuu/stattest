@@ -132,6 +132,15 @@ use kartik\widgets\ActiveForm;
     </div>
 
     <div class="row">
+        <div class="col-sm-9">
+            &nbsp;
+        </div>
+        <div class="col-sm-3">
+            <?= $f->field($model, ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK)->checkbox() ?>
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-sm-6">
             <?= $f
                 ->field($model, 'options[mail_delivery_variant]')

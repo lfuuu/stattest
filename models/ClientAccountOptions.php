@@ -29,12 +29,17 @@ class ClientAccountOptions extends ActiveRecord
     const SETTINGS_ADVANCE_1_AND_15 = '1_and_15';
     const SETTINGS_ADVANCE_EVERY_WEEK_ON_MONDAY = 'every_week_on_monday';
 
+    const OPTION_UPLOAD_TO_SALES_BOOK = 'upload_to_sales_book'; // default = 1
+
     public static $settingsAdvance = [
         self::SETTINGS_ADVANCE_NOT_SET => 'Не выставляются автоматически',
         self::SETTINGS_ADVANCE_1_AND_15 => 'Выставляются каждого 1 и 15 числа',
         self::SETTINGS_ADVANCE_EVERY_WEEK_ON_MONDAY => 'Выставлять по понедельникам',
     ];
 
+    private static $_defaults = [
+        self::OPTION_UPLOAD_TO_SALES_BOOK => "1" // там только строки
+    ];
 
 
     public static function tableName()
@@ -49,6 +54,21 @@ class ClientAccountOptions extends ActiveRecord
             [['option', 'value',], 'string'],
             [['client_account_id', 'option', 'value'], 'required'],
         ];
+    }
+
+    /**
+     * Значение по-умолчанию для опции
+     *
+     * @param string $value
+     * @return mixed|null
+     */
+    public static function getDefaultValue($value)
+    {
+        if (isset(self::$_defaults[$value])) {
+            return self::$_defaults[$value];
+        }
+
+        return null;
     }
 
 }

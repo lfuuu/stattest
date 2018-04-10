@@ -1,4 +1,5 @@
 <?php
+
 namespace app\forms\client;
 
 use app\classes\api\ApiCore;
@@ -87,6 +88,7 @@ class AccountEditForm extends Form
         $price_level = ClientAccount::DEFAULT_PRICE_LEVEL,
         $uu_tariff_status_id,
         $settings_advance_invoice,
+        $upload_to_sales_book,
         $show_in_lk = ClientAccount::SHOW_IN_LK_ALWAYS
     ;
 
@@ -168,6 +170,7 @@ class AccountEditForm extends Form
                     'price_level',
                     'uu_tariff_status_id',
                     'settings_advance_invoice',
+                    'upload_to_sales_book',
                     'show_in_lk',
                 ],
                 'integer'
@@ -212,6 +215,7 @@ class AccountEditForm extends Form
             ['type_of_bill', 'default', 'value' => ClientAccount::TYPE_OF_BILL_DETAILED],
             ['pay_bill_until_days', 'integer', 'min' => 20, 'max' => 1000],
             ['settings_advance_invoice', 'default', 'value' => ClientAccountOptions::SETTINGS_ADVANCE_NOT_SET],
+            [ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK, 'default', 'value' => ClientAccountOptions::getDefaultValue(ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK)],
             ['show_in_lk', 'default', 'value' => ClientAccount::SHOW_IN_LK_ALWAYS],
         ];
         return $rules;
@@ -323,6 +327,8 @@ class AccountEditForm extends Form
         }
 
         $this->options = ArrayHelper::merge($this->options, $options);
+        $this->{ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK} =
+            isset($this->options[ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK]) ? $this->options[ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK] : 1;
     }
 
     /**
@@ -424,6 +430,9 @@ class AccountEditForm extends Form
             $this->setAttributes($client->getAttributes(), false);
 
             if (is_array($this->options)) {
+
+                $this->options[ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK] = (string)(int)$this->{ClientAccountOptions::OPTION_UPLOAD_TO_SALES_BOOK};
+
                 ClientAccountOptions::deleteAll(
                     [
                         'and',
