@@ -5,7 +5,11 @@ namespace app\classes\grid\account\telecom\maintenance;
 use app\classes\grid\account\AccountGridFolder;
 use app\models\billing\Locks;
 use app\models\BusinessProcessStatus;
+use app\models\Number;
 use app\models\UsageVoip;
+use app\modules\nnp\models\NdcType;
+use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use yii\db\Expression;
 use yii\db\Query;
 
@@ -45,13 +49,28 @@ class AutoBlock800Folder extends AccountGridFolder
     {
         parent::queryParams($query);
 
-        $query->addSelect(['block_date' => $this->getBlockDateQuery()]);
+        $uuSubQuery = (new Query())
+            ->select('client_account_id')
+            ->from(['uu' => AccountTariff::tableName()])
+            ->innerJoin(['n' => Number::tableName()], 'n.number = uu.voip_number')
+            ->where([
+                'uu.service_type_id' => ServiceType::ID_VOIP,
+                'n.ndc_type_id' => NdcType::ID_FREEPHONE
+            ])
+            ->andWhere(['IS NOT', 'uu.tariff_period_id', null]);
 
-        $query->leftJoin(['uv' => UsageVoip::tableName()], 'uv.client = c.client AND CAST(NOW() AS DATE) BETWEEN uv.actual_from AND uv.actual_to');
-        $query->andWhere(['cr.business_id' => $this->grid->getBusiness()]);
-        $query->andWhere(['cr.business_process_status_id' => $this->getBusinessProcessStatus()]);
-        $query->andWhere(['c.is_blocked' => 0]);
-        $query->andWhere('uv.line7800_id');
+        $query->addSelect(['block_date' => $this->getBlockDateQuery()])
+            ->leftJoin(['uv' => UsageVoip::tableName()], 'uv.client = c.client AND CAST(NOW() AS DATE) BETWEEN uv.actual_from AND uv.actual_to AND uv.line7800_id')
+            ->leftJoin(['uu' => $uuSubQuery], 'uu.client_account_id = c.id')
+            ->andWhere([
+                'cr.business_id' => $this->grid->getBusiness(),
+                'cr.business_process_status_id' => $this->getBusinessProcessStatus(),
+                'c.is_blocked' => 0
+            ])
+            ->andWhere(['OR',
+                ['IS NOT', 'uu.client_account_id', null],
+                ['IS NOT', 'uv.client', null]
+            ]);
 
         try {
             Locks::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
