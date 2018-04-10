@@ -79,6 +79,36 @@ class PartnerRewardsFilter extends DynamicModel
         if ($this->month && $this->partner_contract_id) {
             $query = new Query;
 
+            $actual_from = <<<SQL
+CASE
+   WHEN line.service = 'usage_voip' THEN
+     (
+       SELECT MIN(usage_voip_inner.actual_from)
+       FROM usage_voip usage_voip_inner
+       WHERE usage_voip_inner.client = client.client AND usage_voip_inner.id = line.id_service
+     )
+   WHEN line.service = 'usage_virtpbx' THEN
+     (
+       SELECT MIN(usage_virtpbx_inner.actual_from)
+       FROM usage_virtpbx usage_virtpbx_inner
+       WHERE usage_virtpbx_inner.client = client.client AND usage_virtpbx_inner.id = line.id_service
+     )
+   WHEN line.service = 'usage_trunk' THEN
+     (
+       SELECT MIN(usage_trunk_inner.actual_from)
+       FROM usage_trunk usage_trunk_inner
+       WHERE usage_trunk_inner.id = line.id_service AND usage_trunk_inner.client_account_id = client.id
+     )
+   WHEN line.service = 'uu_account_tariff' THEN
+     (
+       SELECT convert(MIN(uu_account_tariff_log_inner.actual_from_utc), DATE)
+       FROM uu_account_tariff uu_account_tariff_inner
+        INNER JOIN uu_account_tariff_log uu_account_tariff_log_inner
+          ON uu_account_tariff_log_inner.account_tariff_id = uu_account_tariff_inner.id
+       WHERE uu_account_tariff_inner.id = line.id_service
+     )
+   END
+SQL;
             $query->select([
                 'rewards.*',
                 'client_id' => 'client.id',
@@ -91,6 +121,7 @@ class PartnerRewardsFilter extends DynamicModel
                 'usage_type' => 'line.service',
                 'usage_id' => 'line.id_service',
                 'usage_paid' => 'line.sum',
+                'actual_from' => $actual_from,
             ]);
 
             $query
@@ -130,7 +161,7 @@ class PartnerRewardsFilter extends DynamicModel
     {
         $data = [];
 
-        $usageCIMemory = [];
+        $buffer = [];
         foreach ($query->each(1000) as $record) {
             if (!array_key_exists($record['client_id'], $data)) {
                 $data[$record['client_id']] = [
@@ -158,15 +189,21 @@ class PartnerRewardsFilter extends DynamicModel
             $data[$record['client_id']][$fieldPrefix . 'percentage_of_over'] += $record['percentage_of_over'];
             $data[$record['client_id']][$fieldPrefix . 'percentage_of_margin'] += $record['percentage_of_margin'];
 
-            // Агрегированное значение для каждого клиента
-            $data[$record['client_id']][$fieldPrefix . 'paid_summary'] = $record['paid_summary'];
-            // Для каждого клиента один раз производим суммирование итоговой суммы с ключом paid_summary текущей записи
-            if (!isset($usageCIMemory[$record['client_id']])) {
-                $usageCIMemory[$record['client_id']] = $record['client_id'];
-                // Итоговая статистика столбца "Сумма оплаченных счетов"
+            // Расчет итоговых суммы для каждого клиента, который может иметь более одного счета.
+            // Суммирование происходит по зараннее рассчитанному столбцу `sum` из таблицы `newbills`
+            if (!isset($buffer['local'][$record['client_id']][$record['bill_id']])) {
+                $buffer['local'][$record['client_id']][$record['bill_id']] = $record['bill_id'];
+                $data[$record['client_id']][$fieldPrefix . 'paid_summary'] += $record['paid_summary'];
+            }
+
+            // Расчет итоговых суммы для всех клиентов. Игнорируется сам клиент, расчет происходит на основании
+            // уникального поля `bill_id` таблицы `newbills`, суммируя столбец `sum`
+            if (!isset($buffer['global'][$record['bill_id']])) {
+                $buffer['global'][$record['bill_id']] = $record['bill_id'];
                 $this->{$summaryField}['paid_summary'] += $record['paid_summary'];
             }
-            // Итоговая статистика столбца "Сумма оплаченных услуг, за которые начисленно вознаграждение"
+
+            // Суммируем все значение столбца `sum` таблицы `newbill_lines`
             $this->{$summaryField}['paid_summary_reward'] += $record['usage_paid'];
 
             $this->{$summaryField}['once'] += $record['once'];
@@ -175,7 +212,7 @@ class PartnerRewardsFilter extends DynamicModel
             $this->{$summaryField}['percentage_of_over'] += $record['percentage_of_over'];
             $this->{$summaryField}['percentage_of_margin'] += $record['percentage_of_margin'];
         }
-        unset($usageCIMemory);
+        unset($buffer);
 
         return $data;
     }

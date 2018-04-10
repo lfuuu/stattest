@@ -79,7 +79,7 @@ use yii\helpers\Url;
                 <?= $helper->getTariffDescription() ?>
             </td>
             <td class="text-center">
-                <?= $helper->getActivationDt() ?>
+                <?= $record['actual_from'] ?>
             </td>
             <td class="text-center">
                 <?= $record['usage_paid'] ?>

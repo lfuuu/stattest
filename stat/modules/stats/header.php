@@ -24,7 +24,7 @@ class m_stats_head extends IModuleHead{
 		'report_voip_operators_traf' => array('stats','vip_report'),
 		'support_efficiency'	=>  array('stats','report'),
 		'report_phone_sales'  =>  array('stats','report'),
-		'report_agent' => array('stats','report'),
+		//'report_agent' => array('stats','report'),
 		'report_sale_channel' => array('stats','sale_channel_report'),
 		'report_vpbx_stat_space' => array('stats', 'report'),
 		'phone_sales_details' => array('stats','report'),
@@ -63,9 +63,10 @@ class m_stats_head extends IModuleHead{
             array('Отчет: Продажи номеров', 'report_phone_sales'),
 
             array('Отчет: ИНН', 'report_inn'),
-            array('Отчет по Агентам (старый)', 'report_agent'),
-            array('Отчет по партнерам', function(){return '/stats/agent/report';}),
-            array('Вознаграждения партнеров', function(){ return '/stats/partner-rewards'; }),
+            # TODO: удалить отчеты в мае 2018 года
+            //array('Отчет по Агентам (старый)', 'report_agent'),
+            //array('Отчет по партнерам', function(){return '/stats/agent/report';}),
+            //array('Вознаграждения партнеров', function(){ return '/stats/partner-rewards'; }),
             array('Вознаграждения партнеров (полный)', function(){ return '/stats/partner-rewards?isExtends=1'; }),
             array('Настройка агента', 'agent_settings'),
             array('Региональные представители', 'report_sale_channel'),
