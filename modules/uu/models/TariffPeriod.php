@@ -187,9 +187,9 @@ class TariffPeriod extends ActiveRecord
             $organizationId = null;
             $cityId = null;
 
-        } elseif ($serviceTypeId == ServiceType::ID_VOIP_PACKAGE_CALLS) {
+        } elseif (in_array($serviceTypeId, [ServiceType::ID_VOIP, ServiceType::ID_VOIP_PACKAGE_CALLS])) {
 
-            // пакеты телефонии - по стране
+            // телефония и ее пакеты - по стране
             $organizationId = null;
 
         } else {
