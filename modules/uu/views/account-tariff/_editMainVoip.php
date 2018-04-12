@@ -118,11 +118,10 @@ $number = $accountTariff->number;
                 StatsAccount::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
                 $statsNnpPackageMinutes = StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id,
                     $accountTariff->id);
-                foreach ($statsNnpPackageMinutes as $statsNnpPackageMinute) :
-                    ?>
+                foreach ($statsNnpPackageMinutes as $statsNnpPackageMinute) : ?>
                     <div>
                         <b><?= $statsNnpPackageMinute['name'] ?></b>:
-                        <?= $statsNnpPackageMinute['used_seconds'] ?> / <?= $statsNnpPackageMinute['total_seconds'] ?>
+                        <?= round($statsNnpPackageMinute['used_seconds'] / 60, 2) . ' / ' . round($statsNnpPackageMinute['total_seconds'] / 60, 2) ?>
                     </div>
                 <?php
                 endforeach;
