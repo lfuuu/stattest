@@ -428,3 +428,15 @@ div.indicator-success {
 div.indicator-danger {
 	background-color: #d9534f;
 }
+
+.in_progress{
+	color: lightgrey;
+}
+
+.saved {
+	color: green;
+}
+
+.error {
+	color: #c40000;
+}

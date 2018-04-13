@@ -43,11 +43,13 @@ class LeadController extends BaseController
      * Создать клиента
      *
      * @param string $messageId
+     * @param integer $saleChannelId
      * @return Response
      */
-    public function actionMakeClient($messageId)
+    public function actionMakeClient($messageId, $saleChannelId)
     {
         $lead = $this->_getLeadByMessageId($messageId);
+        $this->_setSaleChannel($lead, $saleChannelId);
 
         return $this->_makeClient($lead);
     }
@@ -56,11 +58,13 @@ class LeadController extends BaseController
      * Создать лид
      *
      * @param string $messageId
+     * @param integer $saleChannelId
      * @return mixed
      */
-    public function actionToLead($messageId)
+    public function actionToLead($messageId, $saleChannelId)
     {
         $lead = $this->_getLeadByMessageId($messageId);
+        $this->_setSaleChannel($lead, $saleChannelId);
 
         return $this->_toLead($lead);
     }
@@ -69,11 +73,13 @@ class LeadController extends BaseController
      * Переместить лид в мусор
      *
      * @param string $messageId
+     * @param integer $saleChannelId
      * @return Response
      */
-    public function actionToTrash($messageId)
+    public function actionToTrash($messageId, $saleChannelId)
     {
         $lead = $this->_getLeadByMessageId($messageId);
+        $this->_setSaleChannel($lead, $saleChannelId);
 
         return $this->_toTrashClient($lead);
     }
@@ -84,11 +90,13 @@ class LeadController extends BaseController
      * @param string $messageId
      * @param integer $stateId
      * @param integer $clientAccountId
+     * @param integer $saleChannelId
      * @return Response
      */
-    public function actionSetState($messageId, $stateId, $clientAccountId)
+    public function actionSetState($messageId, $stateId, $clientAccountId, $saleChannelId)
     {
         $lead = $this->_getLeadByMessageId($messageId);
+        $this->_setSaleChannel($lead, $saleChannelId);
 
         return $this->_setState($lead, $stateId, $clientAccountId);
     }
@@ -224,6 +232,25 @@ class LeadController extends BaseController
     {
         if (!ClientAccount::find()->where(['id' => $clientAccountId])->exists()) {
             throw new InvalidParamException('ЛС не найден');
+        }
+    }
+
+    /**
+     * Сохранение канала продаж в лид
+     *
+     * @param Lead $lead
+     * @param integer $saleChannelId
+     * @throws ModelValidationException
+     */
+    private function _setSaleChannel(Lead $lead, $saleChannelId)
+    {
+        if ($lead->sale_channel_id == $saleChannelId) {
+            return;
+        }
+
+        $lead->sale_channel_id = $saleChannelId;
+        if (!$lead->save()) {
+            throw new ModelValidationException($lead);
         }
     }
 }

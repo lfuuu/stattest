@@ -33,7 +33,8 @@ var statLeadNotifier = {
 
       var data = {
         messageId: messageId,
-        clientAccountId: $('#message_id_' + messageId + ' tr.bg-success').data('client_account_id')
+        clientAccountId: $('#message_id_' + messageId + ' tr.bg-success').data('client_account_id'),
+        saleChannelId: $('#message_id_' + messageId + ' input[type=radio][name=sale_channel]:checked').val()
       };
 
       switch (name) {

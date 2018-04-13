@@ -26,6 +26,7 @@ class ApiHook extends Model
         $event_type, // тип события
         $abon, // внутренний номер абонента ВАТС, который принимает/совершает звонок. Только если через ВАТС
         $did, // номер вызывающего/вызываемого абонента
+        $did_mcn, // набраный номер
         $secret, // секретный token, подтверждающий, что запрос пришел от валидного сервера
         $account_id, // ID аккаунта MCN Telecom. Это не клиент!
         $call_id; // ID звонка
@@ -91,7 +92,7 @@ class ApiHook extends Model
     {
         return [
             [['abon', 'account_id'], 'integer'],
-            [['event_type', 'did', 'secret', 'call_id'], 'string'],
+            [['event_type', 'did', 'did_mcn', 'secret', 'call_id'], 'string'],
             [['event_type', 'did', 'secret', 'account_id'], 'required'],
         ];
     }

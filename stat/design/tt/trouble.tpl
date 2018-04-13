@@ -1,4 +1,4 @@
-<link href="/css/behaviors/media-manager.css" rel="stylesheet"/>
+<link href="/css/behaviors/media-manager.css" rel="stylesheet" xmlns="http://www.w3.org/1999/html"/>
 
 <h2>
     {if !$tt_trouble.bill_no}
@@ -34,7 +34,7 @@
                                            name="targetClientAccount" value="" placeholder="Укажите лицевой счет"
                                            autocomplete="off"/>
                                     <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
-                                    <span class="input-group-btn" title="Submit">
+                                    <span class="input-group-btn" title="Перенести">
                                 <button id="btn_change_client" type="button" class="btn btn-default"><i
                                             class="glyphicon glyphicon-transfer"></i></button>
                                 </span>
@@ -81,19 +81,48 @@
                 <a href="javascript:void(0)" class="trouble-set-user" data-user="{$tt_trouble.user_author}">
                     <abbr title="Установить в качестве ответственного">{$tt_trouble.user_author_name}
                         ({$tt_trouble.user_author})</abbr>
-                </a>, <span style='font-size:11px'>{$tt_trouble.date_creation|udate_with_timezone:'Y.m.d H:i:s'}</span>
+                </a>, <span
+                        style='font-size:11px'>{$tt_trouble.date_creation|udate_with_timezone:'Y.m.d H:i:s'}</span>
             </td>
         </tr>
         <tr>
             <td align="right">Текущие сроки:</td>
             <td>
-                с {$tt_trouble.date_start|udate_with_timezone:'Y.m.d H:i:s'}
-                по {$tt_trouble.date_finish_desired|udate_with_timezone:'Y.m.d H:i:s'}<br>
-                {if $tt_trouble.is_active}
-                прошло <font color=red>{$tt_trouble.time_pass} / {$tt_trouble.time_limit}</span>
-                    {else}
-                    неактивна / {$tt_trouble.time_limit}
-                    {/if}
+                <div class="row">
+                    <div class="col-sm-6">
+
+                        с {$tt_trouble.date_start|udate_with_timezone:'Y.m.d H:i:s'}
+                        по {$tt_trouble.date_finish_desired|udate_with_timezone:'Y.m.d H:i:s'}<br>
+                        {if $tt_trouble.is_active}
+                            прошло
+                            <font color=red>{$tt_trouble.time_pass} / {$tt_trouble.time_limit}</font>
+                        {else}
+                            неактивна / {$tt_trouble.time_limit}
+                        {/if}
+                    </div>
+                    <div class="col-sm-6">
+                        {if $is_trouble_with_lead}
+                            Откуда вы о нас узнали:
+                            <div class="input-group col-sm-8">
+                                <select id="sale_channel_id" name="sale_channel_id" class="form-control"/>
+                                {html_options options=$saleChannels selected=$leadSaleChannelId}
+                                </select>
+                                <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+                                <span class="input-group-btn" title="Сохранить">
+                                <button id="btn_save_channel" type="button" class="btn btn-default"><i
+                                            class="glyphicon glyphicon-save"></i></button>
+                                </span>
+                            </div>
+                            <script>
+                              optools.ttSaveSaleChanel.init({$tt_trouble.id})
+                            </script>
+
+                        {else}
+                            &nbsp;
+                        {/if}
+                    </div>
+                </div>
+
             </td>
         </tr>
     {/if}

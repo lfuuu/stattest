@@ -15,7 +15,7 @@ use app\models\ClientContact;
 
 <div class="notify_popup_message" id="message_id_<?= $messageId ?>"
 <span>
-    <?= $did ?> -&gt; <?= $abon ?>
+    <?= $did . (isset($calling_did) && $calling_did ? ' (' . $calling_did . ') ' : '') ?> -&gt; <?= $abon ?>
 </span>
 
 <?php if ($clientContacts) : ?>

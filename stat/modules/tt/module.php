@@ -728,9 +728,12 @@ where c.client="'.$trouble['client_orig'].'"')
             $design->assign('tt_media', $mediaManager->getFiles());
         }
 
-        $design->assign('is_trouble_with_lead', $trouble && $trouble->lead);
+        $lead = null;
+        $trouble && $lead = $trouble->lead;
 
-        $bill = false;
+        $design->assign('is_trouble_with_lead', (bool)$lead);
+        $design->assign('saleChannels', \app\models\SaleChannel::getList(true));
+        $design->assign('leadSaleChannelId', $lead->sale_channel_id);
 
         $this->prepareTimeTable();
         $design->AddMain('tt/trouble.tpl');
@@ -2906,6 +2909,46 @@ if(is_rollback is null or (is_rollback is not null and !is_rollback), tts.name, 
 
         // sorry
         Header('Location: ' . $trouble->getUrl());
+        exit();
+    }
+
+    /**
+     * Сохранение канала продаж в лид
+     */
+    public function tt_save_sale_channel()
+    {
+        header('Content-type: application/json');
+        $troubleId = get_param_integer('id');
+        $saleChannelId = get_param_integer('sale_channel_id');
+
+        $error = false;
+        try {
+            if (!$saleChannelId) {
+                $saleChannelId = null;
+            } elseif (!in_array($saleChannelId, array_keys(\app\models\SaleChannel::getList()))) {
+                throw new InvalidParamException('Неизвестный канал продаж');
+            }
+
+            $trouble = \app\models\Trouble::findOne(['id' => $troubleId]);
+
+            if (!$trouble) {
+                throw new InvalidParamException('Заявка не найдена');
+            }
+
+            if (!($lead = $trouble->lead)) {
+                throw new InvalidParamException('У заявки ' . $trouble->id . ' лид не найден');
+            }
+
+            $lead->sale_channel_id = $saleChannelId;
+
+            if (!$lead->save()) {
+                throw new ModelValidationException($lead);
+            }
+        } catch (\Exception $e) {
+            $error =  'Error: ' . $e->getMessage();
+        }
+
+        echo json_encode($error ? ['status' => 'error', 'error' => $error] : ['status' => 'ok']);
         exit();
     }
 }

@@ -1035,6 +1035,36 @@ var optools = {
     }
   },
 
+  ttSaveSaleChanel: {
+    troubleId: null,
+    init: function (troubleId) {
+      optools.ttSaveSaleChanel.troubleId = troubleId;
+      $('#btn_save_channel').click(function ($obj) {
+        var $elem = $obj;
+        $($elem.target).removeClass('error').removeClass('saved').addClass('in_progress');
+        $.get(
+          '/',
+          {
+            'module': 'tt',
+            'action': 'save_sale_channel',
+            'id': optools.moveTroubleToClient.troubleId,
+            'sale_channel_id': $('#sale_channel_id').val()
+          }
+        ).success(function (data) {
+          if (data.status == 'ok') {
+            $($elem.target).removeClass('in_progress').addClass('saved');
+          }
+          else if (data.status == 'error') {
+            $($elem.target).removeClass('in_progress').addClass('error');
+            alert(data.error)
+          } else {
+          	alert(data)
+					}
+        });
+      });
+    }
+  },
+
   socketPopup: {
     closeMessage: function (messageId) {
       $('#message_id_' + messageId).parents('div[role=alert]').alert('close');

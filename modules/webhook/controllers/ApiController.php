@@ -80,14 +80,15 @@ class ApiController extends Controller
         $content = file_get_contents("php://input");
 
         // для дебага раскомментировать следующие строчки
-        //        $content = json_encode([
-        //            'event_type' => ApiHook::EVENT_TYPE_IN_CALLING_START, // тип события
-        //            'abon' => 262, // внутренний номер абонента ВАТС, который принимает/совершает звонок. Только если через ВАТС
-        //            'did' => '+74959319628', // номер вызывающего/вызываемого абонента
-        //            'call_id' => "12-1520008586.19367277", // ID звонка
-        //            'secret' => $this->module->params['secretKey'], // секретный token, подтверждающий, что запрос пришел от валидного сервера
-        //            'account_id' => '12345', // ID аккаунта MCN Telecom. Это не клиент!
-        //        ]);
+//                $content = json_encode([
+//                    'event_type' => ApiHook::EVENT_TYPE_IN_CALLING_ANSWERED, // тип события
+//                    'abon' => 265, // внутренний номер абонента ВАТС, который принимает/совершает звонок. Только если через ВАТС
+//                    'did_mcn' => "74951059995",
+//                    'did' => '+74959301987', // номер вызывающего/вызываемого абонента
+//                    'call_id' => "12-1520008586.19367271", // ID звонка
+//                    'secret' => $this->module->params['secretKey'], // секретный token, подтверждающий, что запрос пришел от валидного сервера
+//                    'account_id' => '12345', // ID аккаунта MCN Telecom. Это не клиент!
+//                ]);
 
         $this->_content = $content;
 
@@ -229,6 +230,7 @@ class ApiController extends Controller
 
         $content .= $this->renderPartial('message', [
             'did' => $apiHook->did,
+            'calling_did' => $apiHook->did_mcn,
             'abon' => $apiHook->abon,
             'clientContacts' => $this->_clientContacts,
             'messageId' => $messageId,

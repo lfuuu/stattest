@@ -29,6 +29,7 @@ class m_tt_head extends IModuleHead{
 					'store_limit'          => array('tt','limit'),
 					'save_limits'          => array('tt','limit'),
 					'edit_client'          => array('tt','use'),
+					'save_sale_channel'    => array('tt','use'),
 				);
 	var $menu=array(
 		array('Тех поддержка MCN','view_type', '&type_pk=1'),

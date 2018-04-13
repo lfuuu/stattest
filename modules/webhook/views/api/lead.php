@@ -1,9 +1,15 @@
 <?php
 
+use app\models\SaleChannel;
 use app\models\TroubleState;
 
 ?>
 <div class="well well-sm message-buttons" data-message-id="<?= $messageId ?>">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>Откуда вы о нас узнали: </div><?= \app\classes\Html::radioList('sale_channel', '', SaleChannel::getList())?>
+        </div>
+    </div>
     <div class="row">
         <div class="col-sm-4">
             <button name="to_lead" value=1 class="btn btn-sm btn-success btn-block">Лид</button>
