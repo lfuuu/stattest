@@ -90,35 +90,48 @@ class ActualNumberDao extends Singleton
             )a";
 
         $uuNumbersSQL = "
-            select
-                account_tariff.client_account_id as client_id,
-                account_tariff.voip_number as number,
-                COALESCE(number.region, account_tariff.region_id, city.connection_point_id) as region,
-                COALESCE((SELECT ROUND(amount) FROM uu_account_tariff_resource_log WHERE resource_id =" . Resource::ID_VOIP_LINE . " AND account_tariff_id = account_tariff.id AND actual_from_utc <= UTC_TIMESTAMP() ORDER BY id DESC LIMIT 1), 1) as call_count,
+            SELECT
+                account_tariff.client_account_id AS client_id,
+                account_tariff.voip_number AS number,
+                COALESCE(number.region, account_tariff.region_id, city.connection_point_id) AS region,
+                COALESCE(resource_calls.call_count, 1) AS call_count,
                 IF(LENGTH(account_tariff.voip_number) > 5,'number','nonumber') AS number_type,
-                '' as number7800,
+                '' AS number7800,
                 c.is_blocked,
-                c.voip_disabled as is_disabled,
-                " . ClientAccount::VERSION_BILLER_UNIVERSAL . " as biller_version
-            from
+                c.voip_disabled AS is_disabled,
+                " . ClientAccount::VERSION_BILLER_UNIVERSAL . " AS biller_version
+            FROM
                 clients c,
                 uu_account_tariff account_tariff
-            left join
+            LEFT JOIN 
+                uu_account_tariff_resource_call_count resource_calls 
+                ON resource_calls.account_tariff_id = account_tariff.id
+            LEFT JOIN
                 voip_numbers number
-                on account_tariff.voip_number = number.number
-            left join
+                ON account_tariff.voip_number = number.number
+            LEFT JOIN
                 city
-                on account_tariff.city_id = city.id
-            where
-                account_tariff.tariff_period_id is not null
-                and account_tariff.voip_number is not null
-                and c.id = account_tariff.client_account_id
-                " . ($number ? "and account_tariff.voip_number = :number" : "") . "
-                " . ($clientId ? "and account_tariff.client_account_id = :client_id" : "") . "
-                and c.account_version = " . ClientAccount::VERSION_BILLER_UNIVERSAL . "
+                ON account_tariff.city_id = city.id
+            WHERE
+                    account_tariff.tariff_period_id is not null
+                AND account_tariff.voip_number is not null
+                AND c.id = account_tariff.client_account_id
+                " . ($number ? "AND account_tariff.voip_number = :number" : "") . "
+                " . ($clientId ? "AND account_tariff.client_account_id = :client_id" : "") . "
+                AND c.account_version = " . ClientAccount::VERSION_BILLER_UNIVERSAL . "
             ";
 
-        $data = ActualNumber::getDb()->createCommand($numbersSQL . ' UNION ' . $uuNumbersSQL, $params)->queryAll();
+        $db = ActualNumber::getDb();
+        $db->createCommand('DROP TEMPORARY TABLE IF EXISTS `uu_account_tariff_resource_call_count`')->execute();
+        $db->createCommand("CREATE TEMPORARY TABLE `uu_account_tariff_resource_call_count` (INDEX(account_tariff_id)) AS
+            SELECT log.account_tariff_id, ROUND(amount) as call_count FROM (
+              SELECT MAX(id) as max_id, account_tariff_id as account_tariff_id_g 
+              FROM `uu_account_tariff_resource_log`
+              WHERE resource_id = 7 AND actual_from_utc <= UTC_TIMESTAMP() 
+              GROUP BY account_tariff_id) a, uu_account_tariff_resource_log log 
+              WHERE log.id = a.max_id")->execute();
+
+        $data = $db->createCommand($numbersSQL . ' UNION ' . $uuNumbersSQL, $params)->queryAll();
 
         $d = [];
         foreach ($data as $l) {
@@ -126,7 +139,6 @@ class ActualNumberDao extends Singleton
         }
 
         return $d;
-
     }
 
     public function loadSaved($number = null, $clientId = null)
