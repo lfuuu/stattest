@@ -78,11 +78,20 @@
         <tr>
             <td align="right">Трабл создал:</td>
             <td>
-                <a href="javascript:void(0)" class="trouble-set-user" data-user="{$tt_trouble.user_author}">
-                    <abbr title="Установить в качестве ответственного">{$tt_trouble.user_author_name}
-                        ({$tt_trouble.user_author})</abbr>
-                </a>, <span
-                        style='font-size:11px'>{$tt_trouble.date_creation|udate_with_timezone:'Y.m.d H:i:s'}</span>
+                <div class="row">
+                    <div class="col-sm-6">
+
+                        <a href="javascript:void(0)" class="trouble-set-user" data-user="{$tt_trouble.user_author}">
+                            <abbr title="Установить в качестве ответственного">{$tt_trouble.user_author_name}
+                                ({$tt_trouble.user_author})</abbr>
+                        </a>, <span
+                                style='font-size:11px'>{$tt_trouble.date_creation|udate_with_timezone:'Y.m.d H:i:s'}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        {if $leadData}Кто/кому: {$leadData.did} -&gt; {$leadData.did_mcn}{/if}
+                    </div>
+                </div>
+
             </td>
         </tr>
         <tr>
@@ -116,7 +125,6 @@
                             <script>
                               optools.ttSaveSaleChanel.init({$tt_trouble.id})
                             </script>
-
                         {else}
                             &nbsp;
                         {/if}
@@ -377,19 +385,7 @@
                                         {if $rated}
                                             <b>{$rated}</b>
 
-
-
-
-
-
-
 {else}
-
-
-
-
-
-
 
                                             <select name=trouble_rating>
                                             <option value=0>-----</option>

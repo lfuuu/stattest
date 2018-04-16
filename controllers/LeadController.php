@@ -46,7 +46,7 @@ class LeadController extends BaseController
      * @param integer $saleChannelId
      * @return Response
      */
-    public function actionMakeClient($messageId, $saleChannelId)
+    public function actionMakeClient($messageId, $saleChannelId = null)
     {
         $lead = $this->_getLeadByMessageId($messageId);
         $this->_setSaleChannel($lead, $saleChannelId);
@@ -61,7 +61,7 @@ class LeadController extends BaseController
      * @param integer $saleChannelId
      * @return mixed
      */
-    public function actionToLead($messageId, $saleChannelId)
+    public function actionToLead($messageId, $saleChannelId = null)
     {
         $lead = $this->_getLeadByMessageId($messageId);
         $this->_setSaleChannel($lead, $saleChannelId);
@@ -76,7 +76,7 @@ class LeadController extends BaseController
      * @param integer $saleChannelId
      * @return Response
      */
-    public function actionToTrash($messageId, $saleChannelId)
+    public function actionToTrash($messageId, $saleChannelId = null)
     {
         $lead = $this->_getLeadByMessageId($messageId);
         $this->_setSaleChannel($lead, $saleChannelId);
@@ -93,7 +93,7 @@ class LeadController extends BaseController
      * @param integer $saleChannelId
      * @return Response
      */
-    public function actionSetState($messageId, $stateId, $clientAccountId, $saleChannelId)
+    public function actionSetState($messageId, $stateId, $clientAccountId, $saleChannelId = null)
     {
         $lead = $this->_getLeadByMessageId($messageId);
         $this->_setSaleChannel($lead, $saleChannelId);
