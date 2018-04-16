@@ -28,6 +28,7 @@ class DocumentReportFactory extends Singleton
             ProformaDocument::className(),
             CreditNoteDocument::className(),
             InvoiceDocument::className(),
+            BillOperator::className(),
         ];
     }
 

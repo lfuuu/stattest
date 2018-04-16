@@ -23,6 +23,7 @@ abstract class DocumentReport extends Object
     const TEMPLATE_PATH = '@app/views/documents/';
 
     const DOC_TYPE_BILL = 'bill';
+    const DOC_TYPE_BILL_OPERATOR = 'bill_operator';
     const DOC_TYPE_INVOICE = 'invoice';
     const DOC_TYPE_PROFORMA = 'proforma';
     const DOC_TYPE_CREDIT_NOTE = 'credit_note';

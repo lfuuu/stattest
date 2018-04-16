@@ -14,6 +14,7 @@ class BillController extends BaseController
      * @param string $billNo
      * @param string $docType
      * @param int $isPdf
+     * @return string
      * @throws \yii\base\Exception
      */
     public function actionPrint($billNo, $docType = 'bill', $isPdf = 0)
@@ -26,18 +27,7 @@ class BillController extends BaseController
         $sendEmail = Yii::$app->request->get('emailed') == 1;
         $report = DocumentReportFactory::me()->getReport($bill, $docType, $sendEmail);
 
-        if ($isPdf == 1) {
-            return $this->renderAsPDF($report->getTemplateFile() . '.php', [
-                'document' => $report,
-                'inline_img' => true,
-            ]);
-        }
-
-        $this->layout = 'empty';
-        return $this->render($report->getTemplateFile() . '.php', [
-            'document' => $report,
-            'inline_img' => false,
-        ]);
+        return $isPdf ? $report->renderAsPDF() : $report->render();
     }
 
 }
