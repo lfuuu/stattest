@@ -277,12 +277,20 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        $accountTariffLogs = $this->accountTariff->accountTariffLogs;
-        $accountTariffLog = reset($accountTariffLogs);
-        if ($accountTariffLog && $this->tariff_period_id == $accountTariffLog->tariff_period_id) {
-            $this->addError($attribute, 'Нет смысла менять период/тариф на тот же самый. Выберите другой период/тариф.');
-            $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SAME;
-            return;
+        $accountTariffLog = $this->accountTariff->getAccountTariffLogs()->one();
+        if ($accountTariffLog) {
+
+            if ($this->tariff_period_id == $accountTariffLog->tariff_period_id) {
+                $this->addError($attribute, 'Нет смысла менять период/тариф на тот же самый. Выберите другой период/тариф.');
+                $this->errorCode = AccountTariff::ERROR_CODE_TARIFF_SAME;
+                return;
+            }
+
+            if (!$accountTariffLog->tariff_period_id) {
+                $this->addError($attribute, 'После закрытия нельзя ничего делать.');
+                $this->errorCode = AccountTariff::ERROR_CODE_USAGE_NOT_EDITABLE;
+                return;
+            }
         }
 
         Yii::trace('AccountTariffLog. After validatorCreateNotClose', 'uu');
