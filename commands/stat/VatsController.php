@@ -119,7 +119,7 @@ class VatsController extends Controller
         $insert = [];
 
         foreach ($list as $record) {
-            if (!$record['disk_space_bytes'] && !$record['int_number_count']) {
+            if (!$record['int_number_count']) {
                 continue;
             }
 
@@ -135,7 +135,7 @@ class VatsController extends Controller
             ];
 
             $this->stdout('AccountID: ' . $record['account_id'] . ', VirtPBXID: ' . $record['stat_product_id'] . ', Date: ' . $day . "\n" .
-                $this->ansiFormat(' space:' . $record['disk_space_bytes'], Console::FG_GREY) .
+                $this->ansiFormat(' space:' . $record['callrecord_size'], Console::FG_GREY) .
                 $this->ansiFormat(' ports:' . $record['int_number_count'], Console::FG_GREY) .
                 $this->ansiFormat(' ext DID counts:' . $record['ext_did_count'], Console::FG_GREY) .
                 $this->ansiFormat(' call_recording_enabled:' . $record['call_recording_enabled'], Console::FG_GREY) .

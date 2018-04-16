@@ -26,14 +26,8 @@ abstract class VpbxResourceReader extends Object implements ResourceReaderInterf
     {
         $date = $dateTime->format(DateTimeZoneHelper::DATE_FORMAT);
         $virtpbxStat = VirtpbxStat::findOne([
-            'AND',
             'date' => $date,
-            [
-                // по услуге и клиенту, потому что в таблице virtpbx_stat все сделано костыльно
-                'OR',
-                'usage_id' => $accountTariff->id,
-                'client_id' => $accountTariff->client_account_id,
-            ]
+            'usage_id' => $accountTariff->id,
         ]);
 
         if (!$virtpbxStat) {
