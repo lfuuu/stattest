@@ -493,7 +493,6 @@ final class OpenController extends Controller
         // дефолтные пакеты, в том числе и за красивость
         $tariffTableName = Tariff::tableName();
         $tariffPackagesQuery = Tariff::find()
-            ->joinWith('voipCities')
             ->joinWith('voipNdcTypes')
             ->where([
                 $tariffTableName . '.service_type_id' => array_keys(ServiceType::$packages),
@@ -503,8 +502,14 @@ final class OpenController extends Controller
                 $tariffTableName . '.tariff_status_id' => $packageStatusIds,
                 $tariffTableName . '.tariff_person_id' => [TariffPerson::ID_ALL, TariffPerson::ID_NATURAL_PERSON],
                 TariffVoipNdcType::tableName() . '.ndc_type_id' => $ndcTypeId,
-                TariffVoipCity::tableName() . '.city_id' => array_keys($tariff->voipCities),
             ]);
+
+        if ($voipCityId) {
+            $tariffPackagesQuery
+                ->joinWith('voipCities')
+                ->andWhere([TariffVoipCity::tableName() . '.city_id' => $voipCityId]);
+        }
+
         /** @var Tariff $tariffPackage */
         foreach ($tariffPackagesQuery->each() as $tariffPackage) {
 
