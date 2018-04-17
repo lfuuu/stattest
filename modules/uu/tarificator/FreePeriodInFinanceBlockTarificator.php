@@ -88,10 +88,10 @@ SQL;
             ':day' => Period::ID_DAY,
             ':month' => Period::ID_MONTH,
             ':min_day_date' => (new DateTimeImmutable())
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                ->format(DateTimeZoneHelper::DATE_FORMAT),
             ':min_month_date' => (new DateTimeImmutable())
                 ->modify('first day of this month')
-                ->format(DateTimeZoneHelper::DATETIME_FORMAT),
+                ->format(DateTimeZoneHelper::DATE_FORMAT),
         ];
 
         // сбросить абонентскую плату за периоды блокировки
