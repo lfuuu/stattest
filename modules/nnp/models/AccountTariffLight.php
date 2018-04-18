@@ -18,6 +18,9 @@ use Yii;
  * @property int $account_tariff_id
  * @property float $price
  * @property int $service_type_id
+ *
+ * @method static AccountTariffLight findOne($condition)
+ * @method static AccountTariffLight[] findAll($condition)
  */
 class AccountTariffLight extends ActiveRecord
 {

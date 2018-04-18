@@ -49,7 +49,7 @@ $number = $accountTariff->number;
             <div>
                 <?php if ($accountTariff->mtt_balance) : ?>
                     <?= sprintf('%.2f', $accountTariff->mtt_balance) ?> руб.<br>
-                    <?= sprintf('%.2f',$accountTariff->mtt_balance / \app\modules\mtt\Module::MEGABYTE_COST) ?> МБ
+                    <?= sprintf('%.2f', $accountTariff->mtt_balance / \app\modules\mtt\Module::MEGABYTE_COST) ?> МБ
                 <?php endif ?>
                 <?= $this->render('//layouts/_buttonLink', [
                     'url' => Url::toRoute(['/uu/mtt/update-balance', 'accountTariffId' => $accountTariff->id]),
@@ -116,8 +116,7 @@ $number = $accountTariff->number;
             <?php
             try {
                 StatsAccount::setPgTimeout(Locks::PG_ACCOUNT_TIMEOUT);
-                $statsNnpPackageMinutes = StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id,
-                    $accountTariff->id);
+                $statsNnpPackageMinutes = StatsAccount::getStatsNnpPackageMinute($accountTariff->client_account_id, $accountTariff->id);
                 foreach ($statsNnpPackageMinutes as $statsNnpPackageMinute) : ?>
                     <div>
                         <b><?= $statsNnpPackageMinute['name'] ?></b>:

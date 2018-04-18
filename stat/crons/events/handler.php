@@ -391,6 +391,15 @@ function doEvents($consoleParam)
                     }
                     break;
 
+                case UuModule::EVENT_CLOSE_LIGHT:
+                    // УУ. Закрыть пакет в AccountTariffLight
+                    if ($isAccountTariffLightServer) {
+                        SyncAccountTariffLight::closeAccountTariffLight($param);
+                    } else {
+                        $info = EventQueue::API_IS_SWITCHED_OFF;
+                    }
+                    break;
+
                 case UuModule::EVENT_DELETE_LIGHT:
                     // УУ. Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
                     if ($isAccountTariffLightServer) {

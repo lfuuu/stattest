@@ -136,6 +136,36 @@ class SyncAccountTariffLight extends Behavior
     }
 
     /**
+     * Закрыть пакет в AccountTariffLight
+     *
+     * @param array $params [client_account_id, account_tariff_id]
+     * @throws \Exception
+     */
+    public static function closeAccountTariffLight(array $params)
+    {
+        $currentDate = date(DateTimeZoneHelper::DATE_FORMAT);
+
+        // найти оплаченные периоды в будущем
+        // такое возможно только, когда менеджер (но не сам юзер) закрывает пакет раньше оплаченного срока
+        /** @var AccountLogPeriod[] $accountLogPeriods */
+        $accountLogPeriods = AccountLogPeriod::find()
+            ->where(['account_tariff_id' => $params['account_tariff_id']])
+            ->andWhere(['>', 'date_to', $currentDate])
+            ->all();
+        foreach ($accountLogPeriods as $accountLogPeriod) {
+            $accountTariffLight = AccountTariffLight::findOne(['id' => $accountLogPeriod->id]);
+            if (!$accountTariffLight) {
+                continue;
+            }
+
+            $accountTariffLight->deactivate_from = $currentDate; // закрыть раньше оплаченного времени
+            if (!$accountTariffLight->save()) {
+                throw new ModelValidationException($accountTariffLight);
+            }
+        }
+    }
+
+    /**
      * Удалить данные из AccountTariffLight. Теоретически этого быть не должно, но...
      *
      * @param array $params [id]

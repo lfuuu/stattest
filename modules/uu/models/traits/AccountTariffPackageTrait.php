@@ -239,10 +239,16 @@ trait AccountTariffPackageTrait
         if ($this->nextAccountTariffs) {
             $strings = array_map(
                 function (AccountTariff $nextAccountTariff) {
-                    return Html::a(
+                    $string = Html::a(
                         Html::encode($nextAccountTariff->getName(false)),
                         $nextAccountTariff->getUrl()
                     );
+
+                    if (!$nextAccountTariff->tariff_period_id) {
+                        $string = Html::tag('strike', $string);
+                    }
+
+                    return $string;
                 },
                 $this->nextAccountTariffs
             );

@@ -32,6 +32,7 @@ class Module extends \yii\base\Module
     const EVENT_VPS_LICENSE = 'uu_vps_license';
     const EVENT_ADD_LIGHT = 'uu_add_light';
     const EVENT_DELETE_LIGHT = 'uu_delete_light';
+    const EVENT_CLOSE_LIGHT = 'uu_close_light';
 
     const LOG_CATEGORY = 'uu';
     const LOG_CATEGORY_API = 'uu_api';
