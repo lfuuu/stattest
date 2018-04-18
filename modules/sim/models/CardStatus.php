@@ -4,6 +4,7 @@ namespace app\modules\sim\models;
 
 use app\classes\Html;
 use app\classes\model\ActiveRecord;
+use Yii;
 use yii\db\ActiveQuery;
 use yii\helpers\Url;
 
@@ -31,7 +32,7 @@ class CardStatus extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'sim_card_status';
+        return 'billing_uu.sim_card_status';
     }
 
     /**
@@ -43,6 +44,16 @@ class CardStatus extends ActiveRecord
             [['name'], 'required'],
             [['name'], 'string'],
         ];
+    }
+
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
+    public static function getDb()
+    {
+        return Yii::$app->dbPgNnp;
     }
 
     /**

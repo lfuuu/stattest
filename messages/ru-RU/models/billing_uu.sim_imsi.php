@@ -10,4 +10,5 @@ return [
     'is_active' => 'Вкл.',
     'status_id' => 'Статус',
     'actual_from' => 'Действует с',
+    'actual_to' => 'Действует по',
 ];

@@ -71,6 +71,19 @@ if (!$card->isNewRecord) {
                     ],
                 ],
                 [
+                    'name' => 'actual_to',
+                    'title' => $attributeLabels['actual_to'],
+                    'type' => Editable::INPUT_DATE,
+                    'options' => [
+                        'removeButton' => false,
+                        'pluginOptions' => [
+                            'autoclose' => true,
+                            'format' => 'yyyy-mm-dd',
+                            'todayHighlight' => true,
+                        ],
+                    ],
+                ],
+                [
                     'name' => 'status_id',
                     'title' => $attributeLabels['status_id'],
                     'type' => Editable::INPUT_SELECT2,

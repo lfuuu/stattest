@@ -4,6 +4,7 @@ namespace app\modules\sim\models;
 
 use app\classes\model\ActiveRecord;
 use app\models\Number;
+use Yii;
 use yii\db\ActiveQuery;
 
 /**
@@ -18,6 +19,7 @@ use yii\db\ActiveQuery;
  * @property int $is_active
  * @property int $status_id
  * @property string $actual_from
+ * @property string $actual_to
  *
  * @property-read Card $card
  * @property-read Number $number
@@ -36,7 +38,17 @@ class Imsi extends ActiveRecord
      */
     public static function tableName()
     {
-        return 'sim_imsi';
+        return 'billing_uu.sim_imsi';
+    }
+
+    /**
+     * Returns the database connection
+     *
+     * @return \yii\db\Connection
+     */
+    public static function getDb()
+    {
+        return Yii::$app->dbPgNnp;
     }
 
     /**
@@ -55,7 +67,7 @@ class Imsi extends ActiveRecord
         return [
             [['imsi', 'iccid'], 'required'],
             [['imsi', 'iccid', 'msisdn', 'did', 'is_active', 'is_anti_cli', 'is_roaming', 'status_id'], 'integer'],
-            [['actual_from'], 'date', 'format' => 'php:Y-m-d'],
+            [['actual_from', 'actual_to'], 'date', 'format' => 'php:Y-m-d'],
             ['did', 'default', 'value' => null], // иначе пустая строка получается, ибо в БД это поле varchar
             ['did', 'exist', 'skipOnError' => true, 'targetClass' => Number::className(), 'targetAttribute' => ['did' => 'number']],
         ];

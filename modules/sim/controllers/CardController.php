@@ -76,7 +76,7 @@ class CardController extends BaseController
 
         $imsies = [];
         if ($this->loadFromInput($card, $imsies, new Imsi())) {
-            return $this->redirect(['index']);
+            return $this->redirect($card->getUrl());
         }
 
         return $this->render('edit', [
@@ -103,7 +103,7 @@ class CardController extends BaseController
 
         $imsies = $card->imsies;
         if ($this->loadFromInput($card, $imsies, new Imsi())) {
-            return $this->redirect(['index']);
+            return $this->redirect($card->getUrl());
         }
 
         return $this->render('edit', [
