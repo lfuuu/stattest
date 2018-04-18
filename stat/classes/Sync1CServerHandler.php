@@ -372,9 +372,9 @@ class Sync1CServerHandler
             $item->good_ext_id = $line->Характеристика;
             $item->amount = $line->Количество;
 
-            $serialNumbers = $line->СерийныеНомера;
-            if (!$serialNumbers) $serialNumbers = array();
-            $serialNumbers = is_array($serialNumbers) ? $serialNumbers : array($serialNumbers);
+            $serialNumbers = property_exists($line, 'СерийныеНомера') ? $line->СерийныеНомера : [];
+            if (!$serialNumbers) $serialNumbers = [];
+            $serialNumbers = is_array($serialNumbers) ? $serialNumbers : [$serialNumbers];
             $item->serial_numbers = implode("\n", $serialNumbers);
 
             $item->save();
