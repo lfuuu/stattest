@@ -1,4 +1,5 @@
 <?php
+
 namespace app\dao;
 
 use app\controllers\api\internal\SimController;
@@ -51,8 +52,8 @@ class ClientDocumentDao extends Singleton
     public static function getFolders($documentType = ClientDocument::DOCUMENT_CONTRACT_TYPE)
     {
         $query = self::_getFoldersWithDocumentsData()
-                ->andWhere(['folders.parent_id' => 0])
-                ->andWhere(['documents.type' => $documentType]);
+            ->andWhere(['folders.parent_id' => 0])
+            ->andWhere(['documents.type' => $documentType]);
 
         return
             ArrayHelper::map(
@@ -71,7 +72,7 @@ class ClientDocumentDao extends Singleton
     public static function getFoldersByDocumentType($documentTypes = [])
     {
         $query = self::_getFoldersWithDocumentsData()
-                ->andWhere(['IN', 'documents.type', $documentTypes]);
+            ->andWhere(['IN', 'documents.type', $documentTypes]);
 
         $result = [];
 
@@ -188,7 +189,7 @@ class ClientDocumentDao extends Singleton
         }
 
         if (strpos($content, '{*#simcards_table#*}') !== false) {
-            $cc= $this->_makeSimCardsTable($document, $design);
+            $cc = $this->_makeSimCardsTable($document, $design);
             $content = str_replace('{*#simcards_table#*}', $cc, $content);
         }
 
@@ -232,11 +233,13 @@ class ClientDocumentDao extends Singleton
     {
         $simCards = Card::find()
             ->alias('c')
-            ->joinWith('clientAccount ca')
             ->select(['c.iccid', 'msisdn'])
             ->joinWith('imsies')
             ->where([
-                'ca.contract_id' => $document->contract_id
+                'c.client_account_id' => ClientAccount::find()
+                    ->select('id')
+                    ->where(['contract_id' => $document->contract_id])
+                    ->column()
             ])
             ->asArray()
             ->all();
@@ -575,11 +578,11 @@ class ClientDocumentDao extends Singleton
             (isset($f['post_address']) ? '<br /> Почтовый адрес: ' . $f['post_address'] : '') .
             '<br /> ИНН ' . $f['inn'] . ', КПП ' . $f['kpp'] .
             (
-                $b ?
-                    '<br /> Банковские реквизиты: <br /> р/с:&nbsp;' . $f['acc'] . ' в ' . $f['bank_name'] .
-                    '<br /> к/с:&nbsp;' . $f['kor_acc'] .
-                    '<br /> БИК:&nbsp;' . $f['bik'] :
-                    ''
+            $b ?
+                '<br /> Банковские реквизиты: <br /> р/с:&nbsp;' . $f['acc'] . ' в ' . $f['bank_name'] .
+                '<br /> к/с:&nbsp;' . $f['kor_acc'] .
+                '<br /> БИК:&nbsp;' . $f['bik'] :
+                ''
             );
         return $d;
     }

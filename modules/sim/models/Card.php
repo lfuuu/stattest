@@ -19,7 +19,6 @@ use yii\helpers\Url;
  * @property int $is_active
  * @property int $status_id
  *
- * @property-read ClientAccount $clientAccount
  * @property-read Imsi[] $imsies
  * @property-read CardStatus $status
  *
@@ -80,14 +79,6 @@ class Card extends ActiveRecord
                 \app\classes\behaviors\HistoryChanges::className(),
             ]
         );
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getClientAccount()
-    {
-        return $this->hasOne(ClientAccount::className(), ['id' => 'client_account_id']);
     }
 
     /**
