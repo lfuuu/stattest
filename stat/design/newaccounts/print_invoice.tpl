@@ -271,7 +271,7 @@
       </tr>
 {foreach from=$bill_lines item=row key=key}
       <tr>
-        <td>{$row.item}</td>
+        <td>{if $is_four_order}Предварительная оплата<br>{/if}{$row.item}</td>
           {if $isChanges20171001}
               <td align="center">-</td>
           {/if}
@@ -389,7 +389,7 @@
         <td align="center" nowrap>{if $inv_is_new4}без акциза{else}-{/if}</td>
         <td align="center">{if $row.tax_rate == 0}без НДС{else}{if $is_four_order eq true}{$row.tax_rate}%/1{$row.tax_rate}%{else}{$row.tax_rate}%{/if}{/if}</td>
         <td align="center">
-            {if $row.tax_rate == 0}
+            {if $row.sum_tax == 0}
                 -
             {else}
                 {$row.sum_tax|round:2}
@@ -407,8 +407,8 @@
      	{if $inv_is_new4}
      	<td colspan={if $isChanges20171001}6{else}{if $inv_is_new3}5{else}4{/if}{/if}><b>Всего к оплате<b></td>
      	<td align="center">{if $is_four_order}-{else}{$bill.sum_without_tax|round:2}{/if}</td>
-     	<td>&nbsp;</td>
-     	<td>&nbsp;</td>
+     	<td align="center">-</td>
+        <td align="center">-</td>
      	{else}
         <td colspan={if $inv_is_new3}8{else}7{/if}><b>Всего к оплате<b></td>
         {/if}

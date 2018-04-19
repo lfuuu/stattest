@@ -416,6 +416,7 @@ class Bill {
 		if($pay['type'] == 'PAY'){
 
             $tax_rate = $this->Client()->getTaxRate();
+            $ret_x['tax_rate'] = $tax_rate;
 
 			$ret_x['sum'] = $pay['sum'];
 			$ret_x['sum_tax'] = $pay['sum'] * $tax_rate / (100 + $tax_rate);
