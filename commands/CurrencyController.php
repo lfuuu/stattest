@@ -12,7 +12,6 @@ use app\models\Currency;
 use app\models\CurrencyRate;
 use DateTime;
 use Exception;
-use ParseError;
 use Yii;
 use yii\console\Controller;
 
@@ -76,7 +75,7 @@ class CurrencyController extends Controller
      * @param array $currencies валюты, которые импортировать. Код валюты - в ключе
      * @param DateTime $dateTime
      * @param bool $isStrictDate
-     * @throws ParseError
+     * @throws \RuntimeException
      */
     protected function importByDate(array $currencies, DateTime $dateTime, $isStrictDate = false)
     {
@@ -84,15 +83,17 @@ class CurrencyController extends Controller
             $fileName = sprintf(Yii::$app->params['currencyDownloadUrl'], $dateTime->format('d/m/Y'));
             $simplexml = simplexml_load_file($fileName);
             if ($simplexml === false) {
-                throw new ParseError('loading ' . $fileName);
+                throw new \RuntimeException('loading ' . $fileName);
             }
+
             Yii::trace('CurrencyImport: ' . print_r($simplexml, true));
 
             // дата курса
             $date = (string)$simplexml['Date'];
             if (!$date) {
-                throw new ParseError('parsing date ' . $fileName);
+                throw new \RuntimeException('parsing date ' . $fileName);
             }
+
             $dateTimeXml = new DateTime($date);
             Yii::info('CurrencyImport: ' . print_r($currencies, true));
             if ($isStrictDate && $dateTimeXml->format(DateTimeZoneHelper::DATE_FORMAT) !== $dateTime->format(DateTimeZoneHelper::DATE_FORMAT)) {
