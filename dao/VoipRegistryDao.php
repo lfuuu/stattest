@@ -9,6 +9,7 @@ use app\models\DidGroup;
 use app\models\Number;
 use app\models\NumberLog;
 use app\models\voip\Registry;
+use app\modules\nnp\models\NdcType;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
 use yii\db\Query;
@@ -172,8 +173,7 @@ class VoipRegistryDao extends Singleton
      */
     private function _addNumber(Registry $registry, $addNumber)
     {
-
-        if ($registry->isSourcePotability()) {
+        if ($registry->isSourcePotability() || $registry->ndc_type_id == NdcType::ID_FREEPHONE) {
             $beautyLevel = DidGroup::BEAUTY_LEVEL_STANDART;
         } else {
             $beautyLevel = NumberBeautyDao::getNumberBeautyLvl(
