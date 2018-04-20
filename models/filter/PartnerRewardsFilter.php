@@ -7,7 +7,6 @@ use app\models\Bill;
 use app\models\BillLine;
 use app\models\Business;
 use app\models\ClientAccount;
-use app\models\ClientContact;
 use app\models\ClientContract;
 use app\models\ClientContractReward;
 use app\models\ClientContragent;
@@ -22,7 +21,8 @@ class PartnerRewardsFilter extends DynamicModel
 
     public
         $partner_contract_id,
-        $month,
+        $payment_date_before,
+        $payment_date_after,
         $isExtendsMode;
 
     public
@@ -38,7 +38,7 @@ class PartnerRewardsFilter extends DynamicModel
     public function rules()
     {
         return [
-            [['month',], 'string'],
+            [['payment_date_before', 'payment_date_after'], 'string'],
             [['partner_contract_id',], 'integer'],
         ];
     }
@@ -64,10 +64,6 @@ class PartnerRewardsFilter extends DynamicModel
         $this->contractsWithIncorrectBusinessProcess = $this->_getContractsWithIncorrectBusinessProcess();
         $this->partnersList = ClientContract::dao()->getPartnerList();
 
-        if (is_null($this->month)) {
-            $this->month = (new \DateTime('now'))->format('Y-m');
-        }
-
         return $this;
     }
 
@@ -76,10 +72,12 @@ class PartnerRewardsFilter extends DynamicModel
      */
     public function search()
     {
-        if ($this->month && $this->partner_contract_id) {
-            $query = new Query;
+        if ($this->partner_contract_id == '') {
+            return false;
+        }
 
-            $actual_from = <<<SQL
+        $query = new Query;
+        $actual_from = <<<SQL
 CASE
    WHEN line.service = 'usage_voip' THEN
      (
@@ -109,48 +107,53 @@ CASE
      )
    END
 SQL;
-            $query->select([
-                'rewards.*',
-                'client_id' => 'client.id',
-                'client_created' => 'client.created',
-                'client.account_version',
-                'contragent_name' => 'contragent.name',
-                'bill_no' => 'bills.bill_no',
-                'bill_paid' => 'bills.is_payed',
-                'paid_summary' => 'bills.sum',
-                'usage_type' => 'line.service',
-                'usage_id' => 'line.id_service',
-                'usage_paid' => 'line.sum',
-                'actual_from' => $actual_from,
-            ]);
+        $query->select([
+            'rewards.*',
+            'client_id' => 'client.id',
+            'client_created' => 'client.created',
+            'client.account_version',
+            'contragent_name' => 'contragent.name',
+            'bill_no' => 'bills.bill_no',
+            'bill_paid' => 'bills.is_payed',
+            'paid_summary' => 'bills.sum',
+            'payment_date' => 'bills.payment_date',
+            'usage_type' => 'line.service',
+            'usage_id' => 'line.id_service',
+            'usage_paid' => 'line.sum',
+            'actual_from' => $actual_from,
+        ]);
 
-            $query
-                ->from(['rewards' => PartnerRewards::tableName()])
-                ->innerJoin(['bills' => Bill::tableName()], 'bills.id = rewards.bill_id')
-                ->innerJoin(['client' => ClientAccount::tableName()], 'client.id = bills.client_id')
-                ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
-                ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
-                ->innerJoin(['line' => BillLine::tableName()], 'line.pk = rewards.line_pk');
+        $query
+            ->from(['rewards' => PartnerRewards::tableName()])
+            ->innerJoin(['bills' => Bill::tableName()], 'bills.id = rewards.bill_id')
+            ->innerJoin(['client' => ClientAccount::tableName()], 'client.id = bills.client_id')
+            ->innerJoin(['contract' => ClientContract::tableName()], 'contract.id = client.contract_id')
+            ->innerJoin(['contragent' => ClientContragent::tableName()], 'contragent.id = contract.contragent_id')
+            ->innerJoin(['line' => BillLine::tableName()], 'line.pk = rewards.line_pk');
 
-            $query
-                ->where(new Expression('DATE_FORMAT(rewards.created_at, "%Y-%m") = :month', ['month' => $this->month]))
-                ->andWhere(['contragent.partner_contract_id' => $this->partner_contract_id])
-                ->andWhere(['>=', 'line.sum', 0]);
+        $query
+            ->andWhere(['contragent.partner_contract_id' => $this->partner_contract_id])
+            ->andWhere(['>=', 'line.sum', 0]);
 
-            if (!$this->isExtendsMode) {
-                $query->andWhere(['bills.is_payed' => Bill::STATUS_IS_PAID]);
-            }
-
-            $dataProvider = new ArrayDataProvider([
-                'allModels' => $this->_prepareData($query),
-                'sort' => false,
-                'pagination' => false,
-            ]);
-
-            return $dataProvider;
+        if (!$this->isExtendsMode) {
+            $query->andWhere(['bills.is_payed' => Bill::STATUS_IS_PAID]);
         }
 
-        return false;
+        if ($this->payment_date_before !== '') {
+            $query->andWhere(['>=', new Expression('DATE_FORMAT(bills.payment_date, "%Y-%m")'), $this->payment_date_before]);
+        }
+
+        if ($this->payment_date_after !== '') {
+            $query->andWhere(['<=', new Expression('DATE_FORMAT(bills.payment_date, "%Y-%m")'), $this->payment_date_after]);
+        }
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $this->_prepareData($query),
+            'sort' => false,
+            'pagination' => false,
+        ]);
+
+        return $dataProvider;
     }
 
     /**

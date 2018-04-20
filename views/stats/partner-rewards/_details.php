@@ -30,6 +30,7 @@ use yii\helpers\Url;
         <th>Услуга</th>
         <th>Тариф</th>
         <th>Дата включения услуги</th>
+        <th>Дата оплаты счёта</th>
         <th>Сумма оказанных услуг</th>
     </tr>
     </thead>
@@ -80,6 +81,9 @@ use yii\helpers\Url;
             </td>
             <td class="text-center">
                 <?= $record['actual_from'] ?>
+            </td>
+            <td class="text-center">
+                <?= $record['payment_date'] ?>
             </td>
             <td class="text-center">
                 <?= $record['usage_paid'] ?>

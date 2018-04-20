@@ -7,7 +7,7 @@ use app\models\ClientAccount;
 use app\models\ClientContract;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
-
+use yii\db\AfterSaveEvent;
 
 class SetOldStatus extends Behavior
 {
@@ -15,11 +15,14 @@ class SetOldStatus extends Behavior
     {
         return [
             ActiveRecord::EVENT_AFTER_UPDATE => "update",
-            ActiveRecord::EVENT_AFTER_INSERT => "update"
+            ActiveRecord::EVENT_AFTER_INSERT => "update",
         ];
     }
 
-    public function update($event)
+    /**
+     * @param AfterSaveEvent $event
+     */
+    public function update(AfterSaveEvent $event)
     {
         if ($event->sender instanceof ClientContract) {
             $bpStatus = BusinessProcessStatus::findOne($event->sender->business_process_status_id);

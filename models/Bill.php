@@ -5,6 +5,7 @@ namespace app\models;
 use app\classes\behaviors\BillChangeLog;
 use app\classes\behaviors\CheckBillPaymentOverdue;
 use app\classes\behaviors\PartnerRewardsCalculation;
+use app\classes\behaviors\SetBillPaymentDate;
 use app\classes\behaviors\SetBillPaymentOverdue;
 use app\classes\model\ActiveRecord;
 use app\classes\Utils;
@@ -51,6 +52,7 @@ use yii\helpers\Url;
  * @property int $organization_id
  * @property string $pay_bill_until
  * @property int $is_pay_overdue
+ * @property string $payment_date
  *
  * @property-read ClientAccount $clientAccount   ??
  * @property-read BillLine[] $lines   ??
@@ -131,6 +133,7 @@ class Bill extends ActiveRecord
             'CheckBillPaymentOverdue' => CheckBillPaymentOverdue::className(),
             'BillChangeLog' => BillChangeLog::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            'SetBillPaymentDate' => SetBillPaymentDate::className(),
         ];
     }
 
@@ -179,7 +182,8 @@ class Bill extends ActiveRecord
             'nal' => 'Предпологаемый тип платежа',
             'is_pay' => 'Счет оплачен',
             'pay_bill_until' => 'Оплатить счет до',
-            'is_pay_overdue' => 'Просрочена оплата счета'
+            'is_pay_overdue' => 'Просрочена оплата счета',
+            'payment_date' => 'Дата оплаты счета',
         ];
     }
 

@@ -26,42 +26,55 @@ echo Breadcrumbs::widget([
 
 <div class="row">
     <?php $form = ActiveForm::begin(['method' => 'get', 'action' => $baseUrl]) ?>
-    <?= Html::hiddenInput('isExtends', (int)$filterModel->isExtendsMode) ?>
+    <div class="row">
+        <?= Html::hiddenInput('isExtends', (int)$filterModel->isExtendsMode) ?>
+        <div class="col-sm-1 text-right">
+            Партнер:
+        </div>
+        <div class="col-sm-3">
+            <?= Select2::widget([
+                'name' => 'filter[partner_contract_id]',
+                'data' => $filterModel->partnersList,
+                'value' => $filterModel->partner_contract_id,
+                'options' => [
+                    'placeholder' => '-- Выбрать партнера --',
+                ],
+            ]);
+            ?>
+        </div>
 
-    <div class="col-sm-1 text-right">
-        Месяц:
+        <div class="col-sm-2">
+            <?= Html::submitButton('Сформировать', ['class' => 'btn btn-primary']) ?>
+        </div>
     </div>
-    <div class="col-sm-2">
-        <?= MonthPicker::widget([
-            'name' => 'filter[month]',
-            'value' => $filterModel->month,
-            'options' => [
-                'class' => 'form-control input-sm',
-            ],
-        ]) ?>
-    </div>
-
-    <div class="col-sm-1 text-right">
-        Партнер:
-    </div>
-    <div class="col-sm-3">
-        <?= Select2::widget([
-            'name' => 'filter[partner_contract_id]',
-            'data' => $filterModel->partnersList,
-            'value' => $filterModel->partner_contract_id,
-            'options' => [
-                'placeholder' => '-- Выбрать партнера --',
-            ],
-        ]);
-        ?>
-    </div>
-
-    <div class="col-sm-2">
-        <?= Html::submitButton('Сформировать', ['class' => 'btn btn-primary']) ?>
+    <div class="row" style="margin-top: 10px;">
+        <div class="col-sm-1 text-right">
+            Дата оплаты с:
+        </div>
+        <div class="col-sm-2">
+            <?= MonthPicker::widget([
+                'name' => 'filter[payment_date_before]',
+                'value' => $filterModel->payment_date_before,
+                'options' => [
+                    'class' => 'form-control input-sm',
+                ],
+            ]) ?>
+        </div>
+        <div class="col-sm-1 text-right">
+            Дата оплаты по:
+        </div>
+        <div class="col-sm-2">
+            <?= MonthPicker::widget([
+                'name' => 'filter[payment_date_after]',
+                'value' => $filterModel->payment_date_after,
+                'options' => [
+                    'class' => 'form-control input-sm',
+                ],
+            ]) ?>
+        </div>
     </div>
     <?php ActiveForm::end(); ?>
 </div>
-
 <?php
 if ($filterModel->partner_contract_id) {
     echo $this->render(($filterModel->isExtendsMode ? '_grid_extends' : '_grid'), [
