@@ -72,8 +72,26 @@ $contragent = $payerCompany->contragent;
             <span class="text"><strong>Tax no.</strong>: <?= $organization->tax_registration_id ?></span>
         </td>
         <td width="45%" align="left" valign="top">
-            <span class="text"><strong>Bank</strong>: <?= $organization->settlementAccount->bank_name ?></span><br />
-            <span class="text"><strong>Bank account no.</strong>: <?= $organization->settlementAccount->bank_account ?></span>
+            <span class="text"><strong>Bank</strong>: Raiffeisenlandesbank Niederösterreich-Wien AG</span><br />
+
+            <br />
+            <span class="text"><strong>(EUR) Bank account:</strong><br />IBAN: AT69 3200 0000 1238 9524</span><br />
+            <span class="text"><strong>(USD) Bank account:</strong><br />IBAN: AT24 3200 0301 1238 9524</span><br />
+            <br />
+            <span class="text">BIC / SWIFT: RLNWATWW</span><br />
+            <br />
+            <span class="text"><strong>Bank:</strong> Raiffeisen Bank Zrt.</span><br />
+            <br />
+            <span class="text"><strong>(HUF) Bank account:</strong><br />IBAN: HU34 1201 0611 0160 4117 0010 0009</span><br />
+            <br />
+            <span class="text">BIC / SWIFT: UBRTHUHB</span><br />
+            <br />
+            <span class="text"><strong>Bank:</strong> TATRA BANKA A.S.</span><br />
+            <br />
+            <span class="text"><strong>(EUR) Bank account:</strong><br />IBAN: SK51 1100 0000 0029 4603 8869</span><br />
+            <br />
+            <span class="text">BIC / SWIFT: TATRSKBX</span><br />
+
         </td>
     </tr>
 </table>
@@ -172,10 +190,6 @@ $contragent = $payerCompany->contragent;
         </td>
     </tr>
 </table>
-
-<div class="text" style="margin-top: 20px;">
-    <?= $organization->settlementAccount->bank_bik ?> <?= $organization->settlementAccount->bank_account ?>
-</div>
 
 <div class="text" style="margin-top: 50px; font-size: 13px;">
     Correspondence: <?= $organization->post_address ?><br>
