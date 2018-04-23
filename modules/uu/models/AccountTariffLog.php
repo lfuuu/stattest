@@ -669,22 +669,6 @@ class AccountTariffLog extends ActiveRecord
             return;
         }
 
-        if (AccountTariff::find()
-            ->where(
-                [
-                    'service_type_id' => $accountTariff->service_type_id,
-                    'prev_account_tariff_id' => $accountTariff->prev_account_tariff_id,
-                    'tariff_period_id' => $this->tariff_period_id,
-                ]
-            )
-            ->andWhere(['!=', 'id', (int)$this->account_tariff_id])// кроме себя же
-            ->count()
-        ) {
-            $this->addError($attribute, 'Этот пакет уже подключен на эту же базовую услугу. Повторное подключение не имеет смысла.');
-            $this->errorCode = AccountTariff::ERROR_CODE_USAGE_DOUBLE_PREV;
-            return;
-        }
-
         $accountTariffTableName = AccountTariff::tableName();
         $accountTariffLogTableName = AccountTariffLog::tableName();
         if (AccountTariffLog::find()
