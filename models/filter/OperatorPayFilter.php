@@ -163,7 +163,7 @@ class OperatorPayFilter extends Bill
 
         $query->orderBy([
             // сначала полностью неоплаченные счета, потом частично
-            new Expression('IF(payment_date IS NULL, :maxDate, payment_date) DESC', ['maxDate' => UsageInterface::MIDDLE_DATE]),
+            new Expression('IF(p.payment_date IS NULL, :maxDate, p.payment_date) DESC', ['maxDate' => UsageInterface::MIDDLE_DATE]),
         ]);
         $query->addOrderBy([
             'pay_bill_until' => SORT_DESC
