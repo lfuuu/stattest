@@ -15,6 +15,7 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\OrganizationColumn;
 use app\classes\grid\column\universal\RegionColumn;
 use app\classes\grid\column\universal\StringColumn;
+use app\classes\grid\column\universal\UserColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
@@ -27,6 +28,7 @@ use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\column\TariffStatusColumn;
 use app\modules\uu\filter\AccountTariffFilter;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\proxies\AccountTariffProxy;
 use app\modules\uu\models\ServiceType;
 use app\widgets\GridViewExport\GridViewExport;
 use kartik\grid\ActionColumn;
@@ -40,7 +42,7 @@ $columns = [
         'class' => ActionColumn::className(),
         'template' => '{update}',
         'buttons' => [
-            'update' => function ($url, AccountTariff $model, $key) use ($baseView) {
+            'update' => function ($url, AccountTariffProxy $model, $key) use ($baseView) {
                 return $baseView->render('//layouts/_actionEdit', [
                         'url' => $model->getUrl(),
                     ]
@@ -55,11 +57,74 @@ $columns = [
         'class' => TariffPeriodColumn::className(),
         'serviceTypeId' => $serviceType->id,
         'format' => 'html',
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             return Html::encode($accountTariff->getName(false));
         },
     ],
 ];
+
+// Колонка "Дата включения на тестовый тариф"
+$dateTestTariffColumn = null;
+
+// Колонка "Ак. менеджер"
+$accountManagerColumn = null;
+
+// Колонка "Дата продажи"
+$dateSaleColumn = null;
+
+// Колонка "Дата допродажи"
+$dateBeforeSaleColumn = null;
+
+// Колонка "Дата отключения"
+$dateDisconnectTariffColumn = null;
+
+if (in_array($serviceType->id, [ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT])) {
+    if ($serviceType->id == ServiceType::ID_VOIP) {
+        $dateTestTariffColumn = [
+            'label' => 'Дата включения на тестовый тариф',
+            'attribute' => 'uu_account_tariff_log_actual_from_utc_test',
+            'class' => DateRangeDoubleColumn::className(),
+            'value' => function (AccountTariffProxy $accountTariff) {
+                return $accountTariff->uu_account_tariff_log_actual_from_utc_test ?: '';
+            },
+        ];
+    }
+
+    $accountManagerColumn = [
+        'label' => 'Ак. менеджер',
+        'attribute' => 'account_manager_name',
+        'class' => UserColumn::className(),
+        'value' => function(AccountTariffProxy $accountTariff) {
+            return $accountTariff->clientAccount->contract->getAccountManagerName();
+        },
+    ];
+
+    $dateSaleColumn = [
+        'label' => 'Дата продажи',
+        'attribute' => 'date_sale',
+        'class' => DateRangeDoubleColumn::className(),
+        'value' => function (AccountTariffProxy $accountTariff) {
+            return strtotime($accountTariff->client_contragent_created_at) > strtotime('-1 month') ?
+                $accountTariff->client_contragent_created_at : '';
+        }
+    ];
+
+    $dateBeforeSaleColumn = [
+        'label' => 'Дата допродажи',
+        'attribute' => 'date_before_sale',
+        'class' => DateRangeDoubleColumn::className(),
+        'value' => function (AccountTariffProxy $accountTariff) {
+            return strtotime($accountTariff->client_contragent_created_at) <= strtotime('-1 month') ?
+                $accountTariff->client_contragent_created_at : '';
+        }
+    ];
+
+    $dateDisconnectTariffColumn = [
+        'label' => 'Дата отключения',
+        'class' => DateRangeDoubleColumn::className(),
+        'attribute' => 'uu_account_tariff_log_actual_from_utc_disc',
+    ];
+}
 
 if ($serviceTypeId = $serviceType->isPackage()) {
     $columns[] = [
@@ -68,7 +133,7 @@ if ($serviceTypeId = $serviceType->isPackage()) {
         'class' => TariffPeriodColumn::className(),
         'serviceTypeId' => $serviceTypeId,
         'format' => 'html',
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             $prevAccountTariff = $accountTariff->prevAccountTariff;
             $tariffPeriod = $prevAccountTariff ? $prevAccountTariff->tariffPeriod : null;
             return $tariffPeriod ? $tariffPeriod->getName() : null;
@@ -81,7 +146,7 @@ $columns = array_merge($columns, [
         'label' => 'Включая НДС',
         'attribute' => 'tariff_is_include_vat',
         'class' => YesNoColumn::className(),
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
 
@@ -92,7 +157,7 @@ $columns = array_merge($columns, [
         'label' => 'Постоплата',
         'attribute' => 'tariff_is_postpaid',
         'class' => YesNoColumn::className(),
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
 
@@ -103,7 +168,7 @@ $columns = array_merge($columns, [
         'label' => 'Страна',
         'attribute' => 'tariff_country_id',
         'class' => CountryColumn::className(),
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
 
@@ -113,7 +178,7 @@ $columns = array_merge($columns, [
     [
         'attribute' => 'tariff_currency_id',
         'class' => CurrencyColumn::className(),
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
 
@@ -128,7 +193,7 @@ $columns = array_merge($columns, [
         'contentOptions' => [
             'class' => 'nowrap',
         ],
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
 
@@ -139,7 +204,7 @@ $columns = array_merge($columns, [
         'label' => 'По умолчанию',
         'attribute' => 'tariff_is_default',
         'class' => YesNoColumn::className(),
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             $tariff = $tariffPeriod ? $tariffPeriod->tariff : null;
 
@@ -152,7 +217,7 @@ $columns = array_merge($columns, [
         'class' => TariffStatusColumn::className(),
         'serviceTypeId' => $serviceType->id,
         'format' => 'html',
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             $tariffPeriod = $accountTariff->tariffPeriod;
             return $tariffPeriod ?
                 $tariffPeriod->tariff->tariff_status_id :
@@ -163,7 +228,7 @@ $columns = array_merge($columns, [
         'attribute' => 'client_account_id',
         'class' => IntegerColumn::className(),
         'format' => 'html',
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             return $accountTariff->clientAccount->getLink();
         },
     ],
@@ -174,7 +239,7 @@ $columns = array_merge($columns, [
     [
         'attribute' => 'comment',
         'format' => 'html',
-        'value' => function (AccountTariff $accountTariff) {
+        'value' => function (AccountTariffProxy $accountTariff) {
             return nl2br(Html::encode($accountTariff->comment));
         },
     ],
@@ -197,6 +262,10 @@ if ($serviceType) {
                 'attribute' => 'is_unzipped',
                 'class' => YesNoColumn::className(),
             ];
+            $columns[] = $dateSaleColumn;
+            $columns[] = $dateBeforeSaleColumn;
+            $columns[] = $dateDisconnectTariffColumn;
+            $columns[] = $accountManagerColumn;
             break;
 
         case ServiceType::ID_VOIP:
@@ -215,7 +284,7 @@ if ($serviceType) {
                 'label' => 'Красивость',
                 'attribute' => 'beauty_level',
                 'class' => BeautyLevelColumn::className(),
-                'value' => function (AccountTariff $accountTariff) {
+                'value' => function (AccountTariffProxy $accountTariff) {
                     return $accountTariff->number->beauty_level;
                 },
             ];
@@ -223,10 +292,22 @@ if ($serviceType) {
                 'label' => 'Тип NDC',
                 'attribute' => 'number_ndc_type_id',
                 'class' => NdcTypeColumn::className(),
-                'value' => function (AccountTariff $accountTariff) {
+                'value' => function (AccountTariffProxy $accountTariff) {
                     return $accountTariff->number->ndc_type_id;
                 },
             ];
+            $columns[] = $dateTestTariffColumn;
+            $columns[] = $dateSaleColumn;
+            $columns[] = $dateBeforeSaleColumn;
+            $columns[] = $dateDisconnectTariffColumn;
+            $columns[] = $accountManagerColumn;
+            break;
+
+        case ServiceType::ID_CALL_CHAT:
+            $columns[] = $dateSaleColumn;
+            $columns[] = $dateBeforeSaleColumn;
+            $columns[] = $dateDisconnectTariffColumn;
+            $columns[] = $accountManagerColumn;
             break;
 
         case ServiceType::ID_VOIP_PACKAGE_CALLS:

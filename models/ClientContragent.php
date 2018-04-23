@@ -8,7 +8,9 @@ use app\classes\behaviors\SetTaxVoip;
 use app\classes\model\HistoryActiveRecord;
 use app\classes\validators\InnKppValidator;
 use Yii;
+use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveQuery;
+use yii\db\Expression;
 
 /**
  * @property int $id
@@ -35,6 +37,7 @@ use yii\db\ActiveQuery;
  * @property string $comment
  * @property int $sale_channel_id
  * @property int $partner_contract_id
+ * @property string $created_at
  *
  * @property-read ClientAccount[] $accounts
  * @property-read ClientContragentPerson $person
@@ -118,6 +121,12 @@ class ClientContragent extends HistoryActiveRecord
             'EffectiveVATRate' => EffectiveVATRate::className(),
             'SetTaxVoip' => SetTaxVoip::className(),
             'HistoryChanges' => \app\classes\behaviors\HistoryChanges::className(),
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => null,
+                'value' => new Expression('UTC_TIMESTAMP()'), // "NOW() AT TIME ZONE 'utc'" (PostgreSQL) или 'UTC_TIMESTAMP()' (MySQL)
+            ],
         ];
     }
 
