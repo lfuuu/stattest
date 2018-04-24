@@ -130,7 +130,7 @@ $I->assertNotNull($account);
 $I->see('ok:' . $account->id);
 $uVoip = \app\models\UsageVoip::findOne(['client' => $account->client]); //создается номер для ВАТС
 $I->assertNotNull($uVoip);
-$I->assertContains('749', $uVoip->E164);
+$I->assertContains('749', (string)$uVoip->E164);
 $uVpbx = \app\models\UsageVirtpbx::findOne(['client' => $account->client]);
 $I->assertNotNull($uVpbx);
 
@@ -167,7 +167,7 @@ $I->assertNotNull($account);
 $I->see('ok:' . $account->id);
 $uVoip = \app\models\UsageVoip::findOne(['client' => $account->client]); //создается номер для ВАТС
 $I->assertNotNull($uVoip);
-$I->assertContains('100', $uVoip->E164); // линия без номера. Начинаются с 1000.
+$I->assertContains('100', (string)$uVoip->E164); // линия без номера. Начинаются с 1000.
 $uVpbx = \app\models\UsageVirtpbx::findOne(['client' => $account->client]);
 $I->assertNotNull($uVpbx);
 
