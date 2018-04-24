@@ -3,6 +3,7 @@
 namespace app\modules\uu\tarificator;
 
 use app\helpers\DateTimeZoneHelper;
+use app\models\ClientAccount;
 use app\models\important_events\ImportantEvents;
 use app\models\important_events\ImportantEventsNames;
 use app\modules\uu\models\AccountLogMin;
@@ -30,6 +31,7 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
         $tariffPeriodTableName = TariffPeriod::tableName();
         $tariffTableName = Tariff::tableName();
         $importantEventsTableName = ImportantEvents::tableName();
+        $clientAccountTableName = ClientAccount::tableName();
 
         // найти ЛС, у которых сейчас фин.блокировка
         // если менее 2х дней назад - не учитывать
@@ -58,10 +60,14 @@ class FreePeriodInFinanceBlockTarificator extends Tarificator
                     ) AS unset_zero_date
                 FROM
                     {$importantEventsTableName} set_zero
+                INNER JOIN
+                    {$clientAccountTableName} client
+                    ON set_zero.client_id = client.id
                    
                 WHERE
-                    event = :setZeroBalance 
-                    AND `date` <= :min_day_date
+                    set_zero.event = :setZeroBalance 
+                    AND set_zero.`date` <= :min_day_date
+                    AND client.is_blocked = 1
             ) t
             
             WHERE
