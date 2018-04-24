@@ -202,10 +202,11 @@ abstract class TariffForm extends \app\classes\Form
                         if (!$package) {
                             $package = new Package();
                             $package->tariff_id = $this->id;
-                            $package->service_type_id = $this->tariff->service_type_id;
-                            $package->is_include_vat = (bool)$this->tariff->is_include_vat;
-                            $package->name = $this->tariff->name;
                         }
+
+                        $package->service_type_id = $this->tariff->service_type_id;
+                        $package->is_include_vat = (bool)$this->tariff->is_include_vat;
+                        $package->name = $this->tariff->name;
 
                         $package->load($post);
                         $package->currency_id = $this->tariff->currency_id;
