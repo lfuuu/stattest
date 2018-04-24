@@ -31,7 +31,7 @@ abstract class MonthlyFeePercentageReward implements Reward
             return false;
         }
 
-        if ($line->type !== Transaction::TYPE_RESOURCE) {
+        if (!$line->isResource()) {
             $reward->percentage_of_fee = $settings[self::getField()] * $line->sum / 100;
         }
 

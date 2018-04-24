@@ -127,12 +127,25 @@ class BillLine extends ActiveRecord
     }
 
     /**
+     * @return bool
+     */
+    public function isResource()
+    {
+        if ($this->uu_account_entry_id) {
+            return $this->accountEntry->type_id > 0;
+        }
+
+        return $this->bill->bill_date > $this->date_to;
+    }
+
+    /**
      * @param array $lines
      * @param string $lang
      * @param boolean $isPriceIncludeVat
      * @return array
      * @internal param mixed $untypedLines
      * @internal param array $lines
+     * @throws \yii\base\InvalidConfigException
      */
     public static function compactLines($lines, $lang, $isPriceIncludeVat)
     {
@@ -223,7 +236,7 @@ class BillLine extends ActiveRecord
             $line['price'] = ($isPriceIncludeVat ? $line['sum'] : $line['sum_without_tax']) / $line['amount'];
 
             // установка правильных значений НДС и суммы
-            $oLine = new BillLine();
+            $oLine = new self;
             $oLine->setAttributes(method_exists($line, 'getAttributes') ? $line->getAttributes() : $line, false);
             $oLine->calculateSum($isPriceIncludeVat);
             $line = $oLine->getAttributes();
