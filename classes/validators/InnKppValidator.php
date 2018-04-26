@@ -29,7 +29,11 @@ class InnKppValidator extends Validator
     public function validateAttributes(ClientContragent $model, $attributes = null)
     {
         $attributes = [];
-        if (in_array($model->legal_type, ['ip', 'legal'])) {
+        // валидациия ИНН только в России и Венгрии
+        if (
+            in_array($model->country_id, [Country::RUSSIA, Country::HUNGARY])
+            && in_array($model->legal_type, ['ip', 'legal'])
+        ) {
             $attributes[] = 'inn';
         }
 
