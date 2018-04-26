@@ -57,6 +57,7 @@ class StatsAccount extends ActiveRecord
 SELECT
 	at.id,
 	at.account_tariff_id,
+	at.account_package_id,
 	p.name,
 	COALESCE(stat.used_seconds, 0) AS used_seconds,
 	TRUNC(at.coefficient * pm.minute * 60) AS total_seconds

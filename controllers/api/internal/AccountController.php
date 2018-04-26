@@ -260,6 +260,7 @@ class AccountController extends ApiInternalController
      *
      *   @SWG\Response(response = 200, description = "Счетчики",
      *     @SWG\Schema(type = "object", required = {"timezones", "account_ids"},
+     *       @SWG\Property(property = "account_package_id", type = "integer", description = "ID услуги (пакета)"),
      *       @SWG\Property(property = "sum_day", type = "number", description = "Трата за сутки"),
      *       @SWG\Property(property = "sum_month", type = "number", description = "Трата за месяц"),
      *       @SWG\Property(property = "sum_mn_day", type = "number", description = "Трата МН за сутки"),
@@ -296,6 +297,7 @@ class AccountController extends ApiInternalController
         $statsNnpPackageMinute = StatsAccount::getStatsNnpPackageMinute($client_account_id, $account_tariff_id);
 
         return [
+            'account_package_id' => (int)$statsAccount['account_package_id'],
             'sum_day' => (float)$statsAccount['sum_day'],
             'sum_month' => (float)$statsAccount['sum_month'],
             'sum_mn_day' => (float)$statsAccount['sum_mn_day'],

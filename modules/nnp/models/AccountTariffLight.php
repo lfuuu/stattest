@@ -16,6 +16,7 @@ use Yii;
  * @property int $deactivate_from
  * @property float $coefficient
  * @property int $account_tariff_id
+ * @property int $account_package_id
  * @property float $price
  * @property int $service_type_id
  *
@@ -51,6 +52,8 @@ class AccountTariffLight extends ActiveRecord
             // Коэффициент от 0 до 1, если пакет действует меньше месяца. Цену и кол-во доступных минут надо умножать на этот коэффициент
             'account_tariff_id' => 'Базовая услуга',
             // ID базовой (не пакет!) универсальной услуги (AccountTariff.id). Для пакетов телефонии (service_type_id = 3) это номер телефона/линии (он же billing.service_number.id). Для пакетов транков (service_type_id = 23, 24) это номер транка (он же billing.service_trunk.id). Чтобы не пересекаться со старыми услугами - больше 100000.
+            'account_package_id' => 'Услуга',
+            // ID услуги (пакета)
             'price' => 'Цена пакета',
             // Цена пакета. Для получения стоимости надо умножить на coefficient
             'service_type_id' => 'Тип услуги',

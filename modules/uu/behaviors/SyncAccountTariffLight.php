@@ -76,6 +76,7 @@ class SyncAccountTariffLight extends Behavior
                 'deactivate_from' => $deactivateFrom,
                 'coefficient' => $coefficient,
                 'account_tariff_id' => $accountTariff->prevAccountTariff->id,
+                'account_package_id' => $accountTariff->id,
                 'price' => ($accountLogPeriod->tariffPeriod->price_setup + $accountLogPeriod->tariffPeriod->price_per_period), // чтобы учесть и разовые услуги (price_setup), и обычные (price_per_period)
                 'service_type_id' => $accountTariff->service_type_id,
             ]
@@ -128,6 +129,7 @@ class SyncAccountTariffLight extends Behavior
         $accountTariffLight->deactivate_from = $params['deactivate_from'] ? new Expression(sprintf("TIMESTAMP '%s'", $params['deactivate_from'])) : null;
         $accountTariffLight->coefficient = str_replace(',', '.', $params['coefficient']);
         $accountTariffLight->account_tariff_id = $params['account_tariff_id'];
+        $accountTariffLight->account_package_id = $params['account_package_id'];
         $accountTariffLight->price = $params['price'];
         $accountTariffLight->service_type_id = $params['service_type_id'];
         if (!$accountTariffLight->save()) {
