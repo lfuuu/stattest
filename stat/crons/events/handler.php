@@ -525,6 +525,11 @@ function doEvents($consoleParam)
                     }
                     break;
 
+                case UuModule::EVENT_UU_SWITCHED_ON:
+                    // УУ-услуга включена
+                    ClientAccount::dao()->updateIsActive($param['client_account_id']);
+                    break;
+
                 // --------------------------------------------
                 // АТОЛ
                 // --------------------------------------------

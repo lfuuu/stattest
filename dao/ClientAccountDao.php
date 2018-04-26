@@ -25,6 +25,7 @@ use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use DateTime;
 use DateTimeZone;
 use Yii;
+use yii\db\Exception;
 use yii\db\Query;
 
 /**
@@ -755,10 +756,18 @@ class ClientAccountDao extends Singleton
     }
 
     /**
-     * @param ClientAccount $clientAccount
+     * Делает ЛС активным при наличии включенных услуг
+     *
+     * @param ClientAccount|integer $clientAccount
+     * @throws ModelValidationException
      */
-    public function updateIsActive(ClientAccount $clientAccount)
+    public function updateIsActive($clientAccount)
     {
+        if (!($clientAccount instanceof ClientAccount)) {
+            $clientAccount = ClientAccount::findOne(['id' => (int)$clientAccount]);
+            Assert::isObject($clientAccount);
+        }
+
         $now = new \DateTime();
 
         $hasUsage = Yii::$app->db->createCommand('
@@ -817,7 +826,9 @@ class ClientAccountDao extends Singleton
         $newIsActive = $hasUsage ? 1 : 0;
         if ($clientAccount->is_active != $newIsActive) {
             $clientAccount->is_active = $newIsActive;
-            $clientAccount->save();
+            if (!$clientAccount->save()) {
+                throw new ModelValidationException($clientAccount);
+            }
         }
     }
 

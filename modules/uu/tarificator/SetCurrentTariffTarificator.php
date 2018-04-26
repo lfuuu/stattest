@@ -114,6 +114,13 @@ SQL;
                     $eventType = null;
                 }
 
+                if ($eventType == ImportantEventsNames::UU_SWITCHED_ON) {
+                    EventQueue::go(\app\modules\uu\Module::EVENT_UU_SWITCHED_ON, [
+                        'client_account_id' => $accountTariff->client_account_id,
+                        'account_tariff_id' => $accountTariff->id,
+                    ]);
+                }
+
                 // доп. обработка в зависимости от типа услуги
                 switch ($accountTariff->service_type_id) {
 
