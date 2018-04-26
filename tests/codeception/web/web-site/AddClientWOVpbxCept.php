@@ -34,4 +34,4 @@ $I->wantTo('Web site integration');
 $I->wantTo('Add duplicate client without Vpbx');
 $I->amOnPage('/operator/service.php?' . $query);
 $I->dontSee('error:');
-$I->see('ok:' . $clientAccountId);
+$I->see('ok:' . ($clientAccountId + 1));

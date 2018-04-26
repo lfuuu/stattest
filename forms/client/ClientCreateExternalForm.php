@@ -1,4 +1,5 @@
 <?php
+
 namespace app\forms\client;
 
 use app\classes\Form;
@@ -237,25 +238,24 @@ class ClientCreateExternalForm extends Form
 
         $transaction = Yii::$app->db->beginTransaction();
 
-        if ($this->findByEmail()) {
-            $this->isCreated = false;
-        } else {
+        try {
             $this->_createClientStruct();
-
             $this->isCreated = true;
 
             if ($this->account_id) {
                 $this->_createTroubleAndWizard();
+                if ($this->vats_tariff_id) {
+                    $resVats = $this->_createVats();
+                }
             }
-        }
 
-        if ($this->account_id) {
-            if ($this->vats_tariff_id) {
-                $resVats = $this->_createVats();
-            }
-        }
+            $transaction->commit();
+        } catch (Exception $e) {
+            Yii::error($e);
+            $transaction->rollBack();
 
-        $transaction->commit();
+            return false;
+        }
 
         $result = null;
         if ($this->account_id) {
@@ -269,27 +269,6 @@ class ClientCreateExternalForm extends Form
         }
 
         return $result;
-    }
-
-    /**
-     * Поиск клиента по email'у
-     *
-     * @return bool
-     */
-    public function findByEmail()
-    {
-        $c = ClientContact::findOne(['data' => $this->email, 'type' => 'email']);
-
-        if ($c) {
-            $this->account_id = $c->client->id;
-            $this->contract_id = $c->client->contract->id;
-            $this->contragent_id = $c->client->contragent->id;
-            $this->super_id = $c->client->superClient->id;
-
-            return true;
-        }
-
-        return false;
     }
 
     /**
