@@ -297,7 +297,6 @@ class AccountController extends ApiInternalController
         $statsNnpPackageMinute = StatsAccount::getStatsNnpPackageMinute($client_account_id, $account_tariff_id);
 
         return [
-            'account_package_id' => (int)$statsAccount['account_package_id'],
             'sum_day' => (float)$statsAccount['sum_day'],
             'sum_month' => (float)$statsAccount['sum_month'],
             'sum_mn_day' => (float)$statsAccount['sum_mn_day'],
