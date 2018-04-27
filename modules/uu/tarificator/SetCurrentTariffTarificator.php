@@ -145,10 +145,13 @@ SQL;
 
                     case ServiceType::ID_VOIP_PACKAGE_CALLS:
                         // Пакеты телефонии
-                        EventQueue::go(\app\modules\uu\Module::EVENT_CLOSE_LIGHT, [
-                            'client_account_id' => $accountTariff->client_account_id,
-                            'account_tariff_id' => $accountTariff->id,
-                        ]);
+                        if ($eventType === ImportantEventsNames::UU_SWITCHED_OFF) {
+                            // только при закрытиии - закрыть в Light
+                            EventQueue::go(\app\modules\uu\Module::EVENT_CLOSE_LIGHT, [
+                                'client_account_id' => $accountTariff->client_account_id,
+                                'account_tariff_id' => $accountTariff->id,
+                            ]);
+                        }
                         break;
 
                     case ServiceType::ID_VPBX:
