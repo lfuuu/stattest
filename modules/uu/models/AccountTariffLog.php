@@ -234,11 +234,8 @@ class AccountTariffLog extends ActiveRecord
 
         if (!$this->tariff_period_id
             && $this->actual_from < ($minEditDate = $accountTariff->getDefaultActualFrom())
-            && !(
-                // но менеджеру в Стате разрешено закрывать пакеты раньше срока
-                ServiceType::isPackageById($accountTariff->service_type_id)
-                && User::isLogged()
-            )
+            // менеджеру в Стате разрешено отключать услуги раньше срока
+            && !User::isLogged()
         ) {
             $this->addError($attribute, 'Закрыть можно, начиная с ' . $minEditDate);
             $this->errorCode = AccountTariff::ERROR_CODE_DATE_PAID;
