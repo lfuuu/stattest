@@ -148,16 +148,14 @@ class ClientSearch extends ClientAccount
                 ->leftJoin(['ip_ports' => UsageIpPorts::tableName()], 'ip_ports.client = client.client')
                 ->leftJoin(['ip_routes' => UsageIpRoutes::tableName()], 'ip_routes.port_id = ip_ports.id');
 
-            $query->andFilterWhere([
-                'OR',
-                [
-                    'AND',
-                    (new Expression('INET_ATON("' . $this->ip . '") >= INET_ATON(SUBSTRING_INDEX(ip_routes.net,"/",1))')),
-                    (new Expression('INET_ATON("' . $this->ip . '") <  INET_ATON(SUBSTRING_INDEX(ip_routes.net,"/",1))' .
-                        '+POW(2,32-SUBSTRING_INDEX(ip_routes.net,"/",-1))'))
-                ],
-                ['LIKE', 'ip_routes.net', $this->ip]
-            ]);
+            $query
+                ->andWhere(
+                    [
+                        'BETWEEN',
+                        new Expression('INET_ATON("' . $this->ip . '")'),
+                        new Expression('INET_ATON(SUBSTRING_INDEX(ip_routes.net, "/", 1))'),
+                        new Expression('INET_ATON(SUBSTRING_INDEX(ip_routes.net, "/", 1)) | POW(2, 32-SUBSTRING_INDEX(ip_routes.net, "/", -1))-1')
+                    ]);
         }
 
         if ($this->domain) {

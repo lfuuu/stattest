@@ -66,7 +66,7 @@ abstract class Monitor extends Component
             MonitorUuShiftTariff::className(),
             // MonitorUuAccountEntry::className(), // обычно работает долю секунды, но иногда лочится надолго
             MonitorUuTestTariff::className(),
-            MonitorSormClientsReg97::className(),
+            // MonitorSormClientsReg97::className(), // до введения СОРМа в Краснодаре, отключим монитор. Что бы Борис не расстраивался.
         ];
     }
 }
