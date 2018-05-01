@@ -172,10 +172,15 @@ class AccountTariffFilter extends AccountTariff
         $this->tariff_is_default !== '' && $query->andWhere(['tariff.is_default' => $this->tariff_is_default]);
 
         if (
-            $this->account_manager_name !== '' ||
-            in_array($this->service_type_id, [
-                ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT
-            ])
+            $this->client_account_id !== '' &&
+            (
+                $this->account_manager_name !== '' ||
+                in_array($this->service_type_id, [
+                    ServiceType::ID_VPBX,
+                    ServiceType::ID_VOIP,
+                    ServiceType::ID_CALL_CHAT
+                ])
+            )
         ) {
             $clientContractTableName = ClientContract::tableName();
             $query->innerJoin($clientContractTableName, "clients.contract_id = $clientContractTableName.id");
@@ -188,7 +193,10 @@ class AccountTariffFilter extends AccountTariff
             }
 
             if (in_array($this->service_type_id, [
-                ServiceType::ID_VPBX, ServiceType::ID_VOIP, ServiceType::ID_CALL_CHAT]
+                    ServiceType::ID_VPBX,
+                    ServiceType::ID_VOIP,
+                    ServiceType::ID_CALL_CHAT
+                ]
             )) {
                 $clientContragentTableName = ClientContragent::tableName();
                 $accountTariffLogTableName = AccountTariffLog::tableName();
@@ -210,7 +218,7 @@ class AccountTariffFilter extends AccountTariff
                             ON ut.id = utp.tariff_id
                         WHERE
                           uatl.tariff_period_id IS NOT NULL AND
-                          ut.tariff_status_id IN (".TariffStatus::ID_TEST.", ".TariffStatus::ID_VOIP_8800_TEST.")
+                          ut.tariff_status_id IN (" . TariffStatus::ID_TEST . ", " . TariffStatus::ID_VOIP_8800_TEST . ")
                         GROUP BY uatl.account_tariff_id
                     ) uatl_date_test", "{$accountTariffTableName}.id = uatl_date_test.account_tariff_id");
 
