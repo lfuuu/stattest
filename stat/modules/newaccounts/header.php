@@ -34,9 +34,9 @@ class m_newaccounts_head extends IModuleHead{
 					'bill_publish'		=> array('newaccounts_mass','access'),
 
 					'pi_list'			=> array('newaccounts_import_payments','read'),
-					'pi_upload'			=> array('newaccounts_import_payments','edit'),
+					'pi_upload'			=> array('newaccounts_import_payments','write'),
 					'pi_process'		=> array('newaccounts_import_payments','read'),
-					'pi_apply'			=> array('newaccounts_import_payments','edit'),
+					'pi_apply'			=> array('newaccounts_import_payments','write'),
 
 					'pay_rebill'		=> array('newaccounts_payments','edit'),
 
