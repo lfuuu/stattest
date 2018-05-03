@@ -198,12 +198,12 @@ class AccountTariffFilter extends AccountTariff
                 $clientContragentTableName = ClientContragent::tableName();
                 $accountTariffLogTableName = AccountTariffLog::tableName();
 
+                $db = AccountTariff::getDb();
+
                 if ($this->service_type_id == ServiceType::ID_VOIP) {
                     $query->select(array_merge($query->select, [
                         'uu_account_tariff_log_actual_from_utc_test' => 'uatl_date_test.actual_from_utc',
                     ]));
-
-                    $db = AccountTariff::getDb();
 
                     // Создание временной таблицы для столбца "Дата включения на тестовый тариф"
                     $db->createCommand("
@@ -225,18 +225,6 @@ class AccountTariffFilter extends AccountTariff
                         )
                     ")->execute();
 
-                    // Создание временной таблицы для столбца "Дата отключения"
-                    $db->createCommand("
-                        CREATE TEMPORARY TABLE IF NOT EXISTS uatl_date_disc (
-                              INDEX (account_tariff_id)
-                        ) AS (
-                          SELECT account_tariff_id, MIN(actual_from_utc) actual_from_utc
-                          FROM {$accountTariffLogTableName}
-                          WHERE tariff_period_id IS NULL
-                          GROUP BY account_tariff_id
-                        )
-                    ")->execute();
-
                     // Присоединение столбца "Дата включения на тестовый тариф"
                     $query->leftJoin('uatl_date_test', "{$accountTariffTableName}.id = uatl_date_test.account_tariff_id");
 
@@ -244,6 +232,18 @@ class AccountTariffFilter extends AccountTariff
                     $this->uu_account_tariff_log_actual_from_utc_test_from !== '' && $query->andWhere(['>=', "DATE_FORMAT(uatl_date_test.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_test_from]);
                     $this->uu_account_tariff_log_actual_from_utc_test_to !== '' && $query->andWhere(['<=', "DATE_FORMAT(uatl_date_test.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_test_to]);
                 }
+
+                // Создание временной таблицы для столбца "Дата отключения"
+                $db->createCommand("
+                    CREATE TEMPORARY TABLE IF NOT EXISTS uatl_date_disc (
+                          INDEX (account_tariff_id)
+                    ) AS (
+                      SELECT account_tariff_id, MIN(actual_from_utc) actual_from_utc
+                      FROM {$accountTariffLogTableName}
+                      WHERE tariff_period_id IS NULL
+                      GROUP BY account_tariff_id
+                    )
+                ")->execute();
 
                 $query->select(array_merge($query->select, [
                     'uu_account_tariff_log_actual_from_utc_disc' => 'uatl_date_disc.actual_from_utc',
