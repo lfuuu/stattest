@@ -107,7 +107,7 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
         $query = CallsRaw::find()
             ->select([
                 'sum_price' => 'SUM(-calls_price.cost)', // стоимость звонка для клиента. Сделаем ее положительной
-                'sum_cost_price' => 0, // 'SUM(COALESCE(calls_cost_price.cost, 0))', // себестоимость
+                // 'sum_cost_price' => 'SUM(COALESCE(calls_cost_price.cost, 0))', // себестоимость
                 'nnp_package_price_id' => 'calls_price.nnp_package_price_id',
                 'nnp_package_pricelist_id' => 'calls_price.nnp_package_pricelist_id',
                 'aggr_date' => sprintf("TO_CHAR(calls_price.connect_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta)
@@ -128,7 +128,7 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
         foreach ($query->each() as $row) {
             $aggrDate = $row['aggr_date'];
             $sumPrice = $row['sum_price'];
-            $sumCostPrice = $row['sum_cost_price'];
+            $sumCostPrice = 0; // $row['sum_cost_price'];
 
             if ($tariffId = $row['nnp_package_price_id']) {
                 if (!isset($this->_callsByPrice[$aggrDate])) {
