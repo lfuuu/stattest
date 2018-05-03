@@ -172,15 +172,12 @@ class AccountTariffFilter extends AccountTariff
         $this->tariff_is_default !== '' && $query->andWhere(['tariff.is_default' => $this->tariff_is_default]);
 
         if (
-            $this->client_account_id !== '' &&
-            (
-                $this->account_manager_name !== '' ||
-                in_array($this->service_type_id, [
-                    ServiceType::ID_VPBX,
-                    ServiceType::ID_VOIP,
-                    ServiceType::ID_CALL_CHAT
-                ])
-            )
+            $this->account_manager_name !== '' ||
+            in_array($this->service_type_id, [
+                ServiceType::ID_VPBX,
+                ServiceType::ID_VOIP,
+                ServiceType::ID_CALL_CHAT
+            ])
         ) {
             $clientContractTableName = ClientContract::tableName();
             $query->innerJoin($clientContractTableName, "clients.contract_id = $clientContractTableName.id");
@@ -206,21 +203,42 @@ class AccountTariffFilter extends AccountTariff
                         'uu_account_tariff_log_actual_from_utc_test' => 'uatl_date_test.actual_from_utc',
                     ]));
 
+                    $db = AccountTariff::getDb();
+
+                    // Создание временной таблицы для столбца "Дата включения на тестовый тариф"
+                    $db->createCommand("
+                        CREATE TEMPORARY TABLE IF NOT EXISTS uatl_date_test (
+                          INDEX (account_tariff_id)
+                        ) AS (
+                          SELECT
+                            uatl.account_tariff_id,
+                            MIN(uatl.actual_from_utc) actual_from_utc
+                          FROM {$accountTariffLogTableName} uatl
+                            INNER JOIN {$tariffPeriodTableName} utp
+                              ON uatl.tariff_period_id = utp.id
+                            INNER JOIN {$tariffTableName} ut
+                              ON ut.id = utp.tariff_id
+                          WHERE
+                            uatl.tariff_period_id IS NOT NULL AND
+                            ut.tariff_status_id IN (" . TariffStatus::ID_TEST . ", " . TariffStatus::ID_VOIP_8800_TEST . ")
+                          GROUP BY uatl.account_tariff_id
+                        )
+                    ")->execute();
+
+                    // Создание временной таблицы для столбца "Дата отключения"
+                    $db->createCommand("
+                        CREATE TEMPORARY TABLE IF NOT EXISTS uatl_date_disc (
+                              INDEX (account_tariff_id)
+                        ) AS (
+                          SELECT account_tariff_id, MIN(actual_from_utc) actual_from_utc
+                          FROM {$accountTariffLogTableName}
+                          WHERE tariff_period_id IS NULL
+                          GROUP BY account_tariff_id
+                        )
+                    ")->execute();
+
                     // Присоединение столбца "Дата включения на тестовый тариф"
-                    $query->leftJoin("(
-                        SELECT
-                          uatl.account_tariff_id,
-                          MIN(uatl.actual_from_utc) actual_from_utc
-                        FROM {$accountTariffLogTableName} uatl
-                          INNER JOIN {$tariffPeriodTableName} utp
-                            ON uatl.tariff_period_id = utp.id
-                          INNER JOIN {$tariffTableName} ut
-                            ON ut.id = utp.tariff_id
-                        WHERE
-                          uatl.tariff_period_id IS NOT NULL AND
-                          ut.tariff_status_id IN (" . TariffStatus::ID_TEST . ", " . TariffStatus::ID_VOIP_8800_TEST . ")
-                        GROUP BY uatl.account_tariff_id
-                    ) uatl_date_test", "{$accountTariffTableName}.id = uatl_date_test.account_tariff_id");
+                    $query->leftJoin('uatl_date_test', "{$accountTariffTableName}.id = uatl_date_test.account_tariff_id");
 
                     // Фильтрация столбца "Дата включения на тестовый тариф"
                     $this->uu_account_tariff_log_actual_from_utc_test_from !== '' && $query->andWhere(['>=', "DATE_FORMAT(uatl_date_test.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_test_from]);
@@ -233,17 +251,7 @@ class AccountTariffFilter extends AccountTariff
                 ]));
 
                 // Присоединение столбца "Дата отключения"
-                $query->leftJoin("(
-                    SELECT
-                        $accountTariffLogTableName.account_tariff_id,
-                        MIN($accountTariffLogTableName.actual_from_utc) actual_from_utc
-                    FROM
-                        $accountTariffLogTableName
-                    WHERE
-                        $accountTariffLogTableName.tariff_period_id IS NULL
-                    GROUP BY
-                        $accountTariffLogTableName.account_tariff_id
-                ) uatl_date_disc", "{$accountTariffTableName}.id = uatl_date_disc.account_tariff_id");
+                $query->leftJoin('uatl_date_disc', "{$accountTariffTableName}.id = uatl_date_disc.account_tariff_id");
 
                 // Фильтрация столбца "Дата отключения"
                 $this->uu_account_tariff_log_actual_from_utc_disc_from !== '' && $query->andWhere(['>=', "DATE_FORMAT(uatl_date_disc.actual_from_utc, '%Y-%m-%d')", $this->uu_account_tariff_log_actual_from_utc_disc_from]);
