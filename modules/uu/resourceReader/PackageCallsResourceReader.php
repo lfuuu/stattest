@@ -107,14 +107,14 @@ abstract class PackageCallsResourceReader extends Object implements ResourceRead
         $query = CallsRaw::find()
             ->select([
                 'sum_price' => 'SUM(-calls_price.cost)', // стоимость звонка для клиента. Сделаем ее положительной
-                'sum_cost_price' => 'SUM(COALESCE(calls_cost_price.cost, 0))', // себестоимость
+                'sum_cost_price' => 0, // 'SUM(COALESCE(calls_cost_price.cost, 0))', // себестоимость
                 'nnp_package_price_id' => 'calls_price.nnp_package_price_id',
                 'nnp_package_pricelist_id' => 'calls_price.nnp_package_pricelist_id',
                 'aggr_date' => sprintf("TO_CHAR(calls_price.connect_time + INTERVAL '%d hours', 'YYYY-MM-DD')", $hoursDelta)
             ])
             ->from(CallsRaw::tableName() . ' calls_price')// чтобы назначить алиас.
-            ->leftJoin(CallsRaw::tableName() . ' calls_cost_price',
-                'calls_price.peer_id = calls_cost_price.id AND calls_cost_price.connect_time >= :connectTime', [':connectTime' => $connectTime])// join себя же по peer_id. Чтобы узнать себестоимость в другом плече (терминации)
+//            ->leftJoin(CallsRaw::tableName() . ' calls_cost_price', // @todo если 2 и более предыдущих плечей, то стоимость удваивается
+//                'calls_price.peer_id = calls_cost_price.id AND calls_cost_price.connect_time >= :connectTime', [':connectTime' => $connectTime])// join себя же по peer_id. Чтобы узнать себестоимость в другом плече (терминации)
             ->where([
                 'calls_price.account_version' => ClientAccount::VERSION_BILLER_UNIVERSAL,
             ])
