@@ -6,6 +6,7 @@
  * @var \app\modules\uu\forms\serviceTypeForm $formModel
  */
 
+use app\modules\uu\models\ServiceType;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -17,6 +18,10 @@ $this->title = $serviceType->isNewRecord ? Yii::t('common', 'Create') : $service
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => Yii::t('tariff', 'Service types'), 'url' => $cancelUrl = Url::to(['/uu/service-type'])],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(0)),
+            'encode' => false,
+        ],
         $this->title,
     ],
 ]) ?>

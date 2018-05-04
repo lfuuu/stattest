@@ -44,8 +44,19 @@ if (!$serviceType) {
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tariffs'),
+
+        [
+            'label' => Yii::t('tariff', 'Universal tariffs') .
+                $this->render('//layouts/_helpConfluence', Tariff::getHelpConfluence()),
+            'encode' => false,
+        ],
+
         ['label' => $this->title = $serviceType->name, 'url' => Url::to(['/uu/tariff', 'serviceTypeId' => $serviceType->id])],
+
+        [
+            'label' => $this->render('//layouts/_helpConfluence', $serviceType->getHelpConfluence()),
+            'encode' => false,
+        ],
     ],
 ]) ?>
 

@@ -98,4 +98,12 @@ class AccountLogMin extends ActiveRecord
     {
         return $this->date_from . '_' . $this->tariff_period_id;
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 25887403, 'message' => 'МГП'];
+    }
 }

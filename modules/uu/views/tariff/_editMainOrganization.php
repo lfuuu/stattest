@@ -19,12 +19,14 @@ $tariff = $formModel->tariff;
 
 $tariffOrganizationTableName = TariffOrganization::tableName();
 $tariffTableName = Tariff::tableName();
+
+$helpConfluence = $this->render('//layouts/_helpConfluence', Tariff::getHelpConfluence());
 ?>
 
 <div class="row">
     <div class="col-sm-12">
 
-        <label><?= Yii::t('models/' . $tariffOrganizationTableName, 'organization_id') ?></label>
+        <label><?= Yii::t('models/' . $tariffOrganizationTableName, 'organization_id') . $helpConfluence ?></label>
         <?= Select2::widget([
             'name' => 'TariffOrganization[]',
             'value' => array_keys($tariffOrganizations),

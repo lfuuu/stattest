@@ -238,4 +238,41 @@ class ServiceType extends ActiveRecord
     {
         return isset(self::$packages[$id]) ? self::$packages[$id] : null;
     }
+
+    /**
+     * @return array
+     */
+    public function getHelpConfluence()
+    {
+        return self::getHelpConfluenceById($this->id);
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public static function getHelpConfluenceById($id)
+    {
+        switch ($id) {
+            case self::ID_VPBX:
+                return ['confluenceId' => 25887462, 'message' => 'ВАТС'];
+            case self::ID_VOIP:
+                return ['confluenceId' => 25887465, 'message' => 'Телефония'];
+            case self::ID_VOIP_PACKAGE_CALLS:
+                return ['confluenceId' => 25887468, 'message' => 'Телефония. Пакет звонков'];
+            case self::ID_VOIP_PACKAGE_INTERNET:
+                return ['confluenceId' => 25887479, 'message' => 'Телефония. Пакет интернета'];
+            case self::ID_TRUNK:
+                return ['confluenceId' => 25887541, 'message' => 'Транк'];
+            case self::ID_INFRASTRUCTURE:
+                return ['confluenceId' => 25887545, 'message' => 'Инфраструктура'];
+            case self::ID_VPS:
+            case self::ID_VPS_LICENCE:
+                return ['confluenceId' => 25887547, 'message' => 'VPS'];
+            case self::ID_ONE_TIME:
+                return ['confluenceId' => 25887552, 'message' => 'Разовая услуга'];
+        }
+
+        return ['confluenceId' => 25887452, 'message' => 'Типы услуг'];
+    }
 }

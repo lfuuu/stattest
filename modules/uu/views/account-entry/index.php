@@ -13,6 +13,7 @@ use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\commands\UbillerController;
 use app\models\Language;
 use app\modules\uu\column\AccountEntryTypeColumn;
 use app\modules\uu\column\ServiceTypeColumn;
@@ -32,8 +33,17 @@ $accountTariffTableName = AccountTariff::tableName();
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tarifficator'),
-        ['label' => $this->title = Yii::t('tariff', 'Account entries'), 'url' => '/uu/account-entry']
+        [
+            'label' => Yii::t('tariff', 'Universal tarifficator') .
+                $this->render('//layouts/_helpConfluence', UbillerController::getHelpConfluence()),
+            'encode' => false,
+        ],
+
+        ['label' => $this->title = Yii::t('tariff', 'Account entries'), 'url' => '/uu/account-entry'],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', AccountEntry::getHelpConfluence()),
+            'encode' => false,
+        ],
     ],
 ]) ?>
 

@@ -1,9 +1,10 @@
 <?php
 
+use app\commands\UbillerController;
 use app\models\Bill;
 use app\models\ClientAccount;
-use app\modules\uu\models\AccountEntry;
 use app\modules\uu\models\Bill as uuBill;
+use app\modules\uu\tarificator\RealtimeBalanceTarificator;
 use yii\widgets\Breadcrumbs;
 
 /**
@@ -36,8 +37,17 @@ $params = [
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tarifficator'),
+        [
+            'label' => Yii::t('tariff', 'Universal tarifficator') .
+                $this->render('//layouts/_helpConfluence', UbillerController::getHelpConfluence()),
+            'encode' => false,
+        ],
+
         $this->title = Yii::t('tariff', 'Balance'),
+        [
+            'label' => $this->render('//layouts/_helpConfluence', RealtimeBalanceTarificator::getHelpConfluence()),
+            'encode' => false,
+        ],
     ],
 ]) ?>
 

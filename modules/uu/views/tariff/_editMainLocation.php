@@ -9,8 +9,10 @@
  */
 
 use app\modules\nnp\models\Package;
+use app\modules\uu\models\ServiceType;
 use kartik\select2\Select2;
 
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
 ?>
 
 <div class="row">
@@ -20,7 +22,9 @@ use kartik\select2\Select2;
             ->widget(Select2::className(), [
                 'data' => Package::getListLocation(),
                 'options' => $options,
-            ]) ?>
+            ])
+            ->label($package->getAttributeLabel('location_id') . $helpConfluence)
+        ?>
     </div>
 
 </div>

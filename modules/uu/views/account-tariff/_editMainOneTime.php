@@ -9,9 +9,11 @@
 
 use app\classes\Html;
 use app\modules\uu\models\AccountLogResource;
+use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
 
 $accountTariff = $formModel->accountTariff;
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_ONE_TIME));
 ?>
 
 <div class="row">
@@ -19,7 +21,7 @@ $accountTariff = $formModel->accountTariff;
     <?php // стоимость ?>
     <div class="col-sm-8">
         <div class="form-group field-tariff-resource-one-time required">
-            <label for="tariff-resource-one-time" class="control-label">Стоимость, ¤</label> (если это скидка, то указывайте отрицательное значение)
+            <label for="tariff-resource-one-time" class="control-label">Стоимость, ¤ <?= $helpConfluence ?></label> (если это скидка, то указывайте отрицательное значение)
 
             <div>
                 <?php

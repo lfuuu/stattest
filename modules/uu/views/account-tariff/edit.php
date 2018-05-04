@@ -8,6 +8,7 @@
 
 use app\dao\UsageDao;
 use app\models\ClientAccount;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
@@ -29,8 +30,17 @@ if (!$accountTariff->isNewRecord) {
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal services'),
+        [
+            'label' => Yii::t('tariff', 'Universal services') .
+                $this->render('//layouts/_helpConfluence', AccountTariff::getHelpConfluence()),
+            'encode' => false,
+        ],
+
         ['label' => $serviceType->name, 'url' => Url::to(['/uu/account-tariff', 'serviceTypeId' => $serviceType->id])],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', $serviceType->getHelpConfluence()),
+            'encode' => false,
+        ],
         $this->title
     ],
 ]) ?>

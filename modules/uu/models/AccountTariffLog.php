@@ -790,4 +790,12 @@ class AccountTariffLog extends ActiveRecord
     {
         $this->account_tariff_id = $parentId;
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 25887561, 'message' => 'Условия подключение тарифа'];
+    }
 }

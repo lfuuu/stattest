@@ -6,17 +6,23 @@
  * @var \app\modules\uu\forms\tariffVmForm $formModel
  */
 
+use app\modules\uu\models\ServiceType;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
 $tariffVm = $formModel->tariffVm;
 $this->title = $tariffVm->isNewRecord ? Yii::t('common', 'Create') : $tariffVm->name;
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VPS));
 ?>
 
 <?= Breadcrumbs::widget([
     'links' => [
         ['label' => Yii::t('tariff', 'Tariff VPS'), 'url' => $cancelUrl = Url::to(['/uu/tariff-vm'])],
+        [
+            'label' => $helpConfluence,
+            'encode' => false,
+        ],
         $this->title,
     ],
 ]) ?>
@@ -33,11 +39,17 @@ $this->title = $tariffVm->isNewRecord ? Yii::t('common', 'Create') : $tariffVm->
     <div class="row">
 
         <div class="col-sm-4">
-            <?= $form->field($tariffVm, 'id')->textInput(['type' => 'number', 'step' => 1]) ?>
+            <?= $form->field($tariffVm, 'id')
+                ->textInput(['type' => 'number', 'step' => 1])
+                ->label($tariffVm->getAttributeLabel('id') . $helpConfluence)
+            ?>
         </div>
 
         <div class="col-sm-4">
-            <?= $form->field($tariffVm, 'name')->textInput() ?>
+            <?= $form->field($tariffVm, 'name')
+                ->textInput()
+                ->label($tariffVm->getAttributeLabel('name') . $helpConfluence)
+            ?>
         </div>
 
     </div>

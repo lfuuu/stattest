@@ -296,11 +296,8 @@ a.nohover:hover {
     padding-top: 5px;
 }
 
-.package-minute h2,
-.package-price h2,
-.package-pricelist h2 {
+.well h2 {
     margin-top: -10px;
-    margin-bottom: 0;
 }
 
 .popover-width-auto .popover {

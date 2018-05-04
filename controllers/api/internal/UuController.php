@@ -503,6 +503,8 @@ class UuController extends ApiInternalController
             }
         }
 
+        // @todo надо ли только статус "публичный" для ватс?
+
         $tariffQuery = Tariff::find();
         $tariffTableName = Tariff::tableName();
         $id && $tariffQuery->andWhere([$tariffTableName . '.id' => $id]);

@@ -11,6 +11,7 @@
 use app\classes\DateTimeWithUserTimezone;
 use app\classes\Html;
 use app\models\Region;
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\ServiceType;
 use kartik\select2\Select2;
 use yii\helpers\Url;
@@ -26,6 +27,8 @@ if (!$serviceType) {
 ?>
 
 <div class="account-tariff-edit-main well">
+    <h2>Услуга <?= $helpConfluence = $this->render('//layouts/_helpConfluence', AccountTariff::getHelpConfluence()) ?></h2>
+
     <?php $form = ActiveForm::begin(); ?>
 
     <?php // добавить тариф (только для новых записей) ?>
@@ -102,20 +105,22 @@ if (!$serviceType) {
             <?= $form->field($accountTariff, 'region_id')
                 ->widget(Select2::className(), [
                     'data' => Region::getList(true),
-                ]) ?>
+                ])
+                ->label($accountTariff->getAttributeLabel('region_id') . $helpConfluence)
+            ?>
         </div>
 
         <?php // комментарий ?>
         <div class="col-sm-4">
             <?= $form->field($accountTariff, 'comment')
                 ->textarea()
-                ->render()
+                ->label($accountTariff->getAttributeLabel('comment') . $helpConfluence)
             ?>
         </div>
 
         <?php // основная услуга ?>
         <div class="col-sm-3">
-            <label><?= $accountTariff->getAttributeLabel('prev_account_tariff_id') ?></label>
+            <label><?= $accountTariff->getAttributeLabel('prev_account_tariff_id') . $helpConfluence ?></label>
             <div><?= $accountTariff->prevAccountTariff ?
                     Html::a(
                         Html::encode($accountTariff->prevAccountTariff->getName()),
@@ -126,7 +131,7 @@ if (!$serviceType) {
 
         <?php // пакеты ?>
         <div class="col-sm-3">
-            <label><?= Yii::t('tariff', 'Packages') ?></label>
+            <label><?= Yii::t('tariff', 'Packages') . $helpConfluence ?></label>
             <div><?= $accountTariff->getNextAccountTariffsAsString() ?></div>
         </div>
 

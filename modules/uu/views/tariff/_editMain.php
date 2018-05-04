@@ -13,6 +13,7 @@ use app\models\Country;
 use app\models\Currency;
 use app\modules\uu\controllers\TariffController;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
 use app\modules\uu\models\TariffPerson;
 use app\modules\uu\models\TariffStatus;
 use app\modules\uu\models\TariffTag;
@@ -35,6 +36,7 @@ $viewParams = [
 ?>
 
 <div class="well">
+    <h2>Тариф <?= $helpConfluence = $this->render('//layouts/_helpConfluence', Tariff::getHelpConfluence()) ?></h2>
 
     <?php
     if (!$tariff->isNewRecord) {
@@ -83,7 +85,9 @@ $viewParams = [
                 ->widget(Select2::className(), [
                     'data' => Country::getList($tariff->isNewRecord),
                     'options' => $options,
-                ]) ?>
+                ])
+                ->label($tariff->getAttributeLabel('country_id') . $helpConfluence)
+            ?>
         </div>
 
         <div class="col-sm-2">
@@ -91,23 +95,36 @@ $viewParams = [
                 ->widget(Select2::className(), [
                     'data' => Currency::getList($tariff->isNewRecord),
                     'options' => $options,
-                ]) ?>
+                ])
+                ->label($tariff->getAttributeLabel('currency_id') . $helpConfluence)
+            ?>
         </div>
 
         <div class="col-sm-4">
-            <?= $form->field($tariff, 'name')->textInput(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
+            <?= $form->field($tariff, 'name')
+                ->textInput(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options)
+                ->label($tariff->getAttributeLabel('name') . $helpConfluence)
+            ?>
         </div>
 
         <div class="col-sm-2">
-            <?= $form->field($tariff, 'is_include_vat')->checkbox($options) ?>
-            <?= $form->field($tariff, 'is_autoprolongation')->checkbox($options) ?>
+            <?= $form->field($tariff, 'is_include_vat')
+                ->checkbox($options + ['label' => $tariff->getAttributeLabel('is_include_vat') . $helpConfluence])
+            ?>
+            <?= $form->field($tariff, 'is_autoprolongation')
+                ->checkbox($options + ['label' => $tariff->getAttributeLabel('is_autoprolongation') . $helpConfluence])
+            ?>
         </div>
 
         <div class="col-sm-2">
-            <?= $form->field($tariff, 'is_default')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
+            <?= $form->field($tariff, 'is_default')
+                ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
+                    ['label' => $tariff->getAttributeLabel('is_autoprolongation') . $helpConfluence])
+            ?>
             <?php
             if (!array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
-                echo $form->field($tariff, 'is_postpaid')->checkbox($options);
+                echo $form->field($tariff, 'is_postpaid')
+                    ->checkbox($options + ['label' => $tariff->getAttributeLabel('is_postpaid') . $helpConfluence]);
             }
             ?>
         </div>
@@ -118,26 +135,38 @@ $viewParams = [
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_status_id')
                 ->widget(Select2::className(), [
                     'data' => TariffStatus::getList(false, $tariff->service_type_id),
-                ]) ?>
+                ])
+                ->label($tariff->getAttributeLabel('tariff_status_id') . $helpConfluence)
+            ?>
         </div>
 
         <div class="col-sm-2"><?= $form->field($tariff, 'tag_id')->widget(Select2::className(), [
                 'data' => TariffTag::getList(true),
-            ]) ?>
+            ])
+                ->label($tariff->getAttributeLabel('tag_id') . $helpConfluence)
+            ?>
         </div>
 
         <div class="col-sm-2"><?= $form->field($tariff, 'tariff_person_id')->widget(Select2::className(), [
                 'data' => TariffPerson::getList(false),
                 'options' => $options,
-            ]) ?>
+            ])
+                ->label($tariff->getAttributeLabel('tariff_person_id') . $helpConfluence)
+            ?>
         </div>
 
         <div class="col-sm-2">
-            <?= $form->field($tariff, 'count_of_validity_period')->textInput($options) ?>
+            <?= $form->field($tariff, 'count_of_validity_period')
+                ->textInput($options)
+                ->label($tariff->getAttributeLabel('count_of_validity_period') . $helpConfluence)
+            ?>
         </div>
 
         <div class="col-sm-4">
-            <?= $form->field($tariff, 'is_charge_after_blocking')->checkbox(($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) ?>
+            <?= $form->field($tariff, 'is_charge_after_blocking')
+                ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
+                    ['label' => $tariff->getAttributeLabel('is_charge_after_blocking') . $helpConfluence])
+            ?>
         </div>
     </div>
 

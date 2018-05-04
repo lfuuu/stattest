@@ -11,6 +11,7 @@ use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\WithoutFilterColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\commands\UbillerController;
 use app\helpers\DateTimeZoneHelper;
 use app\modules\uu\column\ServiceTypeColumn;
 use app\modules\uu\column\TariffPeriodColumn;
@@ -29,7 +30,12 @@ use yii\widgets\Breadcrumbs;
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tarifficator'),
+        [
+            'label' => Yii::t('tariff', 'Universal tarifficator') .
+                $this->render('//layouts/_helpConfluence', UbillerController::getHelpConfluence()),
+            'encode' => false,
+        ],
+
         ['label' => $this->title = Yii::t('tariff', 'Monitoring'), 'url' => '/uu/monitor']
     ],
 ]) ?>

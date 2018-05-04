@@ -11,6 +11,7 @@
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\uu\controllers\TariffController;
+use app\modules\uu\models\ServiceType;
 use kartik\editable\Editable;
 use unclead\widgets\TabularColumn;
 use unclead\widgets\TabularInput;
@@ -33,17 +34,22 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 } else {
     $options = [];
 }
+
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
 ?>
 
 <div class="well package-minute">
-    <h2>Предоплаченные минуты</h2>
+    <h2>
+        Предоплаченные минуты
+        <?= $helpConfluence ?>
+    </h2>
     <?= TabularInput::widget([
             'models' => array_values($packageMinutes), // ключ должен быть автоинкрементный
             'allowEmptyList' => true,
             'columns' => [
                 [
                     'name' => 'destination_id',
-                    'title' => $attributeLabels['destination_id'],
+                    'title' => $attributeLabels['destination_id'] . $helpConfluence,
                     'type' => Editable::INPUT_SELECT2,
                     'options' => $options + [
                             'data' => $destinationList,
@@ -54,7 +60,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 ],
                 [
                     'name' => 'minute',
-                    'title' => $attributeLabels['minute'],
+                    'title' => $attributeLabels['minute'] . $helpConfluence,
                     'options' => $options,
                     'headerOptions' => [
                         'class' => 'col-sm-3',

@@ -250,4 +250,12 @@ class UbillerController extends Controller
     {
         echo AccountLogResource::clearCalls('first day of this month', 'last day of this month') . ' ' . PHP_EOL;
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 4391334, 'message' => 'Универсальный биллер'];
+    }
 }

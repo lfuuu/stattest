@@ -1,8 +1,8 @@
 <?php
 /**
  * Вывести help иконкой
- * @link http://getbootstrap.com/css/#type-abbreviations
  *
+ * @link http://getbootstrap.com/css/#type-abbreviations
  * @var string $message
  * @var string $extraClass не обязательно
  */

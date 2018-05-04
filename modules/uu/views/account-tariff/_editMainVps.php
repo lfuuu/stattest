@@ -7,14 +7,12 @@
  * @var ActiveForm $form
  */
 
-use app\models\City;
-use app\models\Datacenter;
-use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
-use kartik\select2\Select2;
 
 $accountTariff = $formModel->accountTariff;
 $accountTariffParent = $accountTariff->prevAccountTariff;
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VPS));
 ?>
 
 <div class="row">
@@ -22,7 +20,9 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
     <?php // ID VPS ?>
     <div class="col-sm-4">
         <?= $form->field($accountTariff, 'vm_elid_id')
-            ->input('number') ?>
+            ->input('number')
+            ->label($accountTariff->getAttributeLabel('vm_elid_id') . $helpConfluence)
+        ?>
     </div>
 </div>
 

@@ -12,8 +12,6 @@ use yii\helpers\Url;
 
 /**
  * Универсальные услуги
- *
- * @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
  */
 class Module extends \yii\base\Module
 {

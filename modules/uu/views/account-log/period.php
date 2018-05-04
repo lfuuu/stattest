@@ -13,6 +13,7 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\commands\UbillerController;
 use app\modules\uu\column\DatacenterColumn;
 use app\modules\uu\column\InfrastructureLevelColumn;
 use app\modules\uu\column\InfrastructureProjectColumn;
@@ -31,8 +32,17 @@ $accountTariffTableName = AccountTariff::tableName();
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tarifficator'),
-        ['label' => $this->title = Yii::t('tariff', 'Period tariffication'), 'url' => '/uu/account-log/period']
+        [
+            'label' => Yii::t('tariff', 'Universal tarifficator') .
+                $this->render('//layouts/_helpConfluence', UbillerController::getHelpConfluence()),
+            'encode' => false,
+        ],
+
+        ['label' => $this->title = Yii::t('tariff', 'Period tariffication'), 'url' => '/uu/account-log/period'],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', AccountLogPeriod::getHelpConfluence()),
+            'encode' => false,
+        ],
     ],
 ]) ?>
 

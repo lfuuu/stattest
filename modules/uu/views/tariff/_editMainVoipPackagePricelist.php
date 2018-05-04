@@ -50,17 +50,22 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 } else {
     $options = [];
 }
+
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
 ?>
 
 <div class="well package-pricelist">
-    <h2>Прайслист с МГП</h2>
+    <h2>
+        Прайслист с МГП
+        <?= $helpConfluence ?>
+    </h2>
     <?= TabularInput::widget([
             'models' => array_values($packagePricelists), // ключ должен быть автоинкрементный
             'allowEmptyList' => true,
             'columns' => [
                 [
                     'name' => 'pricelist_id',
-                    'title' => $attributeLabels['pricelist_id'],
+                    'title' => $attributeLabels['pricelist_id'] . $helpConfluence,
                     'type' => Editable::INPUT_SELECT2,
                     'options' => $options + [
                             'data' => $pricelistList,

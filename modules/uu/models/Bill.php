@@ -111,4 +111,12 @@ class Bill extends ActiveRecord
 
         return $query;
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 7602373, 'message' => 'Счета'];
+    }
 }

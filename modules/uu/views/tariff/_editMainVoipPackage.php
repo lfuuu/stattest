@@ -10,6 +10,7 @@
 
 use app\modules\nnp\models\Package;
 use app\modules\uu\controllers\TariffController;
+use app\modules\uu\models\ServiceType;
 use app\modules\uu\models\TariffVoipGroup;
 use kartik\select2\Select2;
 
@@ -30,21 +31,30 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 } else {
     $options = [];
 }
+
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
 ?>
 
     <div class="well">
-        
+        <h2>
+            Телефония. Пакет звонков
+            <?= $helpConfluence ?>
+        </h2>
         <div class="row">
 
             <div class="col-sm-3">
                 <?= $form->field($tariff, 'voip_group_id')
                     ->widget(Select2::className(), [
                         'data' => TariffVoipGroup::getList(true),
-                    ]) ?>
+                    ])
+                    ->label($tariff->getAttributeLabel('voip_group_id') . $helpConfluence)
+                ?>
             </div>
 
             <div class="col-sm-3">
-                <?= $form->field($package, 'is_termination')->checkbox($options) ?>
+                <?= $form->field($package, 'is_termination')
+                    ->checkbox(['label' => $package->getAttributeLabel('is_termination') . $helpConfluence])
+                ?>
             </div>
 
         </div>

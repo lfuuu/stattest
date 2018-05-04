@@ -152,4 +152,11 @@ class InvoiceController extends BaseController
         return $clientAccount;
     }
 
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 25887428, 'message' => 'Счёт-фактура'];
+    }
 }

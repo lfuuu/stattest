@@ -127,4 +127,12 @@ class AccountLogPeriod extends ActiveRecord
             ->createCommand('SELECT i_nnp_package_minute_id, i_used_seconds FROM billing.used_package_minutes_get(' . $this->id . ')')
             ->queryAll();
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 7176470, 'message' => 'Абонентская плата'];
+    }
 }

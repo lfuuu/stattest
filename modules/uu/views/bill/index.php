@@ -12,6 +12,7 @@ use app\classes\grid\column\universal\MonthColumn;
 use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\commands\UbillerController;
 use app\modules\uu\filter\BillFilter;
 use app\modules\uu\models\Bill;
 use app\widgets\GridViewExport\GridViewExport;
@@ -22,8 +23,17 @@ use yii\widgets\Breadcrumbs;
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tarifficator'),
-        ['label' => $this->title = Yii::t('tariff', 'Bills'), 'url' => '/uu/bill']
+        [
+            'label' => Yii::t('tariff', 'Universal tarifficator') .
+                $this->render('//layouts/_helpConfluence', UbillerController::getHelpConfluence()),
+            'encode' => false,
+        ],
+
+        ['label' => $this->title = Yii::t('tariff', 'Bills'), 'url' => '/uu/bill'],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', Bill::getHelpConfluence()),
+            'encode' => false,
+        ],
     ],
 ]) ?>
 

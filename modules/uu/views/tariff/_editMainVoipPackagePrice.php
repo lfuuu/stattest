@@ -12,6 +12,7 @@ use app\classes\Html;
 use app\modules\nnp\models\Destination;
 use app\modules\nnp\models\PackagePrice;
 use app\modules\uu\controllers\TariffController;
+use app\modules\uu\models\ServiceType;
 use kartik\editable\Editable;
 use unclead\widgets\TabularColumn;
 use unclead\widgets\TabularInput;
@@ -35,10 +36,15 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 } else {
     $options = [];
 }
+
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
 ?>
 
 <div class="well package-price">
-    <h2>Цена по направлениям</h2>
+    <h2>
+        Цена по направлениям
+        <?= $helpConfluence ?>
+    </h2>
     <?php
     if ($packagePricesCount) {
         echo Html::a('Скачать все префиксы номеров с ценами', ['/uu/tariff/download', 'id' => $formModel->tariff->id]);
@@ -51,7 +57,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
             'columns' => [
                 [
                     'name' => 'destination_id',
-                    'title' => $attributeLabels['destination_id'],
+                    'title' => $attributeLabels['destination_id'] . $helpConfluence,
                     'type' => Editable::INPUT_SELECT2,
                     'options' => $options + [
                             'data' => $destinationList,
@@ -62,7 +68,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 ],
                 [
                     'name' => 'price',
-                    'title' => $attributeLabels['price'],
+                    'title' => $attributeLabels['price'] . $helpConfluence,
                     'options' => $options,
                     'headerOptions' => [
                         'class' => 'col-sm-2',
@@ -70,7 +76,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 ],
                 [
                     'name' => 'interconnect_price',
-                    'title' => $attributeLabels['interconnect_price'],
+                    'title' => $attributeLabels['interconnect_price'] . $helpConfluence,
                     'options' => $options,
                     'headerOptions' => [
                         'class' => 'col-sm-2',
@@ -78,7 +84,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 ],
                 [
                     'name' => 'connect_price',
-                    'title' => $attributeLabels['connect_price'],
+                    'title' => $attributeLabels['connect_price'] . $helpConfluence,
                     'options' => $options,
                     'headerOptions' => [
                         'class' => 'col-sm-2',
@@ -86,7 +92,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
                 ],
                 [
                     'name' => 'weight',
-                    'title' => $attributeLabels['weight'],
+                    'title' => $attributeLabels['weight'] . $helpConfluence,
                     'options' => [], // всегда можно редактировать
                     'headerOptions' => [
                         'class' => 'col-sm-1',

@@ -95,4 +95,12 @@ class AccountLogSetup extends ActiveRecord
     {
         return $this->date . '_' . $this->tariff_period_id;
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 7176467, 'message' => 'Плата за подключение'];
+    }
 }

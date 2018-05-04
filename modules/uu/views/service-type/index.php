@@ -18,7 +18,13 @@ use yii\widgets\Breadcrumbs;
 ?>
 
 <?= Breadcrumbs::widget([
-    'links' => [Yii::t('tariff', 'Service types')],
+    'links' => [
+        $this->title = Yii::t('tariff', 'Service types'),
+        [
+            'label' => $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(0)),
+            'encode' => false,
+        ],
+    ],
 ]) ?>
 
 <?php

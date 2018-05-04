@@ -162,4 +162,12 @@ trait AccountTariffLinkTrait
         // в логе ничего нет
         throw new \LogicException('У услуги ' . $this->id . ' нет лога смены тарифов.');
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 25887490, 'message' => 'Услуга'];
+    }
 }

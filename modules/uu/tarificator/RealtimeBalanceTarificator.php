@@ -166,4 +166,12 @@ SQL;
             ->execute();
         $this->out('. ');
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 13337092, 'message' => 'Баланс'];
+    }
 }

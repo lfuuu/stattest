@@ -10,6 +10,7 @@
 
 use app\classes\Html;
 use app\helpers\DateTimeZoneHelper;
+use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\AccountTariffResourceLog;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\TariffResource;
@@ -46,11 +47,26 @@ $resourceTableName = Resource::tableName();
 ?>
 
 <div class="well tariffResources">
+    <h2>Ресурс <?= $helpConfluence = $this->render('//layouts/_helpConfluence', AccountLogResource::getHelpConfluence()) ?></h2>
     <div class="row">
-        <div class="col-sm-3"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'resource_id')) ?></label></div>
-        <div class="col-sm-2"><label>Лог</label></div>
-        <div class="col-sm-1"><label>Диапазон значений</label></div>
-        <div class="col-sm-2"><label><?= Html::encode(Yii::t('models/' . $accountTariffResourceLogTableName, 'amount')) ?></label></div>
+        <div class="col-sm-2 col-sm-offset-3">
+            <label>
+                Лог
+                <?= $helpConfluence ?>
+            </label>
+        </div>
+        <div class="col-sm-1">
+            <label>
+                Диапазон значений
+                <?= $helpConfluence ?>
+            </label>
+        </div>
+        <div class="col-sm-2">
+            <label>
+                <?= Html::encode(Yii::t('models/' . $accountTariffResourceLogTableName, 'amount')) ?>
+                <?= $helpConfluence ?>
+            </label>
+        </div>
         <div class="col-sm-1">
             <label>
                 Оплачено, ед.
@@ -59,14 +75,32 @@ $resourceTableName = Resource::tableName();
                         'Уменьшение кол-ва ресурса до этой даты не повлияет на баланс.' . PHP_EOL .
                         'При увеличении кол-ва будут списаны деньги со счета за весь период до указанной даты.',
                 ]); ?>
+                <?= $helpConfluence ?>
             </label>
         </div>
-        <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'amount')) ?></label></div>
-        <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_per_unit')) ?></label></div>
-        <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_min')) ?></label></div>
+        <div class="col-sm-1">
+            <label>
+                <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'amount')) ?>
+                <?= $helpConfluence ?>
+            </label>
+        </div>
+        <div class="col-sm-1">
+            <label>
+                <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_per_unit')) ?>
+                <?= $helpConfluence ?>
+            </label>
+        </div>
+        <div class="col-sm-1">
+            <label>
+                <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_min')) ?>
+                <?= $helpConfluence ?>
+            </label>
+        </div>
     </div>
 
     <?php
+    $helpConfluence = $this->render('//layouts/_helpConfluence', $accountTariff->serviceType->getHelpConfluence());
+
     $nResourceOptions = 0;
     /** @var \app\modules\uu\models\Resource $resource */
     foreach ($resources as $resource) :
@@ -77,7 +111,7 @@ $resourceTableName = Resource::tableName();
         <div class="row">
 
             <div class="col-sm-3">
-                <label for="accounttariffresourcelog-<?= $resource->id ?>-amount"><?= Html::encode($resource->name) ?></label>
+                <label for="accounttariffresourcelog-<?= $resource->id ?>-amount"><?= Html::encode($resource->name) ?> <?= $helpConfluence ?></label>
             </div>
 
             <div class="col-sm-2">

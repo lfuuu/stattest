@@ -18,4 +18,12 @@ class VoipPackageCallsResourceReader extends PackageCallsResourceReader
             'calls_price.number_service_id' => $accountTariff->prev_account_tariff_id, // основная услуга
         ]);
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 25887440, 'message' => 'Пересчет звонков за месяц'];
+    }
 }

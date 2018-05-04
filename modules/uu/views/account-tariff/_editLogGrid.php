@@ -8,6 +8,7 @@
  */
 
 // app\classes\grid\GridView добавляет много лишнего
+use app\modules\uu\models\AccountTariff;
 use app\modules\uu\models\AccountTariffLog;
 use kartik\grid\GridView;
 use yii\helpers\Html;
@@ -16,6 +17,10 @@ $accountTariff = $formModel->accountTariff;
 ?>
 
 <div class="account-tariff-edit-log-form well">
+    <h2>Лог тариф-периодов
+        <?= $this->render('//layouts/_helpConfluence', AccountTariff::getHelpConfluence()) ?>
+        <?= $this->render('//layouts/_helpConfluence', AccountTariffLog::getHelpConfluence()) ?>
+    </h2>
     <?php
     // добавить тариф (только при редактировании)
     if (!$isReadOnly && !$accountTariff->isNewRecord && !$accountTariff->isLogCancelable()) {

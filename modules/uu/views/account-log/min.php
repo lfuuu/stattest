@@ -12,6 +12,7 @@ use app\classes\grid\column\universal\IntegerRangeColumn;
 use app\classes\grid\column\universal\IsNullAndNotNullColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
+use app\commands\UbillerController;
 use app\modules\uu\column\ServiceTypeColumn;
 use app\modules\uu\column\TariffPeriodColumn;
 use app\modules\uu\filter\AccountLogMinFilter;
@@ -26,8 +27,17 @@ $accountTariffTableName = AccountTariff::tableName();
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tarifficator'),
-        ['label' => $this->title = Yii::t('tariff', 'Min resource tariffication'), 'url' => '/uu/account-log/min']
+        [
+            'label' => Yii::t('tariff', 'Universal tarifficator') .
+                $this->render('//layouts/_helpConfluence', UbillerController::getHelpConfluence()),
+            'encode' => false,
+        ],
+
+        ['label' => $this->title = Yii::t('tariff', 'Min resource tariffication'), 'url' => '/uu/account-log/min'],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', AccountLogMin::getHelpConfluence()),
+            'encode' => false,
+        ],
     ],
 ]) ?>
 

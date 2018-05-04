@@ -10,11 +10,13 @@
 use app\models\City;
 use app\models\Datacenter;
 use app\modules\uu\models\AccountTariff;
+use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 
 $accountTariff = $formModel->accountTariff;
 $accountTariffParent = $accountTariff->prevAccountTariff;
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_INFRASTRUCTURE));
 ?>
 
 <div class="row">
@@ -30,7 +32,9 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
                     $isUsedOnly = false,
                     $isShowInLk = false
                 ),
-            ]) ?>
+            ])
+            ->label($accountTariff->getAttributeLabel('city_id') . $helpConfluence)
+        ?>
     </div>
 
     <?php // проект ?>
@@ -38,7 +42,9 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
         <?= $form->field($accountTariff, 'infrastructure_project')
             ->widget(Select2::className(), [
                 'data' => AccountTariff::getInfrastructureProjectList($isWithEmpty = true),
-            ]) ?>
+            ])
+            ->label($accountTariff->getAttributeLabel('infrastructure_project') . $helpConfluence)
+        ?>
     </div>
 
     <?php // уровень ?>
@@ -46,7 +52,9 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
         <?= $form->field($accountTariff, 'infrastructure_level')
             ->widget(Select2::className(), [
                 'data' => AccountTariff::getInfrastructureLevelList($isWithEmpty = true),
-            ]) ?>
+            ])
+            ->label($accountTariff->getAttributeLabel('infrastructure_level') . $helpConfluence)
+        ?>
     </div>
 
     <?php // тех. площадка ?>
@@ -54,13 +62,17 @@ $accountTariffParent = $accountTariff->prevAccountTariff;
         <?= $form->field($accountTariff, 'datacenter_id')
             ->widget(Select2::className(), [
                 'data' => Datacenter::getList($isWithEmpty = true),
-            ]) ?>
+            ])
+            ->label($accountTariff->getAttributeLabel('datacenter_id') . $helpConfluence)
+        ?>
     </div>
 
     <?php // цена ?>
     <div class="col-sm-4">
         <?= $form->field($accountTariff, 'price')
-            ->input('number', ['step' => 0.01]) ?>
+            ->input('number', ['step' => 0.01])
+            ->label($accountTariff->getAttributeLabel('price') . $helpConfluence)
+        ?>
     </div>
 </div>
 

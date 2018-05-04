@@ -8,7 +8,9 @@
  * @var string $langCode
  */
 
+use app\commands\UbillerController;
 use app\forms\templates\uu\InvoiceForm;
+use app\modules\uu\controllers\InvoiceController;
 use app\modules\uu\models\AccountEntry;
 use app\widgets\MonthPicker;
 use kartik\tabs\TabsX;
@@ -19,8 +21,17 @@ use yii\widgets\Breadcrumbs;
 
 echo Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tarifficator'),
+        [
+            'label' => Yii::t('tariff', 'Universal tarifficator') .
+                $this->render('//layouts/_helpConfluence', UbillerController::getHelpConfluence()),
+            'encode' => false,
+        ],
+
         $this->title = Yii::t('tariff', 'Invoice'),
+        [
+            'label' => $this->render('//layouts/_helpConfluence', InvoiceController::getHelpConfluence()),
+            'encode' => false,
+        ],
     ],
 ]);
 

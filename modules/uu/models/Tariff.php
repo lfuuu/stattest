@@ -8,7 +8,6 @@ use app\classes\traits\GetInsertUserTrait;
 use app\classes\traits\GetUpdateUserTrait;
 use app\models\Country;
 use app\models\Currency;
-use app\modules\nnp\models\NdcType;
 use app\modules\nnp\models\Package;
 use app\modules\nnp\models\PackageMinute;
 use app\modules\nnp\models\PackagePrice;
@@ -585,5 +584,13 @@ class Tariff extends ActiveRecord
             implode(PHP_EOL, array_slice($organizations, $maxCount)),
             $count - $maxCount
         );
+    }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 25887484, 'message' => 'Тариф'];
     }
 }

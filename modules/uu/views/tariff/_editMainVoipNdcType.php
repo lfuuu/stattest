@@ -23,7 +23,10 @@ $tariffTableName = Tariff::tableName();
 
 <div class="row">
     <div class="col-sm-12">
-        <label><?= Yii::t('models/' . $tariffVoipNdcTypeTableName, 'ndc_type_id') ?></label>
+        <label>
+            <?= Yii::t('models/' . $tariffVoipNdcTypeTableName, 'ndc_type_id') ?>
+            <?= $this->render('//layouts/_helpConfluence', $tariff->serviceType->getHelpConfluence()) ?>
+        </label>
         <?= Select2::widget([
             'name' => 'TariffVoipNdcType[]',
             'value' => array_keys($tariffVoipNdcTypes),

@@ -121,7 +121,6 @@ class AccountLogSetupTarificator extends Tarificator
 
         if ($tariffPeriod->tariff->getIsTest()) {
             // Если тариф тестовый, то не взимаем ни стоимость подключения, ни абонентскую плату.
-            // @link http://rd.welltime.ru/confluence/pages/viewpage.action?pageId=4391334
             $accountLogSetup->price = 0;
         } else {
             $accountLogSetup->price = $accountLogSetup->price_setup + $accountLogSetup->price_number;

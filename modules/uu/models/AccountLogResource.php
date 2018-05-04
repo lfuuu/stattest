@@ -162,4 +162,12 @@ SQL;
             ->execute();
 
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 7176475, 'message' => 'Плата за ресурсы'];
+    }
 }

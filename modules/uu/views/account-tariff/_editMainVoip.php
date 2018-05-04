@@ -12,12 +12,17 @@ use app\models\billing\Locks;
 use app\models\billing\StatsAccount;
 use app\models\City;
 use app\models\mtt_raw\MttRaw;
+use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 use yii\helpers\Url;
 
 $accountTariff = $formModel->accountTariff;
 $number = $accountTariff->number;
+
+$helpConfluenceVoip = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP));
+$helpConfluenceCalls = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
+$helpConfluenceInternet = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_INTERNET));
 ?>
 
 <div class="row">
@@ -28,12 +33,14 @@ $number = $accountTariff->number;
             ->widget(Select2::className(), [
                 'data' => City::getList($isWithEmpty = true, $number ? $number->country_code : null),
                 'disabled' => true,
-            ]) ?>
+            ])
+            ->label($accountTariff->getAttributeLabel('city_id') . $helpConfluenceVoip)
+        ?>
     </div>
 
     <?php // номер ?>
     <div class="col-sm-2">
-        <label><?= $accountTariff->getAttributeLabel('voip_number') ?></label>
+        <label><?= $accountTariff->getAttributeLabel('voip_number') . $helpConfluenceVoip ?></label>
         <div>
             <?= $number ?
                 Html::a($accountTariff->voip_number, $number->getUrl()) :
@@ -45,7 +52,7 @@ $number = $accountTariff->number;
 
         <?php // баланс MTT ?>
         <div class="col-sm-2">
-            <label><?= $accountTariff->getAttributeLabel('mtt_balance') ?></label>
+            <label><?= $accountTariff->getAttributeLabel('mtt_balance') . $helpConfluenceInternet ?></label>
             <div>
                 <?php if ($accountTariff->mtt_balance) : ?>
                     <?= sprintf('%.2f', $accountTariff->mtt_balance) ?> руб.<br>
@@ -62,7 +69,7 @@ $number = $accountTariff->number;
 
         <?php // номер MTT ?>
         <div class="col-sm-3">
-            <label><?= $accountTariff->getAttributeLabel('mtt_number') ?></label>
+            <label><?= $accountTariff->getAttributeLabel('mtt_number') . $helpConfluenceInternet ?></label>
             <div>
                 <?= $accountTariff->mtt_number ?>
                 <?= $this->render('//layouts/_buttonLink', [
@@ -76,7 +83,7 @@ $number = $accountTariff->number;
 
         <!-- MTT статистика Internet -->
         <div class="col-sm-3">
-            <label>Статистика MTT</label>
+            <label>Статистика MTT <?= $helpConfluenceInternet ?></label>
             <div>
                 <?= $this->render('//layouts/_buttonLink', [
                     'url' => Url::toRoute([
@@ -107,11 +114,15 @@ $number = $accountTariff->number;
     <div class="col-sm-6">
         <?= $form->field($accountTariff, 'device_address')
             ->textInput()
+            ->label($accountTariff->getAttributeLabel('device_address') . $helpConfluenceVoip)
         ?>
     </div>
 
     <div class="col-sm-3">
-        <label>Остатки секунд по пакетам</label>
+        <label>
+            Остатки секунд по пакетам
+            <?= $helpConfluenceCalls ?>
+        </label>
         <div>
             <?php
             try {

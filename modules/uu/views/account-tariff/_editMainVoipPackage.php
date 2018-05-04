@@ -9,12 +9,15 @@
 
 use app\models\City;
 use app\modules\nnp\models\PackageMinute;
+use app\modules\uu\models\ServiceType;
 use kartik\form\ActiveForm;
 use kartik\select2\Select2;
 
 $accountTariff = $formModel->accountTariff;
 $accountTariffParent = $accountTariff->prevAccountTariff;
 $number = $accountTariffParent ? $accountTariffParent->number : null;
+
+$helpConfluence = $this->render('//layouts/_helpConfluence', ServiceType::getHelpConfluenceById(ServiceType::ID_VOIP_PACKAGE_CALLS));
 ?>
 
 <div class="row">
@@ -25,7 +28,8 @@ $number = $accountTariffParent ? $accountTariffParent->number : null;
             ->widget(Select2::className(), [
                 'data' => City::getList($isWithEmpty = true, $number ? $number->country_code : null),
                 'disabled' => true,
-            ]) ?>
+            ])
+            ->label($accountTariff->getAttributeLabel('city_id') . $helpConfluence) ?>
     </div>
 
     <?php // кол-во потраченных минут по пакету минут ?>

@@ -361,4 +361,12 @@ class AccountEntry extends ActiveRecord
     {
         return Url::to(['/uu/account-entry', 'AccountEntryFilter[id]' => $this->id]);
     }
+
+    /**
+     * @return array
+     */
+    public static function getHelpConfluence()
+    {
+        return ['confluenceId' => 6127902, 'message' => 'Проводки'];
+    }
 }

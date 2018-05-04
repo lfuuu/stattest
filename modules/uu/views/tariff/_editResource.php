@@ -10,6 +10,7 @@
 
 use app\classes\Html;
 use app\modules\uu\controllers\TariffController;
+use app\modules\uu\models\AccountLogResource;
 use app\modules\uu\models\Resource;
 use app\modules\uu\models\TariffResource;
 
@@ -27,17 +28,49 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
 
 <?php if ($tariffResources) { ?>
     <div class="well tariffResources">
+        <h2>Ресурсы тарифа <?= $helpConfluence = $this->render('//layouts/_helpConfluence', AccountLogResource::getHelpConfluence()) ?></h2>
         <div class="row">
-            <div class="col-sm-3"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'resource_id')) ?></label></div>
-            <div class="col-sm-3"><label>История изменений</label></div>
-            <div class="col-sm-1"><label>Диапазон значений</label></div>
-            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'amount')) ?></label></div>
-            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $resourceTableName, 'unit')) ?></label></div>
-            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_per_unit')) ?></label></div>
-            <div class="col-sm-1"><label><?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_min')) ?></label></div>
+            <div class="col-sm-3 col-sm-offset-3">
+                <label>
+                    История изменений
+                    <?= $helpConfluence ?>
+                </label>
+            </div>
+            <div class="col-sm-1">
+                <label>
+                    Диапазон значений
+                    <?= $helpConfluence ?>
+                </label>
+            </div>
+            <div class="col-sm-1">
+                <label>
+                    <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'amount')) ?>
+                    <?= $helpConfluence ?>
+                </label>
+            </div>
+            <div class="col-sm-1">
+                <label>
+                    <?= Html::encode(Yii::t('models/' . $resourceTableName, 'unit')) ?>
+                    <?= $helpConfluence ?>
+                </label>
+            </div>
+            <div class="col-sm-1">
+                <label>
+                    <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_per_unit')) ?>
+                    <?= $helpConfluence ?>
+                </label>
+            </div>
+            <div class="col-sm-1">
+                <label>
+                    <?= Html::encode(Yii::t('models/' . $tariffResourceTableName, 'price_min')) ?>
+                    <?= $helpConfluence ?>
+                </label>
+            </div>
         </div>
 
         <?php
+        $helpConfluence = $this->render('//layouts/_helpConfluence', $formModel->tariff->serviceType->getHelpConfluence());
+
         /** @var TariffResource $tariffResource */
         foreach ($tariffResources as $i => $tariffResource) {
             $tariffResource->id = $tariffResource->isNewRecord ? $i : $tariffResource->id;
@@ -47,7 +80,7 @@ if ($editableType <= TariffController::EDITABLE_LIGHT) {
             <div class="row">
 
                 <div class="col-sm-3">
-                    <label for="resourcetariff-<?= $i ?>-amount"><?= Html::encode($resource->name) ?></label>
+                    <label for="resourcetariff-<?= $i ?>-amount"><?= Html::encode($resource->name) ?> <?= $helpConfluence ?></label>
                 </div>
 
                 <div class="col-sm-3">

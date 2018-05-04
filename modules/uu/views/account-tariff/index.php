@@ -8,6 +8,7 @@
  */
 
 use app\modules\uu\filter\AccountTariffFilter;
+use app\modules\uu\models\AccountTariff;
 use yii\helpers\Url;
 use yii\widgets\Breadcrumbs;
 
@@ -16,10 +17,19 @@ $serviceType = $filterModel->getServiceType();
 ?>
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal services'),
+        [
+            'label' => Yii::t('tariff', 'Universal services') .
+                $this->render('//layouts/_helpConfluence', AccountTariff::getHelpConfluence()),
+            'encode' => false,
+        ],
+
         [
             'label' => $this->title = $serviceType ? $serviceType->name : 'Все услуги клиента',
             'url' => Url::to(['/uu/account-tariff', 'serviceTypeId' => $serviceType ? $serviceType->id : null])
+        ],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', $serviceType->getHelpConfluence()),
+            'encode' => false,
         ],
     ],
 ]) ?>

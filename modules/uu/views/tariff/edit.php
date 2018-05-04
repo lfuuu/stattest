@@ -9,6 +9,7 @@
 
 use app\modules\uu\controllers\TariffController;
 use app\modules\uu\models\ServiceType;
+use app\modules\uu\models\Tariff;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
@@ -30,8 +31,17 @@ if (!$serviceType) {
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tariffs'),
+        [
+            'label' => Yii::t('tariff', 'Universal tariffs') .
+                $this->render('//layouts/_helpConfluence', Tariff::getHelpConfluence()),
+            'encode' => false,
+        ],
+
         ['label' => $serviceType->name, 'url' => Url::to(['/uu/tariff', 'serviceTypeId' => $serviceType->id])],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', $serviceType->getHelpConfluence()),
+            'encode' => false,
+        ],
         $this->title
     ],
 ]) ?>

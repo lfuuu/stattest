@@ -6,6 +6,8 @@
  */
 
 use app\classes\Html;
+use app\commands\UbillerController;
+use app\modules\uu\resourceReader\VoipPackageCallsResourceReader;
 use yii\widgets\ActiveForm;
 use yii\widgets\Breadcrumbs;
 
@@ -13,8 +15,17 @@ use yii\widgets\Breadcrumbs;
 
 <?= Breadcrumbs::widget([
     'links' => [
-        Yii::t('tariff', 'Universal tariffs'),
+        [
+            'label' => Yii::t('tariff', 'Universal tarifficator') .
+                $this->render('//layouts/_helpConfluence', UbillerController::getHelpConfluence()),
+            'encode' => false,
+        ],
+
         ['label' => $this->title = Yii::t('tariff', 'Clear UU-calls'), 'url' => '/uu/resource/clear'],
+        [
+            'label' => $this->render('//layouts/_helpConfluence', VoipPackageCallsResourceReader::getHelpConfluence()),
+            'encode' => false,
+        ],
     ],
 ]) ?>
 
