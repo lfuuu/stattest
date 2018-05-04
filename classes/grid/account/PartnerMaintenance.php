@@ -8,6 +8,7 @@ use app\classes\grid\account\partner\maintenance\SuspendedFolder;
 use app\classes\grid\account\partner\maintenance\TerminatedFolder;
 use app\classes\grid\account\partner\maintenance\FailureFolder;
 use app\classes\grid\account\partner\maintenance\TrashFolder;
+use app\classes\grid\account\partner\maintenance\WhiteLabelFolder;
 use app\models\BusinessProcess;
 use app\models\Business;
 use Yii;
@@ -30,6 +31,7 @@ class PartnerMaintenance extends AccountGrid
         return [
             NegotiationsFolder::create($this),
             ActingFolder::create($this),
+            WhiteLabelFolder::create($this),
             ManualBillFolder::create($this),
             SuspendedFolder::create($this),
             TerminatedFolder::create($this),
