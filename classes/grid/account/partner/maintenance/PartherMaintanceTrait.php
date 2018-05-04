@@ -15,7 +15,7 @@ trait PartherMaintanceTrait
      */
     public function extendQuery(Query $query)
     {
-        $query->innerJoin(
+        $query->leftJoin(
             new Expression('
                 (
                     SELECT
