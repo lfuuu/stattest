@@ -79,6 +79,7 @@ class BusinessProcessStatus extends ActiveRecord
     const PARTNER_MAINTENANCE_TERMINATED = 129; // Сопровождение - Расторгнут
     const PARTNER_MAINTENANCE_FAILURE = 130; // Сопровождение - Расторгнут
     const PARTNER_MAINTENANCE_TRASH = 131; // Сопровождение - Мусор
+    const PARTNER_MAINTENANCE_WHITELABEL = 155; // Сопровождение - WhiteLabel
 
     // Внутренний офис
     const INTERNAL_OFFICE = 34; // Внутренний офис
