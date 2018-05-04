@@ -99,6 +99,7 @@ class EventQueue extends ActiveRecord
     const PARTNER_REWARD = 'partner_reward';
     const VPBX_BLOCKED = 'vpbx_blocked';
     const VPBX_UNBLOCKED = 'vpbx_unblocked';
+    const COMET_NOTIFIER_EVENT = 'comet_notifier_event';
 
     const API_IS_SWITCHED_OFF = 'API is switched off';
 
@@ -152,6 +153,7 @@ class EventQueue extends ActiveRecord
         self::PARTNER_REWARD => 'Подсчет вознаграждения партнера',
         self::VPBX_BLOCKED => 'Блокировка ВАТС',
         self::VPBX_UNBLOCKED => 'Разблокировка ВАТС',
+        self::COMET_NOTIFIER_EVENT => 'Comet-уведомление',
 
         AtolModule::EVENT_SEND => 'АТОЛ. Отправить',
         AtolModule::EVENT_REFRESH => 'АТОЛ. Обновить',
@@ -300,6 +302,16 @@ class EventQueue extends ActiveRecord
 
         $this->status = self::STATUS_OK;
         $this->save();
+
+        // Создаем событие, уведомляющее автора о завершении задачи
+        if ($this->param) {
+            $param = json_decode($this->param, true);
+            if (isset($param['notified_user_id'])) {
+                $param['completed_id'] = $this->id;
+                $param['completed_event'] = $this->event;
+                self::go(self::COMET_NOTIFIER_EVENT, $param);
+            }
+        }
     }
 
     /**

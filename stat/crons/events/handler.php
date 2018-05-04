@@ -8,6 +8,7 @@ use app\classes\api\ApiPhone;
 use app\classes\api\ApiVpbx;
 use app\classes\api\ApiVps;
 use app\classes\HandlerLogger;
+use app\classes\Html;
 use app\classes\partners\RewardCalculate;
 use app\helpers\DateTimeZoneHelper;
 use app\models\ClientAccount;
@@ -25,6 +26,7 @@ use app\modules\nnp\classes\RefreshPrefix;
 use app\modules\nnp\classes\RegionLinker;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp\Module as NnpModule;
+use app\modules\socket\classes\Socket;
 use app\modules\uu\behaviors\AccountTariffBiller;
 use app\modules\uu\behaviors\RecalcRealtimeBalance;
 use app\modules\uu\behaviors\SyncAccountTariffLight;
@@ -642,6 +644,19 @@ function doEvents($consoleParam)
                     $info = $isFreeNumberServer ?
                         FreeNumberModule::addBusy($param) :
                         EventQueue::API_IS_SWITCHED_OFF;
+                    break;
+
+                case EventQueue::COMET_NOTIFIER_EVENT:
+                    $completedEventName = EventQueue::$names[$param['completed_event']];
+                    $completedEventMessage = Html::a('ссылке', EventQueue::getUrlById($param['completed_id']), [
+                        'target' => '_blank'
+                    ]);
+
+                    Socket::me()->emit([
+                        Socket::PARAM_TITLE => "Задача '{$completedEventName}' успешно выполнена",
+                        Socket::PARAM_USER_ID_TO => $param['notified_user_id'],
+                        Socket::PARAM_MESSAGE_HTML => 'Просмотреть выполненную задачу можно по ' . $completedEventMessage,
+                    ]);
                     break;
 
                 // --------------------------------------------

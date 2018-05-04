@@ -10,6 +10,7 @@ use app\modules\nnp\media\ImportServiceUploaded;
 use app\modules\nnp\models\Country;
 use app\modules\nnp\models\CountryFile;
 use app\modules\nnp\models\NumberRange;
+use app\modules\nnp\Module;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\filters\AccessControl;
@@ -236,7 +237,9 @@ class ImportController extends BaseController
                     );
 
                 // поставить в очередь для пересчета операторов, регионов и городов
-                $eventQueue = EventQueue::go(\app\modules\nnp\Module::EVENT_LINKER);
+                $eventQueue = EventQueue::go(Module::EVENT_LINKER, [
+                    'notified_user_id' => Yii::$app->user->id,
+                ]);
                 Yii::$app->session->addFlash('success', 'Файл успешно импортирован.' . nl2br(PHP_EOL . $log) .
                     'Пересчет опереаторов, регионов, городов будет через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
 
@@ -246,7 +249,7 @@ class ImportController extends BaseController
         } else {
 
             // файл большой - поставить в очередь
-            $eventQueue = EventQueue::go(\app\modules\nnp\Module::EVENT_IMPORT, ['fileId' => $fileId]);
+            $eventQueue = EventQueue::go(Module::EVENT_IMPORT, ['fileId' => $fileId]);
             Yii::$app->session->setFlash('success', 'Файл поставлен в очередь на загрузку. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 

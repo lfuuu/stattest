@@ -8,8 +8,10 @@ use app\classes\traits\GetListTrait;
 use app\models\EventQueue;
 use app\modules\nnp\models\NumberRange;
 use app\modules\nnp\models\NumberRangePrefix;
+use app\modules\nnp\Module;
 use Yii;
 use yii\db\ActiveQuery;
+use yii\web\Application;
 
 /**
  * Фильтрация для NumberRange
@@ -183,8 +185,10 @@ class NumberRangeFilter extends NumberRange
         NumberRange::updateAll($attributes, $query->where);
 
         // поставить в очередь для пересчета операторов, регионов и городов
-        $eventQueue = EventQueue::go(\app\modules\nnp\Module::EVENT_LINKER);
-        if (Yii::$app instanceof \yii\web\Application) {
+        $eventQueue = EventQueue::go(Module::EVENT_LINKER, [
+            'notified_user_id' => Yii::$app->user->id,
+        ]);
+        if (Yii::$app instanceof Application) {
             Yii::$app->session->setFlash('success', 'Операторы, регионы, города будут пересчитаны через несколько минут. ' . Html::a('Проверить', $eventQueue->getUrl()));
         }
 
