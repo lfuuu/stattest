@@ -37,6 +37,7 @@ class ContragentEditForm extends Form
         $inn,
         $inn_euro,
         $kpp,
+        $tax_registration_reason,
         $position,
         $fio,
         $tax_regime,
@@ -80,6 +81,7 @@ class ContragentEditForm extends Form
                     'inn',
                     'inn_euro',
                     'kpp',
+                    'tax_registration_reason',
                     'position',
                     'fio',
                     'okpo',
@@ -99,6 +101,7 @@ class ContragentEditForm extends Form
                     'inn',
                     'inn_euro',
                     'kpp',
+                    'tax_registration_reason',
                     'position',
                     'fio',
                     'okpo',
@@ -118,6 +121,7 @@ class ContragentEditForm extends Form
                     'inn',
                     'inn_euro',
                     'kpp',
+                    'tax_registration_reason',
                     'position',
                     'fio',
                     'okpo',
@@ -340,6 +344,7 @@ class ContragentEditForm extends Form
         $contragent->inn = $this->inn;
         $contragent->inn_euro = $this->inn_euro;
         $contragent->kpp = $this->kpp;
+        $contragent->tax_registration_reason = $this->tax_registration_reason;
         $contragent->position = $this->position;
         $contragent->fio = $this->fio;
         $contragent->comment = $this->comment;

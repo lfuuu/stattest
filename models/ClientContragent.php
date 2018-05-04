@@ -24,6 +24,7 @@ use yii\db\Expression;
  * @property string $inn
  * @property string $inn_euro
  * @property string $kpp
+ * @property string $tax_registration_reason
  * @property string $position
  * @property string $fio
  * @property string $positionV

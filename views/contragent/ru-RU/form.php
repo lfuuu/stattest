@@ -70,7 +70,6 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
             'attributes' => [
                 'inn' => [],
                 'kpp' => [],
-                'inn_euro' => [],
                 'okvd' => [],
                 'ogrn' => [],
                 'opf_id' => [
@@ -80,6 +79,25 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
                 'okpo' => [],
             ],
         ]);
+
+        echo Form::widget([
+            'model' => $model,
+            'form' => $f,
+            'columns' => 2,
+            'options' => ['class' => 'percent50 block-left-indent'],
+            'attributeDefaults' => [
+                'type' => Form::INPUT_TEXT
+            ],
+            'attributes' => [
+                'tax_regime' => [
+                    'type' => Form::INPUT_DROPDOWN_LIST,
+                    'items' => ClientContragent::$taxRegtimeTypes,
+                    'container' => []
+                ],
+                'inn_euro' => [],
+            ],
+        ]);
+
         echo Form::widget([
             'model' => $model,
             'form' => $f,
@@ -89,11 +107,8 @@ $codeOpfList = ['0' => ''] + \app\models\CodeOpf::getList($isWithEmpty = false);
                 'type' => Form::INPUT_TEXT
             ],
             'attributes' => [
-                'tax_regime' => [
-                    'type' => Form::INPUT_DROPDOWN_LIST,
-                    'items' => ClientContragent::$taxRegtimeTypes,
-                    'container' => ['class' => 'percent50']
-                ],
+                'tax_registration_reason' => [],
+
                 'position' => [],
                 'fio' => [],
             ],
