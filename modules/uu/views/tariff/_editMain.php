@@ -119,7 +119,7 @@ $viewParams = [
         <div class="col-sm-2">
             <?= $form->field($tariff, 'is_default')
                 ->checkbox((($editableType == TariffController::EDITABLE_LIGHT) ? [] : $options) +
-                    ['label' => $tariff->getAttributeLabel('is_autoprolongation') . $helpConfluence])
+                    ['label' => $tariff->getAttributeLabel('is_default') . $helpConfluence])
             ?>
             <?php
             if (!array_key_exists($tariff->service_type_id, ServiceType::$packages)) {
