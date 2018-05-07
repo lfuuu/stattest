@@ -480,7 +480,7 @@ class Tariff extends ActiveRecord
 
         $tariffTableName = self::tableName();
         $query = self::find()
-            ->with('tariffCountries')
+            ->joinWith('tariffCountries')
             ->where([
                 $tariffTableName . '.service_type_id' => ServiceType::ID_VOIP_PACKAGE_CALLS,
                 TariffCountry::tableName() . '.country_id' => $countryId,
