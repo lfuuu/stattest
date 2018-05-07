@@ -21,6 +21,7 @@ class CardFilter extends Card
     public $imsi = '';
     public $msisdn = '';
     public $did = '';
+    public $imsi_partner = '';
 
     /**
      * @return array
@@ -28,8 +29,8 @@ class CardFilter extends Card
     public function rules()
     {
         return [
-            [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id'], 'integer'],
-            [['imsi', 'msisdn', 'did'], 'integer'],
+            [['iccid', 'imei', 'client_account_id', 'is_active', 'status_id'], 'integer'], // card
+            [['imsi', 'msisdn', 'did', 'imsi_partner'], 'integer'], // imsi
         ];
     }
 
@@ -61,6 +62,7 @@ class CardFilter extends Card
         $this->imsi && $query->andWhere([$imsiTableName . '.imsi' => $this->imsi]);
         $this->msisdn && $query->andWhere([$imsiTableName . '.msisdn' => $this->msisdn]);
         $this->did && $query->andWhere([$imsiTableName . '.did' => $this->did]);
+        $this->imsi_partner && $query->andWhere([$imsiTableName . '.partner_id' => $this->imsi_partner]);
 
         return $dataProvider;
     }

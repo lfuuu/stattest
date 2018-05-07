@@ -18,12 +18,15 @@ use yii\db\ActiveQuery;
  * @property int $is_roaming
  * @property int $is_active
  * @property int $status_id
+ * @property int $partner_id
+ * @property int $is_default
  * @property string $actual_from
  * @property string $actual_to
  *
  * @property-read Card $card
  * @property-read Number $number
  * @property-read ImsiStatus $status
+ * @property-read ImsiPartner $partner
  *
  * @method static Imsi findOne($condition)
  * @method static Imsi[] findAll($condition)
@@ -66,7 +69,7 @@ class Imsi extends ActiveRecord
     {
         return [
             [['imsi', 'iccid'], 'required'],
-            [['imsi', 'iccid', 'msisdn', 'did', 'is_active', 'is_anti_cli', 'is_roaming', 'status_id'], 'integer'],
+            [['imsi', 'iccid', 'msisdn', 'did', 'is_active', 'is_anti_cli', 'is_roaming', 'status_id', 'partner_id', 'is_default'], 'integer'],
             [['actual_from', 'actual_to'], 'date', 'format' => 'php:Y-m-d'],
             ['did', 'default', 'value' => null], // иначе пустая строка получается, ибо в БД это поле varchar
             ['did', 'exist', 'skipOnError' => true, 'targetClass' => Number::className(), 'targetAttribute' => ['did' => 'number']],
@@ -108,6 +111,14 @@ class Imsi extends ActiveRecord
     public function getStatus()
     {
         return $this->hasOne(ImsiStatus::className(), ['id' => 'status_id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getPartner()
+    {
+        return $this->hasOne(ImsiPartner::className(), ['id' => 'partner_id']);
     }
 
     /**

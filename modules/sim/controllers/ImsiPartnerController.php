@@ -3,16 +3,16 @@
 namespace app\modules\sim\controllers;
 
 use app\classes\BaseController;
-use app\modules\sim\filters\ImsiStatusFilter;
-use app\modules\sim\models\ImsiStatus;
+use app\modules\sim\filters\ImsiPartnerFilter;
+use app\modules\sim\models\ImsiPartner;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\NotFoundHttpException;
 
 /**
- * Статусы IMSI
+ * MVNO-партнеры IMSI
  */
-class ImsiStatusController extends BaseController
+class ImsiPartnerController extends BaseController
 {
     /**
      * @return array
@@ -46,7 +46,7 @@ class ImsiStatusController extends BaseController
      */
     public function actionIndex()
     {
-        $filterModel = new ImsiStatusFilter();
+        $filterModel = new ImsiPartnerFilter();
         $filterModel->load(Yii::$app->request->get());
 
         return $this->render('index', [
@@ -63,13 +63,13 @@ class ImsiStatusController extends BaseController
      */
     public function actionNew()
     {
-        $imsiStatus = new ImsiStatus;
-        if ($this->loadFromInput($imsiStatus)) {
+        $imsiPartner = new ImsiPartner;
+        if ($this->loadFromInput($imsiPartner)) {
             return $this->redirect(['index']);
         }
 
         return $this->render('edit', [
-            'imsiStatus' => $imsiStatus,
+            'imsiPartner' => $imsiPartner,
         ]);
     }
 
@@ -84,17 +84,17 @@ class ImsiStatusController extends BaseController
      */
     public function actionEdit($id)
     {
-        $imsiStatus = ImsiStatus::findOne(['id' => $id]);
-        if (!$imsiStatus) {
+        $imsiPartner = ImsiPartner::findOne(['id' => $id]);
+        if (!$imsiPartner) {
             throw new NotFoundHttpException();
         }
 
-        if ($this->loadFromInput($imsiStatus)) {
+        if ($this->loadFromInput($imsiPartner)) {
             return $this->redirect(['index']);
         }
 
         return $this->render('edit', [
-            'imsiStatus' => $imsiStatus,
+            'imsiPartner' => $imsiPartner,
         ]);
     }
 }

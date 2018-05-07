@@ -9,6 +9,7 @@
 
 use app\modules\sim\models\Card;
 use app\modules\sim\models\Imsi;
+use app\modules\sim\models\ImsiPartner;
 use app\modules\sim\models\ImsiStatus;
 use kartik\editable\Editable;
 use unclead\widgets\TabularColumn;
@@ -92,13 +93,26 @@ if (!$card->isNewRecord) {
                 ],
             ],
             [
+                'name' => 'partner_id',
+                'title' => $attributeLabels['partner_id'],
+                'type' => Editable::INPUT_SELECT2,
+                'options' => [
+                    'data' => ImsiPartner::getList($isWithEmpty = true),
+                ],
+            ],
+            [
+                'name' => 'is_default',
+                'title' => 'По<br>умолч.', // $attributeLabels['is_default']
+                'type' => Editable::INPUT_CHECKBOX,
+            ],
+            [
                 'name' => 'is_anti_cli',
-                'title' => $attributeLabels['is_anti_cli'],
+                'title' => 'Анти-<br>АОН', // $attributeLabels['is_anti_cli']
                 'type' => Editable::INPUT_CHECKBOX,
             ],
             [
                 'name' => 'is_roaming',
-                'title' => $attributeLabels['is_roaming'],
+                'title' => 'Роум<br>минг', // $attributeLabels['is_roaming'],
                 'type' => Editable::INPUT_CHECKBOX,
             ],
             [

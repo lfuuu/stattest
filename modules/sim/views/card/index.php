@@ -14,6 +14,7 @@ use app\classes\grid\column\universal\YesNoColumn;
 use app\classes\grid\GridView;
 use app\classes\Html;
 use app\modules\sim\columns\CardStatusColumn;
+use app\modules\sim\columns\ImsiPartnerColumn;
 use app\modules\sim\filters\CardFilter;
 use app\modules\sim\models\Card;
 use app\widgets\GridViewExport\GridViewExport;
@@ -119,7 +120,7 @@ $columns = [
         'label' => 'Красивость',
         'attribute' => 'beauty_level',
         'class' => BeautyLevelColumn::className(),
-        'value' => function(Card $card) {
+        'value' => function (Card $card) {
             $imsi = reset($card->imsies);
             return $imsi->number->beauty_level;
         },
@@ -129,9 +130,33 @@ $columns = [
         'label' => 'Статус номера',
         'attribute' => 'number_status',
         'class' => NumberStatusColumn::className(),
-        'value' => function(Card $card) {
+        'value' => function (Card $card) {
             $imsi = reset($card->imsies);
             return $imsi->number->status;
+        },
+    ],
+
+    [
+        'label' => 'MVNO-партнер',
+        'attribute' => 'imsi_partner',
+        'class' => ImsiPartnerColumn::className(),
+        'format' => 'raw',
+        'value' => function (Card $card) {
+            $ids = [];
+            $imsies = $card->imsies;
+            foreach ($imsies as $imsi) {
+                if (!$imsi->partner_id) {
+                    continue;
+                }
+
+                $ids[] = $imsi->partner->getLink();
+            }
+
+            if (!$ids) {
+                return Yii::t('common', '(not set)');
+            }
+
+            return implode(' <br>', $ids);
         },
     ],
 
@@ -141,7 +166,7 @@ $columns = [
         'format' => 'html',
         'value' => function (Card $card) {
             return $card->client_account_id ?
-                $card->clientAccount->getLink() :
+                ($card->clientAccount ? $card->clientAccount->getLink() : $card->client_account_id) :
                 Yii::t('common', '(not set)');
         },
     ],
