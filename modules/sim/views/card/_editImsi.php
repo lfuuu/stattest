@@ -27,93 +27,91 @@ if (!$imsies) {
     $this->registerJsVariable('isRemovePackageMinutes', true);
 }
 
+$showHistory = '';
 if (!$card->isNewRecord) {
     // это нужно сделать ДО TabularInput, иначе он попортит данные $imsies
     $showHistory = $this->render('//layouts/_showHistory', [
         'parentModel' => [new Imsi(), $card->iccid],
     ]);
-} else {
-    $showHistory = '';
 }
 
 ?>
 
 <div class="well chargePeriod">
-    <?php
-
-    echo TabularInput::widget([
-            'models' => array_values($imsies), // ключ должен быть автоинкрементный
-            'allowEmptyList' => false,
-            'columns' => [
-                [
-                    'name' => 'imsi',
-                    'title' => $attributeLabels['imsi'],
-                ],
-                [
-                    'name' => 'msisdn',
-                    'title' => $attributeLabels['msisdn'],
-                ],
-                [
-                    'name' => 'did',
-                    'title' => $attributeLabels['did'],
-                ],
-                [
-                    'name' => 'actual_from',
-                    'title' => $attributeLabels['actual_from'],
-                    'type' => Editable::INPUT_DATE,
-                    'options' => [
-                        'removeButton' => false,
-                        'pluginOptions' => [
-                            'autoclose' => true,
-                            'format' => 'yyyy-mm-dd',
-                            'todayHighlight' => true,
-                        ],
-                    ],
-                ],
-                [
-                    'name' => 'actual_to',
-                    'title' => $attributeLabels['actual_to'],
-                    'type' => Editable::INPUT_DATE,
-                    'options' => [
-                        'removeButton' => false,
-                        'pluginOptions' => [
-                            'autoclose' => true,
-                            'format' => 'yyyy-mm-dd',
-                            'todayHighlight' => true,
-                        ],
-                    ],
-                ],
-                [
-                    'name' => 'status_id',
-                    'title' => $attributeLabels['status_id'],
-                    'type' => Editable::INPUT_SELECT2,
-                    'options' => [
-                        'data' => ImsiStatus::getList(),
-                    ],
-                ],
-                [
-                    'name' => 'is_anti_cli',
-                    'title' => $attributeLabels['is_anti_cli'],
-                    'type' => Editable::INPUT_CHECKBOX,
-                ],
-                [
-                    'name' => 'is_roaming',
-                    'title' => $attributeLabels['is_roaming'],
-                    'type' => Editable::INPUT_CHECKBOX,
-                ],
-                [
-                    'name' => 'is_active',
-                    'title' => $attributeLabels['is_active'],
-                    'type' => Editable::INPUT_CHECKBOX,
-                ],
-                [
-                    'name' => 'imsi', // чтобы идентифицировать модель
-                    'type' => TabularColumn::TYPE_HIDDEN_INPUT,
+    <?= TabularInput::widget([
+        'models' => array_values($imsies), // ключ должен быть автоинкрементный
+        'allowEmptyList' => false,
+        'columns' => [
+            [
+                'name' => 'imsi',
+                'title' => $attributeLabels['imsi'],
+            ],
+            [
+                'name' => 'msisdn',
+                'title' => $attributeLabels['msisdn'],
+                'options' => [
+                    'class' => 'signature_msisdn'
                 ],
             ],
-        ]
-    );
-    ?>
+            [
+                'name' => 'did',
+                'title' => $attributeLabels['did'],
+            ],
+            [
+                'name' => 'actual_from',
+                'title' => $attributeLabels['actual_from'],
+                'type' => Editable::INPUT_DATE,
+                'options' => [
+                    'removeButton' => false,
+                    'pluginOptions' => [
+                        'autoclose' => true,
+                        'format' => 'yyyy-mm-dd',
+                        'todayHighlight' => true,
+                    ],
+                ],
+            ],
+            [
+                'name' => 'actual_to',
+                'title' => $attributeLabels['actual_to'],
+                'type' => Editable::INPUT_DATE,
+                'options' => [
+                    'removeButton' => false,
+                    'pluginOptions' => [
+                        'autoclose' => true,
+                        'format' => 'yyyy-mm-dd',
+                        'todayHighlight' => true,
+                    ],
+                ],
+            ],
+            [
+                'name' => 'status_id',
+                'title' => $attributeLabels['status_id'],
+                'type' => Editable::INPUT_SELECT2,
+                'options' => [
+                    'data' => ImsiStatus::getList(),
+                ],
+            ],
+            [
+                'name' => 'is_anti_cli',
+                'title' => $attributeLabels['is_anti_cli'],
+                'type' => Editable::INPUT_CHECKBOX,
+            ],
+            [
+                'name' => 'is_roaming',
+                'title' => $attributeLabels['is_roaming'],
+                'type' => Editable::INPUT_CHECKBOX,
+            ],
+            [
+                'name' => 'is_active',
+                'title' => $attributeLabels['is_active'],
+                'type' => Editable::INPUT_CHECKBOX,
+            ],
+            [
+                'name' => 'imsi', // чтобы идентифицировать модель
+                'type' => TabularColumn::TYPE_HIDDEN_INPUT,
+            ],
+        ],
+    ]); ?>
 
     <?= $showHistory ?>
 
